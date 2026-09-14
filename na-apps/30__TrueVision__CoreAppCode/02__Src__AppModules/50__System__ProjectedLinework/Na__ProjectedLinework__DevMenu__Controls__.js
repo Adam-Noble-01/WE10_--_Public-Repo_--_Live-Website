@@ -16,10 +16,11 @@
 //   list (cached, stale, missing).
 //
 // - THE DIFF holds the shipping backend against the untouched vendored
-//   generator on the drawing on screen with the cut and the hidden class
+//   generator on the drawing on screen with the cut, the hidden class and the
+//   three 3D-matching rules (linework first, seams occlude, hide flush joins)
 //   off, because those are the parts the vendored generator cannot do, and
-//   reports every segment that moved. That is how a kernel change is
-//   accepted: not by looking at the drawing and deciding it seems fine.
+//   reports every segment that moved. That is how a kernel change is accepted:
+//   not by looking at the drawing and deciding it seems fine.
 //
 // INTEGRATION:
 // - Initialized from index.html alongside the other localhost-only dev tools.
@@ -29,13 +30,19 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__DevMenu__Controls__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.1.0
+// - Divergences   : Console prefix, header and folder numbers; the three
+//                   3D-matching readouts of 1.1.0, authored here first.
+// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - The timings table says whether linework first ran and for how many
+//   categories, whether seams occluded and whether flush joins were hidden;
+//   the Diff note says both sides ran with all three rules off.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 4.
 //
@@ -256,6 +263,9 @@
             [ 'Occluders',    String(report.OccluderCount) ],
             [ 'Edges',        String(report.EdgeCount) ],
             [ 'Cut lines',    String(report.IntersectionCount || 0) ],
+            [ 'Linework first', report.LineworkFirst ? ('on, ' + (report.LineworkCategoryCount || 0) + ' categories') : 'off - every mesh crease' ],
+            [ 'Seams occlude',  report.SeamsOcclude ? 'on' : 'off - seams open' ],
+            [ 'Flush joins',    report.HideFlushJoins ? 'hidden' : 'drawn' ],
             [ 'Segments',     String(report.SegmentCount) ],
             [ 'Project ms',   String(report.ProjectMs) ],
             [ 'Total ms',     String(report.TotalMs) ]
@@ -370,6 +380,11 @@
             // comparison, so this is about the hardware and nothing else.
             const rival = Na__ProjectedLinework__WebGpuBackend__IsHardwareCapable() ? 'webgpu' : 'legacy';
 
+            // THE 3D-MATCHING RULES ARE OFF ON BOTH SIDES (linework first, seams
+            // occlude, hide flush joins). Naming the backend is what turns them off
+            // (Na__PlProjector__BuildOptions): the vendored generators apply none of
+            // them, so the CPU does not either, and a kernel change is still
+            // measured against a like-for-like drawing.
             const runs = {};
             for (const backend of [ 'cpu', rival ]) {
                 const options   = Na__PlProjector__BuildOptions(plain, backend);
@@ -387,7 +402,7 @@
                 ? (rivalMs < cpuMs ? ' - ' + rival + ' is ' + (cpuMs / rivalMs).toFixed(1) + 'x faster'
                                    : ' - cpu is ' + (rivalMs / cpuMs).toFixed(1) + 'x faster')
                 : '';
-            Na__PlDev__LastNote = 'Diff: cpu ' + cpuMs + ' ms, ' + rival + ' ' + rivalMs + ' ms' + verdict + '. See the console table.';
+            Na__PlDev__LastNote = 'Diff: cpu ' + cpuMs + ' ms, ' + rival + ' ' + rivalMs + ' ms' + verdict + '. Both sides ran without the 3D-matching rules (linework first, seams occlude, flush joins). See the console table.';
         } catch (diffError) {
             console.error('[TrueVision3D ProjectedLinework] Diff failed:', diffError);
             Na__PlDev__LastNote = 'Diff failed - see console.';

@@ -39,6 +39,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - Shape__FillOpacity and Shape__StrokeOpacity reach the primitive, so a
+//   fill and the edges can each be see-through. The gradient keeps its own
+//   alpha.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - Shape__Gradient reaches the primitive (Na__LayoutEditor__GradientTool__). A
 //   gradient counts as a fill for painting and for hit testing, over its whole
@@ -212,7 +217,8 @@
         const fill     = (pts.length > 2 && typeof shape.Shape__FillColour === 'string') ? shape.Shape__FillColour : null;
         const gradient = (pts.length > 2 && shape.Shape__Gradient && typeof shape.Shape__Gradient === 'object') ? shape.Shape__Gradient : null;
         if (!stroked && !fill && !gradient) return false;                    // <-- Nothing to paint
-        Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient);
+        Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient,
+            { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity });   // <-- A record from before opacity reads as solid
         return true;
     }
     // ------------------------------------------------------------

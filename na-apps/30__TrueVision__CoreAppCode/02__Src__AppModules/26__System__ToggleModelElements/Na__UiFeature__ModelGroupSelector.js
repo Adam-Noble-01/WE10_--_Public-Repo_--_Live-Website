@@ -15,6 +15,19 @@
 // - When a group is selected: clears current models, loads the new group.
 // - Integrates with Na__ModelLoader__LoadAllModels() and the toggle controls.
 // - Only visible when a project has more than one model group.
+// - Reports every switch to the design phase library, which the Layout
+//   Editor's per-viewport Model Source reads.
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.1.0
+// - Tells Na__ModelGroup__PhaseLibrary__ when a switch starts and when it has
+//   finished (after a failure too).
+// - A switched-to phase gets the materials library pass the startup load
+//   applies; it used to keep the loader's plain materials.
+// - The active button is the phase the 3D view actually holds. It was always
+//   the newest group, which is wrong whenever the newest is an existing one.
 //
 // =============================================================================
 
@@ -23,6 +36,13 @@ import {
     Na__ModelLoader__LoadAllModels,
     Na__ModelLoader__SeparateOrbitCubeUrl
 } from '../15__ModelLoader/Na__ModelLoader__MultiModel.js';
+// @delegate: ./Na__ModelGroup__PhaseLibrary__.js
+import {
+    Na__PhaseLib__IdOf,
+    Na__PhaseLib__GetLiveId,
+    Na__PhaseLib__SetLiveLoading,
+    Na__PhaseLib__SetLive
+} from './Na__ModelGroup__PhaseLibrary__.js';
 import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
 // @delegate: ./Na__UiFeature__ModelGroupTransitionOverlay__.js
 import {
@@ -64,6 +84,7 @@ import {
     let Na__GroupSelector__LineResolution    = null;
     let Na__GroupSelector__StatusCallback    = null;
     let Na__GroupSelector__ToggleReinitFn    = null;
+    let Na__GroupSelector__AfterLoadFn       = null;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -131,18 +152,26 @@ import {
 
         Na__GroupSelector__ProgressCallback(`Loading ${group.label || 'model group'}...`);
 
+        const groupId = Na__PhaseLib__IdOf(group);
+        Na__PhaseLib__SetLiveLoading(groupId);                             // <-- Off-scene design phases wait while the 3D view reloads
+
         Na__GroupSelector__ClearModelRoot();
 
+        let loadedGroups = null;
         try {
             const { filteredUrls } = Na__ModelLoader__SeparateOrbitCubeUrl(group.modelUrls);
 
-            const loadedGroups = await Na__ModelLoader__LoadAllModels(
+            loadedGroups = await Na__ModelLoader__LoadAllModels(
                 filteredUrls,
                 Na__GroupSelector__ModelRoot,
                 Na__GroupSelector__ModelsConfig,
                 Na__GroupSelector__LineResolution,
                 Na__GroupSelector__ProgressCallback
             );
+
+            if (Na__GroupSelector__AfterLoadFn) {
+                await Na__GroupSelector__AfterLoadFn(loadedGroups);        // <-- The same materials pass as the startup load
+            }
 
             Na__GroupSelector__ActiveIndex = groupIndex;
 
@@ -156,6 +185,8 @@ import {
             console.error('[TrueVision3D] Failed to load model group:', error);
             Na__GroupSelector__ProgressCallback('Model group load error', true);
         }
+
+        Na__PhaseLib__SetLive(groupId, loadedGroups);                      // <-- After a failure too: nothing may wait forever
 
         Na__ModelGroupTransitionOverlay__Hide();                           // <-- Dismiss overlay once load resolves
         Na__GroupSelector__IsLoading = false;
@@ -236,7 +267,8 @@ import {
         modelsConfig,
         lineResolution,
         statusCallback,
-        toggleReinitFn
+        toggleReinitFn,
+        afterLoadFn
     ) {
         if (!modelGroups || modelGroups.length < 2) return;
 
@@ -247,7 +279,13 @@ import {
         Na__GroupSelector__LineResolution = lineResolution;
         Na__GroupSelector__StatusCallback = statusCallback;
         Na__GroupSelector__ToggleReinitFn = toggleReinitFn;
-        Na__GroupSelector__ActiveIndex    = 0;
+        Na__GroupSelector__AfterLoadFn    = (typeof afterLoadFn === 'function') ? afterLoadFn : null;
+
+        // THE ACTIVE BUTTON IS THE PHASE THE 3D VIEW HOLDS. This was index 0, the
+        // newest group, which the startup load does not pick when the newest is
+        // an existing-building group - and clicking the real one reloaded it.
+        const liveIndex = Na__GroupSelector__ModelGroups.findIndex((group) => Na__PhaseLib__IdOf(group) === Na__PhaseLib__GetLiveId());
+        Na__GroupSelector__ActiveIndex    = liveIndex >= 0 ? liveIndex : 0;
 
         Na__GroupSelector__BuildButtons();
 

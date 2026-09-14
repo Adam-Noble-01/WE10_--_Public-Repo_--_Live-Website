@@ -35,6 +35,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - The notes margin: MarginRect is the column a sheet's Sheet__MarginNotes
+//   reserves down the right of the content area, to the top of the title
+//   block. Solve returns it as Margin (null without one) and stops the drawing
+//   area a block gap short of it, so a new viewport lands clear of the notes.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - The drawing area stops Sheet.BlockGapMm short of the title block, as a
 //   Lantern Designer sheet does. Only where a NEW viewport lands is affected;
@@ -54,7 +60,8 @@
     // ------------------------------------------------------------
     import {
         Na__LeCfg__GetSheetSetup,
-        Na__LeCfg__GetTitleBlockSetup
+        Na__LeCfg__GetTitleBlockSetup,
+        Na__LeCfg__GetMarginNotesSetup
     } from './Na__LayoutEditor__ConfigState__.js';
     // ------------------------------------------------------------
 
@@ -101,7 +108,8 @@
     //   Page        { WidthMm, HeightMm, Orientation, SizeKey, Label }
     //   Content     { X, Y, WidthMm, HeightMm }     inside the margin
     //   TitleBlock  { X, Y, WidthMm, HeightMm }     foot of the content area
-    //   Drawing     { X, Y, WidthMm, HeightMm }     everything above it
+    //   Drawing     { X, Y, WidthMm, HeightMm }     everything above it, left of the notes margin
+    //   Margin      { X, Y, WidthMm, HeightMm }     the notes margin, or null when the sheet has none
     //   MarginMm, ScreenPixelsPerMm, TitleBlockStyle
     // The classic title block is a scan of the whole sheet, so its band is
     // still reserved (the scan's own strip lives there) but nothing is
@@ -131,11 +139,13 @@
 
         // The drawing area stops a clear gap short of the title block. Without it the
         // strip reads as the bottom row of the drawing rather than as the sheet's own
-        // footer, which is how a Lantern Designer sheet has always been set out.
+        // footer, which is how a Lantern Designer sheet has always been set out. A
+        // notes margin takes the same gap on its left.
+        const notes = Na__LeLayout__MarginRect(sheet, content, titleBlock);
         const drawing = {
             X        : content.X,
             Y        : content.Y,
-            WidthMm  : content.WidthMm,
+            WidthMm  : notes ? Math.max(1, notes.X - sheetSetup.blockGapMm - content.X) : content.WidthMm,
             HeightMm : Math.max(1, titleBlock.Y - sheetSetup.blockGapMm - content.Y)
         };
 
@@ -144,9 +154,37 @@
             Content           : content,
             TitleBlock        : titleBlock,
             Drawing           : drawing,
+            Margin            : notes,
             MarginMm          : marginMm,
             TitleBlockStyle   : style,
             ScreenPixelsPerMm : sheetSetup.screenPixelsPerMm
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Notes Margin of a Sheet (null when it has none)
+    // ------------------------------------------------------------
+    // The column down the right of the content area, from the top of the
+    // border to the top of the title block. Its width is the sheet's own
+    // (Sheet__MarginNotes.WidthMm), never under MinWidthMm and never over
+    // MaxWidthFraction of the content width. content and titleBlock are the
+    // rectangles Solve returns; taking them lets the markup ask for a fresh
+    // margin between two full solves, because dragging the margin's edge
+    // changes its width and nothing else on the sheet.
+    // ------------------------------------------------------------
+    function Na__LeLayout__MarginRect(sheet, content, titleBlock) {
+        const notes = sheet ? sheet.Sheet__MarginNotes : null;
+        if (!notes || notes.Enabled !== true || !content || !titleBlock) return null;
+        const setup    = Na__LeCfg__GetMarginNotesSetup();
+        const widest   = Math.max(setup.minWidthMm, content.WidthMm * setup.maxWidthFraction);
+        const asked    = Number.isFinite(notes.WidthMm) ? notes.WidthMm : setup.defaultWidthMm;
+        const widthMm  = Math.max(setup.minWidthMm, Math.min(widest, asked));
+        return {
+            X        : content.X + content.WidthMm - widthMm,
+            Y        : content.Y,
+            WidthMm  : widthMm,
+            HeightMm : Math.max(1, titleBlock.Y - content.Y)
         };
     }
     // ------------------------------------------------------------
@@ -196,6 +234,7 @@
         Na__LeLayout__PaperSizeMm,
         Na__LeLayout__ListPaperSizes,
         Na__LeLayout__Solve,
+        Na__LeLayout__MarginRect,
         Na__LeLayout__ClampToPage,
         Na__LeLayout__DefaultViewportRect
     };

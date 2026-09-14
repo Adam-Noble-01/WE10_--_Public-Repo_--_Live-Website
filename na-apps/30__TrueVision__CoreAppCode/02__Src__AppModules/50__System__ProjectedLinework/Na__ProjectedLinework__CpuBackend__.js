@@ -33,6 +33,31 @@
 //     section    the outline of cut material, never occluded because the
 //                cut is by definition the nearest thing to the viewer
 //
+// - THREE RULES MATCH THE LIVE 3D VIEW, and the Dev menu's Run Diff runs with
+//   all of them off, because the vendored backends it compares against apply
+//   none of them:
+//
+//   HIDE FLUSH JOINS (options.HideFlushJoins, on unless the config says false).
+//   Before clipping, Na__ProjectedLinework__FlushJoins__ cuts out of the model
+//   edges every span where faces of one plane lie along the edge on both
+//   sides - a wall band flush on the wall below, a pier between windows - which
+//   the 3D view shows as one unbroken surface. Outlines and real creases keep
+//   their lines; the authored linework never passes through it.
+//
+//   SEAMS OCCLUDE (options.SeamsOcclude, on unless the config says false) is
+//   handed to the clip kernel: where two occluders meet exactly along an
+//   edge's line, the seam hides what lies behind it, as the depth buffer does
+//   in 3D.
+//
+//   LINEWORK FIRST (options.LineworkFirst, off unless the config turns it on).
+//   A category that ships SketchUp linework gives the visible class its
+//   silhouettes only, and is never intersection-tested beside another such
+//   category; its creases reach the drawing through the authored class alone.
+//   A strict mode, not the default: SketchUp's hidden flags cannot tell a join
+//   from an outline, so it also loses outlines the modeller hid - the ground
+//   box's top edge, which is the ground line of every elevation. Much faster
+//   on a large model.
+//
 // INTEGRATION:
 // - Na__ProjectedLinework__Projector__ calls PrepareIntersections and
 //   ProjectView.
@@ -42,13 +67,22 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__CpuBackend__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.3.0
+// - Divergences   : Console prefix, header and folder numbers; the three
+//                   3D-matching rules (1.3.0), authored here first.
+// - Back-port     : 1.3.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - Linework first: ProjectView and PrepareIntersections hand the collection's
+//   linework category Set to the edge extractor while options.LineworkFirst
+//   is on. Seams occlude: every clip call carries options.SeamsOcclude to the
+//   kernel. Hide flush joins: each view's model edges pass through
+//   Na__PlFlush__CutFlushJoins before clipping while options.HideFlushJoins is
+//   on. (1.2.0, the owner tags of 12-Sep-2026, was never logged here.)
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Intersection budget passed through to the edge extractor.
 //
@@ -76,6 +110,7 @@
         Na__PlEdges__ToDrawingSegments
     } from './Na__ProjectedLinework__EdgeExtractor__.js';
     import { Na__ProjectedLinework__WorkerPool__Run } from './Na__ProjectedLinework__WorkerPool__.js';
+    import { Na__PlFlush__CutFlushJoins } from './Na__ProjectedLinework__FlushJoins__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Segment Owner Tags
@@ -178,7 +213,8 @@
             {
                 ScaleDivisor           : options.ScaleDivisor,
                 MinimumSegmentLengthMm : options.MinimumSegmentLengthMm,
-                IncludeHiddenEdges     : options.IncludeHiddenEdges === true
+                IncludeHiddenEdges     : options.IncludeHiddenEdges === true,
+                SeamsOcclude           : options.SeamsOcclude === true           // <-- Posted to every worker whole, with the rest of these options
             },
             {
                 MaxWorkers             : options.MaxWorkers,
@@ -208,7 +244,10 @@
         // per collection and the stage pass runs per view, so if the two built
         // their own tables the ids in the cached intersection buffer would mean
         // different categories from the ids in this view's stage buffer.
-        const found = await Na__PlEdges__ExtractIntersectionEdges(collected.Instances, slicer, collected.Report, limits, collected.OwnerTable || null);
+        // LINEWORK FIRST. This pass is cached on the collection, and the pipeline
+        // keys collections on the rule, so one never holds the other rule's lines.
+        const linework = (options && options.LineworkFirst === true) ? (collected.LineworkCategories || null) : null;
+        const found = await Na__PlEdges__ExtractIntersectionEdges(collected.Instances, slicer, collected.Report, limits, collected.OwnerTable || null, linework);
         collected.IntersectionEdges  = found.Edges;
         collected.IntersectionOwners = found.Owners;
         collected.Report.IntersectionMs    = Math.round(performance.now() - startedAt);
@@ -258,10 +297,12 @@
         };
 
         // EDGES | Hard and silhouette per instance, the cut lines placed, then
-        // everything divided at the drawing cut.
+        // everything divided at the drawing cut. Under linework first a category
+        // that ships SketchUp linework gives its silhouettes and nothing else.
         announce(Na__PlCpu__PHASE_EDGES);
         startedAt = performance.now();
-        const stage      = Na__PlEdges__ExtractStageEdges(collected.Instances, up[0], up[1], up[2], options.AngleThresholdDegrees, ownerTable);
+        const linework   = options.LineworkFirst === true ? (collected.LineworkCategories || null) : null;
+        const stage      = Na__PlEdges__ExtractStageEdges(collected.Instances, up[0], up[1], up[2], options.AngleThresholdDegrees, ownerTable, linework);
         const combined   = Na__PlCpu__Concat(stage.Edges, collected.IntersectionEdges);
         // The intersection buffer is cached per collection and can be empty
         // because the pass was skipped on a house-scale model, so its tag count
@@ -271,7 +312,10 @@
             : null;
         const split      = Na__PlEdges__SplitByCut(combined, definition.Cut, combinedOwners);
         const authored   = Na__PlEdges__SplitByCut(collected.AuthoredEdges, definition.Cut, tagsFor(collected.AuthoredEdges, collected.AuthoredOwners));
-        const modelEdges = Na__PlEdges__ToViewSpace(split.Kept, viewMap, options.EdgeLiftWorldUnits, split.KeptOwners);
+        const viewEdges  = Na__PlEdges__ToViewSpace(split.Kept, viewMap, options.EdgeLiftWorldUnits, split.KeptOwners);
+        // HIDE FLUSH JOINS. Joins between two faces of one plane leave the model's
+        // own edges here, before the clip; the authored linework never passes through.
+        const modelEdges = options.HideFlushJoins === true ? Na__PlFlush__CutFlushJoins(soup, viewEdges) : viewEdges;
         const drawnEdges = Na__PlEdges__ToViewSpace(authored.Kept, viewMap, options.EdgeLiftWorldUnits, authored.KeptOwners);
         mark(Na__PlCpu__PHASE_EDGES, startedAt);
         Na__PlCpu__CheckAbort(settings);

@@ -15,6 +15,8 @@
 //   snap to the linework), the round one slides the line away from or
 //   towards what it measures and infers other dimension lines.
 // - A selected shape shows a square grip at every vertex.
+// - A selected leader shows a square grip at its tip and a round one at the
+//   anchor where it lands on its head.
 // - Grips are counter-scaled so they stay the same size on screen at any
 //   zoom, like the viewport handles.
 // - The rubber band is one dashed line in the handles layer, shared by the
@@ -41,6 +43,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - Leader grips: a square at the tip, a round one at the anchor. LeaderGrab
+//   says what a press on a leader takes hold of - 'tip' re-points it,
+//   'anchor' (its grip, the bubble or the note) moves the head while the tip
+//   stays, 'whole' (the curve) moves both.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - ShowBox and HideBox: the rubber box the rectangle tool stretches, its
 //   edge counter-scaled like the grips.
@@ -65,6 +73,7 @@
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeMarkup__DimensionSkeleton } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt } from './Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeLeadGeo__Hit } from './Na__LayoutEditor__LeaderGeometry__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -121,6 +130,13 @@
             const shape = sheet.Sheet__Shapes.find((s) => s.Shape__Id === selection.id);
             if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
             Na__LeShapeGeo__Points(shape).forEach((p) => Na__LeGrips__Add(layer, p[0], p[1], ppm, sizePx, zoom, null));
+            return true;
+        }
+        if (selection.kind === 'leader') {
+            const leader = (sheet.Sheet__Leaders || []).find((l) => l.Leader__Id === selection.id);
+            if (!leader || Na__LeModel__IsLayerLocked(sheet, leader.Leader__LayerId)) return false;
+            Na__LeGrips__Add(layer, leader.Leader__TipXMm, leader.Leader__TipYMm, ppm, sizePx, zoom, null);
+            Na__LeGrips__Add(layer, leader.Leader__AnchorXMm, leader.Leader__AnchorYMm, ppm, sizePx, zoom, 'anchor');   // <-- Round: the head goes with it, the tip stays
             return true;
         }
         return false;
@@ -242,6 +258,25 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Which Part of a Leader a Press Grabs
+    // ------------------------------------------------------------
+    // 'tip' re-points the leader (its grip or its endpoint circle); 'anchor'
+    // moves the head and leaves the tip on what it points at (the anchor grip,
+    // the bubble or the note); 'whole' moves both (anywhere along the curve).
+    // The two grips are found at twice the tolerance, as a dimension's are.
+    // ------------------------------------------------------------
+    function Na__LeGrips__LeaderGrab(leader, pointMm, toleranceMm) {
+        const tol = toleranceMm * 2;
+        if (Math.hypot(pointMm.x - leader.Leader__TipXMm, pointMm.y - leader.Leader__TipYMm) <= tol) return 'tip';
+        if (Math.hypot(pointMm.x - leader.Leader__AnchorXMm, pointMm.y - leader.Leader__AnchorYMm) <= tol) return 'anchor';
+        const part = Na__LeLeadGeo__Hit(leader, pointMm, toleranceMm);
+        if (part === 'tip')  return 'tip';
+        if (part === 'head') return 'anchor';
+        return 'whole';
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -258,7 +293,8 @@
         Na__LeGrips__ShowBox,
         Na__LeGrips__HideBox,
         Na__LeGrips__DimensionGrab,
-        Na__LeGrips__ShapeGrab
+        Na__LeGrips__ShapeGrab,
+        Na__LeGrips__LeaderGrab
     };
     // ------------------------------------------------------------
 

@@ -45,6 +45,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.9.0
+// - A door's pose can be read and set without animating it. ComputePanelLocalPose
+//   answers a panel's local position and quaternion at any progress and touches
+//   nothing; ApplyPanelTransform (now exported) writes that pose onto a MOD, and
+//   GetLiveProgress says where the 3D view holds a panel.
+// - DescribeDoors builds door records for any mesh and linework groups without
+//   registering them or adding a listener. A door the registry holds comes back
+//   as the registry's own record; any other is built once, at rest, and kept by
+//   its assembly object. The Layout Editor uses them to draw plan doors open.
+// - ScanForDoors now scans through ScanGroupsInto, which fills any record map;
+//   the registry scan, its warnings and its log lines are unchanged. The MOD
+//   type constants are exported.
+//
 // 30-Aug-2026 - Version 1.8.0
 // - Click detection is now LEFT BUTTON ONLY. The handlers previously bound
 //   pointerdown/pointerup with no button check, so a stationary right-click
@@ -157,6 +170,7 @@
     const Na__DoorAnim__Y_AXIS                 = new THREE.Vector3(0, 1, 0);     // <-- Vertical rotation axis (Y-up from GLB Builder export)
     const Na__DoorAnim__X_AXIS                 = new THREE.Vector3(1, 0, 0);     // <-- Local X axis (panel slide direction in SketchUp authoring)
     const Na__DoorAnim__Z_AXIS                 = new THREE.Vector3(0, 0, 1);     // <-- Local Z axis (depth axis after Z-up -> Y-up conjugation)
+    const Na__DoorAnim__PoseQuaternion         = new THREE.Quaternion();         // <-- Scratch rotation for ComputePanelLocalPose (never held)
     // ------------------------------------------------------------
 
 
@@ -238,6 +252,7 @@
     // MODULE VARIABLES | Door Registry
     // ------------------------------------------------------------
     const Na__DoorAnim__DoorRegistry     = new Map();                            // <-- Map<adrName, doorRecord>
+    const Na__DoorAnim__DescribedRecords = new WeakMap();                        // <-- adrObjectMesh -> record DescribeDoors built outside the registry
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -619,18 +634,22 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Scan Scene Graph and Build Door Registry
+    // HELPER FUNCTION | Scan Door Groups Into Any Record Map
     // ------------------------------------------------------------
-    function Na__DoorAnimation__ScanForDoors() {
-        Na__DoorAnim__DoorRegistry.clear();                                      // <-- Clear previous registry
-
-        if (Na__DoorAnim__ModelGroupsMesh.length === 0 && Na__DoorAnim__ModelGroupsLinework.length === 0) {
-            console.warn('[DoorAnimation] No model groups set, cannot scan for doors');
-            return;
-        }
+    // The body ScanForDoors always had, pointed at a map and groups of the
+    // caller's choosing, so doors can be described without touching the
+    // registry. options:
+    //   quiet  true drops the per-door log and warning lines
+    //   reuse  (adrObject) => a record to take as it is, or null. A reused
+    //          record is neither rebuilt nor relinked to its linework.
+    // ------------------------------------------------------------
+    function Na__DoorAnim__ScanGroupsInto(target, meshGroups, lineworkGroups, options) {
+        const quiet  = !!(options && options.quiet === true);
+        const reuse  = (options && typeof options.reuse === 'function') ? options.reuse : null;
+        const reused = new Set();
 
         // Scan all mesh model groups for ADR assemblies
-        for (const meshGroup of Na__DoorAnim__ModelGroupsMesh) {
+        for (const meshGroup of meshGroups) {
             meshGroup.traverse((object) => {
                 if (!Na__DoorAnim__NameStartsWith(object, Na__DoorAnim__PREFIX_ADR)) {
                     return;                                                      // <-- Skip non-ADR objects
@@ -638,9 +657,17 @@
 
                 const adrName = object.name;                                     // <-- Door assembly identifier
 
+                const existing = reuse ? reuse(object) : null;
+                if (existing) {
+                    target.set(adrName, existing);                               // <-- Already described: taken as it is
+                    reused.add(adrName);
+                    return;
+                }
+
                 // Collect every animatable MOD child (multi-panel ready)
                 const modDescriptors = Na__DoorAnim__FindAllAnimatableMods(object);
                 if (modDescriptors.length === 0) {
+                    if (quiet) return;
                     const diagnosticPath = Na__DoorAnim__BuildDiagnosticPath(object, meshGroup);
                     const childNames     = Na__DoorAnim__ListDirectChildNames(object);
                     console.warn(`[DoorAnimation] ADR "${adrName}" (mesh) has no animatable MOD children, skipping. Path="${diagnosticPath}". Direct children=[${childNames}]`);
@@ -707,8 +734,9 @@
                     animDurationMs     : effectiveDurationMs                     // <-- Per-door effective duration (V1.3.0)
                 };
 
-                Na__DoorAnim__DoorRegistry.set(adrName, doorRecord);             // <-- Register door
+                target.set(adrName, doorRecord);                                 // <-- Register door
 
+                if (quiet) return;
                 const summary = panels.map((p) => p.type).join('+');
                 const tag     = isBifold ? `BIFOLD ${effectiveDurationMs}ms` : `${effectiveDurationMs}ms`;
                 console.log(`[DoorAnimation] Registered door (mesh): "${adrName}" panels=[${summary}] coupling=${couplingMode} primary=${THREE.MathUtils.radToDeg(targetAngleRad).toFixed(0)}deg duration=${tag}`);
@@ -716,17 +744,18 @@
         }
 
         // Scan all linework model groups and link to existing door records
-        for (const lineworkGroup of Na__DoorAnim__ModelGroupsLinework) {
+        for (const lineworkGroup of lineworkGroups) {
             lineworkGroup.traverse((object) => {
                 if (!Na__DoorAnim__NameStartsWith(object, Na__DoorAnim__PREFIX_ADR)) {
                     return;                                                      // <-- Skip non-ADR objects
                 }
 
                 const adrName    = object.name;                                  // <-- Door assembly identifier
-                const doorRecord = Na__DoorAnim__DoorRegistry.get(adrName);      // <-- Look up existing record
+                if (reused.has(adrName)) return;                                 // <-- A reused record keeps the linework it has
+                const doorRecord = target.get(adrName);                          // <-- Look up existing record
 
                 if (!doorRecord) {
-                    console.warn(`[DoorAnimation] Linework door "${adrName}" has no mesh counterpart, skipping`);
+                    if (!quiet) console.warn(`[DoorAnimation] Linework door "${adrName}" has no mesh counterpart, skipping`);
                     return;
                 }
 
@@ -751,11 +780,56 @@
                 ) || doorRecord.panels[0];
                 doorRecord.modObjectLinework = primaryPanel ? primaryPanel.modObjectLinework : null;
 
-                console.log(`[DoorAnimation] Linked linework for door: "${adrName}" (${lineworkDescriptors.length} panel(s))`);
+                if (!quiet) console.log(`[DoorAnimation] Linked linework for door: "${adrName}" (${lineworkDescriptors.length} panel(s))`);
             });
         }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Scan Scene Graph and Build Door Registry
+    // ------------------------------------------------------------
+    function Na__DoorAnimation__ScanForDoors() {
+        Na__DoorAnim__DoorRegistry.clear();                                      // <-- Clear previous registry
+
+        if (Na__DoorAnim__ModelGroupsMesh.length === 0 && Na__DoorAnim__ModelGroupsLinework.length === 0) {
+            console.warn('[DoorAnimation] No model groups set, cannot scan for doors');
+            return;
+        }
+
+        Na__DoorAnim__ScanGroupsInto(Na__DoorAnim__DoorRegistry, Na__DoorAnim__ModelGroupsMesh, Na__DoorAnim__ModelGroupsLinework, null);
 
         console.log(`[DoorAnimation] Scan complete. ${Na__DoorAnim__DoorRegistry.size} door(s) found.`);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Describe the Doors Under Some Groups Without Registering Them
+    // ------------------------------------------------------------
+    // Returns an array of door records for the mesh and linework groups given.
+    // A door the registry holds (the same Object3D) comes back as the registry's
+    // own record, so its progress is what the 3D view shows. Any other door - a
+    // design phase held off-scene, or a model whose door animation never started
+    // - is built at rest, once, and kept by its assembly object. Nothing is
+    // registered and no listener is added.
+    // ------------------------------------------------------------
+    function Na__DoorAnim__DescribeDoors(meshGroups, lineworkGroups) {
+        const found = new Map();
+        Na__DoorAnim__ScanGroupsInto(found, Array.isArray(meshGroups) ? meshGroups : [], Array.isArray(lineworkGroups) ? lineworkGroups : [], {
+            quiet : true,
+            reuse : (adrObject) => {
+                const live = Na__DoorAnim__DoorRegistry.get(adrObject.name);
+                if (live && live.adrObjectMesh === adrObject) return live;
+                return Na__DoorAnim__DescribedRecords.get(adrObject) || null;
+            }
+        });
+
+        const records = [];
+        found.forEach((record) => {
+            if (Na__DoorAnim__DoorRegistry.get(record.adrName) !== record) Na__DoorAnim__DescribedRecords.set(record.adrObjectMesh, record);
+            records.push(record);
+        });
+        return records;
     }
     // ------------------------------------------------------------
 
@@ -1094,35 +1168,62 @@
     // (along the resolved local axis) determined by the panel descriptor.
     function Na__DoorAnim__ApplyPanelTransform(modObject, panel, progress) {
         if (!modObject) return;
+        Na__DoorAnim__ComputePanelLocalPose(panel, progress, modObject.position, modObject.quaternion);
+    }
+    // ------------------------------------------------------------
 
-        // Step 1: Restore initial transform on the MOD node
-        modObject.position.copy(panel.initialPosition);
-        modObject.quaternion.copy(panel.initialQuaternion);
+
+    // FUNCTION | The Local Pose of One Panel at a Progress, Touching Nothing
+    // ------------------------------------------------------------
+    // Writes the MOD's local position and quaternion at progress [0..1] into
+    // outPosition and outQuaternion: the initial transform, turned about the
+    // hinge pivot for ROT_* panels and slid along the track for MVE_* panels.
+    // FIXED panels answer their initial transform. ApplyPanelTransform writes
+    // the answer straight onto the MOD; the Layout Editor reads it to draw a
+    // door open on a plan and to trace its swing.
+    // ------------------------------------------------------------
+    function Na__DoorAnim__ComputePanelLocalPose(panel, progress, outPosition, outQuaternion) {
+        // Step 1: Start from the initial transform of the MOD node
+        outPosition.copy(panel.initialPosition);
+        outQuaternion.copy(panel.initialQuaternion);
 
         // Step 2: Apply rotation about the hinge pivot for ROT_* panels
         if (panel.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY || panel.type === Na__DoorAnim__MOD_TYPE_ROT_MVE) {
             // rotationSign is -1 for mirrored door instances so the local +Y
             // rotation maps to the intended world swing (see ResolveMirrorSign).
             const angleRad = panel.targetAngleRad * progress * panel.rotationSign;
-            const rotQuat  = new THREE.Quaternion().setFromAxisAngle(Na__DoorAnim__Y_AXIS, angleRad);
+            const rotQuat  = Na__DoorAnim__PoseQuaternion.setFromAxisAngle(Na__DoorAnim__Y_AXIS, angleRad);
             const pivot    = panel.pivotLocalPosition;
 
             // Pivot rotation: shift to pivot-origin, rotate, shift back, then post-multiply orientation.
-            modObject.position.sub(pivot);
-            modObject.position.applyQuaternion(rotQuat);
-            modObject.position.add(pivot);
-            modObject.quaternion.premultiply(rotQuat);
+            outPosition.sub(pivot);
+            outPosition.applyQuaternion(rotQuat);
+            outPosition.add(pivot);
+            outQuaternion.premultiply(rotQuat);
         }
 
         // Step 3: Apply linear translation for MVE_* panels (additive on top of any rotation)
         if (panel.type === Na__DoorAnim__MOD_TYPE_ROT_MVE || panel.type === Na__DoorAnim__MOD_TYPE_MVE_ONLY) {
             if (panel.mveAxisVector) {
                 const distance = panel.mveDistanceUnits * progress;
-                modObject.position.addScaledVector(panel.mveAxisVector, distance);
+                outPosition.addScaledVector(panel.mveAxisVector, distance);
             }
         }
 
         // FIXED panels: no transform change (intentionally untouched).
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Progress the 3D View Holds a Panel At
+    // ------------------------------------------------------------
+    // Independent panels keep their own progress; every other panel shares its
+    // door's. A record built outside the registry was never animated and reads 0.
+    // ------------------------------------------------------------
+    function Na__DoorAnim__GetLiveProgress(doorRecord, panel) {
+        const source = (doorRecord && doorRecord.isIndependentPanels === true && panel) ? panel : doorRecord;
+        const value  = source ? source.currentProgress : 0;
+        return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
     }
     // ------------------------------------------------------------
 
@@ -1371,7 +1472,15 @@
         Na__DoorAnim__TogglePanel,                                               // <-- Toggle one panel on explicitly independent ADRs
         Na__DoorAnim__FindAdrAncestor,                                           // <-- Walk a raycast hit up to its ADR (Context Menu System)
         Na__DoorAnim__ResolveHitPanel,                                           // <-- Resolve a raycast hit to one panel (Context Menu System)
-        Na__DoorAnim__IsDoorOpen                                                 // <-- Read-only open/closed query for menu labelling
+        Na__DoorAnim__IsDoorOpen,                                                // <-- Read-only open/closed query for menu labelling
+        Na__DoorAnim__DescribeDoors,                                             // <-- Door records for any groups, never registered (Layout Editor plans)
+        Na__DoorAnim__ComputePanelLocalPose,                                     // <-- A panel's local pose at a progress, touching nothing
+        Na__DoorAnim__ApplyPanelTransform,                                       // <-- Write that pose onto a MOD
+        Na__DoorAnim__GetLiveProgress,                                           // <-- The progress the 3D view holds a panel at
+        Na__DoorAnim__MOD_TYPE_ROT_ONLY,                                         // <-- Panel type names, for readers of a record's panels
+        Na__DoorAnim__MOD_TYPE_ROT_MVE,
+        Na__DoorAnim__MOD_TYPE_MVE_ONLY,
+        Na__DoorAnim__MOD_TYPE_FIXED
         // Removed (v1.4.0): Na__DoorAnim__FindModRotChild — superseded by FindAllAnimatableMods
         // Removed (v1.4.0): Na__DoorAnim__ApplyPivotRotation — superseded by ApplyAllPanels progress path
     };

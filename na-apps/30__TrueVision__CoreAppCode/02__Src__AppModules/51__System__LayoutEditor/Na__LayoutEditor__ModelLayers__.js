@@ -30,13 +30,17 @@
 //
 // PORT NOTE:
 // - Ported from   : n/a - authored in TrueVision3D
-// - Back-port     : PENDING to ValeVision3D. The module ports whole; only the
-//                   config JSON's category keys differ, because ValeVision's
-//                   loader namespaces its GLBs its own way.
+// - Back-port     : done - ValeVision3D v2.30.0 (13-Sep-2026). The module ported
+//                   whole; ValeVision's config has these rows and styles under its
+//                   own prefix, plus the coarse categories its older exports load.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - Groups takes an optional category key list, for a viewport drawing a
+//   design phase other than the one the 3D view holds.
+//
 // 12-Sep-2026 - Version 1.1.0
 // - The config gained a per-category edge style (weight factor, colour alias,
 //   line type alias) and this module indexes it. EdgeDefault(categoryKey) is
@@ -225,9 +229,13 @@
     // shows a First Floor Furniture row, and a project that exports a category
     // nobody has named yet still shows it - under "Other", with a generated
     // label - rather than offering no way to switch it off.
+    //
+    // categoryKeys names the model when it is not the live one: a viewport
+    // drawing another design phase lists THAT phase's categories. Omitted, the
+    // live model's registry answers, as it always did.
     // ------------------------------------------------------------
-    function Na__LeModelLayers__Groups() {
-        const loaded = Na__ModelToggle__GetCategoryKeys();
+    function Na__LeModelLayers__Groups(categoryKeys) {
+        const loaded = Array.isArray(categoryKeys) ? categoryKeys : Na__ModelToggle__GetCategoryKeys();
         if (!loaded || loaded.length === 0) return [];
 
         const remaining = new Set(loaded);

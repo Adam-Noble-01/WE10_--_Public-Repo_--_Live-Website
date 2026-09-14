@@ -34,11 +34,28 @@
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
 // - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Back-port     : n/a (this IS the back-port); 1.5.1 ported 13-Sep-2026 as ValeVision3D v2.28.0
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.7.0 (TrueVision)
+// - Plan doors. Describe gives a plan viewport's definition the door pose it
+//   draws with (Na__LayoutEditor__PlanDoors__): every door open, bar the ones
+//   the viewport closed, with swing arcs. The pose is part of the definition's
+//   record hash, so the linework, the base image and the PDF all key on it; an
+//   elevation's definition is unchanged.
+//
+// 13-Sep-2026 - Version 1.6.0 (TrueVision)
+// - Model Source. Describe carries the viewport's design phase; the underlay and
+//   linework keys use that phase's fingerprint, the linework projects its model
+//   and the underlay renders it. While the phase loads the frame shows a badge
+//   and nothing of the previous model; switching phase never slides one phase's
+//   picture or lines under the other. A viewport of the live phase is unchanged.
+//
+// 13-Sep-2026 - Version 1.5.1
+// - The underlay draws the model's own edges at the viewport's Base Image weight.
+//
 // 12-Sep-2026 - Version 1.5.0
 // - Per-category linework. The projection now tags every segment with the model
 //   category it came from, so one class can be painted as several bands - walls
@@ -79,8 +96,10 @@
     import { Na__LeModel__ResolveViewportSource, Na__LeModel__UpdateViewport } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeChrome__ToSvgMarkup } from './Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives } from './Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeSnap__Render2d, Na__LeSnap__DrawingCentreMm, Na__LeSnap__GetPipelineFingerprint } from './Na__LayoutEditor__SnapshotRenderer__.js';
+    import { Na__LeSnap__Render2d, Na__LeSnap__DrawingCentreMm, Na__LeSnap__GetPipelineFingerprint, Na__LeSnap__GetModelRoot } from './Na__LayoutEditor__SnapshotRenderer__.js';
+    import { Na__LeSource__Resolve, Na__LeSource__Ensure, Na__LeSource__WaitFor, Na__LeSource__StatusText } from './Na__LayoutEditor__ModelSource__.js';
     import { Na__LeModelLayers__Token, Na__LeModelLayers__ExcludeTokens } from './Na__LayoutEditor__ModelLayers__.js';
+    import { Na__LeDoors__PoseFor } from './Na__LayoutEditor__PlanDoors__.js';
     import {
         Na__LeEdge__Effective,
         Na__LeEdge__AppliesToClasses,
@@ -174,10 +193,12 @@
         // viewports of one drawing that hide different things key differently
         // and cache separately without another word being said about it.
         const exclude    = Na__LeModelLayers__ExcludeTokens(viewport);
+        // A PLAN DRAWS ITS DOORS OPEN, bar the ones this viewport closed. The pose
+        // is part of the definition, so it keys everything the definition keys.
         const definition = source.plan
-            ? Na__PlView__FromPlan(source.plan, override, exclude)
+            ? Na__PlView__FromPlan(source.plan, override, exclude, Na__LeDoors__PoseFor(viewport))
             : (source.elevation ? Na__PlView__FromElevation(source.elevation, override, exclude) : null);
-        return { source : source, definition : definition, window : Na__LeVp2d__Window(viewport) };
+        return { source : source, definition : definition, window : Na__LeVp2d__Window(viewport), modelSource : Na__LeSource__Resolve(viewport) };
     }
     // ------------------------------------------------------------
 
@@ -201,15 +222,23 @@
 
     // FUNCTION | The Four Classes for a Definition: Cache, Baked Asset, Then Render
     // ------------------------------------------------------------
-    function Na__LeVp2d__EnsureLinework(definition, onPhase, force) {
+    // modelSource is the viewport's Model Source (Describe().modelSource);
+    // omitted, the live model. A design phase still loading is waited for once.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__EnsureLinework(definition, onPhase, force, modelSource, waited) {
         if (!definition) return Promise.resolve(null);
-        const cached = force === true ? null : Na__PlPipe__GetCached(definition);   // <-- A forced render ignores what is already known
+        const phaseId = (modelSource && modelSource.renderId) ? modelSource.renderId : null;
+        const modelFp = Na__LeSnap__GetPipelineFingerprint(phaseId);
+        if (modelFp === null) {
+            if (waited === true) return Promise.resolve(null);
+            return Na__LeSource__WaitFor(phaseId).then((ready) => (ready ? Na__LeVp2d__EnsureLinework(definition, onPhase, force, modelSource, true) : null));
+        }
+        const cached = force === true ? null : Na__PlPipe__GetCached(definition, phaseId ? modelFp : undefined);   // <-- A forced render ignores what is already known
         // AN UNTAGGED RESULT IS A MISS HERE. The pipeline cache is shared with the
         // drawing view, and a result with no owner tags cannot draw one category
         // style: it paints the whole viewport in class colours and makes the edge
         // style controls look broken.
         if (cached && Na__PlOwners__Has(cached)) return Promise.resolve(cached);
-        const modelFp = Na__LeSnap__GetPipelineFingerprint();
         const key     = Na__PlView__CacheKey(definition, modelFp);
         if (force === true) { Na__LeVp2d__Linework.delete(key); Na__LeVp2d__PathCache.delete(key); }
         if (Na__LeVp2d__Linework.has(key)) return Na__LeVp2d__Linework.get(key);
@@ -223,7 +252,9 @@
                 const stored = force === true ? null : await Na__PlStore__LoadForDefinition(definition, fingerprint, key);
                 if (stored) { Na__PlPipe__Remember(key, definition, stored, fingerprint, 'asset'); return stored; }
                 const startedAt = performance.now();
-                const result = await Na__PlPipe__RenderDefinition(definition, null, null, onPhase);
+                const root   = phaseId ? Na__LeSnap__GetModelRoot(phaseId) : undefined;
+                if (phaseId && !root) return null;                                                  // <-- Let go meanwhile: never project the live model under this key
+                const result = await Na__PlPipe__RenderDefinition(definition, null, null, onPhase, root);
                 if (result && result.Classes) {
                     Na__PlPipe__Remember(result.CacheKey, definition, result.Classes, result.Fingerprint, 'render');
                     void Na__PlStore__RememberRender(definition, result);                          // <-- A reload paints from IndexedDB
@@ -262,13 +293,16 @@
 
     // HELPER FUNCTION | The Screen-Space Widths This Viewport's Underlay Renders At
     // ------------------------------------------------------------
-    // The Profile Linework and Section Outline composite weights, handed to the
-    // snapshot renderer, which sets them for one render and puts them back.
+    // The Profile Linework, Section Outline and Base Image composite weights -
+    // the last being how thick the model's own edges draw in the picture -
+    // handed to the snapshot renderer, which sets them for one render and puts
+    // them back.
     // ------------------------------------------------------------
     function Na__LeVp2d__RasterWeights(viewport) {
         return {
-            profilePx : Na__LeComposite__Weight(viewport, 'profileLinework'),
-            sectionPx : Na__LeComposite__Weight(viewport, 'sectionOutline')
+            profilePx   : Na__LeComposite__Weight(viewport, 'profileLinework'),
+            sectionPx   : Na__LeComposite__Weight(viewport, 'sectionOutline'),
+            modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage')
         };
     }
     // ------------------------------------------------------------
@@ -542,17 +576,21 @@
             const args = state.lastArgs;
             const described = Na__LeVp2d__Describe(args.viewport);
             if (!described.definition) return;
+            const phaseId = described.modelSource.renderId;
+            const phaseFp = Na__LeSnap__GetPipelineFingerprint(phaseId);
+            if (phaseFp === null) return;                                         // <-- Its design phase is not in: the load's refresh schedules again
             const key = state.wantedKey;
             const frame   = args.viewport.Viewport__FrameMm;
             const px      = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Working());   // <-- The global working level
             const windowSnapshot = described.window;
             state.inFlight = true;
-            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport)).then((result) => {
+            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport), phaseId).then((result) => {
                 state.inFlight = false;
                 if (!Na__LeVp2d__States.has(viewportId) || Na__LeVp2d__States.get(viewportId) !== state) return;
                 if (result) {
                     state.underlay.src   = result.dataUrl;
                     state.renderedKey    = key;
+                    state.renderedFp     = phaseFp;
                     state.renderedWindow = { OriginX : windowSnapshot.OriginX, OriginY : windowSnapshot.OriginY, WidthMm : windowSnapshot.WidthMm, HeightMm : windowSnapshot.HeightMm };
                     Na__LeVp2d__PlaceUnderlay(state, Na__LeVp2d__Window(state.lastArgs.viewport), state.lastArgs.ppm);
                 }
@@ -581,13 +619,31 @@
         }
         state.empty.hidden = true;
 
+        // DESIGN PHASE NOT IN YET | Nothing of the model drawn before stays in the
+        // frame; a badge says the phase is loading (the empty panel, that it
+        // failed). The library's event refreshes the frames when it is in.
+        const modelSource = described.modelSource;
+        const modelFp     = Na__LeSnap__GetPipelineFingerprint(modelSource.renderId);
+        if (modelFp === null) {
+            Na__LeSource__Ensure(modelSource);
+            if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+            state.underlay.hidden = true; state.renderedKey = null; state.renderedWindow = null; state.wantedKey = null;
+            state.linework.innerHTML = ''; state.lineworkKey = null; state.lineworkSvg = null; state.classes = null; state.classesKey = null; state.markup.innerHTML = '';
+            Na__LeVp2d__HideProgress(state);
+            const failed = modelSource.status === 'failed';
+            state.empty.textContent = failed ? Na__LeSource__StatusText(modelSource) : ''; state.empty.hidden = !failed;
+            state.progress.textContent = failed ? '' : Na__LeSource__StatusText(modelSource); state.progress.hidden = failed;
+            state.phaseWaiting = true;
+            return;
+        }
+        if (state.phaseWaiting) { state.phaseWaiting = false; Na__LeVp2d__HideProgress(state); }
+
         // UNDERLAY | Slide the last picture; render a new one once things settle.
         // With the base image off nothing is rendered at all: the frame keeps
         // only its linework, which is what a vector drawing wants, and the
         // costly render never runs.
         const styles  = viewport.Viewport__Styles;
         state.masterPt = sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null;   // <-- Printed points for the visible linework
-        const modelFp = Na__LeSnap__GetPipelineFingerprint();
         if (styles.baseImage === false) {
             if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
             state.underlay.hidden = true;
@@ -614,7 +670,8 @@
                           Na__LeModelLayers__Token(viewport), Na__LeRaster__Get() ]
                           .concat(Na__LeComposite__RasterToken(viewport) ? [ Na__LeComposite__RasterToken(viewport) ] : [])   // <-- Appended only when set, so every existing key is unchanged
                           .join('|');
-            Na__LeVp2d__PlaceUnderlay(state, win, ppm);
+            if (state.renderedFp && state.renderedFp !== modelFp) state.underlay.hidden = true;   // <-- Another design phase's picture is never slid under this one
+            else Na__LeVp2d__PlaceUnderlay(state, win, ppm);
             state.wantedKey = key;
             if (key !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewport.Viewport__Id);
         }
@@ -633,15 +690,17 @@
                 state.lineworkSvg.setAttribute('viewBox', win.OriginX + ' ' + win.OriginY + ' ' + win.WidthMm + ' ' + win.HeightMm);
                 Na__LeVp2d__SizeLayer(state.lineworkSvg, viewport, ppm);
             } else {
-                const cachedClasses = Na__PlPipe__GetCached(described.definition);
+                if (state.paintedFp && state.paintedFp !== modelFp) { state.linework.innerHTML = ''; state.lineworkSvg = null; state.classes = null; state.classesKey = null; }   // <-- Another phase's lines go at once
+                const cachedClasses = Na__PlPipe__GetCached(described.definition, modelSource.renderId ? modelFp : undefined);
                 const classes = (cachedClasses && Na__PlOwners__Has(cachedClasses)) ? cachedClasses : null;   // <-- Untagged: fall through, EnsureLinework re-renders it tagged
-                if (classes) Na__LeVp2d__PaintLinework(state, viewport, cacheKey, classes, ppm);
+                if (classes) { Na__LeVp2d__PaintLinework(state, viewport, cacheKey, classes, ppm); state.paintedFp = modelFp; }
                 else {
                     Na__LeVp2d__ShowProgress(state, '');
-                    Na__LeVp2d__EnsureLinework(described.definition, (phase) => Na__LeVp2d__ShowProgress(state, phase)).then((loaded) => {
+                    Na__LeVp2d__EnsureLinework(described.definition, (phase) => Na__LeVp2d__ShowProgress(state, phase), false, modelSource).then((loaded) => {
                         Na__LeVp2d__HideProgress(state);
                         if (!loaded || Na__LeVp2d__States.get(viewport.Viewport__Id) !== state || !state.lastArgs) return;
                         Na__LeVp2d__PaintLinework(state, state.lastArgs.viewport, cacheKey, loaded, state.lastArgs.ppm);
+                        state.paintedFp = modelFp;
                     });
                 }
             }
@@ -738,8 +797,10 @@
     async function Na__LeVp2d__ForceRender(sheet, viewport, onPhase) {
         const state = Na__LeVp2d__States.get(viewport.Viewport__Id);
         if (!state || !state.lastArgs) return false;                             // <-- Never painted: the next refresh draws it anyway
+        if (!(await Na__LeSource__WaitFor(Na__LeSource__Resolve(viewport).renderId))) return false;   // <-- Its design phase, loaded first
         const described = Na__LeVp2d__Describe(viewport);
         if (!described.definition) return false;
+        const phaseId = described.modelSource.renderId;
         const ppm    = state.lastArgs.ppm;
         const styles = viewport.Viewport__Styles;
 
@@ -751,10 +812,11 @@
         // VECTORS | Re-project, ignoring every cache and the baked asset
         if (styles.projectedLinework !== false) {
             Na__LeVp2d__ShowProgress(state, '');
-            const classes = await Na__LeVp2d__EnsureLinework(described.definition, (phase) => { Na__LeVp2d__ShowProgress(state, phase); if (onPhase) onPhase(phase); }, true);
+            const classes = await Na__LeVp2d__EnsureLinework(described.definition, (phase) => { Na__LeVp2d__ShowProgress(state, phase); if (onPhase) onPhase(phase); }, true, described.modelSource);
             Na__LeVp2d__HideProgress(state);
             if (classes && Na__LeVp2d__States.get(viewport.Viewport__Id) === state) {
-                Na__LeVp2d__PaintLinework(state, viewport, Na__PlView__CacheKey(described.definition, Na__LeSnap__GetPipelineFingerprint()), classes, ppm);
+                Na__LeVp2d__PaintLinework(state, viewport, Na__PlView__CacheKey(described.definition, Na__LeSnap__GetPipelineFingerprint(phaseId)), classes, ppm);
+                state.paintedFp = Na__LeSnap__GetPipelineFingerprint(phaseId);
             }
         }
 
@@ -766,12 +828,13 @@
             state.inFlight = true;
             let result = null;
             try {
-                result = await Na__LeSnap__Render2d(described.definition, window0, styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport));
+                result = await Na__LeSnap__Render2d(described.definition, window0, styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), phaseId);
             } finally {
                 state.inFlight = false;
             }
             if (result && Na__LeVp2d__States.get(viewport.Viewport__Id) === state) {
                 state.underlay.src   = result.dataUrl;
+                state.renderedFp     = Na__LeSnap__GetPipelineFingerprint(phaseId);
                 state.renderedWindow = { OriginX : window0.OriginX, OriginY : window0.OriginY, WidthMm : window0.WidthMm, HeightMm : window0.HeightMm };
                 state.renderedKey    = state.wantedKey;
                 Na__LeVp2d__PlaceUnderlay(state, Na__LeVp2d__Window(viewport), ppm);
@@ -784,13 +847,14 @@
 
     // FUNCTION | A Fresh Underlay at Export Resolution (not cached)
     // ------------------------------------------------------------
-    function Na__LeVp2d__RenderForExport(viewport) {
+    async function Na__LeVp2d__RenderForExport(viewport) {
         const described = Na__LeVp2d__Describe(viewport);
-        if (!described.definition) return Promise.resolve(null);
-        if (viewport.Viewport__Styles.baseImage === false) return Promise.resolve(null);   // <-- Vector only: the PDF carries the linework alone
+        if (!described.definition) return null;
+        if (viewport.Viewport__Styles.baseImage === false) return null;           // <-- Vector only: the PDF carries the linework alone
+        if (!(await Na__LeSource__WaitFor(described.modelSource.renderId))) return null;   // <-- Its design phase, loaded first
         const frame = viewport.Viewport__FrameMm;
         const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());   // <-- Always the export level, whatever is on screen
-        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport));
+        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId);
     }
     // ------------------------------------------------------------
 

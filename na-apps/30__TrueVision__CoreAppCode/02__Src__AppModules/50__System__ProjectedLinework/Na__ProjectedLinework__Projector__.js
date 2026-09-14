@@ -40,13 +40,31 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__Projector__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.2.0 and 1.3.0
+// - Divergences   : Console prefix, header and folder numbers; the 3D-matching
+//                   rules (1.2.0) and the door pose read (1.3.0), authored here first.
+// - Back-port     : 1.2.0 and 1.3.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - Door pose. Collect reads a definition that carries DoorPose (a Layout
+//   Editor plan) with the model's doors stood at that pose: open, bar the ones
+//   the viewport closed. The doors are posed, the model is read and they are
+//   put back in one synchronous run, so no frame and no other reader ever sees
+//   them moved. The sampler copies the posed matrices, the authored walk bakes
+//   its points, and the collection keeps the swing arcs traced meanwhile
+//   (DoorSwings) for the pipeline to place on each drawing.
+//
+// 14-Sep-2026 - Version 1.2.0
+// - Linework first, seams occlude and hide flush joins. BuildOptions carries
+//   LineworkFirst, SeamsOcclude and HideFlushJoins from the projection config
+//   and forces all three off for an explicit backend override (Run Diff),
+//   because the vendored backends apply none of them and cannot be told to. Collect keeps the authored walk's linework category Set on the
+//   collection, and primes bounds trees only for the instances the
+//   intersection pass can still test.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - Every render the pipeline keeps resolves to the CPU backend, the only one
 //   that tags each line with its model category. An explicit backend override
@@ -90,6 +108,7 @@
         Na__PlSampler__CountTriangles
     } from './Na__ProjectedLinework__StageSampler__.js';
     import { Na__PlAuthored__Collect } from './Na__ProjectedLinework__AuthoredEdges__.js';
+    import { Na__PlDoors__Apply, Na__PlDoors__Restore, Na__PlDoors__SwingEdges } from './Na__ProjectedLinework__DoorPose__.js';
     import {
         Na__PlCpu__PrepareIntersections,
         Na__PlCpu__ProjectView
@@ -227,6 +246,14 @@
     // Gathered so one render cannot half-apply a setting changed partway
     // through, and so the whole of what governed a projection can be logged
     // as one object. definition supplies the per-drawing flags.
+    //
+    // THE 3D-MATCHING RULES ARE OFF FOR AN EXPLICIT OVERRIDE - linework first,
+    // seams occlude and hide flush joins. Only the Diff names a backend, to
+    // hold the CPU against a vendored generator, and those extract every crease
+    // from the mesh themselves, leave every seam open and keep every join. Both
+    // sides of a Diff therefore do the same, and the Diff still compares one
+    // engine with another rather than one rule with another. Every kept render
+    // follows the config.
     // ------------------------------------------------------------
     function Na__PlProjector__BuildOptions(definition, backendOverride) {
         const projection  = Na__PlCfg__GetProjectionSetup();
@@ -238,6 +265,9 @@
             Backend                  : backend,
             RequestedBackend         : requested,
             AngleThresholdDegrees    : projection.angleThresholdDegrees,
+            LineworkFirst            : !backendOverride && projection.lineworkFirst === true,
+            SeamsOcclude             : !backendOverride && projection.seamsOcclude === true,
+            HideFlushJoins           : !backendOverride && projection.hideFlushJoins === true,
             IncludeIntersectionEdges : projection.includeIntersectionEdges,
             IterationTimeMs          : projection.iterationTimeMs,
             MinimumSegmentLengthMm   : projection.minimumSegmentLengthMm,
@@ -274,28 +304,48 @@
         if (typeof onPhase === 'function') onPhase(Na__PlProjector__PHASE_COLLECTING);
         const startedAt = performance.now();
 
-        const collected = Na__PlSampler__Collect(modelRoot, {
-            excludeTokens : definition.ExcludeTokens,
-            glassOpaque   : definition.Styles.glassOpaque
-        });
-        collected.TriangleTotal     = Na__PlSampler__CountTriangles(collected);
-        // THE OWNER TABLE IS A PROPERTY OF THE COLLECTION, settled here before
-        // anything reads an edge. Built from the instance list in order, so the
-        // per-view stage pass and the per-collection intersection pass agree
-        // about which id means which category. The authored walk extends it with
-        // any linework-only category that carried no mesh instance of its own.
-        collected.OwnerTable        = Na__PlSampler__BuildOwnerTable(collected);
-        const authoredCollected     = Na__PlAuthored__Collect(modelRoot, { excludeTokens : definition.ExcludeTokens, ownerTable : collected.OwnerTable });
-        collected.AuthoredEdges     = authoredCollected.Edges;
-        collected.AuthoredOwners    = authoredCollected.Owners;
+        // DOORS STAND WHERE THE DRAWING WANTS THEM, for this read only. A Layout
+        // Editor plan carries a door pose: every door open bar the ones its
+        // viewport closed. Posed, read and put back in one synchronous run, so no
+        // frame and no other reader ever sees a door the 3D view did not move.
+        const doorPose = definition.DoorPose || null;
+        const posed    = doorPose ? Na__PlDoors__Apply(modelRoot, doorPose) : null;
+        let   collected;
+        try {
+            collected = Na__PlSampler__Collect(modelRoot, {
+                excludeTokens : definition.ExcludeTokens,
+                glassOpaque   : definition.Styles.glassOpaque,
+                posedMods     : posed ? posed.Mods : null
+            });
+            collected.TriangleTotal     = Na__PlSampler__CountTriangles(collected);
+            // THE OWNER TABLE IS A PROPERTY OF THE COLLECTION, settled here before
+            // anything reads an edge. Built from the instance list in order, so the
+            // per-view stage pass and the per-collection intersection pass agree
+            // about which id means which category. The authored walk extends it with
+            // any linework-only category that carried no mesh instance of its own.
+            collected.OwnerTable        = Na__PlSampler__BuildOwnerTable(collected);
+            const authoredCollected     = Na__PlAuthored__Collect(modelRoot, { excludeTokens : definition.ExcludeTokens, ownerTable : collected.OwnerTable });
+            collected.AuthoredEdges     = authoredCollected.Edges;
+            collected.AuthoredOwners    = authoredCollected.Owners;
+            collected.LineworkCategories = authoredCollected.Categories;         // <-- Whose creases the authored class draws under linework first
+            collected.DoorSwings        = posed ? Na__PlDoors__SwingEdges(posed, doorPose, collected.PosedModsDrawn, modelRoot) : null;
+        } finally {
+            Na__PlDoors__Restore(posed);                                         // <-- Back where the 3D view holds them, whatever the read did
+        }
         collected.IntersectionEdges = new Float64Array(0);
         collected.IntersectionOwners = new Uint16Array(0);
         collected.HasIntersections  = false;
         collected.Report            = { CollectMs : 0, BvhCount : 0, BvhMs : 0, IntersectionMs : 0, IntersectionCount : 0, PairsTested : 0, PairsSkipped : 0, SelfReused : 0 };
 
         if (options.NeedsIntersectionEdges && collected.Instances.length <= options.IntersectionMaxInstances) {   // <-- Trees only for a pass that will run
+            // Under linework first an instance of a linework category is only ever
+            // tested against one that is not, so only those are primed here; the
+            // pass builds any other tree the first time a test reaches it.
+            const testable = options.LineworkFirst === true
+                ? collected.Instances.filter((instance) => !collected.LineworkCategories.has(instance.categoryName))
+                : collected.Instances;
             const primedAt = performance.now();
-            collected.Report.BvhCount = await Na__PlStage__PrimeBoundsTrees(collected.Instances, options.YieldEveryMs);
+            collected.Report.BvhCount = await Na__PlStage__PrimeBoundsTrees(testable, options.YieldEveryMs);
             collected.Report.BvhMs    = Math.round(performance.now() - primedAt);
         }
 

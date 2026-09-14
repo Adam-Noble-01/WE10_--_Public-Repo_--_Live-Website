@@ -31,6 +31,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.3.0
+// - The design phase library is initialised before any project data, handed
+//   the model groups with the phase about to load, and told when that phase
+//   is in (also after a failed load, so nothing waits on it). The preferred
+//   group rule moved into the library unchanged.
+// - The materials pass is now a helper, Na__ApplyLibraryMaterials, shared with
+//   the Design Phase menu and the library: a phase looks the same however it
+//   was loaded.
+//
 // 16-Jun-2026 - Version 1.2.0
 // - Wired camera-follow billboard system (SiteVegetation2D 2D vegetation).
 // - Imports Na__CameraFollow__Initialize/Update; collects mesh+linework roots from
@@ -261,6 +270,16 @@
     } from '../26__System__ToggleModelElements/Na__UiFeature__ModelGroupSelector.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Design Phase Library (every model group, the live one, the rest off-scene)
+    // ------------------------------------------------------------
+    import {
+        Na__PhaseLib__Initialize,
+        Na__PhaseLib__ResolvePreferredIndex,
+        Na__PhaseLib__SetGroups,
+        Na__PhaseLib__SetLive
+    } from '../26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Render Loop Invalidation
     // ------------------------------------------------------------
     import {
@@ -471,19 +490,11 @@
 
         // HELPER FUNCTION | Pick Latest Concept Group (prefer non-existing, newest at end)
         // ------------------------------------------------------------
-        const Na__ResolvePreferredModelGroupIndex = (modelGroups) => {
-            if (!Array.isArray(modelGroups) || modelGroups.length === 0) return 0;
-
-            for (let i = modelGroups.length - 1; i >= 0; i--) {
-                const group = modelGroups[i] || {};
-                const label = String(group.label || group.groupId || '').toLowerCase();
-                if (!label.includes('existing')) {
-                    return i;                                                // <-- Prefer latest non-existing concept
-                }
-            }
-
-            return modelGroups.length - 1;                                   // <-- Fallback: newest item in list
-        };
+        // The rule itself moved into the design phase library on 13-Sep-2026,
+        // word for word, because the Layout Editor's Project Default has to be
+        // this same answer and two copies of a rule drift apart.
+        // ------------------------------------------------------------
+        const Na__ResolvePreferredModelGroupIndex = (modelGroups) => Na__PhaseLib__ResolvePreferredIndex(modelGroups);
         // ------------------------------------------------------------
 
         // HELPER FUNCTION | Resolve Door Category Name Tokens from AppConfig
@@ -611,6 +622,58 @@
         };
         // ------------------------------------------------------------
 
+        // HELPER FUNCTION | Apply the Materials Library to Freshly Loaded Groups
+        // ------------------------------------------------------------
+        // The PBR second pass with the mirror and glass environment overrides,
+        // lifted out of the startup load unchanged. The Design Phase menu and the
+        // design phase library run it too, so a phase looks the same however it
+        // came to be loaded. Before 13-Sep-2026 a phase switched to from the menu
+        // kept the loader's plain materials.
+        // ------------------------------------------------------------
+        const Na__ApplyLibraryMaterials = async (loadedModelGroups) => {
+            if (!Na__Config__MaterialsSystem.MaterialsSystem__Config__Enabled || !loadedModelGroups) return;
+            const Na__MaterialsLibraryData = Na__DataLib__GetMaterials();  // <-- Cached; no network fetch here
+            if (!Na__MaterialsLibraryData) return;
+            const Na__MaterialsLookupMap = Na__MaterialsSystem__BuildLookup(Na__MaterialsLibraryData);
+            if (Na__MaterialsLookupMap.size === 0) return;
+
+            for (const [, group] of loadedModelGroups) {
+                await Na__MaterialsSystem__ApplyMaterials(group, Na__MaterialsLookupMap, Na__Config__MaterialsSystem);
+
+                if (Na__Scene__EnvironmentTexture && Na__Config__SceneEnvironment && Na__Config__SceneEnvironment.Scene__Environment__MirrorOnly === true) {
+                    Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides(group, Na__Scene__EnvironmentTexture, {
+                        targetMaterialName : Na__Config__SceneEnvironment.Scene__Environment__MirrorMaterialName,
+                        envMapIntensity    : Na__Config__SceneEnvironment.Scene__Environment__MirrorEnvMapIntensity,
+                        brightnessBoost    : Na__Config__SceneEnvironment.Scene__Environment__MirrorBrightnessBoost,
+                        roughnessOverride  : Na__Config__SceneEnvironment.Scene__Environment__MirrorRoughnessOverride
+                    });
+
+                    if (Na__Config__SceneEnvironment.Scene__Environment__GlassEnabled === true) {
+                        Na__MaterialsSystem__ApplyGlassEnvironmentOverrides(group, Na__Scene__EnvironmentTexture, {
+                            targetMaterialName : Na__Config__SceneEnvironment.Scene__Environment__GlassMaterialName,
+                            envMapIntensity    : Na__Config__SceneEnvironment.Scene__Environment__GlassEnvMapIntensity,
+                            brightnessMultiplier: Na__Config__SceneEnvironment.Scene__Environment__GlassBrightnessMultiplier
+                        });
+                    }
+                }
+            }
+        };
+        // ------------------------------------------------------------
+
+        // DESIGN PHASE LIBRARY | Registered Before Any Project Data Arrives
+        // ------------------------------------------------------------
+        // Every other design phase loads through the same loader, configs and
+        // materials pass as the model this sequence loads below.
+        // @delegate: ../26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js
+        // ------------------------------------------------------------
+        Na__PhaseLib__Initialize({
+            modelRoot      : Na__ModelGroup__Root,
+            modelsConfig   : Na__Config__Models,
+            lineResolution : Na__LineResolution__Screen,
+            afterLoad      : Na__ApplyLibraryMaterials
+        });
+        // ------------------------------------------------------------
+
         // RESOLVE PROJECT-SPECIFIC MODEL URLS
         const projectCode   = Na__AppUtils__GetProjectCodeFromUrl();
         const projectFolder = Na__AppUtils__GetProjectFolderFromUrl();
@@ -648,6 +711,7 @@
                     Na__ProjectData__AllModelGroups = projectData.modelGroups;
                     const activeIndex = Na__ResolvePreferredModelGroupIndex(projectData.modelGroups);
                     const groupUrls   = Na__AppUtils__ExtractModelGroup(projectData, activeIndex);
+                    Na__PhaseLib__SetGroups(projectData.modelGroups, activeIndex); // <-- Every design phase, and the one the 3D view is about to load
 
                     if (groupUrls.length > 0) {
                         modelUrls = groupUrls;
@@ -886,36 +950,7 @@
 
             // APPLY PBR MATERIALS FROM LIBRARY (second pass - selective override)
             // Data is sourced from the DataLib cache loaded at sequence start via Na__DataLib__LoadAll().
-            if (Na__Config__MaterialsSystem.MaterialsSystem__Config__Enabled && Na__LoadedModelGroups) {
-                const Na__MaterialsLibraryData = Na__DataLib__GetMaterials();  // <-- Cached; no network fetch here
-
-                if (Na__MaterialsLibraryData) {
-                    const Na__MaterialsLookupMap = Na__MaterialsSystem__BuildLookup(Na__MaterialsLibraryData);
-
-                    if (Na__MaterialsLookupMap.size > 0) {
-                        for (const [, group] of Na__LoadedModelGroups) {
-                            await Na__MaterialsSystem__ApplyMaterials(group, Na__MaterialsLookupMap, Na__Config__MaterialsSystem);
-
-                            if (Na__Scene__EnvironmentTexture && Na__Config__SceneEnvironment && Na__Config__SceneEnvironment.Scene__Environment__MirrorOnly === true) {
-                                Na__MaterialsSystem__ApplyMirrorEnvironmentOverrides(group, Na__Scene__EnvironmentTexture, {
-                                    targetMaterialName : Na__Config__SceneEnvironment.Scene__Environment__MirrorMaterialName,
-                                    envMapIntensity    : Na__Config__SceneEnvironment.Scene__Environment__MirrorEnvMapIntensity,
-                                    brightnessBoost    : Na__Config__SceneEnvironment.Scene__Environment__MirrorBrightnessBoost,
-                                    roughnessOverride  : Na__Config__SceneEnvironment.Scene__Environment__MirrorRoughnessOverride
-                                });
-
-                                if (Na__Config__SceneEnvironment.Scene__Environment__GlassEnabled === true) {
-                                    Na__MaterialsSystem__ApplyGlassEnvironmentOverrides(group, Na__Scene__EnvironmentTexture, {
-                                        targetMaterialName : Na__Config__SceneEnvironment.Scene__Environment__GlassMaterialName,
-                                        envMapIntensity    : Na__Config__SceneEnvironment.Scene__Environment__GlassEnvMapIntensity,
-                                        brightnessMultiplier: Na__Config__SceneEnvironment.Scene__Environment__GlassBrightnessMultiplier
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            await Na__ApplyLibraryMaterials(Na__LoadedModelGroups);
 
             Na__UiFeature__ShowScene();                                      // <-- Reveal scene after all models loaded
             window.setTimeout(() => {
@@ -924,6 +959,7 @@
 
             // INITIALIZE MODEL-BOUND RUNTIME SYSTEMS
             Na__ReinitializeModelBoundSystems(Na__LoadedModelGroups);
+            Na__PhaseLib__SetLive(undefined, Na__LoadedModelGroups);         // <-- The live phase is in: other design phases may load now
 
             // INITIALIZE MODEL GROUP SELECTOR (switch between design phases)
             if (Na__ProjectData__AllModelGroups && Na__ProjectData__AllModelGroups.length > 1) {
@@ -933,12 +969,14 @@
                     Na__Config__Models,
                     Na__LineResolution__Screen,
                     Na__UiFeature__UpdateStatus,
-                    Na__ReinitializeModelBoundSystems
+                    Na__ReinitializeModelBoundSystems,
+                    Na__ApplyLibraryMaterials                                // <-- A phase switched to gets the library materials too
                 );
             }
 
         } catch (error) {
             console.error('[TrueVision3D] Model load error:', error);
+            Na__PhaseLib__SetLive(undefined, null);                          // <-- Nothing may wait for a load that has failed
             Na__UiFeature__UpdateStatus('Model load error - check console', true);
             Na__RenderLoop__CanMonitorAoPerformance = true;                  // <-- Do not keep monitor blocked forever on load errors
         }

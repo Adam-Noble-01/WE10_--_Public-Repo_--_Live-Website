@@ -32,13 +32,18 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Panel__Styles__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim until 1.6.0; 1.6.0 authored in TrueVision3D
+// - Parity        : verbatim until 1.6.0; 1.6.0 and 1.6.1 authored in TrueVision3D
 // - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : 1.6.0 PENDING to ValeVision3D.
+// - Back-port     : 1.6.0 and 1.6.1 ported 13-Sep-2026 as ValeVision3D v2.28.0 (verbatim below the header).
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.6.1
+// - The Section Outline weight lines up with the weights above and below it:
+//   its row keeps an empty slot where a checkbox would be. Base Image gains a
+//   weight from the config - how thick the model's own edges draw in the picture.
+//
 // 12-Sep-2026 - Version 1.6.0
 // - The toggle list comes from the Render Composites config, and an Advanced
 //   fold reveals a line weight per composite: Projected Linework and Hidden
@@ -170,6 +175,10 @@
     // inline. A composite with a weight but no toggle - the section outline,
     // which a drawing either has or has not - is a whole row that only exists
     // inside the Advanced fold, because without its weight it has nothing to say.
+    //
+    // THAT ROW KEEPS AN EMPTY CHECKBOX SLOT. The weights only line up as a
+    // column because each sits just before its row's checkbox; take the
+    // checkbox away and the weight slides right by its width and gap.
     // ------------------------------------------------------------
     function Na__LePanelStyles__Fill(list) {
         list.innerHTML = '';
@@ -202,6 +211,10 @@
             caption.textContent = label;
             element.appendChild(caption);
             element.appendChild(Na__LePanelStyles__WeightCluster(row));
+            const slot = document.createElement('span');
+            slot.className = 'na-le-row__check-slot';
+            slot.setAttribute('aria-hidden', 'true');
+            element.appendChild(slot);
             list.appendChild(element);
         });
     }

@@ -35,7 +35,8 @@
 //
 // - THE FINGERPRINT. The model state plus the parts of the record that change
 //   the geometry: datum or plane, depth, azimuth and origin, the occluder
-//   rule (Glass Transparency Off), hidden lines and the exclusion list. The
+//   rule (Glass Transparency Off), hidden lines, the exclusion list and, on a
+//   Layout Editor plan, the door pose. The
 //   name, the saved framing and the other style toggles are left out so
 //   renaming or reframing a drawing never discards its linework.
 //
@@ -48,13 +49,22 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__ViewDefinition__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.1.0
+// - Divergences   : Console prefix, header and folder numbers; the door pose
+//                   of 1.1.0, authored here first.
+// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Door pose. FromPlan takes a fourth argument, the door pose a Layout Editor
+//   plan viewport draws with: every door open bar the keys in Closed, with or
+//   without swing arcs. It is normalised onto the definition as DoorPose and
+//   folded into the record hash, so a plan with its doors open, or with one
+//   shut, never shares linework with the plan as modelled. Every other
+//   definition carries DoorPose null and hashes exactly as before.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 4.
 //
@@ -301,15 +311,39 @@
             c : definition.Cut,
             g : definition.Styles.glassOpaque,
             h : definition.Styles.hiddenLines,
-            x : definition.ExcludeTokens
+            x : definition.ExcludeTokens,
+            d : definition.DoorPose || undefined                                 // <-- Absent unless set: JSON leaves it out, so every other hash is unchanged
         }));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Reduce a Door Pose to What Changes the Drawing
+    // ------------------------------------------------------------
+    // null draws the doors as the model holds them, which is every drawing but
+    // a Layout Editor plan. Otherwise { Closed, Swings, SwingStepDegrees }:
+    // every door drawn open bar the keys in Closed (sorted and unique, so the
+    // same set always hashes the same), with a swing arc per open hinged leaf
+    // while Swings is on. Na__ProjectedLinework__DoorPose__ reads it.
+    // ------------------------------------------------------------
+    function Na__PlView__DoorPose(pose) {
+        if (!pose || typeof pose !== 'object') return null;
+        const keys = Array.isArray(pose.Closed) ? pose.Closed.filter((key) => typeof key === 'string' && key.length > 0) : [];
+        const step = Number(pose.SwingStepDegrees);
+        return {
+            Closed           : Array.from(new Set(keys)).sort(),
+            Swings           : pose.Swings !== false,
+            SwingStepDegrees : Number.isFinite(step) ? Math.min(45, Math.max(1, step)) : 5
+        };
     }
     // ------------------------------------------------------------
 
 
     // FUNCTION | Build the View Definition for a Floor Plan
     // ------------------------------------------------------------
-    function Na__PlView__FromPlan(plan, stylesOverride, extraExcludeTokens) {
+    // doorPose (Layout Editor plans only) stands the doors as the viewport
+    // wants them; omitted, the doors are drawn as the model holds them.
+    function Na__PlView__FromPlan(plan, stylesOverride, extraExcludeTokens, doorPose) {
         if (!plan) return null;
         const basis = Na__PlView__PlanBasis();
 
@@ -325,6 +359,7 @@
             Cut           : Na__PlView__PlanCut(plan),
             Styles        : Na__PlView__Flags(Na__FpData__GetStyles(plan), stylesOverride),
             ExcludeTokens : Na__PlView__Tokens(Na__FpData__GetExcludeTokens(plan), extraExcludeTokens),
+            DoorPose      : Na__PlView__DoorPose(doorPose),
             RecordHash    : null
         };
         definition.RecordHash = Na__PlView__RecordHash(definition);
@@ -352,6 +387,7 @@
             Cut           : Na__PlView__ElevationCut(elevation, axes),
             Styles        : Na__PlView__Flags(Na__ElevData__GetStyles(elevation), stylesOverride),
             ExcludeTokens : Na__PlView__Tokens(Na__ElevData__GetExcludeTokens(elevation), extraExcludeTokens),
+            DoorPose      : null,
             RecordHash    : null
         };
         definition.RecordHash = Na__PlView__RecordHash(definition);

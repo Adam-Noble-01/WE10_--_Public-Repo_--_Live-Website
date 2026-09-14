@@ -39,6 +39,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - Several selected items: the markup highlights every one, and the selection
+//   layer outlines every selected viewport - without handles or grips, which
+//   edit one item at a time (Na__LeHandles__RenderOutlines).
+//
 // 13-Sep-2026 - Version 1.3.0
 // - Refresh is coalesced onto the next animation frame, so a drag that asks for
 //   a rebuild on every pointer move gets one per painted frame, and several
@@ -69,6 +74,7 @@
         Na__LeModel__GetLayers,
         Na__LeModel__GetFields,
         Na__LeModel__GetSelection,
+        Na__LeModel__GetSelectionItems,
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked
     } from './Na__LayoutEditor__SheetModel__.js';
@@ -80,7 +86,7 @@
     import { Na__LeMarkup__BuildSheetPrimitives } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeVp2d__Fill, Na__LeVp2d__Release } from './Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__Fill, Na__LeVp3d__Release } from './Na__LayoutEditor__Viewport3d__.js';
-    import { Na__LeHandles__Render, Na__LeHandles__Clear } from './Na__LayoutEditor__ViewportHandles__.js';
+    import { Na__LeHandles__Render, Na__LeHandles__RenderOutlines, Na__LeHandles__Clear } from './Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeGrips__Render } from './Na__LayoutEditor__Grips__.js';
     // ------------------------------------------------------------
 
@@ -450,7 +456,7 @@
     function Na__LeSurface__RefreshMarkup() {
         const sheet = Na__LeSurface__Sheet;
         if (!sheet || !Na__LeSurface__Layout || !Na__LeSurface__Paper) return;
-        const primitives = Na__LeMarkup__BuildSheetPrimitives(sheet, Na__LeSurface__Layout, Na__LeModel__GetSelection());
+        const primitives = Na__LeMarkup__BuildSheetPrimitives(sheet, Na__LeSurface__Layout, Na__LeModel__GetSelectionItems());
         const markup     = Na__LeChrome__ToSvgMarkup(primitives, Na__LeSurface__Layout.Page.WidthMm, Na__LeSurface__Layout.Page.HeightMm, 'na-le-paper__markup');
         Na__LeSurface__MarkupSvg = Na__LeSurface__SwapSvg(Na__LeSurface__MarkupSvg, markup, 'na-le-paper__markup', Na__LeSurface__Handles);
     }
@@ -459,10 +465,25 @@
 
     // FUNCTION | Redraw the Selected Viewport's Outline and Handles
     // ------------------------------------------------------------
+    // With several items selected every selected viewport gets an outline and
+    // nothing gets handles or grips: they edit one item, so they wait for one.
+    // ------------------------------------------------------------
     function Na__LeSurface__RefreshSelection() {
         const sheet = Na__LeSurface__Sheet;
         if (!sheet || !Na__LeSurface__Paper) return;
         if (!Na__LeSurface__Handles) Na__LeSurface__Handles = Na__LeSurface__El('div', 'na-le-paper__handles', Na__LeSurface__Paper);
+        const items = Na__LeModel__GetSelectionItems();
+        if (items.length > 1) {
+            const chosen    = new Set(items.filter((item) => item.kind === 'viewport').map((item) => item.id));
+            const viewports = sheet.Sheet__Viewports.filter((v) => chosen.has(v.Viewport__Id) && Na__LeModel__IsLayerVisible(sheet, v.Viewport__LayerId));
+            Na__LeSurface__Frames.querySelectorAll('.' + Na__LeSurface__CLASS_FRAME).forEach((frame) => {
+                frame.classList.toggle(Na__LeSurface__CLASS_FRAME + '--selected', chosen.has(frame.getAttribute('data-na-viewport-id')));
+            });
+            Na__LeSurface__EditingId = null;                                     // <-- Content editing belongs to one selected viewport
+            Na__LeHandles__RenderOutlines(Na__LeSurface__Handles, viewports, Na__LeSurface__Ppm, Na__LeSurface__Zoom,
+                (v) => Na__LeModel__IsLayerLocked(sheet, v.Viewport__LayerId) || v.Viewport__Locked === true);
+            return;
+        }
         const selection = Na__LeModel__GetSelection();
         const viewport  = (selection && selection.kind === 'viewport')
             ? sheet.Sheet__Viewports.find((v) => v.Viewport__Id === selection.id) || null

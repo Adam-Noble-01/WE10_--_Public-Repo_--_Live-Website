@@ -26,6 +26,14 @@
 //   category groups, so a category left out of the drawing is out of both
 //   classes.
 //
+// - WHICH CATEGORIES SHIP LINEWORK. The walk also names every category whose
+//   GLB pair brought a linework root holding at least one segment, returned
+//   as Categories. That Set is what LINEWORK FIRST reads (see the edge
+//   extractor): those categories draw their creases from here and only their
+//   silhouettes from the mesh. It records what was LOADED, not what is
+//   showing this frame, so a passing hide of a linework root cannot swap a
+//   category back to mesh creases under a cache key that would not know.
+//
 // INTEGRATION:
 // - Na__ProjectedLinework__CpuBackend__ asks for the edges per model state
 //   and runs them through the clip kernel as the authored class.
@@ -35,13 +43,19 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__AuthoredEdges__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.2.0
+// - Divergences   : Console prefix, header and folder numbers; the Categories
+//                   Set of 1.2.0 (linework first), authored here first.
+// - Back-port     : 1.2.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - Collect also returns Categories, the Set of category names that ship
+//   linework. Edges and Owners are unchanged. (1.1.0, the owner tags of
+//   12-Sep-2026, was never logged here.)
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 4.
 //
@@ -134,18 +148,43 @@
 // REGION | Collection
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Does a Linework Root Hold Any Segment at All?
+    // ------------------------------------------------------------
+    // Visibility is deliberately not asked: this answers what the GLB brought,
+    // for the Categories Set, not what is drawn this frame.
+    // ------------------------------------------------------------
+    function Na__PlAuthored__HoldsSegments(root) {
+        let holds = false;
+        root.traverse((node) => {
+            if (holds) return;
+            if (!(node.isLineSegments2 === true || node.isLineSegments === true || node.isLine === true)) return;
+            const geometry = node.geometry;
+            if (!geometry || !geometry.attributes) return;
+            const start = geometry.attributes.instanceStart;
+            if (start) { holds = start.count > 0; return; }
+            const position = geometry.attributes.position;
+            holds = !!position && (geometry.index ? geometry.index.count : position.count) >= 2;
+        });
+        return holds;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Gather the Authored Edges of the Model in Scene Space
     // ------------------------------------------------------------
-    // rules: { excludeTokens, ownerTable }. Returns { Edges, Owners } - Edges a
-    // Float64Array of six doubles per segment, Owners one category id per
-    // segment or null when no table was supplied. Visibility is honoured up the
-    // tree exactly as the sampler honours it for meshes.
+    // rules: { excludeTokens, ownerTable }. Returns { Edges, Owners, Categories }
+    // - Edges a Float64Array of six doubles per segment, Owners one category id
+    // per segment or null when no table was supplied, Categories the Set of
+    // category names that ship linework. Visibility is honoured up the tree
+    // for the edges exactly as the sampler honours it for meshes; the Set asks
+    // only whether the category itself is drawn.
     // ------------------------------------------------------------
     function Na__PlAuthored__Collect(modelRoot, rules) {
         const collected  = [];
         const ownerTable = (rules && rules.ownerTable) ? rules.ownerTable : null;
         const owners     = ownerTable ? [] : null;
-        if (!modelRoot) return { Edges : new Float64Array(0), Owners : owners ? new Uint16Array(0) : null };
+        const categories = new Set();
+        if (!modelRoot) return { Edges : new Float64Array(0), Owners : owners ? new Uint16Array(0) : null, Categories : categories };
 
         const excludeTokens = (rules && rules.excludeTokens) || [];
         const skipNames     = Na__PlCfg__GetSkipObjectNames();
@@ -167,11 +206,15 @@
         while (stack.length > 0) {
             const entry    = stack.pop();
             const object3d = entry.object;
-            if (object3d.visible === false) continue;
-            if (Na__PlSampler__NameMatches(object3d.name, skipNames)) continue;
-
             const data       = object3d.userData || {};
             const isLinework = data[Na__PlAuthored__TYPE_KEY] === Na__PlAuthored__TYPE_LINEWORK;
+
+            // Named before the visibility test, on purpose: see WHICH CATEGORIES
+            // SHIP LINEWORK in the header.
+            if (isLinework && !categories.has(entry.category) && Na__PlAuthored__HoldsSegments(object3d)) categories.add(entry.category);
+
+            if (object3d.visible === false) continue;
+            if (Na__PlSampler__NameMatches(object3d.name, skipNames)) continue;
 
             if (isLinework) {
                 const ownerId  = ownerTable ? Na__PlOwners__IdFor(ownerTable, entry.category) : 0;
@@ -194,8 +237,9 @@
         }
 
         return {
-            Edges  : new Float64Array(collected),
-            Owners : owners ? new Uint16Array(owners) : null
+            Edges      : new Float64Array(collected),
+            Owners     : owners ? new Uint16Array(owners) : null,
+            Categories : categories
         };
     }
     // ------------------------------------------------------------

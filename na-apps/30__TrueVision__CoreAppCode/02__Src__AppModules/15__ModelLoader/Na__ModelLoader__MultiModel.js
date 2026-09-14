@@ -22,6 +22,17 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - The linework depth bias is camera-aware. Through an orthographic camera the
+//   logarithmic depth buffer writes LINEAR depth (gl_FragCoord.z), so the fixed
+//   0.00015 was that share of the whole camera range: 75 mm across the drawing
+//   cameras' 500 m, and every SketchUp line up to 75 mm behind a face drew
+//   through it in plans, elevations and their Layout Editor base images. An
+//   orthographic camera now takes RenderConfig__Linework__OrthoDepthBiasMm as a
+//   distance (default 2 mm); perspective renders keep the constant unchanged.
+// - Bias values go into the shader as GLSL float literals: a whole-number config
+//   value pasted in as-is was a compile error.
+//
 // 06-Jun-2026 - Version 1.2.0
 // - Extracted linework colour infrastructure into Na__ModelLoader__LineworkColours__.js.
 // - Extracted Na__ModelLoader__UpgradeLineworkRoot from inline LoadSingleLinework.
@@ -48,6 +59,7 @@
     import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
     import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
     import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+    import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
 
     // @delegate: ./Na__ModelLoader__LineworkColours__.js
     import {
@@ -434,6 +446,18 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Number as a GLSL Float Literal
+    // ------------------------------------------------------------
+    // GLSL ES has no implicit int-to-float conversion, so a whole-number config
+    // value pasted into a float expression as-is does not compile.
+    // ------------------------------------------------------------
+    function Na__ModelLoader__GlslFloat(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number.toFixed(9) : '0.000000000';
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Upgrade Imported Linework Root to Fat Lines
     // ------------------------------------------------------------
     // Replaces all native Line / LineSegments nodes with LineSegments2
@@ -486,18 +510,41 @@
                 polygonOffsetUnits : lineworkConfig.RenderConfig__Linework__PolygonOffsetUnits
             });
 
-            // DEPTH BIAS | Pull line fragments forward in logarithmic depth buffer
-            const depthBias = (lineworkConfig.RenderConfig__Linework__DepthBias != null)
+            // DEPTH BIAS | Pull line fragments forward so a line wins against its own face
+            // ------------------------------------------------------------
+            // TWO CAMERAS, TWO KINDS OF DEPTH. Through a perspective camera the
+            // logarithmic depth buffer writes log depth, and DepthBias is a small
+            // share of it. Through an orthographic camera three writes
+            // gl_FragCoord.z instead - linear from near to far - so the same
+            // constant is that share of the whole camera range: 0.00015 of the
+            // drawing cameras' 500 m is 75 mm, and every line up to 75 mm behind
+            // a face drew through it in plans, elevations and their base images.
+            // An orthographic camera therefore takes the bias as a DISTANCE,
+            // OrthoDepthBiasMm, turned into depth by its own range: for an
+            // orthographic projection |projectionMatrix[2][2]| / 2 is exactly
+            // 1 / (far - near) of window depth per scene unit.
+            // ------------------------------------------------------------
+            const depthBias      = Na__ModelLoader__GlslFloat((lineworkConfig.RenderConfig__Linework__DepthBias != null)
                 ? lineworkConfig.RenderConfig__Linework__DepthBias
-                : 0.00015;
+                : 0.00015);
+            const orthoBiasUnits = Na__ModelLoader__GlslFloat(Na__Math__ConvertMmToUnits((lineworkConfig.RenderConfig__Linework__OrthoDepthBiasMm != null)
+                ? lineworkConfig.RenderConfig__Linework__OrthoDepthBiasMm
+                : 2));
             fatLineMaterial.onBeforeCompile = (shader) => {
-                shader.fragmentShader = shader.fragmentShader.replace(
-                    '#include <logdepthbuf_fragment>',
-                    `#include <logdepthbuf_fragment>
+                shader.vertexShader = shader.vertexShader
+                    .replace('#include <logdepthbuf_pars_vertex>', `#include <logdepthbuf_pars_vertex>
+                    varying float vNaOrthoDepthPerUnit;`)
+                    .replace('#include <logdepthbuf_vertex>', `#include <logdepthbuf_vertex>
+                    vNaOrthoDepthPerUnit = abs( projectionMatrix[ 2 ][ 2 ] ) * 0.5;`);
+                shader.fragmentShader = shader.fragmentShader
+                    .replace('#include <logdepthbuf_pars_fragment>', `#include <logdepthbuf_pars_fragment>
+                    varying float vNaOrthoDepthPerUnit;`)
+                    .replace('#include <logdepthbuf_fragment>', `#include <logdepthbuf_fragment>
+                    #ifdef USE_LOGARITHMIC_DEPTH_BUFFER
                     if (gl_FragDepth > 0.0) {
-                        gl_FragDepth -= ${depthBias};
-                    }`
-                );
+                        gl_FragDepth -= (vIsPerspective == 0.0) ? (${orthoBiasUnits} * vNaOrthoDepthPerUnit) : ${depthBias};
+                    }
+                    #endif`);
             };
 
             const fatLineSegment              = new LineSegments2(fatLineGeometry, fatLineMaterial);

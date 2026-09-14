@@ -45,10 +45,10 @@
 //
 // PORT NOTE:
 // - Ported from   : n/a - authored in TrueVision3D
-// - Back-port     : PENDING to ValeVision3D. The module ports whole; the config
-//                   JSON ports verbatim, and only the category KEYS in the model
-//                   layer config differ because ValeVision namespaces its GLBs
-//                   its own way.
+// - Back-port     : done - ValeVision3D v2.30.0 (13-Sep-2026). Module and config
+//                   JSON verbatim below the header. ValeVision's model layer config
+//                   has these rows under its own prefix, plus the coarse categories
+//                   its older exports load.
 //
 // -----------------------------------------------------------------------------
 //

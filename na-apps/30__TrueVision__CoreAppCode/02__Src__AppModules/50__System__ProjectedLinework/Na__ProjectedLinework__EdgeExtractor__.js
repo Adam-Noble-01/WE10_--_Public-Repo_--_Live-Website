@@ -37,6 +37,18 @@
 //   component metadata. No TrueVision GLB carries it yet; the branch is kept
 //   so the day one does nothing has to change here.
 //
+// - LINEWORK FIRST. SketchUp's hide, soften and smooth flags do reach the app,
+//   but only by absence: the GLB Builder leaves every such edge out of the
+//   linework GLB, and the mesh GLB carries no edges at all. So both passes
+//   below take an optional Set of the category names that ship linework. An
+//   instance of one of them contributes its silhouettes and nothing else -
+//   its hard creases and open edges reach the drawing through the authored
+//   class, which is exactly what the live 3D view draws - and two of them are
+//   never tested against each other for intersections. Without it, a crease
+//   the modeller hid (a wall band sitting flush on the wall below) draws on
+//   every elevation and nowhere in 3D. Pass no Set and the output is
+//   byte-identical to 1.2.0.
+//
 // - VIEW PLACEMENT takes the soup builder's view map, so a free-bearing
 //   elevation places its edges by the same rotation the occluders turned by.
 //
@@ -48,13 +60,21 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__EdgeExtractor__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.3.0
+// - Divergences   : Console prefix, header and folder numbers; the linework
+//                   first Set of 1.3.0, authored here first.
+// - Back-port     : 1.3.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - Linework first: ExtractStageEdges and ExtractIntersectionEdges take an
+//   optional Set of the category names that ship SketchUp linework. An
+//   instance in the Set keeps only its silhouettes; two instances both in
+//   the Set, or one against itself, are not tested for intersections, and a
+//   bounds tree is then built only when a test reaches it.
+//
 // 12-Sep-2026 - Version 1.2.0
 // - Every producing and dividing function takes an optional owner table or
 //   buffer and keeps one category id per edge aligned with the geometry.
@@ -320,9 +340,13 @@
     // of one instance shares an id, so the tag is written once per instance
     // over the run it just pushed rather than once per edge.
     //
+    // lineworkCategories, when supplied, is the Set of category names that
+    // ship SketchUp linework. An instance of one of them pushes its
+    // silhouettes and nothing else (see LINEWORK FIRST in the header).
+    //
     // Returns { Edges, Owners } - Owners null when no table was supplied.
     // ------------------------------------------------------------
-    function Na__PlEdges__ExtractStageEdges(instances, upX, upY, upZ, thresholdAngle, ownerTable) {
+    function Na__PlEdges__ExtractStageEdges(instances, upX, upY, upZ, thresholdAngle, ownerTable, lineworkCategories) {
         const collected = [];
         const owners    = ownerTable ? [] : null;
 
@@ -332,6 +356,7 @@
             const e          = instance.matrixWorld.elements;
             const ownerId    = ownerTable ? Na__PlOwners__IdFor(ownerTable, instance.categoryName) : 0;
             const runStart   = collected.length;
+            const linework   = !!lineworkCategories && lineworkCategories.has(instance.categoryName);
 
             Na__PlEdges__LocalDirection.set(upX, upY, upZ);
             Na__PlEdges__InverseMatrix.copy(instance.matrixWorld).invert();
@@ -341,9 +366,14 @@
             const py = Na__PlEdges__LocalDirection.y;
             const pz = Na__PlEdges__LocalDirection.z;
 
-            const always = candidates.Always;
-            for (let i = 0; i < always.length; i += 6) {
-                Na__PlEdges__PushWorld(collected, e, always, i);
+            // LINEWORK FIRST. A crease SketchUp hid is missing from the linework
+            // and is no line in 3D either, so a category that ships linework
+            // leaves its creases and open edges to the authored class.
+            if (!linework) {
+                const always = candidates.Always;
+                for (let i = 0; i < always.length; i += 6) {
+                    Na__PlEdges__PushWorld(collected, e, always, i);
+                }
             }
 
             const conditional = candidates.Conditional;
@@ -434,22 +464,34 @@
     // instance A, which is also the frame every pushed line is transformed
     // into, so the tag and the coordinates agree about whose edge this is.
     //
+    // LINEWORK FIRST. With lineworkCategories supplied, two instances that
+    // both ship SketchUp linework are never tested against each other, and
+    // nor is such an instance against itself: where SketchUp drew their
+    // junction (Intersect Faces) the linework holds it, and where it did not,
+    // the 3D view shows no line there either. A pair with one instance
+    // outside the Set is still tested. Trees are then built only for the
+    // instances a test reaches; with no Set every tree is built on sight,
+    // exactly as before.
+    //
     // Returns { Edges, Owners } - Owners null when no table was supplied.
     // ------------------------------------------------------------
-    async function Na__PlEdges__ExtractIntersectionEdges(instances, slicer, report, limits, ownerTable) {
+    async function Na__PlEdges__ExtractIntersectionEdges(instances, slicer, report, limits, ownerTable, lineworkCategories) {
         const collected = [];
         const owners    = ownerTable ? [] : null;
         const boxes     = [];
         const maxPairs  = (limits && Number.isFinite(limits.MaxPairs) && limits.MaxPairs > 0) ? limits.MaxPairs : Infinity;
         const selfCap   = (limits && Number.isFinite(limits.SelfMaxTriangles) && limits.SelfMaxTriangles > 0) ? limits.SelfMaxTriangles : Infinity;
+        const linework  = instances.map((instance) => !!lineworkCategories && lineworkCategories.has(instance.categoryName));
+        const noLines   = new Float64Array(0);
         for (let i = 0; i < instances.length; i++) boxes.push(Na__PlEdges__WorldBox(instances[i]));
 
         // BUDGET | Count the overlapping pairs first (a box test each); a
         // model over the budget skips the whole pass rather than running it
-        // for minutes, and the report says so.
+        // for minutes, and the report says so. Two linework instances are
+        // not counted, because they are never tested.
         let overlapping = 0;
         for (let i = 0; i < instances.length && overlapping <= maxPairs; i++) {
-            for (let j = i + 1; j < instances.length; j++) if (Na__PlEdges__BoxesOverlap(boxes[i], boxes[j])) overlapping++;
+            for (let j = i + 1; j < instances.length; j++) if (!(linework[i] && linework[j]) && Na__PlEdges__BoxesOverlap(boxes[i], boxes[j])) overlapping++;
         }
         if (overlapping > maxPairs) {
             console.info('[TrueVision3D ProjectedLinework] Intersection edges skipped: over ' + maxPairs + ' overlapping instance pairs (ProjectedLinework__Projection__IntersectionMaxPairs).');
@@ -457,23 +499,29 @@
             return { Edges : new Float64Array(0), Owners : owners ? new Uint16Array(0) : null };
         }
 
-        let pairsTested = 0, pairsSkipped = 0, selfReused = 0, selfSkipped = 0;
+        let pairsTested = 0, pairsSkipped = 0, selfReused = 0, selfSkipped = 0, pairsLinework = 0, selfLinework = 0;
         for (let i = 0; i < instances.length; i++) {
             const instanceA = instances[i];
             const ownerId   = ownerTable ? Na__PlOwners__IdFor(ownerTable, instanceA.categoryName) : 0;
             const runStart  = collected.length;
-            const bvhA      = Na__PlEdges__BoundsTree(instanceA.geometry);
+            // No Set: the tree is built on sight, as 1.2.0 did. With one, it is
+            // built the first time a test reaches this instance, if one does.
+            let   bvhA      = lineworkCategories ? null : Na__PlEdges__BoundsTree(instanceA.geometry);
+            const treeA     = () => (bvhA || (bvhA = Na__PlEdges__BoundsTree(instanceA.geometry)));
             if (slicer) await slicer.Tick();
-            let selfLocal = Na__PlEdges__SelfIntersections.get(instanceA.geometry);
-            if (selfLocal) {
+            let selfLocal = linework[i] ? noLines : Na__PlEdges__SelfIntersections.get(instanceA.geometry);
+            if (linework[i]) {
+                selfLinework++;                                                  // <-- Its own folds are its linework's to draw
+            } else if (selfLocal) {
                 selfReused++;
             } else if (Na__PlEdges__TriangleCount(instanceA.geometry) > selfCap) {
                 selfLocal = new Float64Array(0);                                 // <-- A terrain or a wall shell: too large to fold-test
                 Na__PlEdges__SelfIntersections.set(instanceA.geometry, selfLocal);
                 selfSkipped++;
             } else {
+                const tree = treeA();
                 Na__PlEdges__Identity.identity();
-                const found = generateIntersectionEdges(bvhA, bvhA, Na__PlEdges__Identity, []);
+                const found = generateIntersectionEdges(tree, tree, Na__PlEdges__Identity, []);
                 selfLocal = new Float64Array(found.length * 6);
                 for (let k = 0; k < found.length; k++) {
                     const line = found[k];
@@ -491,13 +539,14 @@
                 Na__PlEdges__PushWorld(collected, instanceA.matrixWorld.elements, selfLocal, s);
             }
             for (let j = i + 1; j < instances.length; j++) {
+                if (linework[i] && linework[j]) { pairsLinework++; continue; }    // <-- Two linework categories: the junction is SketchUp's to draw
                 if (!Na__PlEdges__BoxesOverlap(boxes[i], boxes[j])) { pairsSkipped++; continue; }
                 if (slicer) await slicer.Tick();
                 pairsTested++;
                 const instanceB = instances[j];
                 const bvhB      = Na__PlEdges__BoundsTree(instanceB.geometry);
                 Na__PlEdges__BToA.copy(instanceA.matrixWorld).invert().multiply(instanceB.matrixWorld);
-                const found = generateIntersectionEdges(bvhA, bvhB, Na__PlEdges__BToA, []);
+                const found = generateIntersectionEdges(treeA(), bvhB, Na__PlEdges__BToA, []);
                 if (found.length === 0) continue;
                 const e = instanceA.matrixWorld.elements;
                 for (let k = 0; k < found.length; k++) {
@@ -518,6 +567,8 @@
             report.PairsSkipped = pairsSkipped;
             report.SelfReused   = selfReused;
             report.SelfSkipped  = selfSkipped;
+            report.PairsLinework = pairsLinework;
+            report.SelfLinework  = selfLinework;
         }
         return {
             Edges  : new Float64Array(collected),

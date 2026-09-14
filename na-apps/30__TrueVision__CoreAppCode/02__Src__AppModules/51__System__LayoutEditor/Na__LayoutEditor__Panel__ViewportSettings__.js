@@ -13,10 +13,18 @@
 // - The scene select is grouped by scene group (plans, elevations, cross
 //   sections, 3D views). A drawing scene makes a 2D viewport carrying its
 //   drawing id; any other scene makes a 3D snapshot viewport (D28, D30).
+// - Model Source (TrueVision): on a project with more than one design phase,
+//   which phase the viewport draws - for the selected viewport, and for the
+//   next one added. Hidden on a project with a single model.
 // - Scale is a three-way toggle (D27) on 2D viewports; the frame and pan
 //   readouts are editable numbers in paper and drawing millimetres; the
 //   markup mode switch, Import From Scene and Edit In Drawing implement
 //   D34 (editing of scene markup happens in the drawing itself).
+// - Frame hides the border and caption drawn round the viewport; Caption
+//   hides the caption alone, so it only counts while the frame shows.
+// - Doors (plans only) says how many doors the viewport draws shut - a plan
+//   draws the rest open - and Open all puts every one back. A door is shut or
+//   opened by clicking it on the plan (Na__LayoutEditor__PlanDoors__).
 //
 // INTEGRATION:
 // - Registered into the right column by the mode controller, which also
@@ -34,6 +42,25 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.5.0
+// - Doors: a row on plan viewports under Locked. Its note says whether every
+//   door is drawn open or how many the viewport has shut, and how to change
+//   that on the plan; Open all opens every shut door in one undo step. The row
+//   is a div, not a label, so a click on its caption never presses the button.
+//
+// 14-Sep-2026 - Version 1.4.0
+// - Frame: a checkbox above Caption that hides the viewport's frame and its
+//   caption together, on the sheet and in the PDF (Viewport__ShowFrame). They
+//   help while a sheet is set out; untick once it is, to title the view by
+//   hand. Caption greys out while the frame is hidden and keeps its own
+//   setting for when the frame comes back.
+//
+// 13-Sep-2026 - Version 1.3.0
+// - Model Source: a select under Scene for the selected viewport, one beside
+//   the Add Viewport scene, and a note that says when the viewport's phase is
+//   loading, failed, or is not in the project. Changing the scene keeps the
+//   model source; it is a separate choice.
+//
 // 10-Sep-2026 - Version 1.2.0
 // - The global raster level (Low, Medium, High) sits above the viewport settings, where it is looked for.
 //
@@ -52,7 +79,7 @@
 
     // MODULE IMPORTS | Config, Scale, Layout, Model, Panels, Viewports, Markup
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetLabel, Na__LeCfg__GetViewportSetup } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetViewportSetup } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeScale__ListDenominators, Na__LeScale__FormatLabel } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__Solve, Na__LeLayout__DefaultViewportRect } from './Na__LayoutEditor__SheetLayout__.js';
     import {
@@ -83,6 +110,14 @@
     import { Na__LeRaster__LEVELS, Na__LeRaster__Get, Na__LeRaster__Set } from './Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeMarkup__ImportFromScene } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeClip__IsCopyName } from './Na__LayoutEditor__ViewportClipboard__.js';
+    import { Na__LeDoors__IsPlan, Na__LeDoors__ClosedCount, Na__LeDoors__OpenAll } from './Na__LayoutEditor__PlanDoors__.js';
+    import {
+        Na__LeSource__HasChoices,
+        Na__LeSource__Resolve,
+        Na__LeSource__Options,
+        Na__LeSource__SelectValue,
+        Na__LeSource__StatusText
+    } from './Na__LayoutEditor__ModelSource__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Scenes and Groups
@@ -152,13 +187,15 @@
 
     // FUNCTION | Add a Viewport for a Scene (centred, at the default size)
     // ------------------------------------------------------------
-    function Na__LePanelViewport__Add(sheet, sceneId) {
+    // modelSourceId is the design phase it draws; empty is the Project Default.
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__Add(sheet, sceneId, modelSourceId) {
         const described = Na__LePanelViewport__Describe(sceneId);
         if (!sheet || !described) return null;
         const setup    = Na__LeCfg__GetViewportSetup();
         const layout   = Na__LeLayout__Solve(sheet);
         const viewport = Na__LeModel__CreateViewport(sheet, {
-            kind : described.kind, sceneId : sceneId, drawingId : described.drawingId,
+            kind : described.kind, sceneId : sceneId, drawingId : described.drawingId, modelSourceId : modelSourceId || null,
             rect : Na__LeLayout__DefaultViewportRect(layout, setup.defaultWidthMm, setup.defaultHeightMm)
         });
         if (viewport && viewport.Viewport__Kind === Na__LeModel__KIND_2D) Na__LeVp2d__CentreOnDrawing(sheet, viewport);
@@ -182,6 +219,7 @@
         add.className = 'na-le-block';
         add.setAttribute('data-na-block', 'add');
         add.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SceneLabel', 'Scene'), Na__LePanels__Select('vp-add-scene', Na__LePanelViewport__SceneOptions(), '')));
+        add.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ModelSourceLabel', 'Model Source'), Na__LePanels__Select('vp-add-source', Na__LeSource__Options(null), '')));
         if (editable) add.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddViewport', 'Add Viewport'), 'vp-add', 'na-le-btn--primary'));
         add.appendChild(Na__LePanels__Note(Na__LeCfg__GetLabel('NoSelection', 'Select a viewport on the sheet.')));
         body.appendChild(add);
@@ -200,6 +238,15 @@
         edit.setAttribute('data-na-block', 'edit');
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ViewportName', 'Name'), Na__LePanels__Input('text', 'vp-name', { placeholder : 'Caption from the scene' })));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SceneLabel', 'Scene'), Na__LePanels__Select('vp-scene', Na__LePanelViewport__SceneOptions(), '')));
+        // MODEL SOURCE | Beside the scene because together they say what is drawn:
+        // the scene says from where, the source says which design phase.
+        const source = Na__LePanels__Select('vp-source', Na__LeSource__Options(null), '');
+        source.title = Na__LeCfg__GetLabel('ModelSourceNote', 'The design phase this viewport draws.');
+        edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ModelSourceLabel', 'Model Source'), source));
+        const sourceNote = Na__LePanels__Note('');
+        sourceNote.setAttribute('data-na-block', 'source-note');
+        sourceNote.hidden = true;
+        edit.appendChild(sourceNote);
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('LayerLabel', 'Layer'), Na__LePanels__Select('vp-layer', [], '')));
 
         const scale = document.createElement('div');
@@ -231,8 +278,28 @@
         markup.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('MarkupScene', 'Scene'), 'vp-markup', 'na-le-btn--toggle', 'scene'));
         markup.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('MarkupSheet', 'Sheet'), 'vp-markup', 'na-le-btn--toggle', 'sheet'));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('MarkupMode', 'Markup'), markup));
+        // FRAME | The border and caption round the viewport, on the sheet and in
+        // the PDF. It sits above Caption because the caption rides on the frame.
+        const frameRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShowFrameLabel', 'Frame'), Na__LePanels__Input('checkbox', 'vp-show-frame'));
+        frameRow.title = Na__LeCfg__GetLabel('ShowFrameTitle', 'The border and caption round this viewport, on the sheet and in the PDF. Untick once the sheet is set out, to title the view yourself.');
+        edit.appendChild(frameRow);
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShowScaleLabel', 'Caption'), Na__LePanels__Input('checkbox', 'vp-caption')));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('LockedLabel', 'Locked'), Na__LePanels__Input('checkbox', 'vp-locked')));
+        // DOORS | Plans only. A plan draws every door open; the note says how many
+        // this viewport has shut. A div rather than the label row, so a click on
+        // the caption can never press Open all.
+        const doorsRow = document.createElement('div');
+        doorsRow.className = 'na-le-row';
+        doorsRow.setAttribute('data-na-block', 'doors');
+        const doorsCaption = document.createElement('span');
+        doorsCaption.className   = 'na-le-row__label';
+        doorsCaption.textContent = Na__LeCfg__GetLabel('DoorsLabel', 'Doors');
+        doorsRow.appendChild(doorsCaption);
+        if (editable) doorsRow.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('DoorsOpenAll', 'Open all'), 'vp-doors-open-all', 'na-le-btn--small'));
+        edit.appendChild(doorsRow);
+        const doorsNote = Na__LePanels__Note('');
+        doorsNote.setAttribute('data-na-block', 'doors-note');
+        edit.appendChild(doorsNote);
 
         if (editable) {
             const actions = document.createElement('div');
@@ -260,6 +327,16 @@
         editBlock.hidden = !viewport;
         const addSelect = addBlock.querySelector('[data-na-control="vp-add-scene"]');
         if (addSelect && addSelect.options.length <= 1) Na__LePanels__FillSelect(addSelect, Na__LePanelViewport__SceneOptions(), '');
+        // THE SOURCE CHOICES ARRIVE WITH THE PROJECT DATA, which can be after the
+        // panel was built, so both selects refill whenever the count differs. The
+        // row is hidden outright on a project with one model: no choice to make.
+        const choices   = Na__LeSource__HasChoices();
+        const addSource = addBlock.querySelector('[data-na-control="vp-add-source"]');
+        if (addSource) {
+            addSource.parentNode.hidden = !choices;
+            const options = Na__LeSource__Options(null);
+            if (addSource.options.length !== options.length && document.activeElement !== addSource) Na__LePanels__FillSelect(addSource, options, addSource.value);
+        }
         if (!viewport || !sheet) return;
 
         const is2d = viewport.Viewport__Kind === Na__LeModel__KIND_2D;
@@ -267,6 +344,20 @@
         set('vp-name', viewport.Viewport__Name || '');
         const sceneSelect = editBlock.querySelector('[data-na-control="vp-scene"]');
         Na__LePanels__FillSelect(sceneSelect, Na__LePanelViewport__SceneOptions(), viewport.Viewport__SceneId || '');
+        const sourceSelect = editBlock.querySelector('[data-na-control="vp-source"]');
+        if (sourceSelect) {
+            sourceSelect.parentNode.hidden = !choices;
+            if (document.activeElement !== sourceSelect) Na__LePanels__FillSelect(sourceSelect, Na__LeSource__Options(viewport), Na__LeSource__SelectValue(viewport));
+        }
+        const sourceNote = editBlock.querySelector('[data-na-block="source-note"]');
+        if (sourceNote) {
+            const source = Na__LeSource__Resolve(viewport);
+            const text   = source.missing
+                ? Na__LeCfg__FormatLabel('ModelSourceMissing', '"{id}" is not a design phase of this project, so this viewport draws the Project Default.', { id : source.storedId })
+                : ((source.renderId && source.status !== 'ready') ? Na__LeSource__StatusText(source) : '');
+            sourceNote.textContent = text;
+            sourceNote.hidden = !choices || !text;
+        }
         Na__LePanels__FillSelect(editBlock.querySelector('[data-na-control="vp-layer"]'), Na__LeModel__GetLayers(sheet).map((l) => ({ value : l.Layer__Id, label : l.Layer__Name })), viewport.Viewport__LayerId);
 
         editBlock.querySelector('[data-na-block="scale"]').parentNode.hidden = !is2d;
@@ -280,10 +371,30 @@
         });
         editBlock.querySelector('[data-na-block="markup"]').parentNode.hidden = !is2d;
         editBlock.querySelectorAll('[data-na-control="vp-markup"]').forEach((b) => b.classList.toggle('na-le-btn--active', b.getAttribute('data-na-role') === viewport.Viewport__MarkupMode));
+        const frameShown = viewport.Viewport__ShowFrame !== false;
+        const showFrame  = editBlock.querySelector('[data-na-control="vp-show-frame"]');
+        if (showFrame) showFrame.checked = frameShown;
         const caption = editBlock.querySelector('[data-na-control="vp-caption"]');
-        if (caption) caption.checked = viewport.Viewport__ShowScaleLabel !== false;
+        if (caption) {
+            caption.checked  = viewport.Viewport__ShowScaleLabel !== false;
+            caption.disabled = !Na__LePanels__IsEditable() || !frameShown;       // <-- Its own setting is kept, and applies again when the frame comes back
+            caption.parentNode.title = frameShown ? '' : Na__LeCfg__GetLabel('CaptionNeedsFrame', 'The caption shows with the frame. Tick Frame to show it.');
+        }
         const locked = editBlock.querySelector('[data-na-control="vp-locked"]');
         if (locked) locked.checked = viewport.Viewport__Locked === true;
+        const isPlan    = Na__LeDoors__IsPlan(viewport);
+        const shutCount = isPlan ? Na__LeDoors__ClosedCount(viewport) : 0;
+        const doorsRow  = editBlock.querySelector('[data-na-block="doors"]');
+        if (doorsRow) doorsRow.hidden = !isPlan;
+        const openAll = editBlock.querySelector('[data-na-control="vp-doors-open-all"]');
+        if (openAll) openAll.disabled = !Na__LePanels__IsEditable() || shutCount === 0;   // <-- A lock holds the frame, not the doors
+        const doorsNote = editBlock.querySelector('[data-na-block="doors-note"]');
+        if (doorsNote) {
+            doorsNote.hidden      = !isPlan;
+            doorsNote.textContent = shutCount === 0
+                ? Na__LeCfg__GetLabel('DoorsAllOpen', 'Every door is drawn open. With the viewport selected, click a door on the plan to close it.')
+                : Na__LeCfg__FormatLabel('DoorsSomeClosed', '{count} closed. Click a door on the plan to open or close it.', { count : shutCount });
+        }
         const actions = editBlock.querySelector('[data-na-block="actions2d"]');
         if (actions) actions.hidden = !is2d;
     }
@@ -306,8 +417,16 @@
         Na__LePanels__OnControl('change', 'vp-raster', (e, el) => Na__LeRaster__Set(el.value));
         Na__LePanels__OnControl('click', 'vp-add', (e, el) => {
             const select = el.parentNode.querySelector('[data-na-control="vp-add-scene"]');
+            const source = el.parentNode.querySelector('[data-na-control="vp-add-source"]');
             const sheet  = Na__LeModel__GetActiveSheet();
-            if (select && select.value && sheet) Na__LePanelViewport__Add(sheet, select.value);
+            if (select && select.value && sheet) Na__LePanelViewport__Add(sheet, select.value, source ? source.value : null);
+        });
+        Na__LePanels__OnControl('change', 'vp-source', (e, el) => {
+            const c = Na__LePanelViewport__Current();
+            if (!c) return;
+            const next = el.value || null;
+            if ((c.viewport.Viewport__ModelSourceId || null) === next) return;
+            Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { modelSourceId : next });   // <-- One undo step; the frame redraws from the new phase
         });
         Na__LePanels__OnControl('change', 'vp-name',  (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { name : el.value.trim() }); });
         Na__LePanels__OnControl('change', 'vp-layer', (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { layerId : el.value }); });
@@ -331,8 +450,10 @@
         });
         Na__LePanels__OnControl('click', 'vp-centre', () => { const c = Na__LePanelViewport__Current(); if (c && Na__LeVp2d__CentreOnDrawing(c.sheet, c.viewport)) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, {}, false); });
         Na__LePanels__OnControl('click', 'vp-markup', (e, el, role) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { markupMode : role }); });
+        Na__LePanels__OnControl('change', 'vp-show-frame', (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { showFrame : el.checked }); });
         Na__LePanels__OnControl('change', 'vp-caption', (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { showScaleLabel : el.checked }); });
         Na__LePanels__OnControl('change', 'vp-locked',  (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { locked : el.checked }); });
+        Na__LePanels__OnControl('click', 'vp-doors-open-all', () => { const c = Na__LePanelViewport__Current(); if (c) Na__LeDoors__OpenAll(c.sheet, c.viewport.Viewport__Id); });
         Na__LePanels__OnControl('click', 'vp-import', () => {
             const c = Na__LePanelViewport__Current();
             if (!c || c.viewport.Viewport__Kind !== Na__LeModel__KIND_2D) return;

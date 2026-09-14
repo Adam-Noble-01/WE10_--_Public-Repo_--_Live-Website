@@ -72,6 +72,7 @@ TRUEVISION_DEV_OWNED_KEYS = (
     'Navmode__FovOverrides',
     'Camera__DefaultPosition',
     'OrbitHelperCube__Position',
+    'LayoutEditor__DrawingsData',
 )
 
 

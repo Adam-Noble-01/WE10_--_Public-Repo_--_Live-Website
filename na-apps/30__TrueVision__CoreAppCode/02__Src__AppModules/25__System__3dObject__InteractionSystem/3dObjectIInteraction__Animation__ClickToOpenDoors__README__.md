@@ -4,11 +4,23 @@
 **Feature:** Click-to-Open Door Animation for TrueVision3D  
 **Created:** 14-Feb-2026  
 **Author:** Adam Noble - Noble Architecture  
-**Module Version:** 1.7.0 (10-Jul-2026 — independent Exterior Double Door leaves)
+**Module Version:** 1.9.0 (14-Sep-2026 — door poses readable without animating, for Layout Editor plans)
 
 ---
 
 ## Recent Changes
+
+**V1.9.0 — 14-Sep-2026**
+- Layout Editor plan viewports draw every door OPEN, with swing arcs, whatever
+  the 3D view shows, bar the doors a viewport closes. They pose the doors
+  through this module, so a plan opens a door exactly as a click in the 3D
+  view does, mirrored and interior-inverted doors included.
+- New exports: `Na__DoorAnim__DescribeDoors` (records for any groups, never
+  registered), `Na__DoorAnim__ComputePanelLocalPose` (a panel's local pose at a
+  progress, touching nothing), `Na__DoorAnim__ApplyPanelTransform`,
+  `Na__DoorAnim__GetLiveProgress` and the `MOD_TYPE_*` constants.
+- `ScanForDoors` now scans through `ScanGroupsInto`; its behaviour, warnings
+  and log lines are unchanged.
 
 **V1.7.0 — 10-Jul-2026**
 - ADR names containing a configured independent token (default
@@ -501,6 +513,26 @@ Re-scans scene graph for door assemblies. Useful for dynamically loaded models.
 Toggles one panel only when `doorRecord.isIndependentPanels === true`. Returns
 `true` when an eligible panel animation was started/reversed, otherwise `false`.
 External whole-door callers should continue using `Na__DoorAnim__ToggleDoor`.
+
+---
+
+### `Na__DoorAnim__DescribeDoors(meshGroups, lineworkGroups)` (V1.9.0)
+
+Returns door records for any mesh and linework groups without registering them
+or adding listeners. A door the registry holds comes back as the registry's own
+record; any other is built once, at rest, and cached by its ADR object. Used by
+`50__System__ProjectedLinework/Na__ProjectedLinework__DoorPose__.js`.
+
+### `Na__DoorAnim__ComputePanelLocalPose(panel, progress, outPosition, outQuaternion)` (V1.9.0)
+
+Writes a panel's local position and quaternion at `progress` (0 shut, 1 open)
+into the vectors given, touching nothing. `Na__DoorAnim__ApplyPanelTransform`
+writes the same pose onto a MOD object.
+
+### `Na__DoorAnim__GetLiveProgress(doorRecord, panel)` (V1.9.0)
+
+The progress the 3D view holds a panel at: the panel's own for independent
+leaves, the door's otherwise, and 0 for a record built outside the registry.
 
 ---
 

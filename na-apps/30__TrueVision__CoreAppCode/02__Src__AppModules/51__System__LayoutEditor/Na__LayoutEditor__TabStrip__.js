@@ -34,6 +34,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - Project Specification: while a drawing tab is open, a Project
+//   Specification tab sits at the end of the strip (Na__LeMode__OpenSpecification).
+//   It is the active tab while its page is showing, and carries an amber dot
+//   while the specification holds changes the cloud has not got.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - A model change rebuilds the strip only when a tab would look different - a
 //   sheet added, removed, renamed, reordered or opened - instead of on every edit.
@@ -65,8 +71,12 @@
         Na__LeMode__Leave,
         Na__LeMode__IsActive,
         Na__LeMode__IsEditable,
-        Na__LeMode__Ready
+        Na__LeMode__Ready,
+        Na__LeMode__VIEW_SPEC,
+        Na__LeMode__GetView,
+        Na__LeMode__OpenSpecification
     } from './Na__LayoutEditor__ModeController__.js';
+    import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__IsDirty } from './Na__LayoutEditor__SpecData__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -149,7 +159,8 @@
         Na__LeTabs__Signature = Na__LeTabs__Sig();                              // <-- Recorded by every build, direct or gated, so the gate can never go stale
         const sheets   = Na__LeModel__GetSheets();
         const editable = Na__LeMode__IsEditable();
-        const active   = Na__LeMode__IsActive() ? Na__LeModel__GetActiveSheet() : null;
+        const onSpec   = Na__LeMode__IsActive() && Na__LeMode__GetView() === Na__LeMode__VIEW_SPEC;
+        const active   = (Na__LeMode__IsActive() && !onSpec) ? Na__LeModel__GetActiveSheet() : null;   // <-- No sheet tab is the open one while the specification is
         const visible  = Na__LeCfg__IsEnabled() && (sheets.length > 0 || editable);
         Na__LeTabs__Root.innerHTML = '';
         Na__LeTabs__Publish(visible);
@@ -183,6 +194,17 @@
             plus.title = Na__LeCfg__GetLabel('AddSheetTitle', 'New sheet');
             Na__LeTabs__Root.appendChild(plus);
         }
+
+        // PROJECT SPECIFICATION | Last, and only while a drawing tab is open
+        if (Na__LeMode__IsActive()) {
+            const unsynced = Na__LeSpec__IsDirty();
+            const spec = Na__LeTabs__Tab(Na__LeCfg__GetLabel('SpecificationTab', 'Project Specification'), onSpec, () => Na__LeMode__OpenSpecification(),
+                'na-le-tabs__tab--spec' + (unsynced ? ' na-le-tabs__tab--unsynced' : ''));
+            spec.title = unsynced
+                ? Na__LeCfg__GetLabel('SpecificationTabUnsynced', 'Project Specification - changes kept in this browser, not yet synced')
+                : Na__LeCfg__GetLabel('SpecificationTabTitle', 'Every drawing note of the project, grouped and numbered');
+            Na__LeTabs__Root.appendChild(spec);
+        }
     }
     // ------------------------------------------------------------
 
@@ -193,7 +215,8 @@
         const sheets = Na__LeModel__GetSheets();
         const active = Na__LeMode__IsActive() ? Na__LeModel__GetActiveSheet() : null;
         return sheets.map((sheet) => sheet.Sheet__Id + '\u0001' + sheet.Sheet__Name).join('\u0002')
-            + '|' + (active ? active.Sheet__Id : '') + '|' + Na__LeMode__IsActive() + '|' + Na__LeMode__IsEditable() + '|' + Na__LeCfg__IsEnabled();
+            + '|' + (active ? active.Sheet__Id : '') + '|' + Na__LeMode__IsActive() + '|' + Na__LeMode__IsEditable() + '|' + Na__LeCfg__IsEnabled()
+            + '|' + Na__LeMode__GetView() + '|' + Na__LeSpec__IsDirty();          // <-- The specification tab: open or not, synced or not
     }
     // ------------------------------------------------------------
 
@@ -234,6 +257,7 @@
         else document.body.insertBefore(nav, document.body.firstChild);
         Na__LeTabs__Root = nav;
         window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeTabs__OnModelChanged);   // <-- Only when a tab would look different
+        window.addEventListener(Na__LeSpec__CHANGED_EVENT,  Na__LeTabs__OnModelChanged);   // <-- The specification tab's unsynced dot
         window.addEventListener(Na__LeMode__CHANGED_EVENT,  () => Na__LeTabs__Render());
         Na__LeMode__Ready().then(() => Na__LeTabs__Render());
         return true;

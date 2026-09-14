@@ -302,6 +302,16 @@
                 "Note"          : "Click one corner then the opposite one, or drag from one to the other; Shift keeps it square. What it makes is an ordinary closed vector, so its corners are then dragged by their grips like any polygon's. Exact modifiers leave Ctrl+R to the browser."
             },
             {
+                "Id"            : "Tool__Leader",
+                "Label"         : "Leader tool: a note or a specification bubble on a curved leader",
+                "Action"        : "Tool__Leader",
+                "Enabled"       : true,
+                "Keys"          : [ "e", "E" ],
+                "Modifiers"     : [],
+                "ModifierMatch" : "Exact",
+                "Note"          : "Click the point the leader marks, then where its note or bubble goes - or drag from one to the other. The side of the point the head is placed on decides which way a note reads. The settings for new leaders are on the Leaders panel."
+            },
+            {
                 "Id"            : "Edit__NudgeLeft",
                 "Label"         : "Nudge the selection left, or lock the X axis while a tool is placing a point",
                 "Action"        : "Edit__NudgeLeft",
@@ -365,6 +375,16 @@
                 "ModifierMatch" : "Exact"
             },
             {
+                "Id"            : "Tool__EyedropperPalette",
+                "Label"         : "Eyedropper palette: use an object's style for new objects of its kind",
+                "Action"        : "Tool__EyedropperPalette",
+                "Enabled"       : true,
+                "Keys"          : [ "b", "B" ],
+                "Modifiers"     : [ "Shift" ],
+                "ModifierMatch" : "Exact",
+                "Note"          : "Listed above plain B so the more specific binding is tested first, though Exact matching keeps the two apart anyway. Click an object and its style becomes the Text, Dimensions or Vectors setting that new objects are drawn with. Keep a scrapbook of one of each house style beside the paper, where it never prints."
+            },
+            {
                 "Id"            : "Tool__Eyedropper",
                 "Label"         : "Eyedropper: match properties from one object onto another",
                 "Action"        : "Tool__Eyedropper",
@@ -388,6 +408,47 @@
         "LayoutEditor__TouchBindings__DoubleTapSlopPx"     : 24,
         "LayoutEditor__TouchBindings__PanStartSlopPx"      : 6,
         "LayoutEditor__TouchBindings__PinchStartSlopPx"    : 8
+    },
+
+    "LayoutEditor__MeasurementsBox__Config" : {
+        "LayoutEditor__MeasurementsBox__Description"      : "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
+        "LayoutEditor__MeasurementsBox__StartCharacters"  : "0123456789.,-",
+        "LayoutEditor__MeasurementsBox__TypingCharacters" : "0123456789.,-+ xX*;mMcC",
+        "LayoutEditor__MeasurementsBox__CommitKeys"       : [ "Enter" ],
+        "LayoutEditor__MeasurementsBox__ClearKeys"        : [ "Escape", "Delete" ],
+        "LayoutEditor__MeasurementsBox__EraseKeys"        : [ "Backspace" ]
+    },
+
+    "LayoutEditor__SelectionBindings__Config" : {
+        "LayoutEditor__SelectionBindings__Description"         : "What a modifier held on a Select tool press does to the selection - for a click on an item and for a box dragged from bare paper alike - as SketchUp holds them. With none held the click or the box replaces the selection. The list is tested in order with Exact matching, so the two-modifier binding sits first. BoxAnywhereModifier is set aside before the list is tested: while it is held a drag draws a box even from on top of something that could be moved, which is the way in on a sheet with no bare paper left to start from, and Shift or Ctrl still combine with it. A box dragged to the right is a window (only what it wholly encloses); dragged to the left it is a crossing (anything it touches as well).",
+        "LayoutEditor__SelectionBindings__BoxAnywhereModifier" : "Alt",
+        "LayoutEditor__SelectionBindings__List" : [
+            {
+                "Id"            : "Select__Remove",
+                "Label"         : "Remove from the selection (Ctrl+Shift, click or box)",
+                "Action"        : "Select__Remove",
+                "Enabled"       : true,
+                "Modifiers"     : [ "Ctrl", "Shift" ],
+                "ModifierMatch" : "Exact"
+            },
+            {
+                "Id"            : "Select__Add",
+                "Label"         : "Add to the selection (Ctrl, click or box)",
+                "Action"        : "Select__Add",
+                "Enabled"       : true,
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "Exact"
+            },
+            {
+                "Id"            : "Select__Toggle",
+                "Label"         : "Add or remove, each item flipping (Shift, click or box)",
+                "Action"        : "Select__Toggle",
+                "Enabled"       : true,
+                "Modifiers"     : [ "Shift" ],
+                "ModifierMatch" : "Exact",
+                "Note"          : "Shift held through a drag of the selection still keeps the move to one axis: an item only leaves the selection on a Shift click that did not move."
+            }
+        ]
     },
 
     "LayoutEditor__Actions__Config" : {
@@ -416,7 +477,9 @@
             { "Action" : "Tool__Dimension",       "Label" : "Dimension tool",            "Group" : "Tools"      },
             { "Action" : "Tool__Draw",            "Label" : "Draw tool",                 "Group" : "Tools"      },
             { "Action" : "Tool__Rectangle",       "Label" : "Rectangle tool",            "Group" : "Tools"      },
+            { "Action" : "Tool__Leader",          "Label" : "Leader tool",               "Group" : "Tools"      },
             { "Action" : "Tool__Eyedropper",      "Label" : "Eyedropper tool",           "Group" : "Tools"      },
+            { "Action" : "Tool__EyedropperPalette", "Label" : "Eyedropper palette",      "Group" : "Tools"      },
             { "Action" : "Snap__Toggle",          "Label" : "Toggle object snapping",    "Group" : "Tools"      },
             { "Action" : "Edit__Undo",            "Label" : "Undo",                      "Group" : "Editing"    },
             { "Action" : "Edit__Redo",            "Label" : "Redo",                      "Group" : "Editing"    },
@@ -424,7 +487,10 @@
             { "Action" : "Edit__Paste",           "Label" : "Paste a viewport",          "Group" : "Editing"    },
             { "Action" : "Edit__Duplicate",       "Label" : "Duplicate a viewport",      "Group" : "Editing"    },
             { "Action" : "Edit__Deselect",        "Label" : "Clear the selection",       "Group" : "Editing"    },
-            { "Action" : "Edit__Finish",          "Label" : "Finish the shape",          "Group" : "Editing"    }
+            { "Action" : "Edit__Finish",          "Label" : "Finish the shape",          "Group" : "Editing"    },
+            { "Action" : "Select__Add",           "Label" : "Add to the selection",      "Group" : "Selection"  },
+            { "Action" : "Select__Toggle",        "Label" : "Add to or remove from the selection", "Group" : "Selection" },
+            { "Action" : "Select__Remove",        "Label" : "Remove from the selection", "Group" : "Selection"  }
         ]
     }
 }

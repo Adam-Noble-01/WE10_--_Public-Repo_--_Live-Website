@@ -39,7 +39,7 @@
 //
 // ---------------------------------------------------------------------------
 //
-// THE FOUR CHANGES FROM THE VENDORED IMPLEMENTATION
+// THE FOUR CHANGES FROM THE VENDORED IMPLEMENTATION, AND ONE SWITCH
 //
 // Each is here because it was measured or reasoned to be a real cost, and each is
 // noted at the line it affects.
@@ -71,6 +71,19 @@
 //      Descent is ordered highest child first so that the tall occluder which
 //      saturates an edge is usually found early.
 //
+//   5  SEAMS OCCLUDE (options.SeamsOcclude - a TrueVision switch, off for Run Diff)
+//      The vendored overlap test skips a triangle side lying exactly along the
+//      edge, then counts the corner at its far end on the NEXT side - which is
+//      that same skipped side - so it finds one crossing, not two, and the
+//      triangle covers nothing. An edge BEHIND a seam, where two occluders meet
+//      exactly on its line, was therefore never hidden: a wall band sitting
+//      flush on the wall below lets every edge at that height through, the
+//      inner face's included, though the depth buffer hides them all in 3D.
+//      With the switch on, that side IS the crossing and the triangle covers
+//      the edge along it. Only the part of an edge beneath the plane reaches
+//      this test, so an edge lying ON the face still draws. Off, the
+//      arithmetic is the vendored one exactly.
+//
 // ---------------------------------------------------------------------------
 //
 // ON EXACTNESS
@@ -97,13 +110,20 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__ClipKernel__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.2.0
+// - Divergences   : Console prefix, header and folder numbers; SeamsOcclude
+//                   (1.2.0), authored here first.
+// - Back-port     : 1.2.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - options.SeamsOcclude: a triangle side lying exactly along the edge covers
+//   the edge along that side (change 5 above). Without it the output is
+//   byte-identical to 1.1.0. (1.1.0, the owner tags of 12-Sep-2026, was never
+//   logged here.)
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Ported from the Lantern Designer projection engine for port Phase 4;
 //   identifiers renamed to the TrueVision namespace and the header restyled.
@@ -285,6 +305,7 @@
             : 0;
         const minimumLengthSq  =  minimumLength * minimumLength;
         const wantHidden       =  settings.IncludeHiddenEdges === true;
+        const seamsOcclude     =  settings.SeamsOcclude === true;             // <-- Change 5 in the header
 
         // OWNER TAGS RIDE ALONG WHEN THE EDGES CARRY THEM. edges.Owners is one
         // category id per edge; the sinks turn that into one id per emitted
@@ -509,7 +530,13 @@
 
                         let hx2, hz2;
                         if (on1 && on2) {
-                            continue;                                         // <-- Triangle side lies along the cut: the other two sides describe it
+                            if (!seamsOcclude) continue;                            // <-- Vendored: skipped, and the corner rule then finds one crossing, not two
+                            h0x  =  p1x;                                            // <-- SEAMS OCCLUDE: the side along the cut IS the crossing
+                            h0z  =  p1z;
+                            h1x  =  p2x;
+                            h1z  =  p2z;
+                            hitCount  =  2;
+                            break;
                         } else if (on1) {
                             hx2  =  p1x;
                             hz2  =  p1z;

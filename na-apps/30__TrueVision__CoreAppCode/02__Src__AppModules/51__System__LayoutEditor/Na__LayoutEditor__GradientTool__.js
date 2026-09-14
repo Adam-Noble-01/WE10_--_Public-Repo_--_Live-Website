@@ -102,9 +102,11 @@
 //
 // PORT NOTE:
 // - Ported from   : n/a - authored in TrueVision3D
-// - Back-port     : PENDING to ValeVision3D. The module and its config port
-//                   verbatim; the record shape is shared so either app reads
-//                   the other's gradients.
+// - Ported to     : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__GradientTool__.js
+// - Ported on     : 13-Sep-2026 for ValeVision3D v2.26.0
+// - Parity        : verbatim (the ValeVision copy differs in its header and console
+//                   prefix only; the config JSON is identical and the record shape
+//                   is shared, so either app reads the other's gradients)
 //
 // -----------------------------------------------------------------------------
 //

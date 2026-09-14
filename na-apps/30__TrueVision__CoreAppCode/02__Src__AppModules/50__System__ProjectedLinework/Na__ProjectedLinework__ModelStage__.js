@@ -16,10 +16,13 @@
 //
 //   THE FINGERPRINT   A short stable string for the state of the model as the
 //                     projection sees it: the config build token, the project
-//                     code, and every category group with its triangle count
-//                     and visibility. Stable across reloads of the same GLBs
-//                     (no uuids, no object identity), changed by a different
-//                     model, a re-exported GLB or a category switched off.
+//                     code, the three edge rules (linework first, seams
+//                     occlude, flush joins), and every category group with its
+//                     triangle count and
+//                     visibility. Stable across reloads of the same GLBs (no
+//                     uuids, no object identity), changed by a different
+//                     model, a re-exported GLB, a category switched off or
+//                     any edge rule switched.
 //
 //   THE BOUNDS TREES  three-mesh-bvh trees left on each geometry so the
 //                     intersection pass finds them ready. Built once per
@@ -41,13 +44,19 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__ModelStage__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.1.0
+// - Divergences   : Console prefix, header and folder numbers; the edge rules
+//                   in the fingerprint (1.1.0), authored here first.
+// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Describe folds the three edge rules (linework first, seams occlude, flush
+//   joins) into the fingerprint, so linework rendered or baked under one
+//   setting is never restored under another, whichever way a switch is moved.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 4.
 //
@@ -68,6 +77,7 @@
     // ------------------------------------------------------------
     import {
         Na__PlCfg__GetPerformanceSetup,
+        Na__PlCfg__GetProjectionSetup,
         Na__PlCfg__GetModelSetup
     } from './Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedLinework__Scheduler__.js';
@@ -121,6 +131,9 @@
         const material = JSON.stringify({
             token   : Na__PlCfg__GetModelSetup().buildToken,
             project : Na__DrawData__GetProjectCode() || null,
+            edges   : Na__PlCfg__GetProjectionSetup().lineworkFirst ? 'linework-first' : 'mesh-creases',
+            seams   : Na__PlCfg__GetProjectionSetup().seamsOcclude ? 'seams-occlude' : 'seams-open',
+            joins   : Na__PlCfg__GetProjectionSetup().hideFlushJoins ? 'flush-joins-hidden' : 'flush-joins-drawn',
             groups  : categories.map((c) => [ c.name, c.tris, c.visible ? 1 : 0 ])
         });
 

@@ -307,6 +307,27 @@
     display                            : none !important;
 }
 
+/* A SUB-FOLD inside a panel (the Leaders panel's Endpoint): the Advanced
+   fold's quiet toggle, opening only the rows under it, which carry a faint
+   rule down their left like the gradient rows. */
+.na-le-subfold-toggle {
+    margin                             : 2px 0 6px;
+}
+
+.na-le-subfold-toggle.is-open {
+    color                              : #1a7fc4;
+}
+
+.na-le-subfold-toggle.is-open .na-le-adv-toggle__chevron {
+    transform                          : none;
+}
+
+.na-le-subfold {
+    margin                             : -2px 0 6px;
+    padding-left                       : 8px;
+    border-left                        : 2px solid #e6eaee;
+}
+
 /* THE INLINE CLUSTER inside a toggle row: colour, line type, weight, then the
    row's own checkbox after it. The label gives way first - it ellipsises
    rather than pushing the controls off the edge - which is why the panel can
@@ -343,6 +364,15 @@
     flex                               : 0 0 16px;
     color                              : #8a96a0;
     font-size                          : 0.66rem;
+}
+
+/* THE CHECKBOX COLUMN, HELD OPEN on a composite row that has a weight but no
+   toggle (Section Outline). Every other weight sits just before its row's
+   checkbox; without this the row's weight slides right by a checkbox and its
+   gap, and the column breaks. Same width as .na-le-input--check. */
+.na-le-row__check-slot {
+    flex                               : 0 0 16px;
+    width                              : 16px;
 }
 
 /* A CLUSTER THAT DOES NOT APPLY to the selected viewport - edge styles on a
@@ -530,14 +560,6 @@
     font-style                         : italic;
 }
 
-.na-le-layer.is-dragging {
-    opacity                            : 0.5;
-}
-
-.na-le-layer.is-drop-target {
-    border-color                       : #1a7fc4;
-}
-
 .na-le-layer__name {
     flex                               : 1 1 auto;
     min-width                          : 0;
@@ -545,6 +567,97 @@
     text-overflow                      : ellipsis;
     white-space                        : nowrap;
     cursor                             : default;
+}
+
+/* THE LOCK BUTTON SAYS WHAT A CLICK WILL DO - "Lock" or "Unlock" - so it
+   holds one width for both words; otherwise every name in the list would
+   twitch sideways as its layer locked. */
+.na-le-btn--lock {
+    min-width                          : 48px;
+}
+
+/* A LOCKED LAYER'S BUTTON is only just red: enough to pick the locked rows
+   out at a glance, too little to be mistaken for a warning or for Delete. */
+.na-le-btn--lock.is-locked {
+    border-color                       : #e8c9c9;
+    background                         : #fbf3f3;
+    color                              : #9b3b3b;
+}
+
+.na-le-btn--lock.is-locked:hover:not(:disabled) {
+    background                         : #f6e7e7;
+}
+
+/* THE GRIP - six small squares, the usual sign for "hold here and drag".
+   Faint until its row is under the pointer; the grab cursor does the rest. */
+.na-le-layer__grip {
+    flex                               : 0 0 auto;
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    width                              : 20px;
+    height                             : 22px;
+    padding                            : 0;
+    border                             : 1px solid transparent;
+    border-radius                      : 4px;
+    background                         : transparent;
+    color                              : #a0aab2;
+    cursor                             : grab;
+    touch-action                       : none;
+    user-select                        : none;
+}
+
+.na-le-layer__grip svg {
+    display                            : block;
+    width                              : 8px;
+    height                             : 13px;
+    fill                               : currentColor;
+    pointer-events                     : none;
+}
+
+.na-le-layer:hover .na-le-layer__grip:not(:disabled) {
+    color                              : #6c7a86;
+}
+
+.na-le-layer .na-le-layer__grip:hover:not(:disabled),
+.na-le-layers .na-le-layer.is-dragging .na-le-layer__grip {
+    background                         : #e2e8ee;
+    color                              : #172b3a;
+}
+
+.na-le-layer__grip:focus-visible {
+    outline                            : none;
+    border-color                       : #1a7fc4;
+}
+
+.na-le-layer__grip:disabled {
+    opacity                            : 0.35;
+    cursor                             : default;
+}
+
+/* WHILE A ROW IS DRAGGED the rows it passes slide aside to open the gap it
+   will drop into. The dragged row tracks the pointer with no easing, lifted
+   above its neighbours. */
+.na-le-layers.is-sorting .na-le-layer {
+    transition                         : transform 0.12s ease;
+}
+
+.na-le-layers.is-sorting .na-le-layer.is-dragging {
+    position                           : relative;
+    z-index                            : 2;
+    border-color                       : #1a7fc4;
+    background                         : #ffffff;
+    box-shadow                         : 0 3px 10px rgba(23, 43, 58, 0.18);
+    transition                         : none;
+}
+
+/* THE GRABBING CURSOR is held across the whole page for the length of the
+   drag, so it never flickers back to an arrow once the pointer leaves the
+   grip. */
+body.na-le-sorting,
+body.na-le-sorting * {
+    cursor                             : grabbing !important;
+    user-select                        : none !important;
 }
 
 /* endregion ------------------------------------------------------- */
@@ -614,6 +727,109 @@
     background-color                   : #ffffff;
     background-size                    : 100% 100%, 8px 8px;
     background-repeat                  : no-repeat, repeat;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Linked Pair (two values and a padlock)                 */
+/* ----------------------------------------------------------------- */
+
+/* TWO VALUES THAT CAN MOVE TOGETHER, with the padlock between them, as in the
+   layout apps. Each value keeps a small caption in front of it, so the pair
+   reads without a second row of labels. */
+.na-le-pair {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    align-items                        : center;
+    gap                                : 4px;
+    min-width                          : 0;
+}
+
+.na-le-pair__field {
+    display                            : flex;
+    flex                               : 1 1 0;
+    align-items                        : center;
+    gap                                : 4px;
+    min-width                          : 0;
+}
+
+.na-le-pair__caption {
+    flex                               : 0 0 auto;
+    color                              : #6c757d;
+    font-size                          : 0.68rem;
+}
+
+.na-le-pair__input {
+    flex                               : 1 1 0;
+    width                              : 0;
+    min-width                          : 0;
+    padding                            : 3px 4px;
+}
+
+/* THE PADLOCK. Shut is the working state, so it takes the accent blue and a
+   solid body; open is a quiet grey outline with its shackle lifted. */
+.na-le-pair__link {
+    flex                               : 0 0 24px;
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    width                              : 24px;
+    height                             : 24px;
+    padding                            : 0;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background                         : #f4f6f8;
+    color                              : #8a96a0;
+    cursor                             : pointer;
+}
+
+.na-le-pair__link:hover:not(:disabled) {
+    background                         : #e8edf3;
+    color                              : #172b3a;
+}
+
+.na-le-pair__link.is-linked {
+    border-color                       : #9cc7e6;
+    background                         : #eef5fb;
+    color                              : #1a7fc4;
+}
+
+.na-le-pair__link.is-linked:hover:not(:disabled) {
+    background                         : #e1eef8;
+    color                              : #1a7fc4;
+}
+
+.na-le-pair__link:focus-visible {
+    outline                            : none;
+    border-color                       : #1a7fc4;
+}
+
+.na-le-pair__link:disabled {
+    opacity                            : 0.5;
+    cursor                             : default;
+}
+
+.na-le-pair__padlock {
+    display                            : block;
+    width                              : 14px;
+    height                             : 14px;
+    fill                               : none;
+    stroke                             : currentColor;
+    stroke-width                       : 2.2;
+    stroke-linecap                     : round;
+    stroke-linejoin                    : round;
+    pointer-events                     : none;
+}
+
+.na-le-pair__link.is-linked .na-le-pair__body {
+    fill                               : currentColor;
+}
+
+.na-le-pair__link.is-linked .na-le-pair__shackle--open,
+.na-le-pair__link:not(.is-linked) .na-le-pair__shackle--shut {
+    display                            : none;
 }
 
 /* endregion ------------------------------------------------------- */

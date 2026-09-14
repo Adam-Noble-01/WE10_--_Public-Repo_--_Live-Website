@@ -43,6 +43,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - A viewport whose Viewport__ShowFrame is false builds no frame and no
+//   caption, so both leave the screen and the PDF together. Every record from
+//   before the switch, and every new viewport, keeps its frame.
+//
+// 14-Sep-2026 - Version 1.3.0
+// - A polyline primitive can carry a dash (DashMm) and an opacity for its fill
+//   and for its edges (FillOpacity, StrokeOpacity), handed in through an
+//   optional last argument of PushPolyline, so every existing caller paints
+//   exactly as before. The SVG writes stroke-dasharray, fill-opacity and
+//   stroke-opacity; the PDF sets the dash pattern and draws inside a graphics
+//   state carrying the two opacities. Leaders use all three, vectors the
+//   opacities.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - A polyline primitive can carry a Gradient (a Shape__Gradient record), and
 //   both painters hand it to Na__LayoutEditor__GradientTool__. The SVG writes a
@@ -212,16 +226,32 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Push a Polyline (points as [x, y] pairs), Optionally Closed, Filled and Graded
+    // HELPER FUNCTION | An Opacity for Painting: 0 Clear to 1 Solid, Anything Missing Is Solid
     // ------------------------------------------------------------
-    // gradient is optional and last, so every existing caller is unchanged. It is
-    // a Shape__Gradient record, and both painters hand it to the gradient tool.
+    // A primitive built before opacity existed has no field at all, and reads
+    // as solid here, so it paints exactly as it always did.
     // ------------------------------------------------------------
-    function Na__LeChrome__PushPolyline(list, points, strokeColour, strokeMm, fillColour, closed, gradient) {
+    function Na__LeChrome__Alpha(value) {
+        return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 1;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Push a Polyline (points as [x, y] pairs), Optionally Closed, Filled, Graded and Dashed
+    // ------------------------------------------------------------
+    // gradient is optional, so every earlier caller is unchanged. It is a
+    // Shape__Gradient record, and both painters hand it to the gradient tool.
+    // extra is optional and last: { dashMm, fillOpacity, strokeOpacity }. A dash
+    // of 0 is a solid line; an opacity runs 0 (clear) to 1 (solid).
+    // ------------------------------------------------------------
+    function Na__LeChrome__PushPolyline(list, points, strokeColour, strokeMm, fillColour, closed, gradient, extra) {
         if (!points || points.length < 2) return;
+        const more = (extra && typeof extra === 'object') ? extra : {};
         list.push({ Kind : Na__LeChrome__KIND_POLYLINE, Points : points, StrokeColour : strokeColour || null,
                     StrokeMm : strokeMm || 0, FillColour : fillColour || null, Closed : closed === true,
-                    Gradient : (gradient && typeof gradient === 'object') ? gradient : null });
+                    Gradient : (gradient && typeof gradient === 'object') ? gradient : null,
+                    DashMm : (Number.isFinite(more.dashMm) && more.dashMm > 0) ? more.dashMm : 0,
+                    FillOpacity : Na__LeChrome__Alpha(more.fillOpacity), StrokeOpacity : Na__LeChrome__Alpha(more.strokeOpacity) });
     }
     // ------------------------------------------------------------
 
@@ -278,6 +308,11 @@
     // HELPER FUNCTION | Build the Border and Caption of One Viewport Frame
     // ------------------------------------------------------------
     function Na__LeChrome__BuildFrame(list, sheet, viewport, style) {
+        // A HIDDEN FRAME TAKES ITS CAPTION WITH IT. The caption box hangs off the
+        // frame's corner and is drawn in its lines, so with the border gone it has
+        // nothing to hang on; the view is titled by hand instead. Leaving both out
+        // of this list leaves them off the screen and off the PDF alike.
+        if (viewport.Viewport__ShowFrame === false) return;
         const frame  = viewport.Viewport__FrameMm;
         const source = Na__LeModel__ResolveViewportSource(viewport);
         Na__LeChrome__PushRect(list, frame.X, frame.Y, frame.WidthMm, frame.HeightMm, style.frameLineColour, style.frameStrokeMm, null);
@@ -375,17 +410,26 @@
                    '" stroke="' + primitive.StrokeColour + '" stroke-width="' + R(primitive.StrokeMm) + '" stroke-linecap="round"' + dash(primitive) + '/>';
         }
         if (primitive.Kind === Na__LeChrome__KIND_POLYLINE) {
-            const d     = primitive.Points.map((p, i) => (i === 0 ? 'M' : 'L') + R(p[0]) + ' ' + R(p[1])).join('') + (primitive.Closed ? 'Z' : '');
-            const edges = '" stroke="' + (primitive.StrokeColour || 'none') + '" stroke-width="' + R(primitive.StrokeMm) + '" stroke-linejoin="round" stroke-linecap="round"/>';
+            const d      = primitive.Points.map((p, i) => (i === 0 ? 'M' : 'L') + R(p[0]) + ' ' + R(p[1])).join('') + (primitive.Closed ? 'Z' : '');
+            // A DASHED RUN takes butt caps, the PDF's own, so its dashes break in
+            // the same places on the screen as on paper; a solid run keeps the
+            // round cap and join that tidy a polyline's corners.
+            const dashed = primitive.DashMm > 0;
+            const fillA  = Na__LeChrome__Alpha(primitive.FillOpacity);
+            const edgeA  = Na__LeChrome__Alpha(primitive.StrokeOpacity);
+            const fillOp = fillA < 1 ? ' fill-opacity="' + R(fillA) + '"' : '';
+            const edges  = ' stroke="' + (primitive.StrokeColour || 'none') + '" stroke-width="' + R(primitive.StrokeMm) + '" stroke-linejoin="round" stroke-linecap="' + (dashed ? 'butt' : 'round') + '"' +
+                           (dashed ? ' stroke-dasharray="' + R(primitive.DashMm) + ' ' + R(primitive.DashMm) + '"' : '') +
+                           (edgeA < 1 ? ' stroke-opacity="' + R(edgeA) + '"' : '') + '/>';
             // A GRADIENT PAINTS OVER ANY SOLID FILL AND UNDER THE EDGES. The solid
             // fill gets a path of its own so the gradient's alpha end shows it
             // through; the edges ride on the gradient's path, on top of both.
             const paint = primitive.Gradient ? Na__LeGrad__SvgPaint(primitive.Points, primitive.Gradient) : null;
             if (paint) {
-                const solid = primitive.FillColour ? '<path d="' + d + '" fill="' + primitive.FillColour + '" stroke="none"/>' : '';
-                return paint.defs + solid + '<path d="' + d + '" fill="' + paint.fill + edges;
+                const solid = primitive.FillColour ? '<path d="' + d + '" fill="' + primitive.FillColour + '"' + fillOp + ' stroke="none"/>' : '';
+                return paint.defs + solid + '<path d="' + d + '" fill="' + paint.fill + '"' + edges;
             }
-            return '<path d="' + d + '" fill="' + (primitive.FillColour || 'none') + edges;
+            return '<path d="' + d + '" fill="' + (primitive.FillColour || 'none') + '"' + (primitive.FillColour ? fillOp : '') + edges;
         }
         if (primitive.Kind === Na__LeChrome__KIND_TEXT) {
             const anchor = primitive.Align === 'right' ? 'end' : (primitive.Align === 'center' ? 'middle' : 'start');
@@ -442,6 +486,31 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Draw With a Fill and an Edge Opacity
+    // ------------------------------------------------------------
+    // A PDF takes transparency from an ExtGState: jsPDF's opacity is the fill
+    // alpha and its stroke-opacity the edges'. The state is set inside a save
+    // and restore so the alpha ends with the drawing - otherwise every
+    // primitive after it would inherit it - and only when one of the two is
+    // below 1, so a solid drawing writes nothing extra. A jsPDF build without
+    // GState draws solid rather than not at all.
+    // ------------------------------------------------------------
+    function Na__LeChrome__WithOpacity(doc, fillAlpha, strokeAlpha, draw) {
+        const translucent = fillAlpha < 1 || strokeAlpha < 1;
+        const supported   = typeof doc.GState === 'function' && typeof doc.setGState === 'function' &&
+                            typeof doc.saveGraphicsState === 'function' && typeof doc.restoreGraphicsState === 'function';
+        if (!translucent || !supported) { draw(); return; }
+        doc.saveGraphicsState();
+        try {
+            doc.setGState(new doc.GState({ 'opacity' : fillAlpha, 'stroke-opacity' : strokeAlpha }));
+            draw();
+        } finally {
+            doc.restoreGraphicsState();
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Draw One Primitive Into jsPDF
     // ------------------------------------------------------------
     function Na__LeChrome__ToPdf(doc, primitive, style) {
@@ -467,20 +536,27 @@
             for (let i = 1; i < primitive.Points.length; i++) {
                 rel.push([ primitive.Points[i][0] - primitive.Points[i - 1][0], primitive.Points[i][1] - primitive.Points[i - 1][1] ]);
             }
-            const fill = primitive.FillColour ? Na__LeChrome__Rgb(primitive.FillColour) : null;
+            const fill   = primitive.FillColour ? Na__LeChrome__Rgb(primitive.FillColour) : null;
             const stroke = primitive.StrokeColour ? Na__LeChrome__Rgb(primitive.StrokeColour) : null;
+            const fillA  = fill ? Na__LeChrome__Alpha(primitive.FillOpacity) : 1;
+            const edgeA  = stroke ? Na__LeChrome__Alpha(primitive.StrokeOpacity) : 1;
+            const dash   = { DashMm : primitive.DashMm > 0 ? primitive.DashMm : 0 };
             if (primitive.Gradient) {
                 // A GRADIENT GOES IN THREE PASSES rather than one fill-and-stroke:
                 // any solid fill, then the gradient clipped over it, then the edges
                 // on top, so the gradient's solid end can never paint over an edge.
-                if (fill)   { doc.setFillColor(fill.R, fill.G, fill.B); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'F', primitive.Closed === true); }
+                if (fill)   Na__LeChrome__WithOpacity(doc, fillA, 1, () => { doc.setFillColor(fill.R, fill.G, fill.B); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'F', primitive.Closed === true); });
                 Na__LeGrad__DrawPdf(doc, primitive.Points, primitive.Gradient);
-                if (stroke) { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash({ DashMm : 0 }); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'S', primitive.Closed === true); }
+                if (stroke) Na__LeChrome__WithOpacity(doc, 1, edgeA, () => { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash(dash); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'S', primitive.Closed === true); });
+                if (dash.DashMm > 0) setDash({ DashMm : 0 });
                 return;
             }
-            if (fill)   doc.setFillColor(fill.R, fill.G, fill.B);
-            if (stroke) { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash({ DashMm : 0 }); }
-            doc.lines(rel, first[0], first[1], [ 1, 1 ], fill ? (stroke ? 'FD' : 'F') : 'S', primitive.Closed === true);
+            Na__LeChrome__WithOpacity(doc, fillA, edgeA, () => {
+                if (fill)   doc.setFillColor(fill.R, fill.G, fill.B);
+                if (stroke) { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash(dash); }
+                doc.lines(rel, first[0], first[1], [ 1, 1 ], fill ? (stroke ? 'FD' : 'F') : 'S', primitive.Closed === true);
+            });
+            if (dash.DashMm > 0) setDash({ DashMm : 0 });                        // <-- A dash never carries into the next primitive
             return;
         }
         if (primitive.Kind === Na__LeChrome__KIND_TEXT) {

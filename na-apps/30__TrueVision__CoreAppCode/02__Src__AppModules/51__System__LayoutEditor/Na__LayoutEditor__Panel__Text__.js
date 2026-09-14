@@ -30,6 +30,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - With several items selected the note says how many, and that these are the
+//   settings for new text until one text item is selected on its own.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 5.
 //
@@ -42,8 +46,8 @@
 
     // MODULE IMPORTS | Config, Model, Tools and Panel Host
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetLabel, Na__LeCfg__GetTextSetup } from './Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__UpdateAnnotation } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetTextSetup } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__GetSelectionItems, Na__LeModel__UpdateAnnotation } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeTools__GetTextDefaults, Na__LeTools__SetTextDefaults, Na__LeTools__BeginTextEdit } from './Na__LayoutEditor__SheetTools__.js';
     import {
         Na__LePanels__RegisterSection,
@@ -120,9 +124,12 @@
         set('text-align', values.align);
         const leader = body.querySelector('[data-na-control="text-leader"]');
         if (leader) leader.checked = values.leader === true;
+        const many = Na__LeModel__GetSelectionItems().length;
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? Na__LeCfg__GetLabel('TextSelectedNote', 'Editing the selected text.')
-            : Na__LeCfg__GetLabel('TextDefaultsNote', 'Nothing selected: these settings apply to new text.');
+            : (many > 1
+                ? Na__LeCfg__FormatLabel('TextManyNote', '{count} items selected. Click one text item on its own to edit it; these settings apply to new text.', { count : many })
+                : Na__LeCfg__GetLabel('TextDefaultsNote', 'Nothing selected: these settings apply to new text.'));
         const edit = body.querySelector('[data-na-block="edit"]');
         if (edit) edit.hidden = !selected;
     }

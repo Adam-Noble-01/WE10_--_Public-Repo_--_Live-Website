@@ -18,6 +18,17 @@
 //   (furniture, vegetation, scene context, etc.) without code changes.
 // - Integrates into the existing Tools dropdown panel in the TrueVision3D UI.
 //
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 13-Sep-2026
+// - BorrowRegistry and RestoreRegistry. A Layout Editor render of a design
+//   phase the 3D view does not hold lends the category map to that phase, so
+//   every visibility call made during the render acts on the model actually
+//   being drawn. The dev buttons are left alone meanwhile, and BuildButtons
+//   now replaces the map instead of clearing it, so a lent map is never
+//   emptied in place.
+//
 // =============================================================================
 
 
@@ -108,6 +119,8 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
     // ------------------------------------------------------------
     let Na__ModelToggle__StateMap = new Map();                            // <-- Map of category -> { group, visible }
     let Na__ModelToggle__SubmenuWired = false;                            // <-- Guard against duplicate submenu listeners
+    let Na__ModelToggle__Generation = 0;                                  // <-- Bumped each time the 3D view rebuilds the map
+    let Na__ModelToggle__Borrowed = false;                                // <-- A render has lent the map to another design phase
     // ------------------------------------------------------------
 
 
@@ -139,6 +152,7 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
     // SUB HELPER FUNCTION | Sync a Category Button's Active Class to a Visibility State
     // ---------------------------------------------------------------
     function Na__ModelToggle__SyncButtonState(categoryKey, visible) {
+        if (Na__ModelToggle__Borrowed) return;                           // <-- The buttons are the 3D view's; a borrowed map is another model's
         const listContainer = document.getElementById(Na__ModelToggle__ListId);  // <-- Button list container
         if (!listContainer) return;
         const button = listContainer.querySelector(
@@ -225,7 +239,13 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
     // nothing, which is the worst of the available failures because it looks
     // like the toggle simply has no effect on that model.
     function Na__ModelToggle__BuildButtons(loadedGroups) {
-        Na__ModelToggle__StateMap.clear();                               // <-- Clear stale category references
+        // A NEW MAP, NOT A CLEARED ONE. A render that has borrowed the registry
+        // for another design phase holds the previous map object; clearing it
+        // in place would empty that phase's categories out from under the
+        // render. The generation tells RestoreRegistry this map now stands.
+        Na__ModelToggle__StateMap = new Map();                           // <-- Drop stale category references
+        Na__ModelToggle__Generation += 1;
+        Na__ModelToggle__Borrowed = false;
         if (loadedGroups) {
             loadedGroups.forEach((group, categoryKey) => {
                 Na__ModelToggle__StateMap.set(categoryKey, {
@@ -410,6 +430,49 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Lend the Registry to Another Design Phase for One Render
+    // ------------------------------------------------------------
+    // The Layout Editor can draw a design phase the 3D view does not hold, by
+    // putting that phase's model into the scene for the length of one render.
+    // Everything that render asks of this module - the Context Layer, the Model
+    // Layers hides, a scene's saved layer map, the capture that puts them back -
+    // must then act on THAT phase's category groups, or it hides categories of
+    // a model that is not even in the scene while the one being drawn keeps them.
+    //
+    // loadedGroups is the loader's category Map for the phase. Returns a token
+    // for RestoreRegistry. The dev toggle buttons are left alone throughout:
+    // they describe the 3D view.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__BorrowRegistry(loadedGroups) {
+        const token    = { map : Na__ModelToggle__StateMap, generation : Na__ModelToggle__Generation, borrowed : Na__ModelToggle__Borrowed };
+        const borrowed = new Map();
+        if (loadedGroups && typeof loadedGroups.forEach === 'function') {
+            loadedGroups.forEach((group, categoryKey) => {
+                borrowed.set(categoryKey, { group : group, visible : group.visible !== false });
+            });
+        }
+        Na__ModelToggle__StateMap = borrowed;
+        Na__ModelToggle__Borrowed = true;
+        return token;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Hand the Registry Back
+    // ------------------------------------------------------------
+    // Returns false, and leaves the registry as it is, when the 3D view rebuilt
+    // it during the borrow (a Design Phase switch): that map is the true one.
+    // ------------------------------------------------------------
+    function Na__ModelToggle__RestoreRegistry(token) {
+        if (!token) return false;
+        if (token.generation !== Na__ModelToggle__Generation) return false;
+        Na__ModelToggle__StateMap = token.map;
+        Na__ModelToggle__Borrowed = token.borrowed === true;
+        return true;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -428,6 +491,8 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
         Na__ModelToggle__ApplySceneLayerVisibility,
         Na__ModelToggle__GetCategoryKeys,
         Na__ModelToggle__SetCategoryVisibleByKey,
+        Na__ModelToggle__BorrowRegistry,
+        Na__ModelToggle__RestoreRegistry,
         Na__ModelToggle__SetCategoryVisibleByToken as Na__ModelToggle__SetCategoryVisibility
     };
     // ------------------------------------------------------------

@@ -14,7 +14,7 @@
 //   nudge, zoom out, nudge again. Viewports now move the way a block moves in
 //   CAD - by a base point.
 // - GRAB A POINT, NOT A FRAME. With the Select tool, hovering over a 2D
-//   viewport's linework shows the same snap marker a dimension uses. Press
+//   viewport's linework shows the snap marker, in the viewport purple. Press
 //   there and the viewport is carried BY THAT POINT: wherever the point is
 //   dropped, it lands exactly.
 // - DROP IT ON A POINT. While carried, the point snaps to the endpoints and
@@ -71,6 +71,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.1.0
+// - The snap marker shows in the viewport tone, purple, on hover and while
+//   carrying, and the carried point's ring, the tracking crosses and the
+//   carried frame's outline are purple to match. The Dimension tool snaps in
+//   orange and the Draw and Rectangle tools in blue, so the colour says which
+//   tool is at work. The level and plumb guides keep the axis-lock red and green.
+//
 // 13-Sep-2026 - Version 1.0.0
 // - First cut. Carry by a linework point, snap to other viewports, acquired
 //   tracking points with level and plumb guides, Shift axis hold, multiply on
@@ -94,6 +101,7 @@
     } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
     import {
+        Na__LeOsnap__TONE_VIEWPORT,
         Na__LeOsnap__IsEnabled,
         Na__LeOsnap__Find,
         Na__LeOsnap__FindOnViewport,
@@ -360,7 +368,7 @@
         const hit = viewport ? Na__LeVpMove__GrabAt(sheet, viewport, pointMm) : null;
         Na__LeVpMove__Watch(sheet, hit);
         if (hit) {
-            Na__LeOsnap__ShowMarker(hit);
+            Na__LeOsnap__ShowMarker(hit, Na__LeOsnap__TONE_VIEWPORT);
             Na__LeVpMove__Hovering = true;
             return hit;
         }
@@ -422,7 +430,7 @@
         Na__LeVpMove__Watch(sheet, hit);
         if (hit) {
             const at = { x : lock === Na__LeVpMove__AXIS_Y ? wanted.x : hit.x, y : lock === Na__LeVpMove__AXIS_X ? wanted.y : hit.y };
-            Na__LeOsnap__ShowMarker(hit);
+            Na__LeOsnap__ShowMarker(hit, Na__LeOsnap__TONE_VIEWPORT);
             Na__LeVpMove__ShowGuide(Na__LeVpMove__AXIS_X, lock === Na__LeVpMove__AXIS_X ? base : (lock === Na__LeVpMove__AXIS_Y ? hit : null), at);
             Na__LeVpMove__ShowGuide(Na__LeVpMove__AXIS_Y, lock === Na__LeVpMove__AXIS_Y ? base : (lock === Na__LeVpMove__AXIS_X ? hit : null), at);
             if (lock) Na__LeVpMove__ShowBase(at); else Na__LeVpMove__HideBase();   // <-- Unheld, the snap marker already sits on the point

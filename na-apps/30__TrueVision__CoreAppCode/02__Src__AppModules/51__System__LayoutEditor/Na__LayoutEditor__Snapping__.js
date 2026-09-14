@@ -24,12 +24,18 @@
 //   to remember to invalidate it.
 // - Snapping is on by default and toggled from the toolbar or F3; the
 //   choice is remembered in the browser.
+// - THE MARKER'S COLOUR SAYS WHICH TOOL IS SNAPPING, its glyph what was
+//   found. Blue for vertices - the Draw and Rectangle tools and vertex
+//   grips; orange for dimensions - the Dimension tool, its grips and its
+//   line inference; purple for viewports - carrying one by a point. Callers
+//   pass the tone; with none it is blue.
 //
 // INTEGRATION:
 // - The sheet tools call Snap while placing or dragging dimension endpoints;
 //   the toolbar shows the toggle; Viewport2d supplies the snap sources.
 // - Na__LayoutEditor__ViewportSnapMove__ calls FindOnViewport for the point a
 //   viewport is carried by, and Find with a viewport exclusion while carrying.
+// - The tone colours live in Na__LayoutEditor__Styles__Main__.css.
 //
 // -----------------------------------------------------------------------------
 //
@@ -39,10 +45,17 @@
 // - Parity        : verbatim
 // - Divergences   : Console prefix, header and folder numbers only.
 // - Back-port     : n/a (this IS the back-port)
+// - Ahead         : 1.3.0 (marker tones) was authored here first, 13-Sep-2026;
+//                   the ValeVision back-port waits for Adam's sign-off
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.3.0
+// - Marker tones: Snap and ShowMarker take the tool that is snapping
+//   (TONE_VERTEX, TONE_DIMENSION, TONE_VIEWPORT) and add it to the marker's
+//   class, so the snap colour tells the tools apart. Left out, it is vertex.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - FindOnViewport: the nearest point on one viewport's own linework, for the
 //   viewport snap move to carry it by. Find takes { kind : 'viewport', id } as
@@ -91,6 +104,14 @@
     const Na__LeOsnap__CELL_MM       = 4;                                    // <-- Grid cell in paper millimetres
     const Na__LeOsnap__MID_PENALTY   = 1.25;                                 // <-- An endpoint wins a near tie
     const Na__LeOsnap__CLASSES       = [ 'visible', 'section', 'authored' ];
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Marker Tones: the Colour Says Which Tool Is Snapping
+    // ------------------------------------------------------------
+    const Na__LeOsnap__TONE_VERTEX    = 'vertex';                            // <-- Blue: the Draw and Rectangle tools and vertex grips (the default)
+    const Na__LeOsnap__TONE_DIMENSION = 'dimension';                         // <-- Orange: the Dimension tool, its grips and its line inference
+    const Na__LeOsnap__TONE_VIEWPORT  = 'viewport';                          // <-- Purple: a viewport carried by a point
+    const Na__LeOsnap__TONES          = [ Na__LeOsnap__TONE_VERTEX, Na__LeOsnap__TONE_DIMENSION, Na__LeOsnap__TONE_VIEWPORT ];
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Per-Viewport Indexes, Marker, State
@@ -387,12 +408,14 @@
     // FUNCTION | Snap a Cursor Point, Showing or Hiding the Marker
     // ------------------------------------------------------------
     // Returns { x, y, snapped, kind }. When nothing is near, the point comes
-    // back untouched and the marker goes away.
+    // back untouched and the marker goes away. tone is the tool snapping -
+    // TONE_DIMENSION, TONE_VIEWPORT, or TONE_VERTEX when left out - and only
+    // colours the marker.
     // ------------------------------------------------------------
-    function Na__LeOsnap__Snap(sheet, pointMm, exclude) {
+    function Na__LeOsnap__Snap(sheet, pointMm, exclude, tone) {
         const hit = Na__LeOsnap__Find(sheet, pointMm, exclude);
         if (!hit) { Na__LeOsnap__HideMarker(); return { x : pointMm.x, y : pointMm.y, snapped : false, kind : null }; }
-        Na__LeOsnap__ShowMarker(hit);
+        Na__LeOsnap__ShowMarker(hit, tone);
         return { x : hit.x, y : hit.y, snapped : true, kind : hit.kind };
     }
     // ------------------------------------------------------------
@@ -404,9 +427,14 @@
 // REGION | Marker
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Show the Snap Marker at a Hit
+    // FUNCTION | Show the Snap Marker at a Hit, in the Tone of the Tool Snapping
     // ------------------------------------------------------------
-    function Na__LeOsnap__ShowMarker(hit) {
+    // The glyph says what was found (a square endpoint, a triangle midpoint,
+    // a circle for an inferred line); the tone says who is looking - blue for
+    // vertices, orange for dimensions, purple for viewports - so the colour
+    // alone tells which tool is at work. A missing or unknown tone is vertex.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__ShowMarker(hit, tone) {
         const layer = Na__LeSurface__GetElements().handles;
         if (!layer || !hit) return;
         if (!Na__LeOsnap__Marker) {
@@ -417,7 +445,8 @@
         const setup  = Na__LeCfg__GetSnappingSetup();
         const ppm    = Na__LeSurface__GetPixelsPerMm();
         const sizePx = setup.markerSizePx / Na__LeSurface__GetZoom();
-        Na__LeOsnap__Marker.className = 'na-le-osnap na-le-osnap--' + hit.kind;
+        const shade  = Na__LeOsnap__TONES.indexOf(tone) === -1 ? Na__LeOsnap__TONE_VERTEX : tone;
+        Na__LeOsnap__Marker.className = 'na-le-osnap na-le-osnap--' + hit.kind + ' na-le-osnap--' + shade;
         Na__LeOsnap__Marker.style.left   = ((hit.x * ppm) - (sizePx / 2)) + 'px';
         Na__LeOsnap__Marker.style.top    = ((hit.y * ppm) - (sizePx / 2)) + 'px';
         Na__LeOsnap__Marker.style.width  = sizePx + 'px';
@@ -447,6 +476,9 @@
     export {
         Na__LeOsnap__KIND_END,
         Na__LeOsnap__KIND_MID,
+        Na__LeOsnap__TONE_VERTEX,
+        Na__LeOsnap__TONE_DIMENSION,
+        Na__LeOsnap__TONE_VIEWPORT,
         Na__LeOsnap__CHANGED_EVENT,
         Na__LeOsnap__IsEnabled,
         Na__LeOsnap__SetEnabled,

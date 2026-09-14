@@ -15,7 +15,8 @@
 //   commits. Nothing else in the editor sees the keys while it is open.
 // - Text placement creates the annotation from the panel's defaults and
 //   opens the field on it at once, so a new label is typed, not dragged.
-// - The dimension tool borrows OpenField for its value override.
+// - The dimension tool borrows OpenField for its value override, and the
+//   leader tool for a note (multiline) or a bubble's code.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ owns the pointer and delegates here;
@@ -33,6 +34,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - OpenField takes multiline: a text area instead of a single line, for a
+//   leader's note. Enter starts a new line and Ctrl+Enter commits; Escape
+//   still cancels and a blur still commits. It grows a row per line typed.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Initial implementation, split from the sheet tools.
 //
@@ -78,16 +84,19 @@
     // FUNCTION | Open a Field Over the Paper
     // ------------------------------------------------------------
     // spec: { xMm, yMm, widthMm, fontMm, weight, colour, align, value,
-    //         onCommit(text), onCancel() }
+    //         multiline, lineHeightMm, onCommit(text), onCancel() }
+    // multiline opens a text area: Enter starts a new line, Ctrl+Enter (or
+    // Cmd+Enter) commits, and it grows a row for every line typed.
     // ------------------------------------------------------------
     function Na__LeText__OpenField(spec) {
         const layer = Na__LeSurface__GetElements().handles;
         if (!layer || !spec) return false;
         Na__LeText__Commit();
-        const ppm   = Na__LeSurface__GetPixelsPerMm();
-        const input = document.createElement('input');
-        input.type      = 'text';
-        input.className = 'na-le-text-editor';
+        const ppm       = Na__LeSurface__GetPixelsPerMm();
+        const multiline = spec.multiline === true;
+        const input     = document.createElement(multiline ? 'textarea' : 'input');
+        if (!multiline) input.type = 'text';
+        input.className = 'na-le-text-editor' + (multiline ? ' na-le-text-editor--multiline' : '');
         input.value     = spec.value || '';
         input.style.left       = (spec.xMm * ppm) + 'px';
         input.style.top        = (spec.yMm * ppm) + 'px';
@@ -96,8 +105,16 @@
         input.style.fontWeight = String(spec.weight || 400);
         input.style.color      = spec.colour || '';
         input.style.textAlign  = spec.align || 'left';
+        if (multiline) {
+            const lineMm = Number.isFinite(spec.lineHeightMm) ? spec.lineHeightMm : spec.fontMm * 1.2;
+            const fit    = () => { input.rows = Math.max(1, input.value.split('\n').length); };
+            input.style.lineHeight = (lineMm * ppm) + 'px';
+            input.wrap = 'off';                                                  // <-- A line breaks where Enter put it, never where the box ends
+            fit();
+            input.addEventListener('input', fit);
+        }
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter')  { e.preventDefault(); Na__LeText__Commit(); }
+            if (e.key === 'Enter' && (!multiline || e.ctrlKey || e.metaKey)) { e.preventDefault(); Na__LeText__Commit(); }
             if (e.key === 'Escape') { e.preventDefault(); Na__LeText__Cancel(); }
             e.stopPropagation();                                                 // <-- The sheet keys stay out of a field
         });

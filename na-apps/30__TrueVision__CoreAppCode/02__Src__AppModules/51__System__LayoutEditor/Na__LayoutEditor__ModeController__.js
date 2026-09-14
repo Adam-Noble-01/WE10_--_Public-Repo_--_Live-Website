@@ -42,6 +42,39 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.11.0
+// - The Measurements box (Na__LayoutEditor__Measurements__) is mounted in the
+//   stage's column when the shell is built; the sheet tools attach it.
+//
+// 14-Sep-2026 - Version 1.10.0
+// - Project Specification: the tab's page lies over the editor host. Opening
+//   it stands the sheet's pointer, keys and margin grip down; a sheet tab
+//   brings them back without re-fitting the paper when it is the same sheet.
+//   GetView says which is showing; OpenSpecification answers the tab, and the
+//   specification's open and go-to requests (a panel's button, a usage chip).
+// - The specification is read on the first entry into the editor and never
+//   before. Its links and draft listen from initialisation. A change to it
+//   redraws the markup (bubble codes, notes margins) and the Leaders and
+//   Margin Notes panels, once the sheet is showing again.
+// - The Margin Notes panel is registered after Sheet; a 'margin' change redraws
+//   the markup and refreshes that panel, and a leader change refreshes it too.
+// - The PDF library is loaded on the first entry, so the notes margin and the
+//   title block measure text with the metrics the PDF prints with.
+//
+// 14-Sep-2026 - Version 1.9.0
+// - The Leaders panel is registered in the right column, after Text. A leader
+//   change ('leader', 'leaders') redraws the markup and refreshes only the
+//   Leaders panel, as a text, dimension or vector change does its own.
+//
+// 13-Sep-2026 - Version 1.8.0 (TrueVision)
+// - Model Source: the design phase library's changes refresh the frames (and the
+//   panels, bar the per-file progress), and the configured cache of off-scene
+//   phases is handed to the library once the config is in.
+//
+// 13-Sep-2026 - Version 1.7.0
+// - A palette sync (the settings for new objects changed from outside their
+//   panel) refreshes the panel for that kind.
+//
 // 13-Sep-2026 - Version 1.6.1
 // - The gradient tool's config (Na__LayoutEditor__GradientTool__Config__.json)
 //   is waited on with the others, so the first shape defaults read the real file.
@@ -88,6 +121,7 @@
     import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeEdge__Ready } from './Na__LayoutEditor__EdgeStyles__.js';
     import { Na__LeComposite__Ready } from './Na__LayoutEditor__RenderComposites__.js';
+    import { Na__DrawCfg__Load } from '../40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
     import { Na__LeGrad__Ready } from './Na__LayoutEditor__GradientTool__.js';
     import {
         Na__LeModel__CHANGED_EVENT,
@@ -95,28 +129,38 @@
         Na__LeModel__GetSheets,
         Na__LeModel__GetSheetById,
         Na__LeModel__GetActiveSheet,
-        Na__LeModel__SetActiveSheetId
+        Na__LeModel__SetActiveSheetId,
+        Na__LeModel__SetSelection
     } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Mount, Na__LeSurface__SetSheet, Na__LeSurface__Refresh, Na__LeSurface__SetZoom, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeNav__Fit } from './Na__LayoutEditor__Navigation__.js';
     import { Na__LePc__Attach, Na__LePc__Detach } from './Na__LayoutEditor__Controls__Pc__.js';
     import { Na__LeTouch__Attach, Na__LeTouch__Detach } from './Na__LayoutEditor__Controls__TouchScreen__.js';
-    import { Na__LeTools__Attach, Na__LeTools__Detach } from './Na__LayoutEditor__SheetTools__.js';
+    import { Na__LeTools__DEFAULTS_EVENT, Na__LeTools__Attach, Na__LeTools__Detach } from './Na__LayoutEditor__SheetTools__.js';
     import { Na__LePanels__Mount, Na__LePanels__Refresh } from './Na__LayoutEditor__PanelHost__.js';
     import { Na__LePanelLayers__Register } from './Na__LayoutEditor__Panel__Layers__.js';
     import { Na__LePanelSheet__Register } from './Na__LayoutEditor__Panel__Sheet__.js';
     import { Na__LePanelViewport__EDIT_EVENT, Na__LePanelViewport__Register } from './Na__LayoutEditor__Panel__ViewportSettings__.js';
     import { Na__LePanelText__Register } from './Na__LayoutEditor__Panel__Text__.js';
+    import { Na__LePanelLeaders__Register } from './Na__LayoutEditor__Panel__Leaders__.js';
     import { Na__LePanelDims__Register } from './Na__LayoutEditor__Panel__Dimensions__.js';
     import { Na__LePanelShapes__Register } from './Na__LayoutEditor__Panel__Shapes__.js';
     import { Na__LePanelStyles__Register } from './Na__LayoutEditor__Panel__Styles__.js';
     import { Na__LePanelModelLayers__Register } from './Na__LayoutEditor__Panel__ModelLayers__.js';
     import { Na__LeToolbar__Mount } from './Na__LayoutEditor__Toolbar__.js';
+    import { Na__LeMeasure__Mount } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeSnap__Initialize, Na__LeSnap__ResetFingerprints } from './Na__LayoutEditor__SnapshotRenderer__.js';
     import { Na__LeOsnap__Clear } from './Na__LayoutEditor__Snapping__.js';
     import { Na__LeHist__Initialize, Na__LeHist__Track } from './Na__LayoutEditor__History__.js';
     import { Na__LeAuto__Initialize } from './Na__LayoutEditor__AutoSave__.js';
     import { Na__LeRaster__CHANGED_EVENT } from './Na__LayoutEditor__RasterQuality__.js';
+    import { Na__LePanelMargin__Register } from './Na__LayoutEditor__Panel__MarginNotes__.js';
+    import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__OPEN_EVENT, Na__LeSpec__GOTO_EVENT, Na__LeSpec__Initialize, Na__LeSpec__EnsureLoaded } from './Na__LayoutEditor__SpecData__.js';
+    import { Na__LeSpecLink__Initialize } from './Na__LayoutEditor__SpecLinks__.js';
+    import { Na__LeSpecEd__Mount, Na__LeSpecEd__Show, Na__LeSpecEd__Hide } from './Na__LayoutEditor__SpecEditor__.js';
+    import { Na__LeMarginGrip__Attach, Na__LeMarginGrip__Detach } from './Na__LayoutEditor__MarginGrip__.js';
+    import { Na__LeText__Commit } from './Na__LayoutEditor__TextTool__.js';
+    import { Na__LePdf__EnsureJsPdf } from './Na__LayoutEditor__PdfExporter__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Drawing Modes, Render Loop, Projection Events, Localhost
@@ -126,6 +170,8 @@
     import { Na__RenderLoop__RequestRender, Na__RenderLoop__Pause, Na__RenderLoop__Resume } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     import { Na__DrawView__Transitions__SuspendThreeD, Na__DrawView__Transitions__ResumeThreeD } from '../40__System__DrawingViewCore/Na__DrawView__Transitions__.js';
     import { Na__PlPipe__CHANGED_EVENT, Na__PlPipe__STATUS_READY } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
+    import { Na__PhaseLib__CHANGED_EVENT } from '../26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js';
+    import { Na__LeSource__Initialize } from './Na__LayoutEditor__ModelSource__.js';
     import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
@@ -143,6 +189,8 @@
     const Na__LeMode__BODY_CLASS    = 'na-layout-editor--active';
     const Na__LeMode__CANVAS_ID     = 'renderCanvas';
     const Na__LeMode__RENDER_HOLD   = 'layout-editor';   // <-- Render loop pause reason while a sheet is open
+    const Na__LeMode__VIEW_SHEET    = 'sheet';           // <-- A drawing tab: the sheet, its panels and its tools
+    const Na__LeMode__VIEW_SPEC     = 'spec';            // <-- The Project Specification tab, over the sheet
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Context, Shell and State
@@ -153,6 +201,8 @@
     let Na__LeMode__Stage     = null;
     let Na__LeMode__Active    = false;
     let Na__LeMode__Built     = false;
+    let Na__LeMode__View      = Na__LeMode__VIEW_SHEET;
+    let Na__LeMode__Metrics   = false;    // <-- The PDF library's text metrics have been asked for
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -209,15 +259,56 @@
         // now "what is on the paper" against "what the selection's properties
         // are", instead of layers on one side and everything else on the other.
         Na__LePanelSheet__Register();
+        Na__LePanelMargin__Register();                                         // <-- The sheet's notes margin, beside its other sheet settings
         Na__LePanelLayers__Register();
         Na__LePanelStyles__Register();
         Na__LePanelModelLayers__Register();
         // RIGHT COLUMN | The selected item's properties
         Na__LePanelViewport__Register();
         Na__LePanelText__Register();
+        Na__LePanelLeaders__Register();
         Na__LePanelDims__Register();
         Na__LePanelShapes__Register();
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
+        Na__LeMeasure__Mount(host.querySelector('.na-le-centre'), { editable : editable, stage : Na__LeMode__Stage });   // <-- The Measurements box, bottom right over the stage
+        Na__LeSpecEd__Mount(host, { editable : editable, showToast : toast });    // <-- The Project Specification page, over the shell
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Sheet's Pointer, Keys and Margin Grip: On and Off Together
+    // ------------------------------------------------------------
+    function Na__LeMode__AttachSheetInput() {
+        Na__LePc__Attach();                                                    // <-- Mouse, wheel and keyboard, before the tools
+        Na__LeTouch__Attach();                                                 // <-- Touch, before the tools
+        Na__LeTools__Attach({ editable : Na__LeMode__IsEditable() });
+        Na__LeMarginGrip__Attach({ editable : Na__LeMode__IsEditable() });
+    }
+    function Na__LeMode__DetachSheetInput() {
+        Na__LeMarginGrip__Detach();
+        Na__LeTools__Detach();
+        Na__LeTouch__Detach();
+        Na__LePc__Detach();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Load the PDF Library's Text Metrics Once, Then Redraw the Paper
+    // ------------------------------------------------------------
+    // The notes margin wraps its text by measured widths and the title block
+    // truncates by them. Until jsPDF has loaded both fall back to an average
+    // character width, so a note could break in one place on screen and in
+    // another in the PDF. Asked for on the first entry; the chrome and the
+    // markup redraw once it lands.
+    // ------------------------------------------------------------
+    function Na__LeMode__PreloadMetrics() {
+        if (Na__LeMode__Metrics) return;
+        Na__LeMode__Metrics = true;
+        Na__LePdf__EnsureJsPdf().then(() => {
+            if (!Na__LeMode__Active) return;
+            Na__LeSurface__Refresh('chrome');
+            Na__LeSurface__Refresh('markup');
+        }).catch(() => { Na__LeMode__Metrics = false; });                        // <-- Estimates meanwhile; the next entry asks again
     }
     // ------------------------------------------------------------
 
@@ -226,7 +317,7 @@
     // ------------------------------------------------------------
     function Na__LeMode__Dispatch() {
         const sheet = Na__LeModel__GetActiveSheet();
-        window.dispatchEvent(new CustomEvent(Na__LeMode__CHANGED_EVENT, { detail : { isActive : Na__LeMode__Active, sheetId : sheet ? sheet.Sheet__Id : null } }));
+        window.dispatchEvent(new CustomEvent(Na__LeMode__CHANGED_EVENT, { detail : { isActive : Na__LeMode__Active, sheetId : sheet ? sheet.Sheet__Id : null, view : Na__LeMode__View } }));
     }
     // ------------------------------------------------------------
 
@@ -245,7 +336,15 @@
         const sheet  = (sheetId && Na__LeModel__GetSheetById(sheetId)) || sheets[0] || null;
         if (!sheet) return false;
         Na__LeMode__Build();
+        const current  = Na__LeModel__GetActiveSheet();
+        const fromSpec = Na__LeMode__Active && Na__LeMode__View === Na__LeMode__VIEW_SPEC;
+        const sameSheet = fromSpec && !!current && current.Sheet__Id === sheet.Sheet__Id;
 
+        if (fromSpec) {
+            Na__LeSpecEd__Hide();                                               // <-- Back from the specification: the sheet was kept underneath
+            Na__LeMode__View = Na__LeMode__VIEW_SHEET;
+            Na__LeMode__AttachSheetInput();
+        }
         if (!Na__LeMode__Active) {
             if (Na__FloorPlanMode__IsEngaged())  Na__FloorPlanMode__ExitPlan(null);          // <-- The editor starts from the 3D view
             if (Na__ElevationMode__IsEngaged())  Na__ElevationMode__ExitElevation(null);
@@ -258,12 +357,18 @@
             Na__RenderLoop__Pause(Na__LeMode__RENDER_HOLD);                  // <-- Engine idle: the sheet owns the screen; snapshots render offscreen on demand
             Na__DrawView__Transitions__SuspendThreeD();                     // <-- Orbit and distance culling let go, as in a drawing
             Na__LeSnap__ResetFingerprints();                                // <-- One model walk per session, not per refresh
-            Na__LePc__Attach();                                            // <-- Mouse, wheel and keyboard, before the tools
-            Na__LeTouch__Attach();                                         // <-- Touch, before the tools
-            Na__LeTools__Attach({ editable : Na__LeMode__IsEditable() });
+            Na__LeMode__AttachSheetInput();                                // <-- Pointer, keys, tools and the margin grip
         }
+        void Na__LeSpec__EnsureLoaded();                                   // <-- The specification is read when the drawing editor first opens, never before
+        Na__LeMode__PreloadMetrics();
         Na__LeModel__SetActiveSheetId(sheet.Sheet__Id);
         Na__LeHist__Track(sheet);                                          // <-- Undo baseline for this sheet
+        if (sameSheet) {                                                   // <-- Same sheet: keep its zoom and scroll, catch up with what changed meanwhile
+            Na__LeSurface__Refresh('markup');
+            Na__LePanels__Refresh();
+            Na__LeMode__Dispatch();
+            return true;
+        }
         Na__LeSurface__SetSheet(sheet);
         Na__LePanels__Refresh();
         window.requestAnimationFrame(() => { if (Na__LeMode__Active) Na__LeNav__Fit(); });   // <-- Stage has a size once shown
@@ -277,9 +382,9 @@
     // ------------------------------------------------------------
     function Na__LeMode__Leave() {
         if (!Na__LeMode__Active) return false;
-        Na__LeTools__Detach();
-        Na__LeTouch__Detach();
-        Na__LePc__Detach();
+        if (Na__LeMode__View === Na__LeMode__VIEW_SPEC) Na__LeSpecEd__Hide();   // <-- The sheet's input already stood down when the page opened
+        else Na__LeMode__DetachSheetInput();
+        Na__LeMode__View = Na__LeMode__VIEW_SHEET;
         Na__LeSurface__SetSheet(null);
         Na__LeOsnap__Clear();
         Na__LeModel__SetActiveSheetId(null);
@@ -297,10 +402,33 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Show the Project Specification Tab
+    // ------------------------------------------------------------
+    // Over the sheet, which stays laid out underneath: its tools, keys and
+    // margin grip stand down, a text field still open on the paper is
+    // committed first. noteId brings that note into view. A request while no
+    // drawing tab is open opens the first sheet underneath it first.
+    // ------------------------------------------------------------
+    function Na__LeMode__OpenSpecification(noteId) {
+        if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
+        void Na__LeSpec__EnsureLoaded();
+        if (Na__LeMode__View !== Na__LeMode__VIEW_SPEC) {
+            Na__LeText__Commit();                                              // <-- Typing on the paper is kept, not dropped by the tools standing down
+            Na__LeMode__DetachSheetInput();
+            Na__LeMode__View = Na__LeMode__VIEW_SPEC;
+        }
+        Na__LeSpecEd__Show({ noteId : (typeof noteId === 'string' && noteId) ? noteId : null });
+        Na__LeMode__Dispatch();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | State
     // ------------------------------------------------------------
     function Na__LeMode__IsActive() { return Na__LeMode__Active; }
     function Na__LeMode__Ready()    { return Na__LeMode__ReadyOnce || Promise.resolve(false); }
+    function Na__LeMode__GetView()  { return Na__LeMode__View; }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -325,7 +453,9 @@
     const Na__LeMode__MARKUP_REASONS = Object.freeze([
         'annotation', 'annotations',
         'dimension',  'dimensions',
-        'shape',      'shapes'
+        'shape',      'shapes',
+        'leader',     'leaders',
+        'margin'                                                                // <-- The notes margin is drawn with the markup
     ]);
     // ------------------------------------------------------------
 
@@ -347,6 +477,8 @@
         if (reason === 'annotation' || reason === 'annotations') return 'text';
         if (reason === 'dimension'  || reason === 'dimensions')  return 'dimensions';
         if (reason === 'shape'      || reason === 'shapes')      return 'shapes';
+        if (reason === 'leader'     || reason === 'leaders')     return 'leaders';
+        if (reason === 'margin')                                 return 'margin';
         return null;                                                            // <-- Viewports and structural changes: everything may have moved
     }
     // ------------------------------------------------------------
@@ -368,6 +500,7 @@
         else if (reason === 'selection') { Na__LeSurface__Refresh('markup'); Na__LeSurface__Refresh('selection'); }
         else if (reason === 'active') { if (active) Na__LeSurface__SetSheet(active); }
         Na__LePanels__Refresh(Na__LeMode__PanelFor(reason));
+        if (reason === 'leader' || reason === 'leaders') Na__LePanels__Refresh('margin');   // <-- A link made or lost changes what the notes margin lists
     }
     // ------------------------------------------------------------
 
@@ -405,19 +538,51 @@
         // here means the first sheet a project opens is normalised against the
         // real files rather than the built-in fallbacks. Neither fetch rejects,
         // so a missing file slows nothing and blocks nothing.
-        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready() ]).then(() => {
+        // AND THE DRAWING VIEW CONFIG, because every viewport bake renders through
+        // the drawing presets and they read their setup from it. index.html starts
+        // the fetch; this is the same promise, so it is waited for, never repeated.
+        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__DrawCfg__Load() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
             Na__LeModel__Initialize();
             Na__LeHist__Initialize();                                        // <-- Undo and redo listen to the model from the start
             Na__LeAuto__Initialize({ showToast : context.showToast || null, editable : Na__LeMode__IsEditable() });   // <-- Browser draft and structural auto save
+            Na__LeSpec__Initialize({ showToast : context.showToast || null, editable : Na__LeMode__IsEditable() });   // <-- The project specification: nothing is read until the editor opens
+            Na__LeSpecLink__Initialize();                                    // <-- Bubble codes follow their notes
             Na__LeSnap__Initialize(context);
+            Na__LeSource__Initialize();                                      // <-- How many design phases stay loaded off-scene
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeMode__OnSheetsChanged);
+            window.addEventListener(Na__LeTools__DEFAULTS_EVENT, (event) => { if (Na__LeMode__Active) Na__LePanels__Refresh(Na__LeMode__PanelFor(event.detail && event.detail.kind)); });   // <-- A palette sync: the panel showing the new-object settings redraws
             window.addEventListener(Na__LePanelViewport__EDIT_EVENT, Na__LeMode__OnRequestDrawing);
+            // THE SPECIFICATION CHANGED: bubble codes and notes margins redraw, and
+            // the two panels that describe them. Covered by the specification's
+            // own page, the sheet catches up when a sheet tab is chosen again.
+            window.addEventListener(Na__LeSpec__CHANGED_EVENT, () => {
+                if (!Na__LeMode__Active || Na__LeMode__View === Na__LeMode__VIEW_SPEC) return;
+                Na__LeSurface__Refresh('markup');
+                Na__LePanels__Refresh('leaders');
+                Na__LePanels__Refresh('margin');
+            });
+            window.addEventListener(Na__LeSpec__OPEN_EVENT, (event) => { Na__LeMode__OpenSpecification(event.detail && event.detail.noteId); });
+            window.addEventListener(Na__LeSpec__GOTO_EVENT, (event) => {     // <-- A usage chip: the sheet, with its bubble selected
+                const detail = event.detail || {};
+                if (!detail.sheetId || !Na__LeMode__Enter(detail.sheetId)) return;
+                if (detail.leaderId) Na__LeModel__SetSelection({ kind : 'leader', id : detail.leaderId });
+            });
             window.addEventListener(Na__PlPipe__CHANGED_EVENT, (event) => {
                 if (!Na__LeMode__Active) return;
                 const detail = event.detail || {};
                 if (detail.status && detail.status !== Na__PlPipe__STATUS_READY) return;   // <-- Only finished linework repaints the frames
                 Na__LeSurface__Refresh('frames');
+            });
+            // A DESIGN PHASE LOADED, FAILED, WENT, OR MOVED INTO THE 3D VIEW: every
+            // frame re-resolves what it draws. The panels follow every change but
+            // the per-file progress, which only the frames' badges show - a panel
+            // refresh refills selects, and one per model file would snap an open
+            // dropdown shut while a phase loads.
+            window.addEventListener(Na__PhaseLib__CHANGED_EVENT, (event) => {
+                if (!Na__LeMode__Active) return;
+                Na__LeSurface__Refresh('frames');
+                if (!event.detail || event.detail.kind !== 'progress') Na__LePanels__Refresh();
             });
             window.addEventListener('resize', () => { if (Na__LeMode__Active) Na__LeSurface__SetZoom(Na__LeSurface__GetZoom()); });
             window.addEventListener(Na__LeRaster__CHANGED_EVENT, () => { if (Na__LeMode__Active) Na__LeSurface__Refresh('frames'); });   // <-- A new working level re-renders the pictures
@@ -442,12 +607,16 @@
     // ------------------------------------------------------------
     export {
         Na__LeMode__CHANGED_EVENT,
+        Na__LeMode__VIEW_SHEET,
+        Na__LeMode__VIEW_SPEC,
         Na__LeMode__Initialize,
         Na__LeMode__Ready,
         Na__LeMode__Enter,
         Na__LeMode__Leave,
+        Na__LeMode__OpenSpecification,
         Na__LeMode__IsActive,
-        Na__LeMode__IsEditable
+        Na__LeMode__IsEditable,
+        Na__LeMode__GetView
     };
     // ------------------------------------------------------------
 

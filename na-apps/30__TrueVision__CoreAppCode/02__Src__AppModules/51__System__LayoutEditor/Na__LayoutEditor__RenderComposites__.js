@@ -22,16 +22,17 @@
 //
 // WHERE THE 2D OUTLINE WIDTH WENT
 //
-// Until v2.27.0 the thickness of the silhouette on a 2D viewport's backing
-// picture was RenderEffect__ProfileLines__Drawing2dEdgeWidth in
-// Na__AppConfig__Main.json: one global number, three folders away from the panel
-// that switches the effect on, and the same for every viewport on every sheet.
+// Until v2.27.0 the silhouette on a 2D viewport's backing picture was drawn at the
+// drawing view config's built-in 1.0 px, the same for every viewport on every
+// sheet. Na__AppConfig__Main.json carried RenderEffect__ProfileLines__Drawing2dEdgeWidth
+// 0.55 and it was read as the bake width, but TrueVision never registered the main
+// config with the drawing view (closed 13-Sep-2026), so 0.55 only ever reached the
+// live floor plan and elevation views.
 //
-// It is now the profileLinework row's Composite__Weight, which is the same number
-// in a place a person would look for it and, more to the point, a number a single
-// viewport can disagree with. The drawing core still reads its own config default
-// when nothing overrides it, so a drawing opened outside the Layout Editor is
-// unchanged.
+// It is now the profileLinework row's Composite__Weight, defaulting to the 1.0 every
+// existing sheet was baked at, in a place a person would look for it and - more to
+// the point - a number a single viewport can disagree with. A drawing opened outside
+// the Layout Editor is untouched: the live views never read this.
 //
 // -----------------------------------------------------------------------------
 //
@@ -41,8 +42,8 @@
 //            work. Raising the master raises everything and the hierarchy
 //            survives.
 //   pixels   A real pixel count in a render buffer. Screen-space effects - the
-//            Sobel silhouette, the section outline - consume pixels and have no
-//            opinion about paper.
+//            Sobel silhouette, the section outline, the model's own edges in
+//            the base image - consume pixels and have no opinion about paper.
 //
 // A composite whose kind is 'none' draws no line and gets no control. Those rows
 // still exist in the config so the file is a complete inventory of the picture
@@ -52,13 +53,19 @@
 //
 // PORT NOTE:
 // - Ported from   : n/a - authored in TrueVision3D
-// - Back-port     : PENDING to ValeVision3D. Module and config port verbatim;
-//                   ValeVision's composer owns the profile pass differently
-//                   (DIV-1), so only the consumer of the pixel weights differs.
+// - Back-port     : ported 13-Sep-2026 as ValeVision3D v2.28.0. Module verbatim,
+//                   config layers verbatim; ValeVision's composer owns the profile
+//                   pass differently (DIV-1), so only the consumers of the pixel
+//                   weights differ there.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.1.0
+// - Base Image carries a weight: how thick the model's own edges draw in the
+//   rendered picture, 2D and 3D. RasterToken takes forThreeD, so a 3D snapshot
+//   keys only on the weights a 3D picture can show.
+//
 // 12-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -91,13 +98,13 @@
     // ------------------------------------------------------------
     const Na__LeComposite__FALLBACK = [
         { key : 'projectedLinework', label : 'Projected Linework',      twoDOnly : true,  toggle : true,  weight : { kind : 'factor', value : 1.00, min : 0.10, max : 3.00, step : 0.05, label : 'Weight'  } },
-        { key : 'profileLinework',   label : 'Profile Linework Effect', twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 0.55, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px', twoDOnly : true } },
+        { key : 'profileLinework',   label : 'Profile Linework Effect', twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 1.00, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px', twoDOnly : true } },
         { key : 'sectionOutline',    label : 'Section Outline',         twoDOnly : true,  toggle : false, weight : { kind : 'pixels', value : 2.00, min : 0.50, max : 8.00, step : 0.25, label : 'Cut px'  } },
         { key : 'hiddenLines',       label : 'Hidden Lines',            twoDOnly : true,  toggle : true,  weight : { kind : 'factor', value : 1.00, min : 0.10, max : 3.00, step : 0.05, label : 'Weight'  } },
         { key : 'glassOpaque',       label : 'Glass Transparency Off',  twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
         { key : 'whitecard',         label : 'Whitecard',               twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
         { key : 'enhanceWhitecard',  label : 'Enhance Whitecard',       twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
-        { key : 'baseImage',         label : 'Context Layer',           twoDOnly : false, toggle : true,  weight : { kind : 'none' } }
+        { key : 'baseImage',         label : 'Context Layer',           twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 0.80, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px' } }
     ];
     // ------------------------------------------------------------
 
@@ -255,13 +262,19 @@
     // thickens the VECTOR drawing and has no effect on a single pixel of the
     // render behind it, so letting it into the raster key would re-render a
     // multi-second supersampled underlay every time someone nudged a line weight.
+    //
+    // forThreeD narrows it again for a 3D snapshot, to the weights a 3D picture
+    // can actually show. A section outline width kept from when the viewport was
+    // 2D changes nothing in a scene render, and letting it in would re-render and
+    // re-upload a snapshot for no visible difference.
     // ------------------------------------------------------------
-    function Na__LeComposite__RasterToken(viewport) {
+    function Na__LeComposite__RasterToken(viewport, forThreeD) {
         const stored = viewport ? viewport[Na__LeComposite__FIELD] : null;
         if (!stored) return '';
         const keys = Object.keys(stored).filter((key) => {
             const row = Na__LeComposite__Row(key);
-            return !!(row && row.weight.kind === 'pixels');
+            if (!row || row.weight.kind !== 'pixels') return false;
+            return !(forThreeD === true && (row.twoDOnly || row.weight.twoDOnly));
         }).sort();
         return keys.length === 0 ? '' : keys.map((key) => key + ':' + stored[key]).join('|');
     }

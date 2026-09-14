@@ -169,6 +169,7 @@ body.na-le-dragging * {
 }
 
 .na-le-centre {
+    position                           : relative;                    /* <-- The Measurements box sits in its bottom right corner */
     display                            : flex;
     flex-direction                     : column;
     min-width                          : 0;
@@ -193,6 +194,136 @@ body.na-le-dragging * {
 
 .na-le-stage--panning {
     cursor                             : grabbing;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Measurements Box                                       */
+/* ----------------------------------------------------------------- */
+
+/* SketchUp's VCB (Na__LayoutEditor__Measurements__), bottom right over the
+   stage. The right and bottom offsets are written inline from the stage's
+   scrollbar sizes, so it always sits just inside them. The live reading is
+   the input's placeholder, so a typed value simply replaces it; the chip on
+   the right says the scale the reading is at, or Paper. */
+
+.na-le-vcb {
+    position                           : absolute;
+    right                              : 26px;
+    bottom                             : 26px;
+    z-index                            : 20;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    padding                            : 4px 5px 4px 10px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 6px;
+    background                         : #ffffff;
+    box-shadow                         : 0 2px 10px rgba(23, 43, 58, 0.18);
+    font-size                          : 0.76rem;
+    color                              : #172b3a;
+}
+
+.na-le-vcb[hidden] {
+    display                            : none;
+}
+
+.na-le-vcb__label {
+    min-width                          : 5.4em;
+    color                              : #6c757d;
+    white-space                        : nowrap;
+}
+
+.na-le-vcb__input {
+    width                              : 12em;
+    padding                            : 3px 7px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background                         : #f8fafb;
+    color                              : #172b3a;
+    font                               : inherit;
+    font-weight                        : 600;
+    font-variant-numeric               : tabular-nums;
+    text-align                         : right;
+    outline                            : none;
+}
+
+.na-le-vcb__input::placeholder {
+    color                              : #172b3a;
+    opacity                            : 0.75;
+    font-weight                        : 400;
+}
+
+.na-le-vcb__input:disabled {
+    cursor                             : default;
+}
+
+/* Typing: the box lights up, so a value on its way is never mistaken for a
+   reading. An error keeps the value, edged red, until it is corrected. */
+
+.na-le-vcb__input:focus,
+.na-le-vcb--typing .na-le-vcb__input {
+    border-color                       : #1a7fc4;
+    background                         : #ffffff;
+    box-shadow                         : 0 0 0 2px rgba(26, 127, 196, 0.18);
+}
+
+.na-le-vcb--error .na-le-vcb__input {
+    border-color                       : #c0392b;
+    box-shadow                         : 0 0 0 2px rgba(192, 57, 43, 0.18);
+}
+
+.na-le-vcb__scale {
+    min-width                          : 3.4em;
+    padding                            : 2px 6px;
+    border-radius                      : 4px;
+    background                         : #eef5fb;
+    color                              : #1a7fc4;
+    font-weight                        : 600;
+    text-align                         : center;
+    white-space                        : nowrap;
+}
+
+.na-le-vcb__scale[hidden] {
+    display                            : none;
+}
+
+.na-le-vcb__scale--paper {
+    background                         : #f4f6f8;
+    color                              : #6c757d;
+}
+
+.na-le-vcb--idle .na-le-vcb__label,
+.na-le-vcb--idle .na-le-vcb__input {
+    opacity                            : 0.55;
+}
+
+/* The line above the box: how a value is being read as it is typed, or why
+   it could not be used. */
+
+.na-le-vcb__hint {
+    position                           : absolute;
+    right                              : 0;
+    bottom                             : calc(100% + 6px);
+    max-width                          : 340px;
+    padding                            : 4px 9px;
+    border-radius                      : 5px;
+    background                         : rgba(23, 43, 58, 0.9);
+    color                              : #ffffff;
+    font-size                          : 0.72rem;
+    line-height                        : 1.35;
+    white-space                        : nowrap;
+    pointer-events                     : none;
+}
+
+.na-le-vcb__hint[hidden] {
+    display                            : none;
+}
+
+.na-le-vcb__hint--error {
+    background                         : #b3261e;
 }
 
 /* endregion ------------------------------------------------------- */
@@ -505,6 +636,53 @@ body.na-le-dragging * {
     border-style                       : solid;
 }
 
+/* SELECTION BOX (Na__LayoutEditor__SelectionBox__) | Dragged to the right it
+   is a WINDOW - blue, solid edge - and takes only what it wholly encloses;
+   dragged to the left it is a CROSSING - green, dashed edge - and takes
+   anything it touches as well. AutoCAD's two colours on SketchUp's two edges,
+   so a user of either reads it at a glance. The preview outlines what the box
+   would take, in the box's colour. Edge widths are set inline, counter-scaled
+   like the grips, so these rules carry nothing that changes with zoom.     */
+
+.na-le-select-box,
+.na-le-select-preview {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1px solid;
+    pointer-events                     : none;
+}
+
+.na-le-select-box {
+    z-index                            : 8;
+}
+
+.na-le-select-box--window {
+    border-color                       : #1f6fe0;
+    border-style                       : solid;
+    background                         : rgba(31, 111, 224, 0.16);
+}
+
+.na-le-select-box--crossing {
+    border-color                       : #1e9e4a;
+    border-style                       : dashed;
+    background                         : rgba(30, 158, 74, 0.16);
+}
+
+.na-le-select-preview {
+    z-index                            : 6;
+    border-style                       : dashed;
+}
+
+.na-le-select-preview--window {
+    border-color                       : rgba(31, 111, 224, 0.85);
+    background                         : rgba(31, 111, 224, 0.06);
+}
+
+.na-le-select-preview--crossing {
+    border-color                       : rgba(30, 158, 74, 0.85);
+    background                         : rgba(30, 158, 74, 0.06);
+}
+
 .na-le-text-editor {
     position                           : absolute;
     box-sizing                         : content-box;
@@ -517,6 +695,15 @@ body.na-le-dragging * {
     outline                            : none;
     pointer-events                     : auto;
     z-index                            : 5;
+}
+
+/* A leader's note: a text area that breaks a line only where Enter put one, */
+/* and grows a row per line instead of scrolling.                            */
+
+.na-le-text-editor--multiline {
+    resize                             : none;
+    overflow                           : hidden;
+    white-space                        : pre;
 }
 
 /* endregion ------------------------------------------------------- */
@@ -555,14 +742,32 @@ body.na-le-dragging * {
 /* ----------------------------------------------------------------- */
 
 /* Square for an endpoint, triangle for a midpoint (the AutoCAD glyphs);
-   size and border are written inline, counter-scaled by the zoom. */
+   size and border are written inline, counter-scaled by the zoom.
+   THE COLOUR SAYS WHICH TOOL IS SNAPPING, the glyph what it found: blue
+   for vertices (the Draw and Rectangle tools, vertex grips), orange for
+   dimensions (the Dimension tool, its grips, its line inference), purple
+   for viewports (carrying one by a point). Each tone is one RGB triple,
+   so the border, the tint and the midpoint fill all follow it. */
 .na-le-osnap {
+    --na-le-osnap-rgb                  : 37, 99, 235;
     position                           : absolute;
     box-sizing                         : border-box;
-    border                             : 1.5px solid #d97706;
-    background                         : rgba(217, 119, 6, 0.12);
+    border                             : 1.5px solid rgb(var(--na-le-osnap-rgb));
+    background                         : rgba(var(--na-le-osnap-rgb), 0.12);
     pointer-events                     : none;
     z-index                            : 6;
+}
+
+.na-le-osnap--vertex {
+    --na-le-osnap-rgb                  : 37, 99, 235;
+}
+
+.na-le-osnap--dimension {
+    --na-le-osnap-rgb                  : 234, 88, 12;
+}
+
+.na-le-osnap--viewport {
+    --na-le-osnap-rgb                  : 147, 51, 234;
 }
 
 .na-le-osnap[hidden] {
@@ -572,7 +777,7 @@ body.na-le-dragging * {
 .na-le-osnap--mid {
     border-radius                      : 0;
     clip-path                          : polygon(50% 0, 100% 100%, 0 100%);
-    background                         : rgba(217, 119, 6, 0.55);
+    background                         : rgba(var(--na-le-osnap-rgb), 0.55);
     border                             : none;
 }
 
@@ -720,6 +925,13 @@ body.na-le-dragging * {
     border-color                       : #b45309;
 }
 
+/* A leader's anchor grip is round and keeps the selection blue: it moves the */
+/* head, while the square grip at the tip re-points the leader.               */
+
+.na-le-grip--anchor {
+    border-radius                      : 50%;
+}
+
 .na-le-osnap--infer {
     border-radius                      : 50%;
     border-style                       : solid;
@@ -760,26 +972,42 @@ body.na-le-dragging * {
     background                         : rgba(220, 38, 38, 0.08);
 }
 
+/* A palette sync pulses the item the style came from, then the node is
+   removed. Its own class, so a tool switch that hides the dropper's boxes
+   does not cut the pulse short. The duration is set inline from FlashMs.   */
+.na-le-dropper--flash {
+    border-color                       : #7c3aed;
+    border-style                       : solid;
+    background                         : rgba(124, 58, 237, 0.20);
+    animation                          : na-le-dropper-flash 700ms ease-out forwards;
+}
+
+@keyframes na-le-dropper-flash {
+    0%   { opacity : 1; }
+    100% { opacity : 0; }
+}
+
 /* VIEWPORT CARRY | A viewport moved by a point on its own linework
    (Na__LayoutEditor__ViewportSnapMove__). The carried frame multiplies, so
    the drawing underneath shows through it and can be aimed at. The ring
    marks the carried point, a cross marks each acquired tracking point, and
    a guide runs from a tracking point to the carried one: red when level,
-   green when plumb - the axis-lock colours. Sizes and stroke widths are
-   counter-scaled in the module, so these rules carry colour and nothing
-   that changes with zoom.                                                  */
+   green when plumb - the axis-lock colours. The frame's outline, the ring
+   and the crosses are the viewport purple of the snap marker while a
+   viewport is carried. Sizes and stroke widths are counter-scaled in the
+   module, so these rules carry colour and nothing that changes with zoom.  */
 
 .na-le-frame--carried {
     mix-blend-mode                     : multiply;
-    outline                            : 1px dashed #d97706;
+    outline                            : 1px dashed #9333ea;
 }
 
 .na-le-carry-base {
     position                           : absolute;
     box-sizing                         : border-box;
-    border                             : 1.5px solid #d97706;
+    border                             : 1.5px solid #9333ea;
     border-radius                      : 50%;
-    background                         : rgba(217, 119, 6, 0.18);
+    background                         : rgba(147, 51, 234, 0.18);
     pointer-events                     : none;
     z-index                            : 6;
 }
@@ -795,7 +1023,7 @@ body.na-le-dragging * {
 .na-le-track-point::after {
     content                            : '';
     position                           : absolute;
-    background                         : #d97706;
+    background                         : #9333ea;
 }
 
 .na-le-track-point::before {

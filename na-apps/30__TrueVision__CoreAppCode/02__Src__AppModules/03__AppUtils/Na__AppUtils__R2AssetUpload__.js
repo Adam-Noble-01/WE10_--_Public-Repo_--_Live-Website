@@ -28,13 +28,21 @@
 //                   Worker route that must succeed, then a best-effort Flask mirror for the
 //                   local copy, each with its own failure toast. TrueVision has no Flask and
 //                   no second copy: R2 is the only store, so there is one call and one
-//                   outcome. The returned shape keeps ValeVision's localSuccess field, always
-//                   true, so shared callers need no branch.
+//                   outcome. The returned shape keeps ValeVision's localSuccess field, true
+//                   whenever R2 took the file, so shared callers need no branch for it.
+//                   FAILURE IS THE EXCEPTION: ValeVision throws, this returns a result with
+//                   r2Success false - and an object is truthy. A shared caller must test
+//                   r2Success, never whether a result came back (the Layout Editor's
+//                   snapshot stamp did, until TrueVision v2.32.1).
 // - Back-port     : no.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.0.1
+// - Comments only. The PORT NOTE and the return note say how failure differs from
+//   ValeVision, after a refused upload was read as success.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Initial implementation for the projected linework port.
 //
@@ -93,7 +101,8 @@
     // the API client derives the project from the URL, which is the only source
     // that cannot disagree with the document the app actually loaded.
     //
-    // Returns { r2Success, localSuccess, publicUrl, relUrl, error }.
+    // Returns { r2Success, localSuccess, publicUrl, relUrl, error }. A failure
+    // never throws: it comes back with r2Success false, so test that field.
     // ------------------------------------------------------------
     async function Na__AppUtils__R2AssetUpload(payload, projectCode, relativePath, showToast) {
         const toast = (typeof showToast === 'function') ? showToast : () => {};

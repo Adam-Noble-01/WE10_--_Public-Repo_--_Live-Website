@@ -38,6 +38,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - RenderOutlines: an outline on each of several selected viewports and no
+//   handles, for a multi-selection. Render and it share one outline builder.
+//
 // 10-Sep-2026 - Version 1.2.0
 // - Clear leaves the snap marker, the rubber band and an open text field in place. FrontToBack lifted from the sheet tools.
 //
@@ -137,6 +141,23 @@
 // REGION | Rendering
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | One Outline Element Over a Viewport's Frame
+    // ------------------------------------------------------------
+    function Na__LeHandles__Outline(layer, viewport, ppm, zoom, className) {
+        const rect    = viewport.Viewport__FrameMm;
+        const outline = document.createElement('div');
+        outline.className = className;
+        outline.style.left   = (rect.X * ppm) + 'px';
+        outline.style.top    = (rect.Y * ppm) + 'px';
+        outline.style.width  = (rect.WidthMm  * ppm) + 'px';
+        outline.style.height = (rect.HeightMm * ppm) + 'px';
+        outline.style.borderWidth = Math.max(1, 1.5 / zoom) + 'px';
+        layer.appendChild(outline);
+        return outline;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Draw the Outline and Handles Into the Selection Layer
     // ------------------------------------------------------------
     function Na__LeHandles__Render(layer, viewport, ppm, zoom, editable, options) {
@@ -147,17 +168,11 @@
         const setup  = Na__LeCfg__GetViewportSetup();
         const sizePx = setup.handleSizePx / zoom;                                // <-- Constant on screen at any zoom
 
-        const outline = document.createElement('div');
-        outline.className = 'na-le-selection' + (editable ? '' : ' na-le-selection--readonly') + (state.editing ? ' na-le-selection--editing' : '') + (state.locked ? ' na-le-selection--locked' : '');
-        outline.style.left   = (rect.X * ppm) + 'px';
-        outline.style.top    = (rect.Y * ppm) + 'px';
-        outline.style.width  = (rect.WidthMm  * ppm) + 'px';
-        outline.style.height = (rect.HeightMm * ppm) + 'px';
-        outline.style.borderWidth = Math.max(1, 1.5 / zoom) + 'px';
+        const outline = Na__LeHandles__Outline(layer, viewport, ppm, zoom,
+            'na-le-selection' + (editable ? '' : ' na-le-selection--readonly') + (state.editing ? ' na-le-selection--editing' : '') + (state.locked ? ' na-le-selection--locked' : ''));
         if (state.editing)     outline.setAttribute('data-na-note', Na__LeCfg__GetLabel('EditingViewNote', 'Editing viewport content: drag to reposition, Esc to finish'));
         else if (state.locked) outline.setAttribute('data-na-note', Na__LeCfg__GetLabel('LockedNote', 'Locked'));
         outline.style.setProperty('--na-le-note-scale', String(1 / zoom));   // <-- The note reads the same at any zoom
-        layer.appendChild(outline);
         if (!editable || state.editing || state.locked) return;                 // <-- No handles while the content is being edited, or when locked
 
         Na__LeHandles__KEYS.forEach((key) => {
@@ -170,6 +185,23 @@
             handle.style.height = sizePx + 'px';
             handle.style.borderWidth = Math.max(1, 1 / zoom) + 'px';
             layer.appendChild(handle);
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Outline Several Selected Viewports, With No Handles
+    // ------------------------------------------------------------
+    // isLocked(viewport) greys a locked one's outline, as Render does. There are
+    // no notes: a label over every frame of a multi-selection would bury the
+    // sheet under them.
+    // ------------------------------------------------------------
+    function Na__LeHandles__RenderOutlines(layer, viewports, ppm, zoom, isLocked) {
+        if (!layer) return;
+        Na__LeHandles__Clear(layer);
+        (viewports || []).forEach((viewport) => {
+            const locked = typeof isLocked === 'function' && isLocked(viewport) === true;
+            Na__LeHandles__Outline(layer, viewport, ppm, zoom, 'na-le-selection' + (locked ? ' na-le-selection--locked' : ''));
         });
     }
     // ------------------------------------------------------------
@@ -386,6 +418,7 @@
     // ------------------------------------------------------------
     export {
         Na__LeHandles__Render,
+        Na__LeHandles__RenderOutlines,
         Na__LeHandles__FrontToBack,
         Na__LeHandles__Clear,
         Na__LeHandles__HitTest,

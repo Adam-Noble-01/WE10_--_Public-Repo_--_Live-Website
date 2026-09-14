@@ -30,13 +30,20 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.1.0
+// - Divergences   : Console prefix, header and folder numbers; the three
+//                   3D-matching switches of 1.1.0, authored here first.
+// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - GetProjectionSetup answers hideFlushJoins and seamsOcclude (each on unless
+//   the config says false) and lineworkFirst (off unless the config turns it
+//   on). The fallbacks carry all three, and the build token that retires every
+//   linework asset rendered under the old rules.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 4.
 //
@@ -64,6 +71,9 @@
         logTimings              : true,
         angleThresholdDegrees   : 50,
         includeIntersections    : true,
+        lineworkFirst           : false,
+        seamsOcclude            : true,
+        hideFlushJoins          : true,
         intersectionMaxInstances : 400,
         intersectionMaxPairs     : 20000,
         intersectionSelfMaxTriangles : 60000,
@@ -91,7 +101,7 @@
         cacheInBrowser          : true,
         exclusionTokens         : ['Planting', 'Trees', 'People', 'Vehicles', 'Furniture', 'Decor'],
         skipObjectNames         : ['OrbitHelperCube', 'Na__GridLine', 'Na__FogPlane', 'Na__Billboard', 'Na__ElevGizmo', 'DrawingCut__'],
-        buildToken              : '2026-09-09-phase4-initial',
+        buildToken              : '2026-09-14-flush-joins',
         transparentOccludes     : false,
         transparentOpacityBelow : 0.999,
         appearance              : {
@@ -246,6 +256,9 @@
         return {
             angleThresholdDegrees    : Na__PlCfg__Num('Projection', 'AngleThresholdDegrees',    F.angleThresholdDegrees),
             includeIntersectionEdges : Na__PlCfg__Val('Projection', 'IncludeIntersectionEdges', F.includeIntersections) === true,
+            lineworkFirst            : Na__PlCfg__Val('Projection', 'LineworkFirst',            F.lineworkFirst) === true,
+            seamsOcclude             : Na__PlCfg__Val('Projection', 'SeamsOcclude',             F.seamsOcclude) !== false,
+            hideFlushJoins           : Na__PlCfg__Val('Projection', 'HideFlushJoins',           F.hideFlushJoins) !== false,
             intersectionMaxInstances : Na__PlCfg__Num('Projection', 'IntersectionMaxInstances',     F.intersectionMaxInstances),
             intersectionMaxPairs     : Na__PlCfg__Num('Projection', 'IntersectionMaxPairs',         F.intersectionMaxPairs),
             intersectionSelfMaxTriangles : Na__PlCfg__Num('Projection', 'IntersectionSelfMaxTriangles', F.intersectionSelfMaxTriangles),

@@ -34,11 +34,15 @@
 //
 // PORT NOTE:
 // - Ported from   : n/a - authored in TrueVision3D
-// - Back-port     : PENDING to ValeVision3D.
+// - Back-port     : done - ValeVision3D v2.30.0 (13-Sep-2026), verbatim below the header.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - The rows are the categories of the selected viewport's own design phase,
+//   which on a viewport of the existing building are not the proposal's.
+//
 // 12-Sep-2026 - Version 1.1.0
 // - Advanced fold: per-category edge colour, line type and weight inline in
 //   each row, a reset per row, and a reset for the whole viewport. Only shown
@@ -59,6 +63,7 @@
     import { Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__KIND_2D, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectedViewport, Na__LeModel__UpdateViewport } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeModelLayers__Ready, Na__LeModelLayers__Groups, Na__LeModelLayers__IsOn } from './Na__LayoutEditor__ModelLayers__.js';
+    import { Na__LeSource__CategoryKeys } from './Na__LayoutEditor__ModelSource__.js';
     import {
         Na__LeEdge__FIELD,
         Na__LeEdge__CAT_FIELD,
@@ -274,7 +279,7 @@
     // ------------------------------------------------------------
     function Na__LePanelModelLayers__Refresh(body) {
         const viewport = Na__LeModel__GetSelectedViewport();
-        const groups   = Na__LeModelLayers__Groups();
+        const groups   = Na__LeModelLayers__Groups(Na__LeSource__CategoryKeys(viewport));   // <-- The selected viewport's design phase; null keeps the live model's
         const list     = body.querySelector('[data-na-block="list"]');
         const note     = body.querySelector('[data-na-block="note"]');
         const bulk     = body.querySelector('[data-na-block="bulk"]');
@@ -369,7 +374,7 @@
         Na__LePanels__OnControl('click', 'model-layer-bulk', (e, el, role) => {
             const on    = role === 'on';
             const patch = {};
-            Na__LeModelLayers__Groups().forEach((group) => group.layers.forEach((layer) => { patch[layer.key] = on; }));
+            Na__LeModelLayers__Groups(Na__LeSource__CategoryKeys(Na__LeModel__GetSelectedViewport())).forEach((group) => group.layers.forEach((layer) => { patch[layer.key] = on; }));
             Na__LePanelModelLayers__Apply(patch);
         });
 

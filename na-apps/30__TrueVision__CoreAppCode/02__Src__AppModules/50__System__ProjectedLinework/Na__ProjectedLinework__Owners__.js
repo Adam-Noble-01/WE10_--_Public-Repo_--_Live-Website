@@ -54,8 +54,8 @@
 //
 // PORT NOTE:
 // - Ported from   : n/a - authored in TrueVision3D
-// - Back-port     : PENDING to ValeVision3D. The module ports verbatim; only the
-//                   console prefix changes.
+// - Back-port     : done - ValeVision3D v2.30.0 (13-Sep-2026), verbatim below the
+//                   header; only the console prefix and the header differ.
 //
 // -----------------------------------------------------------------------------
 //

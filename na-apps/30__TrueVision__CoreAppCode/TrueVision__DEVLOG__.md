@@ -2,13 +2,1467 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.42.0  -  14-Sep-2026
+### Doors Stand Open on Plans - Click One to Close It
+
+**Overview**
+- A Layout Editor plan viewport draws every door OPEN, whatever the 3D view shows: in its
+  projected linework, in its base image and in the PDF. Each door opens exactly as a click in
+  the 3D view opens it - the same ADR / MOD / ROT naming contract and the same panel transform -
+  so hinged leaves swing, bifolds fold, sliders slide, and mirrored and inverted doors land
+  the right way round.
+- Each open hinged leaf gets its swing: the arc its far edge sweeps from shut to open, at the
+  leaf's floor level, drawn with the Doors layer's line style. Bifolds and sliders draw none.
+- With the plan viewport selected, a click on a door closes it and another click opens it
+  again. The cursor turns to a pointer over a door. A press that moves still moves the
+  viewport, and each click waits out the double click window, so double-clicking into the
+  content leaves the door alone. The right-click menu leads with Close door or Open door for
+  the door under the click, and Open all doors while any is shut; the Viewport panel's Doors
+  row says how many are shut and has Open all. Every change is one undo step: a content edit,
+  kept by the browser draft and by Save Sheets, never an auto save.
+- A lock holds a viewport's frame, not what it draws: the doors of a locked plan still close
+  and open, by click, menu or panel, as its layers and styles still change. On a locked plan a
+  press on a door is a door press - the click toggles, a drag does nothing - instead of the
+  start of a selection box.
+- The model's doors are never left moved. They are stood open for the one synchronous model
+  read a projection makes, and for the length of one base-image render, and put straight back
+  where the 3D view holds them - by the door's own progress, so a door open in the 3D view
+  stays open there.
+- Elevations, sections, 3D viewports and the drawing views outside the Layout Editor draw the
+  doors as the model holds them, with exactly the keys and cached linework they had.
+
+**THE RECORD**
+- `Viewport__ClosedDoors`: the door keys a plan viewport draws shut - the ADR name, or
+  `ADR::MOD` for one leaf of an exterior double door, whose leaves open one at a time. Stored
+  only when it lists a door, sorted and without repeats, so every existing record is
+  byte-identical after a load. `UpdateViewport` takes the `closedDoors` patch key.
+
+**HOW IT KEYS**
+- The pose rides on the view definition as `DoorPose { Closed, Swings, SwingStepDegrees }` and
+  is folded into its record hash, so the linework cache, the browser store, the base image
+  key and the PDF all follow it. A definition without a pose hashes exactly as before.
+- The projection's collection key carries the pose too. The first view of each plan viewport
+  after this release projects once on the device (its doors are a new drawing); a reload then
+  paints from the browser store as before.
+
+**Config**
+- `LayoutEditor__PlanDoors__Config`: `OpenOnPlans`, `DrawSwings`, `SwingStepDegrees` (5),
+  `ClickToToggle`, `ClickDelayMs` (300). Labels: `MenuCloseDoor`, `MenuOpenDoor`,
+  `MenuOpenAllDoors`, `DoorsLabel`, `DoorsOpenAll`, `DoorsAllOpen`, `DoorsSomeClosed`.
+
+**Files**
+- New: `50__System__ProjectedLinework/Na__ProjectedLinework__DoorPose__.js` 1.0.0 (`Na__PlDoors__`):
+  pose, restore, swing tracing, swing placement and the hit test.
+- New: `51__System__LayoutEditor/Na__LayoutEditor__PlanDoors__.js` 1.0.0 (`Na__LeDoors__`): the
+  pose a viewport draws with, the door under a click, toggling, Open all and the menu rows.
+- Door animation `3dObjectIInteraction__Animation__ClickToOpenDoors__.js` 1.9.0 (README too):
+  `DescribeDoors`, `ComputePanelLocalPose`, exported `ApplyPanelTransform`, `GetLiveProgress`,
+  the MOD type constants; `ScanForDoors` scans through `ScanGroupsInto`, unchanged in behaviour.
+- Projected linework: `ViewDefinition__` 1.1.0, `StageSampler__` 1.1.0 (posed panels keep copied
+  matrices), `Projector__` 1.3.0 (pose, read and restore around Collect), `Pipeline__` 1.4.0
+  (collection key, swings).
+- Layout Editor: `SnapshotRenderer__` 1.7.0, `Viewport2d__` 1.7.0, `SheetTools__` 1.16.0,
+  `SheetModel__` 1.14.0, `SheetRecords__` 1.10.0, `ConfigState__` 1.10.0,
+  `Panel__ViewportSettings__` 1.5.0; `AppConfig__.json`.
+- Service worker: token `2026-09-14-8`.
+
+**Verification**
+- Every changed module parses as an ES module; named exports (271 files) and the module graph pass.
+- Node, on a built model of five doors (a single hinged door, an exterior double door, a sliding
+  door, an upstairs door and a mirrored door), 36 checks:
+  - every swing arc ends exactly on the posed leaf's far corner, the mirrored door included;
+  - the sampler keeps copies of posed matrices, which stay open after the doors are put back;
+  - the upstairs door's swing is dropped by the ground floor cut;
+  - owner tags still match the visible class;
+  - the hit test finds a leaf, its swing and its doorway, and a double door leaf by its own key;
+  - a door opened in the 3D view is posed shut for a plan and comes back open.
+- In the app on PS01 (localhost:8511, every non-read request blocked and none attempted):
+  - The 3 doors (2 hinged, 1 sliding) come back as the registry's own records. Posing and
+    restoring them left every panel exactly where it was. Swing radii are 766 and 826 mm, at
+    floor level.
+  - D01 - Floor Plans: both plan viewports carry the open pose and a record hash of their own.
+    The Existing Floor Plan's projection gains its 18 swing segments per hinged door (visible
+    1120 to 1169), with the leaf drawn open.
+  - On that viewport, which is locked:
+    - the cursor is a pointer over the door;
+    - a click shuts it after the double click window (key recorded, panel note "1 closed");
+    - a drag on the door, and a double click, change nothing;
+    - from the doorway the menu offers Open door and Open all doors, and a click reopens it;
+    - two undo steps go back through reopen and shut.
+  - The 3D view's door panels were unchanged throughout, and the browser draft was cleared.
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.41.0  -  14-Sep-2026
+### Fixed Length Extension Lines - Dimensions Stand Clear of the Drawing
+
+**Overview**
+- From Adam's report on PS01's D01 - Floor Plans: a run of 800 / 890 / 3,740 mm dimensions set below
+  the plan dragged its extension lines all the way back to the vertices they measure - long red lines
+  across the drawing, where a drawing office wants short ones that stop just past the run.
+- A dimension's extension lines can now stop short. The Dimensions panel has an Ext. lines row under
+  Offset mm: a Start and an End length in paper millimetres, measured from the dimension line back
+  towards the point, with a padlock between them.
+  - Padlock shut (the default): typing either length sets both.
+  - Open: each keeps its own. Shutting it again gives End the Start length.
+  - Empty is the full line, exactly as before. Zero leaves only the overshoot past the dimension line.
+- The measured points never move. A shortened dimension still measures from them, its square grips
+  still sit on them and they are still snap points; the part of a line that is not drawn is simply not
+  there to click or to print.
+- The length runs back from the dimension line, so a run whose points sit at different depths ends all
+  its extension lines on one level line.
+- While a shortened dimension is selected, a thin dashed line in the selection blue shows the part not
+  drawn, down to the point it measures. The PDF never has it.
+- The eyedropper carries both lengths and the padlock: pick the dimension that looks right and click
+  the rest of the run (B), or Shift+B it so new dimensions start with the same lengths.
+
+**RECORD**
+- `Dimension__StartExtensionMm`, `Dimension__EndExtensionMm`: a length of zero or more, present only
+  while that line is cut short.
+- `Dimension__ExtensionsLinked`: present only as `false`, while the padlock is open.
+- The normaliser removes any other value and never adds a key. Every record written before this release,
+  and every browser draft of one, stays byte-identical and draws its full lines - a filled-in key would
+  have made each old draft differ from its loaded sheets and restore itself, toast and all, on every load.
+- Model patch and settings keys: `startExtensionMm`, `endExtensionMm` (null for the full line) and
+  `extensionsLinked`. `LayoutEditor__Dimensions__DefaultExtensionMm` (null) is what new dimensions start with.
+
+**HOW**
+- `DimensionGeometry__` 1.2.0: `Skeleton` takes an optional `{ startMm, endMm }`. Each extension line
+  starts `max(gap, reach - length)` from its point, reach being the point's distance to the dimension
+  line, so a length longer than the line changes nothing. `G1` and `G2` are where the full lines start.
+  `Push` passes `spec.extension`; scene dimensions never pass one.
+- `MarkupBridge__` 1.8.0: the sheet skeleton reads the record (`DimensionExtension`), so the drawing, the
+  hit test and the selection box all follow the shortened lines; the dashed ghost of a selected one.
+- `Eyedropper__` 1.4.0: three dimension traits, and a new trait flag, `absent` - the value a record means
+  by leaving its field out - so a source with full lines still paints a shortened target back to full.
+- `PanelHost__` 1.2.0: `LinkedPairRow` and `ShowLink`, two values with a padlock between them, for any
+  panel. `Styles__Panels__.css`: the Linked Pair region.
+
+**Files**
+- Layout Editor: `DimensionGeometry__` 1.2.0, `MarkupBridge__` 1.8.0, `Eyedropper__` 1.4.0, `PanelHost__`
+  1.2.0, `Panel__Dimensions__` 1.3.0, `SheetModel__` 1.13.0, `SheetRecords__` 1.9.0, `ConfigState__` 1.9.0,
+  `SheetTools__` 1.15.0, `DimensionTool__` 1.4.0, `Styles__Panels__.css`; `AppConfig__.json`:
+  `DefaultExtensionMm` and `ExtensionNote` in the Dimensions block.
+- Service worker: token `2026-09-14-7`.
+- Built in the same files as v2.40.0's Measurements box and a plan doors session, at the same time:
+  footprints swapped by message first, each shared file landed as one anchored all-or-nothing patch after
+  the other session's done.
+
+**Verification**
+- Node harness on the real modules, 333,633 checks, none failed:
+  - Without a length, about 18,000 skeletons in every orientation, and every primitive `Push` emits, are
+    bit-identical to the module before the change (rebuilt by reversing the patch).
+  - With random lengths each line starts exactly that far back from the dimension line, stays on its own
+    extension line, is never lengthened and never cut into the gap; worked examples include an ortho
+    dimension with a point either side of its line.
+  - The eyedropper reads, paints and palettes the three traits; every other trait of every kind reads as before.
+- Every changed module parses; the module graph and named exports (271 files) pass.
+- In the app on PS01's D01 - Floor Plans (localhost:8517), every non-read request refused and none
+  attempted, on Adam's own run of dimensions:
+  - Start 20 with the padlock shut set both. The 800 mm dimension's points are 70 mm apart in depth, and
+    both its lines now start 20 mm above the dimension line, at the same height.
+  - The hidden part of a line hit-tested as nothing, the visible part as the dimension; a snap beside the
+    measured point landed exactly on it.
+  - Two dashed ghosts while selected; none in the primitives the PDF draws.
+  - The eyedropper painted 20 mm onto the 890 and 3,740 mm dimensions, whose lines then started on the
+    same level.
+  - Padlock open stored `false`; End 35 and then Start 12 changed separately; shutting it gave End 12 and
+    removed the key; undo and redo stepped through one change at a time.
+  - Clearing Start returned the full lines with no keys left; -4 was taken as 0.
+  - With nothing selected the row set new dimensions' lengths. Shift+B on a 20 / 30 unlocked dimension put
+    those into the settings and switched to the Dimension tool, and a dimension placed with it carried
+    20 / 30 unlocked from its second click.
+  - The test changes were undone by restoring the loaded sheets, and the browser draft was cleared.
+- Not exercised: a full PDF export (its primitives were checked), a selection box over a shortened line,
+  touch input.
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.40.0  -  14-Sep-2026
+### The Measurements Box and Drawing at Scale - Type the Size, Draw It True
+
+**Overview**
+- The Layout Editor has SketchUp's VCB: a Measurements box at the bottom right of the sheet, just
+  inside the stage's scrollbars. While the Draw (L), Rectangle (R) or Dimension (D) tool is up it
+  reads out what is being drawn - a line's length, a rectangle's width x height, a dimension's span
+  and then its line's offset - with the scale on a chip beside it. With any other tool it rests,
+  greyed.
+- Type a value while drawing - no click into the box - and Enter uses it:
+  - Draw: the next point goes exactly that far along the rubber band. The band's direction is used,
+    so a snap, Shift or an arrow key axis lock aims it first. A typed point that lands on the first
+    one closes the polygon.
+  - Rectangle: `3000 x 2000` (or `3000,2000`) lands the opposite corner, towards the side the cursor
+    is on. One figure is a square; `3000,` or `,2000` keeps the cursor's other side. Typed straight
+    after a rectangle lands, it resizes that rectangle, as in SketchUp.
+  - Dimension: after the first click a length picks the end; while the line follows the cursor a
+    distance puts the line that far off, on the cursor's side, and finishes.
+- A number with no unit is millimetres. `m`, `cm` and `mm` work in either case (`2.5M`), commas
+  group thousands (`2,000`, `3,555`) and a minus sign draws the other way. The line above the box
+  shows how a value is being read as it is typed (`= 2,500 mm`), and why it cannot be used.
+- Escape or Delete drops a typed value and Backspace takes a character back, each only while
+  something is typed, so Enter still finishes a shape and Escape still backs out. Letters stay tool
+  keys until a value is begun, and a click on the sheet drops a half-typed value. Clicking the box
+  types into it directly, which is also how a touch screen reaches it.
+
+**AT SCALE**
+- Two new switches, both on by default, each the first control of its panel:
+  - Vectors panel, Draw at scale (1:50): the Draw and Rectangle tools take typed sizes as real sizes
+    at the drawing's scale - 2500 at 1:50 draws 50 mm of paper. Off, they are paper millimetres and
+    the chip says Paper. A setting of the drawing tools, never of a shape.
+  - Dimensions panel, Measure at scale (1:50): the dimension reads the drawing's real size. With a
+    dimension selected it switches that dimension; with nothing selected, the ones placed next.
+- Which scale (`Na__LayoutEditor__DrawingScale__.js`): on a 2D viewport, that viewport's - the one
+  the Dimension tool attaches a dimension to; anywhere else, the sheet's: the scale its 2D viewports
+  share, the biggest drawing's when they differ, the Scales default (1:50) when it has none. A
+  vector drawn at scale over bare paper and a dimension measuring it therefore agree, where a
+  dimension off every viewport used to read paper millimetres.
+- The record: `Dimension__AtScale`, stored only as true or false. A dimension from before it has no
+  key and reads exactly as it did - its viewport's scale on a 2D viewport, the paper elsewhere - so
+  every existing record and browser draft is byte-identical after a load.
+
+**Files**
+- New in the Layout Editor: `Na__LayoutEditor__Measurements__.js` 1.0.0 (`Na__LeMeasure__`),
+  `Na__LayoutEditor__MeasureParse__.js` 1.0.0 (`Na__LeMParse__`, pure) and
+  `Na__LayoutEditor__DrawingScale__.js` 1.0.0 (`Na__LeDrawScale__`).
+- `ShapeTool__` 1.4.0 (Measure, TypeLength), `RectangleTool__` 1.1.0 (Measure, TypeSize and the
+  retype), `DimensionTool__` 1.3.0 (Measure, TypeSpan, TypeOffset; atScale on new dimensions),
+  `SheetTools__` 1.14.0 (attach, refreshes, Rerun, the atScale defaults), `MarkupBridge__` 1.7.0
+  (DimensionValueMm through DrawingScale), `Panel__Shapes__` 1.6.0, `Panel__Dimensions__` 1.2.0,
+  `SheetModel__` 1.12.0, `SheetRecords__` 1.8.0, `ConfigState__` 1.8.0 (GetMeasureSetup,
+  GetMeasureKeys, defaultAtScale) and `ModeController__` 1.11.0 (mounts the box).
+- `AppConfig__.json`: `Dimensions__DefaultAtScale`, `Shapes__DefaultAtScale` and `AtScaleNote`, a
+  `Measurements` block (precision, units, pair separator, message time, scrollbar gap) and the
+  Measure and at-scale labels. `KeyMappings__.json`: a `MeasurementsBox` block (the characters that
+  start and continue a value; the commit, clear and erase keys). `Styles__Main__.css`: the box.
+- Service worker: token `2026-09-14-6`.
+
+**Verification**
+- Parser: 77 Node checks - units, thousands commas, pairs, squares, one-sided pairs, refusals and
+  the reading format. The changed modules parse as ES modules; the module graph (356 modules) and
+  named exports (269 files) pass; both JSON files parse.
+- In the app on PS01's D01 - Floor Plans (A2, two 1:50 viewports) on localhost:8503, every non-read
+  request refused and none attempted, driven by pointer and key events:
+  - Draw: 30 mm of band read 1,500 mm; `2500` Enter put the vertex 50 mm along; an ArrowDown lock
+    and `1.2m` put the next one 24 mm straight down; `2,5` was refused with its message and kept;
+    Escape dropped the value and kept the line; Enter with nothing typed finished it.
+  - Rectangle: `3000,2000` landed 60 x 40 mm; `4000x1000` straight after resized it to 80 x 20 mm,
+    and Ctrl+Z and Ctrl+Y stepped the resize on its own.
+  - Dimension on bare paper: `2500` picked an end 50 mm away and `500` put the line 10 mm off on the
+    cursor's side; it read 2,500 mm at the sheet's scale. Measure at scale off: 50 mm, the paper;
+    on again: 2,500 mm. Over the Proposed Floor Plan, `1800` then `300` gave a 36 mm span and a
+    6 mm offset, attached to that viewport, reading 1,800.
+  - Draw at scale off: the chip read Paper and `25` drew 25 mm.
+  - Keys: v, r and m with nothing typed stayed tool keys; `12` then l switched tool and dropped the
+    value; Delete with a value cleared it and left the selection alone; a value typed into the
+    focused box drew on Enter.
+  - The four dimensions already on the sheet carry no key and read what the old rule gives (52.037
+    on paper; 800, 890 and 3,740 at 1:50).
+  - The scale rules on a copy of the sheet: one scale gives 50; two scales of equal area tie to the
+    finer and the bigger drawing wins; a point inside a 1:100 viewport gives 100; no viewports, 50.
+- The test shapes and dimensions were deleted and the browser draft removed.
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.39.0  -  14-Sep-2026
+### Save Sheets Says Where the Sheets Went - R2 and a Local Copy
+
+**Overview**
+- Pressing Save Sheets in the Layout Editor wrote the drawings to R2 and then said nothing: the
+  button's amber attention state cleared, and that was the only sign. The "Sheets saved to R2."
+  label had sat in the config since the port with nothing to show it. Nothing was written
+  locally either - the repository's `TrueVision__ProjectData__.json` never held a sheet.
+- A save that reaches R2 now writes the same blocks into the repository copy as well, through the
+  ProjectVision local server that serves the app, and says where they went:
+  - "Sheets saved to R2 and locally." - both copies written.
+  - "Sheets saved to R2, but the local copy was not written: {cause}." - red; R2 has the save.
+  - "Sheets saved to R2." - the web build, which has no local copy.
+- The Dev menu's Save Sheets button says the same. The structural auto save stays quiet when it
+  works and shows the red message when the local copy fails. A rename writes the local copy too
+  and keeps its own confirmation.
+- When the project specification syncs with the sheets, one toast carries both messages. The
+  specification's toast used to replace whatever was showing within a second.
+
+**THE LOCAL COPY**
+- `03__AppUtils/Na__AppUtils__LocalProjectMirror__.js` (new) reads the repository file fresh from
+  disk, puts the saved top-level keys over their old values, and POSTs the whole document to the
+  local server's existing `/api/projects/<code>?project-folder=&year=` route, which writes it in
+  the same 4-space JSON the build sync writes. Every other key keeps what the file has, so model
+  groups a build regenerated while the app was open are never put back to the loaded copy.
+- The saved blocks are copied before the R2 write, so both copies get the same content even when
+  the sheet is edited while the save is in flight.
+- Localhost only. A plain `python -m http.server` answers the POST with 501: the save still lands
+  on R2 and the toast names the cause. Serve the app with `ProjectVision__LocalServer__Main__.py`
+  (localhost:8090) to get the local copy.
+
+**BUILD AND SYNC KEEP THE DRAWINGS**
+- `LayoutEditor__DrawingsData` has been a dev-owned key since v2.21.0 (`Na__DevSavedKeys`), but it
+  never joined the two ProjectVision lists that are meant to match it.
+- `CloudflareR2__ModelSync__Main__.py` uploads the local project data merged with only the
+  `DEV_OWNED_PROJECT_DATA_KEYS` it reads from R2. Without the key, syncing a project whose local
+  file had no drawings block uploaded a document without one, and R2 lost every sheet, plan and
+  elevation until the app next saved. PS01's R2 copy was seen without its drawings block for a
+  while on 14-Sep-2026, and its local file had been re-mirrored that afternoon without one.
+- `ProjectVision__BuildScript__.py` rebuilds the local file keeping only `TRUEVISION_DEV_OWNED_KEYS`,
+  so a build would also have dropped the local copy this release writes.
+- Both lists now carry `LayoutEditor__DrawingsData`: R2's copy wins in a sync, and the local file
+  keeps its copy through a build.
+- Still in none of the three lists: `CrossSection__SceneData`, the section bindings the same save
+  writes. Left for its own change.
+
+**Files**
+- New: `03__AppUtils/Na__AppUtils__LocalProjectMirror__.js` 1.0.0 (`Na__LocalMirror__`).
+- `40__System__DrawingViewCore/Na__DrawView__ProjectData__.js` 1.1.0: Save writes the local copy and
+  takes an optional report.
+- Layout Editor: `SheetModel__` 1.11.0 (the confirmation), `Toolbar__` 1.10.0 (one toast at the
+  end); `AppConfig__.json`: the `SavedLocalMessage` and `SavedLocalFailedMessage` labels.
+- ProjectVision: `CloudflareR2__ModelSync__Main__.py`, `ProjectVision__BuildScript__.py`.
+- Service worker: token `2026-09-14-5`.
+
+**Verification**
+- The changed modules parse as ES modules; the module graph and named exports pass; both Python
+  files parse.
+- In the app on PS01's D01 - Floor Plans, served by the ProjectVision local server
+  (localhost:8095). A test guard answered the R2 write without sending it. The local write was
+  real, and PS01's file was restored from a backup afterwards.
+  - Save Sheets: the R2 write of `TrueVision__ProjectData__.json`, then `POST /api/projects/PS01`
+    200. A green "Sheets saved to R2 and locally." showed 0.36 s after the click and cleared at 3.9 s.
+  - The file on disk: every key it held before unchanged except the scenes, which took R2's newer
+    copy; `LayoutEditor__DrawingsData` added, with the same SHA-256 as the block in the app; LF,
+    4-space indent, trailing newline.
+  - Local write refused: a red "Sheets saved to R2, but the local copy was not written: no local
+    save server at http://localhost:8095 (503) ...", the same line in the console, and the button
+    free again.
+- Not exercised in the app: the Dev menu's Save Sheets button, a rename, the auto save, the
+  combined toast with a specification sync, and the web build's "Sheets saved to R2."
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off. ValeVision's save already mirrors to disk through its
+  Flask server.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.38.1  -  14-Sep-2026
+### Base Images Stop Showing Lines Through Faces - The Line Bias Was 75 mm in Plans and Elevations
+
+**Overview**
+- Adam found lines showing through the front face of a fascia in an elevation's base image, where
+  30 mm setbacks sit behind it. The projected linework layer was already exact; only the raster
+  base image drew them.
+- The SketchUp lines are fat lines with a depth bias, so that a line wins against the face it lies
+  on: `gl_FragDepth -= 0.00015`. That constant was tuned for the perspective 3D view, where the
+  logarithmic depth buffer writes log depth. Through an orthographic camera three writes
+  `gl_FragCoord.z` instead - linear from near to far - and the drawing cameras run from 10 mm to
+  500 m, so the bias was 0.00015 x 500 m = 75 mm. Every line up to 75 mm behind a face drew
+  through it in Layout Editor base images and the PDFs made from them; the live plan and
+  elevation views use the same cameras and take the same fix.
+- An orthographic camera now takes the bias as a distance, `RenderConfig__Linework__OrthoDepthBiasMm`
+  (2 mm), turned into depth by the camera's own range. Perspective renders are unchanged.
+
+**HOW**
+- The fat line material's `onBeforeCompile` (`Na__ModelLoader__MultiModel.js`) passes
+  `abs(projectionMatrix[2][2]) / 2` - exactly `1 / (far - near)` of window depth per scene unit for
+  an orthographic projection - from the vertex shader, and subtracts the distance times that when
+  `vIsPerspective == 0.0`, the constant otherwise.
+- The block sits inside `#ifdef USE_LOGARITHMIC_DEPTH_BUFFER`, so a renderer without log depth
+  leaves the depth alone. Both values are written as GLSL float literals; a whole-number config
+  value pasted in as-is was a compile error.
+
+**Files**
+- `15__ModelLoader/Na__ModelLoader__MultiModel.js` 1.3.0.
+- `02__AppData/Na__AppConfig__Main.json`: `RenderConfig__Linework__OrthoDepthBiasMm` 2.
+- `TrueVision__Pwa__ServiceWorker__Logic__.js` - token `2026-09-14-4`.
+
+**Verification**
+- In the app on PS01 (localhost:8479), every non-read request blocked (none attempted). The North,
+  East and South elevations were rendered through `Na__LeSnap__Render2d` (a 24 x 9 m window at
+  5 mm a pixel, one sample) with the old shader and the new, and compared pixel by pixel:
+  - North 2,788 line pixels gone, East 2,261, South 1,671 - clustered in the fascia and parapet
+    bands (2.3 to 2.9 m up) and one full-height strip on the North elevation.
+  - Nothing added on North or South. East gained 16 pixels, all on the dark outline of garden
+    furniture at ground level (checked by eye).
+- Perspective control: the Exterior 01 scene rendered through `Na__LeSnap__Render3d` with the old
+  shader and the new - 0 differing pixels (and 0 between two renders with the new one).
+- The shipped module after a reload (new service worker token): all 42 fat line materials carry
+  the new shader, and the three elevations render byte-identical to the runtime-patched test.
+  No shader errors.
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.38.0  -  14-Sep-2026
+### Viewport Frames Switch Off - Set Out With Them, Then Title the Drawing Yourself
+
+**Overview**
+- Every Layout Editor viewport draws a thin frame round its edge and a boxed caption in its
+  bottom-left corner: the view's name and scale. They help while a sheet is set out, and now
+  they switch off - a Frame checkbox in the Viewport panel, just above Caption.
+- Unticked, the viewport loses its frame and its caption together, on the sheet and in the
+  PDF, so the view can be titled by hand with the Text tool. The drawing, its crop and every
+  other setting of the viewport are unchanged; while it is selected the selection outline and
+  handles still show where it is.
+- Caption greys out while the frame is hidden - the caption box hangs off the frame's corner
+  and is drawn in its lines - and keeps its own setting for when the frame comes back.
+- One undo step. A content edit, like the Caption switch beside it: kept by the browser draft
+  and by Save Sheets, never an auto save.
+
+**THE RECORD**
+- `Viewport__ShowFrame`, stored only as `false`. The normaliser removes any other value, so a
+  viewport from before the switch - and a browser draft of one - is byte-identical after a
+  load and draws its frame as it always did. A new viewport starts framed; a pasted or
+  duplicated one keeps its source's setting, as it keeps the rest of the record.
+- `UpdateViewport` takes the `showFrame` patch key.
+
+**Files**
+- Layout Editor: `SheetChrome__` 1.4.0 (`BuildFrame` builds nothing for a hidden frame, and the
+  screen and the PDF both draw from that list), `Panel__ViewportSettings__` 1.4.0 (the Frame
+  row; Caption greyed while it is off), `SheetModel__` 1.10.0 (the patch key), `SheetRecords__`
+  1.7.0 (the normaliser); `AppConfig__.json`: the `ShowFrameLabel`, `ShowFrameTitle` and
+  `CaptionNeedsFrame` labels.
+- Service worker: token `2026-09-14-3`, shared with v2.37.0 by agreement between the two sessions.
+
+**Verification**
+- The four modules parse as ES modules; the module graph and named exports (265 files) pass.
+- In the app on PS01's D01 - Floor Plans (localhost:8491), every non-read request blocked and
+  none attempted, on the Ground Floor Plan copy viewport:
+  - Before: the frame rectangle and the caption "GROUND FLOOR PLAN COPY   1:50" in the sheet's
+    SVG, in the chrome primitive list, and in a jsPDF document drawn from that list; no
+    `Viewport__ShowFrame` key on the record; the Frame row between Markup and Caption.
+  - Frame unticked: the key false; frame and caption gone from all three (the PDF's rectangle
+    operators 6 to 4); the other viewport's frame untouched; Caption still ticked, greyed, with
+    its tooltip; one undo step.
+  - Undo: the key gone, frame and caption back, Caption live again. Redo: hidden again.
+  - Ticked again: the key gone, frame and caption back. The browser draft was cleared.
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.37.0  -  14-Sep-2026
+### Projected Linework Matches the 3D View - Joins Between Wall Pieces Stop Drawing
+
+**Overview**
+- Layout Editor 2D viewports drew lines the live 3D view does not: where two pieces of one
+  wall face meet flush - the head-height line across a render wall, a sill line across a
+  window pier, the line under a fascia, the join between the old wall and the new.
+- The two read different geometry. The live 3D view draws the SketchUp linework GLB, which
+  the GLB Builder writes without hidden, soft or smooth edges, over the mesh GLB, which
+  carries no edges at all; its profile lines come from the normal buffer, so a flush join
+  never shows. The 2D projection finds edges in the mesh itself - creases of 50 degrees or
+  more, open boundaries, silhouettes and intersections - so a join SketchUp hid came back as
+  the crease or intersection of the two pieces.
+- Three rules on the Projection block, each folded into the model fingerprint, so nothing
+  cached or baked before is reused:
+  - Hide flush joins (on): an edge is cut wherever the faces either side of it are coplanar
+    and continuous in the view - one smooth face in the 3D view.
+  - Seams occlude (on): an edge running exactly behind the join between two faces in front
+    is hidden. The clip kernel skipped a triangle side lying along the edge, so neither face
+    was found to cover it and the edge leaked through the join.
+  - Linework first (off): strict SketchUp mode. A category that ships linework draws its
+    authored lines and its silhouettes only - no mesh creases or boundaries, and no
+    intersections between linework categories. Off by default because SketchUp also hides
+    outlines a drawing needs: the top edge of the ground box is the elevation's ground line.
+
+**HOW A FLUSH JOIN IS FOUND**
+- `Na__ProjectedLinework__FlushJoins__.js` runs on the CPU backend once the edges are in view
+  space, before the clip. For each edge it walks the occluder tree along the edge's page
+  footprint and depth.
+- A triangle takes part when both edge ends lie in its plane and one of its sides lies on the
+  edge's line; its third corner says which side of the edge it covers.
+- Where the covered stretches on the two sides overlap, the edge is flush there and that
+  stretch is cut; what is left keeps its owner tags. An edge with nothing flush passes
+  through untouched.
+
+**THE GPU BACKEND**
+- No change, on purpose. Every kept render has used the CPU backend since 2.27.0; WebGPU and
+  legacy run only for the Dev menu's Run Diff, which names its backend. `BuildOptions` turns
+  all three rules off for a named backend, so Run Diff still compares like with like and the
+  vendored GPU generator is untouched.
+
+**Files**
+- New in `50__System__ProjectedLinework`: `Na__ProjectedLinework__FlushJoins__.js` 1.0.0
+  (`Na__PlFlush__`).
+- `ClipKernel__` 1.2.0 (the seam rule), `CpuBackend__` 1.3.0, `EdgeExtractor__` 1.3.0,
+  `AuthoredEdges__` 1.2.0 (which categories ship linework), `Projector__` 1.2.0, `Pipeline__`
+  1.3.0 (collection key, report), `ConfigAccess__` 1.1.0, `ModelStage__` 1.1.0 (the rules in
+  the fingerprint), `DevMenu__Controls__` 1.1.0 (timings rows; Run Diff without the rules);
+  `AppConfig__.json`: `HideFlushJoins`, `SeamsOcclude`, `LineworkFirst`, and `BuildToken`
+  `2026-09-14-flush-joins`.
+- `TrueVision__Pwa__ServiceWorker__Logic__.js` - token `2026-09-14-3`.
+
+**Verification**
+- A Node harness on the real folder 50 modules, fed PS01's archived Scheme-01 models and the
+  project's elevations:
+  - All three rules off: byte-identical to the modules before the change.
+  - Defaults: the east head-height line 3,840 mm to 0, the pier sill line 610 mm to 0, the
+    side elevation's fascia line 3,430 mm to 0; the ground line keeps all 20,000 mm; nothing
+    added; section lines untouched. With Hidden Lines on, the seam leak is drawn dashed.
+  - Linework first alone leaves the authored, section and hidden classes untouched; in strict
+    mode the ground line goes (the documented cost).
+  - Each rule changes the fingerprint; the new build token retires every older one.
+- In the app on PS01's D02 - Elevations (localhost:8479), every non-read request blocked (none
+  attempted): the viewports projected on the CPU backend with the rules on. The two Project
+  Default elevations were projected again with both rules off and the pipeline's two results
+  compared line by line:
+  - East elevation: 4,573 mm removed - the 3,840 mm head-height line across the render wall,
+    a 495 mm head-level stub, the 30 mm sill pieces across the two window piers, short ends
+    at the eaves and chimney-pot facets. Nothing added; the ground line whole.
+  - Elevation 2: 5,841 mm removed - the 3,430 mm line under the fascia, the 2,300 mm join
+    between the old wall and the new, a 20 mm sill piece and chimney-pot facets. Nothing
+    added; the ground line whole.
+
+**Found while testing (not part of this release)**
+- Force Render can paint the previous projection. `EnsureLinework` clears the path cache by
+  the linework key while `BandPaths` stores under the key, Hidden Lines and the style token,
+  so a forced re-projection that keeps its key paints the old paths; and the Layout Editor
+  memoises its pipeline fingerprint, so a projection setting changed for the session does
+  not change the key. Unseen before because a new projection normally arrives under a new
+  key. Spun off as its own task.
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.36.0  -  14-Sep-2026
+### Project Specification & Margin Notes - Notes Numbered by Their Place, Bubbles That Follow Them
+
+**Overview**
+- A Project Specification tab sits at the end of the tab strip whenever a drawing tab is
+  open. It holds every drawing note of the project in groups: a group is a prefix (GN, SN,
+  EE) and a title; a note is a heading - its code, split into its group and its number,
+  then its title - with its specification text underneath.
+- Codes are never typed. A note's code is its group's prefix and its place in the group
+  (GN01, GN02). Drag a note by its grip, or press Alt+Up and Alt+Down, and the group is
+  renumbered; choose another prefix on a note's code and it moves to the end of that group;
+  change a group's prefix and every note in it takes the new one.
+- Specification bubbles link to notes by id. Type a note's code into a bubble ("gn2" finds
+  GN02) and it links; renumber, re-prefix or move the note and every linked bubble on every
+  sheet reads the new code. The Leaders panel shows the link and changes it.
+- Every sheet can carry a notes margin down its right-hand side (the Notes button, or the
+  new Margin Notes panel). It lists the notes that sheet's bubbles link to, in
+  specification order, then the general notes; its left edge drags wider or narrower.
+- The specification is its own file, TrueVision__ProjectSpecification__.json, beside
+  TrueVision__ProjectData__.json. It is read only when the drawing editor first opens,
+  kept in the browser at every edit, and written to R2 by Sync (or with Save Sheets).
+
+**THE PROJECT SPECIFICATION TAB**
+- The page lies over the editor: the sheet underneath keeps its zoom and scroll, and its
+  pointer, keys and margin grip stand down until a sheet tab is chosen again.
+- Groups: prefix (letters only, up to 4; refused beside the group, with the reason, when it
+  is another group's, too long or not letters), title, a General notes switch, move up and
+  down, and delete (asking first when the group holds notes).
+- Notes: a grip, the code (group choice and number), the title, where it is used, delete
+  (asking first when bubbles show it or it holds text - the question says the notes after it
+  are renumbered), and the text, which grows as it is typed.
+- Where a note is used: a chip per sheet whose bubbles link to it (a click opens that sheet
+  with the bubble selected), and any unlinked bubbles that already read its code, with Link.
+  Above the groups: bubbles linked to deleted notes, and codes that bubbles read but no note has.
+- The bar: a filter; Headings only (folds every note to its heading, for reordering a long
+  specification); Link matching bubbles (n); Add group; Undo and Redo; the sync state; Sync.
+  An empty specification offers Add standard groups (GN General Notes, SN Structural Notes,
+  FN Finishes, from the config).
+- Typing is live and a field's commit is one undo step; Ctrl+Z and Ctrl+Y undo the tab's own
+  steps outside a text field. The tab carries an amber dot while there are unsynced changes.
+  Read-only sessions see the same page with nothing editable.
+
+**LINKS AND PROPAGATION**
+- A link is `Leader__SpecNoteId`. The code is resolved as the bubble is drawn - a resolver
+  registered with LeaderGeometry - and also stamped into `Leader__Text`, silently and with no
+  undo step, whenever a code moves, the sheets load, or an undo or redo restores a sheet. Once
+  the sheets are next saved, they read correctly to anything that opens them without the
+  specification.
+- A bubble linked to a deleted note keeps its last code and says so (the Leaders panel, the
+  tab's alert). Undoing the delete relinks it: note ids are never reused.
+- Nothing links behind anyone's back. A renumber never captures an unlinked bubble that
+  happens to read the new code; Link matching bubbles does that when asked.
+- A new bubble whose suggested code a note already has starts linked.
+
+**THE NOTES MARGIN**
+- Down the right of the drawing area, from its top to the title block, at the sheet's own
+  width (default 90 mm, never under 40 mm or over 60% of the content width). Painted
+  paper with a divider down its left, so a viewport pushed beneath it never prints through
+  the notes.
+- A NOTES heading, then each note: its code in bold in a column as wide as the widest code,
+  its title in bold beside it, and its text under the title, wrapped to the column at word
+  boundaries with the typed line breaks kept. Optional group headings.
+- Order: the notes linked by bubbles on visible layers, in specification order; then the
+  general notes (a general note a bubble links to is listed either way). A first band is
+  reserved for when notes can be marked as priority.
+- A note that would cross the foot of the column is left out, with every note after it, so
+  the order never breaks. The panel, a red badge on screen and the PDF toast say how many.
+- The grip on the divider (Select tool) re-wraps the notes as it moves: one undo step, and
+  Escape puts the width back.
+- The Margin Notes panel (left column, after Sheet): Show notes margin, width, heading, text
+  size, List general notes, group headings, a line saying what it lists, and a button that
+  opens the Project Specification.
+- The margin is pushed first among the sheet's markup primitives, so the PDF prints it with
+  no code of its own. The PDF library now loads when the editor first opens, so the margin
+  and the title block measure text with the metrics the PDF prints with.
+
+**LOADING, THE DRAFT AND SYNC**
+- Read on the first entry into the editor. Localhost and authoring sessions read R2 through
+  the Worker (the repository copy only when R2 has none); the web build reads the CDN copy.
+- A copy that could not be read is 'failed', never 'new': edits stay in the browser and Sync
+  refuses until Retry reads the cloud copy. Edits made meanwhile are kept, and Sync asks
+  before they replace what the cloud holds.
+- Every change writes a browser draft (`Na__LayoutEditor__SpecDraft__<code>`) 600 ms after the
+  typing pauses and when the tab is hidden. A load puts a draft that differs back, and says so.
+- Sync reads the cloud copy first and asks before replacing one that is not the copy these
+  edits started from. It writes the whole file, stamped, and clears the draft.
+- Save Sheets syncs the specification too when it has changes.
+
+**THE FILE - TrueVision__ProjectSpecification__.json**
+- `ProjectSpecification__Description`, `__Version` (1), `__ProjectCode`, `__UpdatedIso`,
+  `__NumberDigits` (2), `__LastIdNumber` (only ever goes up) and `__Groups`, each with
+  `Group__Id`, `Group__Prefix`, `Group__Title`, `Group__IsGeneral` and `Group__Notes`, each
+  note `Note__Id`, `Note__Code`, `Note__Title`, `Note__Body`, `Note__UpdatedIso`.
+- `Note__Code` is written for readers (a design and access statement, say) and recomputed
+  from the order on every load. Unknown keys are carried, so a field a later tool writes
+  survives a round trip.
+
+**THE RECORDS**
+- Leaders gain `Leader__SpecNoteId`, present only on a linked bubble. Sheets gain
+  `Sheet__MarginNotes` (`Enabled`, `WidthMm`, `Heading`, `TextSizeMm`, `IncludeGeneral`,
+  `GroupHeadings`), present only on a sheet that has had a margin. Every other record is
+  exactly what it was.
+- A margin change is announced as 'margin': a content edit kept by the draft and Save
+  Sheets, one undo step, never an auto save.
+
+**Files**
+- New in `51__System__LayoutEditor` (all 1.0.0): `Na__LayoutEditor__SpecData__.js`,
+  `Na__LayoutEditor__SpecLinks__.js`, `Na__LayoutEditor__SpecMargin__.js`,
+  `Na__LayoutEditor__MarginGrip__.js`, `Na__LayoutEditor__SpecEditor__.js`,
+  `Na__LayoutEditor__Panel__MarginNotes__.js`, `Na__LayoutEditor__Styles__Specification__.css`.
+- Layout Editor: `ModeController__` 1.10.0, `TabStrip__` 1.2.0, `SheetModel__` 1.9.0,
+  `SheetRecords__` 1.6.0, `SheetLayout__` 1.2.0, `MarkupBridge__` 1.6.0, `LeaderGeometry__`
+  1.1.0, `LeaderTool__` 1.1.0, `Panel__Leaders__` 1.1.0, `History__` 1.4.0, `Toolbar__` 1.9.0,
+  `PdfExporter__` 1.1.0, `ConfigState__` 1.7.0; `AppConfig__.json` (the
+  Specification and MarginNotes blocks, labels).
+- `80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js` 1.1.0: whole-file read
+  and write for files beside the project data, allowed by name.
+- `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` imports the new stylesheet.
+- `TrueVision__Pwa__ServiceWorker__Logic__.js` - token `2026-09-14-2`.
+
+**Verification**
+- A Node harness on the real modules against stubs: 128 checks.
+  - Codes: renumbering within and across groups, re-prefixing, prefix refusals, forgiving
+    code parsing, and ids never reused after a delete or an undo.
+  - Undo: typing as one step, stepping back past an added note, and an undo right after a
+    sync; normalising a hand-edited file.
+  - Links: the silent stamp on every sheet, broken links, Link matching (one announcement per
+    sheet), and LeaderGeometry's Lines unchanged with no resolver; the record normalisers.
+  - Margin: the layout rectangle and its clamps, the listing order, wrapping, overflow and
+    primitives.
+  - Sync: the key; the overwrite question (No keeps, Yes replaces, and the copy this browser
+    wrote never asks); an unreadable cloud refused; the draft back on reload; a failed read;
+    Retry keeping blind edits but asking before they replace the cloud.
+  - It found two faults, fixed before the app test: an undo could stick after undoing an
+    added note (the id counter lived in the restored snapshot), and Retry could let edits made
+    on an unreadable specification replace the cloud copy without asking.
+- Module graph 351 modules and named exports 264 files: both pass.
+- In the app on PS01 (localhost:8481), with every non-read request blocked: the only one
+  attempted was the specification write, which the guard answered without sending. PS01's R2
+  copy held no sheets (below), so the test used a scratch sheet held in memory only.
+  - The tab: the spec idle until the editor opened, then read ('new'); the tab at the end of
+    the strip; standard groups; notes; Alt+Down renumbering; a re-prefix; a refused clash; the
+    unsynced state, the tab dot and the draft; Undo, Redo, the filter and Headings only.
+  - Links: back on the sheet with its keys working; a bubble typed "gn2" linked and reading
+    GN02; the link on the Leaders panel; a renumber restamping the bubble; a delete (asked)
+    leaving a broken link that an undo relinked.
+  - Margin and output: the Notes button and the margin text; the grip dragging 90 mm to
+    141.9 mm as one undo step; the PDF operators holding NOTES, the titles and the bubble code;
+    Sync handing the guard the file, with its groups, codes and stamp, and coming back clean.
+  - Rendered in headless Chrome from the captured markup. Test state removed, drafts cleared.
+
+**Found while testing (not part of this release)**
+- During the test, PS01's live R2 project data held no `LayoutEditor__DrawingsData` - only the
+  eight keys of the repository base file, which had just been rewritten - so no sheets. By
+  14:31 the block was back, with D01 - Floor Plans and D02 - Elevations. Nothing in this
+  release wrote to R2; what dropped the block is spun off as its own task.
+- TrueVision's Index.html has no confirm-dialog markup, so every confirmation falls back to
+  the browser's native dialog.
+
+**ValeVision**
+- Not yet ported: waits for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.35.0  -  14-Sep-2026
+### Leaders & Annotation Bubbles - a Note or a Specification Code on a Sweeping Leader
+
+**Overview**
+- A new kind of sheet object: a leader from a point on the drawing to its head, which is
+  either a multi-line Note or a Specification bubble - a code centred in a circle (EE02,
+  DV01), the key the drawing-specific notes will later be pulled in by. The Leader tool is
+  E, beside Text on the toolbar; the Leaders panel sits under Text in the right column.
+- Click the point the leader marks, then where the head goes - or press on the point and
+  drag to the head. While the head follows the cursor the leader is drawn exactly as it will
+  land.
+- The text opens at once: a one-line field for a bubble's code, a multi-line field for a
+  note (Enter for a new line, Ctrl+Enter or a click away to finish). A new bubble's field
+  offers the code after the newest bubble on the sheet, so EE07 is followed by EE08.
+- Fill transparency, and an optional edge transparency, came with it for vectors too.
+
+**HOW A LEADER IS DRAWN**
+- Never a straight rule. The line leaves the endpoint circle level, runs a short straight
+  stub (3 mm, or a quarter of the run if that is less), sweeps through a cubic S whose
+  tangents are level at both ends, and runs a second stub into the head.
+- The head always extends away from the point, so the side of the point it is placed on
+  decides the handing. Head to the right: a note is left-justified and the leader lands on
+  the bubble's left side. Head to the left: the note is right-justified and the leader lands
+  on the bubble's right side. Nobody picks an alignment.
+- A note's leader lands level with the middle of its first line's capitals (TextAttach
+  'first-line'; 'middle' is the alternative). A bubble's code is centred, and a code too
+  wide for the diameter grows the bubble rather than spilling out of it.
+- Paint order: fill, line, endpoint, bubble edge, text. The fill is behind the text and the
+  line, so a leader laid over a drawing masks what is beneath it.
+- Circles are faceted so no flat strays 0.01 mm from the true circle, and the curve is
+  sampled every 0.4 mm; one polyline primitive draws all of it on screen and in the PDF.
+
+**THE LEADERS PANEL (the selected leader, or the next one)**
+- Type (Note / Specification bubble); text size, weight and colour.
+- Line: dashed or solid, its weight in points and its colour; the endpoint and the bubble
+  edge share the colour.
+- Bubble: its diameter and its edge weight (0 leaves the fill on its own).
+- Fill on or off, its colour and a Fill opacity slider.
+- Transparent lines, off by default: tick it and the line, the endpoint and the bubble edge
+  take the Line opacity slider, starting at 50%.
+- Endpoint, a fold of its own: Filled (a solid dot) or a ring at its own weight, and its size.
+- The sliders redraw while they move and announce once on release: one undo step per drag.
+
+**EDITING A LEADER**
+- Select tool: the square tip grip re-points the leader, snapping; the bubble, the note or
+  the round anchor grip moves the head while the tip stays on what it points at; the curve
+  moves the whole leader. The arrows nudge the whole leader.
+- Double-click, Edit text on the panel or on the right-click menu reopens the text. Emptying
+  it deletes the leader, as it does a text item.
+- Escape, Space, a right click or another tool abandons a leader being placed. Nothing
+  reaches the undo history until its head lands; the landing is one step and the text
+  typed into it another, as with a text item.
+- The eyedropper matches leaders: every style trait travels between two of them. The type
+  goes to the palette only, through a new trait flag (paletteOnly): Shift+B on a bubble
+  sets the Leader tool to draw bubbles, but a paint never turns a note into a bubble.
+
+**VECTOR TRANSPARENCY**
+- The Vectors panel gains Fill opacity (under Fill colour, while there is a fill) and
+  Transparent edges - off by default - with an Edge opacity slider. New shapes and
+  rectangles take both from the panel, and the eyedropper carries them. A gradient keeps
+  its own alpha.
+
+**THE RECORD**
+- New sheet array `Sheet__Leaders`; a leader lands on the sheet's text layer.
+  `Leader__Id`, `LayerId`, `Type` ('text' | 'bubble'), `TipXMm`, `TipYMm`, `AnchorXMm`,
+  `AnchorYMm`, `Text` (lines separated by newlines; a bubble shows its first line),
+  `TextSizeMm`, `FontWeight`, `TextColour`, `LineColour`, `LinePt`, `LineStyle`
+  ('solid' | 'dashed'), `LineOpacity`, `EndpointFilled`, `EndpointPt`, `EndpointSizeMm`,
+  `BubbleSizeMm`, `BubbleEdgePt`, `FillColour` (null for no fill), `FillOpacity`.
+- Shape records gain `Shape__FillOpacity` and `Shape__StrokeOpacity` (0 to 1). Every
+  existing shape reads 1 and draws exactly as it did.
+- Leader changes are announced as 'leader' and 'leaders': content edits, kept by the browser
+  draft and Save Sheets, never an auto save.
+
+**PAINTING**
+- The SheetChrome polyline primitive carries `DashMm`, `FillOpacity` and `StrokeOpacity`
+  through an optional last argument. The SVG writes stroke-dasharray (with butt caps, so the
+  dashes break where the PDF breaks them), fill-opacity and stroke-opacity; the PDF sets the
+  dash pattern and draws inside a saved graphics state carrying jsPDF GState opacities. A
+  primitive without them paints exactly as before.
+
+**Files**
+- New: `51__System__LayoutEditor/Na__LayoutEditor__LeaderGeometry__.js`,
+  `Na__LayoutEditor__LeaderTool__.js`, `Na__LayoutEditor__Panel__Leaders__.js` (all 1.0.0).
+- Layout Editor: `SheetModel__` 1.7.0, `SheetRecords__` 1.5.0, `SheetChrome__` 1.3.0,
+  `MarkupBridge__` 1.4.0, `Grips__` 1.3.0, `TextTool__` 1.1.0, `SheetTools__` 1.12.0,
+  `Eyedropper__` 1.3.0, `History__` 1.2.0, `ModeController__` 1.9.0, `Toolbar__` 1.8.0,
+  `PanelHost__` 1.1.0, `ConfigState__` 1.5.0, `ShapeGeometry__` 1.3.0, `Panel__Shapes__`
+  1.4.0, `ShapeTool__` 1.3.2, `RectangleTool__` 1.0.2; `AppConfig__.json` (the Leader block,
+  the Shapes opacity keys, labels), `KeyMappings__.json` (Tool__Leader on E),
+  `Styles__Main__.css` (the multi-line field, the anchor grip), `Styles__Panels__.css` (the
+  sub-fold).
+- `TrueVision__Pwa__ServiceWorker__Logic__.js` - token bumped: the new modules import new
+  exports from modules a live client may still hold stale.
+
+**Verification**
+- A Node harness loads the real modules against stubs: 83 checks. Handing; the stubs level
+  and straight; the sweep never doubling back; bubble growth; note justification, landing
+  and line spacing; circle facets within 0.01 mm; bounds and hit parts; the normalisers; the
+  next code; the eyedropper's palette-only type; and old-style primitives painting
+  byte-identically to HEAD in SVG and making identical jsPDF calls.
+- Module graph: 345 modules resolve (the 1 known issue, unchanged). Named exports: 258
+  files, none missing.
+- In the app on PS01's PD Drawing sheet, every non-read request blocked and none attempted:
+  E and the toolbar button; a bubble by two clicks, its live leader making no history step
+  until it landed; EE08 offered next; a note dragged out to the left, right-justified, with
+  its multi-line field; a press while a field is open starting nothing; Escape, a right
+  click and an emptied text; select, head drag (anchor only), tip drag (tip only), curve
+  drag (both), nudge, Delete and Ctrl+Z, double-click and the menu; every panel control, the
+  fill slider silent while moving and one announcement on release; the eyedropper onto a
+  note; Shift+B; a rectangle at 40% fill with transparent edges; a jsPDF render with the
+  dash operators, `/ca 0.4`, `/CA 0.5` and every leader's text.
+- Test objects removed, snapping restored, browser draft cleared, nothing written to R2.
+
+**Built beside Box Select**
+- Box Select (v2.34.0) was built in another session in the same files at the same time. The
+  split was agreed file by file and each side re-read before every edit; its selection sets,
+  its box and its group move include leaders.
+
+**ValeVision**
+- Ported the same day, after Adam's sign-off, as ValeVision v2.32.0.
+  - The three new modules came across verbatim below the header.
+  - 123 hunks were replayed across 21 files, from a snapshot of the signed-off state rather
+    than these working copies, which already carry the Project Specification work.
+- One gap is deliberate: ValeVision's History selection test takes the leader row but not
+  the shape row. The shape row waits with ValeVision's pending undo-writes return trip.
+- See ValeVision's DEVLOG v2.32.0 and its parity ledger.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.34.0  -  14-Sep-2026
+### Box Select - A Window to the Right, a Crossing to the Left
+
+**Overview**
+- The Layout Editor selects several things at once. A drag with the Select tool that
+  starts on bare paper draws a selection box, the way AutoCAD and SketchUp draw one:
+  - Dragged to the RIGHT it is a WINDOW: transparent blue with a solid edge. It takes
+    only what lies wholly inside it.
+  - Dragged to the LEFT it is a CROSSING: transparent green with a dashed edge. It takes
+    anything it touches as well.
+  Only the horizontal direction decides, as in AutoCAD. While the box is dragged,
+  everything it would take is outlined in the box's colour, so the two rules can be
+  told apart before the button comes up.
+- Before this every item had to be clicked on its own, and nothing could be moved
+  with anything else.
+- Built in the same files at the same time as Leaders & Annotation Bubbles (v2.35.0),
+  by agreement between the two sessions; each release covers its own hunks.
+
+**WHAT A BOX TAKES**
+- A viewport by its frame edge. A crossing drawn inside a viewport does not pick the
+  viewport up, so the notes and dimensions laid over a drawing can be boxed on their own.
+- A vector by its edges, the closing edge of a fill included. A box inside a filled
+  shape does not take it, so a background panel is not grabbed with what sits on it.
+- Text by its text box or its leader; a dimension by its extension lines, dimension
+  line, terminators or value; a leader by its line, its endpoint, or its bubble or note.
+- A window takes an item only when every one of those parts is inside it.
+- Hidden layers, locked layers and locked viewports are never taken.
+
+**WHERE A BOX CAN START**
+- On bare paper or the grey stage.
+- On a locked viewport: lock the drawing, then box the markup laid over it.
+- Anywhere at all with Alt held, for a sheet with no bare paper left to start from.
+- A press on anything that can move still moves it, exactly as before.
+
+**MODIFIERS, AS SKETCHUP HOLDS THEM**
+- Ctrl adds, Shift toggles (in if it was out, out if it was in), Ctrl+Shift removes -
+  for a box and for a click alike. They live in `Na__LayoutEditor__KeyMappings__.json`
+  (the new SelectionBindings block, with Alt as the box-anywhere modifier), like every
+  other binding.
+
+**WORKING WITH SEVERAL**
+- Drag any one of them and they all move - one undo step, however many items.
+- A click on one of them that does not move narrows the selection to it, so its grips
+  come back and its panel edits it.
+- The arrow keys nudge them all (Shift for ten millimetres). Delete removes them all,
+  asking once if a viewport is among them, and the right-click menu on one of them
+  offers Delete N selected items. Each is one undo step.
+- A locked item may be part of a selection but is left out of every move, nudge and
+  delete.
+- A LEADER TIP FOLLOWS A VIEWPORT, NOT ITS TEXT. Moving notes on their own leaves every
+  leader pointing where it points, as a single text drag always has; a tip inside a
+  viewport frame that is moving with the group goes with the drawing it points at. The
+  same holds for a leader's own tip.
+- With several selected, the Text, Dimensions and Vectors panels say how many, and that
+  they show the settings for new objects until one item is selected on its own.
+
+**THE RECORD**
+- Nothing new is saved: the selection is session state.
+- `Na__LeModel__GetSelection` keeps its meaning - `{ kind, id }` for exactly one item,
+  null for none or several - so every single-item reader is unchanged. New:
+  `GetSelectionItems`, `SetSelectionItems`, `IsSelected` and `DeleteItems` (a batch
+  delete, one undo step).
+
+**Files**
+- New `51__System__LayoutEditor/Na__LayoutEditor__SelectionBox__.js` 1.0.0 - the window
+  and crossing rules for each kind, the box and its preview, and the Add / Toggle /
+  Remove combine.
+- New `51__System__LayoutEditor/Na__LayoutEditor__SelectionSet__.js` 1.0.0 - group
+  capture, move and commit, nudge and delete, with the leader tip rule.
+- `Na__LayoutEditor__SheetModel__.js` 1.8.0 - the selection set and DeleteItems.
+- `Na__LayoutEditor__SheetTools__.js` 1.13.0 - the press decides box or drag
+  (StartsBox, PressSelection), BoxUp, group drags, multi nudge, delete and menu.
+- `Na__LayoutEditor__SheetSurface__.js` 1.4.0, `Na__LayoutEditor__ViewportHandles__.js`
+  1.3.0 (RenderOutlines), `Na__LayoutEditor__MarkupBridge__.js` 1.5.0 (a highlight
+  round every selected item), `Na__LayoutEditor__History__.js` 1.3.0 (a restore prunes
+  the set), `Na__LayoutEditor__ConfigState__.js` 1.6.0 (box setup,
+  MatchSelectionModifier).
+- `Na__LayoutEditor__Panel__Text__.js` 1.1.0, `Panel__Dimensions__` 1.1.0,
+  `Panel__Shapes__` 1.5.0 - the several-selected note.
+- `Na__LayoutEditor__KeyMappings__.json` (SelectionBindings, three Select actions),
+  `Na__LayoutEditor__AppConfig__.json` (BoxStartPx, BoxBorderPx, BoxPreview,
+  BoxPreviewPadMm; six labels), `Na__LayoutEditor__Styles__Main__.css` (the box and
+  preview colours).
+
+**Verification**
+- A Node harness loads the real SelectionBox, SelectionSet, SheetModel and History, with
+  the dimension, shape and leader geometry, against stubbed imports: 87 checks, all
+  passing. The window and crossing rule for every kind; hidden, locked and
+  locked-viewport items; the four combines; press, move and release; one undo step for a
+  group move, a nudge and a delete (a viewport-attached dimension let go, and restored);
+  the leader tip rule; the selection pruned by a delete and by a redo; the modifiers
+  from the built-in and the shipped key map.
+- Module graph: 345 modules, every specifier resolves (the 1 known issue, unchanged).
+  Named exports: 258 files, none missing. Every changed module parses.
+- In the app on PS01's PD Drawing sheet (localhost:8471), every non-read request
+  blocked and none attempted, on six test items: a window round them took all six and
+  nothing else (six highlights, no grips, the several-selected note in all three
+  panels); a crossing from bare paper took exactly the two items it clipped, and the
+  same rectangle dragged as a window took nothing; Alt boxed inside an unlocked viewport
+  without taking it; a press on the locked viewport drew a box and a click selected it;
+  Shift, Ctrl and Ctrl+Shift clicks; a click narrowing to one dimension with its three
+  grips; a group drag moving every item by the same distance with both leader tips
+  staying, one undo step; nudges one step each; Escape mid-box; the Delete N selected
+  items menu. Nothing of the sheet's own moved. The test tab closed before the in-app
+  Delete step, which the harness covers.
+- Adam tested it on 14-Sep-2026: working.
+
+**ValeVision**
+- Ported the same day, after Adam's sign-off, as ValeVision v2.33.0, on top of the
+  Leaders port (v2.32.0).
+  - The two new modules came across verbatim below the header, leader rows included.
+  - Box Select's own 79 hunks were replayed across 13 shared files, every anchor unique
+    before anything was written. 10 were development-log heads rewritten to ValeVision's
+    module versions. 6 were re-anchored where ValeVision lacks the viewport snap-move and
+    clipboard, or words its History header differently. CarryTarget's guard was left out,
+    as there is no viewport carry there.
+- One gap stays open: ValeVision's History selection test still has no shape row, so a
+  restore there drops selected vectors from the set. It waits with ValeVision's pending
+  undo-writes return trip.
+- Verified there: the 12 edited and new modules parse, both JSON files parse, the module
+  graph and named exports (317 files) pass, and this release's harness passes 86 of 87 on
+  ValeVision's real modules - the one failure is that shape row. See ValeVision's DEVLOG
+  v2.33.0 and its parity ledger.
+
+**ValeVision**
+- Not yet ported: authored in TrueVision first. The leader rows in both new modules need
+  Leaders & Annotation Bubbles (v2.35.0), so the two cross together.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.32.1  -  13-Sep-2026
+### A Refused Snapshot Upload No Longer Claims a Picture R2 Never Received
+
+**Overview**
+- A Layout Editor 3D viewport whose snapshot upload was refused still recorded the
+  snapshot as stored. `Viewport__SnapshotAsset` took a path R2 had never been sent.
+  Once the sheets were saved, the web build would ask R2 for a file that was not there
+  and draw an empty frame, and the Dev bake would call the viewport up to date and never
+  send it again.
+- On localhost the fault hid itself: the Assets cache keeps the picture under its path
+  even when the upload fails, so the frame looked right for the rest of the session.
+- Found while verifying v2.32.0 on PS01 with every R2 write blocked: `POST /r2/write`
+  was refused, and the viewport still took
+  `LayoutEditor/Snapshots/Sheet_001__Viewport_004__qw9nnm.webp`.
+
+**WHY**
+- `Na__LeAssets__Upload` hands back whatever `Na__AppUtils__R2AssetUpload` returns. In
+  ValeVision that utility throws on a failed write and the Assets module turns the throw
+  into null, so "a result came back" meant "R2 has it". TrueVision's utility never
+  throws: every failure is a result object with `r2Success : false`, and an object is
+  truthy. `Na__LeVp3d__RenderNow` only asked whether a result came back.
+- The utility's PORT NOTE said shared callers "need no branch". That was true of
+  `localSuccess` and never of failure. The projected linework bake already tested
+  `r2Success`; the snapshot stamp did not.
+
+**THE FIX**
+- RenderNow stamps the record only when the upload came back with
+  `r2Success === true`, and returns whether the picture was stored and referenced.
+  Every render that uploads goes through it: the frame's own refresh, Force Render, the
+  PDF export's export-size render and the Dev bake.
+- `Na__LeVp3d__Bake` counts that return instead of reading the record afterwards. The
+  record cannot tell a stamp just made from one already there, so a forced bake - or a
+  record of the same view too narrow for export, which every record written before
+  `Asset__PixelWidth` is - read as baked after a refused upload.
+- A refusal withholds only the claim. The frame still shows the picture, the PDF still
+  prints it, and the next render tries the upload again.
+
+**Files**
+- `51__System__LayoutEditor/Na__LayoutEditor__Viewport3d__.js` 1.5.1 - the stamp, the
+  return and the bake count. The PORT NOTE now lists Model Source (1.5.0) as the
+  divergence from ValeVision.
+- `03__AppUtils/Na__AppUtils__R2AssetUpload__.js` 1.0.1 - comments only: the PORT NOTE
+  and the return note say a failure is `r2Success : false` here and a throw in
+  ValeVision.
+
+**Verification**
+- A Node harness loads the real module of each app against stubbed imports and drives
+  10 cases: an upload refused as a result object, refused as null, and accepted, through
+  Bake, Force Render and the PDF render. Before the fix TrueVision failed 5 - a refused
+  upload stamped the record through all three paths, and two same-key bakes read as
+  baked. After it, all 10 pass.
+- Both edited modules parse. Module graph: every specifier resolves (the 1 known issue,
+  unchanged). Named exports: 253 files, none missing.
+- In the app on PS01 (`127.0.0.1:8442`), every non-read request refused by a guard, and
+  the running `Bake` proven to be the new one by its own source:
+  - A 3D viewport added to Sheet_001 on Exterior 01 rendered through the frame's own
+    refresh (4885 px wide). Its snapshot write was refused and the record stayed null.
+  - Force Render, a forced bake and the PDF render, each with the write refused: record
+    null, the bake `failed`, the PDF picture returned.
+  - Positive control, the guard answering that one snapshot write 200 without sending
+    it: Force Render stamped `LayoutEditor/Snapshots/Sheet_001__Viewport_003__1clp678.webp`,
+    fingerprint `1clp678`, 4885 px.
+  - Over that same-key record, a forced and an unforced bake with the write refused:
+    both `failed`, the record untouched. The old code says `baked` for both.
+  - No other write was attempted. The test viewport was deleted (the sheet is back to its
+    two viewports), the browser draft cleared, and nothing reached R2.
+- PS01's sheet holds no 3D viewport of its own, so no stored record there names a
+  missing snapshot.
+
+**ValeVision**
+- Ported the same day at Adam's request as ValeVision3D v2.31.1
+  (`Na__LayoutEditor__Viewport3d__` 1.4.1), both hunks line for line. ValeVision never
+  stamped a refused upload - its utility throws - but its bake miscounted the same way.
+  Before the port its copy failed the same 5 harness cases; after it, all 10 pass, and
+  its module graph and named exports (312 files) pass. In its running app on Doous the
+  ported module renders, and its bakes report `failed` with nothing stored and no write
+  attempted. That host cannot upload, so the upload branch there rests on the harness.
+  See its DEVLOG and parity ledger.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.32.0  -  13-Sep-2026
+### Model Source - Existing and Proposed on One Sheet, the Same View of Two Models
+
+**Overview**
+- A Layout Editor viewport now chooses which design phase it draws. On a project
+  with more than one model group - PS01's existing building and Scheme-01 - the
+  Viewport panel has a Model Source row, the Add Viewport block has one too, and
+  a viewport's right-click menu lists the phases as Model items, the current one
+  ticked.
+- Everything else stays the viewport's own: scene, cut, window, scale, render
+  composites, model layers, edge styles. Copy an elevation viewport, switch the
+  copy to the existing building, and the two are the before and after of one
+  drawing, lined up exactly - every phase comes from the one SketchUp model, so
+  the phases share one origin.
+- A viewport that names no phase draws the Project Default: the phase the 3D view
+  opens with, the newest group whose label does not say "existing". Every sheet
+  that exists today draws exactly what it drew before.
+
+**WHAT A VIEWPORT USED TO DRAW**
+- Whatever the 3D view held. The 2D underlay, the 3D snapshot and the projected
+  linework all read the one live model root, which the Design Phase menu clears
+  and reloads.
+- And the keys did not follow a switch. The Layout Editor holds its model
+  fingerprints for the session and nothing reset them on a Design Phase switch,
+  so after looking at the existing building in the 3D view a sheet redrew the
+  existing model under keys made from the scheme: stored snapshots and baked
+  linework of one phase could paint over pictures of the other.
+
+**HOW ANOTHER PHASE IS DRAWN**
+- New `26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js`: the
+  register of every phase (groups, default, live) and a cache of the others,
+  each loaded into a detached root of its own with the same loader, configs and
+  materials pass as the 3D view - one load at a time, and only once the live
+  model is in. Beyond `MaxCachedPhases` (3) the least recently used is disposed;
+  a phase a render has pinned never is.
+- The snapshot renderer puts a phase in the scene for one render only. The live
+  root LEAVES the scene rather than being hidden - a hidden root is still walked
+  by both profile line caches - and the phase root takes its slot. The section
+  engine, the material preset, the category registry
+  (`Na__ModelToggle__BorrowRegistry`) and both profile line caches are pointed at
+  the phase, and all of it is handed back at the end of the render. The render
+  loop is held throughout, so no live frame can ever draw the phase.
+- The projected linework reads the phase root where it lies:
+  `Na__PlPipe__RenderDefinition` takes an optional model root and `GetCached` an
+  optional fingerprint. The live root's children are never moved, so a
+  projection of the live model running meanwhile still reads the live model.
+- A phase's two fingerprints are read the moment it loads, formed exactly as the
+  live pair. The existing building's off-scene fingerprint (`1eb39916-149`) is the
+  very string the live fingerprint became when the 3D view switched to it, so a
+  phase keeps its cached pictures and linework whichever way it is drawn.
+- New `51__System__LayoutEditor/Na__LayoutEditor__ModelSource__.js` resolves a
+  viewport. Its `renderId` is null for the live phase, so a viewport drawing the
+  phase the 3D view holds takes exactly the path every viewport always took.
+- While a phase loads, the frame shows a badge ("Loading design phase: ...") and
+  nothing of the model it drew before. Switching phase never slides one phase's
+  picture or lines under the other.
+
+**THE RECORD**
+- New viewport key `Viewport__ModelSourceId`: the model group's `groupId` (its
+  folder name), or null for the Project Default. Every existing record reads
+  null. An id the project no longer has is kept as written; the viewport draws
+  the Project Default and the panel says why.
+- A change is one undo step and a browser draft, never an auto save.
+
+**FIXED ON THE WAY**
+- A Design Phase switch now resets the Layout Editor's live fingerprints - the
+  stale keys described above.
+- The Design Phase menu gives the phase it loads the materials library pass the
+  startup load always applied; it used to keep the loader's plain materials. The
+  pass is one helper, `Na__ApplyLibraryMaterials`, shared by the startup load,
+  the menu and the phase library.
+- The menu's active button is the phase the 3D view holds. It was always the
+  newest group, which is wrong whenever the newest is an existing one.
+
+**LIMITS**
+- R2 linework assets stay one per drawing, of the live phase, so the Dev bake
+  names a drawing only for viewports that draw the live phase. Another phase's
+  linework is computed on the device and kept in the browser store, per phase.
+- A viewport of another phase renders every category, less its own Model Layers
+  and Context Layer hides: category toggles made in the 3D view only ever touch
+  the phase they were made on. Camera-follow billboards and storey isolation
+  belong to the 3D view and are not rebuilt for an off-scene phase.
+- A cached phase holds its GPU memory until it is let go.
+
+**Files**
+- New: `26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js`,
+  `51__System__LayoutEditor/Na__LayoutEditor__ModelSource__.js`.
+- `Na__AppFlow__LoadingSequence.js` - library initialised and told the groups and
+  the live phase; the materials pass is a shared helper; the preferred-group rule
+  moved into the library unchanged.
+- `Na__UiFeature__ModelGroupSelector.js` - reports switches, materials pass,
+  active button.
+- `Na__UiFeature__ModelToggle__Controls.js` - BorrowRegistry and RestoreRegistry.
+- `Na__ProjectedLinework__Pipeline__.js` - optional model root and fingerprint.
+- Layout Editor: `SnapshotRenderer__`, `Viewport2d__`, `Viewport3d__`,
+  `SheetModel__`, `SheetRecords__`, `Panel__ViewportSettings__`,
+  `Panel__ModelLayers__`, `ModelLayers__`, `ModeController__`, `SheetTools__`,
+  `PdfExporter__`, `DevMenu__Controls__`, `ConfigState__`, and `AppConfig__.json`
+  (ModelSource block and labels).
+- `TrueVision__Pwa__ServiceWorker__Logic__.js` - token bumped: signatures that
+  cross module boundaries changed.
+
+**Verification**
+- 19 changed modules parse. Module graph: 340 modules resolve. Named exports: 253
+  files resolve, no undeclared names.
+- In the app on PS01's PD Drawing sheet, every non-read request blocked:
+  - The two elevations render unchanged on the live path (3 s).
+  - A duplicate of one elevation, switched to the existing building from the
+    panel: badge at once, the phase loaded off-scene, underlay and linework in
+    4 s. The live model root, its scene slot and the category registry are
+    unchanged; the phase root is out of the scene with no pins.
+  - The right-click Model items, a switch to Scheme-01 and its undo: no stale
+    picture either way.
+  - Model Layers lists the existing building's 5 categories for that viewport;
+    hiding its landscape renders, and both models are at rest afterwards.
+  - The PDF linework path: 2,666 visible and 1,493 authored segments for the
+    existing building against 2,338 and 1,646 for the proposal, same elevation.
+  - A 3D viewport of the existing building renders.
+  - The 3D view switched to the existing building: the Project Default elevations
+    loaded Scheme-01 off-scene and drew it unchanged in 5 s, and the existing
+    viewports drew from the live model. Switched back: no copies left over, the
+    render loop free.
+- Found on the way, not changed: a failed 3D snapshot upload still stamps
+  `Viewport__SnapshotAsset`, because `Na__LeAssets__Upload` returns the upload's
+  result object, which is truthy on failure. Flagged as its own task.
+- Test viewports removed, browser draft cleared, nothing written to R2.
+
+**ValeVision**
+- Not ported. ValeVision has no model groups; the record key and the Model Source
+  module carry over unchanged if it ever gains them.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.31.0  -  13-Sep-2026
+### Ortho Dimensions - Hold Shift for Horizontal or Vertical - and Snaps Coloured by Tool
+
+**Overview**
+- The Dimension tool only drew ALIGNED dimensions: the line always ran parallel
+  to the two points it measured. Two points at different heights - the eaves of
+  one wall and the foot of the next - could only be given a sloping dimension
+  that measured the diagonal, when the drawing needed the horizontal distance.
+- Hold Shift while the dimension's line follows the cursor (after the second
+  click) and the dimension runs ORTHO, whatever the two points are. Drag the
+  line above or below them and it runs horizontal and measures the x distance;
+  drag it beside them and it runs vertical and measures the y. Let go of Shift
+  and it is aligned again. Pressing or releasing Shift redraws at once - no need
+  to nudge the mouse.
+- Snap markers are coloured by the tool that is snapping: BLUE for vertices (the
+  Draw and Rectangle tools and vertex grips), ORANGE for dimensions (the tool, its
+  grips, its line inference), PURPLE for viewports (hovering and carrying one by
+  a point - the carried point's ring, the tracking crosses and the carried
+  frame's outline go purple too). The glyph still says what was found.
+
+**HOW THE ORTHO CHOICE IS MADE**
+- The CAD linear-dimension rule: take the box the two points span. A cursor above
+  or below it gives horizontal, one to either side vertical, and off a corner the
+  side it is further out on wins. Inside the box the choice holds; with Shift
+  first pressed inside it, the wider extent picks.
+- Never a dimension of nothing: two level points can only take a horizontal
+  dimension, two plumb ones only a vertical.
+- Each measured point runs its own extension line to the dimension line, so the
+  two differ in length. A vertical value always reads up the sheet.
+- Inference carries over: an ortho line snaps onto any parallel dimension's line
+  nearby, aligned or ortho, so a run of dimensions still lines up.
+
+**THE RECORD**
+- New field `Dimension__Orientation`: `'aligned'`, `'horizontal'` or
+  `'vertical'`. Every record written before today normalises to aligned and draws
+  exactly as it did - the aligned skeleton is unchanged to the bit.
+- The offset is still measured from the start point. On an ortho dimension, a
+  grip that re-picks a point measures the offset again so the LINE STAYS WHERE IT
+  WAS PUT - including when the end is dragged past the start.
+- The same field goes into ValeVision with the port, so either app reads the
+  other's dimensions.
+
+**ONE BEHAVIOUR CHANGE**
+- Shift used to bend the span to the nearer axis while the end point was picked.
+  It no longer does: the end lands on the point that was picked, because Shift now
+  makes the finished dimension ortho, and an ortho dimension measures one axis
+  whatever the span. The arrow keys still lock the span to an axis.
+
+**Modules**
+- `Na__LayoutEditor__DimensionGeometry__` 1.1.0 - `Frame`, an orientation-aware
+  `Skeleton` and `TextPlacement`, `SpanMm`, `OrthoToward`, `OffsetKeepingLine`.
+- `Na__LayoutEditor__DimensionTool__` 1.2.0 - Shift ortho while the line is placed,
+  `IsPlacingLine`, orange markers.
+- `Na__LayoutEditor__SheetTools__` 1.11.0 - Shift down and up redraw a line being
+  placed; dimension grips hold an ortho line still and snap in orange.
+- `Na__LayoutEditor__Snapping__` 1.3.0 - marker tones.
+- `Na__LayoutEditor__ViewportSnapMove__` 1.1.0 - purple on hover and carry.
+- `Na__LayoutEditor__MarkupBridge__` 1.3.0, `SheetModel__` 1.5.0, `SheetRecords__`
+  1.3.0, `Toolbar__` 1.7.0 - the field through the drawing, the value, create,
+  update and the normaliser; the Dimension tooltip.
+- `Styles__Main__.css` - one RGB custom property per tone; `AppConfig__.json` -
+  the descriptions and the `ToolDimensionTitle` label.
+
+**Verification**
+- Geometry harness against HEAD's module, 30 checks: the aligned skeleton, text
+  placement and span bit-identical across 80,000 cases; `Push` with no
+  orientation emits HEAD's primitives for 3,000 specs; horizontal and vertical
+  skeletons across 5,000 cases each; the box rule; regrips holding the line
+  across 4,000 random cases.
+- All 9 changed modules parse, all 877 named imports in the Layout Editor
+  resolve, and every `Na__` name in the changed files is declared or imported.
+- In the app on PS01's PD Drawing sheet, with pointer and key events and every
+  non-read request blocked (none was attempted): 38 checks - the full Shift
+  placement; live Shift release and press; the 40 / 45 / 60.208 values; the
+  per-point extension lines; inference onto a parallel ortho line; both grips,
+  with the line held; two undos; an aligned placement with no Shift; an unsnapped
+  span not bent; and all three tones, on the same vertex and on a viewport
+  hovered and carried (which ended exactly where it began). The test line and
+  dimensions were removed and the browser draft cleared.
+- Signed off by Adam 13-Sep-2026 ("works great"), with the ValeVision port.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.30.2  -  13-Sep-2026
+### The Drawing View Reads Its Own Config
+
+**Overview**
+- `Na__DrawView__AppConfig__.json` had never been read in TrueVision. Neither
+  `Na__DrawCfg__SetAppConfig` nor `Na__DrawCfg__Load` was ever called: ValeVision's
+  index.html makes both calls (lines 2119-2120), and the port brought the module
+  across without them.
+- Both are now called in index.html, before the loading sequence. Wiring them changed
+  nothing on screen, proved by a diff of every getter and a before and after in the
+  app.
+- Found while tracing it: Layout Editor underlays had always been baked with a 1.0 px
+  profile outline, not the 0.55 the main config appeared to set, and v2.27.0 (Edge
+  Styles) had quietly made them thinner. The default is back to 1.0.
+
+**WHAT WAS DEAD**
+- The config module's precedence chain - main config, then this JSON, then built-in
+  fallbacks - had collapsed to the fallbacks alone. The main config's Drawing2d keys
+  never reached the render setup, and nothing in the JSON was ever used.
+- Nobody saw it, because the live floor plan and elevation views do not read this
+  module at all. Their profile pass takes its width and colour straight from the main
+  config at start-up, and the section cut keeps the Cross Sections tool's own look.
+  The only readers are the two drawing presets, and the only caller of either preset
+  is the Layout Editor's viewport bake.
+
+**THE DIFF BEFORE WIRING**
+- A Node harness ran every getter four ways - neither call, Load alone, SetAppConfig
+  alone, both - against the shipped module and JSON:
+  - Load alone changes no setup value. The JSON and the fallbacks agree on every key
+    (profile width since the 0.55 alignment). Only the four label strings differ, and
+    nothing in TrueVision reads a label.
+  - SetAppConfig adds two: the 2D edge colour (null to 3355443) and threshold (null to
+    0.2). No preset reads either. The render preset reads background, profile enabled
+    and edge width; the material preset reads six material values; all nine are
+    identical in every scenario.
+- So no value in the JSON had to change to keep the picture the same.
+
+**WHERE IT IS WIRED**
+- index.html, beside the drawings-data listener and before the loading sequence, so the
+  fetch starts before anything could want it. NOT awaited: an await in that block opens
+  exactly the window its own comment warns about, where a dispatch lands before its
+  listener.
+- The Layout Editor's ready chain waits for the same promise, because its bakes are the
+  one thing that renders through the presets. Nothing else needs to wait.
+
+**THE BAKE WIDTH, CORRECTED**
+- Before v2.27.0 (Edge Styles) every underlay bake drew its profile outline at 1.0 px:
+  the render preset applied the fallback, and the main config's Drawing2dEdgeWidth 0.55
+  never reached it. A bake also left the global at 1.0, so after visiting the Layout
+  Editor the live views drew a thicker outline until the page reloaded.
+- That version moved the bake width into the Profile Linework composite at 0.55,
+  believing that was the number in use, and first described it as "the same number".
+  It was not: new underlays would have come out with a lighter outline than every
+  existing sheet. Its entry is corrected in place.
+- The composite default is now 1.0, which is what every existing sheet has and what
+  ValeVision bakes at. The drawing view's own fallback and JSON stay 0.55 - the live
+  views' width - which the preset re-applies around a bake, so a bake no longer leaks
+  into the live views.
+
+**Files**
+- `Index.html` - imports and calls SetAppConfig and Load.
+- `Na__LayoutEditor__ModeController__.js` - the ready chain waits for Load.
+- `Na__DrawView__ConfigState__.js` - header, divergence, dev log, fallback comment.
+- `Na__DrawView__AppConfig__.json` - the profile width note says the file is loaded.
+- `Na__LayoutEditor__RenderComposites__Config__.json` and `..RenderComposites__.js` -
+  Profile Linework default 1.0; the history in both corrected.
+- `Na__AppConfig__Main.json` - the note where Drawing2dEdgeWidth was, corrected.
+
+**Verification**
+- Node harness over every getter (neither call, Load, SetAppConfig, both): the only
+  changes are the four unread labels and the unread 2D edge colour and threshold.
+  Every value a preset reads is identical.
+- In the app on PS01, before and after wiring, each build proven by its own source:
+  - After: the JSON label reads back ("No project loaded.") and the main-config edge
+    colour arrives (3355443), with every other setup value unchanged.
+  - Live floor plan and elevation, entered and exited: profile width 0.55 and enabled,
+    section `#f0f0f0` / `#323232` / 2 px - idle, in each mode and after - identical
+    before and after.
+  - Layout Editor bakes: at the new 1.0 default both underlays re-bake heavier.
+    Overridden to 0.55 they reproduce the pre-wiring pictures byte for byte
+    (`416374:-1871657127`, `273702:664064456`). The global width is 0.55 after every
+    bake.
+- Link check: 1,005 named imports across the 78 modules in 50 and 51, none missing.
+- Two browser cache traps during the check, neither in the app: a module another
+  session had changed on disk was still cached (fixed by refreshing every module
+  folder), and refreshing `Index.html` does not refresh `Index.html?project=...`
+  (fixed by refreshing that exact URL).
+
+**ValeVision**
+- Nothing to port for the loader: ValeVision already makes both calls. Recorded as a
+  divergence: the fallback profile width is 0.55 in TrueVision (its live views' width)
+  and 1.0 in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.30.1  -  13-Sep-2026
+### Undo Stops Saving the Project Behind Your Back
+
+**Overview**
+- In the Layout Editor every Ctrl+Z and Ctrl+Y, of anything, wrote the whole
+  project to R2 about a second and a half later. Undo a vector delete and the
+  sheet was saved, though nobody had pressed Save Sheets. Found by a fetch guard
+  during the rectangle tool test on PS01, which caught the `POST .../r2/write`.
+- Undo and redo are now saved the way the step they reverse was saved when it
+  was made. Content edits - vectors, text, dimensions, viewports, layers, title
+  block fields - never wrote the project, so neither does undoing or redoing
+  them: they stay with the browser draft and Save Sheets. Sheet settings - the
+  name, paper size, orientation, title block style and lineweights - auto-save
+  when changed, so undoing or redoing one auto-saves too, and R2 keeps up with
+  what is on screen.
+
+**WHY IT HAPPENED**
+- The history put a snapshot back and then announced it through
+  `UpdateSheet(sheet, {})` - a convenient way to normalise, mark dirty and
+  redraw. But that announcement's reason is `sheet-updated`, and the auto save
+  reads `sheet-updated` as "the sheet's settings changed" and schedules a
+  project save. Every restore looked like a rename.
+
+**THE FIX, AT THE ROOT**
+- Each history step now keeps the reason its change was announced with.
+- A restore goes out through the new `Na__LeModel__AnnounceRestore`. It is
+  still `sheet-updated` - for drawing purposes a restore IS a sheet update, since
+  anything may have changed - so every listener (the mode controller's full
+  refresh, the tab strip, the toolbar, the dev menu, the tools) behaves exactly
+  as before and none of them had to learn a new reason, which is how the vector
+  redraw gap of 2.26.1 happened. It carries one extra field in the event detail:
+  `restore : { direction, stepReason }`.
+- The auto save judges a restore by `stepReason`, not by `sheet-updated`. The
+  structural list is unchanged and still lives only in the auto save.
+- The history ignores any announcement that carries a restore, on top of its
+  existing guard during Apply, so it cannot record its own undo as a new step.
+
+**ALSO FIXED**
+- A selected vector no longer drops out of the selection on every undo. The
+  history's "does the selection still exist" test had cases for viewports, text
+  and dimensions but none for shapes, so for a vector it always answered no.
+
+**Verification**
+- In the app on PS01's PD Drawing sheet, fresh modules confirmed, every request
+  but reads blocked and recorded: 11 checks. Adding a vector, undoing it and
+  redoing it: no write. A selected vector survives an undo that keeps it, and
+  undoing it away clears the selection; still no write. Renaming the sheet
+  auto-saves as before, and undoing the rename, redoing it and undoing it again
+  each auto-save - four blocked writes, one per structural step, which also
+  proves the guard would have seen a stray save. Every restore's detail was
+  recorded (`undo / shapes` ... `undo / sheet-updated`). The sheet ended
+  identical to its loaded state and its draft was removed.
+- ValeVision has the same fault in the same three modules. Not ported: waiting
+  for Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.30.0  -  13-Sep-2026
+### The Palette - Shift+B Sets What You Draw Next
+
+**Overview**
+- The eyedropper gains a second mode. B still paints one object's style onto
+  others. Shift+B loads the PALETTE: click an object and its style becomes the
+  setting that new objects of its kind are created with - the same Text,
+  Dimensions and Vectors settings the panels show when nothing is selected.
+- The problem it answers: moving on to a different kind of dimension or line
+  meant resetting a panel's worth of fields by hand, every time.
+- The workflow it enables is a SCRAPBOOK. Keep one of each house style on the
+  sheet - a red dimension, a grey dashed line, a bold label - beside the paper,
+  where it shows on screen and never prints. Shift+B, click the one you want,
+  draw.
+
+**HOW IT BEHAVES**
+- Shift+B arms the palette. Click an object: its style loads, the selection
+  clears so the panel visibly changes to match, the item pulses, and the
+  drawing tool for that kind takes over - Text, Dimension, or whichever of Draw
+  and Rectangle drew last. Setting the palette and drawing with it is Shift+B
+  and one click.
+- Shift+B with something already selected loads it at once, with no click.
+- Also on Shift+click of the Eyedropper button, and as Use for new dimensions /
+  text / vectors on the right-click menu.
+- `PaletteSwitchesTool` turns the hand-over off, for setting several palettes in
+  a row.
+
+**THE SAME TRAITS TRAVEL**
+- The palette reads the eyedropper's trait table, so what B copies is exactly
+  what Shift+B loads: size, weight, colour and alignment for text; text size,
+  colour, terminator, precision and units for dimensions; edges, weight, fill
+  and gradient for vectors. Content, geometry and the layer never travel, and
+  the dimension offset stays out unless `CopyDimensionOffset` is on.
+- ONE TRANSLATION. A vector record stores "no fill" as a null. The settings for
+  new objects store an on/off switch beside the last fill colour instead, so
+  turning fill back on in the panel still has a colour to restore. The trait
+  table now says so on the two traits concerned - `palette : 'filled'` and
+  `palette : 'gradientOn'` - so no field name leaked out of the one place field
+  names live. A gradient is copied, never shared with the item it came from.
+- The sheet tools own those settings and hand the eyedropper a writer. The
+  eyedropper reads, translates and reports; it never reaches into them.
+
+**LOCKED LAYERS ARE NOW READABLE**
+- The eyedropper's header said a locked item was a valid source. It was not
+  reachable: the hit test skipped locked layers, so a click on one found nothing
+  - or the viewport underneath. `Na__LeMarkup__HitTest` takes `includeLocked`
+  and only the eyedropper passes it. A locked scrapbook now hands out its style,
+  and a locked TARGET is refused with "That layer is locked" rather than missed.
+  Selecting, dragging and every other tool still leave locked items alone.
+
+**Verification**
+- Palette harness against stubbed dependencies: 53 checks - both switch
+  translations, gradient copy isolation, locked sources, refusals, the pulse,
+  modes that do not mix, the labels. Eyedropper harness re-run: 52 checks.
+- Every Layout Editor module parses, every named import resolves, and every
+  `Na__` name the changed files use is declared or imported.
+- In the running app, read-only: every changed module loads; the live key map
+  resolves Shift+B to the palette and plain B - Caps Lock too - to the
+  eyedropper; the live config supplies the menu wording and both settings.
+- Not exercised by pointer in the app: the arm, click and draw flow itself.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.29.0  -  13-Sep-2026
 ### Gradient Fills - Fade a Drawing Out Into the Page
 
 **Overview**
-- The Vectors panel has a Gradient toggle beside Fill. Switch it on and the
-  shape is filled with a linear gradient: a start colour, an end colour, a Blend
-  slider and a Direction from 0 to 360 degrees. Either end can be Alpha.
+- The Vectors panel has a Gradient toggle, last in its list after Fill and
+  Closed. Switch it on and the shape is filled with a linear gradient: a start
+  colour, an end colour, a Blend slider and a Direction from 0 to 360 degrees.
+  Either end can be Alpha.
 - The case it was built for: draw a closed polygon on a vector layer over a
   drawing, switch the edges off and run alpha to white, and the drawing fades
   out into the page. Colour to colour works the same way.
@@ -94,6 +1548,15 @@
   and hit test), sheet records, sheet model, sheet tools (defaults), shape tool,
   eyedropper (the gradient travels, null included), mode controller (config
   ready) and the panel stylesheet. Nothing outside `51__System__LayoutEditor`.
+
+**AFTER SIGN-OFF (13-Sep-2026)**
+- The gradient rows moved last in the Vectors panel, after the fills and Closed,
+  so opening the block moves no other control.
+- A rectangle (R) takes the gradient default as well as the fill. It built its
+  shape from the Vectors panel defaults but never passed the gradient, so one
+  drawn with Gradient on came out with no fill. The ValeVision port found it, and
+  both apps carry the fix (`Na__LayoutEditor__RectangleTool__.js` 1.0.1).
+- Ported to ValeVision3D v2.26.0 by replaying this commit's edits there.
 
 # ---------------------------------------------------------
 ## TrueVision3D v2.28.0  -  13-Sep-2026
@@ -364,7 +1827,9 @@
   width moved out of the main app config into them.
 - The controls sit behind a small Advanced fold under each section title.
   Folded, both panels look exactly as they did.
-- Authored in TrueVision. ValeVision gets it once Adam signs it off.
+- Authored in TrueVision. Signed off by Adam on 13-Sep-2026 and ported to
+  ValeVision the same day: the Render Composites weights as ValeVision v2.28.0,
+  the edge styles and owner tags as ValeVision v2.30.0.
 
 **THE PROJECTION USED TO FORGET**
 - An edge was found on a wall, clipped for occlusion, and landed in one merged
@@ -459,22 +1924,20 @@
 
 **THE 2D OUTLINE WIDTH MOVED**
 - `RenderEffect__ProfileLines__Drawing2dEdgeWidth` (0.55) is gone from
-  `Na__AppConfig__Main.json`, with a note where it was. For viewports it is the
-  profileLinework row's weight (0.55 px), overridable per viewport. The Section
-  Outline weight (2 px) is applied per viewport bake as well. Both are screen-space
-  widths, set for one render and put back afterwards, the same way the profile
-  pass's enabled flag already was.
+  `Na__AppConfig__Main.json`, with a note where it was. For viewports the bake width
+  is the profileLinework row's weight (1.0 px - see the correction below),
+  overridable per viewport. The Section Outline weight (2 px) is applied per viewport
+  bake as well. Both are screen-space widths, set for one render and put back
+  afterwards, the same way the profile pass's enabled flag already was.
 - Only the PIXEL weights enter the underlay cache key. A factor weight thickens the
   vector drawing and changes no pixel of the render behind it.
-- CAUGHT IN TESTING: once the main-config key was gone, the standalone drawing view
-  resolved its profile width to 1.0, not 0.55. The width it had always drawn at had
-  come from that key alone, and the fallback underneath was 1.0. The fallback in
-  `Na__DrawView__ConfigState__.js` is now 0.55, and so is the JSON beside it.
-- FOUND ON THE WAY, NOT CHANGED: `Na__DrawView__AppConfig__.json` is never loaded in
-  TrueVision. `Na__DrawCfg__Load()` is exported and nothing calls it, so every value
-  in that file is ignored and the drawing view runs on its fallbacks. Wiring it in
-  would change any key where the file and the fallbacks disagree, so it is flagged
-  as a separate task.
+- CORRECTED IN v2.30.2: this entry first set the weight to 0.55 and called it "the
+  same number" as the main-config key. It was not. That key only ever reached the
+  live floor plan and elevation views; TrueVision never registered the main config
+  with the drawing view, so every bake before this version drew at 1.0, and 0.55
+  would have thinned every new underlay. The composite default is now 1.0. The
+  drawing view's own fallback is 0.55, which is the live views' width, and v2.30.2
+  wires that config in.
 
 **THE ADVANCED FOLD**
 - A small toggle under the section title. Folded, both panels are unchanged.

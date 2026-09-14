@@ -31,6 +31,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0 (TrueVision)
+// - A drawing is named for a linework bake only by a viewport that draws the
+//   live design phase: the R2 linework asset is one per drawing, of the live
+//   model, and a viewport of another phase keeps its lines in the browser store.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Bake names the drawings that sheet viewports want linework for; readable progress and counts.
 //
@@ -61,6 +66,7 @@
     } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeMode__CHANGED_EVENT, Na__LeMode__Enter, Na__LeMode__Leave, Na__LeMode__IsActive } from './Na__LayoutEditor__ModeController__.js';
     import { Na__LeVp3d__Bake } from './Na__LayoutEditor__Viewport3d__.js';
+    import { Na__LeSource__Resolve } from './Na__LayoutEditor__ModelSource__.js';
     import { Na__LePdf__ExportSheet } from './Na__LayoutEditor__PdfExporter__.js';
     import { Na__PlStore__BakeAll } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Persistence__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
@@ -162,7 +168,7 @@
         // LINEWORK | Only drawings that ask for it: the record toggle, or a sheet viewport with Projected Linework on
         const wanted = [];
         sheets.forEach((sheet) => sheet.Sheet__Viewports.forEach((v) => {
-            if (v.Viewport__Kind === Na__LeModel__KIND_2D && v.Viewport__Styles.projectedLinework && v.Viewport__DrawingId) wanted.push(v.Viewport__DrawingId);
+            if (v.Viewport__Kind === Na__LeModel__KIND_2D && v.Viewport__Styles.projectedLinework && v.Viewport__DrawingId && Na__LeSource__Resolve(v).isLive) wanted.push(v.Viewport__DrawingId);   // <-- The bake projects the live model only
         }));
         const linework = await Na__PlStore__BakeAll({
             showToast : Na__LeDev__ShowToast, force : false, includeDrawingIds : wanted,

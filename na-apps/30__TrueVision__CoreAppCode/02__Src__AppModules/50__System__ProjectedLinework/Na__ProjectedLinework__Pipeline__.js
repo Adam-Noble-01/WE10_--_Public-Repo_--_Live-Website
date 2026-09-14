@@ -47,13 +47,37 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.2.0, 1.3.0 and 1.4.0
+// - Divergences   : Console prefix, header and folder numbers; the optional
+//                   model root and fingerprint of 1.2.0 (TrueVision design
+//                   phases - ValeVision has no model groups to choose from);
+//                   the linework first collection key and report of 1.3.0;
+//                   the door pose collection key and door swings of 1.4.0.
+// - Back-port     : 1.3.0 and 1.4.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - Door pose. The collection key carries a definition's door pose, so a plan
+//   read with its doors open never reuses a collection read with them as
+//   modelled, or with a different door shut. A render of such a definition
+//   adds the door swings the collection traced to its visible class
+//   (Na__ProjectedLinework__DoorPose__), and the report and the timings line
+//   count them.
+//
+// 14-Sep-2026 - Version 1.3.0
+// - The collection key carries the linework first rule, so a Diff (rule off)
+//   and a kept render (rule on) never share a cached intersection pass. The
+//   report and the timings line say whether the rule ran, and for how many
+//   categories, whether seams occluded and whether flush joins were hidden.
+//
+// 13-Sep-2026 - Version 1.2.0
+// - RenderDefinition takes an optional model root and GetCached an optional
+//   model fingerprint, so a Layout Editor viewport can project a design phase
+//   the 3D view does not hold. Every existing caller passes neither and is
+//   unchanged.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - A finished render is kept in the browser store as well as in memory.
 //
@@ -79,8 +103,10 @@
     import {
         Na__PlView__FromActiveDrawing,
         Na__PlView__CacheKey,
-        Na__PlView__Fingerprint
+        Na__PlView__Fingerprint,
+        Na__PlView__Hash
     } from './Na__ProjectedLinework__ViewDefinition__.js';
+    import { Na__PlDoors__AppendSwings } from './Na__ProjectedLinework__DoorPose__.js';
     import { Na__PlStage__Describe } from './Na__ProjectedLinework__ModelStage__.js';
     import { Na__ProjectedLinework__WebGpuBackend__ProbeHardware } from './Na__ProjectedLinework__WebGpuBackend__.js';
     import {
@@ -188,11 +214,15 @@
 
     // HELPER FUNCTION | The Key the Collection Cache Uses
     // ------------------------------------------------------------
-    // Everything that changes which instances are read: the model state, the
-    // exclusion list and the occluder rule.
+    // Everything that changes which instances are read, or what the cached
+    // intersection pass finds: the model state, the exclusion list, the
+    // occluder rule, the linework first rule and the door pose (the doors a
+    // Layout Editor plan reads open, and the swings traced while they are).
     // ------------------------------------------------------------
-    function Na__PlPipe__CollectionKey(definition, modelFingerprint) {
-        return modelFingerprint + '|' + definition.ExcludeTokens.join(',') + '|' + (definition.Styles.glassOpaque ? 'g1' : 'g0');
+    function Na__PlPipe__CollectionKey(definition, modelFingerprint, options) {
+        return modelFingerprint + '|' + definition.ExcludeTokens.join(',') + '|' + (definition.Styles.glassOpaque ? 'g1' : 'g0') +
+            '|' + ((options && options.LineworkFirst === true) ? 'lf1' : 'lf0') +
+            (definition.DoorPose ? '|dp' + Na__PlView__Hash(JSON.stringify(definition.DoorPose)) : '');   // <-- Appended only when set, so every other key is unchanged
     }
     // ------------------------------------------------------------
 
@@ -206,6 +236,10 @@
             (report.CollectReused ? 'model reused' : (report.TriangleTotal + ' triangles read in ' + report.CollectMs + ' ms')) +
             ' | ' + report.OccluderCount + ' occluders, ' + report.EdgeCount + ' edges' +
             (report.IntersectionCount ? (', ' + report.IntersectionCount + ' cut lines') : '') +
+            ' | ' + (report.LineworkFirst ? ('linework first, ' + report.LineworkCategoryCount + ' categories') : 'every mesh crease') +
+            (report.SeamsOcclude ? ', seams occlude' : ', seams open') +
+            (report.HideFlushJoins ? ', flush joins hidden' : ', flush joins drawn') +
+            (report.DoorSwingCount ? ', ' + report.DoorSwingCount + ' door swing segments' : '') +
             ' | ' + report.SegmentCount + ' segments in ' + report.ProjectMs + ' ms | total ' + report.TotalMs + ' ms'
         );
         if (report.Phases && report.Phases.length) console.table(report.Phases);
@@ -277,14 +311,16 @@
 
     // HELPER FUNCTION | Get or Build the Collected Model for a Definition
     // ------------------------------------------------------------
-    async function Na__PlPipe__GetCollection(definition, modelFingerprint, options, report, onPhase) {
-        const key = Na__PlPipe__CollectionKey(definition, modelFingerprint);
+    // modelRoot is the root the fingerprint was read from; see RenderDefinition.
+    // ------------------------------------------------------------
+    async function Na__PlPipe__GetCollection(definition, modelFingerprint, options, report, onPhase, modelRoot) {
+        const key = Na__PlPipe__CollectionKey(definition, modelFingerprint, options);
         let collected = Na__PlPipe__Collections.get(key);
 
         if (collected) {
             report.CollectReused = true;
         } else {
-            collected = await Na__PlProjector__Collect(Na__PlPipe__ModelRoot, definition, options, onPhase);
+            collected = await Na__PlProjector__Collect(modelRoot || Na__PlPipe__ModelRoot, definition, options, onPhase);
             Na__PlPipe__Collections.set(key, collected);
             Na__PlPipe__Bound(Na__PlPipe__Collections, Na__PlPipe__MAX_COLLECTIONS);
             report.CollectMs     = collected.Report.CollectMs;
@@ -311,9 +347,16 @@
     // in flight would steal each other's replies. Every call queues behind
     // the previous one; an abandoned render rejects quickly and the queue
     // moves on.
+    //
+    // modelRoot (TrueVision) projects a model other than the live one: a
+    // design phase the Layout Editor holds off-scene. Omitted, it is the model
+    // root the pipeline was initialised with, exactly as before. The model is
+    // described and collected from the SAME root in one synchronous run, so
+    // the fingerprint, the collection key and the cache key all name the
+    // model that was actually read.
     // ------------------------------------------------------------
-    function Na__PlPipe__RenderDefinition(definition, options, abortSignal, onPhase) {
-        const run = Na__PlPipe__Chain.then(() => Na__PlPipe__RenderDefinitionNow(definition, options, abortSignal, onPhase));
+    function Na__PlPipe__RenderDefinition(definition, options, abortSignal, onPhase, modelRoot) {
+        const run = Na__PlPipe__Chain.then(() => Na__PlPipe__RenderDefinitionNow(definition, options, abortSignal, onPhase, modelRoot));
         Na__PlPipe__Chain = run.catch(() => {});                                 // <-- A failure never blocks the next render
         return run;
     }
@@ -322,13 +365,16 @@
 
     // HELPER FUNCTION | The Render Itself, Once the Queue Reaches It
     // ------------------------------------------------------------
-    async function Na__PlPipe__RenderDefinitionNow(definition, options, abortSignal, onPhase) {
+    async function Na__PlPipe__RenderDefinitionNow(definition, options, abortSignal, onPhase, modelRoot) {
         const startedAt = performance.now();
-        const described = Na__PlStage__Describe(Na__PlPipe__ModelRoot);
+        const root      = modelRoot || Na__PlPipe__ModelRoot;                   // <-- Another design phase, or the live model
+        const described = Na__PlStage__Describe(root);
         const settings  = options || Na__PlProjector__BuildOptions(definition);
         const report    = {
             Backend : settings.Backend, CollectReused : false, CollectMs : 0, TriangleTotal : described.TriangleTotal,
-            IntersectionCount : 0, OccluderCount : 0, EdgeCount : 0, SegmentCount : 0, ProjectMs : 0, TotalMs : 0, Phases : []
+            IntersectionCount : 0, OccluderCount : 0, EdgeCount : 0, SegmentCount : 0, ProjectMs : 0, TotalMs : 0, Phases : [],
+            LineworkFirst : settings.LineworkFirst === true, LineworkCategoryCount : 0, SeamsOcclude : settings.SeamsOcclude === true,
+            HideFlushJoins : settings.HideFlushJoins === true, DoorSwingCount : 0
         };
 
         if (described.TriangleTotal > settings.MaxTriangles) {
@@ -340,7 +386,8 @@
         const signal = abortSignal || new AbortController().signal;
         if (signal.aborted) throw new DOMException('Projection aborted', 'AbortError');
 
-        const collected = await Na__PlPipe__GetCollection(definition, described.Fingerprint, settings, report, onPhase);
+        const collected = await Na__PlPipe__GetCollection(definition, described.Fingerprint, settings, report, onPhase, root);
+        report.LineworkCategoryCount = collected.LineworkCategories ? collected.LineworkCategories.size : 0;
         if (signal.aborted) throw new DOMException('Projection aborted', 'AbortError');
 
         const sampled = Na__PlProjector__Sample(collected, definition, onPhase);
@@ -354,6 +401,10 @@
         report.Phases        = projection.Phases;
         report.OccluderCount = projection.OccluderCount;
         report.EdgeCount     = projection.EdgeCount;
+        // DOOR SWINGS | The arc each open hinged door of a posed plan sweeps, on
+        // the visible class with the door's category, before anything counts or
+        // keeps the classes.
+        if (definition.DoorPose && collected.DoorSwings) report.DoorSwingCount = Na__PlDoors__AppendSwings(projection.Classes, collected, definition, settings);
         report.SegmentCount  = Na__PlPipe__CountSegments(projection.Classes);
 
         return {
@@ -570,9 +621,12 @@
 
     // FUNCTION | Read a Cached Result by Definition and Model State (null when absent)
     // ------------------------------------------------------------
-    function Na__PlPipe__GetCached(definition) {
-        const modelFingerprint = Na__PlStage__Describe(Na__PlPipe__ModelRoot).Fingerprint;
-        const entry = Na__PlPipe__Results.get(Na__PlView__CacheKey(definition, modelFingerprint));
+    // modelFingerprint (TrueVision) names a model other than the live one - a
+    // design phase held off-scene. Omitted, the live model is described.
+    // ------------------------------------------------------------
+    function Na__PlPipe__GetCached(definition, modelFingerprint) {
+        const fingerprint = modelFingerprint || Na__PlStage__Describe(Na__PlPipe__ModelRoot).Fingerprint;
+        const entry = Na__PlPipe__Results.get(Na__PlView__CacheKey(definition, fingerprint));
         return entry ? entry.Classes : null;
     }
     // ------------------------------------------------------------

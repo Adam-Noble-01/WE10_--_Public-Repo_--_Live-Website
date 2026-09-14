@@ -27,6 +27,9 @@
 //
 // INTEGRATION:
 // - index.html calls SetAppConfig then Load before the presets initialise.
+//   (TrueVision: only since 13-Sep-2026 - see the divergence note below. The
+//   Layout Editor's ready chain also waits for Load, since its bakes are the one
+//   thing that renders through the presets.)
 // - Na__DrawView__ComposerPreset__, Na__DrawView__MaterialPreset__ and
 //   Na__DrawView__SectionAdapter__ read through the getters.
 //
@@ -39,11 +42,23 @@
 // - Divergences   : Console prefix and header only. The RenderEffect__ProfileLines Drawing2d
 //                   keys this reads already exist in TrueVision's main config, added by
 //                   v2.19.0, so the override chain lands unchanged.
+//                   FALLBACK edgeWidth is 0.55 here and 1.0 in ValeVision: 0.55 is what
+//                   TrueVision's live drawing views draw at (13-Sep-2026).
+//                   WIRING GAP, CLOSED 13-Sep-2026: the SetAppConfig and Load calls that
+//                   ValeVision's index.html makes were never ported, so this module answered
+//                   with fallbacks alone. Wired then; a Node diff of every getter showed no
+//                   value a preset reads changed.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.0.1
+// - FALLBACK edgeWidth 1.0 -> 0.55, the live drawing views' width, so the width
+//   the render preset re-applies around a Layout Editor bake no longer leaves the
+//   live views drawing a thicker outline for the rest of the session.
+// - index.html now calls SetAppConfig and Load; neither had ever been called.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 3. Takes over the config reading
 //   the composer preset and material preset carried themselves in Phase 2 and
@@ -72,7 +87,7 @@
     // ------------------------------------------------------------
     const Na__DrawCfg__FALLBACKS = Object.freeze({
         backgroundColour    : '#ffffff',
-        edgeWidth           : 0.55,                                          // <-- 13-Sep-2026: was 1.0. With Drawing2dEdgeWidth gone from the main config this fallback is what the drawing view actually draws at, so it mirrors the shipped 0.55
+        edgeWidth           : 0.55,                                          // <-- 13-Sep-2026: was 1.0. The live views' width; the render preset re-applies it around a Layout Editor bake, so it must match them
         edgeColour          : null,
         edgeThresholdNormal : null,
         profileEnabled      : true,

@@ -34,12 +34,35 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__SnapshotRenderer__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Divergences   : Console prefix, header and folder numbers; the design
+//                   phase model source of 1.6.0 (TrueVision - ValeVision has
+//                   no model groups); the plan door pose of 1.7.0, authored
+//                   here first and PENDING to ValeVision3D on Adam's sign-off.
+// - Back-port     : n/a (this IS the back-port); 1.5.0 ported 13-Sep-2026 as ValeVision3D v2.28.0, through ValeVision's own width consumers (DIV-1)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.7.0
+// - Plan doors. Render2d stands the doors as a Layout Editor plan draws them -
+//   open, bar the ones its viewport closed - before the cut is built and the
+//   picture is taken, so the base image agrees with the linework over it. The
+//   doors go back to where the 3D view holds them in the finally, before the
+//   design phase leaves the scene.
+//
+// 13-Sep-2026 - Version 1.6.0
+// - Design phases. Render2d and Render3d take the viewport's model source: a
+//   phase the 3D view does not hold replaces the live model in the scene for
+//   that one render. The section engine, the material preset, the category
+//   registry and both profile line caches follow it, and all of it is handed
+//   back before the next render starts. Fingerprints are held per phase. A
+//   viewport of the live phase renders exactly as before.
+//
+// 13-Sep-2026 - Version 1.5.0
+// - The Base Image composite weight: the model's own edges draw at the
+//   viewport's width for one render, 2D and 3D, and every edge material is
+//   handed its own width back afterwards.
+//
 // 12-Sep-2026 - Version 1.4.0
 // - Per-viewport Model Layers: named model categories come out of the render
 //   alongside the Context Layer rule, under one captured visibility map.
@@ -72,7 +95,7 @@
     // ------------------------------------------------------------
     import * as THREE from 'three';
     import { Na__Math__ConvertMmToUnits, Na__Math__ConvertUnitsToMm } from '../04__MathUtils/Na__Math__Units.js';
-    import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
+    import { Na__RenderLoop__RequestRender, Na__RenderLoop__Pause, Na__RenderLoop__Resume } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Drawing View Core (presets, section adapter, transitions)
@@ -94,7 +117,8 @@
     } from '../40__System__DrawingViewCore/Na__DrawView__RenderPreset__.js';
     import {
         Na__DrawView__MaterialPreset__Enter,
-        Na__DrawView__MaterialPreset__Exit
+        Na__DrawView__MaterialPreset__Exit,
+        Na__DrawView__MaterialPreset__SetModelRoot
     } from '../40__System__DrawingViewCore/Na__DrawView__MaterialPreset__.js';
     import {
         Na__DrawView__Transitions__SuspendThreeD,
@@ -120,17 +144,30 @@
     // MODULE IMPORTS | Scene Pose, Visibility, Sections, Tiled Renderer
     // ------------------------------------------------------------
     import { Na__PresentationMode__Camera__ApplySceneCameraState } from '../21__System__PresentationMode/Na__PresentationMode__Camera__SceneTransition.js';
-    import { Na__ModelToggle__CaptureVisibilityMap, Na__ModelToggle__ApplySceneLayerVisibility, Na__ModelToggle__SetCategoryVisibility, Na__ModelToggle__SetCategoryVisibleByKey } from '../26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js';
+    import { Na__ModelToggle__CaptureVisibilityMap, Na__ModelToggle__ApplySceneLayerVisibility, Na__ModelToggle__SetCategoryVisibility, Na__ModelToggle__SetCategoryVisibleByKey, Na__ModelToggle__BorrowRegistry, Na__ModelToggle__RestoreRegistry } from '../26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js';
     import { Na__SectSerialize__Serialize, Na__SectSerialize__Apply } from '../41__System__SectionCutEngine/Na__SectionCut__Serialize__.js';
     import { Na__StaticExport__RenderToCanvas } from '../30__System__ImageExport/Na__ImageExport__StaticExport__TiledRenderer.js';
     import { Na__PlView__KIND_PLAN, Na__PlView__Hash } from '../50__System__ProjectedLinework/Na__ProjectedLinework__ViewDefinition__.js';
     import { Na__PlStage__Describe } from '../50__System__ProjectedLinework/Na__ProjectedLinework__ModelStage__.js';
+    import { Na__PlDoors__Apply, Na__PlDoors__Restore } from '../50__System__ProjectedLinework/Na__ProjectedLinework__DoorPose__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | The Two Screen-Space Line Widths a Composite Weight Sets
     // ------------------------------------------------------------
-    import { Na__DrawProfile__SetEdgeWidth } from '../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
+    import { Na__DrawProfile__SetEdgeWidth, Na__DrawProfile__InvalidateSceneCache } from '../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__SectCutCfg__GetAppearance, Na__SectCutCfg__SetAppearance } from '../41__System__SectionCutEngine/Na__SectionCut__ConfigState__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Design Phases: the Library, and the Section Engine a Borrowed Model Is Handed To
+    // ------------------------------------------------------------
+    import {
+        Na__PhaseLib__CHANGED_EVENT,
+        Na__PhaseLib__IsLive,
+        Na__PhaseLib__GetReadyEntry,
+        Na__PhaseLib__Pin,
+        Na__PhaseLib__Unpin
+    } from '../26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js';
+    import { Na__SectionCut__SetModelRoot } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -142,7 +179,8 @@
 
     // MODULE CONSTANTS | Cut Plane Id
     // ------------------------------------------------------------
-    const Na__LeSnap__CUT_ID = 'na-layouteditor-snapshot';
+    const Na__LeSnap__CUT_ID     = 'na-layouteditor-snapshot';
+    const Na__LeSnap__PHASE_HOLD = 'layout-editor-phase';   // <-- Render loop hold while a design phase stands in for the live model
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Render Context and Queue
@@ -157,6 +195,7 @@
     let Na__LeSnap__Chain       = Promise.resolve();
     let Na__LeSnap__ModelFp     = null;    // <-- Visibility-free model fingerprint, cached until the model or its toggles change
     let Na__LeSnap__PipelineFp  = null;    // <-- The projection pipeline's own fingerprint, cached the same way
+    const Na__LeSnap__PhaseFp   = new Map();   // <-- groupId -> { model, pipeline }: the same pair for each design phase held off-scene
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -263,10 +302,75 @@
         Na__LeSnap__ModelRoot   = context.modelRoot || null;
         Na__LeSnap__ResetFingerprints();
         window.addEventListener('na-model-visibility-changed', Na__LeSnap__ResetFingerprints);   // <-- Toggles change what a drawing shows
+        window.addEventListener(Na__PhaseLib__CHANGED_EVENT, Na__LeSnap__OnPhaseChanged);         // <-- A design phase loaded, went, or moved into the 3D view
         return true;
     }
     function Na__LeSnap__IsReady() { return !!Na__LeSnap__Renderer; }
-    function Na__LeSnap__GetModelRoot() { return Na__LeSnap__ModelRoot; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Model Root a Viewport Is Drawn From
+    // ------------------------------------------------------------
+    // modelSourceId null (or the phase the 3D view holds) is the live model
+    // root; another design phase is its own off-scene root, or null while it
+    // is not loaded.
+    // ------------------------------------------------------------
+    function Na__LeSnap__GetModelRoot(modelSourceId) {
+        if (!modelSourceId || Na__PhaseLib__IsLive(modelSourceId)) return Na__LeSnap__ModelRoot;
+        const entry = Na__PhaseLib__GetReadyEntry(modelSourceId);
+        return entry ? entry.root : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Design Phase's Two Fingerprints, Read While It Is at Rest
+    // ------------------------------------------------------------
+    // Returns { model, pipeline }, or null while the phase is not loaded - formed
+    // exactly as the live pair below, so a phase's keys mean what the live
+    // model's do.
+    //
+    // READ ONLY WHILE NO RENDER HAS THE PHASE. Describe counts each category's
+    // visibility, and a render hides categories for its viewport; a fingerprint
+    // taken mid-render would be held with those hides in it and would key every
+    // later picture of the phase wrongly. So a phase is read the moment it loads
+    // (OnPhaseChanged), before anything can have touched it, and a pinned phase
+    // with nothing held yet answers null until it is free.
+    // ------------------------------------------------------------
+    function Na__LeSnap__PhaseFingerprints(groupId) {
+        const held = Na__LeSnap__PhaseFp.get(groupId);
+        if (held) return held;
+        const entry = Na__PhaseLib__GetReadyEntry(groupId);
+        if (!entry || entry.pins > 0) return null;
+        const described = Na__PlStage__Describe(entry.root);
+        const fingerprints = {
+            model    : Na__PlView__Hash(JSON.stringify(described.Categories.map((c) => [ c.name, c.tris ]))),
+            pipeline : described.Fingerprint
+        };
+        Na__LeSnap__PhaseFp.set(groupId, fingerprints);
+        return fingerprints;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep the Fingerprints in Step With the Phase Library
+    // ------------------------------------------------------------
+    // A newly loaded phase is read at once; a phase let go is forgotten. When
+    // the 3D view takes a different phase, the live pair is read again: before
+    // v2.31 nothing reset it on a Design Phase switch, so every viewport kept
+    // keys made from the model that had been replaced.
+    // ------------------------------------------------------------
+    function Na__LeSnap__OnPhaseChanged(event) {
+        const detail = (event && event.detail) || {};
+        if (detail.kind === 'ready' && detail.groupId) {
+            Na__LeSnap__PhaseFp.delete(detail.groupId);
+            Na__LeSnap__PhaseFingerprints(detail.groupId);
+        } else if (detail.kind === 'evicted' && detail.groupId) {
+            Na__LeSnap__PhaseFp.delete(detail.groupId);
+        } else if (detail.kind === 'groups') {
+            Na__LeSnap__PhaseFp.clear();
+        }
+        if (detail.kind === 'live' || detail.kind === 'groups') Na__LeSnap__ResetFingerprints();
+    }
     // ------------------------------------------------------------
 
 
@@ -276,15 +380,26 @@
     // for it on every refresh. The model one ignores category visibility
     // (a snapshot re-reads the scene's own layer map); the pipeline one is
     // exactly what the projection cache keys use.
+    //
+    // modelSourceId asks for a design phase held off-scene instead of the live
+    // model, and answers null while that phase is not loaded.
     // ------------------------------------------------------------
-    function Na__LeSnap__GetModelFingerprint() {
+    function Na__LeSnap__GetModelFingerprint(modelSourceId) {
+        if (modelSourceId && !Na__PhaseLib__IsLive(modelSourceId)) {
+            const held = Na__LeSnap__PhaseFingerprints(modelSourceId);
+            return held ? held.model : null;
+        }
         if (Na__LeSnap__ModelFp === null) {
             const described = Na__PlStage__Describe(Na__LeSnap__ModelRoot);
             Na__LeSnap__ModelFp = Na__PlView__Hash(JSON.stringify(described.Categories.map((c) => [ c.name, c.tris ])));
         }
         return Na__LeSnap__ModelFp;
     }
-    function Na__LeSnap__GetPipelineFingerprint() {
+    function Na__LeSnap__GetPipelineFingerprint(modelSourceId) {
+        if (modelSourceId && !Na__PhaseLib__IsLive(modelSourceId)) {
+            const held = Na__LeSnap__PhaseFingerprints(modelSourceId);
+            return held ? held.pipeline : null;
+        }
         if (Na__LeSnap__PipelineFp === null) Na__LeSnap__PipelineFp = Na__PlStage__Describe(Na__LeSnap__ModelRoot).Fingerprint;
         return Na__LeSnap__PipelineFp;
     }
@@ -361,21 +476,159 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Set the Width of the Model's Own Edges for One Render
+    // ------------------------------------------------------------
+    // The Base Image composite weight. These are the SketchUp edges the loader
+    // upgraded to fat lines under every root it tagged Na__ModelType 'linework',
+    // which otherwise draw at RenderConfig__Linework__LineWidth for as long as
+    // the model is loaded. A fat line resolves its width against the renderer's
+    // viewport on every draw, so inside a tiled render this is a true pixel
+    // count in the tile - the same kind of number as the section outline's.
+    //
+    // Returns the width each material held, for the finally to hand back one
+    // by one, or null when there was nothing to set. The cut outline is a fat
+    // line too but sits under no linework root, so it keeps the Section
+    // Outline weight instead of being flattened to this one.
+    // ------------------------------------------------------------
+    function Na__LeSnap__SetModelEdgeWidth(widthPx, modelRoot) {
+        const from = modelRoot || Na__LeSnap__ModelRoot;                          // <-- The design phase in the scene for this render, else the live model
+        if (!from || !Number.isFinite(widthPx) || widthPx <= 0) return null;
+        const held = new Map();
+        from.traverse((root) => {
+            if (!root.userData || root.userData.Na__ModelType !== 'linework') return;
+            root.traverse((node) => {
+                if (!node.isLineSegments2 || !node.material || held.has(node.material)) return;
+                held.set(node.material, node.material.linewidth);
+                node.material.linewidth = widthPx;
+            });
+        });
+        return held.size > 0 ? held : null;
+    }
+    function Na__LeSnap__RestoreModelEdgeWidth(held) {
+        if (held) held.forEach((width, material) => { material.linewidth = width; });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Move a Child to an Index Among Its Siblings
+    // ------------------------------------------------------------
+    function Na__LeSnap__MoveChild(parent, child, index) {
+        const at = parent.children.indexOf(child);
+        if (index < 0 || at === -1 || at === index) return;
+        parent.children.splice(at, 1);
+        parent.children.splice(Math.min(index, parent.children.length), 0, child);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Drop the Two Profile Line Caches of Scene Objects
+    // ------------------------------------------------------------
+    function Na__LeSnap__InvalidateSceneCaches() {
+        Na__DrawProfile__InvalidateSceneCache();                                  // <-- The 2D silhouette pass
+        const pipeline = Na__LeSnap__Pipeline();
+        if (pipeline && typeof pipeline.invalidateProfileLinesCache === 'function') pipeline.invalidateProfileLinesCache();   // <-- The composer's, for 3D snapshots
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put a Design Phase in the Scene for One Render
+    // ------------------------------------------------------------
+    // Returns the stage for ExitPhase, or null when there is nothing to do: no
+    // source, the phase the 3D view already holds, or a phase not loaded.
+    //
+    // THE LIVE MODEL LEAVES THE SCENE; IT IS NOT HIDDEN. A hidden root is still
+    // walked by everything that walks the scene - both profile line caches, a
+    // bounding box - so the scene is made to hold exactly one model, the phase,
+    // and every pass meets only that. The live root keeps its children, so the
+    // projection pipeline reading it meanwhile still reads the live model.
+    //
+    // FOUR THINGS HOLD THE MODEL AND ARE HANDED THE PHASE: the section engine
+    // (clip planes and caps), the material preset (whitecard, opaque glass), the
+    // category registry (Context Layer, Model Layers, a scene's layer map) and
+    // the profile line caches. The render loop is held throughout, so no live
+    // frame can ever draw the phase in the 3D view's place.
+    // ------------------------------------------------------------
+    function Na__LeSnap__EnterPhase(modelSourceId) {
+        if (!modelSourceId || Na__PhaseLib__IsLive(modelSourceId)) return null;
+        const live  = Na__LeSnap__ModelRoot;
+        const scene = Na__LeSnap__Scene;
+        const entry = (live && scene) ? Na__PhaseLib__Pin(modelSourceId) : null;
+        if (!entry) return null;
+
+        const stage = { groupId : modelSourceId, root : entry.root, liveIndex : scene.children.indexOf(live), liveVisibility : Na__ModelToggle__CaptureVisibilityMap(), registry : null };
+        Na__RenderLoop__Pause(Na__LeSnap__PHASE_HOLD);
+        try {
+            if (stage.liveIndex !== -1) scene.remove(live);
+            scene.add(entry.root);
+            Na__LeSnap__MoveChild(scene, entry.root, stage.liveIndex);             // <-- Where the live model was, so render order is unchanged
+            stage.registry = Na__ModelToggle__BorrowRegistry(entry.groups);
+            Na__DrawView__MaterialPreset__SetModelRoot(entry.root);
+            Na__SectionCut__SetModelRoot(entry.root);
+            Na__LeSnap__InvalidateSceneCaches();
+            return stage;
+        } catch (stageError) {
+            console.warn('[TrueVision3D LayoutEditor] Design phase could not be put in the scene:', stageError);
+            Na__LeSnap__ExitPhase(stage);
+            return null;
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Hand the Scene Back to the Live Model
+    // ------------------------------------------------------------
+    // Undoes EnterPhase from any point it reached. The live category flags are
+    // put back from the capture taken on entry: a scene's visibility block
+    // resets the storey system too, and that reaches the live model's groups
+    // even while the phase holds the registry.
+    // ------------------------------------------------------------
+    function Na__LeSnap__ExitPhase(stage) {
+        if (!stage) return;
+        const live  = Na__LeSnap__ModelRoot;
+        const scene = Na__LeSnap__Scene;
+        try {
+            if (stage.root.parent === scene) scene.remove(stage.root);
+            if (live && stage.liveIndex !== -1 && live.parent !== scene) {
+                scene.add(live);
+                Na__LeSnap__MoveChild(scene, live, stage.liveIndex);
+            }
+            if (stage.registry) Na__ModelToggle__RestoreRegistry(stage.registry);
+            Na__ModelToggle__ApplySceneLayerVisibility(stage.liveVisibility);
+            stage.root.children.forEach((category) => { category.visible = true; });   // <-- At rest a phase shows everything; its fingerprint was read so
+            Na__DrawView__MaterialPreset__SetModelRoot(live);
+            Na__SectionCut__SetModelRoot(live);                                        // <-- The live clip planes, and the caps of any cut the 3D view holds
+            Na__LeSnap__InvalidateSceneCaches();
+        } finally {
+            Na__PhaseLib__Unpin(stage.groupId);
+            Na__RenderLoop__Resume(Na__LeSnap__PHASE_HOLD);
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Render a 2D Drawing Window Offscreen
     // ------------------------------------------------------------
     // Returns { dataUrl, widthPx, heightPx } (png), or null. modelLayers is the
     // viewport's Viewport__ModelLayers map, or null for a viewport showing
     // everything the model has.
     //
-    // weights is { profilePx, sectionPx } from the viewport's Render Composites,
-    // or null for the configured widths. Both are SCREEN-SPACE widths - the Sobel
-    // sampling offset and the cut outline's line material - so they are set for
-    // the length of this one render and put back afterwards, exactly like the
-    // profile pass's enabled flag already is.
+    // weights is { profilePx, sectionPx, modelEdgePx } from the viewport's Render
+    // Composites, or null for the configured widths. All three are SCREEN-SPACE
+    // widths - the Sobel sampling offset, the cut outline's line material and
+    // the model's own edge materials - so they are set for the length of this
+    // one render and put back afterwards, exactly like the profile pass's
+    // enabled flag already is.
+    //
+    // modelSourceId is the design phase drawn (a viewport's Model Source
+    // renderId), null for the model the 3D view holds. A phase that is not
+    // loaded when the render's turn comes draws nothing - null - never the
+    // wrong model.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights) {
+    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId) {
         if (!Na__LeSnap__IsReady() || !definition) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
+            const phase = Na__LeSnap__EnterPhase(modelSourceId);                  // <-- First: the cut, the presets and the hides below all meet this model
+            if (modelSourceId && !phase && !Na__PhaseLib__IsLive(modelSourceId)) return null;
             const wasSuspended = Na__DrawView__Transitions__IsSuspended();
             const pipeline     = Na__LeSnap__Pipeline();
             const pass         = pipeline && pipeline.profileLinesPassRef ? pipeline.profileLinesPassRef : null;
@@ -386,8 +639,14 @@
             const wantSection = weights && Number.isFinite(weights.sectionPx) && weights.sectionPx > 0;
             const sectionWas  = wantSection ? Na__SectCutCfg__GetAppearance().lineWidthPx : null;
             let   profileWas  = null;
+            let   edgesWere   = null;                                              // <-- Each model edge material's own width, for the finally
+            let   doorsPosed  = null;                                              // <-- The plan's door pose, for the finally to hand back
             try {
                 Na__DrawView__SectionAdapter__SuspendLiveTool();
+                // THE DOORS STAND AS THE PLAN DRAWS THEM before anything reads the
+                // model, so the cut's caps and the picture both meet the posed
+                // leaves and the base image agrees with the linework over it.
+                if (definition.DoorPose) doorsPosed = Na__PlDoors__Apply(phase ? phase.root : Na__LeSnap__ModelRoot, definition.DoorPose);
                 // THE OUTLINE WIDTH GOES IN BEFORE THE CUT IS BUILT. The cap
                 // meshes read it when they are created, so setting it after
                 // ApplyCut would draw this viewport at whatever width the last
@@ -406,6 +665,7 @@
                     profileWas = Na__DrawProfile__SetEdgeWidth(NaN);
                     Na__DrawProfile__SetEdgeWidth(weights.profilePx);
                 }
+                if (weights) edgesWere = Na__LeSnap__SetModelEdgeWidth(weights.modelEdgePx, phase ? phase.root : null);   // <-- No preset touches a line material, so where this sits is free
                 Na__DrawView__MaterialPreset__Enter(styles || {});
                 contextSaved = Na__LeSnap__HideForViewport(styles, modelLayers);
                 Na__DrawView__SectionAdapter__ReapplyClipping();
@@ -438,13 +698,16 @@
                 if (contextSaved) Na__ModelToggle__ApplySceneLayerVisibility(contextSaved);
                 Na__DrawView__MaterialPreset__Exit();
                 Na__DrawView__RenderPreset__Exit();
+                Na__LeSnap__RestoreModelEdgeWidth(edgesWere);                                        // <-- The live 3D view keeps the loader's edge width
                 if (profileWas !== null) Na__DrawProfile__SetEdgeWidth(profileWas);                 // <-- The next viewport or drawing starts from the configured width
                 if (pass && passWasOn !== null) pass.enabled = passWasOn;
                 if (cutApplied) Na__DrawView__SectionAdapter__RemovePlane(Na__LeSnap__CUT_ID);
                 if (sectionWas !== null) Na__SectCutCfg__SetAppearance({ lineWidthPx : sectionWas });
                 Na__DrawView__SectionAdapter__Release();
+                Na__PlDoors__Restore(doorsPosed);                                                    // <-- The doors back where the 3D view holds them, before the phase leaves
                 if (!wasSuspended) Na__DrawView__Transitions__ResumeThreeD();
                 Na__RenderLoop__RequestRender();
+                Na__LeSnap__ExitPhase(phase);                                                        // <-- Last: everything above is back on the model it came from
             }
         });
     }
@@ -454,10 +717,20 @@
     // FUNCTION | Render a Saved Scene Offscreen With the Viewport's Styles
     // ------------------------------------------------------------
     // Returns { canvas, widthPx, heightPx }, or null. The caller converts.
+    //
+    // weights is { modelEdgePx } or null. The model's own edges are the one
+    // composite width a scene render has: its profile outline is the composer's
+    // own distance-scaled effect, and the Section Outline weight belongs to a 2D
+    // drawing's cut.
+    //
+    // modelSourceId: as Render2d. The phase is put in before the capture below,
+    // so the visibility captured and put back is the phase's own.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render3d(sceneRecord, styles, widthPx, heightPx, modelLayers, antiAliasSamples) {
+    function Na__LeSnap__Render3d(sceneRecord, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId) {
         if (!Na__LeSnap__IsReady() || !sceneRecord) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
+            const phase = Na__LeSnap__EnterPhase(modelSourceId);
+            if (modelSourceId && !phase && !Na__PhaseLib__IsLive(modelSourceId)) return null;
             const camera   = Na__LeSnap__Camera;
             const controls = Na__LeSnap__Controls;
             const pipeline = Na__LeSnap__Pipeline();
@@ -472,11 +745,13 @@
                 sections   : Na__SectSerialize__Serialize(),
                 passOn     : pass ? pass.enabled : null
             };
+            let edgesWere = null;
             try {
                 Na__PresentationMode__Camera__ApplySceneCameraState(camera, controls, sceneRecord);
                 Na__DrawView__MaterialPreset__Enter(styles || {});
                 Na__LeSnap__HideForViewport(styles, modelLayers);                   // <-- The saved map above already puts it back
                 if (pass) pass.enabled = !(styles && styles.profileLinework === false);
+                if (weights) edgesWere = Na__LeSnap__SetModelEdgeWidth(weights.modelEdgePx, phase ? phase.root : null);
                 // NO renderFrame HERE, ON PURPOSE. That absence is what puts a
                 // 3D snapshot on the COMPOSER route, so it is drawn by the same
                 // per-frame sequence the live viewport uses - profile lines,
@@ -498,6 +773,7 @@
                 return null;
             } finally {
                 Na__DrawView__MaterialPreset__Exit();
+                Na__LeSnap__RestoreModelEdgeWidth(edgesWere);
                 if (pass && saved.passOn !== null) pass.enabled = saved.passOn;
                 camera.position.copy(saved.position);
                 camera.quaternion.copy(saved.quaternion);
@@ -508,6 +784,7 @@
                 Na__ModelToggle__ApplySceneLayerVisibility(saved.visibility);
                 Na__SectSerialize__Apply(saved.sections);
                 Na__RenderLoop__RequestRender();
+                Na__LeSnap__ExitPhase(phase);
             }
         });
     }

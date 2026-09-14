@@ -26,6 +26,9 @@
 //   block (scene links and groups), and the section bindings (TD06). The Floor
 //   Plans, Elevations and Layout Editor panels all call this and nothing else
 //   writes drawing data.
+// - AND A LOCAL COPY. On localhost the same blocks then go into the
+//   repository's TrueVision__ProjectData__.json through the ProjectVision local
+//   server, so a save lands in R2 and on disk (Na__AppUtils__LocalProjectMirror__).
 //
 // INTEGRATION:
 // - Na__AppFlow__LoadingSequence.js dispatches na-layouteditor-drawingsdata-loaded
@@ -61,6 +64,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Save writes a local copy too: once R2 has the blocks, they are merged into
+//   the repository's TrueVision__ProjectData__.json through the ProjectVision
+//   local server (Na__AppUtils__LocalProjectMirror__), on localhost only. The
+//   blocks are copied before the R2 write, so both copies get the same content
+//   whatever is edited while the save is in flight.
+// - Save(showToast, report): a caller that passes a report object receives the
+//   local result on report.local and says where the save landed itself (the
+//   Layout Editor's confirmation). Without one, a local failure is shown here.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Initial implementation for re-alignment Phase B, with the legacy migration.
 //
@@ -95,6 +108,13 @@
         Na__CfApi__IsConfigured,
         Na__CfApi__MergeAndSaveKeys
     } from '../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Local Project Data Mirror (the repository copy follows R2)
+    // ------------------------------------------------------------
+    // @delegate: ../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js
+    // ------------------------------------------------------------
+    import { Na__LocalMirror__MergeKeys } from '../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -423,10 +443,10 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Save Path (R2, via the Worker)
+// REGION | Save Path (R2 via the Worker, then the local copy)
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Save the Drawings Block and the Scene Links to R2
+    // FUNCTION | Save the Drawings Block and the Scene Links to R2 (and the Local Copy)
     // ------------------------------------------------------------
     // Hands the blocks this system owns to the Worker, which does the
     // read-merge-write against TrueVision__ProjectData__.json. Nothing is
@@ -444,8 +464,12 @@
     // clears the old one. Either the whole thing persists or none of it does,
     // and a failure leaves R2 exactly as it was - still holding the drawings in
     // their old home, which is why the migration never deletes on load.
+    //
+    // report (optional object): report.local receives the local copy's result,
+    // { ok, skipped, error }, and the caller then owns saying where the save
+    // landed. Without one, only a local failure is shown, as an error.
     // ------------------------------------------------------------
-    async function Na__DrawData__Save(showToast) {
+    async function Na__DrawData__Save(showToast, report) {
         const toast       = (typeof showToast === 'function') ? showToast : () => {};
         const projectCode = Na__DrawData__GetProjectCode();
 
@@ -482,6 +506,7 @@
         }
 
         try {
+            const localKeys = JSON.parse(JSON.stringify(payload));                   // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
             const result = await Na__CfApi__MergeAndSaveKeys(payload);
             if (!result || !result.ok) {
                 const reason = (result && result.error) ? result.error : 'unknown error';
@@ -497,6 +522,15 @@
             window.dispatchEvent(new CustomEvent(Na__DrawData__CHANGED_EVENT, {
                 detail : { reason : 'saved', projectCode : projectCode }
             }));
+
+            // LOCAL COPY | R2 has the blocks; the repository copy takes them next.
+            // A failure here costs R2 nothing, so the save still returns true, but
+            // it is never silent: a caller with a report says so in its own
+            // confirmation, and any other caller is shown it here as an error.
+            const local = await Na__LocalMirror__MergeKeys(localKeys);
+            if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Drawings saved to R2; the local copy was not written:', local.error);
+            if (report && typeof report === 'object') report.local = local;
+            else if (!local.ok && !local.skipped) toast(`Drawings saved to R2, but the local copy was not written: ${local.error}`, true);
             return true;
 
         } catch (error) {

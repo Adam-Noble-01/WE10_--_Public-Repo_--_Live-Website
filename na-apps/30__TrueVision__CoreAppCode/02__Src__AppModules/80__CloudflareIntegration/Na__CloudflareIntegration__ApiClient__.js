@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Project sibling files: ProjectFileLocation, ReadProjectFile and
+//   WriteProjectFile read and write a WHOLE JSON document that sits beside
+//   TrueVision__ProjectData__.json rather than inside it - the Layout Editor's
+//   project specification first. Allowed by name only.
+//
 // 21-Jun-2026 - Version 1.0.0
 // - Initial implementation for the ValeVision parity transplant.
 //
@@ -456,6 +462,72 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Project Sibling Files (whole JSON documents beside the project data)
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Files Allowed Beside TrueVision__ProjectData__.json
+    // ------------------------------------------------------------
+    // A document that belongs to the project but is not project data - the
+    // Layout Editor's project specification is the first. Each is written WHOLE,
+    // never merged: it has one owner module that holds the complete document,
+    // which is the point of it being a file of its own rather than another key
+    // in the project data. Listed by name, so no caller can write over the
+    // project data file, or anything else in the folder, by passing a wrong one.
+    // ------------------------------------------------------------
+    const Na__CfApi__ProjectFileNames = [ 'TrueVision__ProjectSpecification__.json' ];
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a Sibling File Lives: R2 Key, Public CDN URL and Repository URL
+    // ------------------------------------------------------------
+    // Null when the name is not on the list or the URL names no project folder.
+    // ------------------------------------------------------------
+    function Na__CfApi__ProjectFileLocation(fileName) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder || Na__CfApi__ProjectFileNames.indexOf(fileName) === -1) return null;
+        const relative = `${ctx.yearCode}-Projects/${ctx.projectFolder}/${Na__CfApi__TvContentDir}/${fileName}`;
+        return {
+            key     : `${Na__CfApi__R2Prefix}/${relative}`,
+            cdnUrl  : `${Na__CfApi__CdnBaseUrl}/${Na__CfApi__R2Prefix}/${relative}`,
+            repoUrl : `${window.location.origin}/na-project-portal/${relative}`
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read a Sibling File From R2 (fresh, through the Worker)
+    // ------------------------------------------------------------
+    // Returns { ok, data, missing }: missing is true when R2 has no such file
+    // yet, which is an answer, not a failure.
+    // ------------------------------------------------------------
+    async function Na__CfApi__ReadProjectFile(fileName) {
+        const location = Na__CfApi__ProjectFileLocation(fileName);
+        if (!location) return { ok: false, error: `Refused project file "${fileName}"` };
+        const result = await Na__CfApi__ReadKey(location.key);
+        if (!result.ok) return result;
+        return { ok: true, data: result.data || null, missing: result.missing === true };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write a Whole Sibling File to R2
+    // ------------------------------------------------------------
+    async function Na__CfApi__WriteProjectFile(fileName, dataObject) {
+        const location = Na__CfApi__ProjectFileLocation(fileName);
+        if (!location) return { ok: false, error: `Refused project file "${fileName}"` };
+        if (!dataObject || typeof dataObject !== 'object') return { ok: false, error: 'Nothing to write' };
+        return await Na__CfApi__WriteKey({
+            key         : location.key,
+            data        : dataObject,
+            contentType : 'application/json'
+        });
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -473,7 +545,10 @@
         Na__CfApi__MergeAndSaveKeys,
         Na__CfApi__DeleteProjectKeys,
         Na__CfApi__WriteThumbnailWebp,
-        Na__CfApi__WriteProjectAsset
+        Na__CfApi__WriteProjectAsset,
+        Na__CfApi__ProjectFileLocation,
+        Na__CfApi__ReadProjectFile,
+        Na__CfApi__WriteProjectFile
     };
     // ------------------------------------------------------------
 

@@ -805,6 +805,7 @@
     import { Na__DrawProfile__SetEnabled } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__DevGate__Initialize } from './02__Src__AppModules/03__AppUtils/Na__AppUtils__DevGate__.js';
     import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__DrawCfg__SetAppConfig, Na__DrawCfg__Load } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
     import { Na__DrawView__RenderPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__RenderPreset__.js';
     import { Na__DrawView__MaterialPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__MaterialPreset__.js';
     import { Na__SectionCut__SceneData__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__SceneData__.js';
@@ -1458,6 +1459,19 @@
     // @delegate: ./02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js
     Na__DrawView__ProjectData__Initialize();
     Na__SectionCut__SceneData__Initialize();   // <-- Same reason: the section bindings are dispatched once, right after the drawings block
+
+    // DRAWING VIEW CONFIG | Registered and fetched here, before anything can want it.
+    // @delegate: ./02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ConfigState__.js
+    // Until 13-Sep-2026 neither call existed in TrueVision. The module was ported
+    // from ValeVision, whose index.html makes both; the calls were not ported, so
+    // Na__DrawView__AppConfig__.json was never read and the main config overrides
+    // never applied - every drawing setup value came from the built-in fallbacks.
+    // NOT AWAITED, deliberately: an await in this block opens exactly the window
+    // the note above warns about, where a dispatch lands before its listener. The
+    // one consumer that renders through the presets - the Layout Editor - waits
+    // for this same promise in its own ready chain.
+    Na__DrawCfg__SetAppConfig(Na__AppConfig__Data);                             // <-- Main config overrides the system JSON
+    void Na__DrawCfg__Load();                                                   // <-- Once; the presets read through its getters
     // ------------------------------------------------------------
 
 

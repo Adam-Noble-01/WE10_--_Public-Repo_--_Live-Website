@@ -64,6 +64,96 @@
       "port": 8442
     },
     {
+      "name": "truevision-static-leaders",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8463"
+      ],
+      "port": 8463
+    },
+    {
+      "name": "truevision-static-boxselect",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8471"
+      ],
+      "port": 8471
+    },
+    {
+      "name": "truevision-static-spec",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8481"
+      ],
+      "port": 8481
+    },
+    {
+      "name": "truevision-static-linework",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8479"
+      ],
+      "port": 8479
+    },
+    {
+      "name": "truevision-static-frames",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8491"
+      ],
+      "port": 8491
+    },
+    {
+      "name": "truevision-static-colourpick",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8497"
+      ],
+      "port": 8497
+    },
+    {
+      "name": "truevision-static-vcb",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8503"
+      ],
+      "port": 8503
+    },
+    {
+      "name": "truevision-static-doors",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8511"
+      ],
+      "port": 8511
+    },
+    {
+      "name": "truevision-static-extlines",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8517"
+      ],
+      "port": 8517
+    },
+    {
       "name": "projectadmin-dev",
       "runtimeExecutable": "python",
       "runtimeArgs": [

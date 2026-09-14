@@ -115,6 +115,7 @@ DEV_OWNED_PROJECT_DATA_KEYS        = (
     'Navmode__FovOverrides',                   # <-- Per-project Orbit/Walk/Fly default FOV overrides
     'Camera__DefaultPosition',                 # <-- Saved camera position / rotation / FOV
     'OrbitHelperCube__Position',               # <-- Saved orbit target
+    'LayoutEditor__DrawingsData',              # <-- Floor plans, elevations and Layout Editor sheets (TrueVision v2.21.0+)
 )
     # ------------------------------------------------------------
 

@@ -36,6 +36,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - LinkedPairRow and ShowLink: two values with a padlock between them, the
+//   linked pair of the layout apps. The row draws the pair; the panel using it
+//   decides what linked means for its values. First used for a dimension's
+//   extension line lengths.
+//
+// 14-Sep-2026 - Version 1.1.0
+// - SliderRow and ShowSlider: a labelled 0-100 slider with its reading beside
+//   it, for the fill and line opacity rows of the Leaders and Vectors panels.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 5.
 //
@@ -64,6 +74,16 @@
     const Na__LePanels__VAR_LEFT     = '--Vale_LayoutLeftPanelWidth';
     const Na__LePanels__VAR_RIGHT    = '--Vale_LayoutRightPanelWidth';
     const Na__LePanels__MIN_BODY_PX  = 60;
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Padlock Between a Linked Pair (both shackles drawn; the stylesheet shows one)
+    // ------------------------------------------------------------
+    const Na__LePanels__PADLOCK_SVG =
+        '<svg class="na-le-pair__padlock" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+            '<rect class="na-le-pair__body" x="5" y="11" width="14" height="10" rx="2"></rect>' +
+            '<path class="na-le-pair__shackle na-le-pair__shackle--shut" d="M8 11V8a4 4 0 0 1 8 0v3"></path>' +
+            '<path class="na-le-pair__shackle na-le-pair__shackle--open" d="M8 11V8a4 4 0 0 1 7.6-1.7"></path>' +
+        '</svg>';
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Columns, Sections and Handlers
@@ -446,6 +466,115 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | A Labelled Slider With Its Reading (0 to 100 unless told otherwise)
+    // ------------------------------------------------------------
+    // A div rather than the label row: a label hands a click on its caption to
+    // its first control, and for a slider that click would jump the value.
+    // The reading after the slider is filled by ShowSlider, and by the panel's
+    // own input handler while the slider moves.
+    // ------------------------------------------------------------
+    function Na__LePanels__SliderRow(labelText, controlName, attributes) {
+        const row = document.createElement('div');
+        row.className = 'na-le-row';
+        const caption = document.createElement('span');
+        caption.className   = 'na-le-row__label';
+        caption.textContent = labelText;
+        const slider = Na__LePanels__Input('range', controlName, Object.assign({ min : 0, max : 100, step : 1 }, attributes || {}));
+        slider.classList.add('na-le-input--range');
+        const reading = document.createElement('span');
+        reading.className = 'na-le-grad-readout';                                 // <-- The gradient rows' reading, so every slider reads alike
+        reading.setAttribute('data-na-reading', controlName);
+        row.appendChild(caption);
+        row.appendChild(slider);
+        row.appendChild(reading);
+        return row;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show a Value on a Slider Row
+    // ------------------------------------------------------------
+    // A slider that has the focus is left where the pointer holds it, so a
+    // refresh mid-drag never pulls it back; its reading still follows.
+    // ------------------------------------------------------------
+    function Na__LePanels__ShowSlider(body, controlName, value, readingText) {
+        const slider  = body.querySelector('[data-na-control="' + controlName + '"]');
+        const reading = body.querySelector('[data-na-reading="' + controlName + '"]');
+        if (slider && document.activeElement !== slider) slider.value = String(value);
+        if (reading) reading.textContent = readingText;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Labelled Pair of Values With a Padlock Between Them
+    // ------------------------------------------------------------
+    // The linked pair of the layout apps: shut, the two values move together;
+    // open, each keeps its own. The row only draws the pair - the panel says
+    // what linked means for its values and shows the state with ShowLink. A
+    // div rather than the label row, as for the slider: a label hands a click
+    // on its caption to its first control, and the padlock between the two
+    // values is a control of its own.
+    // pair : { first  : { control, caption, attributes },
+    //          link   : { control },
+    //          second : { control, caption, attributes } }
+    // ------------------------------------------------------------
+    function Na__LePanels__LinkedPairRow(labelText, pair) {
+        const row = document.createElement('div');
+        row.className = 'na-le-row na-le-row--pair';
+        const caption = document.createElement('span');
+        caption.className   = 'na-le-row__label';
+        caption.textContent = labelText;
+        row.appendChild(caption);
+
+        const field = (spec) => {
+            const holder = document.createElement('span');
+            holder.className = 'na-le-pair__field';
+            if (spec.caption) {
+                const name = document.createElement('span');
+                name.className   = 'na-le-pair__caption';
+                name.textContent = spec.caption;
+                holder.appendChild(name);
+            }
+            const input = Na__LePanels__Input('number', spec.control, spec.attributes);
+            input.classList.add('na-le-pair__input');
+            holder.appendChild(input);
+            return holder;
+        };
+
+        const link = document.createElement('button');
+        link.type      = 'button';
+        link.className = 'na-le-pair__link is-linked';
+        link.innerHTML = Na__LePanels__PADLOCK_SVG;
+        link.setAttribute('data-na-control', pair.link.control);
+        link.setAttribute('aria-pressed', 'true');
+        if (!Na__LePanels__Editable) link.disabled = true;
+
+        const holder = document.createElement('span');
+        holder.className = 'na-le-pair';
+        holder.appendChild(field(pair.first));
+        holder.appendChild(link);
+        holder.appendChild(field(pair.second));
+        row.appendChild(holder);
+        return row;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show Whether a Pair Is Linked
+    // ------------------------------------------------------------
+    // title is the padlock's tooltip for the state it is in, so it can say
+    // what a click will do.
+    // ------------------------------------------------------------
+    function Na__LePanels__ShowLink(body, controlName, linked, title) {
+        const link = body.querySelector('[data-na-control="' + controlName + '"]');
+        if (!link) return;
+        link.classList.toggle('is-linked', linked === true);
+        link.setAttribute('aria-pressed', String(linked === true));
+        if (title) { link.title = title; link.setAttribute('aria-label', title); }
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -472,7 +601,11 @@
         Na__LePanels__Select,
         Na__LePanels__FillSelect,
         Na__LePanels__Button,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__LinkedPairRow,
+        Na__LePanels__ShowLink,
+        Na__LePanels__SliderRow,
+        Na__LePanels__ShowSlider
     };
     // ------------------------------------------------------------
 

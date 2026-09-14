@@ -49,13 +49,23 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__StageSampler__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : verbatim, bar 1.1.0
+// - Divergences   : Console prefix, header and folder numbers; the posed door
+//                   panels of 1.1.0, authored here first.
+// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Posed door panels. Collect takes rules.posedMods, the door panels the
+//   Layout Editor has stood open for a plan read. A mesh below one keeps a COPY
+//   of its world matrix, because the doors are put back the moment the read
+//   ends and a reference would swing them shut again under the cached
+//   collection. The result names the posed panels it took meshes from
+//   (PosedModsDrawn), so a door left out of the drawing draws no swing.
+//   Without posedMods nothing changes.
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 4.
 //
@@ -214,8 +224,8 @@
 
     // FUNCTION | Gather Every Instance the Drawing Should See
     // ------------------------------------------------------------
-    // rules: { excludeTokens, glassOpaque }
-    // Returns { Instances, Categories, SkippedCategories }. Walks the tree by
+    // rules: { excludeTokens, glassOpaque, posedMods }
+    // Returns { Instances, Categories, SkippedCategories, PosedModsDrawn }. Walks the tree by
     // hand rather than with traverse so a hidden subtree is skipped whole.
     // ------------------------------------------------------------
     function Na__PlSampler__Collect(modelRoot, rules) {
@@ -232,6 +242,12 @@
             transparentOpacityBelow : setup.transparentOpacityBelow,
             skipNames               : Na__PlCfg__GetSkipObjectNames()
         };
+        // POSED DOOR PANELS | The Layout Editor stands doors open for a plan and
+        // puts them back as soon as this read ends, so every mesh below a posed
+        // panel keeps a COPY of its matrix: a reference would swing the door shut
+        // again under the cached collection.
+        const posedMods = (rules.posedMods instanceof Set && rules.posedMods.size > 0) ? rules.posedMods : null;
+        const drawnMods = posedMods ? new Set() : null;
 
         modelRoot.updateMatrixWorld(true);
 
@@ -242,7 +258,7 @@
             const name = category.name || '';
             if (Na__PlSampler__NameMatches(name, walk.excludeTokens)) { skipped.push(name); continue; }   // <-- D19: the drawing leaves this category out
             seen.push(name);
-            stack.push({ object : category, category : name });
+            stack.push({ object : category, category : name, posedMod : null });
         }
 
         while (stack.length > 0) {
@@ -250,6 +266,7 @@
             const object3d = entry.object;
             if (object3d.visible === false) continue;
             if (Na__PlSampler__IsHelper(object3d, walk.skipNames)) continue;
+            const posedMod = (posedMods && posedMods.has(object3d)) ? object3d : entry.posedMod;
 
             if (object3d.isMesh === true && object3d.geometry && object3d.geometry.attributes &&
                 object3d.geometry.attributes.position && object3d.geometry.attributes.position.count >= 3) {
@@ -262,15 +279,16 @@
                         Na__PlSampler__PushInstance(instances, object3d, world, entry.category, walk);
                     }
                 } else {
-                    Na__PlSampler__PushInstance(instances, object3d, object3d.matrixWorld, entry.category, walk);
+                    Na__PlSampler__PushInstance(instances, object3d, posedMod ? object3d.matrixWorld.clone() : object3d.matrixWorld, entry.category, walk);
                 }
+                if (posedMod) drawnMods.add(posedMod);
             }
 
             const children = object3d.children;
-            for (let c = 0; c < children.length; c++) stack.push({ object : children[c], category : entry.category });
+            for (let c = 0; c < children.length; c++) stack.push({ object : children[c], category : entry.category, posedMod : posedMod || null });
         }
 
-        return { Instances : instances, Categories : seen, SkippedCategories : skipped };
+        return { Instances : instances, Categories : seen, SkippedCategories : skipped, PosedModsDrawn : drawnMods };
     }
     // ------------------------------------------------------------
 

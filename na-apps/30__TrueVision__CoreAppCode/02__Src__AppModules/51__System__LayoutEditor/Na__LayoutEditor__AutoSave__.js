@@ -21,6 +21,12 @@
 //   Content edits (viewports, text, dimensions) stay with the Save Sheets
 //   button and the draft, so a drag session never writes the project
 //   between moves.
+// - UNDO AND REDO ARE SAVED THE WAY THE STEP THEY REVERSE WAS. A restore is
+//   announced as a sheet update, which on its own reads as structural; the
+//   restore detail names the step's original reason and that is what is
+//   judged. Undoing a rename, a paper size or a title block saves, as the
+//   change did; undoing a vector, a text or a viewport edit only refreshes
+//   the draft, as the edit did.
 // - The save path is the one Save Sheets uses: Na__LeModel__Save through
 //   Na__DrawView__ProjectData__. Only a failure shows a toast; a save that
 //   worked clears the Save button's attention state through the model.
@@ -41,6 +47,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 13-Sep-2026 - Version 1.2.0
+// - An undo or redo is saved only when the step it reverses or replays was a
+//   structural one: Na__LeAuto__CallsForSave reads the restore detail that
+//   Na__LeModel__AnnounceRestore puts on the announcement. Before this every
+//   Ctrl+Z and Ctrl+Y arrived as a plain sheet update and wrote the whole
+//   project to R2 1.5 s later, whatever it undid.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - The browser draft is written DraftDebounceMs after the editing pauses rather
 //   than inside every change. It is a synchronous disk write of every sheet, so
@@ -226,14 +239,31 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Does a Change Call for a Project Save
+    // ------------------------------------------------------------
+    // A restore - an undo or a redo - is announced as a sheet update, because
+    // for drawing purposes that is what it is. For saving it is not: it is one
+    // step reversed or replayed, so it is judged by that step's own reason.
+    // Without this every Ctrl+Z wrote the whole project to R2, including the
+    // undo of a vector delete that had never written anything itself.
+    // ------------------------------------------------------------
+    function Na__LeAuto__CallsForSave(detail) {
+        const restore = detail.restore;
+        const reason  = restore ? restore.stepReason : detail.reason;
+        return Na__LeAuto__STRUCTURAL.indexOf(reason || '') >= 0;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | A Model Change Arrives
     // ------------------------------------------------------------
     function Na__LeAuto__OnModelChanged(event) {
-        const reason = (event.detail && event.detail.reason) || '';
+        const detail = event.detail || {};
+        const reason = detail.reason || '';
         if (reason === 'loaded') { Na__LeAuto__DropDraftWrite(); Na__LeAuto__RestoreDraft(); return; }   // <-- A write still queued from the last project must not overwrite this one's draft
         if (Na__LeAuto__IGNORED.indexOf(reason) >= 0) return;
         Na__LeAuto__ScheduleDraft();
-        if (Na__LeAuto__Editable && Na__LeCfg__GetAutoSaveSetup().enabled && Na__LeAuto__STRUCTURAL.indexOf(reason) >= 0) Na__LeAuto__Schedule();
+        if (Na__LeAuto__Editable && Na__LeCfg__GetAutoSaveSetup().enabled && Na__LeAuto__CallsForSave(detail)) Na__LeAuto__Schedule();
     }
     // ------------------------------------------------------------
 

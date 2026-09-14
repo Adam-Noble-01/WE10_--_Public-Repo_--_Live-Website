@@ -22,6 +22,13 @@
 // - Kinds do not mix. A dimension style cannot land on a text, because the two
 //   have almost no traits in common and a silent partial paste is worse than a
 //   refusal that says why.
+// - TWO MODES. B paints: pick a source, click the targets. Shift+B loads the
+//   PALETTE instead: click an object and its style becomes the setting that new
+//   objects of its kind are created with, which the Text, Dimensions and Vectors
+//   panels show as soon as nothing is selected. Keep one of each house style
+//   somewhere on the sheet - beside the paper, where it never prints - and a
+//   dimension type or a line type is one click away instead of a panel's worth
+//   of fields set again by hand every time.
 //
 // -----------------------------------------------------------------------------
 //
@@ -30,7 +37,10 @@
 //   TEXT        travels : size, weight, colour, alignment
 //               stays   : the words, the position, the leader, the layer
 //
-//   DIMENSION   travels : text size, colour, terminator, precision, unit suffix
+//   DIMENSION   travels : text size, colour, terminator, precision, unit suffix,
+//                         the extension line lengths and the padlock between
+//                         them (a full line is a real value, and puts a
+//                         shortened target back to full)
 //               stays   : the two ends it measures, the value override, the
 //                         viewport it is bound to, the layer
 //                         (the offset travels only when CopyOffset is on - it
@@ -39,8 +49,17 @@
 //
 //   VECTOR      travels : edge colour, edge weight, edge on/off, fill colour,
 //                         gradient (a null fill or gradient is a real value and
-//                         clears the target's)
+//                         clears the target's), fill and edge opacity
 //               stays   : the points, open or closed, the layer
+//
+//   LEADER      travels : text size, weight and colour; line colour, weight,
+//                         style and opacity; the endpoint (filled, ring
+//                         weight, size); bubble size and edge weight; fill
+//                         colour (a null fill is real and clears the
+//                         target's) and fill opacity. The type - note or
+//                         bubble - goes to the palette only: painting never
+//                         turns a note into a bubble.
+//               stays   : the text, the tip, the anchor, the layer
 //
 // - THE LAYER NEVER TRAVELS, in any kind. A layer is where a thing lives, not
 //   how it looks, and moving objects between layers behind a style click would
@@ -85,6 +104,28 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - Dimensions carry their extension line lengths - start, end and whether the
+//   two are linked - to painted dimensions and to the palette, so a run of
+//   dimensions takes the same short lines one click at a time.
+// - A trait can declare absent: the value a record means by leaving its field
+//   out. The extension fields are stored only when they differ from the full,
+//   linked lines, and a source without them still paints a target back to full.
+//
+// 14-Sep-2026 - Version 1.3.0
+// - Leaders join the trait table: text, line, endpoint, bubble and fill. Their
+//   type travels to the palette only, through a new trait flag, paletteOnly,
+//   which Apply leaves out of every paint.
+// - Vectors carry their fill and edge opacity.
+//
+// 13-Sep-2026 - Version 1.2.0
+// - Palette mode (Shift+B): SyncPalette loads an item's style into the settings
+//   for new objects through a writer the sheet tools hand in, so this module
+//   never touches those settings. ToPalette turns a style bag into the settings'
+//   shape; the fill and the gradient carry a palette switch in the trait table.
+// - A synced item pulses. Pick always returns the dropper to item mode, and
+//   Click refuses in palette mode.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - Vectors carry their gradient (Shape__Gradient). Like the fill, a null
 //   gradient is a real value and clears the target's.
@@ -111,6 +152,7 @@
         Na__LeModel__UpdateAnnotation,
         Na__LeModel__UpdateDimension,
         Na__LeModel__UpdateShape,
+        Na__LeModel__UpdateLeader,
         Na__LeModel__GetViewportById
     } from './Na__LayoutEditor__SheetModel__.js';
     import {
@@ -118,7 +160,7 @@
         Na__LeSurface__GetPixelsPerMm,
         Na__LeSurface__GetZoom
     } from './Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeMarkup__AnnotationBounds, Na__LeMarkup__DimensionSkeleton } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__AnnotationBounds, Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__LeaderBounds } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeShapeGeo__Bounds } from './Na__LayoutEditor__ShapeGeometry__.js';
     // ------------------------------------------------------------
 
@@ -137,6 +179,9 @@
     const Na__LeDrop__TARGET_CLASS    = 'na-le-dropper--target';
     const Na__LeDrop__REFUSE_CLASS    = 'na-le-dropper--refuse';
     const Na__LeDrop__EXCLUDED_KINDS  = Object.freeze([ 'viewport' ]);      // <-- See FUTURE EXPANSION in the file header
+    const Na__LeDrop__FLASH_CLASS     = 'na-le-dropper--flash';
+    const Na__LeDrop__MODE_ITEM       = 'item';                                // <-- B: paint the held style onto other items
+    const Na__LeDrop__MODE_PALETTE    = 'palette';                             // <-- Shift+B: load an item's style into the settings for new objects
     // ------------------------------------------------------------
 
 
@@ -148,11 +193,29 @@
     //
     // optional : true means the trait is only copied when the setup flag of the
     // same name is on. Traits without it always travel.
+    //
+    // palette : 'flagName' marks a nullable trait whose absence the settings
+    // for new objects keep as an on/off switch beside the last value, instead
+    // of as a null - so switching the fill back on in a panel still has a
+    // colour to restore. A null turns the switch off and leaves the value; a
+    // value turns it on and replaces it. paletteKey and paletteLabel name the
+    // kind in the plural, for "new dimensions".
+    //
+    // paletteOnly : true marks a trait that only ever sets the settings for
+    // new objects. It is read off a source and handed to the palette, but a
+    // paint never writes it onto an existing object.
+    //
+    // absent : value is what a record means when it leaves the field out - a
+    // field stored only when it differs from its default. That value is copied
+    // as if it had been read, so a source without the field still puts a
+    // target back to the default instead of leaving the target as it was.
     // ------------------------------------------------------------
     const Na__LeDrop__TRAITS = Object.freeze({
         annotation : {
             labelKey : 'EyedropperKindText',
             label    : 'text',
+            paletteKey   : 'EyedropperPaletteKindText',
+            paletteLabel : 'text',
             lockField: 'Annotation__LayerId',
             update   : Na__LeModel__UpdateAnnotation,
             traits   : [
@@ -165,6 +228,8 @@
         dimension : {
             labelKey : 'EyedropperKindDimension',
             label    : 'dimension',
+            paletteKey   : 'EyedropperPaletteKindDimension',
+            paletteLabel : 'dimensions',
             lockField: 'Dimension__LayerId',
             update   : Na__LeModel__UpdateDimension,
             traits   : [
@@ -173,20 +238,52 @@
                 { patch : 'terminator',  field : 'Dimension__Terminator'  },
                 { patch : 'precision',   field : 'Dimension__Precision'   },
                 { patch : 'unitsSuffix', field : 'Dimension__UnitsSuffix' },
-                { patch : 'offsetMm',    field : 'Dimension__OffsetMm', optional : 'copyOffset' }
+                { patch : 'offsetMm',    field : 'Dimension__OffsetMm', optional : 'copyOffset' },
+                { patch : 'startExtensionMm', field : 'Dimension__StartExtensionMm', nullable : true, absent : null },   // <-- null, or no field at all, is the full line: a real value to copy
+                { patch : 'endExtensionMm',   field : 'Dimension__EndExtensionMm',   nullable : true, absent : null },
+                { patch : 'extensionsLinked', field : 'Dimension__ExtensionsLinked', absent : true }                      // <-- Stored only as false
             ]
         },
         shape : {
             labelKey : 'EyedropperKindShape',
             label    : 'vector',
+            paletteKey   : 'EyedropperPaletteKindShape',
+            paletteLabel : 'vectors',
             lockField: 'Shape__LayerId',
             update   : Na__LeModel__UpdateShape,
             traits   : [
                 { patch : 'strokeColour', field : 'Shape__StrokeColour' },
                 { patch : 'strokePt',     field : 'Shape__StrokePt'     },
                 { patch : 'stroked',      field : 'Shape__Stroked'      },
-                { patch : 'fillColour',   field : 'Shape__FillColour', nullable : true },  // <-- null is "no fill", a real value to copy
-                { patch : 'gradient',     field : 'Shape__Gradient',   nullable : true }   // <-- Likewise; records are never edited in place, so the held copy cannot change
+                { patch : 'fillColour',   field : 'Shape__FillColour', nullable : true, palette : 'filled' },  // <-- null is "no fill", a real value to copy
+                { patch : 'gradient',     field : 'Shape__Gradient',   nullable : true, palette : 'gradientOn' },  // <-- Likewise; records are never edited in place, so the held copy cannot change
+                { patch : 'fillOpacity',   field : 'Shape__FillOpacity'   },
+                { patch : 'strokeOpacity', field : 'Shape__StrokeOpacity' }
+            ]
+        },
+        leader : {
+            labelKey : 'EyedropperKindLeader',
+            label    : 'leader',
+            paletteKey   : 'EyedropperPaletteKindLeader',
+            paletteLabel : 'leaders',
+            lockField: 'Leader__LayerId',
+            update   : Na__LeModel__UpdateLeader,
+            traits   : [
+                { patch : 'type',           field : 'Leader__Type', paletteOnly : true },   // <-- A paint never turns a note into a bubble
+                { patch : 'textSizeMm',     field : 'Leader__TextSizeMm'     },
+                { patch : 'fontWeight',     field : 'Leader__FontWeight'     },
+                { patch : 'textColour',     field : 'Leader__TextColour'     },
+                { patch : 'lineColour',     field : 'Leader__LineColour'     },
+                { patch : 'linePt',         field : 'Leader__LinePt'         },
+                { patch : 'lineStyle',      field : 'Leader__LineStyle'      },
+                { patch : 'lineOpacity',    field : 'Leader__LineOpacity'    },
+                { patch : 'endpointFilled', field : 'Leader__EndpointFilled' },
+                { patch : 'endpointPt',     field : 'Leader__EndpointPt'     },
+                { patch : 'endpointSizeMm', field : 'Leader__EndpointSizeMm' },
+                { patch : 'bubbleSizeMm',   field : 'Leader__BubbleSizeMm'   },
+                { patch : 'bubbleEdgePt',   field : 'Leader__BubbleEdgePt'   },
+                { patch : 'fillColour',     field : 'Leader__FillColour', nullable : true, palette : 'filled' },   // <-- null is "no fill", a real value to copy
+                { patch : 'fillOpacity',    field : 'Leader__FillOpacity'    }
             ]
         }
     });
@@ -200,6 +297,8 @@
     let Na__LeDrop__Message      = null;   // <-- The composed hint line, stored so a re-sync cannot lose it
     let Na__LeDrop__SourceMarker = null;
     let Na__LeDrop__TargetMarker = null;
+    let Na__LeDrop__Mode         = Na__LeDrop__MODE_ITEM;
+    let Na__LeDrop__Synced       = null;   // <-- { kind, label, plural } of the last palette sync, for the hint line
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -240,6 +339,7 @@
         if (kind === 'annotation') return (sheet.Sheet__Annotations || []).find((a) => a.Annotation__Id === id) || null;
         if (kind === 'dimension')  return (sheet.Sheet__Dimensions  || []).find((d) => d.Dimension__Id  === id) || null;
         if (kind === 'shape')      return (sheet.Sheet__Shapes      || []).find((s) => s.Shape__Id      === id) || null;
+        if (kind === 'leader')     return (sheet.Sheet__Leaders     || []).find((l) => l.Leader__Id     === id) || null;
         if (kind === 'viewport')   return Na__LeModel__GetViewportById(sheet, id);
         return null;
     }
@@ -275,7 +375,8 @@
         const style = {};
         entry.traits.forEach((trait) => {
             if (trait.optional && setup[trait.optional] !== true) return;                   // <-- Switched off in the config
-            const value = record[trait.field];
+            let value = record[trait.field];
+            if (value === undefined && Object.prototype.hasOwnProperty.call(trait, 'absent')) value = trait.absent;   // <-- A field left out means its default
             if (value === undefined) return;
             if (value === null && trait.nullable !== true) return;                          // <-- Only a declared-nullable trait may copy an absence
             style[trait.patch] = value;
@@ -295,7 +396,37 @@
     function Na__LeDrop__Apply(sheet, kind, id, style) {
         const entry = Na__LeDrop__Entry(kind);
         if (!entry || !sheet || !id || !style) return false;
-        return entry.update(sheet, id, Object.assign({}, style), false) === true;
+        const patch = Object.assign({}, style);
+        entry.traits.forEach((trait) => { if (trait.paletteOnly) delete patch[trait.patch]; });   // <-- Palette-only traits set new objects, never an existing one
+        return entry.update(sheet, id, patch, false) === true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Turn a Style Bag Into Settings for New Objects
+    // ------------------------------------------------------------
+    // The settings for new objects share the record's patch keys, so most
+    // traits copy straight across. A trait marked palette is the exception:
+    // the settings keep an on/off switch beside the last value rather than a
+    // null. Objects are copied, never shared, so editing the settings can
+    // never reach back into the item they were taken from.
+    // ------------------------------------------------------------
+    function Na__LeDrop__ToPalette(kind, style) {
+        const entry = Na__LeDrop__Entry(kind);
+        if (!entry || !style) return null;
+        const copy  = (value) => (value && typeof value === 'object') ? JSON.parse(JSON.stringify(value)) : value;
+        const patch = {};
+        entry.traits.forEach((trait) => {
+            if (!Object.prototype.hasOwnProperty.call(style, trait.patch)) return;
+            const value = style[trait.patch];
+            if (trait.palette) {
+                patch[trait.palette] = value !== null;
+                if (value !== null) patch[trait.patch] = copy(value);
+                return;
+            }
+            patch[trait.patch] = copy(value);
+        });
+        return Object.keys(patch).length ? patch : null;
     }
     // ------------------------------------------------------------
 
@@ -337,6 +468,7 @@
         if (!record) return null;
         if (kind === 'annotation') return Na__LeMarkup__AnnotationBounds(record);
         if (kind === 'shape')      return Na__LeShapeGeo__Bounds(record);
+        if (kind === 'leader')     return Na__LeMarkup__LeaderBounds(record);
         if (kind === 'viewport')   return record.Viewport__FrameMm || null;                 // <-- Ready for the viewport expansion
         if (kind !== 'dimension')  return null;
 
@@ -425,6 +557,12 @@
     // reading, is exactly the one that would be lost.
     // ------------------------------------------------------------
     function Na__LeDrop__Compose(refusal) {
+        if (Na__LeDrop__Mode === Na__LeDrop__MODE_PALETTE) {
+            if (refusal === 'unsupported') return Na__LeCfg__GetLabel('EyedropperUnsupported', 'Viewport properties are not matched yet.');
+            if (!Na__LeDrop__Synced) return Na__LeCfg__GetLabel('EyedropperPaletteHint', 'Palette: click an object to use its style for new objects of that kind. Esc finishes.');
+            return Na__LeCfg__FormatLabel('EyedropperPaletteSynced', 'New {kinds} will be drawn like that {kind}. Click another to set another, Esc finishes.',
+                { kinds : Na__LeDrop__Synced.plural, kind : Na__LeDrop__Synced.label });
+        }
         if (refusal === 'kind' && Na__LeDrop__Source) {
             return Na__LeCfg__FormatLabel('EyedropperMismatch', 'Holding {source} properties - click another {source}.', { source : Na__LeDrop__Source.label });
         }
@@ -450,6 +588,7 @@
                 hasSource : !!Na__LeDrop__Source,
                 kind      : Na__LeDrop__Source ? Na__LeDrop__Source.kind : null,
                 refusal   : Na__LeDrop__LastRefusal,
+                mode      : Na__LeDrop__Mode,
                 hint      : Na__LeDrop__Message
             }
         }));
@@ -474,6 +613,7 @@
     function Na__LeDrop__Clear() {
         const had = !!Na__LeDrop__Source;
         Na__LeDrop__Source  = null;
+        Na__LeDrop__Synced  = null;
         Na__LeDrop__Message = null;
         Na__LeDrop__HideMarkers();
         if (had) Na__LeDrop__Announce(null);
@@ -496,6 +636,7 @@
     // note to put on a live one is a reasonable thing to want.
     // ------------------------------------------------------------
     function Na__LeDrop__Pick(sheet, kind, id) {
+        if (Na__LeDrop__Mode !== Na__LeDrop__MODE_ITEM) Na__LeDrop__SetMode(Na__LeDrop__MODE_ITEM);   // <-- Holding a style to paint IS item mode, whoever asked
         if (!Na__LeDrop__Entry(kind)) { Na__LeDrop__Announce('unsupported'); return false; }
         const record = Na__LeDrop__Record(sheet, kind, id);
         const style  = Na__LeDrop__Extract(kind, record);
@@ -534,7 +675,7 @@
     // to that miss would be infuriating. Escape is the way out.
     // ------------------------------------------------------------
     function Na__LeDrop__Click(sheet, found, altKey) {
-        if (!sheet) return false;
+        if (!sheet || Na__LeDrop__Mode === Na__LeDrop__MODE_PALETTE) return false;   // <-- The palette loads through SyncPalette, which is handed its writer
         if (!found) {
             if (!Na__LeDrop__Source) return false;
             if (Na__LeDrop__TargetMarker) Na__LeDrop__TargetMarker.hidden = true;
@@ -561,9 +702,11 @@
 
         const record = Na__LeDrop__Record(sheet, found.kind, found.id);
 
-        // NO SOURCE YET | Anything matchable is a candidate to pick up
+        // NO SOURCE YET, OR THE PALETTE | Anything matchable is a candidate to
+        // pick up, locked or not. The palette never holds a source, so this is
+        // the only hover it has.
         // ------------------------------------
-        if (!Na__LeDrop__Source) {
+        if (!Na__LeDrop__Source || Na__LeDrop__Mode === Na__LeDrop__MODE_PALETTE) {
             const pickable = !!Na__LeDrop__Entry(found.kind) && !!record;
             Na__LeDrop__TargetMarker = Na__LeDrop__DrawMarker(
                 Na__LeDrop__TargetMarker, found.kind, pickable ? record : null,
@@ -600,6 +743,87 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Public API - The Palette (Shift+B)
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Which Mode the Dropper Is In
+    // ------------------------------------------------------------
+    // Changing mode empties the dropper. A style held for painting means
+    // nothing to the palette, and its violet box would stay on the paper
+    // pointing at a source the next click is not going to use.
+    // ------------------------------------------------------------
+    function Na__LeDrop__SetMode(mode) {
+        const next = (mode === Na__LeDrop__MODE_PALETTE) ? Na__LeDrop__MODE_PALETTE : Na__LeDrop__MODE_ITEM;
+        if (next === Na__LeDrop__Mode) return next;
+        Na__LeDrop__Mode   = next;
+        Na__LeDrop__Source = null;
+        Na__LeDrop__Synced = null;
+        Na__LeDrop__HideMarkers();
+        Na__LeDrop__Announce(null);
+        return next;
+    }
+    function Na__LeDrop__GetMode() { return Na__LeDrop__Mode; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Kind in the Plural, and the Context Menu Wording
+    // ------------------------------------------------------------
+    function Na__LeDrop__PaletteLabel(kind) {
+        const entry = Na__LeDrop__Entry(kind);
+        if (!entry) return Na__LeDrop__KindLabel(kind);
+        return Na__LeCfg__GetLabel(entry.paletteKey, entry.paletteLabel);
+    }
+    function Na__LeDrop__PaletteMenuLabel(kind) {
+        return Na__LeCfg__FormatLabel('MenuSyncPalette', 'Use for new {kinds}', { kinds : Na__LeDrop__PaletteLabel(kind) });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Load One Item's Style Into the Settings for New Objects
+    // ------------------------------------------------------------
+    // writer(kind, patch) is handed the settings patch, already in the
+    // settings' own shape, and returns true once it has stored it. The sheet
+    // tools own those settings, so this module never reaches into them: it
+    // reads the item, translates the style and says what happened.
+    //
+    // A LOCKED ITEM IS A PERFECTLY GOOD SOURCE. Lock the scrapbook so nothing
+    // on it gets knocked out of place, and it still hands out its style.
+    // ------------------------------------------------------------
+    function Na__LeDrop__SyncPalette(sheet, kind, id, writer) {
+        if (!Na__LeDrop__Entry(kind)) { Na__LeDrop__Announce('unsupported'); return false; }
+        const record = Na__LeDrop__Record(sheet, kind, id);
+        const patch  = Na__LeDrop__ToPalette(kind, Na__LeDrop__Extract(kind, record));
+        if (!patch) { Na__LeDrop__Announce('none'); return false; }
+        if (typeof writer !== 'function' || writer(kind, patch) !== true) return false;
+        Na__LeDrop__Synced = { kind : kind, label : Na__LeDrop__KindLabel(kind), plural : Na__LeDrop__PaletteLabel(kind) };
+        Na__LeDrop__Flash(kind, record);
+        Na__LeDrop__Announce(null);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Brief Pulse Over the Item the Style Came From
+    // ------------------------------------------------------------
+    // Its own node rather than the source box. A sync usually hands straight
+    // over to a drawing tool, which empties the dropper and hides its boxes,
+    // and the pulse is then the only sign left of where the style came from.
+    // ------------------------------------------------------------
+    function Na__LeDrop__Flash(kind, record) {
+        const node = Na__LeDrop__DrawMarker(null, kind, record, Na__LeDrop__FLASH_CLASS);
+        if (!node || node.hidden) return false;
+        const ms = Na__LeCfg__GetEyedropperSetup().flashMs;
+        node.style.animationDuration = ms + 'ms';
+        window.setTimeout(() => { if (node.parentNode) node.parentNode.removeChild(node); }, ms);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -618,7 +842,15 @@
         Na__LeDrop__GetHint,
         Na__LeDrop__CanApply,
         Na__LeDrop__Extract,
-        Na__LeDrop__Apply
+        Na__LeDrop__Apply,
+        Na__LeDrop__MODE_ITEM,
+        Na__LeDrop__MODE_PALETTE,
+        Na__LeDrop__SetMode,
+        Na__LeDrop__GetMode,
+        Na__LeDrop__ToPalette,
+        Na__LeDrop__SyncPalette,
+        Na__LeDrop__PaletteLabel,
+        Na__LeDrop__PaletteMenuLabel
     };
     // ------------------------------------------------------------
 

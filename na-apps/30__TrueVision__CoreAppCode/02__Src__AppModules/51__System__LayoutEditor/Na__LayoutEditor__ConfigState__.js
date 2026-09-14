@@ -32,6 +32,59 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.10.0
+// - GetPlanDoorsSetup: whether plan viewports draw their doors open, with
+//   swing arcs and at what arc step, whether a click on a door closes or opens
+//   it, and how long a click waits to rule out a double click
+//   (Na__LayoutEditor__PlanDoors__).
+//
+// 14-Sep-2026 - Version 1.9.0
+// - GetDimensionSetup: defaultExtensionMm, the extension line length new
+//   dimensions start with (Dimensions DefaultExtensionMm). Null - the default -
+//   and anything below zero draw the full line.
+//
+// 14-Sep-2026 - Version 1.8.0
+// - GetMeasureSetup: the Measurements box's reading precision, units suffix,
+//   pair separator, message time and scrollbar gap
+//   (Na__LayoutEditor__Measurements__).
+// - GetMeasureKeys: the keys the box reads, from the key map's MeasurementsBox
+//   block - the characters that start and continue a value, and the keys that
+//   use, drop and take back what is typed.
+// - GetShapeSetup and GetDimensionSetup carry defaultAtScale: Draw at scale and
+//   Measure at scale, on unless the config switches them off.
+//
+// 14-Sep-2026 - Version 1.7.0
+// - GetSpecificationSetup: the project specification file, how its codes are
+//   numbered, its browser draft and undo depth, the cloud overwrite question
+//   and the starter groups offered to an empty specification
+//   (Na__LayoutEditor__SpecData__).
+// - GetMarginNotesSetup: the notes margin a sheet can carry - its width
+//   limits, padding, heading, text sizes, spacing, divider and edge grip
+//   (Na__LayoutEditor__SpecMargin__).
+//
+// 14-Sep-2026 - Version 1.6.0
+// - Box select: the Selection setup carries the box's start distance, edge
+//   weight and preview (BoxStartPx, BoxBorderPx, BoxPreview, BoxPreviewPadMm),
+//   and MatchSelectionModifier reads the key map's SelectionBindings: Ctrl
+//   adds, Shift toggles, Ctrl+Shift removes, and Alt starts a box anywhere.
+//
+// 14-Sep-2026 - Version 1.5.0
+// - GetLeaderSetup: what a new leader or specification bubble starts with
+//   (type, text, line, endpoint, bubble, fill and opacities) and the rules
+//   every leader is drawn by (stubs, curve tension, text gap, padding, line
+//   spacing, where the line lands on a note). Unit and Choice read an opacity
+//   and a fixed word safely.
+// - GetShapeSetup carries DefaultFillOpacity and TransparentEdgeOpacity.
+// - The E key (Tool__Leader) in the key map fallback.
+//
+// 13-Sep-2026 - Version 1.4.0
+// - GetModelSourceSetup: how many design phases stay loaded off-scene for
+//   viewports that draw a phase the 3D view does not hold (TrueVision).
+//
+// 13-Sep-2026 - Version 1.3.0
+// - The Shift+B palette binding in the key map fallback; PaletteSwitchesTool and
+//   FlashMs in the eyedropper setup.
+//
 // 10-Sep-2026 - Version 1.2.0
 // - Sheet setup carries BlockGapMm; style setup carries the frame caption and
 //   title block weights, tracking and uppercasing; title block setup carries
@@ -104,6 +157,8 @@
                      { Id : 'Edit__Finish',      Action : 'Edit__Finish',      Enabled : true, Keys : [ 'Enter' ],                Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Draw',        Action : 'Tool__Draw',        Enabled : true, Keys : [ 'l', 'L' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Rectangle',   Action : 'Tool__Rectangle',   Enabled : true, Keys : [ 'r', 'R' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Leader',      Action : 'Tool__Leader',      Enabled : true, Keys : [ 'e', 'E' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__EyedropperPalette', Action : 'Tool__EyedropperPalette', Enabled : true, Keys : [ 'b', 'B' ], Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Eyedropper',  Action : 'Tool__Eyedropper',  Enabled : true, Keys : [ 'b', 'B' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Copy',        Action : 'Edit__Copy',        Enabled : true, Keys : [ 'c', 'C' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Paste',       Action : 'Edit__Paste',       Enabled : true, Keys : [ 'v', 'V' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
@@ -111,7 +166,12 @@
         keyboardSetup : { ignoreWhenTyping : true, coarseStepModifier : 'Shift', nudgeStepMm : 1, nudgeCoarseStepMm : 10,
                           panStepPx : 60, panCoarseStepPx : 240, zoomKeyStep : 1.15 },
         touch    : { oneFingerPanOnStage : true, oneFingerPanOnPaper : false, twoFingerPan : true, pinchZoom : true,
-                     doubleTapFit : true, doubleTapWindowMs : 320, doubleTapSlopPx : 24, panStartSlopPx : 6, pinchStartSlopPx : 8 }
+                     doubleTapFit : true, doubleTapWindowMs : 320, doubleTapSlopPx : 24, panStartSlopPx : 6, pinchStartSlopPx : 8 },
+        selection : { list : [ { Id : 'Select__Remove', Action : 'Select__Remove', Enabled : true, Modifiers : [ 'Ctrl', 'Shift' ], ModifierMatch : 'Exact' },
+                               { Id : 'Select__Add',    Action : 'Select__Add',    Enabled : true, Modifiers : [ 'Ctrl' ],          ModifierMatch : 'Exact' },
+                               { Id : 'Select__Toggle', Action : 'Select__Toggle', Enabled : true, Modifiers : [ 'Shift' ],         ModifierMatch : 'Exact' } ],
+                      boxAnywhereModifier : 'Alt' },
+        measure   : { start : '0123456789.,-', typing : '0123456789.,-+ xX*;mMcC', commit : [ 'Enter' ], clear : [ 'Escape', 'Delete' ], erase : [ 'Backspace' ] }
     });
     // ------------------------------------------------------------
 
@@ -145,6 +205,23 @@
     function Na__LeCfg__Num(blockName, keyName, fallback) {
         const value = Na__LeCfg__Val(blockName, keyName, undefined);
         return (typeof value === 'number' && Number.isFinite(value)) ? value : fallback;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Read an Opacity (0 clear to 1 solid), or the Fallback
+    // ------------------------------------------------------------
+    function Na__LeCfg__Unit(blockName, keyName, fallback) {
+        return Math.max(0, Math.min(1, Na__LeCfg__Num(blockName, keyName, fallback)));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Read One of a Fixed Set of Words, or the Fallback
+    // ------------------------------------------------------------
+    function Na__LeCfg__Choice(blockName, keyName, allowed, fallback) {
+        const value = Na__LeCfg__Val(blockName, keyName, fallback);
+        return allowed.indexOf(value) === -1 ? fallback : value;
     }
     // ------------------------------------------------------------
 
@@ -368,6 +445,7 @@
     // ------------------------------------------------------------
     function Na__LeCfg__GetDimensionSetup() {
         const terms = Na__LeCfg__Val('Dimensions', 'AllowedTerminators', null);
+        const extMm = Na__LeCfg__Num('Dimensions', 'DefaultExtensionMm', null);
         return {
             inferenceRadiusPx : Na__LeCfg__Num('Dimensions', 'InferenceRadiusPx', 10),
             defaultTextSizeMm : Na__LeCfg__Num('Dimensions', 'DefaultTextSizeMm', 2.5),
@@ -379,12 +457,14 @@
             defaultOffsetMm   : Na__LeCfg__Num('Dimensions', 'DefaultOffsetMm', 8),
             extGapMm          : Na__LeCfg__Num('Dimensions', 'ExtensionGapMm', 1.5),
             overshootMm       : Na__LeCfg__Num('Dimensions', 'ExtensionOvershootMm', 1.5),
+            defaultExtensionMm : (extMm !== null && extMm >= 0) ? extMm : null,   // <-- How far a new dimension's extension lines run back from its line; null is the full line
             tickLengthMm      : Na__LeCfg__Num('Dimensions', 'TickLengthMm', 1.5),
             strokeMm          : Na__LeCfg__Num('Dimensions', 'StrokeMm', 0.25),
             textGapMm         : Na__LeCfg__Num('Dimensions', 'TextGapMm', 0.8),
             defaultPrecision  : Na__LeCfg__Num('Dimensions', 'DefaultPrecision', 0),
             defaultUnits      : Na__LeCfg__Val('Dimensions', 'DefaultUnitsSuffix', ' mm'),
-            thousandsSep      : Na__LeCfg__Val('Dimensions', 'ThousandsSeparator', ',')
+            thousandsSep      : Na__LeCfg__Val('Dimensions', 'ThousandsSeparator', ','),
+            defaultAtScale    : Na__LeCfg__Val('Dimensions', 'DefaultAtScale', true) !== false   // <-- Measure at scale: a new dimension reads the drawing's real size
         };
     }
     // ------------------------------------------------------------
@@ -469,13 +549,34 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Selection Setup (hit tolerance, drag threshold, grip size)
+    // FUNCTION | Selection Setup (hit tolerance, drag threshold, grip size, the selection box)
+    // ------------------------------------------------------------
+    // boxStartPx is how far on screen a press travels before it becomes a box,
+    // so a click that wobbles on bare paper still only clears the selection.
     // ------------------------------------------------------------
     function Na__LeCfg__GetSelectionSetup() {
         return {
             hitToleranceMm  : Na__LeCfg__Num('Selection', 'HitToleranceMm', 1.5),
             dragThresholdMm : Na__LeCfg__Num('Selection', 'DragThresholdMm', 0.5),
-            gripSizePx      : Na__LeCfg__Num('Selection', 'GripSizePx', 9)
+            gripSizePx      : Na__LeCfg__Num('Selection', 'GripSizePx', 9),
+            boxStartPx      : Math.max(1, Na__LeCfg__Num('Selection', 'BoxStartPx', 4)),
+            boxBorderPx     : Math.max(0.5, Na__LeCfg__Num('Selection', 'BoxBorderPx', 1)),
+            boxPreview      : Na__LeCfg__Val('Selection', 'BoxPreview', true) !== false,
+            boxPreviewPadMm : Math.max(0, Na__LeCfg__Num('Selection', 'BoxPreviewPadMm', 0.8))
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Doors on Plan Viewports
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetPlanDoorsSetup() {
+        return {
+            openOnPlans      : Na__LeCfg__Val('PlanDoors', 'OpenOnPlans', true) !== false,
+            drawSwings       : Na__LeCfg__Val('PlanDoors', 'DrawSwings', true) !== false,
+            swingStepDegrees : Math.min(45, Math.max(1, Na__LeCfg__Num('PlanDoors', 'SwingStepDegrees', 5))),
+            clickToToggle    : Na__LeCfg__Val('PlanDoors', 'ClickToToggle', true) !== false,
+            clickDelayMs     : Math.max(0, Na__LeCfg__Num('PlanDoors', 'ClickDelayMs', 300))
         };
     }
     // ------------------------------------------------------------
@@ -504,7 +605,145 @@
             defaultStroked      : Na__LeCfg__Val('Shapes', 'DefaultStroked', true) !== false,
             defaultFillColour   : Na__LeCfg__Val('Shapes', 'DefaultFillColour', '#e4e8ec'),
             defaultFilled       : Na__LeCfg__Val('Shapes', 'DefaultFilled', false) === true,
-            closeRadiusPx       : Na__LeCfg__Num('Shapes', 'CloseRadiusPx', 10)
+            defaultFillOpacity  : Na__LeCfg__Unit('Shapes', 'DefaultFillOpacity', 1),
+            transparentEdgeOpacity : Na__LeCfg__Unit('Shapes', 'TransparentEdgeOpacity', 0.5),   // <-- Where the edge opacity starts when Transparent edges is ticked
+            closeRadiusPx       : Na__LeCfg__Num('Shapes', 'CloseRadiusPx', 10),
+            defaultAtScale      : Na__LeCfg__Val('Shapes', 'DefaultAtScale', true) !== false   // <-- Draw at scale: sizes typed while drawing are real sizes at the drawing's scale
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Measurements Box Setup
+    // ------------------------------------------------------------
+    // The box at the bottom right of the stage (Na__LayoutEditor__Measurements__).
+    // precision is the decimal places a reading shows, trailing zeros dropped;
+    // pairJoin goes between a rectangle's width and height; hintMs is how long
+    // a message above the box stays; edgeGapPx keeps it clear of the scrollbars.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetMeasureSetup() {
+        const units = Na__LeCfg__Val('Measurements', 'UnitsSuffix', ' mm');
+        const join  = Na__LeCfg__Val('Measurements', 'PairSeparator', ' x ');
+        return {
+            enabled     : Na__LeCfg__Val('Measurements', 'Enabled', true) !== false,
+            precision   : Math.max(0, Math.min(3, Math.round(Na__LeCfg__Num('Measurements', 'Precision', 1)))),
+            unitsSuffix : typeof units === 'string' ? units : ' mm',
+            pairJoin    : typeof join === 'string' ? join : ' x ',
+            hintMs      : Math.max(500, Na__LeCfg__Num('Measurements', 'HintMs', 2800)),
+            edgeGapPx   : Math.max(0, Na__LeCfg__Num('Measurements', 'EdgeGapPx', 10))
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Leader and Specification Bubble Setup
+    // ------------------------------------------------------------
+    // The settings a new leader starts with, and the rules every leader is
+    // drawn by (Na__LayoutEditor__LeaderGeometry__). Weights are printed points
+    // like every other line on a sheet; sizes and distances are paper
+    // millimetres; opacities run from 0 (clear) to 1 (solid).
+    // transparentOpacity is where a leader's line opacity starts when
+    // Transparent lines is ticked, so the tick shows a change at once.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetLeaderSetup() {
+        return {
+            defaultType        : Na__LeCfg__Choice('Leader', 'DefaultType', [ 'text', 'bubble' ], 'bubble'),
+            defaultText        : Na__LeCfg__Val('Leader', 'DefaultText', 'Note'),
+            defaultBubbleText  : Na__LeCfg__Val('Leader', 'DefaultBubbleText', 'EE01'),
+            bubbleTextRule     : Na__LeCfg__Choice('Leader', 'BubbleTextRule', [ 'increment', 'repeat', 'fixed' ], 'increment'),
+            textSizeMm         : Na__LeCfg__Num('Leader', 'TextSizeMm', 2.5),
+            minTextSizeMm      : Na__LeCfg__Num('Leader', 'MinTextSizeMm', 1.5),
+            maxTextSizeMm      : Na__LeCfg__Num('Leader', 'MaxTextSizeMm', 14),
+            textSizeStepMm     : Na__LeCfg__Num('Leader', 'TextSizeStepMm', 0.25),
+            fontWeight         : Na__LeCfg__Num('Leader', 'FontWeight', 600),
+            textColour         : Na__LeCfg__Val('Leader', 'TextColour', '#172b3a'),
+            lineColour         : Na__LeCfg__Val('Leader', 'LineColour', '#172b3a'),
+            linePt             : Na__LeCfg__Num('Leader', 'LinePt', 0.35),
+            lineStyle          : Na__LeCfg__Choice('Leader', 'LineStyle', [ 'solid', 'dashed' ], 'dashed'),
+            dashMm             : Math.max(0.1, Na__LeCfg__Num('Leader', 'DashMm', 0.8)),
+            lineOpacity        : Na__LeCfg__Unit('Leader', 'LineOpacity', 1),
+            transparentOpacity : Na__LeCfg__Unit('Leader', 'TransparentOpacity', 0.5),
+            endpointFilled     : Na__LeCfg__Val('Leader', 'EndpointFilled', false) === true,
+            endpointPt         : Na__LeCfg__Num('Leader', 'EndpointPt', 0.35),
+            endpointSizeMm     : Na__LeCfg__Num('Leader', 'EndpointSizeMm', 1.6),
+            bubbleSizeMm       : Na__LeCfg__Num('Leader', 'BubbleSizeMm', 9),
+            bubbleEdgePt       : Na__LeCfg__Num('Leader', 'BubbleEdgePt', 0.35),
+            bubblePaddingMm    : Na__LeCfg__Num('Leader', 'BubblePaddingMm', 1.2),
+            filled             : Na__LeCfg__Val('Leader', 'Filled', true) !== false,
+            fillColour         : Na__LeCfg__Val('Leader', 'FillColour', '#f2f4f5'),
+            fillOpacity        : Na__LeCfg__Unit('Leader', 'FillOpacity', 1),
+            textGapMm          : Math.max(0, Na__LeCfg__Num('Leader', 'TextGapMm', 1)),
+            textPaddingMm      : Math.max(0, Na__LeCfg__Num('Leader', 'TextPaddingMm', 1)),
+            lineSpacing        : Math.max(1, Na__LeCfg__Num('Leader', 'LineSpacing', 1.3)),
+            textAttach         : Na__LeCfg__Choice('Leader', 'TextAttach', [ 'first-line', 'middle' ], 'first-line'),
+            stubMm             : Math.max(0, Na__LeCfg__Num('Leader', 'StubMm', 3)),
+            stubMaxFraction    : Math.max(0, Math.min(0.5, Na__LeCfg__Num('Leader', 'StubMaxFraction', 0.25))),
+            curveTension       : Math.max(0, Math.min(1, Na__LeCfg__Num('Leader', 'CurveTension', 0.5))),
+            minLengthMm        : Math.max(0.5, Na__LeCfg__Num('Leader', 'MinLengthMm', 2))
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Project Specification Setup
+    // ------------------------------------------------------------
+    // The file the specification lives in beside the project data, how its
+    // codes are numbered, the browser draft, its own undo depth, and the groups
+    // offered to a project with no specification yet. A code is a group prefix
+    // of up to PrefixMaxLength letters and the note's place in its group,
+    // zero-padded to NumberDigits: GN01, EE02.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetSpecificationSetup() {
+        const starters = Na__LeCfg__Val('Specification', 'StarterGroups', null);
+        return {
+            fileName         : Na__LeCfg__Val('Specification', 'FileName', 'TrueVision__ProjectSpecification__.json'),
+            numberDigits     : Math.max(1, Math.min(4, Math.round(Na__LeCfg__Num('Specification', 'NumberDigits', 2)))),
+            prefixMaxLength  : Math.max(1, Math.min(6, Math.round(Na__LeCfg__Num('Specification', 'PrefixMaxLength', 4)))),
+            draftEnabled     : Na__LeCfg__Val('Specification', 'DraftEnabled', true) !== false,
+            draftDebounceMs  : Math.max(100, Na__LeCfg__Num('Specification', 'DraftDebounceMs', 600)),
+            historySteps     : Math.max(1, Math.round(Na__LeCfg__Num('Specification', 'HistorySteps', 50))),
+            loadTimeoutMs    : Math.max(1000, Na__LeCfg__Num('Specification', 'LoadTimeoutMs', 12000)),
+            confirmOverwrite : Na__LeCfg__Val('Specification', 'ConfirmCloudOverwrite', true) !== false,
+            starterGroups    : Array.isArray(starters) ? starters : [
+                { Prefix : 'GN', Title : 'General Notes',    IsGeneral : true  },
+                { Prefix : 'SN', Title : 'Structural Notes', IsGeneral : false },
+                { Prefix : 'FN', Title : 'Finishes',         IsGeneral : false }
+            ]
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Margin Notes Setup (the notes column down a sheet)
+    // ------------------------------------------------------------
+    // What a sheet's notes margin starts with, and the rules it is laid out by.
+    // Sizes and distances are paper millimetres; the divider is printed points.
+    // A margin is never narrower than MinWidthMm nor wider than
+    // MaxWidthFraction of the sheet's content width. A note's code and title
+    // are drawn at TitleScale times the body text size.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetMarginNotesSetup() {
+        return {
+            defaultWidthMm    : Math.max(10, Na__LeCfg__Num('MarginNotes', 'DefaultWidthMm', 90)),
+            minWidthMm        : Math.max(10, Na__LeCfg__Num('MarginNotes', 'MinWidthMm', 40)),
+            maxWidthFraction  : Math.max(0.1, Math.min(0.9, Na__LeCfg__Num('MarginNotes', 'MaxWidthFraction', 0.6))),
+            paddingMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'PaddingMm', 3)),
+            headingText       : Na__LeCfg__Val('MarginNotes', 'HeadingText', 'NOTES'),
+            headingSizeMm     : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'HeadingSizeMm', 3.5)),
+            headingTrackingMm : Math.max(0, Na__LeCfg__Num('MarginNotes', 'HeadingTrackingMm', 0.2)),
+            headingGapMm      : Math.max(0, Na__LeCfg__Num('MarginNotes', 'HeadingGapMm', 3)),
+            textSizeMm        : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'TextSizeMm', 2.2)),
+            minTextSizeMm     : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'MinTextSizeMm', 1.2)),
+            maxTextSizeMm     : Math.max(1, Na__LeCfg__Num('MarginNotes', 'MaxTextSizeMm', 6)),
+            titleScale        : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'TitleScale', 1.1)),
+            lineSpacing       : Math.max(1, Na__LeCfg__Num('MarginNotes', 'LineSpacing', 1.35)),
+            noteGapMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'NoteGapMm', 2.5)),
+            codeGapMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'CodeGapMm', 2)),
+            groupGapMm        : Math.max(0, Na__LeCfg__Num('MarginNotes', 'GroupGapMm', 2)),
+            dividerPt         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'DividerPt', 0.5)),
+            includeGeneral    : Na__LeCfg__Val('MarginNotes', 'IncludeGeneralNotes', true) !== false,
+            groupHeadings     : Na__LeCfg__Val('MarginNotes', 'GroupHeadings', false) === true,
+            gripWidthPx       : Math.max(4, Na__LeCfg__Num('MarginNotes', 'GripWidthPx', 10))
         };
     }
     // ------------------------------------------------------------
@@ -526,7 +765,9 @@
             highlightBorderPx  : Na__LeCfg__Num('Eyedropper', 'HighlightBorderPx', 1.5),
             cursor             : Na__LeCfg__Val('Eyedropper', 'Cursor', 'copy'),
             applyCursor        : Na__LeCfg__Val('Eyedropper', 'ApplyCursor', 'alias'),
-            refuseCursor       : Na__LeCfg__Val('Eyedropper', 'RefuseCursor', 'not-allowed')
+            refuseCursor       : Na__LeCfg__Val('Eyedropper', 'RefuseCursor', 'not-allowed'),
+            paletteSwitchesTool : Na__LeCfg__Val('Eyedropper', 'PaletteSwitchesTool', true) !== false,
+            flashMs            : Math.max(0, Na__LeCfg__Num('Eyedropper', 'FlashMs', 700))
         };
     }
     // ------------------------------------------------------------
@@ -584,6 +825,21 @@
         return {
             pasteOffsetMm : Math.max(1, Na__LeCfg__Num('Clipboard', 'PasteOffsetMm', 10)),
             copySnapshot  : Na__LeCfg__Val('Clipboard', 'CopySnapshot', true) !== false
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Model Source Setup (which design phase a viewport draws)
+    // ------------------------------------------------------------
+    // maxCachedPhases is how many design phases besides the one in the 3D view
+    // stay loaded off-scene for drawings; beyond it the least recently drawn is
+    // let go. Never under one, or a sheet of an existing and a proposed view
+    // would reload a model for every other viewport it drew.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetModelSourceSetup() {
+        return {
+            maxCachedPhases : Math.max(1, Math.round(Na__LeCfg__Num('ModelSource', 'MaxCachedPhases', 3)))
         };
     }
     // ------------------------------------------------------------
@@ -782,6 +1038,27 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | The Keys the Measurements Box Reads
+    // ------------------------------------------------------------
+    // start and typing are strings of single characters: what may begin a
+    // value, and what a begun value may go on to hold. commit, clear and
+    // erase are key names, and act only while something is typed.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetMeasureKeys() {
+        const fallback = Na__LeCfg__KEYMAP_FALLBACK.measure;
+        const chars = (name, fb) => { const value = Na__LeCfg__KeyVal('MeasurementsBox', name, null); return typeof value === 'string' ? value : fb; };
+        const keys  = (name, fb) => { const value = Na__LeCfg__KeyVal('MeasurementsBox', name, null); return Array.isArray(value) ? value.filter((k) => typeof k === 'string') : fb.slice(); };
+        return {
+            start  : chars('StartCharacters', fallback.start),
+            typing : chars('TypingCharacters', fallback.typing),
+            commit : keys('CommitKeys', fallback.commit),
+            clear  : keys('ClearKeys', fallback.clear),
+            erase  : keys('EraseKeys', fallback.erase)
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | What a Mouse or Pen Press Means (null when it means nothing)
     // ------------------------------------------------------------
     // input is { button : 'Left' | 'Middle' | 'Right', modifiers : {...}, emptyStage : bool }
@@ -836,6 +1113,32 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | What the Modifiers Held on a Select Press Mean
+    // ------------------------------------------------------------
+    // held is { Ctrl, Shift, Alt, Meta }. Returns { combine, anywhere }. combine
+    // is 'add', 'toggle', 'remove', or null to replace the selection, from the
+    // SelectionBindings list; the box-anywhere modifier is set aside before the
+    // list is tested, so Alt+Shift still toggles. anywhere says a drag draws a
+    // box even from on top of something that could be moved.
+    // ------------------------------------------------------------
+    function Na__LeCfg__MatchSelectionModifier(held) {
+        const fallback = Na__LeCfg__KEYMAP_FALLBACK.selection;
+        const name     = Na__LeCfg__KeyVal('SelectionBindings', 'BoxAnywhereModifier', fallback.boxAnywhereModifier);
+        const rest     = Object.assign({}, held || {});
+        const anywhere = Na__LeCfg__MODIFIERS.indexOf(name) !== -1 && !!rest[name];
+        if (anywhere) rest[name] = false;
+        const combines = { Select__Add : 'add', Select__Toggle : 'toggle', Select__Remove : 'remove' };
+        const list     = Na__LeCfg__KeyList('SelectionBindings', fallback.list);
+        for (let i = 0; i < list.length; i++) {
+            const binding = list[i];
+            if (!binding || binding.Enabled === false || !combines[binding.Action]) continue;
+            if (Na__LeCfg__ModifiersSatisfy(binding, rest)) return { combine : combines[binding.Action], anywhere : anywhere };
+        }
+        return { combine : null, anywhere : anywhere };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Whether Any Enabled Pointer Binding Wants a Given Modifier
     // ------------------------------------------------------------
     // The PC module asks this before it takes the space bar away from the
@@ -885,13 +1188,19 @@
         Na__LeCfg__GetLineworkSetup,
         Na__LeCfg__GetSnappingSetup,
         Na__LeCfg__GetClipboardSetup,
+        Na__LeCfg__GetModelSourceSetup,
         Na__LeCfg__GetHistorySetup,
         Na__LeCfg__GetAutoSaveSetup,
         Na__LeCfg__PtToMm,
         Na__LeCfg__GetRasterSetup,
         Na__LeCfg__GetSelectionSetup,
+        Na__LeCfg__GetPlanDoorsSetup,
         Na__LeCfg__GetLineweightSetup,
         Na__LeCfg__GetShapeSetup,
+        Na__LeCfg__GetMeasureSetup,
+        Na__LeCfg__GetLeaderSetup,
+        Na__LeCfg__GetSpecificationSetup,
+        Na__LeCfg__GetMarginNotesSetup,
         Na__LeCfg__GetEyedropperSetup,
         Na__LeCfg__GetEnhanceSetup,
         Na__LeCfg__GetPanelSetup,
@@ -903,9 +1212,11 @@
         Na__LeCfg__GetGuards,
         Na__LeCfg__GetKeyboardSetup,
         Na__LeCfg__GetTouchSetup,
+        Na__LeCfg__GetMeasureKeys,
         Na__LeCfg__MatchPointerBinding,
         Na__LeCfg__MatchWheelBinding,
         Na__LeCfg__MatchKeyBinding,
+        Na__LeCfg__MatchSelectionModifier,
         Na__LeCfg__IsPointerModifierBound,
         Na__LeCfg__GetActionCatalogue
     };

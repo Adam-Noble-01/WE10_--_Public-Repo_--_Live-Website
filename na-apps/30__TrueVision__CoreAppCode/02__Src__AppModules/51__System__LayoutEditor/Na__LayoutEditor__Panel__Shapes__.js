@@ -28,6 +28,16 @@
 // - The edge colour and weight rows go away while the edges are off, the
 //   fill colour while there is no fill and the gradient settings while there
 //   is no gradient, so the panel only ever shows what is in play.
+// - OPACITY. A fill has a Fill opacity slider while it is on. The edges are
+//   solid unless Transparent edges is ticked, which brings up Edge opacity,
+//   starting at the Shapes setup's TransparentEdgeOpacity. A gradient keeps
+//   its own alpha. Both sliders are one undo step per drag, like the
+//   gradient's.
+// - DRAW AT SCALE, the first control, is the drawing tools' own switch and
+//   never the selected shape's: on, the sizes typed into the Measurements box
+//   while the Draw or Rectangle tool is up are real sizes at the drawing's
+//   scale (Na__LayoutEditor__DrawingScale__), which its label quotes; off,
+//   they are paper millimetres. It shows and works whatever is selected.
 //
 // INTEGRATION:
 // - Registered by the mode controller in the right column.
@@ -37,19 +47,34 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Panel__Shapes__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim until 1.3.0
-// - Divergences   : Console prefix, header and folder numbers only; the gradient
-//                   rows (1.3.0) are TrueVision-first and go back with the gradient tool.
+// - Parity        : verbatim
+// - Divergences   : Console prefix, header and folder numbers only. The gradient
+//                   rows (1.3.0) were authored here and went to ValeVision v2.26.0.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.6.0
+// - Draw at scale, the first control: the Draw and Rectangle tools' atScale
+//   setting, quoting the sheet's scale in its label. It never edits a shape.
+//
+// 14-Sep-2026 - Version 1.5.0
+// - With several items selected the note says how many, and that these are the
+//   settings for new shapes until one shape is selected on its own.
+//
+// 14-Sep-2026 - Version 1.4.0
+// - Fill opacity (under Fill colour, while there is a fill) and Transparent
+//   edges with its Edge opacity slider (under Edge pt, while the edges are on).
+//   The sliders redraw silently as they move and announce once on release.
+//
 // 13-Sep-2026 - Version 1.3.0
 // - The Gradient toggle and its rows, from Na__LayoutEditor__GradientTool__. A
 //   gradient replaces the solid fill and counts as the fill for the either-or
 //   rule. Its sliders redraw the shape silently while they move and announce
 //   once on release, so a whole drag is one undo step.
+// - The gradient rows sit last, after the fills and Closed (Adam's call at
+//   sign-off), so opening the block moves no other control.
 //
 // 12-Sep-2026 - Version 1.2.0
 // - The draw-tool and axis-lock instruction paragraphs are gone from the
@@ -71,18 +96,22 @@
 
     // MODULE IMPORTS | Config, Model, Tools, Surface, Gradient Tool and Panel Host
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetLabel, Na__LeCfg__GetLineweightSetup } from './Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__UpdateShape } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetLineweightSetup, Na__LeCfg__GetShapeSetup } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__GetSelectionItems, Na__LeModel__UpdateShape } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeTools__GetShapeDefaults, Na__LeTools__SetShapeDefaults } from './Na__LayoutEditor__SheetTools__.js';
     import { Na__LeSurface__Refresh } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeGrad__BuildRows, Na__LeGrad__RefreshRows, Na__LeGrad__RegisterControls } from './Na__LayoutEditor__GradientTool__.js';
+    import { Na__LeDrawScale__SheetDenominator, Na__LeDrawScale__Label } from './Na__LayoutEditor__DrawingScale__.js';
+    import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
     import {
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
         Na__LePanels__Refresh,
         Na__LePanels__Row,
         Na__LePanels__Input,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__SliderRow,
+        Na__LePanels__ShowSlider
     } from './Na__LayoutEditor__PanelHost__.js';
     // ------------------------------------------------------------
 
@@ -111,6 +140,18 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Draw at Scale Label, Quoting the Sheet's Scale
+    // ------------------------------------------------------------
+    // Off every viewport a typed size is drawn at the sheet's scale; over a
+    // viewport at another scale it takes that viewport's, as the title says.
+    // ------------------------------------------------------------
+    function Na__LePanelShapes__AtScaleCaption() {
+        const scale = Na__LeDrawScale__Label(Na__LeDrawScale__SheetDenominator(Na__LeModel__GetActiveSheet()));
+        return Na__LeCfg__FormatLabel('ShapeAtScale', 'Draw at scale ({scale})', { scale : scale });
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Build the Controls
     // ------------------------------------------------------------
     function Na__LePanelShapes__Build(body) {
@@ -118,11 +159,22 @@
         const note = Na__LePanels__Note('');
         note.setAttribute('data-na-block', 'note');
         body.appendChild(note);
+        // DRAW AT SCALE | First, because it decides what every size typed while
+        // drawing means; a setting of the drawing tools, shown whatever is selected
+        const atScale = Na__LePanels__Row(Na__LePanelShapes__AtScaleCaption(), Na__LePanels__Input('checkbox', 'shape-at-scale'), 'na-le-row--toggle');
+        atScale.title = Na__LeCfg__GetLabel('ShapeAtScaleTitle', "On: sizes typed into the Measurements box are real sizes at the drawing's scale - the scale of the viewport under the first point, or the sheet's elsewhere. Off: they are paper millimetres.");
+        body.appendChild(atScale);
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeStroked', 'Edges'), Na__LePanels__Input('checkbox', 'shape-stroked')));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeStroke', 'Edge colour'), Na__LePanels__Input('color', 'shape-stroke')));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeStrokePt', 'Edge pt'), Na__LePanels__Input('number', 'shape-pt', { min : lw.minPt, max : lw.maxPt, step : lw.stepPt })));
+        // TRANSPARENT EDGES | Off unless asked for; ticking it brings up the slider
+        const clear = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeTransparentEdges', 'Transparent edges'), Na__LePanels__Input('checkbox', 'shape-edge-transparent'), 'na-le-row--toggle');
+        clear.title = Na__LeCfg__GetLabel('ShapeTransparentEdgesTitle', 'Let the edges show what is beneath them.');
+        body.appendChild(clear);
+        body.appendChild(Na__LePanels__SliderRow(Na__LeCfg__GetLabel('ShapeEdgeOpacity', 'Edge opacity'), 'shape-edge-opacity'));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeFill', 'Fill'), Na__LePanels__Input('checkbox', 'shape-filled')));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeFillColour', 'Fill colour'), Na__LePanels__Input('color', 'shape-fill')));
+        body.appendChild(Na__LePanels__SliderRow(Na__LeCfg__GetLabel('ShapeFillOpacity', 'Fill opacity'), 'shape-fill-opacity'));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeClosed', 'Closed'), Na__LePanels__Input('checkbox', 'shape-closed')));
         // THE GRADIENT GOES LAST, after the fills and Closed. Its block is the
         // one part of this panel that opens and shuts, and at the foot of the
@@ -172,6 +224,8 @@
         set('shape-stroke', hex(values.strokeColour, '#172b3a'));
         set('shape-pt', values.strokePt);
         set('shape-fill', hex(values.fillColour, '#e4e8ec'));
+        el('shape-at-scale').checked = d.atScale !== false;                  // <-- The drawing tools' setting, never the selected shape's
+        el('shape-at-scale').parentNode.querySelector('.na-le-row__label').textContent = Na__LePanelShapes__AtScaleCaption();
         el('shape-stroked').checked = values.stroked;
         el('shape-filled').checked = values.filled;
         el('shape-closed').checked = values.closed;
@@ -181,11 +235,25 @@
         el('shape-stroke').parentNode.hidden  = !values.stroked;
         el('shape-pt').parentNode.hidden      = !values.stroked;
         el('shape-fill').parentNode.hidden    = !values.filled;
+        // OPACITY | A slider for the fill while there is one; the edges' only once Transparent edges is ticked
+        const fillOpacity = selected ? selected.item.Shape__FillOpacity   : d.fillOpacity;
+        const edgeOpacity = selected ? selected.item.Shape__StrokeOpacity : d.strokeOpacity;
+        const percent     = (value) => Math.round((Number.isFinite(value) ? value : 1) * 100);
+        const clearEdges  = Number.isFinite(edgeOpacity) && edgeOpacity < 1;
+        el('shape-edge-transparent').checked           = clearEdges;
+        el('shape-edge-transparent').parentNode.hidden = !values.stroked;
+        el('shape-edge-opacity').parentNode.hidden     = !values.stroked || !clearEdges;
+        el('shape-fill-opacity').parentNode.hidden     = !values.filled;
+        Na__LePanels__ShowSlider(body, 'shape-fill-opacity', percent(fillOpacity), percent(fillOpacity) + '%');
+        Na__LePanels__ShowSlider(body, 'shape-edge-opacity', percent(edgeOpacity), percent(edgeOpacity) + '%');
         Na__LeGrad__RefreshRows(body, Object.assign({ canFill : canFill }, Na__LePanelShapes__Gradient()));
         body.querySelector('[data-na-block="either"]').hidden = !canFill;
+        const many = Na__LeModel__GetSelectionItems().length;
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? Na__LeCfg__GetLabel('ShapeSelectedNote', 'Editing the selected shape.')
-            : Na__LeCfg__GetLabel('ShapeDefaultsNote', 'Nothing selected: these settings apply to new shapes.');
+            : (many > 1
+                ? Na__LeCfg__FormatLabel('ShapeManyNote', '{count} items selected. Click one shape on its own to edit it; these settings apply to new shapes.', { count : many })
+                : Na__LeCfg__GetLabel('ShapeDefaultsNote', 'Nothing selected: these settings apply to new shapes.'));
     }
     // ------------------------------------------------------------
 
@@ -262,6 +330,42 @@
             Na__LePanelShapes__Apply({ stroked : false, fillColour : colour }, { stroked : false, filled : true, fillColour : colour });   // <-- No edges left, so the fill comes on
         });
         Na__LePanels__OnControl('change', 'shape-closed', (e, el) => Na__LePanelShapes__Apply({ closed : el.checked }, null));
+
+        // DRAW AT SCALE | A setting of the drawing tools, so it goes to the defaults
+        // even with a shape selected, and the Measurements box reads it at once
+        Na__LePanels__OnControl('change', 'shape-at-scale', (e, el) => {
+            Na__LeTools__SetShapeDefaults({ atScale : el.checked });
+            Na__LePanels__Refresh(Na__LePanelShapes__ID);
+            Na__LeMeasure__Refresh();
+        });
+
+        // OPACITY | Transparent edges starts the edges at the configured see-through
+        // and makes them solid again when unticked; the sliders are live while
+        // they move and announce once on release.
+        Na__LePanels__OnControl('change', 'shape-edge-transparent', (e, el) => {
+            const value = el.checked ? Na__LeCfg__GetShapeSetup().transparentEdgeOpacity : 1;
+            Na__LePanelShapes__Apply({ strokeOpacity : value }, { strokeOpacity : value });
+        });
+        [ [ 'shape-fill-opacity', 'fillOpacity' ], [ 'shape-edge-opacity', 'strokeOpacity' ] ].forEach((pair) => {
+            const patchFor = (el) => {
+                const value = parseFloat(el.value) / 100;
+                if (!Number.isFinite(value)) return null;
+                const patch = {};
+                patch[pair[1]] = value;
+                return patch;
+            };
+            Na__LePanels__OnControl('input', pair[0], (e, el) => {
+                const patch = patchFor(el);
+                if (!patch) return;
+                const reading = el.parentNode ? el.parentNode.querySelector('[data-na-reading]') : null;
+                if (reading) reading.textContent = Math.round(parseFloat(el.value)) + '%';
+                Na__LePanelShapes__ApplyLive(patch, Object.assign({}, patch));
+            });
+            Na__LePanels__OnControl('change', pair[0], (e, el) => {
+                const patch = patchFor(el);
+                if (patch) Na__LePanelShapes__Apply(patch, Object.assign({}, patch));
+            });
+        });
         Na__LeGrad__RegisterControls({
             read   : Na__LePanelShapes__Gradient,
             toggle : Na__LePanelShapes__ToggleGradient,

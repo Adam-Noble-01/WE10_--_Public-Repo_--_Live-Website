@@ -33,6 +33,62 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.10.0
+// - Viewport__ClosedDoors on the viewport record: the door keys a plan viewport
+//   draws shut (an ADR name, or ADR::MOD for one leaf of an independent pair).
+//   Kept only when it lists a door, trimmed, without repeats and sorted, so a
+//   viewport with every door open - every record from before - is unchanged.
+//
+// 14-Sep-2026 - Version 1.9.0
+// - Fixed length extension lines on the dimension record:
+//   Dimension__StartExtensionMm and Dimension__EndExtensionMm, how far each
+//   extension line runs back from the dimension line (a number of zero or
+//   more), and Dimension__ExtensionsLinked, stored only as false while the
+//   Dimensions panel's padlock is open. The normaliser removes any other value
+//   and never adds a key, so every record from before them - and a browser
+//   draft of one - stays exactly what it was, with its full lines.
+//
+// 14-Sep-2026 - Version 1.8.0
+// - Dimension__AtScale on the dimension record: true reads the drawing's scale,
+//   false the paper (Na__LayoutEditor__DrawingScale__). Stored only as a
+//   boolean - the normaliser removes anything else and never adds the key - so
+//   every record from before it, and a browser draft of one, stays exactly what
+//   it was and reads as it always did.
+//
+// 14-Sep-2026 - Version 1.7.0
+// - Viewport__ShowFrame on the viewport record, stored only as false: the
+//   viewport's frame and caption are hidden. Any other value is removed, so a
+//   record from before the switch - and a browser draft of one - stays exactly
+//   what it was, and draws its frame as it always did.
+//
+// 14-Sep-2026 - Version 1.6.0
+// - Project Specification: a linked bubble carries Leader__SpecNoteId, the id
+//   of the specification note whose code it shows. NormaliseLeader only
+//   touches the key where it exists, so every other leader record is exactly
+//   what it was.
+// - NormaliseMarginNotes fills Sheet__MarginNotes - Enabled, WidthMm, Heading,
+//   TextSizeMm, IncludeGeneral, GroupHeadings - on a sheet that has one;
+//   MarginNotes answers a sheet's margin settings with the defaults for a sheet
+//   that never had one, without writing anything to it.
+//
+// 14-Sep-2026 - Version 1.5.0
+// - Leaders & Annotation Bubbles: Sheet__Leaders on every sheet, and
+//   NormaliseLeader, which fills a leader with the Leader setup's defaults
+//   (Na__LayoutEditor__LeaderGeometry__ draws it). A stored null fill is kept
+//   as "no fill"; only a fill that was never written takes the default.
+// - Shape__FillOpacity and Shape__StrokeOpacity on the shape record, 0 to 1.
+//   Every record from before them is solid.
+//
+// 13-Sep-2026 - Version 1.4.0
+// - Viewport__ModelSourceId on the viewport record: the design phase a viewport
+//   draws, as a model group's groupId, or null for the Project Default. Every
+//   record from before it is null, which draws what it always drew.
+//
+// 13-Sep-2026 - Version 1.3.0
+// - Dimension__Orientation on the dimension record: 'aligned', 'horizontal' or
+//   'vertical' (Na__LayoutEditor__DimensionGeometry__). Anything else - every
+//   record from before ortho dimensions - is aligned, which is how it was drawn.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - Shape__Gradient on the shape record: null for none, otherwise made whole by
 //   Na__LayoutEditor__GradientTool__ as a fresh object on every normalise. A
@@ -77,7 +133,9 @@
         Na__LeCfg__GetDimensionSetup,
         Na__LeCfg__FormatLabel,
         Na__LeCfg__GetLineweightSetup,
-        Na__LeCfg__GetShapeSetup
+        Na__LeCfg__GetShapeSetup,
+        Na__LeCfg__GetLeaderSetup,
+        Na__LeCfg__GetMarginNotesSetup
     } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeScale__Coerce, Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
     // ------------------------------------------------------------
@@ -120,6 +178,8 @@
     const Na__LeRec__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'mixed' ];
     const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer' ];
     const Na__LeRec__ID_PAD      = 3;
+    const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
+    const Na__LeRec__LEADER_LINE_STYLES = [ 'solid', 'dashed' ];
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -147,6 +207,14 @@
     // ------------------------------------------------------------
     function Na__LeRec__Num(value, fallback) {
         return (typeof value === 'number' && Number.isFinite(value)) ? value : fallback;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Coerce an Opacity (0 clear to 1 solid), or Fall Back
+    // ------------------------------------------------------------
+    function Na__LeRec__Unit(value, fallback) {
+        return (typeof value === 'number' && Number.isFinite(value)) ? Math.max(0, Math.min(1, value)) : fallback;
     }
     // ------------------------------------------------------------
 
@@ -261,6 +329,12 @@
         if (!viewport.Viewport__LayerId) viewport.Viewport__LayerId = defaultLayerId;
         if (viewport.Viewport__SceneId   === undefined) viewport.Viewport__SceneId   = null;
         if (viewport.Viewport__DrawingId === undefined) viewport.Viewport__DrawingId = null;
+        // MODEL SOURCE | The design phase drawn: a model group's groupId, or null
+        // for the Project Default (Na__LayoutEditor__ModelSource__). An id the
+        // project does not have is kept as written, so a phase folder put back
+        // later brings its viewports back with it.
+        const sourceId = viewport.Viewport__ModelSourceId;
+        viewport.Viewport__ModelSourceId = (typeof sourceId === 'string' && sourceId.trim() !== '') ? sourceId.trim() : null;
 
         const frame = viewport.Viewport__FrameMm || {};
         viewport.Viewport__FrameMm = {
@@ -319,6 +393,19 @@
 
         if (viewport.Viewport__MarkupMode !== 'sheet') viewport.Viewport__MarkupMode = 'scene';
         if (viewport.Viewport__ShowScaleLabel === undefined) viewport.Viewport__ShowScaleLabel = setup.showScaleLabel;
+        // FRAME | Stored only when hidden. A shown frame is the absent key, so a
+        // record written before the switch existed is unchanged by a load, and a
+        // browser draft of it still matches the sheets it was drafted from.
+        if (viewport.Viewport__ShowFrame !== false) delete viewport.Viewport__ShowFrame;
+        // CLOSED DOORS | The doors a plan viewport draws shut, by door key; every
+        // other door on a plan is drawn open. Stored only when there is one,
+        // trimmed, without repeats and sorted, so a viewport nobody has touched
+        // is unchanged by a load.
+        const closedDoors = Array.isArray(viewport.Viewport__ClosedDoors)
+            ? Array.from(new Set(viewport.Viewport__ClosedDoors.filter((key) => typeof key === 'string' && key.trim() !== '').map((key) => key.trim()))).sort()
+            : [];
+        if (closedDoors.length > 0) viewport.Viewport__ClosedDoors = closedDoors;
+        else delete viewport.Viewport__ClosedDoors;
         // SNAPSHOT ASSET | { Asset__Path, Asset__Fingerprint, Asset__PixelWidth }.
         // The width says how big the stored picture is, so a stored picture
         // that is too small for the working level is re-rendered instead of
@@ -369,6 +456,16 @@
         item.Dimension__Precision = Na__LeRec__Num(item.Dimension__Precision, setup.defaultPrecision);
         if (typeof item.Dimension__UnitsSuffix !== 'string') item.Dimension__UnitsSuffix = setup.defaultUnits;
         if (item.Dimension__OverrideText === undefined) item.Dimension__OverrideText = null;
+        if ([ 'aligned', 'horizontal', 'vertical' ].indexOf(item.Dimension__Orientation) === -1) item.Dimension__Orientation = 'aligned';   // <-- A record from before ortho dimensions was aligned
+        if (item.Dimension__AtScale !== undefined && typeof item.Dimension__AtScale !== 'boolean') delete item.Dimension__AtScale;   // <-- true, false or no key: a record from before Measure at scale keeps reading as it did
+        // FIXED LENGTH EXTENSION LINES | A length is a number of zero or more and
+        // anything else is the full line, which is no key at all; the padlock is
+        // kept only while it is open. A record from before either reads as it did.
+        [ 'Dimension__StartExtensionMm', 'Dimension__EndExtensionMm' ].forEach((key) => {
+            const mm = item[key];
+            if (!(typeof mm === 'number' && Number.isFinite(mm) && mm >= 0)) delete item[key];
+        });
+        if (item.Dimension__ExtensionsLinked !== false) delete item.Dimension__ExtensionsLinked;
         return item;
     }
     // ------------------------------------------------------------
@@ -385,12 +482,97 @@
         if (typeof item.Shape__StrokeColour !== 'string') item.Shape__StrokeColour = setup.defaultStrokeColour;
         item.Shape__StrokePt = Na__LeRec__Num(item.Shape__StrokePt, setup.defaultStrokePt);
         if (typeof item.Shape__FillColour !== 'string') item.Shape__FillColour = null;
+        item.Shape__FillOpacity   = Na__LeRec__Unit(item.Shape__FillOpacity, 1);         // <-- A record from before opacity was solid
+        item.Shape__StrokeOpacity = Na__LeRec__Unit(item.Shape__StrokeOpacity, 1);
         item.Shape__Gradient = Na__LeGrad__Normalise(item.Shape__Gradient);              // <-- A fresh object or null: no two shapes ever hold the same gradient
         item.Shape__Stroked = item.Shape__Stroked !== false;                             // <-- A record written before the flag existed drew its edges
         const filled  = item.Shape__FillColour !== null || item.Shape__Gradient !== null;   // <-- A gradient is a fill as far as visibility goes
         const canFill = filled && item.Shape__Points.length > 2;                            // <-- Two points enclose nothing, so they cannot be a fill
         if (!item.Shape__Stroked && !canFill) item.Shape__Stroked = true;                   // <-- Edges or fill, never neither: an invisible shape is a lost shape
         return item;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fill In a Leader (tip and anchor in paper mm, weights in points, opacities 0 to 1)
+    // ------------------------------------------------------------
+    // Every style field that is missing takes the Leader setup's default. A
+    // null fill is a real choice - no fill - and is kept; only a fill that was
+    // never written takes the default. A tip or an anchor that is not a number
+    // puts the head a little up and to the right of the tip.
+    // ------------------------------------------------------------
+    function Na__LeRec__NormaliseLeader(item, defaultLayerId) {
+        const setup = Na__LeCfg__GetLeaderSetup();
+        if (!item.Leader__LayerId) item.Leader__LayerId = defaultLayerId;
+        if (Na__LeRec__LEADER_TYPES.indexOf(item.Leader__Type) === -1) item.Leader__Type = setup.defaultType;
+        item.Leader__TipXMm    = Na__LeRec__Num(item.Leader__TipXMm, 20);
+        item.Leader__TipYMm    = Na__LeRec__Num(item.Leader__TipYMm, 20);
+        item.Leader__AnchorXMm = Na__LeRec__Num(item.Leader__AnchorXMm, item.Leader__TipXMm + 15);
+        item.Leader__AnchorYMm = Na__LeRec__Num(item.Leader__AnchorYMm, item.Leader__TipYMm - 10);
+        if (typeof item.Leader__Text !== 'string') item.Leader__Text = item.Leader__Type === 'bubble' ? setup.defaultBubbleText : setup.defaultText;
+        item.Leader__TextSizeMm = Math.max(0.5, Na__LeRec__Num(item.Leader__TextSizeMm, setup.textSizeMm));
+        item.Leader__FontWeight = Na__LeRec__Num(item.Leader__FontWeight, setup.fontWeight);
+        if (typeof item.Leader__TextColour !== 'string') item.Leader__TextColour = setup.textColour;
+        if (typeof item.Leader__LineColour !== 'string') item.Leader__LineColour = setup.lineColour;
+        item.Leader__LinePt = Math.max(0, Na__LeRec__Num(item.Leader__LinePt, setup.linePt));
+        if (Na__LeRec__LEADER_LINE_STYLES.indexOf(item.Leader__LineStyle) === -1) item.Leader__LineStyle = setup.lineStyle;
+        item.Leader__LineOpacity = Na__LeRec__Unit(item.Leader__LineOpacity, setup.lineOpacity);
+        if (typeof item.Leader__EndpointFilled !== 'boolean') item.Leader__EndpointFilled = setup.endpointFilled;
+        item.Leader__EndpointPt     = Math.max(0, Na__LeRec__Num(item.Leader__EndpointPt, setup.endpointPt));
+        item.Leader__EndpointSizeMm = Math.max(0, Na__LeRec__Num(item.Leader__EndpointSizeMm, setup.endpointSizeMm));
+        item.Leader__BubbleSizeMm   = Math.max(1, Na__LeRec__Num(item.Leader__BubbleSizeMm, setup.bubbleSizeMm));
+        item.Leader__BubbleEdgePt   = Math.max(0, Na__LeRec__Num(item.Leader__BubbleEdgePt, setup.bubbleEdgePt));
+        if (item.Leader__FillColour === undefined) item.Leader__FillColour = setup.filled ? setup.fillColour : null;   // <-- Never written: the default
+        else if (typeof item.Leader__FillColour !== 'string') item.Leader__FillColour = null;                        // <-- Null is "no fill", and stays
+        item.Leader__FillOpacity = Na__LeRec__Unit(item.Leader__FillOpacity, setup.fillOpacity);
+        // SPECIFICATION LINK | Only where the key exists: the id of the project
+        // specification note a bubble shows the code of (Na__LayoutEditor__SpecLinks__).
+        // A leader without it is left without it, so every record from before the
+        // specification - and every unlinked leader - stays exactly as it was.
+        if ('Leader__SpecNoteId' in item) {
+            const noteId = item.Leader__SpecNoteId;
+            if (typeof noteId === 'string' && noteId.trim() !== '') item.Leader__SpecNoteId = noteId.trim();
+            else delete item.Leader__SpecNoteId;
+        }
+        return item;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fill In a Sheet's Notes Margin (only on a sheet that has one)
+    // ------------------------------------------------------------
+    // Sheet__MarginNotes : { Enabled, WidthMm, Heading, TextSizeMm,
+    // IncludeGeneral, GroupHeadings }. A sheet that never had a margin carries
+    // no key and is left without one. Heading null prints the configured
+    // heading. The width is only kept above MinWidthMm here; the layout clamps
+    // it to the paper when it is solved, so a paper change that narrows the
+    // sheet does not throw away the width someone chose.
+    // ------------------------------------------------------------
+    function Na__LeRec__NormaliseMarginNotes(sheet) {
+        if (!sheet || !('Sheet__MarginNotes' in sheet)) return null;
+        const raw = sheet.Sheet__MarginNotes;
+        if (!raw || typeof raw !== 'object') { delete sheet.Sheet__MarginNotes; return null; }
+        const setup = Na__LeCfg__GetMarginNotesSetup();
+        sheet.Sheet__MarginNotes = {
+            Enabled        : raw.Enabled === true,
+            WidthMm        : Math.max(setup.minWidthMm, Na__LeRec__Num(raw.WidthMm, setup.defaultWidthMm)),
+            Heading        : (typeof raw.Heading === 'string' && raw.Heading.trim() !== '') ? raw.Heading : null,
+            TextSizeMm     : Math.min(setup.maxTextSizeMm, Math.max(setup.minTextSizeMm, Na__LeRec__Num(raw.TextSizeMm, setup.textSizeMm))),
+            IncludeGeneral : typeof raw.IncludeGeneral === 'boolean' ? raw.IncludeGeneral : setup.includeGeneral,
+            GroupHeadings  : typeof raw.GroupHeadings === 'boolean' ? raw.GroupHeadings : setup.groupHeadings
+        };
+        return sheet.Sheet__MarginNotes;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Sheet's Margin Settings, With the Defaults Where It Has None (never writes)
+    // ------------------------------------------------------------
+    function Na__LeRec__MarginNotes(sheet) {
+        const stored = (sheet && sheet.Sheet__MarginNotes && typeof sheet.Sheet__MarginNotes === 'object') ? sheet.Sheet__MarginNotes : null;
+        if (stored) return stored;
+        const setup = Na__LeCfg__GetMarginNotesSetup();
+        return { Enabled : false, WidthMm : setup.defaultWidthMm, Heading : null, TextSizeMm : setup.textSizeMm, IncludeGeneral : setup.includeGeneral, GroupHeadings : setup.groupHeadings };
     }
     // ------------------------------------------------------------
 
@@ -425,16 +607,19 @@
         if (!Array.isArray(sheet.Sheet__Annotations)) sheet.Sheet__Annotations = [];
         if (!Array.isArray(sheet.Sheet__Dimensions))  sheet.Sheet__Dimensions  = [];
         if (!Array.isArray(sheet.Sheet__Shapes))      sheet.Sheet__Shapes      = [];
+        if (!Array.isArray(sheet.Sheet__Leaders))     sheet.Sheet__Leaders     = [];
 
         // LINEWEIGHTS | Printed points per sheet, seeded from the config
         const lwSetup = Na__LeCfg__GetLineweightSetup();
         const lw = (sheet.Sheet__Lineweights && typeof sheet.Sheet__Lineweights === 'object') ? sheet.Sheet__Lineweights : {};
         sheet.Sheet__Lineweights = { ViewportPt : Na__LeRec__Num(lw.ViewportPt, lwSetup.viewportPt), DimensionPt : Na__LeRec__Num(lw.DimensionPt, lwSetup.dimensionPt) };
+        Na__LeRec__NormaliseMarginNotes(sheet);                                  // <-- Only a sheet that has a notes margin
 
         sheet.Sheet__Viewports.forEach((v)   => Na__LeRec__NormaliseViewport(v,   Na__LeRec__DefaultLayerId(sheet, 'viewport')));
         sheet.Sheet__Annotations.forEach((a) => Na__LeRec__NormaliseAnnotation(a, Na__LeRec__DefaultLayerId(sheet, 'annotation')));
         sheet.Sheet__Dimensions.forEach((d)  => Na__LeRec__NormaliseDimension(d,  Na__LeRec__DefaultLayerId(sheet, 'dimension')));
         sheet.Sheet__Shapes.forEach((sh)     => Na__LeRec__NormaliseShape(sh,     Na__LeRec__DefaultLayerId(sheet, 'vector')));
+        sheet.Sheet__Leaders.forEach((l)     => Na__LeRec__NormaliseLeader(l,     Na__LeRec__DefaultLayerId(sheet, 'annotation')));   // <-- Leaders live with the text
         return sheet;
     }
     // ------------------------------------------------------------
@@ -506,6 +691,9 @@
         Na__LeRec__LAYER_TYPES,
         Na__LeRec__STYLE_KEYS,
         Na__LeRec__NormaliseShape,
+        Na__LeRec__NormaliseLeader,
+        Na__LeRec__NormaliseMarginNotes,
+        Na__LeRec__MarginNotes,
         Na__LeRec__NextId,
         Na__LeRec__Num,
         Na__LeRec__Find,
