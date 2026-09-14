@@ -261,7 +261,7 @@
                 button.setAttribute('data-na-tool', entry[0]);
                 root.appendChild(button);
             });
-            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('SnapToggle', 'Snap'), 'snap', Na__LeCfg__GetLabel('SnapToggleTitle', 'Snap dimensions to the linework endpoints and midpoints (F3)'), () => Na__LeOsnap__Toggle()));
+            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('SnapToggle', 'Snap'), 'snap', Na__LeCfg__GetLabel('SnapToggleTitle', 'Snap to endpoints and midpoints of the linework and the sheet\'s own vectors and dimensions (F3)'), () => Na__LeOsnap__Toggle()));
             root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('MarginToggle', 'Notes'), 'margin', Na__LeCfg__GetLabel('MarginToggleTitle', 'Show the notes margin on this sheet: the specification notes its bubbles link to, with the general notes last. Drag its left edge to resize it.'), () => {
                 const sheet = Na__LeModel__GetActiveSheet();
                 if (sheet) Na__LeModel__UpdateMarginNotes(sheet, { enabled : Na__LeRec__MarginNotes(sheet).Enabled !== true });

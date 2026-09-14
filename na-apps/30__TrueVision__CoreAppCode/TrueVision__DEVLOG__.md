@@ -2,6 +2,93 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.46.0  -  14-Sep-2026
+### Type a Length While Dragging a Vertex
+
+**Overview**
+- While a vertex of a finished vector is being dragged, the Measurements box
+  wakes and reads the drag's length. Type a value and press Enter: the vertex
+  moves that far along the inferred direction (from where it started toward
+  where it is being dragged). A minus sign runs the other way. The landing is
+  exact - no snap - and the drag finishes so the still-down pointer cannot
+  pull the vertex back to the cursor. One undo step.
+- Draw at scale applies the same way it does while drawing: the length is a
+  real size at the drawing under the vertex, or paper millimetres when the
+  tick is off.
+
+**Files**
+- Layout Editor: `SheetTools__` 1.21.0 (`GetVertexDrag`, `TypeVertexLength`),
+  `Measurements__` 1.1.0; `AppConfig__.json` and `KeyMappings__.json`
+  (vertex-drag wording).
+- Service worker: token `2026-09-14-12`.
+
+**Verification**
+- Named exports pass on the Layout Editor folder. Module graph and AppConfig
+  JSON parse. Not exercised in the running app in this session.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.45.0  -  14-Sep-2026
+### Vector Moves Snap to the Linework; Shift-Click Inserts a Vertex
+
+**Overview**
+- Dragging a finished vector now snaps to the same linework endpoints and
+  midpoints dimensions use. The grab point (the nearest vertex or a point on
+  an edge) and every vertex are offered; the nearest snap wins, and the whole
+  shape translates so that point lands on it. Vertex grips already snapped;
+  moving the body did not.
+- Hold Shift over an edge of the selected vector: a diamond marks where a
+  click will insert a vertex. The insert snaps to the linework when one is
+  near. Drag the new vertex in the same press; one undo step either way.
+  Shift-click on a vertex or the fill still toggles the selection.
+
+**Files**
+- Layout Editor: `SheetTools__` 1.20.0, `ShapeGeometry__` 1.4.0
+  (`ClosestOnEdge`, `InsertPoint`), `Grips__` 1.5.0 (`ShowInsert`),
+  `Styles__Main__.css` (insert diamond); `AppConfig__.json` (snapping
+  description, selected-shape note).
+- Service worker: token `2026-09-14-11`.
+
+**Verification**
+- Named exports pass on the Layout Editor folder (71 files). Module graph: 359
+  reachable modules, 0 failures (the one known vendor issue unchanged).
+- AppConfig JSON parses. Not exercised in the running app in this session.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.44.0  -  14-Sep-2026
+### Vector Undo, Redo, Copy, Paste and Duplicate
+
+**Overview**
+- Vectors now use the same clipboard and history chords as viewports. Select a
+  vector: Ctrl+C copies it, Ctrl+V pastes it, Ctrl+D duplicates it. The
+  right-click menu on a vector offers Copy vector, Duplicate vector and Paste;
+  bare paper pastes a held vector with its bounding-box top-left at the click.
+- A paste is the whole record with a fresh id (`Na__LeModel__InsertShape`):
+  vertices, closed, edges, fill, gradient and opacities. On the same sheet it
+  steps `PasteOffsetMm` down and right of the original, and again past any
+  copy already sitting in the run; on another sheet it lands in the same place.
+  One paste is one undo step.
+- While the Draw tool is placing points, Ctrl+Z takes the last vertex off (the
+  first vertex abandons the draft) and Ctrl+Y puts a taken-off vertex back. A
+  new click or a typed length clears that redo stack. Those keys no longer step
+  the last finished sheet edit mid-draw. An in-progress rectangle (not yet a
+  record) is abandoned by Ctrl+Z the way Escape already did.
+- Number fields (Edge pt, Size mm) hand Ctrl+Z / Y / C / V / D to the sheet,
+  the way a select or a checkbox already did, instead of swallowing them once
+  the value has been applied.
+
+**Files**
+- Layout Editor: `ViewportClipboard__` 1.1.0, `SheetModel__` 1.16.0
+  (`GetShapeById`, `InsertShape`), `ShapeTool__` 1.5.0 (`UndoVertex`,
+  `RedoVertex`), `SheetTools__` 1.18.0; `AppConfig__.json` (clipboard
+  description, Copy / Paste / Duplicate vector labels, Draw-tool note).
+- Service worker: token `2026-09-14-10`.
+
+**Verification**
+- Named exports pass on the Layout Editor folder (71 files). Module graph: 359
+  reachable modules, 0 failures (the one known vendor issue unchanged).
+- AppConfig JSON parses. Not exercised in the running app in this session.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.43.0  -  14-Sep-2026
 ### Dimension End Size - Resize Ticks, Arrows and Dots Per Dimension
 

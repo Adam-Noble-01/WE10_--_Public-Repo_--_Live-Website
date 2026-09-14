@@ -24,7 +24,10 @@
 //   length arrives in paper millimetres: Na__LayoutEditor__Measurements__
 //   has already taken the drawing scale off.
 // - The shape is created silently on the first click and announced once
-//   on finishing, so a whole shape is one undo step.
+//   on finishing, so a whole shape is one undo step. While it is being
+//   drawn, Ctrl+Z takes the last vertex off (the first vertex abandons the
+//   shape) and Ctrl+Y puts a taken-off vertex back; a new click or a typed
+//   length clears what redo was holding.
 // - Edge colour, edge weight (points), whether the edges draw at all and
 //   the fill come from the Vectors panel's defaults; the panel edits them
 //   afterwards. A shape being drawn always shows its edges, whatever the
@@ -48,6 +51,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.5.0
+// - While a shape is being drawn, UndoVertex takes the last vertex off
+//   (one point left abandons the draft) and RedoVertex puts a taken-off
+//   vertex back. A new click or a typed length clears the redo stack. The
+//   sheet tools intercept Ctrl+Z / Ctrl+Y before the sheet history, so
+//   undoing mid-draw no longer steps the last finished edit.
+//
 // 14-Sep-2026 - Version 1.4.0
 // - Typed lengths: the band's end is kept (the direction a typed length runs),
 //   Measure reports the segment being drawn and TypeLength places a vertex a
@@ -118,7 +128,8 @@
 
     // MODULE VARIABLES | The Shape Being Drawn
     // ------------------------------------------------------------
-    let Na__LeShape__Draft = null;     // <-- { id, points : [[x, y], ...], stroked, aim : { x, y } where the band ends, or null }
+    let Na__LeShape__Draft  = null;     // <-- { id, points : [[x, y], ...], stroked, aim : { x, y } where the band ends, or null }
+    let Na__LeShape__Undone = [];       // <-- Vertices Ctrl+Z took off this draft; Ctrl+Y puts them back, a new click forgets them
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -212,6 +223,7 @@
         const draft = Na__LeShape__Draft;
         draft.points.push(pt);
         draft.aim = null;                                                    // <-- The band has no end until the cursor gives it one
+        Na__LeShape__Undone = [];                                            // <-- A new vertex starts a new future
         Na__LeModel__UpdateShape(sheet, draft.id, { points : draft.points.slice() }, true);
         Na__LeSurface__Refresh('markup');
         Na__LeAxis__Clear();                                                 // <-- Each segment locks on its own
@@ -244,7 +256,8 @@
                 gradient : d.gradientOn ? d.gradient : null, closed : false, stroked : true, silent : true
             });
             if (!item) return false;
-            Na__LeShape__Draft = { id : item.Shape__Id, points : [ pt ], stroked : d.stroked !== false, aim : null };   // <-- Drawn with edges, finished as the default asks
+            Na__LeShape__Draft  = { id : item.Shape__Id, points : [ pt ], stroked : d.stroked !== false, aim : null };   // <-- Drawn with edges, finished as the default asks
+            Na__LeShape__Undone = [];
             Na__LeAxis__Clear();                                             // <-- The point landed: the lock is spent
             Na__LeGrips__ShowBand(pt, pt, null);
             return true;
@@ -281,7 +294,8 @@
     function Na__LeShape__Finish(sheet, close) {
         const draft = Na__LeShape__Draft;
         if (!draft) return false;
-        Na__LeShape__Draft = null;
+        Na__LeShape__Draft  = null;
+        Na__LeShape__Undone = [];
         Na__LeAxis__Clear();
         Na__LeGrips__HideBand();
         Na__LeOsnap__HideMarker();
@@ -299,7 +313,8 @@
     // ------------------------------------------------------------
     function Na__LeShape__Cancel(sheet) {
         const draft = Na__LeShape__Draft;
-        Na__LeShape__Draft = null;
+        Na__LeShape__Draft  = null;
+        Na__LeShape__Undone = [];
         Na__LeAxis__Clear();
         Na__LeGrips__HideBand();
         Na__LeOsnap__HideMarker();
@@ -312,6 +327,51 @@
     // FUNCTION | Is a Shape Being Drawn
     // ------------------------------------------------------------
     function Na__LeShape__IsDrawing() { return !!Na__LeShape__Draft; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take the Last Vertex Off the Shape Being Drawn
+    // ------------------------------------------------------------
+    // One point left is not a shape: the draft is abandoned, the way Escape
+    // does. Returns true when the key was spent, so the sheet history is
+    // left alone.
+    // ------------------------------------------------------------
+    function Na__LeShape__UndoVertex(sheet) {
+        const draft = Na__LeShape__Draft;
+        if (!draft) return false;
+        if (draft.points.length <= 1) return Na__LeShape__Cancel(sheet);
+        const popped = draft.points.pop();
+        Na__LeShape__Undone.push(popped);
+        draft.aim = null;
+        Na__LeModel__UpdateShape(sheet, draft.id, { points : draft.points.slice() }, true);
+        Na__LeSurface__Refresh('markup');
+        Na__LeAxis__Clear();
+        const last = draft.points[draft.points.length - 1];
+        Na__LeGrips__ShowBand(last, last, null);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put Back a Vertex Ctrl+Z Took Off This Draft
+    // ------------------------------------------------------------
+    // Only vertices taken off this drawing: a new click or a typed length
+    // empties the stack. Returns true when the key was spent, even if the
+    // stack was empty, so redo mid-draw never steps the sheet history.
+    // ------------------------------------------------------------
+    function Na__LeShape__RedoVertex(sheet) {
+        const draft = Na__LeShape__Draft;
+        if (!draft) return false;
+        if (!Na__LeShape__Undone.length || !sheet) return true;
+        const pt = Na__LeShape__Undone.pop();
+        draft.points.push(pt);
+        draft.aim = null;
+        Na__LeModel__UpdateShape(sheet, draft.id, { points : draft.points.slice() }, true);
+        Na__LeSurface__Refresh('markup');
+        Na__LeAxis__Clear();
+        Na__LeGrips__ShowBand(pt, pt, null);
+        return true;
+    }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -381,6 +441,8 @@
         Na__LeShape__Finish,
         Na__LeShape__Cancel,
         Na__LeShape__IsDrawing,
+        Na__LeShape__UndoVertex,
+        Na__LeShape__RedoVertex,
         Na__LeShape__Measure,
         Na__LeShape__TypeLength
     };

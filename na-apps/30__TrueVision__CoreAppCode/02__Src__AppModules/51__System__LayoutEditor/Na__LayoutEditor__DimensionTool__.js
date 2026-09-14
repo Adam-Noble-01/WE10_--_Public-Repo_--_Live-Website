@@ -65,6 +65,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.7.0
+// - BeginTextEdit opens the field with the value's handing: left or right
+//   justified once the text has been dragged off the line, centred on it.
+//
+// 14-Sep-2026 - Version 1.6.0
+// - BeginTextEdit opens the field over the value where it actually sits,
+//   including after it has been dragged off the line.
+//
 // 14-Sep-2026 - Version 1.5.0
 // - A new dimension takes the Dimensions panel's terminator size
 //   (tickLengthMm), so its ticks, arrows or dots are already the Size mm
@@ -124,8 +132,8 @@
     } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom, Na__LeSurface__Refresh } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeHandles__Contains, Na__LeHandles__FrontToBack } from './Na__LayoutEditor__ViewportHandles__.js';
-    import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionValueMm, Na__LeMarkup__FormatDimension } from './Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeDimGeo__ALIGNED, Na__LeDimGeo__Frame, Na__LeDimGeo__OrthoToward, Na__LeDimGeo__TextPlacement } from './Na__LayoutEditor__DimensionGeometry__.js';
+    import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionValueMm, Na__LeMarkup__FormatDimension, Na__LeMarkup__DimensionTextLayout } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeDimGeo__ALIGNED, Na__LeDimGeo__Frame, Na__LeDimGeo__OrthoToward } from './Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeChrome__MeasureTextMm } from './Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeOsnap__TONE_DIMENSION, Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
     import { Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from './Na__LayoutEditor__Grips__.js';
@@ -470,10 +478,14 @@
         const shown    = Na__LeMarkup__FormatDimension(dim, valueMm);
         const fontMm   = dim.Dimension__TextSizeMm;
         const widthMm  = Math.max(fontMm * 4, Na__LeChrome__MeasureTextMm(shown, fontMm, 400));
-        const place    = Na__LeDimGeo__TextPlacement(sk, Na__LeCfg__GetDimensionSetup().textGapMm);
+        const layout   = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
+        const place    = layout ? layout.place : null;
+        if (!place) return false;
+        const origin   = layout.origin || { x : place.x, y : place.y, align : 'center' };
+        const fieldX   = origin.align === 'right' ? origin.x - widthMm : (origin.align === 'left' ? origin.x : place.x - (widthMm / 2));
         return Na__LeText__OpenField({
-            xMm : place.x - (widthMm / 2), yMm : place.y - fontMm, widthMm : widthMm, fontMm : fontMm, weight : 400,
-            colour : dim.Dimension__Colour, align : 'center', value : shown,
+            xMm : fieldX, yMm : place.y - fontMm, widthMm : widthMm, fontMm : fontMm, weight : 400,
+            colour : dim.Dimension__Colour, align : origin.align, value : shown,
             onCommit : (text) => {
                 const live = Na__LeModel__GetActiveSheet();
                 if (!live) return;

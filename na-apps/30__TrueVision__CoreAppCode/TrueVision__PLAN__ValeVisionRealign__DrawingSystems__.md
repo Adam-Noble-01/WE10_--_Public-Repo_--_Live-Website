@@ -889,6 +889,20 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | AB | Verified | x | 2.43.0 | Named exports pass (71 Layout Editor files). Module graph 359, 0 failures. AppConfig JSON parses. Not exercised in the running app in this session |
 | AB | Tested by Adam | - | 2.43.0 | |
 | AB | ValeVision port | x | VV 2.34.0 | Ported the same day at Adam's request ("update the ValeVision counterpart as well"). The Size mm field, `Dimension__TickLengthMm`, draw, eyedropper, selection box, defaults and config, without the TrueVision-only Measure at scale / extension-line rows ValeVision has not taken yet |
+| **AC** | **Vector undo, redo, copy, paste and duplicate** | **x** | 2.44.0 | Authored in TrueVision first, from Adam's request after the dim-end-size work. Vectors join the existing clipboard (`Na__LeClip__` kind `'shape'`): Ctrl+C / Ctrl+V / Ctrl+D and the context menu. A paste is the whole record with a fresh id (`Na__LeModel__InsertShape`) and a fanned-out bounding-box origin (`PasteOffsetMm`); one undo step. While the Draw tool is placing points, Ctrl+Z / Ctrl+Y take vertices off and put them back instead of stepping the sheet history. Number fields hand those Ctrl chords to the sheet. No new record field. Token `2026-09-14-10` |
+| AC | Verified | x | 2.44.0 | Named exports pass (71 Layout Editor files). Module graph 359, 0 failures. AppConfig JSON parses. Not exercised in the running app in this session |
+| AC | Tested by Adam | - | 2.44.0 | |
+| AC | ValeVision port | x | VV 2.35.0 | Ported the same day with snap/insert and VCB (VV v2.35.0). Viewport clipboard included because ValeVision had none yet |
+| **AD** | **Vector moves snap to the linework; Shift-click inserts a vertex** | **x** | 2.45.0 | Authored in TrueVision first, from Adam's request after clipboard work. A whole-shape drag offers the grab point and every vertex to the existing object snap (linework endpoints and midpoints); the nearest wins and the shape translates onto it. Vertex grips already snapped. Shift-click an edge of the selected vector inserts a vertex (diamond preview while Shift is held), snapped, then the same press can drag it; one undo step. No new record field. Token `2026-09-14-11` |
+| AD | Verified | x | 2.45.0 | Named exports pass (71 Layout Editor files). Module graph 359, 0 failures. AppConfig JSON parses. Not exercised in the running app in this session |
+| AD | Tested by Adam | - | 2.45.0 | |
+| AD | ValeVision port | x | VV 2.35.0 | Ported the same day with clipboard and VCB (VV v2.35.0) |
+| **AE** | **Type a length while dragging a vertex** | **x** | 2.46.0 | Authored in TrueVision first, from Adam's request after snap/insert. While a vertex is dragged, the Measurements box takes a typed length and moves the vertex that far along the inferred direction (`GetVertexDrag` / `TypeVertexLength`); exact millimetres, drag finished so the pointer cannot pull it back; Draw at scale applies. Token `2026-09-14-12` |
+| AE | Verified | x | 2.46.0 | Named exports pass (Layout Editor). Module graph 359, 0 failures. AppConfig JSON parses. Not exercised in the running app in this session |
+| AE | Tested by Adam | - | 2.46.0 | |
+| AE | ValeVision port | x | VV 2.35.0 | Ported with the Measurements box (VV had none). Typed lengths for Draw/Rectangle/Dimension came with it. Panel atScale rows left hardcoded true |
+| **AF** | **Eyedropper matches unlocked viewports; locked frames are skipped** | **x** | working | Authored in TrueVision first, from Adam's request. Unlocked viewports copy render composites, frame, caption and scale. A locked viewport is not a source or a target and is not even resolved, so the dropper reaches markup through the frame |
+| AF | ValeVision port | x | VV 2.36.0 | Ported the same day at Adam's request. Composites, caption and scale; `Viewport__ShowFrame` stays here (Frame toggle is still pending there as W) |
 
 ### 12.1 How to actually run a real project on localhost
 

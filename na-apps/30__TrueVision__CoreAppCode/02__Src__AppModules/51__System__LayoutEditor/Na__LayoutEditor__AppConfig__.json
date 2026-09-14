@@ -157,7 +157,7 @@
     },
 
     "LayoutEditor__Dimensions__Config": {
-        "LayoutEditor__Dimensions__Description": "Sheet dimensions (D32) drawn in paper millimetres. A dimension placed over a 2D viewport reports paper length times the viewport's scale denominator, so it measures the model. MEASURE AT SCALE (DefaultAtScale, the first control of the Dimensions panel, on by default): off every viewport a dimension reports the paper length times the sheet's scale - the scale its 2D viewports share, the biggest drawing's when they differ, the Scales default when it has none - so vectors drawn at scale measure true; switched off, a dimension reports paper millimetres wherever it is. Lengths typed into the Measurements box while one is placed are real sizes at the scale it will read. The record keeps the switch as Dimension__AtScale (true or false); a record from before it has no key and reports what it always did: the model on a viewport, the paper elsewhere. Precision is decimal places; the units suffix follows the figure. ORTHO: hold Shift while the line is being placed (after the second click) and the dimension runs horizontal or vertical whatever its two points are - drag the line above or below them for the x distance between them, beside them for the y. Release Shift and it is aligned again. The record keeps this as Dimension__Orientation ('aligned', 'horizontal' or 'vertical'; a record from before it is aligned). The offset is measured from the start point, and an ortho line stays where it was put while a grip re-picks either point. SIZE MM (TickLengthMm, MinTickLengthMm, MaxTickLengthMm): how large the ticks, arrows or dots at each end are, in paper millimetres. The Dimensions panel's Size mm row, under Ends, sets it per dimension; the record keeps it as Dimension__TickLengthMm. A record from before it has no key and draws at TickLengthMm.",
+        "LayoutEditor__Dimensions__Description": "Sheet dimensions (D32) drawn in paper millimetres. A dimension placed over a 2D viewport reports paper length times the viewport's scale denominator, so it measures the model. MEASURE AT SCALE (DefaultAtScale, the first control of the Dimensions panel, on by default): off every viewport a dimension reports the paper length times the sheet's scale - the scale its 2D viewports share, the biggest drawing's when they differ, the Scales default when it has none - so vectors drawn at scale measure true; switched off, a dimension reports paper millimetres wherever it is. Lengths typed into the Measurements box while one is placed are real sizes at the scale it will read. The record keeps the switch as Dimension__AtScale (true or false); a record from before it has no key and reports what it always did: the model on a viewport, the paper elsewhere. Precision is decimal places; the units suffix follows the figure. ORTHO: hold Shift while the line is being placed (after the second click) and the dimension runs horizontal or vertical whatever its two points are - drag the line above or below them for the x distance between them, beside them for the y. Release Shift and it is aligned again. The record keeps this as Dimension__Orientation ('aligned', 'horizontal' or 'vertical'; a record from before it is aligned). The offset is measured from the start point, and an ortho line stays where it was put while a grip re-picks either point. SIZE MM (TickLengthMm, MinTickLengthMm, MaxTickLengthMm): how large the ticks, arrows or dots at each end are, in paper millimetres. The Dimensions panel's Size mm row, under Ends, sets it per dimension; the record keeps it as Dimension__TickLengthMm. A record from before it has no key and draws at TickLengthMm. TEXT LEADER: click and drag the value off the line and a circular arc runs from the edge of the text back to the centre of the dimension line, tangent to the line there. Dimension__TextDXMm and Dimension__TextDYMm store the paper offset from where the value would have sat; dragging it back within TextLeaderMinMm snaps it home and both keys go. TextLeaderGapMm is the clear paper between the text box and the start of the arc. A record from before it has no keys and the value sits on the line as it always did.",
         "LayoutEditor__Dimensions__DefaultTextSizeMm": 2.5,
         "LayoutEditor__Dimensions__MinTextSizeMm": 1.5,
         "LayoutEditor__Dimensions__MaxTextSizeMm": 8,
@@ -178,7 +178,10 @@
         "LayoutEditor__Dimensions__DefaultPrecision": 0,
         "LayoutEditor__Dimensions__DefaultUnitsSuffix": " mm",
         "LayoutEditor__Dimensions__ThousandsSeparator": ",",
-        "LayoutEditor__Dimensions__DefaultAtScale": true
+        "LayoutEditor__Dimensions__DefaultAtScale": true,
+        "LayoutEditor__Dimensions__TextLeaderMinMm": 1.5,
+        "LayoutEditor__Dimensions__TextLeaderGapMm": 0.4,
+        "LayoutEditor__Dimensions__TextLeaderNote": "TextLeaderMinMm is how far, in paper millimetres, a dragged value has to sit from its un-dragged place before the arc is drawn and before a drag keeps rather than snapping home. TextLeaderGapMm is the clear paper between the justified side of the value and the start of that arc. The arc is a circle from the middle of that side to the centre of the dimension line, bulging away from the line so the hook bends outwards. Dragged to the right of the centre the value is left-justified and the arc meets its left; dragged to the left, right-justified, the arc on the right."
     },
 
     "LayoutEditor__Panels__Config": {
@@ -199,7 +202,7 @@
     },
 
     "LayoutEditor__Snapping__Config": {
-        "LayoutEditor__Snapping__Description": "Object snaps for placing and dragging dimensions and drawing vectors. Two sources: the projected linework inside 2D viewports, and - with SheetObjects on - the sheet's own vectors and dimensions, so a new line can start on the corner of the last one and a polygon can close exactly on its first point. RadiusPx is the pick radius on screen at any zoom. Endpoints and midpoints are candidates; an endpoint wins a near tie, and the sheet's own markup wins a tie with the linework because it sits on top. The item being dragged never offers its own moving point. HiddenLines adds the hidden class as a source. The toggle (toolbar button or the Snap__Toggle key binding) is remembered per browser. MARKER COLOURS say which tool is snapping: blue for vertices (the Draw and Rectangle tools and vertex grips), orange for dimensions (the Dimension tool, its grips and its line inference), purple for viewports (carrying one by a point - the ring, the tracking crosses and the frame outline go purple too). The colours live in Na__LayoutEditor__Styles__Main__.css.",
+        "LayoutEditor__Snapping__Description": "Object snaps for placing and dragging dimensions and vectors. Two sources: the projected linework inside 2D viewports, and - with SheetObjects on - the sheet's own vectors and dimensions, so a new line can start on the corner of the last one and a polygon can close exactly on its first point. A dragged vector snaps too: the grab point and every vertex are offered, and the nearest snap moves the whole shape. RadiusPx is the pick radius on screen at any zoom. Endpoints and midpoints are candidates; an endpoint wins a near tie, and the sheet's own markup wins a tie with the linework because it sits on top. The item being dragged never offers its own moving point. HiddenLines adds the hidden class as a source. The toggle (toolbar button or the Snap__Toggle key binding) is remembered per browser. MARKER COLOURS say which tool is snapping: blue for vertices (the Draw and Rectangle tools, vertex grips, and a vector being moved), orange for dimensions (the Dimension tool, its grips and its line inference), purple for viewports (carrying one by a point - the ring, the tracking crosses and the frame outline go purple too). The colours live in Na__LayoutEditor__Styles__Main__.css.",
         "LayoutEditor__Snapping__Enabled": true,
         "LayoutEditor__Snapping__RadiusPx": 14,
         "LayoutEditor__Snapping__Endpoints": true,
@@ -215,7 +218,7 @@
         "LayoutEditor__Snapping__TrackMarkerSizePx": 11
     },
     "LayoutEditor__Clipboard__Config": {
-        "LayoutEditor__Clipboard__Description": "Copy, paste and duplicate for viewports (Ctrl+C, Ctrl+V, Ctrl+D, and the right-click menu). A paste is a new viewport with a fresh id and a new name ('{name} copy', then '{name} copy 2' - wording in the Labels block) and every other setting of the one copied: scene, scale, crop, window, render composites, model layers, edge styles. It arrives unlocked. On the sheet it was copied from it steps PasteOffsetMm down and right of the original, and again past any copy already there; on another sheet it lands in the same place; from the menu on bare paper its top-left corner goes at the click. Pointing a copy at a different scene clears the copy name so the caption follows the new scene. CopySnapshot lets a 3D copy show the original's stored picture straight away instead of rendering it again. One paste is one undo step. The clipboard is this tab's memory: it survives changing sheet, not a reload.",
+        "LayoutEditor__Clipboard__Description": "Copy, paste and duplicate for viewports, vectors, text, groups, and a multi-selection of vectors or text (Ctrl+C, Ctrl+V, Ctrl+D, and the right-click menu). A paste is a new item with a fresh id: a viewport also gets a new name ('{name} copy', then '{name} copy 2' - wording in the Labels block) and every other setting of the one copied; a vector keeps its vertices, closed, edges, fill, gradient and opacities, offset by PasteOffsetMm. Text, groups and a multi-selection paste the same way, with group members remapped to the new ids. A viewport arrives unlocked. On the sheet it was copied from it steps PasteOffsetMm down and right of the original, and again past any copy already there; on another sheet it lands in the same place; from the menu on bare paper its top-left corner goes at the click. Pointing a viewport copy at a different scene clears the copy name so the caption follows the new scene. CopySnapshot lets a 3D copy show the original's stored picture straight away instead of rendering it again. One paste is one undo step. The clipboard is this tab's memory: it survives changing sheet, not a reload.",
         "LayoutEditor__Clipboard__PasteOffsetMm": 10,
         "LayoutEditor__Clipboard__CopySnapshot": true
     },
@@ -307,7 +310,7 @@
         "LayoutEditor__Leader__MinLengthMm": 2
     },
     "LayoutEditor__Eyedropper__Config": {
-        "LayoutEditor__Eyedropper__Description": "The eyedropper (hotkey B) matches properties from one object on the sheet onto another. Click the object that already looks right, then click each object that should match it. StayLoadedAfterApply keeps the picked style on the dropper so a run of items costs one click each; with it off the dropper empties after the first apply and must be re-picked. CopyDimensionOffset is off on purpose: a dimension's offset is where its line sits, so copying it would move the target rather than restyle it. Style travels, content and geometry do not, and the layer never travels in any kind. Viewports are not matched yet - see the FUTURE EXPANSION note in Na__LayoutEditor__Eyedropper__.js. Shift+B is the palette mode: click an object and its style becomes the setting new objects of that kind are created with - the same traits travel, turned into the panel settings. PaletteSwitchesTool then hands over to the drawing tool for that kind (Text, Dimension, or whichever of Draw and Rectangle drew last); FlashMs is how long the item the style came from pulses.",
+        "LayoutEditor__Eyedropper__Description": "The eyedropper (hotkey B) matches properties from one object on the sheet onto another. Click the object that already looks right, then click each object that should match it. StayLoadedAfterApply keeps the picked style on the dropper so a run of items costs one click each; with it off the dropper empties after the first apply and must be re-picked. CopyDimensionOffset is off on purpose: a dimension's offset is where its line sits, so copying it would move the target rather than restyle it. Style travels, content and geometry do not, and the layer never travels in any kind. Unlocked viewports match each other (render composites, frame, caption and scale); a locked viewport is not picked up at all, so the dropper reaches markup and other unlocked viewports through the frame. Shift+B is the palette mode: click an object and its style becomes the setting new objects of that kind are created with - the same traits travel, turned into the panel settings. PaletteSwitchesTool then hands over to the drawing tool for that kind (Text, Dimension, or whichever of Draw and Rectangle drew last); FlashMs is how long the item the style came from pulses.",
         "LayoutEditor__Eyedropper__StayLoadedAfterApply": true,
         "LayoutEditor__Eyedropper__CopyDimensionOffset": false,
         "LayoutEditor__Eyedropper__HighlightPadMm": 1.2,
@@ -317,7 +320,8 @@
         "LayoutEditor__Eyedropper__RefuseCursor": "not-allowed",
         "LayoutEditor__Eyedropper__PaletteSwitchesTool": true,
         "LayoutEditor__Eyedropper__FlashMs": 700,
-        "LayoutEditor__Eyedropper__LeaderNote": "Leaders match too: text, line, endpoint, bubble and fill travel between leaders, and a vector's fill and edge opacity travel with its other traits. A leader's type (note or bubble) travels to the palette only, so Shift+B on a bubble sets the Leader tool to draw bubbles, but a paint never turns a note into a bubble."
+        "LayoutEditor__Eyedropper__LeaderNote": "Leaders match too: text, line, endpoint, bubble and fill travel between leaders, and a vector's fill and edge opacity travel with its other traits. A leader's type (note or bubble) travels to the palette only, so Shift+B on a bubble sets the Leader tool to draw bubbles, but a paint never turns a note into a bubble.",
+        "LayoutEditor__Eyedropper__ViewportNote": "Unlocked viewports copy render composites, frame, caption and scale onto other unlocked viewports. A locked viewport (its own lock or its layer) is not a source and not a target, and the eyedropper does not resolve it, so a locked drawing is not detected over the markup on it. Scene, drawing, frame geometry, pan, name, layer, lock and doors stay on that viewport. Viewports do not load the palette: new viewports are added from the panel, not drawn with a tool."
     },
     "LayoutEditor__Enhance__Config": {
         "LayoutEditor__Enhance__Description": "The Enhance Whitecard viewport style: the image export's levels and high-pass sharpen, applied to a viewport's render. A white point of 205 sends the shaded whitecard faces to paper white while the linework stays dark.",
@@ -394,7 +398,7 @@
     },
 
     "LayoutEditor__Measurements__Config": {
-        "LayoutEditor__Measurements__Description": "The Measurements box at the bottom right of the sheet (Na__LayoutEditor__Measurements__), SketchUp's VCB. While the Draw, Rectangle or Dimension tool is up it reads out what is being drawn as it is drawn - a line's length, a rectangle's width x height, a dimension's span and then its line's offset - and a value typed while drawing is used on Enter, with no click into the box first: Draw places the next point that far along the rubber band (its direction, so snaps, Shift and the arrow key axis lock aim it); Rectangle lands the opposite corner (3000 x 2000 or 3000,2000; one figure is a square; typed straight after a rectangle lands, it resizes that rectangle); Dimension picks the end that far along the band, then puts the line that far from what it measures. A number with no unit is millimetres; add m, cm or mm for another (2.5m), commas may group thousands (2,500) and a minus sign draws the other way. The line above the box shows how a value is being read as it is typed. AT SCALE: with Draw at scale on (Shapes DefaultAtScale) lines and rectangles take and show real sizes at the drawing's scale - the 2D viewport under the first point, or the sheet's scale elsewhere - so 2500 at 1:50 is 50 mm of paper; off, they are paper millimetres. A dimension uses Measure at scale (Dimensions DefaultAtScale). The chip at the right of the box shows the scale in use. Precision is the decimal places a reading shows (trailing zeros dropped), UnitsSuffix follows it, PairSeparator joins a rectangle's two sizes, HintMs is how long a message above the box stays, and EdgeGapPx keeps the box clear of the stage's scrollbars. The keys it reads are in Na__LayoutEditor__KeyMappings__.json under MeasurementsBox.",
+        "LayoutEditor__Measurements__Description": "The Measurements box at the bottom right of the sheet (Na__LayoutEditor__Measurements__), SketchUp's VCB. While the Draw, Rectangle or Dimension tool is up it reads out what is being drawn as it is drawn - a line's length, a rectangle's width x height, a dimension's span and then its line's offset - and a value typed while drawing is used on Enter, with no click into the box first: Draw places the next point that far along the rubber band (its direction, so snaps, Shift and the arrow key axis lock aim it); Rectangle lands the opposite corner (3000 x 2000 or 3000,2000; one figure is a square; typed straight after a rectangle lands, it resizes that rectangle); Dimension picks the end that far along the band, then puts the line that far from what it measures. Dragging a vertex of a finished vector wakes the box the same way: the reading is the drag's length, and a typed value moves the vertex that far along the inferred direction (the original vertex toward where it is being dragged; a minus sign runs the other way) and finishes the drag so the pointer cannot pull it back. A number with no unit is millimetres; add m, cm or mm for another (2.5m), commas may group thousands (2,500) and a minus sign draws the other way. The line above the box shows how a value is being read as it is typed. AT SCALE: with Draw at scale on (Shapes DefaultAtScale) lines, rectangles and a dragged vertex take and show real sizes at the drawing's scale - the 2D viewport under the first point (or the vertex), or the sheet's scale elsewhere - so 2500 at 1:50 is 50 mm of paper; off, they are paper millimetres. A dimension uses Measure at scale (Dimensions DefaultAtScale). The chip at the right of the box shows the scale in use. Precision is the decimal places a reading shows (trailing zeros dropped), UnitsSuffix follows it, PairSeparator joins a rectangle's two sizes, HintMs is how long a message above the box stays, and EdgeGapPx keeps the box clear of the stage's scrollbars. The keys it reads are in Na__LayoutEditor__KeyMappings__.json under MeasurementsBox.",
         "LayoutEditor__Measurements__Enabled": true,
         "LayoutEditor__Measurements__Precision": 1,
         "LayoutEditor__Measurements__UnitsSuffix": " mm",
@@ -473,7 +477,8 @@
         "LayoutEditor__Labels__EyedropperLoadedHint": "Holding {source} properties - click each {source} to apply. Alt+click picks a new source, Esc finishes.",
         "LayoutEditor__Labels__EyedropperMismatch": "Holding {source} properties - click another {source}.",
         "LayoutEditor__Labels__EyedropperLocked": "That layer is locked - unlock it first.",
-        "LayoutEditor__Labels__EyedropperUnsupported": "Viewport properties are not matched yet.",
+        "LayoutEditor__Labels__EyedropperLockedViewport": "That viewport is locked - unlock it first.",
+        "LayoutEditor__Labels__EyedropperUnsupported": "That cannot take these properties.",
         "LayoutEditor__Labels__EyedropperKindText": "text",
         "LayoutEditor__Labels__EyedropperKindDimension": "dimension",
         "LayoutEditor__Labels__EyedropperKindShape": "vector",
@@ -489,6 +494,26 @@
         "LayoutEditor__Labels__MenuCopyViewport": "Copy viewport",
         "LayoutEditor__Labels__MenuPasteViewport": "Paste viewport",
         "LayoutEditor__Labels__MenuDuplicateViewport": "Duplicate viewport",
+        "LayoutEditor__Labels__MenuCopyShape": "Copy vector",
+        "LayoutEditor__Labels__MenuPasteShape": "Paste vector",
+        "LayoutEditor__Labels__MenuDuplicateShape": "Duplicate vector",
+        "LayoutEditor__Labels__MenuCopyText": "Copy text",
+        "LayoutEditor__Labels__MenuPasteText": "Paste text",
+        "LayoutEditor__Labels__MenuDuplicateText": "Duplicate text",
+        "LayoutEditor__Labels__MenuCopyGroup": "Copy group",
+        "LayoutEditor__Labels__MenuPasteGroup": "Paste group",
+        "LayoutEditor__Labels__MenuDuplicateGroup": "Duplicate group",
+        "LayoutEditor__Labels__MenuCopySelection": "Copy selection",
+        "LayoutEditor__Labels__MenuPasteSelection": "Paste selection",
+        "LayoutEditor__Labels__MenuDuplicateSelection": "Duplicate selection",
+        "LayoutEditor__Labels__MenuGroup": "Group",
+        "LayoutEditor__Labels__MenuUngroup": "Ungroup",
+        "LayoutEditor__Labels__MenuDeleteGroup": "Delete group",
+        "LayoutEditor__Labels__GroupOverlay": "Group",
+        "LayoutEditor__Labels__TextCopied": "Copied text. Ctrl+V pastes it, on this sheet or another.",
+        "LayoutEditor__Labels__GroupCopied": "Copied group. Ctrl+V pastes it, on this sheet or another.",
+        "LayoutEditor__Labels__SelectionCopied": "Copied {count} items. Ctrl+V pastes them, on this sheet or another.",
+        "LayoutEditor__Labels__ShapeCopied": "Copied vector. Ctrl+V pastes it, on this sheet or another.",
         "LayoutEditor__Labels__ViewportCopyName": "{name} copy",
         "LayoutEditor__Labels__ViewportCopyNameNumbered": "{name} copy {n}",
         "LayoutEditor__Labels__ViewportCopied": "Copied \"{name}\". Ctrl+V pastes it, on this sheet or another.",
@@ -499,10 +524,10 @@
         "LayoutEditor__Labels__ShapeFill": "Fill",
         "LayoutEditor__Labels__ShapeFillColour": "Fill colour",
         "LayoutEditor__Labels__ShapeClosed": "Closed",
-        "LayoutEditor__Labels__ShapeSelectedNote": "Editing the selected shape.",
+        "LayoutEditor__Labels__ShapeSelectedNote": "Editing the selected shape. Hold Shift over an edge and click to add a vertex. Dragging snaps to the linework. While dragging a vertex, type a length into the Measurements box to move it that far along the drag.",
         "LayoutEditor__Labels__ShapeDefaultsNote": "Nothing selected: these settings apply to new shapes.",
         "LayoutEditor__Labels__ShapeEitherNote": "Edges and fill are either or: switching one off switches the other on, so a shape always shows.",
-        "LayoutEditor__Labels__ShapeDrawNote": "Draw tool (L): click points, click the first point to close a polygon, Enter or double-click to finish a line, Esc to abandon.",
+        "LayoutEditor__Labels__ShapeDrawNote": "Draw tool (L): click points, click the first point to close a polygon, Enter or double-click to finish a line, Esc to abandon, Ctrl+Z to take the last point off.",
         "LayoutEditor__Labels__ShapeRectangleNote": "Rectangle tool (R): click one corner then the opposite corner, or drag from one to the other; Shift keeps it square; Esc, Space or a right click abandons it. Both corners snap like the Draw tool's points. The result is an ordinary closed vector, so the Select tool drags its corner grips like any polygon's and the Vectors panel restyles it.",
         "LayoutEditor__Labels__ShapeAxisNote": "Arrow keys lock the axis for the next point (left or right locks across, up or down locks down the page); press the same key again to release. Shift holds the nearer axis for as long as it is down. Either way the axis is kept and a snap only supplies the distance along it, so lock an axis and hover a vertex to line the edge up with that vertex - which is how the last corner of a rectangle is found. The shape closes when the point would LAND on the first one, not when the cursor passes near it.",
         "LayoutEditor__Labels__StyleEnhanceWhitecard": "Enhance Whitecard",
@@ -512,6 +537,7 @@
         "LayoutEditor__Labels__ViewportLinesPt": "Viewport lines",
         "LayoutEditor__Labels__DimensionLinesPt": "Dimension lines",
         "LayoutEditor__Labels__MenuEditDimText": "Edit dimension value",
+        "LayoutEditor__Labels__MenuResetDimText": "Reset text position",
         "LayoutEditor__Labels__MenuDeleteShape": "Delete shape",
         "LayoutEditor__Labels__MenuCloseShape": "Close shape",
         "LayoutEditor__Labels__MenuOpenShape": "Open shape",
@@ -703,9 +729,9 @@
         "LayoutEditor__Labels__SpecSyncFailed": "Specification sync failed: {error}. Your changes are kept in this browser.",
         "LayoutEditor__Labels__SpecSynced": "Project specification synced.",
         "LayoutEditor__Labels__SpecRetryKeptEdits": "The cloud copy can be read again. The changes made while it could not be read are kept; Sync asks before they replace it.",
-        "LayoutEditor__Labels__MeasureTitle": "Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height.",
+        "LayoutEditor__Labels__MeasureTitle": "Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height. Drag a vertex and type to move it that far along the drag.",
         "LayoutEditor__Labels__MeasureIdle": "Measurements",
-        "LayoutEditor__Labels__MeasureIdleTitle": "Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here.",
+        "LayoutEditor__Labels__MeasureIdleTitle": "Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here, or drag a vertex.",
         "LayoutEditor__Labels__MeasureLength": "Length",
         "LayoutEditor__Labels__MeasureDimensions": "Dimensions",
         "LayoutEditor__Labels__MeasureOffset": "Offset",
@@ -722,11 +748,13 @@
         "LayoutEditor__Labels__MeasureBadUnit": "Unknown unit. Use mm, cm or m.",
         "LayoutEditor__Labels__MeasureBadPair": "Type width x height: 3000 x 2000, or 3m x 2m.",
         "LayoutEditor__Labels__MeasureNoDirection": "Point the cursor the way to draw, then press Enter.",
+        "LayoutEditor__Labels__MeasureNoVertexDirection": "Drag the vertex the way to go, then press Enter.",
+        "LayoutEditor__Labels__MeasureVertexTitle": "Drag the vertex the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres.",
         "LayoutEditor__Labels__MeasureTooShort": "Too short to draw.",
         "LayoutEditor__Labels__MeasureFlat": "A rectangle needs a width and a height.",
         "LayoutEditor__Labels__MeasureResized": "Rectangle resized to {size}.",
         "LayoutEditor__Labels__ShapeAtScale": "Draw at scale ({scale})",
-        "LayoutEditor__Labels__ShapeAtScaleTitle": "On: sizes typed into the Measurements box while drawing are real sizes at the drawing's scale - the scale of the viewport under the first point, or the sheet's elsewhere - so 2500 at 1:50 draws 50 mm on paper. Off: they are paper millimetres.",
+        "LayoutEditor__Labels__ShapeAtScaleTitle": "On: sizes typed into the Measurements box while drawing, or while dragging a vertex, are real sizes at the drawing's scale - the scale of the viewport under the first point (or the vertex), or the sheet's elsewhere - so 2500 at 1:50 draws 50 mm on paper. Off: they are paper millimetres.",
         "LayoutEditor__Labels__DimAtScale": "Measure at scale ({scale})",
         "LayoutEditor__Labels__DimAtScaleTitle": "On: the dimension reads the drawing's real size - at the scale of the viewport it sits on, or the sheet's scale off every viewport - and lengths typed while placing it are real sizes. Off: it reads paper millimetres.",
         "LayoutEditor__Labels__DimAtSheetScale": "(at the sheet's scale, {scale})",

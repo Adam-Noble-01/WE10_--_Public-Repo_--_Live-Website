@@ -25,10 +25,10 @@
 // - Snapping is on by default and toggled from the toolbar or F3; the
 //   choice is remembered in the browser.
 // - THE MARKER'S COLOUR SAYS WHICH TOOL IS SNAPPING, its glyph what was
-//   found. Blue for vertices - the Draw and Rectangle tools and vertex
-//   grips; orange for dimensions - the Dimension tool, its grips and its
-//   line inference; purple for viewports - carrying one by a point. Callers
-//   pass the tone; with none it is blue.
+//   found. Blue for vertices - the Draw and Rectangle tools, vertex grips
+//   and a vector being moved; orange for dimensions - the Dimension tool, its
+//   grips and its line inference; purple for viewports - carrying one by a
+//   point. Callers pass the tone; with none it is blue.
 //
 // INTEGRATION:
 // - The sheet tools call Snap while placing or dragging dimension endpoints;

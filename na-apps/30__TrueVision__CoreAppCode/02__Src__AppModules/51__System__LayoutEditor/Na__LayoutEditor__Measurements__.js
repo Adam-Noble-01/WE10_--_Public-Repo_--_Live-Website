@@ -14,15 +14,18 @@
 //   the Draw, Rectangle or Dimension tool is up it reads out what is being
 //   drawn - a line's length, a rectangle's width x height, a dimension's span
 //   and then its line's offset - with the scale the reading is at on a chip
-//   beside it. With any other tool it rests, greyed.
-// - TYPE WITHOUT CLICKING. While one of those tools is up, a number typed
-//   anywhere over the editor goes into the box and Enter uses it: Draw puts
-//   the next point that far along the rubber band, Rectangle lands the
-//   opposite corner (or resizes the rectangle that has just landed), and
-//   Dimension picks the end, then puts the line that far off. Escape or
-//   Delete drops what was typed and Backspace takes a character back - each
-//   only while something is typed, so every key keeps its usual job
-//   otherwise. Letters stay tool keys until a value is started. A click on
+//   beside it. Dragging a vertex of a finished vector wakes it the same way:
+//   the box reads the drag's length, and a typed value moves the vertex that
+//   far along the drag. With any other tool it rests, greyed.
+// - TYPE WITHOUT CLICKING. While one of those tools is up, or while a vertex
+//   is being dragged, a number typed anywhere over the editor goes into the
+//   box and Enter uses it: Draw puts the next point that far along the rubber
+//   band, Rectangle lands the opposite corner (or resizes the rectangle that
+//   has just landed), Dimension picks the end, then puts the line that far
+//   off, and a vertex drag puts the vertex that far along the inferred
+//   direction. Escape or Delete drops what was typed and Backspace takes a
+//   character back - each only while something is typed, so every key keeps
+//   its usual job otherwise. Letters stay tool keys until a value is started. A click on
 //   the sheet drops a half-typed value, as it does in SketchUp. Clicking the
 //   box types into it directly, which is also how a touch screen reaches it.
 // - WHAT A NUMBER MEANS (Na__LayoutEditor__MeasureParse__). Millimetres
@@ -44,15 +47,21 @@
 // INTEGRATION:
 // - Mounted by Na__LayoutEditor__ModeController__ in the stage's column.
 // - Attached and detached with Na__LayoutEditor__SheetTools__, which hands in
-//   its tool, its defaults, the last cursor point, Shift, and a way to run the
-//   tool's move again; it calls Refresh after every move and press, and Clear
-//   whenever a placement is abandoned or the sheet is pressed.
+//   its tool, its defaults, the last cursor point, Shift, a way to run the
+//   tool's move again, and the vertex being dragged; it calls Refresh after
+//   every move and press, and Clear whenever a placement is abandoned or the
+//   sheet is pressed.
 // - The keys come from Na__LayoutEditor__KeyMappings__.json (MeasurementsBox)
 //   and the setup and wording from Na__LayoutEditor__AppConfig__.json.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Dragging a vertex of a finished vector wakes the box: the reading is the
+//   drag's length, at the Vectors panel's Draw at scale, and Enter moves the
+//   vertex that far along the inferred direction (SheetTools TypeVertexLength).
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: live readings for the Draw, Rectangle and Dimension
 //   tools, typed lengths, sizes and offsets at the drawing's scale or on paper,
@@ -151,6 +160,23 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Vertex Being Dragged, or Null
+    // ------------------------------------------------------------
+    function Na__LeMeasure__VertexDrag(ctx) {
+        return (ctx && typeof ctx.getVertexDrag === 'function') ? ctx.getVertexDrag() : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Should the Box Take Keys and Show a Reading
+    // ------------------------------------------------------------
+    function Na__LeMeasure__IsListening(ctx) {
+        if (!ctx || !ctx.isEditable()) return false;
+        return !!(Na__LeMeasure__IsMeasuringTool(ctx.getTool()) || Na__LeMeasure__VertexDrag(ctx));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Does the Focused Element Keep Its Own Keys
     // ------------------------------------------------------------
     // A text field of any kind, a text area, an editable region or a select.
@@ -215,7 +241,22 @@
         const ctx   = Na__LeMeasure__Context;
         const sheet = Na__LeModel__GetActiveSheet();
         const tool  = ctx ? ctx.getTool() : null;
-        if (!ctx || !sheet || !ctx.isEditable() || !Na__LeMeasure__IsMeasuringTool(tool)) {
+        if (!ctx || !sheet || !ctx.isEditable()) {
+            return { active : false, kind : null, label : Na__LeMeasure__L('MeasureIdle', 'Measurements'), value : '', atScale : true, denominator : null };
+        }
+
+        // VERTEX DRAG | A finished vector's vertex is being moved: the
+        // reading is how far it has travelled, at the Vectors panel's scale.
+        const vertex = Na__LeMeasure__VertexDrag(ctx);
+        if (vertex) {
+            const atScale     = ctx.getShapeDefaults().atScale !== false;
+            const denominator = atScale ? Na__LeDrawScale__DenominatorAt(sheet, vertex.from) : 1;
+            const run         = vertex.to ? Math.hypot(vertex.to.x - vertex.from.x, vertex.to.y - vertex.from.y) : 0;
+            const value       = (run >= 1e-4) ? Na__LeMeasure__FormatMm(run * denominator) : '';
+            return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureLength', 'Length'), value : value, atScale : atScale, denominator : denominator, vertex : true };
+        }
+
+        if (!Na__LeMeasure__IsMeasuringTool(tool)) {
             return { active : false, kind : null, label : Na__LeMeasure__L('MeasureIdle', 'Measurements'), value : '', atScale : true, denominator : null };
         }
         const cursor = ctx.getPointMm();
@@ -277,8 +318,10 @@
         if (shown.idle !== idle) {
             Na__LeMeasure__Root.classList.toggle('na-le-vcb--idle', idle);
             Na__LeMeasure__Root.title = idle
-                ? Na__LeMeasure__L('MeasureIdleTitle', 'Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here.')
-                : Na__LeMeasure__L('MeasureTitle', 'Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height.');
+                ? Na__LeMeasure__L('MeasureIdleTitle', 'Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here, or drag a vertex.')
+                : (reading.vertex
+                    ? Na__LeMeasure__L('MeasureVertexTitle', 'Drag the vertex the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres.')
+                    : Na__LeMeasure__L('MeasureTitle', 'Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height.'));
             if (idle) {
                 if (document.activeElement === Na__LeMeasure__Input) Na__LeMeasure__Input.blur();
                 Na__LeMeasure__Clear();
@@ -394,7 +437,7 @@
         const ctx   = Na__LeMeasure__Context;
         const input = Na__LeMeasure__Input;
         if (!ctx || !input || input.disabled || event.defaultPrevented || event.isComposing) return;
-        if (!ctx.isEditable() || !Na__LeMeasure__IsMeasuringTool(ctx.getTool())) return;
+        if (!ctx.isEditable() || !Na__LeMeasure__IsListening(ctx)) return;
         if (event.target === input || Na__LeMeasure__KeepsKeys(event.target)) return;   // <-- The box's own keys are handled on the box; a field keeps its own
         if (event.ctrlKey || event.metaKey || event.altKey) return;                    // <-- Chords stay the sheet's: undo, redo, copy, paste
         const keys  = Na__LeCfg__GetMeasureKeys();
@@ -482,6 +525,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Typed Length for a Vertex Being Dragged
+    // ------------------------------------------------------------
+    function Na__LeMeasure__CommitVertex(sheet, text, ctx) {
+        const vertex = Na__LeMeasure__VertexDrag(ctx);
+        if (!vertex || typeof ctx.typeVertexLength !== 'function') return Na__LeMeasure__Fail('MeasureNoVertexDirection', 'Drag the vertex the way to go, then press Enter.');
+        const length = Na__LeMParse__Length(text);
+        if (!length.ok) return Na__LeMeasure__BadLength(length);
+        const denominator = ctx.getShapeDefaults().atScale !== false ? Na__LeDrawScale__DenominatorAt(sheet, vertex.from) : 1;
+        const result = ctx.typeVertexLength(length.valueMm / denominator);
+        if (result.ok) return { ok : true };
+        if (result.reason === 'direction') return Na__LeMeasure__Fail('MeasureNoVertexDirection', 'Drag the vertex the way to go, then press Enter.');
+        return Na__LeMeasure__Fail('MeasureTooShort', 'Too short to draw.');
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Use the Typed Value
     // ------------------------------------------------------------
     // Returns true when a value was there to be used - whether or not it
@@ -495,9 +554,10 @@
         if (!ctx || !text || !sheet || !ctx.isEditable()) return false;
         const tool = ctx.getTool();
         let outcome;
-        if (tool === Na__LeMeasure__TOOL_DRAW)           outcome = Na__LeMeasure__CommitDraw(sheet, text, ctx);
-        else if (tool === Na__LeMeasure__TOOL_RECT)      outcome = Na__LeMeasure__CommitRectangle(sheet, text, ctx);
-        else if (tool === Na__LeMeasure__TOOL_DIMENSION) outcome = Na__LeMeasure__CommitDimension(sheet, text, ctx);
+        if (Na__LeMeasure__VertexDrag(ctx))               outcome = Na__LeMeasure__CommitVertex(sheet, text, ctx);
+        else if (tool === Na__LeMeasure__TOOL_DRAW)       outcome = Na__LeMeasure__CommitDraw(sheet, text, ctx);
+        else if (tool === Na__LeMeasure__TOOL_RECT)       outcome = Na__LeMeasure__CommitRectangle(sheet, text, ctx);
+        else if (tool === Na__LeMeasure__TOOL_DIMENSION)  outcome = Na__LeMeasure__CommitDimension(sheet, text, ctx);
         else return false;
         if (!outcome.ok) { Na__LeMeasure__ShowHint(outcome.message, true, true); return true; }
         Na__LeMeasure__Input.value = '';
@@ -589,7 +649,7 @@
     // FUNCTION | Start Listening With the Sheet Tools
     // ------------------------------------------------------------
     // context: { getTool(), isEditable(), getShapeDefaults(), getDimensionDefaults(),
-    //            getShift(), getPointMm(), rerun() }
+    //            getShift(), getPointMm(), rerun(), getVertexDrag(), typeVertexLength() }
     // ------------------------------------------------------------
     function Na__LeMeasure__Attach(context) {
         Na__LeMeasure__Detach();

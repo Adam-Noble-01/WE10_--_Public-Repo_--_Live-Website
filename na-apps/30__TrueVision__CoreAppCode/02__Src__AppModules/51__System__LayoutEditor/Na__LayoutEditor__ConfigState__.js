@@ -32,6 +32,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.12.0
+// - GetDimensionSetup: textLeaderMinMm and textLeaderGapMm, how far a
+//   dragged value has to sit from its un-dragged place before the arc is
+//   drawn (and before a drag keeps rather than snapping home), and the
+//   clear paper between the value's box and the start of that arc.
+//
 // 14-Sep-2026 - Version 1.11.0
 // - GetDimensionSetup: minTickLengthMm and maxTickLengthMm, the bounds of the
 //   Dimensions panel's Size mm (how large the ticks, arrows or dots at each
@@ -166,6 +172,8 @@
                      { Id : 'Tool__Leader',      Action : 'Tool__Leader',      Enabled : true, Keys : [ 'e', 'E' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__EyedropperPalette', Action : 'Tool__EyedropperPalette', Enabled : true, Keys : [ 'b', 'B' ], Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Eyedropper',  Action : 'Tool__Eyedropper',  Enabled : true, Keys : [ 'b', 'B' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Edit__Ungroup',     Action : 'Edit__Ungroup',     Enabled : true, Keys : [ 'g', 'G' ],               Modifiers : [ 'Ctrl', 'Shift' ], ModifierMatch : 'Exact' },
+                     { Id : 'Edit__Group',       Action : 'Edit__Group',       Enabled : true, Keys : [ 'g', 'G' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Copy',        Action : 'Edit__Copy',        Enabled : true, Keys : [ 'c', 'C' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Paste',       Action : 'Edit__Paste',       Enabled : true, Keys : [ 'v', 'V' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Duplicate',   Action : 'Edit__Duplicate',   Enabled : true, Keys : [ 'd', 'D' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' } ],
@@ -472,7 +480,9 @@
             defaultPrecision  : Na__LeCfg__Num('Dimensions', 'DefaultPrecision', 0),
             defaultUnits      : Na__LeCfg__Val('Dimensions', 'DefaultUnitsSuffix', ' mm'),
             thousandsSep      : Na__LeCfg__Val('Dimensions', 'ThousandsSeparator', ','),
-            defaultAtScale    : Na__LeCfg__Val('Dimensions', 'DefaultAtScale', true) !== false   // <-- Measure at scale: a new dimension reads the drawing's real size
+            defaultAtScale    : Na__LeCfg__Val('Dimensions', 'DefaultAtScale', true) !== false,   // <-- Measure at scale: a new dimension reads the drawing's real size
+            textLeaderMinMm   : Math.max(0, Na__LeCfg__Num('Dimensions', 'TextLeaderMinMm', 1.5)),
+            textLeaderGapMm   : Math.max(0, Na__LeCfg__Num('Dimensions', 'TextLeaderGapMm', 0.4))
         };
     }
     // ------------------------------------------------------------
@@ -824,10 +834,11 @@
 
     // FUNCTION | Viewport Clipboard Setup (copy, paste and duplicate a viewport)
     // ------------------------------------------------------------
-    // pasteOffsetMm is the diagonal step a paste takes clear of the viewport it
-    // was copied from when it lands on the same sheet; never under a millimetre,
-    // or a paste would sit invisibly on top of its original. copySnapshot lets a
-    // 3D copy show the stored picture at once instead of rendering it again.
+    // pasteOffsetMm is the diagonal step a paste takes clear of the viewport or
+    // vector it was copied from when it lands on the same sheet; never under a
+    // millimetre, or a paste would sit invisibly on top of its original.
+    // copySnapshot lets a 3D copy show the stored picture at once instead of
+    // rendering it again.
     // ------------------------------------------------------------
     function Na__LeCfg__GetClipboardSetup() {
         return {

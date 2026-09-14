@@ -46,6 +46,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.5.0
+// - Grouping is a step ('groups'): Ctrl+G, Ctrl+Shift+G, and a paste of a
+//   group. A selected group survives an undo that leaves it on the sheet.
+//
 // 14-Sep-2026 - Version 1.4.0
 // - A notes margin change ('margin': switched, widened, restyled) is a step.
 //
@@ -103,7 +107,7 @@
     // MODULE CONSTANTS | Event and the Reasons That Count as a Step
     // ------------------------------------------------------------
     const Na__LeHist__CHANGED_EVENT = 'na-layouteditor-history-changed';
-    const Na__LeHist__STEP_REASONS  = [ 'sheet-updated', 'fields', 'layers', 'viewports', 'viewport', 'annotations', 'annotation', 'dimensions', 'dimension', 'shapes', 'shape', 'leaders', 'leader', 'margin' ];
+    const Na__LeHist__STEP_REASONS  = [ 'sheet-updated', 'fields', 'layers', 'viewports', 'viewport', 'annotations', 'annotation', 'dimensions', 'dimension', 'shapes', 'shape', 'leaders', 'leader', 'margin', 'groups' ];
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Per-Sheet Stacks
@@ -150,6 +154,7 @@
         if (selection.kind === 'dimension')  return sheet.Sheet__Dimensions.some((d) => d.Dimension__Id === selection.id);
         if (selection.kind === 'shape')      return (sheet.Sheet__Shapes || []).some((s) => s.Shape__Id === selection.id);
         if (selection.kind === 'leader')     return (sheet.Sheet__Leaders || []).some((l) => l.Leader__Id === selection.id);
+        if (selection.kind === 'group')      return (sheet.Sheet__Groups || []).some((g) => g.Group__Id === selection.id);
         return false;
     }
     // ------------------------------------------------------------

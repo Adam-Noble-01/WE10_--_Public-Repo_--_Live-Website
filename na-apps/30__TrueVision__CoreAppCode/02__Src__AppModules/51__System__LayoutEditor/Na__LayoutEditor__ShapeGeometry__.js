@@ -38,7 +38,12 @@
 //
 // -----------------------------------------------------------------------------
 //
-// DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - ClosestOnEdge: the nearest point on any edge, with which edge and how
+//   far along it, so a Shift-click can insert a vertex there.
+// - InsertPoint: the points array with a vertex spliced in after an edge's
+//   start, used once the insert has been accepted.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Shape__FillOpacity and Shape__StrokeOpacity reach the primitive, so a
 //   fill and the edges can each be see-through. The gradient keeps its own
@@ -191,6 +196,44 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | The Nearest Point on Any Edge (null when there is no edge)
+    // ------------------------------------------------------------
+    // Returns { index, t, x, y, distance }: index is the vertex the edge
+    // starts at, t is 0 at that vertex and 1 at the next, (x, y) is the
+    // foot on the edge, distance is paper millimetres from the query.
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__ClosestOnEdge(shape, point) {
+        const pts = Na__LeShapeGeo__Points(shape);
+        const n   = pts.length;
+        if (n < 2 || !point) return null;
+        const edges = (shape.Shape__Closed === true && n > 2) ? n : n - 1;
+        let best = null;
+        for (let i = 0; i < edges; i++) {
+            const a = pts[i], b = pts[(i + 1) % n];
+            const abx = b[0] - a[0], aby = b[1] - a[1];
+            const len2 = (abx * abx) + (aby * aby);
+            let t = len2 > 0 ? (((point.x - a[0]) * abx) + ((point.y - a[1]) * aby)) / len2 : 0;
+            t = Math.max(0, Math.min(1, t));
+            const x = a[0] + (abx * t), y = a[1] + (aby * t);
+            const distance = Math.hypot(point.x - x, point.y - y);
+            if (!best || distance < best.distance) best = { index : i, t : t, x : x, y : y, distance : distance };
+        }
+        return best;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Points With a Vertex Spliced In After an Edge's Start
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__InsertPoint(points, edgeIndex, pt) {
+        const next = points.map((p) => [ p[0], p[1] ]);
+        const at   = Math.max(0, Math.min(next.length, Math.round(edgeIndex) + 1));
+        next.splice(at, 0, [ pt[0], pt[1] ]);
+        return next;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -241,6 +284,8 @@
         Na__LeShapeGeo__Contains,
         Na__LeShapeGeo__Hit,
         Na__LeShapeGeo__VertexAt,
+        Na__LeShapeGeo__ClosestOnEdge,
+        Na__LeShapeGeo__InsertPoint,
         Na__LeShapeGeo__StrokeMm,
         Na__LeShapeGeo__Push
     };

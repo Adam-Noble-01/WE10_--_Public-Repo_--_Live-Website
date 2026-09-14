@@ -235,6 +235,26 @@
                 "ModifierMatch" : "Exact"
             },
             {
+                "Id"            : "Edit__Ungroup",
+                "Label"         : "Ungroup the selected group",
+                "Action"        : "Edit__Ungroup",
+                "Enabled"       : true,
+                "Keys"          : [ "g", "G" ],
+                "Modifiers"     : [ "Ctrl", "Shift" ],
+                "ModifierMatch" : "Exact",
+                "Note"          : "Lifts one grouping level. Nested groups come out as groups."
+            },
+            {
+                "Id"            : "Edit__Group",
+                "Label"         : "Group the selected vectors and text",
+                "Action"        : "Edit__Group",
+                "Enabled"       : true,
+                "Keys"          : [ "g", "G" ],
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "Exact",
+                "Note"          : "Needs at least two vectors, text items or groups. The browser Find chord is taken only when a group is made."
+            },
+            {
                 "Id"            : "Edit__Copy",
                 "Label"         : "Copy the selected viewport",
                 "Action"        : "Edit__Copy",
@@ -411,7 +431,7 @@
     },
 
     "LayoutEditor__MeasurementsBox__Config" : {
-        "LayoutEditor__MeasurementsBox__Description"      : "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
+        "LayoutEditor__MeasurementsBox__Description"      : "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, or while a vertex is being dragged, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
         "LayoutEditor__MeasurementsBox__StartCharacters"  : "0123456789.,-",
         "LayoutEditor__MeasurementsBox__TypingCharacters" : "0123456789.,-+ xX*;mMcC",
         "LayoutEditor__MeasurementsBox__CommitKeys"       : [ "Enter" ],
@@ -483,9 +503,11 @@
             { "Action" : "Snap__Toggle",          "Label" : "Toggle object snapping",    "Group" : "Tools"      },
             { "Action" : "Edit__Undo",            "Label" : "Undo",                      "Group" : "Editing"    },
             { "Action" : "Edit__Redo",            "Label" : "Redo",                      "Group" : "Editing"    },
-            { "Action" : "Edit__Copy",            "Label" : "Copy a viewport",           "Group" : "Editing"    },
-            { "Action" : "Edit__Paste",           "Label" : "Paste a viewport",          "Group" : "Editing"    },
-            { "Action" : "Edit__Duplicate",       "Label" : "Duplicate a viewport",      "Group" : "Editing"    },
+            { "Action" : "Edit__Copy",            "Label" : "Copy the selection",        "Group" : "Editing"    },
+            { "Action" : "Edit__Paste",           "Label" : "Paste the clipboard",       "Group" : "Editing"    },
+            { "Action" : "Edit__Duplicate",       "Label" : "Duplicate the selection",   "Group" : "Editing"    },
+            { "Action" : "Edit__Group",           "Label" : "Group vectors and text",    "Group" : "Editing"    },
+            { "Action" : "Edit__Ungroup",         "Label" : "Ungroup the selection",     "Group" : "Editing"    },
             { "Action" : "Edit__Deselect",        "Label" : "Clear the selection",       "Group" : "Editing"    },
             { "Action" : "Edit__Finish",          "Label" : "Finish the shape",          "Group" : "Editing"    },
             { "Action" : "Select__Add",           "Label" : "Add to the selection",      "Group" : "Selection"  },

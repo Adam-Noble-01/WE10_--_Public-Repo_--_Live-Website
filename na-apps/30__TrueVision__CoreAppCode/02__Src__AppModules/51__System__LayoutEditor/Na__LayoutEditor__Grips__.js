@@ -13,8 +13,12 @@
 // - A selected dimension shows a square grip at each measured point and a
 //   round grip on the dimension line: the squares re-pick the points (they
 //   snap to the linework), the round one slides the line away from or
-//   towards what it measures and infers other dimension lines.
-// - A selected shape shows a square grip at every vertex.
+//   towards what it measures and infers other dimension lines. Clicking the
+//   value and dragging it moves the text and draws a curved leader back to
+//   the line's centre; a round grip on the value appears once it has been
+//   moved, so it can be grabbed again without covering the line's grip.
+// - A selected shape shows a square grip at every vertex. Hold Shift over
+//   an edge and a diamond marks where a click will insert another.
 // - A selected leader shows a square grip at its tip and a round one at the
 //   anchor where it lands on its head.
 // - Grips are counter-scaled so they stay the same size on screen at any
@@ -43,6 +47,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.5.0
+// - ShowInsert and HideInsert: a diamond grip on an edge of a selected
+//   vector, the place a Shift-click will put a new vertex.
+//
+// 14-Sep-2026 - Version 1.4.0
+// - Dimension text leader: DimensionGrab returns 'text' when a press lands
+//   on the value or its arc, so a drag moves the text rather than the
+//   dimension. A round grip sits on the value once it has been moved.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Leader grips: a square at the tip, a round one at the anchor. LeaderGrab
 //   says what a press on a leader takes hold of - 'tip' re-points it,
@@ -71,9 +84,11 @@
     import { Na__LeCfg__GetSelectionSetup } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__IsLayerLocked } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeMarkup__DimensionSkeleton } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionTextLayout } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeDimGeo__HitText, Na__LeDimGeo__DistanceToPolyline } from './Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt } from './Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeLeadGeo__Hit } from './Na__LayoutEditor__LeaderGeometry__.js';
+    import { Na__LeGroup__Render } from './Na__LayoutEditor__Groups__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -85,8 +100,9 @@
 
     // MODULE VARIABLES | The Rubber Band and the Rubber Box
     // ------------------------------------------------------------
-    let Na__LeGrips__Band = null;
-    let Na__LeGrips__Box  = null;
+    let Na__LeGrips__Band   = null;
+    let Na__LeGrips__Box    = null;
+    let Na__LeGrips__Insert = null;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -124,6 +140,8 @@
             Na__LeGrips__Add(layer, sk.S.x, sk.S.y, ppm, sizePx, zoom, null);
             Na__LeGrips__Add(layer, sk.E.x, sk.E.y, ppm, sizePx, zoom, null);
             Na__LeGrips__Add(layer, sk.MID.x, sk.MID.y, ppm, sizePx, zoom, 'offset');
+            const layout = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
+            if (layout && layout.leader) Na__LeGrips__Add(layer, layout.place.x, layout.place.y, ppm, sizePx, zoom, 'anchor');   // <-- Round: the value has been dragged off the line
             return true;
         }
         if (selection.kind === 'shape') {
@@ -131,6 +149,9 @@
             if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
             Na__LeShapeGeo__Points(shape).forEach((p) => Na__LeGrips__Add(layer, p[0], p[1], ppm, sizePx, zoom, null));
             return true;
+        }
+        if (selection.kind === 'group') {
+            return Na__LeGroup__Render(layer, sheet, [ selection ], ppm, zoom);
         }
         if (selection.kind === 'leader') {
             const leader = (sheet.Sheet__Leaders || []).find((l) => l.Leader__Id === selection.id);
@@ -219,6 +240,40 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | A Diamond Grip Where a Shift-Click Will Insert a Vertex
+    // ------------------------------------------------------------
+    function Na__LeGrips__ShowInsert(xMm, yMm) {
+        const layer = Na__LeSurface__GetElements().handles;
+        if (!layer || !Number.isFinite(xMm) || !Number.isFinite(yMm)) return false;
+        if (!Na__LeGrips__Insert) {
+            Na__LeGrips__Insert = document.createElement('div');
+            Na__LeGrips__Insert.className = 'na-le-grip na-le-grip--insert';
+        }
+        if (Na__LeGrips__Insert.parentNode !== layer) layer.appendChild(Na__LeGrips__Insert);
+        const ppm    = Na__LeSurface__GetPixelsPerMm();
+        const zoom   = Na__LeSurface__GetZoom();
+        const sizePx = Na__LeCfg__GetSelectionSetup().gripSizePx / zoom;
+        Na__LeGrips__Insert.style.left        = ((xMm * ppm) - (sizePx / 2)) + 'px';
+        Na__LeGrips__Insert.style.top         = ((yMm * ppm) - (sizePx / 2)) + 'px';
+        Na__LeGrips__Insert.style.width       = sizePx + 'px';
+        Na__LeGrips__Insert.style.height      = sizePx + 'px';
+        Na__LeGrips__Insert.style.borderWidth = Math.max(1, 1 / zoom) + 'px';
+        Na__LeGrips__Insert.hidden = false;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take the Insert Preview Away (true when it was showing)
+    // ------------------------------------------------------------
+    function Na__LeGrips__HideInsert() {
+        const shown = !!(Na__LeGrips__Insert && !Na__LeGrips__Insert.hidden);
+        if (Na__LeGrips__Insert) Na__LeGrips__Insert.hidden = true;
+        return shown;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -228,14 +283,20 @@
 
     // FUNCTION | Which Part of a Dimension a Press Grabs
     // ------------------------------------------------------------
-    // 'start' and 'end' are the measured points, 'offset' the dimension
-    // line (its round grip or anywhere along it), else 'whole'.
+    // 'start' and 'end' are the measured points, 'text' the value (or the
+    // arc back to the line once it has been dragged off), 'offset' the
+    // dimension line (its round grip or anywhere along it), else 'whole'.
+    // sheet is used to measure the value; without it the text cannot be
+    // distinguished from the line.
     // ------------------------------------------------------------
-    function Na__LeGrips__DimensionGrab(dim, pointMm, toleranceMm) {
+    function Na__LeGrips__DimensionGrab(dim, pointMm, toleranceMm, sheet) {
         const tol = toleranceMm * 2;
         if (Math.hypot(pointMm.x - dim.Dimension__StartXMm, pointMm.y - dim.Dimension__StartYMm) <= tol) return 'start';
         if (Math.hypot(pointMm.x - dim.Dimension__EndXMm,   pointMm.y - dim.Dimension__EndYMm)   <= tol) return 'end';
         const sk = Na__LeMarkup__DimensionSkeleton(dim);
+        const layout = (sk && sheet) ? Na__LeMarkup__DimensionTextLayout(sheet, dim, sk) : null;
+        if (layout && Na__LeDimGeo__HitText(layout.box, pointMm, toleranceMm)) return 'text';
+        if (layout && layout.leader && Na__LeDimGeo__DistanceToPolyline(pointMm, layout.leader.points) <= toleranceMm) return 'text';
         if (sk) {
             if (Math.hypot(pointMm.x - sk.MID.x, pointMm.y - sk.MID.y) <= tol) return 'offset';
             const abx = sk.DE.x - sk.DS.x, aby = sk.DE.y - sk.DS.y, len2 = (abx * abx) + (aby * aby);
@@ -292,6 +353,8 @@
         Na__LeGrips__HideBand,
         Na__LeGrips__ShowBox,
         Na__LeGrips__HideBox,
+        Na__LeGrips__ShowInsert,
+        Na__LeGrips__HideInsert,
         Na__LeGrips__DimensionGrab,
         Na__LeGrips__ShapeGrab,
         Na__LeGrips__LeaderGrab

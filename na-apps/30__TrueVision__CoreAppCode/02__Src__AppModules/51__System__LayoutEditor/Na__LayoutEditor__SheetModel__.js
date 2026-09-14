@@ -18,7 +18,8 @@
 // - RECORDS (three-stage keys, plan section 5)
 //     Sheet       Sheet__Id, Name, Order, PaperSize, Orientation,
 //                 TitleBlockStyle, Fields {...}, Layers [], Viewports [],
-//                 Annotations [], Dimensions [], Shapes [], Lineweights {ViewportPt, DimensionPt}
+//                 Annotations [], Dimensions [], Shapes [], Groups [],
+//                 Lineweights {ViewportPt, DimensionPt}
 //     Layer       Layer__Id, Name, Type, Visible, Locked, Order
 //     Viewport    Viewport__Id, LayerId, Name, Kind ('2d' | '3d'), SceneId,
 //                 DrawingId, FrameMm {X, Y, WidthMm, HeightMm},
@@ -40,11 +41,18 @@
 //                 record from before it has no key and reads as it always did),
 //                 StartExtensionMm, EndExtensionMm (how far each extension line
 //                 runs back from the dimension line; no key is the full line),
-//                 ExtensionsLinked (only ever false: the padlock between them open)
+//                 ExtensionsLinked (only ever false: the padlock between them open),
+//                 TextDXMm, TextDYMm (paper offset of the value from where it
+//                 would have sat; no key is on the line, and a drag home
+//                 removes both)
 //     Shape      Shape__Id, LayerId, Points [[x, y], ...], Closed, Stroked, StrokeColour,
 //                 StrokePt, FillColour (null for none), Gradient (null for none;
 //                 the shape is Na__LayoutEditor__GradientTool__'s), FillOpacity,
 //                 StrokeOpacity (0 to 1)
+//     Group       Group__Id, Members [{ kind, id }] of a vector, a text item
+//                 or another group. Members stay first-class sheet records;
+//                 the group is the selection, the move and the copy unit
+//                 (Na__LayoutEditor__Groups__).
 //     Leader      Leader__Id, LayerId, Type ('text' | 'bubble'), TipXMm, TipYMm,
 //                 AnchorXMm, AnchorYMm, Text, TextSizeMm, FontWeight, TextColour,
 //                 LineColour, LinePt, LineStyle ('solid' | 'dashed'), LineOpacity,
@@ -78,6 +86,27 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.18.0
+// - Groups: GetGroupById, InsertGroup, DeleteGroup, GetGroups. A group is a
+//   list of member { kind, id } (vectors, text, nested groups). InsertShape,
+//   InsertViewport and InsertAnnotation take silent so a paste of several
+//   items announces once. DeleteItems also removes groups and drops deleted
+//   members from any group that held them. Announced as 'groups'.
+//
+// 14-Sep-2026 - Version 1.17.0
+// - CreateDimension and UpdateDimension carry textDXMm and textDYMm:
+//   Dimension__TextDXMm and Dimension__TextDYMm, the value's paper offset
+//   from its un-dragged place. The normaliser keeps them only while they
+//   shift the value, so a record that never had them is unchanged and the
+//   value sits on the line as it always did.
+//
+// 14-Sep-2026 - Version 1.16.0
+// - InsertShape: a whole vector record goes onto a sheet with a fresh id
+//   (Na__LayoutEditor__ViewportClipboard__), so a paste is one announcement
+//   and one undo step. GetShapeById reads one by id, the way GetViewportById
+//   does. A layer id the sheet does not have, or that is not a vector layer,
+//   falls back to the default vector layer, creating one if the sheet has none.
+//
 // 14-Sep-2026 - Version 1.15.0
 // - CreateDimension and UpdateDimension carry tickLengthMm:
 //   Dimension__TickLengthMm, how large the ticks, arrows or dots at each end
@@ -223,6 +252,7 @@
         Na__LeRec__BuildFields,
         Na__LeRec__NormaliseShape,
         Na__LeRec__NormaliseLeader,
+        Na__LeRec__NormaliseGroup,
         Na__LeRec__NormaliseMarginNotes
     } from './Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeScale__Coerce } from './Na__LayoutEditor__ScaleManager__.js';
@@ -368,7 +398,8 @@
             Sheet__Annotations     : [],
             Sheet__Dimensions      : [],
             Sheet__Shapes          : [],
-            Sheet__Leaders         : []
+            Sheet__Leaders         : [],
+            Sheet__Groups          : []
         };
         list.push(sheet);
         Na__LeRec__NormaliseSheet(sheet, list.length - 1);
@@ -686,13 +717,14 @@
     // layer. Appended last, so it draws in front on its layer. One
     // announcement, so one undo step.
     // ------------------------------------------------------------
-    function Na__LeModel__InsertViewport(sheet, record) {
+    function Na__LeModel__InsertViewport(sheet, record, silent) {
         if (!sheet || !record || typeof record !== 'object') return null;
         const viewport = JSON.parse(JSON.stringify(record));
         viewport.Viewport__Id = Na__LeRec__NextId(sheet.Sheet__Viewports, 'Viewport_', 'Viewport__Id');
         if (!Na__LeModel__GetLayerById(sheet, viewport.Viewport__LayerId)) viewport.Viewport__LayerId = null;
         Na__LeRec__NormaliseViewport(viewport, Na__LeModel__DefaultLayerId(sheet, 'viewport'));
         sheet.Sheet__Viewports.push(viewport);
+        if (silent) { Na__LeModel__Dirty = true; return viewport; }
         Na__LeModel__Touch('viewports', sheet.Sheet__Id, viewport.Viewport__Id);
         return viewport;
     }
@@ -860,6 +892,34 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Put a Complete Text Record Onto a Sheet (fresh id)
+    // ------------------------------------------------------------
+    // A paste of a text item, the way InsertShape pastes a vector. silent
+    // skips the announcement so several items can land as one undo step.
+    // ------------------------------------------------------------
+    function Na__LeModel__InsertAnnotation(sheet, record, silent) {
+        if (!sheet || !record || typeof record !== 'object') return null;
+        const item = JSON.parse(JSON.stringify(record));
+        item.Annotation__Id = Na__LeRec__NextId(sheet.Sheet__Annotations, 'Text_', 'Annotation__Id');
+        let layerId = item.Annotation__LayerId;
+        if (!Na__LeModel__GetLayerById(sheet, layerId)) layerId = Na__LeModel__DefaultLayerId(sheet, 'annotation');
+        Na__LeRec__NormaliseAnnotation(item, layerId);
+        sheet.Sheet__Annotations.push(item);
+        if (silent) { Na__LeModel__Dirty = true; return item; }
+        Na__LeModel__Touch('annotations', sheet.Sheet__Id, item.Annotation__Id);
+        return item;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | One Text Item by Id
+    // ------------------------------------------------------------
+    function Na__LeModel__GetAnnotationById(sheet, itemId) {
+        return sheet ? Na__LeRec__Find(sheet.Sheet__Annotations, 'Annotation__Id', itemId) : null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Change or Remove a Text Item
     // ------------------------------------------------------------
     function Na__LeModel__UpdateAnnotation(sheet, itemId, patch, silent) {
@@ -886,6 +946,7 @@
         if (index === -1) return false;
         sheet.Sheet__Annotations.splice(index, 1);
         Na__LeModel__Unselect(itemId);
+        Na__LeModel__PruneGroups(sheet);
         Na__LeModel__Touch('annotations', sheet.Sheet__Id, itemId);
         return true;
     }
@@ -930,7 +991,7 @@
     function Na__LeModel__UpdateDimension(sheet, itemId, patch, silent) {
         const item = sheet ? Na__LeRec__Find(sheet.Sheet__Dimensions, 'Dimension__Id', itemId) : null;
         if (!item || !patch) return false;
-        [ 'StartXMm', 'StartYMm', 'EndXMm', 'EndYMm', 'OffsetMm', 'TextSizeMm', 'TickLengthMm', 'Precision' ].forEach((key) => {
+        [ 'StartXMm', 'StartYMm', 'EndXMm', 'EndYMm', 'OffsetMm', 'TextSizeMm', 'TickLengthMm', 'Precision', 'TextDXMm', 'TextDYMm' ].forEach((key) => {
             const name = key.charAt(0).toLowerCase() + key.slice(1);
             if (Number.isFinite(patch[name])) item['Dimension__' + key] = patch[name];
         });
@@ -958,6 +1019,43 @@
         Na__LeModel__Unselect(itemId);
         Na__LeModel__Touch('dimensions', sheet.Sheet__Id, itemId);
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | One Vector Shape by Id
+    // ------------------------------------------------------------
+    function Na__LeModel__GetShapeById(sheet, itemId) {
+        return sheet ? Na__LeRec__Find(sheet.Sheet__Shapes, 'Shape__Id', itemId) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put a Complete Vector Record Onto a Sheet (fresh id, one announcement)
+    // ------------------------------------------------------------
+    // Where CreateShape builds a shape from points and a handful of options,
+    // this takes a complete record - vertices, closed, edges, fill, gradient,
+    // opacities - deep-copies it and gives it a fresh id, so a vector copied
+    // once can be put down again with every setting intact. A layer id the
+    // sheet does not have, or that is not a vector layer, falls back to the
+    // default vector layer; a sheet without one gets one. Appended last, so
+    // it draws in front on its layer. One announcement, so one undo step.
+    // ------------------------------------------------------------
+    function Na__LeModel__InsertShape(sheet, record, silent) {
+        if (!sheet || !record || typeof record !== 'object') return null;
+        const item = JSON.parse(JSON.stringify(record));
+        item.Shape__Id = Na__LeRec__NextId(sheet.Sheet__Shapes, 'Shape_', 'Shape__Id');
+        let layerId = item.Shape__LayerId;
+        const layer = Na__LeModel__GetLayerById(sheet, layerId);
+        if (!layer || layer.Layer__Type !== 'vector') {
+            const found = sheet.Sheet__Layers.find((l) => l.Layer__Type === 'vector') || Na__LeModel__CreateLayer(sheet, { name : 'Vectors', type : 'vector' });
+            layerId = found ? found.Layer__Id : Na__LeModel__DefaultLayerId(sheet, 'vector');
+        }
+        Na__LeRec__NormaliseShape(item, layerId);
+        sheet.Sheet__Shapes.push(item);
+        if (silent) { Na__LeModel__Dirty = true; return item; }
+        Na__LeModel__Touch('shapes', sheet.Sheet__Id, item.Shape__Id);
+        return item;
     }
     // ------------------------------------------------------------
 
@@ -1019,6 +1117,7 @@
         if (index === -1) return false;
         sheet.Sheet__Shapes.splice(index, 1);
         Na__LeModel__Unselect(itemId);
+        Na__LeModel__PruneGroups(sheet);
         Na__LeModel__Touch('shapes', sheet.Sheet__Id, itemId);
         return true;
     }
@@ -1108,6 +1207,92 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | A Sheet's Groups
+    // ------------------------------------------------------------
+    function Na__LeModel__GetGroups(sheet) {
+        return (sheet && Array.isArray(sheet.Sheet__Groups)) ? sheet.Sheet__Groups : [];
+    }
+    function Na__LeModel__GetGroupById(sheet, groupId) {
+        return sheet ? Na__LeRec__Find(Na__LeModel__GetGroups(sheet), 'Group__Id', groupId) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put a Group Record Onto a Sheet (fresh id)
+    // ------------------------------------------------------------
+    // members: [{ kind, id }]. silent skips the announcement so a paste of
+    // several groups can land as one undo step with their members.
+    // ------------------------------------------------------------
+    function Na__LeModel__InsertGroup(sheet, record, silent) {
+        if (!sheet || !record || typeof record !== 'object') return null;
+        if (!Array.isArray(sheet.Sheet__Groups)) sheet.Sheet__Groups = [];
+        const item = JSON.parse(JSON.stringify(record));
+        item.Group__Id = Na__LeRec__NextId(sheet.Sheet__Groups, 'Group_', 'Group__Id');
+        Na__LeRec__NormaliseGroup(item);
+        sheet.Sheet__Groups.push(item);
+        if (silent) { Na__LeModel__Dirty = true; return item; }
+        Na__LeModel__Touch('groups', sheet.Sheet__Id, item.Group__Id);
+        return item;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Remove a Group Record (the members stay on the sheet)
+    // ------------------------------------------------------------
+    function Na__LeModel__DeleteGroup(sheet, groupId, silent) {
+        if (!sheet || !Array.isArray(sheet.Sheet__Groups)) return false;
+        const index = sheet.Sheet__Groups.findIndex((g) => g.Group__Id === groupId);
+        if (index === -1) return false;
+        sheet.Sheet__Groups.splice(index, 1);
+        Na__LeModel__Unselect(groupId);
+        if (silent) { Na__LeModel__Dirty = true; return true; }
+        Na__LeModel__Touch('groups', sheet.Sheet__Id, groupId);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Drop Members That No Longer Exist, Then Empty Groups
+    // ------------------------------------------------------------
+    // After a delete, a group may still name a shape or a nested group that
+    // went with it. Those names drop out; a group left with fewer than two
+    // members is itself removed (its last member, if any, is lifted into any
+    // parent that held the group).
+    // ------------------------------------------------------------
+    function Na__LeModel__PruneGroups(sheet) {
+        if (!sheet || !Array.isArray(sheet.Sheet__Groups) || !sheet.Sheet__Groups.length) return false;
+        const exists = (kind, id) => {
+            if (kind === 'shape')      return !!(sheet.Sheet__Shapes || []).some((s) => s.Shape__Id === id);
+            if (kind === 'annotation') return !!(sheet.Sheet__Annotations || []).some((a) => a.Annotation__Id === id);
+            if (kind === 'group')      return sheet.Sheet__Groups.some((g) => g.Group__Id === id);
+            return false;
+        };
+        let changed = false;
+        sheet.Sheet__Groups.forEach((group) => {
+            const next = (group.Group__Members || []).filter((m) => exists(m.kind, m.id));
+            if (next.length !== (group.Group__Members || []).length) { group.Group__Members = next; changed = true; }
+        });
+        for (let guard = 0; guard < 32; guard++) {
+            const doomed = sheet.Sheet__Groups.filter((g) => (g.Group__Members || []).length < 2);
+            if (!doomed.length) break;
+            doomed.forEach((group) => {
+                const leftover = (group.Group__Members || []).slice();
+                sheet.Sheet__Groups.forEach((parent) => {
+                    if (parent.Group__Id === group.Group__Id) return;
+                    const idx = (parent.Group__Members || []).findIndex((m) => m.kind === 'group' && m.id === group.Group__Id);
+                    if (idx >= 0) parent.Group__Members.splice(idx, 1, ...leftover);
+                });
+                const index = sheet.Sheet__Groups.indexOf(group);
+                if (index >= 0) sheet.Sheet__Groups.splice(index, 1);
+                Na__LeModel__Unselect(group.Group__Id);
+                changed = true;
+            });
+        }
+        return changed;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Delete Several Items at Once (one undo step)
     // ------------------------------------------------------------
     // items: [{ kind, id }] of any mix of kinds. Every listed record goes in one
@@ -1128,7 +1313,8 @@
           [ 'Sheet__Annotations', 'Annotation__Id', 'annotation', 'annotations' ],
           [ 'Sheet__Dimensions',  'Dimension__Id',  'dimension',  'dimensions'  ],
           [ 'Sheet__Shapes',      'Shape__Id',      'shape',      'shapes'      ],
-          [ 'Sheet__Leaders',     'Leader__Id',     'leader',     'leaders'     ] ].forEach((row) => {
+          [ 'Sheet__Leaders',     'Leader__Id',     'leader',     'leaders'     ],
+          [ 'Sheet__Groups',      'Group__Id',      'group',      'groups'      ] ].forEach((row) => {
             const list = sheet[row[0]];
             if (!Array.isArray(list)) return;                                    // <-- A sheet that has never held that kind
             let removed = 0;
@@ -1140,6 +1326,10 @@
             }
             if (removed) { count += removed; reasons.push(row[3]); }
         });
+        if (Na__LeModel__PruneGroups(sheet) && reasons.indexOf('groups') === -1) {
+            if (!count) count = 1;
+            reasons.push('groups');
+        }
         if (!count) return 0;
         if (gone.size) sheet.Sheet__Dimensions.forEach((d) => { if (gone.has(d.Dimension__ViewportId)) d.Dimension__ViewportId = null; });
         Na__LeModel__SelectionItems = Na__LeModel__SelectionItems.filter((item) => !doomed.has(item.kind + ':' + item.id));
@@ -1337,20 +1527,28 @@
         Na__LeModel__UpdateViewport,
         Na__LeModel__ResolveViewportSource,
         Na__LeModel__GetAnnotations,
+        Na__LeModel__GetAnnotationById,
         Na__LeModel__GetDimensions,
         Na__LeModel__CreateAnnotation,
+        Na__LeModel__InsertAnnotation,
         Na__LeModel__UpdateAnnotation,
         Na__LeModel__DeleteAnnotation,
         Na__LeModel__CreateDimension,
         Na__LeModel__UpdateDimension,
         Na__LeModel__DeleteDimension,
+        Na__LeModel__GetShapeById,
         Na__LeModel__CreateShape,
+        Na__LeModel__InsertShape,
         Na__LeModel__UpdateShape,
         Na__LeModel__DeleteShape,
         Na__LeModel__GetLeaders,
         Na__LeModel__CreateLeader,
         Na__LeModel__UpdateLeader,
         Na__LeModel__DeleteLeader,
+        Na__LeModel__GetGroups,
+        Na__LeModel__GetGroupById,
+        Na__LeModel__InsertGroup,
+        Na__LeModel__DeleteGroup,
         Na__LeModel__SetSelection,
         Na__LeModel__GetSelection,
         Na__LeModel__SetSelectionItems,

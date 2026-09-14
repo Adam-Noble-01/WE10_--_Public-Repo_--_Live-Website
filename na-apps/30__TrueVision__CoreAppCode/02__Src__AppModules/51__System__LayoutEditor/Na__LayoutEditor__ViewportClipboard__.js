@@ -4,9 +4,9 @@
 //
 // FILE       : Na__LayoutEditor__ViewportClipboard__.js
 // NAMESPACE  : Na__LeClip
-// MODULE     : Layout Editor - Viewport Clipboard (copy, paste and duplicate a viewport)
+// MODULE     : Layout Editor - Viewport Clipboard (copy, paste and duplicate a viewport or a vector)
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Copy a set-up viewport and paste it as a new one: a fresh id, a new name, every setting kept
+// PURPOSE    : Copy a set-up viewport or a vector and paste it as a new one: a fresh id, every setting kept
 // CREATED    : 13-Sep-2026
 //
 // DESCRIPTION:
@@ -16,9 +16,12 @@
 //   viewport that differs from the one copied in exactly three things - its
 //   id, its name and where it sits - so the only work left is whatever should
 //   actually be different, which is usually just the scene.
-// - Ctrl+C copies the selected viewport, Ctrl+V pastes it, Ctrl+D duplicates
-//   it in one step without touching what the clipboard holds. The right-click
-//   menu offers the same three.
+// - A vector is the same idea without a name: vertices, closed, edges, fill,
+//   gradient and opacities. A paste is a new shape that differs in its id and
+//   where it sits.
+// - Ctrl+C copies the selected viewport or vector, Ctrl+V pastes whatever is
+//   held, Ctrl+D duplicates the selection in one step without touching what
+//   the clipboard holds. The right-click menu offers the same three.
 //
 // -----------------------------------------------------------------------------
 //
@@ -66,8 +69,8 @@
 // - Holds a snapshot taken at the moment of copying, not a live reference, so
 //   editing or deleting the original afterwards changes nothing about what
 //   pastes.
-// - Viewports only, for now. What is held carries a kind, so text, dimensions
-//   and vectors can join without the keys or the menu changing shape.
+// - What is held carries a kind. Viewports and vectors share the keys and the
+//   menu; text, dimensions and leaders can join the same way later.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ owns the keys and the context menu, and asks
@@ -75,7 +78,7 @@
 //   (MenuItems).
 // - Na__LayoutEditor__Panel__ViewportSettings__ asks IsCopyName when a
 //   viewport is pointed at a different scene.
-// - Na__LayoutEditor__SheetModel__ does the write (InsertViewport).
+// - Na__LayoutEditor__SheetModel__ does the write (InsertViewport, InsertShape).
 //
 // -----------------------------------------------------------------------------
 //
@@ -87,6 +90,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Vectors join the clipboard. Kind 'shape': copy, paste and duplicate a
+//   selected vector the way a viewport already does. A paste is the whole
+//   record with a fresh id (Na__LeModel__InsertShape) and a fanned-out
+//   position (the bounding-box top-left, the same PasteOffsetMm). From the
+//   menu on bare paper that corner goes at the click. The layer is kept when
+//   the sheet has a usable vector layer of that id, otherwise the default
+//   vector layer. Ctrl+C / Ctrl+V / Ctrl+D and the right-click menu. One
+//   paste is one undo step. Viewport copy, paste and duplicate are unchanged.
+//
 // 13-Sep-2026 - Version 1.0.0
 // - First cut. Copy, paste and duplicate for viewports: the placement run, the
 //   copy name, and the name handed back when the copy changes scene.
@@ -106,11 +119,14 @@
         Na__LeModel__GetSelection,
         Na__LeModel__SetSelection,
         Na__LeModel__GetViewportById,
+        Na__LeModel__GetShapeById,
         Na__LeModel__GetLayerById,
         Na__LeModel__InsertViewport,
+        Na__LeModel__InsertShape,
         Na__LeModel__ResolveViewportSource
     } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeLayout__Solve } from './Na__LayoutEditor__SheetLayout__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Bounds, Na__LeShapeGeo__Translated } from './Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LePanels__GetContext } from './Na__LayoutEditor__PanelHost__.js';
     // ------------------------------------------------------------
 
@@ -125,6 +141,7 @@
     // ------------------------------------------------------------
     const Na__LeClip__CHANGED_EVENT  = 'na-layouteditor-clipboard-changed';
     const Na__LeClip__KIND_VIEWPORT  = 'viewport';
+    const Na__LeClip__KIND_SHAPE     = 'shape';
     const Na__LeClip__SAME_SPOT_MM   = 0.5;       // <-- Two frames whose top-left corners are this close sit in the same place
     const Na__LeClip__MAX_STEPS      = 40;        // <-- How far a run of pastes fans out looking for a free spot
     const Na__LeClip__MAX_NAME_TRIES = 999;
@@ -287,15 +304,45 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | The Layer a Paste Keeps, or Null for the Sheet's Default Viewport Layer
+    // HELPER FUNCTION | Where a Vector Goes: the Bounding-Box Origin, Stepped Clear of Shapes Already There
+    // ------------------------------------------------------------
+    // The same run as Place, against every shape's bounding-box top-left
+    // rather than a viewport frame. A vector has no name and no frame of its
+    // own; the box is what you see when you select it.
+    // ------------------------------------------------------------
+    function Na__LeClip__PlaceShape(sheet, bounds, startMm, fanOut) {
+        const page    = Na__LeLayout__Solve(sheet).Page;
+        const maxX    = Math.max(0, page.WidthMm  - bounds.WidthMm);
+        const maxY    = Math.max(0, page.HeightMm - bounds.HeightMm);
+        const onPaper = (x, y) => ({ X : Math.min(maxX, Math.max(0, x)), Y : Math.min(maxY, Math.max(0, y)) });
+        const taken   = (spot) => (sheet.Sheet__Shapes || []).some((s) => {
+            const box = Na__LeShapeGeo__Bounds(s);
+            return Math.abs(box.X - spot.X) < Na__LeClip__SAME_SPOT_MM && Math.abs(box.Y - spot.Y) < Na__LeClip__SAME_SPOT_MM;
+        });
+
+        let spot = onPaper(startMm.x, startMm.y);
+        if (!fanOut) return spot;
+        const step = Na__LeCfg__GetClipboardSetup().pasteOffsetMm;
+        for (let n = 1; taken(spot) && n <= Na__LeClip__MAX_STEPS; n++) spot = onPaper(startMm.x + (step * n), startMm.y + (step * n));
+        for (let n = 1; taken(spot) && n <= Na__LeClip__MAX_STEPS; n++) spot = onPaper(startMm.x - (step * n), startMm.y - (step * n));
+        return spot;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Layer a Paste Keeps, or Null for the Sheet's Default of That Type
     // ------------------------------------------------------------
     // Layer ids are per sheet, so on another sheet the same id can name a
     // layer of a different purpose - or one that is hidden or locked, where a
-    // paste would either vanish or refuse to move.
+    // paste would either vanish or refuse to move. type, when given, must
+    // match (a vector paste must not land on a viewport layer that happens
+    // to share an id).
     // ------------------------------------------------------------
-    function Na__LeClip__LayerFor(sheet, layerId) {
+    function Na__LeClip__LayerFor(sheet, layerId, type) {
         const layer = layerId ? Na__LeModel__GetLayerById(sheet, layerId) : null;
-        return (layer && layer.Layer__Visible !== false && layer.Layer__Locked !== true) ? layer.Layer__Id : null;
+        if (!layer || layer.Layer__Visible === false || layer.Layer__Locked === true) return null;
+        if (type && layer.Layer__Type !== type) return null;
+        return layer.Layer__Id;
     }
     // ------------------------------------------------------------
 
@@ -317,6 +364,26 @@
 
         const pasted = Na__LeModel__InsertViewport(sheet, record);
         if (pasted) Na__LeModel__SetSelection({ kind : Na__LeClip__KIND_VIEWPORT, id : pasted.Viewport__Id });
+        return pasted;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Land a Copy of a Vector Record on a Sheet (one announcement) and Select It
+    // ------------------------------------------------------------
+    // atMm: the bounding-box top-left asked for, or null to start from where
+    // the record sat and fan out from there.
+    // ------------------------------------------------------------
+    function Na__LeClip__LandShape(sheet, source, atMm) {
+        const record = Na__LeClip__Clone(source);
+        const bounds = Na__LeShapeGeo__Bounds(source);
+        const start  = atMm || { x : bounds.X, y : bounds.Y };
+        const spot   = Na__LeClip__PlaceShape(sheet, bounds, start, !atMm);
+        record.Shape__Points  = Na__LeShapeGeo__Translated(Na__LeShapeGeo__Points(record), spot.X - bounds.X, spot.Y - bounds.Y);
+        record.Shape__LayerId = Na__LeClip__LayerFor(sheet, source.Shape__LayerId, 'vector');
+
+        const pasted = Na__LeModel__InsertShape(sheet, record);
+        if (pasted) Na__LeModel__SetSelection({ kind : Na__LeClip__KIND_SHAPE, id : pasted.Shape__Id });
         return pasted;
     }
     // ------------------------------------------------------------
@@ -368,6 +435,45 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Copy a Vector Onto the Clipboard
+    // ------------------------------------------------------------
+    function Na__LeClip__CopyShape(sheet, shapeId) {
+        const shape = sheet ? Na__LeModel__GetShapeById(sheet, shapeId) : null;
+        if (!shape || Na__LeShapeGeo__Points(shape).length < 1) return false;
+        Na__LeClip__Held = { kind : Na__LeClip__KIND_SHAPE, record : Na__LeClip__Clone(shape), sourceId : shapeId, sourceSheetId : sheet.Sheet__Id, label : 'vector' };
+        Na__LeClip__Dispatch();
+        Na__LeClip__Toast(Na__LeCfg__GetLabel('ShapeCopied', 'Copied vector. Ctrl+V pastes it, on this sheet or another.'));
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Does the Clipboard Hold a Vector
+    // ------------------------------------------------------------
+    function Na__LeClip__HasShape() {
+        return !!Na__LeClip__Held && Na__LeClip__Held.kind === Na__LeClip__KIND_SHAPE;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Paste What Is Held as a New Vector (null when nothing is held)
+    // ------------------------------------------------------------
+    function Na__LeClip__PasteShape(sheet, atMm) {
+        if (!sheet || !Na__LeClip__HasShape()) return null;
+        return Na__LeClip__LandShape(sheet, Na__LeClip__Held.record, atMm || null);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Duplicate a Vector in One Step (the clipboard is left alone)
+    // ------------------------------------------------------------
+    function Na__LeClip__DuplicateShape(sheet, shapeId) {
+        const shape = sheet ? Na__LeModel__GetShapeById(sheet, shapeId) : null;
+        return shape ? Na__LeClip__LandShape(sheet, shape, null) : null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Empty the Clipboard
     // ------------------------------------------------------------
     function Na__LeClip__Clear() {
@@ -388,19 +494,48 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Selected Vector's Id on a Sheet, or Null
+    // ------------------------------------------------------------
+    function Na__LeClip__SelectedShapeId(sheet) {
+        const selection = Na__LeModel__GetSelection();
+        if (!sheet || !selection || selection.kind !== Na__LeClip__KIND_SHAPE) return null;
+        return Na__LeModel__GetShapeById(sheet, selection.id) ? selection.id : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Paste Whatever Kind Is Held (null when the clipboard is empty)
+    // ------------------------------------------------------------
+    function Na__LeClip__PasteHeld(sheet, atMm) {
+        if (Na__LeClip__HasShape())    return Na__LeClip__PasteShape(sheet, atMm);
+        if (Na__LeClip__HasViewport()) return Na__LeClip__PasteViewport(sheet, atMm);
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Run a Clipboard Key Action (Edit__Copy, Edit__Paste, Edit__Duplicate)
     // ------------------------------------------------------------
     // Returns true when the key did something, so the caller only takes the
-    // key away from the browser then: Ctrl+C with no viewport selected is left
+    // key away from the browser then: Ctrl+C with nothing selected is left
     // to the browser, which may have text of its own to copy.
     // ------------------------------------------------------------
     function Na__LeClip__RunKeyAction(action, editable) {
         const sheet = Na__LeModel__GetActiveSheet();
         if (!sheet || !editable) return false;
-        const selectedId = Na__LeClip__SelectedViewportId(sheet);
-        if (action === 'Edit__Copy')      return selectedId ? Na__LeClip__CopyViewport(sheet, selectedId) : false;
-        if (action === 'Edit__Paste')     return !!Na__LeClip__PasteViewport(sheet, null);
-        if (action === 'Edit__Duplicate') return selectedId ? !!Na__LeClip__DuplicateViewport(sheet, selectedId) : false;
+        const viewportId = Na__LeClip__SelectedViewportId(sheet);
+        const shapeId    = Na__LeClip__SelectedShapeId(sheet);
+        if (action === 'Edit__Copy') {
+            if (shapeId)    return Na__LeClip__CopyShape(sheet, shapeId);
+            if (viewportId) return Na__LeClip__CopyViewport(sheet, viewportId);
+            return false;
+        }
+        if (action === 'Edit__Paste')     return !!Na__LeClip__PasteHeld(sheet, null);
+        if (action === 'Edit__Duplicate') {
+            if (shapeId)    return !!Na__LeClip__DuplicateShape(sheet, shapeId);
+            if (viewportId) return !!Na__LeClip__DuplicateViewport(sheet, viewportId);
+            return false;
+        }
         return false;
     }
     // ------------------------------------------------------------
@@ -408,24 +543,44 @@
 
     // FUNCTION | The Clipboard Entries for the Right-Click Menu
     // ------------------------------------------------------------
-    // viewport : the viewport right-clicked, or null for bare paper
-    // pointMm  : where the menu opened. A paste from bare paper puts its
-    //            top-left corner there; one from a viewport fans out as Ctrl+V
-    //            does, because a click on a viewport is not a choice of spot.
+    // target  : the viewport or shape right-clicked (the record, or { kind, id }),
+    //           or null for bare paper
+    // pointMm : where the menu opened. A paste from bare paper puts its
+    //           top-left corner there; one from an item fans out as Ctrl+V
+    //           does, because a click on an item is not a choice of spot.
     // ------------------------------------------------------------
-    function Na__LeClip__MenuItems(sheet, viewport, pointMm) {
+    function Na__LeClip__MenuItems(sheet, target, pointMm) {
         const label = (key, fallback) => Na__LeCfg__GetLabel(key, fallback);
+        const kind  = target
+            ? ((target.kind === Na__LeClip__KIND_SHAPE || target.Shape__Id) ? Na__LeClip__KIND_SHAPE
+                : ((target.kind === Na__LeClip__KIND_VIEWPORT || target.Viewport__Id) ? Na__LeClip__KIND_VIEWPORT : null))
+            : null;
         const paste = {
-            label    : label('MenuPasteViewport', 'Paste viewport'),
-            disabled : !Na__LeClip__HasViewport(),
-            onSelect : () => { Na__LeClip__PasteViewport(sheet, viewport ? null : (pointMm || null)); }
+            label    : (Na__LeClip__HasShape() || (!Na__LeClip__HasViewport() && kind === Na__LeClip__KIND_SHAPE))
+                ? label('MenuPasteShape', 'Paste vector')
+                : label('MenuPasteViewport', 'Paste viewport'),
+            disabled : !Na__LeClip__HasShape() && !Na__LeClip__HasViewport(),
+            onSelect : () => { Na__LeClip__PasteHeld(sheet, target ? null : (pointMm || null)); }
         };
-        if (!viewport) return [ paste ];
-        return [
-            { label : label('MenuCopyViewport', 'Copy viewport'),           onSelect : () => { Na__LeClip__CopyViewport(sheet, viewport.Viewport__Id); } },
-            { label : label('MenuDuplicateViewport', 'Duplicate viewport'), onSelect : () => { Na__LeClip__DuplicateViewport(sheet, viewport.Viewport__Id); } },
-            paste
-        ];
+        if (kind === Na__LeClip__KIND_SHAPE) {
+            const id = target.Shape__Id || target.id;
+            if (!Na__LeModel__GetShapeById(sheet, id)) return [ paste ];
+            return [
+                { label : label('MenuCopyShape', 'Copy vector'),           onSelect : () => { Na__LeClip__CopyShape(sheet, id); } },
+                { label : label('MenuDuplicateShape', 'Duplicate vector'), onSelect : () => { Na__LeClip__DuplicateShape(sheet, id); } },
+                paste
+            ];
+        }
+        if (kind === Na__LeClip__KIND_VIEWPORT) {
+            const viewport = target.Viewport__Id ? target : Na__LeModel__GetViewportById(sheet, target.id);
+            if (!viewport) return [ paste ];
+            return [
+                { label : label('MenuCopyViewport', 'Copy viewport'),           onSelect : () => { Na__LeClip__CopyViewport(sheet, viewport.Viewport__Id); } },
+                { label : label('MenuDuplicateViewport', 'Duplicate viewport'), onSelect : () => { Na__LeClip__DuplicateViewport(sheet, viewport.Viewport__Id); } },
+                paste
+            ];
+        }
+        return [ paste ];
     }
     // ------------------------------------------------------------
 
@@ -444,6 +599,10 @@
         Na__LeClip__PasteViewport,
         Na__LeClip__DuplicateViewport,
         Na__LeClip__HasViewport,
+        Na__LeClip__CopyShape,
+        Na__LeClip__PasteShape,
+        Na__LeClip__DuplicateShape,
+        Na__LeClip__HasShape,
         Na__LeClip__IsCopyName,
         Na__LeClip__BaseName,
         Na__LeClip__RunKeyAction,

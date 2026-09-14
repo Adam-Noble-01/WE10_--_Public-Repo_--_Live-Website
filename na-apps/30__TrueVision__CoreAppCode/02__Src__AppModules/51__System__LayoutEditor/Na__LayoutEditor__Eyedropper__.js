@@ -62,24 +62,33 @@
 //                         turns a note into a bubble.
 //               stays   : the text, the tip, the anchor, the layer
 //
+//   VIEWPORT    travels : render composites, whether the frame and caption
+//                         show, and the scale
+//               stays   : the scene, the drawing, the frame on the paper,
+//                         the pan, the name, the layer, the lock, the doors,
+//                         the design phase
+//               locked  : a locked viewport is not a source and not a
+//                         target. The eyedropper does not even resolve one,
+//                         so a lock lets the pointer reach markup and other
+//                         unlocked viewports through the frame instead of
+//                         the dropper sticking to the viewport over
+//                         everything else.
+//
 // - THE LAYER NEVER TRAVELS, in any kind. A layer is where a thing lives, not
 //   how it looks, and moving objects between layers behind a style click would
 //   be the single most surprising thing this tool could do.
 //
 // -----------------------------------------------------------------------------
 //
-// FUTURE EXPANSION - VIEWPORTS:
-// - Viewports are deliberately NOT matched yet. A viewport's appearance is its
-//   render composite, its model layer set, its scale, its linework weights and
-//   its frame style, and that set is being rebuilt under the new viewport
-//   system. Wiring it now would bind the eyedropper to a shape that is about to
-//   change underneath it.
-// - The hook is already cut: add a 'viewport' entry to the trait table, drop the
-//   kind from Na__LeDrop__EXCLUDED_KINDS, and the picking, the highlighting, the
-//   lock tests and the undo behaviour all work unchanged. Expect the viewport
-//   entry to need a trait group (style / model layers / scale) so the user can
-//   say which of the three they meant, which is why Na__LeDrop__Extract keeps
-//   the style payload a plain named bag rather than a flat patch.
+// VIEWPORTS:
+// - Unlocked viewports match each other the same way as any other kind: pick
+//   one, paint the others. A viewport lock (or a locked layer) takes the
+//   frame out of the dropper completely - it is not highlighted, not picked
+//   and not painted - because a locked drawing is the background of the
+//   sheet and stealing every hover from the markup on it is not useful.
+// - Viewports do not load the palette. New viewports are added from the
+//   panel, not drawn with a tool, so there is no "new viewports" setting
+//   for a style to land in.
 //
 // -----------------------------------------------------------------------------
 //
@@ -98,13 +107,20 @@
 //
 // PORT NOTE:
 // - Ported to      : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Eyedropper__.js
-// - Ported on      : 13-Sep-2026 for ValeVision3D v2.24.0
-// - Parity         : verbatim (authored here; the ValeVision copy differs in its header only)
-// - Divergences    : none - the record field names are shared
+// - Ported on      : 13-Sep-2026 for ValeVision3D v2.24.0; viewport matching 14-Sep-2026 as v2.36.0
+// - Parity         : adapted (ValeVision has no Viewport__ShowFrame yet, so that trait stays here)
+// - Divergences    : ValeVision 1.5.0 copies composites, caption and scale only
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.6.0
+// - Unlocked viewports match: render composites, frame, caption and scale
+//   travel from one viewport to another. A locked viewport (its own lock or
+//   its layer) is not a source and not a target, and the sheet tools do not
+//   even resolve one under the eyedropper, so the dropper can reach markup
+//   and other unlocked viewports through a locked frame.
+//
 // 14-Sep-2026 - Version 1.5.0
 // - Dimensions carry their terminator size (tickLengthMm) to painted
 //   dimensions and to the palette, so a run of dimensions takes the same
@@ -159,6 +175,7 @@
         Na__LeModel__UpdateDimension,
         Na__LeModel__UpdateShape,
         Na__LeModel__UpdateLeader,
+        Na__LeModel__UpdateViewport,
         Na__LeModel__GetViewportById
     } from './Na__LayoutEditor__SheetModel__.js';
     import {
@@ -177,14 +194,13 @@
 // REGION | Module Constants and State
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Event, Classes and the Kinds Left Alone
+    // MODULE CONSTANTS | Event, Classes and Modes
     // ------------------------------------------------------------
     const Na__LeDrop__CHANGED_EVENT   = 'na-layouteditor-eyedropper-changed';
     const Na__LeDrop__MARKER_CLASS    = 'na-le-dropper';
     const Na__LeDrop__SOURCE_CLASS    = 'na-le-dropper--source';
     const Na__LeDrop__TARGET_CLASS    = 'na-le-dropper--target';
     const Na__LeDrop__REFUSE_CLASS    = 'na-le-dropper--refuse';
-    const Na__LeDrop__EXCLUDED_KINDS  = Object.freeze([ 'viewport' ]);      // <-- See FUTURE EXPANSION in the file header
     const Na__LeDrop__FLASH_CLASS     = 'na-le-dropper--flash';
     const Na__LeDrop__MODE_ITEM       = 'item';                                // <-- B: paint the held style onto other items
     const Na__LeDrop__MODE_PALETTE    = 'palette';                             // <-- Shift+B: load an item's style into the settings for new objects
@@ -292,6 +308,19 @@
                 { patch : 'fillColour',     field : 'Leader__FillColour', nullable : true, palette : 'filled' },   // <-- null is "no fill", a real value to copy
                 { patch : 'fillOpacity',    field : 'Leader__FillOpacity'    }
             ]
+        },
+        viewport : {
+            labelKey : 'EyedropperKindViewport',
+            label    : 'viewport',
+            lockField: 'Viewport__LayerId',
+            update   : Na__LeModel__UpdateViewport,
+            noPalette: true,                                                   // <-- New viewports are added from the panel, not drawn with a tool
+            traits   : [
+                { patch : 'styles',           field : 'Viewport__Styles' },     // <-- The render composites: cloned on extract so the held copy cannot change
+                { patch : 'showFrame',        field : 'Viewport__ShowFrame', absent : true },   // <-- Stored only as false: a missing field is a shown frame, a real value to copy
+                { patch : 'showScaleLabel',   field : 'Viewport__ShowScaleLabel' },
+                { patch : 'scaleDenominator', field : 'Viewport__ScaleDenominator' }
+            ]
         }
     });
     // ------------------------------------------------------------
@@ -318,8 +347,7 @@
     // HELPER FUNCTION | The Trait Entry for a Kind (null when the kind is not matched)
     // ------------------------------------------------------------
     function Na__LeDrop__Entry(kind) {
-        if (!kind || Na__LeDrop__EXCLUDED_KINDS.indexOf(kind) !== -1) return null;
-        return Na__LeDrop__TRAITS[kind] || null;
+        return (kind && Na__LeDrop__TRAITS[kind]) || null;
     }
     // ------------------------------------------------------------
 
@@ -328,7 +356,7 @@
     // ------------------------------------------------------------
     function Na__LeDrop__KindLabel(kind) {
         const entry = Na__LeDrop__Entry(kind);
-        if (!entry) return Na__LeCfg__GetLabel('EyedropperKindViewport', 'viewport');
+        if (!entry) return 'item';
         return Na__LeCfg__GetLabel(entry.labelKey, entry.label);
     }
     // ------------------------------------------------------------
@@ -353,12 +381,29 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Whether a Record's Layer Is Locked
+    // HELPER FUNCTION | Whether a Record Must Not Be Changed
+    // ------------------------------------------------------------
+    // Markup locks live on the layer. A viewport also has its own lock, which
+    // holds the frame the way a layer lock does: the eyedropper neither reads
+    // nor writes a locked viewport.
     // ------------------------------------------------------------
     function Na__LeDrop__IsLocked(sheet, kind, record) {
         const entry = Na__LeDrop__Entry(kind);
         if (!entry || !record) return false;
+        if (kind === 'viewport' && record.Viewport__Locked === true) return true;
         return Na__LeModel__IsLayerLocked(sheet, record[entry.lockField]);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Locked Viewport Is Invisible to the Dropper
+    // ------------------------------------------------------------
+    // Locked markup is still a valid SOURCE (do not change me, not do not look
+    // at me). A locked viewport is neither: it covers the sheet, and detecting
+    // it over the markup and unlocked viewports on it is not useful.
+    // ------------------------------------------------------------
+    function Na__LeDrop__IgnoresViewport(sheet, kind, record) {
+        return kind === 'viewport' && Na__LeDrop__IsLocked(sheet, kind, record);
     }
     // ------------------------------------------------------------
 
@@ -386,6 +431,7 @@
             if (value === undefined && Object.prototype.hasOwnProperty.call(trait, 'absent')) value = trait.absent;   // <-- A field left out means its default
             if (value === undefined) return;
             if (value === null && trait.nullable !== true) return;                          // <-- Only a declared-nullable trait may copy an absence
+            if (value && typeof value === 'object') value = JSON.parse(JSON.stringify(value));   // <-- A snapshot: the held copy cannot change if the source is edited
             style[trait.patch] = value;
         });
         return Object.keys(style).length ? style : null;
@@ -452,6 +498,7 @@
         if (id === Na__LeDrop__Source.id)                       return { ok : false, reason : 'same'        };
         const record = Na__LeDrop__Record(sheet, kind, id);
         if (!record)                                            return { ok : false, reason : 'none'        };
+        if (kind === 'viewport' && record.Viewport__Locked === true) return { ok : false, reason : 'viewport-locked' };
         if (Na__LeDrop__IsLocked(sheet, kind, record))          return { ok : false, reason : 'locked'      };
         return { ok : true, reason : null };
     }
@@ -565,7 +612,7 @@
     // ------------------------------------------------------------
     function Na__LeDrop__Compose(refusal) {
         if (Na__LeDrop__Mode === Na__LeDrop__MODE_PALETTE) {
-            if (refusal === 'unsupported') return Na__LeCfg__GetLabel('EyedropperUnsupported', 'Viewport properties are not matched yet.');
+            if (refusal === 'unsupported') return Na__LeCfg__GetLabel('EyedropperUnsupported', 'That cannot set the palette.');
             if (!Na__LeDrop__Synced) return Na__LeCfg__GetLabel('EyedropperPaletteHint', 'Palette: click an object to use its style for new objects of that kind. Esc finishes.');
             return Na__LeCfg__FormatLabel('EyedropperPaletteSynced', 'New {kinds} will be drawn like that {kind}. Click another to set another, Esc finishes.',
                 { kinds : Na__LeDrop__Synced.plural, kind : Na__LeDrop__Synced.label });
@@ -573,8 +620,9 @@
         if (refusal === 'kind' && Na__LeDrop__Source) {
             return Na__LeCfg__FormatLabel('EyedropperMismatch', 'Holding {source} properties - click another {source}.', { source : Na__LeDrop__Source.label });
         }
-        if (refusal === 'locked')      return Na__LeCfg__GetLabel('EyedropperLocked', 'That layer is locked - unlock it first.');
-        if (refusal === 'unsupported') return Na__LeCfg__GetLabel('EyedropperUnsupported', 'Viewport properties are not matched yet.');
+        if (refusal === 'locked')           return Na__LeCfg__GetLabel('EyedropperLocked', 'That layer is locked - unlock it first.');
+        if (refusal === 'viewport-locked')  return Na__LeCfg__GetLabel('EyedropperLockedViewport', 'That viewport is locked - unlock it first.');
+        if (refusal === 'unsupported')      return Na__LeCfg__GetLabel('EyedropperUnsupported', 'That cannot take these properties.');
 
         if (!Na__LeDrop__Source) return Na__LeCfg__GetLabel('EyedropperPickHint', 'Eyedropper: click the object to copy properties FROM.');
         return Na__LeCfg__FormatLabel('EyedropperLoadedHint', 'Holding {source} properties - click each {source} to apply. Alt+click picks a new source, Esc finishes.', { source : Na__LeDrop__Source.label });
@@ -638,14 +686,19 @@
 
     // FUNCTION | Load the Dropper From One Item on the Sheet
     // ------------------------------------------------------------
-    // A locked layer is still a valid SOURCE: locked means "do not change me",
-    // not "do not look at me", and reading a style off a locked title-block
-    // note to put on a live one is a reasonable thing to want.
+    // A locked layer is still a valid SOURCE for markup: locked means "do not
+    // change me", not "do not look at me", and reading a style off a locked
+    // title-block note to put on a live one is a reasonable thing to want.
+    // A locked viewport is the exception: it is not picked at all.
     // ------------------------------------------------------------
     function Na__LeDrop__Pick(sheet, kind, id) {
         if (Na__LeDrop__Mode !== Na__LeDrop__MODE_ITEM) Na__LeDrop__SetMode(Na__LeDrop__MODE_ITEM);   // <-- Holding a style to paint IS item mode, whoever asked
         if (!Na__LeDrop__Entry(kind)) { Na__LeDrop__Announce('unsupported'); return false; }
         const record = Na__LeDrop__Record(sheet, kind, id);
+        if (Na__LeDrop__IgnoresViewport(sheet, kind, record)) {
+            Na__LeDrop__Announce(record.Viewport__Locked === true ? 'viewport-locked' : 'locked');
+            return false;
+        }
         const style  = Na__LeDrop__Extract(kind, record);
         if (!style) { Na__LeDrop__Announce('none'); return false; }
 
@@ -683,6 +736,7 @@
     // ------------------------------------------------------------
     function Na__LeDrop__Click(sheet, found, altKey) {
         if (!sheet || Na__LeDrop__Mode === Na__LeDrop__MODE_PALETTE) return false;   // <-- The palette loads through SyncPalette, which is handed its writer
+        if (found && Na__LeDrop__IgnoresViewport(sheet, found.kind, Na__LeDrop__Record(sheet, found.kind, found.id))) found = null;   // <-- A locked viewport is not there
         if (!found) {
             if (!Na__LeDrop__Source) return false;
             if (Na__LeDrop__TargetMarker) Na__LeDrop__TargetMarker.hidden = true;
@@ -702,19 +756,23 @@
     function Na__LeDrop__Hover(sheet, found) {
         const setup = Na__LeCfg__GetEyedropperSetup();
 
+        if (found && Na__LeDrop__IgnoresViewport(sheet, found.kind, Na__LeDrop__Record(sheet, found.kind, found.id))) found = null;   // <-- A locked viewport is not there
+
         if (!found || !sheet) {
             if (Na__LeDrop__TargetMarker) Na__LeDrop__TargetMarker.hidden = true;
             return setup.cursor;
         }
 
         const record = Na__LeDrop__Record(sheet, found.kind, found.id);
+        const entry  = Na__LeDrop__Entry(found.kind);
 
         // NO SOURCE YET, OR THE PALETTE | Anything matchable is a candidate to
-        // pick up, locked or not. The palette never holds a source, so this is
-        // the only hover it has.
+        // pick up. Locked markup still is; a locked viewport never reaches
+        // here. The palette never holds a source, so this is the only hover
+        // it has, and a kind with noPalette is refused.
         // ------------------------------------
         if (!Na__LeDrop__Source || Na__LeDrop__Mode === Na__LeDrop__MODE_PALETTE) {
-            const pickable = !!Na__LeDrop__Entry(found.kind) && !!record;
+            const pickable = !!entry && !!record && (Na__LeDrop__Mode !== Na__LeDrop__MODE_PALETTE || entry.noPalette !== true);
             Na__LeDrop__TargetMarker = Na__LeDrop__DrawMarker(
                 Na__LeDrop__TargetMarker, found.kind, pickable ? record : null,
                 pickable ? Na__LeDrop__TARGET_CLASS : Na__LeDrop__REFUSE_CLASS
@@ -793,12 +851,16 @@
     // tools own those settings, so this module never reaches into them: it
     // reads the item, translates the style and says what happened.
     //
-    // A LOCKED ITEM IS A PERFECTLY GOOD SOURCE. Lock the scrapbook so nothing
-    // on it gets knocked out of place, and it still hands out its style.
+    // A LOCKED ITEM IS A PERFECTLY GOOD SOURCE for markup. Lock the scrapbook
+    // so nothing on it gets knocked out of place, and it still hands out its
+    // style. A locked viewport is not: it is ignored, the same as on a paint.
+    // A kind with noPalette (viewports) has no settings for new objects.
     // ------------------------------------------------------------
     function Na__LeDrop__SyncPalette(sheet, kind, id, writer) {
-        if (!Na__LeDrop__Entry(kind)) { Na__LeDrop__Announce('unsupported'); return false; }
+        const entry = Na__LeDrop__Entry(kind);
+        if (!entry || entry.noPalette === true) { Na__LeDrop__Announce('unsupported'); return false; }
         const record = Na__LeDrop__Record(sheet, kind, id);
+        if (Na__LeDrop__IgnoresViewport(sheet, kind, record)) { Na__LeDrop__Announce('viewport-locked'); return false; }
         const patch  = Na__LeDrop__ToPalette(kind, Na__LeDrop__Extract(kind, record));
         if (!patch) { Na__LeDrop__Announce('none'); return false; }
         if (typeof writer !== 'function' || writer(kind, patch) !== true) return false;
