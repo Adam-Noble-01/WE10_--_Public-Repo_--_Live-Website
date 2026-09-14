@@ -87,6 +87,8 @@ YEAR_FOLDER_PATTERN                = re.compile(r'^(\d{2})-Projects$')
 PROJECT_DIR_PATTERN                = re.compile(r'^([A-Z]{2}[0-9]{2})(?:__|_-_)(.+)$')
 PROJECT_CODE_PATTERN               = re.compile(r'^[A-Z]{2}\d{2}$', re.IGNORECASE)
 TRUEVISION_CONTENT_FOLDER          = '30__TrueVision__AppContent'
+SITEPLAN_FOLDER_NAME               = 'SitePlan__DrawingData'                      # Site plan store: GLBs + manifest, never a design phase
+SITEPLAN_MANIFEST_FILENAME         = 'TrueVision__SitePlanData__Manifest__.json'
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 GLB_FILE_PATTERN                   = re.compile(r'^.+\.glb$', re.IGNORECASE)
 PLANVISION_FILE_PATTERN            = re.compile(r'^.+\.(png|pdf|json)$', re.IGNORECASE)
@@ -357,10 +359,14 @@ def discover_model_groups(project_path: Path) -> List[Dict]:
         ])
 
         if glb_files:
+            extra_files = []
+            if item.name == SITEPLAN_FOLDER_NAME and (item / SITEPLAN_MANIFEST_FILENAME).is_file():
+                extra_files.append(SITEPLAN_MANIFEST_FILENAME)          # <-- The site plan manifest travels with its GLBs
             groups.append({
-                'group_id'   : item.name,
-                'group_path' : item,
-                'glb_files'  : glb_files,
+                'group_id'    : item.name,
+                'group_path'  : item,
+                'glb_files'   : glb_files,
+                'extra_files' : extra_files,
             })
 
     return groups
@@ -612,6 +618,25 @@ def collect_sync_operations(
                 'local_path'   : local_path,
                 'r2_key'       : r2_key,
                 'content_type' : CONTENT_TYPE_GLB,
+                'action'       : action,
+                'detail'       : detail,
+                'size'         : local_path.stat().st_size,
+                'group_id'     : group['group_id'],
+                'filename'     : filename,
+            })
+
+        for filename in group.get('extra_files', []):
+            local_path = group['group_path'] / filename
+            r2_key = build_r2_key(
+                year_folder_name, project['project_folder'],
+                TRUEVISION_CONTENT_FOLDER, group['group_id'], filename
+            )
+            action, detail = determine_action(s3_client, bucket_name, local_path, r2_key)
+
+            operations.append({
+                'local_path'   : local_path,
+                'r2_key'       : r2_key,
+                'content_type' : resolve_content_type(filename),
                 'action'       : action,
                 'detail'       : detail,
                 'size'         : local_path.stat().st_size,

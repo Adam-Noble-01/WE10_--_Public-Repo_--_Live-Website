@@ -32,6 +32,8 @@
 //                 FontWeight, Colour, Align, LeaderXMm, LeaderYMm
 //     Dimension   Dimension__Id, LayerId, ViewportId, StartXMm, StartYMm,
 //                 EndXMm, EndYMm, OffsetMm, TextSizeMm, Colour, Terminator,
+//                 TickLengthMm (how large the ticks, arrows or dots at each
+//                 end are; no key draws at the config TickLengthMm),
 //                 Precision, UnitsSuffix, OverrideText,
 //                 Orientation ('aligned' | 'horizontal' | 'vertical'),
 //                 AtScale (true reads the drawing's scale, false the paper; a
@@ -76,6 +78,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.15.0
+// - CreateDimension and UpdateDimension carry tickLengthMm:
+//   Dimension__TickLengthMm, how large the ticks, arrows or dots at each end
+//   are (the Dimensions panel's Size mm). The normaliser keeps a length only
+//   when there is one, so a record that never had it is unchanged and draws
+//   at the config TickLengthMm.
+//
 // 14-Sep-2026 - Version 1.14.0
 // - UpdateViewport takes the closedDoors patch key: the door keys a plan
 //   viewport draws shut (Viewport__ClosedDoors, Na__LayoutEditor__PlanDoors__).
@@ -897,6 +906,7 @@
             Dimension__TextSizeMm   : opts.textSizeMm,
             Dimension__Colour       : opts.colour,
             Dimension__Terminator   : opts.terminator,
+            Dimension__TickLengthMm : opts.tickLengthMm,                       // <-- How large the ticks, arrows or dots are; the normaliser drops anything else
             Dimension__Precision    : opts.precision,
             Dimension__UnitsSuffix  : opts.unitsSuffix,
             Dimension__OverrideText : (typeof opts.overrideText === 'string') ? opts.overrideText : null,
@@ -920,7 +930,7 @@
     function Na__LeModel__UpdateDimension(sheet, itemId, patch, silent) {
         const item = sheet ? Na__LeRec__Find(sheet.Sheet__Dimensions, 'Dimension__Id', itemId) : null;
         if (!item || !patch) return false;
-        [ 'StartXMm', 'StartYMm', 'EndXMm', 'EndYMm', 'OffsetMm', 'TextSizeMm', 'Precision' ].forEach((key) => {
+        [ 'StartXMm', 'StartYMm', 'EndXMm', 'EndYMm', 'OffsetMm', 'TextSizeMm', 'TickLengthMm', 'Precision' ].forEach((key) => {
             const name = key.charAt(0).toLowerCase() + key.slice(1);
             if (Number.isFinite(patch[name])) item['Dimension__' + key] = patch[name];
         });

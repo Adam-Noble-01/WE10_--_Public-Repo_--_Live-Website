@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LePanelDims
 // MODULE     : Layout Editor - Panel Dimensions
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Text size, colour, terminator, offset, extension line lengths, precision, units and override for the selected dimension, or for new ones
+// PURPOSE    : Text size, colour, terminator, terminator size, offset, extension line lengths, precision, units and override for the selected dimension, or for new ones
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
@@ -40,6 +40,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - Size mm, under Ends: how large the ticks, arrows or dots at each end are,
+//   in paper millimetres (Dimension__TickLengthMm). The selected dimension, or
+//   the settings for new ones. A record from before it draws at the config's
+//   TickLengthMm and the field shows that size.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Ext. lines, under Offset mm: Start and End extension line lengths with a
 //   padlock between them (Na__LePanels__LinkedPairRow), for the selected
@@ -70,7 +76,7 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetDimensionSetup } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__GetSelectionItems, Na__LeModel__UpdateDimension } from './Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeMarkup__DimensionValueMm, Na__LeMarkup__FormatDimension } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__DimensionValueMm, Na__LeMarkup__FormatDimension, Na__LeMarkup__DimensionTickMm } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeTools__GetDimensionDefaults, Na__LeTools__SetDimensionDefaults } from './Na__LayoutEditor__SheetTools__.js';
     import { Na__LeDrawScale__SheetDenominator, Na__LeDrawScale__DimensionHost, Na__LeDrawScale__DimensionAtScale, Na__LeDrawScale__Label } from './Na__LayoutEditor__DrawingScale__.js';
     import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
@@ -126,6 +132,9 @@
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DimTextSize', 'Text mm'), Na__LePanels__Input('number', 'dim-size', { min : setup.minTextSizeMm, max : setup.maxTextSizeMm, step : 0.5 })));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DimColour', 'Colour'), Na__LePanels__Input('color', 'dim-colour')));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DimTerminator', 'Ends'), Na__LePanels__Select('dim-terminator', setup.terminators.map((t) => ({ value : t, label : t.charAt(0).toUpperCase() + t.slice(1) })))));
+        const endSize = Na__LePanels__Row(Na__LeCfg__GetLabel('DimEndSize', 'Size mm'), Na__LePanels__Input('number', 'dim-end-size', { min : setup.minTickLengthMm, max : setup.maxTickLengthMm, step : 0.1 }));
+        endSize.title = Na__LeCfg__GetLabel('DimEndSizeTitle', 'How large the ticks, arrows or dots at each end are, in paper millimetres.');
+        body.appendChild(endSize);
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DimOffset', 'Offset mm'), Na__LePanels__Input('number', 'dim-offset', { step : 1 })));
         // EXT. LINES | Start and end lengths, linked by the padlock between them
         const extFull = Na__LeCfg__GetLabel('DimExtensionFull', 'Full');
@@ -183,12 +192,13 @@
         const selected = Na__LePanelDims__Selected();
         const d = Na__LeTools__GetDimensionDefaults();
         const values = selected
-            ? { textSizeMm : selected.item.Dimension__TextSizeMm, colour : selected.item.Dimension__Colour, terminator : selected.item.Dimension__Terminator, offsetMm : selected.item.Dimension__OffsetMm, precision : selected.item.Dimension__Precision, unitsSuffix : selected.item.Dimension__UnitsSuffix, overrideText : selected.item.Dimension__OverrideText || '' }
+            ? { textSizeMm : selected.item.Dimension__TextSizeMm, colour : selected.item.Dimension__Colour, terminator : selected.item.Dimension__Terminator, tickLengthMm : Na__LeMarkup__DimensionTickMm(selected.item), offsetMm : selected.item.Dimension__OffsetMm, precision : selected.item.Dimension__Precision, unitsSuffix : selected.item.Dimension__UnitsSuffix, overrideText : selected.item.Dimension__OverrideText || '' }
             : Object.assign({ overrideText : '' }, d);
         const set = (name, value) => { const el = body.querySelector('[data-na-control="' + name + '"]'); if (el && document.activeElement !== el) el.value = String(value); };
         set('dim-size', values.textSizeMm);
         set('dim-colour', /^#[0-9a-fA-F]{6}$/.test(values.colour) ? values.colour : '#172b3a');
         set('dim-terminator', values.terminator);
+        set('dim-end-size', values.tickLengthMm);
         set('dim-offset', values.offsetMm);
         // EXT. LINES | A length the dimension does not hold is the full line: an empty field
         const ext = Na__LePanelDims__Extension(selected);
@@ -294,6 +304,7 @@
         Na__LePanels__OnControl('change', 'dim-size',       (e, el) => { const v = parseFloat(el.value); if (Number.isFinite(v)) Na__LePanelDims__Apply({ textSizeMm : v }, { textSizeMm : v }); });
         Na__LePanels__OnControl('change', 'dim-colour',     (e, el) => Na__LePanelDims__Apply({ colour : el.value }, { colour : el.value }));
         Na__LePanels__OnControl('change', 'dim-terminator', (e, el) => Na__LePanelDims__Apply({ terminator : el.value }, { terminator : el.value }));
+        Na__LePanels__OnControl('change', 'dim-end-size',   (e, el) => { const v = parseFloat(el.value); if (Number.isFinite(v)) Na__LePanelDims__Apply({ tickLengthMm : v }, { tickLengthMm : v }); });
         Na__LePanels__OnControl('change', 'dim-offset',     (e, el) => { const v = parseFloat(el.value); if (Number.isFinite(v)) Na__LePanelDims__Apply({ offsetMm : v }, { offsetMm : v }); });
         Na__LePanels__OnControl('change', 'dim-ext-start',  (e, el) => Na__LePanelDims__TypeExtension(el, 'start'));
         Na__LePanels__OnControl('change', 'dim-ext-end',    (e, el) => Na__LePanelDims__TypeExtension(el, 'end'));

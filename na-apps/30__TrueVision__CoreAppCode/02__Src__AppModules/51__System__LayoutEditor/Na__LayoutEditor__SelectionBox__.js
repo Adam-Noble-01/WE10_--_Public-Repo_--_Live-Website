@@ -61,6 +61,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - A dimension's terminator parts are boxed at Dimension__TickLengthMm, so a
+//   larger arrow is taken by a window or a crossing that covers it.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: window and crossing boxes, the touch rule for each
 //   kind (viewports, vectors, text, dimensions and leaders), the live preview,
@@ -81,6 +85,7 @@
     import {
         Na__LeMarkup__AnnotationBounds,
         Na__LeMarkup__DimensionSkeleton,
+        Na__LeMarkup__DimensionTickMm,
         Na__LeMarkup__DimensionValueMm,
         Na__LeMarkup__FormatDimension
     } from './Na__LayoutEditor__MarkupBridge__.js';
@@ -303,8 +308,8 @@
         const setup = Na__LeCfg__GetDimensionSetup();
         const line  = (a, b) => ({ points : [ [ a.x, a.y ], [ b.x, b.y ] ], closed : false, area : false });
         const parts = [ line(sk.X1, sk.T1), line(sk.X2, sk.T2), line(sk.DS, sk.DE) ];
-        [ Na__LeDimGeo__Terminator(dim.Dimension__Terminator, sk.DS, -sk.dirX, -sk.dirY, setup.tickLengthMm),
-          Na__LeDimGeo__Terminator(dim.Dimension__Terminator, sk.DE,  sk.dirX,  sk.dirY, setup.tickLengthMm) ]
+        [ Na__LeDimGeo__Terminator(dim.Dimension__Terminator, sk.DS, -sk.dirX, -sk.dirY, Na__LeMarkup__DimensionTickMm(dim)),
+          Na__LeDimGeo__Terminator(dim.Dimension__Terminator, sk.DE,  sk.dirX,  sk.dirY, Na__LeMarkup__DimensionTickMm(dim)) ]
             .forEach((t) => parts.push({ points : t.points.map((p) => [ p[0], p[1] ]), closed : t.closed, area : t.filled }));
 
         const text = Na__LeMarkup__FormatDimension(dim, Na__LeMarkup__DimensionValueMm(sheet, dim));

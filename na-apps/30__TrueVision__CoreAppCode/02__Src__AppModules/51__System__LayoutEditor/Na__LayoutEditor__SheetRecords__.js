@@ -33,6 +33,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.11.0
+// - Dimension__TickLengthMm on the dimension record: how large the ticks,
+//   arrows or dots at each end are, in paper millimetres. Kept only as a
+//   number above zero, clamped to the config min and max; the normaliser
+//   removes anything else and never adds the key, so a record from before it
+//   stays exactly what it was and draws at TickLengthMm from the config.
+//
 // 14-Sep-2026 - Version 1.10.0
 // - Viewport__ClosedDoors on the viewport record: the door keys a plan viewport
 //   draws shut (an ADR name, or ADR::MOD for one leaf of an independent pair).
@@ -453,6 +460,14 @@
         item.Dimension__TextSizeMm = Na__LeRec__Num(item.Dimension__TextSizeMm, setup.defaultTextSizeMm);
         if (typeof item.Dimension__Colour !== 'string') item.Dimension__Colour = setup.defaultColour;
         if (setup.terminators.indexOf(item.Dimension__Terminator) === -1) item.Dimension__Terminator = setup.defaultTerminator;
+        // TERMINATOR SIZE | A length is a number above zero, clamped; anything
+        // else is no key, which draws at the config TickLengthMm, as a record
+        // from before this field did.
+        if (item.Dimension__TickLengthMm !== undefined) {
+            const mm = item.Dimension__TickLengthMm;
+            if (!(typeof mm === 'number' && Number.isFinite(mm) && mm > 0)) delete item.Dimension__TickLengthMm;
+            else item.Dimension__TickLengthMm = Math.min(setup.maxTickLengthMm, Math.max(setup.minTickLengthMm, mm));
+        }
         item.Dimension__Precision = Na__LeRec__Num(item.Dimension__Precision, setup.defaultPrecision);
         if (typeof item.Dimension__UnitsSuffix !== 'string') item.Dimension__UnitsSuffix = setup.defaultUnits;
         if (item.Dimension__OverrideText === undefined) item.Dimension__OverrideText = null;

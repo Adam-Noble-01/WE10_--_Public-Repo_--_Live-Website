@@ -51,6 +51,9 @@ LIVE_DOMAIN = 'https://www.noble-architecture.com'
 CDN_BASE_URL = 'https://cdn.noble-architecture.com'
 R2_BASE_PREFIX = 'NaProjectPortal'
 TRUEVISION_CONTENT_FOLDER = '30__TrueVision__AppContent'
+SITEPLAN_FOLDER_NAME = 'SitePlan__DrawingData'                    # TrueVision site plan store: never a design phase
+SITEPLAN_MANIFEST_FILENAME = 'TrueVision__SitePlanData__Manifest__.json'
+SITEPLAN_FILE_PATTERN = re.compile(r'^(?:.*?__)?(TrueVision__SitePlan__[A-Za-z0-9]+)__(LineworkModel|FillModel)__\.glb$', re.IGNORECASE)
 PLANVISION_CONTENT_FOLDER = '20__PlanVision__AppContent'
 PLANVISION_DATA_FILENAME  = 'PlanVision__ProjectData__.json'
 GLB_FILE_PATTERN = re.compile(r'^.+\.glb$', re.IGNORECASE)
@@ -356,6 +359,8 @@ def discover_truevision_model_groups(project_path, year_folder_name, project_fol
             continue
         if entry.startswith('.') or entry.startswith('00__'):
             continue
+        if entry == SITEPLAN_FOLDER_NAME:
+            continue                                                   # Site plan data is its own store (SitePlan__DataStore), not a design phase
 
         glb_files = sorted([
             f for f in os.listdir(entry_path)
@@ -382,6 +387,106 @@ def discover_truevision_model_groups(project_path, year_folder_name, project_fol
     return groups
 
 
+def discover_truevision_siteplan_store(project_path, year_folder_name, project_folder):
+    """Describe the project's site plan store (SitePlan__DrawingData) for TrueVision.
+
+    The GLB Builder's Site Plan Export writes one linework GLB per site plan tag, a fill GLB for
+    fill tags, and a manifest. The folder is never a design phase: TrueVision reads it through this
+    build-owned SitePlan__DataStore key, regenerated on every run. Layers come from the manifest when
+    there is one, otherwise from the file names. Returns None when the folder holds no site plan GLBs.
+    """
+    store_path = os.path.join(project_path, TRUEVISION_CONTENT_FOLDER, SITEPLAN_FOLDER_NAME)
+    if not os.path.isdir(store_path):
+        return None
+
+    glb_files = sorted(
+        f for f in os.listdir(store_path)
+        if os.path.isfile(os.path.join(store_path, f)) and GLB_FILE_PATTERN.match(f)
+    )
+    if not glb_files:
+        return None
+
+    base_url = (
+        f"{CDN_BASE_URL}/{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}"
+        f"/{TRUEVISION_CONTENT_FOLDER}/{SITEPLAN_FOLDER_NAME}"
+    )
+    present = set(glb_files)
+
+    manifest = None
+    manifest_path = os.path.join(store_path, SITEPLAN_MANIFEST_FILENAME)
+    if os.path.isfile(manifest_path):
+        try:
+            with open(manifest_path, 'r', encoding='utf-8') as f:
+                manifest = json.load(f)
+        except (json.JSONDecodeError, OSError) as error:
+            print(f'  [WARNING] {project_folder}: site plan manifest unreadable, layers taken from file names ({error})')
+            manifest = None
+
+    layers = []
+    if isinstance(manifest, dict) and isinstance(manifest.get('SitePlanData__Layers'), list):
+        for entry in manifest['SitePlanData__Layers']:
+            if not isinstance(entry, dict):
+                continue
+            linework = entry.get('Layer__LineworkFile')
+            fill = entry.get('Layer__FillFile')
+            if linework not in present:
+                print(f'  [WARNING] {project_folder}: the site plan manifest lists {linework}, which is not in {SITEPLAN_FOLDER_NAME}')
+                continue
+            layers.append({
+                'Layer__CategoryKey'     : entry.get('Layer__CategoryKey'),
+                'Layer__TagName'         : entry.get('Layer__TagName'),
+                'Layer__Label'           : entry.get('Layer__Label'),
+                'Layer__Group'           : entry.get('Layer__Group'),
+                'Layer__DrawOrder'       : entry.get('Layer__DrawOrder'),
+                'Layer__LineworkUrl'     : f'{base_url}/{linework}',
+                'Layer__FillUrl'         : f'{base_url}/{fill}' if fill in present else None,
+                'Layer__Style'           : entry.get('Layer__Style'),
+                'Layer__VisibleAtScales' : entry.get('Layer__VisibleAtScales'),
+                'Layer__SegmentCount'    : entry.get('Layer__SegmentCount'),
+                'Layer__BoundsMm'        : entry.get('Layer__BoundsMm'),
+            })
+    else:
+        by_key = {}
+        for filename in glb_files:
+            match = SITEPLAN_FILE_PATTERN.match(filename)
+            if not match:
+                print(f'  [WARNING] {project_folder}: {filename} in {SITEPLAN_FOLDER_NAME} is not a site plan GLB name, skipped')
+                continue
+            slot = by_key.setdefault(match.group(1), {})
+            slot['fill' if match.group(2).lower() == 'fillmodel' else 'linework'] = filename
+        for category_key in sorted(by_key):
+            files = by_key[category_key]
+            if 'linework' not in files:
+                continue
+            label = re.sub(r'([a-z])([A-Z])', r'\1 \2', category_key.replace('TrueVision__SitePlan__', ''))
+            layers.append({
+                'Layer__CategoryKey'     : category_key,
+                'Layer__TagName'         : None,
+                'Layer__Label'           : label,
+                'Layer__Group'           : None,
+                'Layer__DrawOrder'       : None,
+                'Layer__LineworkUrl'     : f"{base_url}/{files['linework']}",
+                'Layer__FillUrl'         : f"{base_url}/{files['fill']}" if 'fill' in files else None,
+                'Layer__Style'           : None,
+                'Layer__VisibleAtScales' : None,
+                'Layer__SegmentCount'    : None,
+                'Layer__BoundsMm'        : None,
+            })
+
+    if not layers:
+        return None
+
+    meta = manifest if isinstance(manifest, dict) else {}
+    return {
+        'SitePlan__FolderName'    : SITEPLAN_FOLDER_NAME,
+        'SitePlan__ManifestUrl'   : f'{base_url}/{SITEPLAN_MANIFEST_FILENAME}' if meta else None,
+        'SitePlan__ExportedIso'   : meta.get('SitePlanData__ExportedIso'),
+        'SitePlan__NorthAngleDeg' : meta.get('SitePlanData__NorthAngleDeg'),
+        'SitePlan__BoundsMm'      : meta.get('SitePlanData__BoundsMm'),
+        'SitePlan__Layers'        : layers,
+    }
+
+
 def parse_group_label(group_id):
     """Convert a folder name like DesignPhase01__ConceptDesign__ExistingBuilding to a label."""
     parts = group_id.split('__')
@@ -395,9 +500,9 @@ def parse_group_label(group_id):
     return label
 
 
-def generate_truevision_project_data(project_code, project_name, model_groups):
+def generate_truevision_project_data(project_code, project_name, model_groups, siteplan_store=None):
     """Build the TrueVision__ProjectData__.json structure for a project."""
-    return {
+    data = {
         'projectCode'      : project_code,
         'projectName'      : project_name,
         'activeGroupIndex' : 0,
@@ -409,6 +514,9 @@ def generate_truevision_project_data(project_code, project_name, model_groups):
             'Camera__DefaultFov'            : 50,
         },
     }
+    if siteplan_store:
+        data['SitePlan__DataStore'] = siteplan_store                   # Build-owned: regenerated every run, never a dev key
+    return data
 
 
 def write_truevision_project_data(project_path, data):
@@ -949,10 +1057,13 @@ def main():
         model_groups = discover_truevision_model_groups(
             proj['folderPath'], year_folder_name, proj['projectFolder']
         )
+        siteplan_store = discover_truevision_siteplan_store(
+            proj['folderPath'], year_folder_name, proj['projectFolder']
+        )
 
-        if model_groups:
+        if model_groups or siteplan_store:
             tv_data = generate_truevision_project_data(
-                proj['projectCode'], proj['projectName'], model_groups
+                proj['projectCode'], proj['projectName'], model_groups, siteplan_store
             )
             if args.dry_run_check:
                 output_path = os.path.join(proj['folderPath'], TRUEVISION_CONTENT_FOLDER, 'TrueVision__ProjectData__.json')

@@ -40,6 +40,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.9.0
+// - A sheet dimension draws its ticks, arrows or dots at Dimension__TickLengthMm
+//   (DimensionTickMm), falling back to the config TickLengthMm when the record
+//   has no key - every dimension from before Size mm.
+//
 // 14-Sep-2026 - Version 1.8.0
 // - Fixed length extension lines: a sheet dimension's skeleton - and so its
 //   drawing, its hit test and the selection box - takes the record's
@@ -358,6 +363,20 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | How Large a Sheet Dimension's Ticks, Arrows or Dots Are
+    // ------------------------------------------------------------
+    // Paper millimetres. A record without Dimension__TickLengthMm draws at
+    // the config TickLengthMm, as every dimension from before Size mm did.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__DimensionTickMm(dim) {
+        const setup = Na__LeCfg__GetDimensionSetup();
+        const mm    = dim ? dim.Dimension__TickLengthMm : null;
+        if (!(typeof mm === 'number' && Number.isFinite(mm) && mm > 0)) return setup.tickLengthMm;
+        return Math.min(setup.maxTickLengthMm, Math.max(setup.minTickLengthMm, mm));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Push a Sheet Annotation With Its Leader
     // ------------------------------------------------------------
     function Na__LeMarkup__PushAnnotation(list, item, textSetup) {
@@ -421,7 +440,7 @@
                 end   : { x : dim.Dimension__EndXMm,   y : dim.Dimension__EndYMm },
                 orientation : dim.Dimension__Orientation,
                 offsetMm : dim.Dimension__OffsetMm, gapMm : dimSetup.extGapMm, overshootMm : dimSetup.overshootMm,
-                tickMm : dimSetup.tickLengthMm, strokeMm : Na__LeMarkup__DimensionStrokeMm(sheet, dimSetup), colour : dim.Dimension__Colour,
+                tickMm : Na__LeMarkup__DimensionTickMm(dim), strokeMm : Na__LeMarkup__DimensionStrokeMm(sheet, dimSetup), colour : dim.Dimension__Colour,
                 terminator : dim.Dimension__Terminator,
                 text : Na__LeMarkup__FormatDimension(dim, Na__LeMarkup__DimensionValueMm(sheet, dim)),
                 fontMm : dim.Dimension__TextSizeMm, weight : 400, liftMm : dimSetup.textGapMm, fontFamily : textSetup.fontFamily,
@@ -529,6 +548,7 @@
         Na__LeMarkup__DimensionValueMm,
         Na__LeMarkup__FormatDimension,
         Na__LeMarkup__DimensionSkeleton,
+        Na__LeMarkup__DimensionTickMm,
         Na__LeMarkup__BuildSheetPrimitives,
         Na__LeMarkup__HitTest
     };

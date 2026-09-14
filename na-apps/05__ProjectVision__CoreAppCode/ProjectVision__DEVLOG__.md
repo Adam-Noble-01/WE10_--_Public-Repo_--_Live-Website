@@ -6,6 +6,48 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.2.0 - 14-Sep-2026
+
+### Added - TrueVision Site Plan Store (`SitePlan__DrawingData`)
+
+#### Why
+- TrueVision3D is gaining Site Plan drawings, fed by the GLB Builder's Site Plan Export. That export writes
+  one linework GLB per site plan tag (71-75), a fill GLB for fill tags, and a manifest, into
+  `30__TrueVision__AppContent/SitePlan__DrawingData/`. Plan: `na-apps/30__TrueVision__CoreAppCode/TrueVision__PLAN__SitePlanDrawings__.md`.
+- Without this change the build would have registered that folder as a design phase. It sorts after every
+  `DesignPhase...` folder and has no "existing" in its label, so TrueVision would have opened the project on it.
+
+#### Build Script (`ProjectVision__BuildScript__.py`)
+- `discover_truevision_model_groups()` skips `SitePlan__DrawingData`.
+- New `discover_truevision_siteplan_store()` describes the folder for TrueVision:
+  - with a manifest, it takes each layer's tag, label, group, draw order, style, scales, counts and bounds;
+  - without one, it takes the layers from the file names (`TrueVision__SitePlan__{Stem}__LineworkModel__` / `__FillModel__`);
+  - either way it gives absolute CDN URLs.
+  - A manifest entry whose GLB is missing is skipped with a warning.
+- `generate_truevision_project_data()` writes that description as `SitePlan__DataStore`. The key is build-owned:
+  regenerated on every run, dropped when the folder goes, never a dev-owned key.
+- Project data is written when a project has design phases OR a site plan store.
+
+#### R2 Model Sync (`CloudflareR2__ModelSync__Main__.py`)
+- The site plan GLBs already uploaded like any other GLB folder.
+- `discover_model_groups()` now also lists the site plan manifest as an extra file, and `collect_sync_operations()`
+  uploads it beside the GLBs as `application/json`.
+- `--purge` removes the site plan GLBs with the rest; the manifest, being JSON, stays.
+
+#### Unchanged
+- `ProjectVision__BuildScript__.bat` and `ProjectVision__BuildPipeline__.ps1`. Menu option 3 (a specific project,
+  TrueVision only) runs the build and then `--project <folder> --tv-only`, which picks up the site plan store.
+
+#### Verification
+- A harness on the real scripts, run against a throwaway project in a scratch folder, passed 24 checks:
+  - the folder is never a design phase;
+  - the store is built both with a manifest and without one;
+  - fill URLs are present only where a fill GLB exists;
+  - the writer keeps dev-owned keys and drops a store that has gone;
+  - the sync lists the manifest beside the GLBs.
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.1.0 - 08-Mar-2026
 
 ### Added - PlanVision CDN Integration, Build Pipeline Overhaul, Interactive CLI

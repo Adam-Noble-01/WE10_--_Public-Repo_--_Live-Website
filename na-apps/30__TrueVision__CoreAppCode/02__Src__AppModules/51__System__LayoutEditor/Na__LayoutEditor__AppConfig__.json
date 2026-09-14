@@ -157,7 +157,7 @@
     },
 
     "LayoutEditor__Dimensions__Config": {
-        "LayoutEditor__Dimensions__Description": "Sheet dimensions (D32) drawn in paper millimetres. A dimension placed over a 2D viewport reports paper length times the viewport's scale denominator, so it measures the model. MEASURE AT SCALE (DefaultAtScale, the first control of the Dimensions panel, on by default): off every viewport a dimension reports the paper length times the sheet's scale - the scale its 2D viewports share, the biggest drawing's when they differ, the Scales default when it has none - so vectors drawn at scale measure true; switched off, a dimension reports paper millimetres wherever it is. Lengths typed into the Measurements box while one is placed are real sizes at the scale it will read. The record keeps the switch as Dimension__AtScale (true or false); a record from before it has no key and reports what it always did: the model on a viewport, the paper elsewhere. Precision is decimal places; the units suffix follows the figure. ORTHO: hold Shift while the line is being placed (after the second click) and the dimension runs horizontal or vertical whatever its two points are - drag the line above or below them for the x distance between them, beside them for the y. Release Shift and it is aligned again. The record keeps this as Dimension__Orientation ('aligned', 'horizontal' or 'vertical'; a record from before it is aligned). The offset is measured from the start point, and an ortho line stays where it was put while a grip re-picks either point.",
+        "LayoutEditor__Dimensions__Description": "Sheet dimensions (D32) drawn in paper millimetres. A dimension placed over a 2D viewport reports paper length times the viewport's scale denominator, so it measures the model. MEASURE AT SCALE (DefaultAtScale, the first control of the Dimensions panel, on by default): off every viewport a dimension reports the paper length times the sheet's scale - the scale its 2D viewports share, the biggest drawing's when they differ, the Scales default when it has none - so vectors drawn at scale measure true; switched off, a dimension reports paper millimetres wherever it is. Lengths typed into the Measurements box while one is placed are real sizes at the scale it will read. The record keeps the switch as Dimension__AtScale (true or false); a record from before it has no key and reports what it always did: the model on a viewport, the paper elsewhere. Precision is decimal places; the units suffix follows the figure. ORTHO: hold Shift while the line is being placed (after the second click) and the dimension runs horizontal or vertical whatever its two points are - drag the line above or below them for the x distance between them, beside them for the y. Release Shift and it is aligned again. The record keeps this as Dimension__Orientation ('aligned', 'horizontal' or 'vertical'; a record from before it is aligned). The offset is measured from the start point, and an ortho line stays where it was put while a grip re-picks either point. SIZE MM (TickLengthMm, MinTickLengthMm, MaxTickLengthMm): how large the ticks, arrows or dots at each end are, in paper millimetres. The Dimensions panel's Size mm row, under Ends, sets it per dimension; the record keeps it as Dimension__TickLengthMm. A record from before it has no key and draws at TickLengthMm.",
         "LayoutEditor__Dimensions__DefaultTextSizeMm": 2.5,
         "LayoutEditor__Dimensions__MinTextSizeMm": 1.5,
         "LayoutEditor__Dimensions__MaxTextSizeMm": 8,
@@ -171,6 +171,8 @@
         "LayoutEditor__Dimensions__DefaultExtensionMm": null,
         "LayoutEditor__Dimensions__ExtensionNote": "DefaultExtensionMm is how far a new dimension's extension lines run back from the dimension line towards the points it measures, in paper millimetres; null draws the full lines. The Dimensions panel's Ext. lines row sets a start and an end length for each dimension, linked by the padlock between them, and the eyedropper copies them. The points themselves never move: a dimension still measures from them and they are still snap points.",
         "LayoutEditor__Dimensions__TickLengthMm": 1.5,
+        "LayoutEditor__Dimensions__MinTickLengthMm": 0.5,
+        "LayoutEditor__Dimensions__MaxTickLengthMm": 12,
         "LayoutEditor__Dimensions__StrokeMm": 0.25,
         "LayoutEditor__Dimensions__TextGapMm": 0.8,
         "LayoutEditor__Dimensions__DefaultPrecision": 0,
@@ -729,6 +731,8 @@
         "LayoutEditor__Labels__DimAtScaleTitle": "On: the dimension reads the drawing's real size - at the scale of the viewport it sits on, or the sheet's scale off every viewport - and lengths typed while placing it are real sizes. Off: it reads paper millimetres.",
         "LayoutEditor__Labels__DimAtSheetScale": "(at the sheet's scale, {scale})",
         "LayoutEditor__Labels__DimPaperMeasure": "(paper millimetres)",
+        "LayoutEditor__Labels__DimEndSize": "Size mm",
+        "LayoutEditor__Labels__DimEndSizeTitle": "How large the ticks, arrows or dots at each end are, in paper millimetres.",
         "LayoutEditor__Labels__MenuCloseDoor": "Close door",
         "LayoutEditor__Labels__MenuOpenDoor": "Open door",
         "LayoutEditor__Labels__MenuOpenAllDoors": "Open all doors ({count} closed)",

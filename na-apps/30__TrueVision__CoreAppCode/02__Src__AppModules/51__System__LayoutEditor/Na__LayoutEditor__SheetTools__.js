@@ -90,6 +90,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.17.0
+// - The settings for new dimensions carry tickLengthMm: how large the ticks,
+//   arrows or dots at each end are, from the config TickLengthMm until Size mm
+//   in the Dimensions panel changes it.
+//
 // 14-Sep-2026 - Version 1.16.0
 // - Plan doors. With a 2D plan viewport selected, a click on a door closes it
 //   and another click opens it again (Na__LayoutEditor__PlanDoors__); the
@@ -383,7 +388,7 @@
     function Na__LeTools__GetDimensionDefaults() {
         if (!Na__LeTools__DimDefaults) {
             const s = Na__LeCfg__GetDimensionSetup();
-            Na__LeTools__DimDefaults = { textSizeMm : s.defaultTextSizeMm, colour : s.defaultColour, terminator : s.defaultTerminator, offsetMm : s.defaultOffsetMm, precision : s.defaultPrecision, unitsSuffix : s.defaultUnits,
+            Na__LeTools__DimDefaults = { textSizeMm : s.defaultTextSizeMm, colour : s.defaultColour, terminator : s.defaultTerminator, tickLengthMm : s.tickLengthMm, offsetMm : s.defaultOffsetMm, precision : s.defaultPrecision, unitsSuffix : s.defaultUnits,
                                          atScale : s.defaultAtScale,     // <-- Measure at scale: the Dimensions panel's first control
                                          startExtensionMm : s.defaultExtensionMm, endExtensionMm : s.defaultExtensionMm, extensionsLinked : true };   // <-- Fixed length extension lines, linked; null is the full line
         }

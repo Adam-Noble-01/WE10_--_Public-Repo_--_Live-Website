@@ -37,7 +37,8 @@
 //   TEXT        travels : size, weight, colour, alignment
 //               stays   : the words, the position, the leader, the layer
 //
-//   DIMENSION   travels : text size, colour, terminator, precision, unit suffix,
+//   DIMENSION   travels : text size, colour, terminator, terminator size,
+//                         precision, unit suffix,
 //                         the extension line lengths and the padlock between
 //                         them (a full line is a real value, and puts a
 //                         shortened target back to full)
@@ -104,6 +105,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.5.0
+// - Dimensions carry their terminator size (tickLengthMm) to painted
+//   dimensions and to the palette, so a run of dimensions takes the same
+//   arrow, tick or dot size one click at a time.
+//
 // 14-Sep-2026 - Version 1.4.0
 // - Dimensions carry their extension line lengths - start, end and whether the
 //   two are linked - to painted dimensions and to the palette, so a run of
@@ -236,6 +242,7 @@
                 { patch : 'textSizeMm',  field : 'Dimension__TextSizeMm'  },
                 { patch : 'colour',      field : 'Dimension__Colour'      },
                 { patch : 'terminator',  field : 'Dimension__Terminator'  },
+                { patch : 'tickLengthMm', field : 'Dimension__TickLengthMm' },
                 { patch : 'precision',   field : 'Dimension__Precision'   },
                 { patch : 'unitsSuffix', field : 'Dimension__UnitsSuffix' },
                 { patch : 'offsetMm',    field : 'Dimension__OffsetMm', optional : 'copyOffset' },

@@ -82,7 +82,7 @@ and credits belong to the sheet.
 | SP02 | Site plan tags **never enter the design phase model GLBs**: the model export excludes them at any nesting depth | DONE (GLB Builder 2.6.2: by name and by pattern) |
 | SP03 | **One site plan store per project**: `30__TrueVision__AppContent/SitePlan__DrawingData/` | PROPOSED |
 | SP04 | The exporter writes a **manifest**, `TrueVision__SitePlanData__Manifest__.json`, beside the GLBs: what was written, counts, bounds, north angle, and each layer's style defaults copied from the SSOT | PROPOSED |
-| SP05 | The ProjectVision build script registers the store as a **build-owned** project data key, `SitePlan__DataStore`. It is never a model group and never a dev-owned key | PROPOSED |
+| SP05 | The ProjectVision build script registers the store as a **build-owned** project data key, `SitePlan__DataStore`. It is never a model group and never a dev-owned key | DONE (ProjectVision 0.2.0) |
 | SP06 | A site plan viewport **draws the lines as 2D paths**: no projection pipeline, no raster underlay. `Viewport__Kind` stays `'2d'`; a new `Viewport__SitePlan` marks the source | PROPOSED |
 | SP07 | Drawing Type is a sheet field, `Sheet__DrawingType`, **stored only when `'siteplan'`** | PROPOSED |
 | SP08 | Tab order: `3D Model` \| architectural sheets \| `+` \| site plan sheets \| `Project Specification` | ASK |
@@ -346,6 +346,16 @@ secondary proposal, proposal, blue line, red line, setting out lines.
 
 ## 6. PROPOSAL - Site Plan Export (GLB Builder, Plugins repository)
 
+**Built 14-Sep-2026 (GLB Builder 2.7.0, module `Na__TrueVision__GlbBuilder__SitePlanExport__.rb` 1.0.0), awaiting
+its first run in SketchUp.** Where the build differs from the proposal below:
+- **Summary first.** A confirmation box lists every layer with geometry, the unused tag count and the checks, before
+  a folder is chosen.
+- **Folder choice.** Picking `30__TrueVision__AppContent` exports into its `SitePlan__DrawingData` (created if
+  missing); any other folder name asks first; the last folder is remembered.
+- **Prefix.** Model names like `PS01_M10__...` give the `PS01__` prefix.
+- **Open edits.** It refuses to run while a group or component is open for editing.
+- **Guarded load.** The module loads inside a guard in Main, so a fault in it cannot stop the model export loading.
+
 ### 6.1 Interface
 
 - **Dialog.** The export dialog gains a second primary button, **Export Site Plan Data**, and a
@@ -486,6 +496,11 @@ Then check whether `CrossSection__SceneData` also belongs in `Na__DevSavedKeys`
 
 ### 7.2 Build script
 
+**Done 14-Sep-2026 (ProjectVision 0.2.0).** `discover_truevision_model_groups` skips the folder;
+`discover_truevision_siteplan_store` builds the key below from the manifest, or from the file names
+without one; project data is written when a project has design phases or a site plan store. The
+`.bat` and the PowerShell menu needed no change: option 3 runs the build, then the TrueVision-only sync.
+
 - **Skip the site plan folder.** `discover_truevision_model_groups` (~344) must skip `SitePlan__DrawingData`. Otherwise:
   - it becomes a model group;
   - its name sorts after every `DesignPhase...` folder;
@@ -513,13 +528,15 @@ Then check whether `CrossSection__SceneData` also belongs in `Na__DevSavedKeys`
 
 ### 7.3 Model sync
 
+**Done 14-Sep-2026 (ProjectVision 0.2.0).** The manifest now uploads beside the GLBs.
+
 - **GLBs need no change.** `discover_model_groups` (~339) already uploads every non-`00__` GLB folder under `30__TrueVision__AppContent`, keyed by folder name, so site plan GLBs upload as they are.
 - **Add the manifest JSON** to the upload (the JSON content type already exists) for traceability.
 - **`--purge`.** It removes site plan GLBs too, which is correct.
 
 ### 7.4 Standard example folder (`26-Projects/AA00__ExampleProjectStructure`)
 
-- **Placeholder note.** Add `30__TrueVision__AppContent/SitePlan__DrawingData/SitePlanData__LineworkGlbs__GoHere__.note`, a tracked placeholder in the PlanVision `.note` convention.
+- **Placeholder note.** Done 14-Sep-2026: `SitePlan__DrawingData/SitePlanData__LineworkGlbs&Manifest__GoHere__.note` in AA00 and in PS01, empty like the PlanVision notes. The pipeline ignores a folder with no GLBs.
 - **The DesignPhase example folders.** `DesignPhase01__ConceptDesign__ExistingBuilding` and `...Scheme-01` exist only on disk; git keeps no empty folders, so the "standard structure" is not really in the repository. Add a `.note` to each (ASK).
 - **Example project data.** AA00's `TrueVision__ProjectData__.json` still shows the retired `modelDefaults.modelUrls` shape. Bring it up to `modelGroups` plus `SitePlan__DataStore` so the example matches what the build writes.
 
@@ -661,7 +678,7 @@ Then check whether `CrossSection__SceneData` also belongs in `Na__DevSavedKeys`
 3. **Fills (SP10):** needed in the first release? The red proposal fill says yes.
 4. **Visibility (SP12):** should hidden tags still export?
 5. **Test project:** which project gets tagged up first?
-6. **Example folders:** add `.note` placeholders so the standard folder structure is really in git (7.4)?
+6. **Example folders:** `SitePlan__DrawingData` is now in AA00 and PS01 (14-Sep-2026). AA00's two DesignPhase folders are still empty and untracked - add notes to those too?
 
 ---
 
@@ -705,9 +722,9 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | - | Tag range decision | x | - | Adam, 14-Sep-2026: use 71-75, doubling up similar tags on a number with different names |
 | 0 | Pipeline dev-key lists | x | 2.39.0 | Root cause found by this survey; fixed the same afternoon by the Save Sheets session. `CrossSection__SceneData` still unlisted (Adam holds a task for it) |
 | 1 | Tags SSOT v2.3.0, EdgeMaterials v2.1.0, Tags Manager | ~ | GLB Builder 2.6.2 | Written 14-Sep-2026 by an all-or-nothing patch that parses every JSON file and cross-checks the 18 entries (exclusion lists, colours, line types, SketchUp line styles, unique stems). The model export also excludes the `^\d{2}__SitePlan__` pattern (`SITE_PLAN_TAG_PATTERN`), so site plan geometry stays out of model GLBs before any push. Uncommitted and not pushed. Waits on a tagged model |
-| - | Adam tags up a project | - | - | |
-| 2 | Site Plan Export | - | - | |
-| 3 | Pipeline registration, example folder | - | - | |
+| - | Adam tags up a project | ~ | - | First pass 14-Sep-2026: `PS01_M10__SitePlanModel` (OS mapping, existing and proposed buildings tagged) |
+| 2 | Site Plan Export | ~ | GLB Builder 2.7.0 | Written 14-Sep-2026: module 1.0.0 (scan, summary and checks, linework GLB per tag, fill ring GLBs, manifest, old-file removal), dialog button, Extensions menu item, guarded load. No Ruby outside SketchUp, so only a block-balance check; not yet run in SketchUp |
+| 3 | Pipeline registration, example folder | ~ | ProjectVision 0.2.0 | Pipeline done 14-Sep-2026: the folder is never a design phase, `SitePlan__DataStore` is built from the manifest or the file names, the manifest syncs. Harness on the real scripts against a throwaway project: 24 checks. Uncommitted. `SitePlan__DrawingData` added to AA00 and PS01 with a placeholder note (Adam, 14-Sep-2026) |
 | 4 | Site plan store, Drawing Type, tab order | - | - | |
 | 5 | Site plan viewport | - | - | |
 | 6 | Site plan sheet furniture | - | - | |

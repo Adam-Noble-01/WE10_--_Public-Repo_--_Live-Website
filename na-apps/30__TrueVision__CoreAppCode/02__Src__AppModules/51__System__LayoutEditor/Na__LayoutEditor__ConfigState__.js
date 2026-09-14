@@ -32,6 +32,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.11.0
+// - GetDimensionSetup: minTickLengthMm and maxTickLengthMm, the bounds of the
+//   Dimensions panel's Size mm (how large the ticks, arrows or dots at each
+//   end are). TickLengthMm is still the size a dimension without its own
+//   Dimension__TickLengthMm draws at, and the size new ones start with.
+//
 // 14-Sep-2026 - Version 1.10.0
 // - GetPlanDoorsSetup: whether plan viewports draw their doors open, with
 //   swing arcs and at what arc step, whether a click on a door closes or opens
@@ -459,6 +465,8 @@
             overshootMm       : Na__LeCfg__Num('Dimensions', 'ExtensionOvershootMm', 1.5),
             defaultExtensionMm : (extMm !== null && extMm >= 0) ? extMm : null,   // <-- How far a new dimension's extension lines run back from its line; null is the full line
             tickLengthMm      : Na__LeCfg__Num('Dimensions', 'TickLengthMm', 1.5),
+            minTickLengthMm   : Na__LeCfg__Num('Dimensions', 'MinTickLengthMm', 0.5),
+            maxTickLengthMm   : Na__LeCfg__Num('Dimensions', 'MaxTickLengthMm', 12),
             strokeMm          : Na__LeCfg__Num('Dimensions', 'StrokeMm', 0.25),
             textGapMm         : Na__LeCfg__Num('Dimensions', 'TextGapMm', 0.8),
             defaultPrecision  : Na__LeCfg__Num('Dimensions', 'DefaultPrecision', 0),

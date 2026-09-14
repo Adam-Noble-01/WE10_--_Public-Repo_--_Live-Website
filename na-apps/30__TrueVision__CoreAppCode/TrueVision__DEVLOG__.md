@@ -2,6 +2,41 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.43.0  -  14-Sep-2026
+### Dimension End Size - Resize Ticks, Arrows and Dots Per Dimension
+
+**Overview**
+- The Dimensions panel, under Ends, has a Size mm field: how large the ticks, arrows
+  or dots at each end are, in paper millimetres. With a dimension selected it edits
+  that one; with nothing selected it sets what the Dimension tool places next.
+- The record keeps it as `Dimension__TickLengthMm`. A record from before it has no
+  key and draws at the config `TickLengthMm` (1.5 mm), so every existing dimension
+  is unchanged until Size mm is used. New dimensions take the panel setting. The
+  eyedropper and Shift+B copy it.
+- Bounds: `MinTickLengthMm` 0.5, `MaxTickLengthMm` 12. The geometry already sizes
+  ticks, arrows and dots from one length, so the field covers all three Ends styles.
+
+**THE RECORD**
+- `Dimension__TickLengthMm`: a number above zero, clamped to the config min and max.
+  Stored only when set; the normaliser removes anything else and never adds the key.
+
+**Config**
+- `LayoutEditor__Dimensions__MinTickLengthMm`, `MaxTickLengthMm`. Labels: `DimEndSize`,
+  `DimEndSizeTitle`.
+
+**Files**
+- Layout Editor: `Panel__Dimensions__` 1.4.0, `SheetModel__` 1.15.0, `SheetRecords__` 1.11.0,
+  `ConfigState__` 1.11.0, `SheetTools__` 1.17.0, `DimensionTool__` 1.5.0,
+  `MarkupBridge__` 1.9.0 (`DimensionTickMm`), `Eyedropper__` 1.5.0, `SelectionBox__` 1.1.0;
+  `AppConfig__.json`.
+- Service worker: token `2026-09-14-9`.
+
+**Verification**
+- Named exports pass on the Layout Editor folder (71 files). Module graph: 359
+  reachable modules, 0 failures (the one known vendor issue unchanged).
+- AppConfig JSON parses. Not exercised in the running app in this session.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.42.0  -  14-Sep-2026
 ### Doors Stand Open on Plans - Click One to Close It
 

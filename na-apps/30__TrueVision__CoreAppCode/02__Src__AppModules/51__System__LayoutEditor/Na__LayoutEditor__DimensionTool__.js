@@ -65,6 +65,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.5.0
+// - A new dimension takes the Dimensions panel's terminator size
+//   (tickLengthMm), so its ticks, arrows or dots are already the Size mm
+//   setting while its line follows the cursor.
+//
 // 14-Sep-2026 - Version 1.4.0
 // - A new dimension takes the Dimensions panel's extension line lengths and
 //   the padlock between them (startExtensionMm, endExtensionMm,
@@ -260,7 +265,7 @@
         const d    = defaults || {};
         const item = Na__LeModel__CreateDimension(sheet, p.startMm, end, {
             viewportId : host ? host.Viewport__Id : null, offsetMm : d.offsetMm, textSizeMm : d.textSizeMm,
-            colour : d.colour, terminator : d.terminator, precision : d.precision, unitsSuffix : d.unitsSuffix,
+            colour : d.colour, terminator : d.terminator, tickLengthMm : d.tickLengthMm, precision : d.precision, unitsSuffix : d.unitsSuffix,
             atScale : d.atScale !== false,                                    // <-- Measure at scale: the drawing's real size, unless the panel says paper
             startExtensionMm : d.startExtensionMm, endExtensionMm : d.endExtensionMm, extensionsLinked : d.extensionsLinked,   // <-- Fixed length extension lines; the model keeps only what differs from the full line
             orientation : shift ? Na__LeDimGeo__OrthoToward(p.startMm, end, end, null, Na__LeCfg__GetSelectionSetup().dragThresholdMm) : Na__LeDimGeo__ALIGNED,   // <-- Shift already down: ortho from the first frame
@@ -285,7 +290,7 @@
 
     // FUNCTION | A Click With the Dimension Tool
     // ------------------------------------------------------------
-    // defaults: { offsetMm, textSizeMm, colour, terminator, precision, unitsSuffix, atScale,
+    // defaults: { offsetMm, textSizeMm, colour, terminator, tickLengthMm, precision, unitsSuffix, atScale,
     //             startExtensionMm, endExtensionMm, extensionsLinked }
     // ------------------------------------------------------------
     function Na__LeDim__Click(sheet, pointMm, shift, defaults) {
