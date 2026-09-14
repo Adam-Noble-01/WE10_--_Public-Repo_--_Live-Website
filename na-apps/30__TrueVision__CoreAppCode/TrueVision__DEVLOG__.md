@@ -2,6 +2,207 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.54.0  -  14-Sep-2026
+### Margin Notes Spread Out When the Column Has Room
+
+**Overview**
+- From Adam, with D03 - 3D Images and D02 - Elevations side by side: the space between margin notes gets a least and a
+  most. The least is the spacing the notes had; on a sheet with room to spare, like D03, the notes spread out a little,
+  with more space above and below each rule. A full column, like D02, stays as it is.
+- **What fits is decided first.** Every note is laid out at the least gap, exactly as before, so a note that fitted
+  still fits and one that did not still does not.
+- **Then the gaps open.** When every note fits and room is left at the foot of the column, each gap opens by the same
+  amount, up to the most, and each rule stays centred in its gap.
+  - The least is 2.5 mm, which is 1.25 mm clear above and below a rule. The most is 5 mm, which is 2.5 mm each side.
+  - With less room than the most needs, the gaps share what there is, so the last note ends on the column's foot
+    padding.
+  - A column with notes that did not fit keeps the least gap, so it never looks finished while notes are missing.
+- The screen and the PDF draw the margin from the same primitives, so both spread alike.
+
+**HOW**
+- **`SpecMargin__` 1.3.0.** `Plan` lays the column out at `NoteGapMm` and keeps each note that fits: its runs, and
+  the rule above it. It then places them all at once.
+  - The extra gap is the smaller of `NoteGapMaxMm - NoteGapMm` and the room at the foot divided by the number of
+    gaps. It is 0 when a note overflowed or only one note shows.
+  - Note n moves down n x extra; the rule above it moves n x extra - extra / 2, which keeps it centred.
+  - The plan carries `noteGapMm`, the gap it laid the notes at. A config without `NoteGapMaxMm` keeps the least.
+- **`ConfigState__` 1.22.0:** `GetMarginNotesSetup().noteGapMaxMm` (5).
+- Nothing new is written to project data: the spacing is worked out each time the margin is drawn.
+
+**Config**
+- MarginNotes `NoteGapMaxMm` (5). `NoteGapMm` (2.5) is now the least. Setting the most to the least turns the
+  spreading off.
+
+**Verified**
+- In the app on PS01 (localhost:8563, every write refused), the served module against itself with the most pinned to
+  the least:
+  - D03 - 3D Images: 15 notes, 39.05 mm to spare at 2.5 mm. The gaps open to the full 5 mm, leaving about 4 mm.
+  - D02 - Elevations: 20 notes, 4.13 mm to spare. The gaps open to 2.72 mm, 0.22 mm more each, and the last note ends
+    on the foot padding.
+  - D01 - Floor Plans: 15 notes, 162 mm to spare. The gaps open to 5 mm.
+  - On all three: the same notes, text, left edges and rule count as before, and nothing overflowing. The first note
+    did not move, every rule is centred in its gap to 0 mm, and the last note moved exactly (notes - 1) x the extra.
+- D03 on screen draws its 14 rules at the new positions, 14 of 14.
+- Entering the editor on D03 sent six `r2/write` POSTs and the drawing notes' local save, all refused, before anything
+  was tested. Nothing tried to write after that.
+- Both modules parse and the AppConfig JSON parses.
+- **Not checked:** a PDF export.
+
+**Files**
+- Layout Editor: `SpecMargin__` 1.3.0, `ConfigState__` 1.22.0, `AppConfig__.json` (MarginNotes `NoteGapMaxMm` and its
+  description).
+- Service worker: token `2026-09-14-23`.
+- Plans: `TrueVision__PLAN__ValeVisionRealign__DrawingSystems__.md` ledger AM.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.53.0  -  14-Sep-2026
+### Scrapbook - Drag the Mapping Data Credentials and the North Point onto a Site Plan
+
+**Overview**
+- From Adam: a Scrapbook on site plan sheets, to drag his Mapping Data Credentials block and north point in from, the
+  way SketchUp LayOut's scrapbooks work.
+- **The panel.** Scrapbook sits in the left column after Sheet, and shows only on a sheet that has items: today, a Site
+  Plan Drawing. Each tile shows its item and its name, and every tile is styled alike.
+- **Dragging.** Press a tile and drag.
+  - The item follows the pointer at the size it will land at, the sheet's own zoom: faint over the panels, clear over
+    the sheet.
+  - Let go over the sheet and it lands centred under the pointer, grouped and selected, with the Select tool up, so
+    it can be moved straight away.
+  - Escape, or letting go anywhere off the sheet, drops nothing.
+  - Double-click a tile, or press Enter on it, to place it in the middle of the view instead.
+- **Three items:** Mapping Data Credentials and North Point together, as in Adam's image, and each on its own, since
+  every plan on a sheet takes a north point.
+- **What lands is ordinary sheet content:** three text items and five vectors, in a group of two groups. It moves,
+  copies, ungroups, prints and undoes like anything drawn by hand, and one drop is one undo step.
+- **The house sizes,** measured from Adam's image and from his A2 Location and Block Plans (BH03 D04, NP03 D09):
+  - the north point is 18 mm across;
+  - the text is Open Sans at 9 pt semibold, 8 pt and 6 pt, in the image's warm grey.
+- **The year keeps itself.** The copyright line takes the current year when the item is dropped. The OS licence
+  number is written once, in the Scrapbook config.
+- **Not yet.** The north point points up the paper; it is not linked to a viewport's north angle (PS01's is 0).
+
+**HOW**
+- **New `Na__LayoutEditor__Scrapbook__.js` (`Na__LeScrap__`)** owns `Na__LayoutEditor__Scrapbook__Config__.json`.
+  - Pieces are lists of sheet records (`Annotation__...`, `Shape__...`) in paper millimetres, without ids or layers. A
+    `Scrapbook__Circle` is written out as a closed polygon.
+  - Items are pieces with offsets and the drawing types they are offered on. Tokens fill `{OsLicenceNumber}` and
+    `{Year}`.
+  - `BuildSet` turns an item into the item clipboard's set shape. `PreviewSvg` draws it through
+    `Na__LeMarkup__BuildSheetPrimitives`, so a tile shows exactly what lands.
+- **New `Na__LayoutEditor__Panel__Scrapbook__.js` (`Na__LePanelScrap__`):** the tiles, the pointer drag and its ghost,
+  and the section's visibility, which follows every change of sheet or drawing type, folded or not.
+- **`ItemClipboard__` 1.1.0:** `Na__LeClip__InsertSet(sheet, set, atMm)` pastes a set that did not come from the
+  clipboard. `PasteSet` is now `InsertSet` with the held set, so a paste behaves exactly as before.
+- **`ModeController__` 1.14.0** registers the section after Sheet.
+- Nothing new is written to project data: a dropped item saves with its sheet like any other text and vectors.
+
+**Verified**
+- In the app on PS01 (127.0.0.1:8523, every write refused, none attempted by the Scrapbook), on scratch sheets held in
+  memory. Adam's D10 was never touched, and the sheets were restored byte for byte afterwards.
+- A drop lands centred on the pointer: 71.33 x 18 mm, text on the text layer, vectors on the vector layer, a group of
+  two groups. One undo step; undo and redo round-trip.
+- The ghost matches the sheet's zoom to the pixel. Escape and a release off the sheet drop nothing, a single click
+  does nothing, and double-click and Enter place in view.
+- The section hides on an architectural sheet and comes back on a site plan sheet.
+- The three lines' Open Sans widths are within 0.5% of Adam's image (39.7, 41.9 and 41.4 mm).
+- An uncompressed PDF of the sheet carries the three lines and the north point's fills.
+
+**Files**
+- Layout Editor:
+  - new `Scrapbook__` 1.0.0, `Panel__Scrapbook__` 1.0.0 and `Scrapbook__Config__.json`
+  - `ItemClipboard__` 1.1.0, `ModeController__` 1.14.0
+  - `Styles__Panels__.css` (Scrapbook region)
+- Service worker: token `2026-09-14-22`.
+- Plans: `TrueVision__PLAN__SitePlanDrawings__.md` 8.6 and Phase 6; `TrueVision__PLAN__ValeVisionRealign__DrawingSystems__.md`
+  ledger AL.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.52.0  -  14-Sep-2026
+### Rotate Text - a Round Grip Turns a Text Box
+
+**Overview**
+- From Adam: text boxes in the Layout Editor can be rotated, with rotation handles.
+- **The grip.** A selected text item shows a round grip on a short stem off the top of its outline. Over it, the
+  pointer becomes a curved arrow.
+  - Drag it and the text turns about the middle of its box, so it spins in place.
+  - **Shift** holds the angle to 15 degree steps. Without Shift a drag settles on a right angle once within 2 degrees
+    of one, so level and plumb text are found by feel.
+- **The Text panel** has a Rotation row, in degrees clockwise.
+  - With a text item selected, it turns that item about its middle.
+  - With nothing selected, it sets the angle new text is placed at.
+- **Right-click** a turned text item for **Reset rotation**, which levels it about its middle.
+- **Everything follows the turn:**
+  - every line of multi-line text, and the leader, which meets the turned box;
+  - the dashed selection outline, and the inline editor on a double-click;
+  - hit testing: a click lands on the turned box itself, not on the empty corners of the square round it;
+  - box select: a crossing has to touch the turned box, and a window has to hold it;
+  - copy, paste, duplicate, undo and redo;
+  - the PDF.
+- **Fix: turned text in the PDF.**
+  - jsPDF shifts a centred or right-aligned run along the page, and then turns it about that shifted start. A turned
+    centred run printed half its width away from where the screen draws it.
+  - The value of a vertical or aligned dimension printed off the same way.
+  - Such a run is now placed by its own left end, so both print where the screen draws them. Level text is unchanged.
+
+**HOW**
+- **Record key** `Annotation__RotationDeg`: degrees clockwise about the anchor (`PosXMm`, `PosYMm`, the first line's
+  baseline at its alignment point).
+  - Wrapped into (-180, 180] and kept to a thousandth of a degree.
+  - Written only while the text is turned, so level text, and every record from before, draws and saves exactly as
+    it did.
+- **`MarkupBridge__`** lays a turned item out in its own frame:
+  - `AnnotationBox` is the unturned box, and `AnnotationBounds` is the turned box's extent (what groups and the
+    eyedropper frame);
+  - `AnnotationCorners`, `AnnotationCentre`, `AnnotationToLocal`, `AnnotationFromLocal`, `AnnotationHit` and
+    `AnnotationRotateGrip` read the rest;
+  - for an unturned item they hand every point straight back.
+- **Turning about the middle.** The record turns about its anchor, so `Na__LeText__RotationPatch` moves the anchor to
+  keep the middle still. The drag (`RotateStart`, `RotateTo`) is worked from where it began, never from the last move.
+- **The grip.** `SheetTools__` `Resolve` looks for the one selected text item's grip before anything else, because the
+  grip stands off the text where no hit test would find it.
+  - It sits Text `RotateGripOffsetPx` screen pixels off the outline, at any zoom.
+  - Its stem is a grip element too, so clearing the grips clears it.
+- **The PDF.** In `SheetChrome__` `ToPdf`, a turned centre- or right-aligned run is walked back along its turned
+  baseline by the width jsPDF itself aligns by, then drawn left-aligned.
+
+**Config**
+- Text `RotateStepDeg` (15), `RotateDetentDeg` (2) and `RotateGripOffsetPx` (22).
+- Labels `TextRotation` and `MenuResetTextRotation`; `TextSelectedNote` mentions the grip.
+
+**Files**
+- Layout Editor:
+  - `MarkupBridge__` 1.12.0, `Grips__` 1.6.0, `TextTool__` 1.3.0, `Panel__Text__` 1.3.0, `SelectionBox__` 1.3.0
+  - `SheetTools__` 1.28.0, `SheetModel__` 1.24.0, `ConfigState__` 1.21.0, `SheetChrome__` 1.6.0
+  - `AppConfig__.json`; `Styles__Main__.css` (`.na-le-grip--rotate`, `.na-le-grip--stem`)
+- Service worker: token `2026-09-14-21`.
+
+**Verification** - PS01 at localhost:8553 with every write refused, on scratch text items on D01 that were then
+deleted. One POST was refused, and nothing reached R2: the drawing notes save the editor makes on entry, not part of
+this change.
+- **The grip** drew where its geometry puts it (within 0.05 px), with the rotate cursor over it.
+- **Dragging it:**
+  - a drag of 90.86 degrees landed on 90, and the middle moved 0 mm;
+  - with Shift, a further 40 degrees gave 135 (105 part way through);
+  - 33.3 degrees back gave 101.7.
+- **Hit test at 135:** a point inside the square extent but off the turned box found nothing; a point along the text
+  found it.
+- **Box select at 45:** a crossing in the empty corner of the square extent took nothing; one across the text took it.
+- **The panel** turned the text to 45 about its middle. **Reset rotation** was on the menu, removed the key and kept
+  the middle. Undo and redo stepped 45, level, 45.
+- **The inline editor** opened turned 45 degrees about the anchor.
+- **Two-line text at -90:** the second line sits one line height (4.8 mm) along the turned block, and the leader ends
+  0.6 mm off the turned box.
+- **New text** with the panel at 90 put the top of its first line exactly on the press.
+- **PDF:**
+  - In the app, the turned run's anchor at 45 degrees landed on the SVG's anchor (0 mm).
+  - In Node against the vendored jsPDF 4.1.0, centre and right runs at 0, 90, -90, 30 and -135 degrees all landed
+    within 0.0001 mm.
+  - Before the fix, a centred run 22.3 mm wide at 90 degrees landed 15.7 mm off.
+- **Parsing.** Every touched module parses, the module graph passes, named exports pass (280 files), and the AppConfig
+  JSON parses.
+- **Not checked:** touch on the grip, and a real printed or exported PDF.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.51.0  -  14-Sep-2026
 ### Project Specification, Read - the Notes as A4 Pages, to Print or Read Aloud
 

@@ -20,6 +20,9 @@
 //   classic field texts) drawn last so captions sit above content (D35).
 // - Printed at 100 percent a 1:50 viewport measures true because every
 //   coordinate is a paper millimetre.
+// - Open Sans is embedded before anything is drawn. jsPDF's built-in
+//   Helvetica is only the fallback when the TTF files cannot be fetched.
+//   // @delegate: ./Na__LayoutEditor__PdfFonts__.js
 //
 // INTEGRATION:
 // - Toolbar Download PDF and the Dev menu Export PDF call ExportSheet.
@@ -36,6 +39,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0 (TrueVision)
+// - Download PDF embeds Open Sans (Light, Regular, SemiBold) so sheet text,
+//   title block, captions, dimensions and notes print in the app face
+//   rather than Helvetica (Na__LayoutEditor__PdfFonts__).
+//
 // 14-Sep-2026 - Version 1.3.0 (TrueVision)
 // - A 3D viewport's picture goes at Na__LeVp3d__ExportRectMm: the whole
 //   picture's rectangle as before, or the frame itself once the frame shows a
@@ -76,6 +84,7 @@
     // MODULE IMPORTS | Config, Layout, Model, Chrome, Markup, Viewports, Assets
     // ------------------------------------------------------------
     import { Na__LeCfg__GetPdfSetup, Na__LeCfg__GetLineworkSetup, Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__LePdfFonts__EnsureLoaded, Na__LePdfFonts__Install } from './Na__LayoutEditor__PdfFonts__.js';
     import { Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__Solve } from './Na__LayoutEditor__SheetLayout__.js';
     import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__GetFields, Na__LeModel__IsLayerVisible, Na__LeModel__IsSitePlanViewport } from './Na__LayoutEditor__SheetModel__.js';
@@ -102,9 +111,9 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Make Sure window.jspdf.jsPDF Exists (injects the vendored UMD once)
+    // FUNCTION | Load the Vendored jsPDF UMD Once
     // ------------------------------------------------------------
-    function Na__LePdf__EnsureJsPdf() {
+    function Na__LePdf__LoadLibrary() {
         if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
         if (Na__LePdf__LoadPromise) return Na__LePdf__LoadPromise;
         Na__LePdf__LoadPromise = new Promise((resolve, reject) => {
@@ -116,6 +125,16 @@
             document.head.appendChild(script);
         }).catch((error) => { Na__LePdf__LoadPromise = null; throw error; });
         return Na__LePdf__LoadPromise;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Make Sure jsPDF Exists and Open Sans Is Ready to Embed
+    // ------------------------------------------------------------
+    async function Na__LePdf__EnsureJsPdf() {
+        const JsPdf = await Na__LePdf__LoadLibrary();
+        await Na__LePdfFonts__EnsureLoaded();                                     // <-- TTF in memory before any document is measured or drawn
+        return JsPdf;
     }
     // ------------------------------------------------------------
 
@@ -297,7 +316,8 @@
         const JsPdf  = await Na__LePdf__EnsureJsPdf();
         const setup  = Na__LeCfg__GetPdfSetup();
         const layout = Na__LeLayout__Solve(sheet);
-        const doc    = new JsPdf({ orientation : layout.Page.Orientation, unit : 'mm', format : [ layout.Page.WidthMm, layout.Page.HeightMm ], compress : true });
+        const doc    = new JsPdf({ orientation : layout.Page.Orientation, unit : 'mm', format : [ layout.Page.WidthMm, layout.Page.HeightMm ], compress : true, putOnlyUsedFonts : true });
+        Na__LePdfFonts__Install(doc);                                             // <-- Open Sans into this document; Helvetica remains if the TTF never arrived
         const scales = sheet.Sheet__Viewports.filter((v) => v.Viewport__Kind === Na__LeModel__KIND_2D).map((v) => v.Viewport__ScaleDenominator);
         doc.setProperties({
             title   : sheet.Sheet__Name,

@@ -26,13 +26,21 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Assets__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Parity        : verbatim, but for the folder Load reads from
+// - Divergences   : Console prefix, header and folder numbers. Load reads from
+//                   the URL's project folder, where TrueVision's upload writes,
+//                   not from a folder named after the project code.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.0.1
+// - Fix: Load read from a folder named after the project code (26-Projects/PS01),
+//   but every upload writes to the URL's project folder (26-Projects/PS01__MustersRoad).
+//   No stored snapshot was ever found, so every 3D viewport rendered again and
+//   uploaded again. Load now reads from the project folder (Na__LeAssets__FolderId).
+//
 // 09-Sep-2026 - Version 1.0.0
 // - Initial implementation for port Phase 5.
 //
@@ -46,7 +54,8 @@
     // MODULE IMPORTS | App Utilities, Drawing Data and Config
     // ------------------------------------------------------------
     import {
-        Na__AppUtils__NormalizeProjectFolderId,
+        Na__AppUtils__GetProjectFolderFromUrl,
+        Na__AppUtils__GetYearFromUrl,
         Na__AppUtils__ResolveAssetUrl
     } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     import { Na__AppUtils__R2AssetUpload } from '../03__AppUtils/Na__AppUtils__R2AssetUpload__.js';
@@ -164,6 +173,20 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Folder Assets Are Read From ("26/PS01__MustersRoad", or null)
+    // ------------------------------------------------------------
+    // The URL's year and project folder: the folder every upload writes to, as
+    // Na__CfApi__WriteProjectAsset takes it from the URL too. The project code
+    // is not a folder - PS01's assets live in PS01__MustersRoad. Null without
+    // a project folder in the URL, where nothing can have been uploaded.
+    // ------------------------------------------------------------
+    function Na__LeAssets__FolderId() {
+        const projectFolder = Na__AppUtils__GetProjectFolderFromUrl();
+        return projectFolder ? Na__AppUtils__GetYearFromUrl() + '/' + projectFolder : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Fetch One URL as a Data URL
     // ------------------------------------------------------------
     async function Na__LeAssets__FetchDataUrl(url) {
@@ -179,7 +202,7 @@
     async function Na__LeAssets__Load(relativePath) {
         if (!relativePath) return null;
         if (Na__LeAssets__Cache.has(relativePath)) return Na__LeAssets__Cache.get(relativePath);
-        const folderId = Na__AppUtils__NormalizeProjectFolderId(Na__DrawData__GetProjectCode());
+        const folderId = Na__LeAssets__FolderId();                                  // <-- Where the upload put it, never a folder named after the code
         if (!folderId) return null;
         const urls = Na__AppUtils__ResolveAssetUrl(folderId, relativePath);
         let dataUrl = null;

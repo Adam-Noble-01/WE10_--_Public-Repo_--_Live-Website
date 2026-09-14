@@ -876,3 +876,99 @@ body.na-le-sorting * {
 }
 
 /* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Scrapbook                                              */
+/* ----------------------------------------------------------------- */
+
+/* READY-MADE ITEMS to drag onto the paper (Na__LayoutEditor__Panel__Scrapbook__).
+   One tile per item, every tile styled alike whatever it holds. */
+.na-le-scrap {
+    display                            : grid;
+    grid-template-columns              : 1fr;
+    gap                                : 6px;
+}
+
+.na-le-scrap__item {
+    display                            : flex;
+    flex-direction                     : column;
+    align-items                        : stretch;
+    gap                                : 4px;
+    width                              : 100%;
+    padding                            : 6px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #ffffff;
+    color                              : #172b3a;
+    font-family                        : inherit;
+    text-align                         : left;
+    cursor                             : grab;
+    touch-action                       : none;                        /* <-- A finger drags the item rather than scrolling the column */
+}
+
+.na-le-scrap__item:hover:not(:disabled) {
+    border-color                       : #1a7fc4;
+    background                         : #eef5fb;
+}
+
+.na-le-scrap__item:focus-visible {
+    outline                            : none;
+    border-color                       : #1a7fc4;
+    box-shadow                         : 0 0 0 2px rgba(26, 127, 196, 0.25);
+}
+
+.na-le-scrap__item:disabled {
+    cursor                             : default;
+    opacity                            : 0.6;
+}
+
+.na-le-scrap__thumb {
+    display                            : block;
+    height                             : 56px;
+    pointer-events                     : none;
+}
+
+.na-le-scrap__thumb svg,
+.na-le-scrap-ghost svg {
+    display                            : block;
+    width                              : 100%;
+    height                             : 100%;
+    overflow                           : visible;
+}
+
+.na-le-scrap__name {
+    font-size                          : 0.72rem;
+    line-height                        : 1.3;
+    pointer-events                     : none;
+}
+
+/* THE ITEM UNDER THE POINTER while it is dragged, drawn at the sheet's zoom so
+   it shows the size it lands at: faint away from the sheet, clear over it.
+   Above the header, menus and toasts; below the loading overlays. */
+.na-le-scrap-ghost {
+    position                           : fixed;
+    left                               : 0;
+    top                                : 0;
+    z-index                            : 9990;
+    pointer-events                     : none;
+    opacity                            : 0.4;
+}
+
+.na-le-scrap-ghost.is-over {
+    opacity                            : 0.85;
+}
+
+body.na-le-scrap-dragging,
+body.na-le-scrap-dragging * {
+    cursor                             : no-drop !important;
+    user-select                        : none;
+    -webkit-user-select                : none;
+}
+
+body.na-le-scrap-dragging.is-over-sheet,
+body.na-le-scrap-dragging.is-over-sheet * {
+    cursor                             : copy !important;
+}
+
+/* endregion ------------------------------------------------------- */

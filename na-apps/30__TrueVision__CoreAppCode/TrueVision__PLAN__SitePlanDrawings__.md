@@ -651,6 +651,19 @@ without one; project data is written when a project has design phases or a site 
 
 ### 8.6 Later - site plan sheet furniture (Phase 6)
 
+**Started 14-Sep-2026 (TrueVision 2.53.0): the Scrapbook.** Adam asked for a Scrapbook on site plan sheets to drag the
+Mapping Data Credentials block and the north point in from, the way SketchUp LayOut's scrapbooks work.
+- **The panel.** Scrapbook, in the left column after Sheet, on any sheet whose drawing type has items (today, site plan
+  sheets only). Drag a tile onto the paper; double-click or Enter places it in the middle of the view.
+- **The items.** `Na__LayoutEditor__Scrapbook__Config__.json` holds pieces made of ordinary sheet records. A drop lands them
+  as text items and vectors, grouped, through the item clipboard's new `InsertSet`. They move, copy, print and undo like
+  anything drawn by hand.
+- **Three items.** Credentials and north point together (Adam's image), and each on its own. Sizes are measured from
+  his image and from BH03 D04 / NP03 D09: an 18 mm north point; Open Sans 9 pt semibold, 8 pt and 6 pt.
+- **The credentials bullet below is covered.** The licence number is a config token, and `{Year}` is filled in at the drop.
+- **Still open from this list:** the north point is not linked to a viewport (it points up the paper; PS01's north
+  angle is 0), the scale bar caption, viewport rotation and the grid.
+
 - A north point symbol linked to a viewport (manifest north angle plus viewport rotation).
 - A scale bar caption in the house style: "Printed Scale Factor | 1mm : 500mm" and "Scale Valid When Printed At : Iso A2".
 - A Mapping Data Credentials text block, with the OS licence number from config and the current year.
@@ -744,5 +757,5 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | 3 | Pipeline registration, example folder | x | ProjectVision 0.2.0 | Done 14-Sep-2026; committed by Adam with the PS01 export (`f82b48d`). `discover_truevision_siteplan_store`, run read-only on the real PS01 folder, gives all 5 layers with CDN URLs, and the two design phases are unchanged. Option 3 (build and sync) has not run since, so `SitePlan__DataStore` is not yet in the project data and the GLBs are not yet on R2 |
 | 4 | Site plan store, Drawing Type, tab order | x | TrueVision 2.48.0 | Done 14-Sep-2026: `Sheet__DrawingType` (SheetRecords 1.15.0, SheetModel 1.20.0), the Drawing Type row (Panel__Sheet 1.2.0), grouped tabs (TabStrip 1.3.0), the Delete renumber fix, and `52__System__SitePlanData` (Store and GlbParse 1.0.0). Node harness: 37 checks on the parser. Tested in the app on PS01 with every write blocked (DEVLOG 2.48.0). On localhost the store reads the local manifest first, so a fresh export draws without a build or a sync |
 | 5 | Site plan viewport | x | TrueVision 2.49.1 | Done 14-Sep-2026, and Adam confirmed site plan viewports work that evening. Add flow: 1:500 Block Plan or 1:1250 Location Plan, centred on the red line, layers preset from VisibleAtScales. Painting: everything in the visible class tagged by layer, so StyleBands, snapping and the PDF work unchanged; SSOT styles as EdgeStyles defaults (weight as a factor, ceiling 6.00; red, green and blue added). Fills: screen even-odd, PDF outer rings. Model Layers grouped by the export's groups. A site plan scale list, so no more 1:50. Force Render re-reads the data. Store 1.0.1 fixes a stack overflow found in Adam's browser. Verified on PS01 with writes blocked (DEVLOG 2.49.0). Open: Styles panel raster rows on site plan viewports, PDF holes, per-viewport fill overrides. 2.49.1 removed the green site plan tab mark at Adam's request: it read as more important than the other tabs |
-| 6 | Site plan sheet furniture | - | - | |
+| 6 | Site plan sheet furniture | ~ | TrueVision 2.53.0 | Started 14-Sep-2026 with the Scrapbook (8.6): a left-column panel on site plan sheets whose tiles drag onto the paper - Mapping Data Credentials and North Point together, and each alone - landing as grouped text and vectors through `InsertSet`, one undo step. Verified in the app on PS01 scratch sheets, every write refused: drop centred on the pointer, true-scale ghost, Escape and off-sheet release drop nothing, double-click and Enter place in view, hidden on architectural sheets, text widths within 0.5% of Adam's image, the PDF prints the text and fills. Open: north point linked to a viewport, the scale bar caption, viewport rotation, the grid |
 | 7 | ValeVision question | ~ | - | Asked 14-Sep-2026, once Adam confirmed site plan viewports work |

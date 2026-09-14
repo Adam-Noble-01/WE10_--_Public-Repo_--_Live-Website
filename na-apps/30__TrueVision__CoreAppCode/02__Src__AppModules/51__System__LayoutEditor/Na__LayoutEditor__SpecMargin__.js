@@ -32,6 +32,11 @@
 //   foot of the column is not drawn, nor any after it, so the order is never
 //   broken to squeeze a later note in. Report says how many did not fit; the
 //   panel, the grip badge and the PDF export warn about it.
+// - SPACING. The gap between two notes has a least and a most (NoteGapMm,
+//   NoteGapMaxMm), with the rule centred in it. What fits is decided at the
+//   least; when every note is in and the column has room left at the foot,
+//   every gap opens by the same amount towards the most. A full column, or
+//   one whose notes did not all fit, keeps the least.
 // - Pure layout: nothing here touches the DOM or changes the model.
 //
 // INTEGRATION:
@@ -49,6 +54,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - The gap between notes stretches. NoteGapMm is the least and NoteGapMaxMm
+//   the most: a column with room to spare opens every gap evenly, up to the
+//   most, with each rule centred in its gap, and a full column is unchanged.
+//   The plan carries noteGapMm, the gap it laid the notes at.
+//
 // 14-Sep-2026 - Version 1.2.0
 // - PaddingRightMm insets the wrapped lines from the sheet's right border.
 //   Body text is 2 mm (TextSizeMm).
@@ -181,7 +192,8 @@
     // Returns null when the sheet has no margin, else
     // { rect, runs [{ text, x, baselineY, fontMm, weight, colour, trackingMm }],
     //   rules [{ X1, Y1, X2, Y2 }],
-    //   total, shown, overflow, linked, general, pending }.
+    //   total, shown, overflow, linked, general, pending,
+    //   noteGapMm (the gap the notes were laid at, NoteGapMm to NoteGapMaxMm) }.
     // layout is the solved sheet layout; the margin itself is measured afresh
     // from the sheet, so a width dragged since the last solve is honoured.
     // ------------------------------------------------------------
@@ -193,7 +205,7 @@
         const style    = Na__LeCfg__GetStyleSetup();
         const settings = Na__LeRec__MarginNotes(sheet);
         const found    = Na__LeMargin__Entries(sheet);
-        const plan     = { rect : rect, runs : [], rules : [], total : found.entries.length, shown : 0, overflow : 0, linked : found.linked, general : found.general, pending : found.pending };
+        const plan     = { rect : rect, runs : [], rules : [], total : found.entries.length, shown : 0, overflow : 0, linked : found.linked, general : found.general, pending : found.pending, noteGapMm : setup.noteGapMm };
 
         const padLeft  = Math.min(setup.paddingMm, rect.WidthMm / 4);
         const padRight = Math.min(Number.isFinite(setup.paddingRightMm) ? setup.paddingRightMm : setup.paddingMm, rect.WidthMm / 4);
@@ -223,6 +235,8 @@
         const pipe  = (typeof setup.codePipe === 'string') ? setup.codePipe : Na__LeMargin__PIPE;
 
         let lastGroup = null;
+        let lastFoot  = y;                                                       // <-- The foot of the last note that fits, at the least gap
+        const laid    = [];                                                      // <-- Each note that fits: its runs and the rule above it, placed once the gap is known
         for (let i = 0; i < found.entries.length; i++) {
             const entry  = found.entries[i];
             const runs   = [];
@@ -264,14 +278,30 @@
 
             // OVERFLOW | The first note that would cross the foot ends the list, so the order holds
             if (bottomOfNote > bottom) { plan.overflow = found.entries.length - i; break; }
-            if (plan.shown > 0 && setup.noteGapMm > 0) {
-                plan.rules.push({ X1 : left, Y1 : y - (setup.noteGapMm / 2), X2 : right, Y2 : y - (setup.noteGapMm / 2) });
-            }
-            runs.forEach((run) => plan.runs.push(run));
+            laid.push({ runs : runs, ruleY : (plan.shown > 0 && setup.noteGapMm > 0) ? y - (setup.noteGapMm / 2) : null });
             plan.shown++;
             lastGroup = entry.group;
+            lastFoot  = bottomOfNote;
             y = bottomOfNote + setup.noteGapMm;
         }
+
+        // SPACING | Room left at the foot opens every gap by the same amount,
+        // up to NoteGapMaxMm. Only a column whose notes all fit stretches, and
+        // what fits was decided at the least gap, so a stretch never pushes a
+        // note out. Each rule stays centred in its gap.
+        // ------------------------------------
+        const most  = Number.isFinite(setup.noteGapMaxMm) ? setup.noteGapMaxMm : setup.noteGapMm; // <-- A config without the key keeps the least
+        const gaps  = laid.length - 1;
+        const extra = (gaps > 0 && plan.overflow === 0) ? Math.max(0, Math.min(most - setup.noteGapMm, (bottom - lastFoot) / gaps)) : 0;
+        plan.noteGapMm = setup.noteGapMm + extra;
+        laid.forEach((note, n) => {
+            const shift = extra * n;
+            if (note.ruleY !== null) {
+                const ruleY = note.ruleY + shift - (extra / 2);
+                plan.rules.push({ X1 : left, Y1 : ruleY, X2 : right, Y2 : ruleY });
+            }
+            note.runs.forEach((run) => { run.baselineY += shift; plan.runs.push(run); });
+        });
         return plan;
     }
     // ------------------------------------------------------------

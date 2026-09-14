@@ -16,9 +16,11 @@
 //   list to an SVG overlay whose viewBox is the paper; the PDF exporter
 //   draws the same list into jsPDF. There is nothing to keep in step by
 //   hand: a change to the list changes both surfaces.
-// - Text is measured through jsPDF's Helvetica metrics when the library has
-//   loaded, so a value truncated on paper is truncated in the same place on
-//   screen; before that an average-advance estimate keeps layouts sane.
+// - Text is measured through the Open Sans cuts embedded in jsPDF, so a
+//   value truncated on paper is truncated in the same place on screen;
+//   before the fonts land an average-advance estimate keeps layouts sane.
+//   Helvetica is only the fallback when the TTF files cannot be fetched.
+//   // @delegate: ./Na__LayoutEditor__PdfFonts__.js
 // - A text run may carry TrackingMm, letter spacing in paper millimetres
 //   rather than ems, because a PDF content stream sets character spacing in
 //   the page unit. The SVG painter writes it as letter-spacing, the PDF
@@ -43,14 +45,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.7.0
+// - PDF text (and the throwaway document that measures it) selects the
+//   embedded Open Sans cut for the run's weight, so Download PDF prints
+//   the app face rather than Helvetica (Na__LayoutEditor__PdfFonts__).
+//
 // 14-Sep-2026 - Version 1.6.0
 // - PDF: a turned text run that is centred or right-aligned is placed by its
 //   own left end. jsPDF shifts such a run along the page's x axis and then
 //   turns it about that shifted start, so a turned centred run printed half
 //   its width away from where the screen draws it. The run's width is now
-//   measured the way jsPDF aligns a line (its string width at the current
-//   font, character spacing included), the start is walked back along the
-//   turned baseline, and the run is drawn left-aligned. Turned sheet text
+//   measured exactly as jsPDF measures a line to align it (its string width
+//   at the current font), the start is walked back along the turned
+//   baseline, and the run is drawn left-aligned. Turned sheet text
 //   and the value of a vertical or aligned dimension print where the screen
 //   draws them; level text is unchanged.
 //
@@ -110,6 +117,7 @@
     import { Na__LeTitleModern__Build }  from './Na__LayoutEditor__TitleBlock__Modern__.js';
     import { Na__LeTitleClassic__Build } from './Na__LayoutEditor__TitleBlock__Classic__.js';
     import { Na__LeGrad__SvgPaint, Na__LeGrad__DrawPdf } from './Na__LayoutEditor__GradientTool__.js';
+    import { Na__LePdfFonts__Install, Na__LePdfFonts__SetFont } from './Na__LayoutEditor__PdfFonts__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -128,7 +136,7 @@
     const Na__LeChrome__KIND_IMAGE    = 'image';
     const Na__LeChrome__KIND_GROUP    = 'group';
     const Na__LeChrome__MM_PER_POINT  = 25.4 / 72;
-    const Na__LeChrome__CAP_HEIGHT    = 0.72;              // <-- Helvetica cap height as a fraction of the font size
+    const Na__LeChrome__CAP_HEIGHT    = 0.72;              // <-- Latin sans cap height as a fraction of the font size (Open Sans and Helvetica both sit near this)
     const Na__LeChrome__ASSET_EVENT   = 'na-layouteditor-asset-loaded';
     const Na__LeChrome__TRUNCATION    = '...';
     // ------------------------------------------------------------
@@ -149,11 +157,26 @@
     // HELPER FUNCTION | The Throwaway jsPDF Document Used for Measuring
     // ------------------------------------------------------------
     function Na__LeChrome__MeasuringDoc() {
-        if (Na__LeChrome__MeasureDoc !== null) return Na__LeChrome__MeasureDoc || null;
+        if (Na__LeChrome__MeasureDoc === false) return null;
+        if (Na__LeChrome__MeasureDoc) {
+            Na__LePdfFonts__Install(Na__LeChrome__MeasureDoc);                     // <-- Fonts may have landed after this document was first created
+            return Na__LeChrome__MeasureDoc;
+        }
         const JsPdf = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
         if (!JsPdf) return null;                                                 // <-- Not latched: jsPDF may load later
         try { Na__LeChrome__MeasureDoc = new JsPdf({ unit : 'mm', format : [ 210, 297 ] }); } catch (e) { Na__LeChrome__MeasureDoc = false; }
+        if (Na__LeChrome__MeasureDoc) Na__LePdfFonts__Install(Na__LeChrome__MeasureDoc);
         return Na__LeChrome__MeasureDoc || null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Select the PDF Face for a Weight (Open Sans, else Helvetica)
+    // ------------------------------------------------------------
+    function Na__LeChrome__ApplyPdfFont(doc, weight) {
+        if (!Na__LePdfFonts__SetFont(doc, weight)) {
+            doc.setFont('helvetica', Na__LeChrome__PdfWeight(weight));
+        }
     }
     // ------------------------------------------------------------
 
@@ -179,7 +202,7 @@
         const doc = Na__LeChrome__MeasuringDoc();
         if (!doc) return (value.length * fontMm * 0.52) + tracking;
         try {
-            doc.setFont('helvetica', Na__LeChrome__PdfWeight(weight));
+            Na__LeChrome__ApplyPdfFont(doc, weight);
             doc.setFontSize(fontMm / Na__LeChrome__MM_PER_POINT);
             return doc.getTextWidth(value) + tracking;
         } catch (e) {
@@ -559,9 +582,10 @@
 
     // HELPER FUNCTION | The Width jsPDF Aligns a Text Run By, in Page Units
     // ------------------------------------------------------------
-    // Its string width at the current font and size, character spacing
-    // included and no kerning, exactly as jsPDF measures a line to centre or
-    // right-align it.
+    // Its string width at the current font and size, with no kerning, exactly
+    // as jsPDF measures a line to centre or right-align it. For the standard
+    // fonts that width leaves character spacing out, as jsPDF's own alignment
+    // does, so a turned tracked run sits as its level twin would.
     // ------------------------------------------------------------
     function Na__LeChrome__PdfRunWidth(doc, text, charSpace) {
         const fontSize = doc.internal.getFontSize();
@@ -622,7 +646,7 @@
         }
         if (primitive.Kind === Na__LeChrome__KIND_TEXT) {
             const ink = Na__LeChrome__Rgb(primitive.Colour);
-            doc.setFont('helvetica', Na__LeChrome__PdfWeight(primitive.Weight));
+            Na__LeChrome__ApplyPdfFont(doc, primitive.Weight);
             doc.setFontSize(primitive.FontMm / Na__LeChrome__MM_PER_POINT);
             doc.setTextColor(ink.R, ink.G, ink.B);
             const options = { align : primitive.Align === 'center' ? 'center' : (primitive.Align === 'right' ? 'right' : 'left'), baseline : 'alphabetic' };
@@ -672,6 +696,7 @@
     // FUNCTION | Render Primitives Into a jsPDF Document
     // ------------------------------------------------------------
     function Na__LeChrome__DrawToPdf(doc, primitives) {
+        Na__LePdfFonts__Install(doc);                                             // <-- No-op once this document already holds the cuts
         const style = Na__LeCfg__GetStyleSetup();
         primitives.forEach((primitive) => {
             try { Na__LeChrome__ToPdf(doc, primitive, style); }

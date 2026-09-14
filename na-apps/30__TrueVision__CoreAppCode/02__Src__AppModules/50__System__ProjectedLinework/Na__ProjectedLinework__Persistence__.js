@@ -38,13 +38,22 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__Persistence__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Parity        : verbatim, but for the folder FetchAsset reads from
+// - Divergences   : Console prefix, header and folder numbers. FetchAsset reads
+//                   from the URL's project folder, where TrueVision's upload
+//                   writes, not from a folder named after the project code.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.1
+// - Fix: FetchAsset read from a folder named after the project code
+//   (26-Projects/PS01), but the bake uploads to the URL's project folder
+//   (26-Projects/PS01__MustersRoad), so a baked block was never fetched from R2.
+//   It now reads from the project folder (Na__PlStore__FolderId), as
+//   Na__LeAssets__Load does.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - Asset schema 2: an owner tag per segment, stored as [ id, count ] runs per
 //   class with the key table in Meta.OwnerKeys.
@@ -72,7 +81,8 @@
     import { Na__AppUtils__R2AssetUpload } from '../03__AppUtils/Na__AppUtils__R2AssetUpload__.js';
     import {
         Na__AppUtils__ResolveAssetUrl,
-        Na__AppUtils__NormalizeProjectFolderId } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+        Na__AppUtils__GetProjectFolderFromUrl,
+        Na__AppUtils__GetYearFromUrl } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
@@ -438,10 +448,23 @@
 // REGION | Loading
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | The Folder Assets Are Read From ("26/PS01__MustersRoad", or null)
+    // ------------------------------------------------------------
+    // The URL's year and project folder: the folder the bake's upload writes
+    // to, as Na__CfApi__WriteProjectAsset takes it from the URL too. The
+    // project code is not a folder - PS01's assets live in PS01__MustersRoad.
+    // ------------------------------------------------------------
+    function Na__PlStore__FolderId() {
+        const projectFolder = Na__AppUtils__GetProjectFolderFromUrl();
+        return projectFolder ? Na__AppUtils__GetYearFromUrl() + '/' + projectFolder : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Fetch the Asset From R2, Falling Back to GitHub Pages
     // ------------------------------------------------------------
     async function Na__PlStore__FetchAsset(relativePath) {
-        const folderId = Na__AppUtils__NormalizeProjectFolderId(Na__DrawData__GetProjectCode());
+        const folderId = Na__PlStore__FolderId();                                   // <-- Where the bake put it, never a folder named after the code
         if (!folderId) return null;
         const urls = Na__AppUtils__ResolveAssetUrl(folderId, relativePath);
         const tries = [ urls.primary, urls.fallback ].filter((u, i, all) => u && all.indexOf(u) === i);

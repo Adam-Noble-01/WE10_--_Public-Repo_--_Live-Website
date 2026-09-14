@@ -32,6 +32,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.23.0
+// - GetPdfSetup: fontFamily, fontBasePath, fontCdnBase and fonts (the three
+//   Open Sans TTF cuts Download PDF embeds). GetStyleSetup's fontFamily now
+//   leads with Open Sans, matching the paper.
+//
+// 14-Sep-2026 - Version 1.22.0
+// - GetMarginNotesSetup: noteGapMaxMm, the most the gap between two notes
+//   opens to when the column has room to spare (5). NoteGapMm is the least.
+//
+// 14-Sep-2026 - Version 1.21.0
+// - GetTextSetup: rotateStepDeg (the steps Shift holds a rotate drag to, 15),
+//   rotateDetentDeg (how near a right angle a free drag settles on it, 2) and
+//   rotateGripOffsetPx (how far off a selected text item's outline its rotate
+//   grip stands on screen, 22).
+//
 // 14-Sep-2026 - Version 1.20.0
 // - GetViewportSetup: imageZoomMin and imageZoomMax (a 3D picture's zoom
 //   limits, 0.25 and 10), imageZoomFineFactor (a Shift+wheel notch against a
@@ -171,7 +186,12 @@
                        { Key : 'Title', Label : 'Drawing Title', WidthMm : 40 }, { Key : 'DrawingNumber', Label : 'Drawing No.', WidthMm : 18 },
                        { Key : 'Revision', Label : 'Rev', WidthMm : 8 }, { Key : 'Scale', Label : 'Scale', WidthMm : 20 },
                        { Key : 'Date', Label : 'Date', WidthMm : 16 }, { Key : 'DrawnBy', Label : 'Drawn By', WidthMm : 20 } ],
-        scales     : [ 20, 50, 100 ]
+        scales     : [ 20, 50, 100 ],
+        pdfFonts   : [
+            { Style : 'light',  Weight : 300, FileName : 'CommonFont-01__OpenSans__Light__.ttf' },
+            { Style : 'normal', Weight : 400, FileName : 'CommonFont-01__OpenSans__Regular__.ttf' },
+            { Style : 'bold',   Weight : 600, FileName : 'CommonFont-01__OpenSans__SemiBold__.ttf' }
+        ]
     });
     // ------------------------------------------------------------
 
@@ -385,7 +405,7 @@
     // ------------------------------------------------------------
     function Na__LeCfg__GetStyleSetup() {
         return {
-            fontFamily        : Na__LeCfg__Val('Style', 'FontFamily', "Helvetica, Arial, 'Open Sans', sans-serif"),
+            fontFamily        : Na__LeCfg__Val('Style', 'FontFamily', "'Open Sans', Helvetica, Arial, sans-serif"),
             paperColour       : Na__LeCfg__Val('Style', 'PaperColour', '#ffffff'),
             inkColour         : Na__LeCfg__Val('Style', 'InkColour', '#172b3a'),
             frameLineColour   : Na__LeCfg__Val('Style', 'FrameLineColour', '#8a949c'),
@@ -482,17 +502,20 @@
     function Na__LeCfg__GetTextSetup() {
         const weights = Na__LeCfg__Val('Text', 'AllowedWeights', null);
         return {
-            fontFamily     : Na__LeCfg__Val('Text', 'FontFamily', "'Open Sans', Helvetica, Arial, sans-serif"),
-            defaultSizeMm  : Na__LeCfg__Num('Text', 'DefaultSizeMm', 3),
-            minSizeMm      : Na__LeCfg__Num('Text', 'MinSizeMm', 1.5),
-            maxSizeMm      : Na__LeCfg__Num('Text', 'MaxSizeMm', 14),
-            sizeStepMm     : Na__LeCfg__Num('Text', 'SizeStepMm', 0.5),
-            allowedWeights : Array.isArray(weights) ? weights : [ 300, 400, 600 ],
-            defaultWeight  : Na__LeCfg__Num('Text', 'DefaultWeight', 400),
-            defaultColour  : Na__LeCfg__Val('Text', 'DefaultColour', '#172b3a'),
-            defaultText    : Na__LeCfg__Val('Text', 'DefaultText', 'Text'),
-            lineSpacing    : Math.max(1, Na__LeCfg__Num('Text', 'LineSpacing', 1.2)),
-            leaderStrokeMm : Na__LeCfg__Num('Text', 'LeaderStrokeMm', 0.2)
+            fontFamily         : Na__LeCfg__Val('Text', 'FontFamily', "'Open Sans', Helvetica, Arial, sans-serif"),
+            defaultSizeMm      : Na__LeCfg__Num('Text', 'DefaultSizeMm', 3),
+            minSizeMm          : Na__LeCfg__Num('Text', 'MinSizeMm', 1.5),
+            maxSizeMm          : Na__LeCfg__Num('Text', 'MaxSizeMm', 14),
+            sizeStepMm         : Na__LeCfg__Num('Text', 'SizeStepMm', 0.5),
+            allowedWeights     : Array.isArray(weights) ? weights : [ 300, 400, 600 ],
+            defaultWeight      : Na__LeCfg__Num('Text', 'DefaultWeight', 400),
+            defaultColour      : Na__LeCfg__Val('Text', 'DefaultColour', '#172b3a'),
+            defaultText        : Na__LeCfg__Val('Text', 'DefaultText', 'Text'),
+            lineSpacing        : Math.max(1, Na__LeCfg__Num('Text', 'LineSpacing', 1.2)),
+            leaderStrokeMm     : Na__LeCfg__Num('Text', 'LeaderStrokeMm', 0.2),
+            rotateStepDeg      : Math.min(90, Math.max(0, Na__LeCfg__Num('Text', 'RotateStepDeg', 15))),   // <-- 0 turns Shift's steps off
+            rotateDetentDeg    : Math.min(10, Math.max(0, Na__LeCfg__Num('Text', 'RotateDetentDeg', 2))),  // <-- 0 turns the right-angle detent off
+            rotateGripOffsetPx : Math.max(8, Na__LeCfg__Num('Text', 'RotateGripOffsetPx', 22))               // <-- Screen pixels from the outline to the rotate grip
         };
     }
     // ------------------------------------------------------------
@@ -788,7 +811,8 @@
     // extra inset before the right border. Body text is TextSizeMm (2 mm); a
     // note's title is TitleScale times that. CodePipe sits
     // between the code and the title; RulePt and RuleColour draw the line
-    // between notes.
+    // between notes. That gap is NoteGapMm at the least, and opens towards
+    // NoteGapMaxMm when every note fits with room to spare.
     // ------------------------------------------------------------
     function Na__LeCfg__GetMarginNotesSetup() {
         return {
@@ -807,6 +831,7 @@
             titleScale        : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'TitleScale', 1.1)),
             lineSpacing       : Math.max(1, Na__LeCfg__Num('MarginNotes', 'LineSpacing', 1.35)),
             noteGapMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'NoteGapMm', 2.5)),
+            noteGapMaxMm      : Math.max(0, Na__LeCfg__Num('MarginNotes', 'NoteGapMaxMm', 5)),
             codeGapMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'CodeGapMm', 2)),
             codePipe          : Na__LeCfg__Val('MarginNotes', 'CodePipe', ' | '),
             groupGapMm        : Math.max(0, Na__LeCfg__Num('MarginNotes', 'GroupGapMm', 2)),
@@ -960,14 +985,39 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Open Sans Cuts Download PDF Embeds
+    // ------------------------------------------------------------
+    function Na__LeCfg__PdfFontCuts() {
+        const raw    = Na__LeCfg__Val('Pdf', 'Fonts', null);
+        const source = Array.isArray(raw) && raw.length ? raw : Na__LeCfg__FALLBACKS.pdfFonts;
+        const cuts   = [];
+        source.forEach((cut) => {
+            if (!cut || typeof cut !== 'object') return;
+            const fileName = cut.FileName || cut.fileName;
+            if (!fileName) return;
+            const style  = String(cut.Style || cut.style || 'normal');
+            const weight = (typeof cut.Weight === 'number' && Number.isFinite(cut.Weight)) ? cut.Weight
+                         : ((typeof cut.weight === 'number' && Number.isFinite(cut.weight)) ? cut.weight : 400);
+            cuts.push({ style : style, weight : weight, fileName : String(fileName) });
+        });
+        return cuts;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get the PDF Setup
     // ------------------------------------------------------------
     function Na__LeCfg__GetPdfSetup() {
+        const fonts = Na__LeCfg__PdfFontCuts();
         return {
             filenamePattern   : Na__LeCfg__Val('Pdf', 'FilenamePattern', 'Na__{projectCode}__{sheetName}__{paperSize}.pdf'),
             author            : Na__LeCfg__Val('Pdf', 'Author', 'Noble Architecture Ltd'),
             creator           : Na__LeCfg__Val('Pdf', 'Creator', 'TrueVision3D Layout Editor'),
-            jsPdfScriptPath   : Na__LeCfg__Val('Pdf', 'JsPdfScriptPath', './02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js')
+            jsPdfScriptPath   : Na__LeCfg__Val('Pdf', 'JsPdfScriptPath', './02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js'),
+            fontFamily        : Na__LeCfg__Val('Pdf', 'FontFamily', 'OpenSans'),
+            fontBasePath      : Na__LeCfg__Val('Pdf', 'FontBasePath', '../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/'),
+            fontCdnBase       : Na__LeCfg__Val('Pdf', 'FontCdnBase', 'https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/'),
+            fonts             : fonts.length ? fonts : Na__LeCfg__FALLBACKS.pdfFonts.map((cut) => ({ style : cut.Style, weight : cut.Weight, fileName : cut.FileName }))
         };
     }
     // ------------------------------------------------------------

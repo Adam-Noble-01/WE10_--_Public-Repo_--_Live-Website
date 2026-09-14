@@ -204,6 +204,26 @@
         "8537"
       ],
       "port": 8537
+    },
+    {
+      "name": "truevision-static-textrotate",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8553"
+      ],
+      "port": 8553
+    },
+    {
+      "name": "truevision-static-marginspace",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8563"
+      ],
+      "port": 8563
     }
   ]
 }

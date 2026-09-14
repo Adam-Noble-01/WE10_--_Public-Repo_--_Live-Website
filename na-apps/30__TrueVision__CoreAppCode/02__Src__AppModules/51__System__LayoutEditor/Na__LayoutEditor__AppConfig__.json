@@ -23,8 +23,8 @@
     },
 
     "LayoutEditor__Style__Config": {
-        "LayoutEditor__Style__Description": "How everything printed on a sheet that is not a view is painted. Read by the chrome module, which draws the on-screen sheet and the PDF from one primitive list. FontFamily leads with Helvetica because that is what jsPDF embeds; Open Sans is the app face and metrically close enough for labels.",
-        "LayoutEditor__Style__FontFamily": "Helvetica, Arial, 'Open Sans', sans-serif",
+        "LayoutEditor__Style__Description": "How everything printed on a sheet that is not a view is painted. Read by the chrome module, which draws the on-screen sheet and the PDF from one primitive list. FontFamily is Open Sans, the app face; the PDF exporter embeds the same three TTF cuts so paper matches the screen.",
+        "LayoutEditor__Style__FontFamily": "'Open Sans', Helvetica, Arial, sans-serif",
         "LayoutEditor__Style__PaperColour": "#ffffff",
         "LayoutEditor__Style__InkColour": "#172b3a",
         "LayoutEditor__Style__FrameLineColour": "#8a949c",
@@ -43,7 +43,7 @@
         "LayoutEditor__Style__TitleLabelTrackingMm": 0.05,
         "LayoutEditor__Style__TitleLabelUppercase": true,
         "LayoutEditor__Style__TitleValueWeight": "normal",
-        "LayoutEditor__Style__TitleValueWeightNote": "Regular, not bold. jsPDF standard Helvetica only embeds regular and bold by reference - there is no semi-bold cut available without shipping a font file - so regular is the lighter of the two weights this title block can actually offer on both screen and PDF.",
+        "LayoutEditor__Style__TitleValueWeightNote": "Regular, not bold. The PDF embeds Open Sans Light, Regular and SemiBold (the three cuts the app loads), so a title value could print as SemiBold; it stays Regular so the strip still reads as a caption over a value rather than as two bold lines.",
 
         "LayoutEditor__Style__TrackingNote": "Letter spacing in millimetres, not ems, because a PDF content stream sets character spacing in the page unit. Both painters add it after every glyph and the text measurer counts it, so a tracked run truncates in the same place on screen as on paper."
     },
@@ -363,11 +363,21 @@
         "LayoutEditor__Linework__MinSegmentPaperMm": 0.05
     },
     "LayoutEditor__Pdf__Config": {
-        "LayoutEditor__Pdf__Description": "jsPDF at true paper size. 2D viewports write the projected linework, dimensions and text as vectors; underlays and 3D viewports are placed as raster images at the Raster block's export level. The vendored UMD build is injected as a classic script on first use.",
+        "LayoutEditor__Pdf__Description": "jsPDF at true paper size. 2D viewports write the projected linework, dimensions and text as vectors; underlays and 3D viewports are placed as raster images at the Raster block's export level. The vendored UMD build is injected as a classic script on first use. Open Sans is fetched as TTF (the same three cuts the app paints with) and embedded in every document, so Download PDF does not fall back to Helvetica.",
         "LayoutEditor__Pdf__FilenamePattern": "Na__{projectCode}__{sheetName}__{paperSize}.pdf",
         "LayoutEditor__Pdf__Author": "Noble Architecture Ltd",
         "LayoutEditor__Pdf__Creator": "TrueVision3D Layout Editor",
-        "LayoutEditor__Pdf__JsPdfScriptPath": "./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js"
+        "LayoutEditor__Pdf__JsPdfScriptPath": "./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js",
+        "LayoutEditor__Pdf__FontFamily": "OpenSans",
+        "LayoutEditor__Pdf__FontFamilyNote": "jsPDF family name for the embedded cuts. No space: jsPDF looks fonts up by this exact id. The screen CSS family remains 'Open Sans'.",
+        "LayoutEditor__Pdf__FontBasePath": "../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/",
+        "LayoutEditor__Pdf__FontCdnBase": "https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/",
+        "LayoutEditor__Pdf__FontsNote": "One TTF per jsPDF style. Weight is the Open Sans cut the app already loads (300 Light, 400 Regular, 600 SemiBold). Style is the jsPDF face name setFont asks for: light, normal, bold. Local FontBasePath is tried first (same origin); FontCdnBase is the fallback, matching Na__CoreUi__Styles__Fonts__.css.",
+        "LayoutEditor__Pdf__Fonts": [
+            { "Style": "light",  "Weight": 300, "FileName": "CommonFont-01__OpenSans__Light__.ttf" },
+            { "Style": "normal", "Weight": 400, "FileName": "CommonFont-01__OpenSans__Regular__.ttf" },
+            { "Style": "bold",   "Weight": 600, "FileName": "CommonFont-01__OpenSans__SemiBold__.ttf" }
+        ]
     },
     "LayoutEditor__Specification__Config": {
         "LayoutEditor__Specification__Description": "The Project Specification tab: every drawing note of the project, in groups. A group has a prefix (GN, SN, EE) and a title; a note has a title and its specification text. A note's code is its group's prefix and its place in the group, zero-padded to NumberDigits - GN01, EE02 - so moving a note up or down, moving it to another group or changing its group's prefix renumbers it. Specification bubbles on the sheets link to a note by its id, not its code, so a renumber reaches every bubble on every sheet. The specification is a file of its own (FileName) beside TrueVision__ProjectData__.json, kept locally in the project folder so an agent can edit it on disk, and written to the same R2 key on Sync. LegacyFileName is the previous R2 name, read only when FileName is not there yet. The file is read when the drawing editor opens. Every edit is kept in this browser at once (DraftEnabled, written DraftDebounceMs after the typing pauses); Sync writes the whole file to R2 and to the local copy, and first asks whether to replace a cloud copy that changed since it was read (ConfirmCloudOverwrite). HistorySteps is the tab's own undo depth.",
@@ -388,7 +398,7 @@
         ]
     },
     "LayoutEditor__MarginNotes__Config": {
-        "LayoutEditor__MarginNotes__Description": "The notes margin a sheet can carry down its right-hand side, from the top of the border to the title block. Switched on per sheet with the Notes button on the toolbar or in the Margin Notes panel; drag its left edge to make it wider or narrower. It lists the specification notes the sheet's bubbles link to, in specification order, then the general notes. Distances and text sizes are paper millimetres except the divider and rule (printed points). TextSizeMm is the body (2 mm); titles are TitleScale times that. PaddingMm is the left and top/foot inset; PaddingRightMm is the clearance before the sheet's right border, a little more so wrapped lines do not clip. A note reads as its code, CodePipe, then its title, with the body wrapped to the full inner width. A faint RuleColour line at RulePt sits between notes. IncludeGeneralNotes and GroupHeadings are what a newly switched-on margin starts with.",
+        "LayoutEditor__MarginNotes__Description": "The notes margin a sheet can carry down its right-hand side, from the top of the border to the title block. Switched on per sheet with the Notes button on the toolbar or in the Margin Notes panel; drag its left edge to make it wider or narrower. It lists the specification notes the sheet's bubbles link to, in specification order, then the general notes. Distances and text sizes are paper millimetres except the divider and rule (printed points). TextSizeMm is the body (2 mm); titles are TitleScale times that. PaddingMm is the left and top/foot inset; PaddingRightMm is the clearance before the sheet's right border, a little more so wrapped lines do not clip. A note reads as its code, CodePipe, then its title, with the body wrapped to the full inner width. A faint RuleColour line at RulePt sits between notes, centred in the gap between them: NoteGapMm is the least that gap can be, and decides what fits; when every note fits and the column has room left at the foot, every gap opens by the same amount, up to NoteGapMaxMm. IncludeGeneralNotes and GroupHeadings are what a newly switched-on margin starts with.",
         "LayoutEditor__MarginNotes__DefaultWidthMm": 90,
         "LayoutEditor__MarginNotes__MinWidthMm": 40,
         "LayoutEditor__MarginNotes__MaxWidthFraction": 0.6,
@@ -404,6 +414,7 @@
         "LayoutEditor__MarginNotes__TitleScale": 1.1,
         "LayoutEditor__MarginNotes__LineSpacing": 1.35,
         "LayoutEditor__MarginNotes__NoteGapMm": 2.5,
+        "LayoutEditor__MarginNotes__NoteGapMaxMm": 5,
         "LayoutEditor__MarginNotes__CodeGapMm": 2,
         "LayoutEditor__MarginNotes__CodePipe": " | ",
         "LayoutEditor__MarginNotes__GroupGapMm": 2,

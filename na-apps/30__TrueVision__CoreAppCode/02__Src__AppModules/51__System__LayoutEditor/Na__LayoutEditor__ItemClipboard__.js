@@ -19,6 +19,7 @@
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ asks RunKeyAction and MenuItems from here.
+// - Na__LayoutEditor__Scrapbook__ drops its items through InsertSet.
 // // @delegate: ./Na__LayoutEditor__ViewportClipboard__.js
 // // @delegate: ./Na__LayoutEditor__Groups__.js
 //
@@ -27,10 +28,16 @@
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (14-Sep-2026)
 // - ValeVision    : ported 14-Sep-2026 as ValeVision3D v2.38.0 (verbatim, header only)
+// - Divergences   : 1.1.0 InsertSet, TrueVision first (14-Sep-2026, for the Scrapbook); not yet in ValeVision.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - InsertSet: the paste of a set that did not come from the clipboard - a
+//   Scrapbook item (Na__LayoutEditor__Scrapbook__). PasteSet is now InsertSet
+//   with the held set, so nothing about a paste changes.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Copy, paste and duplicate for text, groups, and a multi-selection of
 //   vectors and text. Nested groups remap their members. One undo step.
@@ -277,28 +284,40 @@
         return last;
     }
 
-    function Na__LeClip__PasteSet(sheet, atMm) {
-        if (!sheet || !Na__LeClip__HasSet()) return null;
-        const held    = Na__LeClip__HeldSet;
-        const origin  = held.origin || { x : 0, y : 0 };
+    // FUNCTION | Put a Set Onto a Sheet as New Records (one undo step)
+    // ------------------------------------------------------------
+    // set: { roots, entries, origin, size } - the held clipboard set, or one
+    // built elsewhere, such as a Scrapbook item (Na__LayoutEditor__Scrapbook__).
+    // atMm is where the set's top-left corner goes, kept on the paper; without
+    // it the set lands where it came from, stepped past any copy already
+    // there. The new roots are selected and returned.
+    // ------------------------------------------------------------
+    function Na__LeClip__InsertSet(sheet, set, atMm) {
+        if (!sheet || !set || !Array.isArray(set.entries) || set.entries.length === 0) return null;
+        const origin  = set.origin || { x : 0, y : 0 };
         const start   = atMm || { x : origin.x, y : origin.y };
         const fanOut  = !atMm;
-        const spot    = Na__LeClip__PlaceSet(sheet, origin, held.size, start, fanOut);
+        const spot    = Na__LeClip__PlaceSet(sheet, origin, set.size, start, fanOut);
         const dx      = spot.X - origin.x;
         const dy      = spot.Y - origin.y;
         const ids     = new Map();
-        const entries = held.entries || [];
+        const entries = set.entries;
         const leaf    = Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, null);   // <-- All silent until one announce below, so groups land in the same undo step
         Na__LeClip__InsertGroups(sheet, entries, ids, null);
         if (leaf && leaf.kind === 'shape')      Na__LeModel__UpdateShape(sheet, leaf.id, {}, false);
         else if (leaf && leaf.kind === 'annotation') Na__LeModel__UpdateAnnotation(sheet, leaf.id, {}, false);
-        const selected = (held.roots || []).map((root) => {
+        const selected = (set.roots || []).map((root) => {
             const id = ids.get(root.kind + ':' + root.id);
             return id ? { kind : root.kind, id : id } : null;
         }).filter(Boolean);
         if (selected.length === 1) Na__LeModel__SetSelection(selected[0]);
         else if (selected.length > 1) Na__LeModel__SetSelectionItems(selected);
         return selected.length ? selected : null;
+    }
+
+    function Na__LeClip__PasteSet(sheet, atMm) {
+        if (!sheet || !Na__LeClip__HasSet()) return null;
+        return Na__LeClip__InsertSet(sheet, Na__LeClip__HeldSet, atMm);
     }
 
     function Na__LeClip__DuplicateItems(sheet, items) {
@@ -400,6 +419,7 @@
         Na__LeClip__HasShape,
         Na__LeClip__CopyItems,
         Na__LeClip__PasteSet,
+        Na__LeClip__InsertSet,
         Na__LeClip__HasSet,
         Na__LeClip__RunKeyAction,
         Na__LeClip__MenuItems

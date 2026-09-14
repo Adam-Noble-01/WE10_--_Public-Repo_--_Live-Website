@@ -35,11 +35,19 @@
 //   a specification Sync, and to seed the local drawing-notes file on load.
 // - Needs the ProjectVision local server (na-apps/ProjectVision__LocalServer__Main__.py),
 //   which serves the app and owns the write route. A plain static server answers
-//   the POST with 501, reported as no local save server.
+//   the POST with 501, reported as no local save server. The ProjectVision
+//   server answers 405 instead when a route is newer than the running server:
+//   started without --debug it never reloads, so that is reported as a restart.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.1
+// - A 405 from the ProjectVision local server itself (its /api/health answers)
+//   now says to restart it. A server started before the drawing-notes route
+//   existed refused the notes save with 405, and the warning said to serve the
+//   app with that same server.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - WriteSiblingFile: whole-file write of TrueVision__DrawingNotes__.json
 //   through POST /api/projects/<code>/files/<fileName>.
@@ -77,6 +85,7 @@
     const Na__LocalMirror__TvContentDir = '30__TrueVision__AppContent';         // <-- Per-project TrueVision content folder
     const Na__LocalMirror__TvDataFile     = 'TrueVision__ProjectData__.json';     // <-- The project data file
     const Na__LocalMirror__SiblingFiles   = [ 'TrueVision__DrawingNotes__.json' ]; // <-- Whole documents beside the project data
+    const Na__LocalMirror__ServerService  = 'na-projectvision-local-dev';          // <-- The name the ProjectVision local server gives in /api/health
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -121,6 +130,23 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Is the ProjectVision Local Server the One Answering
+    // ------------------------------------------------------------
+    // Asked only after a refused write, to tell a server that needs a restart
+    // from a static server that cannot save at all. Never throws.
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__IsProjectVisionServer(origin) {
+        try {
+            const response = await fetch(`${origin}/api/health`, { cache : 'no-store' });
+            const health   = response.ok ? await response.json().catch(() => null) : null;
+            return !!(health && health.service === Na__LocalMirror__ServerService);
+        } catch (error) {
+            return false;
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | POST JSON to the Local Server; Never Throws
     // ------------------------------------------------------------
     async function Na__LocalMirror__PostJson(url, origin, payload) {
@@ -134,6 +160,9 @@
 
             const answer = await response.json().catch(() => null);                                  // <-- The local server answers in JSON; a static server does not
             if (answer && answer.error) return Na__LocalMirror__Result(false, false, answer.error);
+            if (response.status === 405 && await Na__LocalMirror__IsProjectVisionServer(origin)) {    // <-- The right server, running from before this route: it never reloads its routes
+                return Na__LocalMirror__Result(false, false, `the ProjectVision local server at ${origin} refused this write (405): it is running without this route - restart it to load its current routes`);
+            }
             return Na__LocalMirror__Result(false, false, `no local save server at ${origin} (${response.status}) - serve the app with the ProjectVision local server`);
         } catch (error) {
             return Na__LocalMirror__Result(false, false, `the local server did not answer (${(error && error.message) || 'no answer'})`);

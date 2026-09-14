@@ -42,6 +42,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.14.0
+// - Registers the Scrapbook (Na__LayoutEditor__Panel__Scrapbook__) in the left
+//   column after Sheet. It shows only on a sheet that has items - today, site
+//   plan sheets.
+//
 // 14-Sep-2026 - Version 1.13.0
 // - Waits on the dashed-edge config (Na__LayoutEditor__LineStyleTool__) with
 //   the other editor configs, so the first sheet a project opens is
@@ -151,6 +156,7 @@
     import { Na__LePanels__Mount, Na__LePanels__Refresh } from './Na__LayoutEditor__PanelHost__.js';
     import { Na__LePanelLayers__Register } from './Na__LayoutEditor__Panel__Layers__.js';
     import { Na__LePanelSheet__Register } from './Na__LayoutEditor__Panel__Sheet__.js';
+    import { Na__LePanelScrap__Register } from './Na__LayoutEditor__Panel__Scrapbook__.js';
     import { Na__LePanelViewport__EDIT_EVENT, Na__LePanelViewport__Register } from './Na__LayoutEditor__Panel__ViewportSettings__.js';
     import { Na__LePanelText__Register } from './Na__LayoutEditor__Panel__Text__.js';
     import { Na__LePanelLeaders__Register } from './Na__LayoutEditor__Panel__Leaders__.js';
@@ -270,6 +276,7 @@
         // now "what is on the paper" against "what the selection's properties
         // are", instead of layers on one side and everything else on the other.
         Na__LePanelSheet__Register();
+        Na__LePanelScrap__Register();                                          // <-- Ready-made items to drag onto the paper; shown only on a sheet that has some
         Na__LePanelMargin__Register();                                         // <-- The sheet's notes margin, beside its other sheet settings
         Na__LePanelLayers__Register();
         Na__LePanelStyles__Register();
@@ -307,10 +314,10 @@
     // HELPER FUNCTION | Load the PDF Library's Text Metrics Once, Then Redraw the Paper
     // ------------------------------------------------------------
     // The notes margin wraps its text by measured widths and the title block
-    // truncates by them. Until jsPDF has loaded both fall back to an average
-    // character width, so a note could break in one place on screen and in
-    // another in the PDF. Asked for on the first entry; the chrome and the
-    // markup redraw once it lands.
+    // truncates by them. Until jsPDF and the Open Sans cuts have loaded both
+    // fall back to an average character width, so a note could break in one
+    // place on screen and in another in the PDF. Asked for on the first
+    // entry; the chrome and the markup redraw once they land.
     // ------------------------------------------------------------
     function Na__LeMode__PreloadMetrics() {
         if (Na__LeMode__Metrics) return;
