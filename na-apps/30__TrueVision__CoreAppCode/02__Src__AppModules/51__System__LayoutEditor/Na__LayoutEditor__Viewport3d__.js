@@ -19,10 +19,22 @@
 //   on the record, so the web build loads the picture instead of rendering
 //   it. A picture is only re-rendered when the paper size grows well past
 //   what it was rendered for.
+// - ZOOM AND THE WINDOW (1.6.0). The picture's paper size is Viewport__ImageMm
+//   times Viewport__ImageZoom (Na__LayoutEditor__Viewport3dZoom__). While the
+//   picture and the frame are the same rectangle - every viewport never
+//   zoomed, slid or cropped - the whole picture renders exactly as before,
+//   under the same key. Once they differ only what the frame shows is
+//   rendered: a window onto the camera's picture plane (the tiled renderer's
+//   viewWindow) at the frame's own size. Zoomed in, the frame stays sharp;
+//   zoomed out or slid, the scene fills the frame instead of a picture
+//   floating in white. The window joins the fingerprint, and the picture on
+//   screen is placed by the window it was rendered for, so a zoom or a slide
+//   shows at once and the sharp render replaces it when the input rests.
 //
 // INTEGRATION:
 // - The sheet surface calls Fill for every visible 3D frame; the PDF
-//   exporter asks for the picture at export resolution.
+//   exporter asks for the picture at export resolution, and puts it at
+//   ExportRectMm.
 //
 // -----------------------------------------------------------------------------
 //
@@ -32,13 +44,24 @@
 // - Parity        : adapted
 // - Divergences   : Console prefix, header and folder numbers, and 1.5.0 (Model Source):
 //                   the design phase in the fingerprint and the render. ValeVision has no
-//                   model groups, so its copy draws the live model only.
+//                   model groups, so its copy draws the live model only. The zoom window of
+//                   1.6.0 is authored here first, PENDING to ValeVision3D on Adam's sign-off.
 // - Back-port     : n/a (this IS the back-port); 1.4.0 ported 13-Sep-2026 as ValeVision3D v2.28.0;
 //                   1.5.1 ported 13-Sep-2026 as ValeVision3D v2.31.1 (its 1.4.1)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.6.0 (TrueVision)
+// - Zoom. The picture is drawn at Viewport__ImageMm times Viewport__ImageZoom.
+//   A frame that is not the whole picture renders only the window it shows,
+//   at the frame's size, through the tiled renderer's new viewWindow: sharp at
+//   any zoom, and full of scene when zoomed out or slid. The window joins the
+//   fingerprint only when the frame is not the whole picture, so an untouched
+//   viewport keys and renders exactly as before. The image element is placed
+//   by the window its picture was rendered for (Place), so the frame follows a
+//   zoom at once. ExportRectMm tells the PDF where the picture goes.
+//
 // 13-Sep-2026 - Version 1.5.1
 // - A refused snapshot upload no longer stamps the record. Na__LeAssets__Upload hands
 //   back the upload's result object whether or not R2 took the file, and RenderNow
@@ -107,10 +130,12 @@
 // REGION | Module Constants and State
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Debounce and Re-render Threshold
+    // MODULE CONSTANTS | Debounce, Re-render Threshold and the Whole Picture
     // ------------------------------------------------------------
     const Na__LeVp3d__RENDER_DELAY_MS = 400;
     const Na__LeVp3d__GROWTH_RATIO    = 1.1;   // <-- A picture more than a tenth short of the size asked for (a bigger frame, a higher raster level) renders again
+    const Na__LeVp3d__WINDOW_TOL_MM   = 0.01;  // <-- A picture within this of its frame on every edge IS its frame: rendered whole, under its old key
+    const Na__LeVp3d__WHOLE_PICTURE   = Object.freeze({ u0 : 0, v0 : 0, u1 : 1, v1 : 1 });
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Per-Viewport State
@@ -156,6 +181,8 @@
         ];
         const weights = Na__LeComposite__RasterToken(viewport, true);
         if (weights) parts.push(weights);                                         // <-- Only when set, so every stored snapshot keeps its key
+        const framing = Na__LeVp3d__WindowToken(viewport);
+        if (framing) parts.push(framing);                                         // <-- Only when the frame shows a window of the picture, for the same reason
         return Na__LeVp3d__Hash(parts.join('|'));
     }
     // ------------------------------------------------------------
@@ -174,10 +201,88 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Pixel Size for a Paper Size
+    // HELPER FUNCTION | The Zoom the Picture Is Drawn At (1 when never zoomed)
+    // ------------------------------------------------------------
+    // Read straight off the record: Na__LayoutEditor__Viewport3dZoom__ writes it
+    // and the sheet records clamp it.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__Zoom(viewport) {
+        const zoom = viewport.Viewport__ImageZoom;
+        return (typeof zoom === 'number' && Number.isFinite(zoom) && zoom > 0) ? zoom : 1;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where the Whole Picture Lies, in Millimetres From the Frame's Top-Left
+    // ------------------------------------------------------------
+    function Na__LeVp3d__PictureRect(viewport) {
+        const zoom = Na__LeVp3d__Zoom(viewport);
+        return {
+            X        : viewport.Viewport__ImageOffsetMm.X,
+            Y        : viewport.Viewport__ImageOffsetMm.Y,
+            WidthMm  : viewport.Viewport__ImageMm.WidthMm  * zoom,
+            HeightMm : viewport.Viewport__ImageMm.HeightMm * zoom
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What the Frame Shows of the Picture, or Null When It Shows All of It
+    // ------------------------------------------------------------
+    // { u0, v0, u1, v1 } as fractions of the picture - left, top, right and
+    // bottom. Any of them may run past 0..1, where the frame reaches beyond the
+    // picture. Null while the picture and the frame are one rectangle - every
+    // viewport never zoomed, slid or cropped - which renders the whole picture
+    // exactly as it always has.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__Window(viewport) {
+        const picture = Na__LeVp3d__PictureRect(viewport);
+        const frame   = viewport.Viewport__FrameMm;
+        const tol     = Na__LeVp3d__WINDOW_TOL_MM;
+        if (!(picture.WidthMm > 0) || !(picture.HeightMm > 0)) return null;
+        if (Math.abs(picture.X) <= tol && Math.abs(picture.Y) <= tol &&
+            Math.abs(picture.WidthMm - frame.WidthMm) <= tol && Math.abs(picture.HeightMm - frame.HeightMm) <= tol) return null;
+        return {
+            u0 : -picture.X / picture.WidthMm,
+            v0 : -picture.Y / picture.HeightMm,
+            u1 : (frame.WidthMm  - picture.X) / picture.WidthMm,
+            v1 : (frame.HeightMm - picture.Y) / picture.HeightMm
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Window as a Fingerprint Part, or Null
+    // ------------------------------------------------------------
+    // Rounded to a ten-thousandth of the picture, finer than anything a pointer
+    // or a typed zoom tells apart on the paper.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__WindowToken(viewport) {
+        const view = Na__LeVp3d__Window(viewport);
+        if (!view) return null;
+        const r = (value) => Math.round(value * 10000) / 10000;
+        return 'window:' + [ r(view.u0), r(view.v0), r(view.u1), r(view.v1) ].join(',');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Rectangle a Render Covers, in Millimetres From the Frame's Top-Left
+    // ------------------------------------------------------------
+    // The whole picture while the frame shows all of it; the frame itself once
+    // it shows a window. The PDF puts the exported picture here.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__ExportRectMm(viewport) {
+        if (!Na__LeVp3d__Window(viewport)) return Na__LeVp3d__PictureRect(viewport);
+        return { X : 0, Y : 0, WidthMm : viewport.Viewport__FrameMm.WidthMm, HeightMm : viewport.Viewport__FrameMm.HeightMm };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Pixel Size for What Is Rendered
     // ------------------------------------------------------------
     function Na__LeVp3d__PixelSize(viewport, profile) {
-        return Na__LeRaster__Fit(viewport.Viewport__ImageMm.WidthMm, viewport.Viewport__ImageMm.HeightMm, profile);
+        const rect = Na__LeVp3d__ExportRectMm(viewport);
+        return Na__LeRaster__Fit(rect.WidthMm, rect.HeightMm, profile);
     }
     // ------------------------------------------------------------
 
@@ -220,9 +325,31 @@
         const empty = document.createElement('div');
         empty.className = 'na-le-frame__empty';
         body.appendChild(empty);
-        state = { body : body, img : img, empty : empty, key : null, px : null, dataUrl : null, triedAsset : null, timer : null, inFlight : false, lastArgs : null };
+        state = { body : body, img : img, empty : empty, key : null, px : null, dataUrl : null, win : null, triedAsset : null, timer : null, inFlight : false, lastArgs : null };   // <-- win: the window the picture held was rendered for; null is the whole picture
         Na__LeVp3d__States.set(viewportId, state);
         return state;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put the Picture Held Where It Belongs in the Frame as It Stands
+    // ------------------------------------------------------------
+    // The image element covers the window its picture was rendered for, mapped
+    // through the picture's CURRENT rectangle. A zoom or a slide therefore moves
+    // and scales the picture already on screen at once; the stretch only shows
+    // until the render for the new window lands. For the whole picture this is
+    // the picture's own rectangle, as it always was. A state with no frame on
+    // screen (a bake, an export) has nothing to place.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__Place(state) {
+        const args = state ? state.lastArgs : null;
+        if (!args || !args.viewport || !state.img) return;
+        const picture = Na__LeVp3d__PictureRect(args.viewport);
+        const view    = state.win || Na__LeVp3d__WHOLE_PICTURE;
+        state.img.style.left   = ((picture.X + (view.u0 * picture.WidthMm))  * args.ppm) + 'px';
+        state.img.style.top    = ((picture.Y + (view.v0 * picture.HeightMm)) * args.ppm) + 'px';
+        state.img.style.width  = ((view.u1 - view.u0) * picture.WidthMm  * args.ppm) + 'px';
+        state.img.style.height = ((view.v1 - view.v0) * picture.HeightMm * args.ppm) + 'px';
     }
     // ------------------------------------------------------------
 
@@ -240,16 +367,19 @@
     // ------------------------------------------------------------
     async function Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile) {
         const px = Na__LeVp3d__PixelSize(viewport, profile);
+        const view = Na__LeVp3d__Window(viewport);                                 // <-- What the frame shows of the picture (null: all of it), read with the key, before the wait
         const renderId = Na__LeSource__Resolve(viewport).renderId;                 // <-- The design phase drawn; null is the live model
         state.inFlight = true;
         try {
-            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, { modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage') }, renderId);
+            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, { modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage') }, renderId, view);
             if (!result) return false;
             const blob    = await Na__LeAssets__CanvasToBlob(result.canvas, 'image/webp', 0.9);
             const dataUrl = blob ? await Na__LeAssets__BlobToDataUrl(blob) : result.canvas.toDataURL('image/png');
             if (!dataUrl) return false;
             state.img.src = dataUrl; state.img.hidden = false;
             state.key = key; state.px = px; state.dataUrl = dataUrl; state.modelFp = Na__LeSnap__GetModelFingerprint(renderId);
+            state.win = view;
+            Na__LeVp3d__Place(state);                                              // <-- Where this picture belongs in the frame as it stands now
             if (blob && sheet && Na__LeAssets__CanUpload()) {
                 const path = Na__LeAssets__SnapshotPath(sheet.Sheet__Id, viewport.Viewport__Id, key);
                 const uploaded = await Na__LeAssets__Upload(blob, path, null);
@@ -288,6 +418,7 @@
             // The stored picture is only worth fetching when it is the same
             // view and was rendered at least as large as this level asks for.
             if (slot && slot.Asset__Fingerprint === key && Na__LeVp3d__WideEnough(slot.Asset__PixelWidth, wanted.w) && state.triedAsset !== key) {
+                const view = Na__LeVp3d__Window(viewport);                         // <-- The window this key names, read before the wait
                 state.triedAsset = key;
                 state.inFlight = true;
                 const dataUrl = await Na__LeAssets__Load(slot.Asset__Path);
@@ -297,6 +428,8 @@
                     state.img.src = dataUrl; state.img.hidden = false;
                     state.key = key; state.dataUrl = dataUrl; state.px = { w : slot.Asset__PixelWidth, h : Math.round(slot.Asset__PixelWidth * (wanted.h / wanted.w)) };
                     state.modelFp = Na__LeSnap__GetModelFingerprint(Na__LeSource__Resolve(viewport).renderId);
+                    state.win = view;
+                    Na__LeVp3d__Place(state);
                     return;
                 }
             }
@@ -314,10 +447,7 @@
         state.lastArgs = { sheet : sheet, viewport : viewport, ppm : ppm };
         const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
 
-        state.img.style.left   = (viewport.Viewport__ImageOffsetMm.X * ppm) + 'px';
-        state.img.style.top    = (viewport.Viewport__ImageOffsetMm.Y * ppm) + 'px';
-        state.img.style.width  = (viewport.Viewport__ImageMm.WidthMm  * ppm) + 'px';
-        state.img.style.height = (viewport.Viewport__ImageMm.HeightMm * ppm) + 'px';
+        Na__LeVp3d__Place(state);                                                  // <-- A zoom, a slide or a crop shows at once on the picture held; the render for it follows
 
         if (!scene) {
             state.empty.textContent = Na__LeCfg__GetLabel('NoSceneLinked', 'No scene linked to this viewport.');
@@ -470,7 +600,7 @@
         const state = { img : document.createElement('img'), key : null, px : null, dataUrl : null, inFlight : false };
         const stored = await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, Na__LeVp3d__ExportProfile());
         const live = Na__LeVp3d__States.get(viewport.Viewport__Id);
-        if (live && state.dataUrl) { live.img.src = state.dataUrl; live.img.hidden = false; live.key = key; live.px = state.px; live.dataUrl = state.dataUrl; live.modelFp = state.modelFp; }
+        if (live && state.dataUrl) { live.img.src = state.dataUrl; live.img.hidden = false; live.key = key; live.px = state.px; live.dataUrl = state.dataUrl; live.modelFp = state.modelFp; live.win = state.win; Na__LeVp3d__Place(live); }
         return stored ? 'baked' : 'failed';                                        // <-- This render's upload, not the record: a same-key record from before read as baked
     }
     // ------------------------------------------------------------
@@ -509,6 +639,8 @@
     // ------------------------------------------------------------
     export {
         Na__LeVp3d__Fingerprint,
+        Na__LeVp3d__PictureRect,
+        Na__LeVp3d__ExportRectMm,
         Na__LeVp3d__RestampForScene,
         Na__LeVp3d__Fill,
         Na__LeVp3d__Release,

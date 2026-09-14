@@ -27,12 +27,47 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__SheetRecords__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.19.0
+// - Viewport__ImageZoom on the viewport record: how large a 3D viewport's
+//   picture is drawn, as a multiple of Viewport__ImageMm. Held inside the
+//   Viewport setup's ImageZoomMin and ImageZoomMax, and stored only when it is
+//   not 1, so every record from before it is exactly what it was.
+//
+// 14-Sep-2026 - Version 1.18.0
+// - NormaliseMarginNotes: a margin still on 2.2 mm or the brief 9 pt body
+//   size adopts the config size, now 2 mm.
+//
+// 14-Sep-2026 - Version 1.17.0
+// - NormaliseMarginNotes: a margin still on the old 2.2 mm body size (the
+//   shipped default) adopts the config size, now 9 pt.
+//
+// 14-Sep-2026 - Version 1.16.0
+// - Viewport__SitePlan on the viewport record: an object, kept only on a viewport
+//   that draws the project's site plan data. Such a viewport is always 2D with no
+//   drawing id, and its scale is coerced onto the site plan list (1:500, 1:1250)
+//   rather than the architectural one. IsSitePlanViewport reads it. Every viewport
+//   from before it is unchanged.
+// - A site plan category's edge style is never pruned as a default: its default
+//   comes from the export and is not known until the data loads.
+//
+// 14-Sep-2026 - Version 1.15.0
+// - Sheet__DrawingType on the sheet record: stored only as 'siteplan' (a Site
+//   Plan Drawing). The normaliser removes any other value and never adds the
+//   key, so every sheet from before it stays exactly what it was and reads as
+//   an architectural drawing. IsSitePlanSheet reads it.
+//
+// 14-Sep-2026 - Version 1.14.0
+// - Shape__LineStyle on the shape record: null for a solid edge, otherwise
+//   made whole by Na__LayoutEditor__LineStyleTool__ as a fresh object on every
+//   normalise. A record from before the toggle has no key and stays a solid
+//   line.
+//
 // 14-Sep-2026 - Version 1.13.0
 // - Sheet__Groups on every sheet, and NormaliseGroup: a group is an id and a
 //   list of members ({ kind, id } of a vector, a text item or another group).
@@ -181,6 +216,8 @@
         Na__LeComposite__Clamp
     } from './Na__LayoutEditor__RenderComposites__.js';
     import { Na__LeGrad__Normalise } from './Na__LayoutEditor__GradientTool__.js';   // <-- A leaf too: it reaches only the panel host, which reaches only the config
+    import { Na__LeDash__Normalise } from './Na__LayoutEditor__LineStyleTool__.js';
+    // @delegate: ./Na__LayoutEditor__LineStyleTool__.js
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__PresentationMode__ProjectJson__GetActiveConfig } from '../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
     // ------------------------------------------------------------
@@ -202,6 +239,9 @@
     const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
     const Na__LeRec__LEADER_LINE_STYLES = [ 'solid', 'dashed' ];
     const Na__LeRec__GROUP_KINDS        = [ 'shape', 'annotation', 'group' ];   // <-- What a group may hold: vectors, text, and nested groups
+    const Na__LeRec__DRAWING_ARCHITECTURAL = 'architectural';                   // <-- A sheet with no Sheet__DrawingType
+    const Na__LeRec__DRAWING_SITEPLAN      = 'siteplan';                        // <-- The only drawing type ever stored
+    const Na__LeRec__SITEPLAN_CATEGORY_PREFIX = 'TrueVision__SitePlan__';       // <-- Category keys of site plan layers (the export's stems)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -299,7 +339,9 @@
             const colour   = Na__LeEdge__IsColour(entry['Category__EdgeColour'])     ? entry['Category__EdgeColour']   : fallback.colour;
             const lineType = Na__LeEdge__IsLineType(entry['Category__EdgeLineType']) ? entry['Category__EdgeLineType'] : fallback.lineType;
 
-            if (canPrune && weight === Na__LeEdge__ClampWeight(fallback.weight) && colour === fallback.colour && lineType === fallback.lineType) {
+            // A SITE PLAN CATEGORY IS NEVER PRUNED: its default is the style its export
+            // carries, which is not known until the site plan data has loaded.
+            if (canPrune && key.indexOf(Na__LeRec__SITEPLAN_CATEGORY_PREFIX) !== 0 && weight === Na__LeEdge__ClampWeight(fallback.weight) && colour === fallback.colour && lineType === fallback.lineType) {
                 return;                                                            // <-- Back to the default: the record says nothing
             }
 
@@ -342,6 +384,15 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Is This a Site Plan Viewport (Viewport__SitePlan)
+    // ------------------------------------------------------------
+    function Na__LeRec__IsSitePlanViewport(viewport) {
+        const marker = viewport ? viewport.Viewport__SitePlan : null;
+        return !!marker && typeof marker === 'object' && !Array.isArray(marker);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Fill a Viewport Record's Defaults
     // ------------------------------------------------------------
     function Na__LeRec__NormaliseViewport(viewport, defaultLayerId) {
@@ -351,6 +402,17 @@
         if (!viewport.Viewport__LayerId) viewport.Viewport__LayerId = defaultLayerId;
         if (viewport.Viewport__SceneId   === undefined) viewport.Viewport__SceneId   = null;
         if (viewport.Viewport__DrawingId === undefined) viewport.Viewport__DrawingId = null;
+        // SITE PLAN | Viewport__SitePlan marks a viewport that draws the project's
+        // site plan data (52__System__SitePlanData) rather than a plan or an
+        // elevation. Kept only on such a viewport, as an object with room for the
+        // settings still to come; it is always 2D and never carries a drawing id.
+        if (Na__LeRec__IsSitePlanViewport(viewport)) {
+            viewport.Viewport__SitePlan  = Object.assign({}, viewport.Viewport__SitePlan);
+            viewport.Viewport__Kind      = Na__LeRec__KIND_2D;
+            viewport.Viewport__DrawingId = null;
+        } else {
+            delete viewport.Viewport__SitePlan;
+        }
         // MODEL SOURCE | The design phase drawn: a model group's groupId, or null
         // for the Project Default (Na__LayoutEditor__ModelSource__). An id the
         // project does not have is kept as written, so a phase folder put back
@@ -365,7 +427,7 @@
             WidthMm  : Math.max(setup.minSizeMm, Na__LeRec__Num(frame.WidthMm,  setup.defaultWidthMm)),
             HeightMm : Math.max(setup.minSizeMm, Na__LeRec__Num(frame.HeightMm, setup.defaultHeightMm))
         };
-        viewport.Viewport__ScaleDenominator = Na__LeScale__Coerce(viewport.Viewport__ScaleDenominator);
+        viewport.Viewport__ScaleDenominator = Na__LeScale__Coerce(viewport.Viewport__ScaleDenominator, Na__LeRec__IsSitePlanViewport(viewport));   // <-- A site plan viewport keeps 1:500 or 1:1250
 
         const pan = viewport.Viewport__PanMm || {};
         viewport.Viewport__PanMm = { X : Na__LeRec__Num(pan.X, 0), Y : Na__LeRec__Num(pan.Y, 0) };
@@ -377,6 +439,14 @@
         };
         const offset = viewport.Viewport__ImageOffsetMm || {};
         viewport.Viewport__ImageOffsetMm = { X : Na__LeRec__Num(offset.X, 0), Y : Na__LeRec__Num(offset.Y, 0) };
+        // IMAGE ZOOM | How large a 3D viewport's picture is drawn, as a multiple
+        // of Viewport__ImageMm (Na__LayoutEditor__Viewport3dZoom__). Held inside
+        // the configured limits and stored only when it is not 1, so a record
+        // from before the zoom - and a browser draft of one - is exactly what it was.
+        const imageZoom = viewport.Viewport__ImageZoom;
+        const zoomKept  = (typeof imageZoom === 'number' && Number.isFinite(imageZoom) && imageZoom > 0) ? Math.min(setup.imageZoomMax, Math.max(setup.imageZoomMin, imageZoom)) : 1;
+        if (zoomKept !== 1) viewport.Viewport__ImageZoom = zoomKept;
+        else delete viewport.Viewport__ImageZoom;
 
         // MODEL LAYERS | Only the categories switched OFF are kept
         // A viewport records dissent, not consent: an absent key is on. That
@@ -535,6 +605,7 @@
         item.Shape__FillOpacity   = Na__LeRec__Unit(item.Shape__FillOpacity, 1);         // <-- A record from before opacity was solid
         item.Shape__StrokeOpacity = Na__LeRec__Unit(item.Shape__StrokeOpacity, 1);
         item.Shape__Gradient = Na__LeGrad__Normalise(item.Shape__Gradient);              // <-- A fresh object or null: no two shapes ever hold the same gradient
+        item.Shape__LineStyle = Na__LeDash__Normalise(item.Shape__LineStyle);            // <-- Likewise: null is a solid edge, and a record from before the toggle stays one
         item.Shape__Stroked = item.Shape__Stroked !== false;                             // <-- A record written before the flag existed drew its edges
         const filled  = item.Shape__FillColour !== null || item.Shape__Gradient !== null;   // <-- A gradient is a fill as far as visibility goes
         const canFill = filled && item.Shape__Points.length > 2;                            // <-- Two points enclose nothing, so they cannot be a fill
@@ -627,11 +698,15 @@
         const raw = sheet.Sheet__MarginNotes;
         if (!raw || typeof raw !== 'object') { delete sheet.Sheet__MarginNotes; return null; }
         const setup = Na__LeCfg__GetMarginNotesSetup();
+        const storedSize = Na__LeRec__Num(raw.TextSizeMm, setup.textSizeMm);
+        const ninePtMm   = 9 * 25.4 / 72;
+        const wasDefault = raw.TextSizeMm === 2.2 || (typeof raw.TextSizeMm === 'number' && Math.abs(raw.TextSizeMm - ninePtMm) < 0.05);
+        const bodyMm     = wasDefault ? setup.textSizeMm : storedSize;           // <-- 2.2 mm and the brief 9 pt size give way to 2 mm
         sheet.Sheet__MarginNotes = {
             Enabled        : raw.Enabled === true,
             WidthMm        : Math.max(setup.minWidthMm, Na__LeRec__Num(raw.WidthMm, setup.defaultWidthMm)),
             Heading        : (typeof raw.Heading === 'string' && raw.Heading.trim() !== '') ? raw.Heading : null,
-            TextSizeMm     : Math.min(setup.maxTextSizeMm, Math.max(setup.minTextSizeMm, Na__LeRec__Num(raw.TextSizeMm, setup.textSizeMm))),
+            TextSizeMm     : Math.min(setup.maxTextSizeMm, Math.max(setup.minTextSizeMm, bodyMm)),
             IncludeGeneral : typeof raw.IncludeGeneral === 'boolean' ? raw.IncludeGeneral : setup.includeGeneral,
             GroupHeadings  : typeof raw.GroupHeadings === 'boolean' ? raw.GroupHeadings : setup.groupHeadings
         };
@@ -651,6 +726,14 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Is This a Site Plan Sheet (Sheet__DrawingType)
+    // ------------------------------------------------------------
+    function Na__LeRec__IsSitePlanSheet(sheet) {
+        return !!sheet && sheet.Sheet__DrawingType === Na__LeRec__DRAWING_SITEPLAN;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Fill a Sheet Record's Defaults (mutates in place)
     // ------------------------------------------------------------
     function Na__LeRec__NormaliseSheet(sheet, index) {
@@ -664,6 +747,7 @@
         if (!sheet.Sheet__PaperSize || !sheetSetup.paperSizes[sheet.Sheet__PaperSize]) sheet.Sheet__PaperSize = sheetSetup.defaultPaperSize;
         if (sheet.Sheet__Orientation !== 'portrait') sheet.Sheet__Orientation = 'landscape';
         if (sheet.Sheet__TitleBlockStyle !== 'classic' && sheet.Sheet__TitleBlockStyle !== 'modern') sheet.Sheet__TitleBlockStyle = titleSetup.defaultStyle;
+        if (sheet.Sheet__DrawingType !== Na__LeRec__DRAWING_SITEPLAN) delete sheet.Sheet__DrawingType;   // <-- Stored only for a site plan; no key is an architectural drawing
         if (!sheet.Sheet__Fields || typeof sheet.Sheet__Fields !== 'object') sheet.Sheet__Fields = {};
 
         if (!Array.isArray(sheet.Sheet__Layers) || sheet.Sheet__Layers.length === 0) {
@@ -770,6 +854,10 @@
         Na__LeRec__KIND_3D,
         Na__LeRec__LAYER_TYPES,
         Na__LeRec__STYLE_KEYS,
+        Na__LeRec__DRAWING_ARCHITECTURAL,
+        Na__LeRec__DRAWING_SITEPLAN,
+        Na__LeRec__IsSitePlanSheet,
+        Na__LeRec__IsSitePlanViewport,
         Na__LeRec__NormaliseShape,
         Na__LeRec__NormaliseLeader,
         Na__LeRec__NormaliseMarginNotes,

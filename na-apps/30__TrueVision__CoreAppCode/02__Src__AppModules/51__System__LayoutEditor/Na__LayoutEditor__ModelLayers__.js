@@ -37,6 +37,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - Site plan layers. Groups lists a site plan viewport's layers under their
+//   export's own groups and labels, in draw order, ahead of any model groups.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - Groups takes an optional category key list, for a viewport drawing a
 //   design phase other than the one the 3D view holds.
@@ -60,6 +64,7 @@
     // MODULE IMPORTS | The Loaded Model Categories
     // ------------------------------------------------------------
     import { Na__ModelToggle__GetCategoryKeys } from '../26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js';
+    import { Na__SpStore__GetLayers } from '../52__System__SitePlanData/Na__SitePlan__Store__.js';   // <-- A site plan viewport's layers and their names
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -241,6 +246,19 @@
         const remaining = new Set(loaded);
         const groups    = [];
         const mapped    = Na__LeModelLayers__Config ? (Na__LeModelLayers__Config['LayoutEditor__ModelLayers__Groups'] || []) : [];
+
+        // SITE PLAN LAYERS | Named and grouped by their own export (the SSOT's label
+        // and group), in draw order, ahead of any model groups.
+        const sitePlanGroups = new Map();
+        Na__SpStore__GetLayers().forEach((layer) => {
+            const key = layer.Layer__CategoryKey;
+            if (!remaining.has(key)) return;
+            remaining.delete(key);
+            const groupLabel = layer.Layer__Group || Na__LeModelLayers__Fallback().groupLabel;
+            if (!sitePlanGroups.has(groupLabel)) sitePlanGroups.set(groupLabel, []);
+            sitePlanGroups.get(groupLabel).push({ key : key, label : layer.Layer__Label || Na__LeModelLayers__Generated(key), tags : layer.Layer__TagName ? [ layer.Layer__TagName ] : [] });
+        });
+        sitePlanGroups.forEach((rows, groupLabel) => groups.push({ id : 'siteplan-' + groupLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-'), label : groupLabel, layers : rows }));
 
         mapped.forEach((group) => {
             const rows = [];

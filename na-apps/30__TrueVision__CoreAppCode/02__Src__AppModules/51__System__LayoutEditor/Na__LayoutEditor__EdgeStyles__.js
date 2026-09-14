@@ -49,10 +49,18 @@
 //                   JSON verbatim below the header. ValeVision's model layer config
 //                   has these rows under its own prefix, plus the coarse categories
 //                   its older exports load.
+// - Not yet back-ported: the site plan defaults and the accent colours (1.1.0).
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Site plan categories (TrueVision__SitePlan__...) take their default style from
+//   the site plan data: the export's colour as the palette alias of the same hex,
+//   its line type, and its weight in millimetres as a factor on the configured
+//   viewport lineweight. The palette gains red, green and blue, the SSOT's site
+//   plan accents, and the weight ceiling rises to 6.00 so a 0.50 mm line prints true.
+//
 // 12-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -71,6 +79,8 @@
     // this module decides what that means.
     // ------------------------------------------------------------
     import { Na__LeModelLayers__EdgeDefault, Na__LeModelLayers__Ready, Na__LeModelLayers__IsLoaded } from './Na__LayoutEditor__ModelLayers__.js';
+    import { Na__LeCfg__GetLineweightSetup, Na__LeCfg__PtToMm } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__SpStore__GetLayers } from '../52__System__SitePlanData/Na__SitePlan__Store__.js';   // <-- Site plan layers carry their own default style
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -85,6 +95,7 @@
     const Na__LeEdge__ConfigUrl = new URL('./Na__LayoutEditor__EdgeStyles__Config__.json', import.meta.url);
     const Na__LeEdge__FIELD     = 'Viewport__ProjectedEdges';
     const Na__LeEdge__CAT_FIELD = 'Edges__Categories';
+    const Na__LeEdge__SITEPLAN_PREFIX = 'TrueVision__SitePlan__';               // <-- Site plan layer keys: their style comes with the data
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Fetched Config
@@ -104,14 +115,17 @@
         { alias : 'soft-black', label : 'Soft Black', hex : '#333333' },
         { alias : 'dark-grey',  label : 'Dark Grey',  hex : '#666666' },
         { alias : 'mid-grey',   label : 'Mid Grey',   hex : '#999999' },
-        { alias : 'light-grey', label : 'Light Grey', hex : '#D9D9D9' }
+        { alias : 'light-grey', label : 'Light Grey', hex : '#D9D9D9' },
+        { alias : 'red',        label : 'Red',        hex : '#E53935' },
+        { alias : 'green',      label : 'Green',      hex : '#43A047' },
+        { alias : 'blue',       label : 'Blue',       hex : '#1E88E5' }
     ];
     const Na__LeEdge__FALLBACK_TYPES = [
         { alias : 'solid',  label : 'Solid',  patternMm : [] },
         { alias : 'dashed', label : 'Dashed', patternMm : [ 2.5, 1.5 ] },
         { alias : 'centre', label : 'Centre', patternMm : [ 8.0, 2.0, 2.0, 2.0 ] }
     ];
-    const Na__LeEdge__FALLBACK_WEIGHT  = { min : 0.10, max : 3.00, step : 0.05, decimals : 2, default : 1.00 };
+    const Na__LeEdge__FALLBACK_WEIGHT  = { min : 0.10, max : 6.00, step : 0.05, decimals : 2, default : 1.00 };
     const Na__LeEdge__FALLBACK_CLASSES = [ 'visible', 'hidden', 'authored' ];
     const Na__LeEdge__FALLBACK_STYLE   = { weight : 1.00, colour : 'black', lineType : 'solid' };
     // ------------------------------------------------------------
@@ -326,9 +340,47 @@
 // REGION | The Per-Viewport Record
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | The Palette Alias With This Hex (null When None)
+    // ------------------------------------------------------------
+    function Na__LeEdge__AliasForHex(hex) {
+        if (typeof hex !== 'string') return null;
+        const wanted = hex.trim().toUpperCase();
+        const match  = Na__LeEdge__Colours().find((entry) => String(entry.hex).toUpperCase() === wanted);
+        return match ? match.alias : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Site Plan Category's Default: the Style Its Export Carries
+    // ------------------------------------------------------------
+    // Site plan layers are not in the Model Layers config: their style travels
+    // with the data, resolved from the SSOT at export. The weight in millimetres
+    // becomes a factor on the configured viewport lineweight, so at that master a
+    // 0.50 mm red line prints 0.50 mm, and a sheet that raises its master raises
+    // the site plan with everything else. The colour is the palette alias of the
+    // same hex. Null for any other key, and before the site plan data has loaded.
+    // ------------------------------------------------------------
+    function Na__LeEdge__SitePlanDefault(categoryKey) {
+        if (typeof categoryKey !== 'string' || categoryKey.indexOf(Na__LeEdge__SITEPLAN_PREFIX) !== 0) return null;
+        const layer = Na__SpStore__GetLayers().find((entry) => entry.Layer__CategoryKey === categoryKey);
+        if (!layer) return null;
+        const style  = layer.Layer__Style || {};
+        const master = Na__LeCfg__PtToMm(Na__LeCfg__GetLineweightSetup().viewportPt);
+        const fall   = Na__LeEdge__Fallback();
+        return {
+            weight   : (Number.isFinite(style.LineWeightMm) && master > 0) ? style.LineWeightMm / master : fall.weight,
+            colour   : Na__LeEdge__AliasForHex(style.LineHex) || fall.colour,
+            lineType : Na__LeEdge__IsLineType(style.LineType) ? style.LineType : fall.lineType
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Config Default for One Category
     // ------------------------------------------------------------
     function Na__LeEdge__Default(categoryKey) {
+        const sitePlan = Na__LeEdge__SitePlanDefault(categoryKey);
+        if (sitePlan) return sitePlan;
         const fromMap = Na__LeModelLayers__EdgeDefault(categoryKey);
         const fall    = Na__LeEdge__Fallback();
         if (!fromMap) return { weight : fall.weight, colour : fall.colour, lineType : fall.lineType };

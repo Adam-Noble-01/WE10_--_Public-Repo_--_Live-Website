@@ -1,0 +1,100 @@
+{
+    "testEnvironment": {
+        "testEnvironment__Description"             : "Configuration flags for the ValeVision3D test environment sandbox.",
+        "testEnvironment__ShowStatsOverlay"         : true,
+        "testEnvironment__ShowNodeExplorer"         : true,
+        "testEnvironment__ShowTestingBanner"        : true,
+        "testEnvironment__AutoLoadGlbFiles"         : true
+    },
+    "modelDefaults": {
+        "modelUrls": []
+    },
+    "scene": {
+        "bgColor"                                  : 16777215,
+        "ambientIntensity"                         : 2.5,
+        "dirLightIntensity"                        : 1.0,
+        "shadowOpacity"                            : 0.1,
+        "cameraFov"                                : 45,
+        "cameraNear"                               : 0.1,
+        "cameraFar"                                : 1000,
+        "fogDensity"                               : 0.0003,
+        "groundSize"                               : 500,
+        "groundYOffset"                            : -0.05
+    },
+    "models": {
+        "baseMesh": {
+            "material": {
+                "whiteColor"                       : 16777215,
+                "roughness"                        : 1.0,
+                "metalness"                        : 0.0,
+                "polygonOffsetFactor"               : 2,
+                "polygonOffsetUnits"                : 2,
+                "emissiveBoost"                    : 3355443,
+                "textureEmissive"                  : 4473924
+            }
+        },
+        "RenderConfig__Linework": {
+            "RenderConfig__Linework__EdgeColor"            : 1315860,
+            "RenderConfig__Linework__LineWidth"             : 0.9,
+            "RenderConfig__Linework__PolygonOffsetFactor"   : -4,
+            "RenderConfig__Linework__PolygonOffsetUnits"    : -4,
+            "RenderConfig__Linework__RenderOrder"           : 999,
+            "RenderConfig__Linework__DepthBias"             : 0.00015
+        }
+    },
+    "RenderEffect__ProfileLines": {
+        "RenderEffect__ProfileLines__Description"          : "Profile lines render silhouette edges around curved/rounded geometry.",
+        "RenderEffect__ProfileLines__Enabled"              : true,
+        "RenderEffect__ProfileLines__EdgeColor"             : 4210752,
+        "RenderEffect__ProfileLines__EdgeThresholdNormal"   : 0.2,
+        "RenderEffect__ProfileLines__EdgeThresholdDepth"    : 0.002,
+        "RenderEffect__ProfileLines__EdgeWidth"             : 0.5
+    },
+    "Navmode__Settings": {
+        "Navmode__Settings__Description"                   : "All navmode values are integer millimeters where noted; convert to 3D units in code.",
+        "Navmode__MouseControls": {
+            "Navmode__MouseControls__EnableDamping"         : false,
+            "Navmode__MouseControls__EnableWASD"            : true,
+            "Navmode__MouseControls__MovementSpeedMm"       : 50,
+            "Navmode__MouseControls__ElevationSpeedMm"      : 50,
+            "Navmode__MouseControls__OrbitMinDistanceMm"    : 250,
+            "Navmode__MouseControls__OrbitMaxDistanceMm"    : 50000,
+            "Navmode__MouseControls__ZoomStepMm"            : 250
+        },
+        "Navmode__IpadControls": {
+            "Navmode__IpadControls__EnableDamping"          : true,
+            "Navmode__IpadControls__EnableWASD"             : false,
+            "Navmode__IpadControls__MovementSpeedMm"        : 50,
+            "Navmode__IpadControls__ElevationSpeedMm"       : 50,
+            "Navmode__IpadControls__OrbitMinDistanceMm"     : 250,
+            "Navmode__IpadControls__OrbitMaxDistanceMm"     : 50000
+        }
+    },
+    "3dObject__InteractionsSystem": {
+        "3dObject__Interaction__DoorAnimation": {
+            "3dObject__Interaction__DoorAnimation__Description"         : "Interactive door animation settings for click-to-open doors. Inherits from main app, test environment enabled by default.",
+            "3dObject__Interaction__DoorAnimation__Enabled"             : true,
+            "3dObject__Interaction__DoorAnimation__AnimationDurationMs" : 600,
+            "3dObject__Interaction__DoorAnimation__DefaultRotationDeg"  : 90,
+            "3dObject__Interaction__DoorAnimation__ClickThresholdPx"    : 4
+        }
+    },
+    "StoreyVisibility": {
+        "StoreyVisibility__Description"                    : "Storey-based visibility toggle settings. Panel auto-detects storey models from GLB filenames containing Storey__ prefix.",
+        "StoreyVisibility__Enabled"                        : true,
+        "StoreyVisibility__DefaultMode"                    : "ShowAll",
+        "StoreyVisibility__StoreyOrder"                    : ["GroundFloor", "FirstFloor", "SecondFloor", "ThirdFloor"]
+    },
+    "Dev__DeveloperMode": {
+        "Dev__DeveloperMode__Description"                  : "Dev cube visible by default in test environment for orientation reference.",
+        "Dev__DefaultCube": {
+            "Dev__DefaultCube__Visible"                     : true,
+            "Dev__DefaultCube__SizeInMm"                    : 1000,
+            "Dev__DefaultCube__Colour"                      : "#1e3a4f",
+            "Dev__DefaultCube__PozX"                        : 0,
+            "Dev__DefaultCube__PozY"                        : 500,
+            "Dev__DefaultCube__PozZ"                        : 0
+        },
+        "OrbitHelperCube__Debug__Visible"                  : false
+    }
+}

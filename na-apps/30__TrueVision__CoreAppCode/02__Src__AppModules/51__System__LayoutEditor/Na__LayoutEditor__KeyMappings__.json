@@ -295,7 +295,7 @@
             },
             {
                 "Id"            : "Edit__Finish",
-                "Label"         : "Finish the shape being drawn",
+                "Label"         : "Finish the shape being drawn, or the editing of a viewport's content",
                 "Action"        : "Edit__Finish",
                 "Enabled"       : true,
                 "Keys"          : [ "Enter" ],
@@ -431,7 +431,7 @@
     },
 
     "LayoutEditor__MeasurementsBox__Config" : {
-        "LayoutEditor__MeasurementsBox__Description"      : "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, or while a vertex is being dragged, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
+        "LayoutEditor__MeasurementsBox__Description"      : "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, or while a vertex or a viewport is being dragged, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
         "LayoutEditor__MeasurementsBox__StartCharacters"  : "0123456789.,-",
         "LayoutEditor__MeasurementsBox__TypingCharacters" : "0123456789.,-+ xX*;mMcC",
         "LayoutEditor__MeasurementsBox__CommitKeys"       : [ "Enter" ],
@@ -509,7 +509,7 @@
             { "Action" : "Edit__Group",           "Label" : "Group vectors and text",    "Group" : "Editing"    },
             { "Action" : "Edit__Ungroup",         "Label" : "Ungroup the selection",     "Group" : "Editing"    },
             { "Action" : "Edit__Deselect",        "Label" : "Clear the selection",       "Group" : "Editing"    },
-            { "Action" : "Edit__Finish",          "Label" : "Finish the shape",          "Group" : "Editing"    },
+            { "Action" : "Edit__Finish",          "Label" : "Finish the shape or the viewport content", "Group" : "Editing" },
             { "Action" : "Select__Add",           "Label" : "Add to the selection",      "Group" : "Selection"  },
             { "Action" : "Select__Toggle",        "Label" : "Add to or remove from the selection", "Group" : "Selection" },
             { "Action" : "Select__Remove",        "Label" : "Remove from the selection", "Group" : "Selection"  }

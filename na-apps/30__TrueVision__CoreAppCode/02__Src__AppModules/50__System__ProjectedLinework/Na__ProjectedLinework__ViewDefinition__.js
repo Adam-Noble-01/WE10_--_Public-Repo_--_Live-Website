@@ -36,7 +36,7 @@
 // - THE FINGERPRINT. The model state plus the parts of the record that change
 //   the geometry: datum or plane, depth, azimuth and origin, the occluder
 //   rule (Glass Transparency Off), hidden lines, the exclusion list and, on a
-//   Layout Editor plan, the door pose. The
+//   Layout Editor plan, elevation or section, the door pose. The
 //   name, the saved framing and the other style toggles are left out so
 //   renaming or reframing a drawing never discards its linework.
 //
@@ -49,14 +49,23 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__ViewDefinition__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim, bar 1.1.0
-// - Divergences   : Console prefix, header and folder numbers; the door pose
-//                   of 1.1.0, authored here first.
-// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off.
+// - Parity        : verbatim, bar 1.1.0 and 1.2.0
+// - Divergences   : Console prefix, header and folder numbers; the door poses
+//                   of 1.1.0 and 1.2.0, authored here first.
+// - Back-port     : 1.1.0 and 1.2.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - Elevations shut their doors. FromElevation takes the fourth argument
+//   FromPlan takes: a Layout Editor elevation or section passes the shut pose
+//   { Shut : true }, normalised onto the definition as DoorPose and folded
+//   into the record hash, so every door is drawn shut whatever the 3D view
+//   shows, and linework read before this - with whatever doors the 3D view
+//   had open - is never reused. A plan's pose normalises exactly as before,
+//   so a plan's hash is unchanged.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Door pose. FromPlan takes a fourth argument, the door pose a Layout Editor
 //   plan viewport draws with: every door open bar the keys in Closed, with or
@@ -320,14 +329,17 @@
 
     // HELPER FUNCTION | Reduce a Door Pose to What Changes the Drawing
     // ------------------------------------------------------------
-    // null draws the doors as the model holds them, which is every drawing but
-    // a Layout Editor plan. Otherwise { Closed, Swings, SwingStepDegrees }:
-    // every door drawn open bar the keys in Closed (sorted and unique, so the
-    // same set always hashes the same), with a swing arc per open hinged leaf
-    // while Swings is on. Na__ProjectedLinework__DoorPose__ reads it.
+    // null draws the doors as the model holds them, which is every drawing
+    // outside the Layout Editor. { Shut : true } draws every door shut: a
+    // Layout Editor elevation or section, with no door to list and no swing to
+    // trace. Otherwise { Closed, Swings, SwingStepDegrees }, a Layout Editor
+    // plan: every door drawn open bar the keys in Closed (sorted and unique, so
+    // the same set always hashes the same), with a swing arc per open hinged
+    // leaf while Swings is on. Na__ProjectedLinework__DoorPose__ reads it.
     // ------------------------------------------------------------
     function Na__PlView__DoorPose(pose) {
         if (!pose || typeof pose !== 'object') return null;
+        if (pose.Shut === true) return { Shut : true };                          // <-- Every door shut: nothing else changes the drawing
         const keys = Array.isArray(pose.Closed) ? pose.Closed.filter((key) => typeof key === 'string' && key.length > 0) : [];
         const step = Number(pose.SwingStepDegrees);
         return {
@@ -370,7 +382,9 @@
 
     // FUNCTION | Build the View Definition for an Elevation or Section
     // ------------------------------------------------------------
-    function Na__PlView__FromElevation(elevation, stylesOverride, extraExcludeTokens) {
+    // doorPose (Layout Editor elevations and sections only) is the shut pose,
+    // { Shut : true }; omitted, the doors are drawn as the model holds them.
+    function Na__PlView__FromElevation(elevation, stylesOverride, extraExcludeTokens, doorPose) {
         if (!elevation) return null;
         const axes  = Na__ElevData__GetAxes(elevation);
         const basis = Na__PlView__ElevationBasis(axes);
@@ -387,7 +401,7 @@
             Cut           : Na__PlView__ElevationCut(elevation, axes),
             Styles        : Na__PlView__Flags(Na__ElevData__GetStyles(elevation), stylesOverride),
             ExcludeTokens : Na__PlView__Tokens(Na__ElevData__GetExcludeTokens(elevation), extraExcludeTokens),
-            DoorPose      : null,
+            DoorPose      : Na__PlView__DoorPose(doorPose),
             RecordHash    : null
         };
         definition.RecordHash = Na__PlView__RecordHash(definition);

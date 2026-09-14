@@ -22,6 +22,9 @@
 // - The guards from the key map keep their own input: a wheel over a viewport
 //   canvas is left to that canvas, and a press on a panel control is left to
 //   the control. Without them the stage would eat gestures that are not its own.
+// - A wheel over a 3D viewport whose content is being edited zooms that
+//   viewport's picture instead of the sheet (Na__LayoutEditor__Viewport3dZoom__
+//   decides, and is asked first).
 // - Pans that claim the left button (space drag, empty stage drag - both off by
 //   default) raise the sheet tools suppression flag for the length of the drag,
 //   so a pan can never also start an edit.
@@ -41,12 +44,18 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Controls__Pc__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; the 3D viewport zoom of 1.1.0,
+//                   authored here first and PENDING to ValeVision3D on Adam's sign-off.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - The wheel is offered to Na__LeVpZoom__OnWheel first: over a 3D viewport
+//   whose content is being edited it zooms that picture, and the sheet's own
+//   zoom only runs when the wheel was not the viewport's.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__Navigation__, which keeps the zoom maths and
 //   the fit. This module owns mouse, wheel and keyboard input; the touchscreen
@@ -78,6 +87,7 @@
     } from './Na__LayoutEditor__Navigation__.js';
     import { Na__LeSurface__GetElements, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeTools__SetSuppressed } from './Na__LayoutEditor__SheetTools__.js';
+    import { Na__LeVpZoom__OnWheel } from './Na__LayoutEditor__Viewport3dZoom__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -190,6 +200,7 @@
     // ------------------------------------------------------------
     function Na__LePc__OnWheel(event) {
         if (Na__LePc__Matches(event, Na__LeCfg__GetGuards().wheelIgnoreSelector)) return;     // <-- A viewport canvas owns its own wheel
+        if (Na__LeVpZoom__OnWheel(event)) return;                                             // <-- Over a 3D viewport whose content is being edited, the wheel zooms its picture
 
         const action = Na__LeCfg__MatchWheelBinding(Na__LePc__Modifiers(event));
         if (!action) return;

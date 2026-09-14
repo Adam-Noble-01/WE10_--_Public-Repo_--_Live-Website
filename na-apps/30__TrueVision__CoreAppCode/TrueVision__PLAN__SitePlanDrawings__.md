@@ -80,17 +80,17 @@ and credits belong to the sheet.
 |---|---|---|
 | SP01 | Site plan tags use **71-75**, named `{NN}__SitePlan__{Category}__{Item}`. Similar layers share a number with different names; **one GLB per tag name**, not per number | AGREED (Adam, 14-Sep-2026) |
 | SP02 | Site plan tags **never enter the design phase model GLBs**: the model export excludes them at any nesting depth | DONE (GLB Builder 2.6.2: by name and by pattern) |
-| SP03 | **One site plan store per project**: `30__TrueVision__AppContent/SitePlan__DrawingData/` | PROPOSED |
-| SP04 | The exporter writes a **manifest**, `TrueVision__SitePlanData__Manifest__.json`, beside the GLBs: what was written, counts, bounds, north angle, and each layer's style defaults copied from the SSOT | PROPOSED |
+| SP03 | **One site plan store per project**: `30__TrueVision__AppContent/SitePlan__DrawingData/` | DONE (GLB Builder 2.7.0 writes it; TrueVision 2.48.0 reads it) |
+| SP04 | The exporter writes a **manifest**, `TrueVision__SitePlanData__Manifest__.json`, beside the GLBs: what was written, counts, bounds, north angle, and each layer's style defaults copied from the SSOT | DONE (GLB Builder 2.7.0) |
 | SP05 | The ProjectVision build script registers the store as a **build-owned** project data key, `SitePlan__DataStore`. It is never a model group and never a dev-owned key | DONE (ProjectVision 0.2.0) |
 | SP06 | A site plan viewport **draws the lines as 2D paths**: no projection pipeline, no raster underlay. `Viewport__Kind` stays `'2d'`; a new `Viewport__SitePlan` marks the source | PROPOSED |
-| SP07 | Drawing Type is a sheet field, `Sheet__DrawingType`, **stored only when `'siteplan'`** | PROPOSED |
-| SP08 | Tab order: `3D Model` \| architectural sheets \| `+` \| site plan sheets \| `Project Specification` | ASK |
+| SP07 | Drawing Type is a sheet field, `Sheet__DrawingType`, **stored only when `'siteplan'`** | DONE (TrueVision 2.48.0) |
+| SP08 | Tab order: `3D Model` \| architectural sheets \| `+` \| site plan sheets \| `Project Specification` | BUILT as recommended (TrueVision 2.48.0) - Adam to confirm |
 | SP09 | Site plan scales `[500, 1250]`, default 500 - a list of their own, kept in config | PROPOSED |
 | SP10 | Faces on fill tags export as polygon rings in a `__FillModel__` GLB; TrueVision paints them from the layer style, not from SketchUp materials | ASK (first release or later) |
 | SP11 | Layer styles default from the manifest (so from the SSOT); per-viewport overrides use the existing `Viewport__ProjectedEdges`. EdgeStyles gains accent colours | PROPOSED |
 | SP12 | The site plan export **ignores tag visibility** (hidden tags still export; hidden entities do not) | ASK |
-| SP13 | Coordinates stay in world metres, Y-up, as exported. Drawing mm = (X x 1000, +Z x 1000). North-up rotation comes later, from the manifest's north angle | PROPOSED |
+| SP13 | Coordinates stay in world metres, Y-up, as exported. Drawing mm = (X x 1000, +Z x 1000). North-up rotation comes later, from the manifest's north angle | DONE for the store (TrueVision 2.48.0); north-up rotation later |
 | SP14 | **Phase 0**: the pipeline must keep `LayoutEditor__DrawingsData`. Fixed the same afternoon by the Save Sheets session (v2.39.0). `CrossSection__SceneData` is still in none of the three lists; that session has handed Adam a task for it | DONE (another session) |
 
 ---
@@ -566,6 +566,16 @@ without one; project data is written when a project has design phases or a site 
 
 ### 8.3 Site plan store - new folder `52__System__SitePlanData`
 
+**Built 14-Sep-2026 (TrueVision 2.48.0).** Where the build differs from the proposal below:
+- **Where the layer list comes from.**
+  - On localhost: the repository copy of the manifest first, then `SitePlan__DataStore`, then the manifest on the CDN.
+    A fresh export draws locally without a build or a sync.
+  - On the web build: the key first, then the CDN manifest.
+- **One schema.** Both sources become one descriptor in the build's own keys (`SitePlan__...`, `Layer__...`). Only the
+  bounds are renamed, to drawing millimetres `{MinX, MinY, MaxX, MaxY}`.
+- **Parser split out.** `Na__SitePlan__GlbParse__.js` has no imports, so a Node harness tests it on real exports.
+- **Cache busting.** The export time rides on each GLB URL as `?v=`.
+
 - **`Na__SitePlan__Store__.js` (`Na__SpStore__`):**
   - Reads `SitePlan__DataStore` from the loaded project data.
   - Loads lazily, on the first site plan viewport, one layer at a time.
@@ -577,6 +587,12 @@ without one; project data is written when a project has design phases or a site 
 - **Why not the model loader.** It darkens colours, upgrades to fat lines and adds scene objects. Its fingerprint also counts only mesh triangles: every `LineSegments2` counts as 6, so a re-exported linework GLB keeps the same cache key.
 
 ### 8.4 Site plan viewport
+
+**Built 14-Sep-2026 (TrueVision 2.49.0).** Where the build differs from the proposal below:
+- **One class.** Every site plan line goes in the visible class, tagged by layer, rather than the authored class.
+- **Weights.** A layer's weight in millimetres becomes an EdgeStyles factor on the configured 0.30 pt master. The weight ceiling rose to 6.00, so 0.50 mm prints true.
+- **Fills.** On screen, an even-odd path per layer. In the PDF, outer rings through the sheet polygon primitive: holes are not cut out yet, and there are no per-viewport fill overrides yet.
+- **Styles panel.** It still shows its raster-only rows on a site plan viewport.
 
 **Record:**
 - `Viewport__Kind: '2d'`. Kept deliberately: dimensions (paper x D), snapping and viewport carry, the caption, the title block scale, PDF export and Render Composites all test for `'2d'`.
@@ -679,6 +695,7 @@ without one; project data is written when a project has design phases or a site 
 4. **Visibility (SP12):** should hidden tags still export?
 5. **Test project:** which project gets tagged up first?
 6. **Example folders:** `SitePlan__DrawingData` is now in AA00 and PS01 (14-Sep-2026). AA00's two DesignPhase folders are still empty and untracked - add notes to those too?
+7. **Neighbouring buildings (new, from the PS01 export):** the neighbours traced from the OS map need a tag of their own, since they are not proposals. Proposed tag: `73__SitePlan__Buildings__Neighbouring`, stem `NeighbouringBuildings`, MTE103 solid 0.18 with a light grey fill at 1:500, both scales, draw order 39. Until then they belong on `71__SitePlan__BaseMap__OsMapping`.
 
 ---
 
@@ -721,11 +738,11 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | - | Site plan tag proposal and build plan | x | - | This document |
 | - | Tag range decision | x | - | Adam, 14-Sep-2026: use 71-75, doubling up similar tags on a number with different names |
 | 0 | Pipeline dev-key lists | x | 2.39.0 | Root cause found by this survey; fixed the same afternoon by the Save Sheets session. `CrossSection__SceneData` still unlisted (Adam holds a task for it) |
-| 1 | Tags SSOT v2.3.0, EdgeMaterials v2.1.0, Tags Manager | ~ | GLB Builder 2.6.2 | Written 14-Sep-2026 by an all-or-nothing patch that parses every JSON file and cross-checks the 18 entries (exclusion lists, colours, line types, SketchUp line styles, unique stems). The model export also excludes the `^\d{2}__SitePlan__` pattern (`SITE_PLAN_TAG_PATTERN`), so site plan geometry stays out of model GLBs before any push. Uncommitted and not pushed. Waits on a tagged model |
-| - | Adam tags up a project | ~ | - | First pass 14-Sep-2026: `PS01_M10__SitePlanModel` (OS mapping, existing and proposed buildings tagged) |
-| 2 | Site Plan Export | ~ | GLB Builder 2.7.0 | Written 14-Sep-2026: module 1.0.0 (scan, summary and checks, linework GLB per tag, fill ring GLBs, manifest, old-file removal), dialog button, Extensions menu item, guarded load. No Ruby outside SketchUp, so only a block-balance check; not yet run in SketchUp |
-| 3 | Pipeline registration, example folder | ~ | ProjectVision 0.2.0 | Pipeline done 14-Sep-2026: the folder is never a design phase, `SitePlan__DataStore` is built from the manifest or the file names, the manifest syncs. Harness on the real scripts against a throwaway project: 24 checks. Uncommitted. `SitePlan__DrawingData` added to AA00 and PS01 with a placeholder note (Adam, 14-Sep-2026) |
-| 4 | Site plan store, Drawing Type, tab order | - | - | |
-| 5 | Site plan viewport | - | - | |
+| 1 | Tags SSOT v2.3.0, EdgeMaterials v2.1.0, Tags Manager | x | GLB Builder 2.6.2 | Written 14-Sep-2026 by an all-or-nothing patch that parses every JSON file and cross-checks the 18 entries (exclusion lists, colours, line types, SketchUp line styles, unique stems). The model export also excludes the `^\d{2}__SitePlan__` pattern (`SITE_PLAN_TAG_PATTERN`), so site plan geometry stays out of model GLBs before any push. Committed by Adam (Plugins `169b719`) and used to tag PS01 |
+| - | Adam tags up a project | ~ | - | First pass 14-Sep-2026: `PS01_M10__SitePlanModel`, exported at 17:04. Checked against a render of the GLBs: the OS mapping, the red line (a closed loop) and the existing building (with its fill face) are right. Two fixes needed. (1) Every neighbouring house on the map, 394 segments, is on `73__SitePlan__Buildings__ProposedSecondary`, so it would draw as red proposals; no tag covers neighbouring buildings (question 7). (2) The proposed extension is an open 3-edge outline closing against the existing wall, so it has no face and no fill. Re-exported at 19:45 and 20:08: exporter 1.1.0 skipped no edges, so the 22-edge gap was model edits. The two fixes still stand |
+| 2 | Site Plan Export | x | GLB Builder 2.7.2 | Written 14-Sep-2026. First run in SketchUp by Adam at 17:04 on PS01: 5 layers, 6 GLBs and the manifest. Every GLB parsed and checked against the manifest: segment and ring counts, bounds, flat, no duplicate or zero-length segments. The Plugins changes are still uncommitted. 2.7.1 counts hidden, soft and smooth edges per layer; 2.7.2 writes every check to the log and lists them in the completion message |
+| 3 | Pipeline registration, example folder | x | ProjectVision 0.2.0 | Done 14-Sep-2026; committed by Adam with the PS01 export (`f82b48d`). `discover_truevision_siteplan_store`, run read-only on the real PS01 folder, gives all 5 layers with CDN URLs, and the two design phases are unchanged. Option 3 (build and sync) has not run since, so `SitePlan__DataStore` is not yet in the project data and the GLBs are not yet on R2 |
+| 4 | Site plan store, Drawing Type, tab order | x | TrueVision 2.48.0 | Done 14-Sep-2026: `Sheet__DrawingType` (SheetRecords 1.15.0, SheetModel 1.20.0), the Drawing Type row (Panel__Sheet 1.2.0), grouped tabs (TabStrip 1.3.0), the Delete renumber fix, and `52__System__SitePlanData` (Store and GlbParse 1.0.0). Node harness: 37 checks on the parser. Tested in the app on PS01 with every write blocked (DEVLOG 2.48.0). On localhost the store reads the local manifest first, so a fresh export draws without a build or a sync |
+| 5 | Site plan viewport | x | TrueVision 2.49.1 | Done 14-Sep-2026, and Adam confirmed site plan viewports work that evening. Add flow: 1:500 Block Plan or 1:1250 Location Plan, centred on the red line, layers preset from VisibleAtScales. Painting: everything in the visible class tagged by layer, so StyleBands, snapping and the PDF work unchanged; SSOT styles as EdgeStyles defaults (weight as a factor, ceiling 6.00; red, green and blue added). Fills: screen even-odd, PDF outer rings. Model Layers grouped by the export's groups. A site plan scale list, so no more 1:50. Force Render re-reads the data. Store 1.0.1 fixes a stack overflow found in Adam's browser. Verified on PS01 with writes blocked (DEVLOG 2.49.0). Open: Styles panel raster rows on site plan viewports, PDF holes, per-viewport fill overrides. 2.49.1 removed the green site plan tab mark at Adam's request: it read as more important than the other tabs |
 | 6 | Site plan sheet furniture | - | - | |
-| 7 | ValeVision question | - | - | Ask at sign-off |
+| 7 | ValeVision question | ~ | - | Asked 14-Sep-2026, once Adam confirmed site plan viewports work |

@@ -14,16 +14,18 @@
 //   the Draw, Rectangle or Dimension tool is up it reads out what is being
 //   drawn - a line's length, a rectangle's width x height, a dimension's span
 //   and then its line's offset - with the scale the reading is at on a chip
-//   beside it. Dragging a vertex of a finished vector wakes it the same way:
-//   the box reads the drag's length, and a typed value moves the vertex that
-//   far along the drag. With any other tool it rests, greyed.
+//   beside it. Dragging a vertex of a finished vector, or a viewport's frame,
+//   wakes it the same way: the box reads the drag's length, and a typed value
+//   moves the vertex or the frame that far along the drag. With any other
+//   tool it rests, greyed.
 // - TYPE WITHOUT CLICKING. While one of those tools is up, or while a vertex
-//   is being dragged, a number typed anywhere over the editor goes into the
-//   box and Enter uses it: Draw puts the next point that far along the rubber
-//   band, Rectangle lands the opposite corner (or resizes the rectangle that
-//   has just landed), Dimension picks the end, then puts the line that far
-//   off, and a vertex drag puts the vertex that far along the inferred
-//   direction. Escape or Delete drops what was typed and Backspace takes a
+//   or a viewport is being dragged, a number typed anywhere over the editor
+//   goes into the box and Enter uses it: Draw puts the next point that far
+//   along the rubber band, Rectangle lands the opposite corner (or resizes
+//   the rectangle that has just landed), Dimension picks the end, then puts
+//   the line that far off, a vertex drag puts the vertex that far along the
+//   inferred direction, and a viewport frame drag puts the frame that far
+//   along the drag. Escape or Delete drops what was typed and Backspace takes a
 //   character back - each only while something is typed, so every key keeps
 //   its usual job otherwise. Letters stay tool keys until a value is started. A click on
 //   the sheet drops a half-typed value, as it does in SketchUp. Clicking the
@@ -48,15 +50,21 @@
 // - Mounted by Na__LayoutEditor__ModeController__ in the stage's column.
 // - Attached and detached with Na__LayoutEditor__SheetTools__, which hands in
 //   its tool, its defaults, the last cursor point, Shift, a way to run the
-//   tool's move again, and the vertex being dragged; it calls Refresh after
-//   every move and press, and Clear whenever a placement is abandoned or the
-//   sheet is pressed.
+//   tool's move again, the vertex being dragged and the viewport being moved;
+//   it calls Refresh after every move and press, and Clear whenever a
+//   placement is abandoned or the sheet is pressed.
 // - The keys come from Na__LayoutEditor__KeyMappings__.json (MeasurementsBox)
 //   and the setup and wording from Na__LayoutEditor__AppConfig__.json.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - Dragging a viewport's frame wakes the box: the reading is the drag's
+//   length at the viewport's scale (the sheet's for a 3D viewport), and Enter
+//   moves the frame that far along the inferred direction (SheetTools
+//   TypeViewportLength). A handle or a content pan does not wake it.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Dragging a vertex of a finished vector wakes the box: the reading is the
 //   drag's length, at the Vectors panel's Draw at scale, and Enter moves the
@@ -168,11 +176,19 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Viewport Frame Being Dragged, or Null
+    // ------------------------------------------------------------
+    function Na__LeMeasure__ViewportDrag(ctx) {
+        return (ctx && typeof ctx.getViewportDrag === 'function') ? ctx.getViewportDrag() : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Should the Box Take Keys and Show a Reading
     // ------------------------------------------------------------
     function Na__LeMeasure__IsListening(ctx) {
         if (!ctx || !ctx.isEditable()) return false;
-        return !!(Na__LeMeasure__IsMeasuringTool(ctx.getTool()) || Na__LeMeasure__VertexDrag(ctx));
+        return !!(Na__LeMeasure__IsMeasuringTool(ctx.getTool()) || Na__LeMeasure__VertexDrag(ctx) || Na__LeMeasure__ViewportDrag(ctx));
     }
     // ------------------------------------------------------------
 
@@ -256,6 +272,17 @@
             return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureLength', 'Length'), value : value, atScale : atScale, denominator : denominator, vertex : true };
         }
 
+        // VIEWPORT DRAG | The frame is being moved on the paper: the reading
+        // is how far it has travelled, at the viewport's scale (the sheet's
+        // for a 3D viewport, which has none of its own).
+        const viewport = Na__LeMeasure__ViewportDrag(ctx);
+        if (viewport) {
+            const denominator = Na__LeDrawScale__DenominatorAt(sheet, viewport.from);
+            const run         = viewport.to ? Math.hypot(viewport.to.x - viewport.from.x, viewport.to.y - viewport.from.y) : 0;
+            const value       = (run >= 1e-4) ? Na__LeMeasure__FormatMm(run * denominator) : '';
+            return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureLength', 'Length'), value : value, atScale : true, denominator : denominator, viewport : true };
+        }
+
         if (!Na__LeMeasure__IsMeasuringTool(tool)) {
             return { active : false, kind : null, label : Na__LeMeasure__L('MeasureIdle', 'Measurements'), value : '', atScale : true, denominator : null };
         }
@@ -318,10 +345,12 @@
         if (shown.idle !== idle) {
             Na__LeMeasure__Root.classList.toggle('na-le-vcb--idle', idle);
             Na__LeMeasure__Root.title = idle
-                ? Na__LeMeasure__L('MeasureIdleTitle', 'Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here, or drag a vertex.')
-                : (reading.vertex
-                    ? Na__LeMeasure__L('MeasureVertexTitle', 'Drag the vertex the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres.')
-                    : Na__LeMeasure__L('MeasureTitle', 'Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height.'));
+                ? Na__LeMeasure__L('MeasureIdleTitle', 'Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here, or drag a vertex or a viewport.')
+                : (reading.viewport
+                    ? Na__LeMeasure__L('MeasureViewportTitle', 'Drag the viewport the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres at the viewport\'s scale.')
+                    : (reading.vertex
+                        ? Na__LeMeasure__L('MeasureVertexTitle', 'Drag the vertex the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres.')
+                        : Na__LeMeasure__L('MeasureTitle', 'Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height.')));
             if (idle) {
                 if (document.activeElement === Na__LeMeasure__Input) Na__LeMeasure__Input.blur();
                 Na__LeMeasure__Clear();
@@ -541,6 +570,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Typed Length for a Viewport Frame Being Dragged
+    // ------------------------------------------------------------
+    function Na__LeMeasure__CommitViewport(sheet, text, ctx) {
+        const viewport = Na__LeMeasure__ViewportDrag(ctx);
+        if (!viewport || typeof ctx.typeViewportLength !== 'function') return Na__LeMeasure__Fail('MeasureNoViewportDirection', 'Drag the viewport the way to go, then press Enter.');
+        const length = Na__LeMParse__Length(text);
+        if (!length.ok) return Na__LeMeasure__BadLength(length);
+        const denominator = Na__LeDrawScale__DenominatorAt(sheet, viewport.from);
+        const result = ctx.typeViewportLength(length.valueMm / denominator);
+        if (result.ok) return { ok : true };
+        if (result.reason === 'direction') return Na__LeMeasure__Fail('MeasureNoViewportDirection', 'Drag the viewport the way to go, then press Enter.');
+        return Na__LeMeasure__Fail('MeasureTooShort', 'Too short to draw.');
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Use the Typed Value
     // ------------------------------------------------------------
     // Returns true when a value was there to be used - whether or not it
@@ -555,6 +600,7 @@
         const tool = ctx.getTool();
         let outcome;
         if (Na__LeMeasure__VertexDrag(ctx))               outcome = Na__LeMeasure__CommitVertex(sheet, text, ctx);
+        else if (Na__LeMeasure__ViewportDrag(ctx))        outcome = Na__LeMeasure__CommitViewport(sheet, text, ctx);
         else if (tool === Na__LeMeasure__TOOL_DRAW)       outcome = Na__LeMeasure__CommitDraw(sheet, text, ctx);
         else if (tool === Na__LeMeasure__TOOL_RECT)       outcome = Na__LeMeasure__CommitRectangle(sheet, text, ctx);
         else if (tool === Na__LeMeasure__TOOL_DIMENSION)  outcome = Na__LeMeasure__CommitDimension(sheet, text, ctx);
@@ -649,7 +695,8 @@
     // FUNCTION | Start Listening With the Sheet Tools
     // ------------------------------------------------------------
     // context: { getTool(), isEditable(), getShapeDefaults(), getDimensionDefaults(),
-    //            getShift(), getPointMm(), rerun(), getVertexDrag(), typeVertexLength() }
+    //            getShift(), getPointMm(), rerun(), getVertexDrag(), typeVertexLength(),
+    //            getViewportDrag(), typeViewportLength() }
     // ------------------------------------------------------------
     function Na__LeMeasure__Attach(context) {
         Na__LeMeasure__Detach();

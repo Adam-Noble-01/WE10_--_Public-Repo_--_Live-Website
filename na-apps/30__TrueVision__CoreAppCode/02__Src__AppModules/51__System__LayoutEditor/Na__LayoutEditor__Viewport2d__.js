@@ -22,6 +22,10 @@
 //   denominator so they print true), and the scene markup at scale.
 // - Linework comes from the projection pipeline's cache, else the baked
 //   R2 asset, else an on-device render, in that order.
+// - A SITE PLAN VIEWPORT (Viewport__SitePlan) draws the project's site plan
+//   data instead: no underlay and no projection. The lines arrive ready-made
+//   in drawing millimetres (52__System__SitePlanData), styled per layer, with
+//   the layers' fills underneath.
 //
 // INTEGRATION:
 // - The sheet surface calls Fill for every visible 2D frame; the tools
@@ -33,12 +37,30 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Viewport2d__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (site plan viewports), TrueVision first on 14-Sep-2026.
 // - Back-port     : n/a (this IS the back-port); 1.5.1 ported 13-Sep-2026 as ValeVision3D v2.28.0
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.9.0 (TrueVision)
+// - Site plan viewports (Viewport__SitePlan). Fill takes its own path before any
+//   drawing or design phase check: no raster and no projection; the lines come
+//   ready-made from the site plan data in drawing millimetres. Every line goes in
+//   the visible class tagged with its layer, so StyleBands styles each layer from
+//   its export (or the viewport's own edge overrides) and snapping reads the same
+//   classes. Fills paint under the lines as even-odd paths. A layer switched off in
+//   Model Layers is left out. A badge shows while the data loads; a project with
+//   none says how to export it. CentreOnDrawing centres on the red line and Force
+//   Render re-reads the data. SitePlanDrawing hands the PDF the same classes.
+//
+// 14-Sep-2026 - Version 1.8.0 (TrueVision)
+// - Elevation doors. Describe gives an elevation or section viewport's
+//   definition the shut door pose (Na__LeDoors__ShutPoseFor): every door drawn
+//   shut in its linework, base image and PDF, whatever the 3D view shows. The
+//   pose is in the record hash, so each elevation viewport projects once afresh
+//   rather than paint linework read while a door stood open.
+//
 // 14-Sep-2026 - Version 1.7.0 (TrueVision)
 // - Plan doors. Describe gives a plan viewport's definition the door pose it
 //   draws with (Na__LayoutEditor__PlanDoors__): every door open, bar the ones
@@ -93,13 +115,13 @@
     // MODULE IMPORTS | Config, Model, Chrome, Markup, Snapshots
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLineworkSetup, Na__LeCfg__GetLabel, Na__LeCfg__PtToMm } from './Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__ResolveViewportSource, Na__LeModel__UpdateViewport } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeModel__ResolveViewportSource, Na__LeModel__UpdateViewport, Na__LeModel__IsSitePlanViewport } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeChrome__ToSvgMarkup } from './Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeSnap__Render2d, Na__LeSnap__DrawingCentreMm, Na__LeSnap__GetPipelineFingerprint, Na__LeSnap__GetModelRoot } from './Na__LayoutEditor__SnapshotRenderer__.js';
     import { Na__LeSource__Resolve, Na__LeSource__Ensure, Na__LeSource__WaitFor, Na__LeSource__StatusText } from './Na__LayoutEditor__ModelSource__.js';
-    import { Na__LeModelLayers__Token, Na__LeModelLayers__ExcludeTokens } from './Na__LayoutEditor__ModelLayers__.js';
-    import { Na__LeDoors__PoseFor } from './Na__LayoutEditor__PlanDoors__.js';
+    import { Na__LeModelLayers__Token, Na__LeModelLayers__ExcludeTokens, Na__LeModelLayers__IsOn } from './Na__LayoutEditor__ModelLayers__.js';
+    import { Na__LeDoors__PoseFor, Na__LeDoors__ShutPoseFor } from './Na__LayoutEditor__PlanDoors__.js';
     import {
         Na__LeEdge__Effective,
         Na__LeEdge__AppliesToClasses,
@@ -126,7 +148,23 @@
     } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
     import { Na__PlStore__LoadForDefinition, Na__PlStore__RememberRender } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Persistence__.js';
     import { Na__PlOverlay__BuildPathData } from '../50__System__ProjectedLinework/Na__ProjectedLinework__SvgOverlay__.js';
-    import { Na__PlOwners__Read, Na__PlOwners__KeyFor, Na__PlOwners__Has } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Owners__.js';
+    import { Na__PlOwners__Read, Na__PlOwners__KeyFor, Na__PlOwners__Has, Na__PlOwners__CreateTable, Na__PlOwners__IdFor, Na__PlOwners__Attach } from '../50__System__ProjectedLinework/Na__ProjectedLinework__Owners__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Site Plan Data (what a site plan viewport draws)
+    // ------------------------------------------------------------
+    import {
+        Na__SpStore__STATUS_READY,
+        Na__SpStore__STATUS_EMPTY,
+        Na__SpStore__Resolve,
+        Na__SpStore__Reload,
+        Na__SpStore__LoadAll,
+        Na__SpStore__GetStatus,
+        Na__SpStore__GetNote,
+        Na__SpStore__GetDescriptor,
+        Na__SpStore__GetLayerData,
+        Na__SpStore__GetFocusBoundsMm
+    } from '../52__System__SitePlanData/Na__SitePlan__Store__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -193,11 +231,13 @@
         // viewports of one drawing that hide different things key differently
         // and cache separately without another word being said about it.
         const exclude    = Na__LeModelLayers__ExcludeTokens(viewport);
-        // A PLAN DRAWS ITS DOORS OPEN, bar the ones this viewport closed. The pose
-        // is part of the definition, so it keys everything the definition keys.
+        // A PLAN DRAWS ITS DOORS OPEN, bar the ones this viewport closed, AND AN
+        // ELEVATION OR SECTION DRAWS EVERY DOOR SHUT, whatever the 3D view shows.
+        // The pose is part of the definition, so it keys everything the
+        // definition keys.
         const definition = source.plan
             ? Na__PlView__FromPlan(source.plan, override, exclude, Na__LeDoors__PoseFor(viewport))
-            : (source.elevation ? Na__PlView__FromElevation(source.elevation, override, exclude) : null);
+            : (source.elevation ? Na__PlView__FromElevation(source.elevation, override, exclude, Na__LeDoors__ShutPoseFor(viewport)) : null);
         return { source : source, definition : definition, window : Na__LeVp2d__Window(viewport), modelSource : Na__LeSource__Resolve(viewport) };
     }
     // ------------------------------------------------------------
@@ -206,6 +246,11 @@
     // FUNCTION | Centre the Window on the Drawing's Content
     // ------------------------------------------------------------
     function Na__LeVp2d__CentreOnDrawing(sheet, viewport) {
+        if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- A site plan centres on the red line, else on all of its data
+            const bounds = Na__SpStore__GetFocusBoundsMm();
+            if (!bounds) return false;
+            return Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pan : { X : (bounds.MinX + bounds.MaxX) / 2, Y : (bounds.MinY + bounds.MaxY) / 2 } }, true);
+        }
         const described = Na__LeVp2d__Describe(viewport);
         if (!described.definition) return false;
         const centre = Na__LeSnap__DrawingCentreMm(described.definition);
@@ -601,10 +646,210 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | What a Site Plan Viewport's Lines Depend On, as One Token
+    // ------------------------------------------------------------
+    // The export time and the layers switched off: a new export or a Model Layers
+    // toggle changes it; a pan, a crop or a restyle does not.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__SitePlanToken(viewport) {
+        const descriptor = Na__SpStore__GetDescriptor();
+        return 'siteplan:' + (descriptor ? descriptor.SitePlan__ExportedIso : 'none') + ':' + Na__LeModelLayers__Token(viewport);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Repaint Guard for a Site Plan Viewport
+    // ------------------------------------------------------------
+    function Na__LeVp2d__SitePlanPaintKey(viewport, masterPt) {
+        return Na__LeVp2d__SitePlanToken(viewport) + '|' + viewport.Viewport__ScaleDenominator + '|' + masterPt + '|' + Na__LeVp2d__StyleToken(viewport);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Classes and Fills From the Loaded Site Plan Layers
+    // ------------------------------------------------------------
+    // EVERY SITE PLAN LINE GOES IN THE VISIBLE CLASS, tagged with its layer as
+    // the owner, so StyleBands styles each layer as it styles a model category -
+    // colour, line type and weight from EdgeStyles, with the export's style as
+    // the default - and snapping and the PDF read the same classes unchanged. A
+    // layer this viewport has switched off is left out here, because owners
+    // filter nothing downstream.
+    //
+    // Null while a layer is still loading, unless allowMissing, which leaves out
+    // a layer that failed once everything has settled.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__SitePlanBuild(viewport, allowMissing) {
+        const descriptor = Na__SpStore__GetDescriptor();
+        if (!descriptor) return null;
+        const loaded = [];
+        const layers = descriptor.SitePlan__Layers.filter((layer) => Na__LeModelLayers__IsOn(viewport, layer.Layer__CategoryKey));
+        for (let i = 0; i < layers.length; i++) {
+            const data = Na__SpStore__GetLayerData(layers[i].Layer__CategoryKey);
+            if (data) loaded.push(data);
+            else if (allowMissing !== true) return null;
+        }
+        const total    = loaded.reduce((sum, data) => sum + data.segmentCount, 0);
+        const segments = new Float32Array(total * 4);
+        const owners   = new Uint16Array(total);
+        const table    = Na__PlOwners__CreateTable();
+        let at = 0;
+        loaded.forEach((data) => {
+            segments.set(data.segments, at * 4);
+            owners.fill(Na__PlOwners__IdFor(table, data.categoryKey), at, at + data.segmentCount);
+            at += data.segmentCount;
+        });
+        const classes = { visible : segments, hidden : new Float32Array(0), authored : new Float32Array(0), section : new Float32Array(0) };
+        Na__PlOwners__Attach(classes, { visible : owners, hidden : new Uint16Array(0), authored : new Uint16Array(0), section : new Uint16Array(0) }, table.Keys);
+        const fills = loaded
+            .filter((data) => data.rings.length > 0 && data.layer.Layer__Style.FillHex && Number.isFinite(data.layer.Layer__Style.FillOpacity) && data.layer.Layer__Style.FillOpacity > 0)
+            .map((data) => ({ categoryKey : data.categoryKey, hex : data.layer.Layer__Style.FillHex, opacity : data.layer.Layer__Style.FillOpacity, rings : data.rings }));
+        return { classes : classes, fills : fills, key : Na__LeVp2d__SitePlanToken(viewport) };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Site Plan Viewport's Classes and Fills, Loading the Data First
+    // ------------------------------------------------------------
+    // Resolves { classes, fills, key }, or null when the project has no site plan
+    // data. The PDF exporter awaits this; the sheet paints from the same build.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__SitePlanDrawing(viewport) {
+        const descriptor = await Na__SpStore__Resolve();
+        if (!descriptor) return null;
+        await Na__SpStore__LoadAll();
+        return Na__LeVp2d__SitePlanBuild(viewport, true);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Path Data for Fill Rings (even-odd, so a hole cuts out)
+    // ------------------------------------------------------------
+    function Na__LeVp2d__RingPathData(rings) {
+        const round = (value) => Math.round(value * 100) / 100;
+        let d = '';
+        rings.forEach((ring) => {
+            const p = ring.points;
+            if (!p || p.length < 6) return;
+            d += 'M' + round(p[0]) + ' ' + round(p[1]);
+            for (let i = 2; i + 1 < p.length; i += 2) d += 'L' + round(p[i]) + ' ' + round(p[i + 1]);
+            d += 'Z';
+        });
+        return d;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Write a Site Plan Viewport's SVG: the Fills Under the Styled Lines
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PaintSitePlan(state, viewport, built, ppm) {
+        const win        = Na__LeVp2d__Window(viewport);
+        const D          = win.Denominator;
+        const styleToken = Na__LeVp2d__StyleToken(viewport);
+        const bands      = Na__LeVp2d__StyleBands(viewport, state.masterPt, built.classes, false);
+        const paths      = Na__LeVp2d__BandPaths(built.key + '@false@' + styleToken, bands, built.classes);
+        let body = '';
+        built.fills.forEach((fill) => {
+            const d = Na__LeVp2d__RingPathData(fill.rings);
+            if (d) body += '<path d="' + d + '" fill="' + fill.hex + '" fill-opacity="' + fill.opacity + '" fill-rule="evenodd" stroke="none"/>';
+        });
+        bands.forEach((band, index) => {
+            const d = paths[index];
+            if (!d) return;
+            const dashAttr = (band.dashMm && band.dashMm.length > 0)
+                ? ' stroke-dasharray="' + band.dashMm.map((mm) => mm * D).join(' ') + '"'
+                : '';
+            body += '<path d="' + d + '" fill="none" stroke="' + band.colour + '" stroke-width="' + (band.widthMm * D) +
+                    '" stroke-linecap="round" stroke-linejoin="round"' + dashAttr + '/>';
+        });
+        state.linework.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="na-le-frame__linework-svg" viewBox="' +
+            win.OriginX + ' ' + win.OriginY + ' ' + win.WidthMm + ' ' + win.HeightMm + '" preserveAspectRatio="none" focusable="false" aria-hidden="true">' + body + '</svg>';
+        state.lineworkKey = Na__LeVp2d__SitePlanPaintKey(viewport, state.masterPt);
+        state.lineworkSvg = state.linework.firstElementChild;
+        state.classes     = built.classes;                                       // <-- Snap source: site plan vertices snap like any linework
+        state.classesKey  = built.key;
+        state.paintedFp   = null;
+        Na__LeVp2d__SizeLayer(state.lineworkSvg, viewport, ppm);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Fill (or Refresh) a Site Plan Viewport
+    // ------------------------------------------------------------
+    // No raster, no projection and no design phase: the lines come ready-made
+    // from the site plan data. While the data loads the frame shows a badge; a
+    // project with none says how to export it.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__FillSitePlan(state, sheet, viewport, ppm) {
+        if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+        state.underlay.hidden = true; state.renderedKey = null; state.renderedWindow = null; state.wantedKey = null;
+        state.markup.innerHTML = ''; state.markupKey = null;
+        state.masterPt = sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null;
+
+        const status = Na__SpStore__GetStatus();
+        if (status !== Na__SpStore__STATUS_READY) {
+            state.linework.innerHTML = ''; state.lineworkKey = null; state.lineworkSvg = null; state.classes = null; state.classesKey = null;
+            if (status === Na__SpStore__STATUS_EMPTY) {
+                Na__LeVp2d__HideProgress(state);
+                state.empty.textContent = Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.');
+                state.empty.title       = Na__SpStore__GetNote() || '';
+                state.empty.hidden      = false;
+                return;
+            }
+            state.empty.hidden = true;
+            state.progress.textContent = Na__LeCfg__GetLabel('SitePlanLoading', 'Loading site plan data...');
+            state.progress.hidden = false;
+            Na__SpStore__Resolve().then(() => Na__LeVp2d__RefillSitePlan(state, viewport.Viewport__Id, false));
+            return;
+        }
+        state.empty.hidden = true;
+        state.empty.title  = '';
+
+        const win      = Na__LeVp2d__Window(viewport);
+        const paintKey = Na__LeVp2d__SitePlanPaintKey(viewport, state.masterPt);
+        if (state.lineworkKey === paintKey && state.lineworkSvg) {
+            state.lineworkSvg.setAttribute('viewBox', win.OriginX + ' ' + win.OriginY + ' ' + win.WidthMm + ' ' + win.HeightMm);
+            Na__LeVp2d__SizeLayer(state.lineworkSvg, viewport, ppm);
+            return;
+        }
+        const built = Na__LeVp2d__SitePlanBuild(viewport, false);
+        if (built) {
+            Na__LeVp2d__HideProgress(state);
+            Na__LeVp2d__PaintSitePlan(state, viewport, built, ppm);
+            return;
+        }
+        state.progress.textContent = Na__LeCfg__GetLabel('SitePlanLoading', 'Loading site plan data...');
+        state.progress.hidden = false;
+        Na__SpStore__LoadAll().then(() => Na__LeVp2d__RefillSitePlan(state, viewport.Viewport__Id, true));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Paint Again Once the Data Has Arrived (only while the frame is still this one)
+    // ------------------------------------------------------------
+    function Na__LeVp2d__RefillSitePlan(state, viewportId, settled) {
+        if (Na__LeVp2d__States.get(viewportId) !== state || !state.lastArgs) return;
+        const args = state.lastArgs;
+        if (!Na__LeModel__IsSitePlanViewport(args.viewport)) return;
+        if (settled === true && Na__SpStore__GetStatus() === Na__SpStore__STATUS_READY) {
+            const built = Na__LeVp2d__SitePlanBuild(args.viewport, true);          // <-- Everything has settled: a layer that failed is left out
+            Na__LeVp2d__HideProgress(state);
+            if (built) Na__LeVp2d__PaintSitePlan(state, args.viewport, built, args.ppm);
+            return;
+        }
+        Na__LeVp2d__FillSitePlan(state, args.sheet, args.viewport, args.ppm);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Fill (or Refresh) the Body of a 2D Frame
     // ------------------------------------------------------------
     function Na__LeVp2d__Fill(body, sheet, viewport, ppm) {
         const state     = Na__LeVp2d__State(body, viewport.Viewport__Id);
+        if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- Site plan data: its own path, before any drawing or design phase check
+            state.lastArgs = { sheet : sheet, viewport : viewport, ppm : ppm };
+            Na__LeVp2d__FillSitePlan(state, sheet, viewport, ppm);
+            return;
+        }
         const described = Na__LeVp2d__Describe(viewport);
         const win       = described.window;
         state.lastArgs  = { sheet : sheet, viewport : viewport, ppm : ppm };
@@ -797,6 +1042,14 @@
     async function Na__LeVp2d__ForceRender(sheet, viewport, onPhase) {
         const state = Na__LeVp2d__States.get(viewport.Viewport__Id);
         if (!state || !state.lastArgs) return false;                             // <-- Never painted: the next refresh draws it anyway
+        if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- Re-read the site plan data: a new export draws without a reload
+            await Na__SpStore__Reload();
+            await Na__SpStore__LoadAll();
+            if (Na__LeVp2d__States.get(viewport.Viewport__Id) !== state) return false;
+            state.lineworkKey = null; state.lineworkSvg = null; state.classes = null; state.classesKey = null;
+            Na__LeVp2d__FillSitePlan(state, sheet, viewport, state.lastArgs.ppm);
+            return true;
+        }
         if (!(await Na__LeSource__WaitFor(Na__LeSource__Resolve(viewport).renderId))) return false;   // <-- Its design phase, loaded first
         const described = Na__LeVp2d__Describe(viewport);
         if (!described.definition) return false;
@@ -880,7 +1133,8 @@
         Na__LeVp2d__SetInteracting,
         Na__LeVp2d__RenderForExport,
         Na__LeVp2d__ForceRender,
-        Na__LeVp2d__GetSnapSource
+        Na__LeVp2d__GetSnapSource,
+        Na__LeVp2d__SitePlanDrawing
     };
     // ------------------------------------------------------------
 

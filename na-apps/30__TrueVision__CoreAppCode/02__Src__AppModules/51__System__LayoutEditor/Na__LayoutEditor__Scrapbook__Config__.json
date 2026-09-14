@@ -1,0 +1,76 @@
+{
+    "LayoutEditor__Scrapbook__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__Scrapbook__Config__.json",
+        "Meta__Description" : "The Scrapbook: ready-made sheet items dragged from the Scrapbook panel onto the paper, the way SketchUp LayOut's scrapbooks work. Owned by Na__LayoutEditor__Scrapbook__.js; the panel is Na__LayoutEditor__Panel__Scrapbook__.js. A dropped item becomes ordinary sheet records - text items and vectors, grouped - so it moves, copies, prints, ungroups and undoes like anything drawn by hand.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "14-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__Pieces"      : "A piece is a list of sheet records in paper millimetres, y down, written with the sheet's own record fields (Annotation__... for text, Shape__... for vectors) but without ids or layers: a drop gives every record a fresh id and puts text on the sheet's text layer and vectors on its vector layer. Record__Kind says which a record is, 'annotation' or 'shape'. A shape may give Scrapbook__Circle { CentreMm, RadiusMm, Segments } in place of Shape__Points; the circle is written out as a closed polygon of that many points when the item is built. Records draw in the order listed, the first at the back - though, as on every sheet, all vectors draw under all text.",
+        "Meta__Items"       : "An item is one tile in the panel and one drop: its pieces, each moved by OffsetMm. A piece of two or more records lands as a group, and an item of two or more pieces lands as a group of those groups, so one ungroup gives the pieces back. The item lands centred on the drop point, selected. Item__DrawingTypes lists the drawing types an item is offered on ('siteplan', 'architectural'); an item without the key is offered on every sheet. The panel only shows on a sheet that has at least one item.",
+        "Meta__Tokens"      : "A record's text can quote {Name} for a value in the Tokens block, so a number several items use is written once. {Year} is built in: the current year at the moment the item is built, so a credentials block dropped next January reads next year.",
+        "Meta__HouseSizes"  : "Measured 14-Sep-2026 from the credentials block Adam supplied and from his A2 Location and Block Plans (BH03 D04, NP03 D09): the north point is 18 mm across, and the three lines are Open Sans at 9 pt (3.175 mm) semibold, 8 pt (2.822 mm) and 6 pt (2.117 mm). The PDF prints them in Helvetica, as it prints all sheet text."
+    },
+
+    "LayoutEditor__Scrapbook__Tokens": {
+        "Tokens__Description"     : "Values a record's text can quote as {Name}. {Year} is built in and needs no entry here.",
+        "Tokens__OsLicenceNumber" : "100053143"
+    },
+
+    "LayoutEditor__Scrapbook__Pieces": {
+        "Pieces__Description" : "The building blocks items are made of. See Meta__Pieces.",
+
+        "Pieces__MappingDataCredentials": {
+            "Piece__Description" : "The Ordnance Survey credit a site plan carries: a semibold heading, the licence number and the Crown copyright line with the current year. Left aligned on x = 0; each PosYMm is a baseline.",
+            "Piece__Records"     : [
+                { "Record__Kind" : "annotation", "Annotation__Text" : "Mapping Data Credentials",               "Annotation__PosXMm" : 0, "Annotation__PosYMm" : 6.34,  "Annotation__SizeMm" : 3.175, "Annotation__FontWeight" : 600, "Annotation__Colour" : "#595148", "Annotation__Align" : "left" },
+                { "Record__Kind" : "annotation", "Annotation__Text" : "OS License Number: {OsLicenceNumber}",   "Annotation__PosXMm" : 0, "Annotation__PosYMm" : 10.73, "Annotation__SizeMm" : 2.822, "Annotation__FontWeight" : 400, "Annotation__Colour" : "#595148", "Annotation__Align" : "left" },
+                { "Record__Kind" : "annotation", "Annotation__Text" : "© Crown copyright {Year} Ordnance Survey", "Annotation__PosXMm" : 0, "Annotation__PosYMm" : 14.36, "Annotation__SizeMm" : 2.117, "Annotation__FontWeight" : 400, "Annotation__Colour" : "#595148", "Annotation__Align" : "left" }
+            ]
+        },
+
+        "Pieces__NorthPoint": {
+            "Piece__Description" : "The north point: a grey ring round a white disc, a red north half and a light grey south half to the needle, and an N at the top of the ring. 18 mm across, centred on (9, 9). It points up the paper; a site plan drawn north-up (SitePlanData__NorthAngleDeg 0) needs no turn.",
+            "Piece__Records"     : [
+                { "Record__Kind" : "shape", "Scrapbook__Circle" : { "CentreMm" : [ 9, 9 ], "RadiusMm" : 9,   "Segments" : 72 }, "Shape__Closed" : true, "Shape__FillColour" : "#939393", "Shape__Stroked" : true,  "Shape__StrokeColour" : "#858585", "Shape__StrokePt" : 0.25 },
+                { "Record__Kind" : "shape", "Scrapbook__Circle" : { "CentreMm" : [ 9, 9 ], "RadiusMm" : 4.2, "Segments" : 48 }, "Shape__Closed" : true, "Shape__FillColour" : "#ffffff", "Shape__Stroked" : false },
+                { "Record__Kind" : "shape", "Shape__Points" : [ [ 9, 3 ], [ 10.99, 9 ], [ 7.01, 9 ] ],  "Shape__Closed" : true, "Shape__FillColour" : "#d97471", "Shape__Stroked" : true, "Shape__StrokeColour" : "#7b7b7b", "Shape__StrokePt" : 0.25 },
+                { "Record__Kind" : "shape", "Shape__Points" : [ [ 7.01, 9 ], [ 10.99, 9 ], [ 9, 15 ] ], "Shape__Closed" : true, "Shape__FillColour" : "#dcdcdc", "Shape__Stroked" : true, "Shape__StrokeColour" : "#7b7b7b", "Shape__StrokePt" : 0.25 },
+                { "Record__Kind" : "shape", "Shape__Points" : [ [ 8.25, 2.4 ], [ 8.25, 0.6 ], [ 8.625, 0.6 ], [ 9.43125, 1.9125 ], [ 9.43125, 0.6 ], [ 9.75, 0.6 ], [ 9.75, 2.4 ], [ 9.375, 2.4 ], [ 8.56875, 1.0875 ], [ 8.56875, 2.4 ] ], "Shape__Closed" : true, "Shape__FillColour" : "#dadada", "Shape__Stroked" : true, "Shape__StrokeColour" : "#8c8c8c", "Shape__StrokePt" : 0.2 }
+            ]
+        }
+    },
+
+    "LayoutEditor__Scrapbook__Items": {
+        "Items__Description" : "The tiles the panel shows, in this order. See Meta__Items.",
+        "Items__List"        : [
+            {
+                "Item__Id"           : "CredentialsAndNorthPoint",
+                "Item__Name"         : "Mapping Data Credentials and North Point",
+                "Item__DrawingTypes" : [ "siteplan" ],
+                "Item__Pieces"       : [ { "Piece" : "MappingDataCredentials", "OffsetMm" : [ 0, 0 ] }, { "Piece" : "NorthPoint", "OffsetMm" : [ 53.33, 0 ] } ]
+            },
+            {
+                "Item__Id"           : "MappingDataCredentials",
+                "Item__Name"         : "Mapping Data Credentials",
+                "Item__DrawingTypes" : [ "siteplan" ],
+                "Item__Pieces"       : [ { "Piece" : "MappingDataCredentials" } ]
+            },
+            {
+                "Item__Id"           : "NorthPoint",
+                "Item__Name"         : "North Point",
+                "Item__DrawingTypes" : [ "siteplan" ],
+                "Item__Pieces"       : [ { "Piece" : "NorthPoint" } ]
+            }
+        ]
+    },
+
+    "LayoutEditor__Scrapbook__Labels": {
+        "Labels__Description" : "The Scrapbook panel's wording. ItemTitle is each tile's tooltip, with {name} the item's name.",
+        "Labels__Title"       : "Scrapbook",
+        "Labels__Hint"        : "Drag an item onto the sheet. Double-click one to place it in the middle of the view.",
+        "Labels__ReadOnly"    : "Items can only be placed while sheets are editable.",
+        "Labels__Failed"      : "The scrapbook could not be read, so it has no items.",
+        "Labels__ItemTitle"   : "{name}: drag onto the sheet, or double-click to place it in the middle of the view."
+    }
+}

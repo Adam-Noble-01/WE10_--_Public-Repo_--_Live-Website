@@ -11,29 +11,35 @@
 //
 // DESCRIPTION:
 // - A Layout Editor plan draws every door OPEN, whatever the 3D view shows,
-//   bar the doors its viewport has closed. The view definition carries that as
-//   DoorPose { Closed, Swings, SwingStepDegrees }; nothing else sets it, so
-//   every other drawing reads the model exactly as before.
+//   bar the doors its viewport has closed: DoorPose { Closed, Swings,
+//   SwingStepDegrees } on the view definition. A Layout Editor elevation or
+//   section draws every door SHUT, whatever the 3D view shows: DoorPose
+//   { Shut : true }. Nothing else sets a pose, so every drawing outside the
+//   Layout Editor reads the model exactly as before.
 // - THE POSE IS THE DOOR SYSTEM'S OWN. Each panel is posed through the click to
 //   open door module at progress 1 (open) or 0 (shut), so a plan opens a door
 //   exactly as far, and exactly the way, a click in the 3D view does - interior,
 //   exterior double, bifold and sliding alike, mirrored instances included.
-// - APPLY, READ, RESTORE. Apply stands the doors of one model root at the pose;
-//   Restore puts every panel back where the 3D view holds it. The projector
-//   wraps its synchronous model read in the pair, the snapshot renderer one
-//   underlay render. A door is never left posed.
+// - APPLY, THEN PUT BACK OR RESTORE. Apply stands the doors of one model root
+//   at the pose. The projector wraps its synchronous model read in Apply and
+//   PutBack, which returns every panel exactly where Apply found it, so a read
+//   that lands while an underlay render holds the doors leaves that render's
+//   pose standing. The snapshot renderer wraps one underlay render in Apply and
+//   Restore, which puts every panel back where the 3D view holds it. A door is
+//   never left posed.
 // - SWINGS. Each open hinged leaf - a door made only of ROT_ONLY and FIXED
 //   panels; bifolds and sliders have no swing - gets the arc its far edge
 //   sweeps from shut to open, at the leaf's floor level. Arcs are traced in
 //   scene space when the model is read, kept only by drawings whose cut keeps
 //   the door, and join the visible class tagged with the door's category, so
-//   they take the Doors layer's line style.
+//   they take the Doors layer's line style. The shut pose traces none.
 // - HIT TEST. The door under a drawing point, from where each leaf stands shut,
 //   where it stands open and the ground its swing covers, all read from the
-//   same pose, so a click lands on what the plan draws.
+//   same pose, so a click lands on what the plan draws. The shut pose answers
+//   nothing: an elevation's doors are not there to be opened.
 //
 // INTEGRATION:
-// - Na__ProjectedLinework__Projector__ (Apply, SwingEdges and Restore around
+// - Na__ProjectedLinework__Projector__ (Apply, SwingEdges and PutBack around
 //   Collect), Na__ProjectedLinework__Pipeline__ (AppendSwings),
 //   Na__LayoutEditor__SnapshotRenderer__ (Apply and Restore around Render2d),
 //   Na__LayoutEditor__PlanDoors__ (HitTest).
@@ -47,6 +53,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - The shut pose. DoorPose { Shut : true } stands every door shut, for a
+//   Layout Editor elevation or section: IsClosed answers true for every panel,
+//   no swing is traced and the hit test answers nothing.
+// - PutBack. Apply notes where each moving panel's objects stood, and PutBack
+//   returns them there exactly. An underlay render holds the doors at its
+//   drawing's pose across the paints its tiles yield to, and a projector read
+//   landing in one of those used to Restore them to the 3D view's pose, so the
+//   rest of that picture drew the doors the 3D view's way.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -129,9 +145,11 @@
 
     // FUNCTION | Whether the Pose Shuts a Panel
     // ------------------------------------------------------------
-    // A door's own key shuts every panel of it; a leaf key shuts that leaf.
+    // The shut pose shuts every panel. Otherwise a door's own key shuts every
+    // panel of it, and a leaf key shuts that leaf.
     // ------------------------------------------------------------
     function Na__PlDoors__IsClosed(pose, record, panel) {
+        if (record && pose && pose.Shut === true) return true;                   // <-- An elevation or section: every door shut
         const closed = (pose && Array.isArray(pose.Closed)) ? pose.Closed : null;
         if (!record || !closed || closed.length === 0) return false;
         if (closed.indexOf(record.adrName) !== -1) return true;
@@ -203,29 +221,56 @@
 
     // FUNCTION | Stand the Doors of a Model at a Drawing's Pose
     // ------------------------------------------------------------
-    // Every door open, bar the ones the pose closes. Returns the handle Restore
-    // takes - { Records, Mods }, Mods being the posed mesh panels, whose meshes
-    // a reader must copy matrices from - or null when the model has no doors.
+    // Every door open bar the ones the pose closes, or every door shut. Returns
+    // the handle PutBack and Restore take - { Records, Mods, Stood }, Mods
+    // being the posed mesh panels, whose meshes a reader must copy matrices
+    // from, and Stood where each moving panel's objects stood before - or null
+    // when the model has no doors.
     // ------------------------------------------------------------
     function Na__PlDoors__Apply(modelRoot, pose) {
         const records = Na__PlDoors__Records(modelRoot);
         if (records.length === 0) return null;
-        const handle = { Records : records, Mods : new Set() };
+        const handle = { Records : records, Mods : new Set(), Stood : [] };
         records.forEach((record) => {
-            Na__PlDoors__SetPanels(record, (panel) => (Na__PlDoors__IsClosed(pose, record, panel) ? 0 : 1));
             record.panels.forEach((panel) => {
-                if (panel.type !== Na__DoorAnim__MOD_TYPE_FIXED && panel.modObjectMesh) handle.Mods.add(panel.modObjectMesh);
+                if (panel.type === Na__DoorAnim__MOD_TYPE_FIXED) return;
+                [ panel.modObjectMesh, panel.modObjectLinework ].forEach((object3d) => {
+                    if (object3d) handle.Stood.push({ Object : object3d, Position : object3d.position.clone(), Quaternion : object3d.quaternion.clone() });
+                });
+                if (panel.modObjectMesh) handle.Mods.add(panel.modObjectMesh);
             });
+            Na__PlDoors__SetPanels(record, (panel) => (Na__PlDoors__IsClosed(pose, record, panel) ? 0 : 1));
         });
         return handle;
     }
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Put Every Door Back Exactly Where Apply Found It
+    // ------------------------------------------------------------
+    // For a synchronous read. Whatever held the doors before - the 3D view, or
+    // an underlay render standing them at its own drawing's pose while its
+    // tiles yield - holds them again afterwards, as if the read never happened.
+    // ------------------------------------------------------------
+    function Na__PlDoors__PutBack(handle) {
+        if (!handle) return;
+        handle.Stood.forEach((stood) => {
+            stood.Object.position.copy(stood.Position);
+            stood.Object.quaternion.copy(stood.Quaternion);
+        });
+        handle.Records.forEach((record) => {
+            if (record.adrObjectMesh) record.adrObjectMesh.updateWorldMatrix(true, true);
+            if (record.adrObjectLinework) record.adrObjectLinework.updateWorldMatrix(true, true);
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Put Every Door Back Where the 3D View Holds It
     // ------------------------------------------------------------
-    // By the record's own progress rather than a saved transform, so a door
-    // that was animating in the 3D view lands where its animation now is.
+    // For an underlay render, whose picture takes many paints. By the record's
+    // own progress rather than a saved transform, so a door that was animating
+    // in the 3D view lands where its animation now is.
     // ------------------------------------------------------------
     function Na__PlDoors__Restore(handle) {
         if (!handle) return;
@@ -374,11 +419,12 @@
     // sampler took meshes from, so a door left out of the drawing - excluded,
     // hidden or skipped - draws no swing either. Returns { Edges, Heights,
     // Categories }: six scene space doubles per arc segment, the leaf's lowest
-    // and highest point per segment, and the door's category per segment.
+    // and highest point per segment, and the door's category per segment. The
+    // shut pose has no open leaf, so it returns all three empty.
     // ------------------------------------------------------------
     function Na__PlDoors__SwingEdges(handle, pose, drawnMods, modelRoot) {
         const edges = [], heights = [], categories = [];
-        if (handle && pose && pose.Swings !== false) {
+        if (handle && pose && pose.Shut !== true && pose.Swings !== false) {
             const step = Na__PlDoors__StepDegrees(pose);
             const from = new THREE.Vector3(), to = new THREE.Vector3();
             handle.Records.forEach((record) => {
@@ -538,11 +584,12 @@
     // projector's scene-to-drawing divisor. A shut leaf answers where it stands;
     // an open one where it stands open, where it would stand shut, and the ground
     // its swing covers. Returns { Key, AdrName, Closed, Independent, PanelKeys }
-    // for the nearest door within the tolerance, or null.
+    // for the nearest door within the tolerance, or null - always null for the
+    // shut pose, whose doors are not there to be opened.
     // ------------------------------------------------------------
     function Na__PlDoors__HitTest(modelRoot, definition, pointMm, toleranceMm, scaleDivisor) {
         const pose = definition ? definition.DoorPose : null;
-        if (!modelRoot || !pose || !pointMm || !(scaleDivisor > 0)) return null;
+        if (!modelRoot || !pose || pose.Shut === true || !pointMm || !(scaleDivisor > 0)) return null;
         const viewMap   = Na__PlSoup__ViewMapFromBasis(definition.Basis);
         const tolerance = Math.max(0, Number(toleranceMm) || 0);
         const scene     = new THREE.Vector3();
@@ -599,6 +646,7 @@
         Na__PlDoors__IsClosed,
         Na__PlDoors__Records,
         Na__PlDoors__Apply,
+        Na__PlDoors__PutBack,
         Na__PlDoors__Restore,
         Na__PlDoors__SwingEdges,
         Na__PlDoors__AppendSwings,

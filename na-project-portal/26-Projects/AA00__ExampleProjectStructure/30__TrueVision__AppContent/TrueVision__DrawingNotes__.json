@@ -1,0 +1,40 @@
+{
+    "ProjectSpecification__Description": "TEMPLATE. Copy this file to a project’s 30__TrueVision__AppContent folder as TrueVision__DrawingNotes__.json, beside TrueVision__ProjectData__.json. It is the local drawing-notes document TrueVision keeps in sync with the same filename on R2. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, FN01), recomputed on every load. Specification bubbles on Layout Editor sheets link by Note__Id, not by code. Group__IsGeneral notes are listed on every sheet’s notes margin after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so a deleted note’s id is never reused. A local edit should set ProjectSpecification__UpdatedIso so the app treats this copy as newer than R2. Replace the example groups and notes below.",
+    "ProjectSpecification__Version": 1,
+    "ProjectSpecification__ProjectCode": "AA00",
+    "ProjectSpecification__UpdatedIso": null,
+    "ProjectSpecification__NumberDigits": 2,
+    "ProjectSpecification__LastIdNumber": 2,
+    "ProjectSpecification__Groups": [
+        {
+            "Group__Id": "SpecGroup_001",
+            "Group__Prefix": "GN",
+            "Group__Title": "General Notes",
+            "Group__IsGeneral": true,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_001",
+                    "Note__Code": "GN01",
+                    "Note__Title": "Example general note",
+                    "Note__Body": "Replace this with a project-wide note. It appears on every sheet that has a notes margin.",
+                    "Note__UpdatedIso": null
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_002",
+            "Group__Prefix": "FN",
+            "Group__Title": "Finishes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_002",
+                    "Note__Code": "FN01",
+                    "Note__Title": "Example finish note",
+                    "Note__Body": "A specification bubble with Leader__SpecNoteId SpecNote_002 shows FN01 and lists this body in that sheet’s notes margin.",
+                    "Note__UpdatedIso": null
+                }
+            ]
+        }
+    ]
+}

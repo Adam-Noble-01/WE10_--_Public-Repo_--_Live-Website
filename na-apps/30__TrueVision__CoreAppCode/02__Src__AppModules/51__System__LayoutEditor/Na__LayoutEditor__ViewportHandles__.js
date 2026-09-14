@@ -38,6 +38,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - The note over a 3D viewport whose content is being edited gives its zoom
+//   and how to change it ("Zoom 150%: scroll to zoom (Shift for fine steps),
+//   drag to reposition, Enter to finish"). A 2D viewport's says Enter or Esc.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - RenderOutlines: an outline on each of several selected viewports and no
 //   handles, for a multi-selection. Render and it share one outline builder.
@@ -69,7 +74,7 @@
 
     // MODULE IMPORTS | Config and Model Kinds
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetViewportSetup, Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetViewportSetup, Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__KIND_3D, Na__LeModel__GetLayers, Na__LeModel__IsLayerVisible } from './Na__LayoutEditor__SheetModel__.js';
     // ------------------------------------------------------------
 
@@ -158,6 +163,21 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Note Over a Viewport Whose Content Is Being Edited
+    // ------------------------------------------------------------
+    // A 3D viewport's note says how far its picture is zoomed and how to change
+    // it. The zoom is read straight off the record, which
+    // Na__LayoutEditor__Viewport3dZoom__ writes; importing that module here
+    // would loop back through the sheet surface.
+    // ------------------------------------------------------------
+    function Na__LeHandles__EditingNote(viewport) {
+        if (viewport.Viewport__Kind !== Na__LeModel__KIND_3D) return Na__LeCfg__GetLabel('EditingViewNote', 'Editing viewport content: drag to reposition, Enter or Esc to finish');
+        const zoom = (typeof viewport.Viewport__ImageZoom === 'number' && viewport.Viewport__ImageZoom > 0) ? viewport.Viewport__ImageZoom : 1;
+        return Na__LeCfg__FormatLabel('EditingView3dNote', 'Zoom {zoom}%: scroll to zoom (Shift for fine steps), drag to reposition, Enter to finish', { zoom : Math.round(zoom * 1000) / 10 });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Draw the Outline and Handles Into the Selection Layer
     // ------------------------------------------------------------
     function Na__LeHandles__Render(layer, viewport, ppm, zoom, editable, options) {
@@ -170,7 +190,7 @@
 
         const outline = Na__LeHandles__Outline(layer, viewport, ppm, zoom,
             'na-le-selection' + (editable ? '' : ' na-le-selection--readonly') + (state.editing ? ' na-le-selection--editing' : '') + (state.locked ? ' na-le-selection--locked' : ''));
-        if (state.editing)     outline.setAttribute('data-na-note', Na__LeCfg__GetLabel('EditingViewNote', 'Editing viewport content: drag to reposition, Esc to finish'));
+        if (state.editing)     outline.setAttribute('data-na-note', Na__LeHandles__EditingNote(viewport));
         else if (state.locked) outline.setAttribute('data-na-note', Na__LeCfg__GetLabel('LockedNote', 'Locked'));
         outline.style.setProperty('--na-le-note-scale', String(1 / zoom));   // <-- The note reads the same at any zoom
         if (!editable || state.editing || state.locked) return;                 // <-- No handles while the content is being edited, or when locked

@@ -51,6 +51,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.6.0
+// - A new shape takes the Vectors panel's dashed-edge default when it is on,
+//   so a run of centre lines or hidden lines can be drawn with nothing selected.
+//
 // 14-Sep-2026 - Version 1.5.0
 // - While a shape is being drawn, UndoVertex takes the last vertex off
 //   (one point left abandons the draft) and RedoVertex puts a taken-off
@@ -240,7 +244,7 @@
 
     // FUNCTION | A Click With the Draw Tool
     // ------------------------------------------------------------
-    // defaults: { strokeColour, strokePt, fillColour, filled, stroked, fillOpacity, strokeOpacity, gradientOn, gradient }
+    // defaults: { strokeColour, strokePt, fillColour, filled, stroked, fillOpacity, strokeOpacity, gradientOn, gradient, dashOn, dash }
     // ------------------------------------------------------------
     function Na__LeShape__Click(sheet, pointMm, shift, defaults) {
         const draft = Na__LeShape__Draft;
@@ -253,7 +257,7 @@
             const item = Na__LeModel__CreateShape(sheet, [ pt ], {
                 strokeColour : d.strokeColour, strokePt : d.strokePt, fillColour : d.filled ? d.fillColour : null,
                 fillOpacity : d.fillOpacity, strokeOpacity : d.strokeOpacity,
-                gradient : d.gradientOn ? d.gradient : null, closed : false, stroked : true, silent : true
+                gradient : d.gradientOn ? d.gradient : null, dash : d.dashOn ? d.dash : null, closed : false, stroked : true, silent : true
             });
             if (!item) return false;
             Na__LeShape__Draft  = { id : item.Shape__Id, points : [ pt ], stroked : d.stroked !== false, aim : null };   // <-- Drawn with edges, finished as the default asks

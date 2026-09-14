@@ -71,11 +71,20 @@
 //                       module; drawing edge weight is fixed by the render preset on purpose.
 //                   (3) No vertical perspective correction hook - TrueVision has no such tool.
 //                   (4) Supersampling is per tile here; in ValeVision it is per video frame.
+//                   (5) viewWindow (2.1.0), authored here first for the Layout Editor's 3D zoom.
 // - Back-port     : the supersampling is worth carrying back; the callback route is not.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 2.1.0 (TrueVision)
+// - viewWindow: an optional { u0, v0, u1, v1 } that renders a window of the
+//   camera's frame instead of all of it - cropped into it, or reaching past
+//   it. The aspect is the full frame's and every tile's sub-frustum is offset
+//   into the window, so a Layout Editor 3D viewport draws what its frame shows
+//   of a zoomed or slid picture at the frame's own resolution. Without the
+//   option every call renders exactly as before.
+//
 // 12-Sep-2026 - Version 2.0.0
 // - Rebuilt on ValeVision's design: shared tile plan, gutter overscan, canvas
 //   probe, context-loss guard, and the composer route for 3D.
@@ -189,6 +198,25 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | A Usable View Window, or Null for the Whole Frame
+    // ------------------------------------------------------------
+    // { u0, v0, u1, v1 }: the part of the camera's frame the output shows, as
+    // fractions of that frame - left, top, right, bottom. Any of them may run
+    // past 0..1, so a window can reach beyond the camera's own frame as well as
+    // crop into it. Anything malformed, and the whole frame itself, is null:
+    // the ordinary path, exactly as before the option existed.
+    // ------------------------------------------------------------
+    function Na__StaticExport__ResolveViewWindow(viewWindow) {
+        if (!viewWindow || typeof viewWindow !== 'object') return null;
+        const { u0, v0, u1, v1 } = viewWindow;
+        if (![ u0, v0, u1, v1 ].every((value) => typeof value === 'number' && Number.isFinite(value))) return null;
+        if (!(u1 > u0) || !(v1 > v0)) return null;
+        if (u0 === 0 && v0 === 0 && u1 === 1 && v1 === 1) return null;
+        return { u0 : u0, v0 : v0, u1 : u1, v1 : v1 };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -209,6 +237,11 @@
     //   getRenderPipelineState         - optional; a composer here and no
     //                                    renderFrame takes the COMPOSER ROUTE
     //   antiAliasSamples               - optional; 1 (off), 2, 4, 8 or 16
+    //   viewWindow                     - optional; { u0, v0, u1, v1 }, the part
+    //                                    of the camera's frame to draw, as
+    //                                    fractions that may run past 0..1. The
+    //                                    target size is the window's. Omitted,
+    //                                    the whole frame.
     //   elevationOverrides             - accepted for ValeVision signature parity
     //   onProgress(fraction, message)  - optional
     //
@@ -226,6 +259,7 @@
             renderFrame            = null,
             getRenderPipelineState = null,
             antiAliasSamples       = 1,
+            viewWindow             = null,
             onProgress             = null
         } = (options || {});
 
@@ -325,11 +359,21 @@
             Na__DrawProfile__HandleResize(fbW, fbH);
             Na__SectionCut__HandleResize(fbW, fbH);                           // <-- Cut outline fat lines resolve against this
 
-            // ASPECT | The full export aspect; setViewOffset sub-divides it per
+            // VIEW WINDOW | The output is this part of the camera's full frame.
+            // The full frame is sized so the window's share of it is exactly
+            // the output, and every tile below is offset into the window. With
+            // no window the full frame IS the output and nothing moves.
+            const view     = Na__StaticExport__ResolveViewWindow(viewWindow);
+            const fullW    = view ? outW / (view.u1 - view.u0) : outW;
+            const fullH    = view ? outH / (view.v1 - view.v0) : outH;
+            const viewLeft = view ? view.u0 * fullW : 0;
+            const viewTop  = view ? view.v0 * fullH : 0;
+
+            // ASPECT | The full frame's aspect; setViewOffset sub-divides it per
             // tile. An orthographic drawing camera has no aspect and is already
             // framed on its own window, so it is left exactly as it was.
             if (Number.isFinite(camera.aspect)) {
-                camera.aspect = outW / outH;
+                camera.aspect = fullW / fullH;
                 camera.updateProjectionMatrix();
             }
 
@@ -414,7 +458,7 @@
                 await Na__ExportYield__NextPaint();                           // <-- Paint the overlay and let the GPU drain (hidden-tab safe)
 
                 // SUB-FRUSTUM | An exact crop of the full frame, gutter included
-                camera.setViewOffset(outW, outH, tile.x - gutter, tile.y - gutter, fbW, fbH);
+                camera.setViewOffset(fullW, fullH, viewLeft + tile.x - gutter, viewTop + tile.y - gutter, fbW, fbH);
                 camera.updateProjectionMatrix();
 
                 Na__StaticExport__DrawTile(camera);

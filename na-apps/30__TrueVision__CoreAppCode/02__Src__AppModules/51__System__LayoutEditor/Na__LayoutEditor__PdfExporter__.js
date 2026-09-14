@@ -36,6 +36,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0 (TrueVision)
+// - A 3D viewport's picture goes at Na__LeVp3d__ExportRectMm: the whole
+//   picture's rectangle as before, or the frame itself once the frame shows a
+//   window of a zoomed or slid picture - which is what the export rendered.
+//
+// 14-Sep-2026 - Version 1.2.0 (TrueVision)
+// - Site plan viewports print their fills (each face's outer ring at the layer's
+//   fill colour and opacity) and then their lines, styled exactly as the sheet
+//   paints them, with no raster underlay.
+//
 // 14-Sep-2026 - Version 1.1.0 (TrueVision)
 // - Project Specification: an export waits for the specification to load
 //   (capped at its load timeout), so a sheet's notes margin prints its notes and
@@ -68,11 +78,11 @@
     import { Na__LeCfg__GetPdfSetup, Na__LeCfg__GetLineworkSetup, Na__LeCfg__GetLabel } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__Solve } from './Na__LayoutEditor__SheetLayout__.js';
-    import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__GetFields, Na__LeModel__IsLayerVisible } from './Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeChrome__Build, Na__LeChrome__DrawToPdf } from './Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__GetFields, Na__LeModel__IsLayerVisible, Na__LeModel__IsSitePlanViewport } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeChrome__Build, Na__LeChrome__DrawToPdf, Na__LeChrome__PushPolyline } from './Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives, Na__LeMarkup__BuildSheetPrimitives } from './Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__StyleBands } from './Na__LayoutEditor__Viewport2d__.js';
-    import { Na__LeVp3d__RenderForExport } from './Na__LayoutEditor__Viewport3d__.js';
+    import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing } from './Na__LayoutEditor__Viewport2d__.js';
+    import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm } from './Na__LayoutEditor__Viewport3d__.js';
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LeCfg__GetSpecificationSetup, Na__LeCfg__FormatLabel } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeSpec__EnsureLoaded } from './Na__LayoutEditor__SpecData__.js';
@@ -196,6 +206,33 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Draw a Site Plan Viewport's Fills Under Its Lines
+    // ------------------------------------------------------------
+    // Each face's outer ring as a filled polygon at the layer's fill colour and
+    // opacity, through the sheet polygon primitive (GState opacity). The PDF
+    // primitive draws one ring at a time, so a hole in a face is not cut out on
+    // paper yet; on screen it is.
+    // ------------------------------------------------------------
+    function Na__LePdf__DrawSitePlanFills(doc, viewport, described, fills) {
+        const win   = described.window;
+        const D     = win.Denominator;
+        const frame = viewport.Viewport__FrameMm;
+        const primitives = [];
+        fills.forEach((fill) => {
+            fill.rings.forEach((ring) => {
+                if (!ring.outer || !ring.points || ring.points.length < 6) return;
+                const points = [];
+                for (let i = 0; i + 1 < ring.points.length; i += 2) {
+                    points.push([ frame.X + ((ring.points[i] - win.OriginX) / D), frame.Y + ((ring.points[i + 1] - win.OriginY) / D) ]);
+                }
+                Na__LeChrome__PushPolyline(primitives, points, null, 0, fill.hex, true, null, { fillOpacity : fill.opacity });
+            });
+        });
+        if (primitives.length > 0) Na__LeChrome__DrawToPdf(doc, primitives);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Draw One Viewport
     // ------------------------------------------------------------
     async function Na__LePdf__DrawViewport(doc, sheet, viewport) {
@@ -204,6 +241,14 @@
         try {
             if (viewport.Viewport__Kind === Na__LeModel__KIND_2D) {
                 const described = Na__LeVp2d__Describe(viewport);
+                if (Na__LeModel__IsSitePlanViewport(viewport)) {                 // <-- Site plan data: its fills, then the same bands the sheet paints
+                    const drawing = await Na__LeVp2d__SitePlanDrawing(viewport);
+                    if (drawing) {
+                        Na__LePdf__DrawSitePlanFills(doc, viewport, described, drawing.fills);
+                        Na__LePdf__DrawLinework(doc, sheet, viewport, described, drawing.classes);
+                    }
+                    return;
+                }
                 if (!described.definition) return;
                 const underlay = await Na__LeVp2d__RenderForExport(viewport);
                 if (underlay && underlay.dataUrl) doc.addImage(underlay.dataUrl, 'PNG', frame.X, frame.Y, frame.WidthMm, frame.HeightMm);
@@ -218,8 +263,8 @@
             }
             const dataUrl = await Na__LeVp3d__RenderForExport(sheet, viewport);
             if (dataUrl) {
-                const offset = viewport.Viewport__ImageOffsetMm, image = viewport.Viewport__ImageMm;
-                doc.addImage(dataUrl, 'PNG', frame.X + offset.X, frame.Y + offset.Y, image.WidthMm, image.HeightMm);
+                const rect = Na__LeVp3d__ExportRectMm(viewport);                   // <-- The picture's own rectangle, or the frame when it shows a window of a zoomed picture
+                doc.addImage(dataUrl, 'PNG', frame.X + rect.X, frame.Y + rect.Y, rect.WidthMm, rect.HeightMm);
             }
         } finally {
             Na__LePdf__EndClip(doc, clipped);

@@ -697,8 +697,8 @@ body.na-le-dragging * {
     z-index                            : 5;
 }
 
-/* A leader's note: a text area that breaks a line only where Enter put one, */
-/* and grows a row per line instead of scrolling.                            */
+/* Sheet text and a leader's note: a text area that breaks a line only where */
+/* a new line was typed, and grows a row per line instead of scrolling.      */
 
 .na-le-text-editor--multiline {
     resize                             : none;
@@ -953,6 +953,24 @@ body.na-le-dragging * {
 
 .na-le-grip--anchor {
     border-radius                      : 50%;
+}
+
+/* A selected text item's rotate grip: round, like the anchor grip, on a    */
+/* short stem off the top of its outline. Dragging it turns the text about  */
+/* the middle of its box. The stem is a grip element too, so clearing the   */
+/* grips clears it; its edge width is set inline, counter-scaled.           */
+
+.na-le-grip--rotate {
+    border-radius                      : 50%;
+}
+
+.na-le-grip--stem {
+    height                             : 0;
+    background                         : transparent;
+    border                             : 0;
+    border-top                         : 1px solid #336699;
+    border-radius                      : 0;
+    transform-origin                   : 0 0;
 }
 
 /* A Shift-click on a vector's edge inserts a vertex here. The diamond is  */

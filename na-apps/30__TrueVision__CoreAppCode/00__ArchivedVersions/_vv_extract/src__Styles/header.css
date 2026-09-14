@@ -1,0 +1,108 @@
+/* =============================================================================
+ * VALEVISION3D - HEADER COMPONENT STYLES
+ * =============================================================================
+ *
+ * FILE       : header.css
+ * NAMESPACE  : ValeVision3D
+ * MODULE     : Header Component Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : Header bar with Vale branding matching Whitecardopedia design
+ * CREATED    : 2025
+ *
+ * DESCRIPTION:
+ * - Persistent header component matching Whitecardopedia design
+ * - Features Vale Garden Houses logo on left
+ * - Features ValeVision 3D text placeholder on right
+ * - White background with subtle shadow and Vale blue bottom border
+ * - Fixed positioning at top of viewport
+ *
+ * ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+ * REGION | Header Component Styles
+ * ----------------------------------------------------------------------------- */
+
+    /* CSS VARIABLES | Header-Specific Design Tokens */
+    /* ------------------------------------------------------------ */
+    :root {
+        --Vale_HeaderHeight                : 60px;                         /* <-- Fixed header height */
+        --Vale_PrimaryBrand                : #172b3a;                      /* <-- Vale Garden Houses brand blue */
+        --Vale_BackgroundWhite             : #ffffff;                      /* <-- Pure white for panels */
+        --Vale_TextPrimary                 : #172b3a;                      /* <-- Primary text color */
+        --Vale_Spacing_Large               : 24px;                         /* <-- Large spacing unit */
+        --Vale_FontSize_Heading           : 24px;                         /* <-- Heading text size */
+        --Vale_FontWeight_SemiBold         : 600;                          /* <-- Semi-bold font weight */
+        --Vale_FontFamily                  : 'Open Sans', sans-serif;      /* <-- Primary font */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HEADER | Application Header Bar */
+    /* ------------------------------------------------------------ */
+    .app-header {
+        position                           : fixed;                        /* <-- Fixed positioning at top */
+        top                                : 0;                            /* <-- Align to top of viewport */
+        left                               : 0;                            /* <-- Align to left edge */
+        right                              : 0;                            /* <-- Align to right edge */
+        display                            : flex;                         /* <-- Flexbox layout */
+        align-items                        : center;                       /* <-- Vertical centering */
+        justify-content                    : space-between;                /* <-- Space between elements */
+        height                             : var(--Vale_HeaderHeight);     /* <-- Fixed header height */
+        padding                            : 0 var(--Vale_Spacing_Large);  /* <-- Horizontal padding */
+        background                         : var(--Vale_BackgroundWhite);  /* <-- White background */
+        color                              : var(--Vale_TextPrimary);      /* <-- Primary text color */
+        box-shadow                         : 0 2px 8px rgba(0,0,0,0.08);  /* <-- Subtle shadow */
+        border-bottom                      : 2px solid var(--Vale_PrimaryBrand);  /* <-- Vale blue bottom border */
+        z-index                            : 1000;                         /* <-- Ensure header stays above canvas */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HEADER | Logo Container Base Styles */
+    /* ------------------------------------------------------------ */
+    .app-header__logo-container {
+        display                            : flex;                         /* <-- Flexbox layout */
+        align-items                        : center;                       /* <-- Vertical centering */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HEADER | Left Logo Container */
+    /* ------------------------------------------------------------ */
+    .app-header__logo-container--left {
+        justify-content                    : flex-start;                   /* <-- Align left */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HEADER | Right Logo Container */
+    /* ------------------------------------------------------------ */
+    .app-header__logo-container--right {
+        justify-content                    : flex-end;                     /* <-- Align right */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HEADER | Vale Logo (Left Side) */
+    /* ------------------------------------------------------------ */
+    .app-header__logo-left {
+        height                             : 42px;                         /* <-- Vale logo height */
+        width                              : auto;                         /* <-- Maintain aspect ratio */
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* HEADER | ValeVision 3D Title Text (Right Side) */
+    /* ------------------------------------------------------------ */
+    .app-header__title {
+        font-size                          : var(--Vale_FontSize_Heading); /* <-- Heading font size */
+        font-weight                        : var(--Vale_FontWeight_SemiBold);  /* <-- Semi-bold text */
+        font-family                        : var(--Vale_FontFamily);       /* <-- Standard font family */
+        color                              : var(--Vale_PrimaryBrand);     /* <-- Vale brand blue color */
+        margin                             : 0;                            /* <-- Remove default margins */
+        padding                            : 0;                            /* <-- Remove default padding */
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */
+

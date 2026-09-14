@@ -21,13 +21,13 @@
 //   A general note is listed on every sheet whose margin includes general
 //   notes, and on any sheet whose bubbles link to it. A priority band that
 //   comes first is reserved here for when notes can be marked important.
-// - HOW A NOTE READS. Its code in bold, in a code column as wide as the widest
-//   code listed; its title in bold beside the code; its specification text
-//   under the title, wrapped to the column at word boundaries (a word wider
-//   than the column breaks where it runs out), keeping the line breaks typed
-//   into it. Optional group headings. The width of every run is measured with
-//   the same metrics the PDF uses, so a line breaks in the same place on the
-//   screen and on paper.
+// - HOW A NOTE READS. Its code in bold, a pipe, then its title in bold on
+//   the same line; its specification text under that, wrapped to the full
+//   inner width at word boundaries (a word wider than the column breaks
+//   where it runs out), keeping the line breaks typed into it. A faint
+//   rule sits between notes. Optional group headings. The width of every
+//   run is measured with the same metrics the PDF uses, so a line breaks
+//   in the same place on the screen and on paper.
 // - OVERFLOW. Notes are laid top to bottom and a note that would cross the
 //   foot of the column is not drawn, nor any after it, so the order is never
 //   broken to squeeze a later note in. Report says how many did not fit; the
@@ -49,6 +49,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - PaddingRightMm insets the wrapped lines from the sheet's right border.
+//   Body text is 2 mm (TextSizeMm).
+//
+// 14-Sep-2026 - Version 1.1.0
+// - A note reads as "GN01 | Title" then its body across the full inner
+//   width, so the old code-column gutter is gone. A faint rule sits between
+//   notes (RulePt, RuleColour). CodePipe is the delimiter between the code
+//   and the title.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -86,7 +96,7 @@
     // ------------------------------------------------------------
     const Na__LeMargin__CAP_HEIGHT = 0.72;     // <-- Helvetica cap height as a fraction of the font size, as the chrome measures it
     const Na__LeMargin__DESCENT    = 0.25;
-    const Na__LeMargin__CODE_SHARE = 0.4;      // <-- The code column never takes more than this share of the inner width
+    const Na__LeMargin__PIPE       = ' | ';    // <-- Fallback delimiter between the code and the title
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -170,6 +180,7 @@
     // ------------------------------------------------------------
     // Returns null when the sheet has no margin, else
     // { rect, runs [{ text, x, baselineY, fontMm, weight, colour, trackingMm }],
+    //   rules [{ X1, Y1, X2, Y2 }],
     //   total, shown, overflow, linked, general, pending }.
     // layout is the solved sheet layout; the margin itself is measured afresh
     // from the sheet, so a width dragged since the last solve is honoured.
@@ -182,18 +193,19 @@
         const style    = Na__LeCfg__GetStyleSetup();
         const settings = Na__LeRec__MarginNotes(sheet);
         const found    = Na__LeMargin__Entries(sheet);
-        const plan     = { rect : rect, runs : [], total : found.entries.length, shown : 0, overflow : 0, linked : found.linked, general : found.general, pending : found.pending };
+        const plan     = { rect : rect, runs : [], rules : [], total : found.entries.length, shown : 0, overflow : 0, linked : found.linked, general : found.general, pending : found.pending };
 
-        const pad     = Math.min(setup.paddingMm, rect.WidthMm / 4);
-        const left    = rect.X + pad;
-        const right   = rect.X + rect.WidthMm - pad;
-        const bottom  = rect.Y + rect.HeightMm - pad;
-        const bodyMm  = settings.TextSizeMm;
+        const padLeft  = Math.min(setup.paddingMm, rect.WidthMm / 4);
+        const padRight = Math.min(Number.isFinite(setup.paddingRightMm) ? setup.paddingRightMm : setup.paddingMm, rect.WidthMm / 4);
+        const left     = rect.X + padLeft;
+        const right    = rect.X + rect.WidthMm - padRight;
+        const bottom   = rect.Y + rect.HeightMm - padLeft;
+        const bodyMm   = settings.TextSizeMm;
         const titleMm = bodyMm * setup.titleScale;
         const bodyGap = bodyMm * setup.lineSpacing;
         const titleGap = titleMm * setup.lineSpacing;
         const cap     = Na__LeMargin__CAP_HEIGHT;
-        let   y       = rect.Y + pad;                                            // <-- The top of the next run of text
+        let   y       = rect.Y + padLeft;                                        // <-- The top of the next run of text
 
         // HEADING | Across the top, tracked capitals
         const heading = String(settings.Heading || setup.headingText || '').trim();
@@ -204,12 +216,11 @@
         }
         if (!found.entries.length) return plan;
 
-        // THE CODE COLUMN | As wide as the widest code listed, never more than a share of the width
-        const inner   = Math.max(1, right - left);
-        const widest  = found.entries.reduce((w, entry) => Math.max(w, Na__LeChrome__MeasureTextMm(entry.code, titleMm, 'bold')), 0);
-        const codeW   = Math.min(inner * Na__LeMargin__CODE_SHARE, widest + setup.codeGapMm);
-        const textX   = left + codeW;
-        const textW   = Math.max(1, right - textX);
+        // THE NOTE | Code, a pipe and the title on one line; the body uses the
+        // full inner width. A title that wraps hangs under itself after the pipe.
+        // ------------------------------------
+        const inner = Math.max(1, right - left);
+        const pipe  = (typeof setup.codePipe === 'string') ? setup.codePipe : Na__LeMargin__PIPE;
 
         let lastGroup = null;
         for (let i = 0; i < found.entries.length; i++) {
@@ -225,29 +236,37 @@
                 top += bodyGap;
             }
 
-            // THE NOTE | Code, title lines, then body lines under the title
-            const titleLines = Na__LeMargin__Wrap(entry.note.Note__Title, titleMm, 'bold', textW);
-            const bodyLines  = Na__LeMargin__Wrap(entry.note.Note__Body, bodyMm, 'normal', textW);
-            const firstMm    = titleLines.length ? titleMm : bodyMm;
-            runs.push({ text : entry.code, x : left, baselineY : top + (firstMm * cap), fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
-            let baseline = top + (titleMm * cap);
-            titleLines.forEach((line, k) => {
-                if (k > 0) baseline += titleGap;
-                runs.push({ text : line, x : textX, baselineY : baseline, fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
-            });
-            let bottomOfNote = titleLines.length ? baseline + (titleMm * Na__LeMargin__DESCENT) : top;
+            const title     = String(entry.note.Note__Title == null ? '' : entry.note.Note__Title).trim();
+            const prefix    = title ? (String(entry.code) + pipe) : String(entry.code);
+            const prefixW   = Na__LeChrome__MeasureTextMm(prefix, titleMm, 'bold');
+            const titleW    = Math.max(1, inner - (title ? prefixW : 0));
+            const titleLines = title ? Na__LeMargin__Wrap(title, titleMm, 'bold', titleW) : [];
+            const bodyLines  = Na__LeMargin__Wrap(entry.note.Note__Body, bodyMm, 'normal', inner);
+            let baseline     = top + (titleMm * cap);
+            if (titleLines.length) {
+                runs.push({ text : prefix + titleLines[0], x : left, baselineY : baseline, fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
+                titleLines.slice(1).forEach((line) => {
+                    baseline += titleGap;
+                    runs.push({ text : line, x : left + prefixW, baselineY : baseline, fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
+                });
+            } else {
+                runs.push({ text : prefix, x : left, baselineY : baseline, fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
+            }
+            let bottomOfNote = baseline + (titleMm * Na__LeMargin__DESCENT);
             if (bodyLines.length) {
-                let bodyBaseline = titleLines.length ? baseline + bodyGap : top + (bodyMm * cap);
+                let bodyBaseline = baseline + bodyGap;
                 bodyLines.forEach((line, k) => {
                     if (k > 0) bodyBaseline += bodyGap;
-                    if (line !== '') runs.push({ text : line, x : textX, baselineY : bodyBaseline, fontMm : bodyMm, weight : 'normal', colour : style.inkColour, trackingMm : 0 });
+                    if (line !== '') runs.push({ text : line, x : left, baselineY : bodyBaseline, fontMm : bodyMm, weight : 'normal', colour : style.inkColour, trackingMm : 0 });
                 });
                 bottomOfNote = bodyBaseline + (bodyMm * Na__LeMargin__DESCENT);
             }
-            bottomOfNote = Math.max(bottomOfNote, top + (titleMm * (cap + Na__LeMargin__DESCENT)));   // <-- A note with no title and no body still holds its code's line
 
             // OVERFLOW | The first note that would cross the foot ends the list, so the order holds
             if (bottomOfNote > bottom) { plan.overflow = found.entries.length - i; break; }
+            if (plan.shown > 0 && setup.noteGapMm > 0) {
+                plan.rules.push({ X1 : left, Y1 : y - (setup.noteGapMm / 2), X2 : right, Y2 : y - (setup.noteGapMm / 2) });
+            }
             runs.forEach((run) => plan.runs.push(run));
             plan.shown++;
             lastGroup = entry.group;
@@ -275,6 +294,12 @@
         Na__LeChrome__PushRect(list, rect.X, rect.Y + inset, Math.max(0, rect.WidthMm - inset), Math.max(0, rect.HeightMm - (inset * 2)), null, 0, style.paperColour);
         const dividerMm = Na__LeCfg__PtToMm(setup.dividerPt);
         if (dividerMm > 0) Na__LeChrome__PushLine(list, rect.X, rect.Y, rect.X, rect.Y + rect.HeightMm, style.inkColour, dividerMm);
+        const ruleMm = Na__LeCfg__PtToMm(setup.rulePt);
+        if (ruleMm > 0) {
+            (plan.rules || []).forEach((rule) => {
+                Na__LeChrome__PushLine(list, rule.X1, rule.Y1, rule.X2, rule.Y2, setup.ruleColour || '#cfd4d8', ruleMm);
+            });
+        }
         plan.runs.forEach((run) => {
             Na__LeChrome__PushText(list, {
                 X : run.x, BaselineY : run.baselineY, Text : run.text, FontMm : run.fontMm, Weight : run.weight,

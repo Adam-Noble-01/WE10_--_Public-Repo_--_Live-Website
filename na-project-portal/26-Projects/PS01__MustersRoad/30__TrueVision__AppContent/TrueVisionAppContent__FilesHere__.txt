@@ -1,1 +1,4 @@
 This folder contains TrueVision application content.
+
+TrueVision__ProjectData__.json     - models, cameras, presentation scenes and Layout Editor sheets
+TrueVision__DrawingNotes__.json    - project specification notes (groups and notes that fill spec bubbles and the notes margin). Kept in sync with the same file on R2.

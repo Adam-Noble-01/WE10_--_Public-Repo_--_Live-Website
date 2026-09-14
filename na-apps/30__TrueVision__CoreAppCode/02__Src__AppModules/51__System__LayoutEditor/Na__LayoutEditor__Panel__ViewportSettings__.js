@@ -20,6 +20,12 @@
 //   readouts are editable numbers in paper and drawing millimetres; the
 //   markup mode switch, Import From Scene and Edit In Drawing implement
 //   D34 (editing of scene markup happens in the drawing itself).
+// - Zoom % (3D viewports only): how large the picture is drawn in its frame,
+//   typed to a decimal place and applied about the middle of the frame; Reset
+//   puts it back to 100 percent, centred. The wheel does the same about the
+//   cursor while the viewport's content is being edited
+//   (Na__LayoutEditor__Viewport3dZoom__). Greyed out while the viewport or its
+//   layer is locked.
 // - Frame hides the border and caption drawn round the viewport; Caption
 //   hides the caption alone, so it only counts while the frame shows.
 // - Doors (plans only) says how many doors the viewport draws shut - a plan
@@ -36,12 +42,24 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Panel__ViewportSettings__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (site plan viewports), TrueVision first on 14-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.7.0
+// - Zoom % on 3D viewports: a number box for the picture's zoom (to a decimal
+//   place, one undo step, about the middle of the frame) and Reset (100 percent,
+//   centred). Hidden on 2D and site plan viewports, greyed out when locked.
+//
+// 14-Sep-2026 - Version 1.6.0
+// - Site plan sheets. Add Viewport offers the site plan scales - 1:500 Block Plan
+//   or 1:1250 Location Plan - with a note of the project's site plan data. The new
+//   viewport is centred on the red line, and every layer whose export does not list
+//   that scale starts switched off. A site plan viewport's settings show its own
+//   scale toggle and hide the scene, model source, markup and scene actions.
+//
 // 14-Sep-2026 - Version 1.5.0
 // - Doors: a row on plan viewports under Locked. Its note says whether every
 //   door is drawn open or how many the viewport has shut, and how to change
@@ -92,8 +110,12 @@
         Na__LeModel__UpdateViewport,
         Na__LeModel__GetSelectedViewport,
         Na__LeModel__SetSelection,
-        Na__LeModel__ResolveViewportSource
+        Na__LeModel__ResolveViewportSource,
+        Na__LeModel__IsSitePlanSheet,
+        Na__LeModel__IsSitePlanViewport,
+        Na__LeModel__IsLayerLocked
     } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeVpZoom__Get, Na__LeVpZoom__Percent, Na__LeVpZoom__PatchAbout, Na__LeVpZoom__PatchReset } from './Na__LayoutEditor__Viewport3dZoom__.js';
     import {
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
@@ -104,13 +126,23 @@
         Na__LePanels__Select,
         Na__LePanels__FillSelect,
         Na__LePanels__Button,
-        Na__LePanels__Note
+        Na__LePanels__Note,
+        Na__LePanels__Refresh
     } from './Na__LayoutEditor__PanelHost__.js';
     import { Na__LeVp2d__Describe, Na__LeVp2d__CentreOnDrawing } from './Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeRaster__LEVELS, Na__LeRaster__Get, Na__LeRaster__Set } from './Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeMarkup__ImportFromScene } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeClip__IsCopyName } from './Na__LayoutEditor__ViewportClipboard__.js';
     import { Na__LeDoors__IsPlan, Na__LeDoors__ClosedCount, Na__LeDoors__OpenAll } from './Na__LayoutEditor__PlanDoors__.js';
+    import {
+        Na__SpStore__CHANGED_EVENT,
+        Na__SpStore__STATUS_READY,
+        Na__SpStore__STATUS_EMPTY,
+        Na__SpStore__Resolve,
+        Na__SpStore__GetStatus,
+        Na__SpStore__GetDescriptor,
+        Na__SpStore__GetFocusBoundsMm
+    } from '../52__System__SitePlanData/Na__SitePlan__Store__.js';
     import {
         Na__LeSource__HasChoices,
         Na__LeSource__Resolve,
@@ -204,6 +236,51 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Add a Site Plan Viewport (centred on the red line, layers preset for the scale)
+    // ------------------------------------------------------------
+    // A 1:500 viewport is named Block Plan and a 1:1250 one Location Plan. Every
+    // layer whose export does not list the chosen scale starts switched off, so a
+    // location plan starts without the trees. Resolves null, with a toast, on a
+    // project with no site plan data.
+    // ------------------------------------------------------------
+    async function Na__LePanelViewport__AddSitePlan(sheet, denominator) {
+        if (!sheet) return null;
+        const descriptor = await Na__SpStore__Resolve();
+        if (!descriptor) {
+            const toast = Na__LePanels__GetContext() ? Na__LePanels__GetContext().showToast : null;
+            if (typeof toast === 'function') toast(Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.'), true);
+            return null;
+        }
+        const scales = Na__LeScale__ListDenominators(true);
+        const scale  = scales.indexOf(denominator) !== -1 ? denominator : scales[0];
+        const off    = {};
+        descriptor.SitePlan__Layers.forEach((layer) => { if (layer.Layer__VisibleAtScales.indexOf(scale) === -1) off[layer.Layer__CategoryKey] = false; });
+        const setup  = Na__LeCfg__GetViewportSetup();
+        const layout = Na__LeLayout__Solve(sheet);
+        const viewport = Na__LeModel__CreateViewport(sheet, {
+            kind : Na__LeModel__KIND_2D, sitePlan : {}, scaleDenominator : scale, modelLayers : off,
+            name : scale >= 1000 ? Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan') : Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan'),
+            rect : Na__LeLayout__DefaultViewportRect(layout, setup.defaultWidthMm, setup.defaultHeightMm)
+        });
+        if (!viewport) return null;
+        const bounds = Na__SpStore__GetFocusBoundsMm();
+        if (bounds) Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pan : { X : (bounds.MinX + bounds.MaxX) / 2, Y : (bounds.MinY + bounds.MaxY) / 2 } }, true);
+        Na__LeModel__SetSelection({ kind : 'viewport', id : viewport.Viewport__Id });
+        return viewport;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | An Export Time as the Office Writes It (14 Sep 2026, 17:04)
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__ExportDate(iso) {
+        const date = iso ? new Date(iso) : null;
+        if (!date || Number.isNaN(date.getTime())) return 'an unknown time';
+        return date.toLocaleDateString('en-GB', { day : 'numeric', month : 'short', year : 'numeric' }) + ', ' + date.toLocaleTimeString('en-GB', { hour : '2-digit', minute : '2-digit' });
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -218,9 +295,27 @@
         const add = document.createElement('div');
         add.className = 'na-le-block';
         add.setAttribute('data-na-block', 'add');
-        add.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SceneLabel', 'Scene'), Na__LePanels__Select('vp-add-scene', Na__LePanelViewport__SceneOptions(), '')));
-        add.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ModelSourceLabel', 'Model Source'), Na__LePanels__Select('vp-add-source', Na__LeSource__Options(null), '')));
-        if (editable) add.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddViewport', 'Add Viewport'), 'vp-add', 'na-le-btn--primary'));
+        // TWO WAYS TO ADD, ONE SHOWN. An architectural sheet adds a viewport of a
+        // scene; a site plan sheet adds a site plan viewport at 1:500 or 1:1250.
+        const addScene = document.createElement('div');
+        addScene.setAttribute('data-na-block', 'add-scene');
+        addScene.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SceneLabel', 'Scene'), Na__LePanels__Select('vp-add-scene', Na__LePanelViewport__SceneOptions(), '')));
+        addScene.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ModelSourceLabel', 'Model Source'), Na__LePanels__Select('vp-add-source', Na__LeSource__Options(null), '')));
+        if (editable) addScene.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddViewport', 'Add Viewport'), 'vp-add', 'na-le-btn--primary'));
+        add.appendChild(addScene);
+        const addSitePlan = document.createElement('div');
+        addSitePlan.setAttribute('data-na-block', 'add-siteplan');
+        addSitePlan.hidden = true;
+        const sitePlanScales = Na__LeScale__ListDenominators(true).map((d) => ({
+            value : d,
+            label : Na__LeScale__FormatLabel(d) + ' - ' + (d >= 1000 ? Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan') : Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan'))
+        }));
+        addSitePlan.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanAddScale', 'Scale'), Na__LePanels__Select('vp-add-siteplan-scale', sitePlanScales, '')));
+        if (editable) addSitePlan.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddSitePlanViewport', 'Add Site Plan Viewport'), 'vp-add-siteplan', 'na-le-btn--primary'));
+        const sitePlanNote = Na__LePanels__Note('');
+        sitePlanNote.setAttribute('data-na-block', 'siteplan-note');
+        addSitePlan.appendChild(sitePlanNote);
+        add.appendChild(addSitePlan);
         add.appendChild(Na__LePanels__Note(Na__LeCfg__GetLabel('NoSelection', 'Select a viewport on the sheet.')));
         body.appendChild(add);
 
@@ -254,6 +349,11 @@
         scale.setAttribute('data-na-block', 'scale');
         Na__LeScale__ListDenominators().forEach((d) => scale.appendChild(Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d)));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ScaleLabel', 'Scale'), scale));
+        const sitePlanScale = document.createElement('div');                     // <-- A site plan viewport's own toggle: 1:500 and 1:1250
+        sitePlanScale.className = 'na-le-toggle-group';
+        sitePlanScale.setAttribute('data-na-block', 'scale-siteplan');
+        Na__LeScale__ListDenominators(true).forEach((d) => sitePlanScale.appendChild(Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d)));
+        edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ScaleLabel', 'Scale'), sitePlanScale));
 
         const frame = document.createElement('div');
         frame.className = 'na-le-grid4';
@@ -271,6 +371,22 @@
         [ 'X', 'Y' ].forEach((key) => { const input = Na__LePanels__Input('number', 'vp-pan', { step : 10 }); input.setAttribute('data-na-role', key); input.title = 'Window centre ' + key; pan.appendChild(input); });
         if (editable) pan.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('CentreOnDrawing', 'Centre'), 'vp-centre', 'na-le-btn--small'));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('PanLabel', 'Window mm'), pan));
+
+        // ZOOM | 3D only: how large the picture is drawn in its frame. A 2D
+        // viewport's size on the paper is its scale, so it has no zoom of its own.
+        const zoomSetup = Na__LeCfg__GetViewportSetup();
+        const zoom      = document.createElement('div');
+        zoom.className = 'na-le-grid4';
+        zoom.setAttribute('data-na-block', 'zoom');
+        const zoomInput = Na__LePanels__Input('number', 'vp-zoom', { step : 'any', min : Math.round(zoomSetup.imageZoomMin * 100), max : Math.round(zoomSetup.imageZoomMax * 100) });   // <-- Any decimal typed; the arrows still step by one
+        zoomInput.title = Na__LeCfg__GetLabel('ZoomTitle', 'How large the 3D picture is drawn in its frame, as a percentage of its size before zooming. Type any value, to a decimal place. Or double-click the viewport and scroll over it to zoom about the cursor.');
+        zoom.appendChild(zoomInput);
+        if (editable) {
+            const zoomReset = Na__LePanels__Button(Na__LeCfg__GetLabel('ZoomReset', 'Reset'), 'vp-zoom-reset', 'na-le-btn--small');
+            zoomReset.title = Na__LeCfg__GetLabel('ZoomResetTitle', 'Back to 100%, centred in the frame.');
+            zoom.appendChild(zoomReset);
+        }
+        edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ZoomLabel', 'Zoom %'), zoom));
 
         const markup = document.createElement('div');
         markup.className = 'na-le-toggle-group';
@@ -325,6 +441,25 @@
         const editBlock = body.querySelector('[data-na-block="edit"]');
         addBlock.hidden  = !!viewport;
         editBlock.hidden = !viewport;
+        // SITE PLAN SHEET | Add offers the site plan scales and says what data there is
+        const sitePlanSheet = !!sheet && Na__LeModel__IsSitePlanSheet(sheet);
+        const addScene      = addBlock.querySelector('[data-na-block="add-scene"]');
+        const addSitePlan   = addBlock.querySelector('[data-na-block="add-siteplan"]');
+        if (addScene)    addScene.hidden    = sitePlanSheet;
+        if (addSitePlan) addSitePlan.hidden = !sitePlanSheet;
+        if (sitePlanSheet) {
+            const status     = Na__SpStore__GetStatus();
+            const descriptor = Na__SpStore__GetDescriptor();
+            const note       = addBlock.querySelector('[data-na-block="siteplan-note"]');
+            const button     = addBlock.querySelector('[data-na-control="vp-add-siteplan"]');
+            if (note) {
+                note.textContent = (status === Na__SpStore__STATUS_READY && descriptor)
+                    ? Na__LeCfg__FormatLabel('SitePlanReady', '{count} site plan layer(s), exported {date}.', { count : descriptor.SitePlan__Layers.length, date : Na__LePanelViewport__ExportDate(descriptor.SitePlan__ExportedIso) })
+                    : (status === Na__SpStore__STATUS_EMPTY ? Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.') : Na__LeCfg__GetLabel('SitePlanLoading', 'Loading site plan data...'));
+            }
+            if (button) button.disabled = status !== Na__SpStore__STATUS_READY;
+            if (status !== Na__SpStore__STATUS_READY && status !== Na__SpStore__STATUS_EMPTY) Na__SpStore__Resolve();   // <-- The store's event refreshes this panel when it lands
+        }
         const addSelect = addBlock.querySelector('[data-na-control="vp-add-scene"]');
         if (addSelect && addSelect.options.length <= 1) Na__LePanels__FillSelect(addSelect, Na__LePanelViewport__SceneOptions(), '');
         // THE SOURCE CHOICES ARRIVE WITH THE PROJECT DATA, which can be after the
@@ -340,13 +475,15 @@
         if (!viewport || !sheet) return;
 
         const is2d = viewport.Viewport__Kind === Na__LeModel__KIND_2D;
+        const isSitePlan = Na__LeModel__IsSitePlanViewport(viewport);             // <-- No scene, model source, markup or scene actions
         const set  = (name, value) => { const el = editBlock.querySelector('[data-na-control="' + name + '"]'); if (el && document.activeElement !== el) el.value = value; };
         set('vp-name', viewport.Viewport__Name || '');
         const sceneSelect = editBlock.querySelector('[data-na-control="vp-scene"]');
         Na__LePanels__FillSelect(sceneSelect, Na__LePanelViewport__SceneOptions(), viewport.Viewport__SceneId || '');
+        sceneSelect.parentNode.hidden = isSitePlan;
         const sourceSelect = editBlock.querySelector('[data-na-control="vp-source"]');
         if (sourceSelect) {
-            sourceSelect.parentNode.hidden = !choices;
+            sourceSelect.parentNode.hidden = !choices || isSitePlan;
             if (document.activeElement !== sourceSelect) Na__LePanels__FillSelect(sourceSelect, Na__LeSource__Options(viewport), Na__LeSource__SelectValue(viewport));
         }
         const sourceNote = editBlock.querySelector('[data-na-block="source-note"]');
@@ -356,11 +493,12 @@
                 ? Na__LeCfg__FormatLabel('ModelSourceMissing', '"{id}" is not a design phase of this project, so this viewport draws the Project Default.', { id : source.storedId })
                 : ((source.renderId && source.status !== 'ready') ? Na__LeSource__StatusText(source) : '');
             sourceNote.textContent = text;
-            sourceNote.hidden = !choices || !text;
+            sourceNote.hidden = !choices || !text || isSitePlan;
         }
         Na__LePanels__FillSelect(editBlock.querySelector('[data-na-control="vp-layer"]'), Na__LeModel__GetLayers(sheet).map((l) => ({ value : l.Layer__Id, label : l.Layer__Name })), viewport.Viewport__LayerId);
 
-        editBlock.querySelector('[data-na-block="scale"]').parentNode.hidden = !is2d;
+        editBlock.querySelector('[data-na-block="scale"]').parentNode.hidden = !is2d || isSitePlan;
+        editBlock.querySelector('[data-na-block="scale-siteplan"]').parentNode.hidden = !isSitePlan;
         editBlock.querySelectorAll('[data-na-control="vp-scale"]').forEach((b) => b.classList.toggle('na-le-btn--active', parseFloat(b.getAttribute('data-na-role')) === viewport.Viewport__ScaleDenominator));
         editBlock.querySelectorAll('[data-na-control="vp-frame"]').forEach((input) => {
             if (document.activeElement !== input) input.value = String(Math.round(viewport.Viewport__FrameMm[input.getAttribute('data-na-role')] * 10) / 10);
@@ -369,7 +507,19 @@
         editBlock.querySelectorAll('[data-na-control="vp-pan"]').forEach((input) => {
             if (document.activeElement !== input) input.value = String(Math.round(viewport.Viewport__PanMm[input.getAttribute('data-na-role')]));
         });
-        editBlock.querySelector('[data-na-block="markup"]').parentNode.hidden = !is2d;
+        const zoomBlock = editBlock.querySelector('[data-na-block="zoom"]');
+        if (zoomBlock) {
+            const zoomLocked = viewport.Viewport__Locked === true || Na__LeModel__IsLayerLocked(sheet, viewport.Viewport__LayerId);   // <-- A lock holds the framing as well as the frame
+            zoomBlock.parentNode.hidden = is2d;
+            const zoomInput = zoomBlock.querySelector('[data-na-control="vp-zoom"]');
+            if (zoomInput) {
+                if (document.activeElement !== zoomInput) zoomInput.value = String(Na__LeVpZoom__Percent(Na__LeVpZoom__Get(viewport)));
+                zoomInput.disabled = !Na__LePanels__IsEditable() || zoomLocked;
+            }
+            const zoomReset = zoomBlock.querySelector('[data-na-control="vp-zoom-reset"]');
+            if (zoomReset) zoomReset.disabled = !Na__LePanels__IsEditable() || zoomLocked;
+        }
+        editBlock.querySelector('[data-na-block="markup"]').parentNode.hidden = !is2d || isSitePlan;
         editBlock.querySelectorAll('[data-na-control="vp-markup"]').forEach((b) => b.classList.toggle('na-le-btn--active', b.getAttribute('data-na-role') === viewport.Viewport__MarkupMode));
         const frameShown = viewport.Viewport__ShowFrame !== false;
         const showFrame  = editBlock.querySelector('[data-na-control="vp-show-frame"]');
@@ -396,7 +546,7 @@
                 : Na__LeCfg__FormatLabel('DoorsSomeClosed', '{count} closed. Click a door on the plan to open or close it.', { count : shutCount });
         }
         const actions = editBlock.querySelector('[data-na-block="actions2d"]');
-        if (actions) actions.hidden = !is2d;
+        if (actions) actions.hidden = !is2d || isSitePlan;
     }
     // ------------------------------------------------------------
 
@@ -421,6 +571,14 @@
             const sheet  = Na__LeModel__GetActiveSheet();
             if (select && select.value && sheet) Na__LePanelViewport__Add(sheet, select.value, source ? source.value : null);
         });
+        Na__LePanels__OnControl('click', 'vp-add-siteplan', (e, el) => {
+            const select = el.parentNode.querySelector('[data-na-control="vp-add-siteplan-scale"]');
+            const sheet  = Na__LeModel__GetActiveSheet();
+            if (sheet) Na__LePanelViewport__AddSitePlan(sheet, select ? parseFloat(select.value) : NaN);
+        });
+        window.addEventListener(Na__SpStore__CHANGED_EVENT, (event) => {
+            if (!event.detail || event.detail.reason !== 'layer-loaded') Na__LePanels__Refresh(Na__LePanelViewport__ID);   // <-- The add note and button follow the site plan data
+        });
         Na__LePanels__OnControl('change', 'vp-source', (e, el) => {
             const c = Na__LePanelViewport__Current();
             if (!c) return;
@@ -433,7 +591,7 @@
         Na__LePanels__OnControl('change', 'vp-scene', (e, el) => {
             const c = Na__LePanelViewport__Current();
             const d = Na__LePanelViewport__Describe(el.value);
-            if (!c || !d) return;
+            if (!c || !d || Na__LeModel__IsSitePlanViewport(c.viewport)) return;   // <-- A site plan viewport has no scene
             const patch = { sceneId : el.value, drawingId : d.drawingId, kind : d.kind, snapshotAsset : null };
             if (Na__LeClip__IsCopyName(c.viewport)) patch.name = '';                  // <-- A pasted copy's placeholder name described the old scene: the caption follows the new one
             Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, patch);
@@ -449,6 +607,19 @@
             if (c && Number.isFinite(v)) { const pan = {}; pan[key] = v; Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { pan : pan }); }
         });
         Na__LePanels__OnControl('click', 'vp-centre', () => { const c = Na__LePanelViewport__Current(); if (c && Na__LeVp2d__CentreOnDrawing(c.sheet, c.viewport)) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, {}, false); });
+        Na__LePanels__OnControl('change', 'vp-zoom', (e, el) => {
+            const c = Na__LePanelViewport__Current();
+            if (!c || c.viewport.Viewport__Kind !== Na__LeModel__KIND_3D) return;
+            const percent = parseFloat(el.value);
+            const patch   = (Number.isFinite(percent) && percent > 0) ? Na__LeVpZoom__PatchAbout(c.viewport, percent / 100, null) : null;
+            if (!patch) { el.value = String(Na__LeVpZoom__Percent(Na__LeVpZoom__Get(c.viewport))); return; }   // <-- Not a zoom: the box shows the one the picture has
+            Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, patch);                                // <-- About the middle of the frame; one undo step
+            el.value = String(Na__LeVpZoom__Percent(Na__LeVpZoom__Get(c.viewport)));                             // <-- A value past a limit shows the limit it was held to
+        });
+        Na__LePanels__OnControl('click', 'vp-zoom-reset', () => {
+            const c = Na__LePanelViewport__Current();
+            if (c && c.viewport.Viewport__Kind === Na__LeModel__KIND_3D) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, Na__LeVpZoom__PatchReset(c.viewport));
+        });
         Na__LePanels__OnControl('click', 'vp-markup', (e, el, role) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { markupMode : role }); });
         Na__LePanels__OnControl('change', 'vp-show-frame', (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { showFrame : el.checked }); });
         Na__LePanels__OnControl('change', 'vp-caption', (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { showScaleLabel : el.checked }); });
@@ -456,7 +627,7 @@
         Na__LePanels__OnControl('click', 'vp-doors-open-all', () => { const c = Na__LePanelViewport__Current(); if (c) Na__LeDoors__OpenAll(c.sheet, c.viewport.Viewport__Id); });
         Na__LePanels__OnControl('click', 'vp-import', () => {
             const c = Na__LePanelViewport__Current();
-            if (!c || c.viewport.Viewport__Kind !== Na__LeModel__KIND_2D) return;
+            if (!c || c.viewport.Viewport__Kind !== Na__LeModel__KIND_2D || Na__LeModel__IsSitePlanViewport(c.viewport)) return;
             const count = Na__LeMarkup__ImportFromScene(c.sheet, c.viewport, Na__LeModel__DefaultLayerId(c.sheet, 'annotation'), Na__LeVp2d__Describe(c.viewport));
             const toast = Na__LePanels__GetContext() ? Na__LePanels__GetContext().showToast : null;
             if (typeof toast === 'function') toast(count + ' item(s) copied from the scene.', false);
@@ -487,7 +658,8 @@
     export {
         Na__LePanelViewport__EDIT_EVENT,
         Na__LePanelViewport__Register,
-        Na__LePanelViewport__Add
+        Na__LePanelViewport__Add,
+        Na__LePanelViewport__AddSitePlan
     };
     // ------------------------------------------------------------
 

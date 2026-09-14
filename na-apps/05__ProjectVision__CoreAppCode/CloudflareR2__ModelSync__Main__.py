@@ -14,7 +14,7 @@
 # - Scans na-project-portal/{year}-Projects/ for TrueVision model groups
 # - Each subfolder under 30__TrueVision__AppContent/ is a model group
 # - Uploads .glb files to Cloudflare R2 via boto3 (S3-compatible API)
-# - Also uploads TrueVision__ProjectData__.json for each project
+# - Also uploads TrueVision__ProjectData__.json and TrueVision__DrawingNotes__.json for each project
 # - Uses incremental sync (HEAD check, date comparison, skip/new/update)
 # - Dry-run preview then yes/no confirmation before uploading
 # - Colourful console output using ANSI escape codes
@@ -95,6 +95,9 @@ PLANVISION_FILE_PATTERN            = re.compile(r'^.+\.(png|pdf|json)$', re.IGNO
 DAS_FOLDER_PATTERN                 = re.compile(r'^\d{2}__DesignState?ment$', re.IGNORECASE)
 DAS_FILE_PATTERN                   = re.compile(r'^.+\.(png|jpg|jpeg|webp|svg|gif|pdf|md|html|json)$', re.IGNORECASE)
 JSON_PROJECT_DATA_FILENAME         = 'TrueVision__ProjectData__.json'
+JSON_DRAWING_NOTES_FILENAME        = 'TrueVision__DrawingNotes__.json'
+JSON_DRAWING_NOTES_LEGACY_FILENAME = 'TrueVision__ProjectSpecification__.json'
+JSON_DRAWING_NOTES_STAMP_KEY       = 'ProjectSpecification__UpdatedIso'
 PLANVISION_DATA_FILENAME           = 'PlanVision__ProjectData__.json'
 MASTER_PROJECT_INDEX_PATH          = SCRIPT_DIR / '05__AppData' / 'ProjectVision__MasterProjectIndex__Core__.json'
 SKIP_FOLDER_PREFIXES               = ('.', '00__')
@@ -463,6 +466,14 @@ def build_r2_key_project_data(year_folder_name: str, project_folder: str) -> str
     # ------------------------------------------------------------
 
 
+    # FUNCTION | Build R2 Key for Drawing Notes JSON
+    # ------------------------------------------------------------
+def build_r2_key_drawing_notes(year_folder_name: str, project_folder: str, filename: str) -> str:
+    """Construct the R2 key for a drawing-notes sibling beside the project data."""
+    return f"{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}/{TRUEVISION_CONTENT_FOLDER}/{filename}"
+    # ------------------------------------------------------------
+
+
     # HELPER FUNCTION | Format File Size for Display
     # ------------------------------------------------------------
 def format_size(size_bytes: int) -> str:
@@ -572,7 +583,7 @@ def sync_project_data_to_local(operations: List[Dict]) -> int:
     """
     updated = 0
     for op in operations:
-        if op.get('group_id') != '__project_data__':
+        if op.get('group_id') not in ('__project_data__', '__drawing_notes__'):
             continue
         if not op.get('local_out_of_sync'):
             continue
@@ -582,16 +593,145 @@ def sync_project_data_to_local(operations: List[Dict]) -> int:
             continue
 
         try:
+            local_path.parent.mkdir(parents=True, exist_ok=True)
             with open(local_path, 'wb') as fh:
                 fh.write(merged_bytes)
             updated += 1
             pulled = op.get('dev_preserved') or []
             note   = f" [pulled: {', '.join(pulled)}]" if pulled else ''
-            print(f"  {C_GREEN}[LOCAL SYNC] {local_path}{note}{C_RESET}")
+            label  = 'drawing notes' if op.get('group_id') == '__drawing_notes__' else str(local_path)
+            print(f"  {C_GREEN}[LOCAL SYNC] {label}{note}{C_RESET}")
         except OSError as error:
             print(f"  {C_RED}[LOCAL SYNC FAILED] {local_path}: {error}{C_RESET}")
 
     return updated
+    # ------------------------------------------------------------
+
+
+    # HELPER FUNCTION | ISO Stamp From a Drawing-Notes Document
+    # ------------------------------------------------------------
+def drawing_notes_stamp(data) -> str:
+    """Return ProjectSpecification__UpdatedIso, or empty when the document has none."""
+    if not isinstance(data, dict):
+        return ''
+    value = data.get(JSON_DRAWING_NOTES_STAMP_KEY)
+    return value if isinstance(value, str) else ''
+    # ------------------------------------------------------------
+
+
+    # HELPER FUNCTION | Pretty-Print JSON Bytes
+    # ------------------------------------------------------------
+def dump_json_bytes(data: Dict) -> bytes:
+    """Serialise a JSON object the way the local server writes project files."""
+    text = json.dumps(data, indent=4, ensure_ascii=False) + '\n'
+    return text.encode('utf-8')
+    # ------------------------------------------------------------
+
+
+    # HELPER FUNCTION | Load a Local JSON Object, or None
+    # ------------------------------------------------------------
+def load_local_json(local_path: Path) -> Optional[Dict]:
+    """Read a JSON object from disk. Returns None when the file is absent or unreadable."""
+    if not local_path.is_file():
+        return None
+    try:
+        with open(local_path, 'r', encoding='utf-8') as file_handle:
+            data = json.load(file_handle)
+        return data if isinstance(data, dict) else None
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Build the Drawing-Notes Sync Operation (Whole File, No Merge)
+    # ------------------------------------------------------------
+def build_drawing_notes_operation(
+    s3_client, bucket_name: str,
+    year_folder_name: str, project: Dict
+) -> Optional[Dict]:
+    """Keep TrueVision__DrawingNotes__.json in step between disk and R2.
+
+    R2 is the live in-app copy. The local file is the copy an agent can edit.
+    The newer ProjectSpecification__UpdatedIso wins. A missing local file is
+    seeded from R2, including the previous filename when the new one is absent.
+    Returns None when neither copy exists.
+    """
+    content_dir = project['project_path'] / TRUEVISION_CONTENT_FOLDER
+    local_path  = content_dir / JSON_DRAWING_NOTES_FILENAME
+    r2_key      = build_r2_key_drawing_notes(year_folder_name, project['project_folder'], JSON_DRAWING_NOTES_FILENAME)
+    legacy_key  = build_r2_key_drawing_notes(year_folder_name, project['project_folder'], JSON_DRAWING_NOTES_LEGACY_FILENAME)
+
+    remote = fetch_r2_json(s3_client, bucket_name, r2_key)
+    from_legacy = False
+    if remote is None:
+        remote = fetch_r2_json(s3_client, bucket_name, legacy_key)
+        from_legacy = remote is not None
+
+    local = load_local_json(local_path)
+    if remote is None and local is None:
+        return None
+
+    remote_stamp = drawing_notes_stamp(remote)
+    local_stamp  = drawing_notes_stamp(local)
+
+    op = {
+        'local_path'        : local_path,
+        'r2_key'            : r2_key,
+        'content_type'      : CONTENT_TYPE_JSON,
+        'filename'          : JSON_DRAWING_NOTES_FILENAME,
+        'group_id'          : '__drawing_notes__',
+        'action'            : 'skip',
+        'detail'            : 'SKIP (drawing notes in sync)',
+        'size'              : local_path.stat().st_size if local_path.is_file() else 0,
+        'merged_bytes'      : None,
+        'local_out_of_sync' : False,
+    }
+
+    if local is None and remote is not None:
+        remote_bytes = dump_json_bytes(remote)
+        op['merged_bytes']      = remote_bytes
+        op['local_out_of_sync'] = True
+        op['size']              = len(remote_bytes)
+        if from_legacy:
+            op['action'] = 'new'
+            op['detail'] = 'NEW (migrate ProjectSpecification → DrawingNotes on R2 and disk)'
+        else:
+            op['detail'] = 'LOCAL PULL from R2'
+        return op
+
+    if remote is None and local is not None:
+        local_bytes = dump_json_bytes(local)
+        op['action']       = 'new'
+        op['merged_bytes'] = local_bytes
+        op['size']         = len(local_bytes)
+        op['detail']       = 'NEW (seed R2 from local drawing notes)'
+        return op
+
+    if local_stamp and remote_stamp and local_stamp > remote_stamp:
+        local_bytes = dump_json_bytes(local)
+        op['action']       = 'update'
+        op['merged_bytes'] = local_bytes
+        op['size']         = len(local_bytes)
+        op['detail']       = 'UPDATE (local drawing notes newer)'
+        return op
+
+    if remote_stamp and local_stamp and remote_stamp > local_stamp:
+        remote_bytes = dump_json_bytes(remote)
+        op['merged_bytes']      = remote_bytes
+        op['local_out_of_sync'] = True
+        op['size']              = len(remote_bytes)
+        op['detail']            = 'LOCAL PULL from R2 (cloud drawing notes newer)'
+        return op
+
+    if from_legacy:
+        remote_bytes = dump_json_bytes(remote)
+        op['action']       = 'new'
+        op['merged_bytes'] = remote_bytes
+        op['size']         = len(remote_bytes)
+        op['detail']       = 'NEW (migrate ProjectSpecification → DrawingNotes on R2)'
+        return op
+
+    return op
     # ------------------------------------------------------------
 
 
@@ -648,6 +788,12 @@ def collect_sync_operations(
         operations.append(build_project_data_operation(
             s3_client, bucket_name, year_folder_name, project, project_data_path
         ))
+
+    drawing_notes_op = build_drawing_notes_operation(
+        s3_client, bucket_name, year_folder_name, project
+    )
+    if drawing_notes_op:
+        operations.append(drawing_notes_op)
 
     return operations
     # ------------------------------------------------------------
@@ -755,6 +901,8 @@ def print_project_operations(project: Dict, operations: List[Dict]):
             current_group = op['group_id']
             if current_group == '__project_data__':
                 print(f"    {C_MAGENTA}[Config]{C_RESET}")
+            elif current_group == '__drawing_notes__':
+                print(f"    {C_MAGENTA}[Drawing Notes]{C_RESET}")
             else:
                 print(f"    {C_DIM}[{current_group}]{C_RESET}")
 
@@ -1116,6 +1264,11 @@ def run_r2_sync(
                     project_operations.append(build_project_data_operation(
                         s3_client, bucket_name, year_folder_name, project, project_data_path
                     ))
+                    drawing_notes_op = build_drawing_notes_operation(
+                        s3_client, bucket_name, year_folder_name, project
+                    )
+                    if drawing_notes_op:
+                        project_operations.append(drawing_notes_op)
 
             # PlanVision sync
             if sync_planvision:

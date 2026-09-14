@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LePanelSheet
 // MODULE     : Layout Editor - Panel Sheet
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Sheet name, paper size, orientation, title block style and the title block fields
+// PURPOSE    : Drawing type, sheet name, paper size, orientation, title block style and the title block fields
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
@@ -14,6 +14,10 @@
 //   title block fields (D26). A field left blank falls back to its project
 //   default (the placeholder shows what that would be); typing overrides it
 //   for this sheet only.
+// - Drawing Type is the first row: Architectural Drawing or Site Plan
+//   Drawing (Sheet__DrawingType). It moves the sheet's tab - site plans sit
+//   last, beside the Project Specification - and never converts or deletes a
+//   viewport.
 //
 // INTEGRATION:
 // - Registered into the left column by the mode controller.
@@ -24,12 +28,16 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__Panel__Sheet__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - Drawing Type, the first row: Architectural Drawing or Site Plan Drawing,
+//   through UpdateSheet drawingType. One undo step.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Lineweights in points for the viewport linework and the dimensions.
 //
@@ -51,7 +59,10 @@
         Na__LeModel__GetActiveSheet,
         Na__LeModel__UpdateSheet,
         Na__LeModel__GetFields,
-        Na__LeModel__SetField
+        Na__LeModel__SetField,
+        Na__LeModel__DRAWING_ARCHITECTURAL,
+        Na__LeModel__DRAWING_SITEPLAN,
+        Na__LeModel__IsSitePlanSheet
     } from './Na__LayoutEditor__SheetModel__.js';
     import {
         Na__LePanels__RegisterSection,
@@ -78,6 +89,10 @@
     // HELPER FUNCTION | Build the Controls
     // ------------------------------------------------------------
     function Na__LePanelSheet__Build(body) {
+        body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DrawingType', 'Drawing type'), Na__LePanels__Select('sheet-drawing-type', [
+            { value : Na__LeModel__DRAWING_ARCHITECTURAL, label : Na__LeCfg__GetLabel('DrawingTypeArchitectural', 'Architectural Drawing') },
+            { value : Na__LeModel__DRAWING_SITEPLAN,      label : Na__LeCfg__GetLabel('DrawingTypeSitePlan', 'Site Plan Drawing') }
+        ])));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SheetName', 'Name'), Na__LePanels__Input('text', 'sheet-name')));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('PaperSize', 'Paper'), Na__LePanels__Select('sheet-paper', Na__LeLayout__ListPaperSizes().map((p) => ({ value : p.Key, label : p.Label })))));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('Orientation', 'Orientation'), Na__LePanels__Select('sheet-orientation', [ { value : 'landscape', label : 'Landscape' }, { value : 'portrait', label : 'Portrait' } ])));
@@ -110,6 +125,7 @@
         const sheet = Na__LeModel__GetActiveSheet();
         const set = (name, value) => { const el = body.querySelector('[data-na-control="' + name + '"]'); if (el && document.activeElement !== el) el.value = value; };
         if (!sheet) return;
+        set('sheet-drawing-type', Na__LeModel__IsSitePlanSheet(sheet) ? Na__LeModel__DRAWING_SITEPLAN : Na__LeModel__DRAWING_ARCHITECTURAL);
         set('sheet-name', sheet.Sheet__Name);
         set('sheet-paper', sheet.Sheet__PaperSize);
         set('sheet-orientation', sheet.Sheet__Orientation);
@@ -130,6 +146,7 @@
     // FUNCTION | Register the Section and Its Controls
     // ------------------------------------------------------------
     function Na__LePanelSheet__Register() {
+        Na__LePanels__OnControl('change', 'sheet-drawing-type', (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { drawingType : el.value }); });   // <-- Moves the tab; never touches a viewport
         Na__LePanels__OnControl('change', 'sheet-name',        (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { name : el.value }); });
         Na__LePanels__OnControl('change', 'sheet-paper',       (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { paperSize : el.value }); });
         Na__LePanels__OnControl('change', 'sheet-orientation', (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { orientation : el.value }); });

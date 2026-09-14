@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LocalMirror
 // MODULE     : Local Project Data Mirror
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Copy the keys a save has just written to R2 into the repository's TrueVision__ProjectData__.json
+// PURPOSE    : Copy saved project JSON onto the repository copies under 30__TrueVision__AppContent
 // CREATED    : 14-Sep-2026
 //
 // DESCRIPTION:
@@ -20,6 +20,9 @@
 //   POST /api/projects/<code>. Every other key stays exactly as the file has it,
 //   so model groups a build regenerated while the app was open are never put
 //   back to the copy the app loaded.
+// - SIBLING FILES. TrueVision__DrawingNotes__.json sits beside the project data
+//   and is written WHOLE (WriteSiblingFile), never merged. That is the copy an
+//   agent can edit on disk. POST /api/projects/<code>/files/<fileName>.
 // - LOCALHOST ONLY. The web build has no local copy; there the result reports
 //   skipped, and the caller says the save went to R2.
 // - NEVER THROWS. R2 already holds the save when this runs, so a failure here
@@ -28,6 +31,8 @@
 // INTEGRATION:
 // - Na__DrawView__ProjectData__ calls Na__LocalMirror__MergeKeys after every
 //   drawings save that reached R2: Save Sheets, the structural auto save, renames.
+// - Na__LayoutEditor__SpecData__ calls Na__LocalMirror__WriteSiblingFile after
+//   a specification Sync, and to seed the local drawing-notes file on load.
 // - Needs the ProjectVision local server (na-apps/ProjectVision__LocalServer__Main__.py),
 //   which serves the app and owns the write route. A plain static server answers
 //   the POST with 501, reported as no local save server.
@@ -35,6 +40,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - WriteSiblingFile: whole-file write of TrueVision__DrawingNotes__.json
+//   through POST /api/projects/<code>/files/<fileName>.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: Save Sheets saves to R2 and locally.
 //
@@ -66,7 +75,8 @@
     // ------------------------------------------------------------
     const Na__LocalMirror__PortalDir    = 'na-project-portal';                  // <-- Repository folder the project data lives under
     const Na__LocalMirror__TvContentDir = '30__TrueVision__AppContent';         // <-- Per-project TrueVision content folder
-    const Na__LocalMirror__TvDataFile   = 'TrueVision__ProjectData__.json';     // <-- The project data file
+    const Na__LocalMirror__TvDataFile     = 'TrueVision__ProjectData__.json';     // <-- The project data file
+    const Na__LocalMirror__SiblingFiles   = [ 'TrueVision__DrawingNotes__.json' ]; // <-- Whole documents beside the project data
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -97,12 +107,37 @@
 
         const origin = window.location.origin;
         const query  = new URLSearchParams({ 'project-folder' : projectFolder, year : yearCode });
+        const folder = `${origin}/${Na__LocalMirror__PortalDir}/${yearCode}-Projects/${projectFolder}`
+                     + `/${Na__LocalMirror__TvContentDir}`;
         return {
             origin   : origin,
-            fileUrl  : `${origin}/${Na__LocalMirror__PortalDir}/${yearCode}-Projects/${projectFolder}`
-                     + `/${Na__LocalMirror__TvContentDir}/${Na__LocalMirror__TvDataFile}`,
-            writeUrl : `${origin}/api/projects/${encodeURIComponent(projectCode)}?${query.toString()}`
+            folder   : folder,
+            fileUrl  : `${folder}/${Na__LocalMirror__TvDataFile}`,
+            writeUrl : `${origin}/api/projects/${encodeURIComponent(projectCode)}?${query.toString()}`,
+            query    : query.toString(),
+            code     : projectCode
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | POST JSON to the Local Server; Never Throws
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__PostJson(url, origin, payload) {
+        try {
+            const response = await fetch(url, {
+                method  : 'POST',
+                headers : { 'Content-Type' : 'application/json' },
+                body    : JSON.stringify(payload)
+            });
+            if (response.ok) return Na__LocalMirror__Result(true, false, null);
+
+            const answer = await response.json().catch(() => null);                                  // <-- The local server answers in JSON; a static server does not
+            if (answer && answer.error) return Na__LocalMirror__Result(false, false, answer.error);
+            return Na__LocalMirror__Result(false, false, `no local save server at ${origin} (${response.status}) - serve the app with the ProjectVision local server`);
+        } catch (error) {
+            return Na__LocalMirror__Result(false, false, `the local server did not answer (${(error && error.message) || 'no answer'})`);
+        }
     }
     // ------------------------------------------------------------
 
@@ -140,20 +175,29 @@
 
         // WRITE | The saved keys over the file's own, through the local server
         const merged = Object.assign({}, onDisk, partialObject);
-        try {
-            const response = await fetch(place.writeUrl, {
-                method  : 'POST',
-                headers : { 'Content-Type' : 'application/json' },
-                body    : JSON.stringify(merged)
-            });
-            if (response.ok) return Na__LocalMirror__Result(true, false, null);
+        return Na__LocalMirror__PostJson(place.writeUrl, place.origin, merged);
+    }
+    // ------------------------------------------------------------
 
-            const answer = await response.json().catch(() => null);                                  // <-- The local server answers in JSON; a static server does not
-            if (answer && answer.error) return Na__LocalMirror__Result(false, false, answer.error);
-            return Na__LocalMirror__Result(false, false, `no local save server at ${place.origin} (${response.status}) - serve the app with the ProjectVision local server`);
-        } catch (error) {
-            return Na__LocalMirror__Result(false, false, `the local server did not answer (${(error && error.message) || 'no answer'})`);
+
+    // FUNCTION | Write a Whole Sibling File Into the Repository Copy
+    // ------------------------------------------------------------
+    // fileName: an allowed sibling (TrueVision__DrawingNotes__.json).
+    // dataObject: the complete document. Resolves to { ok, skipped, error };
+    // never rejects. Creates the file when the folder has none yet.
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__WriteSiblingFile(fileName, dataObject) {
+        if (!Na__AppUtils__IsRunningOnLocalhost()) return Na__LocalMirror__Result(false, true, null);
+        if (Na__LocalMirror__SiblingFiles.indexOf(fileName) === -1) return Na__LocalMirror__Result(false, false, `refused local file "${fileName}"`);
+        if (!dataObject || typeof dataObject !== 'object' || Array.isArray(dataObject)) {
+            return Na__LocalMirror__Result(false, false, 'nothing to write');
         }
+
+        const place = Na__LocalMirror__Locate();
+        if (!place) return Na__LocalMirror__Result(false, false, 'no project in the URL');
+
+        const writeUrl = `${place.origin}/api/projects/${encodeURIComponent(place.code)}/files/${encodeURIComponent(fileName)}?${place.query}`;
+        return Na__LocalMirror__PostJson(writeUrl, place.origin, dataObject);
     }
     // ------------------------------------------------------------
 
@@ -167,7 +211,8 @@
     // MODULE EXPORTS | Local Project Data Mirror API
     // ------------------------------------------------------------
     export {
-        Na__LocalMirror__MergeKeys
+        Na__LocalMirror__MergeKeys,
+        Na__LocalMirror__WriteSiblingFile
     };
     // ------------------------------------------------------------
 

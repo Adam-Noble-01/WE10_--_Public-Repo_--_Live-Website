@@ -733,6 +733,49 @@ body.na-le-sorting * {
 
 
 /* ----------------------------------------------------------------- */
+/* REGION  |  Dashed-Edge Rows (Vectors panel)                       */
+/* ----------------------------------------------------------------- */
+
+/* THE SETTINGS BLOCK sits under its toggle the way the gradient block sits
+   under Gradient, with a faint rule down its left so the rows read as the
+   dashed edge's own rather than as more shape properties. */
+.na-le-dash {
+    margin                             : -2px 0 6px;
+    padding-left                       : 8px;
+    border-left                        : 2px solid #e6eaee;
+}
+
+.na-le-dash-readout {
+    flex                               : 0 0 42px;
+    color                              : #555;
+    font-size                          : 0.72rem;
+    font-variant-numeric               : tabular-nums;
+    text-align                         : right;
+}
+
+/* THE PREVIEW is the same dash array the paper is painted with, stretched
+   to four pixels per paper millimetre so a 2.5 mm dash is long enough to
+   read across the row. */
+.na-le-dash-preview {
+    height                             : 18px;
+    margin                             : 0 0 6px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background                         : #ffffff;
+    color                              : #172b3a;
+    overflow                           : hidden;
+}
+
+.na-le-dash-preview__svg {
+    display                            : block;
+    width                              : 100%;
+    height                             : 100%;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
 /* REGION  |  Linked Pair (two values and a padlock)                 */
 /* ----------------------------------------------------------------- */
 

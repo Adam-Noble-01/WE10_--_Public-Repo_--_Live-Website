@@ -21,6 +21,10 @@
 //   an edge and a diamond marks where a click will insert another.
 // - A selected leader shows a square grip at its tip and a round one at the
 //   anchor where it lands on its head.
+// - A selected text item shows a round grip on a short stem off the middle
+//   of the top of its outline, turned with the text. Dragging it turns the
+//   text about the middle of its box (Na__LayoutEditor__TextTool__); the
+//   grip stands the same distance off the outline on screen at any zoom.
 // - Grips are counter-scaled so they stay the same size on screen at any
 //   zoom, like the viewport handles.
 // - The rubber band is one dashed line in the handles layer, shared by the
@@ -47,6 +51,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.6.0
+// - Rotate grip: a selected text item shows a round grip on a stem off the
+//   middle of the top of its outline, turned with the text, standing
+//   Text RotateGripOffsetPx off the outline on screen. AnnotationGrab says
+//   whether a press takes that grip ('rotate') or the text ('whole'), and
+//   ROTATE_CURSOR is the cursor shown over it.
+//
 // 14-Sep-2026 - Version 1.5.0
 // - ShowInsert and HideInsert: a diamond grip on an edge of a selected
 //   vector, the place a Shift-click will put a new vertex.
@@ -81,14 +92,34 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Markup and Shape Geometry
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetSelectionSetup } from './Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__IsLayerLocked } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeCfg__GetSelectionSetup, Na__LeCfg__GetTextSetup } from './Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeModel__IsLayerLocked, Na__LeModel__IsLayerVisible } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionTextLayout } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionTextLayout, Na__LeMarkup__AnnotationRotateGrip } from './Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeDimGeo__HitText, Na__LeDimGeo__DistanceToPolyline } from './Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt } from './Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeLeadGeo__Hit } from './Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeGroup__Render } from './Na__LayoutEditor__Groups__.js';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Constants
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Cursor Over a Rotate Grip
+    // ------------------------------------------------------------
+    // A curved arrow drawn inline, because no stock cursor says "turn". The
+    // hotspot is its middle; 'grab' stands in wherever a drawn cursor is refused.
+    // ------------------------------------------------------------
+    const Na__LeGrips__ROTATE_CURSOR = 'url("data:image/svg+xml,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">' +
+        '<path d="M5.5 12a6.5 6.5 0 1 0 2-4.7" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M5.5 12a6.5 6.5 0 1 0 2-4.7" fill="none" stroke="#172b3a" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<path d="M5.6 9.1 L9.5 8.5 L6.3 5.2 Z" fill="#172b3a" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/>' +
+        '</svg>') + '") 12 12, grab';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -127,6 +158,33 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Stem From a Text Item's Outline to Its Rotate Grip
+    // ------------------------------------------------------------
+    // A grip element as well, so whatever clears the grips clears the stem.
+    // ------------------------------------------------------------
+    function Na__LeGrips__AddStem(layer, from, to, ppm, zoom) {
+        const stem = document.createElement('div');
+        stem.className = 'na-le-grip na-le-grip--stem';
+        stem.style.left           = (from.x * ppm) + 'px';
+        stem.style.top            = (from.y * ppm) + 'px';
+        stem.style.width          = (Math.hypot(to.x - from.x, to.y - from.y) * ppm) + 'px';
+        stem.style.borderTopWidth = Math.max(1, 1 / zoom) + 'px';
+        stem.style.transform      = 'rotate(' + (Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI)) + 'deg)';
+        layer.appendChild(stem);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | How Far Off Its Outline a Rotate Grip Stands, in Paper Millimetres
+    // ------------------------------------------------------------
+    // Text RotateGripOffsetPx on screen at any zoom, as the grips keep their size.
+    // ------------------------------------------------------------
+    function Na__LeGrips__RotateReachMm(ppm, zoom) {
+        return Na__LeCfg__GetTextSetup().rotateGripOffsetPx / Math.max(1e-6, ppm * zoom);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Draw the Grips for the Selection (nothing for a viewport or a locked layer)
     // ------------------------------------------------------------
     function Na__LeGrips__Render(layer, sheet, selection, ppm, zoom) {
@@ -152,6 +210,14 @@
         }
         if (selection.kind === 'group') {
             return Na__LeGroup__Render(layer, sheet, [ selection ], ppm, zoom);
+        }
+        if (selection.kind === 'annotation') {
+            const item = (sheet.Sheet__Annotations || []).find((a) => a.Annotation__Id === selection.id);
+            if (!item || !Na__LeModel__IsLayerVisible(sheet, item.Annotation__LayerId) || Na__LeModel__IsLayerLocked(sheet, item.Annotation__LayerId)) return false;
+            const at = Na__LeMarkup__AnnotationRotateGrip(item, Na__LeGrips__RotateReachMm(ppm, zoom));
+            Na__LeGrips__AddStem(layer, at.base, at.grip, ppm, zoom);
+            Na__LeGrips__Add(layer, at.grip.x, at.grip.y, ppm, sizePx, zoom, 'rotate');   // <-- Round, on its stem: turns the text about its middle
+            return true;
         }
         if (selection.kind === 'leader') {
             const leader = (sheet.Sheet__Leaders || []).find((l) => l.Leader__Id === selection.id);
@@ -338,6 +404,20 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Which Part of a Selected Text Item a Press Grabs
+    // ------------------------------------------------------------
+    // 'rotate' on its rotate grip, found at twice the tolerance as a
+    // dimension's grips are; else 'whole'. ppm and zoom place the grip, which
+    // stands a fixed distance off the outline on screen.
+    // ------------------------------------------------------------
+    function Na__LeGrips__AnnotationGrab(item, pointMm, toleranceMm, ppm, zoom) {
+        if (!item || !pointMm) return 'whole';
+        const at = Na__LeMarkup__AnnotationRotateGrip(item, Na__LeGrips__RotateReachMm(ppm, zoom));
+        return Math.hypot(pointMm.x - at.grip.x, pointMm.y - at.grip.y) <= toleranceMm * 2 ? 'rotate' : 'whole';
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -357,7 +437,9 @@
         Na__LeGrips__HideInsert,
         Na__LeGrips__DimensionGrab,
         Na__LeGrips__ShapeGrab,
-        Na__LeGrips__LeaderGrab
+        Na__LeGrips__LeaderGrab,
+        Na__LeGrips__AnnotationGrab,
+        Na__LeGrips__ROTATE_CURSOR
     };
     // ------------------------------------------------------------
 

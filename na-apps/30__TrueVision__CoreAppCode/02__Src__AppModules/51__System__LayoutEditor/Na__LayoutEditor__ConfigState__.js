@@ -32,6 +32,41 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.20.0
+// - GetViewportSetup: imageZoomMin and imageZoomMax (a 3D picture's zoom
+//   limits, 0.25 and 10), imageZoomFineFactor (a Shift+wheel notch against a
+//   plain one, 0.2) and imageZoomCommitMs (how long the wheel rests before a
+//   run of notches is announced as one undo step, 350).
+//
+// 14-Sep-2026 - Version 1.19.0
+// - GetMarginNotesSetup: body text is TextSizeMm (2 mm). TextSizePt is gone.
+//
+// 14-Sep-2026 - Version 1.18.0
+// - GetMarginNotesSetup: paddingRightMm (clearance before the right border)
+//   and body size from TextSizePt (9 pt) converted with PtToMm.
+//
+// 14-Sep-2026 - Version 1.17.0
+// - GetMarginNotesSetup: codePipe (the delimiter between a note's code and
+//   its title), rulePt and ruleColour (the faint rule between notes).
+//
+// 14-Sep-2026 - Version 1.16.0
+// - GetScaleSetup carries the site plan scales: sitePlanDenominators (Scales
+//   SitePlanScaleDenominators, else 1:500 and 1:1250) and sitePlanDefaultDenominator.
+//
+// 14-Sep-2026 - Version 1.15.0
+// - GetPlanDoorsSetup: shutOnElevations, whether elevation and section
+//   viewports draw every door shut whatever the 3D view shows
+//   (Na__LayoutEditor__PlanDoors__).
+//
+// 14-Sep-2026 - Version 1.14.0
+// - GetTextSetup: lineSpacing, a sheet annotation's line height as a
+//   multiple of its text size (Text LineSpacing).
+//
+// 14-Sep-2026 - Version 1.13.0
+// - GetSpecificationSetup: FileName is TrueVision__DrawingNotes__.json (the
+//   local and R2 sibling beside the project data). LegacyFileName is the
+//   previous R2 name, read only when the new file is not there yet.
+//
 // 14-Sep-2026 - Version 1.12.0
 // - GetDimensionSetup: textLeaderMinMm and textLeaderGapMm, how far a
 //   dragged value has to sit from its un-dragged place before the arc is
@@ -408,9 +443,12 @@
     // ------------------------------------------------------------
     function Na__LeCfg__GetScaleSetup() {
         const list = Na__LeCfg__Val('Scales', 'AvailableScaleDenominators', null);
+        const sitePlanList = Na__LeCfg__Val('Scales', 'SitePlanScaleDenominators', null);   // <-- Site plan viewports: 1:500 and 1:1250 unless configured
         return {
             denominators : Array.isArray(list) && list.length ? list.slice().sort((a, b) => a - b) : Na__LeCfg__FALLBACKS.scales.slice(),
             defaultDenominator : Na__LeCfg__Num('Scales', 'DefaultScaleDenominator', 50),
+            sitePlanDenominators       : Array.isArray(sitePlanList) && sitePlanList.length ? sitePlanList.slice().sort((a, b) => a - b) : [ 500, 1250 ],
+            sitePlanDefaultDenominator : Na__LeCfg__Num('Scales', 'SitePlanDefaultScaleDenominator', 500),
             labelPrefix        : Na__LeCfg__Val('Scales', 'ScaleLabelPrefix', '1:'),
             notToScaleLabel    : Na__LeCfg__Val('Scales', 'NotToScaleLabel', 'NTS')
         };
@@ -429,7 +467,11 @@
             handleHitRadiusPx    : Na__LeCfg__Num('Viewport', 'HandleHitRadiusPx', 10),
             showScaleLabel       : Na__LeCfg__Val('Viewport', 'ShowScaleLabel', true) !== false,
             defaultStyles        : Na__LeCfg__DefaultStyles(Na__LeCfg__Val('Viewport', 'DefaultStyles', null)),
-            assetFolder          : Na__LeCfg__Val('Viewport', 'AssetFolder', 'LayoutEditor/Snapshots')
+            assetFolder          : Na__LeCfg__Val('Viewport', 'AssetFolder', 'LayoutEditor/Snapshots'),
+            imageZoomMin         : Math.min(1, Math.max(0.01, Na__LeCfg__Num('Viewport', 'ImageZoomMin', 0.25))),   // <-- A 3D picture's zoom limits: never past 100 percent the wrong way
+            imageZoomMax         : Math.max(1, Na__LeCfg__Num('Viewport', 'ImageZoomMax', 10)),
+            imageZoomFineFactor  : Math.max(0.01, Na__LeCfg__Num('Viewport', 'ImageZoomFineFactor', 0.2)),
+            imageZoomCommitMs    : Math.max(0, Na__LeCfg__Num('Viewport', 'ImageZoomCommitMs', 350))
         };
     }
     // ------------------------------------------------------------
@@ -449,6 +491,7 @@
             defaultWeight  : Na__LeCfg__Num('Text', 'DefaultWeight', 400),
             defaultColour  : Na__LeCfg__Val('Text', 'DefaultColour', '#172b3a'),
             defaultText    : Na__LeCfg__Val('Text', 'DefaultText', 'Text'),
+            lineSpacing    : Math.max(1, Na__LeCfg__Num('Text', 'LineSpacing', 1.2)),
             leaderStrokeMm : Na__LeCfg__Num('Text', 'LeaderStrokeMm', 0.2)
         };
     }
@@ -586,11 +629,12 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Doors on Plan Viewports
+    // FUNCTION | Doors on Plan, Elevation and Section Viewports
     // ------------------------------------------------------------
     function Na__LeCfg__GetPlanDoorsSetup() {
         return {
             openOnPlans      : Na__LeCfg__Val('PlanDoors', 'OpenOnPlans', true) !== false,
+            shutOnElevations : Na__LeCfg__Val('PlanDoors', 'ShutOnElevations', true) !== false,
             drawSwings       : Na__LeCfg__Val('PlanDoors', 'DrawSwings', true) !== false,
             swingStepDegrees : Math.min(45, Math.max(1, Na__LeCfg__Num('PlanDoors', 'SwingStepDegrees', 5))),
             clickToToggle    : Na__LeCfg__Val('PlanDoors', 'ClickToToggle', true) !== false,
@@ -705,7 +749,9 @@
 
     // FUNCTION | Project Specification Setup
     // ------------------------------------------------------------
-    // The file the specification lives in beside the project data, how its
+    // The file the specification lives in beside the project data
+    // (TrueVision__DrawingNotes__.json locally and on R2; LegacyFileName is the
+    // previous R2 name, read only when the new file is not there yet), how its
     // codes are numbered, the browser draft, its own undo depth, and the groups
     // offered to a project with no specification yet. A code is a group prefix
     // of up to PrefixMaxLength letters and the note's place in its group,
@@ -714,7 +760,8 @@
     function Na__LeCfg__GetSpecificationSetup() {
         const starters = Na__LeCfg__Val('Specification', 'StarterGroups', null);
         return {
-            fileName         : Na__LeCfg__Val('Specification', 'FileName', 'TrueVision__ProjectSpecification__.json'),
+            fileName         : Na__LeCfg__Val('Specification', 'FileName', 'TrueVision__DrawingNotes__.json'),
+            legacyFileName   : Na__LeCfg__Val('Specification', 'LegacyFileName', 'TrueVision__ProjectSpecification__.json'),
             numberDigits     : Math.max(1, Math.min(4, Math.round(Na__LeCfg__Num('Specification', 'NumberDigits', 2)))),
             prefixMaxLength  : Math.max(1, Math.min(6, Math.round(Na__LeCfg__Num('Specification', 'PrefixMaxLength', 4)))),
             draftEnabled     : Na__LeCfg__Val('Specification', 'DraftEnabled', true) !== false,
@@ -737,8 +784,11 @@
     // What a sheet's notes margin starts with, and the rules it is laid out by.
     // Sizes and distances are paper millimetres; the divider is printed points.
     // A margin is never narrower than MinWidthMm nor wider than
-    // MaxWidthFraction of the sheet's content width. A note's code and title
-    // are drawn at TitleScale times the body text size.
+    // MaxWidthFraction of the sheet's content width. PaddingRightMm is the
+    // extra inset before the right border. Body text is TextSizeMm (2 mm); a
+    // note's title is TitleScale times that. CodePipe sits
+    // between the code and the title; RulePt and RuleColour draw the line
+    // between notes.
     // ------------------------------------------------------------
     function Na__LeCfg__GetMarginNotesSetup() {
         return {
@@ -746,19 +796,23 @@
             minWidthMm        : Math.max(10, Na__LeCfg__Num('MarginNotes', 'MinWidthMm', 40)),
             maxWidthFraction  : Math.max(0.1, Math.min(0.9, Na__LeCfg__Num('MarginNotes', 'MaxWidthFraction', 0.6))),
             paddingMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'PaddingMm', 3)),
+            paddingRightMm    : Math.max(0, Na__LeCfg__Num('MarginNotes', 'PaddingRightMm', 6)),
             headingText       : Na__LeCfg__Val('MarginNotes', 'HeadingText', 'NOTES'),
             headingSizeMm     : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'HeadingSizeMm', 3.5)),
             headingTrackingMm : Math.max(0, Na__LeCfg__Num('MarginNotes', 'HeadingTrackingMm', 0.2)),
             headingGapMm      : Math.max(0, Na__LeCfg__Num('MarginNotes', 'HeadingGapMm', 3)),
-            textSizeMm        : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'TextSizeMm', 2.2)),
+            textSizeMm        : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'TextSizeMm', 2)),
             minTextSizeMm     : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'MinTextSizeMm', 1.2)),
             maxTextSizeMm     : Math.max(1, Na__LeCfg__Num('MarginNotes', 'MaxTextSizeMm', 6)),
             titleScale        : Math.max(0.5, Na__LeCfg__Num('MarginNotes', 'TitleScale', 1.1)),
             lineSpacing       : Math.max(1, Na__LeCfg__Num('MarginNotes', 'LineSpacing', 1.35)),
             noteGapMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'NoteGapMm', 2.5)),
             codeGapMm         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'CodeGapMm', 2)),
+            codePipe          : Na__LeCfg__Val('MarginNotes', 'CodePipe', ' | '),
             groupGapMm        : Math.max(0, Na__LeCfg__Num('MarginNotes', 'GroupGapMm', 2)),
             dividerPt         : Math.max(0, Na__LeCfg__Num('MarginNotes', 'DividerPt', 0.5)),
+            rulePt            : Math.max(0, Na__LeCfg__Num('MarginNotes', 'RulePt', 0.35)),
+            ruleColour        : Na__LeCfg__Val('MarginNotes', 'RuleColour', '#cfd4d8'),
             includeGeneral    : Na__LeCfg__Val('MarginNotes', 'IncludeGeneralNotes', true) !== false,
             groupHeadings     : Na__LeCfg__Val('MarginNotes', 'GroupHeadings', false) === true,
             gripWidthPx       : Math.max(4, Na__LeCfg__Num('MarginNotes', 'GripWidthPx', 10))

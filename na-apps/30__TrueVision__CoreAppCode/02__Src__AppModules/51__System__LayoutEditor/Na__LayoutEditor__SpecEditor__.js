@@ -35,10 +35,20 @@
 //   note to its heading, for reordering a long specification. The filter hides
 //   the notes whose code, title and text do not contain what is typed.
 // - Read-only sessions see the same page with nothing editable.
+// - EDIT AND READ. Two tabs inside the tab, beside its title. Edit is the page
+//   above. Read lays the specification out as A4 pages - the pages it prints
+//   as (Na__LayoutEditor__SpecDocument__) - with Print, and its text is real
+//   text a browser can read aloud. The bar keeps the sync state and Sync in
+//   both; the filter and the editing tools are Edit's. The view is remembered
+//   in this browser, a note asked for from a sheet opens Edit, and a read-only
+//   session starts in Read.
+// - While the page is up the sheet beneath it is hidden as well as covered,
+//   so a Read Aloud or a find on the page never reaches the panels under it.
 //
 // INTEGRATION:
 // - Mounted into the editor host and shown and hidden by the mode controller.
 //   Opening a sheet from a usage chip goes out as Na__LeSpec__GOTO_EVENT.
+// - Read's pages, and printing them, are Na__LayoutEditor__SpecDocument__'s.
 //
 // -----------------------------------------------------------------------------
 //
@@ -49,6 +59,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Edit and Read, two tabs inside the tab. Read shows the specification as
+//   A4 pages with Print (Na__LayoutEditor__SpecDocument__). Each view keeps
+//   its own scroll, also across a visit to a sheet. Ctrl+Z and Ctrl+Y step
+//   the history only in Edit.
+// - The host carries is-spec-shown while the page is up, which hides the
+//   sheet beneath it.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -59,7 +77,7 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Config, Model, Specification, Links, Project Code and the Confirm Dialog
+    // MODULE IMPORTS | Config, Model, Specification, Links, Document, Project Code and the Confirm Dialog
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetSpecificationSetup } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__CHANGED_EVENT } from './Na__LayoutEditor__SheetModel__.js';
@@ -91,6 +109,7 @@
         Na__LeSpec__Retry
     } from './Na__LayoutEditor__SpecData__.js';
     import { Na__LeSpecLink__Usage, Na__LeSpecLink__LinkMatching } from './Na__LayoutEditor__SpecLinks__.js';
+    import { Na__LeSpecDoc__Initialize, Na__LeSpecDoc__Render, Na__LeSpecDoc__Fit, Na__LeSpecDoc__Print } from './Na__LayoutEditor__SpecDocument__.js';
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
     // ------------------------------------------------------------
@@ -102,9 +121,12 @@
 // REGION | Module Constants and State
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Storage, the Grip and the Drag
+    // MODULE CONSTANTS | Storage, the Views, the Grip and the Drag
     // ------------------------------------------------------------
     const Na__LeSpecEd__COMPACT_KEY   = 'na-layouteditor-spec:headings-only';
+    const Na__LeSpecEd__VIEW_KEY      = 'na-layouteditor-spec:view';
+    const Na__LeSpecEd__VIEW_EDIT     = 'edit';
+    const Na__LeSpecEd__VIEW_READ     = 'read';
     const Na__LeSpecEd__DRAG_START_PX = 4;
     const Na__LeSpecEd__AUTOSCROLL_PX = 40;
     const Na__LeSpecEd__GRIP_SVG      = '<svg viewBox="0 0 8 13" aria-hidden="true"><circle cx="2" cy="2" r="1.3"/><circle cx="6" cy="2" r="1.3"/><circle cx="2" cy="6.5" r="1.3"/><circle cx="6" cy="6.5" r="1.3"/><circle cx="2" cy="11" r="1.3"/><circle cx="6" cy="11" r="1.3"/></svg>';
@@ -126,6 +148,11 @@
     let Na__LeSpecEd__Drag      = null;    // <-- { noteId, groupId, list, rows, slots, from, to, startY, pointerId, moved, pending }
     let Na__LeSpecEd__PrefixError = null;  // <-- { groupId, message } shown beside the group whose prefix was refused
     let Na__LeSpecEd__FocusAfter  = null;  // <-- { selector } to focus once the next render lands (a new note's title, a new group's prefix)
+    let Na__LeSpecEd__Reader      = null;  // <-- Read's scroller, and the desk its pages lie on
+    let Na__LeSpecEd__Desk        = null;
+    let Na__LeSpecEd__View        = 'edit';
+    let Na__LeSpecEd__Pages       = 0;     // <-- Pages Read last laid out
+    let Na__LeSpecEd__ScrollBack  = { edit : null, read : null };   // <-- Where each view was scrolled to when it was last put away
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -192,6 +219,21 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The View, Edit or Read: Remembered in This Browser
+    // ------------------------------------------------------------
+    function Na__LeSpecEd__StoredView() {
+        try {
+            const view = window.localStorage.getItem(Na__LeSpecEd__VIEW_KEY);
+            return (view === Na__LeSpecEd__VIEW_EDIT || view === Na__LeSpecEd__VIEW_READ) ? view : null;
+        } catch (e) { return null; }
+    }
+    function Na__LeSpecEd__StoreView(view) {
+        try { window.localStorage.setItem(Na__LeSpecEd__VIEW_KEY, view); } catch (e) { /* storage unavailable */ }
+    }
+    function Na__LeSpecEd__IsReading() { return Na__LeSpecEd__View === Na__LeSpecEd__VIEW_READ; }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | A Count in Words: "1 note", "3 notes"
     // ------------------------------------------------------------
     function Na__LeSpecEd__Count(count, oneKey, oneText, manyKey, manyText) {
@@ -231,9 +273,26 @@
         heading.appendChild(summary);
         bar.appendChild(heading);
 
+        // THE VIEWS | Edit and Read, two tabs inside the tab
+        const views = Na__LeSpecEd__El('div', 'na-le-spec__views');
+        views.setAttribute('role', 'tablist');
+        views.setAttribute('aria-label', L('SpecViewsLabel', 'Specification view'));
+        [
+            [ Na__LeSpecEd__VIEW_EDIT, L('SpecViewEdit', 'Edit'), L('SpecViewEditTitle', 'Write, group, order and link the notes') ],
+            [ Na__LeSpecEd__VIEW_READ, L('SpecViewRead', 'Read'), L('SpecViewReadTitle', 'The specification as A4 pages, the way it prints - print it, or have the browser read it aloud') ]
+        ].forEach((entry) => {
+            const tab = Na__LeSpecEd__Button(entry[1], 'view', entry[2]);
+            tab.className = 'na-le-spec__view';
+            tab.setAttribute('role', 'tab');
+            tab.setAttribute('data-view', entry[0]);
+            views.appendChild(tab);
+        });
+        bar.appendChild(views);
+
         const filter = Na__LeSpecEd__Field('input', 'na-le-spec__filter', 'filter', null);
         filter.type        = 'search';
         filter.placeholder = L('SpecFilter', 'Filter notes');
+        filter.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_EDIT);         // <-- Shown in one view, put away in the other
         bar.appendChild(filter);
         Na__LeSpecEd__Filter = filter;
 
@@ -245,6 +304,17 @@
             bar.appendChild(Na__LeSpecEd__Button(L('Undo', 'Undo'), 'undo', L('SpecUndoTitle', 'Undo the last change to the specification (Ctrl+Z outside a text field)')));
             bar.appendChild(Na__LeSpecEd__Button(L('Redo', 'Redo'), 'redo', L('SpecRedoTitle', 'Redo the change just undone (Ctrl+Y outside a text field)')));
         }
+        [ 'compact', 'link-all', 'add-group', 'undo', 'redo' ].forEach((action) => {
+            const button = bar.querySelector('[data-na-spec="' + action + '"]');
+            if (button) button.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_EDIT);
+        });
+        const pages = Na__LeSpecEd__El('span', 'na-le-spec__pages');
+        pages.setAttribute('data-na-spec-bar', 'pages');
+        pages.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_READ);
+        bar.appendChild(pages);
+        const print = Na__LeSpecEd__Button(L('SpecPrint', 'Print'), 'print', L('SpecPrintTitle', 'Print the specification on A4 paper, or choose Save as PDF in the print dialog'));
+        print.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_READ);
+        bar.appendChild(print);
         const status = Na__LeSpecEd__El('span', 'na-le-spec__status');
         status.setAttribute('data-na-spec-bar', 'status');
         bar.appendChild(status);
@@ -290,6 +360,14 @@
         each('sync',      (b) => { b.disabled = !state.canSync || !state.dirty; b.classList.toggle('na-le-btn--primary', state.dirty && state.canSync); });
         each('link-all',  (b) => { b.hidden = matching === 0; b.textContent = Na__LeCfg__FormatLabel('SpecLinkAll', 'Link matching bubbles ({count})', { count : matching }); });
         each('compact',   (b) => { const on = Na__LeSpecEd__IsCompact(); b.classList.toggle('na-le-btn--active', on); b.setAttribute('aria-pressed', String(on)); });
+        each('print',     (b) => { b.disabled = !state.loaded; });
+        Na__LeSpecEd__Bar.querySelectorAll('[data-na-spec="view"]').forEach((tab) => {
+            const on = tab.getAttribute('data-view') === Na__LeSpecEd__View;
+            tab.classList.toggle('is-active', on);
+            tab.setAttribute('aria-selected', String(on));
+        });
+        const pages = Na__LeSpecEd__Bar.querySelector('[data-na-spec-bar="pages"]');
+        if (pages) pages.textContent = (state.loaded && Na__LeSpecEd__Pages) ? Na__LeSpecEd__Count(Na__LeSpecEd__Pages, 'SpecPagesOne', '{count} page', 'SpecPagesMany', '{count} pages') : '';
     }
     // ------------------------------------------------------------
 
@@ -537,10 +615,16 @@
         Na__LeSpecEd__Frame = 0;
         if (!Na__LeSpecEd__Root || !Na__LeSpecEd__Shown) return;
         if (Na__LeSpecEd__Drag) { Na__LeSpecEd__Drag.pending = true; return; }   // <-- Never rebuild the rows out from under a drag
+        const reading = Na__LeSpecEd__IsReading();
+        Na__LeSpecEd__Root.classList.toggle('is-reading', reading);
+        Na__LeSpecEd__Scroll.hidden = reading;
+        Na__LeSpecEd__Reader.hidden = !reading;
+        if (reading) { Na__LeSpecEd__RenderReading(); return; }
         const L       = Na__LeCfg__GetLabel;
         const state   = Na__LeSpec__GetState();
         const focus   = Na__LeSpecEd__CaptureFocus();
-        const scroll  = Na__LeSpecEd__Scroll.scrollTop;
+        const scroll  = Na__LeSpecEd__ScrollBack.edit !== null ? Na__LeSpecEd__ScrollBack.edit : Na__LeSpecEd__Scroll.scrollTop;
+        Na__LeSpecEd__ScrollBack.edit = null;
         const usage   = Na__LeSpecLink__Usage();
         Na__LeSpecEd__Usage = usage;
         Na__LeSpecEd__Root.classList.toggle('is-compact', Na__LeSpecEd__IsCompact());
@@ -563,6 +647,45 @@
         Na__LeSpecEd__ApplyFilter();
         Na__LeSpecEd__UpdateBar();
         Na__LeSpecEd__RestoreFocus(focus);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Lay Read's Pages Out Again
+    // ------------------------------------------------------------
+    // From the first page every time: a note that grows can move every page
+    // after it. The reader stays where it was.
+    // ------------------------------------------------------------
+    function Na__LeSpecEd__RenderReading() {
+        const scroll = Na__LeSpecEd__ScrollBack.read !== null ? Na__LeSpecEd__ScrollBack.read : Na__LeSpecEd__Reader.scrollTop;
+        Na__LeSpecEd__ScrollBack.read = null;
+        Na__LeSpecEd__Root.classList.toggle('is-readonly', !Na__LeSpecEd__Editable);
+        Na__LeSpecEd__Pages = Na__LeSpecDoc__Render(Na__LeSpecEd__Desk).pages;
+        Na__LeSpecDoc__Fit(Na__LeSpecEd__Reader, Na__LeSpecEd__Desk);
+        Na__LeSpecEd__Reader.scrollTop = scroll;
+        Na__LeSpecEd__UpdateBar();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Switch Between Edit and Read
+    // ------------------------------------------------------------
+    // Leaving Edit commits the field that has the focus first, so what was
+    // typed is an undo step and is on the pages. Each view keeps its scroll.
+    // ------------------------------------------------------------
+    function Na__LeSpecEd__SetView(view) {
+        const next = view === Na__LeSpecEd__VIEW_READ ? Na__LeSpecEd__VIEW_READ : Na__LeSpecEd__VIEW_EDIT;
+        Na__LeSpecEd__StoreView(next);
+        if (next === Na__LeSpecEd__View) return false;
+        if (Na__LeSpecEd__Root) {
+            const active = document.activeElement;
+            if (active && Na__LeSpecEd__Page.contains(active) && typeof active.blur === 'function') active.blur();
+            if (Na__LeSpecEd__Drag) Na__LeSpecEd__DragEnd(false);
+            if (Na__LeSpecEd__Shown) Na__LeSpecEd__ScrollBack[Na__LeSpecEd__View] = Na__LeSpecEd__IsReading() ? Na__LeSpecEd__Reader.scrollTop : Na__LeSpecEd__Scroll.scrollTop;
+        }
+        Na__LeSpecEd__View = next;
+        Na__LeSpecEd__Render();
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -685,6 +808,8 @@
             window.dispatchEvent(new CustomEvent(Na__LeSpec__GOTO_EVENT, { detail : { sheetId : button.getAttribute('data-sheet-id'), leaderId : button.getAttribute('data-leader-id') } }));
             return;
         }
+        if (action === 'view')    { Na__LeSpecEd__SetView(button.getAttribute('data-view')); return; }
+        if (action === 'print')   { Na__LeSpecDoc__Print(); return; }
         if (action === 'compact') { Na__LeSpecEd__SetCompact(!Na__LeSpecEd__IsCompact()); Na__LeSpecEd__Render(); return; }
         if (!Na__LeSpecEd__Editable) return;
 
@@ -806,7 +931,7 @@
             return;
         }
         const typing = target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && [ 'checkbox', 'button' ].indexOf(String(target.type)) === -1);
-        if (typing || !(event.ctrlKey || event.metaKey) || !Na__LeSpecEd__Editable) return;
+        if (typing || !(event.ctrlKey || event.metaKey) || !Na__LeSpecEd__Editable || Na__LeSpecEd__IsReading()) return;   // <-- Read changes nothing, from a key or otherwise
         const key = String(event.key).toLowerCase();
         if (key === 'z' && !event.shiftKey) { event.preventDefault(); Na__LeSpec__Undo(); }
         else if (key === 'y' || (key === 'z' && event.shiftKey)) { event.preventDefault(); Na__LeSpec__Redo(); }
@@ -954,10 +1079,12 @@
     // rebuilds, keeping the focus where it was.
     // ------------------------------------------------------------
     function Na__LeSpecEd__OnSpecChanged(event) {
-        const detail = event.detail || {};
-        if (detail.reason === 'status' || detail.reason === 'synced' || detail.reason === 'note' || (detail.reason === 'group' && detail.live)) {
+        const detail  = event.detail || {};
+        const barOnly = detail.reason === 'status' || detail.reason === 'synced';
+        const typed   = detail.reason === 'note' || (detail.reason === 'group' && detail.live);
+        if (barOnly || (typed && !Na__LeSpecEd__IsReading())) {                    // <-- Read has no field showing the typing: its pages are laid out again
             Na__LeSpecEd__UpdateBar();
-            if (detail.reason === 'status' || detail.reason === 'synced') Na__LeSpecEd__RenderAlerts(Na__LeSpec__GetState(), Na__LeSpecEd__Usage || Na__LeSpecLink__Usage());
+            if (barOnly) Na__LeSpecEd__RenderAlerts(Na__LeSpec__GetState(), Na__LeSpecEd__Usage || Na__LeSpecLink__Usage());
             return;
         }
         Na__LeSpecEd__Schedule();
@@ -968,7 +1095,16 @@
     // HELPER FUNCTION | A Sheet Changed (links made from this page): Where Notes Are Used Moved
     // ------------------------------------------------------------
     function Na__LeSpecEd__OnModelChanged() {
+        if (Na__LeSpecEd__IsReading()) return;                                     // <-- The pages do not say where a note is used
         Na__LeSpecEd__Schedule();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Window Resized: Read's Pages Fit Its New Width
+    // ------------------------------------------------------------
+    function Na__LeSpecEd__OnResize() {
+        if (Na__LeSpecEd__Shown && Na__LeSpecEd__IsReading()) Na__LeSpecDoc__Fit(Na__LeSpecEd__Reader, Na__LeSpecEd__Desk);
     }
     // ------------------------------------------------------------
 
@@ -992,13 +1128,19 @@
         root.hidden = true;
         root.setAttribute('role', 'region');
         root.setAttribute('aria-label', Na__LeCfg__GetLabel('SpecTitle', 'Project Specification'));
-        root.innerHTML = '<div class="na-le-spec__bar"></div><div class="na-le-spec__alerts" hidden></div><div class="na-le-spec__scroll"><div class="na-le-spec__page"></div></div>';
+        root.innerHTML = '<div class="na-le-spec__bar"></div><div class="na-le-spec__alerts" hidden></div><div class="na-le-spec__scroll"><div class="na-le-spec__page"></div></div>'
+            + '<div class="na-le-spec__reader" role="region" tabindex="0" hidden><div class="na-le-spec__desk"></div></div>';
         container.appendChild(root);
         Na__LeSpecEd__Root   = root;
         Na__LeSpecEd__Bar    = root.querySelector('.na-le-spec__bar');
         Na__LeSpecEd__Alerts = root.querySelector('.na-le-spec__alerts');
         Na__LeSpecEd__Scroll = root.querySelector('.na-le-spec__scroll');
         Na__LeSpecEd__Page   = root.querySelector('.na-le-spec__page');
+        Na__LeSpecEd__Reader = root.querySelector('.na-le-spec__reader');
+        Na__LeSpecEd__Desk   = root.querySelector('.na-le-spec__desk');
+        Na__LeSpecEd__Reader.setAttribute('aria-label', Na__LeCfg__GetLabel('SpecReaderLabel', 'Project Specification pages'));
+        Na__LeSpecEd__View   = Na__LeSpecEd__StoredView() || (Na__LeSpecEd__Editable ? Na__LeSpecEd__VIEW_EDIT : Na__LeSpecEd__VIEW_READ);   // <-- A read-only session starts on the pages
+        Na__LeSpecDoc__Initialize({ isPrintable : () => Na__LeSpecEd__Shown });
         Na__LeSpecEd__BuildBar();
         root.addEventListener('click',       Na__LeSpecEd__OnClick);
         root.addEventListener('input',       Na__LeSpecEd__OnInput);
@@ -1015,11 +1157,17 @@
     function Na__LeSpecEd__Show(options) {
         if (!Na__LeSpecEd__Root) return false;
         const opts = options || {};
+        if (opts.noteId && Na__LeSpecEd__IsReading()) {                            // <-- A note asked for from a sheet is shown where it is edited
+            Na__LeSpecEd__View = Na__LeSpecEd__VIEW_EDIT;
+            Na__LeSpecEd__StoreView(Na__LeSpecEd__VIEW_EDIT);
+        }
         if (!Na__LeSpecEd__Shown) {
             Na__LeSpecEd__Shown = true;
             Na__LeSpecEd__Root.hidden = false;
+            Na__LeSpecEd__Root.parentNode.classList.add('is-spec-shown');          // <-- The sheet beneath is covered: hidden too, out of Read Aloud and find
             window.addEventListener(Na__LeSpec__CHANGED_EVENT, Na__LeSpecEd__OnSpecChanged);
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeSpecEd__OnModelChanged);
+            window.addEventListener('resize', Na__LeSpecEd__OnResize);
         }
         Na__LeSpecEd__Render();
         if (opts.noteId) Na__LeSpecEd__Reveal(opts.noteId);
@@ -1041,17 +1189,21 @@
         if (Na__LeSpecEd__Frame) { window.cancelAnimationFrame(Na__LeSpecEd__Frame); Na__LeSpecEd__Frame = 0; }
         window.removeEventListener(Na__LeSpec__CHANGED_EVENT, Na__LeSpecEd__OnSpecChanged);
         window.removeEventListener(Na__LeModel__CHANGED_EVENT, Na__LeSpecEd__OnModelChanged);
+        window.removeEventListener('resize', Na__LeSpecEd__OnResize);
+        Na__LeSpecEd__ScrollBack[Na__LeSpecEd__View] = Na__LeSpecEd__IsReading() ? Na__LeSpecEd__Reader.scrollTop : Na__LeSpecEd__Scroll.scrollTop;   // <-- Back where it was on the next visit
         Na__LeSpecEd__Shown = false;
         Na__LeSpecEd__Root.hidden = true;
+        Na__LeSpecEd__Root.parentNode.classList.remove('is-spec-shown');
         Na__LeSpecEd__PrefixError = null;
         return true;
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Is the Page on Screen
+    // FUNCTION | Is the Page on Screen, and Which View It Shows
     // ------------------------------------------------------------
     function Na__LeSpecEd__IsShown() { return Na__LeSpecEd__Shown; }
+    function Na__LeSpecEd__GetView() { return Na__LeSpecEd__View; }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1068,6 +1220,8 @@
         Na__LeSpecEd__Show,
         Na__LeSpecEd__Hide,
         Na__LeSpecEd__IsShown,
+        Na__LeSpecEd__GetView,
+        Na__LeSpecEd__SetView,
         Na__LeSpecEd__Render,
         Na__LeSpecEd__Reveal
     };

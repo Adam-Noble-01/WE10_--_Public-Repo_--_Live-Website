@@ -2,6 +2,356 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.51.0  -  14-Sep-2026
+### Project Specification, Read - the Notes as A4 Pages, to Print or Read Aloud
+
+**Overview**
+- From Adam: the Project Specification tab has two tabs inside it now. **Edit** is the page of fields it always was.
+  **Read** renders the specification as an A4 document: the preview of the PDF it prints as.
+- **The pages.** A4 portrait at full size on a grey desk, the way a PDF viewer shows them.
+  - Along every page's head, the logo and "Project Specification · PS01 Musters Road"; along its foot, the company
+    and "Page 1 of 4".
+  - The first page opens with the title: Project Specification and the project's name, then its code, the date and
+    what it holds ("29 notes in 9 groups") between two rules.
+  - The groups follow in order: prefix and title over a rule (a general group adds "These notes apply to every
+    drawing."), then each note - its code in a hanging column, its title beside it, its text beneath.
+  - In the drawings' font and ink (Style FontFamily and InkColour).
+- **Real pages, nothing cut off.** Each block is measured where it lands, and the one that crosses the foot starts the
+  next page.
+  - A group's heading stays with its first note, and a note's heading with its first paragraph.
+  - A note that does not fit moves to the next page whole, unless it is taller than a third of a page. That one breaks
+    where it starts, between words, never leaving a single line alone on either side.
+  - Each line typed into a note is its own paragraph; a blank line gives the next one more room.
+- **Print.** Print in the bar - or Ctrl+P while the tab is showing - prints exactly these pages, one to a sheet of A4
+  with no margins added. Nothing else in the app reaches the paper. Save as PDF in the print dialog makes the PDF.
+- **Read aloud.** The pages are real headings and paragraphs, so Edge's Read aloud (right-click, or Ctrl+Shift+U) reads
+  the specification, and a selection can be read from anywhere.
+  - What repeats on every page - the running head, the company, the page number - prints, but is not read out.
+  - While the tab is up, the sheet and panels beneath it are hidden as well as covered, so neither Read aloud nor Find
+    reaches them.
+- **The bar.** In Read: the sync state, Sync, the page count and Print. The filter, Headings only, Link matching
+  bubbles, Add group, Undo and Redo belong to Edit, and Ctrl+Z and Ctrl+Y do nothing in Read.
+- **Remembered.** The view is remembered in this browser, and each view keeps its scroll, even across a visit to a
+  sheet. Open in specification on a bubble always opens Edit on its note. A read-only session starts in Read.
+- **Narrow windows.** The pages shrink to fit a window narrower than A4. They are never enlarged.
+
+**Files**
+- Layout Editor: new `SpecDocument__` 1.0.0 (`Na__LeSpecDoc__`: the pages, the page breaks and printing);
+  `SpecEditor__` 1.1.0 (the Edit and Read tabs); `Styles__Specification__.css` (Edit and Read, the desk, the document
+  and print); `AppConfig__.json` (17 labels: SpecView*, SpecReaderLabel, SpecPages*, SpecPrint*, SpecDoc*).
+- Service worker: token `2026-09-14-20`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.50.0  -  14-Sep-2026
+### Zoom Inside a 3D Viewport - Frame the Picture, Enter to Keep It
+
+**Overview**
+- From Adam: a 3D viewport on a sheet could be moved, cropped and scaled, but never zoomed. Now it can.
+- **The wheel.** Double-click a 3D viewport (or Edit viewport content on its right-click menu) and scroll over it:
+  the picture zooms about the cursor, and Shift+scroll zooms in fine steps. Dragging still slides the picture.
+  Enter finishes (so do Esc and a click elsewhere), and the picture keeps the zoom it was left at.
+  - The note over the frame reads the zoom as it changes: "Zoom 150%: scroll to zoom (Shift for fine steps), drag to
+    reposition, Enter to finish".
+  - A run of notches is one undo step. A key or a click straight after scrolling commits it first, so Ctrl+Z undoes
+    the zoom and nothing before it.
+  - Off the frame, the wheel still zooms the sheet.
+- **The Zoom % box.** On 3D viewports only, in the Viewport panel under Window mm.
+  - Type any percentage, to a decimal place; it zooms about the middle of the frame. Reset gives 100 percent, centred.
+  - The limits are 25 and 1000 percent.
+  - Greyed out while the viewport or its layer is locked, and hidden on 2D and site plan viewports.
+- **Zoomed out, the frame fills with scene.** The frame is now rendered as a window onto the scene camera's picture,
+  at the frame's own resolution.
+  - Zoomed in, it stays sharp at any zoom.
+  - Zoomed out or slid, the scene carries on past the camera's framing instead of leaving a picture floating in white.
+  - The camera never moves, so the perspective is the scene's own.
+- **Copy, paste, then change what it shows.** Ctrl+C and Ctrl+V (or Duplicate) carry the zoom with everything else,
+  so a framed view can be pasted and pointed at another design phase (Model Source) or another scene, as a 2D
+  viewport can.
+- **Also.** Enter now finishes a 2D viewport's content editing too, and Recentre content centres a 3D picture at its zoom.
+- **Existing sheets.**
+  - A 3D viewport whose picture exactly fills its frame renders and keys exactly as before, so its stored snapshot
+    still loads.
+  - One whose picture was slid or cropped now renders its frame as a window: its white strips fill with scene, and it
+    renders once more, uploading on localhost, under a new key. PS01's D03 "3D Images" viewport is one: its picture
+    sits 11.5 mm left and 7.3 mm down.
+
+**HOW**
+- `Viewport__ImageZoom` on the viewport record: a multiple of `Viewport__ImageMm`, stored only when it is not 1 and
+  clamped to `ImageZoomMin` and `ImageZoomMax`.
+- `Na__LayoutEditor__Viewport3dZoom__` (new) holds the wheel handler and the one-step commit, plus:
+  - `PatchAbout` zooms about a point: the offset scales by the zoom factor, so the anchor stays put.
+  - `PatchReset` and `CentredOffset`.
+- `Viewport3d__` 1.6.0: when the picture rectangle differs from the frame, three things change.
+  - Render3d gets a view window `{ u0, v0, u1, v1 }`: the frame as fractions of the picture, allowed past 0..1.
+  - The pixel size is the frame's, and the window joins the fingerprint.
+  - The image element is placed by the window it was rendered for, so a zoom shows at once and the sharp render
+    replaces it. `ExportRectMm` tells the PDF where the picture goes.
+- `TiledRenderer` 2.1.0: `viewWindow` does three things, and without it every call is unchanged.
+  - It sizes the full frame so the window is exactly the output.
+  - It sets the full frame's aspect.
+  - It offsets every tile's `setViewOffset` into the window.
+- `Controls__Pc__` offers the wheel to the zoom module first. In `SheetTools__`, Enter (`Edit__Finish`) ends content
+  editing.
+
+**Config**
+- Viewport block: `LayoutEditor__Viewport__ImageZoomMin` 0.25, `ImageZoomMax` 10, `ImageZoomFineFactor` 0.2 (a Shift
+  notch against a plain one) and `ImageZoomCommitMs` 350, with `ImageZoomNote`.
+- Labels: `EditingView3dNote`, `ZoomLabel`, `ZoomTitle`, `ZoomReset` and `ZoomResetTitle`; `EditingViewNote` now
+  mentions Enter.
+- Key map: the Enter binding's label says it also finishes a viewport's content editing.
+
+**Files**
+- New: `Na__LayoutEditor__Viewport3dZoom__.js` 1.0.0.
+- Layout Editor:
+  - `Viewport3d__` 1.6.0, `SnapshotRenderer__` 1.8.0, `PdfExporter__` 1.3.0
+  - `Panel__ViewportSettings__` 1.7.0, `SheetTools__` 1.27.0, `Controls__Pc__` 1.1.0, `ViewportHandles__` 1.4.0
+  - `SheetRecords__` 1.19.0, `SheetModel__` 1.23.0, `ConfigState__` 1.20.0
+  - `AppConfig__.json`, `KeyMappings__.json`
+- Image export: `Na__ImageExport__StaticExport__TiledRenderer.js` 2.1.0.
+- Service worker: token `2026-09-14-19`.
+
+**Verification** - PS01 at localhost:8541, every write refused (uploads included), on two temporary 3D viewports on
+D03 that were deleted afterwards:
+- **Keys.**
+  - An untouched viewport keeps its old key.
+  - D03's own viewport re-hashes to its stored `18yw6cy` by the old formula, and its new key differs only by the window.
+- **Wheel.**
+  - Five notches gave exactly e^0.8 (222.6 percent), with the point under the cursor fixed to 1e-16.
+  - Nothing was announced during the run, and one change after it.
+  - Shift+wheel, sent sideways as Chrome sends it, stepped exactly e^0.032.
+  - A key mid-run committed at once, and Enter ended the editing with the zoom kept.
+  - The wheel after that zoomed the sheet.
+- **Pictures.**
+  - A window render matched the same crop of a whole render: mean difference 0.004 (zoom in, centred), 0.008 (off
+    centre) and 0.001 (zoom out, centre), against 12.6 to 18.1 for a crop shifted 5 percent.
+  - Zoomed out, the bands beyond the picture carry the scene's ground and sky rather than paper white.
+- **Panel.**
+  - 150 zoomed about the frame's middle (centre fixed to 1e-9); 5000 was held at 1000; one undo stepped back.
+  - Reset restored 100 percent, an offset of 0, 0 and the old key.
+  - The row greys out when locked and hides on a 2D viewport.
+- **Copy and design phase.**
+  - Ctrl+C and Ctrl+V pasted "Exterior 02 copy" at the same zoom, in one step.
+  - Model Source to Existing Building rendered in 4.2 s. Its picture is nearer a direct Existing Building render
+    (8.9) than a Scheme-02 one (12.5).
+- **PDF.** A real build of D03 placed all three 3D pictures at their frames (180 x 120 mm).
+- **Checks.** Every touched module parses as an ES module. The module graph has 365 modules and 0 failures, named
+  exports pass (278 files), and both JSON files parse.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.49.1  -  14-Sep-2026
+### Site Plan Tabs Look Like Every Other Tab
+
+**Overview**
+- **The green mark is gone.** The small green mark before a site plan tab's name has been removed (Adam, 14-Sep-2026).
+  Beside tabs without one, it read as more important rather than as a kind of drawing.
+- **Unchanged.** Site plan tabs still sit after the + tab, and still say "Site plan drawing" on hover.
+
+**Files**
+- Layout Editor: `Styles__Main__.css` (the `.na-le-tabs__tab--siteplan::before` rule is removed) and `TabStrip__` 1.3.1
+  (log only; the modifier class stays, unstyled).
+- Service worker: token `2026-09-14-18`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.49.0  -  14-Sep-2026
+### Site Plan Drawings, Part 2 - Site Plan Viewports at 1:500 and 1:1250
+
+**Overview**
+- **Adding one.** On a Site Plan Drawing, the Viewport panel's Add block offers the site plan scales - 1:500 Block
+  Plan or 1:1250 Location Plan - and a note of the project's site plan data.
+  - Add Site Plan Viewport places the viewport centred on the red line.
+  - Every layer whose export does not list that scale starts switched off.
+- **What it draws.** A site plan viewport draws the SketchUp site plan export directly: no raster and no
+  projection.
+  - The lines come from `52__System__SitePlanData` in drawing millimetres, tagged by layer.
+  - Each layer paints in its SSOT style: colour, line type, and weight in millimetres. A 0.50 mm red line prints
+    0.50 mm at the 0.30 pt sheet master.
+  - Model Layers lists the layers under their own groups, with the usual per-viewport colour, type and weight
+    overrides.
+  - Fills paint under the lines where a layer has a fill colour.
+- **Everything else on a 2D viewport works here too:** snapping to site plan vertices, dimensions at the
+  viewport's scale, text, leaders, vectors, the caption ("BLOCK PLAN 1:500") and the title block scale.
+- **PDF.** The vector PDF prints the same lines, and the fills (outer rings only, for now).
+- **Scales.** Site plan scales no longer collapse to 1:50.
+  - A site plan viewport has its own scale list (Scales SitePlanScaleDenominators).
+  - Captions and the title block quote 1:500 and 1:1250 as they are.
+- **Palette.** The edge palette gains red, green and blue (the SSOT's MTE201, MTE202 and MTE205), and the weight
+  ceiling rises to 6.00.
+- **A fresh export.** Force Render on a site plan viewport re-reads the site plan data, so a new export draws
+  without a reload.
+- **Fix (store 1.0.1): opening a site plan sheet overflowed the stack.**
+  - Cause: the store announced 'loading' before recording its promise, and the Viewport panel's refresh started
+    another resolve, without end.
+  - Found in Adam's browser minutes after landing.
+  - Now the promise is recorded first, and every store announcement goes out on a microtask.
+
+**Files**
+- Layout Editor:
+  - `Viewport2d__` 1.9.0, `PdfExporter__` 1.2.0, `Panel__ViewportSettings__` 1.6.0
+  - `SheetRecords__` 1.16.0, `SheetModel__` 1.21.0, `ScaleManager__` 1.1.0
+  - `EdgeStyles__` 1.1.0 and its config
+  - `ModelLayers__` 1.3.0, `ModelSource__` 1.1.0, `Panel__ModelLayers__` 1.3.0
+  - `ConfigState__` 1.16.0, `AppConfig__.json` (Scales and Labels)
+- Site plan data: `Na__SitePlan__Store__.js` 1.0.1.
+- Service worker: token `2026-09-14-17`.
+- Plan: `TrueVision__PLAN__SitePlanDrawings__.md`, Phase 5.
+
+**Verification** - PS01 at localhost, every write blocked, on scratch site plan sheets that were then deleted:
+- **Add panel.** On a site plan sheet the site plan block shows and the scene block is hidden, with the data note
+  and both scales.
+- **Viewports.** The 1:500 and 1:1250 viewports are named Block Plan and Location Plan and centred on the red
+  line.
+  - All 784 segments are painted and offered to snapping.
+  - Five bands paint at the export's colours and widths: 0.13 mm grey, 0.25 mm soft black, and 0.25, 0.35 and
+    0.50 mm red.
+- **Layers.** OS Mapping off leaves 420 segments; back on, 784.
+- **Scales.** 1:1250 holds, and 1:50 on a site plan viewport coerces to 1:500.
+- **Caption and title block.** The caption reads "BLOCK PLAN 1:500" and the title block Scale reads "1:500".
+- **PDF, built uncompressed.** It carries the caption and the site plan stroke widths of 0.369, 0.708, 0.993 and
+  1.416 pt (0.13 to 0.50 mm).
+- **Parsing.** Every touched module parses, and the module graph is unchanged.
+- **Not yet:**
+  - the Styles panel still shows raster-only rows on a site plan viewport;
+  - a face's holes are not cut out in the PDF;
+  - there are no per-viewport fill overrides.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.48.1  -  14-Sep-2026
+### Doors Stay Shut on Elevations and Sections
+
+**Overview**
+- From Adam: doors open on 2D plans only, never on elevations. A Layout Editor elevation or section
+  viewport now draws every door SHUT - in its linework, its base image and the PDF - whatever the 3D view
+  shows. Only a plan draws a door open. 3D viewports still draw the doors as the model holds them.
+- Before this release an elevation drew each door wherever the 3D view had last left it, so a door clicked
+  open in 3D stood open on every elevation that could see it. On PS01, holding the doors open changed
+  1,246 line segments of the South Elevation.
+- A second route to an open door is closed too. A plan's base image holds the doors open across the paints
+  its tiles yield to, and a linework read runs on its own queue, so it could land in one of those gaps:
+  - an elevation read there saw the plan's doors open, and cached them under the elevation's own key;
+  - a plan read there put the doors back to the 3D view's pose, so the rest of that picture drew them shut.
+- An elevation's doors are not there to be clicked: a click, the right-click menu and the hit test answer
+  nothing. The Viewport panel's Doors row stays on plans.
+
+**HOW**
+- Viewport2d `Describe` passes an elevation or section the shut pose, `Na__LeDoors__ShutPoseFor`:
+  `DoorPose { Shut : true }`, through a new fourth argument to `Na__PlView__FromElevation`, like `FromPlan`.
+- The pose is folded into the record hash and the collection key, as a plan's is. Every Layout Editor
+  elevation viewport projects once more on each device, and never paints linework read while a door stood
+  open. A plan's pose, and every drawing outside the Layout Editor, hash exactly as before.
+- `Na__PlDoors__IsClosed` answers true for every panel under the shut pose; `SwingEdges` traces nothing and
+  `HitTest` answers null. `Na__LeDoors__At` answers only on a plan.
+- `Na__PlDoors__PutBack`: `Apply` notes where each moving panel stood, and the projector's read puts the
+  panels back exactly there instead of restoring the 3D view's pose. A read that lands inside an underlay
+  render leaves that render's pose standing; the render still restores by the door's own progress when it
+  finishes.
+
+**Config**
+- `LayoutEditor__PlanDoors__ShutOnElevations` (true). Off, elevations and sections draw the doors as the
+  model holds them, keyed exactly as before this release. The block's description covers both rules.
+
+**Files**
+- Projected linework: `DoorPose__` 1.1.0 (`PutBack`, the shut pose), `ViewDefinition__` 1.2.0,
+  `Projector__` 1.4.0.
+- Layout Editor: `PlanDoors__` 1.1.0 (`ShutPoseFor`), `Viewport2d__` 1.8.0, `ConfigState__` 1.15.0,
+  `SnapshotRenderer__` 1.7.1 (comments only); `AppConfig__.json`.
+- Service worker: token `2026-09-14-15`.
+
+**Verification**
+- The seven modules parse as ES modules, the AppConfig JSON parses, line endings are unchanged, and all 218
+  named imports of the changed modules resolve.
+- In the app on PS01 (localhost:8531), every non-read request refused and none attempted, on D01's two plans
+  and D02's six elevation viewports (three on the existing building phase, three on the live model):
+  - Every elevation carries `{ Shut : true }` and a new record hash. Both plans keep byte-identical pose
+    JSON and record hashes.
+  - On each elevation, 121 points across the frame, at a tolerance wider than the drawing, found no door
+    and no menu rows. The hit test answers null, and the same definition with an open pose finds a door.
+  - Linework, with every door held open in the 3D view: the shut pose matched the doors-at-rest projection
+    segment for segment on all six. The old unposed definition did not on three - South 1,246 unmatched
+    segments, East 271, East copy 45.
+  - Base images, with the doors held open: South Elevation and East Elevation copy rendered byte-identical
+    to their at-rest pictures; the old definition differed by 8,918 and 3,481 pixels.
+  - The race, forced: an elevation read ran inside a plan underlay render, just after the render stood the
+    doors open. The read kept all 6 leaf meshes of the exterior double door shut, the render's doors were
+    still open after it, and the plan picture was byte-identical to an undisturbed render.
+  - PutBack returns panels exactly; Restore, and the shut pose from rest, land exactly on the rest pose.
+  - The Existing Floor Plan projection still draws its 72 swing segments.
+  - Afterwards all 6 doors stood exactly where they started, progress unchanged. No sheet was edited.
+
+**ValeVision**
+- Not yet ported: rides with the pending plan doors port (ledger AA), on Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.48.0  -  14-Sep-2026
+### Site Plan Drawings, Part 1 - Drawing Type, Tab Order and the Site Plan Store
+
+**Overview**
+- **Drawing Type row.** The Sheet panel now opens with a Drawing Type row: Architectural Drawing or Site Plan
+  Drawing.
+  - A site plan sheet's tab moves into its own group after the + tab, so the strip reads
+    3D Model | architectural sheets | + | site plan sheets | Project Specification.
+  - Changing the type is one undo step, and never converts or deletes a viewport.
+  - A site plan tab carries a small green mark, and a drag reorders only within its own group.
+- **Existing sheets unchanged.** `Sheet__DrawingType` is stored only as 'siteplan', so no existing sheet
+  changes.
+- **Fix: deleting a sheet undid tab drags.** Delete renumbered the other sheets by their position in the
+  saved array, which undid any tab dragged since the project loaded. Sheets are now numbered down the tab
+  order.
+- **New folder `52__System__SitePlanData`**, holding the site plan store and a GLB parser.
+  - The store finds the project's site plan data: the GLB Builder's Site Plan Export, one linework GLB
+    per tag 71-75, in `30__TrueVision__AppContent/SitePlan__DrawingData`.
+  - It loads each layer on demand, as 2D segments and fill rings in drawing millimetres.
+  - On localhost it reads the repository copy first, so a fresh export draws without a build or a sync.
+  - The web build reads `SitePlan__DataStore` from the project data, then the manifest on the CDN.
+  - GLB URLs carry the export time as `?v=`, so a re-export is never served stale.
+- **Nothing draws site plans yet.** The site plan viewport is part 2.
+
+**Files**
+- Layout Editor: `SheetRecords__` 1.15.0, `SheetModel__` 1.20.0, `TabStrip__` 1.3.0,
+  `Panel__Sheet__` 1.2.0, `Styles__Main__.css` and `AppConfig__.json` (four labels).
+- New: `52__System__SitePlanData/Na__SitePlan__Store__.js` 1.0.0 and `Na__SitePlan__GlbParse__.js` 1.0.0.
+- Service worker: token `2026-09-14-14`.
+- Plan: `TrueVision__PLAN__SitePlanDrawings__.md`, Phase 4.
+
+**Verification**
+- **Node harness on the parser, against the real PS01 export: 37 checks.**
+  - Every layer's segment count, ring count and bounds match the manifest.
+  - The (X, +Z) mapping is not mirrored.
+  - Damaged files are refused.
+- **In the app on PS01 at localhost, with every non-GET request blocked:**
+  - The three existing sheets load with the same orders and no new key.
+  - Drawing Type round trip, with undo and redo.
+  - Tab order is right after +, after drags inside and across the groups, after a delete and after a
+    type change.
+  - A delete after a drag keeps the drag.
+  - The store loaded all five layers from the local manifest, with `?v=` URLs.
+  - The guard blocked the auto saves to R2, and the test draft was cleared from the browser.
+- Syntax checks of every touched module pass.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.47.0  -  14-Sep-2026
+### Type a Length While Dragging a Viewport
+
+**Overview**
+- While a viewport's frame is being dragged (the move cursor, not a crop
+  handle and not a pan of the drawing inside), the Measurements box wakes and
+  reads the drag's length. Type a value and press Enter: the frame moves that
+  far along the inferred direction. A minus sign runs the other way. The
+  landing is exact - no snap - and the drag finishes so the still-down pointer
+  cannot pull the frame back to the cursor. One undo step.
+- The length is a real size at the viewport's scale, or the sheet's scale for
+  a 3D viewport, so 1000 or 1m at 1:50 is 20 mm on the paper.
+
+**Files**
+- Layout Editor: `SheetTools__` 1.24.0 (`GetViewportDrag`, `TypeViewportLength`),
+  `Measurements__` 1.2.0; `AppConfig__.json` and `KeyMappings__.json`.
+- Service worker: token `2026-09-14-13`.
+
+**Verification**
+- Named exports pass (73 Layout Editor files). Module graph 361, 0 failures.
+  AppConfig and KeyMappings JSON parse. Not exercised in the running app in
+  this session.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.46.0  -  14-Sep-2026
 ### Type a Length While Dragging a Vertex
 

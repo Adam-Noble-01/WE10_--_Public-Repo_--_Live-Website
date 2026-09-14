@@ -1,0 +1,56 @@
+{
+    "LayoutEditor__LineStyleTool__Meta": {
+        "Meta__FileName"        : "Na__LayoutEditor__LineStyleTool__Config__.json",
+        "Meta__Description"     : "Dashed, dotted and dash-dot (centre) edges on a vector shape, owned by Na__LayoutEditor__LineStyleTool__.js and switched on from the Vectors panel. Off by default: a new line is solid. On, the Draw and Rectangle tools place a dashed edge, and the selected shape's edges take the same pattern. Section lengths are paper millimetres, the same unit as the projected linework dashes, so a dash measures the same on the sheet at any drawing scale. A Scale multiplies every section together - the control for 'how long the dashes are' without retuning each figure.",
+        "Meta__Version"         : "1.0.0",
+        "Meta__Created"         : "14-Sep-2026",
+        "Meta__Author"          : "Adam Noble - Noble Architecture",
+
+        "Meta__WhichKinds"      : "Dashed is the general hidden or removed line. Dotted is a short mark and a gap, for concealed services and overhead extents. Dash-dot (centre) is long-short-long, the steelwork and setting-out centre line. Hidden is a tighter dashed, for small-scale plans. The millimetre figures here are the same alphabet as Na__LayoutEditor__EdgeStyles__Config__.json, so a drawn centre line and a projected one can be made to match.",
+        "Meta__WhereScaleGoes"  : "Scale is a multiplier on the stored millimetres at paint time, not a rewrite of them. 1 is the figures as typed; 0.5 halves every section; 2 doubles them. The millimetre fields stay put, so switching the kind reloads that kind's figures without losing the scale already chosen.",
+        "Meta__DashUnits"       : "DashMm is the long on-stroke, GapMm the clear paper between strokes, MarkMm the short on-stroke of a dash-dot (ignored by dashed, dotted and hidden). All three are paper millimetres. The chrome writes them as SVG stroke-dasharray and as the PDF dash pattern, so the screen and the paper cannot drift apart."
+    },
+
+    "LayoutEditor__LineStyleTool__Defaults": {
+        "Defaults__Description" : "What the Dashed edges toggle starts from on a shape that has never had one, and what the Draw tool uses while nothing is selected. Off: a solid line. On: Dashed at scale 1, the millimetres of that kind.",
+        "Defaults__On"          : false,
+        "Defaults__Kind"        : "dashed",
+        "Defaults__Scale"       : 1
+    },
+
+    "LayoutEditor__LineStyleTool__Kinds": [
+        { "Kind__Alias": "dashed",  "Kind__Label": "Dashed",   "Kind__DashMm": 2.5, "Kind__GapMm": 1.5, "Kind__MarkMm": 0,   "Kind__Note": "General hidden or removed work. Dash on, gap off." },
+        { "Kind__Alias": "dotted",  "Kind__Label": "Dotted",   "Kind__DashMm": 0.4, "Kind__GapMm": 1.2, "Kind__MarkMm": 0,   "Kind__Note": "Concealed services, overhead extents. A short mark and a gap." },
+        { "Kind__Alias": "centre",  "Kind__Label": "Dash-dot", "Kind__DashMm": 8.0, "Kind__GapMm": 2.0, "Kind__MarkMm": 2.0, "Kind__Note": "Long-short-long. The steelwork and setting-out centre line." },
+        { "Kind__Alias": "hidden",  "Kind__Label": "Hidden",   "Kind__DashMm": 1.2, "Kind__GapMm": 0.8, "Kind__MarkMm": 0,   "Kind__Note": "Tighter dash for small-scale plans and hidden edges." }
+    ],
+
+    "LayoutEditor__LineStyleTool__Bounds": {
+        "Bounds__Description" : "How far the millimetre fields and the scale slider may travel. A section below MinMm would vanish at print; one above MaxMm is a gap, not a dash.",
+        "Bounds__MinMm"       : 0.1,
+        "Bounds__MaxMm"       : 40,
+        "Bounds__StepMm"      : 0.1,
+        "Bounds__MinScale"    : 0.25,
+        "Bounds__MaxScale"    : 4,
+        "Bounds__StepScale"   : 0.05
+    },
+
+    "LayoutEditor__LineStyleTool__Labels": {
+        "Labels__Description"    : "The Vectors panel wording for the dashed-edge rows. The long explanations are tooltips rather than notes, so the rows cost no more panel height than the controls themselves.",
+        "Labels__Dashed"         : "Dashed edges",
+        "Labels__DashedTitle"    : "Draw the edges dashed, dotted or dash-dot instead of solid. Off by default. On, a block opens for the pattern and how long its sections are - centre lines, hidden lines, overhead extents.",
+        "Labels__Kind"           : "Style",
+        "Labels__KindTitle"      : "Dashed is a regular hidden line. Dotted is a short mark. Dash-dot is the centre line (long-short-long). Hidden is a tighter dashed.",
+        "Labels__Scale"          : "Scale",
+        "Labels__ScaleTitle"     : "Stretches every section together. 1 is the millimetres as typed; 0.5 halves them; 2 doubles them. The millimetre fields themselves stay put.",
+        "Labels__Dash"           : "Dash mm",
+        "Labels__DashTitle"      : "How long the on-stroke is, in paper millimetres, before the scale is applied.",
+        "Labels__Dot"            : "Dot mm",
+        "Labels__DotTitle"       : "How long each mark is, in paper millimetres, before the scale is applied.",
+        "Labels__Gap"            : "Gap mm",
+        "Labels__GapTitle"       : "The clear paper between strokes, in millimetres, before the scale is applied.",
+        "Labels__Mark"           : "Mark mm",
+        "Labels__MarkTitle"      : "The short stroke of a dash-dot (centre) line, in paper millimetres, before the scale is applied.",
+        "Labels__PreviewTitle"   : "The pattern as it will print, at the current scale."
+    }
+}

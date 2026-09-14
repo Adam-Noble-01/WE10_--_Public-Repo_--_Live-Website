@@ -19,7 +19,8 @@
 //     Sheet       Sheet__Id, Name, Order, PaperSize, Orientation,
 //                 TitleBlockStyle, Fields {...}, Layers [], Viewports [],
 //                 Annotations [], Dimensions [], Shapes [], Groups [],
-//                 Lineweights {ViewportPt, DimensionPt}
+//                 Lineweights {ViewportPt, DimensionPt},
+//                 DrawingType (only ever 'siteplan'; no key is an architectural drawing)
 //     Layer       Layer__Id, Name, Type, Visible, Locked, Order
 //     Viewport    Viewport__Id, LayerId, Name, Kind ('2d' | '3d'), SceneId,
 //                 DrawingId, FrameMm {X, Y, WidthMm, HeightMm},
@@ -28,9 +29,13 @@
 //                 SnapshotAsset {Asset__Path, Asset__Fingerprint, Asset__PixelWidth},
 //                 ModelSourceId (a model group's groupId; null draws the Project Default),
 //                 ShowScaleLabel, ShowFrame (only ever false: the frame and caption hidden),
-//                 ClosedDoors (the door keys a plan draws shut; absent while every door is open)
+//                 ClosedDoors (the door keys a plan draws shut; absent while every door is open),
+//                 SitePlan {} (only on a viewport drawing the site plan data: always 2D, no drawing id)
 //     Annotation  Annotation__Id, LayerId, Text, PosXMm, PosYMm, SizeMm,
-//                 FontWeight, Colour, Align, LeaderXMm, LeaderYMm
+//                 FontWeight, Colour, Align, LeaderXMm, LeaderYMm,
+//                 RotationDeg (degrees clockwise about PosXMm, PosYMm, wrapped
+//                 into (-180, 180]; no key is level, and a turn back to level
+//                 removes it)
 //     Dimension   Dimension__Id, LayerId, ViewportId, StartXMm, StartYMm,
 //                 EndXMm, EndYMm, OffsetMm, TextSizeMm, Colour, Terminator,
 //                 TickLengthMm (how large the ticks, arrows or dots at each
@@ -47,7 +52,8 @@
 //                 removes both)
 //     Shape      Shape__Id, LayerId, Points [[x, y], ...], Closed, Stroked, StrokeColour,
 //                 StrokePt, FillColour (null for none), Gradient (null for none;
-//                 the shape is Na__LayoutEditor__GradientTool__'s), FillOpacity,
+//                 the shape is Na__LayoutEditor__GradientTool__'s), LineStyle
+//                 (null for a solid edge; Na__LayoutEditor__LineStyleTool__), FillOpacity,
 //                 StrokeOpacity (0 to 1)
 //     Group       Group__Id, Members [{ kind, id }] of a vector, a text item
 //                 or another group. Members stay first-class sheet records;
@@ -80,12 +86,56 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__SheetModel__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.24.0
+// - Rotated text: CreateAnnotation and UpdateAnnotation take rotationDeg,
+//   stored as Annotation__RotationDeg - degrees clockwise about the anchor,
+//   wrapped into (-180, 180] and kept to a thousandth of a degree. Level text
+//   carries no key, so every record from before draws and saves exactly as
+//   it did.
+//
+// 14-Sep-2026 - Version 1.23.0
+// - UpdateViewport takes imageZoom: a 3D viewport's picture zoom
+//   (Viewport__ImageZoom), which the normaliser clamps.
+//
+// 14-Sep-2026 - Version 1.22.0
+// - Arrange: CanArrange and Arrange move a vector, a text item, a dimension
+//   or a leader one step (forward / backward) or to the end of its layer
+//   (front / back) in its collection. Later in the array draws on top, so
+//   two vectors on one layer can be stacked. A locked layer refuses it.
+//
+// 14-Sep-2026 - Version 1.21.0
+// - Site plan viewports. CreateViewport takes sitePlan (the Viewport__SitePlan
+//   record) and modelLayers (the categories a new viewport starts switched off).
+//   UpdateViewport coerces a scale onto the viewport's own list, so a site plan
+//   viewport keeps 1:500 or 1:1250. ResolveViewportSource answers a site plan
+//   viewport with no scene or drawing and its name, or "Site Plan", as the label.
+//   IsSitePlanViewport reads the marker.
+//
+// 14-Sep-2026 - Version 1.20.0
+// - Site plan drawings. GetSheets returns the sheets in two tab groups -
+//   architectural sheets, then site plan sheets (Sheet__DrawingType) - each
+//   by Sheet__Order. It stays the one sort point, so the tab strip, the
+//   editor's first sheet and the Dev menu agree. UpdateSheet takes drawingType
+//   ('architectural' | 'siteplan'); IsSitePlanSheet reads it.
+// - Create, Duplicate, Delete and Reorder number Sheet__Order 1..n down the
+//   tab order. Every architectural number then sits below every site plan
+//   number, so a change of type moves a sheet across the + tab without
+//   renumbering anything: one undo step of that sheet alone.
+// - Fix: Delete renumbered by position in the saved array, which put back the
+//   order of any tab dragged since the project loaded. A drag also stays
+//   inside its own group now.
+//
+// 14-Sep-2026 - Version 1.19.0
+// - CreateShape and UpdateShape carry Shape__LineStyle (the dash key: an
+//   object, or null to clear it to a solid edge). The normaliser copies it,
+//   so no two shapes ever share one.
+//
 // 14-Sep-2026 - Version 1.18.0
 // - Groups: GetGroupById, InsertGroup, DeleteGroup, GetGroups. A group is a
 //   list of member { kind, id } (vectors, text, nested groups). InsertShape,
@@ -241,6 +291,10 @@
         Na__LeRec__KIND_3D,
         Na__LeRec__LAYER_TYPES,
         Na__LeRec__STYLE_KEYS,
+        Na__LeRec__DRAWING_ARCHITECTURAL,
+        Na__LeRec__DRAWING_SITEPLAN,
+        Na__LeRec__IsSitePlanSheet,
+        Na__LeRec__IsSitePlanViewport,
         Na__LeRec__NextId,
         Na__LeRec__Find,
         Na__LeRec__NormaliseLayer,
@@ -284,6 +338,8 @@
     const Na__LeModel__LAYER_TYPES     = Na__LeRec__LAYER_TYPES;
     const Na__LeModel__SCENES_KEY      = 'PresentationMode__SavedCameraScenes__Scenes';
     const Na__LeModel__STYLE_KEYS      = Na__LeRec__STYLE_KEYS;
+    const Na__LeModel__DRAWING_ARCHITECTURAL = Na__LeRec__DRAWING_ARCHITECTURAL;
+    const Na__LeModel__DRAWING_SITEPLAN      = Na__LeRec__DRAWING_SITEPLAN;
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Session State
@@ -341,12 +397,60 @@
 // REGION | Public API - Sheets
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Every Sheet, Normalised and in Order
+    // FUNCTION | Every Sheet, Normalised and in Tab Order
+    // ------------------------------------------------------------
+    // Architectural sheets first, then site plan sheets, each group by
+    // Sheet__Order. The one sort point: the tab strip, the editor's first
+    // sheet and the Dev menu all read this list.
     // ------------------------------------------------------------
     function Na__LeModel__GetSheets() {
         const list = Na__LeModel__Array().filter((s) => s && typeof s === 'object' && typeof s.Sheet__Id === 'string');
         list.forEach(Na__LeRec__NormaliseSheet);
-        return list.sort((a, b) => a.Sheet__Order - b.Sheet__Order);
+        return list.sort((a, b) => (Na__LeModel__TabGroup(a) - Na__LeModel__TabGroup(b)) || (a.Sheet__Order - b.Sheet__Order));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is This a Site Plan Sheet
+    // ------------------------------------------------------------
+    function Na__LeModel__IsSitePlanSheet(sheet) {
+        return Na__LeRec__IsSitePlanSheet(sheet);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is This a Site Plan Viewport
+    // ------------------------------------------------------------
+    function Na__LeModel__IsSitePlanViewport(viewport) {
+        return Na__LeRec__IsSitePlanViewport(viewport);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Sheet's Tab Group: 0 Architectural, 1 Site Plan
+    // ------------------------------------------------------------
+    function Na__LeModel__TabGroup(sheet) {
+        return Na__LeRec__IsSitePlanSheet(sheet) ? 1 : 0;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Sheet__Order Past Every Sheet's, So a New Sheet Ends Its Tab Group
+    // ------------------------------------------------------------
+    function Na__LeModel__NextOrder(list) {
+        return list.reduce((top, s) => Math.max(top, (s && Number.isFinite(s.Sheet__Order)) ? s.Sheet__Order : 0), 0) + 1;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Number Sheet__Order 1..n Down the Tab Order
+    // ------------------------------------------------------------
+    // Kept contiguous so a change of drawing type needs no renumber: every
+    // architectural number is below every site plan number, so a sheet that
+    // changes type lands beside the + tab with the number it had.
+    // ------------------------------------------------------------
+    function Na__LeModel__RenumberSheets() {
+        Na__LeModel__GetSheets().forEach((s, k) => { s.Sheet__Order = k + 1; });
     }
     // ------------------------------------------------------------
 
@@ -388,7 +492,7 @@
         const sheet = {
             Sheet__Id              : Na__LeRec__NextId(list, 'Sheet_', 'Sheet__Id'),
             Sheet__Name            : (typeof opts.name === 'string' && opts.name.trim()) ? opts.name.trim() : '',
-            Sheet__Order           : list.length + 1,
+            Sheet__Order           : Na__LeModel__NextOrder(list),
             Sheet__PaperSize       : opts.paperSize || null,
             Sheet__Orientation     : opts.orientation || null,
             Sheet__TitleBlockStyle : opts.titleBlockStyle || null,
@@ -401,8 +505,10 @@
             Sheet__Leaders         : [],
             Sheet__Groups          : []
         };
+        if (opts.drawingType === Na__LeRec__DRAWING_SITEPLAN) sheet.Sheet__DrawingType = Na__LeRec__DRAWING_SITEPLAN;
         list.push(sheet);
         Na__LeRec__NormaliseSheet(sheet, list.length - 1);
+        Na__LeModel__RenumberSheets();                                          // <-- The new sheet ends its tab group
         Na__LeModel__Touch('sheet-created', sheet.Sheet__Id);
         return sheet;
     }
@@ -418,9 +524,10 @@
         const copy = JSON.parse(JSON.stringify(source));
         copy.Sheet__Id    = Na__LeRec__NextId(list, 'Sheet_', 'Sheet__Id');
         copy.Sheet__Name  = source.Sheet__Name + ' copy';
-        copy.Sheet__Order = list.length + 1;
+        copy.Sheet__Order = Na__LeModel__NextOrder(list);
         copy.Sheet__Viewports.forEach((v) => { v.Viewport__SnapshotAsset = null; });   // <-- Snapshots are keyed by viewport id
         list.push(copy);
+        Na__LeModel__RenumberSheets();
         Na__LeModel__Touch('sheet-created', copy.Sheet__Id);
         return copy;
     }
@@ -434,7 +541,7 @@
         for (let i = 0; i < list.length; i++) {
             if (list[i] && list[i].Sheet__Id === sheetId) {
                 list.splice(i, 1);
-                list.forEach((s, k) => { s.Sheet__Order = k + 1; });
+                Na__LeModel__RenumberSheets();                                  // <-- Down the tab order; by array position it put back every drag since the load
                 if (Na__LeModel__ActiveSheetId === sheetId) { Na__LeModel__ActiveSheetId = null; Na__LeModel__SelectionItems = []; }
                 Na__LeModel__Touch('sheet-deleted', sheetId);
                 return true;
@@ -453,6 +560,8 @@
         if (typeof patch.paperSize === 'string') sheet.Sheet__PaperSize = patch.paperSize;
         if (typeof patch.orientation === 'string') sheet.Sheet__Orientation = patch.orientation;
         if (typeof patch.titleBlockStyle === 'string') sheet.Sheet__TitleBlockStyle = patch.titleBlockStyle;
+        if (patch.drawingType === Na__LeRec__DRAWING_SITEPLAN) sheet.Sheet__DrawingType = Na__LeRec__DRAWING_SITEPLAN;   // <-- The tab moves across +; Sheet__Order stays
+        else if (patch.drawingType === Na__LeRec__DRAWING_ARCHITECTURAL) delete sheet.Sheet__DrawingType;
         if (patch.lineweights && typeof patch.lineweights === 'object') {
             const lw = sheet.Sheet__Lineweights || (sheet.Sheet__Lineweights = {});
             if (Number.isFinite(patch.lineweights.viewportPt))  lw.ViewportPt  = patch.lineweights.viewportPt;
@@ -497,7 +606,11 @@
         const from = list.findIndex((s) => s.Sheet__Id === sheetId);
         if (from === -1) return false;
         const [ moved ] = list.splice(from, 1);
-        list.splice(Math.max(0, Math.min(newIndex, list.length)), 0, moved);
+        const sitePlan  = Na__LeModel__TabGroup(moved) === 1;
+        const archCount = list.filter((s) => Na__LeModel__TabGroup(s) === 0).length;
+        const lowest    = sitePlan ? archCount : 0;                             // <-- A drag never crosses the + tab: it stays inside its own group
+        const highest   = sitePlan ? list.length : archCount;
+        list.splice(Math.max(lowest, Math.min(newIndex, highest)), 0, moved);
         list.forEach((s, k) => { s.Sheet__Order = k + 1; });
         Na__LeModel__Touch('sheet-reordered', sheetId);
         return true;
@@ -664,6 +777,92 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Public API - Item Draw Order
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Collection a Kind Arranges In
+    // ------------------------------------------------------------
+    // Later in the array draws on top (and hit-tests first). Viewports stack
+    // by layer, not by array, so they are not arranged here.
+    // ------------------------------------------------------------
+    function Na__LeModel__ArrangeKind(kind) {
+        if (kind === 'shape')      return { list : 'Sheet__Shapes',      idKey : 'Shape__Id',      layerKey : 'Shape__LayerId',      reason : 'shapes' };
+        if (kind === 'annotation') return { list : 'Sheet__Annotations', idKey : 'Annotation__Id', layerKey : 'Annotation__LayerId', reason : 'annotations' };
+        if (kind === 'dimension')  return { list : 'Sheet__Dimensions',  idKey : 'Dimension__Id',  layerKey : 'Dimension__LayerId',  reason : 'dimensions' };
+        if (kind === 'leader')     return { list : 'Sheet__Leaders',     idKey : 'Leader__Id',     layerKey : 'Leader__LayerId',     reason : 'leaders' };
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | An Item's Place Among Same-Layer Peers of Its Kind
+    // ------------------------------------------------------------
+    function Na__LeModel__ArrangeSlot(sheet, kind, itemId) {
+        const spec = Na__LeModel__ArrangeKind(kind);
+        if (!sheet || !spec || typeof itemId !== 'string') return null;
+        const list = sheet[spec.list];
+        if (!Array.isArray(list)) return null;
+        const index = list.findIndex((entry) => entry[spec.idKey] === itemId);
+        if (index === -1) return null;
+        const layerId = list[index][spec.layerKey];
+        const peers = [];
+        list.forEach((entry, i) => { if (entry[spec.layerKey] === layerId) peers.push({ index : i }); });
+        const peerAt = peers.findIndex((peer) => peer.index === index);
+        if (peerAt === -1) return null;
+        return { spec : spec, list : list, index : index, layerId : layerId, peers : peers, peerAt : peerAt };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Peer Index a Direction Moves To
+    // ------------------------------------------------------------
+    function Na__LeModel__ArrangeDestPeer(slot, direction) {
+        if (direction === 'forward')  return slot.peerAt + 1;
+        if (direction === 'backward') return slot.peerAt - 1;
+        if (direction === 'front')    return slot.peers.length - 1;
+        if (direction === 'back')     return 0;
+        return -1;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Can This Item Step in Draw Order?
+    // ------------------------------------------------------------
+    // direction: 'forward' | 'backward' | 'front' | 'back'
+    // ------------------------------------------------------------
+    function Na__LeModel__CanArrange(sheet, kind, itemId, direction) {
+        const slot = Na__LeModel__ArrangeSlot(sheet, kind, itemId);
+        if (!slot || Na__LeModel__IsLayerLocked(sheet, slot.layerId)) return false;
+        const dest = Na__LeModel__ArrangeDestPeer(slot, direction);
+        return dest >= 0 && dest < slot.peers.length && dest !== slot.peerAt;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Move an Item Among Same-Layer Peers of Its Kind
+    // ------------------------------------------------------------
+    // Later in the array draws on top. Forward and front step toward the
+    // front of that layer; backward and back toward the back. One announcement,
+    // so one undo step.
+    // ------------------------------------------------------------
+    function Na__LeModel__Arrange(sheet, kind, itemId, direction) {
+        const slot = Na__LeModel__ArrangeSlot(sheet, kind, itemId);
+        if (!slot || Na__LeModel__IsLayerLocked(sheet, slot.layerId)) return false;
+        const destPeer = Na__LeModel__ArrangeDestPeer(slot, direction);
+        if (destPeer < 0 || destPeer >= slot.peers.length || destPeer === slot.peerAt) return false;
+        const from = slot.index;
+        const to   = slot.peers[destPeer].index;
+        const [ moved ] = slot.list.splice(from, 1);
+        slot.list.splice(to, 0, moved);
+        Na__LeModel__Touch(slot.spec.reason, sheet.Sheet__Id, itemId);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Public API - Viewports
 // -----------------------------------------------------------------------------
 
@@ -685,7 +884,8 @@
 
     // FUNCTION | Add a Viewport
     // ------------------------------------------------------------
-    // options: { kind, sceneId, drawingId, name, rect, scaleDenominator, modelSourceId }
+    // options: { kind, sceneId, drawingId, name, rect, scaleDenominator, modelSourceId,
+    //           sitePlan (an object: a site plan viewport), modelLayers (categories switched off) }
     // ------------------------------------------------------------
     function Na__LeModel__CreateViewport(sheet, options) {
         if (!sheet) return null;
@@ -698,7 +898,9 @@
             Viewport__ModelSourceId    : opts.modelSourceId || null,
             Viewport__Name             : opts.name || '',
             Viewport__FrameMm          : opts.rect || null,
-            Viewport__ScaleDenominator : opts.scaleDenominator
+            Viewport__ScaleDenominator : opts.scaleDenominator,
+            Viewport__SitePlan         : (opts.sitePlan && typeof opts.sitePlan === 'object') ? Object.assign({}, opts.sitePlan) : undefined,
+            Viewport__ModelLayers      : (opts.modelLayers && typeof opts.modelLayers === 'object') ? Object.assign({}, opts.modelLayers) : null
         }, Na__LeModel__DefaultLayerId(sheet, 'viewport'));
         sheet.Sheet__Viewports.push(viewport);
         Na__LeModel__Touch('viewports', sheet.Sheet__Id, viewport.Viewport__Id);
@@ -748,7 +950,7 @@
 
     // FUNCTION | Change a Viewport (any subset of its fields)
     // ------------------------------------------------------------
-    // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, styles, modelLayers,
+    // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, imageZoom, styles, modelLayers,
     //          projectedEdges, compositeWeights, markupMode, name, layerId,
     //          sceneId, drawingId, kind, showScaleLabel, showFrame, locked, snapshotAsset, modelSourceId,
     //          closedDoors }
@@ -762,6 +964,7 @@
         if (patch.pan)       viewport.Viewport__PanMm   = Object.assign({}, viewport.Viewport__PanMm,   patch.pan);
         if (patch.imageMm)   viewport.Viewport__ImageMm = Object.assign({}, viewport.Viewport__ImageMm, patch.imageMm);
         if (patch.imageOffset) viewport.Viewport__ImageOffsetMm = Object.assign({}, viewport.Viewport__ImageOffsetMm, patch.imageOffset);
+        if (patch.imageZoom !== undefined) viewport.Viewport__ImageZoom = patch.imageZoom;   // <-- A 3D picture's zoom; the normaliser clamps it and keeps it only when it is not 1
         if (patch.styles) {
             Na__LeModel__STYLE_KEYS.forEach((key) => { if (typeof patch.styles[key] === 'boolean') viewport.Viewport__Styles[key] = patch.styles[key]; });
         }
@@ -800,7 +1003,7 @@
             });
             viewport[Na__LeComposite__FIELD] = merged;
         }
-        if (patch.scaleDenominator !== undefined) viewport.Viewport__ScaleDenominator = Na__LeScale__Coerce(patch.scaleDenominator);
+        if (patch.scaleDenominator !== undefined) viewport.Viewport__ScaleDenominator = Na__LeScale__Coerce(patch.scaleDenominator, Na__LeRec__IsSitePlanViewport(viewport));   // <-- Onto the viewport's own list
         if (patch.markupMode === 'scene' || patch.markupMode === 'sheet') viewport.Viewport__MarkupMode = patch.markupMode;
         if (typeof patch.name === 'string') viewport.Viewport__Name = patch.name;
         if (typeof patch.layerId === 'string') viewport.Viewport__LayerId = patch.layerId;
@@ -826,9 +1029,14 @@
     // ------------------------------------------------------------
     // Returns { kind, scene, plan, elevation, label } with nulls where the
     // link is dangling, so a viewport whose scene was deleted still draws
-    // its frame and says so.
+    // its frame and says so. A site plan viewport has no scene, plan or
+    // elevation, and carries sitePlan (its Viewport__SitePlan record).
     // ------------------------------------------------------------
     function Na__LeModel__ResolveViewportSource(viewport) {
+        if (Na__LeRec__IsSitePlanViewport(viewport)) {
+            return { kind : Na__LeModel__KIND_2D, scene : null, plan : null, elevation : null, sitePlan : viewport.Viewport__SitePlan,
+                     label : viewport.Viewport__Name || Na__LeCfg__GetLabel('SitePlanViewportName', 'Site Plan') };
+        }
         const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
         const scenes = (config && Array.isArray(config[Na__LeModel__SCENES_KEY])) ? config[Na__LeModel__SCENES_KEY] : [];
         const scene  = viewport.Viewport__SceneId ? (scenes.find((s) => s && s.PresentationMode__Scene__Id === viewport.Viewport__SceneId) || null) : null;
@@ -867,6 +1075,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Set How Far a Text Item Is Turned
+    // ------------------------------------------------------------
+    // Degrees clockwise about its anchor, wrapped into (-180, 180] and kept to
+    // a thousandth of a degree. Level removes the key, so a text item that has
+    // never been turned - or has been turned back - saves exactly as before.
+    // ------------------------------------------------------------
+    function Na__LeModel__SetAnnotationRotation(item, deg) {
+        let d = Math.round((deg % 360) * 1000) / 1000;
+        if (d <= -180) d += 360;
+        if (d > 180) d -= 360;
+        if (d === 0) delete item.Annotation__RotationDeg;
+        else item.Annotation__RotationDeg = d;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Add a Text Item at a Paper Point
     // ------------------------------------------------------------
     function Na__LeModel__CreateAnnotation(sheet, posXMm, posYMm, options) {
@@ -885,6 +1109,7 @@
             Annotation__LeaderYMm  : Number.isFinite(opts.leaderYMm) ? opts.leaderYMm : null,
             Annotation__LayerId    : opts.layerId
         }, Na__LeModel__DefaultLayerId(sheet, 'annotation'));
+        if (Number.isFinite(opts.rotationDeg)) Na__LeModel__SetAnnotationRotation(item, opts.rotationDeg);
         sheet.Sheet__Annotations.push(item);
         Na__LeModel__Touch('annotations', sheet.Sheet__Id, item.Annotation__Id);
         return item;
@@ -935,6 +1160,7 @@
         if (patch.leaderXMm !== undefined) item.Annotation__LeaderXMm = Number.isFinite(patch.leaderXMm) ? patch.leaderXMm : null;
         if (patch.leaderYMm !== undefined) item.Annotation__LeaderYMm = Number.isFinite(patch.leaderYMm) ? patch.leaderYMm : null;
         if (typeof patch.layerId === 'string') item.Annotation__LayerId = patch.layerId;
+        if (Number.isFinite(patch.rotationDeg)) Na__LeModel__SetAnnotationRotation(item, patch.rotationDeg);
         Na__LeRec__NormaliseAnnotation(item, item.Annotation__LayerId);
         if (silent) { Na__LeModel__Dirty = true; return true; }
         Na__LeModel__Touch('annotation', sheet.Sheet__Id, itemId);
@@ -1063,7 +1289,8 @@
     // FUNCTION | Create, Update and Delete a Vector Shape
     // ------------------------------------------------------------
     // points: [[x, y], ...] paper mm. options: { strokeColour, strokePt,
-    // fillColour, fillOpacity, strokeOpacity, closed, stroked, layerId, silent }. A sheet without a
+    // fillColour, fillOpacity, strokeOpacity, closed, stroked, gradient, dash,
+    // layerId, silent }. A sheet without a
     // vector layer gets one the first time a shape lands. Edges and fill
     // are either-or at the least: the normaliser puts the edges back on a
     // shape that would otherwise have nothing to show.
@@ -1087,7 +1314,8 @@
             Shape__Stroked      : opts.stroked !== false,
             Shape__FillOpacity  : opts.fillOpacity,                            // <-- Left out, or not 0 to 1: the normaliser makes it solid
             Shape__StrokeOpacity: opts.strokeOpacity,
-            Shape__Gradient     : (opts.gradient && typeof opts.gradient === 'object') ? opts.gradient : null   // <-- The normaliser copies it, so the caller's object is never shared
+            Shape__Gradient     : (opts.gradient && typeof opts.gradient === 'object') ? opts.gradient : null,   // <-- The normaliser copies it, so the caller's object is never shared
+            Shape__LineStyle    : (opts.dash && typeof opts.dash === 'object') ? opts.dash : null
         }, layerId);
         sheet.Sheet__Shapes.push(item);
         if (opts.silent) Na__LeModel__Dirty = true; else Na__LeModel__Touch('shapes', sheet.Sheet__Id, item.Shape__Id);   // <-- The draw tool announces once, on finishing
@@ -1102,6 +1330,7 @@
         if (Number.isFinite(patch.strokePt)) item.Shape__StrokePt = patch.strokePt;
         if (patch.fillColour !== undefined) item.Shape__FillColour = (typeof patch.fillColour === 'string') ? patch.fillColour : null;
         if (patch.gradient !== undefined) item.Shape__Gradient = (patch.gradient && typeof patch.gradient === 'object') ? patch.gradient : null;   // <-- null clears it; the normaliser below copies it fresh
+        if (patch.dash !== undefined) item.Shape__LineStyle = (patch.dash && typeof patch.dash === 'object') ? patch.dash : null;                   // <-- null is a solid edge
         if (typeof patch.stroked === 'boolean') item.Shape__Stroked = patch.stroked;
         if (Number.isFinite(patch.fillOpacity))   item.Shape__FillOpacity   = patch.fillOpacity;
         if (Number.isFinite(patch.strokeOpacity)) item.Shape__StrokeOpacity = patch.strokeOpacity;
@@ -1496,6 +1725,8 @@
         Na__LeModel__KIND_2D,
         Na__LeModel__KIND_3D,
         Na__LeModel__LAYER_TYPES,
+        Na__LeModel__DRAWING_ARCHITECTURAL,
+        Na__LeModel__DRAWING_SITEPLAN,
         Na__LeModel__Initialize,
         Na__LeModel__GetSheets,
         Na__LeModel__GetSheetById,
@@ -1507,6 +1738,8 @@
         Na__LeModel__UpdateSheet,
         Na__LeModel__AnnounceRestore,
         Na__LeModel__ReorderSheet,
+        Na__LeModel__IsSitePlanSheet,
+        Na__LeModel__IsSitePlanViewport,
         Na__LeModel__GetFields,
         Na__LeModel__SetField,
         Na__LeModel__UpdateMarginNotes,
@@ -1519,6 +1752,8 @@
         Na__LeModel__ReorderLayer,
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
+        Na__LeModel__CanArrange,
+        Na__LeModel__Arrange,
         Na__LeModel__GetViewports,
         Na__LeModel__GetViewportById,
         Na__LeModel__CreateViewport,

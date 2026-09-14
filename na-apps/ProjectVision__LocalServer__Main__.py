@@ -14,7 +14,7 @@
 # - Serves a card-based project launcher at the server root (localhost only)
 # - Auto-opens the browser to that launcher
 # - Supports hot-reloading in debug mode
-# - Provides health-check and dev project-list API endpoints
+# - Provides health-check, project-data and drawing-notes API endpoints
 #
 # USAGE:
 #   python ProjectVision__LocalServer__Main__.py
@@ -72,8 +72,11 @@ PORTAL_ROOT              = os.path.abspath(os.path.join(os.path.dirname(os.path.
 PROJECTVISION_CORE_DIR   = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '05__ProjectVision__CoreAppCode'))
 YEAR_FOLDER_PATTERN      = re.compile(r'^(\d{2})-Projects$')
 
-TRUEVISION_CONTENT_DIR   = '30__TrueVision__AppContent'
-TRUEVISION_DATA_FILENAME = 'TrueVision__ProjectData__.json'
+TRUEVISION_CONTENT_DIR    = '30__TrueVision__AppContent'
+TRUEVISION_DATA_FILENAME  = 'TrueVision__ProjectData__.json'
+TRUEVISION_SIBLING_FILES  = frozenset({
+    'TrueVision__DrawingNotes__.json',
+})
 
 # SUB-APPLICATION ENTRYPOINTS | Shared with the Project Admin dev server
 SUB_APP_PATHS            = dev_launcher.SUB_APP_PATHS
@@ -296,6 +299,33 @@ def _resolve_project_data_path(project_code):
     return _find_project_file_by_code(project_code, year_code)
 
 
+def _write_json_file(file_path, payload):
+    """Write a JSON object to disk with project-standard formatting."""
+    directory = os.path.dirname(file_path)
+    os.makedirs(directory, exist_ok=True)
+    with open(file_path, 'w', encoding='utf-8', newline='\n') as file_handle:
+        json.dump(payload, file_handle, indent=4, ensure_ascii=False)
+        file_handle.write('\n')
+
+
+def _sanitize_sibling_filename(filename):
+    """Allow only known TrueVision sibling JSON files beside project data."""
+    safe_name = os.path.basename((filename or '').strip())
+    if safe_name != (filename or '').strip():
+        return None
+    if safe_name not in TRUEVISION_SIBLING_FILES:
+        return None
+    return safe_name
+
+
+def _resolve_project_sibling_path(project_code, filename):
+    """Resolve a sibling JSON path in the same folder as TrueVision__ProjectData__.json."""
+    project_file_path = _resolve_project_data_path(project_code)
+    if not project_file_path:
+        return None
+    return os.path.join(os.path.dirname(project_file_path), filename)
+
+
 def _extract_project_folder_from_project_file(project_file_path):
     """Infer project folder from .../{year}-Projects/{project_folder}/30__TrueVision__AppContent/..."""
     normalized = project_file_path.replace('\\', '/')
@@ -409,9 +439,7 @@ def project_data_api(project_code):
         return jsonify({'error': 'Request body must be a JSON object'}), 400
 
     try:
-        with open(project_file_path, 'w', encoding='utf-8', newline='\n') as file_handle:
-            json.dump(payload, file_handle, indent=4, ensure_ascii=False)
-            file_handle.write('\n')
+        _write_json_file(project_file_path, payload)
     except Exception as error:
         print(f"[LocalServer] Failed to write project data file: {project_file_path}")
         print(f"[LocalServer] {type(error).__name__}: {error}")
@@ -421,6 +449,51 @@ def project_data_api(project_code):
         'status': 'ok',
         'message': f'Project data updated for {safe_project_code}',
         'projectFile': project_file_path
+    })
+
+
+@app.route('/api/projects/<project_code>/files/<path:filename>', methods=['GET', 'POST'])
+def project_sibling_file_api(project_code, filename):
+    """Read or replace a TrueVision sibling JSON file beside the project data."""
+    safe_project_code = _sanitize_project_code(project_code)
+    if not safe_project_code:
+        return jsonify({'error': 'Invalid project code'}), 400
+
+    safe_filename = _sanitize_sibling_filename(filename)
+    if not safe_filename:
+        return jsonify({'error': f'Refused project file "{filename}"'}), 400
+
+    sibling_path = _resolve_project_sibling_path(safe_project_code, safe_filename)
+    if not sibling_path:
+        return jsonify({'error': f'Project not found: {safe_project_code}'}), 404
+
+    if request.method == 'GET':
+        if not os.path.isfile(sibling_path):
+            return jsonify({'error': f'{safe_filename} is not on disk yet', 'missing': True}), 404
+        try:
+            with open(sibling_path, 'r', encoding='utf-8') as file_handle:
+                sibling_data = json.load(file_handle)
+            return jsonify(sibling_data)
+        except Exception as error:
+            print(f"[LocalServer] Failed to read sibling file: {sibling_path}")
+            print(f"[LocalServer] {type(error).__name__}: {error}")
+            return jsonify({'error': 'Failed to read project file'}), 500
+
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({'error': 'Request body must be a JSON object'}), 400
+
+    try:
+        _write_json_file(sibling_path, payload)
+    except Exception as error:
+        print(f"[LocalServer] Failed to write sibling file: {sibling_path}")
+        print(f"[LocalServer] {type(error).__name__}: {error}")
+        return jsonify({'error': 'Failed to write project file'}), 500
+
+    return jsonify({
+        'status': 'ok',
+        'message': f'{safe_filename} updated for {safe_project_code}',
+        'projectFile': sibling_path
     })
 
 
@@ -582,8 +655,10 @@ def print_banner():
     print(f"    - TrueVision:     http://localhost:{PORT}/na-apps/{SUB_APP_PATHS['trueVision']}?project=XX00")
 
     print("\n  API:")
-    print(f"    - Health:   http://localhost:{PORT}/api/health")
-    print(f"    - Projects: http://localhost:{PORT}/api/dev/projects")
+    print(f"    - Health:         http://localhost:{PORT}/api/health")
+    print(f"    - Projects:       http://localhost:{PORT}/api/dev/projects")
+    print(f"    - Project data:   POST /api/projects/<code>")
+    print(f"    - Drawing notes:  GET/POST /api/projects/<code>/files/TrueVision__DrawingNotes__.json")
 
     print("\n  Press Ctrl+C to stop the server")
     print("=" * 70 + "\n")

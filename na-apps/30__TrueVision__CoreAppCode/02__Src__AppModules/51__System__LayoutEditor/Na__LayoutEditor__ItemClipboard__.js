@@ -24,6 +24,12 @@
 //
 // -----------------------------------------------------------------------------
 //
+// PORT NOTE:
+// - Authored in   : TrueVision3D first (14-Sep-2026)
+// - ValeVision    : ported 14-Sep-2026 as ValeVision3D v2.38.0 (verbatim, header only)
+//
+// -----------------------------------------------------------------------------
+//
 // DEVELOPMENT LOG:
 // 14-Sep-2026 - Version 1.0.0
 // - Copy, paste and duplicate for text, groups, and a multi-selection of

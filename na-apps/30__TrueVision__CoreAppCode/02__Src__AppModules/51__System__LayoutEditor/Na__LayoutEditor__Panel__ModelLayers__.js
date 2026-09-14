@@ -39,6 +39,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - A site plan viewport's rows are its site plan layers. The list rebuilds when
+//   the site plan data arrives, and says so while there is none.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - The rows are the categories of the selected viewport's own design phase,
 //   which on a viewport of the existing building are not the proposal's.
@@ -64,6 +68,7 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectedViewport, Na__LeModel__UpdateViewport } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeModelLayers__Ready, Na__LeModelLayers__Groups, Na__LeModelLayers__IsOn } from './Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeSource__CategoryKeys } from './Na__LayoutEditor__ModelSource__.js';
+    import { Na__SpStore__CHANGED_EVENT } from '../52__System__SitePlanData/Na__SitePlan__Store__.js';
     import {
         Na__LeEdge__FIELD,
         Na__LeEdge__CAT_FIELD,
@@ -152,6 +157,7 @@
         const rebuild = () => { Na__LePanelModelLayers__BuiltKey = null; Na__LePanels__Refresh(Na__LePanelModelLayers__ID); };
         Na__LeModelLayers__Ready().then(rebuild);
         Na__LeEdge__Ready().then(rebuild);
+        window.addEventListener(Na__SpStore__CHANGED_EVENT, (event) => { if (!event.detail || event.detail.reason !== 'layer-loaded') rebuild(); });   // <-- Site plan layers arrive with their data
     }
     // ------------------------------------------------------------
 
@@ -285,7 +291,7 @@
         const bulk     = body.querySelector('[data-na-block="bulk"]');
 
         if (groups.length === 0) {
-            note.textContent = Na__LeCfg__GetLabel('ModelLayersNoModel', 'No model categories loaded.');
+            note.textContent = (viewport && viewport.Viewport__SitePlan) ? Na__LeCfg__GetLabel('SitePlanNoLayers', 'No site plan layers loaded yet.') : Na__LeCfg__GetLabel('ModelLayersNoModel', 'No model categories loaded.');
             note.hidden = false;
             bulk.hidden = true;
             list.innerHTML = '';

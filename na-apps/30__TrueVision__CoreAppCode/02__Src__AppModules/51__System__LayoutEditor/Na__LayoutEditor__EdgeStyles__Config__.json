@@ -2,7 +2,7 @@
     "LayoutEditor__EdgeStyles__Meta": {
         "Meta__FileName"        : "Na__LayoutEditor__EdgeStyles__Config__.json",
         "Meta__Description"     : "The vocabulary of the projected linework layer: the edge colours, the line types and the bounds of a weight factor. Nothing here says which object gets which - that is Na__LayoutEditor__ModelLayers__Config__.json's job. This file says only what the choices ARE, so both that config and the per-viewport overrides speak one small alphabet.",
-        "Meta__Version"         : "1.0.0",
+        "Meta__Version"         : "1.1.0",
         "Meta__Created"         : "12-Sep-2026",
         "Meta__Author"          : "Adam Noble - Noble Architecture",
 
@@ -14,7 +14,8 @@
         "Meta__WhichSwatches"   : "The six greys are exactly the SSOT's own AssemblyStudioEdgeColourSwatchKeys set - the palette already in use in SketchUp - so a drawing and the model it came from grade their edges the same way. They are listed dark to light, which is also the order they read as depth.",
         "Meta__WhereWeightGoes" : "A weight FACTOR is never a width. It multiplies the sheet's master viewport lineweight (Sheet__Lineweights.ViewportPt), so raising the master raises everything together and the relative hierarchy - walls over windows over furniture - survives untouched.",
         "Meta__DashUnits"       : "LineType__PatternMm is in PAPER millimetres, the same unit as the linework widths, and is multiplied by the scale denominator when it is drawn. A dash therefore measures the same on the sheet at 1:50 and at 1:200, which is what a drawn dash does.",
-        "Meta__WhichClasses"    : "AppliesToClasses names the line classes a category style is allowed to restyle. The section class is deliberately absent: a section outline's job is to read as cut material whatever was cut, so it keeps its own class colour and weight. Add 'section' here to change that; no code cares."
+        "Meta__WhichClasses"    : "AppliesToClasses names the line classes a category style is allowed to restyle. The section class is deliberately absent: a section outline's job is to read as cut material whatever was cut, so it keeps its own class colour and weight. Add 'section' here to change that; no code cares.",
+        "Meta__AccentColours"   : "Red, green and blue (1.1.0) are the SSOT's site plan accents. They are there for site plan drawings, whose layer styles arrive with the data, and are harmless on any other drawing."
     },
 
     "LayoutEditor__EdgeStyles__Colours": [
@@ -23,7 +24,10 @@
         { "Colour__Alias": "dark-grey",   "Colour__Label": "Dark Grey",        "Colour__Hex": "#666666", "Colour__SsotKey": "MTE103__LineColour__DarkGrey__L40",       "Colour__Note": "Lightness 40 - openings and fixtures" },
         { "Colour__Alias": "mid-dark-grey","Colour__Label": "Medium Dark Grey","Colour__Hex": "#737373", "Colour__SsotKey": "MTE103__LineColour__MediumDarkGrey__L50", "Colour__Note": "Lightness 50" },
         { "Colour__Alias": "mid-grey",    "Colour__Label": "Mid Grey",         "Colour__Hex": "#999999", "Colour__SsotKey": "MTE104__LineColour__MidGrey__L60",        "Colour__Note": "Lightness 60 - furniture, the things that are only there for scale" },
-        { "Colour__Alias": "light-grey",  "Colour__Label": "Light Grey",       "Colour__Hex": "#D9D9D9", "Colour__SsotKey": "MTE107__LineColour__LightGrey__L85",      "Colour__Note": "Lightness 85 - decor, planting, entourage; present but not read" }
+        { "Colour__Alias": "light-grey",  "Colour__Label": "Light Grey",       "Colour__Hex": "#D9D9D9", "Colour__SsotKey": "MTE107__LineColour__LightGrey__L85",      "Colour__Note": "Lightness 85 - decor, planting, entourage; present but not read" },
+        { "Colour__Alias": "red",         "Colour__Label": "Red",              "Colour__Hex": "#E53935", "Colour__SsotKey": "MTE201__LineColour__Red", "Colour__Note": "Site plans: the red line boundary and the proposal" },
+        { "Colour__Alias": "green",       "Colour__Label": "Green",            "Colour__Hex": "#43A047", "Colour__SsotKey": "MTE202__LineColour__Green", "Colour__Note": "Site plans: trees, hedges and planting" },
+        { "Colour__Alias": "blue",        "Colour__Label": "Blue",             "Colour__Hex": "#1E88E5", "Colour__SsotKey": "MTE205__LineColour__Blue", "Colour__Note": "Site plans: the blue line, drainage and services" }
     ],
 
     "LayoutEditor__EdgeStyles__LineTypes": [
@@ -37,9 +41,9 @@
     ],
 
     "LayoutEditor__EdgeStyles__Weight": {
-        "Weight__Description" : "Bounds for a per-category weight factor. 1.0 is the sheet's master viewport lineweight exactly; 0.5 is half of it.",
+        "Weight__Description" : "Bounds for a per-category weight factor. 1.0 is the sheet's master viewport lineweight exactly; 0.5 is half of it. The ceiling is 6.00 so a 0.50 mm site plan red line (4.72 at the 0.30 pt master) prints true.",
         "Weight__Min"         : 0.10,
-        "Weight__Max"         : 3.00,
+        "Weight__Max"         : 6.00,
         "Weight__Step"        : 0.05,
         "Weight__Decimals"    : 2,
         "Weight__Default"     : 1.00

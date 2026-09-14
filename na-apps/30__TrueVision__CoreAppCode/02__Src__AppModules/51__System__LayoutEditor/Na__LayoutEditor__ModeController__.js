@@ -42,6 +42,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.13.0
+// - Waits on the dashed-edge config (Na__LayoutEditor__LineStyleTool__) with
+//   the other editor configs, so the first sheet a project opens is
+//   normalised against the real millimetre figures rather than the fallbacks.
+//
+// 14-Sep-2026 - Version 1.12.0
+// - A group change ('group', 'groups') redraws the markup so the blue box
+//   and the members stay in step.
+//
 // 14-Sep-2026 - Version 1.11.0
 // - The Measurements box (Na__LayoutEditor__Measurements__) is mounted in the
 //   stage's column when the shell is built; the sheet tools attach it.
@@ -123,6 +132,8 @@
     import { Na__LeComposite__Ready } from './Na__LayoutEditor__RenderComposites__.js';
     import { Na__DrawCfg__Load } from '../40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
     import { Na__LeGrad__Ready } from './Na__LayoutEditor__GradientTool__.js';
+    import { Na__LeDash__Ready } from './Na__LayoutEditor__LineStyleTool__.js';
+    // @delegate: ./Na__LayoutEditor__LineStyleTool__.js
     import {
         Na__LeModel__CHANGED_EVENT,
         Na__LeModel__Initialize,
@@ -455,6 +466,7 @@
         'dimension',  'dimensions',
         'shape',      'shapes',
         'leader',     'leaders',
+        'group',      'groups',
         'margin'                                                                // <-- The notes margin is drawn with the markup
     ]);
     // ------------------------------------------------------------
@@ -541,7 +553,7 @@
         // AND THE DRAWING VIEW CONFIG, because every viewport bake renders through
         // the drawing presets and they read their setup from it. index.html starts
         // the fetch; this is the same promise, so it is waited for, never repeated.
-        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__DrawCfg__Load() ]).then(() => {
+        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__DrawCfg__Load() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
             Na__LeModel__Initialize();
             Na__LeHist__Initialize();                                        // <-- Undo and redo listen to the model from the start

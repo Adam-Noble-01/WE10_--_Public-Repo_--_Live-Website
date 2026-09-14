@@ -11,8 +11,9 @@
 //
 // DESCRIPTION:
 // - Every door on a 2D plan viewport is drawn OPEN, whatever the 3D view shows,
-//   with the swing arc of each open hinged leaf. Elevations, sections and 3D
-//   viewports draw the doors as the model holds them.
+//   with the swing arc of each open hinged leaf. Every door on an elevation or
+//   section viewport is drawn SHUT, whatever the 3D view shows, and is not
+//   there to be clicked. 3D viewports draw the doors as the model holds them.
 // - A click on a door in the selected plan viewport closes it, and another
 //   click opens it again. The right-click menu offers the same, plus Open all
 //   doors. Each is one undo step: a content edit, kept by the browser draft
@@ -23,16 +24,17 @@
 // - THE RECORD. Viewport__ClosedDoors lists the doors the viewport draws shut,
 //   by door key: the ADR name, or ADR::MOD for one leaf of an exterior double
 //   door, whose leaves open one at a time just as a click in the 3D view opens
-//   them. The key is absent while every door is open.
+//   them. The key is absent while every door is open. An elevation or section
+//   ignores it: every one of its doors is shut.
 // - The pose rides on the view definition (Na__LeVp2d__Describe), so it keys
 //   the linework, the base image and the PDF like any other drawing setting.
 //   Na__ProjectedLinework__DoorPose__ poses the doors, traces the swings and
 //   finds the door under a click.
 //
 // INTEGRATION:
-// - Na__LayoutEditor__Viewport2d__ (PoseFor), Na__LayoutEditor__SheetTools__
-//   (At, ToggleSoon, CancelPending, MenuItems), and the Viewport panel
-//   (IsPlan, ClosedCount, OpenAll).
+// - Na__LayoutEditor__Viewport2d__ (PoseFor, ShutPoseFor),
+//   Na__LayoutEditor__SheetTools__ (At, ToggleSoon, CancelPending, MenuItems),
+//   and the Viewport panel (IsPlan, ClosedCount, OpenAll).
 //
 // -----------------------------------------------------------------------------
 //
@@ -43,6 +45,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Elevations and sections draw every door shut (ShutPoseFor), whatever the
+//   3D view shows: only a plan draws a door open. ShutOnElevations switches it
+//   off. At answers only on a plan.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -148,6 +155,20 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | The Door Pose an Elevation or Section Viewport Draws With
+    // ------------------------------------------------------------
+    // Asked for once the source is known to be an elevation or a section: every
+    // door shut, whatever the 3D view shows, because only a plan draws a door
+    // open. Null while ShutOnElevations is off, which draws the doors as the
+    // model holds them.
+    // ------------------------------------------------------------
+    function Na__LeDoors__ShutPoseFor(viewport) {
+        if (!viewport || !Na__LeCfg__GetPlanDoorsSetup().shutOnElevations) return null;
+        return { Shut : true };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -159,10 +180,12 @@
     // ------------------------------------------------------------
     // described is Na__LeVp2d__Describe(viewport); pointMm and toleranceMm are
     // paper millimetres. Only a plan answers, and only inside its frame: what
-    // the crop hides cannot be clicked.
+    // the crop hides cannot be clicked. An elevation's doors are shut and stay
+    // shut, so it never answers.
     // ------------------------------------------------------------
     function Na__LeDoors__At(viewport, described, pointMm, toleranceMm) {
         if (!viewport || !pointMm || !described || !described.definition || !described.definition.DoorPose) return null;
+        if (!described.source || !described.source.plan) return null;             // <-- An elevation or section: every door shut, none to click
         const frame = viewport.Viewport__FrameMm;
         if (pointMm.x < frame.X || pointMm.y < frame.Y || pointMm.x > frame.X + frame.WidthMm || pointMm.y > frame.Y + frame.HeightMm) return null;
         const root = Na__LeSnap__GetModelRoot(described.modelSource ? described.modelSource.renderId : null);
@@ -270,6 +293,7 @@
         Na__LeDoors__IsPlan,
         Na__LeDoors__ClickToggles,
         Na__LeDoors__PoseFor,
+        Na__LeDoors__ShutPoseFor,
         Na__LeDoors__ClosedCount,
         Na__LeDoors__At,
         Na__LeDoors__Toggle,

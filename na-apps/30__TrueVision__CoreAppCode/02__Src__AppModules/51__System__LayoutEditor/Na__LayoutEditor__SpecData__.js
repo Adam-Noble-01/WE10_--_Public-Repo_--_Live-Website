@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LeSpec
 // MODULE     : Layout Editor - Specification Data
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Own the project specification: its groups and notes, the codes their order gives them, its undo, the browser draft and its file on R2
+// PURPOSE    : Own the project specification: its groups and notes, the codes their order gives them, its undo, the browser draft, the local drawing-notes file and its file on R2
 // CREATED    : 14-Sep-2026
 //
 // DESCRIPTION:
@@ -25,11 +25,14 @@
 //   note deleted and a new one added can never share an id, which would
 //   otherwise quietly hand a bubble still linked to the old note the new one.
 // - ITS OWN FILE, READ ONLY WHEN THE DRAWING EDITOR OPENS. It lives beside
-//   TrueVision__ProjectData__.json, and EnsureLoaded is first called on entry
-//   to the editor, so a long specification costs nothing to a visitor who only
-//   orbits the model. Where it is read from:
-//     localhost, or authoring unlocked   R2 through the Worker (fresh), and the
-//                                        repository copy only when R2 has none
+//   TrueVision__ProjectData__.json as TrueVision__DrawingNotes__.json, and
+//   EnsureLoaded is first called on entry to the editor, so a long specification
+//   costs nothing to a visitor who only orbits the model. Where it is read from:
+//     localhost, or authoring unlocked   R2 through the Worker (fresh). A local
+//                                        repository copy is always kept in sync
+//                                        so an agent can edit it on disk. The
+//                                        previous R2 name is read only when the
+//                                        new file is not there yet.
 //     the web build                      the public CDN copy
 //   A copy that could not be READ is not a copy that is not there. The first
 //   leaves the specification 'failed': edits are kept in this browser but Sync
@@ -38,8 +41,10 @@
 // - KEPT LOCALLY AT ONCE, SYNCED ON REQUEST. Every change writes a browser
 //   draft a moment after the typing pauses, and when the tab is hidden or
 //   closed. A load that finds a draft different from the file puts the draft
-//   back and says so. Sync writes the whole file to R2 and clears the draft,
-//   and asks first when the cloud copy changed after this browser read it.
+//   back and says so. Sync writes the whole file to R2 and to the local
+//   TrueVision__DrawingNotes__.json, and asks first when the cloud copy changed
+//   after this browser read it. A local file whose UpdatedIso is newer than R2
+//   is adopted as the live document so an on-disk edit reaches the editor.
 // - UNDO. The tab keeps its own history of whole-document snapshots, one step
 //   per committed change. Typing into a title or a body is live - no step -
 //   and the field's commit is the one step for everything typed into it.
@@ -64,6 +69,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - Canonical file TrueVision__DrawingNotes__.json, kept locally beside the
+//   project data and written to the same R2 key on Sync. The previous R2 name
+//   is still read when the new file is absent. A newer local UpdatedIso is
+//   adopted so an on-disk edit reaches the editor.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -81,6 +92,8 @@
     import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
+    // @delegate: ../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js
+    import { Na__LocalMirror__WriteSiblingFile } from '../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
     import {
         Na__CfApi__IsConfigured,
         Na__CfApi__ProjectFileLocation,
@@ -235,6 +248,25 @@
         } catch (error) {
             return { ok : false, data : null, missing : false, error : (error && error.message) || 'unreachable' };
         }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Document's Cloud Stamp (empty when it has none)
+    // ------------------------------------------------------------
+    function Na__LeSpec__Stamp(data) {
+        return (data && typeof data === 'object' && typeof data[Na__LeSpec__K_UPDATED] === 'string') ? data[Na__LeSpec__K_UPDATED] : '';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Write the Live Document to the Local Drawing-Notes File
+    // ------------------------------------------------------------
+    async function Na__LeSpec__MirrorLocal(doc) {
+        if (!Na__AppUtils__IsRunningOnLocalhost() || !doc || typeof doc !== 'object') return { ok : false, skipped : true, error : null };
+        const local = await Na__LocalMirror__WriteSiblingFile(Na__LeCfg__GetSpecificationSetup().fileName, doc);
+        if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Layout Editor: the local drawing-notes file was not written:', local.error);
+        return local;
     }
     // ------------------------------------------------------------
 
@@ -907,32 +939,109 @@
 
     // HELPER FUNCTION | Find the Specification: { status, data, source, error }
     // ------------------------------------------------------------
+    // On localhost the repository TrueVision__DrawingNotes__.json is read as
+    // well as R2. A local copy whose UpdatedIso is newer is adopted so an
+    // on-disk edit reaches the editor; a missing local copy is seeded from
+    // whatever was loaded. The previous R2 name is read only when FileName is
+    // not there yet.
+    // ------------------------------------------------------------
+    function Na__LeSpec__HasDoc(data) {
+        return !!(data && typeof data === 'object' && !Array.isArray(data));
+    }
+
+    function Na__LeSpec__Reconcile(cloud, localCopy) {
+        const cloudHas = Na__LeSpec__HasDoc(cloud.data);
+        const localHas = !!(localCopy && localCopy.ok && Na__LeSpec__HasDoc(localCopy.data));
+        const result = Object.assign({ seedLocal : false, localAhead : false, cloudContent : null }, cloud);
+
+        if (!cloudHas && !localHas) {
+            result.seedLocal = (cloud.status === Na__LeSpec__STATUS_NEW);
+            return result;
+        }
+        if (cloudHas && !localHas) {
+            result.seedLocal = true;
+            return result;
+        }
+        if (!cloudHas && localHas) {
+            result.data   = localCopy.data;
+            result.source = 'repository';
+            if (cloud.status !== Na__LeSpec__STATUS_FAILED) {
+                result.status       = Na__LeSpec__STATUS_READY;
+                result.cloudMissing = true;
+                result.error        = null;
+            }
+            return result;
+        }
+
+        const cloudStamp = Na__LeSpec__Stamp(cloud.data);
+        const localStamp = Na__LeSpec__Stamp(localCopy.data);
+        if (localStamp && cloudStamp && localStamp > cloudStamp) {
+            result.status       = Na__LeSpec__STATUS_READY;
+            result.data         = localCopy.data;
+            result.source       = 'repository';
+            result.localAhead   = true;
+            result.cloudContent = cloud.data;
+            result.error        = null;
+            return result;
+        }
+        if (cloudStamp && localStamp && cloudStamp > localStamp) {
+            result.seedLocal = true;
+            return result;
+        }
+        const cloudNorm = Na__LeSpec__ContentJson(Na__LeSpec__Normalise(cloud.data));
+        const localNorm = Na__LeSpec__ContentJson(Na__LeSpec__Normalise(localCopy.data));
+        if (cloudNorm !== localNorm) {
+            result.status       = Na__LeSpec__STATUS_READY;
+            result.data         = localCopy.data;
+            result.source       = 'repository';
+            result.localAhead   = true;
+            result.cloudContent = cloud.data;
+            result.error        = null;
+        }
+        return result;
+    }
+
+    async function Na__LeSpec__ReadCloudFile(fileName, timeoutMs) {
+        return Na__LeSpec__WithTimeout(Na__CfApi__ReadProjectFile(fileName), timeoutMs);
+    }
+
     async function Na__LeSpec__Fetch() {
         const setup    = Na__LeCfg__GetSpecificationSetup();
         const location = Na__CfApi__ProjectFileLocation(setup.fileName);
         if (!location) return { status : Na__LeSpec__STATUS_FAILED, data : null, source : null, error : 'no project folder in the URL' };
-        const local = Na__AppUtils__IsRunningOnLocalhost();
+        const legacyLocation = setup.legacyFileName ? Na__CfApi__ProjectFileLocation(setup.legacyFileName) : null;
+        const local          = Na__AppUtils__IsRunningOnLocalhost();
+        const localCopy      = local ? await Na__LeSpec__FetchJson(location.repoUrl) : { ok : true, data : null, missing : true };
 
         if (Na__LeSpec__UsesWorker()) {
-            const read = await Na__LeSpec__WithTimeout(Na__CfApi__ReadProjectFile(setup.fileName), setup.loadTimeoutMs);
-            if (read && read.ok && !read.missing && read.data && typeof read.data === 'object') return { status : Na__LeSpec__STATUS_READY, data : read.data, source : 'cloud' };
-            if (read && read.ok) {
-                // NOTHING ON R2 YET. A repository copy, if one was ever committed,
-                // is the starting point and the first Sync seeds R2 with it.
-                if (local) {
-                    const repo = await Na__LeSpec__FetchJson(location.repoUrl);
-                    if (repo.ok && repo.data) return { status : Na__LeSpec__STATUS_READY, data : repo.data, source : 'repository', cloudMissing : true };
-                }
-                return { status : Na__LeSpec__STATUS_NEW, data : null, source : 'cloud' };
+            let read = await Na__LeSpec__ReadCloudFile(setup.fileName, setup.loadTimeoutMs);
+            if (read && read.ok && (read.missing || !Na__LeSpec__HasDoc(read.data)) && setup.legacyFileName) {
+                const legacy = await Na__LeSpec__ReadCloudFile(setup.legacyFileName, setup.loadTimeoutMs);
+                if (legacy && legacy.ok && !legacy.missing && Na__LeSpec__HasDoc(legacy.data)) read = legacy;
             }
-            // THE WORKER COULD NOT ANSWER. Never read as "no specification": show
-            // what a fallback copy holds, but leave Sync closed until R2 answers.
-            const fallback = await Na__LeSpec__FetchJson(local ? location.repoUrl : location.cdnUrl);
-            return { status : Na__LeSpec__STATUS_FAILED, data : (fallback.ok && fallback.data) ? fallback.data : null, source : (fallback.ok && fallback.data) ? (local ? 'repository' : 'cdn') : null, error : (read && read.error) || 'Worker unreachable' };
+            if (read && read.ok && !read.missing && Na__LeSpec__HasDoc(read.data)) {
+                return Na__LeSpec__Reconcile({ status : Na__LeSpec__STATUS_READY, data : read.data, source : 'cloud' }, localCopy);
+            }
+            if (read && read.ok) {
+                return Na__LeSpec__Reconcile({ status : Na__LeSpec__STATUS_NEW, data : null, source : 'cloud', cloudMissing : true }, localCopy);
+            }
+            const fallback = (localCopy.ok && Na__LeSpec__HasDoc(localCopy.data))
+                ? localCopy
+                : (!local ? await Na__LeSpec__FetchJson(location.cdnUrl) : { ok : false, data : null });
+            return Na__LeSpec__Reconcile({
+                status : Na__LeSpec__STATUS_FAILED,
+                data   : (fallback.ok && Na__LeSpec__HasDoc(fallback.data)) ? fallback.data : null,
+                source : (fallback.ok && Na__LeSpec__HasDoc(fallback.data)) ? (local ? 'repository' : 'cdn') : null,
+                error  : (read && read.error) || 'Worker unreachable'
+            }, localCopy);
         }
 
-        const cdn = await Na__LeSpec__FetchJson(location.cdnUrl);
-        if (cdn.ok && cdn.data) return { status : Na__LeSpec__STATUS_READY, data : cdn.data, source : 'cdn' };
+        let cdn = await Na__LeSpec__FetchJson(location.cdnUrl);
+        if (cdn.ok && (cdn.missing || !Na__LeSpec__HasDoc(cdn.data)) && legacyLocation) {
+            const legacy = await Na__LeSpec__FetchJson(legacyLocation.cdnUrl);
+            if (legacy.ok && Na__LeSpec__HasDoc(legacy.data)) cdn = legacy;
+        }
+        if (cdn.ok && Na__LeSpec__HasDoc(cdn.data)) return { status : Na__LeSpec__STATUS_READY, data : cdn.data, source : 'cdn' };
         if (cdn.ok && cdn.missing) return { status : Na__LeSpec__STATUS_NEW, data : null, source : 'cdn' };
         return { status : Na__LeSpec__STATUS_FAILED, data : null, source : null, error : cdn.error || 'CDN unreachable' };
     }
@@ -949,10 +1058,16 @@
         Na__LeSpec__Status    = result.status;
         Na__LeSpec__Source    = result.source;
         Na__LeSpec__Error     = result.error || null;
-        Na__LeSpec__BaseStamp = (result.data && !result.cloudMissing) ? doc[Na__LeSpec__K_UPDATED] : null;
-        Na__LeSpec__SyncedJson = result.cloudMissing ? Na__LeSpec__ContentJson(Na__LeSpec__Skeleton()) : Na__LeSpec__ContentJson(doc);   // <-- A repository copy R2 has never held is unsynced
+        if (result.localAhead && result.cloudContent) {
+            Na__LeSpec__BaseStamp  = Na__LeSpec__Stamp(result.cloudContent) || null;
+            Na__LeSpec__SyncedJson = Na__LeSpec__ContentJson(Na__LeSpec__Normalise(result.cloudContent));
+        } else {
+            Na__LeSpec__BaseStamp  = (result.data && !result.cloudMissing) ? doc[Na__LeSpec__K_UPDATED] : null;
+            Na__LeSpec__SyncedJson = result.cloudMissing ? Na__LeSpec__ContentJson(Na__LeSpec__Skeleton()) : Na__LeSpec__ContentJson(doc);
+        }
         Na__LeSpec__History   = { undo : [], redo : [], current : JSON.stringify(doc) };
         Na__LeSpec__CodeSig   = Na__LeSpec__CodeSignature();
+        if (result.seedLocal) void Na__LeSpec__MirrorLocal(doc);
     }
     // ------------------------------------------------------------
 
@@ -1053,7 +1168,13 @@
         Na__LeSpec__Syncing = true;
         Na__LeSpec__Dispatch('status');
         try {
-            const read = await Na__LeSpec__WithTimeout(Na__CfApi__ReadProjectFile(setup.fileName), setup.loadTimeoutMs);
+            let read = await Na__LeSpec__ReadCloudFile(setup.fileName, setup.loadTimeoutMs);
+            if (read && read.ok && (read.missing || !Na__LeSpec__HasDoc(read.data)) && setup.legacyFileName) {
+                const legacy = await Na__LeSpec__ReadCloudFile(setup.legacyFileName, setup.loadTimeoutMs);
+                if (legacy && legacy.ok && !legacy.missing && Na__LeSpec__HasDoc(legacy.data)) {
+                    read = { ok : true, missing : false, data : legacy.data };
+                }
+            }
             if (!read || !read.ok) {
                 toast(Na__LeCfg__FormatLabel('SpecSyncUnreachable', 'The cloud copy could not be read ({error}). Your changes are kept in this browser.', { error : (read && read.error) || 'unknown' }), true);
                 return false;
@@ -1082,6 +1203,7 @@
                 toast(Na__LeCfg__FormatLabel('SpecSyncFailed', 'Specification sync failed: {error}. Your changes are kept in this browser.', { error : (write && write.error) || 'unknown' }), true);
                 return false;
             }
+            await Na__LeSpec__MirrorLocal(out);
 
             // THE LIVE DOCUMENT IS NOT STAMPED. The stamp belongs to the copy in the
             // cloud and is remembered as the base; writing it into the document

@@ -38,6 +38,12 @@
 //
 // -----------------------------------------------------------------------------
 //
+// DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.5.0
+// - Shape__LineStyle reaches the primitive as a dash array of paper
+//   millimetres (Na__LayoutEditor__LineStyleTool__). A solid edge - null, or
+//   a record from before the toggle - paints exactly as it always did.
+//
 // 14-Sep-2026 - Version 1.4.0
 // - ClosestOnEdge: the nearest point on any edge, with which edge and how
 //   far along it, so a Shift-click can insert a vertex there.
@@ -73,6 +79,8 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__PtToMm } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeChrome__PushPolyline } from './Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LeDash__PatternMm } from './Na__LayoutEditor__LineStyleTool__.js';
+    // @delegate: ./Na__LayoutEditor__LineStyleTool__.js
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -261,7 +269,8 @@
         const gradient = (pts.length > 2 && shape.Shape__Gradient && typeof shape.Shape__Gradient === 'object') ? shape.Shape__Gradient : null;
         if (!stroked && !fill && !gradient) return false;                    // <-- Nothing to paint
         Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient,
-            { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity });   // <-- A record from before opacity reads as solid
+            { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity,
+              dashArray : stroked ? Na__LeDash__PatternMm(shape.Shape__LineStyle) : [] });   // <-- A record from before the toggle has no line style and paints solid
         return true;
     }
     // ------------------------------------------------------------

@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.2.0
+// - Project sibling files: TrueVision__DrawingNotes__.json is the canonical
+//   drawing-notes document. TrueVision__ProjectSpecification__.json stays on
+//   the allow-list so an existing R2 copy can still be read until Sync writes
+//   the new name.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Project sibling files: ProjectFileLocation, ReadProjectFile and
 //   WriteProjectFile read and write a WHOLE JSON document that sits beside
@@ -474,7 +480,10 @@
     // in the project data. Listed by name, so no caller can write over the
     // project data file, or anything else in the folder, by passing a wrong one.
     // ------------------------------------------------------------
-    const Na__CfApi__ProjectFileNames = [ 'TrueVision__ProjectSpecification__.json' ];
+    const Na__CfApi__ProjectFileNames = [
+        'TrueVision__DrawingNotes__.json',
+        'TrueVision__ProjectSpecification__.json'
+    ];
     // ------------------------------------------------------------
 
 

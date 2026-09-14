@@ -1,0 +1,73 @@
+===============================================================================
+ TrueVision3D GLB Builder - Export Log
+===============================================================================
+ Model      : PS01_M10__SitePlanModel__0.1.0__.skp
+ Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData
+ Timestamp  : 2026-09-14_194558
+ Console    : suppressed (OFF)
+-------------------------------------------------------------------------------
+Site Plan Export v1.0.0 - 5 layer(s) with geometry
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__OsMapping__LineworkModel__.glb (21324 bytes, BIN: 20384 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 21324 bytes
+    Chunk 1: "JSON", Length: 912 bytes
+    Chunk 2: "BIN\x00", Length: 20384 bytes
+  ✓ GLB validation passed
+  [SitePlan] PS01__TrueVision__SitePlan__OsMapping__LineworkModel__.glb - 364 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb (1728 bytes, BIN: 728 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1728 bytes
+    Chunk 1: "JSON", Length: 972 bytes
+    Chunk 2: "BIN\x00", Length: 728 bytes
+  ✓ GLB validation passed
+  [SitePlan] PS01__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb - 13 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb (1564 bytes, BIN: 560 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1564 bytes
+    Chunk 1: "JSON", Length: 976 bytes
+    Chunk 2: "BIN\x00", Length: 560 bytes
+  ✓ GLB validation passed
+  [SitePlan] PS01__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb - 10 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ExistingBuildings__FillModel__.glb (956 bytes, BIN: 120 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 956 bytes
+    Chunk 1: "JSON", Length: 808 bytes
+    Chunk 2: "BIN\x00", Length: 120 bytes
+  ✓ GLB validation passed
+  [SitePlan] PS01__TrueVision__SitePlan__ExistingBuildings__FillModel__.glb - 1 ring(s) from 1 face(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb (1168 bytes, BIN: 168 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1168 bytes
+    Chunk 1: "JSON", Length: 972 bytes
+    Chunk 2: "BIN\x00", Length: 168 bytes
+  ✓ GLB validation passed
+  [SitePlan] PS01__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb - 3 line(s)
+GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb (23108 bytes, BIN: 22064 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 23108 bytes
+    Chunk 1: "JSON", Length: 1016 bytes
+    Chunk 2: "BIN\x00", Length: 22064 bytes
+  ✓ GLB validation passed
+  [SitePlan] PS01__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb - 394 line(s)
+  [SitePlan] TrueVision__SitePlanData__Manifest__.json - 5 layer(s)
+-------------------------------------------------------------------------------
+ Export complete. Elapsed: 0.05s
+===============================================================================

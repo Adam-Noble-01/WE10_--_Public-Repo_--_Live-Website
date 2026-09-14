@@ -38,6 +38,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.1.0
+// - CategoryKeys answers a site plan viewport with its site plan layers, an empty
+//   list until the data has loaded.
+//
 // 13-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -52,6 +56,7 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetModelSourceSetup } from './Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__UpdateViewport } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__SpStore__GetLayers } from '../52__System__SitePlanData/Na__SitePlan__Store__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | The Design Phase Library
@@ -184,6 +189,8 @@
     // viewport of the live phase lists exactly what it listed before.
     // ------------------------------------------------------------
     function Na__LeSource__CategoryKeys(viewport) {
+        const marker = viewport ? viewport.Viewport__SitePlan : null;
+        if (marker && typeof marker === 'object') return Na__SpStore__GetLayers().map((layer) => layer.Layer__CategoryKey);   // <-- A site plan viewport lists its site plan layers, never a model's
         const source = viewport ? Na__LeSource__Resolve(viewport) : null;
         return (source && source.renderId) ? Na__PhaseLib__GetCategoryKeys(source.renderId) : null;
     }

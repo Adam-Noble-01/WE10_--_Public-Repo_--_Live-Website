@@ -37,7 +37,7 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (14-Sep-2026)
-// - ValeVision    : pending
+// - ValeVision    : ported 14-Sep-2026 as ValeVision3D v2.38.0 (verbatim, header only)
 //
 // -----------------------------------------------------------------------------
 //

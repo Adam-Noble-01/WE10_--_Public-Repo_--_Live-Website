@@ -37,12 +37,24 @@
 // - Divergences   : Console prefix, header and folder numbers; the design
 //                   phase model source of 1.6.0 (TrueVision - ValeVision has
 //                   no model groups); the plan door pose of 1.7.0, authored
-//                   here first and PENDING to ValeVision3D on Adam's sign-off.
+//                   here first and PENDING to ValeVision3D on Adam's sign-off; the 3D view
+//                   window of 1.8.0, likewise.
 // - Back-port     : n/a (this IS the back-port); 1.5.0 ported 13-Sep-2026 as ValeVision3D v2.28.0, through ValeVision's own width consumers (DIV-1)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.8.0
+// - Render3d takes a view window: the part of the scene camera's picture a
+//   zoomed or slid 3D viewport's frame shows (Na__LayoutEditor__Viewport3d__),
+//   handed to the tiled renderer as viewWindow. Null renders the whole picture
+//   as before.
+//
+// 14-Sep-2026 - Version 1.7.1
+// - Comments only. Render2d stands whatever pose the definition carries, so
+//   an elevation or section - which now carries the shut pose - renders its
+//   base image with every door shut, through the same code as a plan.
+//
 // 14-Sep-2026 - Version 1.7.0
 // - Plan doors. Render2d stands the doors as a Layout Editor plan draws them -
 //   open, bar the ones its viewport closed - before the cut is built and the
@@ -640,12 +652,13 @@
             const sectionWas  = wantSection ? Na__SectCutCfg__GetAppearance().lineWidthPx : null;
             let   profileWas  = null;
             let   edgesWere   = null;                                              // <-- Each model edge material's own width, for the finally
-            let   doorsPosed  = null;                                              // <-- The plan's door pose, for the finally to hand back
+            let   doorsPosed  = null;                                              // <-- The drawing's door pose, for the finally to hand back
             try {
                 Na__DrawView__SectionAdapter__SuspendLiveTool();
-                // THE DOORS STAND AS THE PLAN DRAWS THEM before anything reads the
-                // model, so the cut's caps and the picture both meet the posed
-                // leaves and the base image agrees with the linework over it.
+                // THE DOORS STAND AS THE DRAWING DRAWS THEM - open on a plan, shut on
+                // an elevation or section - before anything reads the model, so the
+                // cut's caps and the picture both meet the posed leaves and the base
+                // image agrees with the linework over it.
                 if (definition.DoorPose) doorsPosed = Na__PlDoors__Apply(phase ? phase.root : Na__LeSnap__ModelRoot, definition.DoorPose);
                 // THE OUTLINE WIDTH GOES IN BEFORE THE CUT IS BUILT. The cap
                 // meshes read it when they are created, so setting it after
@@ -725,8 +738,14 @@
     //
     // modelSourceId: as Render2d. The phase is put in before the capture below,
     // so the visibility captured and put back is the phase's own.
+    //
+    // viewWindow: null for the camera's whole picture, or { u0, v0, u1, v1 } -
+    // the part of it a zoomed or slid 3D viewport's frame shows, as fractions
+    // of the picture that may run past 0..1 (Na__LayoutEditor__Viewport3d__).
+    // widthPx and heightPx are then the window's pixels, and the tiled renderer
+    // draws that window of the scene's own camera.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render3d(sceneRecord, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId) {
+    function Na__LeSnap__Render3d(sceneRecord, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId, viewWindow) {
         if (!Na__LeSnap__IsReady() || !sceneRecord) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
             const phase = Na__LeSnap__EnterPhase(modelSourceId);
@@ -764,6 +783,7 @@
                     renderer : Na__LeSnap__Renderer, scene : Na__LeSnap__Scene, camera : camera,
                     getRenderPipelineState : () => Na__LeSnap__Pipeline(),
                     antiAliasSamples       : antiAliasSamples,                                        // <-- Each tile drawn N times on sub-pixel jitter and averaged
+                    viewWindow             : viewWindow || null,                                      // <-- What a zoomed or slid viewport's frame shows of the picture; null is all of it
                     targetWidth : Math.max(16, Math.round(widthPx)), targetHeight : Math.max(16, Math.round(heightPx))
                 });
                 if (styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas);

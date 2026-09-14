@@ -26,7 +26,7 @@
 //     Vector     its edges, including the closing edge a fill runs along. A box
 //                inside a filled shape does not take it either, so a background
 //                panel is not grabbed by boxing what sits on it.
-//     Text       its text box, or its leader.
+//     Text       its text box (turned with the text), or its leader.
 //     Dimension  its extension lines, its dimension line, its terminators,
 //                its value, or the arc from a dragged value back to the line.
 //     Leader     its line, its endpoint, or its bubble or note.
@@ -61,6 +61,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.0
+// - A turned text item's box is its turned box (Na__LeMarkup__AnnotationCorners),
+//   so a window takes it once that box is inside, not the square round it, and
+//   its leader runs to the turned box's middle. Unturned text is unchanged.
+//
 // 14-Sep-2026 - Version 1.2.0
 // - A dimension whose value has been dragged off the line includes that
 //   value's box and the arc back to the dimension line, so a window or a
@@ -88,7 +93,8 @@
     import { Na__LeModel__IsLayerVisible, Na__LeModel__IsLayerLocked } from './Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
     import {
-        Na__LeMarkup__AnnotationBounds,
+        Na__LeMarkup__AnnotationCorners,
+        Na__LeMarkup__AnnotationCentre,
         Na__LeMarkup__DimensionSkeleton,
         Na__LeMarkup__DimensionTickMm,
         Na__LeMarkup__DimensionValueMm,
@@ -283,16 +289,18 @@
 
     // HELPER FUNCTION | A Text Item: Its Box, and Its Leader
     // ------------------------------------------------------------
-    // The leader is run to the middle of the text box rather than to the edge
-    // the markup bridge stops it at. The stretch that adds lies inside the text
-    // box, which is a solid part already, so both rules come out the same.
+    // The box turns with the text, so a window has to cover the turned box and
+    // not the square round it. The leader is run to the middle of the text box
+    // rather than to the edge the markup bridge stops it at. The stretch that
+    // adds lies inside the text box, which is a solid part already, so both
+    // rules come out the same.
     // ------------------------------------------------------------
     function Na__LeSelBox__AnnotationParts(sheet, item) {
-        const b     = Na__LeMarkup__AnnotationBounds(item);
-        const parts = [ Na__LeSelBox__RectPart(b.X, b.Y, b.WidthMm, b.HeightMm, true) ];
+        const parts = [ { points : Na__LeMarkup__AnnotationCorners(item, 0), closed : true, area : true } ];
         if (Number.isFinite(item.Annotation__LeaderXMm) && Number.isFinite(item.Annotation__LeaderYMm)) {
-            const tipX = item.Annotation__LeaderXMm, tipY = item.Annotation__LeaderYMm, r = Na__LeSelBox__LEADER_DOT_MM;
-            parts.push({ points : [ [ tipX, tipY ], [ b.X + (b.WidthMm / 2), b.Y + (b.HeightMm / 2) ] ], closed : false, area : false });
+            const tipX   = item.Annotation__LeaderXMm, tipY = item.Annotation__LeaderYMm, r = Na__LeSelBox__LEADER_DOT_MM;
+            const middle = Na__LeMarkup__AnnotationCentre(item);
+            parts.push({ points : [ [ tipX, tipY ], [ middle.x, middle.y ] ], closed : false, area : false });
             parts.push(Na__LeSelBox__RectPart(tipX - r, tipY - r, r * 2, r * 2, true));
         }
         return parts;

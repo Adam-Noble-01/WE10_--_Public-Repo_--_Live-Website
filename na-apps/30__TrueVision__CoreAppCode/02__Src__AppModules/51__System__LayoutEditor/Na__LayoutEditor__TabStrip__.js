@@ -18,6 +18,10 @@
 //   sheet; the plus tab makes a sheet and opens it. Double-click a sheet
 //   tab to rename it (localhost). Web viewers switch tabs but cannot add,
 //   rename or reorder.
+// - ORDER: 3D Model | architectural sheets | + | site plan sheets | Project
+//   Specification. A site plan sheet (Sheet__DrawingType) sits after the
+//   plus, so a new sheet lands beside it and site plans stay beside the
+//   specification. A drag reorders only within its own group.
 //
 // INTEGRATION:
 // - Initialized from index.html after the mode controller.
@@ -28,12 +32,22 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__TabStrip__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.3.1
+// - The green mark on site plan tabs is gone (Adam): beside tabs without one it
+//   read as more important. The na-le-tabs__tab--siteplan class stays, unstyled.
+//
+// 14-Sep-2026 - Version 1.3.0
+// - Site plan drawings: the strip reads 3D Model | architectural sheets | + |
+//   site plan sheets | Project Specification. A site plan tab carries a small
+//   green mark and a drag reorders only within its own group. The rebuild
+//   signature includes each sheet's drawing type.
+//
 // 14-Sep-2026 - Version 1.2.0
 // - Project Specification: while a drawing tab is open, a Project
 //   Specification tab sits at the end of the strip (Na__LeMode__OpenSpecification).
@@ -63,7 +77,8 @@
         Na__LeModel__GetActiveSheet,
         Na__LeModel__CreateSheet,
         Na__LeModel__UpdateSheet,
-        Na__LeModel__ReorderSheet
+        Na__LeModel__ReorderSheet,
+        Na__LeModel__IsSitePlanSheet
     } from './Na__LayoutEditor__SheetModel__.js';
     import {
         Na__LeMode__CHANGED_EVENT,
@@ -98,6 +113,7 @@
     // ------------------------------------------------------------
     let Na__LeTabs__Root    = null;
     let Na__LeTabs__DragId  = null;
+    let Na__LeTabs__DragSitePlan = false;    // <-- The dragged tab's group; a drop lands only inside it
     let Na__LeTabs__Signature = null;    // <-- What the strip last drew, so a change that alters no tab skips the rebuild
     let Na__LeTabs__Visible = null;    // <-- Last published state; the resize only fires on a change
     // ------------------------------------------------------------
@@ -167,25 +183,29 @@
         if (!visible) return;
 
         Na__LeTabs__Root.appendChild(Na__LeTabs__Tab(Na__LeCfg__GetLabel('ModelTab', '3D Model'), !Na__LeMode__IsActive(), () => Na__LeMode__Leave(), 'na-le-tabs__tab--model'));
-        sheets.forEach((sheet) => {
-            const tab = Na__LeTabs__Tab(sheet.Sheet__Name, !!active && active.Sheet__Id === sheet.Sheet__Id, () => Na__LeMode__Enter(sheet.Sheet__Id));
+        const sitePlanTitle = Na__LeCfg__GetLabel('SitePlanTabTitle', 'Site plan drawing');
+        const addSheetTab = (sheet) => {
+            const sitePlan = Na__LeModel__IsSitePlanSheet(sheet);
+            const tab = Na__LeTabs__Tab(sheet.Sheet__Name, !!active && active.Sheet__Id === sheet.Sheet__Id, () => Na__LeMode__Enter(sheet.Sheet__Id), sitePlan ? 'na-le-tabs__tab--siteplan' : '');
             tab.setAttribute('data-na-sheet-id', sheet.Sheet__Id);
+            if (sitePlan) tab.title = sitePlanTitle;
             if (editable) {
-                tab.title = 'Double-click to rename, drag to reorder';
+                tab.title = (sitePlan ? sitePlanTitle + '. ' : '') + 'Double-click to rename, drag to reorder';
                 tab.addEventListener('dblclick', () => Na__LeTabs__Rename(tab, sheet));
                 tab.draggable = true;
-                tab.addEventListener('dragstart', (e) => { Na__LeTabs__DragId = sheet.Sheet__Id; e.dataTransfer.effectAllowed = 'move'; });
-                tab.addEventListener('dragover', (e) => { if (Na__LeTabs__DragId && Na__LeTabs__DragId !== sheet.Sheet__Id) e.preventDefault(); });
+                tab.addEventListener('dragstart', (e) => { Na__LeTabs__DragId = sheet.Sheet__Id; Na__LeTabs__DragSitePlan = sitePlan; e.dataTransfer.effectAllowed = 'move'; });
+                tab.addEventListener('dragover', (e) => { if (Na__LeTabs__DragId && Na__LeTabs__DragId !== sheet.Sheet__Id && Na__LeTabs__DragSitePlan === sitePlan) e.preventDefault(); });   // <-- Only inside its own group
                 tab.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    if (!Na__LeTabs__DragId || Na__LeTabs__DragId === sheet.Sheet__Id) return;
+                    if (!Na__LeTabs__DragId || Na__LeTabs__DragId === sheet.Sheet__Id || Na__LeTabs__DragSitePlan !== sitePlan) return;
                     Na__LeModel__ReorderSheet(Na__LeTabs__DragId, Na__LeModel__GetSheets().findIndex((s) => s.Sheet__Id === sheet.Sheet__Id));
                     Na__LeTabs__DragId = null;
                 });
                 tab.addEventListener('dragend', () => { Na__LeTabs__DragId = null; });
             }
             Na__LeTabs__Root.appendChild(tab);
-        });
+        };
+        sheets.filter((sheet) => !Na__LeModel__IsSitePlanSheet(sheet)).forEach(addSheetTab);   // <-- Architectural drawings, before the plus
         if (editable) {
             const plus = Na__LeTabs__Tab(Na__LeCfg__GetLabel('AddSheetTab', '+'), false, () => {
                 const sheet = Na__LeModel__CreateSheet({});
@@ -194,6 +214,7 @@
             plus.title = Na__LeCfg__GetLabel('AddSheetTitle', 'New sheet');
             Na__LeTabs__Root.appendChild(plus);
         }
+        sheets.filter((sheet) => Na__LeModel__IsSitePlanSheet(sheet)).forEach(addSheetTab);    // <-- Site plan drawings last, beside the Project Specification
 
         // PROJECT SPECIFICATION | Last, and only while a drawing tab is open
         if (Na__LeMode__IsActive()) {
@@ -214,7 +235,7 @@
     function Na__LeTabs__Sig() {
         const sheets = Na__LeModel__GetSheets();
         const active = Na__LeMode__IsActive() ? Na__LeModel__GetActiveSheet() : null;
-        return sheets.map((sheet) => sheet.Sheet__Id + '\u0001' + sheet.Sheet__Name).join('\u0002')
+        return sheets.map((sheet) => sheet.Sheet__Id + '\u0001' + sheet.Sheet__Name + '\u0001' + Na__LeModel__IsSitePlanSheet(sheet)).join('\u0002')   // <-- A change of drawing type moves the tab
             + '|' + (active ? active.Sheet__Id : '') + '|' + Na__LeMode__IsActive() + '|' + Na__LeMode__IsEditable() + '|' + Na__LeCfg__IsEnabled()
             + '|' + Na__LeMode__GetView() + '|' + Na__LeSpec__IsDirty();          // <-- The specification tab: open or not, synced or not
     }

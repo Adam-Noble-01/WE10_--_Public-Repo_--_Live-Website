@@ -154,6 +154,36 @@
       "port": 8517
     },
     {
+      "name": "truevision-static-siteplan",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8523"
+      ],
+      "port": 8523
+    },
+    {
+      "name": "truevision-static-elevdoors",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8531"
+      ],
+      "port": 8531
+    },
+    {
+      "name": "truevision-static-3dzoom",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8541"
+      ],
+      "port": 8541
+    },
+    {
       "name": "projectadmin-dev",
       "runtimeExecutable": "python",
       "runtimeArgs": [
@@ -164,6 +194,16 @@
       ],
       "port": 8096,
       "url": "http://localhost:8096"
+    },
+    {
+      "name": "truevision-static-specread",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8537"
+      ],
+      "port": 8537
     }
   ]
 }

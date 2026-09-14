@@ -1,0 +1,38 @@
+/* ================================================================= */
+/* REGION  |  Custom Font Loading - Open Sans from CDN              */
+/* ================================================================= */
+
+/* Open Sans Font Family - Regular (400) */
+/* ----------------------------------------------------------------- */
+@font-face {
+    font-family                        : 'Open Sans';
+    font-style                         : normal;
+    font-weight                        : 400;
+    font-display                       : swap;
+    src                                : url('https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_01_-_Standard-Font_-_Open-Sans-Regular.ttf') format('truetype');
+}
+
+
+/* Open Sans Font Family - SemiBold (600) */
+/* ----------------------------------------------------------------- */
+@font-face {
+    font-family                        : 'Open Sans';
+    font-style                         : normal;
+    font-weight                        : 600;
+    font-display                       : swap;
+    src                                : url('https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_02_-_Standard-Font_-_Open-Sans-SemiBold.ttf') format('truetype');
+}
+
+
+/* Open Sans Font Family - Light (300) */
+/* ----------------------------------------------------------------- */
+@font-face {
+    font-family                        : 'Open Sans';
+    font-style                         : normal;
+    font-weight                        : 300;
+    font-display                       : swap;
+    src                                : url('https://www.noble-architecture.com/assets/AD04_-_LIBR_-_Common_-_Front-Files/AD04_03_-_Standard-Font_-_Open-Sans-Light.ttf') format('truetype');
+}
+
+/* endregion -------------------------------------------------------- */
+

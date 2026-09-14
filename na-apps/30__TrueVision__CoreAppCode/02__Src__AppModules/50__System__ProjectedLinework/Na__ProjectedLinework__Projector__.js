@@ -40,14 +40,23 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__Projector__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim, bar 1.2.0 and 1.3.0
+// - Parity        : verbatim, bar 1.2.0 to 1.4.0
 // - Divergences   : Console prefix, header and folder numbers; the 3D-matching
-//                   rules (1.2.0) and the door pose read (1.3.0), authored here first.
-// - Back-port     : 1.2.0 and 1.3.0 PENDING to ValeVision3D, on Adam's sign-off.
+//                   rules (1.2.0) and the door pose read (1.3.0 and 1.4.0), authored here first.
+// - Back-port     : 1.2.0 to 1.4.0 PENDING to ValeVision3D, on Adam's sign-off.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 14-Sep-2026 - Version 1.4.0
+// - Doors put back, not restored. Collect returns every door exactly where it
+//   stood before the read (Na__PlDoors__PutBack), not where the 3D view holds
+//   it. An underlay render holds the doors at its drawing's pose across the
+//   paints its tiles yield to; a read landing in one of them used to swing
+//   them back to the 3D view's pose for the rest of that picture. A Layout
+//   Editor elevation or section now carries the shut pose, so its read stands
+//   every door shut.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Door pose. Collect reads a definition that carries DoorPose (a Layout
 //   Editor plan) with the model's doors stood at that pose: open, bar the ones
@@ -108,7 +117,7 @@
         Na__PlSampler__CountTriangles
     } from './Na__ProjectedLinework__StageSampler__.js';
     import { Na__PlAuthored__Collect } from './Na__ProjectedLinework__AuthoredEdges__.js';
-    import { Na__PlDoors__Apply, Na__PlDoors__Restore, Na__PlDoors__SwingEdges } from './Na__ProjectedLinework__DoorPose__.js';
+    import { Na__PlDoors__Apply, Na__PlDoors__PutBack, Na__PlDoors__SwingEdges } from './Na__ProjectedLinework__DoorPose__.js';
     import {
         Na__PlCpu__PrepareIntersections,
         Na__PlCpu__ProjectView
@@ -306,8 +315,11 @@
 
         // DOORS STAND WHERE THE DRAWING WANTS THEM, for this read only. A Layout
         // Editor plan carries a door pose: every door open bar the ones its
-        // viewport closed. Posed, read and put back in one synchronous run, so no
-        // frame and no other reader ever sees a door the 3D view did not move.
+        // viewport closed. An elevation or section carries the shut pose: every
+        // door shut. Posed, read and put back in one synchronous run, so no
+        // frame and no other reader ever sees a door the 3D view did not move -
+        // and put back exactly where they stood, so a read that lands between
+        // the tiles of an underlay render leaves that render's pose standing.
         const doorPose = definition.DoorPose || null;
         const posed    = doorPose ? Na__PlDoors__Apply(modelRoot, doorPose) : null;
         let   collected;
@@ -330,7 +342,7 @@
             collected.LineworkCategories = authoredCollected.Categories;         // <-- Whose creases the authored class draws under linework first
             collected.DoorSwings        = posed ? Na__PlDoors__SwingEdges(posed, doorPose, collected.PosedModsDrawn, modelRoot) : null;
         } finally {
-            Na__PlDoors__Restore(posed);                                         // <-- Back where the 3D view holds them, whatever the read did
+            Na__PlDoors__PutBack(posed);                                         // <-- Exactly where they stood, whatever the read did
         }
         collected.IntersectionEdges = new Float64Array(0);
         collected.IntersectionOwners = new Uint16Array(0);

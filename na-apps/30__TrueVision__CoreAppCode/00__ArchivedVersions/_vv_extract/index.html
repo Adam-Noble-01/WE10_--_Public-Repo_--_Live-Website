@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ValeVision3D |  0.2.5_LivePreview</title>
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  BRANDING | Favicon and Brand Icons                     -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <link rel="icon" type="image/svg+xml" href="../assets__CommonApplicationAssets/AppIcons/Icon__MainValeIcon__.svg">
+    <link rel="apple-touch-icon" href="../assets__CommonApplicationAssets/AppIcons/Icon__MainValeIcon__.svg">
+    <meta name="theme-color" content="#172b3a">
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Three.js Import Map                                    -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://esm.sh/three@0.160.0",
+            "three/addons/": "https://esm.sh/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  ValeVision3D Stylesheet Imports                        -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <!-- Main Stylesheet Index (imports all component stylesheets) -->
+    <link rel="stylesheet" href="src__Styles/index.css">
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Font Loading Detection Script                          -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <script>
+        // FUNCTION | DetectFontLoading - Monitors Open Sans font loading
+        // --------------------------------------------------------
+        (function detectFontLoading() {
+            if ('fonts' in document) {
+                // Modern Font Loading API
+                // ------------------------------------
+                Promise.all([
+                    document.fonts.load('400 1em "Open Sans"'),
+                    document.fonts.load('600 1em "Open Sans"'),
+                    document.fonts.load('300 1em "Open Sans"')
+                ]).then(function() {
+                    console.log('=== Custom Fonts Loaded ===');
+                    console.log('Open Sans Regular (400) - Loaded');
+                    console.log('Open Sans SemiBold (600) - Loaded');
+                    console.log('Open Sans Light (300) - Loaded');
+                    console.log('===========================');
+                }).catch(function(error) {
+                    console.warn('Font loading failed, using fallback fonts:', error);
+                });
+                
+                // Monitor overall font loading state
+                // ------------------------------------
+                document.fonts.ready.then(function() {
+                    console.log('All fonts ready for use');
+                });
+                
+            } else {
+                // Fallback for browsers without Font Loading API
+                // ------------------------------------
+                console.log('Font Loading API not supported, fonts will load naturally');
+            }
+        })();
+        // --------------------------------------------------------
+    </script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+</head>
+<body>
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Application Header Bar                                  -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <header class="app-header">
+        <div class="app-header__logo-container app-header__logo-container--left">
+            <img 
+                src="../assets__CommonApplicationAssets/AppLogo__ValeHeaderImage_ValeLogo_HorizontalFormat__.png"
+                alt="Vale Garden Houses"
+                class="app-header__logo-left"
+            />
+        </div>
+        
+        <div class="app-header__logo-container app-header__logo-container--right">
+            <h1 class="app-header__title">ValeVision 3D</h1>
+        </div>
+    </header>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Application Root Container                             -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div id="root">
+        <!-- Loading Overlay (Vale Blue Spinner) -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading ValeVision3D...</p>
+        </div>
+        
+        <canvas id="renderCanvas" class="canvas-hidden"></canvas>
+        
+        <!-- Image Export Safe Frame & Rule of Thirds Overlay -->
+        <div class="na-export-overlay" id="naExportOverlay">
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--top" id="naExportSafeTop"></div>
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--bottom" id="naExportSafeBottom"></div>
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--left" id="naExportSafeLeft"></div>
+            <div class="na-export-overlay__safe-frame-bar na-export-overlay__safe-frame-bar--right" id="naExportSafeRight"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--horizontal" id="naExportThirdsH1"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--horizontal" id="naExportThirdsH2"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--vertical" id="naExportThirdsV1"></div>
+            <div class="na-export-overlay__thirds-line na-export-overlay__thirds-line--vertical" id="naExportThirdsV2"></div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="loading-indicator" id="loadingIndicator">
+            Loading Scene...
+        </div>
+        
+        <span id="statusText" style="display: none;">Initializing...</span>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Navigation Dropdown Menu                               -->
+    <!-- ----------------------------------------------------------------- -->
+    
+    <div class="na-dropdown-menu">
+        <details class="na-dropdown-menu__details" id="naToolsMenu">
+            <summary class="na-dropdown-menu__summary">
+                Tools
+                <span class="na-dropdown-menu__arrow">▾</span>
+            </summary>
+            <ul class="na-dropdown-menu__list">
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCameraLensToggle">
+                        Adjust Camera Lens
+                        <span class="na-dropdown-menu__subarrow">▾</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naCameraLensPanel">
+                        <div class="na-dropdown-menu__panel-title">Lens Width</div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <input
+                                type="range"
+                                id="naCameraLensSlider"
+                                class="na-dropdown-menu__slider"
+                                min="28"
+                                max="75"
+                                step="1"
+                                value="50"
+                            />
+                            <span class="na-dropdown-menu__value" id="naCameraLensValue">50 mm</span>
+                        </div>
+                    </div>
+                </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naImageExportToggle">
+                        Export Image
+                        <span class="na-dropdown-menu__subarrow">▾</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naImageExportPanel">
+                        <div class="na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle">
+                            <span class="na-dropdown-menu__panel-title">Custom Export</span>
+                            <input type="checkbox" id="naImageExportCustomToggle" class="na-dropdown-menu__checkbox" />
+                        </div>
+                        <div class="na-dropdown-menu__panel-title">Aspect Ratio</div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <input
+                                type="range"
+                                id="naImageExportRatioSlider"
+                                class="na-dropdown-menu__slider"
+                                min="0"
+                                max="2"
+                                step="1"
+                                value="0"
+                            />
+                            <span class="na-dropdown-menu__value" id="naImageExportRatioValue">3:2</span>
+                        </div>
+                        <div class="na-dropdown-menu__panel-title">Resolution</div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <input
+                                type="range"
+                                id="naImageExportResolutionSlider"
+                                class="na-dropdown-menu__slider"
+                                min="0"
+                                max="3"
+                                step="1"
+                                value="1"
+                            />
+                            <span class="na-dropdown-menu__value" id="naImageExportResolutionValue">2k</span>
+                        </div>
+                        <div class="na-dropdown-menu__panel-row na-dropdown-menu__panel-row--toggle">
+                            <span class="na-dropdown-menu__panel-title">Enhance Whitecard</span>
+                            <input type="checkbox" id="naImageExportEnhanceToggle" class="na-dropdown-menu__checkbox" checked />
+                        </div>
+                        <button class="na-dropdown-menu__action" id="naImageExportAction">Export Now</button>
+                        <button class="na-dropdown-menu__action na-dropdown-menu__action--secondary" id="naLayoutViewAction">Layout View</button>
+                    </div>
+                </li>
+                <!-- <li class="na-dropdown-menu__item">Document Layout</li> -->
+                <!-- <li class="na-dropdown-menu__item">Return To Project</li> -->
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naModelToggleButton">
+                        Toggle Model Layers
+                        <span class="na-dropdown-menu__subarrow">▾</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naModelTogglePanel">
+                        <div class="na-dropdown-menu__panel-title">Model Parts List</div>
+                        <div class="na-model-toggle__list" id="naModelToggleList">
+                            <!-- Buttons generated dynamically by Na__UiFeature__ModelToggle__Controls.js -->
+                        </div>
+                    </div>
+                </li>
+                <li class="na-dropdown-menu__item">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naCameraPositionToggle">
+                        Download Position Data
+                        <span class="na-dropdown-menu__subarrow">▾</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naCameraPositionPanel">
+                        <div class="na-dropdown-menu__panel-title">Camera JSON</div>
+                        <textarea class="na-dropdown-menu__textarea" id="naCameraPositionOutput" rows="6" readonly></textarea>
+                        <div class="na-dropdown-menu__panel-row">
+                            <input type="file" id="naCameraPositionImportFile" class="na-dropdown-menu__file-input" accept=".json,application/json" />
+                            <button class="na-dropdown-menu__action na-dropdown-menu__action--secondary" id="naCameraPositionImport">Import JSON</button>
+                        </div>
+                        <div class="na-dropdown-menu__panel-row">
+                            <button class="na-dropdown-menu__action" id="naCameraPositionDownload">Download JSON</button>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            
+        </details>
+    </div>
+    
+    <!-- endregion -------------------------------------------------------- -->
+    
+    
+    <!-- ----------------------------------------------------------------- -->
+    <!-- REGION  |  Three.js Application Logic                             -->
+    <!-- ----------------------------------------------------------------- -->
+
+    <script type="module">
+// -----------------------------------------------------------------------------
+// REGION | ValeVision3D Three.js Engine
+// -----------------------------------------------------------------------------
+
+    // MODULE VARIABLES | Three.js Imports
+    // ------------------------------------------------------------
+    import * as THREE from 'three';
+    import { Na__DefaultNavmode__InitializeMouseControls } from './src__NavigationAndCameras/Na__DefaultNavmode__MouseControls.js';
+    import { Na__DefaultNavmode__InitializeIpadControls } from './src__NavigationAndCameras/Na__DefaultNavmode__IpadControls.js';
+    import { Na__AppConfig__LoadConfig } from './src__AppConfig/Na__AppConfig__Loader.js';
+    import { Na__RenderPipeline__SetupComposer } from './src__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js';
+    import { Na__UiFeature__InitializeCameraLensControls } from './src__CameraUtils/Na__UiFeature__CameraLens__Controls.js';
+    import { Na__UiFeature__InitializeImageExportControls } from './src__ImageExport/Na__UiFeature__ImageExport__Controls.js';
+    import { Na__UiFeature__ApplyCameraConfig, Na__UiFeature__InitializeCameraPositionControls } from './src__CameraUtils/Na__UiFeature__CameraPosition__Controls.js';
+    import { Na__Math__ConvertMmToUnits } from './src__MathUtils/Na__Math__Units.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { 
+        Na__ModelLoader__LoadAllModels,
+        Na__ModelLoader__SeparateOrbitCubeUrl,
+        Na__ModelLoader__LoadOrbitHelperCube
+    } from './src__ModelLoader/Na__ModelLoader__MultiModel.js';
+    import { Na__UiFeature__InitializeModelToggleControls } from './src__ModelToggle/Na__UiFeature__ModelToggle__Controls.js';
+    import {
+        Na__DoorAnimation__Initialize,
+        Na__DoorAnimation__Update
+    } from './src__3dObject__InteractionsSystem/3dObjectIInteraction__Animation__ClickToOpenDoors__.js';
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | DOM References
+    // ------------------------------------------------------------
+    const canvas = document.getElementById('renderCanvas');                     // <-- Render canvas
+    const loadingOverlay = document.getElementById('loadingOverlay');           // <-- Loading overlay
+    const loadingIndicator = document.getElementById('loadingIndicator');       // <-- Loading indicator
+    const statusText = document.getElementById('statusText');                   // <-- Debug status text
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | App Config (JSON Source of Truth)
+    // ------------------------------------------------------------
+    const Na__AppConfig__Data = await Na__AppConfig__LoadConfig();
+    
+    const Na__Config__ModelDefaults = Na__AppConfig__Data.modelDefaults;            // <-- Model defaults
+    const Na__Config__Scene = Na__AppConfig__Data.scene;                            // <-- Scene settings
+    const Na__Config__Models = Na__AppConfig__Data.models;                          // <-- Model-specific settings
+    const Na__Config__CameraLens = Na__AppConfig__Data.cameraLens;                  // <-- Camera lens settings
+    const Na__Config__ImageExport = Na__AppConfig__Data.imageExport;                // <-- Image export settings
+    const Na__Config__PostProcessEffects = Na__AppConfig__Data.ImageExport__PostProcessEffects; // <-- Post-process effects config
+    const Na__Config__CameraDefault = Na__AppConfig__Data.Camera__DefaultPosition;  // <-- Camera defaults (MM)
+    const Na__Config__NavmodeSettings = Na__AppConfig__Data.Navmode__Settings;      // <-- Navmode config (MM)
+    const Na__Config__ProfileLines = Na__AppConfig__Data.RenderEffect__ProfileLines || null;  // <-- Profile lines effect (enable/disable + params)
+    const Na__Config__3dObjectInteractions = Na__AppConfig__Data['3dObject__InteractionsSystem'] || {};                 // <-- 3D object interactions configuration
+    const Na__Config__DoorAnimation = Na__Config__3dObjectInteractions['3dObject__Interaction__DoorAnimation'] || {};  // <-- Door animation configuration
+    
+    const Na__ModelDefaults__ModelUrls = Na__Config__ModelDefaults.modelUrls || [];  // <-- Default model URLs array
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Dev Mode - Default Cube (MM Scale Anchor)
+    // ------------------------------------------------------------
+    const Na__Dev__DefaultCube__Config = (Na__AppConfig__Data.Dev__DeveloperMode && Na__AppConfig__Data.Dev__DeveloperMode.Dev__DefaultCube)
+        ? Na__AppConfig__Data.Dev__DeveloperMode.Dev__DefaultCube
+        : {};
+    
+    const Na__Dev__DefaultCube__Visible = (Na__Dev__DefaultCube__Config.Dev__DefaultCube__Visible !== undefined)
+        ? Boolean(Na__Dev__DefaultCube__Config.Dev__DefaultCube__Visible)
+        : true;
+    const Na__Dev__DefaultCube__SizeInMm = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__SizeInMm)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__SizeInMm
+        : 1000;
+    const Na__Dev__DefaultCube__Colour = Na__Dev__DefaultCube__Config.Dev__DefaultCube__Colour || '#1e3a4f';
+    
+    const Na__Dev__DefaultCube__PozX = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozX)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozX
+        : 0;
+    const Na__Dev__DefaultCube__PozY = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozY)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozY
+        : 0;
+    const Na__Dev__DefaultCube__PozZ = Number.isFinite(Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozZ)
+        ? Na__Dev__DefaultCube__Config.Dev__DefaultCube__PozZ
+        : 0;
+    
+    const Na__OrbitHelperCube__Debug__Visible = (Na__AppConfig__Data.Dev__DeveloperMode && Na__AppConfig__Data.Dev__DeveloperMode.OrbitHelperCube__Debug__Visible !== undefined)
+        ? Boolean(Na__AppConfig__Data.Dev__DeveloperMode.OrbitHelperCube__Debug__Visible)
+        : false;
+    
+    const Na__Dev__DefaultCube__SizeUnits = Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__SizeInMm);
+    const Na__Dev__DefaultCube__PositionUnits = new THREE.Vector3(
+        Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__PozX),
+        Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__PozY),
+        Na__Math__ConvertMmToUnits(Na__Dev__DefaultCube__PozZ)
+    );
+    
+    const Na__Navmode__ConfigMouse = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__MouseControls)
+        ? Na__Config__NavmodeSettings.Navmode__MouseControls
+        : {};
+    const Na__Navmode__ConfigIpad = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__IpadControls)
+        ? Na__Config__NavmodeSettings.Navmode__IpadControls
+        : {};
+    // ------------------------------------------------------------
+    
+    
+    // MODULE VARIABLES | Device Detection (Mouse vs Touch)
+    // ------------------------------------------------------------
+    const Na__Device__HasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const Na__Device__IsIpadOS = navigator.userAgent.includes('Macintosh') && navigator.maxTouchPoints > 1;
+    const Na__Device__IsMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || Na__Device__IsIpadOS;
+    const Na__Device__UseTouchControls = Na__Device__IsMobile || Na__Device__HasTouch;
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Scene Objects
+    // ------------------------------------------------------------
+    const Na__Scene__Main = new THREE.Scene();
+    Na__Scene__Main.background = new THREE.Color(Na__Config__Scene.bgColor);
+    Na__Scene__Main.fog = new THREE.FogExp2(Na__Config__Scene.bgColor, Na__Config__Scene.fogDensity);
+    
+    const Na__Camera__Main = new THREE.PerspectiveCamera(
+        Na__Config__Scene.cameraFov,
+        window.innerWidth / window.innerHeight,
+        Na__Config__Scene.cameraNear,
+        Na__Config__Scene.cameraFar
+    );
+    if (Na__Config__CameraDefault && Na__Config__CameraDefault.Camera__DefaultPos) {
+        Na__Camera__Main.position.set(
+            Na__Math__ConvertMmToUnits(Na__Config__CameraDefault.Camera__DefaultPos.Camera__DefaultPos__PosX),
+            Na__Math__ConvertMmToUnits(Na__Config__CameraDefault.Camera__DefaultPos.Camera__DefaultPos__PosY),
+            Na__Math__ConvertMmToUnits(Na__Config__CameraDefault.Camera__DefaultPos.Camera__DefaultPos__PosZ)
+        );
+    } else {
+        Na__Camera__Main.position.set(
+            Na__Dev__DefaultCube__PositionUnits.x + (Na__Dev__DefaultCube__SizeUnits * 3),
+            Na__Dev__DefaultCube__PositionUnits.y + (Na__Dev__DefaultCube__SizeUnits * 2),
+            Na__Dev__DefaultCube__PositionUnits.z + (Na__Dev__DefaultCube__SizeUnits * 3)
+        );
+    }
+    
+    const Na__Renderer__Main = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+        stencil: true,
+        depth: true,
+        logarithmicDepthBuffer: true
+    });
+    Na__Renderer__Main.setSize(window.innerWidth, window.innerHeight);
+    Na__Renderer__Main.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    Na__Renderer__Main.shadowMap.enabled = true;
+    Na__Renderer__Main.shadowMap.type = THREE.PCFSoftShadowMap;
+    Na__Renderer__Main.outputColorSpace = THREE.SRGBColorSpace;
+    Na__Renderer__Main.toneMapping = THREE.NoToneMapping;
+    Na__Renderer__Main.toneMappingExposure = 1.0;
+    
+    const Na__LineResolution__Screen = new THREE.Vector2(window.innerWidth, window.innerHeight);
+    let Na__RenderComposer__Main = null;
+    let Na__RenderPipeline__State = null;                                  // <-- Composer + profile-lines helpers bundle
+    const Na__Navmode__InitializeControls = Na__Device__UseTouchControls
+        ? Na__DefaultNavmode__InitializeIpadControls
+        : Na__DefaultNavmode__InitializeMouseControls;
+    
+    const Na__Navmode__ActiveConfig = Na__Device__UseTouchControls ? Na__Navmode__ConfigIpad : Na__Navmode__ConfigMouse;
+    const Na__Navmode__ConfigPayload = Na__Device__UseTouchControls
+        ? {
+            enableDamping: Na__Navmode__ActiveConfig.Navmode__IpadControls__EnableDamping,        // <-- Orbit control damping
+            enableWASD: Na__Navmode__ActiveConfig.Navmode__IpadControls__EnableWASD,              // <-- Optional WASD fly mode
+            movementSpeedMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__MovementSpeedMm,    // <-- Navigation speed (mm)
+            elevationSpeedMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__ElevationSpeedMm,  // <-- Vertical navigation speed (mm)
+            minDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMinDistanceMm,   // <-- Orbit zoom in (mm)
+            maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__IpadControls__OrbitMaxDistanceMm    // <-- Orbit zoom out (mm)
+        }
+        : {
+            enableDamping: Na__Navmode__ActiveConfig.Navmode__MouseControls__EnableDamping,       // <-- Orbit control damping
+            enableWASD: Na__Navmode__ActiveConfig.Navmode__MouseControls__EnableWASD,             // <-- Optional WASD fly mode
+            movementSpeedMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__MovementSpeedMm,   // <-- Navigation speed (mm)
+            elevationSpeedMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__ElevationSpeedMm, // <-- Vertical navigation speed (mm)
+            minDistanceMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__OrbitMinDistanceMm,  // <-- Orbit zoom in (mm)
+            maxDistanceMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__OrbitMaxDistanceMm,  // <-- Orbit zoom out (mm)
+            zoomStepMm: Na__Navmode__ActiveConfig.Navmode__MouseControls__ZoomStepMm              // <-- Fixed wheel zoom step (mm)
+        };
+    
+    const Na__NavBundle__Main = Na__Navmode__InitializeControls(Na__Camera__Main, Na__Renderer__Main.domElement, {
+        ...Na__Navmode__ConfigPayload
+    });
+    const Na__Controls__Orbit = Na__NavBundle__Main.controls;
+    const Na__Navmode__UpdateNavigation = Na__NavBundle__Main.updateNavigation;
+    
+    if (Na__Config__CameraDefault) {
+        if (Na__Config__CameraDefault.Camera__DefaultRotation) {
+            Na__Camera__Main.rotation.set(
+                Na__Config__CameraDefault.Camera__DefaultRotation.Camera__DefaultRotation__RotX,
+                Na__Config__CameraDefault.Camera__DefaultRotation.Camera__DefaultRotation__RotY,
+                Na__Config__CameraDefault.Camera__DefaultRotation.Camera__DefaultRotation__RotZ
+            );
+        }
+        
+        if (Na__Config__CameraDefault.Camera__DefaultMisc && Number.isFinite(Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultFov)) {
+            Na__Camera__Main.fov = Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultFov;
+            Na__Camera__Main.updateProjectionMatrix();
+        }
+        
+        // NOTE: Camera__DefaultTarget removed - orbit target now set by OrbitHelperCube GLB or Dev__DefaultCube fallback
+    }
+    
+    const Na__ModelGroup__Root = new THREE.Group();
+    Na__Scene__Main.add(Na__ModelGroup__Root);
+    
+    let Na__LoadedModelGroups = null;                                     // <-- Map of category -> THREE.Group
+    // ------------------------------------------------------------
+
+
+    // MODULE INITIALIZATION | Default Dev Cube (Scale + Pivot)
+    // ------------------------------------------------------------
+    function Na__DevUtils__CreateDefaultCube() {
+        const geometry = new THREE.BoxGeometry(
+            Na__Dev__DefaultCube__SizeUnits,
+            Na__Dev__DefaultCube__SizeUnits,
+            Na__Dev__DefaultCube__SizeUnits
+        );
+        const material = new THREE.MeshStandardMaterial({ color: Na__Dev__DefaultCube__Colour });
+        const cube = new THREE.Mesh(geometry, material);
+        
+        cube.name = 'Dev__DefaultCube';
+        cube.position.copy(Na__Dev__DefaultCube__PositionUnits);
+        cube.visible = Na__Dev__DefaultCube__Visible;
+        
+        Na__Scene__Main.add(cube);
+        return cube;
+    }
+    
+    const Na__Dev__DefaultCube__Mesh = Na__DevUtils__CreateDefaultCube();
+    Na__Controls__Orbit.target.copy(Na__Dev__DefaultCube__PositionUnits);       // <-- Fixed pivot based on cube
+    Na__Controls__Orbit.update();
+    // ------------------------------------------------------------
+
+
+    // MODULE INITIALIZATION | Camera Lens Controls
+    // ------------------------------------------------------------
+    const Na__CameraLens__Config = { ...Na__Config__CameraLens };
+    
+    if (Na__Config__CameraDefault && Na__Config__CameraDefault.Camera__DefaultMisc && Number.isFinite(Na__Config__CameraDefault.Camera__DefaultMisc.Camera__DefaultFov)) {
+        Na__CameraLens__Config.defaultFocalLengthMM = null;                   // <-- Preserve initial FOV
+    }
+    
+    Na__UiFeature__InitializeCameraLensControls(Na__Camera__Main, Na__CameraLens__Config);
+    Na__UiFeature__InitializeImageExportControls(
+        Na__Renderer__Main,
+        Na__Scene__Main,
+        Na__Camera__Main,
+        () => Na__RenderPipeline__State,
+        Na__Config__ImageExport,
+        Na__Config__PostProcessEffects
+    );
+    Na__UiFeature__InitializeCameraPositionControls(Na__Camera__Main, Na__Controls__Orbit);
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Update Status Display
+    // ------------------------------------------------------------
+    function Na__UiFeature__UpdateStatus(message, isError = false) {
+        if (statusText) statusText.textContent = message;              // <-- Update debug status
+        if (!loadingIndicator) return;
+        loadingIndicator.textContent = message;                        // <-- Update overlay loading text
+        
+        if (isError) {
+            loadingIndicator.style.color = '#d32f2f';                  // <-- Error color
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Detect Localhost Environment
+    // ------------------------------------------------------------
+    function Na__AppUtils__IsRunningOnLocalhost() {
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        return hostname === 'localhost' || hostname === '127.0.0.1' || port === '8000';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Extract Project Code from URL
+    // ------------------------------------------------------------
+    function Na__AppUtils__GetProjectCodeFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('project');
+    }
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Web Project Data Paths
+    // ------------------------------------------------------------
+    const Na__AppUtils__WebProjectsBaseUrl = 'https://adam-noble-01.github.io/ValeCodebase/WebApps/Whitecardopedia/Projects'; // <-- GH Pages base
+    const Na__AppUtils__DefaultProjectYear = '2026';                                                                          // <-- Legacy fallback
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Normalize Project Folder ID
+    // ------------------------------------------------------------
+    function Na__AppUtils__NormalizeProjectFolderId(projectCode) {
+        if (!projectCode) return null;
+        
+        const trimmed = projectCode.replace(/^\/+|\/+$/g, '');
+        const hasYearPrefix = /^\d{4}\//.test(trimmed);
+        
+        if (hasYearPrefix) {
+            return trimmed;
+        }
+        
+        return `${Na__AppUtils__DefaultProjectYear}/${trimmed}`;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Fetch Whitecardopedia project.json
+    // ------------------------------------------------------------
+    async function Na__AppUtils__FetchProjectJson(projectCode) {
+        let projectJsonUrl;
+        
+        if (Na__AppUtils__IsRunningOnLocalhost()) {
+            projectJsonUrl = `${window.location.origin}/api/projects/${projectCode}`;  // <-- Flask API endpoint
+        } else {
+            const projectFolderId = Na__AppUtils__NormalizeProjectFolderId(projectCode);
+            projectJsonUrl = `${Na__AppUtils__WebProjectsBaseUrl}/${projectFolderId}/project.json`;  // <-- GH Pages path
+        }
+        
+        const response = await fetch(projectJsonUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch project.json: ${response.status} ${response.statusText}`);
+        }
+        
+        return response.json();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Extract Model URLs from project.json (Multi-Format)
+    // ------------------------------------------------------------
+    // Supports four project.json formats and normalizes to a flat URL array:
+    //   v4: valeVision_ModelUrls (array)            -> pass through directly
+    //   v3: valeVision_ModelUrl_BaseMesh + _Linework -> wrap into 2-element array
+    //   v2: valeVision_ModelUrl (array of versions)  -> take last entry only
+    //   v1: valeVision_ModelUrl (string)             -> wrap into 1-element array
+    // ------------------------------------------------------------
+    function Na__AppUtils__ExtractModelUrls(projectData) {
+        if (!projectData) return [];                                     // <-- Guard against null
+
+        // V4 FORMAT | New multi-model array (preferred)
+        if (Array.isArray(projectData.valeVision_ModelUrls) && projectData.valeVision_ModelUrls.length > 0) {
+            return projectData.valeVision_ModelUrls;                     // <-- Pass through directly
+        }
+
+        // V3 FORMAT | Layered BaseMesh + Linework pair
+        const baseMeshUrl  = projectData.valeVision_ModelUrl_BaseMesh || null;
+        const lineworkUrl  = projectData.valeVision_ModelUrl_Linework || null;
+        if (baseMeshUrl || lineworkUrl) {
+            const urls = [];
+            if (baseMeshUrl) urls.push(baseMeshUrl);                     // <-- Add base mesh URL
+            if (lineworkUrl) urls.push(lineworkUrl);                     // <-- Add linework URL
+            return urls;
+        }
+
+        // V2 FORMAT | Array of versioned URLs (take latest)
+        if (Array.isArray(projectData.valeVision_ModelUrl) && projectData.valeVision_ModelUrl.length > 0) {
+            const latestUrl = projectData.valeVision_ModelUrl[projectData.valeVision_ModelUrl.length - 1];
+            return [latestUrl];                                          // <-- Use last (latest) version
+        }
+
+        // V1 FORMAT | Single string URL (legacy)
+        if (typeof projectData.valeVision_ModelUrl === 'string' && projectData.valeVision_ModelUrl) {
+            return [projectData.valeVision_ModelUrl];                    // <-- Wrap single URL in array
+        }
+
+        return [];                                                       // <-- No model URLs found
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Setup Lighting and Ground
+    // ------------------------------------------------------------
+    function Na__Scene__SetupLighting() {
+        const Na__Light__Ambient = new THREE.AmbientLight(0xffffff, Na__Config__Scene.ambientIntensity);
+        Na__Scene__Main.add(Na__Light__Ambient);
+        
+        const Na__Light__Directional = new THREE.DirectionalLight(0xffffff, Na__Config__Scene.dirLightIntensity);
+        Na__Light__Directional.position.set(50, 100, 40);
+        Na__Light__Directional.castShadow = true;
+        Na__Light__Directional.shadow.mapSize.width = 2048;
+        Na__Light__Directional.shadow.mapSize.height = 2048;
+        Na__Light__Directional.shadow.bias = -0.0001;
+        Na__Scene__Main.add(Na__Light__Directional);
+        
+        const Na__Ground__Geometry = new THREE.PlaneGeometry(Na__Config__Scene.groundSize, Na__Config__Scene.groundSize);
+        const Na__Ground__Material = new THREE.ShadowMaterial({
+            opacity: Na__Config__Scene.shadowOpacity,
+            color: 0x000000
+        });
+        const Na__Ground__Plane = new THREE.Mesh(Na__Ground__Geometry, Na__Ground__Material);
+        Na__Ground__Plane.rotation.x = -Math.PI / 2;
+        Na__Ground__Plane.position.y = Na__Config__Scene.groundYOffset;
+        Na__Ground__Plane.receiveShadow = true;
+        Na__Scene__Main.add(Na__Ground__Plane);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show Scene When Ready
+    // ------------------------------------------------------------
+    function Na__UiFeature__ShowScene() {
+        if (statusText) statusText.textContent = 'Complete - ValeVision3D Ready';
+        
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('hidden');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500);
+        }
+        
+        if (canvas) {
+            canvas.classList.remove('canvas-hidden');
+            canvas.classList.add('canvas-visible');
+        }
+        
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Main Loading Sequence
+    // ------------------------------------------------------------
+    async function Na__AppFlow__StartLoadingSequence() {
+        Na__UiFeature__UpdateStatus('Creating scene...');
+        Na__Scene__SetupLighting();
+        Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines);
+        Na__RenderComposer__Main = Na__RenderPipeline__State.composer;
+        
+        let modelUrls = [...Na__ModelDefaults__ModelUrls];               // <-- Start with config defaults
+        
+        // RESOLVE PROJECT-SPECIFIC MODEL URLS
+        const projectCode = Na__AppUtils__GetProjectCodeFromUrl();
+        if (projectCode) {
+            try {
+                Na__UiFeature__UpdateStatus('Loading project data...');
+                const projectData = await Na__AppUtils__FetchProjectJson(projectCode);
+                
+                // APPLY CAMERA CONFIG FROM PROJECT (supports both key formats)
+                // NOTE: Camera__DefaultTarget is ignored - orbit target set by OrbitHelperCube GLB below
+                const cameraConfig = projectData.Camera__DefaultPosition
+                    || projectData.valeVision_Camera__DefaultPosition
+                    || null;
+                if (cameraConfig) {
+                    Na__UiFeature__ApplyCameraConfig(
+                        Na__Camera__Main,
+                        Na__Controls__Orbit,
+                        cameraConfig
+                    );
+                }
+                
+                // EXTRACT MODEL URLS FROM PROJECT DATA
+                const projectUrls = Na__AppUtils__ExtractModelUrls(projectData);
+                if (projectUrls.length > 0) {
+                    modelUrls = projectUrls;                             // <-- Override defaults with project URLs
+                }
+            } catch (error) {
+                console.warn('[ValeVision3D] Project data load failed, using defaults', error);
+            }
+        }
+        
+        // SEPARATE ORBIT HELPER CUBE URL FROM MODEL URLS
+        const { orbitCubeUrl, filteredUrls } = Na__ModelLoader__SeparateOrbitCubeUrl(modelUrls);
+        modelUrls = filteredUrls;                                        // <-- Use filtered URLs (without orbit cube) for model loading
+        
+        // LOAD ORBIT HELPER CUBE IF PRESENT
+        let Na__OrbitHelperCube__Mesh = null;                            // <-- Store orbit cube mesh reference
+        if (orbitCubeUrl) {
+            try {
+                Na__UiFeature__UpdateStatus('Loading orbit helper cube...');
+                const loader = new GLTFLoader();
+                const orbitCubeResult = await Na__ModelLoader__LoadOrbitHelperCube(orbitCubeUrl, loader);
+                
+                if (orbitCubeResult && orbitCubeResult.mesh && orbitCubeResult.centerPosition) {
+                    Na__OrbitHelperCube__Mesh = orbitCubeResult.mesh;     // <-- Store mesh reference
+                    Na__OrbitHelperCube__Mesh.name = 'OrbitHelperCube';   // <-- Name for debugging
+                    Na__OrbitHelperCube__Mesh.visible = Na__OrbitHelperCube__Debug__Visible;  // <-- Hide unless debug enabled
+                    
+                    Na__Scene__Main.add(Na__OrbitHelperCube__Mesh);      // <-- Add to scene
+                    
+                    // SET ORBIT TARGET TO CUBE CENTER
+                    Na__Controls__Orbit.target.copy(orbitCubeResult.centerPosition);  // <-- Set orbit target to cube center
+                    Na__Controls__Orbit.update();                         // <-- Update controls
+                    
+                    console.log('[ValeVision3D] OrbitHelperCube loaded. Orbit target set to:', orbitCubeResult.centerPosition);
+                }
+            } catch (error) {
+                console.error('[ValeVision3D] Failed to load OrbitHelperCube:', error);
+                // Fall through to use Dev__DefaultCube fallback (already set at line 492)
+            }
+        }
+        
+        // LOAD ALL MODELS VIA MULTI-MODEL LOADER
+        try {
+            if (modelUrls.length > 0) {
+                Na__LoadedModelGroups = await Na__ModelLoader__LoadAllModels(
+                    modelUrls,                                           // <-- Array of CDN URLs (orbit cube already filtered out)
+                    Na__ModelGroup__Root,                                 // <-- Scene root group
+                    Na__Config__Models,                                   // <-- Material configs (baseMesh + linework)
+                    Na__LineResolution__Screen,                           // <-- Screen resolution for line width
+                    Na__UiFeature__UpdateStatus                          // <-- Status callback for loading overlay
+                );
+            }
+            
+            Na__UiFeature__ShowScene();                                   // <-- Reveal scene after all models loaded
+            
+            // INITIALIZE MODEL TOGGLE CONTROLS (dynamic per-category buttons)
+            Na__UiFeature__InitializeModelToggleControls(Na__LoadedModelGroups);  // <-- Build toggle buttons from loaded groups
+
+            // INITIALIZE DOOR ANIMATION (if enabled in config)
+            if (Na__Config__DoorAnimation['3dObject__Interaction__DoorAnimation__Enabled'] !== false) {
+                // Find door model groups by searching loaded categories
+                let doorMeshGroup      = null;                                   // <-- Mesh version of door models
+                let doorLineworkGroup  = null;                                   // <-- Linework version of door models
+
+                Na__LoadedModelGroups.forEach((group, categoryKey) => {
+                    if (categoryKey.includes('ProposedDoors') && categoryKey.includes('MeshModel')) {
+                        doorMeshGroup = group;                                   // <-- Found mesh door group
+                    }
+                    if (categoryKey.includes('ProposedDoors') && categoryKey.includes('LineworkModel')) {
+                        doorLineworkGroup = group;                               // <-- Found linework door group
+                    }
+                });
+
+                if (doorMeshGroup || doorLineworkGroup) {
+                    Na__DoorAnimation__Initialize(
+                        Na__Scene__Main,                                         // <-- Scene reference
+                        Na__Camera__Main,                                        // <-- Camera reference
+                        Na__Renderer__Main.domElement,                           // <-- Canvas DOM element
+                        doorMeshGroup,                                           // <-- Mesh model group
+                        doorLineworkGroup,                                       // <-- Linework model group
+                        Na__Config__DoorAnimation                                // <-- Door animation config
+                    );
+                    console.log('[ValeVision3D] Door animation initialized');
+                } else {
+                    console.log('[ValeVision3D] Door animation enabled but no door model groups found');
+                }
+            }
+
+        } catch (error) {
+            console.error('[ValeVision3D] Model load error:', error);
+            Na__UiFeature__UpdateStatus('Model load error - check console', true);
+        }
+        
+        // RENDER LOOP (with delta time tracking for animations)
+        let Na__RenderLoop__PrevTimestamp = performance.now();                   // <-- Previous frame timestamp for delta
+        function Na__RenderLoop__Animate() {
+            requestAnimationFrame(Na__RenderLoop__Animate);
+
+            const now     = performance.now();                                   // <-- Current timestamp
+            const deltaMs = now - Na__RenderLoop__PrevTimestamp;                 // <-- Time since last frame
+            Na__RenderLoop__PrevTimestamp = now;                                 // <-- Update previous timestamp
+
+            Na__Navmode__UpdateNavigation();                                     // <-- Update orbit controls
+            Na__DoorAnimation__Update(deltaMs);                                  // <-- Update door animations
+
+            if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
+                Na__RenderPipeline__State.renderProfileNormals();                // <-- Update profile lines
+                Na__RenderComposer__Main.render();                               // <-- Render with post-processing
+            }
+        }
+        
+        Na__RenderLoop__Animate();
+        
+        // RESIZE HANDLER
+        window.addEventListener('resize', () => {
+            const width  = window.innerWidth;
+            const height = window.innerHeight;
+            
+            Na__Camera__Main.aspect = width / height;
+            Na__Camera__Main.updateProjectionMatrix();
+            Na__Renderer__Main.setSize(width, height);
+            if (Na__RenderComposer__Main && Na__RenderPipeline__State) {
+                Na__RenderComposer__Main.setSize(width, height);
+                Na__RenderPipeline__State.setProfileLinesSize(width, height);
+            }
+            
+            Na__LineResolution__Screen.set(width, height);
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Auto-Prompt Tools Dropdown
+    // ------------------------------------------------------------
+    function Na__UiFeature__PromptToolsMenu() {
+        const menu = document.getElementById('naToolsMenu');
+        if (!menu) return;
+        
+        menu.setAttribute('open', 'open');
+        setTimeout(() => {
+            menu.removeAttribute('open');
+        }, 2600);
+    }
+    // ------------------------------------------------------------
+
+
+    // INITIALIZE LOADING SEQUENCE
+    // ------------------------------------------------------------
+    Na__AppFlow__StartLoadingSequence();
+    Na__UiFeature__PromptToolsMenu();
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+    </script>
+    
+    <!-- endregion -------------------------------------------------------- -->
+
+
+</body>
+</html>
+
+
+
+
