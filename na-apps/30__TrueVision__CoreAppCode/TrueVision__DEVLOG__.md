@@ -64,6 +64,9 @@
   OFF still means OFF on an open plan, without depending on the drawing view core.
 - **Install App is removed.** The install prompt has its own notification, nothing referenced the row's ids, and it was
   the one entry with no icon in a menu that now has them throughout.
+- **Full Screen's inline bracket SVGs are removed.** The row carries the same PNG icon as every other one now, so the
+  brackets were a second symbol saying the same thing, and the ON/OFF badge already reports the state they swapped to
+  show. Their stylesheet region went with them rather than being left behind for an element that no longer exists.
 
 **Notes**
 - Samples are spread over frames in chunks sized from the measured frame time against a 100ms budget, always stopping
@@ -96,6 +99,8 @@
   handler blocks replaced by the new module.
 - `03__Style__AppStylesheets/Na__UiFeature__Styles__DropdownAndToast__.css`: icons, toggle rows, readouts, divider,
   danger action.
+- `76__System__FullscreenMode/Na__UiFeature__Styles__FullscreenMode__.css`: the Tools Menu Toggle Row region, now that
+  nothing carries those classes.
 - `01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/`: 16 files copied from ValeVision.
 - `TrueVision__Pwa__ServiceWorker__Logic__.js`: token bumped (2026-09-16-1).
 

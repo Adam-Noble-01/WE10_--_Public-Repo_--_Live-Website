@@ -314,37 +314,13 @@
  * REGION | Tools Menu Toggle Row
  * ----- */
 
-    /* MENU ROW LABEL | Icon + text label inside the Tools menu button */
-    /* ------------------------------------------------------------ */
-    .na-fullscreen-toggle__label-group {
-        display                            : flex;
-        align-items                        : center;
-        gap                                : 8px;
-    }
-
-    .na-fullscreen-toggle__icon {
-        width                              : 15px;
-        height                             : 15px;
-        flex-shrink                        : 0;
-        color                              : currentColor;
-        pointer-events                     : none;
-    }
-    /* ------------------------------------------------------------ */
-
-
-    /* ICON SWAP | Expand arrows when windowed, collapse arrows when full screen */
-    /* ------------------------------------------------------------ */
-    .na-fullscreen-toggle__icon--exit {
-        display                            : none;                 /* <-- Hidden until full screen is active */
-    }
-
-    .na-walk-mode__toggle--active .na-fullscreen-toggle__icon--enter {
-        display                            : none;
-    }
-
-    .na-walk-mode__toggle--active .na-fullscreen-toggle__icon--exit {
-        display                            : block;
-    }
-    /* ------------------------------------------------------------ */
+    /* NOTE | The row's own bracket SVGs are gone (v2.56.0).
+     * ------------------------------------------------------------
+     * Full Screen now carries the same PNG icon as every other row in
+     * the Tools menu, so the inline enter/exit brackets were a second
+     * symbol saying the same thing, and the ON/OFF badge on the right
+     * already reports the state they used to swap to show. The rules
+     * that sized them and swapped them went with them.
+     * ------------------------------------------------------------ */
 
 /* endregion ---- */
