@@ -226,14 +226,16 @@
     <div class="na-dropdown-menu">
         <details class="na-dropdown-menu__details" id="naToolsMenu">
             <summary class="na-dropdown-menu__summary">
-                Tools &amp; Settings
+                <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__MainMenuIcon__540p__.png" alt="" />
+                <span class="na-dropdown-menu__btn-label">Tools &amp; Settings</span>
                 <span class="na-dropdown-menu__arrow">&#9662;</span>
             </summary>
             <ul class="na-dropdown-menu__list">
                 <!-- Navigation modes (Orbit / Walk / Fly) now live in the floating navigation toolbar -->
                 <li class="na-dropdown-menu__item">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naImageExportToggle">
-                        Export Image
+                        <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__ExportImage__540p__.png" alt="" />
+                        <span class="na-dropdown-menu__btn-label">Export Image</span>
                         <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naImageExportPanel">
@@ -291,7 +293,8 @@
                 </li>
                 <li class="na-dropdown-menu__item" id="naStoreyViewItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naStoreyViewButton">
-                        Storey Toggle
+                        <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__ViewModelLayers__540p__.png" alt="" />
+                        <span class="na-dropdown-menu__btn-label">Storey Toggle</span>
                         <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naStoreyViewPanel">
@@ -303,7 +306,8 @@
                 </li>
                 <li class="na-dropdown-menu__item" id="naStoreyIsolateItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naStoreyIsolateButton">
-                        Floor Isolate
+                        <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__GridSystem__540p__.png" alt="" />
+                        <span class="na-dropdown-menu__btn-label">Floor Isolate</span>
                         <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naStoreyIsolatePanel">
@@ -315,7 +319,8 @@
                 </li>
                 <li class="na-dropdown-menu__item" id="naModelGroupSelectorItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naModelGroupSelectorButton">
-                        Design Phase
+                        <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__CameraSettings__540p__.png" alt="" />
+                        <span class="na-dropdown-menu__btn-label">Design Phase</span>
                         <span class="na-dropdown-menu__subarrow">&#9662;</span>
                     </button>
                     <div class="na-dropdown-menu__panel" id="naModelGroupSelectorPanel">
@@ -326,29 +331,14 @@
                     </div>
                 </li>
                 <li class="na-dropdown-menu__item">
-                    <button class="na-dropdown-menu__button" id="naUserInstructionsToggle">
-                        User Guide
-                    </button>
-                </li>
-                <li class="na-dropdown-menu__item" id="naPwaInstallItem" style="display:none;">
-                    <button class="na-dropdown-menu__button" id="naPwaInstallToggle">
-                        Install App
-                    </button>
-                </li>
-                <li class="na-dropdown-menu__item">
-                    <button class="na-dropdown-menu__button na-walk-mode__toggle na-walk-mode__toggle--active" id="naSsaoToggle">
-                        <span class="na-walk-mode__label">Shadows</span>
-                        <span class="na-walk-mode__status" id="naSsaoStatus">ON</span>
-                    </button>
-                </li>
-                <li class="na-dropdown-menu__item">
-                    <button class="na-dropdown-menu__button na-walk-mode__toggle na-walk-mode__toggle--active" id="naProfileLinesToggle">
-                        <span class="na-walk-mode__label">Profile Lines</span>
-                        <span class="na-walk-mode__status" id="naProfileLinesStatus">ON</span>
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-icon" id="naUserInstructionsToggle">
+                        <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__NavigationMenu/Icon__NavigationMenu__OpenNavHelpPanel__.png" alt="" />
+                        <span class="na-dropdown-menu__btn-label">User Guide</span>
                     </button>
                 </li>
                 <li class="na-dropdown-menu__item" id="naFullscreenItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-walk-mode__toggle" id="naFullscreenToggle" type="button" aria-pressed="false" title="Fill the whole screen with the model">
+                        <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__FullScreen__540p__.png" alt="" />
                         <span class="na-walk-mode__label na-fullscreen-toggle__label-group">
                             <svg class="na-fullscreen-toggle__icon na-fullscreen-toggle__icon--enter" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                                 <polyline points="7.5,2.5 2.5,2.5 2.5,7.5"       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -367,6 +357,72 @@
                         <span class="na-walk-mode__status" id="naFullscreenStatus">OFF</span>
                     </button>
                 </li>
+
+                <!-- ---------------------------------------------------------------- -->
+                <!-- UI MENU | App Settings                                            -->
+                <!-- @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__PurgeAppCache__Button.js -->
+                <!-- ---------------------------------------------------------------- -->
+                <li class="na-dropdown-menu__item">
+                    <button
+                        class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu"
+                        type="button"
+                        id="naAppSettingsToggle"
+                        aria-expanded="false"
+                        aria-controls="naAppSettingsPanel"
+                    >
+                        <img class="na-dropdown-menu__btn-icon" src="01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/Icon__ToolsMenu__MainMenuIcon__540p__.png" alt="" />
+                        <span class="na-dropdown-menu__btn-label">App Settings</span>
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel" id="naAppSettingsPanel">
+                        <!-- ------------------------------------------------ -->
+                        <!-- VISUAL EFFECTS | Folded by default               -->
+                        <!-- @delegate: ./02__Src__AppModules/05__RenderPipeline/Na__UiFeature__VisualEffects__Controls.js -->
+                        <!-- ------------------------------------------------ -->
+                        <button
+                            class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu"
+                            type="button"
+                            id="naVisualEffectsToggle"
+                            aria-expanded="false"
+                            aria-controls="naVisualEffectsPanel"
+                        >
+                            <span class="na-dropdown-menu__btn-label">Visual Effects</span>
+                            <span class="na-dropdown-menu__subarrow" aria-hidden="true">&#9662;</span>
+                        </button>
+                        <div class="na-dropdown-menu__panel na-vfx__panel" id="naVisualEffectsPanel">
+                            <button class="na-dev-toggle" type="button" id="naVfxProgressiveToggle" aria-pressed="false">
+                                <span class="na-dev-toggle__label">Progressive Renderer</span>
+                                <span class="na-dev-toggle__status" id="naVfxProgressiveStatus">N/A</span>
+                            </button>
+                            <button class="na-dev-toggle" type="button" id="naVfxProfileLinesToggle" aria-pressed="false">
+                                <span class="na-dev-toggle__label">Profile Lines</span>
+                                <span class="na-dev-toggle__status" id="naVfxProfileLinesStatus">N/A</span>
+                            </button>
+                            <button class="na-dev-toggle" type="button" id="naVfxSsaoToggle" aria-pressed="false">
+                                <span class="na-dev-toggle__label">Ambient Occlusion (SSAO)</span>
+                                <span class="na-dev-toggle__status" id="naVfxSsaoStatus">N/A</span>
+                            </button>
+                            <hr class="na-dropdown-menu__panel-divider" />
+                            <div class="na-vfx__readout">
+                                <span class="na-vfx__readout-label">Frame Rate</span>
+                                <span class="na-vfx__readout-value" id="naVfxFrameRateValue">--</span>
+                            </div>
+                            <div class="na-vfx__readout">
+                                <span class="na-vfx__readout-label">Refinement</span>
+                                <span class="na-vfx__readout-value" id="naVfxRefineValue">--</span>
+                            </div>
+                        </div>
+                        <!-- ------------------------------------------------ -->
+                        <button
+                            class="na-dropdown-menu__action na-dropdown-menu__action--danger"
+                            type="button"
+                            id="naPurgeAppCacheAction"
+                        >
+                            Purge App Cache
+                        </button>
+                    </div>
+                </li>
+                <!-- ---------------------------------------------------------------- -->
             </ul>
             
         </details>
@@ -803,6 +859,8 @@
     import { Na__ContextMenu__Initialize } from './02__Src__AppModules/27__System__ContextMenuSystem/Na__ContextMenuSystem__SystemLogic__.js';
     import { Na__SectionCut__Initialize } from './02__Src__AppModules/41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     import { Na__DrawProfile__SetEnabled } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
+    import { Na__UiFeature__InitializeVisualEffectsControls } from './02__Src__AppModules/05__RenderPipeline/Na__UiFeature__VisualEffects__Controls.js';
+    import { Na__UiFeature__InitializePurgeAppCacheButton } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__PurgeAppCache__Button.js';
     import { Na__DevGate__Initialize } from './02__Src__AppModules/03__AppUtils/Na__AppUtils__DevGate__.js';
     import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__DrawCfg__SetAppConfig, Na__DrawCfg__Load } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
@@ -871,6 +929,7 @@
     const Na__Config__NavmodeDamping = Na__AppConfig__Data.Navmode__Damping;        // <-- Navmode damping config (unitless)
     const Na__Config__ProfileLines = Na__AppConfig__Data.RenderEffect__ProfileLines || null;  // <-- Profile lines effect (enable/disable + params)
     const Na__Config__AmbientOcclusion = Na__AppConfig__Data.RenderEffect__AmbientOcclusion || null; // <-- Ambient occlusion effect (enable/disable + params)
+    const Na__Config__ProgressiveRefine = Na__AppConfig__Data.RenderEffect__ProgressiveRefine || null; // <-- Idle-time supersampling of the live viewport
     const Na__Config__DistanceCulling = Na__AppConfig__Data.RenderEffect__DistanceCulling || null; // <-- Furniture/decor distance culling (enable/disable + distance + tokens)
     const Na__Config__3dObjectInteractions = Na__AppConfig__Data['3dObject__InteractionsSystem'] || {};                 // <-- 3D object interactions configuration
     const Na__Config__DoorAnimation = Na__Config__3dObjectInteractions['3dObject__Interaction__DoorAnimation'] || {};  // <-- Door animation configuration
@@ -1194,51 +1253,27 @@
     Na__Hotkeys__ApplyUiLabels(Na__Config__Hotkeys);                             // <-- Propagate key labels to toolbar + help panel
     // ------------------------------------------------------------
 
-    // SETTINGS MENU | SSAO (Shadows) Real-Time Toggle
+    // SETTINGS MENU | Visual Effects Section
     // ------------------------------------------------------------
-    const Na__SsaoToggleBtn = document.getElementById('naSsaoToggle');
-    const Na__SsaoStatusEl  = document.getElementById('naSsaoStatus');
-
-    function Na__UiFeature__UpdateSsaoStatus(isOn) {
-        if (Na__SsaoStatusEl)  Na__SsaoStatusEl.textContent = isOn ? 'ON' : 'OFF';
-        if (Na__SsaoToggleBtn) Na__SsaoToggleBtn.classList.toggle('na-walk-mode__toggle--active', isOn);
-    }
-
-    if (Na__SsaoToggleBtn) {
-        Na__SsaoToggleBtn.addEventListener('click', () => {
-            const pipeline = Na__AppFlow__PipelineRef.current;
-            if (!pipeline || !pipeline.toggleAo) return;
-            const isNowOn = pipeline.toggleAo();
-            Na__UiFeature__UpdateSsaoStatus(isNowOn);
-            Na__RenderLoop__RequestRender();
-        });
-    }
-
-    window.addEventListener('na-ao-disabled', () => {
-        Na__UiFeature__UpdateSsaoStatus(false);
+    // Shadows (SSAO) and Profile Lines used to be two loose rows at the top
+    // level of this menu, each with its own inline handler tracking its own
+    // clicks. They now sit with the Progressive Renderer inside App Settings ->
+    // Visual Effects, owned by one module that reads the passes instead of
+    // remembering what it last asked for: the AO performance monitor can switch
+    // SSAO off on its own, and a badge tracking only its own clicks would show
+    // ON over a picture that has none.
+    // @delegate: ./02__Src__AppModules/05__RenderPipeline/Na__UiFeature__VisualEffects__Controls.js
+    // ------------------------------------------------------------
+    Na__UiFeature__InitializeVisualEffectsControls({
+        pipelineRef            : Na__AppFlow__PipelineRef,               // <-- Mutable ref the rest of the app follows
+        setDrawingProfileLines : Na__DrawProfile__SetEnabled             // <-- One switch: OFF must mean OFF on an open drawing too
     });
     // ------------------------------------------------------------
 
-    // SETTINGS MENU | Profile Lines Real-Time Toggle
+    // SETTINGS MENU | App Settings Section and Purge App Cache
+    // @delegate: ./02__Src__AppModules/70__System__DevTools/Na__UiFeature__PurgeAppCache__Button.js
     // ------------------------------------------------------------
-    const Na__ProfileLinesToggleBtn = document.getElementById('naProfileLinesToggle');
-    const Na__ProfileLinesStatusEl  = document.getElementById('naProfileLinesStatus');
-
-    function Na__UiFeature__UpdateProfileLinesStatus(isOn) {
-        if (Na__ProfileLinesStatusEl)  Na__ProfileLinesStatusEl.textContent = isOn ? 'ON' : 'OFF';
-        if (Na__ProfileLinesToggleBtn) Na__ProfileLinesToggleBtn.classList.toggle('na-walk-mode__toggle--active', isOn);
-    }
-
-    if (Na__ProfileLinesToggleBtn) {
-        Na__ProfileLinesToggleBtn.addEventListener('click', () => {
-            const pipeline = Na__AppFlow__PipelineRef.current;
-            if (!pipeline || !pipeline.toggleProfileLines) return;
-            const isNowOn = pipeline.toggleProfileLines();
-            Na__DrawProfile__SetEnabled(isNowOn);                       // <-- One switch: OFF while a drawing is open must mean OFF on the drawing
-            Na__UiFeature__UpdateProfileLinesStatus(isNowOn);
-            Na__RenderLoop__RequestRender();
-        });
-    }
+    Na__UiFeature__InitializePurgeAppCacheButton();
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1500,6 +1535,7 @@
             orbitHelperCubeDebugVisible : Na__OrbitHelperCube__Debug__Visible,
             storeyVisibility            : Na__Config__StoreyVisibility,
             ambientOcclusion            : Na__Config__AmbientOcclusion,
+            progressiveRefine           : Na__Config__ProgressiveRefine,
             distanceCulling             : Na__Config__DistanceCulling
         }
     });

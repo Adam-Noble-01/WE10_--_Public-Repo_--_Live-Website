@@ -185,6 +185,186 @@
     gap                                 : 10px;
 }
 
+
+/* ================================================================= */
+/* REGION  |  Menu Item Icons                                        */
+/* ================================================================= */
+/* Ported from ValeVision so both apps' menus read the same. A row    */
+/* with an icon becomes a flex line regardless of whether it opens a  */
+/* submenu, and the label takes the slack so the icon stays hard left */
+/* and any status badge stays hard right.                            */
+
+.na-dropdown-menu__button--has-icon {
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 10px;
+}
+
+.na-dropdown-menu__btn-icon {
+    width                               : 24px;
+    height                              : 24px;
+    flex-shrink                         : 0;
+    object-fit                          : contain;
+    opacity                             : 0.75;
+}
+
+.na-dropdown-menu__summary .na-dropdown-menu__btn-icon {
+    opacity                             : 1;
+    filter                              : brightness(0.55) saturate(1.2) contrast(1.1);
+}
+
+.na-dropdown-menu__btn-label {
+    flex                                : 1;
+}
+
+/* A toggle row carrying an icon: the label group takes the slack so the
+   ON/OFF badge stays right rather than the three children spreading out. */
+.na-walk-mode__toggle .na-walk-mode__label {
+    flex                                : 1;
+}
+
+/* endregion -------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  Panel Divider and Danger Action                        */
+/* ================================================================= */
+
+.na-dropdown-menu__panel-divider {
+    border                              : none;
+    height                              : 1px;
+    background                          : rgba(23, 43, 58, 0.15);
+    margin                              : 10px 0;
+}
+
+.na-dropdown-menu__action--danger {
+    background                          : #8a2b2b;
+}
+
+/* endregion -------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  Toggle Rows With Indicator Lights                      */
+/* ================================================================= */
+/* The row style the Visual Effects section is built from: a dot that */
+/* lights green when the effect is on, a label, and an ON/OFF badge.  */
+/* A row the pipeline cannot offer is dimmed and unclickable rather   */
+/* than shown as merely off.                                         */
+
+.na-dev-toggle {
+    width                               : 100%;
+    border                              : 1px solid rgba(23, 43, 58, 0.15);
+    border-radius                       : 4px;
+    padding                             : 6px 10px;
+    background                          : rgba(23, 43, 58, 0.04);
+    text-align                          : left;
+    font-size                           : 0.8rem;
+    font-weight                         : 400;
+    font-family                         : 'Open Sans', sans-serif;
+    color                               : rgba(23, 43, 58, 0.6);
+    cursor                              : pointer;
+    transition                          : all 0.15s ease;
+    display                             : flex;
+    align-items                         : center;
+    gap                                 : 8px;
+}
+
+.na-dev-toggle::before {
+    content                             : '';
+    display                             : inline-block;
+    width                               : 8px;
+    height                              : 8px;
+    border-radius                       : 50%;
+    background                          : rgba(23, 43, 58, 0.2);
+    flex-shrink                         : 0;
+    transition                          : background 0.15s ease;
+}
+
+.na-dev-toggle:hover {
+    background                          : rgba(23, 43, 58, 0.08);
+}
+
+.na-dev-toggle--active {
+    color                               : #172b3a;
+    font-weight                         : 500;
+    background                          : rgba(23, 43, 58, 0.06);
+    border-color                        : rgba(23, 43, 58, 0.25);
+}
+
+.na-dev-toggle--active::before {
+    background                          : #2a7d4f;
+}
+
+.na-dev-toggle--active:hover {
+    background                          : rgba(23, 43, 58, 0.1);
+}
+
+.na-dev-toggle__label {
+    flex                                : 1;
+}
+
+.na-dev-toggle__status {
+    min-width                           : 32px;
+    text-align                          : right;
+    font-size                           : 0.74rem;
+    font-weight                         : 600;
+    letter-spacing                      : 0.04em;
+    color                               : rgba(23, 43, 58, 0.45);
+}
+
+.na-dev-toggle--active .na-dev-toggle__status {
+    color                               : #2a7d4f;
+}
+
+.na-dev-toggle--unavailable {
+    opacity                             : 0.45;
+    cursor                              : default;
+}
+
+.na-dev-toggle--unavailable:hover {
+    background                          : rgba(23, 43, 58, 0.04);
+}
+
+/* endregion -------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  Visual Effects Settings Section                        */
+/* ================================================================= */
+/* Tools and Settings -> App Settings -> Visual Effects.             */
+/* Stacks the toggle rows and adds the two readouts underneath.      */
+/* @delegate: Na__UiFeature__VisualEffects__Controls.js              */
+
+.na-vfx__panel .na-dev-toggle + .na-dev-toggle {
+    margin-top                          : 6px;
+}
+
+.na-vfx__readout {
+    display                             : flex;
+    align-items                         : center;
+    justify-content                     : space-between;
+    gap                                 : 10px;
+    padding                             : 3px 10px;
+    font-size                           : 0.78rem;
+    font-family                         : 'Open Sans', sans-serif;
+    color                               : rgba(23, 43, 58, 0.6);
+}
+
+.na-vfx__readout-label {
+    flex                                : 1;
+}
+
+.na-vfx__readout-value {
+    font-size                           : 0.74rem;
+    font-weight                         : 600;
+    letter-spacing                      : 0.04em;
+    color                               : #172b3a;
+    font-variant-numeric                : tabular-nums;
+}
+
+/* endregion -------------------------------------------------------- */
+
 .na-dropdown-menu__subarrow {
     font-size                           : 0.75rem;
     color                               : #172b3a;

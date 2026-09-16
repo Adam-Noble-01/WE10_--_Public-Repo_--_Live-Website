@@ -273,6 +273,8 @@
             toggleAo,
             toggleProfileLines,
             profileLinesPassRef,                                           // <-- 2D drawing profile lines read the pass and its two buffers
+            aoPassRef,                                                     // <-- The Visual Effects readout reads its TRUE state: the
+                                                                           //     performance monitor disables AO without telling the UI
             profileNormalTarget,
             profileColorTarget,
 

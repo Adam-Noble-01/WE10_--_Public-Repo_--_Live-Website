@@ -2,6 +2,104 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.56.0  -  16-Sep-2026
+### The Progressive Renderer, and the Tools Menu Brought Into Line With ValeVision
+
+**Overview**
+- Two things from Adam, in one pass: port ValeVision3D v2.48.1's progressive renderer, and make this menu look and
+  behave like that one.
+- **The viewport sharpens itself to a full 16-sample supersampled image once the camera stops.** While the camera moves
+  nothing changes at all: the render loop draws exactly the frame it drew before, FXAA included, at the same frame
+  rate. Once the camera has held still for 150ms the loop keeps going instead of idling and redraws the same frame with
+  sub-pixel jitter, averaging the results. The same maths the image exporter already uses, spent in the time the
+  viewport was previously doing nothing.
+- **What it fixes.** A glazing bar thinner than a pixel is a coin toss between full black and full white, so it draws
+  as a dashed line rather than a thin one, and the dentils under a cornice read as speckle. That is not stair-stepping,
+  it is the pixel having no way to say "a third covered". Sixteen samples give it one. The lower the screen resolution
+  the worse the breakup, so a 1080p machine gains far more from this than a 4K one.
+
+**The port**
+- `Na__RenderEffect__ProgressiveRefine__.js` 1.0.1 (new) is ValeVision's file **verbatim** apart from the app name in
+  its header and in one console warning. The settle test, the chunk planner and the whole API are identical and are
+  meant to stay that way: a second copy that drifts is worse than no second copy.
+- What differs is the CALLER, and only in ways this app already differed: one engine rather than two, no video studio
+  to report as busy, and a 2D drawing path that bypasses the composer instead of running a preset through it. A render
+  hold counts as busy here, so a Layout Editor sheet or an offscreen snapshot never has a refinement woken underneath
+  it.
+- `Na__RenderEffect__Supersampler__.js`: `present()` takes an optional scale, so a part-finished total can be shown
+  correctly exposed rather than as a dim frame filling up. Defaults to 1, so the image exporter is untouched. This is
+  ValeVision's v1.1.0 change arriving here, and the two files match again.
+- `Na__RenderPipeline__PostProcessing__Setup.js` exposes `aoPassRef` so a readout can show whether SSAO is actually on.
+  The performance monitor disables it without telling anyone.
+- The render loop's per-frame work is now two named functions rather than one inline block: the effect chain (AO
+  uniforms, depth pre-pass, profile normals, composer) and the section cut overlay. A refinement sample runs the first
+  through a nudged projection and the second through the settled one.
+
+**The menu**
+- **Icons, from ValeVision.** The eight `UiIcons__MenuIcons__ToolsMenu` files are copied into
+  `01__AppAssets__TrueVision`, and the CSS that draws them (`__btn-icon`, `__btn-label`, the toggle rows, the panel
+  divider and the danger action) is ported with them: none of it existed here.
+
+| Row | Icon |
+|---|---|
+| Tools & Settings (the menu itself) | MainMenuIcon |
+| Export Image | ExportImage |
+| Storey Toggle | ViewModelLayers |
+| Floor Isolate | GridSystem |
+| Design Phase | CameraSettings |
+| User Guide | the navigation set's OpenNavHelpPanel, which TrueVision already shipped and actually means help |
+| Full Screen | FullScreen |
+| App Settings | MainMenuIcon |
+
+- **App Settings is new**, matching ValeVision: a folded section holding Visual Effects and Purge App Cache. The purge
+  calls the registrar's existing `purgeApp()`, which was already written and reachable only from the console.
+- **Shadows and Profile Lines leave the top level** for Visual Effects, alongside the Progressive Renderer, with a
+  frame rate and a refinement readout under them. Shadows is relabelled Ambient Occlusion (SSAO) to match ValeVision
+  word for word.
+- **The rows read the passes rather than remembering clicks.** Each used to carry its own inline handler tracking its
+  own state; the AO performance monitor can switch SSAO off on its own, and a badge tracking only its own clicks would
+  confidently show ON over a picture that has none. A pass the pipeline does not have reads as a dimmed N/A row.
+- **Profile Lines stays one switch for two renderers.** The 3D viewport's Sobel lives in the composer; a drawing
+  bypasses the composer and inks its own outline. The new module takes `Na__DrawProfile__SetEnabled` from the caller so
+  OFF still means OFF on an open plan, without depending on the drawing view core.
+- **Install App is removed.** The install prompt has its own notification, nothing referenced the row's ids, and it was
+  the one entry with no icon in a menu that now has them throughout.
+
+**Notes**
+- Samples are spread over frames in chunks sized from the measured frame time against a 100ms budget, always stopping
+  on a milestone (8, then 16). Sixteen renders inside one frame would block the main thread for a third of a second and
+  swallow the first click after the camera stops.
+- Every frame that runs must draw. `preserveDrawingBuffer` is off, so a frame that draws nothing composites an empty
+  buffer and the viewport flashes. A chunk therefore always ends with a present, and a converged frame in walk or fly
+  (where the loop is held open to poll the keyboard) re-presents the finished average: one full screen quad in place of
+  the whole effect chain, so standing still in walk mode is now cheaper than it was, not dearer.
+- Stillness is measured, not announced, because walk and fly never let the loop stop. What is remembered is when the
+  camera last MOVED, not how long it has been still - a timestamp survives the silence after a single invalidation
+  frame, which is what a wheel zoom or a jump to a saved view actually is.
+- The composer is borrowed one frame at a time: `renderToScreen` and FXAA are set at the top of a chunk and put back at
+  the bottom of the same frame, so an image export starting between frames always finds the pipeline as it left it.
+- Memory: one half-float RGBA buffer at the composer's size, about 66MB at 3840x2160 and 17MB at 1920x1080. Allocated
+  the first time the camera sits still, rebuilt automatically when the size stops matching, handed back if the feature
+  is switched off.
+- Scope: the 3D viewport only. The 2D drawing views are excluded. Image export is untouched.
+
+**Files**
+- `05__RenderPipeline/Na__RenderEffect__ProgressiveRefine__.js` 1.0.1 (new).
+- `05__RenderPipeline/Na__UiFeature__VisualEffects__Controls.js` 1.0.0 (new).
+- `70__System__DevTools/Na__UiFeature__PurgeAppCache__Button.js` 1.0.0 (new).
+- `05__RenderPipeline/Na__RenderEffect__Supersampler__.js`: the present scale.
+- `05__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js`: `aoPassRef`.
+- `01__AppCore/Na__AppFlow__LoadingSequence.js`: the render loop branch, the two extracted per-frame functions, the
+  settle wake-up and the reset hooks.
+- `02__AppData/Na__AppConfig__Main.json`: `RenderEffect__ProgressiveRefine`.
+- `Index.html`: the icons, the App Settings section, the two moved toggles, Install App removed, and the two inline
+  handler blocks replaced by the new module.
+- `03__Style__AppStylesheets/Na__UiFeature__Styles__DropdownAndToast__.css`: icons, toggle rows, readouts, divider,
+  danger action.
+- `01__AppAssets__TrueVision/UiIcons__MenuIcons__ToolsMenu/`: 16 files copied from ValeVision.
+- `TrueVision__Pwa__ServiceWorker__Logic__.js`: token bumped (2026-09-16-1).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.55.0  -  15-Sep-2026
 ### Layout Editor Sorted Into Numbered Subfolders, the Same as ValeVision
 
