@@ -1,0 +1,352 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (specification notes)*/
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : split out of Na__LayoutEditor__Styles__Specification__.css (15-Sep-2026, TrueVision3D v2.55.0), rules moved verbatim
+ * - Parity      : the split ValeVision3D made in v2.47.0; ValeVision's copy holds the same regions
+ * - Loads       : imported by Na__CoreUi__Styles__Index__.css straight after Styles__Specification, so the cascade order is unchanged
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Notes                                                  */
+/* ----------------------------------------------------------------- */
+
+.na-le-spec-notes {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 4px;
+    margin                             : 0;
+    padding                            : 8px 10px;
+    list-style                         : none;
+}
+
+.na-le-spec-note {
+    display                            : flex;
+    align-items                        : flex-start;
+    gap                                : 6px;
+    padding                            : 8px;
+    border                             : 1px solid transparent;
+    border-radius                      : 6px;
+    background                         : #ffffff;
+}
+
+.na-le-spec-note:hover {
+    border-color                       : #e2e8ee;
+    background                         : #fbfcfd;
+}
+
+.na-le-spec-note[hidden] {
+    display                            : none;
+}
+
+.na-le-spec-note.is-flash {
+    animation                          : naLeSpecFlash 1.6s ease;
+}
+
+@keyframes naLeSpecFlash {
+    0%, 45% { border-color : #1a7fc4; background : #eef5fb; }
+    100%    { border-color : transparent; background : #ffffff; }
+}
+
+/* THE GRIP - the Drawing Layers panel's six squares and behaviour. */
+.na-le-spec-note__grip {
+    flex                               : 0 0 auto;
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    width                              : 22px;
+    height                             : 28px;
+    padding                            : 0;
+    border                             : 1px solid transparent;
+    border-radius                      : 4px;
+    background                         : transparent;
+    color                              : #a0aab2;
+    cursor                             : grab;
+    touch-action                       : none;
+    user-select                        : none;
+}
+
+.na-le-spec-note__grip svg {
+    display                            : block;
+    width                              : 8px;
+    height                             : 13px;
+    fill                               : currentColor;
+    pointer-events                     : none;
+}
+
+.na-le-spec-note:hover .na-le-spec-note__grip { color : #6c7a86; }
+
+.na-le-spec-note__grip:hover,
+.na-le-spec-notes .na-le-spec-note.is-dragging .na-le-spec-note__grip {
+    background                         : #e2e8ee;
+    color                              : #172b3a;
+}
+
+.na-le-spec-note__grip:focus-visible {
+    outline                            : none;
+    border-color                       : #1a7fc4;
+}
+
+.na-le-spec.is-filtered .na-le-spec-note__grip {
+    opacity                            : 0.3;
+    cursor                             : default;
+}
+
+.na-le-spec-note__main {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    flex-direction                     : column;
+    gap                                : 5px;
+    min-width                          : 0;
+}
+
+.na-le-spec-note__head {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+}
+
+/* THE CODE, IN TWO PARTS: the group (a choice of prefix) and the number,
+   which is the note's place in that group and is never typed. */
+.na-le-spec-note__code {
+    display                            : inline-flex;
+    flex                               : 0 0 auto;
+    align-items                        : stretch;
+    overflow                           : hidden;
+    border                             : 1px solid #c9d2d9;
+    border-radius                      : 5px;
+}
+
+.na-le-spec-note__prefix {
+    padding                            : 3px 2px 3px 7px;
+    border                             : none;
+    background                         : #eef2f5;
+    color                              : #172b3a;
+    font                               : inherit;
+    font-size                          : 0.8rem;
+    font-weight                        : 700;
+    letter-spacing                     : 0.04em;
+    cursor                             : pointer;
+}
+
+.na-le-spec-note__prefix:disabled {
+    cursor                             : default;
+    opacity                            : 1;
+    appearance                         : none;
+    -webkit-appearance                 : none;
+    padding-right                      : 7px;
+}
+
+.na-le-spec-note__number {
+    display                            : inline-flex;
+    align-items                        : center;
+    padding                            : 3px 9px 3px 6px;
+    background                         : #ffffff;
+    font-size                          : 0.8rem;
+    font-weight                        : 700;
+    font-variant-numeric               : tabular-nums;
+    letter-spacing                     : 0.04em;
+}
+
+.na-le-spec-note__title {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    padding                            : 4px 8px;
+    border                             : 1px solid #d9dfe4;
+    border-radius                      : 5px;
+    color                              : #172b3a;
+    font                               : inherit;
+    font-weight                        : 600;
+}
+
+.na-le-spec-note__usage {
+    flex                               : 0 0 auto;
+    color                              : #8a96a0;
+    font-size                          : 0.7rem;
+    white-space                        : nowrap;
+}
+
+.na-le-spec-note__usage.is-used {
+    color                              : #1a7fc4;
+}
+
+.na-le-spec-note__delete {
+    flex                               : 0 0 auto;
+    min-width                          : 26px;
+    padding                            : 2px 6px;
+    color                              : #9b3b3b;
+}
+
+.na-le-spec-note__body {
+    box-sizing                         : border-box;
+    width                              : 100%;
+    min-height                         : 34px;
+    padding                            : 6px 8px;
+    overflow                           : hidden;
+    border                             : 1px solid #d9dfe4;
+    border-radius                      : 5px;
+    color                              : #172b3a;
+    font                               : inherit;
+    font-size                          : 0.78rem;
+    line-height                        : 1.45;
+    resize                             : none;
+}
+
+.na-le-spec-note__title:focus,
+.na-le-spec-note__body:focus,
+.na-le-spec-group__prefix:focus {
+    border-color                       : #1a7fc4;
+    outline                            : none;
+    box-shadow                         : 0 0 0 2px rgba(26, 127, 196, 0.15);
+}
+
+.na-le-spec.is-readonly .na-le-spec-note__title,
+.na-le-spec.is-readonly .na-le-spec-note__body,
+.na-le-spec.is-readonly .na-le-spec-group__prefix {
+    border-color                       : transparent;
+    background                         : transparent;
+}
+
+.na-le-spec-note__links {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : 5px;
+    color                              : #6c757d;
+    font-size                          : 0.7rem;
+}
+
+.na-le-spec-note__matching {
+    color                              : #8a5a00;
+}
+
+.na-le-spec-chip {
+    padding                            : 1px 8px;
+    border                             : 1px solid #cfe3f3;
+    border-radius                      : 10px;
+    background                         : #eef5fb;
+    color                              : #1a5f93;
+    font                               : inherit;
+    font-size                          : 0.7rem;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+}
+
+.na-le-spec-chip:hover {
+    background                         : #dcebf7;
+}
+
+.na-le-spec-chip--warn {
+    border-color                       : #f0d9a8;
+    background                         : #fff6e3;
+    color                              : #6b4a00;
+}
+
+/* HEADINGS ONLY folds every note to its heading, for reordering. */
+.na-le-spec.is-compact .na-le-spec-note__body,
+.na-le-spec.is-compact .na-le-spec-note__links {
+    display                            : none;
+}
+
+.na-le-spec.is-compact .na-le-spec-note {
+    padding-top                        : 4px;
+    padding-bottom                     : 4px;
+}
+
+/* WHILE A NOTE IS DRAGGED the notes it passes slide aside. */
+.na-le-spec-notes.is-sorting .na-le-spec-note {
+    transition                         : transform 0.12s ease;
+}
+
+.na-le-spec-notes.is-sorting .na-le-spec-note.is-dragging {
+    position                           : relative;
+    z-index                            : 2;
+    border-color                       : #1a7fc4;
+    background                         : #ffffff;
+    box-shadow                         : 0 3px 12px rgba(23, 43, 58, 0.2);
+    transition                         : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Panels                                                 */
+/* ----------------------------------------------------------------- */
+
+/* A PANEL NOTE THAT IS A WARNING: a margin that overflows, a bubble linked
+   to a deleted note, a code no note has. */
+.na-le-note--warn {
+    color                              : #9b3b3b;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Notes Margin on the Paper                          */
+/* ----------------------------------------------------------------- */
+
+/* The layer sits over the handles and takes no pointer itself; only the grip
+   does, and only while it is shown. Its width is counter-scaled in code. */
+.na-le-margin-layer {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    width                              : 100%;
+    height                             : 100%;
+    z-index                            : 5;
+    pointer-events                     : none;
+}
+
+.na-le-margin-layer[hidden],
+.na-le-margin-grip[hidden],
+.na-le-margin-badge[hidden] {
+    display                            : none;
+}
+
+.na-le-margin-grip {
+    position                           : absolute;
+    background                         : transparent;
+    cursor                             : ew-resize;
+    pointer-events                     : auto;
+    touch-action                       : none;
+}
+
+/* THE LINE IT SHOWS on hover and while dragged: a fifth of the grip's width,
+   so it keeps the grip's constant on-screen size. */
+.na-le-margin-grip::after {
+    content                            : '';
+    position                           : absolute;
+    top                                : 0;
+    bottom                             : 0;
+    left                               : 40%;
+    width                              : 20%;
+    background                         : rgba(26, 127, 196, 0);
+    transition                         : background 0.15s;
+}
+
+.na-le-margin-grip:hover::after,
+.na-le-margin-grip.is-dragging::after {
+    background                         : rgba(26, 127, 196, 0.6);
+}
+
+.na-le-margin-badge {
+    position                           : absolute;
+    padding                            : 3px 9px;
+    border-radius                      : 10px;
+    background                         : #cc3333;
+    color                              : #ffffff;
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    font-size                          : 11px;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+    transform-origin                   : left bottom;
+    box-shadow                         : 0 1px 4px rgba(0, 0, 0, 0.2);
+    pointer-events                     : none;
+}
+
+/* endregion ------------------------------------------------------- */
+

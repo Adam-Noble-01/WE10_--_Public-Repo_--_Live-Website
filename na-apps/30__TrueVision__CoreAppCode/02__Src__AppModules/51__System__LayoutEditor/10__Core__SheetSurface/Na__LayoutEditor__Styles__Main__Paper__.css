@@ -1,0 +1,667 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (paper)           */
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : split out of Na__LayoutEditor__Styles__Main__.css (15-Sep-2026, TrueVision3D v2.55.0), rules moved verbatim
+ * - Parity      : the split ValeVision3D made in v2.47.0; ValeVision's copy holds the same regions
+ * - Loads       : imported by Na__CoreUi__Styles__Index__.css straight after Styles__Main, so the cascade order is unchanged
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Paper and Its Layers                                   */
+/* ----------------------------------------------------------------- */
+
+.na-le-room {
+    position                           : relative;                    /* <-- Sized by the surface: paper plus a stage on every side */
+}
+
+.na-le-scaler {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    display                            : block;
+    box-sizing                         : content-box;
+}
+
+.na-le-paper {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    transform-origin                   : 0 0;
+    background                         : #ffffff;
+    box-shadow                         : 0 6px 26px rgba(0, 0, 0, 0.22);
+    overflow                           : visible;
+}
+
+.na-le-paper[hidden] {
+    display                            : none;
+}
+
+.na-le-paper__viewports,
+.na-le-paper__chrome,
+.na-le-paper__markup,
+.na-le-paper__handles {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    width                              : 100%;
+    height                             : 100%;
+}
+
+.na-le-paper__viewports  { z-index : 1; }
+.na-le-paper__chrome     { z-index : 2; pointer-events : none; }
+.na-le-paper__markup     { z-index : 3; pointer-events : none; }
+.na-le-paper__handles    { z-index : 4; pointer-events : none; }
+
+.na-le-paper__chrome,
+.na-le-paper__markup {
+    overflow                           : visible;
+}
+
+/* Text on the paper keeps its geometry under the transform */
+.na-le-paper__chrome text,
+.na-le-paper__markup text,
+.na-le-frame__markup-svg text {
+    dominant-baseline                  : alphabetic;
+    white-space                        : pre;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Viewport Frames                                        */
+/* ----------------------------------------------------------------- */
+
+.na-le-frame {
+    position                           : absolute;
+    overflow                           : hidden;
+    background                         : #ffffff;
+    box-sizing                         : border-box;
+}
+
+.na-le-frame[hidden] {
+    display                            : none;
+}
+
+.na-le-frame__body {
+    position                           : absolute;
+    inset                              : 0;
+}
+
+.na-le-frame__underlay,
+.na-le-frame__snapshot {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    display                            : block;
+    max-width                          : none;
+    pointer-events                     : none;
+    user-select                        : none;
+    image-rendering                    : auto;
+}
+
+.na-le-frame__underlay[hidden],
+.na-le-frame__snapshot[hidden] {
+    display                            : none;
+}
+
+.na-le-frame__linework,
+.na-le-frame__markup {
+    position                           : absolute;
+    inset                              : 0;
+    pointer-events                     : none;
+}
+
+.na-le-frame__linework-svg,
+.na-le-frame__markup-svg {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    display                            : block;
+    overflow                           : hidden;
+}
+
+.na-le-frame__linework-svg path {
+    shape-rendering                    : geometricPrecision;
+}
+
+.na-le-frame__empty {
+    position                           : absolute;
+    inset                              : 0;
+    display                            : flex;
+    align-items                        : center;
+    justify-content                    : center;
+    padding                            : 8px;
+    text-align                         : center;
+    font-size                          : 11px;
+    color                              : #6c757d;
+    background                         : repeating-linear-gradient(45deg, #fafbfc, #fafbfc 6px, #f0f2f4 6px, #f0f2f4 12px);
+}
+
+.na-le-frame__empty[hidden] {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Selection, Handles, Rubber Band, Inline Editor         */
+/* ----------------------------------------------------------------- */
+
+.na-le-selection {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1.5px solid #336699;
+    pointer-events                     : none;
+}
+
+.na-le-selection--readonly {
+    border-style                       : dashed;
+}
+
+.na-le-handle {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    background                         : #ffffff;
+    border                             : 1px solid #336699;
+    border-radius                      : 1px;
+    pointer-events                     : none;
+}
+
+.na-le-handle--disabled {
+    background                         : #e9edf0;
+    border-color                       : #9aa5ad;
+    border-radius                      : 50%;
+}
+
+.na-le-rubber-band {
+    position                           : absolute;
+    height                             : 0;
+    border-top                         : 1px dashed #336699;
+    transform-origin                   : 0 0;
+    pointer-events                     : none;
+}
+
+/* An arrow key has locked the edge to an axis: red across, green down,   */
+/* the colours a SketchUp user already reads, and solid so a locked edge  */
+/* is never mistaken for a free one.                                      */
+
+.na-le-rubber-band--x {
+    border-top-style                   : solid;
+    border-top-color                   : #c0392b;
+}
+
+.na-le-rubber-band--y {
+    border-top-style                   : solid;
+    border-top-color                   : #2e7d32;
+}
+
+/* The rectangle tool's rubber box: the four edges the rectangle will     */
+/* have, dashed like the band, and solid while Shift holds it square.     */
+/* The edge width is set inline, counter-scaled like the grips.           */
+
+.na-le-rubber-box {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1px dashed #336699;
+    pointer-events                     : none;
+}
+
+.na-le-rubber-box--square {
+    border-style                       : solid;
+}
+
+/* SELECTION BOX (Na__LayoutEditor__SelectionBox__) | Dragged to the right it
+   is a WINDOW - blue, solid edge - and takes only what it wholly encloses;
+   dragged to the left it is a CROSSING - green, dashed edge - and takes
+   anything it touches as well. AutoCAD's two colours on SketchUp's two edges,
+   so a user of either reads it at a glance. The preview outlines what the box
+   would take, in the box's colour. Edge widths are set inline, counter-scaled
+   like the grips, so these rules carry nothing that changes with zoom.     */
+
+.na-le-select-box,
+.na-le-select-preview {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1px solid;
+    pointer-events                     : none;
+}
+
+.na-le-select-box {
+    z-index                            : 8;
+}
+
+.na-le-select-box--window {
+    border-color                       : #1f6fe0;
+    border-style                       : solid;
+    background                         : rgba(31, 111, 224, 0.16);
+}
+
+.na-le-select-box--crossing {
+    border-color                       : #1e9e4a;
+    border-style                       : dashed;
+    background                         : rgba(30, 158, 74, 0.16);
+}
+
+.na-le-select-preview {
+    z-index                            : 6;
+    border-style                       : dashed;
+}
+
+.na-le-select-preview--window {
+    border-color                       : rgba(31, 111, 224, 0.85);
+    background                         : rgba(31, 111, 224, 0.06);
+}
+
+.na-le-select-preview--crossing {
+    border-color                       : rgba(30, 158, 74, 0.85);
+    background                         : rgba(30, 158, 74, 0.06);
+}
+
+.na-le-text-editor {
+    position                           : absolute;
+    box-sizing                         : content-box;
+    padding                            : 0 2px;
+    margin                             : 0;
+    border                             : 1px solid #336699;
+    background                         : #ffffff;
+    font-family                        : 'Open Sans', Helvetica, Arial, sans-serif;
+    line-height                        : 1.2;
+    outline                            : none;
+    pointer-events                     : auto;
+    z-index                            : 5;
+}
+
+/* Sheet text and a leader's note: a text area that breaks a line only where */
+/* a new line was typed, and grows a row per line instead of scrolling.      */
+
+.na-le-text-editor--multiline {
+    resize                             : none;
+    overflow                           : hidden;
+    white-space                        : pre;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Snap Marker and Linework Progress                      */
+/* ----------------------------------------------------------------- */
+
+/* Square for an endpoint, triangle for a midpoint (the AutoCAD glyphs);
+   size and border are written inline, counter-scaled by the zoom.
+   THE COLOUR SAYS WHICH TOOL IS SNAPPING, the glyph what it found: blue
+   for vertices (the Draw and Rectangle tools, vertex grips), orange for
+   dimensions (the Dimension tool, its grips, its line inference), purple
+   for viewports (carrying one by a point). Each tone is one RGB triple,
+   so the border, the tint and the midpoint fill all follow it. */
+.na-le-osnap {
+    --na-le-osnap-rgb                  : 37, 99, 235;
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1.5px solid rgb(var(--na-le-osnap-rgb));
+    background                         : rgba(var(--na-le-osnap-rgb), 0.12);
+    pointer-events                     : none;
+    z-index                            : 6;
+}
+
+.na-le-osnap--vertex {
+    --na-le-osnap-rgb                  : 37, 99, 235;
+}
+
+.na-le-osnap--dimension {
+    --na-le-osnap-rgb                  : 234, 88, 12;
+}
+
+.na-le-osnap--viewport {
+    --na-le-osnap-rgb                  : 147, 51, 234;
+}
+
+.na-le-osnap[hidden] {
+    display                            : none;
+}
+
+.na-le-osnap--mid {
+    border-radius                      : 0;
+    clip-path                          : polygon(50% 0, 100% 100%, 0 100%);
+    background                         : rgba(var(--na-le-osnap-rgb), 0.55);
+    border                             : none;
+}
+
+.na-le-frame__progress {
+    position                           : absolute;
+    left                               : 6px;
+    top                                : 6px;
+    padding                            : 3px 8px;
+    border-radius                      : 4px;
+    background                         : rgba(23, 43, 58, 0.82);
+    color                              : #ffffff;
+    font-size                          : 10px;
+    line-height                        : 1.3;
+    white-space                        : nowrap;
+    pointer-events                     : none;
+    z-index                            : 4;
+}
+
+.na-le-frame__progress[hidden] {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Selection States, Notes and the Context Menu           */
+/* ----------------------------------------------------------------- */
+
+/* The outline is drawn inside the scaled paper, so its note is scaled
+   back by --na-le-note-scale (set by the handles) to read the same at
+   any zoom. */
+
+.na-le-selection--editing {
+    border-style                       : dashed;
+    border-color                       : #d97706;
+}
+
+.na-le-selection--locked {
+    border-style                       : solid;
+    border-color                       : #9aa5ad;
+}
+
+.na-le-selection--group {
+    border-color                       : #1f6fe0;
+    border-style                       : solid;
+    background                         : rgba(31, 111, 224, 0.04);
+    z-index                            : 5;
+}
+
+.na-le-group-label {
+    position                           : absolute;
+    left                               : 0;
+    top                                : 0;
+    padding                            : 1px 6px;
+    background                         : #1f6fe0;
+    color                              : #ffffff;
+    font-size                          : 11px;
+    line-height                        : 1.3;
+    white-space                        : nowrap;
+    pointer-events                     : none;
+    transform                          : scale(var(--na-le-note-scale, 1));
+    transform-origin                   : left top;
+    font-family                        : 'Open Sans', Helvetica, Arial, sans-serif;
+}
+
+.na-le-selection[data-na-note]::after {
+    content                            : attr(data-na-note);
+    position                           : absolute;
+    left                               : 0;
+    bottom                             : 100%;
+    margin-bottom                      : 3px;
+    padding                            : 2px 8px;
+    border-radius                      : 3px;
+    background                         : #d97706;
+    color                              : #ffffff;
+    font-size                          : 11px;
+    line-height                        : 1.3;
+    white-space                        : nowrap;
+    transform                          : scale(var(--na-le-note-scale, 1));
+    transform-origin                   : left bottom;
+}
+
+.na-le-selection--locked[data-na-note]::after {
+    background                         : #6c757d;
+}
+
+.na-le-menu {
+    position                           : fixed;
+    z-index                            : 1200;                        /* <-- Above the header and the menus */
+    min-width                          : 190px;
+    padding                            : 4px 0;
+    border                             : 1px solid rgba(23, 43, 58, 0.18);
+    border-radius                      : 6px;
+    background                         : #ffffff;
+    box-shadow                         : 0 8px 24px rgba(0, 0, 0, 0.18);
+    font-size                          : 0.78rem;
+    color                              : #172b3a;
+}
+
+.na-le-menu__item {
+    display                            : block;
+    width                              : 100%;
+    padding                            : 6px 14px 6px 28px;
+    border                             : 0;
+    background                         : transparent;
+    color                              : inherit;
+    font                               : inherit;
+    text-align                         : left;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+    position                           : relative;
+}
+
+.na-le-menu__item:hover:not(:disabled),
+.na-le-menu__item:focus-visible {
+    background                         : #eef2f6;
+    outline                            : none;
+}
+
+.na-le-menu__item:disabled {
+    opacity                            : 0.45;
+    cursor                             : default;
+}
+
+.na-le-menu__item--danger {
+    color                              : #b42318;
+}
+
+.na-le-menu__item--checked::before {
+    content                            : "";
+    position                           : absolute;
+    left                               : 11px;
+    top                                : 50%;
+    width                              : 8px;
+    height                             : 8px;
+    border-radius                      : 50%;
+    background                         : #1a7fc4;
+    transform                          : translateY(-50%);
+}
+
+.na-le-menu__separator {
+    height                             : 1px;
+    margin                             : 4px 0;
+    background                         : rgba(23, 43, 58, 0.14);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Grips and Inference                                    */
+/* ----------------------------------------------------------------- */
+
+.na-le-grip {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    background                         : #ffffff;
+    border                             : 1px solid #336699;
+    border-radius                      : 1px;
+    pointer-events                     : none;
+    z-index                            : 5;
+}
+
+.na-le-grip--offset {
+    border-radius                      : 50%;
+    background                         : #d97706;
+    border-color                       : #b45309;
+}
+
+/* A leader's anchor grip is round and keeps the selection blue: it moves the */
+/* head, while the square grip at the tip re-points the leader.               */
+
+.na-le-grip--anchor {
+    border-radius                      : 50%;
+}
+
+/* A selected text item's rotate grip: round, like the anchor grip, on a    */
+/* short stem off the top of its outline. Dragging it turns the text about  */
+/* the middle of its box. The stem is a grip element too, so clearing the   */
+/* grips clears it; its edge width is set inline, counter-scaled.           */
+
+.na-le-grip--rotate {
+    border-radius                      : 50%;
+}
+
+.na-le-grip--stem {
+    height                             : 0;
+    background                         : transparent;
+    border                             : 0;
+    border-top                         : 1px solid #336699;
+    border-radius                      : 0;
+    transform-origin                   : 0 0;
+}
+
+/* A Shift-click on a vector's edge inserts a vertex here. The diamond is  */
+/* the same size as a vertex grip, rotated, so it reads as "a new corner". */
+
+.na-le-grip--insert {
+    background                         : #336699;
+    border-color                       : #ffffff;
+    transform                          : rotate(45deg);
+    z-index                            : 6;
+}
+
+.na-le-osnap--infer {
+    border-radius                      : 50%;
+    border-style                       : solid;
+    background                         : transparent;
+}
+
+/* EYEDROPPER | Two boxes on the handles layer: the violet one is the object
+   whose properties are being held, the green one is what the pointer is over
+   and would take them. Red says that one cannot: wrong kind, or a locked
+   layer. The pad and the border are counter-scaled in the module, so these
+   rules carry the colours and nothing that changes with zoom.              */
+
+.na-le-dropper {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border-style                       : dashed;
+    pointer-events                     : none;
+    z-index                            : 7;
+}
+
+.na-le-dropper[hidden] {
+    display                            : none;
+}
+
+.na-le-dropper--source {
+    border-color                       : #7c3aed;
+    border-style                       : solid;
+    background                         : rgba(124, 58, 237, 0.10);
+}
+
+.na-le-dropper--target {
+    border-color                       : #16a34a;
+    background                         : rgba(22, 163, 74, 0.12);
+}
+
+.na-le-dropper--refuse {
+    border-color                       : #dc2626;
+    background                         : rgba(220, 38, 38, 0.08);
+}
+
+/* A palette sync pulses the item the style came from, then the node is
+   removed. Its own class, so a tool switch that hides the dropper's boxes
+   does not cut the pulse short. The duration is set inline from FlashMs.   */
+.na-le-dropper--flash {
+    border-color                       : #7c3aed;
+    border-style                       : solid;
+    background                         : rgba(124, 58, 237, 0.20);
+    animation                          : na-le-dropper-flash 700ms ease-out forwards;
+}
+
+@keyframes na-le-dropper-flash {
+    0%   { opacity : 1; }
+    100% { opacity : 0; }
+}
+
+/* VIEWPORT CARRY | A viewport moved by a point on its own linework
+   (Na__LayoutEditor__ViewportSnapMove__). The carried frame multiplies, so
+   the drawing underneath shows through it and can be aimed at. The ring
+   marks the carried point, a cross marks each acquired tracking point, and
+   a guide runs from a tracking point to the carried one: red when level,
+   green when plumb - the axis-lock colours. The frame's outline, the ring
+   and the crosses are the viewport purple of the snap marker while a
+   viewport is carried. Sizes and stroke widths are counter-scaled in the
+   module, so these rules carry colour and nothing that changes with zoom.  */
+
+.na-le-frame--carried {
+    mix-blend-mode                     : multiply;
+    outline                            : 1px dashed #9333ea;
+}
+
+.na-le-carry-base {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    border                             : 1.5px solid #9333ea;
+    border-radius                      : 50%;
+    background                         : rgba(147, 51, 234, 0.18);
+    pointer-events                     : none;
+    z-index                            : 6;
+}
+
+.na-le-track-point {
+    position                           : absolute;
+    pointer-events                     : none;
+    z-index                            : 6;
+    --na-le-track-stroke               : 1.5px;
+}
+
+.na-le-track-point::before,
+.na-le-track-point::after {
+    content                            : '';
+    position                           : absolute;
+    background                         : #9333ea;
+}
+
+.na-le-track-point::before {
+    left                               : 0;
+    right                              : 0;
+    top                                : 50%;
+    height                             : var(--na-le-track-stroke);
+    transform                          : translateY(-50%);
+}
+
+.na-le-track-point::after {
+    top                                : 0;
+    bottom                             : 0;
+    left                               : 50%;
+    width                              : var(--na-le-track-stroke);
+    transform                          : translateX(-50%);
+}
+
+.na-le-track-guide {
+    position                           : absolute;
+    box-sizing                         : content-box;
+    pointer-events                     : none;
+    z-index                            : 5;
+}
+
+.na-le-track-guide--x {
+    border-top                         : 1px dashed #c0392b;
+}
+
+.na-le-track-guide--y {
+    border-left                        : 1px dashed #2e7d32;
+}
+
+.na-le-carry-base[hidden],
+.na-le-track-guide[hidden] {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */

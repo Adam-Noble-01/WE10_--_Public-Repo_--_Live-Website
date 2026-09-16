@@ -1,0 +1,463 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (shell)            */
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : Lantern Designer 30__System__DrawingEditorMode stylesheet (stage and paper rules)
+ * - Ported on   : 09-Sep-2026 for TrueVision3D v2.21.0 (port Phase 5)
+ * - Parity      : adapted (tab strip, frames, handles, rubber band and inline editor are TrueVision's)
+ * - Split       : 15-Sep-2026 (v2.55.0) the paper, frames, selection, snapping, context menu and grips rules moved verbatim to
+ *                 Na__LayoutEditor__Styles__Main__Paper__.css, which the CSS index imports straight after this sheet: the split
+ *                 ValeVision3D made in v2.47.0. The tab strip and the Dev section stay here (ValeVision keeps them in
+ *                 Styles__Boot); the Dev section now comes before the paper rules, and shares no selector with them.
+ */
+
+/* Paper geometry is never declared here: the surface writes paper pixels
+   (millimetres times ScreenPixelsPerMm) inline, and the zoom is one CSS
+   transform on the paper element. */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Published Heights and Shell Hiding                     */
+/* ----------------------------------------------------------------- */
+
+:root {
+    --Vale_LayoutTabStripHeight        : 0px;                         /* <-- Written by the tab strip when it is shown */
+    --Vale_LayoutLeftPanelWidth        : 250px;                       /* <-- Seeded from config by the panel host */
+    --Vale_LayoutRightPanelWidth       : 300px;
+    --Vale_LayoutGreyStage             : #d8dcdf;
+}
+
+/* While the editor is on screen the 3D overlays stand aside. The canvas
+   itself stays in the DOM (visibility only) so snapshots can render.
+   The two dropdown menus (Tools & Settings and the localhost Dev Tools
+   container) belong to the 3D Model tab only: they sit above the host at
+   z-index 1001 and would otherwise cover the sheet panels, so a drawing
+   tab hides them outright rather than letting them float over the paper.
+   The breadcrumb trail goes with them: it is fixed to the top left, which
+   on a drawing tab is the sheet panel column, and it navigates away from
+   the model rather than around the drawing, so it has nothing to say while
+   a sheet is open. It returns with the 3D Model tab, folded or unfolded
+   exactly as it was left. */
+body.na-layout-editor--active .na-dropdown-menu,
+body.na-layout-editor--active #naBreadcrumbNav,
+body.na-layout-editor--active #naPresentationCarousel,
+body.na-layout-editor--active #naNavToolbar,
+body.na-layout-editor--active #naNavHelpPanel,
+body.na-layout-editor--active .na-export-overlay,
+body.na-layout-editor--active .na-projected-linework,
+body.na-layout-editor--active .controls-instructions-panel {
+    display                            : none !important;
+}
+
+body.na-le-dragging,
+body.na-le-dragging * {
+    user-select                        : none;
+    -webkit-user-select                : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Tab Strip                                              */
+/* ----------------------------------------------------------------- */
+
+.na-le-tabs {
+    position                           : fixed;
+    top                                : var(--Vale_HeaderHeight);
+    left                               : 0;
+    right                              : 0;
+    height                             : var(--Vale_LayoutTabStripHeight);
+    display                            : flex;
+    align-items                        : stretch;
+    gap                                : 2px;
+    padding                            : 0 12px;
+    box-sizing                         : border-box;
+    background                         : #f4f6f8;
+    border-bottom                      : 1px solid rgba(23, 43, 58, 0.14);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    z-index                            : 999;                         /* <-- Under the header (1000) and the menus (1001) */
+    overflow-x                         : auto;
+    overflow-y                         : hidden;
+}
+
+.na-le-tabs[hidden] {
+    display                            : none;
+}
+
+.na-le-tabs__tab {
+    flex                               : 0 0 auto;
+    margin-top                         : 4px;
+    padding                            : 0 14px;
+    border                             : 1px solid rgba(23, 43, 58, 0.14);
+    border-bottom                      : none;
+    border-radius                      : 6px 6px 0 0;
+    background                         : #e9edf0;
+    color                              : #172b3a;
+    font-size                          : 0.8rem;
+    font-weight                        : 400;
+    cursor                             : pointer;
+    white-space                        : nowrap;
+}
+
+.na-le-tabs__tab:hover {
+    background                         : #ffffff;
+}
+
+.na-le-tabs__tab--active {
+    background                         : #ffffff;
+    font-weight                        : 600;
+    box-shadow                         : 0 2px 0 0 #ffffff;           /* <-- Joins the tab to the surface below */
+}
+
+.na-le-tabs__tab--model {
+    margin-right                       : 8px;
+}
+
+.na-le-tabs__tab--add {
+    font-weight                        : 600;
+    color                              : #1a7fc4;
+}
+
+.na-le-tabs__rename {
+    margin-top                         : 4px;
+    padding                            : 0 8px;
+    font-size                          : 0.8rem;
+    border                             : 1px solid #1a7fc4;
+    border-radius                      : 6px 6px 0 0;
+    outline                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Host, Shell and Stage                                  */
+/* ----------------------------------------------------------------- */
+
+.na-le-host {
+    position                           : fixed;
+    top                                : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight));
+    left                               : 0;
+    right                              : 0;
+    bottom                             : 0;
+    z-index                            : 600;                         /* <-- Above the canvas and export frame, below the menus */
+    background                         : var(--Vale_LayoutGreyStage);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+    color                              : #172b3a;
+}
+
+.na-le-host[hidden] {
+    display                            : none;
+}
+
+/* The one grid row is pinned to the host height and every item has
+   min-height 0: a grid item's default minimum is its content, so without
+   these the centre column would grow to the height of the stage's scroll
+   content (a page plus its roaming room) instead of the stage scrolling. */
+
+.na-le-shell {
+    display                            : grid;
+    grid-template-columns              : var(--Vale_LayoutLeftPanelWidth) minmax(0, 1fr) var(--Vale_LayoutRightPanelWidth);
+    grid-template-rows                 : minmax(0, 1fr);
+    width                              : 100%;
+    height                             : 100%;
+}
+
+.na-le-column {
+    position                           : relative;
+    min-width                          : 0;
+    min-height                         : 0;
+    height                             : 100%;
+}
+
+.na-le-centre {
+    position                           : relative;                    /* <-- The Measurements box sits in its bottom right corner */
+    display                            : flex;
+    flex-direction                     : column;
+    min-width                          : 0;
+    min-height                         : 0;
+    height                             : 100%;
+    overflow                           : hidden;
+}
+
+.na-le-centre__toolbar {
+    flex                               : 0 0 auto;
+}
+
+.na-le-stage {
+    position                           : relative;
+    flex                               : 1 1 auto;
+    min-height                         : 0;
+    overflow                           : auto;
+    outline                            : none;
+    touch-action                       : none;
+    background                         : var(--Vale_LayoutGreyStage);
+}
+
+.na-le-stage--panning {
+    cursor                             : grabbing;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Measurements Box                                       */
+/* ----------------------------------------------------------------- */
+
+/* SketchUp's VCB (Na__LayoutEditor__Measurements__), bottom right over the
+   stage. The right and bottom offsets are written inline from the stage's
+   scrollbar sizes, so it always sits just inside them. The live reading is
+   the input's placeholder, so a typed value simply replaces it; the chip on
+   the right says the scale the reading is at, or Paper. */
+
+.na-le-vcb {
+    position                           : absolute;
+    right                              : 26px;
+    bottom                             : 26px;
+    z-index                            : 20;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    padding                            : 4px 5px 4px 10px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 6px;
+    background                         : #ffffff;
+    box-shadow                         : 0 2px 10px rgba(23, 43, 58, 0.18);
+    font-size                          : 0.76rem;
+    color                              : #172b3a;
+}
+
+.na-le-vcb[hidden] {
+    display                            : none;
+}
+
+.na-le-vcb__label {
+    min-width                          : 5.4em;
+    color                              : #6c757d;
+    white-space                        : nowrap;
+}
+
+.na-le-vcb__input {
+    width                              : 12em;
+    padding                            : 3px 7px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background                         : #f8fafb;
+    color                              : #172b3a;
+    font                               : inherit;
+    font-weight                        : 600;
+    font-variant-numeric               : tabular-nums;
+    text-align                         : right;
+    outline                            : none;
+}
+
+.na-le-vcb__input::placeholder {
+    color                              : #172b3a;
+    opacity                            : 0.75;
+    font-weight                        : 400;
+}
+
+.na-le-vcb__input:disabled {
+    cursor                             : default;
+}
+
+/* Typing: the box lights up, so a value on its way is never mistaken for a
+   reading. An error keeps the value, edged red, until it is corrected. */
+
+.na-le-vcb__input:focus,
+.na-le-vcb--typing .na-le-vcb__input {
+    border-color                       : #1a7fc4;
+    background                         : #ffffff;
+    box-shadow                         : 0 0 0 2px rgba(26, 127, 196, 0.18);
+}
+
+.na-le-vcb--error .na-le-vcb__input {
+    border-color                       : #c0392b;
+    box-shadow                         : 0 0 0 2px rgba(192, 57, 43, 0.18);
+}
+
+.na-le-vcb__scale {
+    min-width                          : 3.4em;
+    padding                            : 2px 6px;
+    border-radius                      : 4px;
+    background                         : #eef5fb;
+    color                              : #1a7fc4;
+    font-weight                        : 600;
+    text-align                         : center;
+    white-space                        : nowrap;
+}
+
+.na-le-vcb__scale[hidden] {
+    display                            : none;
+}
+
+.na-le-vcb__scale--paper {
+    background                         : #f4f6f8;
+    color                              : #6c757d;
+}
+
+.na-le-vcb--idle .na-le-vcb__label,
+.na-le-vcb--idle .na-le-vcb__input {
+    opacity                            : 0.55;
+}
+
+/* The line above the box: how a value is being read as it is typed, or why
+   it could not be used. */
+
+.na-le-vcb__hint {
+    position                           : absolute;
+    right                              : 0;
+    bottom                             : calc(100% + 6px);
+    max-width                          : 340px;
+    padding                            : 4px 9px;
+    border-radius                      : 5px;
+    background                         : rgba(23, 43, 58, 0.9);
+    color                              : #ffffff;
+    font-size                          : 0.72rem;
+    line-height                        : 1.35;
+    white-space                        : nowrap;
+    pointer-events                     : none;
+}
+
+.na-le-vcb__hint[hidden] {
+    display                            : none;
+}
+
+.na-le-vcb__hint--error {
+    background                         : #b3261e;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Toolbar                                                */
+/* ----------------------------------------------------------------- */
+
+.na-le-toolbar {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 6px;
+    padding                            : 6px 10px;
+    background                         : #ffffff;
+    border-bottom                      : 1px solid rgba(23, 43, 58, 0.14);
+    overflow-x                         : auto;
+}
+
+.na-le-toolbar__name {
+    font-size                          : 0.82rem;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    max-width                          : 220px;
+}
+
+.na-le-toolbar__gap {
+    flex                               : 0 0 1px;
+    align-self                         : stretch;
+    margin                             : 0 4px;
+    background                         : rgba(23, 43, 58, 0.14);
+}
+
+.na-le-toolbar__btn {
+    padding                            : 4px 10px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    color                              : #172b3a;
+    font-size                          : 0.76rem;
+    cursor                             : pointer;
+    white-space                        : nowrap;
+}
+
+.na-le-toolbar__btn:hover:not(:disabled) {
+    background                         : #e8edf3;
+}
+
+.na-le-toolbar__btn:disabled {
+    opacity                            : 0.5;
+    cursor                             : default;
+}
+
+.na-le-toolbar__btn--active {
+    border-color                       : #1a7fc4;
+    color                              : #1a7fc4;
+    background                         : #eef5fb;
+}
+
+.na-le-toolbar__btn--attention {
+    border-color                       : #d99a1e;
+    background                         : #fff6e3;
+}
+
+.na-le-toolbar__label {
+    font-size                          : 0.74rem;
+    color                              : #6c757d;
+    white-space                        : nowrap;
+}
+
+/* The eyedropper's running commentary. It shrinks to an ellipsis rather than
+   pushing the rest of the toolbar off the end, and carries the full line in
+   its title attribute so nothing is actually lost on a narrow window.      */
+.na-le-toolbar__hint {
+    flex                               : 0 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+    padding                            : 3px 8px;
+    border-radius                      : 5px;
+    background                         : #f3eefd;
+    color                              : #5b21b6;
+    font-size                          : 0.74rem;
+}
+.na-le-toolbar__select {
+    padding                            : 3px 6px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    color                              : #172b3a;
+    font-size                          : 0.76rem;
+    cursor                             : pointer;
+}
+.na-le-toolbar__note {
+    margin-left                        : auto;
+    font-size                          : 0.74rem;
+    color                              : #6c757d;
+    white-space                        : nowrap;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Dev Menu Section                                       */
+/* ----------------------------------------------------------------- */
+
+.na-le-dev__sheets {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 4px;
+    margin                             : 6px 0;
+}
+
+.na-le-dev__sheet {
+    flex-wrap                          : wrap;
+}
+
+.na-le-dev__sheet--active .na-le-dev__sheet-name {
+    font-weight                        : 600;
+    color                              : #1a7fc4;
+}
+
+.na-le-dev__sheet-name {
+    flex                               : 1 1 100%;
+    min-width                          : 0;
+}
+
+/* endregion ------------------------------------------------------- */
+

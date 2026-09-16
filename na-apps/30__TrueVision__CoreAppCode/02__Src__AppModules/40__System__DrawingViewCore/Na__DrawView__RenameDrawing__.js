@@ -104,7 +104,7 @@
     // MODULE IMPORTS | The Name-Keyed Section Binding and the Sheet Viewports
     // ------------------------------------------------------------
     // @delegate: ../41__System__SectionCutEngine/Na__SectionCut__SceneData__.js
-    // @delegate: ../51__System__LayoutEditor/Na__LayoutEditor__Viewport3d__.js
+    // @delegate: ../51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__Viewport3d__.js
     // ------------------------------------------------------------
     import { Na__SectSceneData__RenameSceneKey } from '../41__System__SectionCutEngine/Na__SectionCut__SceneData__.js';
 
@@ -118,7 +118,7 @@
     async function Na__DrawRename__ResolveRestamp() {
         if (Na__DrawRename__RestampForScene !== null) return Na__DrawRename__RestampForScene;
         try {
-            const mod = await import('../51__System__LayoutEditor/Na__LayoutEditor__Viewport3d__.js');
+            const mod = await import('../51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__Viewport3d__.js');
             Na__DrawRename__RestampForScene = mod.Na__LeVp3d__RestampForScene || false;
         } catch (error) {
             Na__DrawRename__RestampForScene = false;                             // <-- No Layout Editor on this build

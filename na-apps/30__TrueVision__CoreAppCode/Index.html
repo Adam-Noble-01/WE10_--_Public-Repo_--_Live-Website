@@ -546,7 +546,7 @@
                         <!-- Controls generated dynamically by Na__ProjectedLinework__DevMenu__Controls__.js -->
                     </div>
                 </li>
-                <!-- @delegate: ./02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__DevMenu__Controls__.js -->
+                <!-- @delegate: ./02__Src__AppModules/51__System__LayoutEditor/70__DevTools__DevMenu/Na__LayoutEditor__DevMenu__Controls__.js -->
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naLayoutEditorDevItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naLayoutEditorDevToggle" aria-expanded="false">
                         Layout Editor
@@ -813,9 +813,9 @@
     import { Na__PlOverlay__Initialize } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__SvgOverlay__.js';
     import { Na__PlPipe__Initialize } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
     import { Na__ProjectedLinework__DevMenu__Initialize } from './02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__DevMenu__Controls__.js';
-    import { Na__LeMode__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__ModeController__.js';
-    import { Na__LeTabs__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__TabStrip__.js';
-    import { Na__LayoutEditor__DevMenu__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__DevMenu__Controls__.js';
+    import { Na__LeMode__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/05__Core__ModeController/Na__LayoutEditor__ModeController__.js';
+    import { Na__LeTabs__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/05__Core__ModeController/Na__LayoutEditor__TabStrip__.js';
+    import { Na__LayoutEditor__DevMenu__Initialize } from './02__Src__AppModules/51__System__LayoutEditor/70__DevTools__DevMenu/Na__LayoutEditor__DevMenu__Controls__.js';
     import { Na__FloorPlanMode__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__ModeController__.js';
     import { Na__FloorPlan__DevMenu__Initialize } from './02__Src__AppModules/42__System__FloorPlanViews/Na__FloorPlan__DevMenu__Editor__.js';
     import { Na__ElevationMode__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__ModeController__.js';
@@ -1004,7 +1004,7 @@
     Na__Renderer__Main.setSize(window.innerWidth, window.innerHeight);
     Na__Renderer__Main.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     Na__Renderer__Main.shadowMap.enabled = true;
-    Na__Renderer__Main.shadowMap.type = THREE.PCFSoftShadowMap;
+    Na__Renderer__Main.shadowMap.type = THREE.PCFShadowMap;    // <-- r184 deprecates PCFSoftShadowMap and already drew PCFShadowMap in its place
     Na__Renderer__Main.outputColorSpace = THREE.SRGBColorSpace;
     Na__Renderer__Main.toneMapping = THREE.NoToneMapping;
     Na__Renderer__Main.toneMappingExposure = 1.0;

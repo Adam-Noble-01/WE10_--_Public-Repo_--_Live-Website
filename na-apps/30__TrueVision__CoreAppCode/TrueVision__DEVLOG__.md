@@ -2,6 +2,94 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.55.0  -  15-Sep-2026
+### Layout Editor Sorted Into Numbered Subfolders, the Same as ValeVision
+
+**Overview**
+- From Adam (Task 04): the Layout Editor folder gets the structure ValeVision3D's got in its v2.47.0 the same day, so
+  a feature ported either way lands at the same path in both apps.
+- **Folder 51 is sorted into numbered subfolders.** Its files (90 before the splits below, 131 after) moved out of one
+  folder into fourteen, numbered the way `02__Src__AppModules` is: what the editor cannot start without first, then
+  its systems, then the panels, the features and the Dev tools, with gaps left between the numbers.
+
+| Folder | Holds |
+|---|---|
+| `03__Core__Config` | ConfigState and its units, the AppConfig and KeyMappings JSON |
+| `05__Core__ModeController` | ModeController, TabStrip |
+| `07__Core__SheetData` | SheetModel and its units, SheetRecords, SheetLayout, ScaleManager, DrawingScale, History, AutoSave, Assets |
+| `10__Core__SheetSurface` | SheetSurface, SheetChrome, TitleBlock__Classic, TitleBlock__Modern, Navigation, Controls__Pc, Controls__TouchScreen, Styles__Main and its Paper part |
+| `15__Core__Markup` | MarkupBridge, DimensionGeometry, LeaderGeometry, ShapeGeometry, Groups, MeasureParse |
+| `20__System__Viewports` | Viewport2d and its units, Viewport3d, Viewport3dZoom, ViewportHandles, ViewportClipboard, ViewportSnapMove, ForceRender, RasterQuality, ModelSource, PlanDoors |
+| `25__System__RenderStyles` | SnapshotRenderer, Enhance, EdgeStyles, RenderComposites, ModelLayers, and their config JSON |
+| `30__System__SheetTools` | SheetTools and its units, SelectionBox, SelectionSet, Grips, Snapping, AxisLock, ContextMenu, ItemClipboard, Eyedropper, Measurements |
+| `35__System__DrawingTools` | TextTool, DimensionTool, LeaderTool, ShapeTool, RectangleTool, GradientTool, LineStyleTool, and their config JSON |
+| `40__Ui__Panels` | PanelHost, Toolbar, the nine Panel__ modules, Styles__Panels |
+| `50__Feature__Specification` | SpecData and SpecEditor and their units, SpecDocument, SpecLinks, SpecMargin, MarginGrip, Panel__MarginNotes, Styles__Specification and its two parts |
+| `55__Feature__Scrapbook` | Scrapbook, its config JSON, Panel__Scrapbook |
+| `60__Feature__PdfExport` | PdfExporter, PdfFonts |
+| `70__DevTools__DevMenu` | DevMenu__Controls |
+
+- ValeVision numbers its Layout Editor loader `01__Core__Loader`. TrueVision has no loader yet, so that folder does not
+  exist here; it is where the loader goes if it is back-ported.
+- **Nothing is renamed.** Every file keeps its name, namespace and exports. 522 relative paths inside the folder moved
+  with the files, and three files outside it: Index.html, the CSS index and `Na__DrawView__RenameDrawing__`.
+- **Eight files over 1000 lines are split into units:** ValeVision's units, with the same functions in each, so a unit
+  ports file for file. Each original keeps its name and every export and re-exports its units, so no caller changed.
+
+| Original, lines before | Now | Units, lines | TrueVision's own code |
+|---|---|---|---|
+| `SheetTools` 1.29.0 (2138) | 586 | State 153, ToolState 352, HitResolution 372, ContentEditing 129, PointerPress 420, PointerDrag 568, Keyboard 381, ContextMenu 298 | DoorAt and CarryTarget in HitResolution |
+| `SheetModel` 1.25.0 (1801) | 700 | State 197, Sheets 347, Layers 196, DrawOrder 153, Viewports 327, TextAndDimensions 277, Shapes 192, Leaders 168, Groups 228 | Drawing type constants in State; IsSitePlanSheet, TabGroup, NextOrder and RenumberSheets in Sheets; IsSitePlanViewport in Viewports; AnnounceRestore stays in the original |
+| `ConfigState` 1.24.0 (1348) | 414 | Readers 143, KeyMap 416, SheetSetup 404, ToolSetup 317, EditorSetup 201 | GetPlanDoorsSetup, GetModelSourceSetup and PdfFontCuts in SheetSetup |
+| `SpecData` 1.2.0 (1318) | 290 | State 287, Document 398, Editing 395, Draft 196, Transport 509 | FetchJson and UsesWorker in Transport |
+| `SpecEditor` 1.2.0 (1230) | 322 | State 170, Builders 183, Bar 253, Notes 253, Render 256, NoteDrag 210, Actions 358 | none |
+| `Viewport2d` 1.10.0 (1141) | 499 | Window 143, Frame 273, Linework 395, SitePlan 319 | The eight site plan functions, in SitePlan: a unit ValeVision does not have |
+| `Styles__Specification.css` (1023) | 425 | Notes 352, Read 270 | none |
+| `Styles__Main.css` (1116) | 463 | Paper 667 | The tab strip and the Dev section stay in Main |
+
+**HOW**
+- **The splits.** Each module's code moved as whole titled blocks, copied by line number from the file as it was. The
+  only code lines that changed are writes to shared state from another file, which an imported binding cannot make;
+  they became accessor calls with ValeVision's names: SheetTools 17 (one more than ValeVision, for the doors drag,
+  through the existing WriteDrag), SheetModel 27, SpecData 48, SpecEditor 29, ConfigState and Viewport2d none.
+- **Where TrueVision differs.** SheetModel's original stays at 700 lines, over the 600 aim: its header alone is 322
+  lines, and AnnounceRestore needs SheetRecords, which the State unit does not import. Viewport2d's Linework also
+  exports BandPaths, for SitePlan. ConfigState's INTEGRATION note said Index.html calls SetAppConfig and Ready; the mode
+  controller's Initialize does, and the note now says so.
+- **The stylesheets,** region by region, text for text. Main keeps Published Heights, Tab Strip, Host Shell and Stage,
+  Measurements Box, Toolbar and Dev Menu Section; Paper takes the paper, frames, selection, snapping, context menu and
+  grips regions, as in ValeVision. The Dev section's rules now come before three paper regions, and share no class or
+  id with them, so no rule computes differently. The CSS index imports each part straight after the sheet it came
+  from.
+- **The move.** Plain file moves, not git mv, and nothing is staged: git shows the 90 files that were tracked in the
+  folder as deleted and all 131 in the subfolders as untracked. `git add` the folder before committing.
+
+**Also**
+- **Index.html asks for `PCFShadowMap`.** It asked for `PCFSoftShadowMap`, which three r184 deprecates: it drew
+  `PCFShadowMap` in its place and warned in the console on every load. Shadows are unchanged. Seen in ValeVision's
+  console; ValeVision3D v2.47.1 makes the same change.
+
+**Verified**
+- Every split: each declaration found exactly once across its files, its text unchanged apart from the accessor writes
+  above, and every export kept.
+- Lint (no-undef, no-import-assign, no-unused-vars) over the 117 modules: 0 errors and the one warning the folder
+  already had; identical before and after the move.
+- Named exports pass (319 files). Module graph: 407 modules, 0 failures, the one known vendor issue unchanged.
+- Every `new URL` config target, every CSS index import (in the original cascade order) and RenameDrawing's dynamic
+  import resolve. The import cycle groups are the two there were before: SheetChrome with the title blocks, and Grips
+  with SheetSurface.
+- **Not run in a browser.** Adam tests.
+
+**Files**
+- `02__Src__AppModules/51__System__LayoutEditor/`: all 131 files in 14 subfolders, 41 of them new (the units above and
+  the three stylesheet parts); new log entries in SheetTools 1.29.0, SheetModel 1.25.0, ConfigState 1.24.0, SpecData
+  1.2.0, SpecEditor 1.2.0 and Viewport2d 1.10.0.
+- Paths: `Index.html` (and the shadow map line), `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` (and the
+  three new imports), `40__System__DrawingViewCore/Na__DrawView__RenameDrawing__.js`.
+- Service worker: token `2026-09-15-1`.
+- Plans: `TrueVision__PLAN__ValeVisionRealign__DrawingSystems__.md` ledger AN and AO.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.54.0  -  14-Sep-2026
 ### Margin Notes Spread Out When the Column Has Room
 

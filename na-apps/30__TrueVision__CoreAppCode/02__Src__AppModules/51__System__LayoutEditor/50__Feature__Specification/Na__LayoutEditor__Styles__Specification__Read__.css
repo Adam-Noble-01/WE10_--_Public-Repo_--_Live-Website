@@ -1,0 +1,270 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (specification read)*/
+/* ================================================================= */
+/*
+ * PORT NOTE:
+ * - Ported from : split out of Na__LayoutEditor__Styles__Specification__.css (15-Sep-2026, TrueVision3D v2.55.0), rules moved verbatim
+ * - Parity      : the split ValeVision3D made in v2.47.0; ValeVision's copy holds the same regions
+ * - Loads       : imported by Na__CoreUi__Styles__Index__.css straight after Styles__Specification__Notes, so the cascade order is unchanged
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Read: the Document                                     */
+/* ----------------------------------------------------------------- */
+
+/* AN A4 PAGE, in millimetres and points so the screen and the paper agree.
+   The font and the ink are the drawings' (Style FontFamily, InkColour, set
+   on the desk in code). Blocks are measured as they are laid into the body;
+   the one that crosses its foot starts the next page. */
+.na-le-spec-sheet {
+    --na-spec-code-col                 : 17mm;
+    position                           : relative;
+    display                            : flex;
+    flex                               : 0 0 auto;
+    flex-direction                     : column;
+    width                              : 210mm;
+    height                             : 297mm;
+    padding                            : 13mm 18mm 10mm;
+    overflow                           : hidden;
+    background                         : #ffffff;
+    color                              : var(--na-spec-ink, #172b3a);
+    font-family                        : var(--na-spec-font, Helvetica, Arial, sans-serif);
+    font-size                          : 9.5pt;
+    font-weight                        : 400;
+    line-height                        : 1.42;
+    text-align                         : left;
+    user-select                        : text;
+    -webkit-user-select                : text;
+    -webkit-print-color-adjust         : exact;
+    print-color-adjust                 : exact;
+}
+
+/* PAGE FURNITURE - the running head, the company, the page number - is
+   painted from an attribute: printed, never read aloud page after page. */
+[data-na-spec-paint]::before {
+    content                            : attr(data-na-spec-paint);
+}
+
+.na-le-spec-sheet__head {
+    display                            : flex;
+    flex                               : 0 0 11mm;
+    align-items                        : flex-end;
+    gap                                : 6mm;
+    margin-bottom                      : 7mm;
+    padding-bottom                     : 2.4mm;
+    border-bottom                      : 0.3mm solid var(--na-spec-rule, #8a949c);
+}
+
+.na-le-spec-sheet__logo {
+    display                            : block;
+    flex                               : 0 0 auto;
+    width                              : auto;
+    height                             : 6.2mm;
+}
+
+.na-le-spec-sheet__running {
+    min-width                          : 0;
+    margin-left                        : auto;
+    overflow                           : hidden;
+    color                              : var(--na-spec-muted, #6c757d);
+    font-size                          : 6.8pt;
+    line-height                        : 1.2;
+    letter-spacing                     : 0.09em;
+    text-overflow                      : ellipsis;
+    text-transform                     : uppercase;
+    white-space                        : nowrap;
+}
+
+.na-le-spec-sheet__body {
+    position                           : relative;
+    flex                               : 1 1 auto;
+    min-height                         : 0;
+    overflow                           : hidden;
+}
+
+.na-le-spec-sheet__foot {
+    display                            : flex;
+    flex                               : 0 0 7mm;
+    align-items                        : center;
+    justify-content                    : space-between;
+    gap                                : 6mm;
+    margin-top                         : 5mm;
+    padding-top                        : 1.2mm;
+    border-top                         : 0.2mm solid #cfd6dc;
+    color                              : var(--na-spec-muted, #6c757d);
+    font-size                          : 6.8pt;
+    line-height                        : 1.2;
+    white-space                        : nowrap;
+}
+
+.na-le-spec-sheet__number {
+    font-variant-numeric               : tabular-nums;
+}
+
+/* THE TITLE on the first page: the document and the project, then its code,
+   the date and what it holds between two rules. */
+.na-le-spec-doc__title {
+    margin-bottom                      : 9mm;
+}
+
+.na-le-spec-doc__heading {
+    font-size                          : 21pt;
+    font-weight                        : 700;
+    line-height                        : 1.15;
+    letter-spacing                     : -0.01em;
+}
+
+.na-le-spec-doc__project {
+    margin-top                         : 1.6mm;
+    font-size                          : 12.5pt;
+    line-height                        : 1.3;
+}
+
+.na-le-spec-doc__meta {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    gap                                : 2mm 13mm;
+    margin-top                         : 6mm;
+    padding                            : 2.8mm 0 2.6mm;
+    border-top                         : 0.35mm solid var(--na-spec-ink, #172b3a);
+    border-bottom                      : 0.2mm solid #cfd6dc;
+}
+
+.na-le-spec-doc__meta dt {
+    color                              : var(--na-spec-muted, #6c757d);
+    font-size                          : 6.4pt;
+    line-height                        : 1.3;
+    letter-spacing                     : 0.09em;
+    text-transform                     : uppercase;
+}
+
+.na-le-spec-doc__meta dd {
+    margin-top                         : 0.7mm;
+    font-size                          : 9.5pt;
+    line-height                        : 1.3;
+}
+
+/* A GROUP: its prefix in the code column and its title, over a rule. */
+.na-le-spec-doc__group {
+    display                            : flex;
+    align-items                        : baseline;
+    margin-top                         : 8.5mm;
+    margin-bottom                      : 3.2mm;
+    padding-bottom                     : 1.5mm;
+    border-bottom                      : 0.35mm solid var(--na-spec-ink, #172b3a);
+    font-size                          : 10.5pt;
+    font-weight                        : 700;
+    line-height                        : 1.25;
+    letter-spacing                     : 0.06em;
+    text-transform                     : uppercase;
+}
+
+.na-le-spec-doc__group-prefix {
+    flex                               : 0 0 var(--na-spec-code-col);
+}
+
+.na-le-spec-doc__group-title {
+    min-width                          : 0;
+}
+
+.na-le-spec-doc__caption {
+    margin                             : -1.2mm 0 2.8mm var(--na-spec-code-col);
+    color                              : var(--na-spec-muted, #6c757d);
+    font-size                          : 8pt;
+    font-style                         : italic;
+    line-height                        : 1.35;
+}
+
+/* A NOTE: its code hanging in the code column, its title beside it and its
+   text under the title. */
+.na-le-spec-doc__note {
+    display                            : grid;
+    grid-template-columns              : var(--na-spec-code-col) minmax(0, 1fr);
+    margin-top                         : 3.6mm;
+    font-size                          : 9.5pt;
+    font-weight                        : 700;
+    line-height                        : 1.35;
+}
+
+.na-le-spec-doc__code {
+    letter-spacing                     : 0.03em;
+    font-variant-numeric               : tabular-nums;
+}
+
+.na-le-spec-doc__text {
+    margin-top                         : 0.8mm;
+    margin-left                        : var(--na-spec-code-col);
+}
+
+.na-le-spec-doc__text.is-spaced {
+    margin-top                         : 2.4mm;
+}
+
+.na-le-spec-doc__empty {
+    margin-left                        : var(--na-spec-code-col);
+    color                              : var(--na-spec-muted, #6c757d);
+    font-style                         : italic;
+}
+
+.na-le-spec-doc__message {
+    color                              : var(--na-spec-muted, #6c757d);
+    font-style                         : italic;
+}
+
+/* NOTHING OPENS A PAGE WITH A GAP, and a note straight under its group's
+   heading sits against it. */
+.na-le-spec-sheet__body > :first-child,
+.na-le-spec-doc__group + .na-le-spec-doc__note,
+.na-le-spec-doc__caption + .na-le-spec-doc__note {
+    margin-top                         : 0;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Print                                                  */
+/* ----------------------------------------------------------------- */
+
+/* THE PAPER PAGES are laid out in a container of their own while a print is
+   made (Na__LayoutEditor__SpecDocument__). On screen it sits out of sight;
+   on paper it is all there is, one page to a sheet of A4. The paper size
+   and the zero margins are a rule added to the document only while printing. */
+.na-le-spec-print {
+    position                           : fixed;
+    top                                : 0;
+    left                               : 0;
+    z-index                            : -1;
+    visibility                         : hidden;
+    pointer-events                     : none;
+}
+
+@media print {
+    html.na-le-spec-printing,
+    html.na-le-spec-printing body {
+        width                              : auto !important;
+        height                             : auto !important;
+        overflow                           : visible !important;
+        background                         : #ffffff !important;
+    }
+
+    html.na-le-spec-printing body > :not(.na-le-spec-print) {
+        display                            : none !important;
+    }
+
+    html.na-le-spec-printing .na-le-spec-print {
+        position                           : static;
+        visibility                         : visible;
+    }
+
+    .na-le-spec-print > .na-le-spec-sheet {
+        break-after                        : page;
+    }
+
+    .na-le-spec-print > .na-le-spec-sheet:last-child {
+        break-after                        : auto;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

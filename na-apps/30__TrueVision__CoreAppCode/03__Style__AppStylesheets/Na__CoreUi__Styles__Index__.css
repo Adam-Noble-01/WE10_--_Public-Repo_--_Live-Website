@@ -143,7 +143,10 @@
 /* ----------------------------------------------------------------- */
 /* REGION  |  Layout Editor - Stage, Paper, Panels                    */
 /* ----------------------------------------------------------------- */
-@import url('../02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__Styles__Main__.css');
-@import url('../02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__Styles__Panels__.css');
-@import url('../02__Src__AppModules/51__System__LayoutEditor/Na__LayoutEditor__Styles__Specification__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__Paper__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/40__Ui__Panels/Na__LayoutEditor__Styles__Panels__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__Notes__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__Read__.css');
 /* endregion -------------------------------------------------------- */
