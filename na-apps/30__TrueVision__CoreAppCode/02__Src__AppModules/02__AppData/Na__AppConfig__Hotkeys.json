@@ -1,31 +1,189 @@
 {
-    "Na__Hotkeys__Description" : "Global view-mode hotkeys for TrueVision3D. Single source of truth for all hotkey bindings. Changes here automatically propagate to the hotkey manager, toolbar tooltips, navigation help panel, and user instructions overlay.",
+    "Na__Hotkeys__Description" : "Global hotkeys for TrueVision3D. Single source of truth for all hotkey bindings, read by Na__Hotkeys__Manager.js. Changes here automatically propagate to the hotkey dispatcher, toolbar tooltips, navigation help panel, and user instructions overlay.",
 
-    "Na__Hotkeys__ViewModes" : {
+    "Na__TrueVision__HotkeysDictionary" : [
 
-        "Na__Hotkeys__ViewMode__Description"            : "Number keys 0-3. No modifier keys required. Keys are ignored when an input field has focus or when Ctrl/Meta/Alt is held.",
+        {
+            "Na__Hotkey__Id"          : "navmode_reset_view",
+            "Na__Hotkey__Key"         : "R",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : false,
+            "Na__Hotkey__Action"      : "TrueVision__NavMode__ResetView",
+            "Na__Hotkey__Description" : "Reset camera to project start position"
+        },
 
-        "Na__Hotkeys__ViewMode__OrbitMode"              : "1",
-        "Na__Hotkeys__ViewMode__WalkMode"               : "2",
-        "Na__Hotkeys__ViewMode__FlyMode"                : "3",
-        "Na__Hotkeys__Action__ResetView"                : "0"
+        {
+            "Na__Hotkey__Id"          : "navmode_set_orbit",
+            "Na__Hotkey__Key"         : "B",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : false,
+            "Na__Hotkey__Action"      : "TrueVision__NavMode__SetOrbitMode",
+            "Na__Hotkey__Description" : "Switch to orbit navigation mode"
+        },
 
-    },
+        {
+            "Na__Hotkey__Id"          : "navmode_set_walk",
+            "Na__Hotkey__Key"         : "T",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : false,
+            "Na__Hotkey__Action"      : "TrueVision__NavMode__SetWalkMode",
+            "Na__Hotkey__Description" : "Switch to walk (travel) navigation mode"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "navmode_set_fly",
+            "Na__Hotkey__Key"         : "Y",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : false,
+            "Na__Hotkey__Action"      : "TrueVision__NavMode__SetFlyMode",
+            "Na__Hotkey__Description" : "Switch to fly navigation mode"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_next_scene",
+            "Na__Hotkey__Key"         : "PageUp",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : false,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__NextScene",
+            "Na__Hotkey__Description" : "Cycle to the next scene in the presentation scenes list"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_prev_scene",
+            "Na__Hotkey__Key"         : "PageDown",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : false,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__PrevScene",
+            "Na__Hotkey__Description" : "Cycle to the previous scene in the presentation scenes list"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_1",
+            "Na__Hotkey__Key"         : "1",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : false,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene1",
+            "Na__Hotkey__Description" : "Jump to the scene at this position in the current scene group (keys 1-9 match the visible thumbnail order)"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_2",
+            "Na__Hotkey__Key"         : "2",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene2",
+            "Na__Hotkey__Description" : "Jump to scene 2 in the current scene group"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_3",
+            "Na__Hotkey__Key"         : "3",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene3",
+            "Na__Hotkey__Description" : "Jump to scene 3 in the current scene group"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_4",
+            "Na__Hotkey__Key"         : "4",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene4",
+            "Na__Hotkey__Description" : "Jump to scene 4 in the current scene group"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_5",
+            "Na__Hotkey__Key"         : "5",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene5",
+            "Na__Hotkey__Description" : "Jump to scene 5 in the current scene group"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_6",
+            "Na__Hotkey__Key"         : "6",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene6",
+            "Na__Hotkey__Description" : "Jump to scene 6 in the current scene group"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_7",
+            "Na__Hotkey__Key"         : "7",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene7",
+            "Na__Hotkey__Description" : "Jump to scene 7 in the current scene group"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_8",
+            "Na__Hotkey__Key"         : "8",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene8",
+            "Na__Hotkey__Description" : "Jump to scene 8 in the current scene group"
+        },
+
+        {
+            "Na__Hotkey__Id"          : "presentation_goto_scene_9",
+            "Na__Hotkey__Key"         : "9",
+            "Na__Hotkey__AltKey"      : false,
+            "Na__Hotkey__ShiftKey"    : false,
+            "Na__Hotkey__CtrlKey"     : false,
+            "Na__Hotkey__Advanced"    : true,
+            "Na__Hotkey__Action"      : "TrueVision__PresentationMode__GoToScene9",
+            "Na__Hotkey__Description" : "Jump to scene 9 in the current scene group"
+        }
+
+    ],
 
     "Na__Hotkeys__Display__Labels" : {
 
         "Na__Hotkeys__Display__Labels__Description" : "Human-readable action names used in help panels, tooltips, and the user instructions overlay.",
 
-        "switchToOrbit"        : "Switch to Orbit mode",
-        "switchToWalk"         : "Switch to Walk mode",
-        "switchToFly"          : "Switch to Fly mode",
-        "resetView"            : "Reset View"
+        "TrueVision__NavMode__SetOrbitMode"              : "Switch to Orbit mode",
+        "TrueVision__NavMode__SetWalkMode"               : "Switch to Walk mode",
+        "TrueVision__NavMode__SetFlyMode"                : "Switch to Fly mode",
+        "TrueVision__NavMode__ResetView"                 : "Reset View"
 
     },
 
     "Na__Hotkeys__Movement__Reference" : {
 
-        "Na__Hotkeys__Movement__Reference__Description" : "Movement keys used within each navigation mode. Managed by the individual mode modules (Na__DefaultNavmode__MouseControls, Na__Navmode__WalkMode__DesktopControls, Na__Navmode__FlyMode__DesktopControls). Listed here for documentation only.",
+        "Na__Hotkeys__Movement__Reference__Description" : "Movement keys used within each navigation mode. Managed by the individual mode modules (Na__DefaultNavmode__MouseControls, Na__Navmode__WalkMode__DesktopControls, Na__Navmode__FlyMode__DesktopControls). Listed here for documentation only. Note: PageUp/PageDown ascend/descend only while Fly mode is active - the global PageUp/PageDown scene-cycle hotkey above is disabled while flying, so the two never collide.",
 
         "Na__Hotkeys__Movement__Orbit__Forward"         : "W / ArrowUp",
         "Na__Hotkeys__Movement__Orbit__Backward"        : "S / ArrowDown",

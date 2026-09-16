@@ -30,7 +30,7 @@
         padding                            : 10px 12px;
         box-shadow                         : 0 4px 24px rgba(0, 0, 0, 0.14);
         max-width                          : calc(100vw - 40px);
-        z-index                            : 1000;
+        z-index                            : 1004;              /* <-- Above nav toolbar (1002), header (1001) and help panel (1003) so the active card's blue ring is never clipped by other menu chrome */
         backdrop-filter                    : blur(8px);
         -webkit-backdrop-filter            : blur(8px);
     }
@@ -47,6 +47,8 @@
  * ----- */
 
     .na-pm-carousel__nav {
+        position                           : relative;       /* establishes stacking order vs the cards wrapper below */
+        z-index                            : 1;
         flex-shrink                        : 0;
         background                         : transparent;
         border                             : none;
@@ -72,6 +74,8 @@
  * ----- */
 
     .na-pm-carousel__cards {
+        position                           : relative;       /* above the nav buttons so the active card's ring is never clipped by them */
+        z-index                            : 2;
         display                            : flex;
         gap                                : 8px;
         overflow-x                         : auto;
@@ -120,6 +124,28 @@
 
     .na-pm-carousel__card--active:hover {
         border-color                       : #1a7fc4;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Card Pop Feedback (click / touch / number-key hotkey)
+ * ----- */
+
+    /* Plays once whenever a card becomes the active scene, whatever triggered
+       it — a click, a tap, or a number-key hotkey (see SetActiveScene in
+       SceneCarousel.js, which adds and removes this class). A quick scale-up
+       and settle so the choice reads as "landed" even when nothing else on
+       screen moves yet (the camera flight takes a beat to catch up).        */
+    @keyframes na-pm-carousel-card-pop {
+        0%   { transform: scale(1);    }
+        45%  { transform: scale(1.06); }
+        100% { transform: scale(1);    }
+    }
+
+    .na-pm-carousel__card--pop {
+        animation                          : na-pm-carousel-card-pop 0.32s ease-out;
     }
 
 /* endregion ---- */

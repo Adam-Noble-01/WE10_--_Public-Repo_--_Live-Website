@@ -6,20 +6,27 @@
 // NAMESPACE  : Na__Hotkeys
 // MODULE     : HotkeysManager
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Central hotkey manager — reads config, dispatches actions, and
-//              propagates key labels to toolbar tooltips and help panels
+// PURPOSE    : Central hotkey manager — reads the config dictionary, dispatches
+//              actions, and propagates key labels to toolbar tooltips and help
+//              panels
 // CREATED    : 22-Jun-2026
 //
 // DESCRIPTION:
-// - Registers a single window keydown listener for all global view-mode
-//   hotkeys. Keys and actions are both driven entirely from the config JSON
+// - Registers a single window keydown listener for all global hotkeys. Keys
+//   and actions are both driven entirely from the config JSON
 //   (Na__AppConfig__Hotkeys.json) — no key values are hardcoded here.
+// - Config schema: an ARRAY of binding objects under
+//   Na__TrueVision__HotkeysDictionary, each naming a key, its modifiers, the
+//   action string to dispatch, and a description. This is the same schema
+//   ValeVision3D's hotkey dictionary uses, so any action (not just the four
+//   original view-mode switches) can be added by editing the JSON alone.
 // - Supersedes the individual Na__UiFeature__InitializeWalkModeHotkey and
 //   Na__UiFeature__InitializeFlyModeHotkey functions which are now no-ops.
-// - Guards against misfires in input fields and when Ctrl/Meta/Alt are held.
+// - Guards against misfires in input fields.
 // - Na__Hotkeys__ApplyUiLabels reads the same config and propagates key labels
-//   to all user-facing surfaces: toolbar button title attributes, navigation
-//   help panel hotkey rows, and the user instructions overlay list.
+//   to all user-facing surfaces: toolbar button title attributes, the static
+//   navigation help panel rows ([data-na-hotkey-row], Index.html), and the
+//   dynamically-generated user instructions overlay list (naInstructionsViewModeList).
 // - Call Na__Hotkeys__Initialize(actionMap, config) once after scene init.
 // - Call Na__Hotkeys__ApplyUiLabels(config) once after scene init to update
 //   static DOM, then again via callback after user instructions content loads.
@@ -33,6 +40,19 @@
 // - Initial Release. Supersedes individual hotkey listeners in
 //   Na__UiFeature__WalkModeEventListeners and Na__UiFeature__FlyModeEventListeners.
 //
+// 16-Sep-2026 - Version 2.0.0
+// - Replaced the fixed 4-action switcher (Na__Hotkeys__ACTION_IDS / view-mode-only
+//   config path) with a generic array-driven dispatcher ported from ValeVision3D's
+//   Na__AppUtils__ValeVision__HotkeyHandler__.js, so any action can be bound from
+//   the JSON dictionary alone. Added for Presentation Mode scene-cycle (PageUp /
+//   PageDown) and number-key scene-jump (1-9) hotkeys, and the Walk/Fly remap to
+//   T (Travel) / Y (Fly) that freed the number keys for scene jumps.
+// - Na__Hotkeys__GetKeyLabel is now looked up by full action string rather than
+//   the old short actionId, since the config no longer nests view-mode keys under
+//   Na__Hotkeys__ViewModes. Toolbar button title propagation and the
+//   [data-na-hotkey-row] / [data-na-hotkey-item] surfaces still work exactly as
+//   before, just keyed by the new action strings.
+//
 // =============================================================================
 
 
@@ -40,27 +60,13 @@
 // REGION | Constants
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | Config Key Path Helpers
+    // MODULE CONSTANTS | Action → Toolbar Button DOM Element ID
     // ------------------------------------------------------------
-    const Na__Hotkeys__ACTION_IDS = [                                          // <-- All action identifiers managed by this module
-        'switchToOrbit',
-        'switchToWalk',
-        'switchToFly',
-        'resetView'
-    ];
-
-    const Na__Hotkeys__CONFIG_KEY_MAP = {                                      // <-- Action ID → config JSON path within Na__Hotkeys__ViewModes
-        switchToOrbit          : 'Na__Hotkeys__ViewMode__OrbitMode',
-        switchToWalk           : 'Na__Hotkeys__ViewMode__WalkMode',
-        switchToFly            : 'Na__Hotkeys__ViewMode__FlyMode',
-        resetView              : 'Na__Hotkeys__Action__ResetView'
-    };
-
-    const Na__Hotkeys__TOOLBAR_BUTTON_MAP = {                                  // <-- Action ID → toolbar button DOM element ID
-        switchToOrbit          : 'naNavToolbarOrbitBtn',
-        switchToWalk           : 'naNavToolbarWalkBtn',
-        switchToFly            : 'naNavToolbarFlyBtn',
-        resetView              : 'naNavToolbarResetBtn'
+    const Na__Hotkeys__TOOLBAR_BUTTON_MAP = {                                  // <-- Action string → toolbar button DOM element ID
+        'TrueVision__NavMode__SetOrbitMode' : 'naNavToolbarOrbitBtn',
+        'TrueVision__NavMode__SetWalkMode'  : 'naNavToolbarWalkBtn',
+        'TrueVision__NavMode__SetFlyMode'   : 'naNavToolbarFlyBtn',
+        'TrueVision__NavMode__ResetView'    : 'naNavToolbarResetBtn'
     };
     // ------------------------------------------------------------
 
@@ -68,15 +74,72 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Key Lookup Helper
+// REGION | Module State
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Get Key String for an Action from Config
+    // MODULE VARIABLES | Handler State
     // ------------------------------------------------------------
-    function Na__Hotkeys__GetKeyLabel(actionId, config) {
-        const modes = (config && config.Na__Hotkeys__ViewModes) || {};         // <-- Read from config SSOT
-        const configKey = Na__Hotkeys__CONFIG_KEY_MAP[actionId];
-        return (configKey && modes[configKey]) ? String(modes[configKey]) : '';
+    let Na__Hotkeys__Bindings        = [];    // <-- Loaded bindings from config dictionary
+    let Na__Hotkeys__ActionCallbacks = {};    // <-- Map of action string to callback function
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Matching and Dispatch
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Check if Focus is on an Interactive Input Element
+    // ------------------------------------------------------------
+    function Na__Hotkeys__IsInputFocused() {
+        const tag = document.activeElement && document.activeElement.tagName.toLowerCase(); // <-- Get focused element tag
+        return tag === 'input' || tag === 'textarea' || tag === 'select';                    // <-- True if typing context is active
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Match Keyboard Event Against a Single Binding
+    // ------------------------------------------------------------
+    function Na__Hotkeys__MatchesBinding(event, binding) {
+        const bindingKey = binding.Na__Hotkey__Key || '';
+        const eventKey   = event.key || '';
+        const keyMatch   = (bindingKey.length === 1 && eventKey.length === 1)
+            ? eventKey.toLowerCase() === bindingKey.toLowerCase()            // <-- Letter/digit keys: match regardless of Shift/Caps
+            : eventKey === bindingKey;                                       // <-- Named keys: exact match (PageUp, PageDown, …)
+        const altMatch   = !!event.altKey   === !!binding.Na__Hotkey__AltKey;   // <-- Alt modifier match
+        const ctrlMatch  = !!event.ctrlKey  === !!binding.Na__Hotkey__CtrlKey;  // <-- Ctrl modifier match
+        const shiftMatch = !!event.shiftKey === !!binding.Na__Hotkey__ShiftKey; // <-- Shift modifier match
+        return keyMatch && altMatch && ctrlMatch && shiftMatch;              // <-- All four conditions must pass
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Dispatch Action to Registered Callback
+    // ------------------------------------------------------------
+    function Na__Hotkeys__DispatchAction(action) {
+        const callback = Na__Hotkeys__ActionCallbacks[action];               // <-- Look up registered callback
+        if (typeof callback === 'function') {
+            callback();                                                      // <-- Invoke callback if registered
+        } else {
+            console.warn(`[TrueVision3D] HotkeysManager: No callback for action "${action}"`); // <-- Warn on unhandled action
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Handle Window Keydown Event
+    // ------------------------------------------------------------
+    function Na__Hotkeys__HandleKeyDown(event) {
+        if (Na__Hotkeys__IsInputFocused()) return;                           // <-- Skip when typing in input fields
+
+        for (const binding of Na__Hotkeys__Bindings) {
+            if (Na__Hotkeys__MatchesBinding(event, binding)) {
+                event.preventDefault();                                      // <-- Prevent default browser behaviour
+                Na__Hotkeys__DispatchAction(binding.Na__Hotkey__Action);      // <-- Dispatch to registered callback
+                break;                                                       // <-- Stop on first match
+            }
+        }
     }
     // ------------------------------------------------------------
 
@@ -90,32 +153,49 @@
     // FUNCTION | Initialize Global Hotkey Listener
     // ------------------------------------------------------------
     function Na__Hotkeys__Initialize(actionMap, config) {
-        const modes = (config && config.Na__Hotkeys__ViewModes) || {};
+        Na__Hotkeys__ActionCallbacks = actionMap || {};                      // <-- Store provided action callbacks
+        Na__Hotkeys__Bindings        = (config && config.Na__TrueVision__HotkeysDictionary) || []; // <-- Read bindings array
 
-        const keyToAction = {};                                                // <-- Reverse-lookup: key string → action ID
-        Na__Hotkeys__ACTION_IDS.forEach((actionId) => {
-            const configKey = Na__Hotkeys__CONFIG_KEY_MAP[actionId];
-            const keyValue  = configKey ? modes[configKey] : null;
-            if (keyValue) keyToAction[String(keyValue)] = actionId;
-        });
+        window.addEventListener('keydown', Na__Hotkeys__HandleKeyDown);      // <-- Attach global keydown listener
+        console.log(`[TrueVision3D] HotkeysManager: ${Na__Hotkeys__Bindings.length} bindings loaded.`); // <-- Confirm load
+    }
+    // ------------------------------------------------------------
 
-        window.addEventListener('keydown', (event) => {
-            const tag = (event.target && event.target.tagName)
-                ? event.target.tagName.toUpperCase()
-                : '';
+// endregion -------------------------------------------------------------------
 
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return; // <-- Skip when typing in a field
-            if (event.ctrlKey || event.metaKey || event.altKey) return;            // <-- Skip when modifier keys are held
 
-            const actionId = keyToAction[event.key];
-            if (!actionId) return;
+// -----------------------------------------------------------------------------
+// REGION | Key Lookup Helper
+// -----------------------------------------------------------------------------
 
-            const handler = actionMap[actionId];
-            if (typeof handler === 'function') {
-                event.preventDefault();                                        // <-- Prevent default browser digit key actions
-                handler();
-            }
-        });
+    // HELPER FUNCTION | Format a Key Binding Object Into a Display Label
+    // ------------------------------------------------------------
+    function Na__Hotkeys__FormatKeyLabel(binding) {
+        const parts = [];
+        if (binding.Na__Hotkey__CtrlKey)  parts.push('Ctrl');    // <-- Ctrl modifier
+        if (binding.Na__Hotkey__AltKey)   parts.push('Alt');     // <-- Alt modifier
+        if (binding.Na__Hotkey__ShiftKey) parts.push('Shift');   // <-- Shift modifier
+
+        const keyName = (binding.Na__Hotkey__Key || '')
+            .replace('PageUp',   'Page Up')                      // <-- Pretty-print browser key names
+            .replace('PageDown', 'Page Down')
+            .replace('ArrowUp',    '↑')
+            .replace('ArrowDown',  '↓')
+            .replace('ArrowLeft',  '←')
+            .replace('ArrowRight', '→');
+
+        parts.push(keyName);
+        return parts.join(' + ');                                 // <-- e.g. "Alt + Shift + W" or "Page Up"
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Get Key Label for an Action from Config
+    // ------------------------------------------------------------
+    function Na__Hotkeys__GetKeyLabel(action, config) {
+        const bindings = (config && config.Na__TrueVision__HotkeysDictionary) || []; // <-- Read from config SSOT
+        const binding  = bindings.find(b => b.Na__Hotkey__Action === action);
+        return binding ? Na__Hotkeys__FormatKeyLabel(binding) : '';
     }
     // ------------------------------------------------------------
 
@@ -153,15 +233,53 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Rebuild the User Instructions Overlay's Global Hotkeys List
+    // ------------------------------------------------------------
+    // Generic loop over every non-advanced binding in the dictionary, so a
+    // future hotkey added to the JSON alone shows up here with no HTML edit -
+    // the same pattern ValeVision3D's Navigation Help Panel already uses.
+    // Advanced entries (the individual scene 2-9 number keys) are left out of
+    // this list; scene 1's own row already tells the viewer 1-9 all work.
+    // ------------------------------------------------------------
+    function Na__Hotkeys__PopulateInstructionsList(config) {
+        const container = document.getElementById('naInstructionsViewModeList');
+        if (!container) return;
+
+        const bindings = (config && config.Na__TrueVision__HotkeysDictionary) || [];
+        const labels   = (config && config.Na__Hotkeys__Display__Labels) || {};
+        const standard = bindings.filter(b => b.Na__Hotkey__Advanced !== true);
+
+        container.innerHTML = '';                                             // <-- Clear the static placeholder rows
+
+        standard.forEach((binding) => {
+            const li      = document.createElement('li');
+            const keySpan = document.createElement('span');
+            const descSpan = document.createElement('span');
+
+            li.className       = 'na-instructions-item';
+            keySpan.className  = 'na-instructions-item__key';
+            descSpan.className = 'na-instructions-item__desc';
+
+            keySpan.textContent  = Na__Hotkeys__FormatKeyLabel(binding);
+            descSpan.textContent = labels[binding.Na__Hotkey__Action] || binding.Na__Hotkey__Description;
+
+            li.appendChild(keySpan);
+            li.appendChild(descSpan);
+            container.appendChild(li);
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Apply Key Labels to All User-Facing UI Surfaces
     // ------------------------------------------------------------
     function Na__Hotkeys__ApplyUiLabels(config) {
 
         // TOOLBAR BUTTON TOOLTIPS
         // ------------------------------------------------------------
-        Na__Hotkeys__ACTION_IDS.forEach((actionId) => {
-            const keyLabel  = Na__Hotkeys__GetKeyLabel(actionId, config);
-            const buttonId  = Na__Hotkeys__TOOLBAR_BUTTON_MAP[actionId];
+        Object.keys(Na__Hotkeys__TOOLBAR_BUTTON_MAP).forEach((action) => {
+            const keyLabel = Na__Hotkeys__GetKeyLabel(action, config);
+            const buttonId = Na__Hotkeys__TOOLBAR_BUTTON_MAP[action];
             if (buttonId) Na__Hotkeys__SetToolbarButtonTitle(buttonId, keyLabel);
         });
         // ------------------------------------------------------------
@@ -170,25 +288,15 @@
         // ------------------------------------------------------------
         const helpRows = document.querySelectorAll('[data-na-hotkey-row]');
         helpRows.forEach((row) => {
-            const actionId = row.getAttribute('data-na-hotkey-row');
-            const keyLabel = Na__Hotkeys__GetKeyLabel(actionId, config);
+            const action    = row.getAttribute('data-na-hotkey-row');
+            const keyLabel  = Na__Hotkeys__GetKeyLabel(action, config);
             Na__Hotkeys__PopulateHotkeyRow(row, keyLabel);
         });
         // ------------------------------------------------------------
 
-        // USER INSTRUCTIONS OVERLAY (data-na-hotkey-item, dynamically injected)
+        // USER INSTRUCTIONS OVERLAY (dynamically generated list)
         // ------------------------------------------------------------
-        const instrItems = document.querySelectorAll('[data-na-hotkey-item]');
-        instrItems.forEach((item) => {
-            const actionId    = item.getAttribute('data-na-hotkey-item');
-            const keyLabel    = Na__Hotkeys__GetKeyLabel(actionId, config);
-            const labels      = (config && config.Na__Hotkeys__Display__Labels) || {};
-            const description = labels[actionId] || actionId;
-            const keySpan     = item.querySelector('.na-instructions-item__key');
-            const descSpan    = item.querySelector('.na-instructions-item__desc');
-            if (keySpan)  keySpan.textContent  = keyLabel;
-            if (descSpan) descSpan.textContent = description;
-        });
+        Na__Hotkeys__PopulateInstructionsList(config);
         // ------------------------------------------------------------
     }
     // ------------------------------------------------------------

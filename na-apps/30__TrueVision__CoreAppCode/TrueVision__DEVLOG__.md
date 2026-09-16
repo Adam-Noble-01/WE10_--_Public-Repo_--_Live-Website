@@ -2,6 +2,47 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.56.2  -  16-Sep-2026
+### Carousel Holds Opaque Longer on First Reveal; Mobile Swap Breakpoint Tightened
+
+**Overview**
+- Two small follow-ups from Adam, ported in step with ValeVision3D.
+
+**Carousel first-reveal hold**
+- The carousel's first reveal after the loading screen now holds fully opaque
+  for 4 seconds (`InitialRevealHoldMs`) instead of the usual 2.6s wake hold
+  used for ordinary interactions, so a user arriving straight off the loading
+  screen gets a clear look at it before it settles into its 50% idle
+  translucency. `FlashCarouselWake` and `SetCarouselVisible` now take an
+  optional hold override; every other wake (clicks, taps, scrolling, the
+  scene camera flight) still uses the shorter 2.6s hold.
+
+**Mobile swap breakpoint**
+- Tightened the `max-aspect-ratio` leg of the mobile menu swap from ~1.03:1 to
+  19/20 (0.95:1), matching ValeVision3D now that its Views button removal
+  brought its toolbar pill to the same width as this app's.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.56.1  -  16-Sep-2026
+### Mobile Menu Swap: Also Trigger on Near-Square/Portrait Windows
+
+**Overview**
+- The v2.9.0 toolbar/Tools-menu swap only fired under 768px wide, but the same
+  collision shows up on windows well over that width once they get short or
+  square - e.g. a resized desktop browser at ~1345x1309 (~1.03:1). The centred
+  nav pill can reach far enough across at that width to run into the top-right
+  Tools & Settings dropdown, which max-width alone never catches.
+
+**The fix**
+- The swap in both `Na__UiFeature__Styles__NavigationToolbar__.css` and
+  `Na__UiFeature__Styles__DropdownAndToast__.css` now triggers on
+  `(max-width: 768px), (max-aspect-ratio: 103/100)` - an OR of the original
+  width rule and a new aspect-ratio rule (~1.03:1, rounded from the
+  1345x1309 reference case). Either condition is enough on its own.
+- Ported the identical breakpoint change to ValeVision3D, which shares this
+  exact swap mechanism (originally ported from here in v2.9.0).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.56.0  -  16-Sep-2026
 ### The Progressive Renderer, and the Tools Menu Brought Into Line With ValeVision
 

@@ -34,6 +34,43 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 16-Sep-2026 - Version 1.6.0
+// - Token bumped (2026-09-16-6): the container-level z-index bump wasn't
+//   enough - the active card's blue ring was still rendering behind the
+//   prev/next chevron buttons (same stacking context, sibling elements).
+//   Gave .na-pm-carousel__nav and .na-pm-carousel__cards their own
+//   position:relative + z-index so the cards wrapper unconditionally paints
+//   above the nav buttons.
+//
+// 16-Sep-2026 - Version 1.5.0
+// - Token bumped (2026-09-16-5): scene carousel z-index raised from 1000 to
+//   1004 so the active card's blue ring never renders behind the nav toolbar,
+//   header, or help panel.
+//
+// 16-Sep-2026 - Version 1.4.0
+// - Token bumped (2026-09-16-4): card pop animation toned down from
+//   scale(1.12) to scale(1.06) - the original was too strong.
+//
+// 16-Sep-2026 - Version 1.3.0
+// - Token bumped (2026-09-16-3): scene carousel now flashes its wake/opaque
+//   state on PageUp/PageDown and the number-key scene-jump hotkeys (not just
+//   clicks), and the newly active card plays a scale-up "pop" animation on
+//   click, touch, or hotkey. Changes the scene carousel module and its
+//   stylesheet.
+//
+// 16-Sep-2026 - Version 1.2.0
+// - Token bumped (2026-09-16-2): hotkey remap changed Na__Hotkeys__Manager.js's
+//   config schema (Na__AppConfig__Hotkeys.json's Na__Hotkeys__ViewModes object
+//   became the array-based Na__TrueVision__HotkeysDictionary) and the action-map
+//   keys Index.html passes to Na__Hotkeys__Initialize (short ids like
+//   switchToOrbit became full action strings like TrueVision__NavMode__SetOrbitMode).
+//   A stale-while-revalidate client pairing the old Index.html with the new
+//   manager (or vice versa) would have every hotkey silently do nothing - exactly
+//   the mismatched-pairing risk this token exists for. Also changed: the scene
+//   carousel's new exports (GoToNextScene / GoToPreviousScene / IsCarouselVisible /
+//   GoToSceneAtIndex) and the User Instructions content fragment's hotkeys list
+//   markup.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - three.js moved off esm.sh and into the same-origin version-locked vendor
 //   folder (v2.20.0). The vendor bucket survives, but it is now selected by a
@@ -83,7 +120,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-16-1';                                                                      // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-16-6';                                                                      // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

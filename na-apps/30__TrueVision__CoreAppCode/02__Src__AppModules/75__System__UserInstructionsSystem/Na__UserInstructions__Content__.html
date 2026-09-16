@@ -348,9 +348,12 @@
 
 
     <!-- ============================================================ -->
-    <!-- SECTION | View Mode Shortcuts                                -->
+    <!-- SECTION | Global Hotkeys                                     -->
     <!-- ============================================================ -->
-    <!-- Key labels are populated at runtime by Na__Hotkeys__ApplyUiLabels from Na__AppConfig__Hotkeys.json -->
+    <!-- Rows are built at runtime by Na__Hotkeys__PopulateInstructionsList (called -->
+    <!-- from Na__Hotkeys__ApplyUiLabels) from every standard entry in            -->
+    <!-- Na__AppConfig__Hotkeys.json's Na__TrueVision__HotkeysDictionary - add a  -->
+    <!-- hotkey there and it appears here with no HTML edit needed.              -->
     <div class="na-instructions-section">
 
         <button class="na-instructions-section__toggle" aria-expanded="true" data-na-accordion-toggle>
@@ -361,7 +364,7 @@
                     <circle cx="10" cy="10" r="1" fill="currentColor"/>
                     <circle cx="13.5" cy="10" r="1" fill="currentColor"/>
                 </svg>
-                <span class="na-instructions-section__title-text">View Mode Shortcuts</span>
+                <span class="na-instructions-section__title-text">Global Hotkeys</span>
             </div>
             <svg class="na-instructions-section__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <polyline points="4,7 10,13 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -372,24 +375,7 @@
             <div class="na-instructions-section__body-inner">
 
                 <div class="na-instructions-group na-instructions-group--no-label">
-                    <ul class="na-instructions-list">
-                        <li class="na-instructions-item" data-na-hotkey-item="switchToOrbit">
-                            <span class="na-instructions-item__key"></span>
-                            <span class="na-instructions-item__desc">Switch to Orbit mode</span>
-                        </li>
-                        <li class="na-instructions-item" data-na-hotkey-item="switchToWalk">
-                            <span class="na-instructions-item__key"></span>
-                            <span class="na-instructions-item__desc">Switch to Walk mode</span>
-                        </li>
-                        <li class="na-instructions-item" data-na-hotkey-item="switchToFly">
-                            <span class="na-instructions-item__key"></span>
-                            <span class="na-instructions-item__desc">Switch to Fly mode</span>
-                        </li>
-                        <li class="na-instructions-item" data-na-hotkey-item="resetView">
-                            <span class="na-instructions-item__key"></span>
-                            <span class="na-instructions-item__desc">Reset View</span>
-                        </li>
-                    </ul>
+                    <ul class="na-instructions-list" id="naInstructionsViewModeList"></ul>
                 </div>
 
             </div>

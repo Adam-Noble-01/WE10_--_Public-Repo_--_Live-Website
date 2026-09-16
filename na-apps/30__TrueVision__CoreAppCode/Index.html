@@ -704,7 +704,7 @@
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Left Drag / 1 Finger</span><span class="na-nav-help__desc">Rotate around the model</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Right Drag / 2 Fingers</span><span class="na-nav-help__desc">Pan the view sideways and up/down</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Scroll / Pinch</span><span class="na-nav-help__desc">Zoom in and out</span></div>
-                        <div class="na-nav-help__row" data-na-hotkey-row="switchToOrbit"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Orbit mode</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="TrueVision__NavMode__SetOrbitMode"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Orbit mode</span></div>
                     </div>
                 </div>
                 <div class="na-nav-help__section na-nav-help__section--collapsed" id="naNavHelpWalkSection" style="display:none;">
@@ -718,7 +718,7 @@
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Mouse</span><span class="na-nav-help__desc">Look around (click the view to capture the mouse)</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Shift</span><span class="na-nav-help__desc">Hold to walk faster</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Esc</span><span class="na-nav-help__desc">Release the mouse; press Orbit to exit walk mode</span></div>
-                        <div class="na-nav-help__row" data-na-hotkey-row="switchToWalk"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Walk mode</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="TrueVision__NavMode__SetWalkMode"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Walk mode</span></div>
                     </div>
                 </div>
                 <div class="na-nav-help__section na-nav-help__section--collapsed" id="naNavHelpFlySection" style="display:none;">
@@ -733,7 +733,7 @@
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Mouse</span><span class="na-nav-help__desc">Look around (click the view to capture the mouse)</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Shift</span><span class="na-nav-help__desc">Hold to fly faster</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Esc</span><span class="na-nav-help__desc">Release the mouse; press Orbit to exit fly mode</span></div>
-                        <div class="na-nav-help__row" data-na-hotkey-row="switchToFly"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Fly mode</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="TrueVision__NavMode__SetFlyMode"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Switch to Fly mode</span></div>
                     </div>
                 </div>
                 <div class="na-nav-help__section na-nav-help__section--collapsed" id="naNavHelpGeneralSection">
@@ -743,7 +743,10 @@
                         <span class="na-nav-help__section-arrow" aria-hidden="true">&#9662;</span>
                     </button>
                     <div class="na-nav-help__section-body">
-                        <div class="na-nav-help__row" data-na-hotkey-row="resetView"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Reset to the project's original starting view</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="TrueVision__NavMode__ResetView"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Reset to the project's original starting view</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="TrueVision__PresentationMode__NextScene"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Next presentation scene</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="TrueVision__PresentationMode__PrevScene"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Previous presentation scene</span></div>
+                        <div class="na-nav-help__row" data-na-hotkey-row="TrueVision__PresentationMode__GoToScene1"><span class="na-nav-help__key"></span><span class="na-nav-help__desc">Jump to a scene by number (1-9, matches thumbnail position)</span></div>
                         <div class="na-nav-help__row"><span class="na-nav-help__key">Esc</span><span class="na-nav-help__desc">Closes this panel</span></div>
                     </div>
                 </div>
@@ -837,7 +840,7 @@
     import { Na__UiFeature__InitializeOrbitMaxDistanceDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__OrbitMaxDistance__DevControls.js';
     import { Na__UiFeature__InitializeAssetCullDistanceDevControls } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__AssetCullDistance__DevControls.js';
     import { Na__UiFeature__InitializeViewModeFovDevControls } from './02__Src__AppModules/11__CameraUtils/Na__UiFeature__ViewModeFov__DevControls.js';
-    import { Na__PresentationMode__UI__InitializeSceneCarousel } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
+    import { Na__PresentationMode__UI__InitializeSceneCarousel, Na__PresentationMode__UI__GoToNextScene, Na__PresentationMode__UI__GoToPreviousScene, Na__PresentationMode__UI__IsCarouselVisible, Na__PresentationMode__UI__GoToSceneAtIndex } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneCarousel.js';
     import { Na__PresentationMode__UI__InitializeSceneGroupSelector } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__UI__SceneGroupSelector__.js';
     import { Na__PresentationMode__Thumbnail__SetRenderContext } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
     import { Na__PresentationMode__DevMenu__InitializeSceneEditor } from './02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js';
@@ -1206,33 +1209,57 @@
     // HOTKEYS | Central manager — keys and actions driven from Na__AppConfig__Hotkeys.json
     // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js
     // ------------------------------------------------------------
+    // Number keys 1-9 jump to that position in the currently visible scene
+    // group (same guard as PageUp/PageDown: carousel must have scenes visible,
+    // and disabled mid-flight in Fly mode). Built in a loop rather than nine
+    // hand-written entries since they all share the same guard/action shape.
+    const Na__HotkeyActionMap__SceneIndexEntries = {};
+    for (let Na__SceneIndex = 1; Na__SceneIndex <= 9; Na__SceneIndex++) {
+        Na__HotkeyActionMap__SceneIndexEntries[`TrueVision__PresentationMode__GoToScene${Na__SceneIndex}`] = () => {
+            if (!Na__PresentationMode__UI__IsCarouselVisible() || Na__FlyMode__IsActive()) return; // <-- Guard: carousel visible + not flying
+            Na__PresentationMode__UI__GoToSceneAtIndex(Na__SceneIndex);
+        };
+    }
+
     Na__Hotkeys__Initialize({
 
-        switchToOrbit: () => {
+        'TrueVision__NavMode__SetOrbitMode' : () => {
             if (Na__NavToolbar__GetActiveMode() === 'orbit') return;             // <-- Already in orbit, no-op
             Na__UiFeature__WalkMode__ToggleFn('return-to-orbit');
             Na__UiFeature__FlyMode__ToggleFn('return-to-orbit');
         },
 
-        switchToWalk: () => {
+        'TrueVision__NavMode__SetWalkMode' : () => {
             if (!Na__NavigationModes__IsWalkEnabled()) return;                   // <-- Walk not available for this model
             if (Na__NavToolbar__GetActiveMode() === 'walk') return;              // <-- Already in walk, no-op
             Na__UiFeature__FlyMode__ToggleFn('silent-off');                      // <-- Silently exit fly if active
             Na__UiFeature__WalkMode__ToggleFn();                                 // <-- Activate walk
         },
 
-        switchToFly: () => {
+        'TrueVision__NavMode__SetFlyMode' : () => {
             if (!Na__NavigationModes__IsFlyEnabled()) return;                    // <-- Fly not available for this model
             if (Na__NavToolbar__GetActiveMode() === 'fly') return;               // <-- Already in fly, no-op
             Na__UiFeature__WalkMode__ToggleFn('silent-off');                     // <-- Silently exit walk if active
             Na__UiFeature__FlyMode__ToggleFn();                                  // <-- Activate fly
         },
 
-        resetView: () => {
+        'TrueVision__NavMode__ResetView' : () => {
             Na__UiFeature__WalkMode__ToggleFn('return-to-orbit');                // <-- Exit walk first
             Na__UiFeature__FlyMode__ToggleFn('return-to-orbit');                 // <-- Exit fly first
             Na__CameraStartState__ResetView();                                   // <-- Restore project start state
-        }
+        },
+
+        'TrueVision__PresentationMode__NextScene' : () => {
+            if (!Na__PresentationMode__UI__IsCarouselVisible() || Na__FlyMode__IsActive()) return; // <-- Guard: carousel visible + not flying
+            Na__PresentationMode__UI__GoToNextScene();
+        },
+
+        'TrueVision__PresentationMode__PrevScene' : () => {
+            if (!Na__PresentationMode__UI__IsCarouselVisible() || Na__FlyMode__IsActive()) return; // <-- Guard: carousel visible + not flying
+            Na__PresentationMode__UI__GoToPreviousScene();
+        },
+
+        ...Na__HotkeyActionMap__SceneIndexEntries
 
     }, Na__Config__Hotkeys);
 

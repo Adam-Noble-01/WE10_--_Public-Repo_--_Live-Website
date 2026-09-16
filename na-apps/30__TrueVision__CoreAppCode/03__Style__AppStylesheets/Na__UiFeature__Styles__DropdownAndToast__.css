@@ -77,15 +77,20 @@
     box-shadow                          : 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
-/* Mobile Swap - Toolbar Hamburger Summons the Tools Menu (<=768px) */
+/* Mobile Swap - Toolbar Hamburger Summons the Tools Menu (<=768px, or short/portrait windows) */
 /* ----------------------------------------------------------------- */
 /* On narrow screens the standalone Tools & Settings trigger and the
    navigation toolbar cannot both fit on the top row, so the trigger is
    hidden and the toolbar gains a hamburger button instead. Pressing it
    swaps the toolbar out and drops this menu down in the same row;
    folding the menu back up swaps the toolbar back in. Wiring lives in
-   Na__UiFeature__NavigationToolbar__Controls.js.                     */
-@media (max-width: 768px) {
+   Na__UiFeature__NavigationToolbar__Controls.js.
+   The aspect-ratio leg also catches windows that are wide but short or
+   squarish where the two would otherwise still collide despite being
+   over 768px wide - see Na__UiFeature__Styles__NavigationToolbar__.css.
+   Ported to ValeVision3D 16-Sep-2026, then tightened to 19/20 (0.95:1)
+   the same day once ValeVision retired its Views button. */
+@media (max-width: 768px), (max-aspect-ratio: 19/20) {
     .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
         display                        : none;                    /* <-- Hidden until the hamburger summons it */
         top                            : calc(var(--Vale_HeaderHeight) + 14px);  /* <-- Same row the nav toolbar occupies */
