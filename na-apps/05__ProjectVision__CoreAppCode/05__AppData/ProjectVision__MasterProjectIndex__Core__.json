@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-09-14T19:09:02.605526+00:00",
+    "buildTimestamp": "2026-09-17T15:50:44.409528+00:00",
     "projects": {
         "GA06": {
             "projectCode": "GA06",
@@ -115,6 +115,17 @@
             "projectCode": "PS01",
             "projectName": "Musters Road",
             "projectFolder": "PS01__MustersRoad",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": true,
+                "trueVision": true
+            }
+        },
+        "PS02": {
+            "projectCode": "PS02",
+            "projectName": "Musters Road - Official PD Pack",
+            "projectFolder": "PS02__MustersRoad__OfficialPdPack",
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,

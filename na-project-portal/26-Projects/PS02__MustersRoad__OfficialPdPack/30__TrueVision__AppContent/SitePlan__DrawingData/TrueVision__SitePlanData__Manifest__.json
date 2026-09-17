@@ -1,0 +1,185 @@
+{
+  "SitePlanData__Description": "Site plan drawing data exported by the TrueVision3D GLB Builder. One linework GLB per site plan tag, plus a fill GLB for fill tags. Read by the ProjectVision build script and TrueVision3D site plan drawings.",
+  "SitePlanData__SchemaVersion": 1,
+  "SitePlanData__ProjectPrefix": "PS01",
+  "SitePlanData__SourceModelFile": "PS01_M10__SitePlanModel__0.1.0__.skp",
+  "SitePlanData__ExportedIso": "2026-09-14T19:08:14Z",
+  "SitePlanData__ExporterVersion": "1.1.0",
+  "SitePlanData__TagsSsotVersion": "2.3.0",
+  "SitePlanData__Units": "metres",
+  "SitePlanData__UpAxis": "Y",
+  "SitePlanData__NorthAngleDeg": 0.0,
+  "SitePlanData__BoundsMm": {
+    "MinX": 0.0,
+    "MinZ": -143295.2,
+    "MaxX": 150353.0,
+    "MaxZ": 0.0
+  },
+  "SitePlanData__Layers": [
+    {
+      "Layer__TagName": "71__SitePlan__BaseMap__OsMapping",
+      "Layer__CategoryKey": "TrueVision__SitePlan__OsMapping",
+      "Layer__Label": "OS Mapping",
+      "Layer__Group": "Base Map",
+      "Layer__DrawOrder": 20,
+      "Layer__LineworkFile": "PS01__TrueVision__SitePlan__OsMapping__LineworkModel__.glb",
+      "Layer__FillFile": null,
+      "Layer__SegmentCount": 364,
+      "Layer__RingCount": 0,
+      "Layer__BoundsMm": {
+        "MinX": 0.0,
+        "MinZ": -143295.2,
+        "MaxX": 150353.0,
+        "MaxZ": 0.0
+      },
+      "Layer__Style": {
+        "LineColourId": "MTE103__LineColour__DarkGrey__L40",
+        "LineHex": "#666666",
+        "LineType": "solid",
+        "LineWeightMm": 0.13,
+        "FillColourId": null,
+        "FillHex": null,
+        "FillOpacity": null
+      },
+      "Layer__VisibleAtScales": [
+        500,
+        1250
+      ],
+      "Layer__Warnings": [
+
+      ]
+    },
+    {
+      "Layer__TagName": "73__SitePlan__Buildings__Existing",
+      "Layer__CategoryKey": "TrueVision__SitePlan__ExistingBuildings",
+      "Layer__Label": "Existing Buildings",
+      "Layer__Group": "Buildings",
+      "Layer__DrawOrder": 40,
+      "Layer__LineworkFile": "PS01__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb",
+      "Layer__FillFile": "PS01__TrueVision__SitePlan__ExistingBuildings__FillModel__.glb",
+      "Layer__SegmentCount": 10,
+      "Layer__RingCount": 1,
+      "Layer__BoundsMm": {
+        "MinX": 58884.7,
+        "MinZ": -75706.8,
+        "MaxX": 76667.8,
+        "MaxZ": -64888.6
+      },
+      "Layer__Style": {
+        "LineColourId": "MTE102__LineColour__SoftBlack__L20",
+        "LineHex": "#333333",
+        "LineType": "solid",
+        "LineWeightMm": 0.25,
+        "FillColourId": null,
+        "FillHex": null,
+        "FillOpacity": null
+      },
+      "Layer__VisibleAtScales": [
+        500,
+        1250
+      ],
+      "Layer__Warnings": [
+
+      ]
+    },
+    {
+      "Layer__TagName": "73__SitePlan__Buildings__ProposedSecondary",
+      "Layer__CategoryKey": "TrueVision__SitePlan__ProposedBuildingsSecondary",
+      "Layer__Label": "Proposed Buildings - Secondary",
+      "Layer__Group": "Buildings",
+      "Layer__DrawOrder": 70,
+      "Layer__LineworkFile": "PS01__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb",
+      "Layer__FillFile": null,
+      "Layer__SegmentCount": 394,
+      "Layer__RingCount": 0,
+      "Layer__BoundsMm": {
+        "MinX": 0.0,
+        "MinZ": -142893.0,
+        "MaxX": 136084.7,
+        "MaxZ": -455.9
+      },
+      "Layer__Style": {
+        "LineColourId": "MTE201__LineColour__Red",
+        "LineHex": "#E53935",
+        "LineType": "solid",
+        "LineWeightMm": 0.25,
+        "FillColourId": "MTE201__LineColour__Red",
+        "FillHex": "#E53935",
+        "FillOpacity": 0.2
+      },
+      "Layer__VisibleAtScales": [
+        500,
+        1250
+      ],
+      "Layer__Warnings": [
+        "no faces, so no fill; draw the outline as a closed face"
+      ]
+    },
+    {
+      "Layer__TagName": "73__SitePlan__Buildings__Proposed",
+      "Layer__CategoryKey": "TrueVision__SitePlan__ProposedBuildings",
+      "Layer__Label": "Proposed Buildings",
+      "Layer__Group": "Buildings",
+      "Layer__DrawOrder": 71,
+      "Layer__LineworkFile": "PS01__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb",
+      "Layer__FillFile": null,
+      "Layer__SegmentCount": 3,
+      "Layer__RingCount": 0,
+      "Layer__BoundsMm": {
+        "MinX": 74001.6,
+        "MinZ": -75827.4,
+        "MaxX": 77488.6,
+        "MaxZ": -66330.2
+      },
+      "Layer__Style": {
+        "LineColourId": "MTE201__LineColour__Red",
+        "LineHex": "#E53935",
+        "LineType": "solid",
+        "LineWeightMm": 0.35,
+        "FillColourId": "MTE201__LineColour__Red",
+        "FillHex": "#E53935",
+        "FillOpacity": 0.45
+      },
+      "Layer__VisibleAtScales": [
+        500,
+        1250
+      ],
+      "Layer__Warnings": [
+        "no faces, so no fill; draw the outline as a closed face"
+      ]
+    },
+    {
+      "Layer__TagName": "72__SitePlan__Boundary__RedLine",
+      "Layer__CategoryKey": "TrueVision__SitePlan__RedLineBoundary",
+      "Layer__Label": "Red Line Boundary",
+      "Layer__Group": "Boundaries",
+      "Layer__DrawOrder": 90,
+      "Layer__LineworkFile": "PS01__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb",
+      "Layer__FillFile": null,
+      "Layer__SegmentCount": 13,
+      "Layer__RingCount": 0,
+      "Layer__BoundsMm": {
+        "MinX": 48334.7,
+        "MinZ": -78337.2,
+        "MaxX": 92784.7,
+        "MaxZ": -62437.2
+      },
+      "Layer__Style": {
+        "LineColourId": "MTE201__LineColour__Red",
+        "LineHex": "#E53935",
+        "LineType": "solid",
+        "LineWeightMm": 0.5,
+        "FillColourId": null,
+        "FillHex": null,
+        "FillOpacity": null
+      },
+      "Layer__VisibleAtScales": [
+        500,
+        1250
+      ],
+      "Layer__Warnings": [
+
+      ]
+    }
+  ]
+}

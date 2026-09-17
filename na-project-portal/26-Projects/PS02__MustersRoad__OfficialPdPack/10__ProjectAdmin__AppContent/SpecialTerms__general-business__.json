@@ -1,0 +1,14 @@
+{
+    "contractId": "general-business",
+    "contractName": "General Business Terms",
+    "sectionTitle": "Special Terms - General Terms",
+    "introduction": "This project is a duplicate administrative record only.",
+    "terms": [
+        {
+            "id": 1,
+            "title": "Duplicate Project - See PS01",
+            "content": "This is not the live case. Please instead see the live project, which is PS01. All special terms for this contract stage apply under the live case."
+        }
+    ],
+    "lastUpdated": "17-Sep-2026 at 12:00"
+}

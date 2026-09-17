@@ -1,0 +1,1 @@
+This folder contains PlanVision application content.

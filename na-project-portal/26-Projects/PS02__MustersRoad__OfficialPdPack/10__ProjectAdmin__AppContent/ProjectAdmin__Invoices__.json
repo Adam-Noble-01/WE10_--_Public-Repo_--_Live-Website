@@ -1,0 +1,34 @@
+{
+    "invoices": [
+        {
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "createdDate": "17-Sep-2026 at 12:00",
+            "dueDate": "17-Sep-2026",
+            "invoiceDate": "17-Sep-2026",
+            "invoiceRef": "INV-PS02-2026-001",
+            "lastModified": "17-Sep-2026 at 12:00",
+            "lineItems": [
+                {
+                    "description": "Paid In Full",
+                    "group": "Duplicate Record - See PS01",
+                    "itemDescription": "1. Reference: CPS 01.\n2. This project code is a duplicate of PS01, holding a simplified Permitted Development drawing pack only. It is not separately billed.\n3. All fees for this job were invoiced and paid in full under the live case, PS01 (Invoice Ref: INV-PS01-2026-001).",
+                    "quantity": 1,
+                    "rate": 0,
+                    "unit": "item"
+                }
+            ],
+            "personalNote": "Paid in full. Ref: CPS 01. See the live project, PS01, for the actual invoice and payment history.",
+            "projectAddress": "",
+            "projectDescription": "Duplicate administrative record only - see the live project, PS01.",
+            "status": "paid",
+            "totals": {
+                "grandTotal": 0,
+                "subtotal": 0,
+                "vat": 0,
+                "vatApplicable": false,
+                "vatRate": 0
+            },
+            "paidDate": "17-Sep-2026"
+        }
+    ]
+}

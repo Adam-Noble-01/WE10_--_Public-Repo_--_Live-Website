@@ -1,0 +1,34 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-PS02-2026-001",
+            "quotationName": "Main Quote",
+            "signatureRequired": false,
+            "quotationDate": "17-Sep-2026",
+            "projectAddress": "255 Musters Road, West Bridgford, Nottingham, NG2 7DD",
+            "projectDescription": "Duplicate administrative record only - see the live project, PS01.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "See PS01 For Fees",
+                    "itemDescription": "1. This project code is a duplicate of PS01, holding a simplified Permitted Development drawing pack only.\n2. No separate fee applies to this job. All fees and the accepted quotation sit under the live case, PS01.",
+                    "quantity": 0,
+                    "unit": "item",
+                    "rate": 0,
+                    "group": "Duplicate Record - See PS01"
+                }
+            ],
+            "totals": {
+                "subtotal": 0,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 0
+            },
+            "additionalTerms": "",
+            "createdDate": "17-Sep-2026 at 12:00",
+            "lastModified": "17-Sep-2026 at 12:00"
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+{
+    "projectCode": "PS02",
+    "projectName": "Musters Road - Official PD Pack",
+    "projectBriefConcise": "This is not the live case. Please instead see the live project, which is PS01.",
+    "projectBriefFull": "## Notice\n\nThis is not the live case. Please instead see the live project, which is PS01.",
+    "specialNotes": "DUPLICATE OF PS01__MustersRoad. Created 17-Sep-2026.\n\nThis job code exists solely to hold a simplified, strictly-legal-minimum Permitted Development drawing pack for submission to the planning officer (Rushcliffe Borough Council), kept deliberately separate from PS01's more complex builder's drawing set.\n\nReason for the split: the real project uses a detailed builder's set of drawings that is overkill for a Permitted Development application. Rather than maintain two divergent versions of the same model/drawing layouts inside one job (TrueVision is not yet set up for that kind of parallel version control), this is a completely separate job number so the two data sets cannot bleed into each other.\n\nTrueVision 3D and PlanVision content in this project folder was copied verbatim, byte-for-byte, from PS01 on 17-Sep-2026 and has NOT been adjusted. Adam will manually strip the drawing layouts back using the Layout Editor and re-save simplified GLB model exports over the copied files himself.\n\nAll client-facing admin documents here (welcome letter / quotation / invoice / special terms) have been stripped back to placeholders that point back to the live case, PS01. This project is not separately billed - all fees and payment history live under PS01.\n\nClient PII has NOT been duplicated to this project code (no data pushed to R2 for PS02). See PS02__README__DuplicateOfPS01__.md in the project root for the same note.\n\nPIN: reuses PS01's PIN hash verbatim (same client, same portal access code).",
+    "projectPin": "sha256:b028e7b30ae6629575651e0369e15c482a1b97a7d437334f1b1cf00f5c06a78f",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "contracts": {
+        "building-regulations": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "building-surveying": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "concept-design": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "general-business": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        },
+        "planning-approval": {
+            "enabled": true,
+            "signed": false,
+            "signatureRef": null,
+            "signedDate": null,
+            "specialTermsEnabled": false
+        }
+    },
+    "documents": {
+        "quotation": true,
+        "specialTerms": true
+    },
+    "createdDate": "17-Sep-2026",
+    "lastModified": "17-Sep-2026 at 12:00"
+}
