@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Planvision File Naming Guide",
+  "schemaVersion": 1,
+  "description": "Noble Architecture PlanVision / Project Vision file naming guide for exported drawing PDFs and PNGs. Documents the full base-name convention (XX##_T##_D##__Title__IsoA2__RevX__), separator rules, PDF+PNG pairing, Build tool discovery rules (Update-ProjectManifest.ps1), folder layout, special cases (Design & Access Statement S##, sheet sizes, revisions), an exporter checklist, and a validation regex. Derived from the live app parser and the Ashness Close (NP03) reference project.",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanVision / Project Vision — File Naming Guide</title>
+<style>
+  :root{
+    --ink:#1f2430; --ink-soft:#4a5162; --line:#e2e5ec; --line-strong:#c9cedb;
+    --bg:#f6f7f9; --card:#ffffff; --slate:#3f6079; --slate-soft:#eef3f7;
+    --proj:#2563a8; --tab:#0f8a8a; --doc:#7c3aed; --title:#1f9254; --size:#c07a00; --rev:#c02f6a; --sep:#9aa1b2;
+    --proj-bg:#e8f1fb; --tab-bg:#e2f4f4; --doc-bg:#f0e9fd; --title-bg:#e6f6ec; --size-bg:#fbf1dd; --rev-bg:#fce8f0; --sep-bg:#eef0f4;
+    --ok:#1f9254; --ok-bg:#e6f6ec; --bad:#c0392b; --bad-bg:#fbe9e7; --warn:#b7791f; --warn-bg:#fcf3e2;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;font-size:16px;}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 28px 90px;}
+  code,.mono{font-family:"SF Mono",ui-monospace,"Cascadia Code",Menlo,Consolas,monospace;}
+  header.masthead{border-bottom:3px solid var(--ink);padding-bottom:22px;margin-bottom:8px;}
+  .eyebrow{font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);font-weight:700;}
+  h1{font-size:30px;line-height:1.2;margin:.35em 0 .15em;letter-spacing:-.01em;}
+  .sub{color:var(--ink-soft);font-size:15.5px;max-width:70ch;}
+  .meta{margin-top:14px;font-size:12.5px;color:var(--ink-soft);}
+  .meta span{display:inline-block;margin-right:18px;}
+  h2{font-size:21px;margin:44px 0 6px;padding-top:18px;border-top:1px solid var(--line);letter-spacing:-.01em;}
+  h2 .n{color:var(--slate);font-variant-numeric:tabular-nums;margin-right:10px;}
+  h3{font-size:16px;margin:22px 0 6px;}
+  p{margin:10px 0;}
+  .lead{font-size:16.5px;color:var(--ink-soft);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0;
+    box-shadow:0 1px 2px rgba(20,28,45,.04);}
+  .tldr{background:var(--slate-soft);border:1px solid #dae6ef;}
+  .tldr ul{margin:8px 0 0;padding-left:20px;}
+  .tldr li{margin:5px 0;}
+
+  /* token chips */
+  .tok{display:inline-block;border-radius:6px;padding:2px 7px;font-weight:600;font-size:.92em;white-space:nowrap;}
+  .t-proj{color:var(--proj);background:var(--proj-bg);}
+  .t-tab{color:var(--tab);background:var(--tab-bg);}
+  .t-doc{color:var(--doc);background:var(--doc-bg);}
+  .t-title{color:var(--title);background:var(--title-bg);}
+  .t-size{color:var(--size);background:var(--size-bg);}
+  .t-rev{color:var(--rev);background:var(--rev-bg);}
+  .t-sep{color:var(--sep);background:var(--sep-bg);}
+
+  /* anatomy */
+  .anatomy{background:#fbfcfd;border:1px solid var(--line);border-radius:12px;padding:26px 22px;margin:18px 0;overflow-x:auto;}
+  .fname{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:19px;white-space:nowrap;text-align:center;font-weight:600;}
+  .fname .s{color:var(--sep);font-weight:700;}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:22px;}
+  .legend .li{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;}
+  .legend .li .lab{font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;}
+  .legend .li .desc{font-size:12.8px;color:var(--ink-soft);margin-top:2px;}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f0f2f6;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);border-bottom:2px solid var(--line-strong);}
+  td.mono,th.mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+
+  .ex{border-radius:10px;padding:11px 14px;margin:9px 0;font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;
+    display:flex;gap:10px;align-items:flex-start;word-break:break-all;}
+  .ex.good{background:var(--ok-bg);border:1px solid #c5e9d3;}
+  .ex.bad{background:var(--bad-bg);border:1px solid #f2c9c3;}
+  .ex .mk{font-family:-apple-system,sans-serif;font-weight:800;flex:none;width:16px;text-align:center;}
+  .ex.good .mk{color:var(--ok);}
+  .ex.bad .mk{color:var(--bad);}
+  .ex .why{font-family:-apple-system,sans-serif;color:var(--ink-soft);font-size:12.5px;display:block;margin-top:3px;}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:680px){.cols{grid-template-columns:1fr;} h1{font-size:25px;}}
+
+  .checklist{list-style:none;padding:0;margin:8px 0;}
+  .checklist li{padding:7px 0 7px 30px;position:relative;border-bottom:1px solid var(--line);font-size:14.5px;}
+  .checklist li:last-child{border-bottom:none;}
+  .checklist li::before{content:"";position:absolute;left:2px;top:11px;width:15px;height:15px;border:2px solid var(--slate);border-radius:4px;}
+
+  .callout{border-left:4px solid var(--slate);background:#fff;border:1px solid var(--line);border-left-width:4px;border-radius:8px;padding:12px 16px;margin:14px 0;font-size:14.5px;}
+  .callout.warn{border-left-color:var(--warn);background:var(--warn-bg);border-color:#eddcb8;}
+  .callout .h{font-weight:700;display:block;margin-bottom:2px;}
+  .pill{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:20px;background:var(--slate);color:#fff;vertical-align:middle;}
+  pre.code{background:#1f2430;color:#e8ebf2;border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:12.7px;line-height:1.5;}
+  pre.code .c{color:#8b93a7;}
+  footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-soft);}
+  .arrow{color:var(--slate);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">Noble Architecture &middot; PlanVision / Project Vision</div>
+  <h1>File Naming Guide — Drawing PDFs &amp; PNGs</h1>
+  <p class="sub">How to name exported drawing files so the Build tool discovers them and the PlanVision app displays them correctly. Derived from the live app parser, the manifest Build tool, and the Ashness Close reference project.</p>
+  <div class="meta">
+    <span><strong>Applies to:</strong> content in <code>20__PlanVision__AppContent</code> / <code>05__ProjectContent</code></span>
+    <span><strong>Reviewed:</strong> 19 Jul 2026</span>
+  </div>
+</header>
+
+<div class="card tldr">
+  <strong>In one line:</strong> name every sheet
+  <code><span class="tok t-proj">XX##</span>_<span class="tok t-tab">T##</span>_<span class="tok t-doc">D##</span>__<span class="tok t-title">TitleInPascalCase</span>__<span class="tok t-size">IsoA2</span>__<span class="tok t-rev">RevX</span>__</code>
+  and export it as a matching <strong>.pdf and .png pair</strong> with that identical base name.
+  <ul>
+    <li>Single <code>_</code> only inside the <span class="tok t-proj">XX##</span><code>_</code><span class="tok t-tab">T##</span><code>_</code><span class="tok t-doc">D##</span> code block. Double <code>__</code> everywhere else, plus a trailing <code>__</code>.</li>
+    <li>The <span class="tok t-doc">D##</span> number sets the running order (files sort alphabetically), so number your sheets deliberately.</li>
+    <li>Both a <code>.pdf</code> and a <code>.png</code>, same base name. The PNG is what draws on screen; the PDF is the download.</li>
+    <li>No spaces, no <code>-</code>, no "Converted_From_PDF_Page" suffixes. Superseded revisions go in <code>00__Archive</code>.</li>
+  </ul>
+</div>
+
+<h2><span class="n">1</span>Filename anatomy</h2>
+<p class="lead">Every drawing file has a base name built from a fixed set of tokens, then a <code>.pdf</code> or <code>.png</code> extension.</p>
+
+<div class="anatomy">
+  <div class="fname">
+    <span class="tok t-proj">NP03</span><span class="s">_</span><span class="tok t-tab">T02</span><span class="s">_</span><span class="tok t-doc">D02</span><span class="s">__</span><span class="tok t-title">NorthElevation</span><span class="s">__</span><span class="tok t-size">IsoA2</span><span class="s">__</span><span class="tok t-rev">RevC</span><span class="s">__</span><span style="color:var(--ink-soft)">.pdf</span>
+  </div>
+  <div class="legend">
+    <div class="li"><div class="lab" style="color:var(--proj)">NP03 — Project code</div><div class="desc">2 client initials + 2-digit project number.</div></div>
+    <div class="li"><div class="lab" style="color:var(--tab)">T02 — Phase / tab</div><div class="desc">Design phase. T01 / T02 / T03.</div></div>
+    <div class="li"><div class="lab" style="color:var(--doc)">D02 — Document code</div><div class="desc">Sheet number. Drives sort order.</div></div>
+    <div class="li"><div class="lab" style="color:var(--title)">NorthElevation — Title</div><div class="desc">PascalCase, no spaces.</div></div>
+    <div class="li"><div class="lab" style="color:var(--size)">IsoA2 — Sheet size</div><div class="desc">Optional. Paper size metadata.</div></div>
+    <div class="li"><div class="lab" style="color:var(--rev)">RevC — Revision</div><div class="desc">Rev + letter.</div></div>
+    <div class="li"><div class="lab" style="color:var(--sep)">_ &nbsp;__ — Separators</div><div class="desc">Single inside the code block, double between segments + trailing.</div></div>
+  </div>
+</div>
+
+<p>The app parser reads this as: code block <code><span class="tok t-proj">NP03</span>_<span class="tok t-tab">T02</span>_<span class="tok t-doc">D02</span></code> &nbsp;<span class="arrow">&rarr;</span>&nbsp; document code <strong>D02</strong>, then the <code>__</code>-separated segments become the title (<strong>North Elevation</strong>), the size is recognised and hidden from the title, and the revision shows as <strong>(Rev C)</strong>. Register row: <em>“D02 – North Elevation (Rev C)”</em>, size column <em>“ISO A2”</em>.</p>
+
+<h2><span class="n">2</span>Token reference</h2>
+<table>
+  <thead><tr><th>Token</th><th>Format</th><th>Required?</th><th>What it means / rules</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tok t-proj">Project</span></td><td class="mono">[A-Z][A-Z][0-9][0-9]</td><td>Yes</td><td>Client initials (uppercase) + project number <code>01</code>–<code>99</code>. Never <code>00</code>. e.g. <code>NP03</code>, <code>EB03</code>, <code>JH03</code>.</td></tr>
+    <tr><td><span class="tok t-tab">Phase / Tab</span></td><td class="mono">T + 2 digits</td><td>Yes</td><td><code>T01</code> = Concept Design, <code>T02</code> = Planning Approval, <code>T03</code> = Building Regs. Must match the <code>DesignPhase0N</code> folder it lives in.</td></tr>
+    <tr><td><span class="tok t-doc">Document code</span></td><td class="mono">Letters + digits</td><td>Yes</td><td><code>D##</code> = drawing, <code>S##</code> = statement (Design &amp; Access). Zero-padded. This is the value the sort order uses, so it controls the sequence shown in the app.</td></tr>
+    <tr><td><span class="tok t-title">Title</span></td><td class="mono">PascalCase</td><td>Yes</td><td>No spaces. Words run together with capitals: <code>GroundFloorPlans</code> &rarr; “Ground Floor Plans”. <code>&amp;</code> is allowed (<code>Design&amp;AccessStatement</code>). Multiple <code>__</code> parts join with “ – ”.</td></tr>
+    <tr><td><span class="tok t-size">Sheet size</span></td><td class="mono">IsoA2 / A2</td><td>Optional</td><td>Paper size. Recognised as metadata and <em>removed</em> from the display title; shown separately as “ISO A2”. Include it on scaled drawings.</td></tr>
+    <tr><td><span class="tok t-rev">Revision</span></td><td class="mono">Rev + letter</td><td>Recommended</td><td>Any segment starting <code>Rev</code>: <code>RevA</code>, <code>RevB</code>, <code>RevC</code>… Shown as “(Rev A)”.</td></tr>
+    <tr><td><span class="tok t-sep">Trailing</span></td><td class="mono">__</td><td>Yes</td><td>End every base name with a double underscore before the extension.</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="n">3</span>Separators — the part that breaks most often</h2>
+<div class="cols">
+  <div class="card" style="margin:8px 0;">
+    <h3 style="margin-top:0;color:var(--tab)">Single underscore <code>_</code></h3>
+    <p style="margin:6px 0;font-size:14.5px;">Used <strong>only</strong> inside the code block, to join the three codes:</p>
+    <p class="mono" style="font-size:14px;"><span class="tok t-proj">NP03</span>_<span class="tok t-tab">T02</span>_<span class="tok t-doc">D02</span></p>
+  </div>
+  <div class="card" style="margin:8px 0;">
+    <h3 style="margin-top:0;color:var(--sep)">Double underscore <code>__</code></h3>
+    <p style="margin:6px 0;font-size:14.5px;">Separates the code block from the title, and every descriptive segment from the next — plus one at the very end.</p>
+    <p class="mono" style="font-size:14px;">…D02<strong style="color:var(--ink)">__</strong>Title<strong style="color:var(--ink)">__</strong>IsoA2<strong style="color:var(--ink)">__</strong>RevC<strong style="color:var(--ink)">__</strong></p>
+  </div>
+</div>
+<div class="callout warn"><span class="h">Never use these in a new name</span>Spaces, hyphens <code>-</code>, the legacy <code>_-_</code> pattern, or verbose suffixes like <code>_-_Converted_From_PDF_Page_001</code>. The parser tolerates some legacy forms, but they produce messy labels and unreliable sorting.</div>
+
+<h2><span class="n">4</span>The PDF + PNG pair</h2>
+<p>Each drawing is <strong>two files that share one base name</strong> and differ only by extension. The app builds both links by appending <code>.png</code> and <code>.pdf</code> to the base name in the manifest.</p>
+<div class="ex good"><span class="mk">&#10003;</span><div><span class="tok t-proj">NP03</span>_<span class="tok t-tab">T02</span>_<span class="tok t-doc">D02</span>__NorthElevation__IsoA2__RevC__<strong>.png</strong> &nbsp;+&nbsp; …__RevC__<strong>.pdf</strong><span class="why">Same base name, two extensions. PNG renders on the drawing canvas; PDF is the download link.</span></div></div>
+<table>
+  <thead><tr><th>File</th><th>Role</th><th>Build tool</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">.png</td><td>Raster shown on the drawing canvas (what users see and measure on).</td><td><strong>Preferred.</strong> Discovered first.</td></tr>
+    <tr><td class="mono">.pdf</td><td>Vector download / print copy behind the “Download PDF” button.</td><td>Fallback if no PNG. Include it anyway.</td></tr>
+  </tbody>
+</table>
+<p style="font-size:14px;color:var(--ink-soft);">Rule of thumb: export <strong>both</strong> every time. A PNG with no PDF loses the download; a PDF with no PNG loses the on-screen render.</p>
+
+<h2><span class="n">5</span>What the Build tool recognises</h2>
+<p>The Build tool (<code>Update-ProjectManifest.ps1</code>) scans each phase folder and writes the base names it finds into the project’s <code>PlanVision__ProjectData__.json</code> manifest, which the app then reads.</p>
+<div class="cols">
+  <div class="card" style="margin:8px 0;border-left:4px solid var(--ok);">
+    <h3 style="margin-top:0;color:var(--ok)">Picked up</h3>
+    <ul style="margin:6px 0;padding-left:18px;font-size:14px;">
+      <li><code>.png</code> and <code>.pdf</code> files</li>
+      <li>Base name stored (extension stripped)</li>
+      <li>Sorted <strong>alphabetically</strong> &rarr; your <code>D##</code> order</li>
+    </ul>
+  </div>
+  <div class="card" style="margin:8px 0;border-left:4px solid var(--bad);">
+    <h3 style="margin-top:0;color:var(--bad)">Ignored</h3>
+    <ul style="margin:6px 0;padding-left:18px;font-size:14px;">
+      <li>Anything in a <code>00__Archive</code> folder</li>
+      <li><code>.note</code> and <code>.html</code> files</li>
+      <li>(HTML statement source is loaded separately)</li>
+    </ul>
+  </div>
+</div>
+<div class="callout"><span class="h">Order = the D-number</span>Because discovery sorts alphabetically, <code>D01</code> … <code>D09</code> … <code>D10</code> appear in that order. Keep numbers zero-padded and sequential so the app lists sheets the way you intend.</div>
+
+<h2><span class="n">6</span>Where files live</h2>
+<p>Content sits under the project’s <code>20__PlanVision__AppContent</code> folder, split by design phase. The phase folder’s number matches the <code>T##</code> in the filename.</p>
+<pre class="code">20__PlanVision__AppContent/
+├─ DesignPhase01__ConceptDesign__Content/      <span class="c"># T01 files</span>
+│   └─ 00__Archive/                            <span class="c"># superseded revs (ignored)</span>
+├─ DesignPhase02__PlanningApproval__Content/   <span class="c"># T02 files</span>
+│   ├─ NP03_T02_D01__ProjectIntroduction__IsoA2__RevB__.pdf/.png
+│   ├─ NP03_T02_D02__NorthElevation__IsoA2__RevC__.pdf/.png
+│   └─ 00__Archive/
+├─ DesignPhase03__BuildingRegs__Content/       <span class="c"># T03 files (may use subfolders)</span>
+│   ├─ 01__Plans/  02__Elevations/  03__3dViews/ …
+│   └─ 00__Archive/
+└─ PlanVision__ProjectData__.json              <span class="c"># manifest (Build tool writes this)</span></pre>
+<p style="font-size:14px;color:var(--ink-soft);">The <code>…__GoHere__.note</code> placeholders just mark where files belong; they are never loaded. Put previous revisions in <code>00__Archive</code> so only the current one shows.</p>
+
+<h2><span class="n">7</span>Special cases</h2>
+<h3>Design &amp; Access Statement</h3>
+<p>Use document code <span class="tok t-doc">S##</span> (e.g. <code>S01</code>). Any <code>S##</code> file is flagged as the statement and opens in the dedicated viewer. Title <code>Design&amp;AccessStatement</code> renders as “Design &amp; Access Statement”. It typically has an <code>.html</code> (viewer source, ignored by the Build tool) and a <code>.pdf</code>.</p>
+<div class="ex good"><span class="mk">&#10003;</span><div>NP03_T02_<span class="tok t-doc">S01</span>__Design&amp;AccessStatement__RevB__.pdf</div></div>
+<h3>Sheet size</h3>
+<p>Optional but recommended on scaled drawings. <code>IsoA2</code>, <code>ISOA2</code> or <code>A2</code> are recognised, stripped from the title, and shown as “ISO A2” in the register. Without it the size column falls back to the folder default.</p>
+<h3>Revisions</h3>
+<p>Bump the letter (<code>RevA</code> &rarr; <code>RevB</code>) and move the superseded file into <code>00__Archive</code>. Only the current revision should sit in the live phase folder.</p>
+
+<h2><span class="n">8</span>Worked examples</h2>
+<div class="ex good"><span class="mk">&#10003;</span><div>EB03_T02_D01__ProjectIntroduction__IsoA2__RevA__.pdf</div></div>
+<div class="ex good"><span class="mk">&#10003;</span><div>EB03_T02_D06__GroundFloorPlans__IsoA2__RevA__.png</div></div>
+<div class="ex good"><span class="mk">&#10003;</span><div>JH03_T03_D21__TechnicalPlan__RevF__.pdf</div></div>
+<div class="ex bad"><span class="mk">&#10007;</span><div>EB03_T02_D00__TheFirs__PlanningDrawings__RevA__.pdf<span class="why">Uses D00 (forbidden), embeds the pack/project name as the title, no per-sheet identity.</span></div></div>
+<div class="ex bad"><span class="mk">&#10007;</span><div>EB03…RevA___-_Converted_From_PDF_Page_001.pdf<span class="why">Triple underscore + <code>_-_</code> + verbose suffix. Breaks segment parsing and sort order.</span></div></div>
+<div class="ex bad"><span class="mk">&#10007;</span><div>NP03_T02_D2__north elevation__revC.pdf<span class="why">D-number not zero-padded, spaces in the title, missing trailing <code>__</code>.</span></div></div>
+
+<h2><span class="n">9</span>Your current export — <span class="pill">The Firs · EB03</span></h2>
+<p>The folder <code>10__ContentDelivered</code> holds one 77 MB combined source PDF plus 15 auto-split pages (PDF + PNG). Every page currently carries <code>D00</code>, the pack title, and a <code>Converted_From_PDF_Page_0##</code> suffix — so none of them match the convention or would list correctly.</p>
+<div class="cols">
+  <div>
+    <h3 style="color:var(--bad)">Now (auto-split output)</h3>
+    <div class="ex bad" style="font-size:12.5px;"><span class="mk">&#10007;</span><div>EB03_T02_<strong>D00</strong>__TheFirs__PlanningDrawings__RevA<strong>___-_Converted_From_PDF_Page_001</strong>.pdf</div></div>
+    <div class="ex bad" style="font-size:12.5px;"><span class="mk">&#10007;</span><div>…Page_002.pdf / .png &nbsp;…&nbsp; …Page_015</div></div>
+  </div>
+  <div>
+    <h3 style="color:var(--ok)">Target (one per sheet)</h3>
+    <div class="ex good" style="font-size:12.5px;"><span class="mk">&#10003;</span><div>EB03_T02_<strong>D01</strong>__ProjectIntroduction__IsoA2__RevA__.pdf / .png</div></div>
+    <div class="ex good" style="font-size:12.5px;"><span class="mk">&#10003;</span><div>EB03_T02_<strong>D02</strong>__NorthElevation__IsoA2__RevA__.pdf / .png</div></div>
+  </div>
+</div>
+<p style="font-size:14px;">To get there, each page needs: a sequential <code>D##</code>, a real title describing what the sheet shows, an <code>IsoA2</code> size token, and the clean trailing <code>__</code>. The 77 MB combined source should be kept out of the loaded folder (archive it or store it elsewhere). Identifying what each page <em>is</em> — so it can be titled — is exactly the step the planned splitting skill will automate.</p>
+
+<h2><span class="n">10</span>Exporter checklist</h2>
+<ul class="checklist">
+  <li>Project code is <code>XX##</code>, uppercase, not <code>00</code></li>
+  <li>Correct <code>T##</code> for the phase, and file is in the matching <code>DesignPhase0N</code> folder</li>
+  <li>Sequential, zero-padded <code>D##</code> (or <code>S##</code>) — this sets the running order</li>
+  <li>PascalCase title that describes the individual sheet</li>
+  <li>Sheet-size token (<code>IsoA2</code>) on scaled drawings</li>
+  <li>Revision (<code>RevX</code>) and a trailing <code>__</code></li>
+  <li>Both <code>.pdf</code> and <code>.png</code> exported, identical base name</li>
+  <li>Single <code>_</code> only in the code block; <code>__</code> everywhere else; no spaces or <code>-</code></li>
+  <li>Superseded revisions moved to <code>00__Archive</code></li>
+</ul>
+
+<h2><span class="n">11</span>Validation pattern (for the splitting skill)</h2>
+<p>A strict regex for a valid base name (extension removed). The runtime parser is more lenient — it classifies each <code>__</code> segment rather than demanding a fixed order — but new files should match this exactly:</p>
+<pre class="code">^[A-Z]{2}[0-9]{2}_T[0-9]{2}_[A-Z]{1,3}[0-9]{2,}<span class="c">   # NP03_T02_D02</span>
+(?:__[A-Za-z0-9&amp;]+)+?                          <span class="c"># __Title (one or more parts)</span>
+(?:__(?:Iso)?A[0-9]{1,2})?                     <span class="c"># __IsoA2  (optional size)</span>
+__Rev-?[A-Za-z0-9]+__$                         <span class="c"># __RevC__ (+ trailing __)</span></pre>
+<p style="font-size:13.5px;color:var(--ink-soft);">Underlying rules from the app: project code <code>^[A-Z]{2}[0-9]{2}$</code>; document code = the right-most <code>letters+digits</code> group in the code block; size detected by <code>^ISOA\d{1,2}$</code> or <code>^A\d{1,2}$</code>; revision = any segment starting <code>Rev</code>; <code>00__Archive</code>, <code>.note</code> and <code>.html</code> excluded from discovery.</p>
+
+<footer>
+  Built from the PlanVision core app: <code>Loader__DrawingsDataManager__.js</code> (filename parser), <code>Update-ProjectManifest.ps1</code> (Build tool), <code>CommonUtils__ProjectCodeValidator__.js</code>, the naming-convention Cursor rule, and the Ashness Close (NP03) reference content. &nbsp;·&nbsp; Noble Architecture, 19 Jul 2026.
+</footer>
+
+</div>
+</body>
+</html>

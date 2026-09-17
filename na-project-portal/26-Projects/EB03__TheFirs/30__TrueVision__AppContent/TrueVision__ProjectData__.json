@@ -138,9 +138,9 @@
             "Camera__DefaultPos__PosZ": -39467
         },
         "Camera__DefaultRotation": {
-            "Camera__DefaultRotation__RotX": -3.104,
-            "Camera__DefaultRotation__RotY": 0.4849,
-            "Camera__DefaultRotation__RotZ": 3.1241
+            "Camera__DefaultRotation__RotX": -3.1411,
+            "Camera__DefaultRotation__RotY": 0.4254,
+            "Camera__DefaultRotation__RotZ": 3.1414
         },
         "Camera__DefaultMisc": {
             "Camera__DefaultMisc__Fov": 45
@@ -149,5 +149,11 @@
     "Navmode__EnabledModes": {
         "Navmode__EnabledModes__Walk": true,
         "Navmode__EnabledModes__Fly": true
+    },
+    "OrbitHelperCube__Position": {
+        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
+        "OrbitHelperCube__Position__PosX": 12495,
+        "OrbitHelperCube__Position__PosY": 1800,
+        "OrbitHelperCube__Position__PosZ": -20327
     }
 }
