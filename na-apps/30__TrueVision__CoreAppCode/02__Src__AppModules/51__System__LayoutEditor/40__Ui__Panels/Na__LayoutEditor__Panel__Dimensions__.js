@@ -40,6 +40,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.5.0
+// - Several selected: the panel reads the first dimension and writes all of
+//   them. The value override stays a single-selection edit - it is that one
+//   dimension's own reading, not a style.
+//
 // 14-Sep-2026 - Version 1.4.0
 // - Size mm, under Ends: how large the ticks, arrows or dots at each end are,
 //   in paper millimetres (Dimension__TickLengthMm). The selected dimension, or
@@ -84,6 +89,8 @@
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
         Na__LePanels__Refresh,
+        Na__LePanels__SelectedOfKind,
+        Na__LePanels__ApplyToSelection,
         Na__LePanels__Row,
         Na__LePanels__Input,
         Na__LePanels__Select,
@@ -114,6 +121,24 @@
         if (!sheet || !selection || selection.kind !== 'dimension') return null;
         const item = sheet.Sheet__Dimensions.find((d) => d.Dimension__Id === selection.id) || null;
         return item ? { sheet : sheet, item : item } : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Every Selected Dimension, When There Is More Than One
+    // ------------------------------------------------------------
+    // Reading is what the panel shows; writing is what it changes. With one
+    // thing selected the two are the same item. With several, the panel reads
+    // the FIRST of them and writes ALL of them - a box showing the setting for
+    // new objects while nine are selected is what sent an edit somewhere
+    // nobody expected.
+    // ------------------------------------------------------------
+    function Na__LePanelDims__Many() {
+        const sheet = Na__LeModel__GetActiveSheet();
+        const items = Na__LePanels__SelectedOfKind(sheet, 'dimension');
+        if (!items.length) return null;
+        const item = sheet.Sheet__Dimensions.find((d) => d.Dimension__Id === items[0].id) || null;
+        return item ? { sheet : sheet, item : item, count : items.length } : null;
     }
     // ------------------------------------------------------------
 
@@ -190,9 +215,11 @@
     // ------------------------------------------------------------
     function Na__LePanelDims__Refresh(body) {
         const selected = Na__LePanelDims__Selected();
+        const many     = selected ? null : Na__LePanelDims__Many();
+        const reading  = selected || many;                                      // <-- One selected, or the first of several
         const d = Na__LeTools__GetDimensionDefaults();
-        const values = selected
-            ? { textSizeMm : selected.item.Dimension__TextSizeMm, colour : selected.item.Dimension__Colour, terminator : selected.item.Dimension__Terminator, tickLengthMm : Na__LeMarkup__DimensionTickMm(selected.item), offsetMm : selected.item.Dimension__OffsetMm, precision : selected.item.Dimension__Precision, unitsSuffix : selected.item.Dimension__UnitsSuffix, overrideText : selected.item.Dimension__OverrideText || '' }
+        const values = reading
+            ? { textSizeMm : reading.item.Dimension__TextSizeMm, colour : reading.item.Dimension__Colour, terminator : reading.item.Dimension__Terminator, tickLengthMm : Na__LeMarkup__DimensionTickMm(reading.item), offsetMm : reading.item.Dimension__OffsetMm, precision : reading.item.Dimension__Precision, unitsSuffix : reading.item.Dimension__UnitsSuffix, overrideText : selected ? (selected.item.Dimension__OverrideText || '') : '' }
             : Object.assign({ overrideText : '' }, d);
         const set = (name, value) => { const el = body.querySelector('[data-na-control="' + name + '"]'); if (el && document.activeElement !== el) el.value = String(value); };
         set('dim-size', values.textSizeMm);
@@ -201,7 +228,7 @@
         set('dim-end-size', values.tickLengthMm);
         set('dim-offset', values.offsetMm);
         // EXT. LINES | A length the dimension does not hold is the full line: an empty field
-        const ext = Na__LePanelDims__Extension(selected);
+        const ext = Na__LePanelDims__Extension(reading);
         set('dim-ext-start', ext.startMm === null ? '' : ext.startMm);
         set('dim-ext-end',   ext.endMm   === null ? '' : ext.endMm);
         Na__LePanels__ShowLink(body, 'dim-ext-link', ext.linked, ext.linked
@@ -214,12 +241,14 @@
         atScale.checked = selected ? Na__LeDrawScale__DimensionAtScale(selected.sheet, selected.item) : d.atScale !== false;
         atScale.parentNode.querySelector('.na-le-row__label').textContent = Na__LePanelDims__AtScaleCaption(selected);
         body.querySelector('[data-na-control="dim-override"]').parentNode.hidden = !selected;
-        const many = Na__LeModel__GetSelectionItems().length;
+        const picked = Na__LeModel__GetSelectionItems().length;
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? Na__LeCfg__GetLabel('DimSelectedNote', 'Editing the selected dimension.')
-            : (many > 1
-                ? Na__LeCfg__FormatLabel('DimManyNote', '{count} items selected. Click one dimension on its own to edit it; these settings apply to new dimensions.', { count : many })
-                : Na__LeCfg__GetLabel('DimDefaultsNote', 'Nothing selected: these settings apply to new dimensions.'));
+            : (many
+                ? Na__LeCfg__FormatLabel('DimManyNote', 'Editing {count} selected dimensions: a change here goes to all of them.', { count : many.count })
+                : (picked > 1
+                    ? Na__LeCfg__GetLabel('DimNoneOfKindNote', 'Nothing selected is a dimension: these settings apply to new dimensions.')
+                    : Na__LeCfg__GetLabel('DimDefaultsNote', 'Nothing selected: these settings apply to new dimensions.')));
         const value = body.querySelector('[data-na-block="value"]');
         if (selected) {
             const mm = Na__LeMarkup__DimensionValueMm(selected.sheet, selected.item);
@@ -251,8 +280,9 @@
     // ------------------------------------------------------------
     function Na__LePanelDims__Apply(patch, defaultsPatch) {
         const selected = Na__LePanelDims__Selected();
-        if (selected) Na__LeModel__UpdateDimension(selected.sheet, selected.item.Dimension__Id, patch);
-        else if (defaultsPatch) Na__LeTools__SetDimensionDefaults(defaultsPatch);
+        if (selected) { Na__LeModel__UpdateDimension(selected.sheet, selected.item.Dimension__Id, patch); return; }
+        if (Na__LePanels__ApplyToSelection(Na__LeModel__GetActiveSheet(), 'dimension', patch)) return;   // <-- Several selected: the style traits go to every one of them
+        if (defaultsPatch) Na__LeTools__SetDimensionDefaults(defaultsPatch);
     }
     // ------------------------------------------------------------
 

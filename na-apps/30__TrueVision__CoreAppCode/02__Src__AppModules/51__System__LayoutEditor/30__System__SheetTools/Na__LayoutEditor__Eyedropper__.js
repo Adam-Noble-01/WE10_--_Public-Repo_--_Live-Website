@@ -116,6 +116,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.8.0
+// - MANY ITEMS AT ONCE. ApplyMany writes one style bag onto a whole selection,
+//   one undo step per kind, skipping locked items rather than refusing the lot.
+//   PaintMany is the held style over a selection, which is what the context
+//   menu's "Paste properties to N selected" calls.
+// - The trait table now reads outwards as well as inwards. StyleKeys answers
+//   which patch keys a kind's style is made of and StyleOnly cuts a patch down
+//   to them, so the panels can write a field to every selected item through
+//   the same declaration - and a text item's words, which are not a trait,
+//   cannot travel with its size.
+//
 // 14-Sep-2026 - Version 1.7.0
 // - Vectors carry their dashed-edge style (Shape__LineStyle). Like the fill
 //   and the gradient, a null line style is a real value and clears the
@@ -464,6 +475,81 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | The Patch Keys One Kind's Style Is Made Of
+    // ------------------------------------------------------------
+    // The trait table read outwards. A panel that wants to write a field to
+    // every selected item asks which of its own keys count as style, rather
+    // than keeping its own list that would drift from this one. Palette-only
+    // traits are left out: they set new objects, never an existing one.
+    // ------------------------------------------------------------
+    function Na__LeDrop__StyleKeys(kind) {
+        const entry = Na__LeDrop__Entry(kind);
+        if (!entry) return [];
+        return entry.traits.filter((trait) => trait.paletteOnly !== true).map((trait) => trait.patch);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Patch Cut Down to One Kind's Style Traits
+    // ------------------------------------------------------------
+    // WHAT KEEPS CONTENT SAFE ON A MANY-ITEM WRITE. A panel patch can carry a
+    // text item's words or a leader's link as well as its size; those belong to
+    // the one item the panel was pointed at. Only the traits the eyedropper
+    // would have copied survive the cut, so "change this for all of them"
+    // cannot become "make all of them say the same thing".
+    // ------------------------------------------------------------
+    function Na__LeDrop__StyleOnly(kind, patch) {
+        if (!patch) return null;
+        const out = {};
+        Na__LeDrop__StyleKeys(kind).forEach((key) => {
+            if (Object.prototype.hasOwnProperty.call(patch, key)) out[key] = patch[key];
+        });
+        return Object.keys(out).length ? out : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write One Style Bag Onto Many Items, One Undo Step per Kind
+    // ------------------------------------------------------------
+    // items: [{ kind, id }] - a selection, already expanded past any groups.
+    // style: a bag of patch keys, from a held source or from a panel control.
+    //
+    // ONE UNDO STEP, HOWEVER MANY ITEMS. Every write goes out silently and one
+    // announcement per kind closes the lot, which is the rule the selection set
+    // already moves by: the history takes its step at the first announcement,
+    // when the sheet already holds every change, and finds nothing new in the
+    // rest. One Ctrl+Z puts all of them back.
+    //
+    // A locked item is skipped rather than refused, so one locked note in a
+    // window selection does not stop the other nine being restyled - the same
+    // way a locked item is left out of a group move.
+    // ------------------------------------------------------------
+    function Na__LeDrop__ApplyMany(sheet, items, style) {
+        const result = { written : 0, skipped : 0, kinds : [] };
+        if (!sheet || !Array.isArray(items) || !style) return result;
+
+        const firstOfKind = new Map();                                          // <-- kind -> the id that will carry the announcement
+        items.forEach((item) => {
+            const entry = item ? Na__LeDrop__Entry(item.kind) : null;
+            if (!entry || !item.id) { result.skipped++; return; }
+            const record = Na__LeDrop__Record(sheet, item.kind, item.id);
+            if (!record || Na__LeDrop__IsLocked(sheet, item.kind, record)) { result.skipped++; return; }
+            const patch = Na__LeDrop__StyleOnly(item.kind, style);
+            if (!patch) { result.skipped++; return; }
+            if (entry.update(sheet, item.id, patch, true) !== true) { result.skipped++; return; }
+            result.written++;
+            if (!firstOfKind.has(item.kind)) firstOfKind.set(item.kind, item.id);
+        });
+
+        firstOfKind.forEach((id, kind) => {
+            Na__LeDrop__Entry(kind).update(sheet, id, {}, false);                // <-- One announcement per kind closes the step
+            result.kinds.push(kind);
+        });
+        return result;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Turn a Style Bag Into Settings for New Objects
     // ------------------------------------------------------------
     // The settings for new objects share the record's patch keys, so most
@@ -734,6 +820,44 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | The Selected Items the Held Style Could Land On
+    // ------------------------------------------------------------
+    // Counted before the menu is built, so the item can say how many it will
+    // change and disable itself when the answer is none. The source itself and
+    // anything of another kind or on a locked layer do not count.
+    // ------------------------------------------------------------
+    function Na__LeDrop__PaintableIn(sheet, items) {
+        if (!Na__LeDrop__Source || !sheet || !Array.isArray(items)) return [];
+        return items.filter((item) => {
+            if (!item || item.kind !== Na__LeDrop__Source.kind || item.id === Na__LeDrop__Source.id) return false;
+            const record = Na__LeDrop__Record(sheet, item.kind, item.id);
+            return !!record && !Na__LeDrop__IsLocked(sheet, item.kind, record);
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put the Held Style on Every Matching Item in a Selection
+    // ------------------------------------------------------------
+    // The one-click answer to a page of notes that should all look alike:
+    // window them, right click, paste. The style is the same one the tool
+    // holds, so a paint by menu and a paint by click cannot disagree, and the
+    // whole lot is one undo step.
+    // ------------------------------------------------------------
+    function Na__LeDrop__PaintMany(sheet, items) {
+        if (!Na__LeDrop__Source) { Na__LeDrop__Announce('empty'); return 0; }
+        const targets = Na__LeDrop__PaintableIn(sheet, items);
+        if (!targets.length) { Na__LeDrop__Announce('kind'); return 0; }
+
+        const result = Na__LeDrop__ApplyMany(sheet, targets, Na__LeDrop__Source.style);
+        if (result.written && Na__LeCfg__GetEyedropperSetup().stayLoaded !== true) { Na__LeDrop__Clear(); return result.written; }
+        Na__LeDrop__RefreshSourceMarker(sheet);
+        Na__LeDrop__Announce(null);
+        return result.written;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | One Press With the Eyedropper Tool Active
     // ------------------------------------------------------------
     // The whole state machine in one place: an empty dropper picks, a loaded
@@ -920,6 +1044,11 @@
         Na__LeDrop__CanApply,
         Na__LeDrop__Extract,
         Na__LeDrop__Apply,
+        Na__LeDrop__ApplyMany,
+        Na__LeDrop__PaintMany,
+        Na__LeDrop__PaintableIn,
+        Na__LeDrop__StyleKeys,
+        Na__LeDrop__StyleOnly,
         Na__LeDrop__MODE_ITEM,
         Na__LeDrop__MODE_PALETTE,
         Na__LeDrop__SetMode,

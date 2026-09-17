@@ -56,6 +56,8 @@
     import { Na__LeCfg__GetSpecificationSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeSpec__Doc,
+        Na__LeSpec__K_REVISION,
+        Na__LeSpec__K_DOCNUMBER,
         Na__LeSpec__CodeSig,
         Na__LeSpec__History,
         Na__LeSpec__Editable,
@@ -108,6 +110,39 @@
         if (!live) Na__LeSpec__Record();
         Na__LeSpec__ScheduleDraft();
         Na__LeSpec__Dispatch(reason, Object.assign({ codesChanged : codesChanged, live : live === true }, detail || {}));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set the Issued Revision, and the Document's Own Number
+    // ------------------------------------------------------------
+    // These are fields of the document, not of any note, so they take the same
+    // route as every other edit: guarded by CanEdit, then Changed, which records
+    // an undo step, writes the browser draft and announces the change. Because
+    // ContentJson counts them, setting either marks the specification unsynced
+    // and lights Sync, exactly as typing into a note does.
+    //
+    // live is for a field being typed into: announced, but no history step, so a
+    // whole revision typed character by character undoes in one.
+    // ------------------------------------------------------------
+    function Na__LeSpec__SetRevision(revision, live) {
+        if (!Na__LeSpec__CanEdit()) return false;
+        const setup = Na__LeCfg__GetSpecificationSetup();
+        const value = String(revision === undefined || revision === null ? '' : revision)
+            .replace(/^\s*rev\.?\s*/i, '').trim().slice(0, setup.revisionMaxLength);   // <-- "Rev B" typed in full still stores B
+        if (Na__LeSpec__Doc[Na__LeSpec__K_REVISION] === value) return false;
+        Na__LeSpec__Doc[Na__LeSpec__K_REVISION] = value;
+        Na__LeSpec__Changed('revision', { revision : value }, live === true);
+        return true;
+    }
+
+    function Na__LeSpec__SetDocumentNumber(number, live) {
+        if (!Na__LeSpec__CanEdit()) return false;
+        const value = String(number === undefined || number === null ? '' : number).trim();   // <-- Blank goes back to following the project code
+        if (Na__LeSpec__Doc[Na__LeSpec__K_DOCNUMBER] === value) return false;
+        Na__LeSpec__Doc[Na__LeSpec__K_DOCNUMBER] = value;
+        Na__LeSpec__Changed('document-number', { number : value }, live === true);
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -376,6 +411,8 @@
     // MODULE EXPORTS | Specification Data Editing: Changes, Undo and Redo
     // ------------------------------------------------------------
     export {
+        Na__LeSpec__SetRevision,
+        Na__LeSpec__SetDocumentNumber,
         Na__LeSpec__AddGroup,
         Na__LeSpec__AddStarterGroups,
         Na__LeSpec__UpdateGroup,

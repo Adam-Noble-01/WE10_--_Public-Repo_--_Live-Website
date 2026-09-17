@@ -99,6 +99,11 @@
             historySteps     : Math.max(1, Math.round(Na__LeCfg__Num('Specification', 'HistorySteps', 50))),
             loadTimeoutMs    : Math.max(1000, Na__LeCfg__Num('Specification', 'LoadTimeoutMs', 12000)),
             confirmOverwrite : Na__LeCfg__Val('Specification', 'ConfirmCloudOverwrite', true) !== false,
+            defaultRevision      : String(Na__LeCfg__Val('Specification', 'DefaultRevision', 'A')),          // <-- An issued document has a revision even before one is typed
+            revisionMaxLength    : Math.max(1, Math.min(12, Math.round(Na__LeCfg__Num('Specification', 'RevisionMaxLength', 6)))),
+            documentNumberSuffix : String(Na__LeCfg__Val('Specification', 'DocumentNumberSuffix', '_SPEC')),
+            documentName         : String(Na__LeCfg__Val('Specification', 'DocumentName', 'Project Specification')),
+            downloadPaperSize    : String(Na__LeCfg__Val('Specification', 'DownloadPaperSize', 'A4')),
             starterGroups    : Array.isArray(starters) ? starters : [
                 { Prefix : 'GN', Title : 'General Notes',    IsGeneral : true  },
                 { Prefix : 'SN', Title : 'Structural Notes', IsGeneral : false },
@@ -161,7 +166,9 @@
             rightWidthPx : Na__LeCfg__Num('Panels', 'RightWidthPx', 300),
             minWidthPx   : Na__LeCfg__Num('Panels', 'MinWidthPx', 190),
             maxWidthPx   : Na__LeCfg__Num('Panels', 'MaxWidthPx', 520),
-            collapseOthers : Na__LeCfg__Val('Panels', 'CollapseOthersOnOpen', false) === true
+            collapseOthers : Na__LeCfg__Val('Panels', 'CollapseOthersOnOpen', false) === true,
+            accordion      : (() => { const v = Na__LeCfg__Val('Panels', 'AccordionSections', null); return Array.isArray(v) ? v.slice() : [ 'text', 'dimensions', 'shapes', 'leaders' ]; })(),
+            focusOnSelect  : Na__LeCfg__Val('Panels', 'FocusSectionOnSelect', true) !== false
         };
     }
     // ------------------------------------------------------------

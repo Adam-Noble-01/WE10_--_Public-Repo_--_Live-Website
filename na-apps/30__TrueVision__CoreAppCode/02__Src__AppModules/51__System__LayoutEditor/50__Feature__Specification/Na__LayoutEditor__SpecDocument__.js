@@ -77,7 +77,7 @@
         Na__LeCfg__GetTitleBlockSetup,
         Na__LeCfg__GetPdfSetup
     } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeSpec__GetState, Na__LeSpec__GetGroups, Na__LeSpec__ListNotes } from './Na__LayoutEditor__SpecData__.js';
+    import { Na__LeSpec__GetState, Na__LeSpec__GetGroups, Na__LeSpec__ListNotes, Na__LeSpec__GetRevision, Na__LeSpec__GetDocumentNumber } from './Na__LayoutEditor__SpecData__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
@@ -166,7 +166,9 @@
             name    : (name && name !== code) ? name : '',
             company : Na__LeCfg__GetPdfSetup().author || '',
             logo    : Na__LeCfg__GetTitleBlockSetup().logoAssetPath || '',
-            date    : Na__LeSpecDoc__DateText(new Date())
+            date     : Na__LeSpecDoc__DateText(new Date()),
+            number   : Na__LeSpec__GetDocumentNumber(code),
+            revision : Na__LeSpec__GetRevision()
         };
     }
     // ------------------------------------------------------------
@@ -195,6 +197,8 @@
             meta.appendChild(item);
         };
         add(L('SpecDocProject', 'Project'), project.code);
+        add(L('SpecDocNumber', 'Document No.'), project.number);
+        add(L('SpecDocRevision', 'Revision'), project.revision);
         add(L('SpecDocDate', 'Date'), project.date);
         if (state.loaded) {
             add(L('SpecDocContents', 'Contents'), Na__LeSpecDoc__Count(Na__LeSpec__ListNotes().length, 'SpecNotesOne', '{count} note', 'SpecNotesMany', '{count} notes')
@@ -299,6 +303,7 @@
         }
         const running = [ flow.project.code, flow.project.name ].filter(Boolean).join(' ');
         head.appendChild(Na__LeSpecDoc__Painted('na-le-spec-sheet__running', [ L('SpecDocTitle', 'Project Specification'), running ].filter(Boolean).join(' · ')));
+        head.appendChild(Na__LeSpecDoc__Painted('na-le-spec-sheet__issue', [ flow.project.number, flow.project.revision ? 'Rev ' + flow.project.revision : '' ].filter(Boolean).join('  ·  ')));
 
         const body = Na__LeSpecDoc__El('div', 'na-le-spec-sheet__body');
         const foot = Na__LeSpecDoc__El('footer', 'na-le-spec-sheet__foot');

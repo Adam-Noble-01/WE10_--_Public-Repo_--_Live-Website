@@ -16,16 +16,20 @@
 //   and then its line's offset - with the scale the reading is at on a chip
 //   beside it. Dragging a vertex of a finished vector, or a viewport's frame,
 //   wakes it the same way: the box reads the drag's length, and a typed value
-//   moves the vertex or the frame that far along the drag. With any other
-//   tool it rests, greyed.
+//   moves the vertex or the frame that far along the drag. An arrow key holds
+//   a vertex drag to an axis while it is read and typed, which a held Shift
+//   cannot do - Shift has to be let go of to reach the number keys. With any
+//   other tool the box rests, greyed.
 // - TYPE WITHOUT CLICKING. While one of those tools is up, or while a vertex
 //   or a viewport is being dragged, a number typed anywhere over the editor
 //   goes into the box and Enter uses it: Draw puts the next point that far
 //   along the rubber band, Rectangle lands the opposite corner (or resizes
 //   the rectangle that has just landed), Dimension picks the end, then puts
 //   the line that far off, a vertex drag puts the vertex that far along the
-//   inferred direction, and a viewport frame drag puts the frame that far
-//   along the drag. Escape or Delete drops what was typed and Backspace takes a
+//   inferred direction - AND KEEPS THE OFFER OPEN, so a second value moves
+//   the same vertex the same way again from where it started, a third
+//   likewise, until the tool changes - and a viewport frame drag puts the
+//   frame that far along the drag. Escape or Delete drops what was typed and Backspace takes a
 //   character back - each only while something is typed, so every key keeps
 //   its usual job otherwise. Letters stay tool keys until a value is started. A click on
 //   the sheet drops a half-typed value, as it does in SketchUp. Clicking the
@@ -59,6 +63,23 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.5.0
+// - THE BOX READS A WHOLE-OBJECT MOVE, and takes a typed distance for it. A
+//   vector, a note, a dimension, a leader or a whole multi-item selection held
+//   by the Move tool reads how far it has travelled, at the scale of the place
+//   it started from, and Enter lands it exactly that far along the direction it
+//   is being dragged - the same pair a viewport frame has had since v2.24.0.
+//
+//
+// 17-Sep-2026 - Version 1.4.0
+// - A dimension end being dragged wakes the box too, reading the SPAN, and a
+//   typed value makes the dimension read that (SheetTools TypeDimensionSpan).
+//
+// 17-Sep-2026 - Version 1.3.0
+// - A typed vertex length no longer puts the box back to sleep: the vertex
+//   move stays readable and Enter keeps working, so a wrong figure is
+//   corrected by typing the right one (SheetTools GetVertexRetype).
+//
 // 14-Sep-2026 - Version 1.2.0
 // - Dragging a viewport's frame wakes the box: the reading is the drag's
 //   length at the viewport's scale (the sheet's for a 3D viewport), and Enter
@@ -176,6 +197,53 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Vertex a Typed Length Has Just Moved, or Null
+    // ------------------------------------------------------------
+    function Na__LeMeasure__VertexRetype(ctx) {
+        return (ctx && typeof ctx.getVertexRetype === 'function') ? ctx.getVertexRetype() : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Vertex Move the Box Is Reading: Being Dragged, or Still Retypable
+    // ------------------------------------------------------------
+    // The two read the same { from, to }, and the box makes no distinction
+    // between them: the reading, the scale chip and Enter all carry on
+    // working after the pointer has let go, which is what lets a value that
+    // came out wrong be replaced by typing the right one.
+    // ------------------------------------------------------------
+    function Na__LeMeasure__Vertex(ctx) {
+        return Na__LeMeasure__VertexDrag(ctx) || Na__LeMeasure__VertexRetype(ctx);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Dimension End Being Dragged, or Still Retypable, or Null
+    // ------------------------------------------------------------
+    // Reads { dim, fixed, point, orientation, spanMm } either way, so the box
+    // makes no distinction between a grip still held and one whose typed value
+    // may still be replaced.
+    // ------------------------------------------------------------
+    function Na__LeMeasure__DimEnd(ctx) {
+        if (!ctx) return null;
+        const live = (typeof ctx.getDimEndDrag === 'function') ? ctx.getDimEndDrag() : null;
+        if (live) return live;
+        return (typeof ctx.getDimEndRetype === 'function') ? ctx.getDimEndRetype() : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Dimension Line Being Slid, or Still Retypable, or Null
+    // ------------------------------------------------------------
+    function Na__LeMeasure__DimOffset(ctx) {
+        if (!ctx) return null;
+        const live = (typeof ctx.getDimOffsetDrag === 'function') ? ctx.getDimOffsetDrag() : null;
+        if (live) return live;
+        return (typeof ctx.getDimOffsetRetype === 'function') ? ctx.getDimOffsetRetype() : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | The Viewport Frame Being Dragged, or Null
     // ------------------------------------------------------------
     function Na__LeMeasure__ViewportDrag(ctx) {
@@ -184,11 +252,19 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Whole-Object Move Being Dragged, or Null
+    // ------------------------------------------------------------
+    function Na__LeMeasure__MoveDrag(ctx) {
+        return (ctx && typeof ctx.getMoveDrag === 'function') ? ctx.getMoveDrag() : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Should the Box Take Keys and Show a Reading
     // ------------------------------------------------------------
     function Na__LeMeasure__IsListening(ctx) {
         if (!ctx || !ctx.isEditable()) return false;
-        return !!(Na__LeMeasure__IsMeasuringTool(ctx.getTool()) || Na__LeMeasure__VertexDrag(ctx) || Na__LeMeasure__ViewportDrag(ctx));
+        return !!(Na__LeMeasure__IsMeasuringTool(ctx.getTool()) || Na__LeMeasure__Vertex(ctx) || Na__LeMeasure__DimEnd(ctx) || Na__LeMeasure__DimOffset(ctx) || Na__LeMeasure__ViewportDrag(ctx) || Na__LeMeasure__MoveDrag(ctx));
     }
     // ------------------------------------------------------------
 
@@ -261,15 +337,38 @@
             return { active : false, kind : null, label : Na__LeMeasure__L('MeasureIdle', 'Measurements'), value : '', atScale : true, denominator : null };
         }
 
-        // VERTEX DRAG | A finished vector's vertex is being moved: the
-        // reading is how far it has travelled, at the Vectors panel's scale.
-        const vertex = Na__LeMeasure__VertexDrag(ctx);
+        // VERTEX MOVE | A finished vector's vertex is being moved - dragged,
+        // or still live after a typed value - and the reading is how far it
+        // has travelled, at the Vectors panel's scale.
+        const vertex = Na__LeMeasure__Vertex(ctx);
         if (vertex) {
             const atScale     = ctx.getShapeDefaults().atScale !== false;
             const denominator = atScale ? Na__LeDrawScale__DenominatorAt(sheet, vertex.from) : 1;
             const run         = vertex.to ? Math.hypot(vertex.to.x - vertex.from.x, vertex.to.y - vertex.from.y) : 0;
             const value       = (run >= 1e-4) ? Na__LeMeasure__FormatMm(run * denominator) : '';
             return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureLength', 'Length'), value : value, atScale : atScale, denominator : denominator, vertex : true };
+        }
+
+        // DIMENSION END | One of a dimension's measured points is being moved.
+        // The reading is the SPAN - what the dimension reads - at the scale that
+        // dimension reads at, because that is the number a typed value sets.
+        const dimEnd = Na__LeMeasure__DimEnd(ctx);
+        if (dimEnd) {
+            const denominator = Na__LeDrawScale__DimensionDenominator(sheet, dimEnd.dim);
+            const value       = (dimEnd.spanMm >= 1e-4) ? Na__LeMeasure__FormatMm(dimEnd.spanMm * denominator) : '';
+            return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureLength', 'Length'), value : value,
+                     atScale : Na__LeDrawScale__DimensionAtScale(sheet, dimEnd.dim), denominator : denominator, dimEnd : true };
+        }
+
+        // DIMENSION LINE | The line is being slid off what it measures. The
+        // reading is the distance off, at the scale the dimension reads at, the
+        // way the offset phase of the Dimension tool reads while it is placed.
+        const dimOffset = Na__LeMeasure__DimOffset(ctx);
+        if (dimOffset) {
+            const denominator = Na__LeDrawScale__DimensionDenominator(sheet, dimOffset.dim);
+            return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureOffset', 'Offset'),
+                     value : Na__LeMeasure__FormatMm(Math.abs(dimOffset.offsetMm) * denominator),
+                     atScale : Na__LeDrawScale__DimensionAtScale(sheet, dimOffset.dim), denominator : denominator, dimOffset : true };
         }
 
         // VIEWPORT DRAG | The frame is being moved on the paper: the reading
@@ -281,6 +380,18 @@
             const run         = viewport.to ? Math.hypot(viewport.to.x - viewport.from.x, viewport.to.y - viewport.from.y) : 0;
             const value       = (run >= 1e-4) ? Na__LeMeasure__FormatMm(run * denominator) : '';
             return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureLength', 'Length'), value : value, atScale : true, denominator : denominator, viewport : true };
+        }
+
+        // WHOLE-OBJECT MOVE | A vector, a note, a dimension, a leader or a whole
+        // selection is being relocated by the Move tool. The reading is how far
+        // it has travelled, at the scale of the place it started from - the same
+        // reading a viewport frame gives, for the same gesture.
+        const move = Na__LeMeasure__MoveDrag(ctx);
+        if (move) {
+            const denominator = Na__LeDrawScale__DenominatorAt(sheet, move.from);
+            const run         = move.to ? Math.hypot(move.to.x - move.from.x, move.to.y - move.from.y) : 0;
+            const value       = (run >= 1e-4) ? Na__LeMeasure__FormatMm(run * denominator) : '';
+            return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : Na__LeMeasure__L('MeasureLength', 'Length'), value : value, atScale : true, denominator : denominator, move : true };
         }
 
         if (!Na__LeMeasure__IsMeasuringTool(tool)) {
@@ -348,9 +459,13 @@
                 ? Na__LeMeasure__L('MeasureIdleTitle', 'Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here, or drag a vertex or a viewport.')
                 : (reading.viewport
                     ? Na__LeMeasure__L('MeasureViewportTitle', 'Drag the viewport the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres at the viewport\'s scale.')
-                    : (reading.vertex
-                        ? Na__LeMeasure__L('MeasureVertexTitle', 'Drag the vertex the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres.')
-                        : Na__LeMeasure__L('MeasureTitle', 'Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height.')));
+                    : (reading.dimOffset
+                        ? Na__LeMeasure__L('MeasureDimOffsetTitle', 'Drag the line clear of the drawing, then type how far off it should sit and press Enter. Type another distance to slide it again.')
+                        : (reading.dimEnd
+                        ? Na__LeMeasure__L('MeasureDimEndTitle', 'Drag the end the way to go - or press an arrow key to hold it to an axis - then type what the dimension should read and press Enter. Type another length to set it again.')
+                        : (reading.vertex
+                        ? Na__LeMeasure__L('MeasureVertexTitle', 'Drag the vertex the way to go - or press an arrow key to hold it to an axis - then type a length and press Enter: 2500, 2,500 or 2.5m. A number with no unit is millimetres. Type another length to move it again.')
+                        : Na__LeMeasure__L('MeasureTitle', 'Measurements: while drawing, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres. A rectangle takes width x height.')))));
             if (idle) {
                 if (document.activeElement === Na__LeMeasure__Input) Na__LeMeasure__Input.blur();
                 Na__LeMeasure__Clear();
@@ -554,18 +669,56 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | A Typed Length for a Vertex Being Dragged
+    // HELPER FUNCTION | A Typed Length for a Vertex Being Moved
+    // ------------------------------------------------------------
+    // The first value comes off the drag; every value after it moves the same
+    // vertex the same way again, from where it started. The first one says so
+    // above the box, because nothing else on screen would tell you that
+    // typing again is allowed.
     // ------------------------------------------------------------
     function Na__LeMeasure__CommitVertex(sheet, text, ctx) {
-        const vertex = Na__LeMeasure__VertexDrag(ctx);
+        const vertex = Na__LeMeasure__Vertex(ctx);
         if (!vertex || typeof ctx.typeVertexLength !== 'function') return Na__LeMeasure__Fail('MeasureNoVertexDirection', 'Drag the vertex the way to go, then press Enter.');
         const length = Na__LeMParse__Length(text);
         if (!length.ok) return Na__LeMeasure__BadLength(length);
         const denominator = ctx.getShapeDefaults().atScale !== false ? Na__LeDrawScale__DenominatorAt(sheet, vertex.from) : 1;
         const result = ctx.typeVertexLength(length.valueMm / denominator);
-        if (result.ok) return { ok : true };
+        if (result.ok) return result.retyped ? { ok : true } : { ok : true, message : Na__LeMeasure__L('MeasureVertexAgain', 'Type another length to move it again.') };
         if (result.reason === 'direction') return Na__LeMeasure__Fail('MeasureNoVertexDirection', 'Drag the vertex the way to go, then press Enter.');
         return Na__LeMeasure__Fail('MeasureTooShort', 'Too short to draw.');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Typed Span for a Dimension End Being Moved
+    // ------------------------------------------------------------
+    // The value is what the dimension should READ, not how far its end travels,
+    // so it is taken off at the scale the dimension reads at and the end moves
+    // to suit. Every value after the first sets it again from the fixed end.
+    // ------------------------------------------------------------
+    function Na__LeMeasure__CommitDimEnd(sheet, text, ctx) {
+        const dimEnd = Na__LeMeasure__DimEnd(ctx);
+        if (!dimEnd || typeof ctx.typeDimensionSpan !== 'function') return Na__LeMeasure__Fail('MeasureNoDimEndDirection', 'Drag the end the way to go, then press Enter.');
+        const length = Na__LeMParse__Length(text);
+        if (!length.ok) return Na__LeMeasure__BadLength(length);
+        const result = ctx.typeDimensionSpan(length.valueMm / Na__LeDrawScale__DimensionDenominator(sheet, dimEnd.dim));
+        if (result.ok) return result.retyped ? { ok : true } : { ok : true, message : Na__LeMeasure__L('MeasureDimEndAgain', 'Type another length to set it again.') };
+        if (result.reason === 'direction') return Na__LeMeasure__Fail('MeasureNoDimEndDirection', 'Drag the end the way to go, then press Enter.');
+        return Na__LeMeasure__Fail('MeasureTooShort', 'Too short to draw.');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Typed Distance for a Dimension Line Being Slid
+    // ------------------------------------------------------------
+    function Na__LeMeasure__CommitDimOffset(sheet, text, ctx) {
+        const dimOffset = Na__LeMeasure__DimOffset(ctx);
+        if (!dimOffset || typeof ctx.typeDimensionOffset !== 'function') return Na__LeMeasure__Fail('MeasureNoOffsetSide', 'Drag the line to one side, then press Enter.');
+        const length = Na__LeMParse__Length(text);
+        if (!length.ok) return Na__LeMeasure__BadLength(length);
+        const result = ctx.typeDimensionOffset(length.valueMm / Na__LeDrawScale__DimensionDenominator(sheet, dimOffset.dim));
+        if (result.ok) return result.retyped ? { ok : true } : { ok : true, message : Na__LeMeasure__L('MeasureOffsetAgain', 'Type another distance to slide it again.') };
+        return Na__LeMeasure__Fail('MeasureNoOffsetSide', 'Drag the line to one side, then press Enter.');
     }
     // ------------------------------------------------------------
 
@@ -586,6 +739,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Typed Distance for a Whole-Object Move
+    // ------------------------------------------------------------
+    function Na__LeMeasure__CommitMove(sheet, text, ctx) {
+        const move = Na__LeMeasure__MoveDrag(ctx);
+        if (!move || typeof ctx.typeMoveLength !== 'function') return Na__LeMeasure__Fail('MeasureNoMoveDirection', 'Drag the way to go, then press Enter.');
+        const length = Na__LeMParse__Length(text);
+        if (!length.ok) return Na__LeMeasure__BadLength(length);
+        const denominator = Na__LeDrawScale__DenominatorAt(sheet, move.from);
+        const result = ctx.typeMoveLength(length.valueMm / denominator);
+        if (result.ok) return { ok : true };
+        if (result.reason === 'direction') return Na__LeMeasure__Fail('MeasureNoMoveDirection', 'Drag the way to go, then press Enter.');
+        return Na__LeMeasure__Fail('MeasureTooShort', 'Too short to draw.');
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Use the Typed Value
     // ------------------------------------------------------------
     // Returns true when a value was there to be used - whether or not it
@@ -599,8 +768,11 @@
         if (!ctx || !text || !sheet || !ctx.isEditable()) return false;
         const tool = ctx.getTool();
         let outcome;
-        if (Na__LeMeasure__VertexDrag(ctx))               outcome = Na__LeMeasure__CommitVertex(sheet, text, ctx);
+        if (Na__LeMeasure__Vertex(ctx))                   outcome = Na__LeMeasure__CommitVertex(sheet, text, ctx);
+        else if (Na__LeMeasure__DimEnd(ctx))              outcome = Na__LeMeasure__CommitDimEnd(sheet, text, ctx);
+        else if (Na__LeMeasure__DimOffset(ctx))           outcome = Na__LeMeasure__CommitDimOffset(sheet, text, ctx);
         else if (Na__LeMeasure__ViewportDrag(ctx))        outcome = Na__LeMeasure__CommitViewport(sheet, text, ctx);
+        else if (Na__LeMeasure__MoveDrag(ctx))            outcome = Na__LeMeasure__CommitMove(sheet, text, ctx);
         else if (tool === Na__LeMeasure__TOOL_DRAW)       outcome = Na__LeMeasure__CommitDraw(sheet, text, ctx);
         else if (tool === Na__LeMeasure__TOOL_RECT)       outcome = Na__LeMeasure__CommitRectangle(sheet, text, ctx);
         else if (tool === Na__LeMeasure__TOOL_DIMENSION)  outcome = Na__LeMeasure__CommitDimension(sheet, text, ctx);

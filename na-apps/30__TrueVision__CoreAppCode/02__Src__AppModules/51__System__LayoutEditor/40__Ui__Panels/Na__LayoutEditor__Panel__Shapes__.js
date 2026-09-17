@@ -60,6 +60,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.8.0
+// - Several selected: the panel reads the first vector and writes all of them,
+//   the fill, gradient and dashed-edge rows included. Open or closed stays a
+//   single-selection edit - it is geometry, not style.
+//
 // 14-Sep-2026 - Version 1.7.0
 // - Dashed edges, the toggle after Edge opacity: off by default, and opening
 //   it brings up the pattern (dashed, dotted, dash-dot, hidden), the scale
@@ -121,6 +126,8 @@
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
         Na__LePanels__Refresh,
+        Na__LePanels__SelectedOfKind,
+        Na__LePanels__ApplyToSelection,
         Na__LePanels__Row,
         Na__LePanels__Input,
         Na__LePanels__Note,
@@ -151,6 +158,25 @@
         const item = sheet.Sheet__Shapes.find((s) => s.Shape__Id === selection.id) || null;
         return item ? { sheet : sheet, item : item } : null;
     }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Every Selected Vector, When There Is More Than One
+    // ------------------------------------------------------------
+    // Reading is what the panel shows; writing is what it changes. With one
+    // thing selected the two are the same item. With several, the panel reads
+    // the FIRST of them and writes ALL of them - a box showing the setting for
+    // new objects while nine are selected is what sent an edit somewhere
+    // nobody expected.
+    // ------------------------------------------------------------
+    function Na__LePanelShapes__Many() {
+        const sheet = Na__LeModel__GetActiveSheet();
+        const items = Na__LePanels__SelectedOfKind(sheet, 'shape');
+        if (!items.length) return null;
+        const item = (sheet.Sheet__Shapes || []).find((s) => s.Shape__Id === items[0].id) || null;
+        return item ? { sheet : sheet, item : item, count : items.length } : null;
+    }
+    function Na__LePanelShapes__Reading() { return Na__LePanelShapes__Selected() || Na__LePanelShapes__Many(); }
     // ------------------------------------------------------------
 
 
@@ -217,7 +243,7 @@
     // gradient on starts from the last settings used rather than from scratch.
     // ------------------------------------------------------------
     function Na__LePanelShapes__Gradient() {
-        const selected = Na__LePanelShapes__Selected();
+        const selected = Na__LePanelShapes__Reading();
         const d = Na__LeTools__GetShapeDefaults();
         if (selected) return { on : !!selected.item.Shape__Gradient, gradient : selected.item.Shape__Gradient || d.gradient };
         return { on : d.gradientOn === true, gradient : d.gradient };
@@ -232,7 +258,7 @@
     // dashed edges on starts from the last settings used rather than from scratch.
     // ------------------------------------------------------------
     function Na__LePanelShapes__Dash() {
-        const selected = Na__LePanelShapes__Selected();
+        const selected = Na__LePanelShapes__Reading();
         const d = Na__LeTools__GetShapeDefaults();
         if (selected) return { on : !!selected.item.Shape__LineStyle, style : selected.item.Shape__LineStyle || d.dash };
         return { on : d.dashOn === true, style : d.dash };
@@ -244,11 +270,13 @@
     // ------------------------------------------------------------
     function Na__LePanelShapes__Refresh(body) {
         const selected = Na__LePanelShapes__Selected();
+        const many     = selected ? null : Na__LePanelShapes__Many();
+        const reading  = selected || many;                                      // <-- One selected, or the first of several
         const d = Na__LeTools__GetShapeDefaults();
-        const values = selected
-            ? { strokeColour : selected.item.Shape__StrokeColour, strokePt : selected.item.Shape__StrokePt, stroked : selected.item.Shape__Stroked !== false, filled : !!selected.item.Shape__FillColour, fillColour : selected.item.Shape__FillColour || d.fillColour, closed : selected.item.Shape__Closed === true }
+        const values = reading
+            ? { strokeColour : reading.item.Shape__StrokeColour, strokePt : reading.item.Shape__StrokePt, stroked : reading.item.Shape__Stroked !== false, filled : !!reading.item.Shape__FillColour, fillColour : reading.item.Shape__FillColour || d.fillColour, closed : reading.item.Shape__Closed === true }
             : { strokeColour : d.strokeColour, strokePt : d.strokePt, stroked : d.stroked !== false, filled : d.filled === true, fillColour : d.fillColour, closed : false };
-        const canFill = !selected || selected.item.Shape__Points.length > 2;   // <-- A two-point line encloses nothing, so its edges have to stay
+        const canFill = !reading || reading.item.Shape__Points.length > 2;     // <-- A two-point line encloses nothing, so its edges have to stay
         const el  = (name) => body.querySelector('[data-na-control="' + name + '"]');
         const set = (name, value) => { const e = el(name); if (e && document.activeElement !== e) e.value = String(value); };
         const hex = (value, fallback) => (/^#[0-9a-fA-F]{6}$/.test(String(value)) ? value : fallback);
@@ -267,8 +295,8 @@
         el('shape-pt').parentNode.hidden      = !values.stroked;
         el('shape-fill').parentNode.hidden    = !values.filled;
         // OPACITY | A slider for the fill while there is one; the edges' only once Transparent edges is ticked
-        const fillOpacity = selected ? selected.item.Shape__FillOpacity   : d.fillOpacity;
-        const edgeOpacity = selected ? selected.item.Shape__StrokeOpacity : d.strokeOpacity;
+        const fillOpacity = reading ? reading.item.Shape__FillOpacity   : d.fillOpacity;
+        const edgeOpacity = reading ? reading.item.Shape__StrokeOpacity : d.strokeOpacity;
         const percent     = (value) => Math.round((Number.isFinite(value) ? value : 1) * 100);
         const clearEdges  = Number.isFinite(edgeOpacity) && edgeOpacity < 1;
         el('shape-edge-transparent').checked           = clearEdges;
@@ -280,12 +308,14 @@
         Na__LeDash__RefreshRows(body, Object.assign({ stroked : values.stroked }, Na__LePanelShapes__Dash()));
         Na__LeGrad__RefreshRows(body, Object.assign({ canFill : canFill }, Na__LePanelShapes__Gradient()));
         body.querySelector('[data-na-block="either"]').hidden = !canFill;
-        const many = Na__LeModel__GetSelectionItems().length;
+        const picked = Na__LeModel__GetSelectionItems().length;
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? Na__LeCfg__GetLabel('ShapeSelectedNote', 'Editing the selected shape.')
-            : (many > 1
-                ? Na__LeCfg__FormatLabel('ShapeManyNote', '{count} items selected. Click one shape on its own to edit it; these settings apply to new shapes.', { count : many })
-                : Na__LeCfg__GetLabel('ShapeDefaultsNote', 'Nothing selected: these settings apply to new shapes.'));
+            : (many
+                ? Na__LeCfg__FormatLabel('ShapeManyNote', 'Editing {count} selected vectors: a change here goes to all of them.', { count : many.count })
+                : (picked > 1
+                    ? Na__LeCfg__GetLabel('ShapeNoneOfKindNote', 'Nothing selected is a vector: these settings apply to new shapes.')
+                    : Na__LeCfg__GetLabel('ShapeDefaultsNote', 'Nothing selected: these settings apply to new shapes.')));
     }
     // ------------------------------------------------------------
 
@@ -305,6 +335,7 @@
     function Na__LePanelShapes__Apply(patch, defaultsPatch) {
         const selected = Na__LePanelShapes__Selected();
         if (selected) { Na__LeModel__UpdateShape(selected.sheet, selected.item.Shape__Id, patch); return; }   // <-- The model announces, and the panel refreshes with it
+        if (Na__LePanels__ApplyToSelection(Na__LeModel__GetActiveSheet(), 'shape', patch)) return;   // <-- Several selected: the style traits go to every one of them
         if (!defaultsPatch) return;
         Na__LeTools__SetShapeDefaults(defaultsPatch);
         Na__LePanels__Refresh(Na__LePanelShapes__ID);                        // <-- Nothing announces a defaults change, so show it here

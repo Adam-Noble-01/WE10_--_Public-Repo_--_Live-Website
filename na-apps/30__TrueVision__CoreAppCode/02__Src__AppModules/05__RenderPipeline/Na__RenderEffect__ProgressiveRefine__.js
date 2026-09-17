@@ -141,6 +141,21 @@
 //   asks for the frame it needs - except when the frame was never its to
 //   refine, which is what suspend() and the blocked state are for.
 //
+// 17-Sep-2026 - Version 1.0.3
+// - EnsureBuffer floors the composer's buffer size before comparing it with
+//   the supersampler's. EffectComposer stores cssSize x pixelRatio unrounded,
+//   so at 125% or 150% display scaling the size is fractional; the
+//   supersampler rounds and reports the rounded size; the two never matched,
+//   the buffer was rebuilt and the total discarded on EVERY chunk, and the
+//   count sat on the first chunk size for ever. Reproduced at 87 chunks in
+//   3.5 seconds against 4 to converge; floor matches what WebGL allocates.
+//
+// 17-Sep-2026 - Version 1.0.2
+// - planFrame reads performance.now() itself instead of taking the caller's
+//   animation-frame timestamp. Everything else here stamps and measures with
+//   performance.now(), and a refinement chunk blocks long enough for the two
+//   clocks to disagree by a quarter of a second at the moment of the decision.
+//
 // 16-Sep-2026 - Version 1.0.0
 // - Initial implementation for ValeVision3D v2.48.0, ported here at v2.56.0.
 //
@@ -449,9 +464,23 @@
             const readBuffer = composer ? composer.readBuffer : null;
             if (!readBuffer) return null;
 
-            const width  = readBuffer.width;
-            const height = readBuffer.height;
-            if (!(width > 0) || !(height > 0)) return null;
+            // ROUNDED, BECAUSE THE COMPOSER DOES NOT. EffectComposer sizes its
+            // buffers as cssWidth x pixelRatio and stores the product as it
+            // comes, so on any display scaling that is not 100% - 125% and 150%
+            // are the normal cases on a good monitor - readBuffer.width is a
+            // number like 2498.75. The supersampler rounds what it is given and
+            // reports the rounded size, so comparing the two raw would fail on
+            // EVERY chunk: buffer torn down, total discarded, chunk drawn again
+            // from zero, landing on the first chunk size every frame for ever.
+            // That is the "6 of 16" that never moved, at a full chunk of GPU
+            // work per frame. FLOOR, not round: WebGL takes texture sizes as
+            // integers and truncates, so the buffer that actually exists on the
+            // GPU is the floor of the number three.js wrote down. Matching that
+            // makes the equality test exact AND the accumulation target the
+            // same pixel size as the frame it accumulates.
+            const width  = Math.max(1, Math.floor(readBuffer.width));
+            const height = Math.max(1, Math.floor(readBuffer.height));
+            if (!(readBuffer.width > 0) || !(readBuffer.height > 0)) return null;
 
             if (supersampler && (supersampler.width !== width || supersampler.height !== height)) {
                 supersampler.dispose();                                       // <-- Window resized or the engine was swapped
@@ -509,11 +538,33 @@
             // context:
             //   camera    {THREE.Camera}  The camera the composer is rendering through
             //   sceneBusy {boolean}       Something other than the camera is moving
-            //   now       {number}        performance.now() for this frame
+            //
+            // ONE CLOCK, READ HERE. This used to take the caller's timestamp,
+            // and the caller had only one to give: the animation frame's, which
+            // is the time the FRAME BEGAN - the vsync tick - and not the time
+            // now. Everything else in this module stamps and measures with
+            // performance.now(): reset(), suspend(), release(), setEnabled() and
+            // getPendingWork() all do. Mixing the two is not a rounding
+            // difference, it is two clocks that drift apart by as much as a
+            // frame takes, and a refinement chunk is a frame that takes a
+            // quarter of a second.
+            //
+            // The stall that follows is silent and total. reset() stamps the
+            // change with wall clock; the next plan measures the wait with the
+            // frame clock, finds it short or even negative, and answers "still
+            // settling" - which is the ONE outcome that leaves the running total
+            // untouched. getPendingWork then measures the same wait with wall
+            // clock, finds it long, and answers "come back now". So the loop is
+            // sent straight back to a test that will send it away again, for
+            // ever: sixty frames a second of ordinary frames, no long frames to
+            // show up as violations, the frame rate readout happily reporting
+            // 60fps off those frames, and the sample count frozen wherever the
+            // last chunk left it. On a machine quick enough to fit six samples
+            // into the first chunk, that reads "6 of 16" and never moves.
             // ------------------------------------------------------------
             planFrame(context) {
-                const { camera, sceneBusy, now } = context || {};
-                const frameNow = Number.isFinite(now) ? now : performance.now();
+                const { camera, sceneBusy } = context || {};
+                const frameNow = performance.now();
 
                 if (!isEnabled || isDisposed || !camera) {
                     Na__Refine__DiscardTotal();

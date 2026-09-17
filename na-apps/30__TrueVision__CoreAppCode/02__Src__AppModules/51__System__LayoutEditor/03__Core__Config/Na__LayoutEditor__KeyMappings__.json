@@ -1,8 +1,7 @@
 {
-    "LayoutEditor__KeyMappings__Description"   : "Every mouse, wheel, keyboard and touch binding the Layout Editor listens for. Nothing in the control modules is hard-coded to a button or a key, so this file is the single place a binding changes. It is shaped to be handed to a user personalisation screen later: each binding carries an Id, a human Label and an Enabled flag, so a saved user override can be merged over the top of this file without the control code changing at all.",
-    "LayoutEditor__KeyMappings__SchemaVersion" : 1,
-
-    "LayoutEditor__KeyMappings__Notes" : [
+    "LayoutEditor__KeyMappings__Description": "Every mouse, wheel, keyboard and touch binding the Layout Editor listens for. Nothing in the control modules is hard-coded to a button or a key, so this file is the single place a binding changes. It is shaped to be handed to a user personalisation screen later: each binding carries an Id, a human Label and an Enabled flag, so a saved user override can be merged over the top of this file without the control code changing at all.",
+    "LayoutEditor__KeyMappings__SchemaVersion": 1,
+    "LayoutEditor__KeyMappings__Notes": [
         "Buttons are named Left, Middle and Right (mouse button 0, 1 and 2).",
         "Modifiers are named Ctrl, Shift, Alt, Meta and Space. Space is the held space bar, tracked by the PC controls module.",
         "ModifierMatch Exact means the listed modifiers must be the only ones held. ModifierMatch Any ignores modifiers entirely. ModifierMatch CoarseOptional means Exact, except that the coarse step modifier is allowed on top.",
@@ -10,509 +9,833 @@
         "RequiresEmptyStage true limits a binding to a press that lands on the grey stage rather than on the paper.",
         "Zoom limits and the wheel step live in Na__LayoutEditor__AppConfig__.json under LayoutEditor__Navigation__Config. This file owns which input triggers an action, that file owns how far and how fast it travels."
     ],
-
-    "LayoutEditor__Guards__Config" : {
-        "LayoutEditor__Guards__Description"             : "Elements inside the stage that keep their own input. A press or a wheel over one of these is left alone so a viewport canvas can drive its own camera and a panel control can be used.",
-        "LayoutEditor__Guards__PointerIgnoreSelector"   : "input, select, button, textarea, canvas, [contenteditable=\"true\"]",
-        "LayoutEditor__Guards__WheelIgnoreSelector"     : "canvas",
-        "LayoutEditor__Guards__ContextMenuKeepSelector" : "input, select, button, textarea, [contenteditable=\"true\"]",
-        "LayoutEditor__Guards__PaperSelector"           : ".na-le-paper"
+    "LayoutEditor__Guards__Config": {
+        "LayoutEditor__Guards__Description": "Elements inside the stage that keep their own input. A press or a wheel over one of these is left alone so a viewport canvas can drive its own camera and a panel control can be used.",
+        "LayoutEditor__Guards__PointerIgnoreSelector": "input, select, button, textarea, canvas, [contenteditable=\"true\"]",
+        "LayoutEditor__Guards__WheelIgnoreSelector": "canvas",
+        "LayoutEditor__Guards__ContextMenuKeepSelector": "input, select, button, textarea, [contenteditable=\"true\"]",
+        "LayoutEditor__Guards__PaperSelector": ".na-le-paper"
     },
-
-    "LayoutEditor__PointerBindings__Config" : {
-        "LayoutEditor__PointerBindings__Description" : "Mouse and pen drags on the stage. The left button is deliberately left to the sheet tools unless a binding below claims it with a modifier or an empty-stage rule, which is the Lantern Designer rule: pan capture on a bare left button swallows the click before it reaches a dimension or a viewport.",
-        "LayoutEditor__PointerBindings__List" : [
+    "LayoutEditor__PointerBindings__Config": {
+        "LayoutEditor__PointerBindings__Description": "Mouse and pen drags on the stage. The left button is deliberately left to the sheet tools unless a binding below claims it with a modifier or an empty-stage rule, which is the Lantern Designer rule: pan capture on a bare left button swallows the click before it reaches a dimension or a viewport.",
+        "LayoutEditor__PointerBindings__List": [
             {
-                "Id"            : "Pan__MiddleOrRightDrag",
-                "Label"         : "Pan the sheet (middle or right drag)",
-                "Action"        : "Nav__Pan",
-                "Enabled"       : true,
-                "Buttons"       : [ "Middle", "Right" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Any",
-                "Note"          : "Lantern Designer parity. This is the shipped default."
+                "Id": "Pan__MiddleOrRightDrag",
+                "Label": "Pan the sheet (middle or right drag)",
+                "Action": "Nav__Pan",
+                "Enabled": true,
+                "Buttons": [
+                    "Middle",
+                    "Right"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Any",
+                "Note": "Lantern Designer parity. This is the shipped default."
             },
             {
-                "Id"            : "Pan__SpaceLeftDrag",
-                "Label"         : "Pan the sheet (hold space, left drag)",
-                "Action"        : "Nav__Pan",
-                "Enabled"       : false,
-                "Buttons"       : [ "Left" ],
-                "Modifiers"     : [ "Space" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "The CAD and Illustrator convention. Left click still edits while space is up."
+                "Id": "Pan__SpaceLeftDrag",
+                "Label": "Pan the sheet (hold space, left drag)",
+                "Action": "Nav__Pan",
+                "Enabled": false,
+                "Buttons": [
+                    "Left"
+                ],
+                "Modifiers": [
+                    "Space"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "The CAD and Illustrator convention. Left click still edits while space is up."
             },
             {
-                "Id"                 : "Pan__EmptyStageLeftDrag",
-                "Label"              : "Pan the sheet (left drag on the grey stage)",
-                "Action"             : "Nav__Pan",
-                "Enabled"            : false,
-                "Buttons"            : [ "Left" ],
-                "Modifiers"          : [],
-                "ModifierMatch"      : "Exact",
-                "RequiresEmptyStage" : true,
-                "Note"               : "Only fires when the press lands off the paper, so nothing on the sheet can be grabbed by accident."
+                "Id": "Pan__EmptyStageLeftDrag",
+                "Label": "Pan the sheet (left drag on the grey stage)",
+                "Action": "Nav__Pan",
+                "Enabled": false,
+                "Buttons": [
+                    "Left"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "RequiresEmptyStage": true,
+                "Note": "Only fires when the press lands off the paper, so nothing on the sheet can be grabbed by accident."
             }
         ]
     },
-
-    "LayoutEditor__WheelBindings__Config" : {
-        "LayoutEditor__WheelBindings__Description" : "What the wheel does over the stage. A trackpad reports a two-finger scroll as a wheel, so enabling the scroll bindings below and moving zoom onto Ctrl gives a laptop without a middle button a way to move around.",
-        "LayoutEditor__WheelBindings__List" : [
+    "LayoutEditor__WheelBindings__Config": {
+        "LayoutEditor__WheelBindings__Description": "What the wheel does over the stage. A trackpad reports a two-finger scroll as a wheel, so enabling the scroll bindings below and moving zoom onto Ctrl gives a laptop without a middle button a way to move around.",
+        "LayoutEditor__WheelBindings__List": [
             {
-                "Id"            : "Zoom__Wheel",
-                "Label"         : "Zoom about the cursor",
-                "Action"        : "Nav__ZoomAtCursor",
-                "Enabled"       : true,
-                "Modifiers"     : [],
-                "ModifierMatch" : "Any",
-                "Note"          : "Lantern Designer parity. This is the shipped default."
+                "Id": "Zoom__Wheel",
+                "Label": "Zoom about the cursor",
+                "Action": "Nav__ZoomAtCursor",
+                "Enabled": true,
+                "Modifiers": [],
+                "ModifierMatch": "Any",
+                "Note": "Lantern Designer parity. This is the shipped default."
             },
             {
-                "Id"            : "Zoom__CtrlWheel",
-                "Label"         : "Zoom about the cursor (ctrl held)",
-                "Action"        : "Nav__ZoomAtCursor",
-                "Enabled"       : false,
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Pair this with the scroll bindings below and switch Zoom__Wheel off for trackpad behaviour."
+                "Id": "Zoom__CtrlWheel",
+                "Label": "Zoom about the cursor (ctrl held)",
+                "Action": "Nav__ZoomAtCursor",
+                "Enabled": false,
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Pair this with the scroll bindings below and switch Zoom__Wheel off for trackpad behaviour."
             },
             {
-                "Id"            : "Scroll__Wheel",
-                "Label"         : "Scroll the sheet up and down",
-                "Action"        : "Nav__ScrollVertical",
-                "Enabled"       : false,
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Scroll__Wheel",
+                "Label": "Scroll the sheet up and down",
+                "Action": "Nav__ScrollVertical",
+                "Enabled": false,
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Scroll__ShiftWheel",
-                "Label"         : "Scroll the sheet left and right",
-                "Action"        : "Nav__ScrollHorizontal",
-                "Enabled"       : false,
-                "Modifiers"     : [ "Shift" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Scroll__ShiftWheel",
+                "Label": "Scroll the sheet left and right",
+                "Action": "Nav__ScrollHorizontal",
+                "Enabled": false,
+                "Modifiers": [
+                    "Shift"
+                ],
+                "ModifierMatch": "Exact"
             }
         ]
     },
-
-    "LayoutEditor__KeyboardBindings__Config" : {
-        "LayoutEditor__KeyboardBindings__Description"       : "Keys read while the editor is on screen. The navigation keys are shipped off so the bare arrow keys keep nudging the selection, which is the behaviour the editor already had. Switch them on here and the PC controls module picks them up with no code change. While the Draw or Dimension tool is placing a point the arrows lock the drawing axis instead of nudging, as in SketchUp LayOut; they go back to nudging the moment the point lands.",
-        "LayoutEditor__KeyboardBindings__IgnoreWhenTyping"   : true,
-        "LayoutEditor__KeyboardBindings__CoarseStepModifier" : "Shift",
-        "LayoutEditor__KeyboardBindings__NudgeStepMm"        : 1,
-        "LayoutEditor__KeyboardBindings__NudgeCoarseStepMm"  : 10,
-        "LayoutEditor__KeyboardBindings__PanStepPx"          : 60,
-        "LayoutEditor__KeyboardBindings__PanCoarseStepPx"    : 240,
-        "LayoutEditor__KeyboardBindings__ZoomKeyStep"        : 1.15,
-        "LayoutEditor__KeyboardBindings__List" : [
+    "LayoutEditor__KeyboardBindings__Config": {
+        "LayoutEditor__KeyboardBindings__Description": "Keys read while the editor is on screen. The navigation keys are shipped off so the bare arrow keys keep nudging the selection, which is the behaviour the editor already had. Switch them on here and the PC controls module picks them up with no code change. While the Draw or Dimension tool is placing a point the arrows lock the drawing axis instead of nudging, as in SketchUp LayOut; they go back to nudging the moment the point lands.",
+        "LayoutEditor__KeyboardBindings__IgnoreWhenTyping": true,
+        "LayoutEditor__KeyboardBindings__CoarseStepModifier": "Shift",
+        "LayoutEditor__KeyboardBindings__NudgeStepMm": 1,
+        "LayoutEditor__KeyboardBindings__NudgeCoarseStepMm": 10,
+        "LayoutEditor__KeyboardBindings__PanStepPx": 60,
+        "LayoutEditor__KeyboardBindings__PanCoarseStepPx": 240,
+        "LayoutEditor__KeyboardBindings__ZoomKeyStep": 1.15,
+        "LayoutEditor__KeyboardBindings__List": [
             {
-                "Id"            : "Nav__ZoomFit",
-                "Label"         : "Zoom to fit the sheet",
-                "Action"        : "Nav__ZoomFit",
-                "Enabled"       : false,
-                "Keys"          : [ "f", "F" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Nav__ZoomFit",
+                "Label": "Zoom to fit the sheet",
+                "Action": "Nav__ZoomFit",
+                "Enabled": false,
+                "Keys": [
+                    "f",
+                    "F"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Nav__ZoomActualSize",
-                "Label"         : "Zoom to 100 percent",
-                "Action"        : "Nav__ZoomActualSize",
-                "Enabled"       : false,
-                "Keys"          : [ "1" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Nav__ZoomActualSize",
+                "Label": "Zoom to 100 percent",
+                "Action": "Nav__ZoomActualSize",
+                "Enabled": false,
+                "Keys": [
+                    "1"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Nav__ZoomIn",
-                "Label"         : "Zoom in",
-                "Action"        : "Nav__ZoomIn",
-                "Enabled"       : false,
-                "Keys"          : [ "+", "=" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Nav__ZoomIn",
+                "Label": "Zoom in",
+                "Action": "Nav__ZoomIn",
+                "Enabled": false,
+                "Keys": [
+                    "+",
+                    "="
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Nav__ZoomOut",
-                "Label"         : "Zoom out",
-                "Action"        : "Nav__ZoomOut",
-                "Enabled"       : false,
-                "Keys"          : [ "-", "_" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Nav__ZoomOut",
+                "Label": "Zoom out",
+                "Action": "Nav__ZoomOut",
+                "Enabled": false,
+                "Keys": [
+                    "-",
+                    "_"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Nav__PanLeft",
-                "Label"         : "Pan left",
-                "Action"        : "Nav__PanLeft",
-                "Enabled"       : false,
-                "Keys"          : [ "ArrowLeft" ],
-                "Modifiers"     : [ "Alt" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Alt is held so this cannot collide with the selection nudge on the bare arrow keys."
+                "Id": "Nav__PanLeft",
+                "Label": "Pan left",
+                "Action": "Nav__PanLeft",
+                "Enabled": false,
+                "Keys": [
+                    "ArrowLeft"
+                ],
+                "Modifiers": [
+                    "Alt"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Alt is held so this cannot collide with the selection nudge on the bare arrow keys."
             },
             {
-                "Id"            : "Nav__PanRight",
-                "Label"         : "Pan right",
-                "Action"        : "Nav__PanRight",
-                "Enabled"       : false,
-                "Keys"          : [ "ArrowRight" ],
-                "Modifiers"     : [ "Alt" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Nav__PanRight",
+                "Label": "Pan right",
+                "Action": "Nav__PanRight",
+                "Enabled": false,
+                "Keys": [
+                    "ArrowRight"
+                ],
+                "Modifiers": [
+                    "Alt"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Nav__PanUp",
-                "Label"         : "Pan up",
-                "Action"        : "Nav__PanUp",
-                "Enabled"       : false,
-                "Keys"          : [ "ArrowUp" ],
-                "Modifiers"     : [ "Alt" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Nav__PanUp",
+                "Label": "Pan up",
+                "Action": "Nav__PanUp",
+                "Enabled": false,
+                "Keys": [
+                    "ArrowUp"
+                ],
+                "Modifiers": [
+                    "Alt"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Nav__PanDown",
-                "Label"         : "Pan down",
-                "Action"        : "Nav__PanDown",
-                "Enabled"       : false,
-                "Keys"          : [ "ArrowDown" ],
-                "Modifiers"     : [ "Alt" ],
-                "ModifierMatch" : "Exact"
-            },
-
-            {
-                "Id"            : "Edit__Cancel",
-                "Label"         : "Cancel placement, then clear the selection, then return to the select tool",
-                "Action"        : "Edit__Cancel",
-                "Enabled"       : true,
-                "Keys"          : [ "Escape" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Nav__PanDown",
+                "Label": "Pan down",
+                "Action": "Nav__PanDown",
+                "Enabled": false,
+                "Keys": [
+                    "ArrowDown"
+                ],
+                "Modifiers": [
+                    "Alt"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Edit__Delete",
-                "Label"         : "Delete the selection",
-                "Action"        : "Edit__Delete",
-                "Enabled"       : true,
-                "Keys"          : [ "Delete", "Backspace" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__Cancel",
+                "Label": "Stop: abandon any placement, close any open container, clear the selection and go back to the Select tool",
+                "Action": "Edit__Cancel",
+                "Enabled": true,
+                "Keys": [
+                    "Escape"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Snap__Toggle",
-                "Label"         : "Toggle object snapping to the linework (AutoCAD F3)",
-                "Action"        : "Snap__Toggle",
-                "Enabled"       : true,
-                "Keys"          : [ "F3" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__Delete",
+                "Label": "Delete the selection",
+                "Action": "Edit__Delete",
+                "Enabled": true,
+                "Keys": [
+                    "Delete",
+                    "Backspace"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Edit__Undo",
-                "Label"         : "Undo the last change on the sheet",
-                "Action"        : "Edit__Undo",
-                "Enabled"       : true,
-                "Keys"          : [ "z", "Z" ],
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Snap__Toggle",
+                "Label": "Toggle object snapping to the linework (AutoCAD F3)",
+                "Action": "Snap__Toggle",
+                "Enabled": true,
+                "Keys": [
+                    "F3"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Edit__Redo",
-                "Label"         : "Redo the change just undone",
-                "Action"        : "Edit__Redo",
-                "Enabled"       : true,
-                "Keys"          : [ "y", "Y" ],
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__Undo",
+                "Label": "Undo the last change on the sheet",
+                "Action": "Edit__Undo",
+                "Enabled": true,
+                "Keys": [
+                    "z",
+                    "Z"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Edit__RedoShift",
-                "Label"         : "Redo (Ctrl+Shift+Z)",
-                "Action"        : "Edit__Redo",
-                "Enabled"       : true,
-                "Keys"          : [ "z", "Z" ],
-                "Modifiers"     : [ "Ctrl", "Shift" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__Redo",
+                "Label": "Redo the change just undone",
+                "Action": "Edit__Redo",
+                "Enabled": true,
+                "Keys": [
+                    "y",
+                    "Y"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Edit__Ungroup",
-                "Label"         : "Ungroup the selected group",
-                "Action"        : "Edit__Ungroup",
-                "Enabled"       : true,
-                "Keys"          : [ "g", "G" ],
-                "Modifiers"     : [ "Ctrl", "Shift" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Lifts one grouping level. Nested groups come out as groups."
+                "Id": "Edit__RedoShift",
+                "Label": "Redo (Ctrl+Shift+Z)",
+                "Action": "Edit__Redo",
+                "Enabled": true,
+                "Keys": [
+                    "z",
+                    "Z"
+                ],
+                "Modifiers": [
+                    "Ctrl",
+                    "Shift"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Edit__Group",
-                "Label"         : "Group the selected vectors and text",
-                "Action"        : "Edit__Group",
-                "Enabled"       : true,
-                "Keys"          : [ "g", "G" ],
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Needs at least two vectors, text items or groups. The browser Find chord is taken only when a group is made."
+                "Id": "Edit__Ungroup",
+                "Label": "Ungroup the selected group",
+                "Action": "Edit__Ungroup",
+                "Enabled": true,
+                "Keys": [
+                    "g",
+                    "G"
+                ],
+                "Modifiers": [
+                    "Ctrl",
+                    "Shift"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Lifts one grouping level. Nested groups come out as groups."
             },
             {
-                "Id"            : "Edit__Copy",
-                "Label"         : "Copy the selected viewport",
-                "Action"        : "Edit__Copy",
-                "Enabled"       : true,
-                "Keys"          : [ "c", "C" ],
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "With no viewport selected the key is left to the browser, so copying text from a panel still works."
+                "Id": "Edit__Group",
+                "Label": "Group the selected vectors and text",
+                "Action": "Edit__Group",
+                "Enabled": true,
+                "Keys": [
+                    "g",
+                    "G"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Needs at least two vectors, text items or groups. The browser Find chord is taken only when a group is made."
             },
             {
-                "Id"            : "Edit__Paste",
-                "Label"         : "Paste the copied viewport as a new one: new id, new name, every setting kept",
-                "Action"        : "Edit__Paste",
-                "Enabled"       : true,
-                "Keys"          : [ "v", "V" ],
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "On the sheet it came from the paste steps clear of the original; on another sheet it lands in the same place."
+                "Id": "Edit__Copy",
+                "Label": "Copy the selected viewport",
+                "Action": "Edit__Copy",
+                "Enabled": true,
+                "Keys": [
+                    "c",
+                    "C"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "With no viewport selected the key is left to the browser, so copying text from a panel still works."
             },
             {
-                "Id"            : "Edit__Duplicate",
-                "Label"         : "Duplicate the selected viewport (copy and paste in one, the clipboard is left alone)",
-                "Action"        : "Edit__Duplicate",
-                "Enabled"       : true,
-                "Keys"          : [ "d", "D" ],
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Taken from the browser while a sheet is open, where Ctrl+D would otherwise bookmark the page. Bare D is still the Dimension tool."
+                "Id": "Edit__Paste",
+                "Label": "Paste the copied viewport as a new one: new id, new name, every setting kept",
+                "Action": "Edit__Paste",
+                "Enabled": true,
+                "Keys": [
+                    "v",
+                    "V"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "On the sheet it came from the paste steps clear of the original; on another sheet it lands in the same place."
             },
             {
-                "Id"            : "Edit__Deselect",
-                "Label"         : "Clear the selection and abandon any placement (space bar)",
-                "Action"        : "Edit__Deselect",
-                "Enabled"       : true,
-                "Keys"          : [ " " ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__Duplicate",
+                "Label": "Duplicate the selected viewport (copy and paste in one, the clipboard is left alone)",
+                "Action": "Edit__Duplicate",
+                "Enabled": true,
+                "Keys": [
+                    "d",
+                    "D"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Taken from the browser while a sheet is open, where Ctrl+D would otherwise bookmark the page. Bare D is still the Dimension tool."
             },
             {
-                "Id"            : "Edit__Finish",
-                "Label"         : "Finish the shape being drawn, or the editing of a viewport's content",
-                "Action"        : "Edit__Finish",
-                "Enabled"       : true,
-                "Keys"          : [ "Enter" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Tool__SelectSpace",
+                "Label": "Select tool on, then off (space bar)",
+                "Action": "Tool__SelectToggle",
+                "Enabled": true,
+                "Keys": [
+                    " "
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "Space is the select key in most CAD packages, so it sits beside V rather than replacing it. One press puts whatever tool is up down and picks Select up; the next press puts Select down too, leaving nothing armed - the same resting state Escape leaves. The space bar is ALWAYS taken from the browser, which would otherwise scroll or zoom the page under the sheet. A value being typed into the Measurements box keeps the space bar, because a space is one of its typing characters. Holding space repeats the key and only the first press counts, so re-enabling Pan__SpaceLeftDrag will not flip the tool while panning."
             },
             {
-                "Id"            : "Tool__Draw",
-                "Label"         : "Draw tool: lines and polygons",
-                "Action"        : "Tool__Draw",
-                "Enabled"       : true,
-                "Keys"          : [ "l", "L" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__Deselect",
+                "Label": "Clear the selection and abandon any placement",
+                "Action": "Edit__Deselect",
+                "Enabled": false,
+                "Keys": [
+                    " "
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "Shipped off since the space bar became the Select tool, and Escape now clears the selection as part of putting the tools down. Switch it back on here - on another key - to have a clear-the-selection key of its own."
             },
             {
-                "Id"            : "Tool__Rectangle",
-                "Label"         : "Rectangle tool: draw a rectangle corner to corner",
-                "Action"        : "Tool__Rectangle",
-                "Enabled"       : true,
-                "Keys"          : [ "r", "R" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Click one corner then the opposite one, or drag from one to the other; Shift keeps it square. What it makes is an ordinary closed vector, so its corners are then dragged by their grips like any polygon's. Exact modifiers leave Ctrl+R to the browser."
+                "Id": "Edit__Finish",
+                "Label": "Finish the shape being drawn, or the editing of a viewport's content",
+                "Action": "Edit__Finish",
+                "Enabled": true,
+                "Keys": [
+                    "Enter"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Tool__Leader",
-                "Label"         : "Leader tool: a note or a specification bubble on a curved leader",
-                "Action"        : "Tool__Leader",
-                "Enabled"       : true,
-                "Keys"          : [ "e", "E" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Click the point the leader marks, then where its note or bubble goes - or drag from one to the other. The side of the point the head is placed on decides which way a note reads. The settings for new leaders are on the Leaders panel."
+                "Id": "Tool__Draw",
+                "Label": "Draw tool: lines and polygons",
+                "Action": "Tool__Draw",
+                "Enabled": true,
+                "Keys": [
+                    "l",
+                    "L"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Edit__NudgeLeft",
-                "Label"         : "Nudge the selection left, or lock the X axis while a tool is placing a point",
-                "Action"        : "Edit__NudgeLeft",
-                "Enabled"       : true,
-                "Keys"          : [ "ArrowLeft" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "CoarseOptional"
+                "Id": "Tool__Rectangle",
+                "Label": "Rectangle tool: draw a rectangle corner to corner",
+                "Action": "Tool__Rectangle",
+                "Enabled": true,
+                "Keys": [
+                    "r",
+                    "R"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "Click one corner then the opposite one, or drag from one to the other; Shift keeps it square. What it makes is an ordinary closed vector, so its corners are then dragged by their grips like any polygon's. Exact modifiers leave Ctrl+R to the browser."
             },
             {
-                "Id"            : "Edit__NudgeRight",
-                "Label"         : "Nudge the selection right, or lock the X axis while a tool is placing a point",
-                "Action"        : "Edit__NudgeRight",
-                "Enabled"       : true,
-                "Keys"          : [ "ArrowRight" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "CoarseOptional"
+                "Id": "Tool__Leader",
+                "Label": "Leader tool: a note or a specification bubble on a curved leader",
+                "Action": "Tool__Leader",
+                "Enabled": true,
+                "Keys": [
+                    "e",
+                    "E"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "Click the point the leader marks, then where its note or bubble goes - or drag from one to the other. The side of the point the head is placed on decides which way a note reads. The settings for new leaders are on the Leaders panel."
             },
             {
-                "Id"            : "Edit__NudgeUp",
-                "Label"         : "Nudge the selection up, or lock the Y axis while a tool is placing a point",
-                "Action"        : "Edit__NudgeUp",
-                "Enabled"       : true,
-                "Keys"          : [ "ArrowUp" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "CoarseOptional"
+                "Id": "Edit__NudgeLeft",
+                "Label": "Nudge the selection left, or lock the X axis while a tool is placing a point",
+                "Action": "Edit__NudgeLeft",
+                "Enabled": true,
+                "Keys": [
+                    "ArrowLeft"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "CoarseOptional"
             },
             {
-                "Id"            : "Edit__NudgeDown",
-                "Label"         : "Nudge the selection down, or lock the Y axis while a tool is placing a point",
-                "Action"        : "Edit__NudgeDown",
-                "Enabled"       : true,
-                "Keys"          : [ "ArrowDown" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "CoarseOptional"
+                "Id": "Edit__NudgeRight",
+                "Label": "Nudge the selection right, or lock the X axis while a tool is placing a point",
+                "Action": "Edit__NudgeRight",
+                "Enabled": true,
+                "Keys": [
+                    "ArrowRight"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "CoarseOptional"
             },
             {
-                "Id"            : "Tool__Select",
-                "Label"         : "Select tool",
-                "Action"        : "Tool__Select",
-                "Enabled"       : true,
-                "Keys"          : [ "v", "V" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__NudgeUp",
+                "Label": "Nudge the selection up, or lock the Y axis while a tool is placing a point",
+                "Action": "Edit__NudgeUp",
+                "Enabled": true,
+                "Keys": [
+                    "ArrowUp"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "CoarseOptional"
             },
             {
-                "Id"            : "Tool__Text",
-                "Label"         : "Text tool",
-                "Action"        : "Tool__Text",
-                "Enabled"       : true,
-                "Keys"          : [ "t", "T" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Edit__NudgeDown",
+                "Label": "Nudge the selection down, or lock the Y axis while a tool is placing a point",
+                "Action": "Edit__NudgeDown",
+                "Enabled": true,
+                "Keys": [
+                    "ArrowDown"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "CoarseOptional"
             },
             {
-                "Id"            : "Tool__Dimension",
-                "Label"         : "Dimension tool",
-                "Action"        : "Tool__Dimension",
-                "Enabled"       : true,
-                "Keys"          : [ "d", "D" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact"
+                "Id": "Tool__Select",
+                "Label": "Select tool",
+                "Action": "Tool__Select",
+                "Enabled": true,
+                "Keys": [
+                    "v",
+                    "V"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Tool__EyedropperPalette",
-                "Label"         : "Eyedropper palette: use an object's style for new objects of its kind",
-                "Action"        : "Tool__EyedropperPalette",
-                "Enabled"       : true,
-                "Keys"          : [ "b", "B" ],
-                "Modifiers"     : [ "Shift" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Listed above plain B so the more specific binding is tested first, though Exact matching keeps the two apart anyway. Click an object and its style becomes the Text, Dimensions or Vectors setting that new objects are drawn with. Keep a scrapbook of one of each house style beside the paper, where it never prints."
+                "Id": "Tool__Move",
+                "Label": "Move tool: the only tool that moves whole objects",
+                "Action": "Tool__Move",
+                "Enabled": true,
+                "Keys": [
+                    "m",
+                    "M"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "With Select up a press picks and a drag does nothing, so nothing is nudged out of place by a stray drag. Press M and the cursor becomes the four-way arrow: now a drag moves whatever is under it. Grips, crop handles and the points of an open vector are still dragged by Select, because those edit an object rather than relocating it."
             },
             {
-                "Id"            : "Tool__Eyedropper",
-                "Label"         : "Eyedropper: match properties from one object onto another",
-                "Action"        : "Tool__Eyedropper",
-                "Enabled"       : true,
-                "Keys"          : [ "b", "B" ],
-                "Modifiers"     : [],
-                "ModifierMatch" : "Exact",
-                "Note"          : "B for Brush, as in the format painter every office application binds to the same idea. Click the object to copy from, then each object to copy onto; Alt+click picks a new source and Escape puts the dropper down."
+                "Id": "Tool__Text",
+                "Label": "Text tool",
+                "Action": "Tool__Text",
+                "Enabled": true,
+                "Keys": [
+                    "t",
+                    "T"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
+            },
+            {
+                "Id": "Tool__Dimension",
+                "Label": "Dimension tool",
+                "Action": "Tool__Dimension",
+                "Enabled": true,
+                "Keys": [
+                    "d",
+                    "D"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact"
+            },
+            {
+                "Id": "Tool__EyedropperPalette",
+                "Label": "Eyedropper palette: use an object's style for new objects of its kind",
+                "Action": "Tool__EyedropperPalette",
+                "Enabled": true,
+                "Keys": [
+                    "b",
+                    "B"
+                ],
+                "Modifiers": [
+                    "Shift"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Listed above plain B so the more specific binding is tested first, though Exact matching keeps the two apart anyway. Click an object and its style becomes the Text, Dimensions or Vectors setting that new objects are drawn with. Keep a scrapbook of one of each house style beside the paper, where it never prints."
+            },
+            {
+                "Id": "Tool__Eyedropper",
+                "Label": "Eyedropper: match properties from one object onto another",
+                "Action": "Tool__Eyedropper",
+                "Enabled": true,
+                "Keys": [
+                    "b",
+                    "B"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "B for Brush, as in the format painter every office application binds to the same idea. Click the object to copy from, then each object to copy onto; Alt+click picks a new source and Escape puts the dropper down."
             }
         ]
     },
-
-    "LayoutEditor__TouchBindings__Config" : {
-        "LayoutEditor__TouchBindings__Description"        : "Touch gestures on the stage. Two fingers always navigate, which is what keeps one finger free to select and drag the sheet contents. One finger also pans when it lands on the grey stage rather than on the paper, so there is always a way to move around without hunting for a spare button.",
-        "LayoutEditor__TouchBindings__OneFingerPanOnStage" : true,
-        "LayoutEditor__TouchBindings__OneFingerPanOnPaper" : false,
-        "LayoutEditor__TouchBindings__TwoFingerPan"        : true,
-        "LayoutEditor__TouchBindings__PinchZoom"           : true,
-        "LayoutEditor__TouchBindings__DoubleTapFit"        : true,
-        "LayoutEditor__TouchBindings__DoubleTapWindowMs"   : 320,
-        "LayoutEditor__TouchBindings__DoubleTapSlopPx"     : 24,
-        "LayoutEditor__TouchBindings__PanStartSlopPx"      : 6,
-        "LayoutEditor__TouchBindings__PinchStartSlopPx"    : 8
+    "LayoutEditor__TouchBindings__Config": {
+        "LayoutEditor__TouchBindings__Description": "Touch gestures on the stage. Two fingers always navigate, which is what keeps one finger free to select and drag the sheet contents. One finger also pans when it lands on the grey stage rather than on the paper, so there is always a way to move around without hunting for a spare button.",
+        "LayoutEditor__TouchBindings__OneFingerPanOnStage": true,
+        "LayoutEditor__TouchBindings__OneFingerPanOnPaper": false,
+        "LayoutEditor__TouchBindings__TwoFingerPan": true,
+        "LayoutEditor__TouchBindings__PinchZoom": true,
+        "LayoutEditor__TouchBindings__DoubleTapFit": true,
+        "LayoutEditor__TouchBindings__DoubleTapWindowMs": 320,
+        "LayoutEditor__TouchBindings__DoubleTapSlopPx": 24,
+        "LayoutEditor__TouchBindings__PanStartSlopPx": 6,
+        "LayoutEditor__TouchBindings__PinchStartSlopPx": 8
     },
-
-    "LayoutEditor__MeasurementsBox__Config" : {
-        "LayoutEditor__MeasurementsBox__Description"      : "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, or while a vertex or a viewport is being dragged, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
-        "LayoutEditor__MeasurementsBox__StartCharacters"  : "0123456789.,-",
-        "LayoutEditor__MeasurementsBox__TypingCharacters" : "0123456789.,-+ xX*;mMcC",
-        "LayoutEditor__MeasurementsBox__CommitKeys"       : [ "Enter" ],
-        "LayoutEditor__MeasurementsBox__ClearKeys"        : [ "Escape", "Delete" ],
-        "LayoutEditor__MeasurementsBox__EraseKeys"        : [ "Backspace" ]
+    "LayoutEditor__MeasurementsBox__Config": {
+        "LayoutEditor__MeasurementsBox__Description": "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, or while a vertex or a viewport is being dragged, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
+        "LayoutEditor__MeasurementsBox__StartCharacters": "0123456789.,-",
+        "LayoutEditor__MeasurementsBox__TypingCharacters": "0123456789.,-+ xX*;mMcC",
+        "LayoutEditor__MeasurementsBox__CommitKeys": [
+            "Enter"
+        ],
+        "LayoutEditor__MeasurementsBox__ClearKeys": [
+            "Escape",
+            "Delete"
+        ],
+        "LayoutEditor__MeasurementsBox__EraseKeys": [
+            "Backspace"
+        ]
     },
-
-    "LayoutEditor__SelectionBindings__Config" : {
-        "LayoutEditor__SelectionBindings__Description"         : "What a modifier held on a Select tool press does to the selection - for a click on an item and for a box dragged from bare paper alike - as SketchUp holds them. With none held the click or the box replaces the selection. The list is tested in order with Exact matching, so the two-modifier binding sits first. BoxAnywhereModifier is set aside before the list is tested: while it is held a drag draws a box even from on top of something that could be moved, which is the way in on a sheet with no bare paper left to start from, and Shift or Ctrl still combine with it. A box dragged to the right is a window (only what it wholly encloses); dragged to the left it is a crossing (anything it touches as well).",
-        "LayoutEditor__SelectionBindings__BoxAnywhereModifier" : "Alt",
-        "LayoutEditor__SelectionBindings__List" : [
+    "LayoutEditor__SelectionBindings__Config": {
+        "LayoutEditor__SelectionBindings__Description": "What a modifier held on a Select tool press does to the selection - for a click on an item and for a box dragged from bare paper alike - as SketchUp holds them. With none held the click or the box replaces the selection. The list is tested in order with Exact matching, so the two-modifier binding sits first. BoxAnywhereModifier is set aside before the list is tested: while it is held a drag draws a box even from on top of something that could be moved, which is the way in on a sheet with no bare paper left to start from, and Shift or Ctrl still combine with it. A box dragged to the right is a window (only what it wholly encloses); dragged to the left it is a crossing (anything it touches as well).",
+        "LayoutEditor__SelectionBindings__BoxAnywhereModifier": "Alt",
+        "LayoutEditor__SelectionBindings__List": [
             {
-                "Id"            : "Select__Remove",
-                "Label"         : "Remove from the selection (Ctrl+Shift, click or box)",
-                "Action"        : "Select__Remove",
-                "Enabled"       : true,
-                "Modifiers"     : [ "Ctrl", "Shift" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Select__Remove",
+                "Label": "Remove from the selection (Ctrl+Shift, click or box)",
+                "Action": "Select__Remove",
+                "Enabled": true,
+                "Modifiers": [
+                    "Ctrl",
+                    "Shift"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Select__Add",
-                "Label"         : "Add to the selection (Ctrl, click or box)",
-                "Action"        : "Select__Add",
-                "Enabled"       : true,
-                "Modifiers"     : [ "Ctrl" ],
-                "ModifierMatch" : "Exact"
+                "Id": "Select__Add",
+                "Label": "Add to the selection (Ctrl, click or box)",
+                "Action": "Select__Add",
+                "Enabled": true,
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact"
             },
             {
-                "Id"            : "Select__Toggle",
-                "Label"         : "Add or remove, each item flipping (Shift, click or box)",
-                "Action"        : "Select__Toggle",
-                "Enabled"       : true,
-                "Modifiers"     : [ "Shift" ],
-                "ModifierMatch" : "Exact",
-                "Note"          : "Shift held through a drag of the selection still keeps the move to one axis: an item only leaves the selection on a Shift click that did not move."
+                "Id": "Select__Toggle",
+                "Label": "Add or remove, each item flipping (Shift, click or box)",
+                "Action": "Select__Toggle",
+                "Enabled": true,
+                "Modifiers": [
+                    "Shift"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Shift held through a drag of the selection still keeps the move to one axis: an item only leaves the selection on a Shift click that did not move."
             }
         ]
     },
-
-    "LayoutEditor__Actions__Config" : {
-        "LayoutEditor__Actions__Description" : "The action catalogue. A personalisation screen can read this to list what is bindable without knowing anything about the control modules.",
-        "LayoutEditor__Actions__List" : [
-            { "Action" : "Nav__Pan",              "Label" : "Pan the sheet",             "Group" : "Navigation" },
-            { "Action" : "Nav__ZoomAtCursor",     "Label" : "Zoom about the cursor",     "Group" : "Navigation" },
-            { "Action" : "Nav__ScrollVertical",   "Label" : "Scroll up and down",        "Group" : "Navigation" },
-            { "Action" : "Nav__ScrollHorizontal", "Label" : "Scroll left and right",     "Group" : "Navigation" },
-            { "Action" : "Nav__ZoomIn",           "Label" : "Zoom in",                   "Group" : "Navigation" },
-            { "Action" : "Nav__ZoomOut",          "Label" : "Zoom out",                  "Group" : "Navigation" },
-            { "Action" : "Nav__ZoomFit",          "Label" : "Zoom to fit",               "Group" : "Navigation" },
-            { "Action" : "Nav__ZoomActualSize",   "Label" : "Zoom to 100 percent",       "Group" : "Navigation" },
-            { "Action" : "Nav__PanLeft",          "Label" : "Pan left",                  "Group" : "Navigation" },
-            { "Action" : "Nav__PanRight",         "Label" : "Pan right",                 "Group" : "Navigation" },
-            { "Action" : "Nav__PanUp",            "Label" : "Pan up",                    "Group" : "Navigation" },
-            { "Action" : "Nav__PanDown",          "Label" : "Pan down",                  "Group" : "Navigation" },
-            { "Action" : "Edit__Cancel",          "Label" : "Cancel or clear selection", "Group" : "Editing"    },
-            { "Action" : "Edit__Delete",          "Label" : "Delete the selection",      "Group" : "Editing"    },
-            { "Action" : "Edit__NudgeLeft",       "Label" : "Nudge left",                "Group" : "Editing"    },
-            { "Action" : "Edit__NudgeRight",      "Label" : "Nudge right",               "Group" : "Editing"    },
-            { "Action" : "Edit__NudgeUp",         "Label" : "Nudge up",                  "Group" : "Editing"    },
-            { "Action" : "Edit__NudgeDown",       "Label" : "Nudge down",                "Group" : "Editing"    },
-            { "Action" : "Tool__Select",          "Label" : "Select tool",               "Group" : "Tools"      },
-            { "Action" : "Tool__Text",            "Label" : "Text tool",                 "Group" : "Tools"      },
-            { "Action" : "Tool__Dimension",       "Label" : "Dimension tool",            "Group" : "Tools"      },
-            { "Action" : "Tool__Draw",            "Label" : "Draw tool",                 "Group" : "Tools"      },
-            { "Action" : "Tool__Rectangle",       "Label" : "Rectangle tool",            "Group" : "Tools"      },
-            { "Action" : "Tool__Leader",          "Label" : "Leader tool",               "Group" : "Tools"      },
-            { "Action" : "Tool__Eyedropper",      "Label" : "Eyedropper tool",           "Group" : "Tools"      },
-            { "Action" : "Tool__EyedropperPalette", "Label" : "Eyedropper palette",      "Group" : "Tools"      },
-            { "Action" : "Snap__Toggle",          "Label" : "Toggle object snapping",    "Group" : "Tools"      },
-            { "Action" : "Edit__Undo",            "Label" : "Undo",                      "Group" : "Editing"    },
-            { "Action" : "Edit__Redo",            "Label" : "Redo",                      "Group" : "Editing"    },
-            { "Action" : "Edit__Copy",            "Label" : "Copy the selection",        "Group" : "Editing"    },
-            { "Action" : "Edit__Paste",           "Label" : "Paste the clipboard",       "Group" : "Editing"    },
-            { "Action" : "Edit__Duplicate",       "Label" : "Duplicate the selection",   "Group" : "Editing"    },
-            { "Action" : "Edit__Group",           "Label" : "Group vectors and text",    "Group" : "Editing"    },
-            { "Action" : "Edit__Ungroup",         "Label" : "Ungroup the selection",     "Group" : "Editing"    },
-            { "Action" : "Edit__Deselect",        "Label" : "Clear the selection",       "Group" : "Editing"    },
-            { "Action" : "Edit__Finish",          "Label" : "Finish the shape or the viewport content", "Group" : "Editing" },
-            { "Action" : "Select__Add",           "Label" : "Add to the selection",      "Group" : "Selection"  },
-            { "Action" : "Select__Toggle",        "Label" : "Add to or remove from the selection", "Group" : "Selection" },
-            { "Action" : "Select__Remove",        "Label" : "Remove from the selection", "Group" : "Selection"  }
+    "LayoutEditor__Actions__Config": {
+        "LayoutEditor__Actions__Description": "The action catalogue. A personalisation screen can read this to list what is bindable without knowing anything about the control modules.",
+        "LayoutEditor__Actions__List": [
+            {
+                "Action": "Nav__Pan",
+                "Label": "Pan the sheet",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__ZoomAtCursor",
+                "Label": "Zoom about the cursor",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__ScrollVertical",
+                "Label": "Scroll up and down",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__ScrollHorizontal",
+                "Label": "Scroll left and right",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__ZoomIn",
+                "Label": "Zoom in",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__ZoomOut",
+                "Label": "Zoom out",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__ZoomFit",
+                "Label": "Zoom to fit",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__ZoomActualSize",
+                "Label": "Zoom to 100 percent",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__PanLeft",
+                "Label": "Pan left",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__PanRight",
+                "Label": "Pan right",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__PanUp",
+                "Label": "Pan up",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__PanDown",
+                "Label": "Pan down",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Edit__Cancel",
+                "Label": "Cancel or clear selection",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Delete",
+                "Label": "Delete the selection",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__NudgeLeft",
+                "Label": "Nudge left",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__NudgeRight",
+                "Label": "Nudge right",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__NudgeUp",
+                "Label": "Nudge up",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__NudgeDown",
+                "Label": "Nudge down",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Tool__Select",
+                "Label": "Select tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__SelectToggle",
+                "Label": "Select tool on, then off",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Move",
+                "Label": "Move tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Text",
+                "Label": "Text tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Dimension",
+                "Label": "Dimension tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Draw",
+                "Label": "Draw tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Rectangle",
+                "Label": "Rectangle tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Leader",
+                "Label": "Leader tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Eyedropper",
+                "Label": "Eyedropper tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__EyedropperPalette",
+                "Label": "Eyedropper palette",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Snap__Toggle",
+                "Label": "Toggle object snapping",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Edit__Undo",
+                "Label": "Undo",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Redo",
+                "Label": "Redo",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Copy",
+                "Label": "Copy the selection",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Paste",
+                "Label": "Paste the clipboard",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Duplicate",
+                "Label": "Duplicate the selection",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Group",
+                "Label": "Group vectors and text",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Ungroup",
+                "Label": "Ungroup the selection",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Deselect",
+                "Label": "Clear the selection",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Finish",
+                "Label": "Finish the shape or the viewport content",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Select__Add",
+                "Label": "Add to the selection",
+                "Group": "Selection"
+            },
+            {
+                "Action": "Select__Toggle",
+                "Label": "Add to or remove from the selection",
+                "Group": "Selection"
+            },
+            {
+                "Action": "Select__Remove",
+                "Label": "Remove from the selection",
+                "Group": "Selection"
+            }
         ]
     }
 }

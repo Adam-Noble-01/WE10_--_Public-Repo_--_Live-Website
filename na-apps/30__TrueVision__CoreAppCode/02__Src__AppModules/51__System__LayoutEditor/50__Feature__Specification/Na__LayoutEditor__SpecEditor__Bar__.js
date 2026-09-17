@@ -57,7 +57,9 @@
         Na__LeSpec__GetGroups,
         Na__LeSpec__ListNotes,
         Na__LeSpec__CanUndo,
-        Na__LeSpec__CanRedo
+        Na__LeSpec__CanRedo,
+        Na__LeSpec__GetRevision,
+        Na__LeSpec__GetDocumentNumber
     } from './Na__LayoutEditor__SpecData__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
@@ -140,10 +142,31 @@
             const button = bar.querySelector('[data-na-spec="' + action + '"]');
             if (button) button.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_EDIT);
         });
+        // THE ISSUE | The document's own number and revision, in BOTH views:
+        // they belong to the specification, not to how it is being looked at, and
+        // they are what the download is named after.
+        const issue = Na__LeSpecEd__El('div', 'na-le-spec__issue');
+        const number = Na__LeSpecEd__Field('input', 'na-le-spec__issue-field na-le-spec__issue-field--number', 'spec-number', null);
+        number.type  = 'text';
+        number.setAttribute('aria-label', L('SpecDocNumberLabel', 'Document number'));
+        number.title = L('SpecDocNumberTitle', 'The specification’s own number, the way each sheet carries a Drawing No. Left blank it follows the project code.');
+        number.disabled = !Na__LeSpecEd__Editable;
+        issue.appendChild(Na__LeSpecEd__El('span', 'na-le-spec__issue-label', L('SpecDocRevisionShort', 'Rev')));
+        const revision = Na__LeSpecEd__Field('input', 'na-le-spec__issue-field na-le-spec__issue-field--rev', 'spec-revision', null);
+        revision.type = 'text';
+        revision.setAttribute('aria-label', L('SpecDocRevisionLabel', 'Specification revision'));
+        revision.title = L('SpecDocRevisionTitle', 'The revision this specification is issued at. It prints on the document and names the downloaded file.');
+        revision.disabled = !Na__LeSpecEd__Editable;
+        issue.insertBefore(number, issue.firstChild);
+        issue.appendChild(revision);
+        bar.appendChild(issue);
+
         const pages = Na__LeSpecEd__El('span', 'na-le-spec__pages');
         pages.setAttribute('data-na-spec-bar', 'pages');
         pages.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_READ);
         bar.appendChild(pages);
+        const download = Na__LeSpecEd__Button(L('SpecDownload', 'Download'), 'download', L('SpecDownloadTitle', 'Download the specification as a PDF, named after its number, revision and today’s date'));
+        bar.appendChild(download);
         const print = Na__LeSpecEd__Button(L('SpecPrint', 'Print'), 'print', L('SpecPrintTitle', 'Print the specification on A4 paper, or choose Save as PDF in the print dialog'));
         print.setAttribute('data-na-spec-only', Na__LeSpecEd__VIEW_READ);
         bar.appendChild(print);
@@ -193,6 +216,17 @@
         each('link-all',  (b) => { b.hidden = matching === 0; b.textContent = Na__LeCfg__FormatLabel('SpecLinkAll', 'Link matching bubbles ({count})', { count : matching }); });
         each('compact',   (b) => { const on = Na__LeSpecEd__IsCompact(); b.classList.toggle('na-le-btn--active', on); b.setAttribute('aria-pressed', String(on)); });
         each('print',     (b) => { b.disabled = !state.loaded; });
+        each('download',  (b) => { b.disabled = !state.loaded || notes === 0; });
+
+        // The issue fields are not rewritten under the cursor: a field being typed
+        // into keeps what is in it, the way every other field on this bar does.
+        const field = (name, value) => {
+            const el = Na__LeSpecEd__Bar.querySelector('[data-na-spec-field="' + name + '"]');
+            if (el && document.activeElement !== el) el.value = value;
+            if (el) el.disabled = !Na__LeSpecEd__Editable || !state.loaded;
+        };
+        field('spec-number', state.loaded ? Na__LeSpec__GetDocumentNumber(code) : '');
+        field('spec-revision', state.loaded ? Na__LeSpec__GetRevision() : '');
         Na__LeSpecEd__Bar.querySelectorAll('[data-na-spec="view"]').forEach((tab) => {
             const on = tab.getAttribute('data-view') === Na__LeSpecEd__View;
             tab.classList.toggle('is-active', on);

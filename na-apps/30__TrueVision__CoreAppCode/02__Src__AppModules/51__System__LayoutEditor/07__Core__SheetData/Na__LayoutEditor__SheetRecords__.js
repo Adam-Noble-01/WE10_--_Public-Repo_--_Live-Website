@@ -33,6 +33,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.20.0
+// - BuildFields hands the sheet's resolved paper label to SheetLabel, so the
+//   title block's Scale cell reads "1:50 @ ISO A2" and, where the viewports on
+//   a sheet disagree, "1:50 & 1:100 @ ISO A2".
+//
 // 14-Sep-2026 - Version 1.19.0
 // - Viewport__ImageZoom on the viewport record: how large a 3D viewport's
 //   picture is drawn, as a multiple of Viewport__ImageMm. Held inside the
@@ -194,6 +199,7 @@
         Na__LeCfg__GetMarginNotesSetup
     } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeScale__Coerce, Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
+    import { Na__LeLayout__PaperSizeMm } from './Na__LayoutEditor__SheetLayout__.js';               // <-- A leaf: it reads the sheet config and nothing else, so it cannot cycle back here
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Projected Edge Styles and Composite Weights
@@ -498,14 +504,21 @@
             : [];
         if (closedDoors.length > 0) viewport.Viewport__ClosedDoors = closedDoors;
         else delete viewport.Viewport__ClosedDoors;
-        // SNAPSHOT ASSET | { Asset__Path, Asset__Fingerprint, Asset__PixelWidth }.
-        // The width says how big the stored picture is, so a stored picture
-        // that is too small for the working level is re-rendered instead of
-        // being shown blurred. An asset written before this key existed reads
-        // as unknown and is treated as too small.
+        // SNAPSHOT ASSET | { Asset__Path, Asset__Fingerprint, Asset__PixelWidth,
+        // Asset__Samples }. The width says how big the stored picture is, so a
+        // stored picture that is too small for the working level is re-rendered
+        // instead of being shown blurred. The sample count says how well it was
+        // anti-aliased, which width cannot stand in for: a Medium picture on a
+        // dense screen is WIDER than the export wants and carries a quarter of
+        // the samples, so the PDF must be able to tell the two apart. An asset
+        // written before either key existed reads as unknown and is treated as
+        // too small and too coarse.
         const slot = viewport.Viewport__SnapshotAsset;
         if (!slot || typeof slot !== 'object' || typeof slot.Asset__Path !== 'string') viewport.Viewport__SnapshotAsset = null;
-        else if (!Number.isFinite(slot.Asset__PixelWidth)) slot.Asset__PixelWidth = null;
+        else {
+            if (!Number.isFinite(slot.Asset__PixelWidth)) slot.Asset__PixelWidth = null;
+            if (!Number.isFinite(slot.Asset__Samples))    slot.Asset__Samples    = null;
+        }
         if (typeof viewport.Viewport__Locked !== 'boolean') viewport.Viewport__Locked = false;   // <-- A locked viewport cannot be entered, moved or resized
         return viewport;
     }
@@ -808,6 +821,10 @@
 
     // FUNCTION | The Title Block Fields With Project Defaults Filled In
     // ------------------------------------------------------------
+    // Scale is solved from the sheet every time rather than stored, so re-papering
+    // a sheet or re-scaling a viewport rewrites the cell on the next chrome build.
+    // A value typed into the Sheet panel still wins, the way every other field does.
+    // ------------------------------------------------------------
     function Na__LeRec__BuildFields(sheet) {
         const setup   = Na__LeCfg__GetTitleBlockSetup();
         const stored  = (sheet && sheet.Sheet__Fields) || {};
@@ -816,6 +833,7 @@
         const code    = Na__DrawData__GetProjectCode() || '';
         const index   = sheet ? sheet.Sheet__Order : 1;
         const scales  = (sheet ? sheet.Sheet__Viewports : []).filter((v) => v.Viewport__Kind === Na__LeRec__KIND_2D).map((v) => v.Viewport__ScaleDenominator);
+        const paper   = Na__LeLayout__PaperSizeMm(sheet ? sheet.Sheet__PaperSize : null, sheet ? sheet.Sheet__Orientation : null);   // <-- Resolved, not read raw: an unset or unknown size falls back to the default paper the sheet actually prints on
         const today   = new Date();
         const dateText = String(today.getDate()).padStart(2, '0') + ' ' +
             [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ][today.getMonth()] + ' ' + today.getFullYear();
@@ -826,7 +844,7 @@
             Title         : sheet ? sheet.Sheet__Name : '',
             DrawingNumber : (code ? code + '-' : '') + String(index).padStart(2, '0'),
             Revision      : 'A',
-            Scale         : Na__LeScale__SheetLabel(scales),
+            Scale         : Na__LeScale__SheetLabel(scales, paper.Label),
             Date          : dateText,
             DrawnBy       : setup.drawnByDefault
         };

@@ -36,6 +36,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.3.0
+// - SetFolded and FocusSection: the fold a header click sets, set from code as
+//   well, and one section of the accordion group opened with the rest folded.
+//   Text, Dimensions, Vectors and Leaders each carry a size, a colour and a
+//   weight, one under the other; with all four open the box under the hand is
+//   as likely to belong to the wrong kind as the right one.
+//   CollapseOthersOnOpen, declared since the first version and never wired to
+//   anything, now folds the others when one is opened by hand.
+// - SelectedOfKind and ApplyToSelection: what a panel edits when several things
+//   are selected, written through the eyedropper's ApplyMany so one panel field
+//   reaches every selected item of that kind in one undo step.
+//
 // 14-Sep-2026 - Version 1.2.0
 // - LinkedPairRow and ShowLink: two values with a padlock between them, the
 //   linked pair of the layout apps. The row draws the pair; the panel using it
@@ -56,9 +68,12 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Config
+    // MODULE IMPORTS | Config, Selection, Groups and the Eyedropper
     // ------------------------------------------------------------
     import { Na__LeCfg__GetPanelSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeModel__GetSelectionItems } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
+    import { Na__LeDrop__ApplyMany } from '../30__System__SheetTools/Na__LayoutEditor__Eyedropper__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -290,15 +305,17 @@
         root.classList.toggle('is-folded', folded);
         header.setAttribute('aria-expanded', String(!folded));
         header.addEventListener('click', () => {
-            const now = !root.classList.contains('is-folded');
-            root.classList.toggle('is-folded', now);
-            header.setAttribute('aria-expanded', String(!now));
-            Na__LePanels__Remember('fold-' + spec.id, now ? '1' : '0');
-            if (!now) Na__LePanels__Refresh(spec.id);
+            const opening = root.classList.contains('is-folded');
+            Na__LePanels__SetFolded(spec.id, !opening);
+            // OPENED BY HAND | CollapseOthersOnOpen makes the group a strict
+            // accordion. Left off, several can be open at once on purpose -
+            // to read one kind's text size against another's - and the next
+            // selection is what tidies them away.
+            if (opening && Na__LeCfg__GetPanelSetup().collapseOthers) Na__LePanels__FocusSection(spec.id);
         });
         Na__LePanels__BindHeightGrip(grip, body, spec.id);
 
-        const entry = { spec : spec, root : root, body : body, side : side };
+        const entry = { spec : spec, root : root, body : body, side : side, header : header };
         Na__LePanels__Sections.set(spec.id, entry);
         if (typeof spec.build === 'function') spec.build(body, Na__LePanels__Context);
         if (!folded && typeof spec.refresh === 'function') spec.refresh(body, Na__LePanels__Context);
@@ -315,6 +332,54 @@
             if (entry.root.classList.contains('is-folded')) return;
             if (typeof entry.spec.refresh === 'function') entry.spec.refresh(entry.body, Na__LePanels__Context);
         });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fold or Unfold One Section From Code
+    // ------------------------------------------------------------
+    // The same path the header click takes, so a section folded by hand and
+    // one folded by a selection are remembered the same way and cannot get out
+    // of step. Returns true only when something actually changed.
+    // ------------------------------------------------------------
+    function Na__LePanels__SetFolded(sectionId, folded) {
+        const entry = Na__LePanels__Sections.get(sectionId);
+        if (!entry) return false;
+        const now = folded === true;
+        if (entry.root.classList.contains('is-folded') === now) return false;
+        entry.root.classList.toggle('is-folded', now);
+        entry.header.setAttribute('aria-expanded', String(!now));
+        Na__LePanels__Remember('fold-' + sectionId, now ? '1' : '0');
+        if (!now && typeof entry.spec.refresh === 'function') entry.spec.refresh(entry.body, Na__LePanels__Context);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Open One Section of the Accordion Group and Fold the Rest
+    // ------------------------------------------------------------
+    // WHY THE PANELS BEHAVE THIS WAY. Text, Dimensions, Vectors and Leaders
+    // each carry a size, a colour and a weight, and they sit one under the
+    // other. With all four open, the size box under the hand is as likely to
+    // belong to the wrong kind as the right one - so an edit lands on nothing,
+    // or on the settings for new objects, and reads as the tool not working.
+    // Showing one at a time answers "what am I editing" before it is asked.
+    //
+    // A section not in the group - Layers, Sheet, Viewport - is never folded by
+    // this, and passing no id folds the whole group, which is what a selection
+    // of something with no panel of its own does.
+    // ------------------------------------------------------------
+    function Na__LePanels__FocusSection(sectionId) {
+        const group = Na__LeCfg__GetPanelSetup().accordion || [];
+        if (sectionId && group.indexOf(sectionId) === -1) return false;          // <-- Not one of the group: leave every fold alone
+        let changed = false;
+        group.forEach((id) => { if (id !== sectionId) changed = Na__LePanels__SetFolded(id, true) || changed; });
+        if (sectionId) changed = Na__LePanels__SetFolded(sectionId, false) || changed;
+        const entry = sectionId ? Na__LePanels__Sections.get(sectionId) : null;
+        if (changed && entry && typeof entry.root.scrollIntoView === 'function') {
+            try { entry.root.scrollIntoView({ block : 'nearest' }); } catch (e) { /* older engines */ }
+        }
+        return changed;
     }
     // ------------------------------------------------------------
 
@@ -342,6 +407,41 @@
     // ------------------------------------------------------------
     function Na__LePanels__IsEditable() { return Na__LePanels__Editable; }
     function Na__LePanels__GetContext() { return Na__LePanels__Context; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Selected Items of One Kind, Groups Opened Up
+    // ------------------------------------------------------------
+    // What a panel edits when more than one thing is selected. A group counts
+    // as its members, so windowing a block of notes and changing the size
+    // changes the notes rather than doing nothing; anything of another kind is
+    // simply not this panel's business and drops out.
+    //
+    // Returns [] for a single selection, which is the panel's existing path:
+    // one selected item is edited directly, with the whole patch, because a
+    // panel pointed at one thing may write that thing's content too.
+    // ------------------------------------------------------------
+    function Na__LePanels__SelectedOfKind(sheet, kind) {
+        const items = Na__LeModel__GetSelectionItems();
+        if (!sheet || !kind || items.length < 2) return [];
+        return Na__LeGroup__Expand(sheet, items).filter((item) => item.kind === kind);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write One Panel Change Onto Every Selected Item of a Kind
+    // ------------------------------------------------------------
+    // Hands the patch to the eyedropper's ApplyMany, so a panel field written
+    // to nine items travels by exactly the declaration the eyedropper copies
+    // by - the trait table - and lands as one undo step. Returns how many were
+    // written, and 0 when this panel's kind is not in the selection, which is
+    // the caller's signal to fall back to its single-item or defaults path.
+    // ------------------------------------------------------------
+    function Na__LePanels__ApplyToSelection(sheet, kind, patch) {
+        const items = Na__LePanels__SelectedOfKind(sheet, kind);
+        if (!items.length) return 0;
+        return Na__LeDrop__ApplyMany(sheet, items, patch).written;
+    }
     // ------------------------------------------------------------
 
 
@@ -590,10 +690,14 @@
         Na__LePanels__SetWidth,
         Na__LePanels__RegisterSection,
         Na__LePanels__Refresh,
+        Na__LePanels__SetFolded,
+        Na__LePanels__FocusSection,
         Na__LePanels__SetSectionVisible,
         Na__LePanels__OnControl,
         Na__LePanels__IsEditable,
         Na__LePanels__GetContext,
+        Na__LePanels__SelectedOfKind,
+        Na__LePanels__ApplyToSelection,
         Na__LePanels__AdvancedToggle,
         Na__LePanels__IsAdvanced,
         Na__LePanels__Row,

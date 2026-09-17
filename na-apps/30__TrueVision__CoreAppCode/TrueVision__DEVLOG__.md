@@ -2,6 +2,748 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.63.0  -  17-Sep-2026
+### The Specification Is a Document Now: It Has a Revision, a Number, and a Download
+
+**Overview**
+- Adam: "in the Project Specification tab, there's no way to version this. I need this to
+  be a revision B, so I need a way of being able to assign revisions to the specification
+  and also keep the same kind of naming when it downloads. Add an actual download button
+  rather than just a print button."
+- Three things, and they are the same thing: the specification is issued to people, and an
+  issued document has a revision, a number, and a file you can hand over.
+
+**A revision and a number, the way a sheet has them**
+- `ProjectSpecification__Revision` and `ProjectSpecification__DocumentNumber` on the
+  specification document, typed into two fields on the Project Specification bar - in BOTH
+  views, because they belong to the document rather than to how it is being looked at.
+- They take the ordinary edit route (`CanEdit`, then `Changed`), so they undo, they write
+  the browser draft and they announce themselves like any other edit. Critically they are
+  also counted by `ContentJson`: **changing the revision marks the specification unsynced
+  and lights Sync.** Left out of that hash, a revision would be typed, look right, and
+  never reach the cloud copy the next person opens.
+- The number defaults to the project code plus `DocumentNumberSuffix` - PS01 gives
+  `PS01_SPEC` - and clearing the field goes back to following the code rather than to
+  nothing. Type `PS01_T02_SPEC` over it to sit with the sheets.
+- `Rev B` typed into the revision field in full is stored as `B`, so the printed document
+  never reads "Rev Rev B".
+- A specification written before these fields existed opens at the configured
+  `DefaultRevision` rather than at nothing: a document that gets issued has a revision even
+  if nobody has typed one yet.
+
+**Where it shows**
+- On the reading page's title block, as Document No. and Revision beside the date, and in
+  the running head of EVERY page - a loose page out of a printed set still says which
+  document and which revision it came from.
+
+**Download, and why it sets type rather than photographing the screen**
+- The obvious way to turn the reading view into a PDF is to rasterise its pages, which is
+  what jsPDF's `html()` does - and it needs html2canvas, which is not vendored and cannot
+  be fetched under the app's CSP. It would also be the wrong answer: a specification is
+  text a reader searches, copies and hands to a contractor, and a picture of text is none
+  of those.
+- So `Na__LayoutEditor__SpecPdf__` sets the pages from the same chrome primitives the
+  sheets are drawn with, through the same embedded Open Sans, using the sheet margin's own
+  `Na__LeMargin__Wrap` to break the lines. The words in the file are words.
+- Pagination measures each block before placing it: a note is never split from its own
+  code, a note too long for a column splits between its body lines, and a group heading
+  that would end a page moves to the next one with its first note.
+
+**Named like everything else**
+- `Na__LayoutEditor__PdfFilename__` is new: the naming that v2.62.0 put in the sheet
+  exporter now lives in a leaf both callers share, so a sheet and the specification come
+  out of the app named the same way. The sheet exporter is unchanged in behaviour - it
+  hands over its title block fields instead of formatting them itself.
+      PS01_T02_D01__FloorPlans__A2__RevB__17-Sep-2026__.pdf
+      PS01_SPEC__ProjectSpecification__A4__RevB__17-Sep-2026__.pdf
+
+**Proved against PS01's real specification**
+- Its 31 notes in 9 groups, loaded from the real file with the transport bypassed, so no
+  R2 read and no R2 write: fresh revision A; `SetRevision("B")` gives
+  `PS01_SPEC__ProjectSpecification__A4__RevB__17-Sep-2026__.pdf` and `IsDirty` true;
+  `"Rev C"` stored as `C`; a typed number giving `PS01_T02_SPEC__...`; cleared, back to
+  `PS01_SPEC`.
+- The built document: 4 pages, 45,881 bytes, `%PDF-1.3`, Open Sans embedded. Read back
+  with the vendored pdf.js, the text extracts as text - every page carries `Rev B` and
+  `Page N of 4`, and the group headings, codes, titles and bodies all come through.
+- Download is allowed in a read-only session: it reads a document rather than changing one.
+- Not yet ported to ValeVision3D.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.62.0  -  17-Sep-2026
+### A Downloaded Sheet Is Named After the Drawing, Not After the App
+
+**Overview**
+- Adam: `PS01_T02_D01__FloorPlans__A2__RevA__14-Sep-2026__.pdf`, with the shape
+  `{{DrawingCode}}__{{DrawingName}}__{{DrawingScale}}__{{TodaysDate}}__.pdf`.
+- Sheets downloaded as `Na__PS01__D01_-_Floor_Plans__A2.pdf` - the app's name first, the
+  drawing's number nowhere, and no revision or date at all, so two issues of the same
+  sheet landed in a folder as the same file name.
+
+**Where each part comes from**
+- `PS01_T02_D01` is not assembled here. It is the sheet's own **Drawing No. field**, the
+  one Adam types in the Sheet panel and the one the title block prints. Every token but
+  the date is read through `Na__LeModel__GetFields`, so the file name and the drawing
+  inside it cannot disagree about the number, the revision or the paper - which is the
+  entire point of putting them in the name.
+- `FloorPlans` comes from the sheet's tab name, `D01 - Floor Plans`. The leading sheet
+  number comes off - it is already in the code, so keeping it would give
+  `D01__D01FloorPlans` - and the words run together in PascalCase, each keeping its first
+  character with the rest lower-cased. That last rule is what makes `3D Images` read
+  `3dImages` rather than `3DImages`, and a sheet shouted as `SITE PLAN` read `SitePlan`.
+  The number only comes off when it looks like one (a short run CONTAINING A DIGIT, then
+  a dash or colon), so `Section A-A` keeps every word.
+- The example wrote the third token as `DrawingScale` but gave `A2`, which is the paper,
+  not the scale, and the paper is what it is - the scale is in the title block, and on a
+  mixed sheet there is more than one of it.
+- `RevA` is the Revision field, prefixed. `Rev` or `Rev.` already typed into the field is
+  not doubled up.
+- The date is TODAY, the day the file was issued - which is what the title block prints
+  unless that field has been typed over. One line in `Na__LePdf__Filename` switches it to
+  follow an overridden title block date instead.
+
+**Proved against the real project**
+- Run over PS01's four sheets straight out of `TrueVision__ProjectData__.json`:
+      PS01_T02_D01__FloorPlans__A2__RevB__17-Sep-2026__.pdf
+      PS01_T02_D02__Elevations__A2__RevB__17-Sep-2026__.pdf
+      PS01_T02_D03__3dImages__A3__RevA__17-Sep-2026__.pdf
+      PS01_T02_D10__SitePlan__A2__RevA__17-Sep-2026__.pdf
+  `RevB` on D01 and D02 because those sheets ARE revision B; the example said RevA.
+  `3dImages` because the sheet is named `D03 - 3D Images`; renaming that tab
+  `D03 - 3D Visuals` gives `3dVisuals` exactly.
+- Sixteen tab names and eight awkward field sets: a code with slashes, a trailing space,
+  a revision already reading `Rev C`, and every field blank at once. Every result is a
+  legal file name on Windows, macOS and Linux - nothing outside `A-Z a-z 0-9 _ -` survives.
+- Accents are folded rather than dropped: the splitter breaks on anything that is not a
+  letter or a digit, so `Détails` would otherwise have come back `DTails`.
+
+**Compatible**
+- `{projectCode}` and `{sheetName}` still answer, so a pattern configured before these
+  tokens existed keeps working rather than emitting its braces into the file name.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.61.1  -  17-Sep-2026
+### Viewport Captions Stop Eating Their Own Scale
+
+**Overview**
+- Adam, on PS01 D10: `LOCATION PLAN   1:12...`, with a clear centimetre of white paper
+  after the ellipsis. "ensure these cant clip like this."
+- It was not a layout problem. The caption box is built to hold that exact caption and
+  was the right size; the text was truncated inside a box that fitted it.
+
+**The bug: a measurement round-trip losing four femtometres**
+- `Na__LeChrome__BuildFrame` measured the caption, sized the box as `textMm + pad * 2`,
+  and then asked `FitText` whether the caption fitted `boxW - (pad * 2)`.
+- In binary floating point `(textMm + 3.8) - 3.8` does not always give `textMm` back. For
+  `LOCATION PLAN   1:1250` it lands `3.553e-15` mm UNDER it - about four femtometres, or
+  a hundred-millionth of a human hair. `FitText`'s `<=` failed by that hair, chopped
+  characters off the end and painted an ellipsis.
+- So whether a caption clipped had nothing to do with how long it was or how wide the
+  frame was. It was the last bits of a double. Sweeping the 420 captions the app can
+  build for a plan, elevation, section or detail at every scale, **22 clipped** under the
+  browser's own measurer - `LOCATION PLAN 1:20`, `SIDE ELEVATION 1:50`,
+  `EAST ELEVATION 1:100` - and every one of them lost the SCALE, because the scale is at
+  the end of the string. A drawing quoting `1:...` is worse than one quoting nothing: it
+  still reads as a number.
+- The fix is to stop rebuilding the width. The box was sized FOR this text, so the text is
+  handed `textMm` itself, making the test `textMm <= textMm`, which is exact. 22 -> 0.
+
+**And a frame genuinely too narrow now sets smaller rather than truncating**
+- The caption is an INSET label - it sits inside the frame's bottom-left corner, over the
+  drawing - so it cannot be let grow past the frame the way a caption hung underneath one
+  could, and a tall thin elevation or a cropped detail really can be narrower than its
+  caption. That case used to truncate too, for a real reason rather than a rounding one.
+- `Na__LeChrome__FitCaptionFont` now sets the type smaller instead, down to
+  `Style FrameLabelMinFontMm` (1.6 mm). A 45 mm frame that printed
+  `PROPOSED FRONT ELEVATION...` prints the whole caption at about 2 mm. Only a caption
+  that will not fit even at the floor is truncated.
+- The size solves in one step rather than by search: jsPDF's width is linear in font size
+  and the tracking is a fixed millimetre per character whatever the size, so
+  `f = f0 x (room - track) / glyphs`. The answer is then verified by measurement and
+  stepped down in tenths if the arithmetic lands a hair over - the same hair that caused
+  the original bug, treated properly this time.
+
+**Proved**
+- 420 captions swept twice: in Node against the embedded Open Sans, and in the browser
+  against the app's own measurer. Old path 28 and 22 clips respectively; new path 0 and 0.
+- Frames from 500 mm down to 4 mm: the box never spills the frame and the text never
+  spills the box, at every width.
+- `Na__Test__TitleBlockScaleCell__.html` now renders viewport captions as well as the
+  title block strip, so both are read from the real chrome builder.
+
+**Noticed, not changed**
+- On screen the measuring document falls back to Helvetica until a PDF has been exported,
+  because only the exporter calls `Na__LePdfFonts__EnsureLoaded`. Screen and paper
+  therefore measure slightly differently until then - which is why the sweep found 28
+  clips against Open Sans and 22 against Helvetica. The fix holds under both, so this is
+  an observation about an existing seam, not part of it.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.61.0  -  17-Sep-2026
+### The Title Block Says What Paper It Is, and Names Every Scale On the Sheet
+
+**Overview**
+- Adam: "there should be an awareness in the title block of the current page size, and this
+  should say the scale at the page size" - `1:50 {{& other scales if numerous viewport
+  scales used on a page}} @ISO A2`.
+- Both halves of that were missing. The cell said `1:50` and nothing about the paper, and
+  where the viewports on a sheet disagreed it said `As shown`, which names none of them.
+
+**Why the paper size belongs in that cell**
+- A scale is a statement about paper. `1:50` on A2 and `1:50` on A4 are different drawings,
+  and the number alone is only true of the sheet it was plotted on - print an A2 sheet onto
+  A4 and the scale bar lies while the cell still reads `1:50`. Naming both means the cell
+  can be checked against the paper in the reader's hand.
+- The cell now reads `1:50 @ ISO A2`. The paper comes from the sheet's RESOLVED size
+  (`Na__LeLayout__PaperSizeMm`), not the raw field, so a sheet with no size set or an
+  unknown one names the default paper it will actually print on rather than nothing.
+
+**A mix lists itself instead of hiding**
+- `As shown` told a reader only that the sheet was mixed. `1:50 & 1:100 @ ISO A2` tells them
+  which two to look for, and that anything else on the sheet is not to scale. Listed finest
+  first, the order the scale list is held in.
+- `As shown` is kept for the case it was actually right about: past
+  `Scales SheetLabelMaxScales` (3) the list is longer than the cell, so the sheet says it is
+  mixed rather than showing a truncated list with an ellipsis through it.
+- A sheet of 3D viewports and no 2D ones still reads `NTS @ ISO A3` - it has a paper size
+  even with no scale on it.
+
+**The cell was measured, not guessed**
+- The Scale cell's share of the strip went 20 -> 30, taken off Site Address (50 -> 44),
+  Drawing Title (40 -> 38) and Client (30 -> 28). Every width in `TitleBlock Rows` is a
+  relative share of the strip beside the logo, so this is the same trade at every paper size.
+- The widths were chosen by measuring with the app's own jsPDF and Open Sans, not by eye.
+  At the shipped 20 share the longest label fitted A3 and up but overran A4 by 0.4 mm; at 30
+  the longest label the app can produce (`1:20 & 1:50 & 1:100 @ ISO A4`, 29.7 mm) fits the
+  A4 cell's 34.8 mm with room to spare, and no other cell was pushed to where a realistic
+  value truncates - "Noble Architecture" keeps 2.9 mm of clearance on A4, the tightest.
+- Client gave up the last 2 mm rather than Drawn By, which had only 0.4 mm spare once Scale
+  had taken its share.
+
+**Everything the cell reads is configurable**
+- `Scales SheetLabelShowPaperSize`, `SheetLabelScaleSeparator` (" & "), `SheetLabelPaperJoiner`
+  (" @ "), `SheetLabelPaperPrefix` ("ISO "), `SheetLabelMaxScales` and `SheetLabelMixedLabel`.
+  Setting the prefix to an empty string gives a bare `1:50 @ A2`; a paper Label configured as
+  "ISO A2" is not prefixed twice.
+
+**What did not change**
+- A Scale typed into the Sheet panel still wins over the computed label, the way every other
+  title block field works - the computed text shows as the input's placeholder.
+- `Na__LeScale__SheetLabel`'s paper argument is optional and last, so the PDF metadata
+  caller, which names the paper in a field of its own, is byte-identical.
+- The classic (scanned) title block takes the same field, and its A3 anchors leave 38 mm
+  between Scale and Date, so the longest label clears it.
+
+**Proved**
+- `Na__Verify__ModuleGraph__` and `Na__Verify__Exports__` both pass; the new
+  SheetRecords -> SheetLayout import reaches only the six config modules, so it cannot join
+  the Layout Editor's long-standing record/model/panel cycles.
+- 23 label cases run against the real module and the real shipped JSON, and a new page,
+  `80__Testing__PrototypeEnvironment/Na__Test__TitleBlockScaleCell__.html`, renders the real
+  chrome for PS01's sheet shapes at A4, A3, A2 and A1. Every cell paints in full, with no
+  ellipsis anywhere.
+- Not yet ported to ValeVision3D.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.60.0  -  17-Sep-2026 - ValeVision3D v2.53.0 - 17-Sep-2026
+### Dimensions You Can Grab, Constrain, Type Into and Slide
+
+**Overview**
+- Adam, on the vertex work that landed in v2.58.0: "add the same behaviour to dragging a
+  dimension end so you can constrain it" - then, on trying it: "clicking here to try and
+  move the dimension points just doesn't work."
+- He was right twice over. The grips were drawn and `DimensionGrabFor` answered `'end'`
+  correctly for a press on one - but `Na__LeTools__Resolve` never got that far.
+
+**Why a dimension's points could not be grabbed**
+- `Resolve` asks the markup hit test what is under the pointer, and for a dimension that
+  means its LINE and its VALUE. The measured points are at the far end of the extension
+  lines - on PS01's D01, some 45 mm of paper away, because putting the line clear of what
+  it measures is the entire purpose of an offset. So a press on a measured point found
+  nothing at all, and with a container open, finding nothing means "the press landed
+  outside, step back out". Clicking a grip closed the dimension instead of taking hold.
+- `Na__LeTools__OpenDimensionGripAt` now looks for the open dimension's grips first, the
+  way the rotate grip above it already did: both stand off the object they belong to, and
+  neither can be found by asking what lies under the pointer. Only while that dimension is
+  open, and never for `'whole'`, so a press on the line itself still resolves as before.
+
+**A measured point constrains like a vertex**
+- The arrow keys hold a dimension end to an axis, Shift holds it to the nearer one, and a
+  snap supplies the coordinate ALONG the held axis rather than cancelling it. The band
+  takes the locked axis's colour. Nothing new was invented: `Na__LayoutEditor__AxisLock__`
+  has done this for the placing tools since v2.21.0 and now reaches three more drags.
+- The same rule fixed Shift for a run of vertices. It was not that several points broke the
+  constraint - it was that the snapped point used to win outright, and a run of vertices is
+  dragged across far more geometry than one, so something was nearly always snapping and
+  the axis was nearly always lost. `Na__LeAxis__Hold` is what that rule is called.
+
+**Typing what the dimension should READ**
+- Adam chose this over "how far the end moves", and the geometry rewards it: a horizontal
+  dimension measures the x between its points and a vertical one the y, so a typed value
+  sets that coordinate alone and leaves the other where the drag put it. Locking X on a
+  horizontal dimension therefore holds the very coordinate the value sets, instead of
+  fighting it. An aligned dimension runs its end along the line between the two points.
+- Type 2500, see it should have been 2000, type that: every value is measured from the
+  fixed end rather than from the last answer, and the run lasts until the tool changes.
+  The measured points and the line stay exactly where they are.
+
+**The line has a grip at each end now, and slides**
+- Adam: "users will expect points here on the dimensions as well... this stretches the
+  dimension line and the dimension text and slides it to a new position."
+- All three grips on the line - both ends and the middle - change the OFFSET, carrying the
+  line and the value across while the two measured points stay put. Reaching for the end of
+  a dimension line to push it clear of something is the natural gesture, and the middle grip
+  alone is often buried under the value.
+- The Measurements box reads `Offset` while one is dragged and a typed distance sets it, at
+  the scale the dimension reads at, keeping whichever side the drag chose. It retypes like
+  everything else.
+
+**Selection points you can actually see**
+- Adam: "when you zoom in, the red vertices that show the selection are too small... they
+  just disappear." They did, and the arithmetic says so exactly.
+- Everything in the handles layer sits inside the paper's `scale(zoom)`, so one screen pixel
+  is `1 / zoom`. The edge width read `Math.max(1, 1 / zoom)`, which put the floor in the
+  WRONG UNITS: zoomed in, the clamp pinned the edge at one PAPER pixel, which is `zoom`
+  pixels on screen. At 4x a 9 px grip carried a 4 px border on each side and a picked vertex
+  was a white ring with no red left in it; at 8x the measured red width was **minus seven
+  pixels**. The clamp only ever bit while zoomed in, which is exactly where grips are needed.
+- `Na__LeGrips__EdgePx` replaces it, and the same mistake is fixed in the stem, the rubber
+  box, the insert diamond, the viewport handles and the selection box. A picked grip is now
+  drawn larger than a plain one as well (`GripSizePickedPx`, 13 against 9), since it marks
+  the points the next drag will carry.
+- Proved at five zooms: a picked grip is a constant 13 px box with a 1 px edge and 11 px of
+  red, from 0.5x to 8x.
+
+**Less white while a container is open**
+- `EditScope FadeOpacity` 0.25 -> 0.45. Adam: "make the fade of everything else less
+  extreme... it goes a bit too white currently."
+
+**Fixed on the way past**
+- `GetDimEndRetype` returned an OFFSET record to the span path, so the second value typed
+  after sliding a line moved the dimension's end instead. Caught by a retype landing 1.8 mm
+  off; it now ignores a record that is not a moved end.
+- The dimension branch of `ApplyDrag` never called `Na__LeMeasure__Refresh`, so the box
+  stayed asleep through a dimension drag however well the rest of it worked.
+
+**Files**
+- `Na__LayoutEditor__SheetTools__HitResolution__.js` - `OpenDimensionGripAt`, and `Resolve`
+  asks it before the markup hit test.
+- `Na__LayoutEditor__SheetTools__PointerDrag__.js` - the constraint on both dimension
+  drags, `DimEndAtSpan`, `TypeDimensionSpan`, `TypeDimensionOffset`, their readings and
+  retype records, `RerunDimEndDrag`.
+- `Na__LayoutEditor__Grips__.js` - `EdgePx`, larger picked grips, a grip at each end of the
+  dimension line and the grab to match.
+- `Na__LayoutEditor__Measurements__.js` - `Length` for a dimension end, `Offset` for a line
+  being slid, both retypable.
+- `Na__LayoutEditor__SheetTools__State__.js`, `__ToolState__.js`, `__Keyboard__.js`,
+  `__.js` - the shared retype records, the keys and the wiring.
+- `Na__LayoutEditor__ViewportHandles__.js`, `Na__LayoutEditor__SelectionBox__.js` - the same
+  edge-width mistake.
+- `Na__LayoutEditor__AppConfig__.json` - `GripSizePickedPx`, `FadeOpacity`, the new labels.
+
+**Verified** on PS01 D01 through the real pointer and key path, with every R2 write
+blocked and nothing attempted: the grab, both axis locks, typed spans of 2500 / 1200 / 3000
+landing exactly and the line staying put, typed offsets of 1500 / 800 / 2200 / 1250 with the
+measured points never moving, Shift holding a two-vertex run to one axis, and the grip
+arithmetic at five zooms. Every record restored to its original coordinates afterwards.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.59.0  -  17-Sep-2026 - ValeVision3D v2.52.0 - 17-Sep-2026
+### Container Editing, the Move Tool, and Dimensions You Can Actually Edit
+
+**Overview**
+- Adam: editing a vector was "painful and too dangerous", because the vertex dots sat
+  on every selected vector and a drag meant for a point moved the drawing behind it.
+  And dimensions were "completely uneditable - if something needs to change size you
+  can't just edit the individual dimensions, you have to create brand new ones".
+- Both come from the same missing idea: the editor had no notion of being INSIDE
+  something. SketchUp has one, and once the Layout Editor has one too, the dots, the
+  grips, the point tools and the safety all follow from it.
+
+**The container (Na__LayoutEditor__EditScope__, new)**
+- A context stack: `[{ kind : 'group' | 'shape' | 'dimension', id }]`, outermost first,
+  empty being the sheet itself. Double-click - or press Enter - to step into a group,
+  and again to step into a vector or a dimension inside it. Groups nest, so the stack
+  can read group, group, vector.
+- While a container is open, **only what is inside it answers a press.** Hit resolution
+  goes through the scope: a hit inside is remapped to the item selectable at that
+  level, everything outside comes back null, and viewports are not even looked for.
+- **Everything else fades.** One class on the paper drops the viewport pictures, the
+  border and title block and all the markup to 25 percent, and the contents of the
+  open container are drawn AGAIN at full strength in a new focus layer above them. The
+  faded copy underneath is the same markup in the same place, so nothing shifts as a
+  container opens or closes. `EditScope FadeOpacity` sets the amount.
+- **Click anywhere outside to close it.** A press outside starts a box; if it never
+  stretches it was a click, and the click steps back out one level - to the group that
+  holds the vector, or to the sheet. Escape closes the lot.
+
+**The dots belong to the container**
+- A selected vector shows its highlight box and NO dots. The dots are what says "you
+  are inside this one, and the points are what a press will take hold of".
+- Same for a dimension: its four grips - the two measured points, the line's offset and
+  a moved value - appear when you step inside it and not before. Outside, a dimension
+  is one object that selects, moves and deletes whole. **That is the fix for
+  "uneditable": inside its container the grips read at twice the tolerance, because
+  nothing else on the sheet is competing for the press.** Missing a corner by a pixel
+  and dragging the whole dimension instead was the entire failure.
+- A dimension's VALUE keeps its double click (the override box). The line, the ticks and
+  the extension lines step inside to the grips. Both readings are true; that is which.
+- Inserting a point (Shift over an edge) and deleting one are inside-only as well.
+
+**Several points at once**
+- A box drawn inside a vector takes VERTICES, not sheet items - which was Adam's
+  complaint that box-selecting points "ends up selecting a load of other things".
+- A picked point is drawn **solid red** against the blue of the rest: blue is a point
+  you could take hold of, red is one you have. A dimension's held grip reads red too.
+- Dragging one picked point carries every picked point: the one under the pointer snaps
+  and reads the axis lock, the rest move by exactly however far it went, so a boxed run
+  of corners keeps its shape. Delete takes the picked points out, never cutting a vector
+  below the two that still draw.
+
+**The Move tool (M)**
+- **Select no longer moves anything.** A press picks; a drag does nothing at all. Press
+  M and the cursor becomes a four-way arrow: now a drag moves whatever is under it.
+- What Select keeps is everything that EDITS an object rather than relocating it: the
+  crop handles, a dimension's grips, a leader's tip and head, the text rotate grip, the
+  drawing inside a viewport being repositioned, and the points of an open container.
+  Those are small, deliberate targets - they are not what gets nudged by accident.
+- `EditScope MoveToolRequired` turns the catch off and puts the old behaviour back.
+
+**Escape, and Select as the one resting state**
+- Escape was a ladder - a press to abandon the placement, another to clear the
+  selection, another to put the tool down - so how many presses you needed depended on
+  state nobody was tracking. **One press now stops everything**: abandon what is half
+  done, close every container, drop the selection, and **come back to Select**.
+- A tool-less state was built first and taken out the same day, on Adam's word: with
+  nothing armed a press on the sheet did nothing, so the browser took the click and
+  offered its own copy and search menus over the paper. **Select is the resting state
+  and there is no other** - every other tool is picked up from it and Escape returns to
+  it. `TOOL_NONE` is gone rather than hidden, so nothing can reach that state again.
+- **The space bar picks Select, beside V**, as most CAD packages bind it. It arms
+  Select; it does not toggle it off. Both keys are always taken from the browser, which
+  would otherwise scroll the sheet out from under the cursor.
+- **Every press the select path handles is taken from the browser**, whether it moves
+  anything or not. A plain pick used to fall through without `preventDefault`, which is
+  the other half of why the page's own menus appeared over the sheet.
+
+**The menu belongs to the container**
+- Inside a vector the right-click menu is about its points: insert one where you
+  clicked, delete the picked ones, close the shape, step back out. Inside a dimension:
+  its value, where that value sits, and the way out. **This is where cut, extend, trim
+  and join will sit** - they belong to that container and to no other, which is the
+  whole reason for having one.
+- Outside, a vector, a dimension and a group each offer the way in.
+
+**Built alongside v2.58.0, in the same files.** Another session was adding the
+arrow-key axis lock and the retypable typed length to the vertex drag while this was
+being written, so both landed in `SheetTools__PointerDrag__` and `SheetTools__State__`.
+They compose: a boxed run of points drags with the axis lock and the Measurements box
+reading, because the multi-vertex carry is applied AFTER the snap and the lock have
+decided where the grabbed point goes. The space bar is that release's
+`Tool__SelectToggle`, which is the better half of this one's "space picks Select": one
+press arms Select, a second leaves `TOOL_NONE` - the same resting state Escape now
+leaves. `TOOL_NONE` came from here; the toggle that reaches it came from there.
+
+**What Adam caught straight away, fixed in the same release**
+- **The arrow keys nudged the open object.** Inside a vector or a dimension the arrows
+  are the axis lock and nothing else, but with no drag in flight they fell through to
+  the nudge - which moved the whole open vector. So an arrow pressed between drags
+  walked the very thing being edited, and the lock then read as broken because the
+  shape had already shifted. In a container the key is now swallowed: the lock still
+  takes it mid-drag, nothing moves otherwise, and the page cannot scroll.
+- **A typed length landed one point of a picked run.** `WriteVertexAlong` took only the
+  grabbed index, so typing a value over a boxed run of corners moved that corner and
+  wrote every other picked corner BACK to where it started - they previewed moving
+  together and landed one. It now carries the whole picked set the same distance, and
+  the retype record keeps the ORIGINAL run of points beside the run it just wrote, so
+  correcting 20 to 5 puts them 5 from where they began rather than 25. Proved on PS01:
+  type 20, both corners +20.000; retype 5, both +5.000; the other corners untouched;
+  two undos put the shape back exactly.
+- The plain drag and release was already right, and was checked rather than assumed:
+  both picked corners land, by the same delta, with the rest of the shape untouched.
+- **A press near a corner drew a box instead of grabbing it.** The worst of the four,
+  and the one that made the container "horrible to use": Resolve asked the markup hit
+  test first, and that answers for the LINE. A press two pixels off the line but dead on
+  a corner therefore found nothing, was read as "outside the container", and started a
+  selection box exactly where the hand was trying to grab. `ScopeGrabAt` now answers
+  before the line test, measured against the GRIPS at `EditScope GrabRadiusPx` (14) - a
+  fixed reach ON SCREEN at any zoom, because the grip is what the hand is aiming at, and
+  a grip looks the same size however far in the sheet is zoomed. Proved at 5x zoom: a
+  press 0, 4 and 8 px off the corner grabs the vertex; 6 px off and dragged moves the
+  corner and starts no box at all.
+- **The top level lost its move constraints.** Whole-object moves had no axis lock and no
+  typed distance, so a vector could no longer be walked an exact 50 mm along X the way a
+  viewport frame could. `IsMoveDrag`, `GetMoveDrag`, `TypeMoveLength` and `RerunMoveDrag`
+  give a whole-object move - one item by its body, or a whole multi-item selection - the
+  same pair a viewport frame has had since v2.24.0: the arrow keys lock it to X or Y
+  (`ApplyDrag` honours the lock over Shift's guess and draws the band in the axis's
+  colour), and the Measurements box reads how far it has travelled and lands it a typed
+  distance exactly, clear of the snap. Proved on PS01: 50 mm typed along a diagonal drag
+  landed (43.074, 25.389) - 50.000 - with every corner carried the same and the shape
+  unchanged in size.
+
+**Ported to ValeVision3D as v2.52.0, the same session.** Same module set, same
+behaviour; the only divergence is that ValeVision's dimensions have no fixed-length
+extension lines, so the extracted `PushDimension` keeps ValeVision's own shape.
+
+**Not yet proved in the app**
+- Every module parses and every named import resolves in both apps, and the container
+  opens, fades the sheet and puts four vertex grips on screen through the real
+  `EnterScope` path on PS01's D01. The pointer paths - drag a boxed run of points, drag
+  a dimension's end grip onto the linework, click outside to leave - were not driven
+  synthetically; Adam was testing the live build as it went.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.58.2  -  17-Sep-2026
+### The Progressive Renderer Was Rebuilding Its Buffer on Every Chunk
+
+**Overview**
+- Adam: "it's getting stuck at 6 out of 16, and I've got a pretty high-end PC...
+  I'm thinking it's just got some kind of extra timeout thing in TrueVision that
+  doesn't exist in ValeVision."
+- There is no such timeout, and there is no divergence. The refinement module
+  here and ValeVision's are the SAME FILE, the supersampler is the same file,
+  the AppConfig numbers are the same numbers, orbit damping is off for the
+  mouse in both, and both set the renderer's pixel ratio with the same line.
+  ValeVision carries exactly this bug; whether it bites depends on the window.
+
+**The fault**
+- `EffectComposer` sizes its buffers as `cssSize x pixelRatio` and stores the
+  product unrounded. Both apps set `setPixelRatio(Math.min(devicePixelRatio,
+  1.5))`, so on a display at 125% or 150% scaling - the normal case on a good
+  monitor - the buffer comes out at a size like 2498.75 x 1406.25 whenever the
+  viewport's dimensions are not multiples of four (or two).
+- The supersampler ROUNDS the size it is given and reports the rounded size.
+  `EnsureBuffer` compared that against the raw buffer size, so on a fractional
+  buffer the two never matched: on EVERY chunk the accumulation buffer was
+  torn down, rebuilt, and the running total discarded with it - which is the
+  one discard in the module that does not restart the debounce - and the chunk
+  drew again from zero. It landed on the first chunk size every frame, for
+  ever: 8 cold (no frame-time average yet, so `maxChunkSamples`), 6 warm
+  (`floor(100 / 16.6)`). A full chunk of GPU work per frame, presenting the
+  same part-finished picture each time, while the refiner kept answering
+  "wanted, come straight back". The frame rate readout froze on its last value
+  because a chunk frame is not an ordinary frame and never feeds it.
+- It never reproduced in the harness because the harness ran at an integer
+  buffer size. It reproduced immediately once the buffer was set fractional:
+  87 chunks in 3.5 seconds, stuck at the first chunk size, `wanted: true,
+  delayMs: 0` - the exact numbers the stall diagnostic reported from Adam's
+  machine.
+
+### Fixed
+- **`EnsureBuffer` floors the buffer size before comparing and before
+  creating.** Floor, not round: WebGL takes texture sizes as integers and
+  truncates, so floor is the buffer that actually exists on the GPU, and the
+  accumulation target now matches it pixel for pixel. The equality test is
+  exact, so a buffer is rebuilt only when the window really changes size.
+- **Every tick ends by arming what comes next**, on every path, in one
+  function a `finally` guarantees is reached. Found on the way and real: a
+  burst could be abandoned by any early return, and a thrown frame stopped the
+  loop outright.
+- **A thrown frame no longer stops the render loop.** Reported, and on it goes.
+- **A refinement that stops getting anywhere restarts itself** after 2.5
+  seconds and logs the state it found - count, what the refiner was asking
+  for, frame rate, active reasons, hold, visibility, the composer's buffer size
+  and the pixel ratios. This is what turned "it's stuck" into numbers, and it
+  stays in: the next stall of any shape names itself.
+
+### Changed
+- **One clock.** `planFrame` reads `performance.now()` itself; the loop passes
+  no timestamp. It used to be handed the animation frame's start time while
+  everything else in the module used wall clock, and a 260ms chunk is enough
+  for the two to disagree at the moment of the decision. Not the stall - it
+  slows a run, it does not freeze one - but a real defect, so fixed.
+- **The engine hold stands the refiner down properly** - the third of
+  ValeVision v2.48.1's three stand-down points, and the one this port was
+  missing. The hold was only fed into `sceneBusy`, which stopped the
+  refinement and not the painting; a sheet that owned the screen was still
+  being drawn over every frame.
+- **The PDF can no longer print an under-sampled 3D viewport.** The export
+  profile is High - 20 px/mm and SIXTEEN samples - and does not scale with the
+  device pixel ratio; the working profile does, so Medium on a 2x screen is
+  24 px/mm at FOUR samples and passed the width-only reuse test. Snapshot
+  assets now record `Asset__Samples`, and a cached render is reused only when
+  it is both wide enough AND sampled enough. Older records read as unknown and
+  re-render once. 2D underlays were never affected.
+
+### Notes
+- Nothing about the sample count, chunk sizing, milestones or the cost while
+  the camera moves has changed.
+- Verified on PS01 Musters Road with the fix in: an integer buffer converging
+  16/16 in two chunks; the fractional buffer that had spun 87 chunks converging
+  16/16 in two; a viewport-shaped 1600 x 843.2 buffer converging in two; the
+  watchdog silent throughout; and earlier, five orbit-and-release cycles, a
+  deliberately jammed run caught and restarted, three thrown frames survived,
+  and an engine hold standing down and coming back.
+
+### Files
+- `05__RenderPipeline/Na__RenderEffect__ProgressiveRefine__.js` 1.0.3: the
+  floored buffer comparison; 1.0.2: `planFrame` reads its own clock.
+- `01__AppCore/Na__AppFlow__LoadingSequence.js`: `Na__RenderLoop__ArmNextFrame`,
+  `Na__RenderLoop__WatchRefineProgress` and its diagnostic, the `try`/`finally`
+  around the frame, the engine hold gate, no timestamp passed to `planFrame`,
+  a dead `navigationChanged` local removed.
+- `51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__Viewport3d__.js`:
+  `Na__LeVp3d__SampledEnough`, `Asset__Samples` written and read.
+- `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js`:
+  `Asset__Samples` normalised (null when unknown).
+
+**To port to ValeVision**
+- All of it, and the buffer fix first: ValeVision has the identical
+  `EnsureBuffer`, the identical pixel-ratio line, the same single
+  ask-for-the-next-chunk site, no thrown-frame guard, and the identical
+  width-only export reuse rule. It has not shown the stall only because
+  Adam's ValeVision window happens to give an integer buffer.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.58.0  -  17-Sep-2026
+### Arrow Keys Constrain a Vertex Drag, a Typed Length Can Be Retyped, and the Space Bar Toggles Select
+
+**Overview**
+- Adam: "holding Shift works, but when you try and type a value in and take your
+  finger off Shift, it very unhelpfully locks it to a random value."
+- He is right, and the reason is structural rather than a bug. Shift is a HELD
+  constraint, and the hand holding it is the hand that has to reach the number
+  keys. Let go to type 2500 and the constraint goes with it, so the length lands
+  along whatever direction the raw cursor happened to be pointing when Enter was
+  pressed - which is the "random value".
+- The arrow-key axis lock already existed for the tools that PLACE points
+  (`Na__LayoutEditor__AxisLock__`, v2.21.0): left and right hold the X axis, up
+  and down the Y, the same key again releases it, and nothing is held down. That
+  is exactly the constraint a vertex drag needed, and it is the one this release
+  gives it - the answer was to reach the feature across, not to write a new one.
+
+**An arrow key holds a vertex drag to an axis**
+- Grab a vertex, press Up or Down and the vertex only moves in Y; Left or Right
+  and only in X. The same key again releases it, and the lock ends with the drag.
+- The lock BEATS A SNAP rather than cancelling it: a snapped point still supplies
+  the coordinate along the axis, so hovering a vertex across the drawing lines the
+  two up without pulling the dragged vertex off its axis. That is the rule the
+  placing tools already follow, and vertices now follow it too.
+- The rubber band takes the locked axis's colour, so the constraint is visible
+  with nothing held down - which matters precisely because the hand has left the
+  mouse to type.
+- Shift is untouched. With no lock on it still holds the drag to whichever axis
+  the cursor is nearer, exactly as before.
+
+**A typed length stays live, the way SketchUp's does**
+- Type 2500, Enter - then 2000, Enter, then 1800. Each value moves the same vertex
+  the same way, MEASURED FROM WHERE IT STARTED rather than from where the last
+  value put it, so a figure that came out wrong is corrected by typing the right
+  one instead of being undone first. The run lasts until the tool changes.
+- The Measurements box no longer goes grey the moment Enter is pressed: it keeps
+  reading the vertex move, keeps its scale chip, and keeps taking keys. The first
+  value says "Type another length to move it again" above the box, because nothing
+  else on screen would say that it is allowed.
+- Each correction is an undo step of its own, and the run ends quietly the moment
+  anything else touches the shape - a nudge, a drag, an undo, a new selection.
+- This follows the pattern the Rectangle tool already had for a rectangle that has
+  just landed (`Na__LeRect__Retypable`), so there is one idea in the editor rather
+  than two: a typed size stays on offer until the work moves on.
+
+**The space bar stops scrolling the page**
+- Adam: "hitting the spacebar is making the page scroll down or zoom out."
+- Space was already bound to the Select tool (`Tool__SelectSpace`), and picking the
+  tool worked - but the `Tool__Select` case never called `preventDefault`, so the
+  browser got the key as well and scrolled the sheet out from under the cursor.
+  `Pan__SpaceLeftDrag` is switched off, so the PC controls module did not take the
+  key either. Nobody did, and the page moved.
+- Space now runs `Tool__SelectToggle`, which is ALWAYS taken from the browser, even
+  when it changes nothing. One press puts whatever tool is up down and picks Select
+  up; the next press puts Select down too, leaving nothing armed - the same resting
+  state Escape leaves (`TOOL_NONE`). A held space repeats, and only the first press
+  counts, so re-enabling `Pan__SpaceLeftDrag` will not flip the tool while panning.
+- A value being typed into the Measurements box still keeps the space bar: a space
+  is in `TypingCharacters` but not in `StartCharacters`, so `3000 x 2000` types as
+  it always did while a bare space reaches the toggle.
+
+**Files**
+- `Na__LayoutEditor__KeyMappings__.json` - `Tool__SelectSpace` now runs
+  `Tool__SelectToggle`, which joins the action catalogue.
+- `Na__LayoutEditor__SheetTools__State__.js` v1.1.0 - `VertexRetype` and `SAME_MM`.
+- `Na__LayoutEditor__SheetTools__PointerDrag__.js` v1.1.0 - the lock in the vertex
+  drag, the band, `VertexRetypable`, `GetVertexRetype`, `WriteVertexAlong`,
+  `IsVertexDrag`, `RerunVertexDrag`; `TypeVertexLength` now serves both.
+- `Na__LayoutEditor__SheetTools__Keyboard__.js` v1.2.0 - `AxisKey` takes a vertex
+  drag; `Tool__SelectToggle` for the space bar.
+- `Na__LayoutEditor__Measurements__.js` v1.3.0 - the box stays awake for a
+  retypable vertex; `MeasureVertexAgain`.
+- `Na__LayoutEditor__SheetTools__ToolState__.js` - `CancelPlacement` ends the run.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.57.0  -  17-Sep-2026
+### Match Properties to a Whole Selection, and One Markup Panel Open at a Time
+
+**Overview**
+- Adam: "there is currently no way to match properties of leaders", and bubble text
+  that would not take a size from another bubble.
+- **Leader matching was already there and already worked.** Proved end to end on
+  PS01's own D01 sheet, through the real pointer path: arm the eyedropper, click a
+  3.5mm green bubble, click a 2.5mm navy one, and the text size, colour, bubble size
+  and line weight all travel. Note-to-bubble travels too. Nothing in this release
+  fixes the eyedropper, because nothing in it was broken.
+- **What was broken was knowing which panel you were typing into.** On entering a
+  sheet, Text, Leaders, Dimensions and Vectors all sat open at once, each with its
+  own size box, colour picker and weight. Four "Text mm"-shaped fields in one
+  column, and only one of them belonging to the bubble that was selected - the
+  other three quietly setting the defaults for new objects. Typing 3 into the wrong
+  one does nothing to the bubble, which reads exactly like match properties not
+  working on leaders.
+
+**One markup panel at a time**
+- Selecting anything on the sheet now opens that kind's section and folds the other
+  three. Picking a style with the eyedropper does the same, so what is on show is
+  always what is being matched. A mixed selection opens nothing, because there is no
+  single answer to what would be edited; groups are opened up first, so windowing a
+  grouped block of notes still lands on the right panel.
+- Several can still be opened by hand - to read one kind's text size against
+  another's - and the next selection tidies them away again.
+- `LayoutEditor__Panels__AccordionSections` names the group and
+  `LayoutEditor__Panels__FocusSectionOnSelect` turns the behaviour off.
+  `CollapseOthersOnOpen`, declared back in the first panel host and never wired to
+  anything, now does what it says: folds the others the moment one is opened by hand.
+
+**Match properties over a whole selection**
+- `Na__LeDrop__ApplyMany` writes one style bag onto many items, one undo step per
+  kind, skipping locked items rather than refusing the lot - the rule a group move
+  already follows.
+- **Paste properties to N selected** on the context menu of a multi-selection and of
+  a group. The count is what will actually change: the items are expanded past any
+  group, then the source itself, the other kinds and the locked drop out, and the
+  item does not appear when the answer is none. A group whose members are all one
+  kind hands out a style as well, so a row of bubbles can be copied from without
+  being opened.
+- Tested on D01: four bubbles restyled in one click, one Ctrl+Z put all four back.
+
+**The panels write the whole selection**
+- Select nine dimensions, change the text size, and all nine change. Every one of the
+  four markup panels now reads the FIRST selected item of its kind and writes ALL of
+  them, in one undo step, where before it showed the settings for new objects and
+  wrote nothing.
+- It goes through the eyedropper's trait table, so a panel field travels by exactly
+  the declaration the eyedropper copies by - and **content cannot travel with style**:
+  `StyleOnly` cuts a patch down to the kind's style traits, so a text item's words, a
+  dimension's override and a bubble's specification link stay where they are. A
+  leader's type is a palette-only trait, so nine selected leaders take a size and a
+  colour without a note turning into a bubble.
+- The note under each panel says which case it is in: editing one, editing N, or
+  setting the defaults.
+
+**Files**
+- Layout Editor: `Eyedropper__` 1.8.0 (ApplyMany, PaintMany, PaintableIn, StyleKeys,
+  StyleOnly), `SheetTools__ContextMenu__` 1.1.0, `PanelHost__` 1.3.0 (SetFolded,
+  FocusSection, SelectedOfKind, ApplyToSelection), `ModeController__`
+  (SectionForKind, FocusPanelForSelection), `Panel__Text__`, `Panel__Dimensions__`,
+  `Panel__Shapes__`, `Panel__Leaders__`, `ConfigState__EditorSetup__`,
+  `AppConfig__.json`.
+
+**Still open**
+- Selecting a viewport leaves the four markup folds as they are, rather than folding
+  them all. Deliberate for now: it would mean unfolding by hand to set the defaults
+  for new text afterwards.
+- Not yet ported to ValeVision3D.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.56.2  -  16-Sep-2026
 ### Carousel Holds Opaque Longer on First Reveal; Mobile Swap Breakpoint Tightened
 

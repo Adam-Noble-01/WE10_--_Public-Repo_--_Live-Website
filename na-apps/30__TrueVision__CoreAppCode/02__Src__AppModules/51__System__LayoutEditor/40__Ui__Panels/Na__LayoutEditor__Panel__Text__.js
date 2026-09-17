@@ -32,6 +32,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.4.0
+// - Several selected: the panel reads the first text item and writes all of
+//   them. Only the style traits travel, so the words stay where they are.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Rotation row: degrees clockwise, -180 to 180. It turns the selected text
 //   about the middle of its box, or sets the angle new text is placed at. The
@@ -65,6 +69,8 @@
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
         Na__LePanels__IsEditable,
+        Na__LePanels__SelectedOfKind,
+        Na__LePanels__ApplyToSelection,
         Na__LePanels__Row,
         Na__LePanels__Input,
         Na__LePanels__Select,
@@ -98,6 +104,23 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Every Selected Text Item, When There Is More Than One
+    // ------------------------------------------------------------
+    // The panel reads the first of them and writes all of them. Reading the
+    // first is what makes the readout mean something while several are
+    // selected - a size box showing nothing, or showing the setting for new
+    // text, is what made an edit here land somewhere nobody expected.
+    // ------------------------------------------------------------
+    function Na__LePanelText__Many() {
+        const sheet = Na__LeModel__GetActiveSheet();
+        const items = Na__LePanels__SelectedOfKind(sheet, 'annotation');
+        if (!items.length) return null;
+        const item = sheet.Sheet__Annotations.find((a) => a.Annotation__Id === items[0].id) || null;
+        return item ? { sheet : sheet, item : item, count : items.length } : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Build the Controls
     // ------------------------------------------------------------
     function Na__LePanelText__Build(body) {
@@ -126,10 +149,12 @@
     // ------------------------------------------------------------
     function Na__LePanelText__Refresh(body) {
         const selected = Na__LePanelText__Selected();
+        const many     = selected ? null : Na__LePanelText__Many();
+        const reading  = selected || many;                                      // <-- One selected, or the first of several: either way a real item
         const defaults = Na__LeTools__GetTextDefaults();
-        const values = selected
-            ? { sizeMm : selected.item.Annotation__SizeMm, fontWeight : selected.item.Annotation__FontWeight, colour : selected.item.Annotation__Colour, align : selected.item.Annotation__Align, leader : Number.isFinite(selected.item.Annotation__LeaderXMm),
-                rotationDeg : Na__LeMarkup__AnnotationRotationDeg(selected.item) }
+        const values = reading
+            ? { sizeMm : reading.item.Annotation__SizeMm, fontWeight : reading.item.Annotation__FontWeight, colour : reading.item.Annotation__Colour, align : reading.item.Annotation__Align, leader : Number.isFinite(reading.item.Annotation__LeaderXMm),
+                rotationDeg : Na__LeMarkup__AnnotationRotationDeg(reading.item) }
             : defaults;
         const set = (name, value) => { const el = body.querySelector('[data-na-control="' + name + '"]'); if (el && document.activeElement !== el) el.value = String(value); };
         set('text-size', values.sizeMm);
@@ -139,12 +164,14 @@
         set('text-rotation', Math.round(Na__LeText__WrapDeg(values.rotationDeg) * 10) / 10);   // <-- A tenth of a degree is as fine as the box needs to read
         const leader = body.querySelector('[data-na-control="text-leader"]');
         if (leader) leader.checked = values.leader === true;
-        const many = Na__LeModel__GetSelectionItems().length;
+        const picked = Na__LeModel__GetSelectionItems().length;
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? Na__LeCfg__GetLabel('TextSelectedNote', 'Editing the selected text. Shift+Enter adds a line; Enter finishes. Drag the round grip to rotate it; hold Shift for steps.')
-            : (many > 1
-                ? Na__LeCfg__FormatLabel('TextManyNote', '{count} items selected. Click one text item on its own to edit it; these settings apply to new text.', { count : many })
-                : Na__LeCfg__GetLabel('TextDefaultsNote', 'Nothing selected: these settings apply to new text.'));
+            : (many
+                ? Na__LeCfg__FormatLabel('TextManyNote', 'Editing {count} selected text items: a change here goes to all of them.', { count : many.count })
+                : (picked > 1
+                    ? Na__LeCfg__GetLabel('TextNoneOfKindNote', 'Nothing selected is text: these settings apply to new text.')
+                    : Na__LeCfg__GetLabel('TextDefaultsNote', 'Nothing selected: these settings apply to new text.')));
         const edit = body.querySelector('[data-na-block="edit"]');
         if (edit) edit.hidden = !selected;
     }
@@ -155,8 +182,9 @@
     // ------------------------------------------------------------
     function Na__LePanelText__Apply(patchForItem, patchForDefaults) {
         const selected = Na__LePanelText__Selected();
-        if (selected) Na__LeModel__UpdateAnnotation(selected.sheet, selected.item.Annotation__Id, patchForItem);
-        else Na__LeTools__SetTextDefaults(patchForDefaults);
+        if (selected) { Na__LeModel__UpdateAnnotation(selected.sheet, selected.item.Annotation__Id, patchForItem); return; }
+        if (Na__LePanels__ApplyToSelection(Na__LeModel__GetActiveSheet(), 'annotation', patchForItem)) return;   // <-- Several selected: the style traits go to every one of them
+        Na__LeTools__SetTextDefaults(patchForDefaults);
     }
     // ------------------------------------------------------------
 

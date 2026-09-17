@@ -39,6 +39,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.5.0
+// - RefreshScope and the focus layer: while a container is open
+//   (Na__LayoutEditor__EditScope__) the paper takes na-le-paper--scoped, which
+//   fades the viewport frames, the chrome and the markup to EditScope
+//   FadeOpacity, and the contents of that container are drawn again at full
+//   strength in a new layer above them (Na__LeMarkup__BuildItemPrimitives). The
+//   faded copy underneath is the same markup in the same place, so nothing
+//   shifts as a container opens and closes. 'scope' is a refresh reason of its
+//   own and rides along with 'markup'.
+//
+//
 // 14-Sep-2026 - Version 1.4.0
 // - Several selected items: the markup highlights every one, and the selection
 //   layer outlines every selected viewport - without handles or grips, which
@@ -68,6 +79,7 @@
 
     // MODULE IMPORTS | Layout, Model, Chrome, Markup, Viewports and Handles
     // ------------------------------------------------------------
+    import { Na__LeCfg__GetEditScopeSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import {
         Na__LeModel__KIND_3D,
@@ -88,6 +100,8 @@
     import { Na__LeVp3d__Fill, Na__LeVp3d__Release } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
     import { Na__LeHandles__Render, Na__LeHandles__RenderOutlines, Na__LeHandles__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeGrips__Render } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
+    import { Na__LeScope__Get, Na__LeScope__Contents } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
+    import { Na__LeMarkup__BuildItemPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -104,6 +118,7 @@
     const Na__LeSurface__CLASS_SCALER = 'na-le-scaler';
     const Na__LeSurface__CLASS_PAPER  = 'na-le-paper';
     const Na__LeSurface__CLASS_FRAME  = 'na-le-frame';
+    const Na__LeSurface__CLASS_SCOPED = 'na-le-paper--scoped';   // <-- A container is open: everything outside it is faded back
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Elements and Current Sheet
@@ -115,6 +130,7 @@
     let Na__LeSurface__Frames    = null;    // <-- Container of viewport frames
     let Na__LeSurface__ChromeSvg = null;
     let Na__LeSurface__MarkupSvg = null;
+    let Na__LeSurface__FocusSvg  = null;    // <-- What is inside the open container, redrawn crisp over the faded sheet
     let Na__LeSurface__Handles   = null;
     let Na__LeSurface__Sheet     = null;
     let Na__LeSurface__Layout    = null;
@@ -173,7 +189,7 @@
         if (Na__LeSurface__Sheet) Na__LeSurface__ReleaseFrames();
         if (Na__LeSurface__Room && Na__LeSurface__Room.parentNode) Na__LeSurface__Room.parentNode.removeChild(Na__LeSurface__Room);
         Na__LeSurface__Stage = Na__LeSurface__Room = Na__LeSurface__Scaler = Na__LeSurface__Paper = Na__LeSurface__Frames = null;
-        Na__LeSurface__ChromeSvg = Na__LeSurface__MarkupSvg = Na__LeSurface__Handles = null;
+        Na__LeSurface__ChromeSvg = Na__LeSurface__MarkupSvg = Na__LeSurface__FocusSvg = Na__LeSurface__Handles = null;
         Na__LeSurface__Sheet = Na__LeSurface__Layout = null;
     }
     // ------------------------------------------------------------
@@ -216,6 +232,7 @@
         Na__LeSurface__RefreshFrames();
         Na__LeSurface__RefreshChrome();
         Na__LeSurface__RefreshMarkup();
+        Na__LeSurface__RefreshScope();
         Na__LeSurface__RefreshSelection();
         return true;
     }
@@ -224,7 +241,7 @@
 
     // FUNCTION | Refresh Part of the Paper After a Model Change
     // ------------------------------------------------------------
-    // reason: 'frames' | 'chrome' | 'markup' | 'selection' | 'sheet' | 'all'
+    // reason: 'frames' | 'chrome' | 'markup' | 'scope' | 'selection' | 'sheet' | 'all'
     //
     // COALESCED ONTO THE NEXT ANIMATION FRAME. Every redraw here rebuilds a
     // whole SVG layer as a string and swaps the node in, which is affordable
@@ -265,7 +282,8 @@
         if (all || reason === 'frames')    Na__LeSurface__RefreshFrames();
         if (all || reason === 'frames' || reason === 'chrome') Na__LeSurface__RefreshChrome();
         if (all || reason === 'markup')    Na__LeSurface__RefreshMarkup();
-        if (all || reason === 'frames' || reason === 'markup' || reason === 'selection') Na__LeSurface__RefreshSelection();
+        if (all || reason === 'markup' || reason === 'scope') Na__LeSurface__RefreshScope();   // <-- The focus layer is a copy of the markup, so it is rebuilt with it
+        if (all || reason === 'frames' || reason === 'markup' || reason === 'scope' || reason === 'selection') Na__LeSurface__RefreshSelection();
     }
     // ------------------------------------------------------------
 
@@ -459,6 +477,37 @@
         const primitives = Na__LeMarkup__BuildSheetPrimitives(sheet, Na__LeSurface__Layout, Na__LeModel__GetSelectionItems());
         const markup     = Na__LeChrome__ToSvgMarkup(primitives, Na__LeSurface__Layout.Page.WidthMm, Na__LeSurface__Layout.Page.HeightMm, 'na-le-paper__markup');
         Na__LeSurface__MarkupSvg = Na__LeSurface__SwapSvg(Na__LeSurface__MarkupSvg, markup, 'na-le-paper__markup', Na__LeSurface__Handles);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Fade the Sheet Back and Redraw What Is Open Over It
+    // ------------------------------------------------------------
+    // SketchUp's rule, on paper: while a container is open, everything outside
+    // it dims and everything inside it stays as it was. The dimming is one
+    // class on the paper, which fades the viewport frames, the chrome and the
+    // markup together; the contents of the container are then drawn AGAIN, at
+    // full strength, in a layer above the faded ones - so the vector being
+    // edited is the only thing on the sheet at normal contrast, and the drawing
+    // behind it is still legible enough to work against.
+    //
+    // Nothing else changes: the faded copy underneath is the same markup, in
+    // the same place, so nothing shifts as a container opens and closes.
+    // ------------------------------------------------------------
+    function Na__LeSurface__RefreshScope() {
+        const sheet = Na__LeSurface__Sheet;
+        if (!sheet || !Na__LeSurface__Layout || !Na__LeSurface__Paper) return;
+        const open  = Na__LeScope__Get();
+        Na__LeSurface__Paper.classList.toggle(Na__LeSurface__CLASS_SCOPED, !!open);
+        Na__LeSurface__Paper.style.setProperty('--na-le-scope-fade', String(Na__LeCfg__GetEditScopeSetup().fadeOpacity));
+        if (!open) {
+            if (Na__LeSurface__FocusSvg && Na__LeSurface__FocusSvg.parentNode) Na__LeSurface__FocusSvg.parentNode.removeChild(Na__LeSurface__FocusSvg);
+            Na__LeSurface__FocusSvg = null;
+            return;
+        }
+        const primitives = Na__LeMarkup__BuildItemPrimitives(sheet, Na__LeScope__Contents(sheet));
+        const markup     = Na__LeChrome__ToSvgMarkup(primitives, Na__LeSurface__Layout.Page.WidthMm, Na__LeSurface__Layout.Page.HeightMm, 'na-le-paper__focus');
+        Na__LeSurface__FocusSvg = Na__LeSurface__SwapSvg(Na__LeSurface__FocusSvg, markup, 'na-le-paper__focus', Na__LeSurface__Handles);
     }
     // ------------------------------------------------------------
 

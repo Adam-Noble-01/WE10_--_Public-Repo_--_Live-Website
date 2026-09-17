@@ -51,6 +51,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.7.0
+// - GRIPS BELONG TO AN OPEN CONTAINER. A selected vector's vertex grips and a
+//   selected dimension's grips are now drawn only while THAT object is open for
+//   editing (Na__LayoutEditor__EditScope__), so a sheet full of selected markup
+//   is no longer a field of dots and nothing can be dragged out of shape by a
+//   press that was meant to select. Double-click, or Enter, to get them.
+// - A PICKED GRIP IS RED. Add takes a picked flag: a vertex swept up by a box
+//   drawn inside the vector, or the dimension grip being held, draws solid red
+//   (na-le-grip--picked) while the rest stay blue - blue is a point you could
+//   take hold of, red is one you have.
+// - MOVE_CURSOR: the four-way arrow the Move tool carries, drawn inline beside
+//   ROTATE_CURSOR and for the same reason.
+//
+//
 // 14-Sep-2026 - Version 1.6.0
 // - Rotate grip: a selected text item shows a round grip on a stem off the
 //   middle of the top of its outline, turned with the text, standing
@@ -100,6 +114,7 @@
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeLeadGeo__Hit } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeGroup__Render } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
+    import { Na__LeScope__GetVectorId, Na__LeScope__GetDimensionId, Na__LeScope__HasVertex, Na__LeScope__VertexCount, Na__LeScope__HasGrip } from './Na__LayoutEditor__EditScope__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -120,6 +135,21 @@
         '<path d="M5.5 12a6.5 6.5 0 1 0 2-4.7" fill="none" stroke="#172b3a" stroke-width="1.8" stroke-linecap="round"/>' +
         '<path d="M5.6 9.1 L9.5 8.5 L6.3 5.2 Z" fill="#172b3a" stroke="#ffffff" stroke-width="0.9" stroke-linejoin="round"/>' +
         '</svg>') + '") 12 12, grab';
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | The Cursor the Move Tool Carries
+    // ------------------------------------------------------------
+    // The four-way arrow of every CAD move tool, drawn inline so it reads the
+    // same on every machine, with a white casing so it stays visible over black
+    // linework and over a dark viewport picture alike. 'move' stands in
+    // wherever a drawn cursor is refused.
+    // ------------------------------------------------------------
+    const Na__LeGrips__MOVE_CURSOR = 'url("data:image/svg+xml,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">' +
+        '<path d="M12 2.5 L15 6 H13 V11 H18 V9 L21.5 12 L18 15 V13 H13 V18 H15 L12 21.5 L9 18 H11 V13 H6 V15 L2.5 12 L6 9 V11 H11 V6 H9 Z" ' +
+        'fill="#172b3a" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>' +
+        '</svg>') + '") 12 12, move';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -143,16 +173,41 @@
 // REGION | Rendering
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | An Edge Width That Is This Many Pixels On Screen
+    // ------------------------------------------------------------
+    // Everything in the handles layer sits inside the paper's scale(zoom), so a
+    // width written here is multiplied by the zoom before it is seen: one screen
+    // pixel is 1 / zoom.
+    //
+    // THIS USED TO READ Math.max(1, 1 / zoom), WHICH PUT THE FLOOR IN THE WRONG
+    // UNITS. Zoomed in, 1 / zoom is below 1, so the clamp pinned the edge at one
+    // PAPER pixel - which is zoom pixels on screen. At 4x a grip is 9 px across
+    // with a 4 px border on each side, and a picked vertex is a white ring with
+    // no red left in the middle; further in it disappears altogether. The clamp
+    // only ever bit while zoomed in, which is exactly where the grips are needed.
+    // ------------------------------------------------------------
+    function Na__LeGrips__EdgePx(screenPx, zoom) {
+        return (screenPx / (zoom > 0 ? zoom : 1));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | One Grip Element
     // ------------------------------------------------------------
-    function Na__LeGrips__Add(layer, xMm, yMm, ppm, sizePx, zoom, modifier) {
+    // A PICKED GRIP IS DRAWN LARGER as well as red. It marks the points the next
+    // drag will carry, so it has to be findable at a glance among the plain ones
+    // and big enough to read at any zoom; GripSizePickedPx sets how much larger.
+    // ------------------------------------------------------------
+    function Na__LeGrips__Add(layer, xMm, yMm, ppm, sizePx, zoom, modifier, picked) {
         const grip = document.createElement('div');
-        grip.className = 'na-le-grip' + (modifier ? ' na-le-grip--' + modifier : '');
-        grip.style.left   = ((xMm * ppm) - (sizePx / 2)) + 'px';
-        grip.style.top    = ((yMm * ppm) - (sizePx / 2)) + 'px';
-        grip.style.width  = sizePx + 'px';
-        grip.style.height = sizePx + 'px';
-        grip.style.borderWidth = Math.max(1, 1 / zoom) + 'px';
+        const setup = Na__LeCfg__GetSelectionSetup();
+        const size  = picked ? (sizePx * (setup.gripSizePickedPx / setup.gripSizePx)) : sizePx;
+        grip.className = 'na-le-grip' + (modifier ? ' na-le-grip--' + modifier : '') + (picked ? ' na-le-grip--picked' : '');
+        grip.style.left   = ((xMm * ppm) - (size / 2)) + 'px';
+        grip.style.top    = ((yMm * ppm) - (size / 2)) + 'px';
+        grip.style.width  = size + 'px';
+        grip.style.height = size + 'px';
+        grip.style.borderWidth = Na__LeGrips__EdgePx(1, zoom) + 'px';
         layer.appendChild(grip);
     }
     // ------------------------------------------------------------
@@ -168,7 +223,7 @@
         stem.style.left           = (from.x * ppm) + 'px';
         stem.style.top            = (from.y * ppm) + 'px';
         stem.style.width          = (Math.hypot(to.x - from.x, to.y - from.y) * ppm) + 'px';
-        stem.style.borderTopWidth = Math.max(1, 1 / zoom) + 'px';
+        stem.style.borderTopWidth = Na__LeGrips__EdgePx(1, zoom) + 'px';
         stem.style.transform      = 'rotate(' + (Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI)) + 'deg)';
         layer.appendChild(stem);
     }
@@ -191,21 +246,49 @@
         if (!layer || !sheet || !selection) return false;
         const sizePx = Na__LeCfg__GetSelectionSetup().gripSizePx / zoom;      // <-- Constant on screen at any zoom
         if (selection.kind === 'dimension') {
+            // A DIMENSION'S GRIPS ARE ITS INSIDES, like a vector's points: they
+            // appear once it is open for editing and not before. Selecting a
+            // dimension shows its highlight box; double-click (or Enter) and the
+            // squares on the two measured points, the round grip on the line and
+            // the one on a moved value all arrive together.
+            // ------------------------------------
+            if (Na__LeScope__GetDimensionId() !== selection.id) return false;
             const dim = sheet.Sheet__Dimensions.find((d) => d.Dimension__Id === selection.id);
             if (!dim || Na__LeModel__IsLayerLocked(sheet, dim.Dimension__LayerId)) return false;
             const sk = Na__LeMarkup__DimensionSkeleton(dim);
             if (!sk) return false;
-            Na__LeGrips__Add(layer, sk.S.x, sk.S.y, ppm, sizePx, zoom, null);
-            Na__LeGrips__Add(layer, sk.E.x, sk.E.y, ppm, sizePx, zoom, null);
-            Na__LeGrips__Add(layer, sk.MID.x, sk.MID.y, ppm, sizePx, zoom, 'offset');
+            Na__LeGrips__Add(layer, sk.S.x, sk.S.y, ppm, sizePx, zoom, null, Na__LeScope__HasGrip('start'));
+            Na__LeGrips__Add(layer, sk.E.x, sk.E.y, ppm, sizePx, zoom, null, Na__LeScope__HasGrip('end'));
+            // THE LINE HAS A GRIP AT EACH END AS WELL AS THE MIDDLE. All three
+            // slide the line: they change the OFFSET, carrying the line and the
+            // value across to a new position while the two measured points stay
+            // exactly where they are. Reaching for the end of a dimension line to
+            // push it clear of something is the natural gesture - the middle grip
+            // alone is often buried under the value - so all three are offered and
+            // all three do the same thing.
+            // ------------------------------------
+            Na__LeGrips__Add(layer, sk.DS.x,  sk.DS.y,  ppm, sizePx, zoom, 'offset', Na__LeScope__HasGrip('offset'));
+            Na__LeGrips__Add(layer, sk.MID.x, sk.MID.y, ppm, sizePx, zoom, 'offset', Na__LeScope__HasGrip('offset'));
+            Na__LeGrips__Add(layer, sk.DE.x,  sk.DE.y,  ppm, sizePx, zoom, 'offset', Na__LeScope__HasGrip('offset'));
             const layout = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
-            if (layout && layout.leader) Na__LeGrips__Add(layer, layout.place.x, layout.place.y, ppm, sizePx, zoom, 'anchor');   // <-- Round: the value has been dragged off the line
+            if (layout && layout.leader) Na__LeGrips__Add(layer, layout.place.x, layout.place.y, ppm, sizePx, zoom, 'anchor', Na__LeScope__HasGrip('text'));   // <-- Round: the value has been dragged off the line
             return true;
         }
         if (selection.kind === 'shape') {
+            // VERTEX GRIPS BELONG TO THE OPEN VECTOR, AND TO NOTHING ELSE. A
+            // selected vector shows its highlight box and no dots: the dots are
+            // what says "you are inside this one, and the points are what a
+            // press will take hold of". Double-click (or Enter) to get them.
+            // A picked vertex is drawn solid, so a box selection of several
+            // reads at a glance.
+            // ------------------------------------
+            if (Na__LeScope__GetVectorId() !== selection.id) return false;
             const shape = sheet.Sheet__Shapes.find((s) => s.Shape__Id === selection.id);
             if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
-            Na__LeShapeGeo__Points(shape).forEach((p) => Na__LeGrips__Add(layer, p[0], p[1], ppm, sizePx, zoom, null));
+            const anyPicked = Na__LeScope__VertexCount() > 0;
+            Na__LeShapeGeo__Points(shape).forEach((p, index) => {
+                Na__LeGrips__Add(layer, p[0], p[1], ppm, sizePx, zoom, null, anyPicked && Na__LeScope__HasVertex(index));
+            });
             return true;
         }
         if (selection.kind === 'group') {
@@ -293,7 +376,7 @@
         Na__LeGrips__Box.style.top         = (Math.min(sy, ey) * ppm) + 'px';
         Na__LeGrips__Box.style.width       = (Math.abs(ex - sx) * ppm) + 'px';
         Na__LeGrips__Box.style.height      = (Math.abs(ey - sy) * ppm) + 'px';
-        Na__LeGrips__Box.style.borderWidth = Math.max(1, 1 / Na__LeSurface__GetZoom()) + 'px';
+        Na__LeGrips__Box.style.borderWidth = Na__LeGrips__EdgePx(1, Na__LeSurface__GetZoom()) + 'px';
         return true;
     }
     // ------------------------------------------------------------
@@ -324,7 +407,7 @@
         Na__LeGrips__Insert.style.top         = ((yMm * ppm) - (sizePx / 2)) + 'px';
         Na__LeGrips__Insert.style.width       = sizePx + 'px';
         Na__LeGrips__Insert.style.height      = sizePx + 'px';
-        Na__LeGrips__Insert.style.borderWidth = Math.max(1, 1 / zoom) + 'px';
+        Na__LeGrips__Insert.style.borderWidth = Na__LeGrips__EdgePx(1, zoom) + 'px';
         Na__LeGrips__Insert.hidden = false;
         return true;
     }
@@ -365,6 +448,8 @@
         if (layout && layout.leader && Na__LeDimGeo__DistanceToPolyline(pointMm, layout.leader.points) <= toleranceMm) return 'text';
         if (sk) {
             if (Math.hypot(pointMm.x - sk.MID.x, pointMm.y - sk.MID.y) <= tol) return 'offset';
+            if (Math.hypot(pointMm.x - sk.DS.x,  pointMm.y - sk.DS.y)  <= tol) return 'offset';   // <-- The line's own ends read as wide as the middle grip
+            if (Math.hypot(pointMm.x - sk.DE.x,  pointMm.y - sk.DE.y)  <= tol) return 'offset';
             const abx = sk.DE.x - sk.DS.x, aby = sk.DE.y - sk.DS.y, len2 = (abx * abx) + (aby * aby);
             const t = len2 > 0 ? (((pointMm.x - sk.DS.x) * abx) + ((pointMm.y - sk.DS.y) * aby)) / len2 : 0;
             const cx = sk.DS.x + (abx * Math.max(0, Math.min(1, t))), cy = sk.DS.y + (aby * Math.max(0, Math.min(1, t)));
@@ -439,7 +524,8 @@
         Na__LeGrips__ShapeGrab,
         Na__LeGrips__LeaderGrab,
         Na__LeGrips__AnnotationGrab,
-        Na__LeGrips__ROTATE_CURSOR
+        Na__LeGrips__ROTATE_CURSOR,
+        Na__LeGrips__MOVE_CURSOR
     };
     // ------------------------------------------------------------
 

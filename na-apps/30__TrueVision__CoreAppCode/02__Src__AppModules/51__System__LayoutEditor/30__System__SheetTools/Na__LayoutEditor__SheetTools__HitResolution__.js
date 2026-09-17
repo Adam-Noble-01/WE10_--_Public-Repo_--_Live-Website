@@ -51,6 +51,37 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.2.0
+// - A PRESS NEAR A POINT OF THE OPEN CONTAINER BELONGS TO THE CONTAINER.
+//   Resolve asked the markup hit test first, and that answers for the LINE
+//   only - so a press two pixels off the line but dead on a corner found
+//   nothing, was read as "outside the container", and started a selection box
+//   exactly where the hand was trying to grab the corner. ScopeGrabAt now
+//   answers before the line test, measured against the GRIPS at GrabRadiusPx -
+//   a fixed reach ON SCREEN at any zoom, because the grip is what the hand is
+//   aiming at. ShapeGrabFor and DimensionGrabFor read at the same radius, so
+//   the press that found the container also takes the point.
+//
+//
+// 17-Sep-2026 - Version 1.1.0
+// - Resolve answers for the OPEN CONTAINER (Na__LayoutEditor__EditScope__):
+//   inside one, a hit is remapped to what is selectable at that level and
+//   everything outside it - viewports included - comes back null, which the
+//   press unit reads as "step back out". RawHit is the unscoped answer, what is
+//   really under the pointer, and it decides how far out to step.
+// - ShapeGrabFor and DimensionGrabFor: a vertex is only a vertex, and a
+//   dimension grip only a grip, inside its own container (OpenDimensionGripAt
+//   finds those wherever they stand, since a measured point is nowhere near the
+//   dimension line); outside, every press
+//   is 'whole'. Inside, both read at GripToleranceFactor times the tolerance,
+//   because nothing else is competing for the press.
+// - CanMoveWhole: whether a drag may translate a whole object - the Move tool,
+//   unless EditScope MoveToolRequired is turned off. The press and the hover
+//   cursor both read it, so they cannot disagree.
+// - HoverCursor: the four-way arrow under Move, the plain arrow under Select
+//   where a drag would do nothing, and the grip cursors unchanged.
+//
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetTools__.js; the code moved verbatim.
 //
@@ -63,7 +94,7 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Handles, Markup, Grips, Shape Geometry, Viewports, Plan Doors, Snapping, Groups
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetSelectionSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetSelectionSetup, Na__LeCfg__GetEditScopeSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeModel__KIND_2D,
         Na__LeModel__GetViewportById,
@@ -81,17 +112,23 @@
         Na__LeHandles__FrontToBack
     } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeMarkup__HitTest } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeGrips__DimensionGrab, Na__LeGrips__ShapeGrab, Na__LeGrips__LeaderGrab, Na__LeGrips__AnnotationGrab, Na__LeGrips__ROTATE_CURSOR, Na__LeGrips__ShowInsert, Na__LeGrips__HideInsert } from './Na__LayoutEditor__Grips__.js';
+    import { Na__LeGrips__DimensionGrab, Na__LeGrips__ShapeGrab, Na__LeGrips__LeaderGrab, Na__LeGrips__AnnotationGrab, Na__LeGrips__ROTATE_CURSOR, Na__LeGrips__MOVE_CURSOR, Na__LeGrips__ShowInsert, Na__LeGrips__HideInsert } from './Na__LayoutEditor__Grips__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt, Na__LeShapeGeo__ClosestOnEdge } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__ClickToggles, Na__LeDoors__At } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeOsnap__Find, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
-    import { Na__LeGroup__Resolve } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
+    import {
+        Na__LeScope__IsActive,
+        Na__LeScope__GetVectorId,
+        Na__LeScope__GetDimensionId,
+        Na__LeScope__Resolve,
+        Na__LeScope__Allows
+    } from './Na__LayoutEditor__EditScope__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Sheet Tools State and Tool State
     // ------------------------------------------------------------
-    import { Na__LeTools__TOOL_SELECT, Na__LeTools__Editable, Na__LeTools__Drag } from './Na__LayoutEditor__SheetTools__State__.js';
+    import { Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__PICK_TOOLS, Na__LeTools__Editable, Na__LeTools__Drag } from './Na__LayoutEditor__SheetTools__State__.js';
     import { Na__LeTools__Tool } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     // ------------------------------------------------------------
 
@@ -105,6 +142,22 @@
     // HELPER FUNCTION | The Hit Tolerance in Paper Millimetres at the Current Zoom
     // ------------------------------------------------------------
     function Na__LeTools__Tolerance() { return Na__LeCfg__GetSelectionSetup().hitToleranceMm / Na__LeSurface__GetZoom(); }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | May a Drag Move a Whole Object Right Now
+    // ------------------------------------------------------------
+    // The Move tool, and nothing else - unless EditScope MoveToolRequired is
+    // turned off in the config, which puts the old behaviour back and lets
+    // Select drag things about again. One answer, read by the press when it
+    // decides whether there is a drag at all and by the hover when it decides
+    // which cursor to show, so the two can never disagree.
+    // ------------------------------------------------------------
+    function Na__LeTools__CanMoveWhole() {
+        if (Na__LeTools__Tool === Na__LeTools__TOOL_MOVE) return true;
+        if (Na__LeTools__Tool !== Na__LeTools__TOOL_SELECT) return false;
+        return Na__LeCfg__GetEditScopeSetup().moveToolRequired === false;
+    }
     // ------------------------------------------------------------
 
 
@@ -129,14 +182,105 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | How Far a Point of the Open Container Reaches, in Paper Millimetres
+    // ------------------------------------------------------------
+    // A FIXED REACH ON SCREEN AT ANY ZOOM. GrabRadiusPx is what the hand is
+    // actually aiming at - the grip it can see - so the radius is converted
+    // from screen pixels rather than measured in paper millimetres: zoomed
+    // right in on a corner, the grab stays exactly as forgiving as it looks.
+    // ------------------------------------------------------------
+    function Na__LeTools__ScopeGrabMm() {
+        const px = Na__LeCfg__GetEditScopeSetup().grabRadiusPx;
+        return px / Math.max(1e-6, Na__LeSurface__GetPixelsPerMm() * Na__LeSurface__GetZoom());
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Open Container, When the Press Is Near One of Its Points
+    // ------------------------------------------------------------
+    // INSIDE A CONTAINER A PRESS HAS TO FIND THE CONTAINER BEFORE IT CAN FIND A
+    // POINT OF IT, and the markup hit test only answers for the LINE. So a press
+    // two pixels off the line but dead on a corner found nothing at all, was
+    // read as "outside", and started a selection box - right where the hand was
+    // trying to grab the corner. It is the GRIPS that are being aimed at, so the
+    // grips are what the press is measured against: within the grab radius of a
+    // vertex, or of a dimension's grips, the press belongs to the container,
+    // line or no line.
+    // ------------------------------------------------------------
+    function Na__LeTools__ScopeGrabAt(sheet, pointMm) {
+        if (!sheet || !pointMm) return null;
+        const reach = Na__LeTools__ScopeGrabMm();
+        const shapeId = Na__LeScope__GetVectorId();
+        if (shapeId) {
+            const shape = Na__LeTools__Record(sheet, { kind : 'shape', id : shapeId });
+            if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return null;
+            return Na__LeShapeGeo__VertexAt(shape, pointMm, reach) >= 0 ? { kind : 'shape', id : shapeId, hit : null } : null;
+        }
+        const dimId = Na__LeScope__GetDimensionId();
+        if (dimId) {
+            const dim = Na__LeTools__Record(sheet, { kind : 'dimension', id : dimId });
+            if (!dim || Na__LeModel__IsLayerLocked(sheet, dim.Dimension__LayerId)) return null;
+            return Na__LeGrips__DimensionGrab(dim, pointMm, reach / 2, sheet) !== 'whole' ? { kind : 'dimension', id : dimId, hit : null } : null;   // <-- DimensionGrab doubles what it is given for the point grips
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Which Part of a Vector a Press Takes Hold Of
+    // ------------------------------------------------------------
+    // A VERTEX IS ONLY A VERTEX INSIDE ITS OWN VECTOR. Outside the open
+    // container the points are not drawn and cannot be grabbed, so a press
+    // anywhere on the vector - corner or not - is a press on the whole thing,
+    // and the whole thing only moves under the Move tool. This is the rule
+    // that stops a corner being dragged out of shape by a stray click.
+    // ------------------------------------------------------------
+    function Na__LeTools__ShapeGrabFor(shape, pointMm, toleranceMm) {
+        if (!shape || Na__LeScope__GetVectorId() !== shape.Shape__Id) return { mode : 'whole', index : -1 };
+        return Na__LeGrips__ShapeGrab(shape, pointMm, Math.max(toleranceMm * Na__LeTools__ScopeGripFactor(), Na__LeTools__ScopeGrabMm()) / 2);   // <-- ShapeGrab doubles it: the effective reach is the grab radius
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Which Part of a Dimension a Press Takes Hold Of
+    // ------------------------------------------------------------
+    // THE SAME RULE AS A VECTOR'S POINTS. Outside its container a dimension is
+    // one object: every press on it is 'whole', so it selects, and only the
+    // Move tool relocates it. Open it and the grips answer - 'start' and 'end'
+    // re-pick what is being measured (they snap to the linework), 'offset'
+    // slides the line, 'text' moves the value - which is what makes a
+    // dimension editable at all rather than something to delete and redraw.
+    //
+    // Inside the container the grips are found at a wider tolerance, because
+    // nothing else on the sheet is competing for the press: missing a corner
+    // grip by a pixel and dragging the whole dimension instead was exactly the
+    // failure that made them feel untouchable.
+    // ------------------------------------------------------------
+    function Na__LeTools__DimensionGrabFor(sheet, dim, pointMm, toleranceMm) {
+        if (!dim || Na__LeScope__GetDimensionId() !== dim.Dimension__Id) return 'whole';
+        return Na__LeGrips__DimensionGrab(dim, pointMm, Math.max(toleranceMm * Na__LeTools__ScopeGripFactor(), Na__LeTools__ScopeGrabMm()) / 2, sheet);   // <-- DimensionGrab doubles it too
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | How Much Wider a Grip Reads Inside Its Own Container
+    // ------------------------------------------------------------
+    function Na__LeTools__ScopeGripFactor() {
+        return Math.max(1, Na__LeCfg__GetEditScopeSetup().gripToleranceFactor);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Where a Shift-Click Would Insert a Vertex, or Null
     // ------------------------------------------------------------
     // On an edge of the shape, not on a vertex grip, and not so close to
     // either end that the new point would sit on top of one already there.
-    // A nearby snap (the linework) wins over the foot on the edge.
+    // A nearby snap (the linework) wins over the foot on the edge. Only ever
+    // on the vector that is open for editing.
     // ------------------------------------------------------------
     function Na__LeTools__ShapeInsertHit(sheet, shape, pointMm) {
         if (!sheet || !shape || !pointMm) return null;
+        if (Na__LeScope__GetVectorId() !== shape.Shape__Id) return null;
         const tol = Na__LeTools__Tolerance();
         if (Na__LeShapeGeo__VertexAt(shape, pointMm, tol * 2) >= 0) return null;
         const edge = Na__LeShapeGeo__ClosestOnEdge(shape, pointMm);
@@ -155,13 +299,13 @@
     // HELPER FUNCTION | The Insert-Vertex Diamond While Shift Is Held Over an Edge
     // ------------------------------------------------------------
     function Na__LeTools__RefreshShapeInsert(sheet, pointMm, shift) {
-        if (!shift || !sheet || !pointMm || Na__LeTools__Drag || !Na__LeTools__Editable || Na__LeTools__Tool !== Na__LeTools__TOOL_SELECT) {
+        if (!shift || !sheet || !pointMm || Na__LeTools__Drag || !Na__LeTools__Editable || Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) {
             if (Na__LeGrips__HideInsert()) Na__LeOsnap__HideMarker();
             return false;
         }
-        const selection = Na__LeModel__GetSelection();
-        if (!selection || selection.kind !== 'shape') { if (Na__LeGrips__HideInsert()) Na__LeOsnap__HideMarker(); return false; }
-        const shape = Na__LeTools__Record(sheet, selection);
+        const openId = Na__LeScope__GetVectorId();                           // <-- A point is added inside the vector, where the points are
+        if (!openId) { if (Na__LeGrips__HideInsert()) Na__LeOsnap__HideMarker(); return false; }
+        const shape = Na__LeTools__Record(sheet, { kind : 'shape', id : openId });
         if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) { if (Na__LeGrips__HideInsert()) Na__LeOsnap__HideMarker(); return false; }
         const hit = Na__LeTools__ShapeInsertHit(sheet, shape, pointMm);
         if (!hit) { if (Na__LeGrips__HideInsert()) Na__LeOsnap__HideMarker(); return false; }
@@ -208,13 +352,42 @@
     // on: { kind : 'annotation', id, hit : { mode : 'rotate' } }.
     // ------------------------------------------------------------
     function Na__LeTools__RotateGripAt(sheet, pointMm) {
-        if (!Na__LeTools__Editable || Na__LeTools__Tool !== Na__LeTools__TOOL_SELECT || !sheet || !pointMm) return null;
+        if (!Na__LeTools__Editable || Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1 || !sheet || !pointMm) return null;
         const selection = Na__LeModel__GetSelection();
         if (!selection || selection.kind !== 'annotation') return null;
+        if (!Na__LeScope__Allows(sheet, selection.kind, selection.id)) return null;   // <-- Nothing outside the open container answers a press
         const item = Na__LeTools__Record(sheet, selection);
         if (!item || !Na__LeModel__IsLayerVisible(sheet, item.Annotation__LayerId) || Na__LeModel__IsLayerLocked(sheet, item.Annotation__LayerId)) return null;
         const grab = Na__LeGrips__AnnotationGrab(item, pointMm, Na__LeTools__Tolerance(), Na__LeSurface__GetPixelsPerMm(), Na__LeSurface__GetZoom());
         return grab === 'rotate' ? { kind : 'annotation', id : selection.id, hit : { mode : 'rotate' } } : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Grip of the Open Dimension, Wherever It Stands
+    // ------------------------------------------------------------
+    // A DIMENSION'S MEASURED POINTS ARE NOWHERE NEAR THE DIMENSION. They sit at
+    // the far end of the extension lines - the whole point of an offset is to
+    // put the line clear of what it measures - so on PS01's D01 they are some
+    // 45 mm of paper from the line that would answer a hit test. The markup hit
+    // test only knows the line and the value, so a press on a measured point
+    // found nothing at all; and with a container open, finding nothing means
+    // "the press landed outside, step back out". The grips were drawn, and
+    // clicking one closed the dimension instead of taking hold of it.
+    //
+    // So the open dimension's grips are looked for first, the way the rotate
+    // grip above is: both stand off the object they belong to, and neither can
+    // be found by asking what lies under the pointer. Only while that dimension
+    // is the open container, and never for 'whole', so a press on the line
+    // itself still resolves normally.
+    // ------------------------------------------------------------
+    function Na__LeTools__OpenDimensionGripAt(sheet, pointMm) {
+        const id = Na__LeScope__GetDimensionId();
+        if (!id || !sheet || !pointMm) return null;
+        const dim = (sheet.Sheet__Dimensions || []).find((d) => d.Dimension__Id === id);
+        if (!dim) return null;
+        const mode = Na__LeGrips__DimensionGrab(dim, pointMm, Na__LeTools__Tolerance() * Na__LeTools__ScopeGripFactor(), sheet);
+        return (mode && mode !== 'whole') ? { kind : 'dimension', id : id, hit : null } : null;
     }
     // ------------------------------------------------------------
 
@@ -233,8 +406,24 @@
     function Na__LeTools__Resolve(sheet, pointMm, includeLocked, skipLockedViewports, keepMember) {
         const turning = includeLocked === true ? null : Na__LeTools__RotateGripAt(sheet, pointMm);   // <-- The rotate grip first: it stands off its text, over whatever lies beneath
         if (turning) return turning;
+        const measured = includeLocked === true ? null : Na__LeTools__OpenDimensionGripAt(sheet, pointMm);   // <-- And the open dimension's grips, which stand off it further still
+        if (measured) return measured;
+        // A POINT OF THE OPEN CONTAINER COMES FIRST | Before the line, because a
+        // grip stands proud of the line and is the thing being aimed at.
+        const grabbed = (includeLocked === true || keepMember === true) ? null : Na__LeTools__ScopeGrabAt(sheet, pointMm);
+        if (grabbed) return grabbed;
+
         const markup = Na__LeMarkup__HitTest(sheet, pointMm, Na__LeTools__Tolerance(), includeLocked === true);   // <-- The eyedropper reads locked markup; nothing else touches it
-        if (markup) return keepMember === true ? { kind : markup.kind, id : markup.id, hit : null } : Na__LeGroup__Resolve(sheet, { kind : markup.kind, id : markup.id, hit : null });
+        if (markup) return keepMember === true ? { kind : markup.kind, id : markup.id, hit : null } : Na__LeScope__Resolve(sheet, { kind : markup.kind, id : markup.id, hit : null });
+
+        // A CONTAINER IS OPEN | Viewports are never inside one, so there is
+        // nothing left below the markup to find: the press has landed outside,
+        // and the press handler reads that null as "step back out". The
+        // eyedropper (keepMember) still reads the whole sheet, because matching
+        // a style changes nothing and refusing it would be a puzzle.
+        // ------------------------------------
+        if (Na__LeScope__IsActive() && keepMember !== true) return null;
+
         const ppm  = Na__LeSurface__GetPixelsPerMm();
         const zoom = Na__LeSurface__GetZoom();
         const selection = Na__LeModel__GetSelection();
@@ -250,6 +439,22 @@
             if (Na__LeHandles__Contains(ordered[i], pointMm)) return { kind : 'viewport', id : ordered[i].Viewport__Id, hit : null };
         }
         return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Item Really Under a Point, Containers Ignored
+    // ------------------------------------------------------------
+    // Resolve answers for where we ARE - inside an open container it refuses
+    // everything outside it. This answers for where the PAPER is: the markup
+    // item itself, group or no group. It is what decides how far a press
+    // outside an open container steps back out (Na__LayoutEditor__EditScope__
+    // ExitTo), because that question is about the sheet, not about the level.
+    // ------------------------------------------------------------
+    function Na__LeTools__RawHit(sheet, pointMm) {
+        if (!sheet || !pointMm) return null;
+        const markup = Na__LeMarkup__HitTest(sheet, pointMm, Na__LeTools__Tolerance(), false);
+        return markup ? { kind : markup.kind, id : markup.id } : null;
     }
     // ------------------------------------------------------------
 
@@ -297,33 +502,43 @@
     // HELPER FUNCTION | The Cursor for What Is Under the Pointer
     // ------------------------------------------------------------
     function Na__LeTools__HoverCursor(sheet, found, pointMm) {
-        if (!found) return '';
-        if (found.kind === 'group') return Na__LeTools__Editable ? 'move' : 'default';
+        // THE CURSOR SAYS WHICH TOOL IS UP. Under Move everything movable wears
+        // the four-way arrow, so there is never a doubt that the next drag will
+        // relocate something. Under Select the same things wear the plain arrow,
+        // because a drag on them does nothing at all; only the grips - which
+        // Select does work - sharpen to a crosshair.
+        const moving = Na__LeTools__CanMoveWhole();
+        const rest   = (moving && Na__LeTools__Tool === Na__LeTools__TOOL_MOVE) ? Na__LeGrips__MOVE_CURSOR : (moving ? 'move' : '');
+        if (!found) return rest;
+        if (found.kind === 'group') return Na__LeTools__Editable ? rest : 'default';
         const record = Na__LeTools__Record(sheet, found);
         if (!record || !Na__LeTools__Editable) return 'default';
         const tol = Na__LeTools__Tolerance();
         if (found.kind === 'annotation') {
             if (Na__LeModel__IsLayerLocked(sheet, record.Annotation__LayerId)) return 'default';
-            return (found.hit && found.hit.mode === 'rotate') ? Na__LeGrips__ROTATE_CURSOR : 'move';
+            return (found.hit && found.hit.mode === 'rotate') ? Na__LeGrips__ROTATE_CURSOR : rest;
         }
         if (found.kind === 'dimension') {
             if (Na__LeModel__IsLayerLocked(sheet, record.Dimension__LayerId)) return 'default';
-            const grab = Na__LeGrips__DimensionGrab(record, pointMm, tol, sheet);
-            return (grab === 'whole' || grab === 'text') ? 'move' : 'crosshair';
+            const grab = Na__LeTools__DimensionGrabFor(sheet, record, pointMm, tol);
+            if (grab === 'whole') return rest;
+            return grab === 'text' ? 'move' : 'crosshair';                   // <-- The value is dragged by either tool: a grip, not a relocation
         }
         if (found.kind === 'shape') {
             if (Na__LeModel__IsLayerLocked(sheet, record.Shape__LayerId)) return 'default';
-            return Na__LeGrips__ShapeGrab(record, pointMm, tol).mode === 'whole' ? 'move' : 'crosshair';
+            return Na__LeTools__ShapeGrabFor(record, pointMm, tol).mode === 'whole' ? rest : 'crosshair';
         }
         if (found.kind === 'leader') {
             if (Na__LeModel__IsLayerLocked(sheet, record.Leader__LayerId)) return 'default';
-            return Na__LeGrips__LeaderGrab(record, pointMm, tol) === 'tip' ? 'crosshair' : 'move';
+            const grab = Na__LeGrips__LeaderGrab(record, pointMm, tol);
+            if (grab === 'whole') return rest;
+            return grab === 'tip' ? 'crosshair' : 'move';
         }
         if (Na__LeTools__DoorAt(sheet, found, pointMm)) return 'pointer';     // <-- A click here closes or opens that door, locked or not
         if (Na__LeTools__IsViewportLocked(sheet, record)) return 'default';
         if (Na__LeSurface__GetEditingViewport() === found.id) return 'grab';
         if (found.hit && found.hit.mode === 'handle') return Na__LeHandles__CursorFor(found.hit);
-        return 'move';
+        return rest;
     }
     // ------------------------------------------------------------
 
@@ -356,11 +571,17 @@
     // ------------------------------------------------------------
     export {
         Na__LeTools__Tolerance,
+        Na__LeTools__ScopeGrabMm,
+        Na__LeTools__ScopeGrabAt,
+        Na__LeTools__CanMoveWhole,
         Na__LeTools__ShapeGrabPoint,
+        Na__LeTools__ShapeGrabFor,
+        Na__LeTools__DimensionGrabFor,
         Na__LeTools__ShapeInsertHit,
         Na__LeTools__RefreshShapeInsert,
         Na__LeTools__SnapShapeTranslation,
         Na__LeTools__Resolve,
+        Na__LeTools__RawHit,
         Na__LeTools__Record,
         Na__LeTools__IsViewportLocked,
         Na__LeTools__DoorAt,

@@ -1,0 +1,101 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "truevision-static-vertexlock",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8573",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8573
+    },
+    {
+      "name": "truevision-static-vertexlock-b",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8574",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8574
+    },
+    {
+      "name": "truevision-static-space",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8575",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8575
+    },
+    {
+      "name": "tv-dim",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8576",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8576
+    },
+    {
+      "name": "truevision-static-editscope",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8611",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8611
+    },
+    {
+      "name": "tv-off",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8577",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8577
+    },
+    {
+      "name": "vv-port",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8578",
+        "--directory",
+        "D:/80__External__LiveRepos/ValeCodebase"
+      ],
+      "port": 8578
+    },
+    {
+      "name": "tv-titleblock",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8613",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8613
+    }
+  ]
+}

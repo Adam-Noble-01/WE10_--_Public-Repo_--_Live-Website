@@ -45,6 +45,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.2.0
+// - Several selected: the panel reads the first leader and writes all of them.
+//   The type is a palette-only trait, so nine leaders take a size and a colour
+//   without a note turning into a bubble; the specification link stays a
+//   single-selection edit.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Project Specification: a selected bubble shows a Spec note row - the
 //   project specification's notes by group, or Not linked - and a line saying
@@ -76,6 +82,8 @@
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
         Na__LePanels__Refresh,
+        Na__LePanels__SelectedOfKind,
+        Na__LePanels__ApplyToSelection,
         Na__LePanels__IsEditable,
         Na__LePanels__Row,
         Na__LePanels__Input,
@@ -113,13 +121,32 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Every Selected Leader, When There Is More Than One
+    // ------------------------------------------------------------
+    // Reading is what the panel shows; writing is what it changes. With one
+    // thing selected the two are the same item. With several, the panel reads
+    // the FIRST of them and writes ALL of them - a box showing the setting for
+    // new objects while nine are selected is what sent an edit somewhere
+    // nobody expected.
+    // ------------------------------------------------------------
+    function Na__LePanelLeaders__Many() {
+        const sheet = Na__LeModel__GetActiveSheet();
+        const items = Na__LePanels__SelectedOfKind(sheet, 'leader');
+        if (!items.length) return null;
+        const item = Na__LeModel__GetLeaders(sheet).find((l) => l.Leader__Id === items[0].id) || null;
+        return item ? { sheet : sheet, item : item, count : items.length } : null;
+    }
+    function Na__LePanelLeaders__Reading() { return Na__LePanelLeaders__Selected() || Na__LePanelLeaders__Many(); }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | The Values on Show: the Selected Leader's, or the Settings for New Ones
     // ------------------------------------------------------------
     // Both come back in the settings' own shape - the fill as a switch beside
     // its colour - so one refresh serves either.
     // ------------------------------------------------------------
     function Na__LePanelLeaders__Values() {
-        const selected = Na__LePanelLeaders__Selected();
+        const selected = Na__LePanelLeaders__Reading();
         const d = Na__LeTools__GetLeaderDefaults();
         if (!selected) return Object.assign({}, d);
         const it = selected.item;
@@ -297,9 +324,12 @@
         el('leader-line-opacity').parentNode.hidden = !clear;
         el('leader-end-pt').parentNode.hidden       = v.endpointFilled === true;   // <-- A solid dot has no ring to weigh
 
+        const many = selected ? null : Na__LePanelLeaders__Many();
         body.querySelector('[data-na-block="note"]').textContent = selected
             ? L('LeaderSelectedNote', 'Editing the selected leader.')
-            : L('LeaderDefaultsNote', 'Nothing selected: these settings apply to new leaders (E).');
+            : (many
+                ? Na__LeCfg__FormatLabel('LeaderManyNote', 'Editing {count} selected leaders: a change here goes to all of them. The type is not changed.', { count : many.count })
+                : L('LeaderDefaultsNote', 'Nothing selected: these settings apply to new leaders (E).'));
         const edit = body.querySelector('[data-na-block="edit"]');
         if (edit) edit.hidden = !selected;
 
@@ -370,6 +400,7 @@
     function Na__LePanelLeaders__Apply(patch, defaultsPatch) {
         const selected = Na__LePanelLeaders__Selected();
         if (selected) { Na__LeModel__UpdateLeader(selected.sheet, selected.item.Leader__Id, patch); return; }   // <-- The model announces, and the panel refreshes with it
+        if (Na__LePanels__ApplyToSelection(Na__LeModel__GetActiveSheet(), 'leader', patch)) return;   // <-- Several selected: the style traits go to every one of them
         if (!defaultsPatch) return;
         Na__LeTools__SetLeaderDefaults(defaultsPatch);
         Na__LePanels__Refresh(Na__LePanelLeaders__ID);                        // <-- Nothing announces a defaults change, so show it here

@@ -45,6 +45,27 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.1.0
+// - THE MENU BELONGS TO THE OPEN CONTAINER. Inside a vector it is about its
+//   points - insert one where the click landed, delete the picked ones, close
+//   the shape, step back out - and inside a dimension about its value, where
+//   that value sits, and the way out. This is where the cut, extend, trim and
+//   join tools will sit: they belong to that container and to no other.
+// - Outside one, a vector, a dimension and a group each offer the way in (Edit
+//   vector points / Edit dimension points / Edit inside group) beside what they
+//   already offered.
+// - A right click off an open container offers the way out and nothing that
+//   would touch the faded sheet.
+//
+//
+// 17-Sep-2026 - Version 1.1.0
+// - Paste properties to N selected, on a multi-selection and on a group. The
+//   count is what will actually change: the items are expanded past any group
+//   first, then the source itself, the other kinds and the locked are left
+//   out, and the item does not appear at all when the answer is none.
+// - A group whose members are all one kind hands out a style as well as taking
+//   one, so a row of bubbles can be copied from without being opened.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetTools__.js; the code moved verbatim.
 //
@@ -75,18 +96,19 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__GetEditingViewport } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeMarkup__AnnotationRotationDeg } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeShapeGeo__Points } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__InsertPoint } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeText__BeginEdit, Na__LeText__Commit, Na__LeText__IsEditing, Na__LeText__RotationPatch } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
     import { Na__LeDim__Cancel, Na__LeDim__IsPlacing, Na__LeDim__BeginTextEdit } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Finish, Na__LeShape__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Cancel, Na__LeRect__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
     import { Na__LeLeader__Cancel, Na__LeLeader__IsPlacing, Na__LeLeader__BeginEdit } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
-    import { Na__LeDrop__Pick, Na__LeDrop__Paint, Na__LeDrop__CanApply, Na__LeDrop__PaletteMenuLabel } from './Na__LayoutEditor__Eyedropper__.js';
+    import { Na__LeDrop__Pick, Na__LeDrop__Paint, Na__LeDrop__CanApply, Na__LeDrop__PaletteMenuLabel,
+             Na__LeDrop__PaintMany, Na__LeDrop__PaintableIn, Na__LeDrop__HasSource, Na__LeDrop__StyleKeys } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__MenuItems } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeOsnap__Toggle, Na__LeOsnap__IsEnabled } from './Na__LayoutEditor__Snapping__.js';
     import { Na__LeClip__MenuItems } from './Na__LayoutEditor__ItemClipboard__.js';
-    import { Na__LeGroup__Group, Na__LeGroup__Ungroup, Na__LeGroup__CanGroup, Na__LeGroup__CanUngroup } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
+    import { Na__LeGroup__Group, Na__LeGroup__Ungroup, Na__LeGroup__CanGroup, Na__LeGroup__CanUngroup, Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     // @delegate: ../15__Core__Markup/Na__LayoutEditor__Groups__.js
     // @delegate: ./Na__LayoutEditor__ItemClipboard__.js
     import { Na__LeSource__MenuItems } from '../20__System__Viewports/Na__LayoutEditor__ModelSource__.js';
@@ -94,6 +116,20 @@
     import { Na__LeHist__CanUndo, Na__LeHist__CanRedo, Na__LeHist__Undo, Na__LeHist__Redo } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
     import { Na__LeMenu__Open } from './Na__LayoutEditor__ContextMenu__.js';
     import { Na__LeForce__IsRunning, Na__LeForce__Viewport, Na__LeForce__Sheet } from '../20__System__Viewports/Na__LayoutEditor__ForceRender__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Edit Scope, the Container the Menu Belongs To
+    // ------------------------------------------------------------
+    import {
+        Na__LeScope__IsLeafOpen,
+        Na__LeScope__GetVectorId,
+        Na__LeScope__GetDimensionId,
+        Na__LeScope__SetVertices,
+        Na__LeScope__VertexCount,
+        Na__LeScope__Clear
+    } from './Na__LayoutEditor__EditScope__.js';
+    import { Na__LeTools__EnterScope } from './Na__LayoutEditor__SheetTools__PointerPress__.js';
+    import { Na__LeTools__DeleteSelection, Na__LeTools__DeleteVertices } from './Na__LayoutEditor__SheetTools__Keyboard__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Sheet Tools Units
@@ -105,9 +141,9 @@
         Na__LeTools__WriteRightPress
     } from './Na__LayoutEditor__SheetTools__State__.js';
     import { Na__LeTools__SyncPaletteFrom } from './Na__LayoutEditor__SheetTools__ToolState__.js';
-    import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
+    import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record, Na__LeTools__ShapeInsertHit } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
     import { Na__LeTools__SetEditingViewport, Na__LeTools__RecentreViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
-    import { Na__LeTools__DeleteSelection } from './Na__LayoutEditor__SheetTools__Keyboard__.js';
+
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -147,6 +183,23 @@
             return items;
         };
 
+        // STYLE, MANY AT ONCE | The same held style over a whole selection, or
+        // over the members of a group. The items are expanded past any group
+        // first, so a window that took a group paints what is inside it; the
+        // count on the label is what will actually change, locked items and
+        // other kinds already left out.
+        // ------------------------------------
+        const styleMany = (items) => {
+            if (!Na__LeDrop__HasSource()) return [];
+            const targets = Na__LeDrop__PaintableIn(sheet, Na__LeGroup__Expand(sheet, items));
+            if (!targets.length) return [];
+            return [
+                { label : Na__LeCfg__FormatLabel('MenuPasteStyleMany', 'Paste properties to {count} selected', { count : targets.length }),
+                  onSelect : () => Na__LeDrop__PaintMany(sheet, targets) },
+                { separator : true }
+            ];
+        };
+
         const history = [
             { label : label('Undo', 'Undo'), disabled : !Na__LeHist__CanUndo(), onSelect : () => Na__LeHist__Undo() },
             { label : label('Redo', 'Redo'), disabled : !Na__LeHist__CanRedo(), onSelect : () => Na__LeHist__Redo() }
@@ -159,11 +212,18 @@
             if (Na__LeGroup__CanGroup(sheet))   groupOps.push({ label : label('MenuGroup', 'Group'),     onSelect : () => { Na__LeGroup__Group(sheet); } });
             if (Na__LeGroup__CanUngroup(sheet)) groupOps.push({ label : label('MenuUngroup', 'Ungroup'), onSelect : () => { Na__LeGroup__Ungroup(sheet); } });
             return groupOps.concat(Na__LeClip__MenuItems(sheet, found, pointMm), [
-                { separator : true },
+                { separator : true }
+            ], styleMany(selected), [                                           // <-- Copy one, then paste it over the rest in a single click
                 { label : Na__LeCfg__FormatLabel('MenuDeleteSelection', 'Delete {count} selected items', { count : selected.length }), danger : true,
                   onSelect : () => { void Na__LeTools__DeleteSelection(); } },
                 { separator : true }
             ]).concat(history);
+        }
+        if (!found && Na__LeScope__IsLeafOpen()) {
+            return [
+                { label : label('MenuCloseScope', 'Close and step back out'), onSelect : () => { Na__LeScope__Clear(); Na__LeModel__SetSelection(null); } },
+                { separator : true }
+            ].concat(history);
         }
         if (!found) {
             const snapping = Na__LeOsnap__IsEnabled();
@@ -189,19 +249,48 @@
                      .concat(Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }
         if (found.kind === 'group') {
-            return [ { label : label('MenuUngroup', 'Ungroup'), disabled : !Na__LeGroup__CanUngroup(sheet), onSelect : () => { Na__LeGroup__Ungroup(sheet); } },
+            // A GROUP HAS A STYLE ONLY WHERE ITS MEMBERS AGREE ON A KIND. Copy
+            // is offered when everything inside is the same kind of thing - a
+            // row of bubbles, a block of notes - because then there is one
+            // answer to "copy properties from what". A mixed group has none, so
+            // it takes a style but does not hand one out.
+            const members = Na__LeGroup__Expand(sheet, [ found ]).filter((m) => m.kind !== 'group' && Na__LeDrop__StyleKeys(m.kind).length > 0);
+            const oneKind = members.length > 0 && members.every((m) => m.kind === members[0].kind);
+            const copy    = oneKind
+                ? [ { label : label('MenuCopyStyle', 'Copy properties'), onSelect : () => Na__LeDrop__Pick(sheet, members[0].kind, members[0].id) }, { separator : true } ]
+                : [];
+            return [ { label : label('MenuEnterGroup', 'Edit inside group'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'group', id : found.id }); } },
+                     { label : label('MenuUngroup', 'Ungroup'), disabled : !Na__LeGroup__CanUngroup(sheet), onSelect : () => { Na__LeGroup__Ungroup(sheet); } },
                      remove('MenuDeleteGroup', 'Delete group'), { separator : true } ]
-                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), history);
+                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), copy, styleMany([ found ]), history);
         }
         if (found.kind === 'dimension') {
-            const dim = Na__LeTools__Record(sheet, found);
-            const items = [
-                { label : label('MenuEditDimText', 'Edit dimension value'), onSelect : () => Na__LeDim__BeginTextEdit(found.id) }
-            ];
-            if (dim && (Number.isFinite(dim.Dimension__TextDXMm) || Number.isFinite(dim.Dimension__TextDYMm))) {
-                items.push({ label : label('MenuResetDimText', 'Reset text position'), onSelect : () => Na__LeModel__UpdateDimension(sheet, found.id, { textDXMm : 0, textDYMm : 0 }, false) });
+            const dim   = Na__LeTools__Record(sheet, found);
+            const moved = !!dim && (Number.isFinite(dim.Dimension__TextDXMm) || Number.isFinite(dim.Dimension__TextDYMm));
+            const reset = moved
+                ? [ { label : label('MenuResetDimText', 'Reset text position'), onSelect : () => Na__LeModel__UpdateDimension(sheet, found.id, { textDXMm : 0, textDYMm : 0 }, false) } ]
+                : [];
+
+            // INSIDE THE DIMENSION the menu is about what it measures: the value
+            // it prints, where that value sits, and the way back out. Its grips
+            // do the rest - the squares re-pick the two measured points, the
+            // round one slides the line - which is what a dimension being
+            // "editable" actually means.
+            // ------------------------------------
+            if (Na__LeScope__GetDimensionId() === found.id) {
+                return [
+                    { label : label('MenuEditDimText', 'Edit dimension value'), onSelect : () => Na__LeDim__BeginTextEdit(found.id) }
+                ].concat(reset, [
+                    { separator : true },
+                    { label : label('MenuCloseScope', 'Close and step back out'), onSelect : () => { Na__LeScope__Clear(); Na__LeModel__SetSelection(null); } },
+                    { separator : true }
+                ]).concat(style(found.kind, found.id)).concat(history);
             }
-            return items.concat([{ separator : true }], arrange('dimension', found.id), [
+
+            return [
+                { label : label('MenuEnterDimension', 'Edit dimension points'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'dimension', id : found.id }); } },
+                { label : label('MenuEditDimText', 'Edit dimension value'), onSelect : () => Na__LeDim__BeginTextEdit(found.id) }
+            ].concat(reset, [{ separator : true }], arrange('dimension', found.id), [
                      { separator : true }, remove('MenuDeleteDimension', 'Delete dimension'), { separator : true } ])
                      .concat(style(found.kind, found.id)).concat(history);
         }
@@ -214,7 +303,35 @@
         if (found.kind === 'shape') {
             const shape  = Na__LeTools__Record(sheet, found);
             const closed = !!shape && shape.Shape__Closed === true;
-            return [ { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3,
+
+            // INSIDE THE VECTOR the menu is about its points and nothing else:
+            // add one where the click landed, take the picked ones out, or step
+            // back out. This is where the cut, extend, trim and join tools will
+            // sit when they arrive - they belong to this container and to no
+            // other, which is the whole reason for having one.
+            // ------------------------------------
+            if (Na__LeScope__GetVectorId() === found.id) {
+                const picked = Na__LeScope__VertexCount();
+                const insert = shape ? Na__LeTools__ShapeInsertHit(sheet, shape, pointMm) : null;
+                return [
+                    { label : label('MenuInsertVertex', 'Insert point here'), disabled : !insert,
+                      onSelect : () => {
+                          const points = Na__LeShapeGeo__InsertPoint(Na__LeShapeGeo__Points(shape), insert.index, insert.point);
+                          Na__LeScope__SetVertices([ insert.index + 1 ]);
+                          Na__LeModel__UpdateShape(sheet, found.id, { points : points }, false);
+                      } },
+                    { label : picked > 1 ? Na__LeCfg__FormatLabel('MenuDeleteVertices', 'Delete {count} points', { count : picked }) : label('MenuDeleteVertex', 'Delete point'),
+                      disabled : picked < 1, danger : true, onSelect : () => { Na__LeTools__DeleteVertices(); } },
+                    { separator : true },
+                    { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3,
+                      onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
+                    { label : label('MenuCloseScope', 'Close and step back out'), onSelect : () => { Na__LeScope__Clear(); Na__LeModel__SetSelection(null); } },
+                    { separator : true }
+                ].concat(history);
+            }
+
+            return [ { label : label('MenuEnterVector', 'Edit vector points'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'shape', id : found.id }); } },
+                     { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3,
                        onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
                      { separator : true } ].concat(arrange('shape', found.id), [
                      { separator : true }, remove('MenuDeleteShape', 'Delete shape'), { separator : true } ])

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!-- =============================================================================
+     TRUEVISION3D - TEST - SPECIFICATION PDF DOWNLOAD
+     =============================================================================
+     Drives the REAL Na__LeSpecPdf__ against PS01's real specification file, so the
+     revision, the file name and the built PDF can be checked without opening a
+     project or touching the cloud.
+     The specification is loaded by handing the data module the parsed file, so
+     nothing is fetched from R2 and nothing is written anywhere.
+     ============================================================================= -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Specification PDF</title>
+<style>
+    body { margin: 0; padding: 20px; background: #2b3440; color: #dfe6ec;
+           font: 13px/1.6 'Open Sans', Helvetica, Arial, sans-serif; }
+    h1   { font-size: 15px; font-weight: 600; margin: 0 0 14px; }
+    pre  { white-space: pre-wrap; background: #1d242d; padding: 12px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>TrueVision3D — specification PDF</h1>
+<pre id="out">running...</pre>
+
+<!-- jsPDF up front. The app's configured script path is relative to the app root,
+     where Index.html sits, and this page is one folder deeper; loading it here
+     means Na__LePdf__LoadLibrary finds window.jspdf already there and never
+     injects a path that cannot resolve from here. -->
+<script src="../02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js"></script>
+<script type="importmap">
+{
+    "imports": {
+        "three"                        : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+        "three/addons/"                : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+        "three/webgpu"                 : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.webgpu.js",
+        "three/tsl"                    : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.tsl.js",
+        "three-mesh-bvh"               : "../04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/index.js",
+        "three-mesh-bvh/worker"        : "../04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/workers/index.js",
+        "three-mesh-bvh/webgpu"        : "../04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/webgpu/index.js",
+        "clipper2-js"                  : "../04__Lib__ThirdParty__VersionLocked/03__Vendor__Clipper2Js__v0.9.0/fesm2020/clipper2-js.mjs",
+        "three-edge-projection"        : "../04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/index.js",
+        "three-edge-projection/webgpu" : "../04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/webgpu/index.js"
+    }
+}
+</script>
+<script type="module">
+// The sheet model first, for the same reason the title block page does it: the
+// Layout Editor's record, model and panel modules are a knot of import cycles,
+// and entering at the wrong one leaves consts in the temporal dead zone.
+import '../02__Src__AppModules/51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+import { Na__LeCfg__Ready } from '../02__Src__AppModules/51__System__LayoutEditor/03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+
+const log = [];
+const say = (line) => { log.push(line); document.getElementById('out').textContent = log.join('\n'); };
+
+(async () => {
+    try {
+        await Na__LeCfg__Ready();
+
+        const specState = await import('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__SpecData__State__.js');
+        const specDoc   = await import('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__SpecData__Document__.js');
+        const specData  = await import('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__SpecData__.js');
+        const specPdf   = await import('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__SpecPdf__.js');
+
+        // LOAD PS01'S REAL SPECIFICATION, without the transport: the file is
+        // fetched here and adopted, so no R2 read and no R2 write can happen.
+        const raw = await (await fetch('/na-project-portal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/TrueVision__DrawingNotes__.json')).json();
+        specState.Na__LeSpec__SetProjectCode('PS01');
+        specState.Na__LeSpec__SetDoc(specDoc.Na__LeSpec__Normalise(raw));
+        specState.Na__LeSpec__SetStatus(specState.Na__LeSpec__STATUS_READY);
+        specState.Na__LeSpec__SetEditable(true);
+
+        say('notes            : ' + specData.Na__LeSpec__ListNotes().length + ' in ' + specData.Na__LeSpec__GetGroups().length + ' groups');
+        say('revision (fresh) : ' + specData.Na__LeSpec__GetRevision());
+        say('document number  : ' + specData.Na__LeSpec__GetDocumentNumber('PS01'));
+        say('file name        : ' + specPdf.Na__LeSpecPdf__Filename());
+        say('');
+
+        // SET IT TO REVISION B, the thing Adam asked for.
+        say('SetRevision("B")  -> ' + specData.Na__LeSpec__SetRevision('B'));
+        say('revision now      : ' + specData.Na__LeSpec__GetRevision());
+        say('file name now     : ' + specPdf.Na__LeSpecPdf__Filename());
+        say('unsynced (dirty)  : ' + specData.Na__LeSpec__IsDirty() + '   <- a revision change must light Sync');
+        say('');
+
+        // "Rev C" typed in full, and a number typed over the default.
+        specData.Na__LeSpec__SetRevision('Rev C');
+        say('SetRevision("Rev C") stored as : ' + specData.Na__LeSpec__GetRevision());
+        specData.Na__LeSpec__SetDocumentNumber('PS01_T02_SPEC');
+        say('number typed over              : ' + specData.Na__LeSpec__GetDocumentNumber('PS01'));
+        say('file name                      : ' + specPdf.Na__LeSpecPdf__Filename());
+        specData.Na__LeSpec__SetDocumentNumber('');
+        say('number cleared, follows code   : ' + specData.Na__LeSpec__GetDocumentNumber('PS01'));
+        say('');
+
+        // BACK TO B, and build the real PDF.
+        specData.Na__LeSpec__SetRevision('B');
+        const built = await specPdf.Na__LeSpecPdf__BuildDocument();
+        const blob  = built.doc.output('blob');
+        say('BUILT');
+        say('  filename : ' + built.filename);
+        say('  pages    : ' + built.pages);
+        say('  bytes    : ' + blob.size);
+
+        // Is the text REAL text? Pull the raw PDF and look for a note's words.
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        say('  header   : ' + String.fromCharCode.apply(null, bytes.subarray(0, 8)));
+        say('  fonts    : ' + (built.doc.getFontList ? Object.keys(built.doc.getFontList()).join(', ') : '?'));
+
+        window.__SPEC_RESULT = { filename : built.filename, pages : built.pages, bytes : blob.size };
+        window.__SPEC_BLOB   = blob;
+        say('');
+        say('DONE');
+    } catch (error) {
+        say('ERROR: ' + (error && error.stack ? error.stack : error));
+        window.__SPEC_RESULT = 'ERROR';
+    }
+})();
+</script>
+</body>
+</html>

@@ -2,9 +2,11 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "PS01",
-    "ProjectSpecification__UpdatedIso": "2026-09-14T22:00:19.661Z",
+    "ProjectSpecification__UpdatedIso": "2026-09-17T20:22:42.137Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 38,
+    "ProjectSpecification__LastIdNumber": 40,
+    "ProjectSpecification__Revision": "B",
+    "ProjectSpecification__DocumentNumber": "",
     "ProjectSpecification__Groups": [
         {
             "Group__Id": "SpecGroup_001",
@@ -168,8 +170,8 @@
                     "Note__Id": "SpecNote_013",
                     "Note__Code": "PD01",
                     "Note__Title": "Rear extension projection",
-                    "Note__Body": "Single-storey rear extension with an enclosed projection of 3,500 mm from the rear wall of the house. This dimension describes the enclosed accommodation; the external canopy is shown separately.",
-                    "Note__UpdatedIso": "2026-09-14T21:08:02.456Z"
+                    "Note__Body": "Single-storey rear extension with an enclosed projection of 3,150 mm from the rear wall of the house. This dimension describes the enclosed accommodation; the external canopy is shown separately.",
+                    "Note__UpdatedIso": "2026-09-17T18:52:38.629Z"
                 },
                 {
                     "Note__Id": "SpecNote_014",
@@ -181,16 +183,23 @@
                 {
                     "Note__Id": "SpecNote_015",
                     "Note__Code": "PD03",
-                    "Note__Title": "Flat-roof eaves height",
-                    "Note__Body": "Proposed eaves height: 2,650 mm to the finished roof surface behind the parapet, below the 3,000 mm limit applicable within 2 m of a boundary. Parapet excluded from eaves measurement. The separate Class A limit relative to existing house eaves also applies.",
-                    "Note__UpdatedIso": "2026-09-14T21:08:02.456Z"
+                    "Note__Title": "Flat-roof eaves measurement",
+                    "Note__Body": "Finished roof surface: 2,650 mm above GFFL; 2,800 mm above proposed terrace. Eaves measured at the upper roof surface where it meets the external wall; parapet excluded. Reference: GOV.UK, Permitted development rights for householders: technical guidance (September 2019), Class A, paragraph A.1(d). Planning ground datum: PD05; existing-house eaves limit also applies.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
                 },
                 {
                     "Note__Id": "SpecNote_026",
                     "Note__Code": "PD04",
-                    "Note__Title": "Overall extension height",
-                    "Note__Body": "Parapet coping: 3,000 mm above external ground level, below the 4,000 mm single-storey rear-extension height limit and the existing main roof ridge. Parapet included in overall height; finished roof level behind the parapet defines the eaves height.",
-                    "Note__UpdatedIso": "2026-09-14T21:54:39.257Z"
+                    "Note__Title": "Parapet coping level",
+                    "Note__Body": "Parapet coping: 3,000 mm above proposed terrace, equivalent to 2,850 mm above GFFL. Coping is included in overall extension height, not eaves height. Terrace-relative dimensions are distinct from planning heights; use the ground datum described in PD05.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
+                },
+                {
+                    "Note__Id": "SpecNote_039",
+                    "Note__Code": "PD05",
+                    "Note__Title": "Planning ground datum",
+                    "Note__Body": "Measure planning heights from the existing ground immediately adjacent to the building, excluding the proposed 50 mm paving overlay; where uneven, use the highest adjacent ground level. Reference: GOV.UK, Permitted development rights for householders: technical guidance (September 2019), General Issues, \"Height\". Record existing and proposed paving levels separately.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
                 }
             ]
         },
@@ -211,8 +220,8 @@
                     "Note__Id": "SpecNote_029",
                     "Note__Code": "RF02",
                     "Note__Title": "Parapet and copings",
-                    "Note__Body": "Parapet conceals the warm-roof edge. Provide weathered copings with drips, secure fixings and sealed joints; turn roof waterproofing up the inner face beneath the coping system. Maintain insulation continuity at the roof edge. Coordinate final coping level with the verified height limits.",
-                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                    "Note__Body": "Parapet conceals the warm-roof edge; coping level to PD04. Provide weathered copings with drips, secure fixings and sealed joints; turn roof waterproofing up the inner face beneath the coping system. Maintain insulation continuity at the roof edge.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
                 },
                 {
                     "Note__Id": "SpecNote_030",
@@ -225,8 +234,8 @@
                     "Note__Id": "SpecNote_031",
                     "Note__Code": "RF04",
                     "Note__Title": "Rooflight pitch and height",
-                    "Note__Body": "Install rooflights at the selected manufacturer's required pitch; 5 degrees is indicative only. Keep the highest frame and glazing below the parapet coping and below 3,000 mm above the verified planning ground datum. Confirm the complete pitched assembly before ordering; revise conflicting details, not the minimum upstand.",
-                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                    "Note__Body": "Install rooflights at the manufacturer's required pitch; 5 degrees is indicative. Keep frames and glazing below the coping. The indicated roof-to-coping allowance is 200 mm: coordinate the minimum 150 mm upstand, frame depth and pitch within this envelope. Revise the roof detail if necessary; do not reduce the minimum upstand.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
                 },
                 {
                     "Note__Id": "SpecNote_032",
@@ -269,8 +278,8 @@
                     "Note__Id": "SpecNote_037",
                     "Note__Code": "PR01",
                     "Note__Title": "Entrance canopy",
-                    "Note__Body": "Flat-roof canopy over the external area immediately outside the sliding doors. Coordinate projection and levels between plan and elevations. Provide weatherproof roof covering, falls, edge trims and drainage clear of the entrance. Structural support and cantilever to SN03.",
-                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                    "Note__Body": "Flat-roof canopy outside the sliding doors; top 2,710 mm above proposed terrace (2,560 mm above GFFL). Provide weatherproof covering, falls, edge trims and drainage clear of the entrance. Structural support and cantilever to SN03; terrace and threshold levels to PR03.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
                 },
                 {
                     "Note__Id": "SpecNote_038",
@@ -278,6 +287,13 @@
                     "Note__Title": "Vertical metal screen",
                     "Note__Body": "Open screen of vertical powder-coated metal slats to one side of the canopy; metal type, section, spacing and colour to be agreed. Fix to a corrosion-protected supporting frame. Retain open gaps between slats. Canopy loads to be carried by the engineer-designed structure, not decorative infill.",
                     "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_040",
+                    "Note__Code": "PR03",
+                    "Note__Title": "Terrace and threshold levels",
+                    "Note__Body": "Proposed terrace finish 50 mm above existing paving and 150 mm below GFFL. Omit the separate intermediate step; retain the garden retaining wall. Detail the door threshold for the level change and weathering. Maintain DPC clearance to WF02 and drain paving away from the building.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
                 }
             ]
         }

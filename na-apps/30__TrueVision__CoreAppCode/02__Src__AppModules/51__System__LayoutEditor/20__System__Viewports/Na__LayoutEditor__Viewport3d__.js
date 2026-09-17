@@ -303,6 +303,25 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | Was a Stored Picture Drawn With Enough Samples
+    // ------------------------------------------------------------
+    // WIDTH IS NOT QUALITY, and for the PDF the difference matters. The export
+    // profile is High - 20 pixels per paper millimetre and SIXTEEN samples -
+    // and it does not scale with the device pixel ratio. The working profile
+    // does: Medium is 12 pixels per millimetre and FOUR samples, which on a 2x
+    // screen renders at 24 and so passes the width test comfortably. Judged on
+    // width alone, the PDF would then reuse that four-sample picture and print
+    // a staircase on every shallow eaves, which is precisely what the sampling
+    // exists to prevent. A record written before this key existed reads as
+    // unknown and is re-rendered once.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__SampledEnough(storedSamples, wantedSamples) {
+        if (!(wantedSamples > 1)) return true;                                     // <-- Nothing was asked for; anything will do
+        return Number.isFinite(storedSamples) && storedSamples >= wantedSamples;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -384,7 +403,7 @@
                 const path = Na__LeAssets__SnapshotPath(sheet.Sheet__Id, viewport.Viewport__Id, key);
                 const uploaded = await Na__LeAssets__Upload(blob, path, null);
                 if (uploaded && uploaded.r2Success === true) {                        // <-- Never name a file R2 did not take: the web build would ask for it and draw nothing
-                    return Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { snapshotAsset : { Asset__Path : path, Asset__Fingerprint : key, Asset__PixelWidth : px.w } }, true);
+                    return Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { snapshotAsset : { Asset__Path : path, Asset__Fingerprint : key, Asset__PixelWidth : px.w, Asset__Samples : px.samples } }, true);
                 }
             }
             return false;
@@ -426,7 +445,7 @@
                 if (Na__LeVp3d__States.get(viewportId) !== state) return;
                 if (dataUrl) {
                     state.img.src = dataUrl; state.img.hidden = false;
-                    state.key = key; state.dataUrl = dataUrl; state.px = { w : slot.Asset__PixelWidth, h : Math.round(slot.Asset__PixelWidth * (wanted.h / wanted.w)) };
+                    state.key = key; state.dataUrl = dataUrl; state.px = { w : slot.Asset__PixelWidth, h : Math.round(slot.Asset__PixelWidth * (wanted.h / wanted.w)), samples : slot.Asset__Samples };
                     state.modelFp = Na__LeSnap__GetModelFingerprint(Na__LeSource__Resolve(viewport).renderId);
                     state.win = view;
                     Na__LeVp3d__Place(state);
@@ -617,11 +636,17 @@
         const profile = Na__LeVp3d__ExportProfile();
         const px      = Na__LeVp3d__PixelSize(viewport, profile);
         const live    = Na__LeVp3d__States.get(viewport.Viewport__Id);
-        if (live && live.key === key && live.dataUrl && Na__LeVp3d__WideEnough(live.px ? live.px.w : null, px.w)) return Na__LeAssets__ToPngDataUrl(live.dataUrl);   // <-- An export-size render is already on screen
+        // REUSE ONLY WHAT IS BOTH BIG ENOUGH AND SAMPLED ENOUGH. See
+        // Na__LeVp3d__SampledEnough: a working-level picture on a dense screen
+        // passes the width test while carrying a quarter of the samples.
+        if (live && live.key === key && live.dataUrl
+            && Na__LeVp3d__WideEnough(live.px ? live.px.w : null, px.w)
+            && Na__LeVp3d__SampledEnough(live.px ? live.px.samples : null, px.samples)) return Na__LeAssets__ToPngDataUrl(live.dataUrl);   // <-- An export-grade render is already on screen
         const slot = viewport.Viewport__SnapshotAsset;
         const stored = slot && slot.Asset__Fingerprint === key;
         if (!Na__LeSnap__IsReady()) return stored ? Na__LeAssets__ToPngDataUrl(await Na__LeAssets__Load(slot.Asset__Path)) : null;   // <-- The web build has only the stored picture
-        if (stored && Na__LeVp3d__WideEnough(slot.Asset__PixelWidth, px.w)) return Na__LeAssets__ToPngDataUrl(await Na__LeAssets__Load(slot.Asset__Path));
+        if (stored && Na__LeVp3d__WideEnough(slot.Asset__PixelWidth, px.w)
+                   && Na__LeVp3d__SampledEnough(slot.Asset__Samples, px.samples)) return Na__LeAssets__ToPngDataUrl(await Na__LeAssets__Load(slot.Asset__Path));
         const state = live || { img : document.createElement('img'), key : null, px : null, dataUrl : null, inFlight : false };
         await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile);   // <-- Export size; the stored asset is refreshed with it
         return state.dataUrl ? Na__LeAssets__ToPngDataUrl(state.dataUrl) : null;

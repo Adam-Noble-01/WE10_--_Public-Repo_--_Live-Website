@@ -42,6 +42,7 @@
 .na-le-paper__viewports,
 .na-le-paper__chrome,
 .na-le-paper__markup,
+.na-le-paper__focus,
 .na-le-paper__handles {
     position                           : absolute;
     top                                : 0;
@@ -53,20 +54,46 @@
 .na-le-paper__viewports  { z-index : 1; }
 .na-le-paper__chrome     { z-index : 2; pointer-events : none; }
 .na-le-paper__markup     { z-index : 3; pointer-events : none; }
-.na-le-paper__handles    { z-index : 4; pointer-events : none; }
+.na-le-paper__focus      { z-index : 4; pointer-events : none; }
+.na-le-paper__handles    { z-index : 5; pointer-events : none; }
 
 .na-le-paper__chrome,
-.na-le-paper__markup {
+.na-le-paper__markup,
+.na-le-paper__focus {
     overflow                           : visible;
 }
 
 /* Text on the paper keeps its geometry under the transform */
 .na-le-paper__chrome text,
 .na-le-paper__markup text,
+.na-le-paper__focus text,
 .na-le-frame__markup-svg text {
     dominant-baseline                  : alphabetic;
     white-space                        : pre;
 }
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  An Open Container Fades the Rest of the Sheet           */
+/* ----------------------------------------------------------------- */
+
+/* SketchUp's rule, on paper. While a vector or a group is open for editing */
+/* the whole sheet drops back - the viewport pictures, the border and title */
+/* block, and all the markup - and the contents of the open container are   */
+/* drawn again at full strength in the focus layer above them. The drawing  */
+/* stays legible enough to work against; nothing outside the container can  */
+/* be picked up while it is open, and the fade is what says so.             */
+/*                                                                         */
+/* The amount is set on the paper element from the EditScope block of       */
+/* Na__LayoutEditor__AppConfig__.json; the value here is the fallback.      */
+
+.na-le-paper--scoped .na-le-paper__viewports,
+.na-le-paper--scoped .na-le-paper__chrome,
+.na-le-paper--scoped .na-le-paper__markup {
+    opacity                            : var(--na-le-scope-fade, 0.25);
+    transition                         : opacity 120ms ease-out;
+}
+
+/* endregion ------------------------------------------------------- */
 
 /* endregion ------------------------------------------------------- */
 
@@ -522,6 +549,18 @@
     border-top                         : 1px solid #336699;
     border-radius                      : 0;
     transform-origin                   : 0 0;
+}
+
+/* BLUE IS A POINT YOU COULD TAKE HOLD OF; RED IS ONE YOU HAVE. A picked  */
+/* grip - clicked, or swept up by a box drawn inside the vector - is drawn */
+/* solid red, so a run of them reads at a glance across a drawing and it   */
+/* is never a guess which points the next drag will carry. It applies to   */
+/* every grip shape: a vector's square vertices and a dimension's measured */
+/* points, dimension line and value alike, so the two read the same way.   */
+
+.na-le-grip--picked {
+    background                         : #e01b24;
+    border-color                       : #ffffff;
 }
 
 /* A Shift-click on a vector's edge inserts a vertex here. The diamond is  */

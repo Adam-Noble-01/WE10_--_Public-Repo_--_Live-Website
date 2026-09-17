@@ -129,10 +129,29 @@
             hitToleranceMm  : Na__LeCfg__Num('Selection', 'HitToleranceMm', 1.5),
             dragThresholdMm : Na__LeCfg__Num('Selection', 'DragThresholdMm', 0.5),
             gripSizePx      : Na__LeCfg__Num('Selection', 'GripSizePx', 9),
+            gripSizePickedPx: Math.max(1, Na__LeCfg__Num('Selection', 'GripSizePickedPx', 13)),   // <-- A point you have hold of is drawn larger than one you could take
             boxStartPx      : Math.max(1, Na__LeCfg__Num('Selection', 'BoxStartPx', 4)),
             boxBorderPx     : Math.max(0.5, Na__LeCfg__Num('Selection', 'BoxBorderPx', 1)),
             boxPreview      : Na__LeCfg__Val('Selection', 'BoxPreview', true) !== false,
             boxPreviewPadMm : Math.max(0, Na__LeCfg__Num('Selection', 'BoxPreviewPadMm', 0.8))
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Edit Scope Setup (the fade, and whether moving needs the Move tool)
+    // ------------------------------------------------------------
+    // fadeOpacity is how far back the rest of the sheet drops while a vector or
+    // a group is open for editing. moveToolRequired is the safety catch: with
+    // it on, a whole object only travels under the Move tool, so a stray drag
+    // with Select moves nothing at all.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetEditScopeSetup() {
+        return {
+            fadeOpacity      : Na__LeCfg__Unit('EditScope', 'FadeOpacity', 0.25),
+            gripToleranceFactor : Math.max(1, Na__LeCfg__Num('EditScope', 'GripToleranceFactor', 2)),
+            grabRadiusPx        : Math.max(1, Na__LeCfg__Num('EditScope', 'GrabRadiusPx', 14)),
+            moveToolRequired : Na__LeCfg__Val('EditScope', 'MoveToolRequired', true) !== false
         };
     }
     // ------------------------------------------------------------
@@ -305,6 +324,7 @@
         Na__LeCfg__GetTextSetup,
         Na__LeCfg__GetDimensionSetup,
         Na__LeCfg__GetSelectionSetup,
+        Na__LeCfg__GetEditScopeSetup,
         Na__LeCfg__GetShapeSetup,
         Na__LeCfg__GetMeasureSetup,
         Na__LeCfg__GetLeaderSetup,

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!-- =============================================================================
+     TRUEVISION3D - TEST - TITLE BLOCK SCALE CELL
+     =============================================================================
+     Renders the modern title block strip straight from the REAL chrome builder,
+     for sheet shapes that match PS01's four sheets, so the Scale cell can be
+     read at every paper size without opening a project.
+     No project is loaded and nothing is written: this page asks the sheet model
+     for the fields and the chrome for the primitives, and paints nowhere else.
+     Because jsPDF is loaded the way the app loads it, the text is measured and
+     truncated exactly as it would be on a sheet, so a Scale value that overruns
+     its cell shows here with the app's ellipsis rather than fitting by accident.
+
+     USAGE: serve the repo root and open
+       /na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__TitleBlockScaleCell__.html
+     ============================================================================= -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Title block Scale cell</title>
+<style>
+    body   { margin: 0; padding: 24px; background: #2b3440; color: #dfe6ec;
+             font: 13px/1.5 'Open Sans', Helvetica, Arial, sans-serif; }
+    h1     { font-size: 15px; font-weight: 600; margin: 0 0 18px; }
+    .case  { margin: 0 0 26px; }
+    .head  { margin: 0 0 6px; }
+    .head b{ color: #ffd479; font-weight: 600; }
+    .strip { background: #fff; display: block; width: 100%; }
+    svg    { display: block; }
+    #out   { white-space: pre; font-family: Consolas, monospace; background: #1d242d;
+             padding: 12px; border-radius: 4px; margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>TrueVision3D - title block Scale cell</h1>
+<div id="cases"></div>
+<div id="out">running...</div>
+
+<!-- The app's own import map, copied from Index.html with the paths walked up
+     one folder, because the record module reaches the vendored three.js. -->
+<script type="importmap">
+{
+    "imports": {
+        "three"                        : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+        "three/addons/"                : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+        "three/webgpu"                 : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.webgpu.js",
+        "three/tsl"                    : "../04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.tsl.js",
+        "three-mesh-bvh"               : "../04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/index.js",
+        "three-mesh-bvh/worker"        : "../04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/workers/index.js",
+        "three-mesh-bvh/webgpu"        : "../04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/webgpu/index.js",
+        "clipper2-js"                  : "../04__Lib__ThirdParty__VersionLocked/03__Vendor__Clipper2Js__v0.9.0/fesm2020/clipper2-js.mjs",
+        "three-edge-projection"        : "../04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/index.js",
+        "three-edge-projection/webgpu" : "../04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/webgpu/index.js"
+    }
+}
+</script>
+<script src="../02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js"></script>
+<script type="module">
+// The sheet model comes FIRST on purpose. The Layout Editor's record, model and
+// panel modules are a knot of long-standing import cycles, and entering that knot
+// at the record module leaves its consts in the temporal dead zone when the model
+// state module reads them. The app enters at the model, so this page does too, and
+// asks the model for the fields exactly as the sheet surface does.
+import { Na__LeModel__GetFields }  from '../02__Src__AppModules/51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+import { Na__LeCfg__Ready }        from '../02__Src__AppModules/51__System__LayoutEditor/03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+import { Na__LeLayout__Solve }     from '../02__Src__AppModules/51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
+import { Na__LeChrome__Build,
+         Na__LeChrome__ToSvgMarkup } from '../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+
+const log = [];
+function say(line) { log.push(line); document.getElementById('out').textContent = log.join('\n'); }
+
+// A sheet shaped like a real one, with only what the title block and layout read.
+function sheet(name, order, paper, orientation, scales, drawingType) {
+    return {
+        Sheet__Id          : 'Sheet_' + order,
+        Sheet__Name        : name,
+        Sheet__Order       : order,
+        Sheet__PaperSize   : paper,
+        Sheet__Orientation : orientation,
+        Sheet__TitleBlockStyle : 'modern',
+        Sheet__DrawingType : drawingType || undefined,
+        Sheet__Fields      : { Sheet__Fields__Client : 'Musters Road Ltd',
+                               Sheet__Fields__SiteAddress : '42 Musters Road, West Bridgford, NG2' },
+        Sheet__Layers      : [],
+        Sheet__Viewports   : scales.map((d, i) => ({
+            Viewport__Id : 'Vp_' + i,
+            Viewport__Kind : d === null ? '3d' : '2d',
+            Viewport__ScaleDenominator : d
+        })),
+        Sheet__Annotations : [], Sheet__Dimensions : [], Sheet__Shapes : [],
+        Sheet__Leaders : [], Sheet__Groups : []
+    };
+}
+
+const CASES = [
+    [ 'PS01 D01 - Floor Plans',  sheet('D01 - Floor Plans', 1, 'A2', 'landscape', [ 50, 50 ]) ],
+    [ 'PS01 D03 - 3D Images',    sheet('D03 - 3D Images',   3, 'A3', 'landscape', [ null, null, null ]) ],
+    [ 'PS01 D10 - Site Plan',    sheet('D10 - Site Plan',   4, 'A2', 'landscape', [ 500, 1250 ], 'siteplan') ],
+    [ 'Mixed architectural, A3', sheet('Mixed scales',      5, 'A3', 'landscape', [ 100, 20, 50 ]) ],
+    [ 'Mixed, smallest paper',   sheet('Mixed on A4',       6, 'A4', 'landscape', [ 50, 100 ]) ],
+    [ 'Single scale, A1',        sheet('One scale on A1',   7, 'A1', 'landscape', [ 20 ]) ]
+];
+
+(async () => {
+    try {
+        await Na__LeCfg__Ready();
+        say('Config loaded. jsPDF present: ' + !!(window.jspdf && window.jspdf.jsPDF));
+        say('');
+
+        const host = document.getElementById('cases');
+        CASES.forEach(([ title, s ]) => {
+            const fields = Na__LeModel__GetFields(s);
+            const layout = Na__LeLayout__Solve(s);
+            const prims  = Na__LeChrome__Build(layout, s, { fields : fields, includeFrames : false });
+
+            // Crop the page-wide primitive list down to the title block band alone.
+            const band  = layout.TitleBlock;
+            const shift = prims.map((p) => {
+                const c = JSON.parse(JSON.stringify(p));
+                if (typeof c.Y  === 'number') c.Y  -= band.Y;
+                if (typeof c.Y1 === 'number') c.Y1 -= band.Y;
+                if (typeof c.Y2 === 'number') c.Y2 -= band.Y;
+                if (typeof c.BaselineY === 'number') c.BaselineY -= band.Y;
+                return c;
+            }).filter((c) => {
+                const y = [ c.Y, c.Y1, c.Y2, c.BaselineY ].filter((v) => typeof v === 'number');
+                return y.length === 0 || y.some((v) => v >= -1 && v <= band.HeightMm + 1);
+            });
+
+            const wrap = document.createElement('div');
+            wrap.className = 'case';
+            wrap.innerHTML =
+                '<div class="head">' + title + ' &mdash; ' + s.Sheet__PaperSize + ' ' + s.Sheet__Orientation +
+                ' &mdash; Scale cell reads <b>' + fields.Scale.replace(/&/g, '&amp;') + '</b></div>' +
+                '<div class="strip">' +
+                Na__LeChrome__ToSvgMarkup(shift, band.X + band.WidthMm + band.X, band.HeightMm) +
+                '</div>';
+            host.appendChild(wrap);
+
+            say(s.Sheet__PaperSize.padEnd(3) + '  ' + fields.Scale);
+        });
+
+        // VIEWPORT CAPTIONS | The frame label, in frames from generous to cramped.
+        // The caption box is sized from the measured text, so the wide-frame rows
+        // prove the measurement round-trip no longer loses the last characters,
+        // and the narrow rows prove the type sets smaller instead of truncating.
+        const CAPS = [
+            [ 'LOCATION PLAN',            1250, 135 ],
+            [ 'BLOCK PLAN',                500, 135 ],
+            [ 'FRONT ELEVATION',            50, 120 ],
+            [ 'SIDE ELEVATION',             20, 120 ],
+            [ 'PROPOSED FRONT ELEVATION',  100,  45 ],
+            [ 'PROPOSED FRONT ELEVATION',  100,  38 ],
+            [ 'PROPOSED FRONT ELEVATION',  100,  28 ]
+        ];
+        const capHost = document.createElement('div');
+        capHost.id = 'caps';
+        document.body.insertBefore(capHost, document.getElementById('out'));
+        capHost.innerHTML = '<h1 style="margin:26px 0 14px">Viewport captions</h1>';
+
+        const capSheet = sheet('Caption cases', 9, 'A1', 'landscape', []);
+        capSheet.Sheet__Layers = [];
+        CAPS.forEach(([ label, denom, widthMm ], i) => {
+            capSheet.Sheet__Viewports = [ {
+                Viewport__Id : 'Cap_' + i, Viewport__Kind : '2d',
+                Viewport__ScaleDenominator : denom,
+                Viewport__Name : label,
+                Viewport__FrameMm : { X : 0, Y : 0, WidthMm : widthMm, HeightMm : 40 }
+            } ];
+            const layout = Na__LeLayout__Solve(capSheet);
+            const prims  = Na__LeChrome__Build(layout, capSheet, { fields : {}, includeTitleBlock : false });
+            const frames = prims.filter((p) => (p.Y !== undefined ? p.Y : p.BaselineY) >= 30);   // the caption box and its text sit at the frame's foot
+            const div = document.createElement('div');
+            div.style.cssText = 'margin:0 0 10px';
+            div.innerHTML = '<div style="font-size:12px;color:#a9b6c2;margin:0 0 3px">frame ' + widthMm + ' mm &#183; ' + label + ' 1:' + denom + '</div>' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="' + Math.round(widthMm * 3.4) + '" height="' + Math.round(10 * 3.4) + '" viewBox="0 30 ' + widthMm + ' 10">' +
+                '<rect x="0" y="30" width="' + widthMm + '" height="10" fill="#fff"/>' +
+                Na__LeChrome__ToSvgMarkup(frames, widthMm, 40).replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '') + '</svg>';
+            capHost.appendChild(div);
+            say('frame ' + String(widthMm).padStart(4) + ' mm   ' + prims.filter((p) => p.Text).map((p) => p.Text).join(' | '));
+        });
+
+        say('');
+        say('DONE - ' + CASES.length + ' sheets built with no error.');
+        window.__TEST_RESULT = CASES.map(([ t, s ]) => t + ' => ' + Na__LeModel__GetFields(s).Scale);
+    } catch (error) {
+        say('ERROR: ' + (error && error.stack ? error.stack : error));
+        window.__TEST_RESULT = 'ERROR: ' + error;
+    }
+})();
+</script>
+</body>
+</html>

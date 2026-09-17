@@ -138,6 +138,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.30.0
+// - CONTAINER EDITING, THE MOVE TOOL AND A REAL "NO TOOL" STATE. New unit
+//   Na__LayoutEditor__EditScope__ holds the context stack - a group, a vector or
+//   a dimension open for editing - and the points picked inside it. Double-click
+//   or Enter steps in, a click outside steps out, Escape closes everything and
+//   puts the tools down. While a container is open the rest of the sheet is
+//   faded and inert, and only its own points answer a press.
+// - Grips are a container's insides: a vector's vertices and a dimension's
+//   grips are drawn, and draggable, only while that object is open. A picked one
+//   draws red. Inserting and deleting points lives in there too.
+// - The Move tool (M) is the only thing that translates a whole object. Select
+//   picks; grips, crop handles and viewport content editing are unchanged.
+// - The space bar picks Select, beside V, and Escape comes back to Select:
+//   there is one resting state and the sheet always answers a press.
+// - Attach listens for the scope event and books the surface redraw; a model
+//   change prunes a container whose record has gone; Detach closes them all.
+//
+//
 // 15-Sep-2026 - Version 1.29.0
 // - Split into Na__LayoutEditor__SheetTools__State__.js,
 //   Na__LayoutEditor__SheetTools__ToolState__.js,
@@ -390,7 +408,8 @@
         Na__LeSurface__ZOOM_EVENT,
         Na__LeSurface__GetElements,
         Na__LeSurface__GetPixelsPerMm,
-        Na__LeSurface__GetZoom
+        Na__LeSurface__GetZoom,
+        Na__LeSurface__Refresh
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeText__BeginEdit, Na__LeText__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
     import { Na__LeMeasure__Attach, Na__LeMeasure__Detach } from './Na__LayoutEditor__Measurements__.js';
@@ -398,6 +417,7 @@
     import { Na__LeVpMove__Refresh } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeGroup__Render } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeSelBox__Refresh } from './Na__LayoutEditor__SelectionBox__.js';
+    import { Na__LeScope__CHANGED_EVENT, Na__LeScope__Clear, Na__LeScope__Prune } from './Na__LayoutEditor__EditScope__.js';
     import { Na__LeMenu__Close } from './Na__LayoutEditor__ContextMenu__.js';
     // ------------------------------------------------------------
 
@@ -405,6 +425,7 @@
     // ------------------------------------------------------------
     import {
         Na__LeTools__TOOL_SELECT,
+        Na__LeTools__TOOL_MOVE,
         Na__LeTools__TOOL_TEXT,
         Na__LeTools__TOOL_DIMENSION,
         Na__LeTools__TOOL_DRAW,
@@ -444,7 +465,16 @@
     import {
         Na__LeTools__OnMove,
         Na__LeTools__OnUp,
+        Na__LeTools__GetMoveDrag,
+        Na__LeTools__TypeMoveLength,
         Na__LeTools__GetVertexDrag,
+        Na__LeTools__GetVertexRetype,
+        Na__LeTools__GetDimEndDrag,
+        Na__LeTools__GetDimEndRetype,
+        Na__LeTools__TypeDimensionSpan,
+        Na__LeTools__GetDimOffsetDrag,
+        Na__LeTools__GetDimOffsetRetype,
+        Na__LeTools__TypeDimensionOffset,
         Na__LeTools__TypeVertexLength,
         Na__LeTools__GetViewportDrag,
         Na__LeTools__TypeViewportLength,
@@ -496,12 +526,14 @@
             contextmenu   : (e) => Na__LeTools__OnContextMenu(e),
             keydown       : (e) => { Na__LeTools__OnKey(e); if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); },   // <-- Shift turns a dimension being placed ortho: show it without waiting for the mouse
             keyup         : (e) => { if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); },
-            dropperdraw   : () => { const sheet = Na__LeModel__GetActiveSheet(); Na__LeDrop__Refresh(sheet); Na__LeVpMove__Refresh(sheet); Na__LeSelBox__Refresh(sheet); requestAnimationFrame(() => { const els = Na__LeSurface__GetElements(); if (els && els.handles && sheet) Na__LeGroup__Render(els.handles, sheet, Na__LeModel__GetSelectionItems(), Na__LeSurface__GetPixelsPerMm(), Na__LeSurface__GetZoom()); }); }   // <-- The eyedropper's boxes, the tracking crosses and a selection box are counter-scaled, like the grips; groups paint after the surface clears the layer
+            scopedraw     : () => Na__LeSurface__Refresh('scope'),            // <-- Opening or closing a container fades the sheet and redraws its contents
+            dropperdraw   : () => { const sheet = Na__LeModel__GetActiveSheet(); Na__LeScope__Prune(sheet); Na__LeDrop__Refresh(sheet); Na__LeVpMove__Refresh(sheet); Na__LeSelBox__Refresh(sheet); requestAnimationFrame(() => { const els = Na__LeSurface__GetElements(); if (els && els.handles && sheet) Na__LeGroup__Render(els.handles, sheet, Na__LeModel__GetSelectionItems(), Na__LeSurface__GetPixelsPerMm(), Na__LeSurface__GetZoom()); }); }   // <-- The eyedropper's boxes, the tracking crosses and a selection box are counter-scaled, like the grips; groups paint after the surface clears the layer
         };
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'dblclick', 'contextmenu' ].forEach((name) => Na__LeTools__Stage.addEventListener(name, Na__LeTools__Handlers[name]));
         window.addEventListener('keydown', Na__LeTools__Handlers.keydown);
         window.addEventListener('keyup', Na__LeTools__Handlers.keyup);
         [ Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeTools__Handlers.dropperdraw));
+        window.addEventListener(Na__LeScope__CHANGED_EVENT, Na__LeTools__Handlers.scopedraw);
         Na__LeMeasure__Attach({                                              // <-- The Measurements box reads the tools through these, and never imports them back
             getTool              : () => Na__LeTools__Tool,
             isEditable           : () => Na__LeTools__Editable,
@@ -511,7 +543,16 @@
             getPointMm           : () => Na__LeTools__LastPointMm,
             rerun                : () => Na__LeTools__Rerun(),
             getVertexDrag        : () => Na__LeTools__GetVertexDrag(),
+            getVertexRetype      : () => Na__LeTools__GetVertexRetype(),
+            getDimEndDrag        : () => Na__LeTools__GetDimEndDrag(),
+            getDimEndRetype      : () => Na__LeTools__GetDimEndRetype(),
+            typeDimensionSpan    : (paperMm) => Na__LeTools__TypeDimensionSpan(paperMm),
+            getDimOffsetDrag     : () => Na__LeTools__GetDimOffsetDrag(),
+            getDimOffsetRetype   : () => Na__LeTools__GetDimOffsetRetype(),
+            typeDimensionOffset  : (paperMm) => Na__LeTools__TypeDimensionOffset(paperMm),
             typeVertexLength     : (paperMm) => Na__LeTools__TypeVertexLength(paperMm),
+            getMoveDrag          : () => Na__LeTools__GetMoveDrag(),                 // <-- A whole object, or a whole selection, being relocated
+            typeMoveLength       : (paperMm) => Na__LeTools__TypeMoveLength(paperMm),
             getViewportDrag      : () => Na__LeTools__GetViewportDrag(),
             typeViewportLength   : (paperMm) => Na__LeTools__TypeViewportLength(paperMm)
         });
@@ -528,6 +569,7 @@
         Na__LeTools__WriteRightPress(null);
         Na__LeTools__WriteLastPointMm(null);
         Na__LeText__Cancel();
+        Na__LeScope__Clear();                                                // <-- Never leave a sheet with a container still open
         Na__LeTools__CancelPlacement();
         Na__LeMeasure__Detach();                                             // <-- The box is put away with the tools, and its keys with it
         if (!Na__LeTools__Stage || !Na__LeTools__Handlers) return;
@@ -535,6 +577,7 @@
         window.removeEventListener('keydown', Na__LeTools__Handlers.keydown);
         window.removeEventListener('keyup', Na__LeTools__Handlers.keyup);
         [ Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeTools__Handlers.dropperdraw));
+        window.removeEventListener(Na__LeScope__CHANGED_EVENT, Na__LeTools__Handlers.scopedraw);
         Na__LeTools__Stage.style.cursor = '';
         Na__LeTools__WriteSuppressed(false);                                 // <-- Never leave the tools deaf for the next mount
         Na__LeTools__WriteStage(null); Na__LeTools__Handlers = null; Na__LeTools__WriteDrag(null);
@@ -553,6 +596,7 @@
     // ------------------------------------------------------------
     export {
         Na__LeTools__TOOL_SELECT,
+        Na__LeTools__TOOL_MOVE,
         Na__LeTools__TOOL_TEXT,
         Na__LeTools__TOOL_DIMENSION,
         Na__LeTools__TOOL_DRAW,

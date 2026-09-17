@@ -76,6 +76,20 @@
     white-space                        : nowrap;
 }
 
+/* THE ISSUE ON EVERY PAGE. A loose page out of a printed set still says which
+   document and which revision it came from. It sits after the running head, so
+   the running head keeps the margin-left:auto that pushes both to the right. */
+.na-le-spec-sheet__issue {
+    flex                               : 0 0 auto;
+    margin-left                        : 4mm;
+    color                              : var(--na-spec-muted, #6c757d);
+    font-size                          : 6.8pt;
+    line-height                        : 1.2;
+    letter-spacing                     : 0.09em;
+    text-transform                     : uppercase;
+    white-space                        : nowrap;
+}
+
 .na-le-spec-sheet__body {
     position                           : relative;
     flex                               : 1 1 auto;

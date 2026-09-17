@@ -1016,6 +1016,26 @@
         Na__ProgressiveRefine__SetActive(Na__RenderLoop__Refiner);            // <-- The Visual Effects panel polls it from here
         let Na__RenderLoop__RefineWakeHandle = null;                         // <-- Pending debounce timer (settle wake-up)
 
+        // CONSTANT | How Long to Leave a Stranded Refinement Before Restarting It
+        // ---------------------------------------------------------------
+        // Comfortably longer than the settle debounce, because this is a safety
+        // net and not a schedule: it must never race the ordinary wake-up and
+        // steal a burst that was about to carry on by itself.
+        // ---------------------------------------------------------------
+        const Na__RenderLoop__STRANDED_RECOVERY_MS = 1000;
+        // ---------------------------------------------------------------
+
+        // STATE | Watching a Refinement Actually Get Somewhere
+        // ---------------------------------------------------------------
+        // Comfortably longer than a chunk. The budget is 100ms and a cold first
+        // chunk on a heavy model measured 260ms, so a count that has not moved
+        // for two and a half seconds is stuck rather than busy.
+        // ---------------------------------------------------------------
+        const Na__RenderLoop__NO_PROGRESS_MS   = 2500;
+        let   Na__RenderLoop__RefineSeenSamples = 0;                         // <-- Sample count at the last look
+        let   Na__RenderLoop__RefineSeenAt      = 0;                         // <-- When it was last seen to change (0: not watching)
+        // ---------------------------------------------------------------
+
         // SUB FUNCTION | Cancel a Pending Refinement Wake-Up
         // ---------------------------------------------------------------
         function Na__RenderLoop__CancelRefineWake() {
@@ -1080,6 +1100,20 @@
         // ---------------------------------------------------------------
 
         function Na__RenderLoop__RenderFrame(deltaMs) {
+            // ENGINE HELD | The third stand-down point, and the one this port was
+            // missing. A Layout Editor sheet or an offscreen snapshot has taken
+            // a hold, which Na__RenderLoop__Invalidation documents as "the loop
+            // keeps running and paints NOTHING". Feeding the hold into sceneBusy
+            // further down stopped the REFINEMENT but not the painting, so a
+            // sheet that owned the screen was still being drawn over frame by
+            // frame. suspend() rather than reset(), because a held engine must
+            // ask for no frames of its own until the holder lets go; Resume()
+            // requests one the moment the last hold clears.
+            if (Na__RenderLoop__IsPaused()) {
+                Na__RenderLoop__Refiner.suspend();
+                return false;                                                // <-- Idle until Resume() asks for a frame
+            }
+
             // 2D DRAWING MODE | A parallel drawing, not a 3D view. A floor plan
             // looking down or an elevation looking sideways - the loop does not
             // need to know which, only that one of them owns the viewport.
@@ -1112,8 +1146,6 @@
                 return Na__RenderLoop__ActiveReasons.size > 0;               // <-- Only pan/zoom keeps frames coming
             }
 
-            let navigationChanged = false;
-
             if (Na__WalkMode__IsActive()) {
                 Na__WalkMode__Update(deltaMs);                               // <-- Update walk mode physics and camera
                 Na__DoorProximity__Update(Na__WalkMode__GetCapsulePosition()); // <-- Proximity door triggers (walk)
@@ -1121,7 +1153,7 @@
                 Na__FlyMode__Update(deltaMs);                                // <-- Update fly mode camera (no gravity / no collision)
                 Na__DoorProximity__Update(Na__FlyMode__GetCameraPosition()); // <-- Proximity door triggers (fly)
             } else {
-                navigationChanged = Na__Navmode__UpdateNavigation() === true; // <-- Update orbit controls only when active
+                Na__Navmode__UpdateNavigation();                              // <-- Update orbit controls only when active
             }
 
             Na__DoorAnimation__Update(deltaMs);                              // <-- Update door animations
@@ -1134,18 +1166,23 @@
                 // ---------------------------------------------------------
                 // sceneBusy is everything that changes the picture WITHOUT
                 // moving the camera, which the stillness test cannot see. A
-                // render hold is in there because a Layout Editor sheet or an
-                // offscreen snapshot has borrowed the engine, and waking it for
-                // a refinement underneath either would be its own bug.
+                // render hold used to be tested here too; it now stands the
+                // refiner down at the top of this function, before any of the
+                // per-frame work, so by the time control reaches this line the
+                // engine is known not to be held.
                 // ---------------------------------------------------------
                 const Na__Refine__SceneBusy = Na__DoorAnimation__HasActiveAnimations()
-                    || Na__RenderLoop__OrbitTrailingFrames > 0
-                    || Na__RenderLoop__IsPaused();
+                    || Na__RenderLoop__OrbitTrailingFrames > 0;
 
+                // NO TIMESTAMP IS PASSED, deliberately. The only one this loop
+                // has is the animation frame's, which is when the frame BEGAN,
+                // and the refiner measures everything else with performance.now().
+                // Handing it the frame clock put its settle test on a different
+                // clock from its own wake-up scheduler, which is what jammed the
+                // refinement part-way. It reads the one clock itself now.
                 const Na__Refine__FrameMode = Na__RenderLoop__Refiner.planFrame({
                     camera    : Na__Camera__Main,
-                    sceneBusy : Na__Refine__SceneBusy,
-                    now       : Na__RenderLoop__PrevTimestamp                 // <-- Already this frame's timestamp (Tick set it)
+                    sceneBusy : Na__Refine__SceneBusy
                 });
 
                 let Na__Refine__DidDraw = false;
@@ -1194,16 +1231,82 @@
                 || Na__RenderLoop__ActiveReasons.size > 0;
         }
 
-        function Na__RenderLoop__Tick(timestamp) {
-            Na__RenderLoop__FrameHandle = null;
-            Na__RenderLoop__CancelRefineWake();                              // <-- A frame is running; any pending wake-up is spent
+        // SUB FUNCTION | Notice a Refinement That Has Stopped Getting Anywhere
+        // ---------------------------------------------------------------
+        // The stranded-burst check below only runs when the refiner asks for
+        // NOTHING, and the clock-mismatch stall did the opposite: it asked for
+        // another frame every time and then refused to use it. A part-finished
+        // total that has not grown for this long is wrong whichever way it got
+        // there, so this watches the count rather than the answer. Restarting
+        // the run is always safe - the worst case is sixteen samples drawn
+        // twice - and the warning means a stall of this shape can never be
+        // silent again.
+        // ---------------------------------------------------------------
+        function Na__RenderLoop__WatchRefineProgress() {
+            const status = Na__RenderLoop__Refiner.getStatus();
 
-            const now     = timestamp || performance.now();                  // <-- Current timestamp
-            const deltaMs = now - Na__RenderLoop__PrevTimestamp;             // <-- Time since last frame
-            Na__RenderLoop__PrevTimestamp = now;                             // <-- Update previous timestamp
+            if (!status.enabled || status.converged || !(status.samplesDone > 0)) {
+                Na__RenderLoop__RefineSeenSamples = status.samplesDone;       // <-- Nothing in flight; keep the marker honest
+                Na__RenderLoop__RefineSeenAt      = 0;
+                return;
+            }
 
-            const keepRendering = Na__RenderLoop__RenderFrame(deltaMs);
-            if (document.hidden) return;
+            const now = performance.now();
+
+            if (status.samplesDone !== Na__RenderLoop__RefineSeenSamples) {   // <-- It moved; the run is healthy
+                Na__RenderLoop__RefineSeenSamples = status.samplesDone;
+                Na__RenderLoop__RefineSeenAt      = now;
+                return;
+            }
+
+            if (Na__RenderLoop__RefineSeenAt === 0) {                         // <-- First sighting at this count
+                Na__RenderLoop__RefineSeenAt = now;
+                return;
+            }
+
+            if ((now - Na__RenderLoop__RefineSeenAt) < Na__RenderLoop__NO_PROGRESS_MS) return;
+
+            // THE ROOT CAUSE IS STILL OPEN, so this says everything needed to
+            // close it: how far it got, what the refiner was asking for while
+            // it sat there, and whether the loop was being held open by
+            // something. A stall that reports itself is a stall that gets fixed.
+            const pending = Na__RenderLoop__Refiner.getPendingWork();
+            console.warn('[TrueVision3D] Progressive refinement stalled at '
+                + status.samplesDone + ' of ' + status.sampleCount + '; restarting the run.',
+                { wanted    : pending.wanted,
+                  delayMs   : pending.delayMs,
+                  fps       : Math.round(status.fps),
+                  readBuffer : (Na__RenderComposer__Main && Na__RenderComposer__Main.readBuffer)
+                      ? Na__RenderComposer__Main.readBuffer.width + 'x' + Na__RenderComposer__Main.readBuffer.height
+                      : null,                                                 // <-- A fractional size here is the buffer-rebuild stall
+                  pixelRatio : Na__Renderer__Main.getPixelRatio(),
+                  dpr        : window.devicePixelRatio,
+                  activeReasons : Array.from(Na__RenderLoop__ActiveReasons),
+                  trailing  : Na__RenderLoop__OrbitTrailingFrames,
+                  held      : Na__RenderLoop__IsPaused(),
+                  hidden    : document.hidden });
+            Na__RenderLoop__RefineSeenSamples = 0;
+            Na__RenderLoop__RefineSeenAt      = 0;
+            Na__RenderLoop__Refiner.reset();                                  // <-- Fresh run; RequestRenderOnce would recurse through here
+            Na__RenderLoop__ScheduleFrame();
+        }
+        // ---------------------------------------------------------------
+
+        // SUB FUNCTION | Arm Whatever Comes After This Frame
+        // ---------------------------------------------------------------
+        // EVERY tick ends here, on every path, which is the whole point of it
+        // being its own function. A burst of refinement only stays alive
+        // because the tick that ends a chunk asks for the next one, so a tick
+        // that returns early - or throws - abandons the burst with no frame
+        // pending and no wake-up armed, and nothing ever comes back for it.
+        // That is what left the Visual Effects readout frozen part-way through
+        // a run, "6 of 16" for ever on a machine fast enough to fit six samples
+        // into the first chunk. Arming is now unconditional.
+        // ---------------------------------------------------------------
+        function Na__RenderLoop__ArmNextFrame(keepRendering) {
+            if (document.hidden) return;                                     // <-- visibilitychange re-arms on the way back
+
+            Na__RenderLoop__WatchRefineProgress();                           // <-- Runs on every path, moving or idle
 
             if (keepRendering) {
                 Na__RenderLoop__ScheduleFrame();                             // <-- Something is still moving
@@ -1218,17 +1321,60 @@
             // loop stops exactly as it always did, with the canvas holding the
             // refined image and the GPU switched off.
             const Na__Refine__Pending = Na__RenderLoop__Refiner.getPendingWork();
-            if (!Na__Refine__Pending.wanted) return;
 
-            if (Na__Refine__Pending.delayMs <= 0) {
-                Na__RenderLoop__ScheduleFrame();                             // <-- Mid-burst: straight back for the next chunk
+            if (Na__Refine__Pending.wanted) {
+                if (Na__Refine__Pending.delayMs <= 0) {
+                    Na__RenderLoop__ScheduleFrame();                         // <-- Mid-burst: straight back for the next chunk
+                    return;
+                }
+                Na__RenderLoop__RefineWakeHandle = window.setTimeout(() => {
+                    Na__RenderLoop__RefineWakeHandle = null;
+                    Na__RenderLoop__ScheduleFrame();                         // <-- Debounce served; begin refining
+                }, Na__Refine__Pending.delayMs);
                 return;
             }
 
+            // STRANDED BURST | Nothing was armed, yet a part-finished total is
+            // on the canvas. Every legitimate stand-down - a 2D sheet, an engine
+            // hold, the tab going away, a camera nudge - throws the total away
+            // as it stands down, so a count between one and fifteen with nothing
+            // scheduled is a state the refiner should never be able to reach.
+            // It costs one wake-up to make it recoverable instead of permanent,
+            // and because a resting app always reads zero or converged, this can
+            // never turn into a loop that wakes itself for ever.
+            const Na__Refine__Status = Na__RenderLoop__Refiner.getStatus();
+            if (!Na__Refine__Status.enabled) return;
+            if (Na__Refine__Status.converged) return;
+            if (!(Na__Refine__Status.samplesDone > 0)) return;
+
             Na__RenderLoop__RefineWakeHandle = window.setTimeout(() => {
                 Na__RenderLoop__RefineWakeHandle = null;
-                Na__RenderLoop__ScheduleFrame();                             // <-- Debounce served; begin refining
-            }, Na__Refine__Pending.delayMs);
+                Na__RenderLoop__RequestRenderOnce();                          // <-- Start the run again rather than leave it half done
+            }, Na__RenderLoop__STRANDED_RECOVERY_MS);
+        }
+        // ---------------------------------------------------------------
+
+        function Na__RenderLoop__Tick(timestamp) {
+            Na__RenderLoop__FrameHandle = null;
+            Na__RenderLoop__CancelRefineWake();                              // <-- A frame is running; any pending wake-up is spent
+
+            const now     = timestamp || performance.now();                  // <-- Current timestamp
+            const deltaMs = now - Na__RenderLoop__PrevTimestamp;             // <-- Time since last frame
+            Na__RenderLoop__PrevTimestamp = now;                             // <-- Update previous timestamp
+
+            // A THROWN FRAME MUST NOT STOP THE LOOP. Without this, one bad frame
+            // - a pass with no buffer, a model swapped mid-render - takes the
+            // whole render loop with it: the tick unwinds before it can ask for
+            // another, and the viewport freezes until something else happens to
+            // request a redraw. The error is still reported, once per frame.
+            let keepRendering = false;
+            try {
+                keepRendering = Na__RenderLoop__RenderFrame(deltaMs);
+            } catch (error) {
+                console.error('[TrueVision3D] Render frame failed; the loop carries on:', error);
+            } finally {
+                Na__RenderLoop__ArmNextFrame(keepRendering);
+            }
         }
 
         window.addEventListener(NA__REQUEST_RENDER_EVENT, Na__RenderLoop__RequestRenderOnce);

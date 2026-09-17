@@ -94,6 +94,8 @@
     const Na__LeSpec__K_DIGITS      = 'ProjectSpecification__NumberDigits';
     const Na__LeSpec__K_LAST_ID     = 'ProjectSpecification__LastIdNumber';
     const Na__LeSpec__K_GROUPS      = 'ProjectSpecification__Groups';
+    const Na__LeSpec__K_REVISION    = 'ProjectSpecification__Revision';           // <-- The issued revision, printed on the document and in the file name
+    const Na__LeSpec__K_DOCNUMBER   = 'ProjectSpecification__DocumentNumber';     // <-- The document's own number, the way each sheet carries a Drawing No.
     const Na__LeSpec__DESCRIPTION   = 'Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.';
     // ------------------------------------------------------------
 
@@ -242,6 +244,8 @@
         Na__LeSpec__K_DIGITS,
         Na__LeSpec__K_LAST_ID,
         Na__LeSpec__K_GROUPS,
+        Na__LeSpec__K_REVISION,
+        Na__LeSpec__K_DOCNUMBER,
         Na__LeSpec__DESCRIPTION,
         Na__LeSpec__Doc,
         Na__LeSpec__Index,

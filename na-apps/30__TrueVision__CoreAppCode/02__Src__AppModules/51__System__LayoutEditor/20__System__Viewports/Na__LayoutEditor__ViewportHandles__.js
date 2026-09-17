@@ -203,7 +203,7 @@
             handle.style.top    = ((anchor.y * ppm) - (sizePx / 2)) + 'px';
             handle.style.width  = sizePx + 'px';
             handle.style.height = sizePx + 'px';
-            handle.style.borderWidth = Math.max(1, 1 / zoom) + 'px';
+            handle.style.borderWidth = (1 / (zoom > 0 ? zoom : 1)) + 'px';   // <-- One screen pixel: a Math.max(1, ...) floor here is paper pixels, which fattens the edge as you zoom in
             layer.appendChild(handle);
         });
     }

@@ -45,6 +45,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.8.0
+// - BuildFrame stopped truncating captions the box was built to hold. It sized the
+//   box as textMm + pad*2 and then asked FitText about boxW - pad*2, and that
+//   round-trip can land femtometres under textMm in floating point, so the <= failed
+//   by a hair and ate the scale off the end. FitText is given textMm itself now.
+// - FitCaptionFont: a frame genuinely narrower than its caption sets the type smaller
+//   down to Style FrameLabelMinFontMm rather than truncating, since the caption is an
+//   inset label and cannot grow past the frame it sits in.
+//
 // 14-Sep-2026 - Version 1.7.0
 // - PDF text (and the throwaway document that measures it) selects the
 //   embedded Open Sans cut for the run's weight, so Download PDF prints
@@ -354,6 +363,43 @@
 // REGION | Sheet Chrome Assembly
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | The Caption Font That Fits a Frame, Down to the Floor
+    // ------------------------------------------------------------
+    // A viewport caption is an inset label: it sits inside the frame's bottom-left
+    // corner, over the drawing, so it cannot be let grow past the frame the way a
+    // caption hung beneath one could. A narrow frame - a tall thin elevation, a
+    // cropped detail - therefore used to truncate its caption, and a scale chopped
+    // to "1:12..." is worse than no scale at all, because it reads as a number.
+    //
+    // So the type is set smaller instead, down to FrameLabelMinFontMm, and only a
+    // caption that will not fit even at that size is truncated. jsPDF's width is
+    // linear in font size and the tracking is a fixed millimetre per character
+    // whatever the size, so the size that just fits solves in one step:
+    //     glyphs(f) = glyphs(f0) x f / f0,  width(f) = glyphs(f) + track x length
+    // The result is verified by measurement rather than trusted, and stepped down
+    // in tenths if the arithmetic lands a hair over.
+    // ------------------------------------------------------------
+    function Na__LeChrome__FitCaptionFont(caption, style, trackingMm, roomMm) {
+        const base   = style.frameLabelFontMm;
+        const weight = style.frameLabelWeight;
+        const floor  = Math.min(base, style.frameLabelMinFontMm);
+        if (!(roomMm > 0)) return base;
+        if (Na__LeChrome__MeasureTextMm(caption, base, weight, trackingMm) <= roomMm) return base;
+
+        const length = String(caption || '').length;
+        const track  = (typeof trackingMm === 'number' && trackingMm > 0) ? trackingMm * length : 0;
+        const glyphs = Na__LeChrome__MeasureTextMm(caption, base, weight, trackingMm) - track;
+        if (!(glyphs > 0)) return base;
+
+        let size = Math.min(base, base * ((roomMm - track) / glyphs));
+        if (!Number.isFinite(size) || size <= floor) return floor;                  // <-- Even the floor may not fit; FitText truncates then, as a last resort
+        size = Math.floor(size * 100) / 100;                                        // <-- Down to the hundredth of a millimetre, never up
+        while (size > floor && Na__LeChrome__MeasureTextMm(caption, size, weight, trackingMm) > roomMm) size -= 0.1;
+        return Math.max(floor, size);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Build the Border and Caption of One Viewport Frame
     // ------------------------------------------------------------
     function Na__LeChrome__BuildFrame(list, sheet, viewport, style) {
@@ -372,19 +418,32 @@
             : '');
         if (style.frameLabelUppercase) caption = caption.toUpperCase();
 
-        const fontMm  = style.frameLabelFontMm;
         const weight  = style.frameLabelWeight;
         const track   = style.frameLabelTrackingMm;
         const pad     = style.cellPaddingMm;
-        const textMm  = Na__LeChrome__MeasureTextMm(caption, fontMm, weight, track);
-        const boxW    = Math.min(frame.WidthMm, textMm + (pad * 2));
         const boxH    = style.frameLabelHeightMm;
         const boxY    = frame.Y + frame.HeightMm - boxH;
+        const roomMm  = Math.max(0, frame.WidthMm - (pad * 2));                     // <-- The caption is an INSET label, so the frame is its hard limit
+
+        const fontMm  = Na__LeChrome__FitCaptionFont(caption, style, track, roomMm);
+        const textMm  = Na__LeChrome__MeasureTextMm(caption, fontMm, weight, track);
+        const boxW    = Math.min(frame.WidthMm, textMm + (pad * 2));
+
+        // THE TEXT IS GIVEN THE WIDTH THAT WAS MEASURED, NOT THAT WIDTH REBUILT.
+        // The box is sized FOR this caption, so handing FitText boxW - (pad * 2)
+        // asks it whether the text fits a width derived by adding the padding on
+        // and taking it straight back off - and in binary floating point
+        // (textMm + 3.8) - 3.8 can land a few femtometres UNDER textMm. FitText's
+        // <= then fails by that hair and chops two characters off a caption the
+        // box was built to hold whole: "LOCATION PLAN 1:1250" printed as
+        // "LOCATION PLAN 1:12..." with 10 mm of clear white after it. Passing
+        // textMm itself makes that test textMm <= textMm, which is exact.
+        const drawMm  = Math.min(textMm, roomMm);
 
         Na__LeChrome__PushRect(list, frame.X, boxY, boxW, boxH, style.frameLineColour, style.frameStrokeMm, style.paperColour);
         Na__LeChrome__PushText(list, {
             X : frame.X + pad, BaselineY : Na__LeChrome__BaselineCentred(boxY, boxH, fontMm),
-            Text : Na__LeChrome__FitText(caption, fontMm, weight, boxW - (pad * 2), track),
+            Text : Na__LeChrome__FitText(caption, fontMm, weight, drawMm, track),
             FontMm : fontMm, Weight : weight, Colour : style.inkColour, Align : 'left', TrackingMm : track
         });
     }

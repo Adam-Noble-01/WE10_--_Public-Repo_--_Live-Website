@@ -49,6 +49,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.1.0
+// - TOOL_MOVE. SetTool keeps an open container for the two tools that edit what
+//   is already on the sheet (PICK_TOOLS: Select and Move) and closes it for
+//   every tool that places something new. ToolCursor gives Move the four-way
+//   arrow. An unknown tool name still falls back to Select, which is the one
+//   resting state.
+//
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetTools__.js; the code moved verbatim.
 //
@@ -81,12 +89,15 @@
     import { Na__LeAxis__Clear } from './Na__LayoutEditor__AxisLock__.js';
     import { Na__LeVpMove__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeSelBox__Cancel } from './Na__LayoutEditor__SelectionBox__.js';
+    import { Na__LeScope__Clear, Na__LeScope__IsActive } from './Na__LayoutEditor__EditScope__.js';
+    import { Na__LeGrips__MOVE_CURSOR } from './Na__LayoutEditor__Grips__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Sheet Tools State
     // ------------------------------------------------------------
     import {
         Na__LeTools__TOOL_SELECT,
+        Na__LeTools__TOOL_MOVE,
         Na__LeTools__TOOL_TEXT,
         Na__LeTools__TOOL_DIMENSION,
         Na__LeTools__TOOL_DRAW,
@@ -94,10 +105,13 @@
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__TOOLS,
+        Na__LeTools__PICK_TOOLS,
         Na__LeTools__CHANGED_EVENT,
         Na__LeTools__DEFAULTS_EVENT,
         Na__LeTools__Stage,
-        Na__LeTools__Editable
+        Na__LeTools__Editable,
+        Na__LeTools__WriteVertexRetype,
+        Na__LeTools__WriteDimEndRetype
     } from './Na__LayoutEditor__SheetTools__State__.js';
     // ------------------------------------------------------------
 
@@ -185,6 +199,8 @@
         Na__LeLeader__Cancel(sheet);
         Na__LeDrop__Clear();
         Na__LeAxis__Clear();
+        Na__LeTools__WriteVertexRetype(null);                                // <-- A vertex a typed length could still be retyped for stops being one
+        Na__LeTools__WriteDimEndRetype(null);                                // <-- And a dimension whose span could still be retyped
         Na__LeVpMove__Clear();                                               // <-- Tracking points and the carry marker go with the tool
         Na__LeSelBox__Cancel();                                              // <-- So does a selection box being dragged out
         Na__LeMeasure__Clear();                                              // <-- And a value half typed into the Measurements box
@@ -194,10 +210,17 @@
 
     // FUNCTION | The Active Tool
     // ------------------------------------------------------------
+    // AN OPEN CONTAINER BELONGS TO THE TOOLS THAT EDIT WHAT IS ALREADY THERE.
+    // Select and Move keep it open - stepping into a vector and then moving its
+    // vertices is one piece of work - and every other tool closes it, because a
+    // tool that PLACES something is starting new work on the sheet itself. So
+    // is putting the tools down: Escape leaves no container open.
+    // ------------------------------------------------------------
     function Na__LeTools__SetTool(tool) {
         const next = Na__LeTools__TOOLS.indexOf(tool) === -1 ? Na__LeTools__TOOL_SELECT : tool;
         if (!Na__LeTools__Editable && next !== Na__LeTools__TOOL_SELECT) return Na__LeTools__Tool;
         Na__LeTools__CancelPlacement();
+        if (Na__LeTools__PICK_TOOLS.indexOf(next) === -1 && Na__LeScope__IsActive()) Na__LeScope__Clear();
         Na__LeTools__Tool = next;
         if (next === Na__LeTools__TOOL_DRAW || next === Na__LeTools__TOOL_RECT) Na__LeTools__LastVectorTool = next;
         if (Na__LeTools__Stage) Na__LeTools__Stage.style.cursor = Na__LeTools__ToolCursor(next);
@@ -215,9 +238,15 @@
     // lands here", and the eyedropper never places anything. It carries the
     // copy cursor from the moment it is armed, and the hover pass sharpens
     // that to apply or refuse once there is something under the pointer.
+    //
+    // The Move tool carries the four-way arrow the whole time it is up, armed
+    // or over bare paper alike, so there is never a doubt about whether a drag
+    // is about to move something. Select, the resting state, shows the plain
+    // arrow the stage already has.
     // ------------------------------------------------------------
     function Na__LeTools__ToolCursor(tool) {
         if (tool === Na__LeTools__TOOL_SELECT)  return '';
+        if (tool === Na__LeTools__TOOL_MOVE)    return Na__LeGrips__MOVE_CURSOR;
         if (tool === Na__LeTools__TOOL_EYEDROP) return Na__LeCfg__GetEyedropperSetup().cursor;
         return 'crosshair';
     }

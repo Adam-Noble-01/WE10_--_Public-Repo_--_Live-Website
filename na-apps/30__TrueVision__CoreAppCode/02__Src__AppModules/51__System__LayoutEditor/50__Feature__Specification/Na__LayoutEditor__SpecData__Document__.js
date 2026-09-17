@@ -68,6 +68,8 @@
         Na__LeSpec__K_DIGITS,
         Na__LeSpec__K_LAST_ID,
         Na__LeSpec__K_GROUPS,
+        Na__LeSpec__K_REVISION,
+        Na__LeSpec__K_DOCNUMBER,
         Na__LeSpec__DESCRIPTION,
         Na__LeSpec__Doc,
         Na__LeSpec__Index,
@@ -79,6 +81,7 @@
         Na__LeSpec__Syncing,
         Na__LeSpec__LastSyncIso,
         Na__LeSpec__Editable,
+        Na__LeSpec__ProjectCode,
         Na__LeSpec__SetIndex,
         Na__LeSpec__CleanPrefix,
         Na__LeSpec__IdNumber,
@@ -104,6 +107,8 @@
         doc[Na__LeSpec__K_UPDATED]     = null;
         doc[Na__LeSpec__K_DIGITS]      = Na__LeCfg__GetSpecificationSetup().numberDigits;
         doc[Na__LeSpec__K_LAST_ID]     = 0;
+        doc[Na__LeSpec__K_REVISION]    = Na__LeCfg__GetSpecificationSetup().defaultRevision;
+        doc[Na__LeSpec__K_DOCNUMBER]   = '';                                      // <-- Blank means "follow the project code"; DocumentNumber() decides
         doc[Na__LeSpec__K_GROUPS]      = [];
         return doc;
     }
@@ -139,6 +144,13 @@
         doc[Na__LeSpec__K_DIGITS]  = (Number.isFinite(digits) && digits >= 1 && digits <= 4) ? Math.round(digits) : setup.numberDigits;
         doc[Na__LeSpec__K_UPDATED] = typeof source[Na__LeSpec__K_UPDATED] === 'string' ? source[Na__LeSpec__K_UPDATED] : null;
         doc[Na__LeSpec__K_PROJECT] = typeof source[Na__LeSpec__K_PROJECT] === 'string' ? source[Na__LeSpec__K_PROJECT] : null;
+
+        // REVISION AND DOCUMENT NUMBER. A specification written before these existed
+        // has neither, and opens at the configured revision rather than at nothing:
+        // a document that is issued has a revision even if nobody has typed one yet.
+        const revision = source[Na__LeSpec__K_REVISION];
+        doc[Na__LeSpec__K_REVISION]  = (typeof revision === 'string' && revision.trim() !== '') ? revision.trim() : setup.defaultRevision;
+        doc[Na__LeSpec__K_DOCNUMBER] = typeof source[Na__LeSpec__K_DOCNUMBER] === 'string' ? source[Na__LeSpec__K_DOCNUMBER].trim() : '';
 
         const groups = Array.isArray(source[Na__LeSpec__K_GROUPS]) ? source[Na__LeSpec__K_GROUPS].filter((g) => g && typeof g === 'object') : [];
         let highest = Number.isFinite(source[Na__LeSpec__K_LAST_ID]) ? Math.max(0, Math.round(source[Na__LeSpec__K_LAST_ID])) : 0;
@@ -182,10 +194,36 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | The Issued Revision, and the Number the Document Carries
+    // ------------------------------------------------------------
+    // Both are answered before the document has loaded, because the bar and the
+    // reading page ask for them on their first paint: the revision falls back to
+    // the configured default, and the number to the project code with the
+    // configured suffix, which is what an untouched specification is called.
+    // ------------------------------------------------------------
+    function Na__LeSpec__GetRevision() {
+        const setup = Na__LeCfg__GetSpecificationSetup();
+        const value = Na__LeSpec__Doc ? Na__LeSpec__Doc[Na__LeSpec__K_REVISION] : null;
+        return (typeof value === 'string' && value.trim() !== '') ? value.trim() : setup.defaultRevision;
+    }
+
+    function Na__LeSpec__GetDocumentNumber(projectCode) {
+        const setup = Na__LeCfg__GetSpecificationSetup();
+        const value = Na__LeSpec__Doc ? Na__LeSpec__Doc[Na__LeSpec__K_DOCNUMBER] : null;
+        if (typeof value === 'string' && value.trim() !== '') return value.trim();
+        const code = String(projectCode || Na__LeSpec__ProjectCode || '').trim();
+        return code === '' ? setup.documentNumberSuffix : code + setup.documentNumberSuffix;   // <-- PS01 gives PS01_SPEC; type PS01_T02_SPEC over it to match the sheets
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | The Part of a Document That Counts as Its Content
     // ------------------------------------------------------------
+    // The revision and the document number are CONTENT, not bookkeeping: changing
+    // either has to mark the document unsynced, or Sync stays off and the issued
+    // revision never reaches the cloud copy the next person reads.
     function Na__LeSpec__ContentJson(doc) {
-        return doc ? JSON.stringify([ doc[Na__LeSpec__K_DIGITS], doc[Na__LeSpec__K_GROUPS] ]) : '';
+        return doc ? JSON.stringify([ doc[Na__LeSpec__K_DIGITS], doc[Na__LeSpec__K_REVISION], doc[Na__LeSpec__K_DOCNUMBER], doc[Na__LeSpec__K_GROUPS] ]) : '';
     }
     // ------------------------------------------------------------
 
@@ -371,6 +409,8 @@
     // MODULE EXPORTS | Specification Data Document: Normalisation, Codes, the Index and Reading
     // ------------------------------------------------------------
     export {
+        Na__LeSpec__GetRevision,
+        Na__LeSpec__GetDocumentNumber,
         Na__LeSpec__Skeleton,
         Na__LeSpec__Renumber,
         Na__LeSpec__Normalise,

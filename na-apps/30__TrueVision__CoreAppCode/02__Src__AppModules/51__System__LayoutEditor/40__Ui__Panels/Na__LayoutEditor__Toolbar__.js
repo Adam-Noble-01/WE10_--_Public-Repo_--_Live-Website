@@ -29,6 +29,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.11.0
+// - The Move button (M), beside Select, and a tooltip on Select that says a
+//   drag no longer moves anything.
+// - The state hint: which container is open and how to leave it. It is
+//   invisible otherwise, and a faded sheet reads as a broken editor.
+//
+//
 // 14-Sep-2026 - Version 1.10.0
 // - Save Sheets finishes with one toast that says where the sheets went (R2 and
 //   locally) and, when the specification was synced too, says that as well,
@@ -79,12 +86,13 @@
 
     // MODULE IMPORTS | Config, Model, Tools, Navigation, Surface, PDF
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__IsDirty, Na__LeModel__Save, Na__LeModel__UpdateMarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeRec__MarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__IsDirty, Na__LeSpec__GetState, Na__LeSpec__Sync } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     import {
         Na__LeTools__TOOL_SELECT,
+        Na__LeTools__TOOL_MOVE,
         Na__LeTools__TOOL_TEXT,
         Na__LeTools__TOOL_DIMENSION,
         Na__LeTools__TOOL_DRAW,
@@ -98,6 +106,7 @@
         Na__LeTools__ArmPalette
     } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LeDrop__CHANGED_EVENT, Na__LeDrop__GetHint } from '../30__System__SheetTools/Na__LayoutEditor__Eyedropper__.js';
+    import { Na__LeScope__CHANGED_EVENT, Na__LeScope__Get, Na__LeScope__GetVectorId, Na__LeScope__GetDimensionId } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
     import { Na__LeNav__Fit, Na__LeNav__ZoomTo } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
     import { Na__LeOsnap__CHANGED_EVENT, Na__LeOsnap__IsEnabled, Na__LeOsnap__Toggle } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
     import { Na__LeHist__CHANGED_EVENT, Na__LeHist__CanUndo, Na__LeHist__CanRedo, Na__LeHist__Undo, Na__LeHist__Redo } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
@@ -173,6 +182,22 @@
             hint.hidden = !armed;
             if (armed) { hint.textContent = Na__LeDrop__GetHint(); hint.title = hint.textContent; }
         }
+        // WHICH CONTAINER IS OPEN, IN WORDS. It is invisible otherwise, and
+        // "the sheet has faded and only this one thing answers a press" reads as
+        // the editor being broken unless something says so.
+        // ------------------------------------
+        const scope = Na__LeToolbar__Root.querySelector('[data-na-toolbar="scope-hint"]');
+        if (scope) {
+            const open  = Na__LeScope__Get();
+            const where = Na__LeScope__GetVectorId() ? Na__LeCfg__GetLabel('ScopeVector', 'Editing vector')
+                        : (Na__LeScope__GetDimensionId() ? Na__LeCfg__GetLabel('ScopeDimension', 'Editing dimension')
+                        : Na__LeCfg__GetLabel('ScopeGroup', 'Inside group'));
+            const text  = open ? Na__LeCfg__FormatLabel('ScopeHint', '{where} - click outside to close, Esc to stop', { where : where }) : '';
+            scope.hidden      = !text;
+            scope.textContent = text;
+            scope.title       = text;
+            scope.classList.toggle('na-le-toolbar__hint--scope', !!open);
+        }
         const zoom = Na__LeToolbar__Root.querySelector('[data-na-toolbar="zoom"]');
         if (zoom) zoom.textContent = Math.round(Na__LeSurface__GetZoom() * 100) + '%';
         const sheet = Na__LeModel__GetActiveSheet();
@@ -244,7 +269,10 @@
         root.appendChild(Na__LeToolbar__Gap());
 
         if (Na__LeToolbar__Editable) {
-            [ [ Na__LeTools__TOOL_SELECT, Na__LeCfg__GetLabel('ToolSelect', 'Select'), 'Select and move (V)' ],
+            [ [ Na__LeTools__TOOL_SELECT, Na__LeCfg__GetLabel('ToolSelect', 'Select'),
+                  Na__LeCfg__GetLabel('ToolSelectTitle', 'Select (V or space): click to pick, drag from bare paper to box-select. Double-click a group, a vector or a dimension to edit inside it. Press M to move things.') ],
+              [ Na__LeTools__TOOL_MOVE, Na__LeCfg__GetLabel('ToolMove', 'Move'),
+                  Na__LeCfg__GetLabel('ToolMoveTitle', 'Move tool (M): drag to move whatever is under the pointer. With the Select tool a drag moves nothing, so nothing is shifted by accident; Escape puts every tool down.') ],
               [ Na__LeTools__TOOL_TEXT, Na__LeCfg__GetLabel('ToolText', 'Text'), 'Place text (T)' ],
               [ Na__LeTools__TOOL_LEADER, Na__LeCfg__GetLabel('ToolLeader', 'Leader'), Na__LeCfg__GetLabel('ToolLeaderTitle', 'Place a leader (E): click the point it marks, then where its note or bubble goes - or drag from one to the other.') ],
               [ Na__LeTools__TOOL_DIMENSION, Na__LeCfg__GetLabel('ToolDimension', 'Dimension'), Na__LeCfg__GetLabel('ToolDimensionTitle', 'Place a dimension in three clicks (D): start, end, then where the line sits. Hold Shift while placing the line for a horizontal or vertical dimension.') ],
@@ -277,6 +305,15 @@
             hint.setAttribute('data-na-toolbar', 'dropper-hint');
             hint.hidden = true;
             root.appendChild(hint);
+
+            // THE CONTAINER AND NO-TOOL HINT | Beside the dropper's, for the
+            // same reason: it belongs where the tool buttons are.
+            // ------------------------------------
+            const scopeHint = document.createElement('span');
+            scopeHint.className = 'na-le-toolbar__hint';
+            scopeHint.setAttribute('data-na-toolbar', 'scope-hint');
+            scopeHint.hidden = true;
+            root.appendChild(scopeHint);
 
             root.appendChild(Na__LeToolbar__Gap());
             root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('Undo', 'Undo'), 'undo', 'Undo the last change to this sheet (Ctrl+Z)', () => Na__LeHist__Undo()));
@@ -321,7 +358,7 @@
         container.appendChild(root);
         Na__LeToolbar__Root = root;
         Na__LeToolbar__Listeners = () => Na__LeToolbar__Sync();
-        [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
+        [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
         Na__LeToolbar__Sync();
         return true;
     }
@@ -332,7 +369,7 @@
     // ------------------------------------------------------------
     function Na__LeToolbar__Unmount() {
         if (Na__LeToolbar__Listeners) {
-            [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
+            [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
         }
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
         Na__LeToolbar__Root = Na__LeToolbar__Listeners = null;

@@ -14,9 +14,11 @@
 //   every key (IsTextEntry); a select, a checkbox or a number box keeps its
 //   bare keys, but a Ctrl chord (SHEET_CHORDS) still reaches the sheet.
 //   Escape backs out one step at a time (and clears the viewport snap move's
-//   tracking points), Space clears, Enter finishes a polyline or content
-//   editing, Delete removes, the arrows nudge the selection or lock the
-//   drawing axis (AxisKey), the tool keys pick a tool or arm the eyedropper,
+//   tracking points), Space puts Select up and then down again
+//   (Tool__Select, which the space bar and V both run), Enter finishes a polyline or content
+//   editing, Delete removes, the arrows nudge the selection or lock the axis
+//   a point is being placed on or a vertex dragged along (AxisKey), the tool
+//   keys pick a tool or arm the eyedropper,
 //   the snap key toggles snapping, Ctrl+Z and Ctrl+Y step the history (or a
 //   polyline's vertices), and Ctrl+C, Ctrl+V, Ctrl+D, Ctrl+G and
 //   Ctrl+Shift+G run the clipboard and groups.
@@ -44,6 +46,51 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.6.0
+// - AxisKey also locks the axis of a WHOLE-OBJECT MOVE, so the Move tool's drag
+//   constrains to X or Y on the arrow keys exactly as a vertex drag does - and
+//   the Measurements box takes a typed distance for it.
+//
+//
+// 17-Sep-2026 - Version 1.5.0
+// - INSIDE A CONTAINER THE ARROW KEYS NEVER MOVE ANYTHING. The nudge reached
+//   the whole open vector or dimension, so an arrow pressed between drags
+//   walked the object being edited - and the axis lock, which is what the
+//   arrows mean in there, then read as broken because the shape had already
+//   shifted. The key is swallowed in a container instead: the lock still takes
+//   it mid-drag, nothing moves otherwise, and the page cannot scroll.
+//
+//
+// 17-Sep-2026 - Version 1.4.0
+// - ESCAPE IS ONE KEY WITH ONE MEANING: STOP. It was a ladder - a press to
+//   abandon the placement, another to clear the selection, another to put the
+//   tool down - so the number of presses needed depended on state nobody was
+//   tracking. One press now abandons whatever is half done, closes every open
+//   container, drops the selection and leaves NO TOOL armed, from anywhere.
+// - Enter finishes, or steps inside: with one vector, dimension or group
+//   selected and nothing in flight it opens it, the keyboard's double click.
+// - Delete inside a vector deletes the picked points (DeleteVertices), never
+//   cutting it below the two that still draw.
+// - Tool__Move (M) picks up the Move tool.
+// - SELECT IS THE ONE RESTING STATE. Escape comes back to it, and the space bar
+//   (Tool__SelectToggle, 1.2.0) simply arms it rather than toggling it off: a
+//   tool-less state meant a press did nothing and the browser took the click.
+//   Both keys are taken from the browser, and a held key only counts once.
+//
+//
+// 17-Sep-2026 - Version 1.3.0
+// - AxisKey also locks the axis of a dimension end being dragged.
+//
+// 17-Sep-2026 - Version 1.2.0
+// - Tool__SelectToggle: the space bar picks Select up and, pressed again, puts
+//   it down, and is always taken from the browser so the page cannot scroll or
+//   zoom under the sheet.
+//
+// 17-Sep-2026 - Version 1.1.0
+// - AxisKey also locks the axis of a vertex drag, so a vector's vertex is
+//   constrained with a key rather than a held Shift and the length can then
+//   be typed into the Measurements box.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetTools__.js; the code moved verbatim.
 //
@@ -92,6 +139,16 @@
     // @delegate: ../15__Core__Markup/Na__LayoutEditor__Groups__.js
     // @delegate: ./Na__LayoutEditor__ItemClipboard__.js
     import { Na__LeSelBox__Cancel, Na__LeSelBox__IsActive } from './Na__LayoutEditor__SelectionBox__.js';
+    import {
+        Na__LeScope__IsActive,
+        Na__LeScope__IsLeafOpen,
+        Na__LeScope__IsVectorEdit,
+        Na__LeScope__GetVectorId,
+        Na__LeScope__GetVertices,
+        Na__LeScope__ClearVertices,
+        Na__LeScope__Clear
+    } from './Na__LayoutEditor__EditScope__.js';
+    import { Na__LeTools__EnterScope } from './Na__LayoutEditor__SheetTools__PointerPress__.js';
     import { Na__LeSelSet__Nudge, Na__LeSelSet__Delete } from './Na__LayoutEditor__SelectionSet__.js';
     import { Na__LeHist__Undo, Na__LeHist__Redo } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
@@ -101,6 +158,7 @@
     // ------------------------------------------------------------
     import {
         Na__LeTools__TOOL_SELECT,
+        Na__LeTools__TOOL_MOVE,
         Na__LeTools__TOOL_TEXT,
         Na__LeTools__TOOL_DIMENSION,
         Na__LeTools__TOOL_DRAW,
@@ -121,6 +179,7 @@
         Na__LeTools__ArmPalette
     } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import { Na__LeTools__RefreshShapeInsert, Na__LeTools__Record, Na__LeTools__IsViewportLocked } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
+    import { Na__LeTools__IsVertexDrag, Na__LeTools__RerunVertexDrag, Na__LeTools__IsDimEndDrag, Na__LeTools__RerunDimEndDrag, Na__LeTools__IsMoveDrag, Na__LeTools__RerunMoveDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
     import { Na__LeTools__SetEditingViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
     // ------------------------------------------------------------
 
@@ -151,6 +210,29 @@
             confirmLabel : Na__LeCfg__GetLabel('DeleteLabel', 'Delete'), isDestructive : true
         });
         return ok ? Na__LeModel__DeleteViewport(sheet, selection.id) : false;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Delete the Points Picked Inside the Open Vector
+    // ------------------------------------------------------------
+    // Inside a vector, Delete means the points - the only thing in there to
+    // delete. A vector is never cut below two points, which is the least that
+    // still draws; taking the last points out is deleting the vector itself,
+    // and that is done from outside it.
+    // ------------------------------------------------------------
+    function Na__LeTools__DeleteVertices() {
+        const sheet   = Na__LeModel__GetActiveSheet();
+        const shapeId = Na__LeScope__GetVectorId();
+        const picked  = Na__LeScope__GetVertices();
+        if (!sheet || !shapeId || !picked.length || !Na__LeTools__Editable) return false;
+        const shape = Na__LeTools__Record(sheet, { kind : 'shape', id : shapeId });
+        if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
+        const points = Na__LeShapeGeo__Points(shape);
+        const kept   = points.filter((point, index) => picked.indexOf(index) === -1).map((point) => [ point[0], point[1] ]);
+        if (kept.length < 2 || kept.length === points.length) return false;   // <-- Two points is the least that still draws
+        Na__LeScope__ClearVertices();
+        return Na__LeModel__UpdateShape(sheet, shapeId, { points : kept }, false);
     }
     // ------------------------------------------------------------
 
@@ -187,18 +269,29 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | An Arrow Key Locks the Axis While a Tool Is Placing
+    // HELPER FUNCTION | An Arrow Key Locks the Axis While a Point Is Being Placed or a Vertex Dragged
     // ------------------------------------------------------------
     // Left and right lock the X axis, up and down the Y, as in SketchUp
     // LayOut; the same key again releases it. The lock belongs to the
     // segment being drawn and the tool spends it the moment the point
-    // lands. Returns false when nothing is being placed, which leaves the
-    // arrow keys nudging the selection as before. A rectangle being drawn
-    // swallows them instead: its edges are square to the paper already, and
-    // nudging the previous selection out from under it would be a surprise.
+    // lands. Returns false when nothing is being placed or dragged, which
+    // leaves the arrow keys nudging the selection as before. A rectangle
+    // being drawn swallows them instead: its edges are square to the paper
+    // already, and nudging the previous selection out from under it would be
+    // a surprise.
+    //
+    // A VERTEX OF A FINISHED VECTOR TAKES THE SAME KEYS, for the same reason
+    // the keys exist at all. Shift holds a vertex drag to an axis too, but it
+    // has to be let go of to reach the number keys, and the constraint goes
+    // with it - so the length lands along whatever direction the raw cursor
+    // happened to be pointing. An arrow key holds the axis with nothing held
+    // down, which is what makes typing the dimension afterwards worth doing.
     // ------------------------------------------------------------
     function Na__LeTools__AxisKey(axis, shift) {
         if (!Na__LeTools__Editable) return false;
+        if (Na__LeTools__IsVertexDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunVertexDrag(); return true; }   // <-- Redrawn at once: the band takes the axis's colour and the box the axis's length
+        if (Na__LeTools__IsMoveDrag())   { Na__LeAxis__Toggle(axis); Na__LeTools__RerunMoveDrag();   return true; }   // <-- A whole object held by the Move tool locks to an axis the same way
+        if (Na__LeTools__IsDimEndDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunDimEndDrag(); return true; }   // <-- A measured point holds an axis the same way a vertex does
         if (Na__LeRect__IsDrawing() || Na__LeLeader__IsPlacing()) return true;   // <-- Nothing to lock, and nudging the old selection mid-placement would surprise
         const drawing  = Na__LeShape__IsDrawing();
         const spanning = Na__LeDim__IsSpanning();                            // <-- Only the span phase: the offset phase has no axis to lock
@@ -298,41 +391,96 @@
         const sheet = Na__LeModel__GetActiveSheet();
 
         switch (match.action) {
+            // ESCAPE IS ONE KEY WITH ONE MEANING: STOP, AND GO BACK TO SELECT.
+            // It used to be a ladder
+            // - a press to abandon the placement, another to clear the
+            // selection, another to put the tool down - which meant the number
+            // of presses needed depended on state nobody was tracking, and the
+            // press after the last one did something else again. Now a single
+            // press abandons whatever is half done, closes any container that
+            // is open, drops the selection and leaves NO TOOL armed, from
+            // anywhere, every time. V or the space bar picks Select back up.
+            // Clicking outside a container is the gentle way out of one; this
+            // is the one that always works.
+            // ------------------------------------
             case 'Edit__Cancel':
                 Na__LeVpMove__Clear();                                                    // <-- Tracking points go, whatever else Esc backs out of
-                if (Na__LeSelBox__IsActive()) Na__LeSelBox__Cancel();                     // <-- A selection box being dragged out goes first, and on its own
-                else if (Na__LeDim__IsPlacing() || Na__LeShape__IsDrawing() || Na__LeRect__IsDrawing() || Na__LeLeader__IsPlacing()) Na__LeTools__CancelPlacement();
-                else if (Na__LeDrop__HasSource()) Na__LeDrop__Clear();                    // <-- First Esc empties the dropper, second puts the tool down
-                else if (Na__LeSurface__GetEditingViewport()) Na__LeTools__SetEditingViewport(null);
-                else if (Na__LeModel__GetSelectionItems().length) Na__LeModel__SetSelection(null);
-                else Na__LeTools__SetTool(Na__LeTools__TOOL_SELECT);
+                Na__LeSelBox__Cancel();
+                Na__LeTools__CancelPlacement();                                           // <-- Placement, eyedropper, axis lock and a half-typed value
+                Na__LeDrop__Clear();
+                if (Na__LeSurface__GetEditingViewport()) Na__LeTools__SetEditingViewport(null);
+                Na__LeScope__Clear();                                                     // <-- Out of every container, however deep
+                Na__LeModel__SetSelection(null);
+                Na__LeTools__SetTool(Na__LeTools__TOOL_SELECT);          // <-- Select is the resting state: never leave the sheet with nothing armed
                 event.preventDefault(); return;
-            case 'Edit__Deselect':                                                   // <-- Space: a clean slate, whatever was going on
+            case 'Edit__Deselect':                                                   // <-- A clean slate, whatever was going on (unbound by default since the space bar became Select)
                 event.preventDefault();
+                Na__LeScope__Clear();
                 Na__LeTools__CancelPlacement();
                 if (Na__LeSurface__GetEditingViewport()) Na__LeTools__SetEditingViewport(null);
                 Na__LeModel__SetSelection(null);
                 return;
-            case 'Edit__Finish':
-                if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__Finish(sheet, false); }
-                else if (Na__LeSurface__GetEditingViewport()) { event.preventDefault(); Na__LeTools__SetEditingViewport(null); }   // <-- Enter finishes editing a viewport's content; a 3D picture keeps the zoom it was left at
+            // ENTER FINISHES, OR STEPS INSIDE. A polyline being drawn finishes,
+            // a viewport's content editing finishes - and with one vector or one
+            // group selected and nothing in flight, Enter opens it, which is the
+            // keyboard's way to do what a double click does.
+            // ------------------------------------
+            case 'Edit__Finish': {
+                if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__Finish(sheet, false); return; }
+                if (Na__LeSurface__GetEditingViewport()) { event.preventDefault(); Na__LeTools__SetEditingViewport(null); return; }   // <-- A 3D picture keeps the zoom it was left at
+                const one = Na__LeModel__GetSelectionItems();
+                if (sheet && one.length === 1 && Na__LeTools__EnterScope(sheet, one[0])) event.preventDefault();
                 return;
+            }
             case 'Edit__Delete':
+                if (Na__LeScope__IsVectorEdit()) { if (Na__LeTools__DeleteVertices()) event.preventDefault(); return; }   // <-- Inside a vector, Delete is about its points
                 if (Na__LeModel__GetSelectionItems().length) { event.preventDefault(); void Na__LeTools__DeleteSelection(); }
                 return;
+            // AN ARROW KEY IS THE AXIS LOCK FIRST, AND A NUDGE ONLY OUT ON THE
+            // SHEET. Inside an open vector or dimension it NEVER moves anything:
+            // the nudge used to reach the whole open object, so an arrow pressed
+            // between drags walked the very thing being edited, and the lock -
+            // which is what the arrows mean in there - then read as broken
+            // because the shape had already shifted. In a container the key is
+            // swallowed instead, so nothing moves and the page does not scroll.
+            // ------------------------------------
             case 'Edit__NudgeLeft':
             case 'Edit__NudgeRight': {
                 const dx = match.action === 'Edit__NudgeLeft' ? -step : step;
-                if (Na__LeTools__AxisKey(Na__LeAxis__AXIS_X, !!event.shiftKey) || (Na__LeTools__Editable && Na__LeTools__Nudge(dx, 0))) event.preventDefault();
+                if (Na__LeTools__AxisKey(Na__LeAxis__AXIS_X, !!event.shiftKey)) { event.preventDefault(); return; }
+                if (Na__LeScope__IsLeafOpen()) { event.preventDefault(); return; }
+                if (Na__LeTools__Editable && Na__LeTools__Nudge(dx, 0)) event.preventDefault();
                 return;
             }
             case 'Edit__NudgeUp':
             case 'Edit__NudgeDown': {
                 const dy = match.action === 'Edit__NudgeUp' ? -step : step;
-                if (Na__LeTools__AxisKey(Na__LeAxis__AXIS_Y, !!event.shiftKey) || (Na__LeTools__Editable && Na__LeTools__Nudge(0, dy))) event.preventDefault();
+                if (Na__LeTools__AxisKey(Na__LeAxis__AXIS_Y, !!event.shiftKey)) { event.preventDefault(); return; }
+                if (Na__LeScope__IsLeafOpen()) { event.preventDefault(); return; }
+                if (Na__LeTools__Editable && Na__LeTools__Nudge(0, dy)) event.preventDefault();
                 return;
             }
-            case 'Tool__Select':     Na__LeTools__SetTool(Na__LeTools__TOOL_SELECT);    return;
+            // THE SPACE BAR PUTS SELECT UP, THEN PUTS IT DOWN AGAIN. One press
+            // drops whatever tool is up and picks Select up (SetTool abandons
+            // the old tool's half-done work on the way); the next press puts
+            // Select down too, leaving nothing armed - the resting state
+            // Escape leaves. The key is ALWAYS taken from the browser, even
+            // when nothing changes: left to it, the space bar scrolls the page
+            // out from under the sheet, which is what it was doing before.
+            // A held space repeats, and only the first press counts.
+            // ------------------------------------
+            // SELECT IS ALWAYS THE ANSWER, never a toggle. V and the space bar
+            // both simply arm it, and the key is ALWAYS taken from the browser -
+            // the space bar would otherwise scroll the sheet out from under the
+            // cursor. A held key repeats; only the first press counts.
+            // ------------------------------------
+            case 'Tool__SelectToggle':
+            case 'Tool__Select':
+                event.preventDefault();
+                if (event.repeat) return;
+                Na__LeTools__SetTool(Na__LeTools__TOOL_SELECT);
+                return;
+            case 'Tool__Move':       Na__LeTools__SetTool(Na__LeTools__TOOL_MOVE);      return;
             case 'Tool__Text':       Na__LeTools__SetTool(Na__LeTools__TOOL_TEXT);      return;
             case 'Tool__Dimension':  Na__LeTools__SetTool(Na__LeTools__TOOL_DIMENSION); return;
             case 'Tool__Draw':       Na__LeTools__SetTool(Na__LeTools__TOOL_DRAW);      return;
@@ -372,6 +520,7 @@
     // ------------------------------------------------------------
     export {
         Na__LeTools__DeleteSelection,
+        Na__LeTools__DeleteVertices,
         Na__LeTools__ShiftRedraw,
         Na__LeTools__Rerun,
         Na__LeTools__OnKey

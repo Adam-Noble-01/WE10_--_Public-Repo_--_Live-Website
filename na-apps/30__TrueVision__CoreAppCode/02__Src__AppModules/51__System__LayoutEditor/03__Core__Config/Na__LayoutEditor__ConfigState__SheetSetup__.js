@@ -44,6 +44,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 17-Sep-2026 - Version 1.1.0
+// - GetScaleSetup reads the sheet label settings: whether the title block's Scale
+//   cell names the paper size, what joins several scales, what joins the scales to
+//   the paper, the paper prefix, and the cap past which a mix reads "As shown".
+// - The title block row fallbacks follow the shipped JSON onto the wider Scale cell.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__ConfigState__.js; the code moved verbatim.
 //
@@ -71,9 +77,9 @@
     const Na__LeCfg__FALLBACKS = Object.freeze({
         paperSizes : { A4 : { Label : 'A4', WidthMm : 297, HeightMm : 210 }, A3 : { Label : 'A3', WidthMm : 420, HeightMm : 297 },
                        A2 : { Label : 'A2', WidthMm : 594, HeightMm : 420 }, A1 : { Label : 'A1', WidthMm : 841, HeightMm : 594 } },
-        rows       : [ { Key : 'Client', Label : 'Client', WidthMm : 30 }, { Key : 'SiteAddress', Label : 'Site Address', WidthMm : 50 },
-                       { Key : 'Title', Label : 'Drawing Title', WidthMm : 40 }, { Key : 'DrawingNumber', Label : 'Drawing No.', WidthMm : 18 },
-                       { Key : 'Revision', Label : 'Rev', WidthMm : 8 }, { Key : 'Scale', Label : 'Scale', WidthMm : 20 },
+        rows       : [ { Key : 'Client', Label : 'Client', WidthMm : 28 }, { Key : 'SiteAddress', Label : 'Site Address', WidthMm : 44 },
+                       { Key : 'Title', Label : 'Drawing Title', WidthMm : 38 }, { Key : 'DrawingNumber', Label : 'Drawing No.', WidthMm : 18 },
+                       { Key : 'Revision', Label : 'Rev', WidthMm : 8 }, { Key : 'Scale', Label : 'Scale', WidthMm : 30 },   // <-- Scale carries the paper size, so it is the widest of the small cells
                        { Key : 'Date', Label : 'Date', WidthMm : 16 }, { Key : 'DrawnBy', Label : 'Drawn By', WidthMm : 20 } ],
         scales     : [ 20, 50, 100 ],
         pdfFonts   : [
@@ -121,6 +127,7 @@
             selectionColour   : Na__LeCfg__Val('Style', 'SelectionColour', '#336699'),
             frameStrokeMm     : Na__LeCfg__Num('Style', 'FrameStrokeMm', 0.25),
             frameLabelFontMm  : Na__LeCfg__Num('Style', 'FrameLabelFontMm', 2.4),
+            frameLabelMinFontMm: Na__LeCfg__Num('Style', 'FrameLabelMinFontMm', 1.6),   // <-- A caption in a narrow frame sets smaller rather than truncating
             frameLabelHeightMm: Na__LeCfg__Num('Style', 'FrameLabelHeightMm', 5),
             cellPaddingMm     : Na__LeCfg__Num('Style', 'CellPaddingMm', 1.9),
 
@@ -178,7 +185,13 @@
             sitePlanDenominators       : Array.isArray(sitePlanList) && sitePlanList.length ? sitePlanList.slice().sort((a, b) => a - b) : [ 500, 1250 ],
             sitePlanDefaultDenominator : Na__LeCfg__Num('Scales', 'SitePlanDefaultScaleDenominator', 500),
             labelPrefix        : Na__LeCfg__Val('Scales', 'ScaleLabelPrefix', '1:'),
-            notToScaleLabel    : Na__LeCfg__Val('Scales', 'NotToScaleLabel', 'NTS')
+            notToScaleLabel    : Na__LeCfg__Val('Scales', 'NotToScaleLabel', 'NTS'),
+            sheetShowPaperSize : Na__LeCfg__Val('Scales', 'SheetLabelShowPaperSize', true) !== false,   // <-- The title block's Scale cell names the paper the scale is true at
+            sheetScaleSeparator: Na__LeCfg__Val('Scales', 'SheetLabelScaleSeparator', ' & '),
+            sheetPaperJoiner   : Na__LeCfg__Val('Scales', 'SheetLabelPaperJoiner', ' @ '),
+            sheetPaperPrefix   : Na__LeCfg__Val('Scales', 'SheetLabelPaperPrefix', 'ISO '),
+            sheetMaxScales     : Math.max(1, Na__LeCfg__Num('Scales', 'SheetLabelMaxScales', 3)),
+            sheetMixedLabel    : Na__LeCfg__Val('Scales', 'SheetLabelMixedLabel', 'As shown')
         };
     }
     // ------------------------------------------------------------
@@ -363,7 +376,7 @@
     function Na__LeCfg__GetPdfSetup() {
         const fonts = Na__LeCfg__PdfFontCuts();
         return {
-            filenamePattern   : Na__LeCfg__Val('Pdf', 'FilenamePattern', 'Na__{projectCode}__{sheetName}__{paperSize}.pdf'),
+            filenamePattern   : Na__LeCfg__Val('Pdf', 'FilenamePattern', '{drawingCode}__{drawingName}__{paperSize}__{revision}__{date}__.pdf'),
             author            : Na__LeCfg__Val('Pdf', 'Author', 'Noble Architecture Ltd'),
             creator           : Na__LeCfg__Val('Pdf', 'Creator', 'TrueVision3D Layout Editor'),
             jsPdfScriptPath   : Na__LeCfg__Val('Pdf', 'JsPdfScriptPath', './02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js'),

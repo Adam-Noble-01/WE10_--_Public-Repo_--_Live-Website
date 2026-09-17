@@ -103,6 +103,50 @@
     flex                               : 1 1 auto;
 }
 
+/* THE ISSUE FIELDS. The specification's own number and revision, shown in both
+   views because they belong to the document rather than to how it is being
+   looked at. Styled as the filter is, so they read as fields on this bar and
+   not as a second kind of control. */
+.na-le-spec__issue {
+    display                            : flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    gap                                : 5px;
+}
+
+.na-le-spec__issue-label {
+    color                              : #6c757d;
+    font-size                          : 0.72rem;
+    letter-spacing                     : 0.04em;
+    text-transform                     : uppercase;
+    white-space                        : nowrap;
+}
+
+.na-le-spec__issue-field {
+    padding                            : 4px 7px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    font                               : inherit;
+    font-size                          : 0.76rem;
+}
+
+.na-le-spec__issue-field--number {
+    flex                               : 0 1 130px;
+    min-width                          : 84px;
+}
+
+.na-le-spec__issue-field--rev {
+    flex                               : 0 0 auto;
+    width                              : 46px;
+    text-align                         : center;
+}
+
+.na-le-spec__issue-field:disabled {
+    border-color                       : #e1e6ea;
+    background                         : #f4f6f8;
+    color                              : #8a949c;
+}
+
 .na-le-spec__status {
     padding                            : 3px 8px;
     border-radius                      : 5px;

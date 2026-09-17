@@ -72,10 +72,15 @@
         Na__LeSpec__Undo,
         Na__LeSpec__Redo,
         Na__LeSpec__Sync,
-        Na__LeSpec__Retry
+        Na__LeSpec__Retry,
+        Na__LeSpec__GetRevision,
+        Na__LeSpec__SetRevision,
+        Na__LeSpec__GetDocumentNumber,
+        Na__LeSpec__SetDocumentNumber
     } from './Na__LayoutEditor__SpecData__.js';
     import { Na__LeSpecLink__LinkMatching } from './Na__LayoutEditor__SpecLinks__.js';
     import { Na__LeSpecDoc__Print } from './Na__LayoutEditor__SpecDocument__.js';
+    import { Na__LeSpecPdf__Download } from './Na__LayoutEditor__SpecPdf__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
     // ------------------------------------------------------------
 
@@ -209,6 +214,10 @@
         }
         if (action === 'view')    { Na__LeSpecEd__SetView(button.getAttribute('data-view')); return; }
         if (action === 'print')   { Na__LeSpecDoc__Print(); return; }
+        if (action === 'download') {                                               // <-- Reading a document, not changing one: allowed in a read-only session
+            void Na__LeSpecPdf__Download((message, kind) => toast(message, kind === 'error' || kind === 'warn'));
+            return;
+        }
         if (action === 'compact') { Na__LeSpecEd__SetCompact(!Na__LeSpecEd__IsCompact()); Na__LeSpecEd__Render(); return; }
         if (!Na__LeSpecEd__Editable) return;
 
@@ -261,6 +270,8 @@
         if (field === 'note-title')  Na__LeSpec__UpdateNote(noteId, { title : target.value }, true);
         if (field === 'note-body')   { Na__LeSpecEd__Grow(target); Na__LeSpec__UpdateNote(noteId, { body : target.value }, true); }
         if (field === 'group-title') Na__LeSpec__UpdateGroup(groupId, { title : target.value }, true);
+        if (field === 'spec-revision') Na__LeSpec__SetRevision(target.value, true);
+        if (field === 'spec-number')   Na__LeSpec__SetDocumentNumber(target.value, true);
         if (field === 'group-prefix') {
             const clean = target.value.toUpperCase().replace(/[^A-Z]/g, '');       // <-- A prefix is letters: show it the way it will be kept
             if (clean !== target.value) {
@@ -286,6 +297,8 @@
         if (field === 'group-title')   Na__LeSpec__UpdateGroup(groupId, { title : target.value }, false);
         if (field === 'group-general') Na__LeSpec__UpdateGroup(groupId, { isGeneral : target.checked }, false);
         if (field === 'note-group')    Na__LeSpec__MoveNote(noteId, target.value);
+        if (field === 'spec-revision') { Na__LeSpec__SetRevision(target.value, false); target.value = Na__LeSpec__GetRevision(); }           // <-- "Rev B" typed in full comes back as B
+        if (field === 'spec-number')   { Na__LeSpec__SetDocumentNumber(target.value, false); target.value = Na__LeSpec__GetDocumentNumber(); }   // <-- Cleared, it shows the project code it now follows
         if (field === 'group-prefix') {
             const group = Na__LeSpec__GetGroupById(groupId);
             if (!group) return;

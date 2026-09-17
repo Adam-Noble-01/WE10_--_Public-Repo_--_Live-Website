@@ -167,12 +167,16 @@
         Na__LeSpec__IsLoaded,
         Na__LeSpec__IsDirty,
         Na__LeSpec__IsEditable,
-        Na__LeSpec__GetDocument
+        Na__LeSpec__GetDocument,
+        Na__LeSpec__GetRevision,
+        Na__LeSpec__GetDocumentNumber
     } from './Na__LayoutEditor__SpecData__Document__.js';
     import { Na__LeSpec__FlushDraft } from './Na__LayoutEditor__SpecData__Draft__.js';
     import {
         Na__LeSpec__AddGroup,
         Na__LeSpec__AddStarterGroups,
+        Na__LeSpec__SetRevision,
+        Na__LeSpec__SetDocumentNumber,
         Na__LeSpec__UpdateGroup,
         Na__LeSpec__DeleteGroup,
         Na__LeSpec__MoveGroup,
@@ -259,6 +263,8 @@
         Na__LeSpec__IsDirty,
         Na__LeSpec__IsEditable,
         Na__LeSpec__GetDocument,
+        Na__LeSpec__GetRevision,
+        Na__LeSpec__GetDocumentNumber,
         Na__LeSpec__GetGroups,
         Na__LeSpec__GetGroupById,
         Na__LeSpec__ListNotes,
@@ -273,6 +279,8 @@
         Na__LeSpec__Normalise,
         Na__LeSpec__AddGroup,
         Na__LeSpec__AddStarterGroups,
+        Na__LeSpec__SetRevision,
+        Na__LeSpec__SetDocumentNumber,
         Na__LeSpec__UpdateGroup,
         Na__LeSpec__DeleteGroup,
         Na__LeSpec__MoveGroup,
