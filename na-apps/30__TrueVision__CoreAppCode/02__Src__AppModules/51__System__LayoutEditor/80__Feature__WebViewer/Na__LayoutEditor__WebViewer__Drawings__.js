@@ -26,9 +26,10 @@
 // - FIT FIRST, THEN PINCH. A reader opening a drawing on a phone wants the
 //   whole sheet, so every document change fits the paper. Double tap magnifies
 //   about the point tapped, and double tap again returns to the whole sheet.
-// - A drag that runs out of paper turns the page. The touch recogniser needs to
-//   know how much of a pan the stage could actually use, so the pan handler
-//   measures the scroll before and after rather than assuming it all landed.
+// - ONE FINGER PANS, AND ONLY PANS. The recogniser can turn a page out of
+//   travel a surface could not use, and this surface does not ask it to: a
+//   fitted sheet can use no sideways travel at all, so the document would
+//   change under anyone who dragged across a drawing they were moving.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__WebViewer__ attaches on showing a drawing and detaches on
@@ -43,6 +44,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - The page turn is gone from this surface (Adam, on an iPad: "it tries to
+//   change to next tab as i try to pan on the main canvas"). A fitted sheet has
+//   no panning to spend, so every sideways drag was spare travel and read as a
+//   page turn.
+// - The pan measures the stage and the paper once for both axes and works out
+//   what landed instead of reading the scroll back, which forced a layout in
+//   the middle of a live gesture.
+//
 // 18-Sep-2026 - Version 1.0.0
 // - Initial implementation for the public web viewer.
 //
@@ -84,10 +94,9 @@
     const Na__LeVwDraw__FIT_TOLERANCE = 0.02;
     // ------------------------------------------------------------
 
-    // MODULE VARIABLES | Attachment and the Zoom a Double Tap Returns To
+    // MODULE VARIABLES | Attachment
     // ------------------------------------------------------------
     let Na__LeVwDraw__Attached = false;
-    let Na__LeVwDraw__OnSwipe  = null;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -154,14 +163,12 @@
     // side. Getting those two the wrong way round does not merely fail to
     // clamp: it pins the sheet to one edge and every drag reads as spare.
     // ------------------------------------------------------------
-    function Na__LeVwDraw__Range(stage, paper, vertical) {
-        const stageRect = stage.getBoundingClientRect();
-        const paperRect = paper.getBoundingClientRect();
-        const size      = vertical ? paperRect.height : paperRect.width;
-        const room      = vertical ? stage.clientHeight : stage.clientWidth;
+    function Na__LeVwDraw__Range(stage, stageRect, paperRect, vertical) {
+        const size = vertical ? paperRect.height : paperRect.width;
+        const room = vertical ? stage.clientHeight : stage.clientWidth;
         if (size <= room) return null;                                           // <-- The whole sheet is on screen along this axis
-        const scroll  = vertical ? stage.scrollTop : stage.scrollLeft;
-        const atNear  = scroll + ((vertical ? paperRect.top : paperRect.left) - (vertical ? stageRect.top : stageRect.left));
+        const scroll = vertical ? stage.scrollTop : stage.scrollLeft;
+        const atNear = scroll + ((vertical ? paperRect.top : paperRect.left) - (vertical ? stageRect.top : stageRect.left));
         return { min : atNear, max : atNear + size - room };
     }
     // ------------------------------------------------------------
@@ -169,28 +176,35 @@
 
     // HELPER FUNCTION | Pan the Stage Within the Paper, and Say How Much Landed
     // ------------------------------------------------------------
-    // Measured rather than assumed, and clamped to the sheet rather than to the
-    // content. What the sheet could not take is what the recogniser turns into
-    // a page change, so a fitted drawing - which can take nothing sideways -
-    // turns the page on the first proper flick, and a magnified one pans to its
-    // edge first and turns on the drag that carries past it.
+    // Clamped to the sheet rather than to the content: the stage is a whole
+    // screen larger than the paper on every side so an author can push an item
+    // off the page, and a reader dragged through all that empty grey before the
+    // drawing moved at all.
+    //
+    // WHAT LANDED IS WORKED OUT, NOT READ BACK. Reading scrollLeft straight
+    // after writing it forces the browser to lay the page out there and then,
+    // and this runs inside a live gesture. It does not need to be read: the
+    // clamp above is strictly inside the stage's own scroll range - the room
+    // reaches a screen beyond the paper in both directions - so the position
+    // asked for is always the position given.
     // ------------------------------------------------------------
     function Na__LeVwDraw__OnPan(dx, dy) {
         const els = Na__LeSurface__GetElements();
         if (!els.stage) return { x : 0, y : 0 };
         if (!els.paper) {                                                        // <-- No sheet laid out: let the stage scroll as it likes
-            const wasX = els.stage.scrollLeft, wasY = els.stage.scrollTop;
             Na__LeNav__PanBy(dx, dy);
-            return { x : els.stage.scrollLeft - wasX, y : els.stage.scrollTop - wasY };
+            return { x : dx, y : dy };
         }
-        const across = Na__LeVwDraw__Range(els.stage, els.paper, false);
-        const down   = Na__LeVwDraw__Range(els.stage, els.paper, true);
+        const stageRect = els.stage.getBoundingClientRect();                     // <-- One measure of each, for both axes
+        const paperRect = els.paper.getBoundingClientRect();
+        const across  = Na__LeVwDraw__Range(els.stage, stageRect, paperRect, false);
+        const down    = Na__LeVwDraw__Range(els.stage, stageRect, paperRect, true);
         const beforeX = els.stage.scrollLeft;
         const beforeY = els.stage.scrollTop;
         const wantX = across ? Math.max(across.min, Math.min(across.max, beforeX + dx)) : beforeX;
         const wantY = down   ? Math.max(down.min,   Math.min(down.max,   beforeY + dy)) : beforeY;
         Na__LeNav__PanBy(wantX - beforeX, wantY - beforeY);
-        return { x : els.stage.scrollLeft - beforeX, y : els.stage.scrollTop - beforeY };
+        return { x : wantX - beforeX, y : wantY - beforeY };
     }
     // ------------------------------------------------------------
 
@@ -222,20 +236,22 @@
 
     // FUNCTION | Bind the Viewer's Input to the Sheet Stage
     // ------------------------------------------------------------
-    // options: { onSwipe(direction) }
+    // NO onSwipe, DELIBERATELY. One finger pans a drawing, and a sheet fitted
+    // to the screen has no panning left to do - so every sideways drag would be
+    // travel the sheet could not use, and the document would change under a
+    // reader who was only trying to move the drawing about. Changing document
+    // is the tab strip's and the dock's; the drawing keeps the finger.
     // ------------------------------------------------------------
-    function Na__LeVwDraw__Attach(options) {
+    function Na__LeVwDraw__Attach() {
         if (Na__LeVwDraw__Attached) return true;
         const els = Na__LeSurface__GetElements();
         if (!els.stage) return false;
-        Na__LeVwDraw__OnSwipe  = (options && typeof options.onSwipe === 'function') ? options.onSwipe : null;
         Na__LeVwDraw__Attached = true;
         Na__LePc__Attach();                                                      // <-- Wheel zoom, drag pan and the navigation keys; no tools follow it
         Na__LeVwTouch__Attach(els.stage, {
             onPan       : Na__LeVwDraw__OnPan,
             onPinch     : Na__LeVwDraw__OnPinch,
-            onDoubleTap : Na__LeVwDraw__OnDoubleTap,
-            onSwipe     : (direction) => { if (Na__LeVwDraw__OnSwipe) Na__LeVwDraw__OnSwipe(direction); }
+            onDoubleTap : Na__LeVwDraw__OnDoubleTap
         });
         return true;
     }
@@ -249,7 +265,6 @@
         Na__LeVwTouch__Detach();
         Na__LePc__Detach();
         Na__LeVwDraw__Attached = false;
-        Na__LeVwDraw__OnSwipe  = null;
         return true;
     }
     // ------------------------------------------------------------

@@ -396,7 +396,7 @@
     function Na__LeVw__ShowDrawing(sheet, options) {
         Na__LeVwSpec__Hide();                                                    // <-- The specification lets its gestures go before the stage takes them
         Na__LeVw__Current = sheet ? sheet.Sheet__Id : null;
-        Na__LeVwDraw__Attach({ onSwipe : Na__LeVw__Step });
+        Na__LeVwDraw__Attach();                                                  // <-- A drawing keeps the finger for panning; the tabs and the dock change document
         if (!options || options.fit !== false) Na__LeVwDraw__Fit();
         Na__LeVw__Sync();
         return true;

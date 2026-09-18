@@ -2,6 +2,62 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.65.2  -  18-Sep-2026
+### The Drawing Keeps the Finger: an iPad Was Turning the Page Every Time It Was Panned
+
+**Overview**
+- Adam, reading a drawing on an iPad: "zoom and pan on ipad feel weird and kind of sticky feeling",
+  and then the cause of half of it: "it tries to change to next tab as i try to pan on the main
+  canvas not just the top bar".
+- Three separate faults, and the first one is the one that was really being felt.
+
+**A fitted sheet had no panning to spend, so every drag was a page turn**
+- The page turn was built out of travel the surface could not use: pan to the edge of the paper,
+  and the drag that carries past it turns the page. On a sheet FITTED to the screen there is no
+  panning to do at all, so every sideways pixel was spare and the document changed 70px into any
+  horizontal drag. Every document arrives fitted, so this was most drags.
+- A page turn is now the surface's to ask for, and the drawing surface does not: one finger pans
+  it, full stop. The specification's pages still ask for one, because nothing there uses the
+  sideways direction. Changing document is the tab strip's job and the dock's.
+
+**Applied once per painted frame, not once per touch move**
+- A pan and a pinch both end in a scroll position and a zoom, and working either out means
+  measuring the stage and the paper immediately after writing new sizes to them. A tablet reports
+  touch far faster than it paints, so that was forcing several full layouts per painted frame and
+  the drawing lagged behind the finger. Moves are now gathered as they arrive and applied in one
+  `requestAnimationFrame`.
+- The pan also read `scrollLeft` back after writing it, purely to find out how much landed - a
+  forced layout in the middle of a live gesture, for a number that can be worked out. The clamp is
+  strictly inside the stage's own scroll range, so the position asked for is the position given.
+  It measures the stage and the paper once for both axes instead of once per axis.
+
+**Safari was zooming the page as well as the sheet**
+- iOS pinches the visual viewport whatever the element underneath declares, and `touch-action:
+  none` does not stop it. A reader pinching a drawing was zooming the sheet AND stretching the
+  browser around it at the same time, which is most of what "weird" was. WebKit fires its own
+  `gesturestart` / `gesturechange` / `gestureend` for that zoom and they can be refused.
+- Bound only where this module does the pinching itself, so the specification's pages - which hand
+  over no `onPinch` - can still be pinched to read finer print.
+
+**One more, found while testing**
+- A flick that begins and ends inside a single painted frame had everything it asked for still
+  sitting in the pending gesture when the finger lifted, and the gesture-end flush ran after the
+  drag state had been cleared - so the page turn was thrown away with it. The flush now runs first.
+
+**Tested in the browser (375x812, synthetic touch)**
+- A long horizontal flick across a fitted drawing: document unchanged, both directions.
+- Zoomed in: one finger still pans (scrollLeft 472 to 567) and two fingers still zoom (paper 567px
+  to 1247px), with the document unchanged throughout.
+- A flick across the specification's pages still turns to the previous document.
+- NOT tested: an actual iPad. The gestures were driven as synthetic pointer events, so the fixes
+  for what a real device does differently - the frame pacing and the WebKit page pinch - are
+  reasoned rather than observed.
+
+**Files**
+- `51__System__LayoutEditor/80__Feature__WebViewer/Na__LayoutEditor__WebViewer__TouchControls__.js`
+  1.1.0, `...__Drawings__.js` 1.1.0, `...__WebViewer__.js` (Attach takes no swipe handler).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.65.1  -  18-Sep-2026
 ### The Viewer Keeps the Tabs, and the Page Is Where the Drawing Ends
 

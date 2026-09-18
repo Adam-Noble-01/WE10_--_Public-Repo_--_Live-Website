@@ -144,6 +144,17 @@
         "D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb"
       ],
       "port": 8622
+    },
+    {
+      "name": "vv-nocache",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "C:\\Users\\adamw\\AppData\\Local\\Temp\\claude\\D--11-RefLib--StudioRepository--RemoteSystem-NaWeb-na-apps-30--TrueVision--CoreAppCode\\a021bdb7-596d-4e6b-bdde-657b8ebb9678\\scratchpad\\nocache_server.py",
+        "8632",
+        "D:/10_CoreLib__ValeCodebase/WebApps/ValeVision3D",
+        "D:/10_CoreLib__ValeCodebase/WebApps/Whitecardopedia/Projects"
+      ],
+      "port": 8632
     }
   ]
 }

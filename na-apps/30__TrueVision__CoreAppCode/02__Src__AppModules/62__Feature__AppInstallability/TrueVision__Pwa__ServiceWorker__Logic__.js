@@ -34,6 +34,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.7.2
+// - Token bumped (2026-09-18-3): the iPad round of the web viewer - the touch
+//   recogniser and the drawing surface - is shell JS again, and an installed
+//   copy would otherwise keep turning the page every time it was panned.
+//
 // 18-Sep-2026 - Version 1.7.1
 // - Token bumped (2026-09-18-2): the web viewer's second round - the tab strip
 //   scroller, the page clipping and the chrome that now clears the tab strip -
@@ -131,7 +136,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-18-2';                                                                      // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-18-3';                                                                      // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
