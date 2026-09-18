@@ -1,285 +1,258 @@
 {
-  "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
-  "ProjectSpecification__Version": 1,
-  "ProjectSpecification__ProjectCode": "PS01",
-  "ProjectSpecification__UpdatedIso": "2026-09-14T21:54:39.257Z",
-  "ProjectSpecification__NumberDigits": 2,
-  "ProjectSpecification__LastIdNumber": 38,
-  "ProjectSpecification__Groups": [
-    {
-      "Group__Id": "SpecGroup_001",
-      "Group__Prefix": "GN",
-      "Group__Title": "General Notes",
-      "Group__IsGeneral": true,
-      "Group__Notes": [
+    "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
+    "ProjectSpecification__Version": 1,
+    "ProjectSpecification__ProjectCode": "PS02",
+    "ProjectSpecification__UpdatedIso": "2026-09-17T21:07:09.530Z",
+    "ProjectSpecification__NumberDigits": 2,
+    "ProjectSpecification__LastIdNumber": 40,
+    "ProjectSpecification__Revision": "B",
+    "ProjectSpecification__DocumentNumber": "",
+    "ProjectSpecification__Groups": [
         {
-          "Note__Id": "SpecNote_010",
-          "Note__Code": "GN01",
-          "Note__Title": "Drawing scope",
-          "Note__Body": "Drawings describe the proposed development for planning assessment. They are not construction drawings or a complete Building Regulations specification. Obtain coordinated construction details, structural calculations and Building Control approval before relevant work starts. Refer discrepancies to Noble Architecture before proceeding.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+            "Group__Id": "SpecGroup_001",
+            "Group__Prefix": "GN",
+            "Group__Title": "General Notes",
+            "Group__IsGeneral": true,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_010",
+                    "Note__Code": "GN01",
+                    "Note__Title": "Drawing scope",
+                    "Note__Body": "Drawings describe the proposed development for planning assessment. They are not construction drawings or a complete Building Regulations specification. Obtain coordinated construction details, structural calculations and Building Control approval before relevant work starts. Refer discrepancies to Noble Architecture before proceeding.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_011",
+                    "Note__Code": "GN02",
+                    "Note__Title": "Survey and dimensions",
+                    "Note__Body": "Prepared from client-supplied photographs and measurements; Noble Architecture has not undertaken a measured site survey. Verify dimensions, levels, boundaries and existing construction on site before design, ordering or setting out. Use stated dimensions; do not scale for construction. Report discrepancies before work proceeds.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
         },
         {
-          "Note__Id": "SpecNote_011",
-          "Note__Code": "GN02",
-          "Note__Title": "Survey and dimensions",
-          "Note__Body": "Prepared from client-supplied photographs and measurements; Noble Architecture has not undertaken a measured site survey. Verify dimensions, levels, boundaries and existing construction on site before design, ordering or setting out. Use stated dimensions; do not scale for construction. Report discrepancies before work proceeds.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+            "Group__Id": "SpecGroup_002",
+            "Group__Prefix": "SN",
+            "Group__Title": "Structural Notes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_007",
+                    "Note__Code": "SN01",
+                    "Note__Title": "Structural design",
+                    "Note__Body": "Structural members shown are indicative. Appoint a structural engineer to inspect the existing building and design foundations, beams, lintels, posts, bearings, connections and lateral restraint. Obtain coordinated calculations and details before structural work; do not derive member sizes from these drawings.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_008",
+                    "Note__Code": "SN02",
+                    "Note__Title": "Sliding-door opening",
+                    "Note__Body": "Structural engineer to design support over the wide sliding-door opening, including bearings, padstones, supporting piers or posts and foundations. Limit deflection to the door supplier's tolerances. Coordinate head clearance, frame fixings, insulation and weathering before manufacture.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_020",
+                    "Note__Code": "SN03",
+                    "Note__Title": "Existing wall alterations",
+                    "Note__Body": "Engineer to assess retained walls, roof loads and stability before enlarging rear openings. Specify permanent support and restraint. Contractor to provide an engineered temporary support and demolition sequence; install supports before removing loadbearing construction. Do not assume existing lintels or foundations are adequate.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_021",
+                    "Note__Code": "SN04",
+                    "Note__Title": "Foundations and roof framing",
+                    "Note__Body": "Confirm ground conditions, trees, drains and adjacent foundations before foundation design. Do not reuse conservatory foundations without the engineer's verification. Design roof joists and rooflight trimmers for the complete warm-roof build-up, parapets and imposed loads; coordinate openings before fabrication.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_005",
+            "Group__Prefix": "EX",
+            "Group__Title": "Existing Conditions",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_022",
+                    "Note__Code": "EX01",
+                    "Note__Title": "Existing external walls",
+                    "Note__Body": "Existing house: mixed buff facing brickwork above a blue engineering-brick plinth to DPC level. Retain outside the indicated alterations; make good disturbed areas with matching bricks and mortar. Confirm brick types and DPC level on site.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_023",
+                    "Note__Code": "EX02",
+                    "Note__Title": "Existing pitched roof",
+                    "Note__Body": "Existing brown small-format tiles to pitched roof; clay or concrete composition to be confirmed on site. Retain roof covering outside the works. Match replacement tiles where disturbed and weather extension abutments without obstructing existing roof ventilation.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_024",
+                    "Note__Code": "EX03",
+                    "Note__Title": "Existing windows and doors",
+                    "Note__Body": "Existing windows and external doors comprise mixed white and brown frames, including uPVC, with varied glazing patterns. Retain except where removal or replacement is indicated. Confirm frame materials, opening arrangements and finishes on site.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_025",
+                    "Note__Code": "EX04",
+                    "Note__Title": "Existing WC flat roof",
+                    "Note__Body": "Existing felt-covered flat roof over the WC is reported to be at the end of its service life. Remove with the WC structure; inspect and make good retained abutments. Do not incorporate the existing covering into the new roof.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_006",
+                    "Note__Code": "EX05",
+                    "Note__Title": "Conservatory and WC removal",
+                    "Note__Body": "Remove existing conservatory and adjoining flat-roof WC, approximately 3,100 mm projection x 4,350 mm overall width. Isolate services and seal redundant drain connections. Protect retained walls and roof; make good exposed junctions. Confirm demolition extent and any retained foundations on site.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_003",
+            "Group__Prefix": "FN",
+            "Group__Title": "Finishes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_004",
+                    "Note__Code": "FN01",
+                    "Note__Title": "Brickwork making good",
+                    "Note__Body": "Where retained facing brickwork is disturbed, match the existing brick colour, size, bond, mortar colour and joint profile. Agree a sample before work. New extension wall finishes are specified in WF01-WF03.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_016",
+            "Group__Prefix": "WF",
+            "Group__Title": "Wall Finishes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_018",
+                    "Note__Code": "WF01",
+                    "Note__Title": "Brickwork walls",
+                    "Note__Body": "Exterior walls to match the existing brickwork of the existing property, mortar joints to be pointed and coloured the same as the existing house. All bricks to be the same tone, texture, and quality.",
+                    "Note__UpdatedIso": "2026-09-17T20:49:35.029Z"
+                },
+                {
+                    "Note__Id": "SpecNote_017",
+                    "Note__Code": "WF02",
+                    "Note__Title": "Blue brick plinth",
+                    "Note__Body": "Blue engineering-brick plinth up to DPC, matching the original house in colour, size, bond and pointing. Coordinate DPC with the floor membrane and external levels; maintain 150 mm clearance above finished ground except at separately detailed accessible thresholds.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_012",
+            "Group__Prefix": "PD",
+            "Group__Title": "Permitted Development Notes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_013",
+                    "Note__Code": "PD01",
+                    "Note__Title": "Rear extension projection",
+                    "Note__Body": "Single-storey rear extension with an enclosed projection of 3,150 mm from the rear wall of the house.",
+                    "Note__UpdatedIso": "2026-09-17T21:06:57.326Z"
+                },
+                {
+                    "Note__Id": "SpecNote_014",
+                    "Note__Code": "PD02",
+                    "Note__Title": "Extension width",
+                    "Note__Body": "Extension width: 9,230 mm. The enclosed extension remains within the existing side-wall lines of the house, as shown on the plans.",
+                    "Note__UpdatedIso": "2026-09-14T21:08:02.456Z"
+                },
+                {
+                    "Note__Id": "SpecNote_015",
+                    "Note__Code": "PD03",
+                    "Note__Title": "Flat-roof eaves measurement",
+                    "Note__Body": "Finished roof surface: 2,650 mm above GFFL; 2,800 mm above proposed terrace. Eaves measured at the upper roof surface where it meets the external wall; parapet excluded. Reference: GOV.UK, Permitted development rights for householders: technical guidance (September 2019), Class A, paragraph A.1(d). Planning ground datum: PD05; existing-house eaves limit also applies.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
+                },
+                {
+                    "Note__Id": "SpecNote_026",
+                    "Note__Code": "PD04",
+                    "Note__Title": "Parapet coping level",
+                    "Note__Body": "Parapet coping: 3,000 mm above proposed terrace, equivalent to 2,850 mm above GFFL. Coping is included in overall extension height, not eaves height. Terrace-relative dimensions are distinct from planning heights; use the ground datum described in PD05.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
+                },
+                {
+                    "Note__Id": "SpecNote_039",
+                    "Note__Code": "PD05",
+                    "Note__Title": "Planning ground datum",
+                    "Note__Body": "Measure planning heights from the existing ground immediately adjacent to the building, excluding the proposed 50 mm paving overlay; where uneven, use the highest adjacent ground level. Reference: GOV.UK, Permitted development rights for householders: technical guidance (September 2019), General Issues, \"Height\". Record existing and proposed paving levels separately.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_027",
+            "Group__Prefix": "RF",
+            "Group__Title": "Roof and Rooflights",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_028",
+                    "Note__Code": "RF01",
+                    "Note__Title": "Warm flat roof",
+                    "Note__Body": "Warm-roof construction behind a parapet, with insulation above the structural deck and a continuous vapour control layer below the insulation. Coordinate thermal performance, condensation control, waterproofing and abutments in the construction details. Form falls to outlets within the stated height envelope.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_029",
+                    "Note__Code": "RF02",
+                    "Note__Title": "Parapet and copings",
+                    "Note__Body": "Parapet conceals the warm-roof edge; coping level to PD04. Provide weathered copings with drips, secure fixings and sealed joints; turn roof waterproofing up the inner face beneath the coping system. Maintain insulation continuity at the roof edge.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
+                },
+                {
+                    "Note__Id": "SpecNote_030",
+                    "Note__Code": "RF03",
+                    "Note__Title": "Flat rooflights",
+                    "Note__Body": "Three flat rooflights, nominally 1,500 x 1,000 mm each: two over the dining/occasional seating area and one over the bedroom. Confirm whether dimensions refer to the opening or overall unit before ordering. Provide insulated upstands at least 150 mm above the adjacent finished roof surface.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_031",
+                    "Note__Code": "RF04",
+                    "Note__Title": "Rooflight pitch and height",
+                    "Note__Body": "Install rooflights at the manufacturer's required pitch; 5 degrees is indicative. Keep frames and glazing below the coping. The indicated roof-to-coping allowance is 200 mm: coordinate the minimum 150 mm upstand, frame depth and pitch within this envelope. Revise the roof detail if necessary; do not reduce the minimum upstand.",
+                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
+                },
+                {
+                    "Note__Id": "SpecNote_032",
+                    "Note__Code": "RF05",
+                    "Note__Title": "Rainwater drainage",
+                    "Note__Body": "Form positive falls to sized roof outlets and rainwater pipes. Provide accessible outlets and an emergency overflow to the parapet-enclosed roof. Confirm discharge route and capacity before construction; keep all roof drainage within the site and clear of door thresholds.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_033",
+            "Group__Prefix": "OP",
+            "Group__Title": "Windows and Doors",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_034",
+                    "Note__Code": "OP01",
+                    "Note__Title": "East-facing sliding doors",
+                    "Note__Body": "Large glazed sliding doors to the east, garden-facing elevation. Frame material, colour, panel arrangement and opening direction to be confirmed. Coordinate structural opening and deflection tolerances with the supplier. Provide safety glazing, weather seals and a drained threshold; confirm thermal performance and ventilation in the construction specification.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                },
+                {
+                    "Note__Id": "SpecNote_035",
+                    "Note__Code": "OP02",
+                    "Note__Title": "East-facing bedroom window",
+                    "Note__Body": "New uPVC window to the bedroom on the east, garden-facing elevation. Colour and opening arrangement to be agreed. Coordinate glazing, ventilation and any required escape opening with the Building Regulations design; confirm clear opening dimensions and sill height before ordering.",
+                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_002",
-      "Group__Prefix": "SN",
-      "Group__Title": "Structural Notes",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_007",
-          "Note__Code": "SN01",
-          "Note__Title": "Structural design",
-          "Note__Body": "Structural members shown are indicative. Appoint a structural engineer to inspect the existing building and design foundations, beams, lintels, posts, bearings, connections and lateral restraint. Obtain coordinated calculations and details before structural work; do not derive member sizes from these drawings.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_008",
-          "Note__Code": "SN02",
-          "Note__Title": "Sliding-door opening",
-          "Note__Body": "Structural engineer to design support over the wide sliding-door opening, including bearings, padstones, supporting piers or posts and foundations. Limit deflection to the door supplier's tolerances. Coordinate head clearance, frame fixings, insulation and weathering before manufacture.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_009",
-          "Note__Code": "SN03",
-          "Note__Title": "Part-cantilevered canopy",
-          "Note__Body": "Structural engineer to design the canopy, its supported outer edge and cantilevered inner end, including wind uplift, deflection, connections and foundations. Provide a designed loadbearing frame at the slatted screen. Decorative slats are non-loadbearing unless expressly designed otherwise by the engineer.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_020",
-          "Note__Code": "SN04",
-          "Note__Title": "Existing wall alterations",
-          "Note__Body": "Engineer to assess retained walls, roof loads and stability before enlarging rear openings. Specify permanent support and restraint. Contractor to provide an engineered temporary support and demolition sequence; install supports before removing loadbearing construction. Do not assume existing lintels or foundations are adequate.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_021",
-          "Note__Code": "SN05",
-          "Note__Title": "Foundations and roof framing",
-          "Note__Body": "Confirm ground conditions, trees, drains and adjacent foundations before foundation design. Do not reuse conservatory foundations without the engineer's verification. Design roof joists and rooflight trimmers for the complete warm-roof build-up, parapets and imposed loads; coordinate openings before fabrication.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_005",
-      "Group__Prefix": "EX",
-      "Group__Title": "Existing Conditions",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_022",
-          "Note__Code": "EX01",
-          "Note__Title": "Existing external walls",
-          "Note__Body": "Existing house: mixed buff facing brickwork above a blue engineering-brick plinth to DPC level. Retain outside the indicated alterations; make good disturbed areas with matching bricks and mortar. Confirm brick types and DPC level on site.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_023",
-          "Note__Code": "EX02",
-          "Note__Title": "Existing pitched roof",
-          "Note__Body": "Existing brown small-format tiles to pitched roof; clay or concrete composition to be confirmed on site. Retain roof covering outside the works. Match replacement tiles where disturbed and weather extension abutments without obstructing existing roof ventilation.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_024",
-          "Note__Code": "EX03",
-          "Note__Title": "Existing windows and doors",
-          "Note__Body": "Existing windows and external doors comprise mixed white and brown frames, including uPVC, with varied glazing patterns. Retain except where removal or replacement is indicated. Confirm frame materials, opening arrangements and finishes on site.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_025",
-          "Note__Code": "EX04",
-          "Note__Title": "Existing WC flat roof",
-          "Note__Body": "Existing felt-covered flat roof over the WC is reported to be at the end of its service life. Remove with the WC structure; inspect and make good retained abutments. Do not incorporate the existing covering into the new roof.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_006",
-          "Note__Code": "EX05",
-          "Note__Title": "Conservatory and WC removal",
-          "Note__Body": "Remove existing conservatory and adjoining flat-roof WC, approximately 3,100 mm projection x 4,350 mm overall width. Isolate services and seal redundant drain connections. Protect retained walls and roof; make good exposed junctions. Confirm demolition extent and any retained foundations on site.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_003",
-      "Group__Prefix": "FN",
-      "Group__Title": "Finishes",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_004",
-          "Note__Code": "FN01",
-          "Note__Title": "Brickwork making good",
-          "Note__Body": "Where retained facing brickwork is disturbed, match the existing brick colour, size, bond, mortar colour and joint profile. Agree a sample before work. New extension wall finishes are specified in WF01-WF03.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_016",
-      "Group__Prefix": "WF",
-      "Group__Title": "Wall Finishes",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_018",
-          "Note__Code": "WF01",
-          "Note__Title": "Monocouche render",
-          "Note__Body": "Proprietary monocouche render to indicated walls above DPC; colour Chalk or Silver Pearl, subject to final manufacturer and sample approval. Apply the complete compatible system to the specified substrate, with beads and movement joints. Terminate above DPC; do not bridge the damp-proof course.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_017",
-          "Note__Code": "WF02",
-          "Note__Title": "Blue brick plinth",
-          "Note__Body": "Blue engineering-brick plinth up to DPC, matching the original house in colour, size, bond and pointing. Coordinate DPC with the floor membrane and external levels; maintain 150 mm clearance above finished ground except at separately detailed accessible thresholds.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_019",
-          "Note__Code": "WF03",
-          "Note__Title": "Horizontal composite cladding",
-          "Note__Body": "Horizontal composite cladding to the rear canopy surround as indicated. Manufacturer, profile and colour to be agreed from samples. Provide compatible support battens, drained and ventilated cavity, trims and movement allowances.",
-          "Note__UpdatedIso": "2026-09-14T21:54:39.257Z"
-        }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_012",
-      "Group__Prefix": "PD",
-      "Group__Title": "Permitted Development Notes",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_013",
-          "Note__Code": "PD01",
-          "Note__Title": "Rear extension projection",
-          "Note__Body": "Single-storey rear extension with an enclosed projection of 3,500 mm from the rear wall of the house. This dimension describes the enclosed accommodation; the external canopy is shown separately.",
-          "Note__UpdatedIso": "2026-09-14T21:08:02.456Z"
-        },
-        {
-          "Note__Id": "SpecNote_014",
-          "Note__Code": "PD02",
-          "Note__Title": "Extension width",
-          "Note__Body": "Extension width: 9,230 mm. The enclosed extension remains within the existing side-wall lines of the house, as shown on the plans.",
-          "Note__UpdatedIso": "2026-09-14T21:08:02.456Z"
-        },
-        {
-          "Note__Id": "SpecNote_015",
-          "Note__Code": "PD03",
-          "Note__Title": "Flat-roof eaves height",
-          "Note__Body": "Proposed eaves height: 2,650 mm to the finished roof surface behind the parapet, below the 3,000 mm limit applicable within 2 m of a boundary. Parapet excluded from eaves measurement. The separate Class A limit relative to existing house eaves also applies.",
-          "Note__UpdatedIso": "2026-09-14T21:08:02.456Z"
-        },
-        {
-          "Note__Id": "SpecNote_026",
-          "Note__Code": "PD04",
-          "Note__Title": "Overall extension height",
-          "Note__Body": "Parapet coping: 3,000 mm above external ground level, below the 4,000 mm single-storey rear-extension height limit and the existing main roof ridge. Parapet included in overall height; finished roof level behind the parapet defines the eaves height.",
-          "Note__UpdatedIso": "2026-09-14T21:54:39.257Z"
-        }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_027",
-      "Group__Prefix": "RF",
-      "Group__Title": "Roof and Rooflights",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_028",
-          "Note__Code": "RF01",
-          "Note__Title": "Warm flat roof",
-          "Note__Body": "Warm-roof construction behind a parapet, with insulation above the structural deck and a continuous vapour control layer below the insulation. Coordinate thermal performance, condensation control, waterproofing and abutments in the construction details. Form falls to outlets within the stated height envelope.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_029",
-          "Note__Code": "RF02",
-          "Note__Title": "Parapet and copings",
-          "Note__Body": "Parapet conceals the warm-roof edge. Provide weathered copings with drips, secure fixings and sealed joints; turn roof waterproofing up the inner face beneath the coping system. Maintain insulation continuity at the roof edge. Coordinate final coping level with the verified height limits.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_030",
-          "Note__Code": "RF03",
-          "Note__Title": "Flat rooflights",
-          "Note__Body": "Three flat rooflights, nominally 1,500 x 1,000 mm each: two over the dining/occasional seating area and one over the bedroom. Confirm whether dimensions refer to the opening or overall unit before ordering. Provide insulated upstands at least 150 mm above the adjacent finished roof surface.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_031",
-          "Note__Code": "RF04",
-          "Note__Title": "Rooflight pitch and height",
-          "Note__Body": "Install rooflights at the selected manufacturer's required pitch; 5 degrees is indicative only. Keep the highest frame and glazing below the parapet coping and below 3,000 mm above the verified planning ground datum. Confirm the complete pitched assembly before ordering; revise conflicting details, not the minimum upstand.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_032",
-          "Note__Code": "RF05",
-          "Note__Title": "Rainwater drainage",
-          "Note__Body": "Form positive falls to sized roof outlets and rainwater pipes. Provide accessible outlets and an emergency overflow to the parapet-enclosed roof. Confirm discharge route and capacity before construction; keep all roof drainage within the site and clear of door thresholds.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_033",
-      "Group__Prefix": "OP",
-      "Group__Title": "Windows and Doors",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_034",
-          "Note__Code": "OP01",
-          "Note__Title": "East-facing sliding doors",
-          "Note__Body": "Large glazed sliding doors to the east, garden-facing elevation. Frame material, colour, panel arrangement and opening direction to be confirmed. Coordinate structural opening and deflection tolerances with the supplier. Provide safety glazing, weather seals and a drained threshold; confirm thermal performance and ventilation in the construction specification.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_035",
-          "Note__Code": "OP02",
-          "Note__Title": "East-facing bedroom window",
-          "Note__Body": "New uPVC window to the bedroom on the east, garden-facing elevation. Colour and opening arrangement to be agreed. Coordinate glazing, ventilation and any required escape opening with the Building Regulations design; confirm clear opening dimensions and sill height before ordering.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        }
-      ]
-    },
-    {
-      "Group__Id": "SpecGroup_036",
-      "Group__Prefix": "PR",
-      "Group__Title": "Canopy and Screen",
-      "Group__IsGeneral": false,
-      "Group__Notes": [
-        {
-          "Note__Id": "SpecNote_037",
-          "Note__Code": "PR01",
-          "Note__Title": "Entrance canopy",
-          "Note__Body": "Flat-roof canopy over the external area immediately outside the sliding doors. Coordinate projection and levels between plan and elevations. Provide weatherproof roof covering, falls, edge trims and drainage clear of the entrance. Structural support and cantilever to SN03.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        },
-        {
-          "Note__Id": "SpecNote_038",
-          "Note__Code": "PR02",
-          "Note__Title": "Vertical metal screen",
-          "Note__Body": "Open screen of vertical powder-coated metal slats to one side of the canopy; metal type, section, spacing and colour to be agreed. Fix to a corrosion-protected supporting frame. Retain open gaps between slats. Canopy loads to be carried by the engineer-designed structure, not decorative infill.",
-          "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-        }
-      ]
-    }
-  ]
+    ]
 }

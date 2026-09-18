@@ -392,7 +392,7 @@
                                 compress : true, putOnlyUsedFonts : true });
         Na__LePdfFonts__Install(doc);
         doc.setProperties({
-            title   : meta.title + ' - ' + (meta.code || ''),
+            title   : [ meta.title, meta.code ].filter(Boolean).join(' - '),   // <-- Joined, not concatenated: a project with no code leaves no dangling separator
             subject : meta.number + ' Rev ' + meta.revision + ', ' + Na__LeSpec__ListNotes().length + ' notes',
             author  : setup.author,
             creator : setup.creator

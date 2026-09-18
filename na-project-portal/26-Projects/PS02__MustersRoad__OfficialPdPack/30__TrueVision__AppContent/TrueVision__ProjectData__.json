@@ -26,10 +26,7 @@
             "label": "Concept Design - Scheme-02",
             "modelUrls": [
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__01__OrbitHelperCube__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__LandscapeEnvironment__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingFixtures__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingFixtures__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb",
@@ -46,8 +43,12 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFurniture__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__MeshModel__.glb"
             ]
         }
     ],
@@ -70,13 +71,13 @@
     "SitePlan__DataStore": {
         "SitePlan__FolderName": "SitePlan__DrawingData",
         "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
-        "SitePlan__ExportedIso": "2026-09-14T19:08:14Z",
-        "SitePlan__NorthAngleDeg": 0.0,
+        "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
+        "SitePlan__NorthAngleDeg": 0,
         "SitePlan__BoundsMm": {
-            "MinX": 0.0,
+            "MinX": 0,
             "MinZ": -143295.2,
-            "MaxX": 150353.0,
-            "MaxZ": 0.0
+            "MaxX": 150353,
+            "MaxZ": 0
         },
         "SitePlan__Layers": [
             {
@@ -102,10 +103,10 @@
                 ],
                 "Layer__SegmentCount": 364,
                 "Layer__BoundsMm": {
-                    "MinX": 0.0,
+                    "MinX": 0,
                     "MinZ": -143295.2,
-                    "MaxX": 150353.0,
-                    "MaxZ": 0.0
+                    "MaxX": 150353,
+                    "MaxZ": 0
                 }
             },
             {
@@ -160,8 +161,8 @@
                 ],
                 "Layer__SegmentCount": 394,
                 "Layer__BoundsMm": {
-                    "MinX": 0.0,
-                    "MinZ": -142893.0,
+                    "MinX": 0,
+                    "MinZ": -142893,
                     "MaxX": 136084.7,
                     "MaxZ": -455.9
                 }
@@ -190,8 +191,8 @@
                 "Layer__SegmentCount": 3,
                 "Layer__BoundsMm": {
                     "MinX": 74001.6,
-                    "MinZ": -75827.4,
-                    "MaxX": 77488.6,
+                    "MinZ": -75797.2,
+                    "MaxX": 77139.9,
                     "MaxZ": -66330.2
                 }
             },
@@ -216,12 +217,12 @@
                     500,
                     1250
                 ],
-                "Layer__SegmentCount": 13,
+                "Layer__SegmentCount": 14,
                 "Layer__BoundsMm": {
-                    "MinX": 48334.7,
-                    "MinZ": -78337.2,
-                    "MaxX": 92784.7,
-                    "MaxZ": -62437.2
+                    "MinX": 48342.9,
+                    "MinZ": -78144.6,
+                    "MaxX": 93160.7,
+                    "MaxZ": -62242.1
                 }
             }
         ]
@@ -944,7 +945,7 @@
         "LayoutEditor__DrawingsData__Sheets": [
             {
                 "Sheet__Id": "Sheet_002",
-                "Sheet__Name": "D01 - Floor Plans",
+                "Sheet__Name": "D21 - Floor Plans",
                 "Sheet__Order": 1,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
@@ -953,8 +954,9 @@
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD",
                     "Sheet__Fields__DrawnBy": "A. Noble",
-                    "Sheet__Fields__DrawingNumber": "PS01_T02_D01 ",
-                    "Sheet__Fields__Title": "Permitted Development Compliance  -  Existing Conditions & Design Proposal Floor Plans"
+                    "Sheet__Fields__DrawingNumber": "PS01_T02_D21 ",
+                    "Sheet__Fields__Title": "Permitted Development Compliance  -  Existing Conditions & Design Proposal Floor Plans",
+                    "Sheet__Fields__Revision": "B"
                 },
                 "Sheet__Layers": [
                     {
@@ -1122,7 +1124,7 @@
                         "Annotation__Id": "Text_004",
                         "Annotation__Text": "Dining Area",
                         "Annotation__PosXMm": 355.1037220280926,
-                        "Annotation__PosYMm": 200.82727673575243,
+                        "Annotation__PosYMm": 202.82727673575243,
                         "Annotation__SizeMm": 3,
                         "Annotation__FontWeight": 400,
                         "Annotation__Colour": "#4d4d4d",
@@ -1174,7 +1176,7 @@
                         "Annotation__Id": "Text_008",
                         "Annotation__Text": "Occasional \nSeating",
                         "Annotation__PosXMm": 302.62609734406806,
-                        "Annotation__PosYMm": 192.3010779016936,
+                        "Annotation__PosYMm": 170.3010779016936,
                         "Annotation__SizeMm": 2,
                         "Annotation__FontWeight": 400,
                         "Annotation__Colour": "#4d4d4d",
@@ -1260,6 +1262,162 @@
                         "Annotation__LeaderXMm": null,
                         "Annotation__LeaderYMm": null,
                         "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_015",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 285.74696054962266,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_016",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 385.6388055620271,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_017",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 305.7253308095922,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_018",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 325.8285696954492,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_019",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 345.9318022938627,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_020",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 365.8477319534452,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_021",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 33.00923258292323,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_022",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 132.90107759532765,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_023",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 52.987602842892784,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_024",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 73.09084172874975,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_025",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 93.19407432716326,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_026",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 113.11000398674577,
+                        "Annotation__PosYMm": 328.2631042042355,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
                     }
                 ],
                 "Sheet__Dimensions": [
@@ -1287,7 +1445,7 @@
                         "Dimension__StartYMm": 161.34420816333594,
                         "Dimension__EndXMm": 285.7788180818372,
                         "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 114.98101842538026,
+                        "Dimension__OffsetMm": 109.85145892952349,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -1306,7 +1464,7 @@
                         "Dimension__StartYMm": 231.3442081633359,
                         "Dimension__EndXMm": 303.5788180818372,
                         "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 44.981018425380284,
+                        "Dimension__OffsetMm": 39.85145892952352,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -1325,7 +1483,7 @@
                         "Dimension__StartYMm": 231.3442081633359,
                         "Dimension__EndXMm": 378.37881808183715,
                         "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 44.981018425380284,
+                        "Dimension__OffsetMm": 39.85145892952352,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -1364,7 +1522,7 @@
                         "Dimension__StartYMm": 231.3442081633359,
                         "Dimension__EndXMm": 407.0788180818372,
                         "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 44.981018425380284,
+                        "Dimension__OffsetMm": 39.85145892952352,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -1384,7 +1542,7 @@
                         "Dimension__StartYMm": 231.3442081633359,
                         "Dimension__EndXMm": 456.5788180818372,
                         "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 44.981018425380284,
+                        "Dimension__OffsetMm": 39.85145892952352,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -1404,7 +1562,7 @@
                         "Dimension__StartYMm": 231.3442081633359,
                         "Dimension__EndXMm": 470.37881808183715,
                         "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 44.981018425380284,
+                        "Dimension__OffsetMm": 39.85145892952352,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -1424,7 +1582,7 @@
                         "Dimension__StartYMm": 231.3442081633359,
                         "Dimension__EndXMm": 470.37881808183715,
                         "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 53.19717375863286,
+                        "Dimension__OffsetMm": 48.20523453055432,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -1443,7 +1601,7 @@
                         "Dimension__StartXMm": 285.7788180818372,
                         "Dimension__StartYMm": 161.34420816333594,
                         "Dimension__EndXMm": 285.7788180818372,
-                        "Dimension__EndYMm": 231.3442081633359,
+                        "Dimension__EndYMm": 224.3442081633359,
                         "Dimension__OffsetMm": 23.624644816623004,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
@@ -1461,7 +1619,7 @@
                         "Dimension__Id": "Dim_011",
                         "Dimension__ViewportId": "Viewport_002",
                         "Dimension__StartXMm": 470.37881808183715,
-                        "Dimension__StartYMm": 231.3442081633359,
+                        "Dimension__StartYMm": 224.3442081633359,
                         "Dimension__EndXMm": 470.37881808183715,
                         "Dimension__EndYMm": 161.34420816333594,
                         "Dimension__OffsetMm": 13.06682159033869,
@@ -1525,7 +1683,7 @@
                         "Dimension__StartYMm": 224.3442081633359,
                         "Dimension__EndXMm": 396.6787985505872,
                         "Dimension__EndYMm": 224.3442081633359,
-                        "Dimension__OffsetMm": 5.499352037189112,
+                        "Dimension__OffsetMm": 10.263028758533892,
                         "Dimension__TextSizeMm": 2,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "arrow",
@@ -1546,7 +1704,7 @@
                         "Dimension__StartYMm": 224.3442081633359,
                         "Dimension__EndXMm": 394.5788180818372,
                         "Dimension__EndYMm": 224.3442081633359,
-                        "Dimension__OffsetMm": 5.499352037189112,
+                        "Dimension__OffsetMm": 10.263028758533892,
                         "Dimension__TextSizeMm": 2,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "arrow",
@@ -1569,7 +1727,7 @@
                         "Dimension__StartYMm": 224.3442081633359,
                         "Dimension__EndXMm": 292.7788180818372,
                         "Dimension__EndYMm": 224.3442081633359,
-                        "Dimension__OffsetMm": 5.499352037189112,
+                        "Dimension__OffsetMm": 10.263028758533892,
                         "Dimension__TextSizeMm": 2,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "arrow",
@@ -1584,81 +1742,12 @@
                         "Dimension__AtScale": true
                     },
                     {
-                        "Dimension__Id": "Dim_017",
-                        "Dimension__ViewportId": "Viewport_002",
-                        "Dimension__StartXMm": 285.7788180818372,
-                        "Dimension__StartYMm": 231.3442081633359,
-                        "Dimension__EndXMm": 292.7788180818372,
-                        "Dimension__EndYMm": 224.3442081633359,
-                        "Dimension__OffsetMm": -12.499352037189112,
-                        "Dimension__TextSizeMm": 2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "arrow",
-                        "Dimension__TickLengthMm": 1,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "horizontal",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true,
-                        "Dimension__TextDXMm": -8.11395444300831,
-                        "Dimension__TextDYMm": -3.477407530974176
-                    },
-                    {
-                        "Dimension__Id": "Dim_018",
-                        "Dimension__ViewportId": "Viewport_002",
-                        "Dimension__StartXMm": 463.37881808183715,
-                        "Dimension__StartYMm": 224.3442081633359,
-                        "Dimension__EndXMm": 470.37881808183715,
-                        "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": -5.499352037189112,
-                        "Dimension__TextSizeMm": 2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "arrow",
-                        "Dimension__TickLengthMm": 1,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "horizontal",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true,
-                        "Dimension__TextDXMm": 8.523024049171568,
-                        "Dimension__TextDYMm": -3.640042875698555
-                    },
-                    {
-                        "Dimension__Id": "Dim_019",
-                        "Dimension__ViewportId": "Viewport_002",
-                        "Dimension__StartXMm": 407.0788180818372,
-                        "Dimension__StartYMm": 224.3442081633359,
-                        "Dimension__EndXMm": 407.0788180818372,
-                        "Dimension__EndYMm": 231.3442081633359,
-                        "Dimension__OffsetMm": 2.456396817188761,
-                        "Dimension__TextSizeMm": 2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "arrow",
-                        "Dimension__TickLengthMm": 1,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true,
-                        "Dimension__TextDXMm": -2.2343883576548365,
-                        "Dimension__TextDYMm": 8.591809725889647
-                    },
-                    {
                         "Dimension__Id": "Dim_020",
                         "Dimension__ViewportId": "Viewport_002",
                         "Dimension__StartXMm": 396.6787985505872,
                         "Dimension__StartYMm": 161.34420816333594,
-                        "Dimension__EndXMm": 396.6787985505872,
-                        "Dimension__EndYMm": 224.3442081633359,
+                        "Dimension__EndXMm": 401.8788083162122,
+                        "Dimension__EndYMm": 217.3442081633359,
                         "Dimension__OffsetMm": -11.481921009713517,
                         "Dimension__TextSizeMm": 2,
                         "Dimension__Colour": "#950000",
@@ -1740,10 +1829,10 @@
                         "Dimension__Id": "Dim_024",
                         "Dimension__ViewportId": "Viewport_001",
                         "Dimension__StartXMm": 138.40581086003112,
-                        "Dimension__StartYMm": 191.7525407019407,
+                        "Dimension__StartYMm": 192.2525407019407,
                         "Dimension__EndXMm": 205.40581086003112,
                         "Dimension__EndYMm": 223.55254070194064,
-                        "Dimension__OffsetMm": 46.24082426062381,
+                        "Dimension__OffsetMm": 45.74082426062381,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#1f407a",
                         "Dimension__Terminator": "tick",
@@ -1800,27 +1889,6 @@
                         "Dimension__AtScale": true
                     },
                     {
-                        "Dimension__Id": "Dim_027",
-                        "Dimension__ViewportId": "Viewport_002",
-                        "Dimension__StartXMm": 285.7788180818372,
-                        "Dimension__StartYMm": 161.34420816333594,
-                        "Dimension__EndXMm": 286.92881808183716,
-                        "Dimension__EndYMm": 244.44420816333593,
-                        "Dimension__OffsetMm": 31.494192820538387,
-                        "Dimension__TextSizeMm": 2.5,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "tick",
-                        "Dimension__TickLengthMm": 1,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
                         "Dimension__Id": "Dim_028",
                         "Dimension__ViewportId": "Viewport_001",
                         "Dimension__StartXMm": 205.40581086003112,
@@ -1857,69 +1925,6 @@
                         "Dimension__UnitsSuffix": " mm",
                         "Dimension__OverrideText": null,
                         "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_031",
-                        "Dimension__ViewportId": "Viewport_002",
-                        "Dimension__StartXMm": 410.0288180818372,
-                        "Dimension__StartYMm": 154.84420816333594,
-                        "Dimension__EndXMm": 409.7788180818372,
-                        "Dimension__EndYMm": 62.844208163335935,
-                        "Dimension__OffsetMm": -3.0322216493702854,
-                        "Dimension__TextSizeMm": 2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "arrow",
-                        "Dimension__TickLengthMm": 1,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_032",
-                        "Dimension__ViewportId": "Viewport_002",
-                        "Dimension__StartXMm": 397.1788180818372,
-                        "Dimension__StartYMm": 154.84420816333594,
-                        "Dimension__EndXMm": 464.6788180818372,
-                        "Dimension__EndYMm": 154.84420816333594,
-                        "Dimension__OffsetMm": -16.067834998885587,
-                        "Dimension__TextSizeMm": 2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "arrow",
-                        "Dimension__TickLengthMm": 1,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "horizontal",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_033",
-                        "Dimension__ViewportId": "Viewport_002",
-                        "Dimension__StartXMm": 292.7788180818372,
-                        "Dimension__StartYMm": 161.34420816333594,
-                        "Dimension__EndXMm": 387.0788180818372,
-                        "Dimension__EndYMm": 161.34420816333594,
-                        "Dimension__OffsetMm": -10.859556666961254,
-                        "Dimension__TextSizeMm": 2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "arrow",
-                        "Dimension__TickLengthMm": 1,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "horizontal",
                         "Dimension__StartExtensionMm": 2,
                         "Dimension__EndExtensionMm": 2,
                         "Dimension__LayerId": "Layer_003",
@@ -1993,8 +1998,8 @@
                         "Dimension__ViewportId": "Viewport_002",
                         "Dimension__StartXMm": 292.7788180818372,
                         "Dimension__StartYMm": 161.34420816333594,
-                        "Dimension__EndXMm": 292.7788180818372,
-                        "Dimension__EndYMm": 224.3442081633359,
+                        "Dimension__EndXMm": 303.5788180818372,
+                        "Dimension__EndYMm": 217.3442081633359,
                         "Dimension__OffsetMm": -41.57391602133083,
                         "Dimension__TextSizeMm": 2,
                         "Dimension__Colour": "#950000",
@@ -2008,6 +2013,52 @@
                         "Dimension__EndExtensionMm": 2,
                         "Dimension__LayerId": "Layer_003",
                         "Dimension__AtScale": true
+                    },
+                    {
+                        "Dimension__Id": "Dim_038",
+                        "Dimension__ViewportId": "Viewport_002",
+                        "Dimension__StartXMm": 463.37881808183715,
+                        "Dimension__StartYMm": 217.3442081633359,
+                        "Dimension__EndXMm": 470.37881808183715,
+                        "Dimension__EndYMm": 224.3442081633359,
+                        "Dimension__OffsetMm": -3.263028758533892,
+                        "Dimension__TextSizeMm": 2,
+                        "Dimension__Colour": "#950000",
+                        "Dimension__Terminator": "arrow",
+                        "Dimension__TickLengthMm": 1,
+                        "Dimension__Precision": 0,
+                        "Dimension__UnitsSuffix": " mm",
+                        "Dimension__OverrideText": null,
+                        "Dimension__Orientation": "horizontal",
+                        "Dimension__StartExtensionMm": 2,
+                        "Dimension__EndExtensionMm": 2,
+                        "Dimension__LayerId": "Layer_003",
+                        "Dimension__AtScale": true,
+                        "Dimension__TextDXMm": 8.447296780571719,
+                        "Dimension__TextDYMm": -2.926385259951701
+                    },
+                    {
+                        "Dimension__Id": "Dim_039",
+                        "Dimension__ViewportId": "Viewport_002",
+                        "Dimension__StartXMm": 292.7788180818372,
+                        "Dimension__StartYMm": 217.3442081633359,
+                        "Dimension__EndXMm": 285.7788180818372,
+                        "Dimension__EndYMm": 224.3442081633359,
+                        "Dimension__OffsetMm": 3.263028758533892,
+                        "Dimension__TextSizeMm": 2,
+                        "Dimension__Colour": "#950000",
+                        "Dimension__Terminator": "arrow",
+                        "Dimension__TickLengthMm": 1,
+                        "Dimension__Precision": 0,
+                        "Dimension__UnitsSuffix": " mm",
+                        "Dimension__OverrideText": null,
+                        "Dimension__Orientation": "horizontal",
+                        "Dimension__StartExtensionMm": 2,
+                        "Dimension__EndExtensionMm": 2,
+                        "Dimension__LayerId": "Layer_003",
+                        "Dimension__AtScale": true,
+                        "Dimension__TextDXMm": -7.9857239847136725,
+                        "Dimension__TextDYMm": -2.3516263597512364
                     }
                 ],
                 "Sheet__Shapes": [
@@ -2183,27 +2234,27 @@
                         "Shape__Points": [
                             [
                                 470.37881808183715,
-                                161.34420816333594
+                                154.34420816333594
                             ],
                             [
                                 463.37881808183715,
-                                161.34420816333594
+                                154.34420816333594
                             ],
                             [
                                 463.37881808183715,
-                                224.3442081633359
+                                217.3442081633359
+                            ],
+                            [
+                                456.5788180818372,
+                                217.3442081633359
                             ],
                             [
                                 456.5788180818372,
                                 224.3442081633359
-                            ],
-                            [
-                                456.5788180818372,
-                                231.3442081633359
                             ],
                             [
                                 470.37881808183715,
-                                231.3442081633359
+                                224.3442081633359
                             ]
                         ],
                         "Shape__Closed": true,
@@ -2269,27 +2320,27 @@
                             ],
                             [
                                 396.6787985505872,
-                                224.3442081633359
+                                217.3442081633359
+                            ],
+                            [
+                                407.0788180818372,
+                                217.3442081633359
                             ],
                             [
                                 407.0788180818372,
                                 224.3442081633359
                             ],
                             [
-                                407.0788180818372,
-                                231.3442081633359
-                            ],
-                            [
-                                378.37881808183715,
-                                231.3442081633359
-                            ],
-                            [
                                 378.37881808183715,
                                 224.3442081633359
+                            ],
+                            [
+                                378.37881808183715,
+                                217.3442081633359
                             ],
                             [
                                 394.5788180818372,
-                                224.3442081633359
+                                217.3442081633359
                             ]
                         ],
                         "Shape__Closed": true,
@@ -2316,19 +2367,19 @@
                             ],
                             [
                                 292.7788180818372,
-                                224.3442081633359
+                                217.3442081633359
+                            ],
+                            [
+                                303.5788180818372,
+                                217.3442081633359
                             ],
                             [
                                 303.5788180818372,
                                 224.3442081633359
-                            ],
-                            [
-                                303.5788180818372,
-                                231.3442081633359
                             ],
                             [
                                 285.7788180818372,
-                                231.3442081633359
+                                224.3442081633359
                             ]
                         ],
                         "Shape__Closed": true,
@@ -3702,16 +3753,16 @@
                         "Shape__LayerId": "Layer_004",
                         "Shape__Points": [
                             [
-                                298.8386068783247,
-                                229.59941570194064
+                                296.9500305642896,
+                                220.59941570194064
                             ],
                             [
                                 340.9788180818372,
-                                229.7535099211484
+                                220.7535099211484
                             ],
                             [
-                                381.83439369911986,
-                                229.59941570194064
+                                382.37881808183715,
+                                220.59941570194064
                             ]
                         ],
                         "Shape__Closed": false,
@@ -4171,43 +4222,6 @@
                             "LineStyle__GapMm": 1.5,
                             "LineStyle__MarkMm": 0.1
                         }
-                    },
-                    {
-                        "Shape__Id": "Shape_066",
-                        "Shape__LayerId": "Layer_004",
-                        "Shape__Points": [
-                            [
-                                286.92881808183716,
-                                231.3442081633359
-                            ],
-                            [
-                                286.92881808183716,
-                                247.3442081633359
-                            ],
-                            [
-                                393.7288180818372,
-                                247.3442081633359
-                            ],
-                            [
-                                393.7288180818372,
-                                231.3442081633359
-                            ]
-                        ],
-                        "Shape__Closed": false,
-                        "Shape__StrokeColour": "#4d4d4d",
-                        "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": null,
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 1,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": {
-                            "LineStyle__Kind": "dashed",
-                            "LineStyle__Scale": 0.5,
-                            "LineStyle__DashMm": 2.5,
-                            "LineStyle__GapMm": 1.5,
-                            "LineStyle__MarkMm": 0.1
-                        }
                     }
                 ],
                 "Sheet__Leaders": [
@@ -4240,10 +4254,10 @@
                         "Leader__Id": "Leader_002",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 349.3988180818372,
-                        "Leader__TipYMm": 229.29420816333595,
-                        "Leader__AnchorXMm": 374.95804174025,
-                        "Leader__AnchorYMm": 251.8562185256773,
+                        "Leader__TipXMm": 349.2290541298723,
+                        "Leader__TipYMm": 223.73447186095046,
+                        "Leader__AnchorXMm": 374.75526397661133,
+                        "Leader__AnchorYMm": 247.29386178885767,
                         "Leader__Text": "SN02",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -4269,7 +4283,7 @@
                         "Leader__TipYMm": 158.60157131013614,
                         "Leader__AnchorXMm": 369.4145362353788,
                         "Leader__AnchorYMm": 141.65178093837608,
-                        "Leader__Text": "SN04",
+                        "Leader__Text": "SN03",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
                         "Leader__TextColour": "#172b3a",
@@ -4294,7 +4308,7 @@
                         "Leader__TipYMm": 158.00688815740986,
                         "Leader__AnchorXMm": 68.620128043631,
                         "Leader__AnchorYMm": 142.01271857924817,
-                        "Leader__Text": "SN04",
+                        "Leader__Text": "SN03",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
                         "Leader__TextColour": "#172b3a",
@@ -4387,36 +4401,11 @@
                         "Leader__SpecNoteId": "SpecNote_022"
                     },
                     {
-                        "Leader__Id": "Leader_008",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 288.2788180818372,
-                        "Leader__TipYMm": 239.3442081633359,
-                        "Leader__AnchorXMm": 275.4350970101645,
-                        "Leader__AnchorYMm": 254.93301612627477,
-                        "Leader__Text": "PR02",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_038"
-                    },
-                    {
                         "Leader__Id": "Leader_009",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 425.2824118318372,
-                        "Leader__TipYMm": 229.8442081633359,
+                        "Leader__TipXMm": 425.9589548005872,
+                        "Leader__TipYMm": 223.24420816333594,
                         "Leader__AnchorXMm": 438.5757340775957,
                         "Leader__AnchorYMm": 246.6799292059041,
                         "Leader__Text": "OP02",
@@ -4440,10 +4429,10 @@
                         "Leader__Id": "Leader_010",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 333.7865133943372,
-                        "Leader__TipYMm": 231.3442081633359,
-                        "Leader__AnchorXMm": 308.5012413751961,
-                        "Leader__AnchorYMm": 251.4470564490225,
+                        "Leader__TipXMm": 332.5588180818372,
+                        "Leader__TipYMm": 221.69420816333593,
+                        "Leader__AnchorXMm": 307.37442185020365,
+                        "Leader__AnchorYMm": 246.54784884559874,
                         "Leader__Text": "OP01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -4512,38 +4501,13 @@
                         "Leader__SpecNoteId": "SpecNote_031"
                     },
                     {
-                        "Leader__Id": "Leader_013",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 390.75310579981374,
-                        "Leader__TipYMm": 247.05827032867262,
-                        "Leader__AnchorXMm": 405.7355057067574,
-                        "Leader__AnchorYMm": 257.95456117008615,
-                        "Leader__Text": "SN03",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_009"
-                    },
-                    {
                         "Leader__Id": "Leader_014",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 262.2124375429897,
-                        "Leader__TipYMm": 220.63303854531924,
-                        "Leader__AnchorXMm": 269.98515159973834,
-                        "Leader__AnchorYMm": 205.08758471082407,
+                        "Leader__TipXMm": 262.1521009241429,
+                        "Leader__TipYMm": 201.29476938537593,
+                        "Leader__AnchorXMm": 257.24520281194395,
+                        "Leader__AnchorYMm": 209.1549896649198,
                         "Leader__Text": "PD01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -4594,7 +4558,7 @@
                         "Leader__TipYMm": 158.24622578747247,
                         "Leader__AnchorXMm": 263.11942115360085,
                         "Leader__AnchorYMm": 142.13614292017294,
-                        "Leader__Text": "SN05",
+                        "Leader__Text": "SN04",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
                         "Leader__TextColour": "#172b3a",
@@ -4675,59 +4639,6 @@
                     "GroupHeadings": false
                 },
                 "Sheet__Groups": [
-                    {
-                        "Group__Members": [
-                            {
-                                "kind": "shape",
-                                "id": "Shape_016"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_017"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_018"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_019"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_020"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_021"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_022"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_023"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_024"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_025"
-                            },
-                            {
-                                "kind": "shape",
-                                "id": "Shape_026"
-                            },
-                            {
-                                "kind": "annotation",
-                                "id": "Text_001"
-                            }
-                        ],
-                        "Group__Id": "Group_001"
-                    },
                     {
                         "Group__Members": [
                             {
@@ -4836,17 +4747,18 @@
             },
             {
                 "Sheet__Id": "Sheet_001",
-                "Sheet__Name": "D02 - Elevations",
+                "Sheet__Name": "D22 - Elevations",
                 "Sheet__Order": 2,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
-                    "Sheet__Fields__DrawingNumber": "PS01_T02_D02",
+                    "Sheet__Fields__DrawingNumber": "PS01_T02_D22",
                     "Sheet__Fields__DrawnBy": "A. Noble",
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
-                    "Sheet__Fields__Title": "Permitted Development Compliance  -  Existing Conditions & Design Proposal Elevations"
+                    "Sheet__Fields__Title": "Permitted Development Compliance  -  Existing Conditions & Design Proposal Elevations",
+                    "Sheet__Fields__Revision": "B"
                 },
                 "Sheet__Layers": [
                     {
@@ -5280,6 +5192,474 @@
                         "Annotation__LeaderXMm": null,
                         "Annotation__LeaderYMm": null,
                         "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_009",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 17.41914605211774,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_010",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 117.31099106452216,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_011",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 37.39751631208729,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_012",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 57.50075519794426,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_013",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 77.60398779635777,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_014",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 97.51991745594027,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_015",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 248.015903247219,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_016",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 347.9077482596234,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_017",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 267.99427350718855,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_018",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 288.0975123930455,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_019",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 308.20074499145903,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_020",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 328.11667465104154,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_021",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 399.81740854519705,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_022",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 499.70925355760147,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_023",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 419.7957788051666,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_024",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 439.8990176910236,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_025",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 460.0022502894371,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_026",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 479.9181799490196,
+                        "Annotation__PosYMm": 395.92886971846195,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_027",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 399.81740854519705,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_028",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 499.70925355760147,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_029",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 419.7957788051666,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_030",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 439.8990176910236,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_031",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 460.0022502894371,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_032",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 479.9181799490196,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_033",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 248.015903247219,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_034",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 347.9077482596234,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_035",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 267.99427350718855,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_036",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 288.0975123930455,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_037",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 308.20074499145903,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_038",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 328.11667465104154,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_039",
+                        "Annotation__Text": "0",
+                        "Annotation__PosXMm": 17.41914605211774,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_040",
+                        "Annotation__Text": "5",
+                        "Annotation__PosXMm": 117.31099106452216,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2.5,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_041",
+                        "Annotation__Text": "1",
+                        "Annotation__PosXMm": 37.39751631208729,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_042",
+                        "Annotation__Text": "2",
+                        "Annotation__PosXMm": 57.50075519794426,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_043",
+                        "Annotation__Text": "3",
+                        "Annotation__PosXMm": 77.60398779635777,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_044",
+                        "Annotation__Text": "4",
+                        "Annotation__PosXMm": 97.51991745594027,
+                        "Annotation__PosYMm": 183.91024599976572,
+                        "Annotation__SizeMm": 2,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "center",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
                     }
                 ],
                 "Sheet__Dimensions": [
@@ -5577,34 +5957,13 @@
                         "Dimension__ExtensionsLinked": false
                     },
                     {
-                        "Dimension__Id": "Dim_016",
-                        "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 249.37412121194134,
-                        "Dimension__StartYMm": 344.32600786048454,
-                        "Dimension__EndXMm": 261.8741212119413,
-                        "Dimension__EndYMm": 344.32600786048454,
-                        "Dimension__OffsetMm": 12.484063286103378,
-                        "Dimension__TextSizeMm": 2.5,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "tick",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "horizontal",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
                         "Dimension__Id": "Dim_017",
                         "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 261.8741212119413,
-                        "Dimension__StartYMm": 344.32600786048454,
+                        "Dimension__StartXMm": 268.8741212119413,
+                        "Dimension__StartYMm": 345.32600786048454,
                         "Dimension__EndXMm": 331.8741212119413,
                         "Dimension__EndYMm": 342.32600786048454,
-                        "Dimension__OffsetMm": 12.484063286103378,
+                        "Dimension__OffsetMm": 11.484063286103378,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -5623,7 +5982,7 @@
                         "Dimension__ViewportId": "Viewport_007",
                         "Dimension__StartXMm": 429.76299062124184,
                         "Dimension__StartYMm": 342.02059390599317,
-                        "Dimension__EndXMm": 499.76299062124184,
+                        "Dimension__EndXMm": 492.76299062124184,
                         "Dimension__EndYMm": 342.02059390599317,
                         "Dimension__OffsetMm": 14.78947724059475,
                         "Dimension__TextSizeMm": 2.5,
@@ -5640,34 +5999,13 @@
                         "Dimension__AtScale": true
                     },
                     {
-                        "Dimension__Id": "Dim_019",
-                        "Dimension__ViewportId": "Viewport_007",
-                        "Dimension__StartXMm": 499.76299062124184,
-                        "Dimension__StartYMm": 343.02059390599317,
-                        "Dimension__EndXMm": 512.2629906212419,
-                        "Dimension__EndYMm": 342.02059390599317,
-                        "Dimension__OffsetMm": 13.78947724059475,
-                        "Dimension__TextSizeMm": 2.5,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "tick",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "horizontal",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
                         "Dimension__Id": "Dim_020",
                         "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 261.8741212119413,
-                        "Dimension__StartYMm": 346.32600786048454,
+                        "Dimension__StartXMm": 268.8741212119413,
+                        "Dimension__StartYMm": 345.32600786048454,
                         "Dimension__EndXMm": 261.07412121194136,
                         "Dimension__EndYMm": 285.12600786048455,
-                        "Dimension__OffsetMm": -24.224817832379927,
+                        "Dimension__OffsetMm": -20.482897894765216,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -5682,76 +6020,13 @@
                         "Dimension__AtScale": true
                     },
                     {
-                        "Dimension__Id": "Dim_021",
-                        "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 261.8741212119413,
-                        "Dimension__StartYMm": 342.32600786048454,
-                        "Dimension__EndXMm": 245.87412121194134,
-                        "Dimension__EndYMm": 297.12600786048455,
-                        "Dimension__OffsetMm": 7.58049417412991,
-                        "Dimension__TextSizeMm": 2.2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "tick",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_022",
-                        "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 245.87412121194134,
-                        "Dimension__StartYMm": 291.12600786048455,
-                        "Dimension__EndXMm": 261.8741212119413,
-                        "Dimension__EndYMm": 342.32600786048454,
-                        "Dimension__OffsetMm": -30.078921051485707,
-                        "Dimension__TextSizeMm": 2.2,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "tick",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
                         "Dimension__Id": "Dim_023",
                         "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 248.77412121194135,
+                        "Dimension__StartXMm": 268.8741212119413,
                         "Dimension__StartYMm": 342.32600786048454,
-                        "Dimension__EndXMm": 261.07412121194136,
-                        "Dimension__EndYMm": 285.12600786048455,
-                        "Dimension__OffsetMm": 34.31134079492506,
-                        "Dimension__TextSizeMm": 2.5,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "tick",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_024",
-                        "Dimension__ViewportId": "Viewport_007",
-                        "Dimension__StartXMm": 499.76299062124184,
-                        "Dimension__StartYMm": 346.02059390599317,
-                        "Dimension__EndXMm": 515.7629906212419,
-                        "Dimension__EndYMm": 290.8205939059932,
-                        "Dimension__OffsetMm": 20.804985358916667,
+                        "Dimension__EndXMm": 261.8811691578977,
+                        "Dimension__EndYMm": 289.32600786048454,
+                        "Dimension__OffsetMm": 14.211340794925093,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -5768,11 +6043,11 @@
                     {
                         "Dimension__Id": "Dim_025",
                         "Dimension__ViewportId": "Viewport_007",
-                        "Dimension__StartXMm": 500.56299062124185,
+                        "Dimension__StartXMm": 493.56299062124185,
                         "Dimension__StartYMm": 284.8205939059932,
-                        "Dimension__EndXMm": 499.76299062124184,
-                        "Dimension__EndYMm": 345.4205939059932,
-                        "Dimension__OffsetMm": 86.54386468379005,
+                        "Dimension__EndXMm": 492.76299062124184,
+                        "Dimension__EndYMm": 345.02059390599317,
+                        "Dimension__OffsetMm": -20.6765897909396,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -5833,8 +6108,8 @@
                         "Dimension__ViewportId": "Viewport_005",
                         "Dimension__StartXMm": 217.12660090531853,
                         "Dimension__StartYMm": 342.32600786048454,
-                        "Dimension__EndXMm": 216.5266009053185,
-                        "Dimension__EndYMm": 346.32600786048454,
+                        "Dimension__EndXMm": 217.1266009053185,
+                        "Dimension__EndYMm": 345.32600786048454,
                         "Dimension__OffsetMm": -8.585639118709594,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
@@ -5940,7 +6215,7 @@
                         "Dimension__ViewportId": "Viewport_001",
                         "Dimension__StartXMm": 197.0591460350423,
                         "Dimension__StartYMm": 139.001619965628,
-                        "Dimension__EndXMm": 221.05914603504226,
+                        "Dimension__EndXMm": 221.05914603504223,
                         "Dimension__EndYMm": 97.00161996562801,
                         "Dimension__OffsetMm": 27.397894390901286,
                         "Dimension__TextSizeMm": 2.5,
@@ -5959,11 +6234,11 @@
                     {
                         "Dimension__Id": "Dim_034",
                         "Dimension__ViewportId": "Viewport_001",
-                        "Dimension__StartXMm": 217.05914603504226,
-                        "Dimension__StartYMm": 143.001619965628,
+                        "Dimension__StartXMm": 217.05914603504223,
+                        "Dimension__StartYMm": 142.001619965628,
                         "Dimension__EndXMm": 221.05914603504226,
                         "Dimension__EndYMm": 97.00161996562801,
-                        "Dimension__OffsetMm": 12.766959266578226,
+                        "Dimension__OffsetMm": 12.766959266578255,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#1f407a",
                         "Dimension__Terminator": "tick",
@@ -5982,8 +6257,8 @@
                         "Dimension__ViewportId": "Viewport_001",
                         "Dimension__StartXMm": 217.0591460350423,
                         "Dimension__StartYMm": 139.001619965628,
-                        "Dimension__EndXMm": 217.05914603504226,
-                        "Dimension__EndYMm": 143.001619965628,
+                        "Dimension__EndXMm": 217.05914603504223,
+                        "Dimension__EndYMm": 142.001619965628,
                         "Dimension__OffsetMm": -7.3978943909012855,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#1f407a",
@@ -6006,7 +6281,7 @@
                         "Dimension__StartXMm": 309.5373087971359,
                         "Dimension__StartYMm": 99.40161996562803,
                         "Dimension__EndXMm": 269.53730879713584,
-                        "Dimension__EndYMm": 143.00161996562804,
+                        "Dimension__EndYMm": 142.00161996562804,
                         "Dimension__OffsetMm": -5.363981483621558,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#1f407a",
@@ -6025,7 +6300,7 @@
                         "Dimension__Id": "Dim_037",
                         "Dimension__ViewportId": "Viewport_002",
                         "Dimension__StartXMm": 249.53730879713586,
-                        "Dimension__StartYMm": 143.00161996562804,
+                        "Dimension__StartYMm": 142.00161996562804,
                         "Dimension__EndXMm": 248.93730879713587,
                         "Dimension__EndYMm": 94.10161996562802,
                         "Dimension__OffsetMm": 5.606644648352841,
@@ -6048,7 +6323,7 @@
                         "Dimension__StartXMm": 307.5373087971359,
                         "Dimension__StartYMm": 97.00161996562802,
                         "Dimension__EndXMm": 249.53730879713586,
-                        "Dimension__EndYMm": 143.00161996562804,
+                        "Dimension__EndYMm": 142.00161996562804,
                         "Dimension__OffsetMm": -15.692530171463886,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#1f407a",
@@ -6069,7 +6344,7 @@
                         "Dimension__StartXMm": 454.4627869221412,
                         "Dimension__StartYMm": 96.98457387309193,
                         "Dimension__EndXMm": 450.4627869221412,
-                        "Dimension__EndYMm": 142.98457387309193,
+                        "Dimension__EndYMm": 141.98457387309193,
                         "Dimension__OffsetMm": 15.12179676232472,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#1f407a",
@@ -6088,7 +6363,7 @@
                         "Dimension__Id": "Dim_041",
                         "Dimension__ViewportId": "Viewport_004",
                         "Dimension__StartXMm": 512.4627869221412,
-                        "Dimension__StartYMm": 142.98457387309193,
+                        "Dimension__StartYMm": 141.98457387309193,
                         "Dimension__EndXMm": 511.8475916096412,
                         "Dimension__EndYMm": 99.78497426371693,
                         "Dimension__OffsetMm": 6.725289997630966,
@@ -6104,50 +6379,6 @@
                         "Dimension__EndExtensionMm": 2,
                         "Dimension__LayerId": "Layer_003",
                         "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_042",
-                        "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 245.87412121194134,
-                        "Dimension__StartYMm": 297.12600786048455,
-                        "Dimension__EndXMm": 261.8741212119413,
-                        "Dimension__EndYMm": 297.12600786048455,
-                        "Dimension__OffsetMm": -8.374293635350512,
-                        "Dimension__TextSizeMm": 1.8,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "dot",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "aligned",
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true,
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2
-                    },
-                    {
-                        "Dimension__Id": "Dim_043",
-                        "Dimension__ViewportId": "Viewport_006",
-                        "Dimension__StartXMm": 245.87412121194134,
-                        "Dimension__StartYMm": 291.12600786048455,
-                        "Dimension__EndXMm": 245.87412121194134,
-                        "Dimension__EndYMm": 297.12600786048455,
-                        "Dimension__OffsetMm": -1.474838710849184,
-                        "Dimension__TextSizeMm": 1.8,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "dot",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true,
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__TextDXMm": -3.077268412953657,
-                        "Dimension__TextDYMm": 6.082249970312148
                     },
                     {
                         "Dimension__Id": "Dim_044",
@@ -6171,78 +6402,13 @@
                         "Dimension__EndExtensionMm": 2
                     },
                     {
-                        "Dimension__Id": "Dim_045",
-                        "Dimension__ViewportId": "Viewport_007",
-                        "Dimension__StartXMm": 499.76299062124184,
-                        "Dimension__StartYMm": 290.8205939059932,
-                        "Dimension__EndXMm": 515.7629906212419,
-                        "Dimension__EndYMm": 290.8205939059932,
-                        "Dimension__OffsetMm": 3.2237357904260193,
-                        "Dimension__TextSizeMm": 1.8,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "dot",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "aligned",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_046",
-                        "Dimension__ViewportId": "Viewport_007",
-                        "Dimension__StartXMm": 499.76299062124184,
-                        "Dimension__StartYMm": 296.8205939059932,
-                        "Dimension__EndXMm": 499.76299062124184,
-                        "Dimension__EndYMm": 342.02059390599317,
-                        "Dimension__OffsetMm": 4.667562844070687,
-                        "Dimension__TextSizeMm": 1.8,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "dot",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true
-                    },
-                    {
-                        "Dimension__Id": "Dim_047",
-                        "Dimension__ViewportId": "Viewport_007",
-                        "Dimension__StartXMm": 499.76299062124184,
-                        "Dimension__StartYMm": 296.8205939059932,
-                        "Dimension__EndXMm": 499.76299062124184,
-                        "Dimension__EndYMm": 290.8205939059932,
-                        "Dimension__OffsetMm": -4.667562844070687,
-                        "Dimension__TextSizeMm": 1.8,
-                        "Dimension__Colour": "#950000",
-                        "Dimension__Terminator": "dot",
-                        "Dimension__TickLengthMm": 1.5,
-                        "Dimension__Precision": 0,
-                        "Dimension__UnitsSuffix": " mm",
-                        "Dimension__OverrideText": null,
-                        "Dimension__Orientation": "vertical",
-                        "Dimension__StartExtensionMm": 2,
-                        "Dimension__EndExtensionMm": 2,
-                        "Dimension__LayerId": "Layer_003",
-                        "Dimension__AtScale": true,
-                        "Dimension__TextDXMm": -3.7135190327843475,
-                        "Dimension__TextDYMm": 5.98285640754591
-                    },
-                    {
                         "Dimension__Id": "Dim_048",
                         "Dimension__ViewportId": "Viewport_005",
-                        "Dimension__StartXMm": 217.12660090531853,
-                        "Dimension__StartYMm": 346.32600786048454,
+                        "Dimension__StartXMm": 217.1266009053185,
+                        "Dimension__StartYMm": 345.32600786048454,
                         "Dimension__EndXMm": 217.9266009053185,
                         "Dimension__EndYMm": 285.12600786048455,
-                        "Dimension__OffsetMm": -4.151855918921996,
+                        "Dimension__OffsetMm": -192.02728800845082,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -6283,8 +6449,71 @@
                         "Dimension__StartXMm": 356.7868395287954,
                         "Dimension__StartYMm": 289.32600786048454,
                         "Dimension__EndXMm": 329.3741212119413,
-                        "Dimension__EndYMm": 346.32600786048454,
+                        "Dimension__EndYMm": 345.32600786048454,
                         "Dimension__OffsetMm": -4.317141576221445,
+                        "Dimension__TextSizeMm": 2.5,
+                        "Dimension__Colour": "#950000",
+                        "Dimension__Terminator": "tick",
+                        "Dimension__TickLengthMm": 1.5,
+                        "Dimension__Precision": 0,
+                        "Dimension__UnitsSuffix": " mm",
+                        "Dimension__OverrideText": null,
+                        "Dimension__Orientation": "vertical",
+                        "Dimension__StartExtensionMm": 2,
+                        "Dimension__EndExtensionMm": 2,
+                        "Dimension__LayerId": "Layer_003",
+                        "Dimension__AtScale": true
+                    },
+                    {
+                        "Dimension__Id": "Dim_051",
+                        "Dimension__ViewportId": "Viewport_006",
+                        "Dimension__StartXMm": 268.8741212119413,
+                        "Dimension__StartYMm": 345.32600786048454,
+                        "Dimension__EndXMm": 261.8811691578977,
+                        "Dimension__EndYMm": 289.32600786048454,
+                        "Dimension__OffsetMm": -13.73016776645261,
+                        "Dimension__TextSizeMm": 2.5,
+                        "Dimension__Colour": "#950000",
+                        "Dimension__Terminator": "tick",
+                        "Dimension__TickLengthMm": 1.5,
+                        "Dimension__Precision": 0,
+                        "Dimension__UnitsSuffix": " mm",
+                        "Dimension__OverrideText": null,
+                        "Dimension__Orientation": "vertical",
+                        "Dimension__StartExtensionMm": 2,
+                        "Dimension__EndExtensionMm": 2,
+                        "Dimension__LayerId": "Layer_003",
+                        "Dimension__AtScale": true
+                    },
+                    {
+                        "Dimension__Id": "Dim_052",
+                        "Dimension__ViewportId": "Viewport_005",
+                        "Dimension__StartXMm": 216.52660090531845,
+                        "Dimension__StartYMm": 345.32600786048454,
+                        "Dimension__EndXMm": 224.13774865437398,
+                        "Dimension__EndYMm": 289.32600786048454,
+                        "Dimension__OffsetMm": -6.1954676747402,
+                        "Dimension__TextSizeMm": 2.5,
+                        "Dimension__Colour": "#950000",
+                        "Dimension__Terminator": "tick",
+                        "Dimension__TickLengthMm": 1.5,
+                        "Dimension__Precision": 0,
+                        "Dimension__UnitsSuffix": " mm",
+                        "Dimension__OverrideText": null,
+                        "Dimension__Orientation": "vertical",
+                        "Dimension__StartExtensionMm": 2,
+                        "Dimension__EndExtensionMm": 2,
+                        "Dimension__LayerId": "Layer_003",
+                        "Dimension__AtScale": true
+                    },
+                    {
+                        "Dimension__Id": "Dim_053",
+                        "Dimension__ViewportId": "Viewport_007",
+                        "Dimension__StartXMm": 499.77869408803974,
+                        "Dimension__StartYMm": 289.02059390599317,
+                        "Dimension__EndXMm": 492.76299062124184,
+                        "Dimension__EndYMm": 345.02059390599317,
+                        "Dimension__OffsetMm": -6.1866729325856795,
                         "Dimension__TextSizeMm": 2.5,
                         "Dimension__Colour": "#950000",
                         "Dimension__Terminator": "tick",
@@ -8661,11 +8890,11 @@
                         "Shape__Points": [
                             [
                                 225.67316716719444,
-                                143.001619965628
+                                142.001619965628
                             ],
                             [
-                                4.354978573647006,
-                                143.001619965628
+                                6.647815663580644,
+                                141.97145013707936
                             ]
                         ],
                         "Shape__Closed": false,
@@ -8684,11 +8913,11 @@
                         "Shape__Points": [
                             [
                                 363.58467268198797,
-                                143.0417410701716
+                                142.0417410701716
                             ],
                             [
                                 239.90365729723328,
-                                143.0417410701716
+                                142.0417410701716
                             ]
                         ],
                         "Shape__Closed": false,
@@ -8783,11 +9012,11 @@
                         "Shape__Points": [
                             [
                                 519.14927561637,
-                                143.07506356864246
+                                142.07506356864246
                             ],
                             [
                                 395.4000909253396,
-                                143.07506356864246
+                                142.07506356864246
                             ]
                         ],
                         "Shape__Closed": false,
@@ -9007,31 +9236,98 @@
                         "Shape__LayerId": "Layer_004",
                         "Shape__Points": [
                             [
-                                187.39583492279056,
-                                142.00520992279056
+                                520.869604504066,
+                                345.0275962221637
                             ],
                             [
-                                132.63021469116214,
-                                141.77083969116214
-                            ],
-                            [
-                                132.63021469116214,
-                                151.04167461395267
-                            ],
-                            [
-                                187.6562595367432,
-                                149.81771469116214
+                                389.1346958283219,
+                                345.0275962221637
                             ]
                         ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#172b3a",
-                        "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
-                        "Shape__Stroked": false,
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#000000",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
                         "Shape__Gradient": null,
                         "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_111",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                377.3732900349554,
+                                345.3119496066517
+                            ],
+                            [
+                                240.2194340051741,
+                                345.3119496066517
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#000000",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_112",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                230.5779849442381,
+                                345.3579396694154
+                            ],
+                            [
+                                6.282062304344633,
+                                345.3579396694154
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#000000",
+                        "Shape__StrokePt": 1,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_113",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                224.13774865437398,
+                                289.32600786048454
+                            ],
+                            [
+                                105.81992769814184,
+                                289.32600786048454
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#960000",
+                        "Shape__StrokePt": 0.5,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": {
+                            "LineStyle__Kind": "centre",
+                            "LineStyle__Scale": 0.9,
+                            "LineStyle__DashMm": 8,
+                            "LineStyle__GapMm": 2,
+                            "LineStyle__MarkMm": 2
+                        }
                     }
                 ],
                 "Sheet__Lineweights": {
@@ -9118,10 +9414,10 @@
                         "Leader__Id": "Leader_004",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 74.57734561836799,
-                        "Leader__TipYMm": 309.8747485224863,
-                        "Leader__AnchorXMm": 45.06295688991144,
-                        "Leader__AnchorYMm": 260.21306590452497,
+                        "Leader__TipXMm": 70.7246906335622,
+                        "Leader__TipYMm": 315.2481856827784,
+                        "Leader__AnchorXMm": 54.08629169209209,
+                        "Leader__AnchorYMm": 276.5361806749417,
                         "Leader__Text": "OP01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -9190,56 +9486,6 @@
                         "Leader__SpecNoteId": "SpecNote_032"
                     },
                     {
-                        "Leader__Id": "Leader_007",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 113.52097314853565,
-                        "Leader__TipYMm": 293.2637938912396,
-                        "Leader__AnchorXMm": 74.41443614431802,
-                        "Leader__AnchorYMm": 261.23881684701786,
-                        "Leader__Text": "PR01",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_037"
-                    },
-                    {
-                        "Leader__Id": "Leader_008",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 252.08436946278454,
-                        "Leader__TipYMm": 294.22679651980116,
-                        "Leader__AnchorXMm": 266.49214901528154,
-                        "Leader__AnchorYMm": 267.22353396423733,
-                        "Leader__Text": "PD04",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_026"
-                    },
-                    {
                         "Leader__Id": "Leader_009",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
@@ -9263,31 +9509,6 @@
                         "Leader__FillColour": "#f2f4f5",
                         "Leader__FillOpacity": 1,
                         "Leader__SpecNoteId": "SpecNote_018"
-                    },
-                    {
-                        "Leader__Id": "Leader_010",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 132.4266009053185,
-                        "Leader__TipYMm": 302.95100786048454,
-                        "Leader__AnchorXMm": 154.40235050143795,
-                        "Leader__AnchorYMm": 270.56896050604354,
-                        "Leader__Text": "WF03",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_019"
                     },
                     {
                         "Leader__Id": "Leader_011",
@@ -9343,11 +9564,11 @@
                         "Leader__Id": "Leader_013",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 254.3068002094808,
-                        "Leader__TipYMm": 340.14091153596536,
-                        "Leader__AnchorXMm": 245.43072460482819,
-                        "Leader__AnchorYMm": 353.57717273298744,
-                        "Leader__Text": "PR02",
+                        "Leader__TipXMm": 280.3216365940741,
+                        "Leader__TipYMm": 356.70025869447625,
+                        "Leader__AnchorXMm": 259.5404679616272,
+                        "Leader__AnchorYMm": 366.7560613165209,
+                        "Leader__Text": "PD01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
                         "Leader__TextColour": "#172b3a",
@@ -9362,32 +9583,7 @@
                         "Leader__BubbleEdgePt": 0.35,
                         "Leader__FillColour": "#f2f4f5",
                         "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_038"
-                    },
-                    {
-                        "Leader__Id": "Leader_014",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 36.24192362779495,
-                        "Leader__TipYMm": 301.4934624998923,
-                        "Leader__AnchorXMm": 18.057923541279735,
-                        "Leader__AnchorYMm": 276.0913890019732,
-                        "Leader__Text": "PR02",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_038"
+                        "Leader__SpecNoteId": "SpecNote_013"
                     },
                     {
                         "Leader__Id": "Leader_015",
@@ -9515,31 +9711,6 @@
                         "Leader__SpecNoteId": "SpecNote_023"
                     },
                     {
-                        "Leader__Id": "Leader_020",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 122.23137263896632,
-                        "Leader__TipYMm": 291.0686568016081,
-                        "Leader__AnchorXMm": 142.96051856885543,
-                        "Leader__AnchorYMm": 257.5003654607905,
-                        "Leader__Text": "SN03",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_009"
-                    },
-                    {
                         "Leader__Id": "Leader_021",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
@@ -9547,7 +9718,7 @@
                         "Leader__TipYMm": 346.05341588165686,
                         "Leader__AnchorXMm": 347.7342674845353,
                         "Leader__AnchorYMm": 357.2607338933758,
-                        "Leader__Text": "SN05",
+                        "Leader__Text": "SN04",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
                         "Leader__TextColour": "#172b3a",
@@ -9618,11 +9789,11 @@
                         "Leader__Id": "Leader_024",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 454.3882537718605,
-                        "Leader__TipYMm": 336.7007477425973,
-                        "Leader__AnchorXMm": 428.6520228975162,
-                        "Leader__AnchorYMm": 366.08323695316125,
-                        "Leader__Text": "WF03",
+                        "Leader__TipXMm": 434.33232039842954,
+                        "Leader__TipYMm": 343.66175038669076,
+                        "Leader__AnchorXMm": 413.42053841814374,
+                        "Leader__AnchorYMm": 359.67360346655255,
+                        "Leader__Text": "WF02",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
                         "Leader__TextColour": "#172b3a",
@@ -9637,32 +9808,7 @@
                         "Leader__BubbleEdgePt": 0.35,
                         "Leader__FillColour": "#f2f4f5",
                         "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_019"
-                    },
-                    {
-                        "Leader__Id": "Leader_025",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 506.62819304012373,
-                        "Leader__TipYMm": 336.59938123540053,
-                        "Leader__AnchorXMm": 486.6987788081661,
-                        "Leader__AnchorYMm": 364.84292869567,
-                        "Leader__Text": "PR02",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_038"
+                        "Leader__SpecNoteId": "SpecNote_017"
                     },
                     {
                         "Leader__Id": "Leader_026",
@@ -9713,6 +9859,106 @@
                         "Leader__FillColour": null,
                         "Leader__FillOpacity": 1,
                         "Leader__SpecNoteId": "SpecNote_031"
+                    },
+                    {
+                        "Leader__Id": "Leader_028",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 489.0987074242261,
+                        "Leader__TipYMm": 284.4821394351881,
+                        "Leader__AnchorXMm": 471.11818490748846,
+                        "Leader__AnchorYMm": 249.87363593817074,
+                        "Leader__Text": "PD04",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_026"
+                    },
+                    {
+                        "Leader__Id": "Leader_029",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 135.6814699697697,
+                        "Leader__TipYMm": 289.2275590011612,
+                        "Leader__AnchorXMm": 147.86400190603007,
+                        "Leader__AnchorYMm": 262.4004292978195,
+                        "Leader__Text": "PD03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_015"
+                    },
+                    {
+                        "Leader__Id": "Leader_030",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 291.6778678041206,
+                        "Leader__TipYMm": 289.62708123418247,
+                        "Leader__AnchorXMm": 268.16163381002497,
+                        "Leader__AnchorYMm": 261.21162976885745,
+                        "Leader__Text": "PD03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_015"
+                    },
+                    {
+                        "Leader__Id": "Leader_031",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 91.81116271961147,
+                        "Leader__TipYMm": 285.5736602936256,
+                        "Leader__AnchorXMm": 80.65872266138926,
+                        "Leader__AnchorYMm": 265.4992692098617,
+                        "Leader__Text": "PD04",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_026"
                     }
                 ],
                 "Sheet__MarginNotes": {
@@ -9781,17 +10027,18 @@
             },
             {
                 "Sheet__Id": "Sheet_003",
-                "Sheet__Name": "D03 - 3D Images",
+                "Sheet__Name": "D23 - 3D Images",
                 "Sheet__Order": 3,
                 "Sheet__PaperSize": "A3",
                 "Sheet__Orientation": "landscape",
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
                     "Sheet__Fields__Title": "Permitted Development Compliance  -  3D Exterior Visuals",
-                    "Sheet__Fields__DrawingNumber": "PS01_T02_D03",
+                    "Sheet__Fields__DrawingNumber": "PS01_T02_D23",
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
-                    "Sheet__Fields__DrawnBy": "A. Noble"
+                    "Sheet__Fields__DrawnBy": "A. Noble",
+                    "Sheet__Fields__Revision": "B"
                 },
                 "Sheet__Layers": [
                     {
@@ -9837,7 +10084,7 @@
                         "Viewport__Name": "Exterior 01 copy",
                         "Viewport__FrameMm": {
                             "X": 10.627613146056305,
-                            "Y": 13.146122930424681,
+                            "Y": 23.14612293042468,
                             "WidthMm": 146.45545932048526,
                             "HeightMm": 89.06217078065913
                         },
@@ -9871,9 +10118,10 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__xc93qz.webp",
-                            "Asset__Fingerprint": "xc93qz",
-                            "Asset__PixelWidth": 4833
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__1o3b0m6.webp",
+                            "Asset__Fingerprint": "1o3b0m6",
+                            "Asset__PixelWidth": 4833,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ShowFrame": false
@@ -9887,7 +10135,7 @@
                         "Viewport__Name": "Exterior 01 copy 2",
                         "Viewport__FrameMm": {
                             "X": 157.00954230009,
-                            "Y": 10.630606598832202,
+                            "Y": 20.630606598832202,
                             "WidthMm": 157.8885834438651,
                             "HeightMm": 91.64187098012454
                         },
@@ -9921,9 +10169,10 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__nz0a9s.webp",
-                            "Asset__Fingerprint": "nz0a9s",
-                            "Asset__PixelWidth": 5210
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__1fjewu8.webp",
+                            "Asset__Fingerprint": "1fjewu8",
+                            "Asset__PixelWidth": 5210,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ImageZoom": 0.88,
@@ -9938,7 +10187,7 @@
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
                             "X": 12.052709664750836,
-                            "Y": 90.7819743412559,
+                            "Y": 100.7819743412559,
                             "WidthMm": 146.01566803379782,
                             "HeightMm": 87.49338956783495
                         },
@@ -9972,9 +10221,10 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__1ldcww6.webp",
-                            "Asset__Fingerprint": "1ldcww6",
-                            "Asset__PixelWidth": 4819
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__1v21mnd.webp",
+                            "Asset__Fingerprint": "1v21mnd",
+                            "Asset__PixelWidth": 4819,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ImageZoom": 0.9,
@@ -9989,7 +10239,7 @@
                         "Viewport__Name": "Exterior 02 copy",
                         "Viewport__FrameMm": {
                             "X": 157.78991149969906,
-                            "Y": 90.22827175452943,
+                            "Y": 100.22827175452943,
                             "WidthMm": 157.22897703219468,
                             "HeightMm": 89.0324980345195
                         },
@@ -10023,9 +10273,10 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__drggai.webp",
-                            "Asset__Fingerprint": "drggai",
-                            "Asset__PixelWidth": 5189
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__fatlbu.webp",
+                            "Asset__Fingerprint": "fatlbu",
+                            "Asset__PixelWidth": 5189,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ImageZoom": 0.8,
@@ -10040,7 +10291,7 @@
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
                             "X": 13.038095415118704,
-                            "Y": 180.51583771855022,
+                            "Y": 190.51583771855022,
                             "WidthMm": 146.01566803379782,
                             "HeightMm": 78.6986508319564
                         },
@@ -10074,9 +10325,10 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_006__fvhes5.webp",
-                            "Asset__Fingerprint": "fvhes5",
-                            "Asset__PixelWidth": 4819
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_006__1fdost4.webp",
+                            "Asset__Fingerprint": "1fdost4",
+                            "Asset__PixelWidth": 4819,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ImageZoom": 0.7,
@@ -10091,7 +10343,7 @@
                         "Viewport__Name": "Exterior 03 copy",
                         "Viewport__FrameMm": {
                             "X": 157.49141154511676,
-                            "Y": 181.5393144324266,
+                            "Y": 191.5393144324266,
                             "WidthMm": 156.46346978371312,
                             "HeightMm": 78.44068435469435
                         },
@@ -10125,16 +10377,44 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_007__75oxo5.webp",
-                            "Asset__Fingerprint": "75oxo5",
-                            "Asset__PixelWidth": 5163
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_007__8p22ph.webp",
+                            "Asset__Fingerprint": "8p22ph",
+                            "Asset__PixelWidth": 5163,
+                            "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
                         "Viewport__ImageZoom": 0.6,
                         "Viewport__ShowFrame": false
                     }
                 ],
-                "Sheet__Annotations": [],
+                "Sheet__Annotations": [
+                    {
+                        "Annotation__Id": "Text_001",
+                        "Annotation__Text": "3D VISUALS |  Existing Conditions",
+                        "Annotation__PosXMm": 8.053863354018375,
+                        "Annotation__PosYMm": 10.74441758696915,
+                        "Annotation__SizeMm": 3,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    },
+                    {
+                        "Annotation__Id": "Text_002",
+                        "Annotation__Text": "3D VISUALS |  DESIGN PROPOSAL",
+                        "Annotation__PosXMm": 163.32229369418914,
+                        "Annotation__PosYMm": 10.74441758696915,
+                        "Annotation__SizeMm": 3,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__LayerId": "Layer_002"
+                    }
+                ],
                 "Sheet__Dimensions": [],
                 "Sheet__Shapes": [
                     {
@@ -10143,19 +10423,19 @@
                         "Shape__Points": [
                             [
                                 187.39583492279056,
-                                142.00520992279056
+                                152.00520992279056
                             ],
                             [
                                 132.63021469116214,
-                                141.77083969116214
+                                151.77083969116214
                             ],
                             [
                                 132.63021469116214,
-                                151.04167461395267
+                                161.04167461395267
                             ],
                             [
                                 187.6562595367432,
-                                149.81771469116214
+                                159.81771469116214
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10174,31 +10454,31 @@
                         "Shape__Points": [
                             [
                                 138.56221561439156,
-                                190.00489528088767
+                                200.00489528088767
                             ],
                             [
                                 83.79659538276316,
-                                189.77052504925925
+                                199.77052504925925
                             ],
                             [
                                 82.9893029213679,
-                                199.0153175106545
+                                209.0153175106545
                             ],
                             [
                                 193.84776112109392,
-                                210.5503520170854
+                                220.5503520170854
                             ],
                             [
                                 199.17446137938774,
-                                200.94372328595915
+                                210.94372328595915
                             ],
                             [
                                 200.68475163107007,
-                                200.42333340290443
+                                210.42333340290443
                             ],
                             [
                                 199.4610646456153,
-                                198.36163460783484
+                                208.36163460783484
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10217,27 +10497,27 @@
                         "Shape__Points": [
                             [
                                 214.71354484558105,
-                                197.39584684371948
+                                207.39584684371948
                             ],
                             [
                                 202.47395992279053,
-                                199.47917938232422
+                                209.47917938232422
                             ],
                             [
                                 202.39583492279053,
-                                200.07813930511475
+                                210.07813930511475
                             ],
                             [
                                 204.40104246139526,
-                                200.83334684371948
+                                210.83334684371948
                             ],
                             [
                                 215.41666984558105,
-                                199.34897184371948
+                                209.34897184371948
                             ],
                             [
                                 216.58854484558105,
-                                197.76042938232422
+                                207.76042938232422
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10256,27 +10536,27 @@
                         "Shape__Points": [
                             [
                                 318.76236408077074,
-                                210.26724380827335
+                                220.26724380827335
                             ],
                             [
                                 318.0668825745759,
-                                200.82028491375922
+                                210.82028491375922
                             ],
                             [
                                 240.9263992539356,
-                                194.09729878924338
+                                204.09729878924338
                             ],
                             [
                                 234.47917938232422,
-                                197.34376430511475
+                                207.34376430511475
                             ],
                             [
                                 235.59897184371948,
-                                198.20313930511475
+                                208.20313930511475
                             ],
                             [
                                 280.6510543823242,
-                                201.87500715255737
+                                211.87500715255737
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10295,19 +10575,19 @@
                         "Shape__Points": [
                             [
                                 316.48438930511475,
-                                143.59375476837158
+                                153.59375476837158
                             ],
                             [
-                                283.12501430511475,
-                                141.61458492279053
+                                280.99433422088623,
+                                152.8456449508667
                             ],
                             [
-                                283.1283394964548,
-                                144.73958730697632
+                                281.0213391455027,
+                                154.10038232803345
                             ],
                             [
                                 315.9114742279053,
-                                145.83333730697632
+                                155.83333730697632
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10326,19 +10606,19 @@
                         "Shape__Points": [
                             [
                                 33.93229007720947,
-                                146.1458396911621
+                                156.1458396911621
                             ],
                             [
                                 10.989582538604736,
-                                146.40625715255737
+                                156.40625715255737
                             ],
                             [
                                 11.536457538604736,
-                                149.53125715255737
+                                159.53125715255737
                             ],
                             [
                                 34.0625,
-                                147.76042461395264
+                                157.76042461395264
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10357,15 +10637,15 @@
                         "Shape__Points": [
                             [
                                 11.979167461395264,
-                                202.78645992279053
+                                212.78645992279053
                             ],
                             [
                                 12.395834922790527,
-                                205.80729484558105
+                                215.80729484558105
                             ],
                             [
                                 42.916669845581055,
-                                202.00520992279053
+                                212.00520992279053
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10384,19 +10664,19 @@
                         "Shape__Points": [
                             [
                                 60.885419845581055,
-                                199.86979246139526
+                                209.86979246139526
                             ],
                             [
                                 44.713544845581055,
-                                201.58854484558105
+                                211.58854484558105
                             ],
                             [
                                 44.947919845581055,
-                                202.21354484558105
+                                212.21354484558105
                             ],
                             [
                                 60.416669845581055,
-                                200.72916746139526
+                                210.72916746139526
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10415,19 +10695,19 @@
                         "Shape__Points": [
                             [
                                 192.9166650772095,
-                                158.98437738418582
+                                168.98437738418582
                             ],
                             [
                                 142.63021469116214,
-                                151.77083969116214
+                                161.77083969116214
                             ],
                             [
                                 142.63021469116214,
-                                161.04167461395267
+                                171.04167461395267
                             ],
                             [
                                 197.6562595367432,
-                                159.81771469116214
+                                169.81771469116214
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10445,24 +10725,24 @@
                         "Shape__LayerId": "Layer_004",
                         "Shape__Points": [
                             [
-                                137.25854669424888,
-                                55.6922197144467
+                                140.25854669424888,
+                                65.69221971444671
                             ],
                             [
-                                130.1302146911621,
-                                59.947919845581055
+                                133.1302146911621,
+                                69.94791984558105
                             ],
                             [
-                                130.4427146911621,
-                                61.822919845581055
+                                133.4427146911621,
+                                71.82291984558105
                             ],
                             [
-                                182.13542461395264,
-                                60.05208492279053
+                                185.94034957885742,
+                                70.19412994384766
                             ],
                             [
-                                182.03125953674316,
-                                58.28124761581421
+                                185.97822952270508,
+                                67.97348260879517
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10481,19 +10761,19 @@
                         "Shape__Points": [
                             [
                                 316.40625,
-                                62.08333492279053
+                                72.08333492279053
                             ],
                             [
                                 315.546875,
-                                57.31770992279053
+                                67.31770992279053
                             ],
                             [
-                                278.828125,
-                                58.80208492279053
+                                278.33096742630005,
+                                68.39962482452393
                             ],
                             [
-                                279.1927099227905,
-                                60.651042461395264
+                                278.4351372718811,
+                                70.29592514038086
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10512,19 +10792,19 @@
                         "Shape__Points": [
                             [
                                 35.83333611488342,
-                                58.82812738418579
+                                68.82812738418579
                             ],
                             [
                                 9.557294845581055,
-                                59.322917461395264
+                                69.32291746139526
                             ],
                             [
                                 9.713544845581055,
-                                62.39583492279053
+                                72.39583492279053
                             ],
                             [
                                 35.75520992279053,
-                                60.234375
+                                70.234375
                             ]
                         ],
                         "Shape__Closed": true,
@@ -10543,11 +10823,11 @@
                         "Shape__Points": [
                             [
                                 283.1550121307373,
-                                132.68561482429504
+                                142.68561482429504
                             ],
                             [
                                 259.1730070114136,
-                                131.9753873348236
+                                141.9753873348236
                             ]
                         ],
                         "Shape__Closed": false,
@@ -10565,6 +10845,75 @@
                             "LineStyle__GapMm": 2,
                             "LineStyle__MarkMm": 2
                         }
+                    },
+                    {
+                        "Shape__Id": "Shape_014",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                156.70569960460872,
+                                20.5409846409037
+                            ],
+                            [
+                                156.70569960460872,
+                                275.71702159156143
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_015",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                8.224741171401234,
+                                12.375531630512143
+                            ],
+                            [
+                                60.35785664062041,
+                                12.375531630512143
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
+                    },
+                    {
+                        "Shape__Id": "Shape_016",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__Points": [
+                            [
+                                163.493171511572,
+                                12.375531630512143
+                            ],
+                            [
+                                215.62628698079118,
+                                12.375531630512143
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null
                     }
                 ],
                 "Sheet__Leaders": [
@@ -10573,9 +10922,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 115.44993002834296,
-                        "Leader__TipYMm": 157.46860789834957,
+                        "Leader__TipYMm": 167.46860789834957,
                         "Leader__AnchorXMm": 130.98235740816472,
-                        "Leader__AnchorYMm": 171.2043729518004,
+                        "Leader__AnchorYMm": 181.2043729518004,
                         "Leader__Text": "EX05",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10594,89 +10943,14 @@
                         "Leader__SpecNoteId": "SpecNote_006"
                     },
                     {
-                        "Leader__Id": "Leader_002",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 228.39041819583355,
-                        "Leader__TipYMm": 231.71972852913578,
-                        "Leader__AnchorXMm": 200.23412004682908,
-                        "Leader__AnchorYMm": 249.9141292949584,
-                        "Leader__Text": "PR01",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_037"
-                    },
-                    {
-                        "Leader__Id": "Leader_003",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 226.8428881412846,
-                        "Leader__TipYMm": 246.83798675048897,
-                        "Leader__AnchorXMm": 207.48532308959685,
-                        "Leader__AnchorYMm": 262.25449170244025,
-                        "Leader__Text": "PR02",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_038"
-                    },
-                    {
-                        "Leader__Id": "Leader_004",
-                        "Leader__LayerId": "Layer_002",
-                        "Leader__Type": "bubble",
-                        "Leader__TipXMm": 182.7957296196801,
-                        "Leader__TipYMm": 66.94009497125307,
-                        "Leader__AnchorXMm": 166.50986747888246,
-                        "Leader__AnchorYMm": 79.11102132966272,
-                        "Leader__Text": "PR02",
-                        "Leader__TextSizeMm": 2.5,
-                        "Leader__FontWeight": 600,
-                        "Leader__TextColour": "#172b3a",
-                        "Leader__LineColour": "#172b3a",
-                        "Leader__LinePt": 0.35,
-                        "Leader__LineStyle": "dashed",
-                        "Leader__LineOpacity": 1,
-                        "Leader__EndpointFilled": false,
-                        "Leader__EndpointPt": 0.35,
-                        "Leader__EndpointSizeMm": 1.6,
-                        "Leader__BubbleSizeMm": 9,
-                        "Leader__BubbleEdgePt": 0.35,
-                        "Leader__FillColour": "#f2f4f5",
-                        "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_038"
-                    },
-                    {
                         "Leader__Id": "Leader_005",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 232.07586695789138,
-                        "Leader__TipYMm": 67.87481169963854,
+                        "Leader__TipXMm": 240.47331684433897,
+                        "Leader__TipYMm": 78.84205922991895,
                         "Leader__AnchorXMm": 216.86646099175164,
-                        "Leader__AnchorYMm": 86.64065054496751,
-                        "Leader__Text": "WF03",
+                        "Leader__AnchorYMm": 96.64065054496751,
+                        "Leader__Text": "WF01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
                         "Leader__TextColour": "#172b3a",
@@ -10691,16 +10965,16 @@
                         "Leader__BubbleEdgePt": 0.35,
                         "Leader__FillColour": "#f2f4f5",
                         "Leader__FillOpacity": 1,
-                        "Leader__SpecNoteId": "SpecNote_019"
+                        "Leader__SpecNoteId": "SpecNote_018"
                     },
                     {
                         "Leader__Id": "Leader_006",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 197.6562595367432,
-                        "Leader__TipYMm": 159.81771469116214,
+                        "Leader__TipXMm": 197.31331382036686,
+                        "Leader__TipYMm": 167.71105167192377,
                         "Leader__AnchorXMm": 183.60014576863395,
-                        "Leader__AnchorYMm": 170.28292069180338,
+                        "Leader__AnchorYMm": 180.28292069180338,
                         "Leader__Text": "PD01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10723,9 +10997,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 274.2989974322064,
-                        "Leader__TipYMm": 39.80173135494397,
+                        "Leader__TipYMm": 49.80173135494397,
                         "Leader__AnchorXMm": 292.00547004950346,
-                        "Leader__AnchorYMm": 26.78671498514163,
+                        "Leader__AnchorYMm": 36.78671498514163,
                         "Leader__Text": "PD04",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10748,9 +11022,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 280.51545037787054,
-                        "Leader__TipYMm": 132.6338244798988,
+                        "Leader__TipYMm": 142.6338244798988,
                         "Leader__AnchorXMm": 293.9104595593752,
-                        "Leader__AnchorYMm": 119.44125968511747,
+                        "Leader__AnchorYMm": 129.44125968511747,
                         "Leader__Text": "PD03",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10773,9 +11047,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 255.36020439512407,
-                        "Leader__TipYMm": 214.0874967805942,
+                        "Leader__TipYMm": 224.0874967805942,
                         "Leader__AnchorXMm": 270.02695919507596,
-                        "Leader__AnchorYMm": 194.32559496999386,
+                        "Leader__AnchorYMm": 204.32559496999386,
                         "Leader__Text": "RF03",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10798,9 +11072,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 227.13267563960096,
-                        "Leader__TipYMm": 220.93130064473124,
+                        "Leader__TipYMm": 230.93130064473124,
                         "Leader__AnchorXMm": 185.5196970835756,
-                        "Leader__AnchorYMm": 209.8615551064977,
+                        "Leader__AnchorYMm": 219.8615551064977,
                         "Leader__Text": "RF04",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10823,9 +11097,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 54.47938774715554,
-                        "Leader__TipYMm": 156.65721988259267,
+                        "Leader__TipYMm": 166.65721988259267,
                         "Leader__AnchorXMm": 43.00394289494073,
-                        "Leader__AnchorYMm": 170.45093288472174,
+                        "Leader__AnchorYMm": 180.45093288472174,
                         "Leader__Text": "EX01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10848,9 +11122,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 93.60022114408943,
-                        "Leader__TipYMm": 123.96958378533252,
+                        "Leader__TipYMm": 133.96958378533253,
                         "Leader__AnchorXMm": 109.13263791170559,
-                        "Leader__AnchorYMm": 110.34973585364935,
+                        "Leader__AnchorYMm": 120.34973585364935,
                         "Leader__Text": "EX02",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10873,9 +11147,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 64.31452079312142,
-                        "Leader__TipYMm": 58.288124825395705,
+                        "Leader__TipYMm": 68.2881248253957,
                         "Leader__AnchorXMm": 45.247395466507584,
-                        "Leader__AnchorYMm": 79.42992115788633,
+                        "Leader__AnchorYMm": 89.42992115788633,
                         "Leader__Text": "EX03",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10898,9 +11172,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 113.85416984558105,
-                        "Leader__TipYMm": 221.74479246139526,
+                        "Leader__TipYMm": 231.74479246139526,
                         "Leader__AnchorXMm": 123.85416984558105,
-                        "Leader__AnchorYMm": 209.53125,
+                        "Leader__AnchorYMm": 219.53125,
                         "Leader__Text": "EX04",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10922,10 +11196,10 @@
                         "Leader__Id": "Leader_015",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 267.3430671610467,
-                        "Leader__TipYMm": 232.5949186606359,
-                        "Leader__AnchorXMm": 291.2933405491932,
-                        "Leader__AnchorYMm": 218.71973015038708,
+                        "Leader__TipXMm": 261.3092867846032,
+                        "Leader__TipYMm": 242.50441221324056,
+                        "Leader__AnchorXMm": 280.7492235715263,
+                        "Leader__AnchorYMm": 257.81745093115126,
                         "Leader__Text": "PD01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10947,10 +11221,10 @@
                         "Leader__Id": "Leader_016",
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
-                        "Leader__TipXMm": 263.5479005268554,
-                        "Leader__TipYMm": 215.96100270533225,
+                        "Leader__TipXMm": 265.41816553387446,
+                        "Leader__TipYMm": 226.93164765619895,
                         "Leader__AnchorXMm": 280.81589695768633,
-                        "Leader__AnchorYMm": 207.70431909360275,
+                        "Leader__AnchorYMm": 217.70431909360275,
                         "Leader__Text": "PD03",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10973,9 +11247,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 249.1262740677148,
-                        "Leader__TipYMm": 216.1128422390063,
+                        "Leader__TipYMm": 226.1128422390063,
                         "Leader__AnchorXMm": 225.01815357288655,
-                        "Leader__AnchorYMm": 187.30090926382383,
+                        "Leader__AnchorYMm": 197.30090926382383,
                         "Leader__Text": "RF01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -10998,9 +11272,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 195.1201783364341,
-                        "Leader__TipYMm": 131.93052546954345,
+                        "Leader__TipYMm": 141.93052546954345,
                         "Leader__AnchorXMm": 178.2394732349436,
-                        "Leader__AnchorYMm": 121.07914068920603,
+                        "Leader__AnchorYMm": 131.07914068920604,
                         "Leader__Text": "RF05",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -11017,6 +11291,81 @@
                         "Leader__FillColour": "#f2f4f5",
                         "Leader__FillOpacity": 1,
                         "Leader__SpecNoteId": "SpecNote_032"
+                    },
+                    {
+                        "Leader__Id": "Leader_019",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 260.18824888134037,
+                        "Leader__TipYMm": 166.47040727522875,
+                        "Leader__AnchorXMm": 280.04895217913753,
+                        "Leader__AnchorYMm": 181.36810034575745,
+                        "Leader__Text": "WF02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_017"
+                    },
+                    {
+                        "Leader__Id": "Leader_020",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 242.19026548867393,
+                        "Leader__TipYMm": 139.0399755665628,
+                        "Leader__AnchorXMm": 260.0770879759948,
+                        "Leader__AnchorYMm": 119.10362081468003,
+                        "Leader__Text": "PD04",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_026"
+                    },
+                    {
+                        "Leader__Id": "Leader_021",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 279.0818337414353,
+                        "Leader__TipYMm": 154.3804162112766,
+                        "Leader__AnchorXMm": 289.826354024304,
+                        "Leader__AnchorYMm": 164.628083788762,
+                        "Leader__Text": "WF01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_018"
                     }
                 ],
                 "Sheet__Lineweights": {
@@ -11035,14 +11384,14 @@
             },
             {
                 "Sheet__Id": "Sheet_004",
-                "Sheet__Name": "D10 - Site Plan",
+                "Sheet__Name": "D24 - Site Plan",
                 "Sheet__Order": 4,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
                     "Sheet__Fields__DrawnBy": "A. Noble",
-                    "Sheet__Fields__Revision": "A",
+                    "Sheet__Fields__Revision": "B",
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
                     "Sheet__Fields__DrawingNumber": "PS01_T02_D10",
@@ -11424,7 +11773,31 @@
                         "Annotation__LayerId": "Layer_002"
                     }
                 ],
-                "Sheet__Dimensions": [],
+                "Sheet__Dimensions": [
+                    {
+                        "Dimension__Id": "Dim_001",
+                        "Dimension__ViewportId": "Viewport_001",
+                        "Dimension__StartXMm": 216.78165261911113,
+                        "Dimension__StartYMm": 186.80902387891658,
+                        "Dimension__EndXMm": 216.60891824411115,
+                        "Dimension__EndYMm": 184.8165082539166,
+                        "Dimension__OffsetMm": 6.097990591089126,
+                        "Dimension__TextSizeMm": 2,
+                        "Dimension__Colour": "#000a94",
+                        "Dimension__Terminator": "arrow",
+                        "Dimension__TickLengthMm": 1,
+                        "Dimension__Precision": 0,
+                        "Dimension__UnitsSuffix": " mm",
+                        "Dimension__OverrideText": null,
+                        "Dimension__Orientation": "aligned",
+                        "Dimension__StartExtensionMm": 2,
+                        "Dimension__EndExtensionMm": 2,
+                        "Dimension__LayerId": "Layer_003",
+                        "Dimension__AtScale": true,
+                        "Dimension__TextDXMm": 0.3314399719238281,
+                        "Dimension__TextDYMm": -7.3390161991119385
+                    }
+                ],
                 "Sheet__Shapes": [
                     {
                         "Shape__Id": "Shape_001",
@@ -11439,12 +11812,12 @@
                                 205.74321137891658
                             ],
                             [
-                                219.06965261911114,
-                                205.14005512891657
+                                218.37226199411114,
+                                205.20036762891658
                             ],
                             [
-                                217.47904324411112,
-                                186.7487113789166
+                                216.78165261911113,
+                                186.80902387891658
                             ],
                             [
                                 214.68944949411113,
@@ -11502,12 +11875,12 @@
                                 109.36167071481285
                             ],
                             [
-                                466.73902725369555,
-                                109.26516446481284
+                                466.46007100369553,
+                                109.28928946481284
                             ],
                             [
-                                467.3752710036955,
-                                116.62170196481284
+                                467.09631475369554,
+                                116.64582696481284
                             ]
                         ],
                         "Shape__Closed": true,

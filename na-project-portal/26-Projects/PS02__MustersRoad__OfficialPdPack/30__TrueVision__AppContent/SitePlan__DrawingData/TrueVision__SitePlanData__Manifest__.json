@@ -3,8 +3,8 @@
   "SitePlanData__SchemaVersion": 1,
   "SitePlanData__ProjectPrefix": "PS01",
   "SitePlanData__SourceModelFile": "PS01_M10__SitePlanModel__0.1.0__.skp",
-  "SitePlanData__ExportedIso": "2026-09-14T19:08:14Z",
-  "SitePlanData__ExporterVersion": "1.1.0",
+  "SitePlanData__ExportedIso": "2026-09-17T19:30:36Z",
+  "SitePlanData__ExporterVersion": "1.1.1",
   "SitePlanData__TagsSsotVersion": "2.3.0",
   "SitePlanData__Units": "metres",
   "SitePlanData__UpAxis": "Y",
@@ -127,8 +127,8 @@
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
         "MinX": 74001.6,
-        "MinZ": -75827.4,
-        "MaxX": 77488.6,
+        "MinZ": -75797.2,
+        "MaxX": 77139.9,
         "MaxZ": -66330.2
       },
       "Layer__Style": {
@@ -156,13 +156,13 @@
       "Layer__DrawOrder": 90,
       "Layer__LineworkFile": "PS01__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb",
       "Layer__FillFile": null,
-      "Layer__SegmentCount": 13,
+      "Layer__SegmentCount": 14,
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
-        "MinX": 48334.7,
-        "MinZ": -78337.2,
-        "MaxX": 92784.7,
-        "MaxZ": -62437.2
+        "MinX": 48342.9,
+        "MinZ": -78144.6,
+        "MaxX": 93160.7,
+        "MaxZ": -62242.1
       },
       "Layer__Style": {
         "LineColourId": "MTE201__LineColour__Red",
