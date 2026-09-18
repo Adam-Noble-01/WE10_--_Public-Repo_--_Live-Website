@@ -95,6 +95,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.3.0
+// - Re-exports the Transport unit's new ReloadFromCloud, ReloadFromLocal,
+//   CanReloadCloud and CanReloadLocal (Transport 1.1.0).
+//
 // 15-Sep-2026 - Version 1.2.0
 // - Split into Na__LayoutEditor__SpecData__State__.js,
 //   Na__LayoutEditor__SpecData__Document__.js,
@@ -189,7 +193,15 @@
         Na__LeSpec__Undo,
         Na__LeSpec__Redo
     } from './Na__LayoutEditor__SpecData__Editing__.js';
-    import { Na__LeSpec__EnsureLoaded, Na__LeSpec__Retry, Na__LeSpec__Sync } from './Na__LayoutEditor__SpecData__Transport__.js';
+    import {
+        Na__LeSpec__EnsureLoaded,
+        Na__LeSpec__Retry,
+        Na__LeSpec__Sync,
+        Na__LeSpec__CanReloadCloud,
+        Na__LeSpec__CanReloadLocal,
+        Na__LeSpec__ReloadFromCloud,
+        Na__LeSpec__ReloadFromLocal
+    } from './Na__LayoutEditor__SpecData__Transport__.js';
     import { Na__DrawData__CHANGED_EVENT } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
@@ -257,6 +269,10 @@
         Na__LeSpec__EnsureLoaded,
         Na__LeSpec__Retry,
         Na__LeSpec__Sync,
+        Na__LeSpec__CanReloadCloud,
+        Na__LeSpec__CanReloadLocal,
+        Na__LeSpec__ReloadFromCloud,
+        Na__LeSpec__ReloadFromLocal,
         Na__LeSpec__FlushDraft,
         Na__LeSpec__GetState,
         Na__LeSpec__IsLoaded,

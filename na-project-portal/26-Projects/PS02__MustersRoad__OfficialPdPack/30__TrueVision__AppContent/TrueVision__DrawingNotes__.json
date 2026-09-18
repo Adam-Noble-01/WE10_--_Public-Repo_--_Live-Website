@@ -2,10 +2,10 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "PS02",
-    "ProjectSpecification__UpdatedIso": "2026-09-17T21:07:09.530Z",
+    "ProjectSpecification__UpdatedIso": "2026-09-18T10:01:53.176Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 40,
-    "ProjectSpecification__Revision": "B",
+    "ProjectSpecification__LastIdNumber": 46,
+    "ProjectSpecification__Revision": "C",
     "ProjectSpecification__DocumentNumber": "",
     "ProjectSpecification__Groups": [
         {
@@ -27,6 +27,84 @@
                     "Note__Title": "Survey and dimensions",
                     "Note__Body": "Prepared from client-supplied photographs and measurements; Noble Architecture has not undertaken a measured site survey. Verify dimensions, levels, boundaries and existing construction on site before design, ordering or setting out. Use stated dimensions; do not scale for construction. Report discrepancies before work proceeds.",
                     "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_012",
+            "Group__Prefix": "PD",
+            "Group__Title": "Permitted Development Notes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_013",
+                    "Note__Code": "PD01",
+                    "Note__Title": "Rear extension projection",
+                    "Note__Body": "Single-storey rear extension projecting 3,150 mm beyond the rear wall of the original dwellinghouse. Projection is measured from the base of the rear wall of the original house to the outer edge of the wall of the extension, not including any guttering or barge boards. Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), page 18.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_014",
+                    "Note__Code": "PD02",
+                    "Note__Title": "Extension width",
+                    "Note__Body": "Extension width 9,230 mm within an existing rear elevation of 10,030 mm. The extension does not extend beyond any wall forming a side elevation of the original dwellinghouse, so the side-extension limits at Class A.1(j) are not engaged. Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), page 22.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_015",
+                    "Note__Code": "PD03",
+                    "Note__Title": "Extension eaves height",
+                    "Note__Body": "Extension eaves height 2,600 mm, measured from the planning ground datum (PD05) at the base of the external wall of the extension to the point where that wall, projected upwards, meets the upper surface of the flat roof. The parapet wall and any overhang are excluded. Eaves of the existing dwellinghouse on the same elevation: 2,650 mm. The extension eaves therefore sits 50 mm below the eaves of the existing dwellinghouse and does not exceed it, satisfying Class A.1(d). Basis of measurement: PD06, PD07 and PD08.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_026",
+                    "Note__Code": "PD04",
+                    "Note__Title": "Parapet height",
+                    "Note__Body": "Top of parapet 2,880 mm above the planning ground datum (PD05). The parapet is excluded from eaves height (PD06, PD07) but is counted in the overall height of the enlarged part: \"when calculating the height of the enlarged part of the house, this measurement should be at the highest part of the enlargement and may include any protrusions above the roof such as parapet walls etc\". At 2,880 mm the enlarged part is below the 4 m limit for a single-storey rear extension at Class A.1(f)(ii) and below the height of the highest part of the roof of the existing dwellinghouse required by Class A.1(c). Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), pages 11 and 17.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_041",
+                    "Note__Code": "PD05",
+                    "Note__Title": "Eaves limit: Class A.1(d)",
+                    "Note__Body": "Class A.1(d): development is not permitted if \"the height of the eaves of the part of the dwellinghouse enlarged, improved or altered would exceed the height of the eaves of the existing dwellinghouse\". The guidance defines the measurement: \"For the purpose of measuring height, the eaves of a house are the point where the lowest point of a roof slope, or a flat roof, meets the outside wall. The height of the eaves will be measured from the ground level at the base of the external wall of the extension to the point where the external wall would meet (if projected upwards) the upper surface of the roof slope. Parapet walls and overhanging parts of eaves should not be included in any calculation of eaves height.\" Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), page 11.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_042",
+                    "Note__Code": "PD06",
+                    "Note__Title": "Eaves on a flat roof behind a parapet",
+                    "Note__Body": "The guidance illustrates this exact arrangement, a flat roof with a parapet wall, and states: \"Eaves height is measured from the ground level at the base of the outside wall to the point where that wall would meet the upper surface of the flat roof - the overhang and the parapet wall should be ignored for the purposes of measurement.\" The extension eaves point marked on the drawings is set accordingly, at the upper surface of the flat roof where it meets the outside wall, with the parapet disregarded. Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), page 12, flat roof diagram.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_043",
+                    "Note__Code": "PD07",
+                    "Note__Title": "Eaves on the existing pitched roof",
+                    "Note__Body": "The eaves of the existing dwellinghouse are taken at the same defined point on its pitched roof: \"Eaves height is measured from ground level at the base of the outside wall to the point where that wall would meet the upper surface of the roof slope - the overhang should be ignored for the purposes of measurement.\" The host dwelling eaves point marked on the drawings is therefore taken at the upper surface of the roof slope projected to the face of the outside wall, with the gutter and overhanging eaves disregarded. Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), page 12, pitched roof diagram.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_044",
+                    "Note__Code": "PD08",
+                    "Note__Title": "Eaves benchmark taken on this elevation",
+                    "Note__Body": "Where the existing house has eaves of different heights the restriction is measured against the highest level of eaves on the existing house; where a house is built on sloping ground the eaves of the existing house \"should be measured in terms of the elevation from which any extension of a house is to be made\". The comparison shown is taken on the rear elevation from which the extension is made: existing dwellinghouse eaves 2,650 mm against extension eaves 2,600 mm. Measuring instead against the highest eaves on the existing house would raise the permitted level, so the comparison drawn is the more restrictive of the two. Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), page 13.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_045",
+                    "Note__Code": "PD09",
+                    "Note__Title": "Eaves within 2 m of a boundary",
+                    "Note__Body": "Class A.1(i): development is not permitted if \"the enlarged part of the dwellinghouse would be within 2 metres of the boundary of the curtilage of the dwellinghouse, and the height of the eaves of the enlarged part would exceed 3 metres\". The guidance confirms that \"guidance on measurement of height of eaves is covered under paragraph (d) above\", so the parapet is excluded from this test as well. At an eaves height of 2,600 mm the extension is 400 mm below the 3 m limit, and the limit is met whether or not any part of the extension lies within 2 m of a boundary. Reference: MHCLG, Permitted development rights for householders: Technical Guidance (September 2019), page 22.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
+                },
+                {
+                    "Note__Id": "SpecNote_046",
+                    "Note__Code": "PD10",
+                    "Note__Title": "Eaves setting-out tolerance",
+                    "Note__Body": "The extension eaves is set 50 mm below the eaves of the existing dwellinghouse. That margin carries the whole of the compliance case at Class A.1(d), so the wall plate, deck and roof build-up must be set out so the upper surface of the flat roof where it meets the external wall does not rise above 2,600 mm from the planning ground datum (PD05). Confirm the existing dwellinghouse eaves height by survey before setting out; if it is found to be lower than 2,650 mm the extension roof must be lowered to match, since exceeding it removes permitted development rights.",
+                    "Note__UpdatedIso": "2026-09-18T09:30:00.000Z"
                 }
             ]
         },
@@ -147,52 +225,9 @@
             ]
         },
         {
-            "Group__Id": "SpecGroup_012",
-            "Group__Prefix": "PD",
-            "Group__Title": "Permitted Development Notes",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_013",
-                    "Note__Code": "PD01",
-                    "Note__Title": "Rear extension projection",
-                    "Note__Body": "Single-storey rear extension with an enclosed projection of 3,150 mm from the rear wall of the house.",
-                    "Note__UpdatedIso": "2026-09-17T21:06:57.326Z"
-                },
-                {
-                    "Note__Id": "SpecNote_014",
-                    "Note__Code": "PD02",
-                    "Note__Title": "Extension width",
-                    "Note__Body": "Extension width: 9,230 mm. The enclosed extension remains within the existing side-wall lines of the house, as shown on the plans.",
-                    "Note__UpdatedIso": "2026-09-14T21:08:02.456Z"
-                },
-                {
-                    "Note__Id": "SpecNote_015",
-                    "Note__Code": "PD03",
-                    "Note__Title": "Flat-roof eaves measurement",
-                    "Note__Body": "Finished roof surface: 2,650 mm above GFFL; 2,800 mm above proposed terrace. Eaves measured at the upper roof surface where it meets the external wall; parapet excluded. Reference: GOV.UK, Permitted development rights for householders: technical guidance (September 2019), Class A, paragraph A.1(d). Planning ground datum: PD05; existing-house eaves limit also applies.",
-                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
-                },
-                {
-                    "Note__Id": "SpecNote_026",
-                    "Note__Code": "PD04",
-                    "Note__Title": "Parapet coping level",
-                    "Note__Body": "Parapet coping: 3,000 mm above proposed terrace, equivalent to 2,850 mm above GFFL. Coping is included in overall extension height, not eaves height. Terrace-relative dimensions are distinct from planning heights; use the ground datum described in PD05.",
-                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
-                },
-                {
-                    "Note__Id": "SpecNote_039",
-                    "Note__Code": "PD05",
-                    "Note__Title": "Planning ground datum",
-                    "Note__Body": "Measure planning heights from the existing ground immediately adjacent to the building, excluding the proposed 50 mm paving overlay; where uneven, use the highest adjacent ground level. Reference: GOV.UK, Permitted development rights for householders: technical guidance (September 2019), General Issues, \"Height\". Record existing and proposed paving levels separately.",
-                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
-                }
-            ]
-        },
-        {
             "Group__Id": "SpecGroup_027",
             "Group__Prefix": "RF",
-            "Group__Title": "Roof and Rooflights",
+            "Group__Title": "Roof",
             "Group__IsGeneral": false,
             "Group__Notes": [
                 {
@@ -210,22 +245,8 @@
                     "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
                 },
                 {
-                    "Note__Id": "SpecNote_030",
-                    "Note__Code": "RF03",
-                    "Note__Title": "Flat rooflights",
-                    "Note__Body": "Three flat rooflights, nominally 1,500 x 1,000 mm each: two over the dining/occasional seating area and one over the bedroom. Confirm whether dimensions refer to the opening or overall unit before ordering. Provide insulated upstands at least 150 mm above the adjacent finished roof surface.",
-                    "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"
-                },
-                {
-                    "Note__Id": "SpecNote_031",
-                    "Note__Code": "RF04",
-                    "Note__Title": "Rooflight pitch and height",
-                    "Note__Body": "Install rooflights at the manufacturer's required pitch; 5 degrees is indicative. Keep frames and glazing below the coping. The indicated roof-to-coping allowance is 200 mm: coordinate the minimum 150 mm upstand, frame depth and pitch within this envelope. Revise the roof detail if necessary; do not reduce the minimum upstand.",
-                    "Note__UpdatedIso": "2026-09-17T19:27:23.772Z"
-                },
-                {
                     "Note__Id": "SpecNote_032",
-                    "Note__Code": "RF05",
+                    "Note__Code": "RF03",
                     "Note__Title": "Rainwater drainage",
                     "Note__Body": "Form positive falls to sized roof outlets and rainwater pipes. Provide accessible outlets and an emergency overflow to the parapet-enclosed roof. Confirm discharge route and capacity before construction; keep all roof drainage within the site and clear of door thresholds.",
                     "Note__UpdatedIso": "2026-09-14T19:10:13.757Z"

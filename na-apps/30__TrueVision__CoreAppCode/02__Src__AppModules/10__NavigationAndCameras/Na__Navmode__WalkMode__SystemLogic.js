@@ -277,7 +277,8 @@
     // ------------------------------------------------------------
     const Na__WalkMode__CollisionExemptKeywords = [
         'Dev__DefaultCube',    // <-- Programmatic dev/pivot reference cube
-        'OrbitHelperCube'      // <-- GLB orbit helper cube (handles project-prefixed names)
+        'OrbitHelperCube',     // <-- GLB orbit helper cube (handles project-prefixed names)
+        'Linetype__'           // <-- Linetype linework: 2D drawing annotation, not rendered in 3D at all
     ];
     // ------------------------------------------------------------
 

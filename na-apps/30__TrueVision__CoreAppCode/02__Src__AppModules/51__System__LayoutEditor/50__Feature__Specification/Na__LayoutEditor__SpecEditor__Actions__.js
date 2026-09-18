@@ -42,6 +42,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - Wired the Reload R2 and Reload Local buttons to ReloadFromCloud and
+//   ReloadFromLocal.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SpecEditor__.js; the code moved verbatim.
 //
@@ -73,6 +77,8 @@
         Na__LeSpec__Redo,
         Na__LeSpec__Sync,
         Na__LeSpec__Retry,
+        Na__LeSpec__ReloadFromCloud,
+        Na__LeSpec__ReloadFromLocal,
         Na__LeSpec__GetRevision,
         Na__LeSpec__SetRevision,
         Na__LeSpec__GetDocumentNumber,
@@ -232,6 +238,8 @@
             case 'redo':         Na__LeSpec__Redo(); return;
             case 'sync':         void Na__LeSpec__Sync({ showToast : Na__LeSpecEd__ShowToast }); return;
             case 'retry':        void Na__LeSpec__Retry(); return;
+            case 'reload-cloud': void Na__LeSpec__ReloadFromCloud(); return;
+            case 'reload-local': void Na__LeSpec__ReloadFromLocal(); return;
             case 'group-up':
             case 'group-down': {
                 const index = Na__LeSpec__GetGroups().findIndex((g) => g.Group__Id === groupId);

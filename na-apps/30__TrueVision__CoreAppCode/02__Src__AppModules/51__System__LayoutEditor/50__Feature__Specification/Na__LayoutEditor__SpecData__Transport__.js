@@ -57,6 +57,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - Added ReloadFromCloud and ReloadFromLocal: a fast, explicit re-read of
+//   the cloud copy or the local repository copy, each asking first (through
+//   the confirm dialog) when this browser holds unsynced edits it would
+//   discard. Answers the gap between EnsureLoaded (once per project) and
+//   Retry (only after a failed read): a hard refresh was previously the only
+//   way to pick up a file another session had moved on, on disk or on R2.
+// - Added CanReloadCloud and CanReloadLocal so the Bar and Actions units can
+//   show and enable the two buttons without importing the Worker config or
+//   localhost check themselves.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SpecData__.js; the code moved verbatim.
 //
@@ -411,6 +422,108 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | May This Session Force-Reload the Cloud / Local Copy
+    // ------------------------------------------------------------
+    // What the Reload buttons show and enable is asked through these, so the
+    // Bar and Actions units need not know a worker or a localhost from a CDN.
+    // ------------------------------------------------------------
+    function Na__LeSpec__CanReloadCloud() { return Na__CfApi__IsConfigured(); }
+    function Na__LeSpec__CanReloadLocal() { return Na__AppUtils__IsRunningOnLocalhost(); }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Force-Reload the Specification From the Cloud Copy (R2), Asking First When Edits Would Be Lost
+    // ------------------------------------------------------------
+    // A fast, explicit re-read for when another session (an LLM editing the
+    // file on disk and syncing it, or a colleague) has moved the cloud copy on
+    // and a hard refresh is the only way this browser has caught up so far.
+    // Unsynced edits in this browser are what a reload can destroy, so it asks
+    // before discarding them - the same shape of question Sync already asks
+    // in the other direction.
+    // ------------------------------------------------------------
+    async function Na__LeSpec__ReloadFromCloud() {
+        if (Na__LeSpec__Syncing) return false;
+        const setup = Na__LeCfg__GetSpecificationSetup();
+        if (!Na__LeSpec__CanReloadCloud()) { Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadNoWorker', 'Cloudflare Worker not configured. The cloud copy cannot be read.'), true); return false; }
+        if (Na__LeSpec__IsDirty()) {
+            const ok = await Na__AppUtils__ConfirmDialog__Show({
+                title         : Na__LeCfg__GetLabel('SpecReloadCloudTitle', 'Reload from the cloud?'),
+                message       : Na__LeCfg__GetLabel('SpecReloadCloudPrompt', 'This browser holds changes that have not been synced. Reloading replaces them with the cloud copy on R2, and the unsynced changes are lost.'),
+                confirmLabel  : Na__LeCfg__GetLabel('SpecReloadConfirm', 'Reload'),
+                isDestructive : true
+            });
+            if (!ok) return false;
+        }
+        const prevStatus = Na__LeSpec__Status;
+        Na__LeSpec__SetStatus(Na__LeSpec__STATUS_LOADING);
+        Na__LeSpec__Dispatch('status');
+        let read = await Na__LeSpec__ReadCloudFile(setup.fileName, setup.loadTimeoutMs);
+        if (read && read.ok && (read.missing || !Na__LeSpec__HasDoc(read.data)) && setup.legacyFileName) {
+            const legacy = await Na__LeSpec__ReadCloudFile(setup.legacyFileName, setup.loadTimeoutMs);
+            if (legacy && legacy.ok && !legacy.missing && Na__LeSpec__HasDoc(legacy.data)) read = legacy;
+        }
+        if (!read || !read.ok) {
+            Na__LeSpec__SetStatus(prevStatus);
+            Na__LeSpec__Dispatch('status');
+            Na__LeSpec__Toast(Na__LeCfg__FormatLabel('SpecReloadFailed', 'Reload from the cloud failed: {error}.', { error : (read && read.error) || 'unknown' }), true);
+            return false;
+        }
+        Na__LeSpec__ClearDraft();
+        Na__LeSpec__Adopt(Na__LeSpec__HasDoc(read.data)
+            ? { status : Na__LeSpec__STATUS_READY, data : read.data, source : 'cloud' }
+            : { status : Na__LeSpec__STATUS_NEW, data : null, source : 'cloud', cloudMissing : true });
+        Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
+        Na__LeSpec__Dispatch('loaded', { codesChanged : true });
+        Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadedCloud', 'Reloaded from the cloud.'), false);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Force-Reload the Specification From the Local Repository Copy, Asking First When Edits Would Be Lost
+    // ------------------------------------------------------------
+    // The counterpart to ReloadFromCloud: on localhost only, where the
+    // repository file beside TrueVision__ProjectData__.json exists. It reads
+    // that file fresh (no browser cache) and adopts it as the live document,
+    // asking first when this browser holds unsynced edits it would discard.
+    // ------------------------------------------------------------
+    async function Na__LeSpec__ReloadFromLocal() {
+        if (Na__LeSpec__Syncing) return false;
+        if (!Na__LeSpec__CanReloadLocal()) { Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadLocalUnavailable', 'The local copy is only available on localhost.'), true); return false; }
+        const setup    = Na__LeCfg__GetSpecificationSetup();
+        const location = Na__CfApi__ProjectFileLocation(setup.fileName);
+        if (!location) { Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadNoProject', 'No project folder in the URL.'), true); return false; }
+        if (Na__LeSpec__IsDirty()) {
+            const ok = await Na__AppUtils__ConfirmDialog__Show({
+                title         : Na__LeCfg__GetLabel('SpecReloadLocalTitle', 'Reload from the local file?'),
+                message       : Na__LeCfg__GetLabel('SpecReloadLocalPrompt', 'This browser holds changes that have not been synced. Reloading replaces them with the local file on disk, and the unsynced changes are lost.'),
+                confirmLabel  : Na__LeCfg__GetLabel('SpecReloadConfirm', 'Reload'),
+                isDestructive : true
+            });
+            if (!ok) return false;
+        }
+        const prevStatus = Na__LeSpec__Status;
+        Na__LeSpec__SetStatus(Na__LeSpec__STATUS_LOADING);
+        Na__LeSpec__Dispatch('status');
+        const local = await Na__LeSpec__FetchJson(location.repoUrl);
+        if (!local.ok || !Na__LeSpec__HasDoc(local.data)) {
+            Na__LeSpec__SetStatus(prevStatus);
+            Na__LeSpec__Dispatch('status');
+            Na__LeSpec__Toast(!local.ok
+                ? Na__LeCfg__FormatLabel('SpecReloadFailed', 'Reload from the local file failed: {error}.', { error : local.error || 'unknown' })
+                : Na__LeCfg__GetLabel('SpecReloadLocalMissing', 'No local copy was found for this project.'), true);
+            return false;
+        }
+        Na__LeSpec__ClearDraft();
+        Na__LeSpec__Adopt({ status : Na__LeSpec__STATUS_READY, data : local.data, source : 'repository' });
+        Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
+        Na__LeSpec__Dispatch('loaded', { codesChanged : true });
+        Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadedLocal', 'Reloaded from the local file.'), false);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Sync: Write the Whole Specification to R2
     // ------------------------------------------------------------
     // options: { showToast, quiet }. Reads the cloud copy first; when it is not
@@ -502,7 +615,11 @@
     export {
         Na__LeSpec__EnsureLoaded,
         Na__LeSpec__Retry,
-        Na__LeSpec__Sync
+        Na__LeSpec__Sync,
+        Na__LeSpec__CanReloadCloud,
+        Na__LeSpec__CanReloadLocal,
+        Na__LeSpec__ReloadFromCloud,
+        Na__LeSpec__ReloadFromLocal
     };
     // ------------------------------------------------------------
 

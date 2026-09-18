@@ -161,6 +161,10 @@
             "high":   { "PixelsPerMm": 20, "MaxPixels": 8192, "AntiAliasSamples": 16 }
         }
     },
+    "LayoutEditor__ViewportCache__Config": {
+        "LayoutEditor__ViewportCache__Description": "Sheets stay rendered while another sheet is shown. Leaving a drawing tab lifts that sheet's viewport frames off the paper whole - the base images, the painted linework, the 3D snapshots and the keys they were rendered under - and coming back puts them straight on again, so flipping between tabs renders nothing. A viewport only renders again when its own key has changed: a resized or re-cropped frame, a pan, a scale, a style or composite weight, its model layers, the raster level, the scene or the model. MaxParkedSheets is how many sheets are kept this way, the least recently shown dropped first; each holds its pictures in memory (a few megabytes a viewport), so lower it on a machine short of memory. 0 switches the cache off. SCREEN ONLY: the PDF never reads this cache - every raster in a PDF is rendered afresh at the Raster block's ExportLevel.",
+        "LayoutEditor__ViewportCache__MaxParkedSheets": 24
+    },
     "LayoutEditor__Text__Config": {
         "LayoutEditor__Text__Description": "Sheet text (D31). Sizes are paper millimetres. Weights are the Open Sans cuts the app loads. MULTI-LINE: Shift+Enter starts a new line in the inline editor; Enter commits. LineSpacing is line height as a multiple of the text size; a blank line typed between two others is kept. ROTATION: a selected text item shows a round grip on a short stem off the top of its outline; drag it to turn the text about the middle of its box, or type an angle in the Text panel's Rotation box (degrees clockwise). Shift holds a drag to RotateStepDeg steps; without Shift a drag settles on a right angle once within RotateDetentDeg of one. RotateGripOffsetPx is how far off the outline the grip stands on screen, at any zoom. Right-click a turned item for Reset rotation. The record key is Annotation__RotationDeg, written only while the text is turned, so level text saves exactly as before.",
         "LayoutEditor__Text__FontFamily": "'Open Sans', Helvetica, Arial, sans-serif",
@@ -225,6 +229,15 @@
         "LayoutEditor__Navigation__ZoomMax": 8,
         "LayoutEditor__Navigation__ZoomWheelStep": 0.0016,
         "LayoutEditor__Navigation__FitPaddingPx": 32
+    },
+
+    "LayoutEditor__WebViewer__Config": {
+        "LayoutEditor__WebViewer__Description": "The read-only document viewer the live web build shows in place of the editor. Where authoring is off - anywhere but localhost or an explicitly unlocked device - the drawing tabs, panel columns, toolbar and measurements box are never built, and the drawings and the project specification are shown as one cycled list of documents with a bar at the top and a dock at the bottom. Enabled false hands the web build back the read-only editor it had before this existed. ShowSpecification false leaves the specification out of the list entirely. SwipeMinPx is how far a finger has to travel PAST the edge of the paper before the document changes, so panning a zoomed drawing never turns the page by accident. DoubleTapZoomFactor is how much closer a double tap on a fitted sheet brings it; a double tap on an already magnified sheet fits it again.",
+        "LayoutEditor__WebViewer__Enabled": true,
+        "LayoutEditor__WebViewer__ShowSpecification": true,
+        "LayoutEditor__WebViewer__SwipeToChangeDocument": true,
+        "LayoutEditor__WebViewer__SwipeMinPx": 70,
+        "LayoutEditor__WebViewer__DoubleTapZoomFactor": 2.5
     },
 
     "LayoutEditor__Snapping__Config": {
@@ -507,6 +520,20 @@
         "LayoutEditor__Labels__NoSelection": "Select a viewport on the sheet.",
         "LayoutEditor__Labels__NoSheets": "No sheets yet. Add one from the Dev menu or the + tab.",
         "LayoutEditor__Labels__ReadOnlyNote": "Read-only on the web build.",
+        "LayoutEditor__Labels__TabsPreviousTitle": "The drawing before this one",
+        "LayoutEditor__Labels__TabsNextTitle": "The drawing after this one",
+        "LayoutEditor__Labels__ViewerPrevious": "Previous document",
+        "LayoutEditor__Labels__ViewerNext": "Next document",
+        "LayoutEditor__Labels__ViewerCount": "{index} / {total}",
+        "LayoutEditor__Labels__ViewerFitTitle": "Show the whole sheet",
+        "LayoutEditor__Labels__ViewerZoomInTitle": "Zoom in",
+        "LayoutEditor__Labels__ViewerZoomOutTitle": "Zoom out",
+        "LayoutEditor__Labels__ViewerPdf": "PDF",
+        "LayoutEditor__Labels__ViewerPdfTitle": "Download this sheet as a PDF at paper size",
+        "LayoutEditor__Labels__ViewerPageUp": "Page up",
+        "LayoutEditor__Labels__ViewerPageUpTitle": "The page before this one",
+        "LayoutEditor__Labels__ViewerPageDown": "Page down",
+        "LayoutEditor__Labels__ViewerPageDownTitle": "The page after this one",
         "LayoutEditor__Labels__DownloadPdf": "Download PDF",
         "LayoutEditor__Labels__AddViewport": "Add Viewport",
         "LayoutEditor__Labels__AddText": "Add Text",
@@ -583,6 +610,9 @@
         "LayoutEditor__Labels__MenuCopyText": "Copy text",
         "LayoutEditor__Labels__MenuPasteText": "Paste text",
         "LayoutEditor__Labels__MenuDuplicateText": "Duplicate text",
+        "LayoutEditor__Labels__MenuCopyLeader": "Copy leader",
+        "LayoutEditor__Labels__MenuPasteLeader": "Paste leader",
+        "LayoutEditor__Labels__MenuDuplicateLeader": "Duplicate leader",
         "LayoutEditor__Labels__MenuCopyGroup": "Copy group",
         "LayoutEditor__Labels__MenuPasteGroup": "Paste group",
         "LayoutEditor__Labels__MenuDuplicateGroup": "Duplicate group",
@@ -597,6 +627,12 @@
         "LayoutEditor__Labels__GroupCopied": "Copied group. Ctrl+V pastes it, on this sheet or another.",
         "LayoutEditor__Labels__SelectionCopied": "Copied {count} items. Ctrl+V pastes them, on this sheet or another.",
         "LayoutEditor__Labels__ShapeCopied": "Copied vector. Ctrl+V pastes it, on this sheet or another.",
+        "LayoutEditor__Labels__LeaderCopied": "Copied leader. Ctrl+V pastes it, on this sheet or another.",
+        "LayoutEditor__Labels__TextPasted": "Pasted text in the same place.",
+        "LayoutEditor__Labels__GroupPasted": "Pasted group in the same place.",
+        "LayoutEditor__Labels__SelectionPasted": "Pasted {count} items in the same place.",
+        "LayoutEditor__Labels__ShapePasted": "Pasted vector in the same place.",
+        "LayoutEditor__Labels__LeaderPasted": "Pasted leader in the same place.",
         "LayoutEditor__Labels__ViewportCopyName": "{name} copy",
         "LayoutEditor__Labels__ViewportCopyNameNumbered": "{name} copy {n}",
         "LayoutEditor__Labels__ViewportCopied": "Copied \"{name}\". Ctrl+V pastes it, on this sheet or another.",

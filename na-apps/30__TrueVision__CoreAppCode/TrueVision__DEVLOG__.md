@@ -2,6 +2,459 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.65.1  -  18-Sep-2026
+### The Viewer Keeps the Tabs, and the Page Is Where the Drawing Ends
+
+**Overview**
+- Adam, on v2.65.0: "The tab system is too different, use regular tabs but add an additional side
+  scroll on portrait and a next arrow at the end of the visible list"; and "on the online version
+  ensure no objects outside the bounds of the paper render... I sometimes leave objects to match
+  properties to outside the drawing, so ensure on live version the objects truncate to the page."
+- Then, seeing it: "the nav menu needs to nudge down IF there is a tab menu", and "the buttons at
+  the bottom are too large on the drawings, they look good on spec though".
+
+**Regular tabs, made to fit a phone**
+- v2.65.0 gave a web viewer two tabs - 3D Model and Drawings - and put the document's name in a bar
+  of its own. Reverted. The strip is the same one the editor has, every sheet and the
+  specification, and a viewer simply has no plus, no rename and no drag, which it never had.
+- The tabs now live in `.na-le-tabs__scroller` with an arrow OUTSIDE it at each end, so the arrows
+  stay put at the ends of the visible run however far the tabs are pushed along. Seven tabs need
+  about 700px and a phone in portrait has 375, so the strip scrolls under a finger; on a desktop
+  that fits them all no arrow is shown and the strip is exactly what it always was.
+- An arrow opens the tab before or after the open one by CLICKING it, so there is still one way
+  into each document rather than a second copy of the navigation. The plus is skipped: it makes a
+  sheet rather than opening one. A rebuild scrolls the open tab back into view.
+- The viewer's own bar and its document list went with the change - the active tab names the
+  document and a scrollable strip reaches every other one. What is left is the dock, which the
+  strip cannot replace because it is at the bottom of the screen, where the thumb holding a phone
+  actually is. The count moved into it: "4 / 11" beside the arrows says there is more to come
+  without looking up at the strip.
+
+**The page is where the drawing ends**
+- `.na-le-host--viewer .na-le-paper { overflow: hidden }`. The editor sets overflow visible on the
+  paper and on each of its layers on purpose - an author parks an item off the page, or leaves a
+  swatch out on the grey to match properties from, and has to see and grab it there. A reader is
+  being shown an issued drawing, and on a phone that working material arrives as unexplained marks
+  floating beside the page. Clipping the paper clips every layer inside it, because an ancestor
+  that hides its overflow clips its descendants whatever they set themselves.
+- Verified on all four PS02 sheets: D21 had seven such objects and D22 one, and none of them paint
+  any more. With authoring on, all 23 are still drawn and still grabbable.
+
+**Two things that were simply wrong**
+- THE NAV TOOLBAR SAT ON THE TABS. In presentation mode it is positioned at
+  `header + 14px`, and it never added the tab strip's published height - so on a phone, where the
+  header is 48px, it landed at 62px on a strip whose bottom is 84px. The same omission was in the
+  controls help panel and the Tools & Settings dropdown; the Dev Tools menu had it right all along.
+  All four now add `var(--Vale_LayoutTabStripHeight, 0px)`, which is 0px wherever the strip is not
+  shown.
+- Reveal measured with `offsetLeft`, which is counted from the nearest POSITIONED ancestor - not
+  the scroller - so comparing it with the scroller's own scrollLeft compared two different origins.
+  The sums came out plausible and the open tab still sat half off the edge. Rects instead.
+
+**The dock, lighter**
+- 44px squares in a 56px row read as a keypad under a drawing, and a drawing shows six of them
+  across a 375px phone. Now 36px tall in a 52px row, with the step arrows at 46px and 1.15rem
+  instead of 56px and 1.5rem. The tap target has not shrunk with them: the dock's own padding is
+  dead space around each control that a thumb still lands on.
+
+**Tested in the browser (PS02, localhost, 375x812 and desktop)**
+- Tabs in one row at 375px, scrolling, with both arrows; stepping either way never leaves the open
+  tab clipped; the plus is skipped; the arrows disable at the ends.
+- Nav toolbar at 98px with the strip shown (48 + 36 + 14), clear of it.
+- With authoring on: the same strip plus the plus tab, no arrows at 754px, paper overflow visible,
+  two panel columns, the whole toolbar, no dock.
+- NOT tested: a real finger on a real phone, and the installed PWA.
+
+**A note on verifying this locally**
+- The service worker kept serving a stale shell on an origin it had already cached, through
+  unregister, cache-clear and reload - the CSS edits simply did not arrive. Verifying on a fresh
+  port (a new origin has no cache of either kind) is the reliable way to see a stylesheet change.
+  `tv-webviewer-b` on 8622 is in `.claude/launch.json` for that.
+
+**Files**
+- `05__Core__ModeController/Na__LayoutEditor__TabStrip__.js` 1.5.0,
+  `10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__.css` (scroller and arrows).
+- `80__Feature__WebViewer/Na__LayoutEditor__WebViewer__.js` 1.1.0,
+  `Na__LayoutEditor__Styles__WebViewer__.css` (dock sizing, page clipping; bar and list removed),
+  `05__Core__ModeController/Na__LayoutEditor__ModeController__.js`.
+- `03__Style__AppStylesheets/Na__PresentationMode__Styles__SceneCarousel__.css`,
+  `...__ControlsHelpPanel__.css`, `...__DropdownAndToast__.css` (clear the tab strip).
+- `51__System__LayoutEditor/03__Core__Config/Na__LayoutEditor__AppConfig__.json` (the bar and list
+  labels replaced by the two tab arrow titles).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.65.1  -  18-Sep-2026
+### Walk Mode Stops Colliding With a Line Nothing Draws
+
+**Why**
+- Found while porting v2.63.1 and v2.63.2 to ValeVision3D. `LineSegments2` extends `Mesh`, so
+  `isMesh` is true on every fat line, so `Na__WalkMode__SetCollisionMeshes` has always taken the
+  whole linework layer as collision geometry.
+- That was harmless while linework sat on the faces it came from - you collided with the wall
+  either way. It stopped being harmless in v2.63.2, which made the linetype categories invisible:
+  a dashed overhead-extent line drawn at ceiling height is now something you can walk into and
+  cannot see.
+
+**Changed:** `Na__Navmode__WalkMode__SystemLogic.js`
+- `Linetype__` joins `Na__WalkMode__CollisionExemptKeywords`. The exemption test already walks the
+  whole ancestor chain, so it matches on the category group name and covers every fat line under it.
+- The same one-line change is in ValeVision3D v2.56.1, so the two stay level.
+
+**Not changed.** Every other category's linework is still collision geometry, as it has always
+been. This is the narrow case: geometry that no longer renders.
+
+**Not tested in the browser.** Node syntax check passes.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.65.0  -  18-Sep-2026
+### The Public Web Is a Viewer, Not a Disabled Editor
+
+**Overview**
+- Adam: "The public web version of the layout editor should not show, it should instead be a view
+  only mode... dont show the main editor side panels, most people will be viewing on a phone in
+  portrait so they are useless, on the web version make it a viewer so you can cycle the documents
+  and see the spec in view mode and drawings."
+- The web build was already read-only. What it was not was USABLE: read-only meant the whole
+  editor with its buttons greyed - 550px of panel columns, a toolbar of drawing tools, a strip of
+  small tabs - which on a 375px phone in portrait leaves the drawing a sliver and every control on
+  screen is one the reader has to work out is not for them.
+
+**Where the line is, and why the display mode is not part of it**
+- The gate is the one that already exists: `Na__DevGate__IsAuthoringEnabled()`. Localhost in a
+  browser and localhost installed as a PWA both author; the live site in a browser and the live
+  site installed as a PWA are both the viewer. The four cases Adam listed collapse to two, and the
+  display mode is never asked, because it was never the question.
+
+**Three modules, and the one thing they have in common**
+- `80__Feature__WebViewer/Na__LayoutEditor__WebViewer__TouchControls__.js` (`Na__LeVwTouch`): a
+  gesture recogniser that knows nothing about sheets or specifications. Drag to pan, pinch to zoom,
+  double tap to fit, swipe sideways for the next document. The EDITOR'S touch module reserves the
+  second finger for navigation so the first can drag sheet items; a viewer edits nothing, so the
+  first finger is free and the gestures people already know from every photo app are available.
+- `...__Drawings__.js` (`Na__LeVwDraw`): the read-only drawing surface. It attaches the PC
+  navigation controls and the recogniser and NOTHING ELSE - no sheet tools, no margin grip, no
+  context menu, no measurements box.
+- `...__Spec__.js` (`Na__LeVwSpec`): the specification as the A4 pages it prints as. The Read view
+  is SET on every show rather than defaulted, so a stored Edit view from a once-unlocked device
+  cannot bring the authoring surface back, and the viewer class takes the Edit/Read tabs, the
+  filter, the issue fields and the alerts off the bar. Title, page count, Download, Print, status.
+- `...__WebViewer__.js` (`Na__LeVw`) holds them together: the sheets and the specification as one
+  ordered list of documents, a bar at the top naming the document and its place in the set, and a
+  dock at the BOTTOM, where the thumb of the hand holding the phone actually is.
+
+**Not disabled: not built**
+- `Na__LeMode__Build` gives a viewer a different shell - `<shell><centre><stage>` and no columns,
+  no toolbar row - and `AttachSheetInput` returns early. Every read-only leak this codebase has had
+  came from attaching the editing tools and then disabling each thing they can do; one new tool,
+  one forgotten guard, and a web reader can drag a viewport. A tool that was never attached cannot
+  leak. Verified in the browser: 0 panel columns, 0 panels, 0 toolbars, 0 measurement boxes.
+- The tab strip stands down while a viewer has a document open (its published height goes to zero
+  with it) and on the 3D model shows two tabs - 3D Model and Drawings - because it is still the
+  only door in.
+
+**The swipe is earned, and that took a second look**
+- The rule is that only the travel the page COULD NOT use builds the page-turn budget, so a
+  magnified drawing pans to its edge and the drag that carries past it turns the page. The catch:
+  the stage is much larger than the sheet on purpose - the roaming room is where an author drags an
+  item off the paper - so a fitted A3 sheet sits in 311px of paper inside 1,061px of scrollable
+  room, and a finger travelled 343px of empty grey before it had spent anything. The reader's edge
+  is now the PAPER'S edge. (And the first version of that clamp had its bounds the wrong way round,
+  which does not merely fail to clamp: it pins the sheet to one edge and every drag reads as spare.)
+
+**Two fixes underneath it**
+- `Na__AppUtils__DevGate__` 1.1.0: the stored flag is tri-state - unlocked, LOCKED, or nothing
+  said - and an explicit lock now closes authoring on localhost too. Before this, `Lock()` and
+  `?authoring=off` cleared the key and localhost carried on authoring, so the read-only web build
+  could not be seen without deploying it. `?authoring=off` is now how this viewer is developed.
+- `Na__LeVwDraw__Fit` fits immediately when the stage already has a size and only defers a frame
+  when it does not. `requestAnimationFrame` does not run while a page is not being painted, so a
+  Fit pressed in a backgrounded tab would otherwise never happen at all.
+
+**Tested in the browser (PS02, localhost, 375x812 and 1024x768)**
+- Five documents (four sheets + the specification) cycle by dock arrow, arrow key, document list
+  and swipe; the ends stop rather than wrap. Each new document arrives fitted.
+- Zoomed to 765px of paper in a 375px stage: the first flick pans to the edge, the second turns the
+  page. Vertical drags never turn a page, on the sheet or on the specification's pages.
+- The specification shows 5 A4 pages, `touch-action: pan-y` so the browser keeps its own momentum
+  scrolling, and a bar of Title / 5 pages / Download / Print / Read-only.
+- With `?authoring=on` the editor is untouched: full tab strip with the + tab, two panel columns,
+  eleven sections, the whole toolbar through to Save Sheets, and the specification's full bar.
+- NOT tested: a real finger on a real phone (gestures were driven as synthetic pointer events), and
+  the installed PWA against the new service worker token.
+
+**One thing to do**
+- The service worker token is bumped to `2026-09-18-1`. An installed copy holding the old shell
+  would keep showing the editor's panel columns on a phone; this is the bump that reaches it.
+
+**Files**
+- `51__System__LayoutEditor/80__Feature__WebViewer/` (new): `Na__LayoutEditor__WebViewer__.js`
+  1.0.0, `...__Drawings__.js` 1.0.0, `...__Spec__.js` 1.0.0, `...__TouchControls__.js` 1.0.0,
+  `Na__LayoutEditor__Styles__WebViewer__.css`.
+- `05__Core__ModeController/Na__LayoutEditor__ModeController__.js` 1.16.0, `...__TabStrip__.js` 1.4.0.
+- `03__Core__Config/Na__LayoutEditor__ConfigState__EditorSetup__.js` (GetWebViewerSetup),
+  `...__ConfigState__.js`, `Na__LayoutEditor__AppConfig__.json` (LayoutEditor__WebViewer__Config
+  and the viewer labels).
+- `03__AppUtils/Na__AppUtils__DevGate__.js` 1.1.0,
+  `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` 1.7.0,
+  `02__AppData/Na__AppConfig__Main.json`, `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.64.1  -  18-Sep-2026
+### A Moved Hopper Is a New Model: Content Stamps, and a Force Render That Repaints
+
+**Overview**
+- Adam, with the South Elevation's hopper drawn twice - the base image where the model has it, the
+  projected linework where it used to be: "its the projected linework layer thats the issue, it
+  needs a trigger, ANY NEW MODEL UPDATES or any other changes must force re render... none of the
+  re render buttons or methods are working."
+- Two separate faults, and neither was the v2.64.0 viewport cache. One made the linework stale;
+  the other made every button that should have fixed it do nothing visible.
+
+**Why it was stale: the fingerprint counted, it did not look**
+- Every cache downstream of the model is keyed by `Na__PlStage__Describe(...).Fingerprint`: the
+  pipeline's results, the collected model, the IndexedDB store, the baked R2 asset, the Layout
+  Editor's base image. That fingerprint was each category's name, triangle count and visibility.
+- Move a hopper along a wall and re-export: same names, same counts. Same fingerprint, same keys,
+  and the browser store hands back last week's projection as a perfect match. The base image only
+  looked right because it is re-rendered on a fresh page load anyway.
+- `Na__ModelLoader__ContentStamp__.js` (new): each GLB's scene is hashed the moment it is parsed -
+  every node's own position, rotation and scale, every geometry attribute and index, material
+  names and colours - and the hash rides on the mesh or linework root's userData. Describe adds the
+  stamps under each category to the fingerprint; the Layout Editor's 3D snapshot fingerprint takes
+  them too (`Na__LeSnap__ModelHash`).
+- Taken once, at load, before the loader touches the scene. The fat line upgrade, instance
+  consolidation, a door opened in the 3D view and a drawing posing the doors for one render are not
+  model updates and cannot re-key anything. It also makes the stamp the same in every session and
+  on every host for the same file, which the baked assets need.
+- So the trigger is the model itself: any re-export that changes anything re-keys everything
+  drawn from it, and nothing has to be pressed.
+
+**Why no button fixed it: the forced render cleared a key nothing is filed under**
+- `EnsureLinework(force)` did re-project. It then cleared `PathCache` under the bare linework key,
+  while `BandPaths` files its SVG path strings under `key@hidden@styleToken`. The delete never
+  matched. PaintLinework found the OLD strings under the unchanged key and painted those. Every
+  re-render re-projected faithfully and drew the stale drawing.
+- `Na__LeVp2d__ForgetPaths` clears every entry built from the result. A forced run also calls the
+  new `Na__PlPipe__ForgetCollections` once at its start, so the model is read again rather than
+  projected from the copy collected earlier in the session.
+
+**One-off cost, and one thing to do**
+- Every fingerprint changes once. Every stored projection and baked asset reads as stale once and
+  is made again: the first visit to each sheet after this re-projects and re-renders it.
+- **Re-bake and Save Sheets on each live project before deploying this**, or the web build will
+  find no baked asset under the new keys until you do - the same thing that already happens when a
+  re-export changes a triangle count.
+
+**Tested in the browser (PS02, localhost)**
+- All 13 categories stamped, mesh and linework separately. Pipeline and model fingerprints
+  identical across two page loads (`04a42c04-428`, `16db58a9-37d`).
+- PathCache poisoned with dummy strings, then Force Render on one viewport: the frame came back
+  with its real 9,968 characters of path data. Before the fix it would have painted the dummies.
+- NOT tested: an actual SketchUp re-export changing the stamp (the hash covers the buffers the
+  move lives in, but it has not been watched happening), and the web build against re-baked assets.
+
+**Files**
+- `15__ModelLoader/Na__ModelLoader__ContentStamp__.js` 1.0.0 (new), `...MultiModel.js` 1.4.0.
+- `50__System__ProjectedLinework/...ModelStage__.js` 1.2.0, `...Pipeline__.js` - ForgetCollections.
+- `51__System__LayoutEditor/20__System__Viewports/...Viewport2d__Linework__.js` - ForgetPaths;
+  `...ForceRender__.js`; `25__System__RenderStyles/...SnapshotRenderer__.js` 1.10.0.
+
+**ValeVision3D:** ported 18-Sep-2026 as ValeVision3D v2.57.0, with v2.64.0.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.64.0  -  18-Sep-2026
+### Drawing Tabs Stay Rendered: the Viewport Cache
+
+**Overview**
+- Adam: "flipping between tabs in the layout editor forces a redraw of all viewports which seems
+  crazy, once they are rendered once they should be cached and only regenerate if changes are made
+  to their parameters such as resizing a viewport or adjusting viewport layers... the renderer
+  should ALWAYS run at export time at max quality."
+- The cause was one line. `Na__LeSurface__SetSheet` called `ReleaseFrames` whenever the sheet
+  changed, which emptied the frames container and dropped every viewport's state: the base image,
+  the painted linework SVG, the 3D snapshot and - the part that mattered - the keys they had been
+  rendered under. Fill has always compared keys before asking for a render, so the editor already
+  knew how not to re-render. It was simply handed nothing to compare with each time a tab changed.
+
+**What changed**
+- Each sheet now owns its frames container. Leaving a sheet PARKS it: the container is lifted off
+  the paper whole and the viewport modules hand their states over to wait beside it
+  (`Na__LeVp2d__Park`, `Na__LeVp3d__Park`). Showing the sheet again puts both back before
+  `RefreshFrames` runs, Fill finds every key unchanged, and nothing is rendered. A tab change is a
+  DOM swap.
+- Leaving the editor parks too, so 3D Model and back is free as well.
+- Nothing new decides when a picture is stale. The existing keys cover the frame, the window, the
+  scale, the styles, the composite weights, the model layers, the raster level, the scene and the
+  model, and they are compared when a sheet is shown again. A change made while a sheet was parked
+  re-renders exactly the viewports it touches, when that sheet is next shown. Force Render is
+  untouched and still gets past everything.
+- A render still QUEUED for a sheet that has been left is skipped (`stillWanted` on Render2d and
+  Render3d), so the sheet arrived at is not held up behind the one abandoned. A render already
+  UNDER WAY lands in the parked frame, so the work is kept - as is linework that finishes
+  projecting while its sheet is parked.
+- `LayoutEditor__ViewportCache__MaxParkedSheets` (24): least recently shown dropped first, 0 is
+  off. Pictures are held in memory, a few megabytes a viewport.
+
+**Why the states move instead of staying put**
+- The viewport modules key their state maps by viewport id, and every sheet numbers its viewports
+  from one: PS01 has a `Viewport_001` on all four sheets. Two sheets cannot share that map, so a
+  parked state is never in it, and `Release` now names the frame body it is letting go.
+- The same collision was a live bug in three places. `Bake`, `RenderForExport` and
+  `RestampForScene` walk the whole set and looked a state up by id alone, so baking sheet B with
+  sheet A on screen could paint B's picture into A's frame of the same id. `Na__LeVp3d__LiveState`
+  checks the sheet as well.
+
+**The PDF always renders**
+- 2D underlays already did: `Na__LeVp2d__RenderForExport` is a fresh render at the export level,
+  and is unchanged.
+- 3D did not. `Na__LeVp3d__RenderForExport` handed back the on-screen or stored picture when it was
+  wide enough and sampled enough under the same fingerprint - and that fingerprint is a short hash
+  over category names and triangle counts. Good enough to save the screen a render; not good enough
+  to vouch for a printed page. Whenever the renderer is present the PDF now renders every 3D
+  viewport afresh at ExportLevel, and a failed render prints nothing rather than the screen's
+  working picture. The web build has no renderer and still places the stored picture.
+- Cost: a PDF with 3D viewports takes as long as its renders, every time. That is the trade asked for.
+
+**Tested in the browser (PS01, localhost)**
+- First visit renders as before (D02: six renders). Back and forth D01 / D02 / D03 / D10 and through
+  the 3D Model tab: 40-130 ms per tab change, the same image elements back on the paper, and ZERO
+  new renders over the following seconds.
+- A viewport still waiting on its design phase when its tab was left finished into the parked frame
+  and was there on return.
+- Raster level changed while D02 and D03 were parked: D02 re-rendered its six viewports when next
+  shown, then nothing on the visit after.
+- No project data was written by any of it.
+- NOT tested: a PDF export end to end, and the Dev bake across sheets.
+
+**Files**
+- `10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js` 1.6.0 - the cache.
+- `20__System__Viewports/Na__LayoutEditor__Viewport2d__Frame__.js` 1.1.0, `...Viewport2d__.js` 1.11.0,
+  `...Viewport3d__.js` 1.7.0 - Park, Restore, Release by body, LiveState, the PDF render.
+- `25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js` 1.9.0 - stillWanted.
+- `03__Core__Config/` - `GetViewportCacheSetup` and the `ViewportCache` block.
+
+**ValeVision3D:** ported 18-Sep-2026 as ValeVision3D v2.57.0, with v2.64.1.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.63.2  -  18-Sep-2026
+### Linetype Linework Is a Drawing Layer, So the 3D Render Stops Drawing It
+
+**Overview**
+- v2.63.1 landed and worked: a line tagged `02__Linetype__DashedLines` in SketchUp came through
+  dashed on the sheet. Adam, with a screenshot of the same line drawn twice: "only render these
+  linetypes on the linework projection layer only, not on the whitecard / base layers etc. the
+  dotted and specialist linetypes are projection types only."
+- He is right, and the screenshot says why better than an argument does: the crisp black dash is
+  the projection doing its job, and the pale solid line a few pixels below it is the same line
+  rendered into the raster underneath. A drawing showing its own annotation twice, once wrong.
+- The same lines also floated in mid air in the 3D view, which is what an overhead-extent line
+  drawn at ceiling height looks like when nothing is cutting it.
+
+**material.visible, not object.visible, and the distinction is the whole fix**
+- `Na__ModelLoader__HideLineworkFromRender` sets `material.visible = false` on every fat line of a
+  projection-only category. THREE skips an object whose material is invisible, so NO 3D render
+  draws it - the viewer, the image export and the Layout Editor's raster underlay alike.
+- The OBJECTS stay visible, and that is the point. The projected linework pipeline reads the scene
+  graph by walking it and skips anything whose `.visible` is false, so setting the root invisible
+  would have taken these lines off the drawings as well - the exact opposite of what they are for.
+- Each fat line carries its own `LineMaterial`, built per node in the linework upgrade, so this can
+  never reach another category's lines.
+- Which categories: `RenderConfig__Linework__ProjectionOnlyCategoryTokens` in the app config,
+  `["Linetype__"]`, matched case-insensitively as substrings of the category name. Empty the list
+  to draw them in 3D again.
+
+**No 3D toggle for something 3D never draws**
+- The eight Linetype buttons added to the model toggle panel yesterday are gone. A toggle that
+  looks inert while quietly taking lines off every drawing is worse than no toggle.
+- They stay REGISTERED in the category map, so the Layout Editor's Model Layers panel still lists
+  and controls them - which is where a drawing layer belongs. Switching one off there still removes
+  it from that viewport, through the same exclude token every other category uses.
+- The display names are kept: the console, the Other group and anything else resolving a key still
+  reads "Lines - Door Swings" rather than the raw key.
+
+**Unchanged**
+- Everything about how the lines are exported, loaded, owned, styled and drawn on a sheet. This
+  version only stops three renderers drawing them.
+
+**Not tested in the browser.** Node syntax checks pass on both modules changed and the app config
+parses. Reload and look at a plan with a rendered underlay - the pale duplicate should be gone and
+the dash should remain.
+
+**ValeVision3D:** PENDING with v2.63.1, as one change.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.63.1  -  18-Sep-2026
+### A Line Tagged Dashed in SketchUp Arrives Dashed on the Sheet
+
+**Overview**
+- Adam: "the aim is to allow the authored SketchUp file to have different linetypes which the user sets
+  using SketchUp tags... and further downstream in the drawing editors they will have mapped linestyles
+  ensuring setting the correct tag in SketchUp results in predictable drawings."
+- The drawing editor could already draw a category dashed - the ModelLayers config has carried
+  `Layer__EdgeLineType` since v2.5x. What it could not do was tell a dashed line from a solid one,
+  because the exporter threw those tags away and nothing distinct ever arrived.
+- GLB Builder 2.7.3 now writes one linework-only GLB per SketchUp LINETYPE tag. This side names them,
+  draws them, and gets out of their way.
+
+**What arrives**
+- Eight new model categories, each a linework GLB with no mesh beside it, discovered by the existing
+  filename contract (`{prefix}TrueVision__Linetype__Name__LineworkModel__.glb`) with no loader change
+  beyond a place in the load order:
+      Dashed Lines · Centre Lines · Dotted Lines · Door Swings · Clearance Lines
+      Overhead Objects · Building Joins · Elements For Removal
+- A category with no lines behind it never appears. Nothing is added to a project that has not tagged
+  anything - this is entirely opt-in from the SketchUp end.
+
+**Mapped, not guessed** - `Na__LayoutEditor__ModelLayers__Config__.json` (1.1.1)
+- A new **Annotation Linework** group, one row per linetype tag, each naming its label, colour, weight
+  factor and line type from the existing EdgeStyles vocabulary: dashed, centre, dotted, dashed-fine,
+  phantom, solid.
+- The line types mirror `Glb__LineworkLineType` in the Tags SSOT, the same way `Layer__SketchUpTags`
+  mirrors the tag names: the SSOT records what the tag MEANS, this file decides how a drawing DRAWS it.
+  Change one, change the other.
+- The rows appear in the Model Layers panel like any other category, so a viewport can switch off the
+  clearances and keep the door swings, and a viewport that has restyled one stores only that one.
+
+**Drawn as authored, not as geometry** - `Na__ProjectedLinework__CpuBackend__.js`
+- Annotation linework reaches a drawing through the AUTHORED class, like all SketchUp linework. Two
+  things are now done differently for it, and only for it:
+  - **It is not divided at the drawing's cut plane.** A line tagged as an overhead extent is drawn at
+    the height of the thing it describes, above a plan's cut. Cutting it away would delete the only
+    reason it was drawn.
+  - **It is not occlusion-clipped.** A clearance zone drawn flat on a floor slab is coplanar with the
+    slab, and the clip would take it for a hidden line and remove it. A line a person tagged is a line
+    they want to see.
+- `Na__PlCpu__SplitAnnotation` divides the authored buffer once, by owner id, testing the owner KEY
+  TABLE rather than the edges - a handful of categories, so the per-edge decision is an array lookup.
+  Without an owner table there is nothing to divide by and the whole buffer stays on the old path, which
+  is exactly what every earlier version did.
+- Everything else authored - the creases SketchUp drew inside a wall - is cut and clipped as before.
+
+**Config, and the one switch** - `Na__ProjectedLinework__AppConfig__.json`
+- `ProjectedLinework__Annotation__Config` holds the category tokens (`Linetype__`) and an Enabled flag.
+  Turning it off drops annotation back to being cut and clipped like any other authored edge; it never
+  hides it.
+- `BuildToken` moves to `2026-09-18-linetype-annotation`, so every cached and baked drawing re-projects
+  rather than showing the old answer under a key that would not know.
+
+**In the 3D viewer too**
+- The toggle panel names them "Lines - Dashed", "Lines - Door Swings" and so on rather than generating a
+  label from the key, so a person can see at a glance whether the lines they tagged actually landed. That
+  is the first thing to check after an export.
+- Switching a category off in the 3D viewer also takes it out of the drawings, exactly as it does for
+  every other category - the per-viewport control is the Model Layers panel.
+
+**Known, and left for the test**
+- A viewport showing a RENDERED underlay will show these lines twice: solid in the raster, dashed in the
+  vector overlay. A linework-only viewport is unaffected. Whether that wants fixing is a question for
+  after Adam has seen it.
+
+**Not tested in the browser.** Node syntax checks pass on every module changed and the two JSON configs
+parse. This wants a real export from GLB Builder 2.7.3 and a look at a plan.
+
+**ValeVision3D:** PENDING, on Adam's sign-off, once the lines are confirmed loading and drawing here.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.63.0  -  17-Sep-2026
 ### The Specification Is a Document Now: It Has a Revision, a Number, and a Download
 

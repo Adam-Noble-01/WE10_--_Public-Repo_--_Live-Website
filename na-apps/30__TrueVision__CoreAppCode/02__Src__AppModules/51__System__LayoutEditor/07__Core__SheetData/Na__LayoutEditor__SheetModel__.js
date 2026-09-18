@@ -424,7 +424,9 @@
     } from './Na__LayoutEditor__SheetModel__Shapes__.js';
     import {
         Na__LeModel__GetLeaders,
+        Na__LeModel__GetLeaderById,
         Na__LeModel__CreateLeader,
+        Na__LeModel__InsertLeader,
         Na__LeModel__UpdateLeader,
         Na__LeModel__DeleteLeader
     } from './Na__LayoutEditor__SheetModel__Leaders__.js';
@@ -676,7 +678,9 @@
         Na__LeModel__UpdateShape,
         Na__LeModel__DeleteShape,
         Na__LeModel__GetLeaders,
+        Na__LeModel__GetLeaderById,
         Na__LeModel__CreateLeader,
+        Na__LeModel__InsertLeader,
         Na__LeModel__UpdateLeader,
         Na__LeModel__DeleteLeader,
         Na__LeModel__GetGroups,

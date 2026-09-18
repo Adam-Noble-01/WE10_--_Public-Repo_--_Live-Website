@@ -53,6 +53,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0 (TrueVision)
+// - Park and Restore, for the sheet surface's viewport cache. Leaving a sheet
+//   no longer drops its viewports' states: each is lifted out of the state map
+//   whole - picture, painted linework, keys - and put back when the sheet is
+//   shown again, where Fill finds every key unchanged and renders nothing. The
+//   map itself stays keyed by viewport id, which repeats on every sheet
+//   (Viewport_1, Viewport_2 ...), so a parked state is never IN the map. A
+//   parked state books no render and a render still queued for it is skipped
+//   (Render2d's stillWanted); one already under way lands in the parked
+//   picture, so the work is kept.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__Viewport2d__.js; the code moved verbatim.
 //
@@ -172,6 +183,8 @@
     // ------------------------------------------------------------
     function Na__LeVp2d__ScheduleUnderlay(state, viewportId) {
         if (state.timer) window.clearTimeout(state.timer);
+        state.timer = null;
+        if (state.parked) return;                                                 // <-- Its sheet is not on screen: Fill books the render when it is shown again
         state.timer = window.setTimeout(() => {
             state.timer = null;
             // NOT NOW MEANS LATER, NOT NEVER. This used to return here, and the
@@ -196,9 +209,9 @@
             const px      = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Working());   // <-- The global working level
             const windowSnapshot = described.window;
             state.inFlight = true;
-            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport), phaseId).then((result) => {
+            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport), phaseId, () => !state.parked).then((result) => {   // <-- Still queued when its sheet is left: skipped, not rendered for nobody
                 state.inFlight = false;
-                if (!Na__LeVp2d__States.has(viewportId) || Na__LeVp2d__States.get(viewportId) !== state) return;
+                if (!state.parked && Na__LeVp2d__States.get(viewportId) !== state) return;   // <-- Released. A parked state keeps the picture it was already rendering
                 if (result) {
                     state.underlay.src   = result.dataUrl;
                     state.renderedKey    = key;
@@ -230,6 +243,34 @@
         if (state.progressTimer) { window.clearInterval(state.progressTimer); state.progressTimer = null; }
         state.progressPhase = '';
         if (state.progress) state.progress.hidden = true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Lift a Viewport's State Out While Its Sheet Is Off Screen, and Put It Back
+    // ------------------------------------------------------------
+    // The sheet surface's viewport cache (Na__LayoutEditor__SheetSurface__).
+    // Viewport ids repeat on every sheet, so the state of a sheet that is not
+    // on screen cannot stay in the map: Park hands it to the surface, which
+    // keeps it beside the sheet's detached frames, and Restore puts it back
+    // before Fill runs. Fill then finds the same body, the same keys and the
+    // same painted layers, and asks for nothing.
+    //
+    // body guards against the id belonging to another sheet's frame by now.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__Park(viewportId, body) {
+        const state = Na__LeVp2d__States.get(viewportId);
+        if (!state || (body && state.body !== body)) return null;
+        if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+        Na__LeVp2d__HideProgress(state);                                          // <-- The badge's one-second tick stops; Fill shows it again if the linework is still coming
+        state.parked = true;
+        Na__LeVp2d__States.delete(viewportId);
+        return state;
+    }
+    function Na__LeVp2d__Restore(viewportId, state) {
+        if (!state) return;
+        state.parked = false;
+        Na__LeVp2d__States.set(viewportId, state);
     }
     // ------------------------------------------------------------
 
@@ -266,6 +307,8 @@
         Na__LeVp2d__ScheduleUnderlay,
         Na__LeVp2d__ShowProgress,
         Na__LeVp2d__HideProgress,
+        Na__LeVp2d__Park,
+        Na__LeVp2d__Restore,
         Na__LeVp2d__SetInteracting
     };
     // ------------------------------------------------------------

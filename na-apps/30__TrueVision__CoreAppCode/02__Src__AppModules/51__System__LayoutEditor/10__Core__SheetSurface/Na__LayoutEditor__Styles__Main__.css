@@ -71,19 +71,71 @@ body.na-le-dragging * {
     height                             : var(--Vale_LayoutTabStripHeight);
     display                            : flex;
     align-items                        : stretch;
-    gap                                : 2px;
-    padding                            : 0 12px;
+    padding                            : 0 4px;
     box-sizing                         : border-box;
     background                         : #f4f6f8;
     border-bottom                      : 1px solid rgba(23, 43, 58, 0.14);
     font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
     z-index                            : 999;                         /* <-- Under the header (1000) and the menus (1001) */
-    overflow-x                         : auto;
-    overflow-y                         : hidden;
+    overflow                           : hidden;                      /* <-- The scroller inside does the scrolling; the arrows must not */
 }
 
 .na-le-tabs[hidden] {
     display                            : none;
+}
+
+/* THE TABS SCROLL, THE ARROWS DO NOT. Seven tabs at their natural width need
+   about 700px; a phone in portrait has 375. So the tabs live in their own
+   scroller and the arrows sit outside it, staying put at the ends of the
+   visible run however far along the tabs have been pushed. On a desktop that
+   fits them all the arrows are hidden and this reads as the old flat row. */
+
+.na-le-tabs__scroller {
+    display                            : flex;
+    align-items                        : stretch;
+    flex                               : 1 1 auto;
+    gap                                : 2px;
+    min-width                          : 0;
+    padding                            : 0 8px;
+    overflow-x                         : auto;
+    overflow-y                         : hidden;
+    scrollbar-width                    : none;                        /* <-- A scrollbar inside a 36px strip is all bar and no tab */
+    -webkit-overflow-scrolling         : touch;
+    overscroll-behavior-x              : contain;                     /* <-- Flicking the tabs never drags the page behind them */
+}
+
+.na-le-tabs__scroller::-webkit-scrollbar {
+    display                            : none;
+}
+
+.na-le-tabs__arrow {
+    flex                               : 0 0 auto;
+    align-self                         : center;
+    width                              : 30px;
+    height                             : 28px;
+    padding                            : 0;
+    background                         : #e9edf0;
+    border                             : 1px solid rgba(23, 43, 58, 0.14);
+    border-radius                      : 6px;
+    color                              : #172b3a;
+    font-family                        : inherit;
+    font-size                          : 1.1rem;
+    line-height                        : 1;
+    cursor                             : pointer;
+    -webkit-tap-highlight-color        : transparent;
+}
+
+.na-le-tabs__arrow[hidden] {
+    display                            : none;
+}
+
+.na-le-tabs__arrow:hover:not(:disabled) {
+    background                         : #ffffff;
+}
+
+.na-le-tabs__arrow:disabled {
+    opacity                            : 0.3;
+    cursor                             : default;
 }
 
 .na-le-tabs__tab {

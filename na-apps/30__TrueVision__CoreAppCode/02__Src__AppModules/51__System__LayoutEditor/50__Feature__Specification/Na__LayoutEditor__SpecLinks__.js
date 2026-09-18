@@ -47,6 +47,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - Registers the leader geometry's broken-link resolver alongside the code
+//   resolver, so a bubble linked to a deleted note can be asked about by
+//   Na__LeLeadGeo__IsBroken - the paper halo and the hover tooltip both read
+//   it, without either importing the specification.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -74,7 +80,7 @@
         Na__LeSpec__FindByCode,
         Na__LeSpec__NormaliseCode
     } from './Na__LayoutEditor__SpecData__.js';
-    import { Na__LeLeadGeo__TYPE_BUBBLE, Na__LeLeadGeo__Lines, Na__LeLeadGeo__SetCodeResolver } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
+    import { Na__LeLeadGeo__TYPE_BUBBLE, Na__LeLeadGeo__Lines, Na__LeLeadGeo__SetCodeResolver, Na__LeLeadGeo__SetBrokenResolver } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -313,6 +319,7 @@
         if (Na__LeSpecLink__Ready) return true;
         Na__LeSpecLink__Ready = true;
         Na__LeLeadGeo__SetCodeResolver((leader) => (Na__LeSpec__IsLoaded() ? Na__LeSpec__CodeFor(leader.Leader__SpecNoteId) : null));
+        Na__LeLeadGeo__SetBrokenResolver((leader) => Na__LeSpec__IsLoaded() && typeof leader.Leader__SpecNoteId === 'string' && !Na__LeSpec__GetNoteEntry(leader.Leader__SpecNoteId));
         window.addEventListener(Na__LeSpec__CHANGED_EVENT, (event) => {
             const detail = event.detail || {};
             if (detail.codesChanged) Na__LeSpecLink__Propagate();

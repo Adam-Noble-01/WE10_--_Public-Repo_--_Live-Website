@@ -2,13 +2,13 @@
     "LayoutEditor__ModelLayers__Meta": {
         "Meta__FileName"        : "Na__LayoutEditor__ModelLayers__Config__.json",
         "Meta__Description"     : "Maps Noble Architecture SketchUp tag names (the SSOT) to the runtime model category a loaded GLB lands in, to the short label the Model Layers panel shows, and to the edge style that category's projected linework starts with. One row per thing a person would want to switch off, or draw differently, in a drawing.",
-        "Meta__Version"         : "1.1.0",
+        "Meta__Version"         : "1.1.1",
         "Meta__Created"         : "12-Sep-2026",
         "Meta__Author"          : "Adam Noble - Noble Architecture",
 
         "Meta__SsotSource"      : "Na__DataLib__CoreIndex__Tags__.json",
         "Meta__SsotPath"        : "%AppData%/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/",
-        "Meta__SsotVersionRead" : "2.2.2",
+        "Meta__SsotVersionRead" : "2.3.2",
 
         "Meta__HowThisIsUsed"   : "The panel lists the categories the model ACTUALLY loaded, not this file: a category here with no GLB behind it never appears, and a category the model has that this file has not heard of still appears under an auto-generated label. This file supplies the wording, the grouping and the edge defaults, never the inventory.",
         "Meta__WhyKeyAndTag"    : "Layer__CategoryKey is the runtime name - the THREE.Group the multi-model loader creates, and what the render, the linework exclusion and the per-segment owner tag all actually match on. Layer__SketchUpTags are the SSOT tag names an object carries in SketchUp, kept here so the two vocabularies stay traceable to each other when either side is renamed.",
@@ -18,6 +18,8 @@
         "Meta__WeightMeaning"   : "The weight is a FACTOR on the sheet's master viewport lineweight, never a width: 1.0 is the master exactly, 0.5 is half of it. Raising the master therefore thickens the whole drawing and leaves the hierarchy - walls over openings over fixtures over furniture - intact.",
         "Meta__DepthCueIntent"  : "The greys are a depth cue, not decoration. Structure is black and full weight because it is what the drawing is about; openings and fixtures step back to dark grey; furniture and planting sit at mid and light grey because they are there for scale and should not compete with the thing being built.",
         "Meta__ExistingIsEqual" : "The Existing group deliberately carries the same weights and colours as Proposed (agreed 12-Sep-2026). Showing retained work lighter is a common convention but it is a drawing decision, not a data one; make it here, per row, when a job wants it.",
+        "Meta__Annotation"      : "The Annotation group is the SketchUp LINETYPE tags - the tags a person draws on to say a line is dashed, dotted, a centre line, a clearance, an overhead extent or something coming out. Each one arrives as its own linework-only GLB written by the GlbBuilder's Linetype Linework Export (Glb__LineworkOnly in the Tags SSOT), so the category exists in a drawing only when the model actually holds lines on that tag. Their line types here mirror Glb__LineworkLineType in the SSOT: change one, change the other.",
+        "Meta__AnnotationDraws" : "Annotation linework is drawn as authored, never cut at the drawing's cut plane and never occlusion-clipped - a line tagged as overhead is meant to show through the thing above it. Switch a row off in the Model Layers panel to take it off a drawing.",
         "Meta__PerViewport"     : "These are DEFAULTS. A viewport that has had a category restyled stores only that category, in full, in Viewport__ProjectedEdges - so a change to this file moves every viewport that never disagreed."
     },
 
@@ -79,6 +81,20 @@
                 { "Layer__CategoryKey": "TrueVision__SiteBoundaries",       "Layer__SketchUpTags": ["08__Site__Boundaries"],     "Layer__TagNumbers": [8],  "Layer__Label": "Site Boundaries", "Layer__EdgeWeightFactor": 0.75, "Layer__EdgeColour": "soft-black", "Layer__EdgeLineType": "dashed" },
                 { "Layer__CategoryKey": "TrueVision__SiteVegetation2D",     "Layer__SketchUpTags": ["09__Site__Vegetation__2D"], "Layer__TagNumbers": [9],  "Layer__Label": "Planting - 2D",   "Layer__EdgeWeightFactor": 0.50, "Layer__EdgeColour": "mid-grey",   "Layer__EdgeLineType": "solid" },
                 { "Layer__CategoryKey": "TrueVision__Vegetation",           "Layer__SketchUpTags": ["50_59__Vegetation"],        "Layer__TagNumbers": [50, 51, 52, 53, 54, 55, 56, 57, 58, 59], "Layer__Label": "Planting", "Layer__EdgeWeightFactor": 0.50, "Layer__EdgeColour": "light-grey", "Layer__EdgeLineType": "solid" }
+            ]
+        },
+        {
+            "Group__Id"     : "annotation",
+            "Group__Label"  : "Annotation Linework",
+            "Group__Layers" : [
+                { "Layer__CategoryKey": "TrueVision__Linetype__DashedLines",        "Layer__SketchUpTags": ["02__Linetype__DashedLines"],             "Layer__TagNumbers": [2], "Layer__Label": "Dashed Lines",         "Layer__EdgeWeightFactor": 0.60, "Layer__EdgeColour": "soft-black", "Layer__EdgeLineType": "dashed" },
+                { "Layer__CategoryKey": "TrueVision__Linetype__CentreLines",        "Layer__SketchUpTags": ["02__Linetype__CentreLines"],             "Layer__TagNumbers": [2], "Layer__Label": "Centre Lines",         "Layer__EdgeWeightFactor": 0.50, "Layer__EdgeColour": "mid-grey",   "Layer__EdgeLineType": "centre" },
+                { "Layer__CategoryKey": "TrueVision__Linetype__DottedLines",        "Layer__SketchUpTags": ["02__Linetype__DottedLines"],             "Layer__TagNumbers": [2], "Layer__Label": "Dotted Lines",         "Layer__EdgeWeightFactor": 0.55, "Layer__EdgeColour": "soft-black", "Layer__EdgeLineType": "dotted" },
+                { "Layer__CategoryKey": "TrueVision__Linetype__DoorSwings",         "Layer__SketchUpTags": ["02__Linetype__DoorSwings"],              "Layer__TagNumbers": [2], "Layer__Label": "Door Swings",          "Layer__EdgeWeightFactor": 0.50, "Layer__EdgeColour": "dark-grey",  "Layer__EdgeLineType": "solid" },
+                { "Layer__CategoryKey": "TrueVision__Linetype__ClearanceLines",     "Layer__SketchUpTags": ["02__ClearanceLines__IndicatorLines"],    "Layer__TagNumbers": [2], "Layer__Label": "Clearance Lines",      "Layer__EdgeWeightFactor": 0.45, "Layer__EdgeColour": "mid-grey",   "Layer__EdgeLineType": "dashed-fine" },
+                { "Layer__CategoryKey": "TrueVision__Linetype__OverheadObjects",    "Layer__SketchUpTags": ["01__ModelFlag__OverheadObjects__IndicatorLines"], "Layer__TagNumbers": [1], "Layer__Label": "Overhead Objects", "Layer__EdgeWeightFactor": 0.55, "Layer__EdgeColour": "dark-grey",  "Layer__EdgeLineType": "phantom" },
+                { "Layer__CategoryKey": "TrueVision__Linetype__BuildingJoins",      "Layer__SketchUpTags": ["01__ModelFlag__BuildingJoins__IndicatorLines"],  "Layer__TagNumbers": [1], "Layer__Label": "Building Joins",   "Layer__EdgeWeightFactor": 0.60, "Layer__EdgeColour": "soft-black", "Layer__EdgeLineType": "centre" },
+                { "Layer__CategoryKey": "TrueVision__Linetype__ElementsForRemoval", "Layer__SketchUpTags": ["01__ModelFlag__ElementsForRemoval"],     "Layer__TagNumbers": [1], "Layer__Label": "Elements For Removal", "Layer__EdgeWeightFactor": 0.60, "Layer__EdgeColour": "dark-grey",  "Layer__EdgeLineType": "dashed" }
             ]
         },
         {

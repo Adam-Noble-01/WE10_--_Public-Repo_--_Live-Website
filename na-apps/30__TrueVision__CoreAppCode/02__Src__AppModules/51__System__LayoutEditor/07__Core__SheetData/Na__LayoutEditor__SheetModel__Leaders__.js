@@ -34,6 +34,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - GetLeaderById and InsertLeader: a paste of a leader, the way InsertShape
+//   and InsertAnnotation paste a vector or a text item - a complete record,
+//   deep-copied, given a fresh id. Read by Na__LayoutEditor__ItemClipboard__,
+//   which now copies, pastes and duplicates a leader the way it already does
+//   text.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetModel__.js; the code moved verbatim.
 //
@@ -56,7 +63,7 @@
     // MODULE IMPORTS | Sheet Model State and Layers
     // ------------------------------------------------------------
     import { Na__LeModel__Touch, Na__LeModel__Unselect, Na__LeModel__AssignDirty } from './Na__LayoutEditor__SheetModel__State__.js';
-    import { Na__LeModel__DefaultLayerId } from './Na__LayoutEditor__SheetModel__Layers__.js';
+    import { Na__LeModel__DefaultLayerId, Na__LeModel__GetLayerById } from './Na__LayoutEditor__SheetModel__Layers__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -69,6 +76,37 @@
     // FUNCTION | A Sheet's Leaders
     // ------------------------------------------------------------
     function Na__LeModel__GetLeaders(sheet) { return (sheet && Array.isArray(sheet.Sheet__Leaders)) ? sheet.Sheet__Leaders : []; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | One Leader by Id
+    // ------------------------------------------------------------
+    function Na__LeModel__GetLeaderById(sheet, itemId) {
+        return sheet ? Na__LeRec__Find(Na__LeModel__GetLeaders(sheet), 'Leader__Id', itemId) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put a Complete Leader Record Onto a Sheet (fresh id, one announcement)
+    // ------------------------------------------------------------
+    // A paste of a leader, the way InsertShape and InsertAnnotation paste a
+    // vector or a text item. silent skips the announcement so several items
+    // can land as one undo step. A layer id the sheet does not have falls
+    // back to the default annotation-type layer, the same as a new leader.
+    // ------------------------------------------------------------
+    function Na__LeModel__InsertLeader(sheet, record, silent) {
+        if (!sheet || !record || typeof record !== 'object') return null;
+        if (!Array.isArray(sheet.Sheet__Leaders)) sheet.Sheet__Leaders = [];
+        const item = JSON.parse(JSON.stringify(record));
+        item.Leader__Id = Na__LeRec__NextId(sheet.Sheet__Leaders, 'Leader_', 'Leader__Id');
+        let layerId = item.Leader__LayerId;
+        if (!Na__LeModel__GetLayerById(sheet, layerId)) layerId = Na__LeModel__DefaultLayerId(sheet, 'annotation');
+        Na__LeRec__NormaliseLeader(item, layerId);
+        sheet.Sheet__Leaders.push(item);
+        if (silent) { Na__LeModel__AssignDirty(true); return item; }
+        Na__LeModel__Touch('leaders', sheet.Sheet__Id, item.Leader__Id);
+        return item;
+    }
     // ------------------------------------------------------------
 
 
@@ -159,7 +197,9 @@
     // ------------------------------------------------------------
     export {
         Na__LeModel__GetLeaders,
+        Na__LeModel__GetLeaderById,
         Na__LeModel__CreateLeader,
+        Na__LeModel__InsertLeader,
         Na__LeModel__UpdateLeader,
         Na__LeModel__DeleteLeader
     };

@@ -619,6 +619,20 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Forget Every Collected Model, and Nothing Else
+    // ------------------------------------------------------------
+    // For a forced render. The collected model is the geometry a projection
+    // reads, kept between drawings because reading it is the slow part; a
+    // render that was asked to trust nothing must read the model again rather
+    // than project the copy taken before whatever prompted the asking. Results
+    // stay: the forced render replaces the one it is after.
+    // ------------------------------------------------------------
+    function Na__PlPipe__ForgetCollections() {
+        Na__PlPipe__Collections.clear();
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Read a Cached Result by Definition and Model State (null when absent)
     // ------------------------------------------------------------
     // modelFingerprint (TrueVision) names a model other than the live one - a
@@ -745,6 +759,7 @@
         Na__PlPipe__Remember,
         Na__PlPipe__Cancel,
         Na__PlPipe__ClearCache,
+        Na__PlPipe__ForgetCollections,
         Na__PlPipe__GetCached,
         Na__PlPipe__GetModelFingerprint,
         Na__PlPipe__GetStatus,

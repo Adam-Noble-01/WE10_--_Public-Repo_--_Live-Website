@@ -65,6 +65,8 @@
             "BaseMesh__DefaultMaterial__TexturedMesh__EmissiveColor": 4473924
         },
         "RenderConfig__Linework": {
+      "RenderConfig__Linework__ProjectionOnlyCategoryTokens": ["Linetype__"],
+      "RenderConfig__Linework__ProjectionOnlyNote": "Model categories whose linework belongs to 2D DRAWINGS ONLY. The SketchUp linetype tags - dashed, dotted, centre, door swings, clearances, overhead extents, building joins, demolition - say what a line MEANS on a drawing, and mean nothing in a 3D render: drawn there they sit in mid air, and on a drawing that shows a rendered underlay they appear twice, solid in the raster beneath their own dashes. Their fat lines are therefore loaded with material.visible false, so no 3D render draws them - the viewer, the image export and the Layout Editor raster alike - while the objects stay in the scene graph at full visibility for the projected linework pipeline to read. Matched case-insensitively as substrings of the category name; empty the list to draw them in 3D again.",
             "RenderConfig__Linework__EdgeColor"                      : 1315860,
             "RenderConfig__Linework__LineWidth"                      : 0.8,
             "RenderConfig__Linework__PolygonOffsetFactor"            : -4,
@@ -317,7 +319,7 @@
     },
 
     "LayoutEditor__Config": {
-        "LayoutEditor__Config__Description"   : "Layout Editor (re-alignment Phase E). Drawing tabs are visible to everyone; authoring is localhost-only and the web build is read-only.",
+        "LayoutEditor__Config__Description"   : "Layout Editor (re-alignment Phase E). Authoring is localhost-only (or an explicitly unlocked device); everywhere else the drawings and the project specification are shown by the read-only web viewer, which builds no panel columns, toolbar or tab strip at all. Switch the viewer off in LayoutEditor__WebViewer__Config in Na__LayoutEditor__AppConfig__.json to hand the web build back the read-only editor.",
         "LayoutEditor__Config__ReadOnlyOnWeb" : true
     }
 }

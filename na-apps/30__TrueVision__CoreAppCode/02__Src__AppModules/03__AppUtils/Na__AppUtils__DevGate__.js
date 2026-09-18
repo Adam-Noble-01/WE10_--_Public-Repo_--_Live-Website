@@ -44,6 +44,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - The stored flag is tri-state: unlocked, LOCKED, or nothing said. An
+//   explicit lock now closes authoring on localhost too, so ?authoring=off is
+//   how the read-only web build - the Layout Editor's document viewer included
+//   - is seen without deploying it. Before this, Lock() and ?authoring=off
+//   cleared the key and localhost carried on authoring, which made the web
+//   build's own behaviour unreachable from a development machine.
+//
 // 11-Sep-2026 - Version 1.0.0
 // - Initial implementation for TD01.
 //
@@ -97,25 +105,39 @@
 // REGION | Private
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Read the Persisted Unlock Flag
+    // HELPER FUNCTION | Read the Persisted Flag: Unlocked, Locked, or Nothing Said
     // ------------------------------------------------------------
+    // THREE ANSWERS, NOT TWO, and the third is what makes the live web build
+    // previewable. true is an explicit unlock, false an explicit LOCK, and null
+    // "this device has not been asked". Only an explicit lock can close
+    // authoring on localhost - the absence of an unlock cannot, or localhost
+    // would never author at all.
     // Wrapped, because localStorage throws outright in a private window and in
     // some embedded contexts, and a thrown gate would take the whole app down
     // rather than simply keeping authoring closed.
     // ------------------------------------------------------------
     function Na__DevGate__ReadStored() {
-        try { return window.localStorage.getItem(Na__DevGate__STORAGE_KEY) === 'true'; }
-        catch (error) { return false; }
+        try {
+            const value = window.localStorage.getItem(Na__DevGate__STORAGE_KEY);
+            if (value === 'true')  return true;
+            if (value === 'false') return false;
+            return null;
+        }
+        catch (error) { return null; }
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Write the Persisted Unlock Flag
+    // HELPER FUNCTION | Write the Persisted Flag
+    // ------------------------------------------------------------
+    // A lock is now RECORDED rather than forgotten. It used to clear the key,
+    // which on localhost meant Na__DevGate__Lock() and ?authoring=off did
+    // nothing whatsoever - the one place a developer would want to use them,
+    // to see the read-only web build without deploying it.
     // ------------------------------------------------------------
     function Na__DevGate__WriteStored(unlocked) {
         try {
-            if (unlocked) window.localStorage.setItem(Na__DevGate__STORAGE_KEY, 'true');
-            else          window.localStorage.removeItem(Na__DevGate__STORAGE_KEY);
+            window.localStorage.setItem(Na__DevGate__STORAGE_KEY, unlocked ? 'true' : 'false');
             return true;
         } catch (error) { return false; }
     }
@@ -154,11 +176,16 @@
         Na__DevGate__ApplyUrlParam();                                            // <-- URL beats storage, and updates it
 
         const onLocalhost = Na__AppUtils__IsRunningOnLocalhost();
-        const unlocked    = Na__DevGate__ReadStored();
-        Na__DevGate__Resolved = onLocalhost || unlocked;
+        const stored      = Na__DevGate__ReadStored();                           // <-- true unlocked, false locked, null nothing said
+        // AN EXPLICIT ANSWER WINS, WHEREVER THIS IS SERVED. Said nothing:
+        // localhost authors and everywhere else does not, as it always has.
+        Na__DevGate__Resolved = (stored === null) ? onLocalhost : stored;
 
         if (Na__DevGate__Resolved && !onLocalhost) {
             console.log('[TrueVision3D] Authoring is unlocked on a non-localhost origin. Run Na__DevGate__Lock() to close it again.');
+        }
+        if (!Na__DevGate__Resolved && onLocalhost) {
+            console.log('[TrueVision3D] Authoring is LOCKED on localhost: this is the read-only web build. Run Na__DevGate__Unlock() (or ?authoring=on) and reload to author again.');
         }
         return Na__DevGate__Resolved;
     }

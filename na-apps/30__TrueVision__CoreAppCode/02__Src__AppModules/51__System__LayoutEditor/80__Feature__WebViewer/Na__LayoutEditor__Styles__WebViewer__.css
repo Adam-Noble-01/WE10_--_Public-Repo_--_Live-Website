@@ -1,0 +1,289 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Web Viewer Styles         */
+/* ================================================================= */
+/*
+ * The read-only document viewer the live web build shows in place of the
+ * editor. Imported LAST of the Layout Editor sheets, because several rules
+ * here deliberately reshape things the editor sheets set - the shell's three
+ * columns and the specification page's inset - and the later rule wins.
+ *
+ * DESIGNED FOR A PHONE HELD IN PORTRAIT, and allowed to grow from there. The
+ * base rules are the phone; the only media query widens the chrome for a
+ * desktop reader. Every control is at least 44px on its short side, which is
+ * the smallest target a thumb hits reliably, and the controls used on every
+ * document sit in a dock at the BOTTOM where the thumb already is.
+ *
+ * - Ported from : none. TrueVision original.
+ * - Created     : 18-Sep-2026 for TrueVision3D v2.65.0
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Measurements                                           */
+/* ----------------------------------------------------------------- */
+
+:root {
+    --Na_ViewerDockHeight              : 52px;                        /* <-- Bottom dock: which document of how many, its actions, and an arrow each side */
+    --Na_ViewerInk                     : #172b3a;
+    --Na_ViewerPaper                   : #ffffff;
+    --Na_ViewerLine                    : rgba(23, 43, 58, 0.14);
+    --Na_ViewerAccent                  : #1a7fc4;
+    --Na_ViewerMuted                   : #6c757d;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Shell, Reshaped                                    */
+/* ----------------------------------------------------------------- */
+
+/* The viewer's shell is built with no panel columns and no toolbar row
+   (Na__LayoutEditor__ModeController__), so this only has to undo the three
+   column grid the editor's sheet declares and lift the reading surface clear
+   of the dock. The specification page is lifted by the same rule: it lies
+   across the whole host at inset 0, so without this it would cover the dock. */
+
+.na-le-host--viewer .na-le-shell--viewer {
+    grid-template-columns              : minmax(0, 1fr);
+}
+
+.na-le-host--viewer .na-le-shell,
+.na-le-host--viewer .na-le-spec {
+    position                           : absolute;
+    top                                : 0;
+    right                              : 0;
+    bottom                             : var(--Na_ViewerDockHeight);
+    left                               : 0;
+    width                              : auto;
+    height                             : auto;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Bottom Dock                                        */
+/* ----------------------------------------------------------------- */
+
+/* env(safe-area-inset-bottom) is the home indicator on a phone without a
+   button: without it the dock's own buttons sit under the bar the system
+   draws over them, and every press lands on the system instead. Added to the
+   padding rather than the height, so the dock grows only where it needs to. */
+
+.na-le-viewer__dock {
+    position                           : absolute;
+    right                              : 0;
+    bottom                             : 0;
+    left                               : 0;
+    z-index                            : 20;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 4px;
+    box-sizing                         : content-box;
+    height                             : var(--Na_ViewerDockHeight);
+    padding-bottom                     : env(safe-area-inset-bottom, 0px);
+    background                         : var(--Na_ViewerPaper);
+    border-top                         : 1px solid var(--Na_ViewerLine);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+}
+
+.na-le-viewer__actions {
+    display                            : flex;
+    overflow-x                         : auto;                        /* <-- A narrow phone scrolls the actions rather than squeezing them below a thumb's reach */
+    flex                               : 1 1 auto;
+    justify-content                    : center;
+    gap                                : 6px;
+    min-width                          : 0;
+    padding                            : 0 4px;
+    scrollbar-width                    : none;
+}
+
+.na-le-viewer__actions::-webkit-scrollbar {
+    display                            : none;
+}
+
+/* WHICH DOCUMENT OF HOW MANY, beside the arrows rather than up in the tab
+   strip. The open tab already names it, but on a phone the strip is at the top
+   of the screen and the dock is at the bottom: a reader's thumb and a reader's
+   eyes are not in the same place, and "4 / 11" here is what says there is more
+   to come without looking up. */
+
+.na-le-viewer__step {
+    display                            : flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    gap                                : 6px;
+}
+
+.na-le-viewer__count {
+    color                              : var(--Na_ViewerMuted);
+    font-size                          : 0.74rem;
+    white-space                        : nowrap;
+    font-variant-numeric               : tabular-nums;                /* <-- The count must not jiggle as the digits change */
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Buttons                                                */
+/* ----------------------------------------------------------------- */
+
+/* 36px tall inside a 44px row. THE TARGET IS NOT THE BUTTON: the dock's own
+   padding is dead space around each control that a thumb still lands on, so
+   the row a finger can hit stays at the 44px an accessible target wants while
+   the thing being drawn is noticeably lighter. A drawing shows six of these
+   across a 375px phone - two arrows, the count, Fit, two zooms and PDF - and
+   at their earlier 44px square they read as a keypad rather than as trim
+   around the drawing they belong to. */
+
+.na-le-viewer__btn {
+    display                            : inline-flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    justify-content                    : center;
+    box-sizing                         : border-box;
+    min-width                          : 36px;
+    height                             : 36px;
+    padding                            : 0 11px;
+    background                         : #f4f6f8;
+    border                             : 1px solid var(--Na_ViewerLine);
+    border-radius                      : 8px;
+    color                              : var(--Na_ViewerInk);
+    font-family                        : inherit;
+    font-size                          : 0.78rem;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+    -webkit-tap-highlight-color        : transparent;
+}
+
+.na-le-viewer__btn:hover:not(:disabled) {
+    background                         : #e7ecf1;
+}
+
+.na-le-viewer__btn:active:not(:disabled) {
+    background                         : #dce3ea;
+}
+
+.na-le-viewer__btn:disabled {
+    opacity                            : 0.35;
+    cursor                             : default;
+}
+
+/* The two step buttons are the widest, because they are what a reader presses
+   over and over and they sit at the very edges of the screen where a thumb
+   arrives least accurately. */
+
+.na-le-viewer__btn--step {
+    flex                               : 0 0 auto;
+    min-width                          : 46px;
+    margin                             : 0 2px;
+    font-size                          : 1.15rem;
+    line-height                        : 1;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Reading Surfaces                                   */
+/* ----------------------------------------------------------------- */
+
+/* THE PAPER IS THE DOCUMENT, AND ITS EDGE IS THE END OF IT. The editor sets
+   overflow visible on the paper and on each of its layers ON PURPOSE - an
+   author drags an item off the page to park it, or leaves a swatch out on the
+   grey to match properties from, and has to be able to see and grab it there.
+   A reader is being shown an issued drawing: anything outside the sheet is
+   working material that was never meant to be published, and on a phone it
+   arrives as unexplained marks floating beside the page. Clipping the paper
+   clips every layer inside it - viewports, chrome, markup, focus - because an
+   ancestor that hides its overflow clips its descendants whatever they set.
+   It is what the PDF and the printed sheet have always shown. */
+
+.na-le-host--viewer .na-le-paper {
+    overflow                           : hidden;
+}
+
+/* A gesture owning the surface stops the browser deciding a long press is a
+   text selection or a callout, which on a phone interrupts a pan halfway. */
+
+.na-le-viewer--gesturing {
+    user-select                        : none;
+    -webkit-user-select                : none;
+    -webkit-touch-callout              : none;
+}
+
+/* THE SPECIFICATION'S PAGES SCROLL THEMSELVES. pan-y hands the browser the
+   vertical - momentum, rubber band and all - and keeps the horizontal, which
+   is the travel the touch module turns into the next document. It is what
+   lets that module attach without swallowing the gesture. */
+
+.na-le-spec--viewer .na-le-spec__reader {
+    touch-action                       : pan-y;
+}
+
+/* WHAT THE SPECIFICATION'S BAR KEEPS IN A VIEWER: its title, the page count,
+   Download and Print, and the status chip. What it loses is everything that
+   is about writing the document rather than reading it - the Edit and Read
+   tabs (a reader is always on Read, set on every show), and the number and
+   revision fields, which are disabled inputs here and print on the pages
+   themselves anyway. The alerts go with them: every one of them is addressed
+   to whoever maintains the specification, and none can be acted on here. */
+
+.na-le-spec--viewer .na-le-spec__views,
+.na-le-spec--viewer .na-le-spec__issue,
+.na-le-spec--viewer .na-le-spec__alerts {
+    display                            : none !important;
+}
+
+.na-le-spec--viewer .na-le-spec__bar {
+    gap                                : 8px;
+    padding                            : 8px 10px;
+}
+
+.na-le-spec--viewer .na-le-spec__reader {
+    padding-bottom                     : 12px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Wider Than a Phone                                     */
+/* ----------------------------------------------------------------- */
+
+/* A desktop reader gets the same viewer, not a different one: the chrome
+   simply stops being full width, so the eye is not dragged from one far
+   corner to the other, and the document list becomes a centred card rather
+   than a sheet rising from the bottom edge. */
+
+@media (min-width: 760px) {
+    :root {
+        --Na_ViewerDockHeight          : 56px;
+    }
+
+    .na-le-viewer__dock {
+        padding-right                  : max(10px, calc((100% - 1100px) / 2));
+        padding-left                   : max(10px, calc((100% - 1100px) / 2));
+    }
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Printing                                               */
+/* ----------------------------------------------------------------- */
+
+/* Print is a real thing a reader does here: the specification's Print button
+   is the one on its own bar. The viewer's chrome has no place on the paper. */
+
+@media print {
+    .na-le-viewer__dock {
+        display                        : none !important;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

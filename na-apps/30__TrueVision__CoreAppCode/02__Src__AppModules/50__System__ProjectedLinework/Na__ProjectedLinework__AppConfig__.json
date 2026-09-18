@@ -89,9 +89,16 @@
         "ProjectedLinework__Exclusions__SkipObjectNames": ["OrbitHelperCube", "Na__GridLine", "Na__FogPlane", "Na__Billboard", "Na__ElevGizmo", "DrawingCut__"]
     },
 
+    "ProjectedLinework__Annotation__Config": {
+        "ProjectedLinework__Annotation__Description": "Annotation linework is the SketchUp LINETYPE tags - dashed, dotted, centre, door swings, clearances, overhead extents, building joins, demolition. The GlbBuilder gives each tag a linework-only GLB, so each arrives as its own model category whose name carries one of the tokens below. It reaches a drawing through the AUTHORED class like any other SketchUp linework, but two things are done differently, because it is drawing data rather than model geometry: it is not divided at the drawing's cut plane, and it is not occlusion-clipped. A line tagged as an overhead extent is meant to be seen through the roof above it, and a clearance drawn flat on a floor slab must not be clipped away by the slab it sits on. Switch a layer off in the Model Layers panel to take it off a drawing.",
+        "ProjectedLinework__Annotation__Enabled": true,
+        "ProjectedLinework__Annotation__CategoryTokens": ["Linetype__"],
+        "ProjectedLinework__Annotation__CategoryTokensNote": "Matched case-insensitively as substrings of the model group name, the same way the exclusion tokens are. Turning Enabled off drops annotation linework back to being clipped and cut like every other authored edge; it never hides it."
+    },
+
     "ProjectedLinework__Model__Config": {
         "ProjectedLinework__Model__Description": "BuildToken is folded into every fingerprint. Bump it whenever the way the model is sampled changes (a new helper skipped, glass treated differently, the cut clipping corrected, the edge rule switched) so every baked asset reads as belonging to an older sampling and is re-rendered rather than restored. Transparent materials draw their own edges but never hide what is behind them, unless the drawing's Glass Transparency Off style is on, in which case they occlude like walls.",
-        "ProjectedLinework__Model__BuildToken": "2026-09-14-flush-joins",
+        "ProjectedLinework__Model__BuildToken": "2026-09-18-linetype-annotation",
         "ProjectedLinework__Model__TransparentOccludes": false,
         "ProjectedLinework__Model__TransparentOpacityBelow": 0.999
     },

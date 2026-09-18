@@ -298,7 +298,7 @@
             return [ { label : label('MenuEditLeaderText', 'Edit leader text'), onSelect : () => Na__LeLeader__BeginEdit(found.id) },
                      { separator : true } ].concat(arrange('leader', found.id), [
                      { separator : true }, remove('MenuDeleteLeader', 'Delete leader'), { separator : true } ])
-                     .concat(style(found.kind, found.id)).concat(history);
+                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }
         if (found.kind === 'shape') {
             const shape  = Na__LeTools__Record(sheet, found);

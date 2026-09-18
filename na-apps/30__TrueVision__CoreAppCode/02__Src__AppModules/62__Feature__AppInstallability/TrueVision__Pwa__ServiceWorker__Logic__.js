@@ -34,6 +34,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.7.1
+// - Token bumped (2026-09-18-2): the web viewer's second round - the tab strip
+//   scroller, the page clipping and the chrome that now clears the tab strip -
+//   is more shell CSS again.
+//
+// 18-Sep-2026 - Version 1.7.0
+// - Token bumped (2026-09-18-1): the Layout Editor's read-only web viewer is
+//   new shell JS and CSS, and an installed copy holding the old shell would
+//   keep showing the editor's panel columns on a phone. This is the bump that
+//   reaches it.
+//
 // 16-Sep-2026 - Version 1.6.0
 // - Token bumped (2026-09-16-6): the container-level z-index bump wasn't
 //   enough - the active card's blue ring was still rendering behind the
@@ -120,7 +131,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-16-6';                                                                      // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-18-2';                                                                      // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

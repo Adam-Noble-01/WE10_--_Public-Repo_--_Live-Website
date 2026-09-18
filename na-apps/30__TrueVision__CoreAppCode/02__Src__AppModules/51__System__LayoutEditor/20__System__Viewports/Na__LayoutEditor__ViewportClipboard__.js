@@ -26,17 +26,24 @@
 // -----------------------------------------------------------------------------
 //
 // WHERE A PASTE LANDS:
-// - Where the copy was taken from, if that spot is free. On another sheet it
-//   usually is, so a viewport set up once lands in the same place on every
-//   sheet of a set. On the sheet it came from the original is still there, so
-//   the paste steps down and to the right by PasteOffsetMm, and again past
-//   every copy already sitting in the run, so repeated pastes fan out instead
-//   of stacking invisibly on top of each other.
+// - A VECTOR always lands where it was copied from - on this sheet, on top
+//   of the original, or on another sheet in the same spot every time - and a
+//   toast (ShapePasted) says so, since landing exactly in place would
+//   otherwise be invisible. Duplicate (Ctrl+D) is the one that fans out,
+//   stepping down and to the right by PasteOffsetMm and again past every
+//   copy already sitting in the run: it shows no toast, so the step is what
+//   says it worked.
+// - A VIEWPORT still fans out on paste, the way both did before: where the
+//   copy was taken from, if that spot is free (usually true on another
+//   sheet, so a viewport set up once lands in the same place on every sheet
+//   of a set); stepped down and to the right by PasteOffsetMm, and again
+//   past every copy already sitting in the run, when the original is still
+//   on the same sheet.
 // - From the right-click menu on bare paper: with its top-left corner at the
-//   click.
-// - Always pulled back onto the paper. Pinned against the far corner, where
-//   stepping down and right would land it straight back on the original, the
-//   run steps up and left instead.
+//   click, for either kind.
+// - Always pulled back onto the paper. For a viewport's fan-out, pinned
+//   against the far corner, where stepping down and right would land it
+//   straight back on the original, the run steps up and left instead.
 //
 // THE NAME:
 // - "Front Elevation" pastes as "Front Elevation copy", then "Front Elevation
@@ -90,6 +97,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.2.0
+// - Paste a vector always lands in place now (Na__LeClip__PasteShape passes
+//   fanOut false to LandShape), with a toast (ShapePasted) saying so.
+//   Duplicate keeps the old fanned-out placement (fanOut true) since it has
+//   no toast of its own. Viewport paste and duplicate are unchanged.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Vectors join the clipboard. Kind 'shape': copy, paste and duplicate a
 //   selected vector the way a viewport already does. A paste is the whole
@@ -372,13 +385,16 @@
     // HELPER FUNCTION | Land a Copy of a Vector Record on a Sheet (one announcement) and Select It
     // ------------------------------------------------------------
     // atMm: the bounding-box top-left asked for, or null to start from where
-    // the record sat and fan out from there.
+    // the record sat. fanOut, when true, steps that spot clear of a shape
+    // already sitting there - Duplicate wants that; an ordinary paste does
+    // not (it always lands in place, on top of the original if that is
+    // where the copy came from).
     // ------------------------------------------------------------
-    function Na__LeClip__LandShape(sheet, source, atMm) {
+    function Na__LeClip__LandShape(sheet, source, atMm, fanOut) {
         const record = Na__LeClip__Clone(source);
         const bounds = Na__LeShapeGeo__Bounds(source);
         const start  = atMm || { x : bounds.X, y : bounds.Y };
-        const spot   = Na__LeClip__PlaceShape(sheet, bounds, start, !atMm);
+        const spot   = Na__LeClip__PlaceShape(sheet, bounds, start, !!fanOut);
         record.Shape__Points  = Na__LeShapeGeo__Translated(Na__LeShapeGeo__Points(record), spot.X - bounds.X, spot.Y - bounds.Y);
         record.Shape__LayerId = Na__LeClip__LayerFor(sheet, source.Shape__LayerId, 'vector');
 
@@ -458,18 +474,26 @@
 
     // FUNCTION | Paste What Is Held as a New Vector (null when nothing is held)
     // ------------------------------------------------------------
+    // Always lands in place - no fan-out - since a toast now says the paste
+    // worked instead of a visible offset.
+    // ------------------------------------------------------------
     function Na__LeClip__PasteShape(sheet, atMm) {
         if (!sheet || !Na__LeClip__HasShape()) return null;
-        return Na__LeClip__LandShape(sheet, Na__LeClip__Held.record, atMm || null);
+        const pasted = Na__LeClip__LandShape(sheet, Na__LeClip__Held.record, atMm || null, false);
+        if (pasted) Na__LeClip__Toast(Na__LeCfg__GetLabel('ShapePasted', 'Pasted vector in the same place.'));
+        return pasted;
     }
     // ------------------------------------------------------------
 
 
     // FUNCTION | Duplicate a Vector in One Step (the clipboard is left alone)
     // ------------------------------------------------------------
+    // Keeps the fan-out: Duplicate shows no toast, so the step clear of the
+    // original is what tells you it worked.
+    // ------------------------------------------------------------
     function Na__LeClip__DuplicateShape(sheet, shapeId) {
         const shape = sheet ? Na__LeModel__GetShapeById(sheet, shapeId) : null;
-        return shape ? Na__LeClip__LandShape(sheet, shape, null) : null;
+        return shape ? Na__LeClip__LandShape(sheet, shape, null, true) : null;
     }
     // ------------------------------------------------------------
 

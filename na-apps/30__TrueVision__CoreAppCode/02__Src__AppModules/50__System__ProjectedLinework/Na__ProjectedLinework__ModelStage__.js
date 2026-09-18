@@ -44,14 +44,29 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 50__System__ProjectedLinework/Na__ProjectedLinework__ModelStage__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim, bar 1.1.0
+// - Parity        : verbatim, bar 1.1.0 and 1.2.0
 // - Divergences   : Console prefix, header and folder numbers; the edge rules
-//                   in the fingerprint (1.1.0), authored here first.
-// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off.
+//                   in the fingerprint (1.1.0) and the content stamp (1.2.0),
+//                   both authored here first.
+// - Back-port     : 1.1.0 PENDING to ValeVision3D, on Adam's sign-off; 1.2.0 ported 18-Sep-2026 as ValeVision3D v2.57.0 (its 1.1.0).
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.2.0
+// - THE FINGERPRINT SEES WHAT THE MODEL CONTAINS, not only how much of it there
+//   is. It was category names, triangle counts and visibility, so a hopper moved
+//   along a wall and re-exported - same names, same counts - kept the old
+//   fingerprint, and every cache keyed by it (the results, the collected model,
+//   the browser store, the baked asset, the Layout Editor's base image) handed
+//   back the drawing of the hopper where it used to be. Each category now adds
+//   the content stamps of the GLBs under it (Na__ModelLoader__ContentStamp__),
+//   and Categories carries the stamp so the Layout Editor's own model
+//   fingerprint can use it too. A category with nothing stamped under it
+//   fingerprints exactly as before.
+// - One-off cost: every fingerprint changes once, so every stored result and
+//   baked asset reads as stale once and is made again.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Describe folds the three edge rules (linework first, seams occlude, flush
 //   joins) into the fingerprint, so linework rendered or baked under one
@@ -83,6 +98,7 @@
     import { Na__ProjectedLinework__Scheduler__CreateSlicer } from './Na__ProjectedLinework__Scheduler__.js';
     import { Na__PlView__Hash } from './Na__ProjectedLinework__ViewDefinition__.js';
     import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__ModelStamp__Read } from '../15__ModelLoader/Na__ModelLoader__ContentStamp__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -124,7 +140,7 @@
                 const category = modelRoot.children[i];
                 const tris     = Na__PlStage__CountUnder(category);
                 total += tris;
-                categories.push({ name : category.name || ('child_' + i), tris : tris, visible : category.visible !== false });
+                categories.push({ name : category.name || ('child_' + i), tris : tris, visible : category.visible !== false, stamp : Na__ModelStamp__Read(category) });   // <-- stamp: what its GLBs held when they loaded
             }
         }
 
@@ -134,7 +150,7 @@
             edges   : Na__PlCfg__GetProjectionSetup().lineworkFirst ? 'linework-first' : 'mesh-creases',
             seams   : Na__PlCfg__GetProjectionSetup().seamsOcclude ? 'seams-occlude' : 'seams-open',
             joins   : Na__PlCfg__GetProjectionSetup().hideFlushJoins ? 'flush-joins-hidden' : 'flush-joins-drawn',
-            groups  : categories.map((c) => [ c.name, c.tris, c.visible ? 1 : 0 ])
+            groups  : categories.map((c) => (c.stamp ? [ c.name, c.tris, c.visible ? 1 : 0, c.stamp ] : [ c.name, c.tris, c.visible ? 1 : 0 ]))   // <-- The stamp only where there is one, so an unstamped model keys as it always did
         });
 
         return {

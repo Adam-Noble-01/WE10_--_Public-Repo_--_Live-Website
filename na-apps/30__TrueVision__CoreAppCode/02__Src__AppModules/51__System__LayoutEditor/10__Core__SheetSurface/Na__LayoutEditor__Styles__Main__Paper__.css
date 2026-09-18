@@ -378,6 +378,27 @@
     display                            : none;
 }
 
+/* HOVER TOOLTIP | Fixed to the viewport, not the paper, so it tracks the
+   pointer through Na__LayoutEditor__SheetTools__HoverTooltip__ regardless of
+   zoom or scroll. Below the 1200 the header's menus use, above everything
+   else on the sheet. */
+.na-le-hovertip {
+    position                           : fixed;
+    padding                            : 4px 8px;
+    border-radius                      : 4px;
+    background                         : rgba(23, 43, 58, 0.92);
+    color                              : #ffffff;
+    font-size                          : 11px;
+    line-height                        : 1.35;
+    max-width                          : 260px;
+    pointer-events                     : none;
+    z-index                            : 1000;
+}
+
+.na-le-hovertip[hidden] {
+    display                            : none;
+}
+
 /* endregion ------------------------------------------------------- */
 
 

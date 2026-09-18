@@ -65,6 +65,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.5.0
+// - RefreshBrokenTooltip: the Select/Move hover pass explains a broken
+//   specification bubble (Na__LeLeadGeo__IsBroken) next to the pointer,
+//   through Na__LayoutEditor__SheetTools__HoverTooltip__, in the same words
+//   the Leaders panel already uses (LeaderSpecBroken). Hidden by default
+//   every move and while a drag is in flight, shown only while the pointer
+//   sits over one.
+//
 // 17-Sep-2026 - Version 1.4.0
 // - A WHOLE-OBJECT MOVE IS A MEASURABLE, LOCKABLE DRAG AGAIN, at the top level
 //   where it always was. IsMoveDrag names it (one item by its body, or a whole
@@ -117,7 +125,7 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Handles, Grips, Tools, Viewports, Snapping, Viewport Snap Move, Selection
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetDimensionSetup, Na__LeCfg__GetSelectionSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetDimensionSetup, Na__LeCfg__GetSelectionSetup, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeModel__GetActiveSheet,
         Na__LeModel__GetViewportById,
@@ -136,6 +144,8 @@
     import { Na__LeHandles__DragPatch } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeGrips__HideInsert, Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from './Na__LayoutEditor__Grips__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeLeadGeo__IsBroken, Na__LeLeadGeo__Lines } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
+    import { Na__LeHoverTip__Show, Na__LeHoverTip__Hide } from './Na__LayoutEditor__SheetTools__HoverTooltip__.js';
     import { Na__LeText__RotateTo } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
     import { Na__LeDim__Move, Na__LeDim__OffsetFor, Na__LeDim__ShowInference } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeDimGeo__OffsetKeepingLine, Na__LeDimGeo__SpanMm, Na__LeDimGeo__HORIZONTAL, Na__LeDimGeo__VERTICAL } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
@@ -219,6 +229,7 @@
 
         const drag = Na__LeTools__Drag;
         if (!drag || event.pointerId !== drag.pointerId) {
+            Na__LeHoverTip__Hide();                                          // <-- Shown again below, only over a broken specification bubble
             if (Na__LeSelBox__Move(sheet, point, event.clientX, event.clientY, event.pointerId)) return;   // <-- A selection box is being dragged out
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_DIMENSION) { Na__LeDim__Move(sheet, point, event.shiftKey); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      { Na__LeShape__Move(sheet, point, event.shiftKey); Na__LeMeasure__Refresh(); return; }
@@ -227,11 +238,13 @@
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_EYEDROP)   { Na__LeTools__Stage.style.cursor = Na__LeDrop__Hover(sheet, Na__LeTools__Resolve(sheet, point, true, true, true)); return; }
             if (Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) return;   // <-- Move hovers too: its cursor sharpens on a grip like Select's
             const found     = Na__LeTools__Resolve(sheet, point);
+            Na__LeTools__RefreshBrokenTooltip(sheet, found, event);          // <-- A red-haloed bubble explains itself on hover
             const grab      = Na__LeVpMove__Hover(sheet, Na__LeTools__CarryTarget(sheet, found), point);   // <-- Marks the point a press would carry the viewport by
             const inserting = Na__LeTools__RefreshShapeInsert(sheet, point, event.shiftKey);
             Na__LeTools__Stage.style.cursor = (inserting || grab) ? 'crosshair' : Na__LeTools__HoverCursor(sheet, found, point);
             return;
         }
+        Na__LeHoverTip__Hide();                                              // <-- A drag in flight never shows the hover tip
         const dMm = { x : point.x - drag.startMm.x, y : point.y - drag.startMm.y };
         if (!drag.moved) {
             if (Math.hypot(dMm.x, dMm.y) < Na__LeCfg__GetSelectionSetup().dragThresholdMm / Na__LeSurface__GetZoom()) return;
@@ -241,6 +254,23 @@
             document.body.classList.add('na-le-dragging');
         }
         Na__LeTools__ApplyDrag(sheet, drag, dMm, event.shiftKey);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Show the Hover Tooltip Over a Broken Specification Bubble, or Hide It
+    // ------------------------------------------------------------
+    // A leader whose Leader__SpecNoteId points at a note that no longer
+    // exists (Na__LeLeadGeo__IsBroken) explains itself next to the pointer,
+    // reusing the same wording the Leaders panel shows for a broken link.
+    // Anything else under the pointer leaves the tooltip hidden.
+    // ------------------------------------------------------------
+    function Na__LeTools__RefreshBrokenTooltip(sheet, found, event) {
+        if (!found || found.kind !== 'leader') return;
+        const record = Na__LeTools__Record(sheet, found);
+        if (!record || !Na__LeLeadGeo__IsBroken(record)) return;
+        const shown = Na__LeLeadGeo__Lines(record)[0] || '';
+        Na__LeHoverTip__Show(Na__LeCfg__FormatLabel('LeaderSpecBroken', 'Its specification note was deleted. The bubble keeps its last code, {code}.', { code : shown }), event.clientX, event.clientY);
     }
     // ------------------------------------------------------------
 

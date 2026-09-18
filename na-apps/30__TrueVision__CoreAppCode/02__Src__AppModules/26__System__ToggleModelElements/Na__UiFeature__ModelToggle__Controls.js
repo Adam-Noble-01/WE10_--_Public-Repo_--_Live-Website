@@ -21,6 +21,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026
+// - Display names for the eight Linetype__ categories, and then no buttons for
+//   them: a projection-only category is not drawn in 3D, so a 3D toggle would
+//   look inert while taking its lines off every drawing. They stay registered,
+//   so the Model Layers panel still lists them. The names are kept for the
+//   console, the Other group's labels and anything else that resolves a key.
+//
 // 13-Sep-2026
 // - BorrowRegistry and RestoreRegistry. A Layout Editor render of a design
 //   phase the 3D view does not hold lends the category map to that phase, so
@@ -72,7 +79,19 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
         "TrueVision__FirstFloorFurniture"              : "First Floor Furniture",  // <-- Tag 40-48
         "TrueVision__FirstFloorDecor"                  : "First Floor Decor",      // <-- Tag 49
         "TrueVision__Vegetation"                       : "Vegetation",             // <-- Tag 50-59
-        "TrueVision__SceneContextual"                  : "Scene Context"           // <-- Tag 60-70
+        "TrueVision__SceneContextual"                  : "Scene Context",          // <-- Tag 60-70
+
+        // LINETYPE LINEWORK | One linework-only GLB per SketchUp linetype tag. Named
+        // here so the toggle reads as the drawing word rather than the tag name, and
+        // so a person can see at a glance whether the lines they tagged actually landed.
+        "TrueVision__Linetype__DashedLines"            : "Lines - Dashed",
+        "TrueVision__Linetype__CentreLines"            : "Lines - Centre",
+        "TrueVision__Linetype__DottedLines"            : "Lines - Dotted",
+        "TrueVision__Linetype__DoorSwings"             : "Lines - Door Swings",
+        "TrueVision__Linetype__ClearanceLines"         : "Lines - Clearances",
+        "TrueVision__Linetype__OverheadObjects"        : "Lines - Overhead Objects",
+        "TrueVision__Linetype__BuildingJoins"          : "Lines - Building Joins",
+        "TrueVision__Linetype__ElementsForRemoval"     : "Lines - Elements For Removal"
     };
     // ------------------------------------------------------------
 
@@ -269,7 +288,16 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
         }
 
         // BUILD A BUTTON FOR EACH LOADED CATEGORY
+        // A PROJECTION-ONLY CATEGORY GETS NO BUTTON. Its linework is loaded with
+        // material.visible false and no 3D render draws it, so a 3D toggle would
+        // appear to do nothing while quietly taking the lines off every drawing.
+        // It stays in the map above, so the Layout Editor's Model Layers panel -
+        // which is where a drawing layer belongs - still lists and controls it.
+        let buttonCount = 0;
         loadedGroups.forEach((group, categoryKey) => {
+            if (group && group.userData && group.userData.Na__LineworkProjectionOnly === true) return;
+            buttonCount += 1;
+
             // CREATE BUTTON ELEMENT
             const displayName = Na__ModelToggle__ResolveDisplayName(categoryKey);  // <-- Resolve friendly name
             const button      = document.createElement('button');        // <-- Create button element
@@ -290,6 +318,8 @@ import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderL
 
             listContainer.appendChild(button);                           // <-- Add button to container
         });
+
+        if (buttonCount === 0) listContainer.style.display = 'none';     // <-- Every category was projection only
     }
     // ---------------------------------------------------------------
 

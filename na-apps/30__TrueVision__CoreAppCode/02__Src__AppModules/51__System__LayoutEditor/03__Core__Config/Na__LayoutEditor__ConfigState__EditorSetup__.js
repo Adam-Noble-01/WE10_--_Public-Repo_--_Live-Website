@@ -174,6 +174,25 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Get the Web Viewer Setup
+    // ------------------------------------------------------------
+    // The read-only document viewer the live web build shows instead of the
+    // editor. Enabled is the switch that turns the whole thing off and hands
+    // the web build back the read-only editor it had before, so a regression
+    // here is one JSON key away from being undone on a live site.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetWebViewerSetup() {
+        return {
+            enabled             : Na__LeCfg__Val('WebViewer', 'Enabled', true) !== false,
+            showSpecification   : Na__LeCfg__Val('WebViewer', 'ShowSpecification', true) !== false,
+            swipeEnabled        : Na__LeCfg__Val('WebViewer', 'SwipeToChangeDocument', true) !== false,
+            swipeMinPx          : Math.max(20, Na__LeCfg__Num('WebViewer', 'SwipeMinPx', 70)),
+            doubleTapZoomFactor : Math.max(1.1, Na__LeCfg__Num('WebViewer', 'DoubleTapZoomFactor', 2.5))
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get the Navigation Setup
     // ------------------------------------------------------------
     function Na__LeCfg__GetNavigationSetup() {
@@ -201,7 +220,8 @@
         Na__LeCfg__GetSpecificationSetup,
         Na__LeCfg__GetMarginNotesSetup,
         Na__LeCfg__GetPanelSetup,
-        Na__LeCfg__GetNavigationSetup
+        Na__LeCfg__GetNavigationSetup,
+        Na__LeCfg__GetWebViewerSetup
     };
     // ------------------------------------------------------------
 

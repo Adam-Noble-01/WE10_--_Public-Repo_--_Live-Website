@@ -29,7 +29,10 @@
 //     hidden     with Hidden Lines on: the parts something hides, plus every
 //                edge between the viewer and the cut (above a plan's datum,
 //                in front of a section plane), dashed
-//     authored   the SketchUp linework, occlusion-clipped like the rest
+//     authored   the SketchUp linework, occlusion-clipped like the rest -
+//                except the LINETYPE tags (dashed, dotted, centre, door swings,
+//                clearances, overhead extents, joins, demolition), which are
+//                drawing data and go to the page uncut and unclipped
 //     section    the outline of cut material, never occluded because the
 //                cut is by definition the nearest thing to the viewer
 //
@@ -75,6 +78,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.3.1
+// - Annotation linework. Na__PlCpu__SplitAnnotation divides the authored
+//   edges by owner key against options.AnnotationCategoryTokens: the SketchUp
+//   LINETYPE categories go to the page uncut and unclipped, everything else
+//   authored is cut at the drawing cut and occlusion-clipped as before. With
+//   no owner table there is nothing to divide by and the whole buffer takes
+//   the old path. Back-port PENDING to ValeVision3D, on Adam's sign-off.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Linework first: ProjectView and PrepareIntersections hand the collection's
 //   linework category Set to the edge extractor while options.LineworkFirst
@@ -190,6 +201,76 @@
             target.Owners = Na__PlOwners__Concat(target.Owners, tags);
         }
         return target;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is This Owner Key an Annotation Category?
+    // ------------------------------------------------------------
+    function Na__PlCpu__IsAnnotationKey(key, tokens) {
+        if (!key) return false;
+        const lower = String(key).toLowerCase();
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
+            if (token && lower.indexOf(String(token).toLowerCase()) !== -1) return true;
+        }
+        return false;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Divide the Authored Edges Into Annotation and the Rest
+    // ------------------------------------------------------------
+    // ANNOTATION IS DRAWING DATA, NOT MODEL GEOMETRY. The SketchUp linetype tags
+    // - dashed, dotted, centre, door swings, clearances, overhead extents, joins,
+    // demolition - say what a line MEANS on a drawing. So they are not divided at
+    // the cut plane and not occlusion-clipped: an overhead extent is drawn to be
+    // seen through the roof above it, and a clearance lying flat on a floor slab
+    // must not be clipped away by the slab it sits on. Everything else authored
+    // is clipped exactly as before.
+    //
+    // The test runs once over the owner KEY TABLE - a handful of categories -
+    // so the per-edge decision below is an array lookup, not a string match.
+    // Without an owner table there is nothing to tell them apart by, and the
+    // whole buffer stays the Rest, which is what every earlier version did.
+    // ------------------------------------------------------------
+    function Na__PlCpu__SplitAnnotation(edges, owners, ownerTable, tokens) {
+        const source = edges || new Float64Array(0);
+        const whole  = { Annotation : new Float64Array(0), AnnotationOwners : owners ? new Uint16Array(0) : null, Rest : source, RestOwners : owners || null };
+        if (!ownerTable || !owners || !Array.isArray(tokens) || tokens.length === 0) return whole;
+
+        const keys   = ownerTable.Keys || [];
+        const marked = new Uint8Array(keys.length);
+        let   any    = false;
+        for (let i = 0; i < keys.length; i++) {
+            if (Na__PlCpu__IsAnnotationKey(keys[i], tokens)) { marked[i] = 1; any = true; }
+        }
+        if (!any) return whole;
+
+        const count = Math.floor(source.length / 6);
+        let   hits  = 0;
+        for (let i = 0; i < count; i++) { const id = owners[i]; if (id < marked.length && marked[id] === 1) hits++; }
+        if (hits === 0) return whole;
+
+        const annotation       = new Float64Array(hits * 6);
+        const annotationOwners = new Uint16Array(hits);
+        const rest             = new Float64Array((count - hits) * 6);
+        const restOwners       = new Uint16Array(count - hits);
+        let   a = 0;
+        let   r = 0;
+
+        for (let i = 0; i < count; i++) {
+            const id = owners[i];
+            if (id < marked.length && marked[id] === 1) {
+                annotation.set(source.subarray(i * 6, (i * 6) + 6), a * 6);
+                annotationOwners[a++] = id;
+            } else {
+                rest.set(source.subarray(i * 6, (i * 6) + 6), r * 6);
+                restOwners[r++] = id;
+            }
+        }
+
+        return { Annotation : annotation, AnnotationOwners : annotationOwners, Rest : rest, RestOwners : restOwners };
     }
     // ------------------------------------------------------------
 
@@ -311,12 +392,15 @@
             ? Na__PlOwners__Concat(stage.Owners, tagsFor(collected.IntersectionEdges, collected.IntersectionOwners))
             : null;
         const split      = Na__PlEdges__SplitByCut(combined, definition.Cut, combinedOwners);
-        const authored   = Na__PlEdges__SplitByCut(collected.AuthoredEdges, definition.Cut, tagsFor(collected.AuthoredEdges, collected.AuthoredOwners));
+        const annotated  = Na__PlCpu__SplitAnnotation(collected.AuthoredEdges, tagsFor(collected.AuthoredEdges, collected.AuthoredOwners), ownerTable, options.AnnotationCategoryTokens || []);
+        const authored   = Na__PlEdges__SplitByCut(annotated.Rest, definition.Cut, annotated.RestOwners);
         const viewEdges  = Na__PlEdges__ToViewSpace(split.Kept, viewMap, options.EdgeLiftWorldUnits, split.KeptOwners);
         // HIDE FLUSH JOINS. Joins between two faces of one plane leave the model's
         // own edges here, before the clip; the authored linework never passes through.
         const modelEdges = options.HideFlushJoins === true ? Na__PlFlush__CutFlushJoins(soup, viewEdges) : viewEdges;
         const drawnEdges = Na__PlEdges__ToViewSpace(authored.Kept, viewMap, options.EdgeLiftWorldUnits, authored.KeptOwners);
+        // ANNOTATION | Straight to the page from here: no cut, no clip.
+        const annotationDrawn = Na__PlEdges__ToDrawingSegments(annotated.Annotation, viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm, annotated.AnnotationOwners);
         mark(Na__PlCpu__PHASE_EDGES, startedAt);
         Na__PlCpu__CheckAbort(settings);
 
@@ -356,6 +440,7 @@
         const visible  = Na__PlCpu__Append({ Segments : new Float32Array(0), Owners : blank() }, modelResult.Segments, modelResult.Owners);
         Na__PlCpu__Append(visible, light.Segments, light.Owners);
         const drawn    = Na__PlCpu__Append({ Segments : new Float32Array(0), Owners : blank() }, authoredResult.Segments, authoredResult.Owners);
+        Na__PlCpu__Append(drawn, annotationDrawn.Segments, annotationDrawn.Owners);
         const cutLines = Na__PlCpu__Append({ Segments : new Float32Array(0), Owners : blank() }, section.Segments, section.Owners);
 
         const classes = {
@@ -382,7 +467,7 @@
         return {
             Classes       : classes,
             Phases        : phases,
-            EdgeCount     : modelEdges.Count + drawnEdges.Count,
+            EdgeCount     : modelEdges.Count + drawnEdges.Count + Math.floor(annotated.Annotation.length / 6),
             OccluderCount : soup.TriCount,
             StagedCount   : soup.SourceCount
         };

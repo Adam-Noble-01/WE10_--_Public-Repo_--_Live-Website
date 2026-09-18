@@ -22,6 +22,28 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.4.0
+// - Content stamp. Each GLB's scene is hashed the moment it is parsed - node
+//   placements, every geometry attribute and index, material names and colours
+//   (Na__ModelLoader__ContentStamp__) - and the hash rides on the mesh or
+//   linework root's userData. The model fingerprint reads it, so a re-export
+//   that moves something without changing a triangle count re-keys every
+//   drawing cached from the model. Read before the fat line upgrade and the
+//   instance consolidation, which are the loader's doing and not the model's.
+//
+// 18-Sep-2026 - Version 1.3.2
+// - Projection only. A category matching RenderConfig__Linework__ProjectionOnly-
+//   CategoryTokens loads with material.visible false on every fat line, so no 3D
+//   render draws it while the objects stay visible for the projected linework to
+//   read. The linetype tags are drawing data: rendered in 3D they float in mid
+//   air, and under a rendered underlay they showed solid beneath their own dashes.
+//
+// 18-Sep-2026 - Version 1.3.1
+// - The Linetype__ categories take their place at the end of the load order.
+//   They carry linework and no mesh - one GLB per SketchUp linetype tag from
+//   GLB Builder 2.7.3 - and need no other change: the existing filename parse
+//   and the mesh-optional pair loader already handle them.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - The linework depth bias is camera-aware. Through an orthographic camera the
 //   logarithmic depth buffer writes LINEAR depth (gl_FragCoord.z), so the fixed
@@ -76,6 +98,12 @@
         Na__ModelLoader__ConsolidateInstances
     } from './Na__ModelLoader__InstanceConsolidation__.js';
 
+    // @delegate: ./Na__ModelLoader__ContentStamp__.js
+    import {
+        Na__ModelStamp__Stamp,
+        Na__ModelStamp__Carry
+    } from './Na__ModelLoader__ContentStamp__.js';
+
 // endregion ----
 
 
@@ -87,6 +115,10 @@
     // ------------------------------------------------------------
     // Matches GLB Builder tag range definitions, rebranded to TrueVision namespace.
     // Building models load first, then environment, furniture, vegetation, context.
+    // The Linetype__ categories are last and carry LINEWORK ONLY: the GlbBuilder writes
+    // one GLB per SketchUp linetype tag (dashed, dotted, centre, door swings, clearances,
+    // overhead extents, joins, demolition) with no mesh beside it, so a drawing can draw
+    // each one in its own line style. A category with no GLB behind it simply never appears.
     // ------------------------------------------------------------
     const Na__ModelCategories__LoadOrder = [
         "TrueVision__MainBuildingModel__Existing",          // <-- Tag 10: Existing building massing
@@ -117,7 +149,15 @@
         "TrueVision__FirstFloorFurniture",                  // <-- Tag 40-48: First floor furniture
         "TrueVision__FirstFloorDecor",                      // <-- Tag 49: First floor high detail
         "TrueVision__Vegetation",                           // <-- Tag 50-59: Vegetation
-        "TrueVision__SceneContextual"                       // <-- Tag 60-70: Scene context
+        "TrueVision__SceneContextual",                      // <-- Tag 60-70: Scene context
+        "TrueVision__Linetype__DashedLines",                // <-- Linetype tag: 2D dashed linework, no mesh
+        "TrueVision__Linetype__CentreLines",                // <-- Linetype tag: 2D centre linework, no mesh
+        "TrueVision__Linetype__DottedLines",                // <-- Linetype tag: 2D dotted linework, no mesh
+        "TrueVision__Linetype__DoorSwings",                 // <-- Linetype tag: 2D door swing arcs, no mesh
+        "TrueVision__Linetype__ClearanceLines",             // <-- Linetype tag: clearance zones, no mesh
+        "TrueVision__Linetype__OverheadObjects",            // <-- Linetype tag: overhead extents in plan, no mesh
+        "TrueVision__Linetype__BuildingJoins",              // <-- Linetype tag: building / party wall joins, no mesh
+        "TrueVision__Linetype__ElementsForRemoval"          // <-- Linetype tag: demolition, no mesh
     ];
     // ------------------------------------------------------------
 
@@ -128,6 +168,7 @@
     const Na__ModelUrl__StoreyParseRegex  = /(?:.*?__)?Storey__([A-Za-z]+)__([A-Za-z]+)__(MeshModel|LineworkModel)__\.glb/i;
     const Na__ModelUrl__OrbitCubeRegex    = /OrbitHelperCube__MeshModel__\.glb$/i;    // <-- Orbit helper cube detection
     const Na__ModelLoader__OrbitHelperNameToken = 'OrbitHelperCube';                   // <-- Authoritative orbit target token
+    const Na__ModelLoader__ProjectionOnlyTokens  = ['Linetype__'];                     // <-- Hardcoded fallback - overridden by AppConfig at runtime
     // ------------------------------------------------------------
 
 // endregion ----
@@ -352,6 +393,7 @@
     async function Na__ModelLoader__LoadSingleMesh(modelUrl, baseMeshConfig, loader) {
         const gltf     = await loader.loadAsync(modelUrl);         // <-- Load GLB file
         const meshRoot = gltf.scene;                               // <-- Extract scene graph
+        Na__ModelStamp__Stamp(meshRoot);                           // <-- What this file holds, read before anything below alters it: the model fingerprint's content half
 
         const indexedNameRegex  = /^MAT\d{3}__/;                  // <-- Indexed materials that survive to swap pass
         const mirrorDebugName   = 'MAT140__Mirror__ClearDefault';
@@ -602,12 +644,56 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Is This Category's Linework for Drawings Only?
+    // ------------------------------------------------------------
+    function Na__ModelLoader__IsProjectionOnlyCategory(category, lineworkConfig) {
+        const configured = lineworkConfig ? lineworkConfig.RenderConfig__Linework__ProjectionOnlyCategoryTokens : null;
+        const tokens     = Array.isArray(configured) ? configured : Na__ModelLoader__ProjectionOnlyTokens;
+        if (!category || tokens.length === 0) return false;
+
+        const lower = String(category).toLowerCase();
+        return tokens.some((token) => token && lower.indexOf(String(token).toLowerCase()) !== -1);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take a Category's Linework Out of Every 3D Render
+    // ------------------------------------------------------------
+    // MATERIAL VISIBILITY, NOT OBJECT VISIBILITY, and the distinction is the
+    // whole point. THREE skips an object whose material.visible is false, so no
+    // 3D render draws these lines - the viewer, the image export, the Layout
+    // Editor's raster underlay. The OBJECTS stay visible, because the projected
+    // linework pipeline reads them by walking the scene graph and skips anything
+    // whose .visible is false. Setting the root invisible would have hidden them
+    // from the drawings as well, which is the opposite of what they are for.
+    //
+    // Each fat line carries its own LineMaterial (built per node in the upgrade
+    // above), so this can never reach another category's lines.
+    // ------------------------------------------------------------
+    function Na__ModelLoader__HideLineworkFromRender(categoryGroup, lineworkRoot) {
+        if (!lineworkRoot) return;
+
+        if (categoryGroup) categoryGroup.userData.Na__LineworkProjectionOnly = true;
+        lineworkRoot.userData.Na__LineworkProjectionOnly = true;
+
+        lineworkRoot.traverse((node) => {
+            if (!node.material) return;
+            const materials = Array.isArray(node.material) ? node.material : [ node.material ];
+            materials.forEach((material) => { if (material) material.visible = false; });
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Load Single Linework GLB (Fat Lines)
     // ------------------------------------------------------------
     async function Na__ModelLoader__LoadSingleLinework(modelUrl, lineworkConfig, loader, lineResolution) {
         const gltf         = await loader.loadAsync(modelUrl);     // <-- Load GLB file
         const lineworkRoot = gltf.scene;                           // <-- Extract scene graph
-        return Na__ModelLoader__UpgradeLineworkRoot(lineworkRoot, lineworkConfig, lineResolution);
+        const stamp        = Na__ModelStamp__Stamp(lineworkRoot);  // <-- Before the fat line upgrade replaces every line it was read from
+        const upgradedRoot = Na__ModelLoader__UpgradeLineworkRoot(lineworkRoot, lineworkConfig, lineResolution);
+        Na__ModelStamp__Carry(stamp, upgradedRoot);
+        return upgradedRoot;
     }
     // ------------------------------------------------------------
 
@@ -680,7 +766,12 @@
                     lineworkRoot.userData.Na__ModelType = 'linework'; // <-- Tag for downstream identification
                     categoryGroup.add(lineworkRoot);
                     Na__ModelLoader__ApplyProfileLineColoursToMeshRoot(meshRoot, lineworkRoot); // <-- Propagate edge colours to mesh nodes
-                    console.log(`[TrueVision3D] Loaded Linework: ${shortName}`);
+                    if (Na__ModelLoader__IsProjectionOnlyCategory(category, config.RenderConfig__Linework)) {
+                        Na__ModelLoader__HideLineworkFromRender(categoryGroup, lineworkRoot);
+                        console.log(`[TrueVision3D] Loaded Linework (drawings only, not rendered in 3D): ${shortName}`);
+                    } else {
+                        console.log(`[TrueVision3D] Loaded Linework: ${shortName}`);
+                    }
                 } catch (error) {
                     console.error(`[TrueVision3D] Failed to load Linework for ${shortName}:`, error);
                 }
@@ -732,7 +823,12 @@
                     lineworkRoot.userData.Na__ModelType = 'linework';
                     categoryGroup.add(lineworkRoot);
                     Na__ModelLoader__ApplyProfileLineColoursToMeshRoot(meshRoot, lineworkRoot); // <-- Propagate edge colours to mesh nodes
-                    console.log(`[TrueVision3D] Loaded Linework (unordered): ${shortName}`);
+                    if (Na__ModelLoader__IsProjectionOnlyCategory(category, config.RenderConfig__Linework)) {
+                        Na__ModelLoader__HideLineworkFromRender(categoryGroup, lineworkRoot);
+                        console.log(`[TrueVision3D] Loaded Linework (unordered, drawings only, not rendered in 3D): ${shortName}`);
+                    } else {
+                        console.log(`[TrueVision3D] Loaded Linework (unordered): ${shortName}`);
+                    }
                 } catch (error) {
                     console.error(`[TrueVision3D] Failed to load Linework for ${shortName}:`, error);
                 }

@@ -21,6 +21,11 @@
 // - The shell is built once, on the first entry, after the config and the
 //   model are ready. Editing is allowed on localhost, or anywhere when
 //   Main.json turns the web read-only flag off.
+// - A SESSION THAT CANNOT AUTHOR GETS A DIFFERENT SHELL, NOT A DISABLED ONE.
+//   No panel columns, no toolbar row and no sheet tools: the read-only web
+//   build is the document viewer in 80__Feature__WebViewer, which owns the
+//   document bar, the dock and which of its two reading surfaces is showing.
+//   Not building the authoring surface is what keeps it off a reader's paper.
 // - Sheet model changes are routed to the surface by reason so a pan does
 //   not rebuild the chrome and a rename does not re-render a viewport.
 // - Answers the panels' Edit In Drawing request by leaving and opening the
@@ -42,6 +47,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.16.0
+// - The web viewer. A session that cannot author gets a different shell, not a
+//   disabled one: no panel columns, no toolbar row, and AttachSheetInput binds
+//   nothing, so the editing tools are never attached rather than attached and
+//   told to behave. Entering a sheet and opening the specification route
+//   through Na__LayoutEditor__WebViewer__, which owns the document bar, the
+//   dock and which reading surface is on. Leaving stands both surfaces down.
+//
 // 17-Sep-2026 - Version 1.15.0
 // - SectionForKind and FocusPanelForSelection: a selection change, and the
 //   eyedropper picking up a style, open that kind's panel and fold the rest of
@@ -200,6 +213,26 @@
     import { Na__DevGate__IsAuthoringEnabled } from '../../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | The Web Viewer (what a session that cannot author gets instead)
+    // ------------------------------------------------------------
+    // ONE-WAY, DELIBERATELY. The viewer never imports this module: the three
+    // things it needs to do - open a sheet, open the specification, go back to
+    // the 3D model - are handed to it as callbacks when its chrome is built, so
+    // the pair can never form an import cycle.
+    // @delegate: ../80__Feature__WebViewer/
+    // ------------------------------------------------------------
+    import {
+        Na__LeVw__Initialize,
+        Na__LeVw__IsViewerMode,
+        Na__LeVw__Build,
+        Na__LeVw__ShowDrawing,
+        Na__LeVw__ShowSpecification,
+        Na__LeVw__Teardown,
+        Na__LeVw__Sync,
+        Na__LeVw__SetActive
+    } from '../80__Feature__WebViewer/Na__LayoutEditor__WebViewer__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -266,17 +299,36 @@
         if (Na__LeMode__Built) return;
         Na__LeMode__Built = true;
         const editable = Na__LeMode__IsEditable();
+        const viewer   = Na__LeVw__IsViewerMode();
         const toast    = Na__LeMode__Context ? Na__LeMode__Context.showToast : null;
 
         let host = document.getElementById(Na__LeMode__HOST_ID);
         if (!host) { host = document.createElement('div'); host.id = Na__LeMode__HOST_ID; document.body.appendChild(host); }
         host.className = 'na-le-host';
         host.hidden = true;
-        host.innerHTML = '<div class="na-le-shell"><div class="na-le-column na-le-column--left"></div><div class="na-le-centre"><div class="na-le-centre__toolbar"></div><div class="na-le-stage" tabindex="0"></div></div><div class="na-le-column na-le-column--right"></div></div>';
+        // THE VIEWER GETS A DIFFERENT SHELL, NOT A DISABLED ONE. No panel
+        // columns and no toolbar row are built at all, so there is no authoring
+        // surface anywhere on the page to leak through a missed guard, and the
+        // stage has the whole width - which on a phone in portrait is the
+        // difference between a readable drawing and a sliver of one.
+        host.innerHTML = viewer
+            ? '<div class="na-le-shell na-le-shell--viewer"><div class="na-le-centre"><div class="na-le-stage" tabindex="0"></div></div></div>'
+            : '<div class="na-le-shell"><div class="na-le-column na-le-column--left"></div><div class="na-le-centre"><div class="na-le-centre__toolbar"></div><div class="na-le-stage" tabindex="0"></div></div><div class="na-le-column na-le-column--right"></div></div>';
         Na__LeMode__Host  = host;
         Na__LeMode__Stage = host.querySelector('.na-le-stage');
 
         Na__LeSurface__Mount(Na__LeMode__Stage, { editable : editable });
+
+        // THE VIEWER | Its own chrome, the specification page, and nothing else
+        // ------------------------------------------------------------
+        if (viewer) {
+            Na__LeVw__Build(host, {                                          // <-- Leaving is the 3D Model tab's, as it is in the editor
+                enter    : (sheetId) => Na__LeMode__Enter(sheetId),
+                openSpec : ()        => Na__LeMode__OpenSpecification()
+            });
+            Na__LeSpecEd__Mount(host, { editable : false, showToast : toast });   // <-- Read view only; the viewer sets it on every show
+            return;
+        }
         Na__LePanels__Mount({ left : host.querySelector('.na-le-column--left'), right : host.querySelector('.na-le-column--right'), editable : editable, showToast : toast });
         // LEFT COLUMN | Sheet, then the three things a drawing is made of:
         // its own layers, the render composites that make its picture, and the
@@ -304,13 +356,20 @@
 
     // HELPER FUNCTION | The Sheet's Pointer, Keys and Margin Grip: On and Off Together
     // ------------------------------------------------------------
+    // A VIEWER BINDS NOTHING HERE. Its reading input - navigation only, no
+    // tools and no margin grip - is bound by Na__LeVw__ShowDrawing when a
+    // document is shown, and let go when another one is. Returning early is
+    // what keeps the editing tools off a web session's paper: they are never
+    // attached rather than attached and told to behave.
     function Na__LeMode__AttachSheetInput() {
+        if (Na__LeVw__IsViewerMode()) return;
         Na__LePc__Attach();                                                    // <-- Mouse, wheel and keyboard, before the tools
         Na__LeTouch__Attach();                                                 // <-- Touch, before the tools
         Na__LeTools__Attach({ editable : Na__LeMode__IsEditable() });
         Na__LeMarginGrip__Attach({ editable : Na__LeMode__IsEditable() });
     }
     function Na__LeMode__DetachSheetInput() {
+        if (Na__LeVw__IsViewerMode()) return;
         Na__LeMarginGrip__Detach();
         Na__LeTools__Detach();
         Na__LeTouch__Detach();
@@ -343,6 +402,7 @@
     // ------------------------------------------------------------
     function Na__LeMode__Dispatch() {
         const sheet = Na__LeModel__GetActiveSheet();
+        Na__LeVw__Sync();                                                      // <-- The viewer's bar and dock follow the same announcement the tab strip does
         window.dispatchEvent(new CustomEvent(Na__LeMode__CHANGED_EVENT, { detail : { isActive : Na__LeMode__Active, sheetId : sheet ? sheet.Sheet__Id : null, view : Na__LeMode__View } }));
     }
     // ------------------------------------------------------------
@@ -367,8 +427,8 @@
         const sameSheet = fromSpec && !!current && current.Sheet__Id === sheet.Sheet__Id;
 
         if (fromSpec) {
-            Na__LeSpecEd__Hide();                                               // <-- Back from the specification: the sheet was kept underneath
-            Na__LeMode__View = Na__LeMode__VIEW_SHEET;
+            if (!Na__LeVw__IsViewerMode()) Na__LeSpecEd__Hide();                 // <-- Back from the specification: the sheet was kept underneath
+            Na__LeMode__View = Na__LeMode__VIEW_SHEET;                           // <-- In the viewer, ShowDrawing puts the specification away below
             Na__LeMode__AttachSheetInput();
         }
         if (!Na__LeMode__Active) {
@@ -380,6 +440,7 @@
             if (canvas) canvas.style.visibility = 'hidden';                     // <-- Alive for offscreen snapshots
             Na__LeMode__Host.hidden = false;
             Na__LeMode__Active = true;
+            Na__LeVw__SetActive(true);                                       // <-- The viewer's body class: the stylesheet only then reshapes the shell
             Na__RenderLoop__Pause(Na__LeMode__RENDER_HOLD);                  // <-- Engine idle: the sheet owns the screen; snapshots render offscreen on demand
             Na__DrawView__Transitions__SuspendThreeD();                     // <-- Orbit and distance culling let go, as in a drawing
             Na__LeSnap__ResetFingerprints();                                // <-- One model walk per session, not per refresh
@@ -392,11 +453,13 @@
         if (sameSheet) {                                                   // <-- Same sheet: keep its zoom and scroll, catch up with what changed meanwhile
             Na__LeSurface__Refresh('markup');
             Na__LePanels__Refresh();
+            if (Na__LeVw__IsViewerMode()) Na__LeVw__ShowDrawing(sheet, { fit : false });   // <-- The reading input comes back; the view stays where it was
             Na__LeMode__Dispatch();
             return true;
         }
         Na__LeSurface__SetSheet(sheet);
         Na__LePanels__Refresh();
+        if (Na__LeVw__IsViewerMode()) Na__LeVw__ShowDrawing(sheet);
         window.requestAnimationFrame(() => { if (Na__LeMode__Active) Na__LeNav__Fit(); });   // <-- Stage has a size once shown
         Na__LeMode__Dispatch();
         return true;
@@ -408,7 +471,8 @@
     // ------------------------------------------------------------
     function Na__LeMode__Leave() {
         if (!Na__LeMode__Active) return false;
-        if (Na__LeMode__View === Na__LeMode__VIEW_SPEC) Na__LeSpecEd__Hide();   // <-- The sheet's input already stood down when the page opened
+        if (Na__LeVw__IsViewerMode()) Na__LeVw__Teardown();                     // <-- Both reading surfaces let go, whichever was showing
+        else if (Na__LeMode__View === Na__LeMode__VIEW_SPEC) Na__LeSpecEd__Hide();   // <-- The sheet's input already stood down when the page opened
         else Na__LeMode__DetachSheetInput();
         Na__LeMode__View = Na__LeMode__VIEW_SHEET;
         Na__LeSurface__SetSheet(null);
@@ -416,6 +480,7 @@
         Na__LeModel__SetActiveSheetId(null);
         Na__LeMode__Host.hidden = true;
         document.body.classList.remove(Na__LeMode__BODY_CLASS);
+        Na__LeVw__SetActive(false);
         const canvas = document.getElementById(Na__LeMode__CANVAS_ID);
         if (canvas) canvas.style.visibility = '';
         Na__LeMode__Active = false;
@@ -443,6 +508,11 @@
             Na__LeMode__DetachSheetInput();
             Na__LeMode__View = Na__LeMode__VIEW_SPEC;
         }
+        // THE VIEWER SHOWS THE DOCUMENT, NOT THE AUTHORING PAGE. noteId is a
+        // request from a bubble on a sheet to open the note that is being
+        // edited, which no reading session can make; the pages are shown from
+        // the top instead of jumping into a note nobody asked for.
+        if (Na__LeVw__IsViewerMode()) { Na__LeVw__ShowSpecification(); Na__LeMode__Dispatch(); return true; }
         Na__LeSpecEd__Show({ noteId : (typeof noteId === 'string' && noteId) ? noteId : null });
         Na__LeMode__Dispatch();
         return true;
@@ -610,6 +680,7 @@
         // the fetch; this is the same promise, so it is waited for, never repeated.
         Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__DrawCfg__Load() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
+            Na__LeVw__Initialize({ editable : Na__LeMode__IsEditable(), showToast : context.showToast || null });   // <-- Asked before anything is built: the shell it gets depends on the answer
             Na__LeModel__Initialize();
             Na__LeHist__Initialize();                                        // <-- Undo and redo listen to the model from the start
             Na__LeAuto__Initialize({ showToast : context.showToast || null, editable : Na__LeMode__IsEditable() });   // <-- Browser draft and structural auto save
@@ -656,7 +727,7 @@
             });
             window.addEventListener('resize', () => { if (Na__LeMode__Active) Na__LeSurface__SetZoom(Na__LeSurface__GetZoom()); });
             window.addEventListener(Na__LeRaster__CHANGED_EVENT, () => { if (Na__LeMode__Active) Na__LeSurface__Refresh('frames'); });   // <-- A new working level re-renders the pictures
-            console.log('[TrueVision3D] Layout Editor ready (' + (Na__LeMode__IsEditable() ? 'editable' : Na__LeCfg__GetLabel('ReadOnlyNote', 'read-only')) + ').');
+            console.log('[TrueVision3D] Layout Editor ready (' + (Na__LeMode__IsEditable() ? 'editable' : (Na__LeVw__IsViewerMode() ? 'web document viewer, read-only' : Na__LeCfg__GetLabel('ReadOnlyNote', 'read-only'))) + ').');
             return true;
         }).catch((error) => {
             console.error('[TrueVision3D] Layout Editor failed to initialise:', error);

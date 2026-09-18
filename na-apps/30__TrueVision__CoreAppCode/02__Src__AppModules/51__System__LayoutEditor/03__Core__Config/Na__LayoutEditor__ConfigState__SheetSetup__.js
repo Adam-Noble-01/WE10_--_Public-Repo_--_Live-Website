@@ -44,6 +44,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.2.0
+// - GetViewportCacheSetup reads how many sheets the sheet surface keeps rendered
+//   while another sheet is shown (ViewportCache MaxParkedSheets; 0 switches the
+//   cache off).
+//
 // 17-Sep-2026 - Version 1.1.0
 // - GetScaleSetup reads the sheet label settings: whether the title block's Scale
 //   cell names the paper size, what joins several scales, what joins the scales to
@@ -270,6 +275,19 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | How Many Sheets Stay Rendered While Another Is Shown
+    // ------------------------------------------------------------
+    // The sheet surface's viewport cache. 0 is off: leaving a sheet drops its
+    // pictures, as it did before the cache existed.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetViewportCacheSetup() {
+        return {
+            maxParkedSheets : Math.max(0, Math.round(Na__LeCfg__Num('ViewportCache', 'MaxParkedSheets', 24)))
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Points to Paper Millimetres (1 pt = 1/72 inch)
     // ------------------------------------------------------------
     function Na__LeCfg__PtToMm(pt) { return (Number.isFinite(pt) ? pt : 0) * 25.4 / 72; }
@@ -404,6 +422,7 @@
         Na__LeCfg__GetScaleSetup,
         Na__LeCfg__GetViewportSetup,
         Na__LeCfg__GetRasterSetup,
+        Na__LeCfg__GetViewportCacheSetup,
         Na__LeCfg__PtToMm,
         Na__LeCfg__GetPlanDoorsSetup,
         Na__LeCfg__GetLineweightSetup,

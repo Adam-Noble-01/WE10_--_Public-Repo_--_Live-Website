@@ -49,6 +49,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - ForgetPaths. A forced render cleared PathCache under the bare linework key,
+//   but BandPaths files under key@hidden@styleToken, so nothing was ever
+//   cleared: the projection ran again and PaintLinework painted the old path
+//   strings it found under the unchanged key. Every entry built from the result
+//   now goes.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__Viewport2d__.js; the code moved verbatim.
 //
@@ -128,7 +135,7 @@
         // style controls look broken.
         if (cached && Na__PlOwners__Has(cached)) return Promise.resolve(cached);
         const key     = Na__PlView__CacheKey(definition, modelFp);
-        if (force === true) { Na__LeVp2d__Linework.delete(key); Na__LeVp2d__PathCache.delete(key); }
+        if (force === true) { Na__LeVp2d__Linework.delete(key); Na__LeVp2d__ForgetPaths(key); }
         if (Na__LeVp2d__Linework.has(key)) return Na__LeVp2d__Linework.get(key);
         const fingerprint = Na__PlView__Fingerprint(definition, modelFp);
         const promise = (async () => {
@@ -300,6 +307,25 @@
         });
 
         return bands;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Drop Every Painted Path Built From One Linework Result
+    // ------------------------------------------------------------
+    // WHY A FORCED RENDER CHANGED NOTHING. BandPaths files its path strings under
+    // key@hidden@styleToken; the forced render cleared the bare key, which is
+    // never an entry. So the projection ran again, produced the right classes,
+    // and PaintLinework then found the OLD path strings under the same composite
+    // key and painted those. Every re-render button re-projected faithfully and
+    // drew the stale drawing. The entries for a result are the ones that start
+    // with its key and the separator.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__ForgetPaths(key) {
+        const prefix = key + '@';
+        Array.from(Na__LeVp2d__PathCache.keys()).forEach((entry) => {
+            if (entry === key || entry.indexOf(prefix) === 0) Na__LeVp2d__PathCache.delete(entry);
+        });
     }
     // ------------------------------------------------------------
 

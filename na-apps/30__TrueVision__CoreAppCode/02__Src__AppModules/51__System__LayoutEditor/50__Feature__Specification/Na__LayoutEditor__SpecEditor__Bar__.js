@@ -37,6 +37,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - Added the Reload R2 and Reload Local buttons beside Retry and Sync: a
+//   fast, explicit re-read of either copy, for when a file changed outside
+//   this browser (another session, or an LLM editing the file on disk) and a
+//   hard refresh was previously the only way to catch up. Reload Local is
+//   built only when CanReloadLocal (localhost) says the local copy exists.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SpecEditor__.js; the code moved verbatim.
 //
@@ -59,7 +66,9 @@
         Na__LeSpec__CanUndo,
         Na__LeSpec__CanRedo,
         Na__LeSpec__GetRevision,
-        Na__LeSpec__GetDocumentNumber
+        Na__LeSpec__GetDocumentNumber,
+        Na__LeSpec__CanReloadCloud,
+        Na__LeSpec__CanReloadLocal
     } from './Na__LayoutEditor__SpecData__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
@@ -174,6 +183,10 @@
         status.setAttribute('data-na-spec-bar', 'status');
         bar.appendChild(status);
         if (Na__LeSpecEd__Editable) {
+            bar.appendChild(Na__LeSpecEd__Button(L('SpecReloadCloud', 'Reload R2'), 'reload-cloud', L('SpecReloadCloudBtnTitle', 'Force-reload the specification from the cloud copy on R2, in case it changed since this browser last read it. Asks first if this browser has unsynced changes.')));
+            if (Na__LeSpec__CanReloadLocal()) {
+                bar.appendChild(Na__LeSpecEd__Button(L('SpecReloadLocal', 'Reload Local'), 'reload-local', L('SpecReloadLocalBtnTitle', 'Force-reload the specification from the local file on disk, in case it changed since this browser last read it - for example an edit made outside the browser. Asks first if this browser has unsynced changes.')));
+            }
             bar.appendChild(Na__LeSpecEd__Button(L('SpecRetry', 'Retry'), 'retry', L('SpecRetryTitle', 'Try to read the cloud copy again')));
             bar.appendChild(Na__LeSpecEd__Button(L('SpecSync', 'Sync'), 'sync', L('SpecSyncTitle', 'Write the specification to the cloud. Every change is already kept in this browser until then.')));
         }
@@ -211,6 +224,8 @@
         each('undo',      (b) => { b.disabled = !Na__LeSpec__CanUndo(); });
         each('redo',      (b) => { b.disabled = !Na__LeSpec__CanRedo(); });
         each('add-group', (b) => { b.disabled = !state.loaded; });
+        each('reload-cloud', (b) => { b.disabled = state.syncing || !Na__LeSpec__CanReloadCloud(); });
+        each('reload-local', (b) => { b.disabled = state.syncing; });
         each('retry',     (b) => { b.hidden = state.status !== Na__LeSpec__STATUS_FAILED || state.syncing; });
         each('sync',      (b) => { b.disabled = !state.canSync || !state.dirty; b.classList.toggle('na-le-btn--primary', state.dirty && state.canSync); });
         each('link-all',  (b) => { b.hidden = matching === 0; b.textContent = Na__LeCfg__FormatLabel('SpecLinkAll', 'Link matching bubbles ({count})', { count : matching }); });

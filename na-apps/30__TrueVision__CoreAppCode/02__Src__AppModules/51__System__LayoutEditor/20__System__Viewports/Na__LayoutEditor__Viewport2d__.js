@@ -67,6 +67,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.11.0 (TrueVision)
+// - The viewport cache. Park and Restore (the Frame unit) are re-exported for
+//   the sheet surface, which keeps a sheet's frames and states while another
+//   sheet is shown. Linework that finishes projecting while its sheet is parked
+//   is painted into the parked frame rather than dropped. Release takes the
+//   frame body and leaves alone a state that belongs to another sheet's frame
+//   of the same viewport id. RenderForExport is unchanged: the PDF's underlay
+//   is always a fresh render at the export level, never anything cached here.
+//
 // 15-Sep-2026 - Version 1.10.0
 // - Split into Na__LayoutEditor__Viewport2d__Window__.js,
 //   Na__LayoutEditor__Viewport2d__Frame__.js,
@@ -191,6 +200,8 @@
         Na__LeVp2d__ScheduleUnderlay,
         Na__LeVp2d__ShowProgress,
         Na__LeVp2d__HideProgress,
+        Na__LeVp2d__Park,
+        Na__LeVp2d__Restore,
         Na__LeVp2d__SetInteracting
     } from './Na__LayoutEditor__Viewport2d__Frame__.js';
     import {
@@ -334,7 +345,7 @@
                     Na__LeVp2d__ShowProgress(state, '');
                     Na__LeVp2d__EnsureLinework(described.definition, (phase) => Na__LeVp2d__ShowProgress(state, phase), false, modelSource).then((loaded) => {
                         Na__LeVp2d__HideProgress(state);
-                        if (!loaded || Na__LeVp2d__States.get(viewport.Viewport__Id) !== state || !state.lastArgs) return;
+                        if (!loaded || (!state.parked && Na__LeVp2d__States.get(viewport.Viewport__Id) !== state) || !state.lastArgs) return;   // <-- Parked meanwhile: painted all the same, ready for when its sheet is shown
                         Na__LeVp2d__PaintLinework(state, state.lastArgs.viewport, cacheKey, loaded, state.lastArgs.ppm);
                         state.paintedFp = modelFp;
                     });
@@ -375,9 +386,12 @@
 
     // FUNCTION | Drop a Viewport's State
     // ------------------------------------------------------------
-    function Na__LeVp2d__Release(viewportId) {
+    // body, when given, is the frame body being let go: viewport ids repeat on
+    // every sheet, so a state held for another sheet's frame is left alone.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__Release(viewportId, body) {
         const state = Na__LeVp2d__States.get(viewportId);
-        if (!state) return;
+        if (!state || (body && state.body !== body)) return;
         if (state.timer) window.clearTimeout(state.timer);
         Na__LeVp2d__HideProgress(state);
         Na__LeVp2d__States.delete(viewportId);
@@ -488,6 +502,8 @@
         Na__LeVp2d__StrokeRules,
         Na__LeVp2d__Fill,
         Na__LeVp2d__Release,
+        Na__LeVp2d__Park,
+        Na__LeVp2d__Restore,
         Na__LeVp2d__SetInteracting,
         Na__LeVp2d__RenderForExport,
         Na__LeVp2d__ForceRender,

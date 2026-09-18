@@ -96,6 +96,54 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8613
+    },
+    {
+      "name": "tv-leaderclip",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8620",
+        "--directory",
+        "D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-apps/30__TrueVision__CoreAppCode"
+      ],
+      "port": 8620
+    },
+    {
+      "name": "tv-webviewer",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8621",
+        "--directory",
+        "D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb"
+      ],
+      "port": 8621
+    },
+    {
+      "name": "vv-leaderclip",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8623",
+        "--directory",
+        "D:/10_CoreLib__ValeCodebase/WebApps/ValeVision3D"
+      ],
+      "port": 8623
+    },
+    {
+      "name": "tv-webviewer-b",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8622",
+        "--directory",
+        "D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb"
+      ],
+      "port": 8622
     }
   ]
 }

@@ -42,6 +42,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - MemberBounds reads a leader's box too (Na__LeMarkup__LeaderBounds), so
+//   Na__LeGroup__ItemsBounds works for a clipboard "Set" that holds one
+//   (Na__LayoutEditor__ItemClipboard__). Leaders still are not a groupable
+//   kind - Na__LeGroup__KINDS is unchanged, so Ctrl+G still leaves them out.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Group and ungroup for vectors and text (and nested groups), member-to-
 //   group hit resolve, box-select remap, bounds, expand-for-edit, and the
@@ -66,10 +72,11 @@
         Na__LeModel__InsertGroup,
         Na__LeModel__DeleteGroup,
         Na__LeModel__GetShapeById,
-        Na__LeModel__GetAnnotationById
+        Na__LeModel__GetAnnotationById,
+        Na__LeModel__GetLeaderById
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeShapeGeo__Bounds } from './Na__LayoutEditor__ShapeGeometry__.js';
-    import { Na__LeMarkup__AnnotationBounds } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__AnnotationBounds, Na__LeMarkup__LeaderBounds } from './Na__LayoutEditor__MarkupBridge__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -240,6 +247,11 @@
 
     // HELPER FUNCTION | The Paper Box of One Member
     // ------------------------------------------------------------
+    // A leader is not a groupable kind (Na__LeGroup__KINDS leaves it out, so
+    // Ctrl+G never takes it) but it is still a clipboard "Set" member
+    // (Na__LayoutEditor__ItemClipboard__), which reads its box through this
+    // same helper to place a copy.
+    // ------------------------------------------------------------
     function Na__LeGroup__MemberBounds(sheet, member) {
         if (!member) return null;
         if (member.kind === 'shape') {
@@ -256,6 +268,10 @@
             const maxX = Math.max(box.X + box.WidthMm, item.Annotation__LeaderXMm);
             const maxY = Math.max(box.Y + box.HeightMm, item.Annotation__LeaderYMm);
             return { X : minX, Y : minY, WidthMm : maxX - minX, HeightMm : maxY - minY };
+        }
+        if (member.kind === 'leader') {
+            const leader = Na__LeModel__GetLeaderById(sheet, member.id);
+            return leader ? Na__LeMarkup__LeaderBounds(leader) : null;
         }
         if (member.kind === 'group') return Na__LeGroup__Bounds(sheet, member.id);
         return null;

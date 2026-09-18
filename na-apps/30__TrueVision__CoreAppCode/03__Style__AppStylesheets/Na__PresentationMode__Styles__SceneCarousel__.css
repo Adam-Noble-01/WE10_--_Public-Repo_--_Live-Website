@@ -201,7 +201,7 @@
        The carousel at the bottom fills the vacated area.                     */
     body.na-presentation-mode-active .na-nav-toolbar {
         bottom                             : auto;
-        top                                : calc(var(--Vale_HeaderHeight, 60px) + 14px);  /* below header */
+        top                                : calc(var(--Vale_HeaderHeight, 60px) + var(--Vale_LayoutTabStripHeight, 0px) + 14px);  /* <-- Below the header AND the drawing tabs; the strip publishes 0px when it is not shown */
         left                               : 50%;
         transform                          : translateX(-50%);
     }

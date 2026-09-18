@@ -40,6 +40,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.13.0
+// - BuildSheetPrimitives takes an optional options object, passed straight
+//   through to each leader's Push. The interactive sheet surface is the only
+//   caller that sets showBrokenHalos, so the red halo round a bubble whose
+//   note was deleted (Na__LayoutEditor__LeaderGeometry__) never reaches a PDF
+//   or an SVG export - neither passes options at all.
+//
 // 17-Sep-2026 - Version 1.12.0
 // - BuildItemPrimitives: the same drawing BuildSheetPrimitives makes of a whole
 //   sheet, for a named handful of items and without the selection highlights.
@@ -657,8 +664,11 @@
     // ------------------------------------------------------------
     // selection: { kind, id }, an array of them, or null; the highlights are
     // drawn last, a box round each selected item.
+    // options: passed straight through to a leader's Push - the interactive
+    // surface opts into { showBrokenHalos : true } and nothing else does, so
+    // a PDF or an SVG export draws exactly what it always drew.
     // ------------------------------------------------------------
-    function Na__LeMarkup__BuildSheetPrimitives(sheet, layout, selection) {
+    function Na__LeMarkup__BuildSheetPrimitives(sheet, layout, selection, options) {
         const list = [];
         if (!sheet) return list;
         const textSetup = Na__LeCfg__GetTextSetup();
@@ -711,7 +721,7 @@
         // masks the drawing it is laid on
         (sheet.Sheet__Leaders || []).forEach((leader) => {
             if (!Na__LeModel__IsLayerVisible(sheet, leader.Leader__LayerId)) return;
-            const layout = Na__LeLeadGeo__Push(list, leader);
+            const layout = Na__LeLeadGeo__Push(list, leader, options);
             if (isChosen('leader', leader.Leader__Id)) highlights.push(Na__LeLeadGeo__Bounds(leader, layout));
         });
 

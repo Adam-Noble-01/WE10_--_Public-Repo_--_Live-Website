@@ -52,6 +52,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.7.0 (TrueVision)
+// - The viewport cache. Park lifts a viewport's state out of the map while its
+//   sheet is off screen and Restore puts it back (the sheet surface keeps it
+//   beside the sheet's detached frames), so coming back to a sheet finds the
+//   picture and its key as they were and renders nothing. A parked state books
+//   no render, and one still queued for it is skipped (Render3d's stillWanted).
+// - THE PDF ALWAYS RENDERS. RenderForExport no longer hands back a picture that
+//   is already on screen or already stored, however large: whenever the
+//   renderer is there it renders afresh at the export level, so no cache of any
+//   kind can stand between the model and the printed page. The web build, which
+//   has no renderer, still places the stored picture - that is all it has.
+// - Viewport ids repeat on every sheet, and the state map is keyed by them. The
+//   bake, the export and the scene rename looked a state up by id alone and
+//   could be handed the frame of the SAME id on the sheet on screen, then paint
+//   another sheet's picture into it. LiveState checks the sheet as well.
+//
 // 14-Sep-2026 - Version 1.6.0 (TrueVision)
 // - Zoom. The picture is drawn at Viewport__ImageMm times Viewport__ImageZoom.
 //   A frame that is not the whole picture renders only the window it shows,
@@ -303,25 +319,6 @@
     }
     // ------------------------------------------------------------
 
-
-    // HELPER FUNCTION | Was a Stored Picture Drawn With Enough Samples
-    // ------------------------------------------------------------
-    // WIDTH IS NOT QUALITY, and for the PDF the difference matters. The export
-    // profile is High - 20 pixels per paper millimetre and SIXTEEN samples -
-    // and it does not scale with the device pixel ratio. The working profile
-    // does: Medium is 12 pixels per millimetre and FOUR samples, which on a 2x
-    // screen renders at 24 and so passes the width test comfortably. Judged on
-    // width alone, the PDF would then reuse that four-sample picture and print
-    // a staircase on every shallow eaves, which is precisely what the sampling
-    // exists to prevent. A record written before this key existed reads as
-    // unknown and is re-rendered once.
-    // ------------------------------------------------------------
-    function Na__LeVp3d__SampledEnough(storedSamples, wantedSamples) {
-        if (!(wantedSamples > 1)) return true;                                     // <-- Nothing was asked for; anything will do
-        return Number.isFinite(storedSamples) && storedSamples >= wantedSamples;
-    }
-    // ------------------------------------------------------------
-
 // endregion -------------------------------------------------------------------
 
 
@@ -344,9 +341,24 @@
         const empty = document.createElement('div');
         empty.className = 'na-le-frame__empty';
         body.appendChild(empty);
-        state = { body : body, img : img, empty : empty, key : null, px : null, dataUrl : null, win : null, triedAsset : null, timer : null, inFlight : false, lastArgs : null };   // <-- win: the window the picture held was rendered for; null is the whole picture
+        state = { body : body, img : img, empty : empty, key : null, px : null, dataUrl : null, win : null, triedAsset : null, timer : null, inFlight : false, parked : false, lastArgs : null };   // <-- win: the window the picture held was rendered for; null is the whole picture
         Na__LeVp3d__States.set(viewportId, state);
         return state;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The State of a Viewport on the Sheet on Screen, or Null
+    // ------------------------------------------------------------
+    // The map is keyed by viewport id and every sheet numbers its viewports
+    // from one, so an id alone can name the frame of ANOTHER sheet - the one on
+    // screen - when the caller is walking the whole set (a bake, a PDF, a scene
+    // rename). Only a state last filled for this very sheet is this viewport's.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__LiveState(sheet, viewportId) {
+        const state = Na__LeVp3d__States.get(viewportId);
+        if (!state || !state.lastArgs || !state.lastArgs.sheet || !sheet) return null;
+        return state.lastArgs.sheet.Sheet__Id === sheet.Sheet__Id ? state : null;
     }
     // ------------------------------------------------------------
 
@@ -383,14 +395,18 @@
     // A refused upload still hands back a result object - TrueVision's upload
     // returns r2Success false where ValeVision's throws - so only r2Success may
     // stamp the record. The picture stays on screen either way.
+    //
+    // stillWanted: optional, handed to the render queue. Only the debounced
+    // screen render passes it; a forced render, a bake and the PDF always draw.
     // ------------------------------------------------------------
-    async function Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile) {
+    async function Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile, stillWanted) {
         const px = Na__LeVp3d__PixelSize(viewport, profile);
         const view = Na__LeVp3d__Window(viewport);                                 // <-- What the frame shows of the picture (null: all of it), read with the key, before the wait
         const renderId = Na__LeSource__Resolve(viewport).renderId;                 // <-- The design phase drawn; null is the live model
         state.inFlight = true;
+        state.renderOk = false;                                                    // <-- True once THIS render's picture is held; the PDF reads it
         try {
-            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, { modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage') }, renderId, view);
+            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, { modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage') }, renderId, view, stillWanted);
             if (!result) return false;
             const blob    = await Na__LeAssets__CanvasToBlob(result.canvas, 'image/webp', 0.9);
             const dataUrl = blob ? await Na__LeAssets__BlobToDataUrl(blob) : result.canvas.toDataURL('image/png');
@@ -398,6 +414,7 @@
             state.img.src = dataUrl; state.img.hidden = false;
             state.key = key; state.px = px; state.dataUrl = dataUrl; state.modelFp = Na__LeSnap__GetModelFingerprint(renderId);
             state.win = view;
+            state.renderOk = true;
             Na__LeVp3d__Place(state);                                              // <-- Where this picture belongs in the frame as it stands now
             if (blob && sheet && Na__LeAssets__CanUpload()) {
                 const path = Na__LeAssets__SnapshotPath(sheet.Sheet__Id, viewport.Viewport__Id, key);
@@ -418,6 +435,8 @@
     // ------------------------------------------------------------
     function Na__LeVp3d__Schedule(state, viewportId) {
         if (state.timer) window.clearTimeout(state.timer);
+        state.timer = null;
+        if (state.parked) return;                                                 // <-- Its sheet is not on screen: Fill books the render when it is shown again
         state.timer = window.setTimeout(async () => {
             state.timer = null;
             // NOT NOW MEANS LATER. See the note on the 2D scheduler: returning
@@ -442,7 +461,7 @@
                 state.inFlight = true;
                 const dataUrl = await Na__LeAssets__Load(slot.Asset__Path);
                 state.inFlight = false;
-                if (Na__LeVp3d__States.get(viewportId) !== state) return;
+                if (!state.parked && Na__LeVp3d__States.get(viewportId) !== state) return;   // <-- Released. A parked state keeps the picture it was already fetching
                 if (dataUrl) {
                     state.img.src = dataUrl; state.img.hidden = false;
                     state.key = key; state.dataUrl = dataUrl; state.px = { w : slot.Asset__PixelWidth, h : Math.round(slot.Asset__PixelWidth * (wanted.h / wanted.w)), samples : slot.Asset__Samples };
@@ -453,7 +472,8 @@
                 }
             }
             if (!Na__LeSnap__IsReady()) return;
-            await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile);
+            if (state.parked) return;                                             // <-- Left while the stored picture was looked for
+            await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile, () => !state.parked);   // <-- Still queued when its sheet is left: skipped
         }, Na__LeVp3d__RENDER_DELAY_MS);
     }
     // ------------------------------------------------------------
@@ -529,11 +549,36 @@
 
     // FUNCTION | Drop a Viewport's State
     // ------------------------------------------------------------
-    function Na__LeVp3d__Release(viewportId) {
+    // body, when given, is the frame body being let go: viewport ids repeat on
+    // every sheet, so a state held for another sheet's frame is left alone.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__Release(viewportId, body) {
         const state = Na__LeVp3d__States.get(viewportId);
-        if (!state) return;
+        if (!state || (body && state.body !== body)) return;
         if (state.timer) window.clearTimeout(state.timer);
         Na__LeVp3d__States.delete(viewportId);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Lift a Viewport's State Out While Its Sheet Is Off Screen, and Put It Back
+    // ------------------------------------------------------------
+    // The sheet surface's viewport cache: see the same pair in the 2D Frame
+    // unit. The state goes to the surface whole - picture, key, pixel size -
+    // and comes back before Fill runs, which then finds the key it already has.
+    // ------------------------------------------------------------
+    function Na__LeVp3d__Park(viewportId, body) {
+        const state = Na__LeVp3d__States.get(viewportId);
+        if (!state || (body && state.body !== body)) return null;
+        if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+        state.parked = true;
+        Na__LeVp3d__States.delete(viewportId);
+        return state;
+    }
+    function Na__LeVp3d__Restore(viewportId, state) {
+        if (!state) return;
+        state.parked = false;
+        Na__LeVp3d__States.set(viewportId, state);
     }
     // ------------------------------------------------------------
 
@@ -591,7 +636,7 @@
                 // LIVE FRAME | What is on screen is the picture the new key
                 // describes, so carry its state across rather than let the
                 // frame re-fetch the image it is already showing.
-                const state = Na__LeVp3d__States.get(viewport.Viewport__Id);
+                const state = Na__LeVp3d__LiveState(sheet, viewport.Viewport__Id);   // <-- This sheet's frame, not the same id on the sheet on screen
                 if (state && state.key) { state.key = key; state.triedAsset = key; }
 
                 restamped++;
@@ -618,7 +663,7 @@
         if (!force && slot && slot.Asset__Fingerprint === key && Na__LeVp3d__WideEnough(slot.Asset__PixelWidth, wanted.w)) return 'skipped';
         const state = { img : document.createElement('img'), key : null, px : null, dataUrl : null, inFlight : false };
         const stored = await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, Na__LeVp3d__ExportProfile());
-        const live = Na__LeVp3d__States.get(viewport.Viewport__Id);
+        const live = Na__LeVp3d__LiveState(sheet, viewport.Viewport__Id);
         if (live && state.dataUrl) { live.img.src = state.dataUrl; live.img.hidden = false; live.key = key; live.px = state.px; live.dataUrl = state.dataUrl; live.modelFp = state.modelFp; live.win = state.win; Na__LeVp3d__Place(live); }
         return stored ? 'baked' : 'failed';                                        // <-- This render's upload, not the record: a same-key record from before read as baked
     }
@@ -634,22 +679,21 @@
         const key     = await Na__LeVp3d__FingerprintWhenReady(viewport, scene);
         if (key === null) return null;                                            // <-- Its design phase could not be loaded
         const profile = Na__LeVp3d__ExportProfile();
-        const px      = Na__LeVp3d__PixelSize(viewport, profile);
-        const live    = Na__LeVp3d__States.get(viewport.Viewport__Id);
-        // REUSE ONLY WHAT IS BOTH BIG ENOUGH AND SAMPLED ENOUGH. See
-        // Na__LeVp3d__SampledEnough: a working-level picture on a dense screen
-        // passes the width test while carrying a quarter of the samples.
-        if (live && live.key === key && live.dataUrl
-            && Na__LeVp3d__WideEnough(live.px ? live.px.w : null, px.w)
-            && Na__LeVp3d__SampledEnough(live.px ? live.px.samples : null, px.samples)) return Na__LeAssets__ToPngDataUrl(live.dataUrl);   // <-- An export-grade render is already on screen
+        const live    = Na__LeVp3d__LiveState(sheet, viewport.Viewport__Id);
         const slot = viewport.Viewport__SnapshotAsset;
         const stored = slot && slot.Asset__Fingerprint === key;
         if (!Na__LeSnap__IsReady()) return stored ? Na__LeAssets__ToPngDataUrl(await Na__LeAssets__Load(slot.Asset__Path)) : null;   // <-- The web build has only the stored picture
-        if (stored && Na__LeVp3d__WideEnough(slot.Asset__PixelWidth, px.w)
-                   && Na__LeVp3d__SampledEnough(slot.Asset__Samples, px.samples)) return Na__LeAssets__ToPngDataUrl(await Na__LeAssets__Load(slot.Asset__Path));
+        // THE RENDERER ALWAYS RUNS FOR THE PDF. Until 1.7.0 a picture already on
+        // screen, or already stored, was handed back when it was wide enough and
+        // sampled enough. The fingerprint that decided "same picture" is a short
+        // hash over category names and triangle counts, which is good enough to
+        // save the screen a render and not good enough to vouch for a printed
+        // page. Every cache in the editor is for the screen; the PDF draws from
+        // the model, at the export level, every time.
         const state = live || { img : document.createElement('img'), key : null, px : null, dataUrl : null, inFlight : false };
         await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile);   // <-- Export size; the stored asset is refreshed with it
-        return state.dataUrl ? Na__LeAssets__ToPngDataUrl(state.dataUrl) : null;
+        if (!state.renderOk || !state.dataUrl) return null;                           // <-- The render failed: the screen's working picture is never printed in its place
+        return Na__LeAssets__ToPngDataUrl(state.dataUrl);
     }
     // ------------------------------------------------------------
 
@@ -669,6 +713,8 @@
         Na__LeVp3d__RestampForScene,
         Na__LeVp3d__Fill,
         Na__LeVp3d__Release,
+        Na__LeVp3d__Park,
+        Na__LeVp3d__Restore,
         Na__LeVp3d__SetInteracting,
         Na__LeVp3d__RenderForExport,
         Na__LeVp3d__ForceRender,

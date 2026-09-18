@@ -60,6 +60,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.2.0
+// - SetBrokenResolver and IsBroken: a specification bubble linked to a note
+//   that no longer exists (Leader__SpecNoteId pointing at nothing) can be
+//   asked about, the same way LinkedCode asks for its code. Push draws a red
+//   halo round it when the caller opts in (options.showBrokenHalos) - an
+//   editor diagnostic, never drawn for a PDF or an SVG export since neither
+//   passes the option. Na__LayoutEditor__SpecLinks__ registers the resolver.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - SetCodeResolver: a specification bubble linked to a project specification
 //   note (Leader__SpecNoteId) shows the code the resolver gives for it, so a
@@ -114,6 +122,13 @@
     const Na__LeLeadGeo__EPSILON       = 1e-6;
     // ------------------------------------------------------------
 
+    // MODULE CONSTANTS | The Broken-Link Halo (an editor diagnostic, never exported)
+    // ------------------------------------------------------------
+    const Na__LeLeadGeo__BROKEN_HALO_COLOUR = '#d92d20';
+    const Na__LeLeadGeo__BROKEN_HALO_GAP_MM = 1.1;
+    const Na__LeLeadGeo__BROKEN_HALO_PT     = 1.6;
+    // ------------------------------------------------------------
+
     // MODULE VARIABLES | The Specification Code Resolver
     // ------------------------------------------------------------
     // (leader) => the code a linked bubble shows, or null to show its own text.
@@ -122,6 +137,16 @@
     // Leader__Text exactly as before.
     // ------------------------------------------------------------
     let Na__LeLeadGeo__CodeResolver = null;
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | The Broken-Link Resolver
+    // ------------------------------------------------------------
+    // (leader) => true when a bubble is linked to a specification note that no
+    // longer exists. Registered the same way as the code resolver, and for the
+    // same reason: nothing here reads the specification. With nothing
+    // registered a bubble never reads as broken.
+    // ------------------------------------------------------------
+    let Na__LeLeadGeo__BrokenResolver = null;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -231,6 +256,30 @@
     // ------------------------------------------------------------
     function Na__LeLeadGeo__SetCodeResolver(resolver) {
         Na__LeLeadGeo__CodeResolver = (typeof resolver === 'function') ? resolver : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register the Broken-Link Resolver (a non-function clears it)
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__SetBrokenResolver(resolver) {
+        Na__LeLeadGeo__BrokenResolver = (typeof resolver === 'function') ? resolver : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is a Bubble Linked to a Specification Note That No Longer Exists
+    // ------------------------------------------------------------
+    // Only a bubble asks, and only when a resolver is registered. A resolver
+    // that throws or answers nothing usable reads as not broken.
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__IsBroken(leader) {
+        if (!leader || leader.Leader__Type !== Na__LeLeadGeo__TYPE_BUBBLE || !Na__LeLeadGeo__BrokenResolver) return false;
+        try {
+            return Na__LeLeadGeo__BrokenResolver(leader) === true;
+        } catch (e) {
+            return false;
+        }
     }
     // ------------------------------------------------------------
 
@@ -405,14 +454,18 @@
 // REGION | Primitives, Bounds and Hit Testing
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | Push a Leader as Primitives: Fill, Line, Endpoint, Bubble Edge, Text
+    // FUNCTION | Push a Leader as Primitives: Fill, Line, Endpoint, Bubble Edge, Halo, Text
     // ------------------------------------------------------------
     // Every stroke - the line, the endpoint and the bubble edge - takes the
     // line colour and the line opacity; the fill takes its own. Returns the
     // layout it drew, so a caller that also wants the bounds does not lay the
     // leader out twice.
+    // options.showBrokenHalos: draw a red ring outside a bubble whose linked
+    // note has gone (Na__LeLeadGeo__IsBroken). An editor diagnostic only - the
+    // caller opts in, so it never reaches a PDF or an SVG export, which pass
+    // no options and get exactly what they always drew.
     // ------------------------------------------------------------
-    function Na__LeLeadGeo__Push(list, leader) {
+    function Na__LeLeadGeo__Push(list, leader, options) {
         const setup   = Na__LeCfg__GetLeaderSetup();
         const layout  = Na__LeLeadGeo__Layout(leader);
         const head    = layout.head;
@@ -450,6 +503,13 @@
         if (bubble) {
             const edgeMm = Na__LeLeadGeo__StrokeMm(leader.Leader__BubbleEdgePt);
             if (edgeMm > 0) Na__LeChrome__PushPolyline(list, outline, ink, edgeMm, null, true, null, { strokeOpacity : inkA });
+        }
+
+        // BROKEN HALO | A red ring standing clear of the bubble, only when the
+        // caller opts in and the bubble's linked note has gone
+        if (bubble && options && options.showBrokenHalos && Na__LeLeadGeo__IsBroken(leader)) {
+            const halo = Na__LeLeadGeo__Circle(head.centre.x, head.centre.y, head.radius + Na__LeLeadGeo__BROKEN_HALO_GAP_MM);
+            Na__LeChrome__PushPolyline(list, halo, Na__LeLeadGeo__BROKEN_HALO_COLOUR, Na__LeCfg__PtToMm(Na__LeLeadGeo__BROKEN_HALO_PT), null, true, null, { strokeOpacity : 0.9 });
         }
 
         // TEXT | Last, over everything else
@@ -544,6 +604,8 @@
         Na__LeLeadGeo__Side,
         Na__LeLeadGeo__Lines,
         Na__LeLeadGeo__SetCodeResolver,
+        Na__LeLeadGeo__SetBrokenResolver,
+        Na__LeLeadGeo__IsBroken,
         Na__LeLeadGeo__HasText,
         Na__LeLeadGeo__Circle,
         Na__LeLeadGeo__EndpointRadius,

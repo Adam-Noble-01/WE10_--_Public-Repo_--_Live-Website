@@ -1,9 +1,9 @@
 ===============================================================================
  TrueVision3D GLB Builder - Export Log
 ===============================================================================
- Model      : PS01__ProposedModel__PdVersion__3.0.0__.skp
- Export dir : D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02
- Timestamp  : 2026-09-17_214016
+ Model      : PS01__ProposedModel__PdVersion__4.1.0__.skp
+ Export dir : E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02
+ Timestamp  : 2026-09-18_091522
  Console    : suppressed (OFF)
 -------------------------------------------------------------------------------
   Project prefix detected: 'PS01__'
@@ -115,6 +115,10 @@
   PS01__TrueVision__MainBuildingModel__ExistingWindows__LineworkModel__.glb - 1 top-level entities
   PS01__TrueVision__MainBuildingModel__ProposedWindows__MeshModel__.glb - 3 top-level entities
   PS01__TrueVision__MainBuildingModel__ProposedWindows__LineworkModel__.glb - 3 top-level entities
+  --- Linetype linework ---
+  PS01__TrueVision__Linetype__DoorSwings__LineworkModel__.glb - 50 edges, line type 'solid' (02__Linetype__DoorSwings)
+  PS01__TrueVision__Linetype__DashedLines__LineworkModel__.glb - 27 edges, line type 'dashed' (02__Linetype__DashedLines)
+  PS01__TrueVision__Linetype__ClearanceLines__LineworkModel__.glb - 17 edges, line type 'dashed-fine' (02__ClearanceLines__IndicatorLines)
 === End Export Plan ===
 
 Exporting series: PS01__TrueVision__LandscapeEnvironment...
@@ -128,7 +132,7 @@ Exporting series: PS01__TrueVision__LandscapeEnvironment...
     [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 07__Landscape::Default (24 verts, 12 tris)
     Total meshes built: 1
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb (2264 bytes, BIN: 840 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb (2264 bytes, BIN: 840 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -152,7 +156,7 @@ Exporting series: PS01__01__OrbitHelperCube...
     [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 01__OrbitHelperCube::Default (24 verts, 12 tris)
     Total meshes built: 1
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__01__OrbitHelperCube__MeshModel__.glb (2288 bytes, BIN: 840 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__01__OrbitHelperCube__MeshModel__.glb (2288 bytes, BIN: 840 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -167,32 +171,32 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
 Exporting series: PS01__TrueVision__MainBuildingModel__ExistingRoofs...
   Using virtual flattening for non-destructive world-space export...
     Traversing: Group_36_ID29325579...
-    Traversal complete: 1 entities -> 1 buckets, 506 vertices, 310 triangles
+    Traversal complete: 1 entities -> 1 buckets, 514 vertices, 314 triangles
     [TextureEngine] State reset
     [MaterialEngine] indexed-only mode: 0 material(s) exported
-    Building mesh: 13__ExistingBuilding__Roofs::Default (506 verts, 310 tris)
+    Building mesh: 13__ExistingBuilding__Roofs::Default (514 verts, 314 tris)
     Total meshes built: 1
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb (19516 bytes, BIN: 18052 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb (19796 bytes, BIN: 18332 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 19516 bytes
+    File size: 19796 bytes
     Chunk 1: "JSON", Length: 1436 bytes
-    Chunk 2: "BIN\x00", Length: 18052 bytes
+    Chunk 2: "BIN\x00", Length: 18332 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
   Using virtual flattening for linework export (same transforms as mesh)...
     Traversing linework: Group_36_ID29325579...
-    Linework traversal complete: 1 entities -> 251 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb (14816 bytes, BIN: 14056 bytes)
+    Linework traversal complete: 1 entities -> 262 edges
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb (15432 bytes, BIN: 14672 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 14816 bytes
+    File size: 15432 bytes
     Chunk 1: "JSON", Length: 732 bytes
-    Chunk 2: "BIN\x00", Length: 14056 bytes
+    Chunk 2: "BIN\x00", Length: 14672 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
 
@@ -205,7 +209,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ExistingWalls...
     [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 11__ExistingBuilding__Walls::Default (2706 verts, 1508 tris)
     Total meshes built: 1
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWalls__MeshModel__.glb (97132 bytes, BIN: 95640 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWalls__MeshModel__.glb (97132 bytes, BIN: 95640 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -219,7 +223,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
     Traversing linework: Group_18_ID28785665...
     Traversing linework: OuterShell_ID29325946...
     Linework traversal complete: 2 entities -> 330 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb (19256 bytes, BIN: 18480 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb (19256 bytes, BIN: 18480 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -286,7 +290,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ProposedDoors...
         [DoorHandler/Mesh] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
       [DoorHandler/Mesh] Door assembly complete: ADR004__InteriorDoor__
     [DoorHandler] Door assembly export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb (364472 bytes, BIN: 344056 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb (364472 bytes, BIN: 344056 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -346,7 +350,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
         [DoorHandler/Linework] SKIP  child='MOD001__ROT__90-Deg__DoorPanel' tag='Na__Door__Open' reason=open_state_preview_always_excluded
       [DoorHandler/Linework] Door assembly complete: ADR004__InteriorDoor__
     [DoorHandler/Linework] Door assembly linework export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb (64248 bytes, BIN: 53872 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedDoors__LineworkModel__.glb (64248 bytes, BIN: 53872 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -365,7 +369,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ProposedFloors...
     [MaterialEngine] indexed-only mode: 0 material(s) exported
     Building mesh: 22__ProposedBuilding__Floors::Default (116 verts, 72 tris)
     Total meshes built: 1
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFloors__MeshModel__.glb (5568 bytes, BIN: 4144 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFloors__MeshModel__.glb (5568 bytes, BIN: 4144 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -378,7 +382,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
   Using virtual flattening for linework export (same transforms as mesh)...
     Traversing linework: Group_20_ID29700219...
     Linework traversal complete: 1 entities -> 54 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFloors__LineworkModel__.glb (3792 bytes, BIN: 3024 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFloors__LineworkModel__.glb (3792 bytes, BIN: 3024 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -394,68 +398,66 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ProposedWalls...
     Traversing: 01__DrawnVolume_ID29465806...
     Traversing: Group_21_ID29701027...
     Traversing: 01__DrawnVolume_ID29325797...
-    Traversal complete: 3 entities -> 1 buckets, 345 vertices, 217 triangles
+    Traversal complete: 3 entities -> 1 buckets, 326 vertices, 202 triangles
     [TextureEngine] State reset
     [MaterialEngine] indexed-only mode: 0 material(s) exported
-    Building mesh: 21__ProposedBuilding__Walls::Default (345 verts, 217 tris)
+    Building mesh: 21__ProposedBuilding__Walls::Default (326 verts, 202 tris)
     Total meshes built: 1
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb (13784 bytes, BIN: 12344 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb (13096 bytes, BIN: 11644 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 13784 bytes
-    Chunk 1: "JSON", Length: 1412 bytes
-    Chunk 2: "BIN\x00", Length: 12344 bytes
+    File size: 13096 bytes
+    Chunk 1: "JSON", Length: 1424 bytes
+    Chunk 2: "BIN\x00", Length: 11644 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
   Using virtual flattening for linework export (same transforms as mesh)...
     Traversing linework: 01__DrawnVolume_ID29465806...
     Traversing linework: Group_21_ID29701027...
     Traversing linework: 01__DrawnVolume_ID29325797...
-    Linework traversal complete: 3 entities -> 167 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__LineworkModel__.glb (10132 bytes, BIN: 9352 bytes)
+    Linework traversal complete: 3 entities -> 155 edges
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__LineworkModel__.glb (9472 bytes, BIN: 8680 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 10132 bytes
-    Chunk 1: "JSON", Length: 752 bytes
-    Chunk 2: "BIN\x00", Length: 9352 bytes
+    File size: 9472 bytes
+    Chunk 1: "JSON", Length: 764 bytes
+    Chunk 2: "BIN\x00", Length: 8680 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
 
 Exporting series: PS01__TrueVision__MainBuildingModel__ProposedRoofs...
   Using virtual flattening for non-destructive world-space export...
     Traversing: 01__DrawnVolume_ID29701251...
-    Traversal complete: 1 entities -> 2 buckets, 254 vertices, 166 triangles
+    Traversal complete: 1 entities -> 1 buckets, 42 vertices, 24 triangles
     [TextureEngine] State reset
-    [MaterialEngine] Enriched: MAT101__Glass__ClearDefault
-    [MaterialEngine] indexed-only mode: 1 material(s) exported
-    Building mesh: 23__ProposedBuilding__Roofs::MAT101__Glass__ClearDefault (72 verts, 36 tris)
-    Building mesh: 23__ProposedBuilding__Roofs::Default (182 verts, 130 tris)
-    Total meshes built: 2
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb (11964 bytes, BIN: 9124 bytes)
+    [MaterialEngine] indexed-only mode: 0 material(s) exported
+    Building mesh: 23__ProposedBuilding__Roofs::Default (42 verts, 24 tris)
+    Total meshes built: 1
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedRoofs__MeshModel__.glb (2928 bytes, BIN: 1488 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 11964 bytes
-    Chunk 1: "JSON", Length: 2812 bytes
-    Chunk 2: "BIN\x00", Length: 9124 bytes
+    File size: 2928 bytes
+    Chunk 1: "JSON", Length: 1412 bytes
+    Chunk 2: "BIN\x00", Length: 1488 bytes
   ✓ GLB validation passed
   ✓ Export complete (non-destructive, model unchanged)
   Using virtual flattening for linework export (same transforms as mesh)...
     Traversing linework: 01__DrawnVolume_ID29701251...
-    Linework traversal complete: 1 entities -> 140 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb (8572 bytes, BIN: 7840 bytes)
+    Linework traversal complete: 1 entities -> 21 edges
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedRoofs__LineworkModel__.glb (1920 bytes, BIN: 1176 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
     Version: 2 (should be 2)
-    File size: 8572 bytes
-    Chunk 1: "JSON", Length: 704 bytes
-    Chunk 2: "BIN\x00", Length: 7840 bytes
+    File size: 1920 bytes
+    Chunk 1: "JSON", Length: 716 bytes
+    Chunk 2: "BIN\x00", Length: 1176 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
 
@@ -504,7 +506,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ProposedFurniture...
       [Instancing] Built shared mesh: Group#1359 (15497 verts, 6044 tris)
       [Instancing] Group#1359: 1 mesh -> 2 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFurniture__MeshModel__.glb (13539400 bytes, BIN: 13521788 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFurniture__MeshModel__.glb (13539400 bytes, BIN: 13521788 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -554,7 +556,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
       [Instancing] Built shared linework: Group#1359 (142 edges)
       [Instancing/Linework] Group#1359: 2 nodes
     [Instancing/Linework] Instanced linework export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFurniture__LineworkModel__.glb (600268 bytes, BIN: 591584 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFurniture__LineworkModel__.glb (600268 bytes, BIN: 591584 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -583,7 +585,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ProposedFixtures...
     Building mesh: 27__ProposedBuilding__Fixtures::Default (4408 verts, 2774 tris)
     Building mesh: 27__ProposedBuilding__Fixtures::MAT140__Mirror__ClearDefault (48 verts, 28 tris)
     Total meshes built: 2
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFixtures__MeshModel__.glb (218576 bytes, BIN: 215396 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFixtures__MeshModel__.glb (218576 bytes, BIN: 215396 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -603,7 +605,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
     Traversing linework: Group_9_ID31974197...
     Traversing linework: Group_248_ID31964618...
     Linework traversal complete: 8 entities -> 2190 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFixtures__LineworkModel__.glb (123488 bytes, BIN: 122640 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedFixtures__LineworkModel__.glb (123488 bytes, BIN: 122640 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -638,7 +640,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor...
       [Instancing] Built shared mesh: 29_21__BedroomDecor__BedsideLamp__Var-01__Whitecard (13772 verts, 7156 tris)
       [Instancing] 29_21__BedroomDecor__BedsideLamp__Var-01__Whitecard: 1 mesh -> 2 nodes
     [Instancing] Instanced mesh export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb (2062400 bytes, BIN: 2056008 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__MeshModel__.glb (2062400 bytes, BIN: 2056008 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -666,7 +668,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
       [Instancing] Built shared linework: 29_21__BedroomDecor__BedsideLamp__Var-01__Whitecard (706 edges)
       [Instancing/Linework] 29_21__BedroomDecor__BedsideLamp__Var-01__Whitecard: 2 nodes
     [Instancing/Linework] Instanced linework export complete
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb (189828 bytes, BIN: 187768 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedInteriorDecor__LineworkModel__.glb (189828 bytes, BIN: 187768 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -687,7 +689,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ExistingWindows...
     Building mesh: 14__ExistingBuilding__Windows::Default (142 verts, 96 tris)
     Building mesh: 14__ExistingBuilding__Windows::MAT101__Glass__ClearDefault (48 verts, 24 tris)
     Total meshes built: 2
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWindows__MeshModel__.glb (9600 bytes, BIN: 6800 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWindows__MeshModel__.glb (9600 bytes, BIN: 6800 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -700,7 +702,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
   Using virtual flattening for linework export (same transforms as mesh)...
     Traversing linework: AWN007__Window___ID30567913...
     Linework traversal complete: 1 entities -> 96 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWindows__LineworkModel__.glb (6112 bytes, BIN: 5376 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWindows__LineworkModel__.glb (6112 bytes, BIN: 5376 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -723,7 +725,7 @@ Exporting series: PS01__TrueVision__MainBuildingModel__ProposedWindows...
     Building mesh: 24__ProposedBuilding__Windows::MAT101__Glass__ClearDefault (72 verts, 36 tris)
     Building mesh: 24__ProposedBuilding__Windows::Default (238 verts, 160 tris)
     Total meshes built: 2
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__MeshModel__.glb (13944 bytes, BIN: 11096 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__MeshModel__.glb (13944 bytes, BIN: 11096 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -738,7 +740,7 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
     Traversing linework: Group_24_ID30665281...
     Traversing linework: Group_69_ID32011066...
     Linework traversal complete: 3 entities -> 277 edges
-GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__LineworkModel__.glb (16260 bytes, BIN: 15512 bytes)
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__LineworkModel__.glb (16260 bytes, BIN: 15512 bytes)
 
   Validating GLB structure...
     Magic: glTF (should be 'glTF')
@@ -748,7 +750,45 @@ GLB file written: D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal/26-Pr
     Chunk 2: "BIN\x00", Length: 15512 bytes
   ✓ GLB validation passed
   ✓ Linework export complete
+
+=== Exporting Linetype Linework ===
+    01__ModelFlag__BuildingJoins__IndicatorLines: no linework
+    01__ModelFlag__ElementsForRemoval: no linework
+    01__ModelFlag__OverheadObjects__IndicatorLines: no linework
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__Linetype__DoorSwings__LineworkModel__.glb (3752 bytes, BIN: 2800 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 3752 bytes
+    Chunk 1: "JSON", Length: 924 bytes
+    Chunk 2: "BIN\x00", Length: 2800 bytes
+  ✓ GLB validation passed
+    OK PS01__TrueVision__Linetype__DoorSwings__LineworkModel__.glb - 50 edges, line type 'solid'
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__Linetype__DashedLines__LineworkModel__.glb (2568 bytes, BIN: 1512 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 2568 bytes
+    Chunk 1: "JSON", Length: 1028 bytes
+    Chunk 2: "BIN\x00", Length: 1512 bytes
+  ✓ GLB validation passed
+    OK PS01__TrueVision__Linetype__DashedLines__LineworkModel__.glb - 27 edges, line type 'dashed'
+    02__Linetype__CentreLines: no linework
+    02__Linetype__DottedLines: no linework
+GLB file written: E:/PS01__PD_DrawingsMod/TrueVision/PS02__PlanningVersions/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__Linetype__ClearanceLines__LineworkModel__.glb (1944 bytes, BIN: 952 bytes)
+
+  Validating GLB structure...
+    Magic: glTF (should be 'glTF')
+    Version: 2 (should be 2)
+    File size: 1944 bytes
+    Chunk 1: "JSON", Length: 964 bytes
+    Chunk 2: "BIN\x00", Length: 952 bytes
+  ✓ GLB validation passed
+    OK PS01__TrueVision__Linetype__ClearanceLines__LineworkModel__.glb - 17 edges, line type 'dashed-fine'
+=== 3 linetype file(s), 94 edges ===
       Cleaned up texture cache folder
 -------------------------------------------------------------------------------
- Export complete. Elapsed: 16.72s
+ Export complete. Elapsed: 10.39s
 ===============================================================================

@@ -44,6 +44,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 18-Sep-2026 - Version 1.1.0
+// - A run forgets the pipeline's collected models once, at its start
+//   (Na__PlPipe__ForgetCollections), so every viewport in it projects the model
+//   as it stands now and they share the one fresh read.
+//
 // 12-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -59,6 +64,7 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__GetViewports, Na__LeModel__GetViewportById } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeVp2d__ForceRender } from './Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__ForceRender } from './Na__LayoutEditor__Viewport3d__.js';
+    import { Na__PlPipe__ForgetCollections } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -131,6 +137,7 @@
         if (Na__LeForce__Run) return Na__LeForce__Run.promise;                    // <-- One run at a time; a second press joins the first
         if (!sheet || !viewports || viewports.length === 0) return Promise.resolve(0);
 
+        Na__PlPipe__ForgetCollections();                                          // <-- Once for the run: every viewport then projects the model as it is now, and they share the fresh read
         Na__LeForce__Run = { total : viewports.length, done : 0, promise : null };
         const promise = (async () => {
             let rendered = 0;

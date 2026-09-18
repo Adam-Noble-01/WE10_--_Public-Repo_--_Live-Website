@@ -37,7 +37,7 @@
 /* ----------------------------------------------------------------- */
 .na-dropdown-menu {
     position                           : fixed;
-    top                                : calc(var(--Vale_HeaderHeight) + 10px);
+    top                                : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight, 0px) + 10px);   /* <-- Below the header AND the drawing tabs */
     right                              : 20px;
     z-index                            : 1001;
     font-family                        : 'Open Sans', sans-serif;
@@ -93,7 +93,7 @@
 @media (max-width: 768px), (max-aspect-ratio: 19/20) {
     .na-dropdown-menu:not(.na-dropdown-menu--dev-localhost) {
         display                        : none;                    /* <-- Hidden until the hamburger summons it */
-        top                            : calc(var(--Vale_HeaderHeight) + 14px);  /* <-- Same row the nav toolbar occupies */
+        top                            : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight, 0px) + 14px);  /* <-- Same row the nav toolbar occupies, tabs included */
         right                          : 12px;
     }
 

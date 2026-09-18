@@ -27,7 +27,7 @@
     /* ------------------------------------------------------------ */
     .controls-instructions-panel {
         position                           : absolute;
-        top                                : calc(var(--Vale_HeaderHeight) + 20px);  /* <-- Position below header */
+        top                                : calc(var(--Vale_HeaderHeight) + var(--Vale_LayoutTabStripHeight, 0px) + 20px);  /* <-- Below the header AND the drawing tabs */
         right                              : 20px;
         background-color                   : rgba(23, 43, 58, 0.95);  /* <-- Vale brand blue with transparency */
         color                              : #ffffff;
