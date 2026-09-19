@@ -53,6 +53,7 @@ from urllib.parse import quote
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ProjectVision__DevLauncher__Shared__ as dev_launcher      # <-- Shared with the Project Admin dev server
 from ProjectVision__ProjectManager__Api__ import project_manager_api   # <-- Multi-project admin endpoints
+from ProjectVision__TrueVisionScrapbook__Api__ import truevision_scrapbook_api   # <-- TrueVision Layout Editor Custom Scrapbook files
 
 try:
     from flask import Flask, send_from_directory, jsonify, abort, request
@@ -189,6 +190,7 @@ CORS(app, resources={
 })
 
 app.register_blueprint(project_manager_api)                      # <-- /api/manager/... Project Manager tab
+app.register_blueprint(truevision_scrapbook_api)                 # <-- /api/truevision/scrapbook... Custom Scrapbook items
 
 # endregion -------------------------------------------------------------------
 

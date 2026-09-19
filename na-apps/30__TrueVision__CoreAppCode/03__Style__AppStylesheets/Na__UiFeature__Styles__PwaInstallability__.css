@@ -20,6 +20,11 @@
  *   hidden outright inside an already installed app.
  *
  * DEVELOPMENT LOG:
+ * 19-Sep-2026 - Version 1.1.0
+ * - The installed-app rule now lets the --notice card through, and that card
+ *   sits above the boot loading overlay. It tells a client their Home Screen
+ *   icon was made without its project link and how to replace it.
+ *
  * 27-Aug-2026 - Version 1.0.0
  * - Initial Release.
  *
@@ -420,10 +425,22 @@
 
     /* INSTALLED APP | Never offer an install from inside the installed app */
     /* ------------------------------------------------------------ */
+    /* The --notice card is the one exception: it is not an offer, it only
+     * ever appears inside an installed app, and it is the only thing standing
+     * between a client and an empty screen. See the installed-standalone
+     * handler.                                                              */
     @media (display-mode: standalone), (display-mode: minimal-ui), (display-mode: fullscreen), (display-mode: window-controls-overlay) {
-        .na-pwa-install {
+        .na-pwa-install:not(.na-pwa-install--notice) {
             display                        : none;
         }
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* NOTICE | Shown at boot, so it has to clear the loading overlay (9999) */
+    /* ------------------------------------------------------------ */
+    .na-pwa-install--notice {
+        z-index                            : 10000;
     }
     /* ------------------------------------------------------------ */
 

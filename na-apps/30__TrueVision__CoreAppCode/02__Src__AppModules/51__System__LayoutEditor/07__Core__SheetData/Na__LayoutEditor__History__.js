@@ -215,7 +215,7 @@
                     snapshot.Sheet__Name = sheet.Sheet__Name;
                     snapshot.Sheet__Order = sheet.Sheet__Order;
                     snapshot.Sheet__Fields = snapshot.Sheet__Fields || {};
-                    [ 'Title', 'DrawingNumber', 'Revision' ].forEach((key) => {
+                    [ 'Title', 'DrawingNumber', 'Phase', 'DocumentId', 'Revision' ].forEach((key) => {
                         const field = 'Sheet__Fields__' + key;
                         if (sheet.Sheet__Fields && sheet.Sheet__Fields[field] !== undefined) snapshot.Sheet__Fields[field] = sheet.Sheet__Fields[field];
                         else delete snapshot.Sheet__Fields[field];

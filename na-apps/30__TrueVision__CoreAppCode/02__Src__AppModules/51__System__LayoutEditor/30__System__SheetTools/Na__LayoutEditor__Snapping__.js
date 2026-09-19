@@ -255,6 +255,7 @@
     // midpoints of the two edges it drags along are skipped, otherwise the
     // point would snap to itself and chase the cursor. For a dimension, index
     // is 'start' or 'end'. With no index the whole item is skipped.
+    // A selection move passes an array of these exclusions for every member.
     // ------------------------------------------------------------
     function Na__LeOsnap__FindOnSheet(sheet, pointMm, radiusMm, exclude) {
         const setup = Na__LeCfg__GetSnappingSetup();
@@ -280,10 +281,11 @@
 
         // VECTORS | Every vertex, and the midpoint of every edge
         // ------------------------------------
-        const skipShape = (exclude && exclude.kind === 'shape') ? exclude : null;
+        const exclusions = Array.isArray(exclude) ? exclude : (exclude ? [ exclude ] : []);
         const shapes    = sheet.Sheet__Shapes || [];
         for (let s = 0; s < shapes.length; s++) {
             const shape = shapes[s];
+            const skipShape = exclusions.find((item) => item.kind === 'shape' && item.id === shape.Shape__Id);
             if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId)) continue;        // <-- A hidden layer offers nothing; a LOCKED one still does
             const own = !!skipShape && skipShape.id === shape.Shape__Id;
             if (own && !Number.isInteger(skipShape.index)) continue;
@@ -309,10 +311,10 @@
         // DIMENSIONS | The two points each one measures, so dimensions chain
         // ------------------------------------
         if (setup.endpoints) {
-            const skipDim = (exclude && exclude.kind === 'dimension') ? exclude : null;
             const dims    = sheet.Sheet__Dimensions || [];
             for (let k = 0; k < dims.length; k++) {
                 const dim = dims[k];
+                const skipDim = exclusions.find((item) => item.kind === 'dimension' && item.id === dim.Dimension__Id);
                 if (!Na__LeModel__IsLayerVisible(sheet, dim.Dimension__LayerId)) continue;
                 const own = !!skipDim && skipDim.id === dim.Dimension__Id;
                 if (own && !skipDim.index) continue;
@@ -372,9 +374,10 @@
         const radiusMm = setup.radiusPx / (Na__LeSurface__GetPixelsPerMm() * Na__LeSurface__GetZoom());
         const onSheet  = Na__LeOsnap__FindOnSheet(sheet, pointMm, radiusMm, exclude);
         const layers   = Na__LeModel__GetLayers(sheet).map((l) => l.Layer__Id);
-        const carried  = (exclude && exclude.kind === 'viewport') ? exclude.id : null;
+        const exclusions = Array.isArray(exclude) ? exclude : (exclude ? [ exclude ] : []);
+        const carried  = new Set(exclusions.filter((item) => item.kind === 'viewport').map((item) => item.id));
         const ordered  = sheet.Sheet__Viewports
-            .filter((v) => v.Viewport__Kind === Na__LeModel__KIND_2D && v.Viewport__Id !== carried && Na__LeModel__IsLayerVisible(sheet, v.Viewport__LayerId))
+            .filter((v) => v.Viewport__Kind === Na__LeModel__KIND_2D && !carried.has(v.Viewport__Id) && Na__LeModel__IsLayerVisible(sheet, v.Viewport__LayerId))
             .map((v, i) => ({ v : v, rank : layers.indexOf(v.Viewport__LayerId), i : i }))
             .sort((a, b) => (a.rank - b.rank) || (b.i - a.i));
         let best = null;

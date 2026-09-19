@@ -18,8 +18,10 @@
 // - Skips registration on non-secure origins (file://, remote http://) to
 //   avoid the well-known browser warning.
 // - Bridges the controllerchange event to a guarded, idle-aware reload: when a
-//   new worker activates and claims the page, the page reloads exactly once
-//   (sessionStorage guard) so the module graph stays consistent. The reload is
+//   NEWER worker replaces the one already running the page, the page reloads
+//   exactly once (sessionStorage guard) so the module graph stays consistent.
+//   The very first worker claiming an uncontrolled page is not an update and
+//   does not reload - see BridgeControllerChange. The reload is
 //   held back while a model load is in flight, because yanking the page out
 //   from under a client watching a 200 MB model download would be brutal, and
 //   while the Layout Editor holds unsaved work, because it would take that
@@ -31,6 +33,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - The update reload no longer fires on a FIRST install. clients.claim()
+//   raises controllerchange on a page nothing was controlling, and the bridge
+//   treated that as an update: every first visit loaded the model, then
+//   reloaded and loaded it again. A Home Screen icon on iOS has its own empty
+//   storage, so for an installed iPad app that was every first launch. The
+//   bridge now samples navigator.serviceWorker.controller before registering
+//   and lets the first claim through; any change after that is a real update
+//   and reloads as before.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - The idle check now also holds the update reload back while the Layout
 //   Editor has unsaved sheets or an unsynced specification, read through
@@ -151,10 +163,32 @@
 
     // HELPER FUNCTION | Bridge controllerchange to a Guarded Idle Reload
     // ---------------------------------------------------------------
+    // controllerchange fires for TWO different reasons and only one of them
+    // wants a reload:
+    //   UPDATE        - a worker was already running this page and a newer one
+    //                   has taken over. The page may be holding modules from
+    //                   the old cache, so reload for a consistent graph.
+    //   FIRST INSTALL - nothing was controlling the page; the very first
+    //                   worker has just claimed it. Every module on screen
+    //                   came straight off the network in one go, so there is
+    //                   nothing stale to replace and a reload only throws away
+    //                   a model the client has just finished downloading.
+    // A Home Screen icon on iOS starts with storage of its own, empty, so its
+    // first launch is ALWAYS a first install - which made the first thing an
+    // installed app did, once the model was up, restart itself.
+    // ---------------------------------------------------------------
     function TrueVision__Pwa__ServiceWorker__Registrar__BridgeControllerChange() {
         if (!navigator.serviceWorker) return;                                                                                       // <-- Guard: SW not available
 
+        let pageIsControlled = Boolean(navigator.serviceWorker.controller);                                                         // <-- Sampled before registration can change it
+
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!pageIsControlled) {
+                pageIsControlled = true;                                                                                            // <-- Any later change on this page IS an update
+                console.log('[TrueVision3D PWA] First service worker has taken control - no reload needed.');
+                return;                                                                                                             // <-- First install, not an update
+            }
+
             try {
                 if (sessionStorage.getItem(REGISTRAR_RELOAD_SESSION_KEY)) return;                                                   // <-- Already reloaded this session
                 sessionStorage.setItem(REGISTRAR_RELOAD_SESSION_KEY, '1');                                                          // <-- Mark before any async work

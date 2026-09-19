@@ -334,7 +334,7 @@
                 const label = Na__PmBatch__SceneLabel(scene);
 
                 if (progress && typeof progress.Update === 'function') {
-                    progress.Update(index, total, `Rendering ${index + 1} of ${total} - ${label}`);
+                    progress.Update(index, total, `Rendering ${label}`);   // <-- The dialog prints the count itself
                 }
 
                 await Na__PmBatch__ParkOnScene(scene);
@@ -435,7 +435,7 @@
                 const label = Na__PmBatch__SceneLabel(scene);
 
                 if (progress && typeof progress.Update === 'function') {
-                    progress.Update(index, total, `Exporting ${index + 1} of ${total} - ${label}`);
+                    progress.Update(index, total, `Exporting ${label}`);   // <-- The dialog prints the count itself
                 }
 
                 await Na__PmBatch__ParkOnScene(scene);

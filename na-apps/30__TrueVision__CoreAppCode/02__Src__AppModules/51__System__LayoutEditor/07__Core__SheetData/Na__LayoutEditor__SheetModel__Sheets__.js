@@ -41,6 +41,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - Short tab names. GetDrawingNumber, GetShortCode and GetTabLabel: a sheet's
+//   drawing number, the "D03" cut from it, and what its tab reads
+//   ("D03 - 3D Images", the TabLabelFormat label). CleanSheetName takes a code
+//   typed in front of a name back off before it is kept.
+// - ApplySheetName is the one rename. A stored Drawing Title that differs from
+//   the name is somebody's typing and survives it; one that matches the name
+//   was only following it, and still does. UpdateSheet, DuplicateSheet and the
+//   register's name transaction all go through it, so shortening a tab no
+//   longer writes the short name over the title block's long one.
+// - SetField no longer renames the sheet when the Drawing Title is typed: the
+//   title is the long one on the title block, the name the short one on the tab.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetModel__.js; the code moved verbatim.
 //
@@ -53,8 +66,9 @@
 
     // @delegate: ../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Numbering__.js
     import { Na__LeRegNum__Plan, Na__LeRegNum__Apply } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Numbering__.js';
-    import { Na__LeCfg__GetDrawingRegisterSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetDrawingRegisterSetup, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__CfApi__GetLoadedProjectData } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
+    import { Na__LeCommon__Uses, Na__LeCommon__SetUses, Na__LeCommon__Set, Na__LeCommon__Seed } from './Na__LayoutEditor__SheetModel__Common__.js';
 
     // MODULE IMPORTS | Record Helpers and Drawing Types
     // ------------------------------------------------------------
@@ -66,6 +80,12 @@
         Na__LeRec__Find,
         Na__LeRec__NormaliseSheet,
         Na__LeRec__BuildFields,
+        Na__LeRec__DrawingNumber,
+        Na__LeRec__Phase,
+        Na__LeRec__DocumentId,
+        Na__LeRec__ComposeDocumentId,
+        Na__LeRec__ShortCode,
+        Na__LeRec__StripSheetCode,
         Na__LeRec__NormaliseMarginNotes
     } from './Na__LayoutEditor__SheetRecords__.js';
     // ------------------------------------------------------------
@@ -218,9 +238,8 @@
         const list = Na__LeModel__Array();
         const copy = JSON.parse(JSON.stringify(source));
         copy.Sheet__Id    = Na__LeRec__NextId(list, 'Sheet_', 'Sheet__Id');
-        copy.Sheet__Name  = source.Sheet__Name + ' copy';
+        Na__LeModel__ApplySheetName(copy, source.Sheet__Name + ' copy');         // <-- A typed Drawing Title is copied with the sheet; one that followed the name follows the copy's
         copy.Sheet__Order = Na__LeModel__NextOrder(list);
-        copy.Sheet__Fields.Sheet__Fields__Title = copy.Sheet__Name;
         copy.Sheet__Viewports.forEach((v) => { v.Viewport__SnapshotAsset = null; });   // <-- Snapshots are keyed by viewport id
         list.push(copy);
         Na__LeModel__RenumberSheets();
@@ -252,7 +271,7 @@
     // ------------------------------------------------------------
     function Na__LeModel__UpdateSheet(sheet, patch) {
         if (!sheet || !patch) return false;
-        if (typeof patch.name === 'string' && patch.name.trim()) { sheet.Sheet__Name = patch.name.trim(); sheet.Sheet__Fields = sheet.Sheet__Fields || {}; sheet.Sheet__Fields.Sheet__Fields__Title = sheet.Sheet__Name; }
+        if (typeof patch.name === 'string' && patch.name.trim()) Na__LeModel__ApplySheetName(sheet, Na__LeModel__CleanSheetName(sheet, patch.name));
         if (typeof patch.paperSize === 'string') sheet.Sheet__PaperSize = patch.paperSize;
         if (typeof patch.orientation === 'string') sheet.Sheet__Orientation = patch.orientation;
         if (typeof patch.titleBlockStyle === 'string') sheet.Sheet__TitleBlockStyle = patch.titleBlockStyle;
@@ -294,6 +313,93 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | A Sheet's Drawing Number, and the Short Code Cut From It ("D03")
+    // ------------------------------------------------------------
+    // The number is the Drawing Register's: numbering writes it onto the sheet
+    // and nothing else does. The short code is its last run of letters and
+    // digits, which is all a tab has room for.
+    // ------------------------------------------------------------
+    function Na__LeModel__GetDrawingNumber(sheet) {
+        return Na__LeRec__DrawingNumber(sheet);
+    }
+    function Na__LeModel__GetShortCode(sheet) {
+        return Na__LeRec__ShortCode(Na__LeRec__DrawingNumber(sheet));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Sheet's Job Stage, and the Whole Identifier It Composes Into
+    // ------------------------------------------------------------
+    // GetDrawingNumber answers the sequence ("D01"), GetPhase the stage
+    // ("T02"), and GetDocumentId the three parts joined behind the project code
+    // ("PS01_T02_D01"). The register shows all three side by side, because read
+    // in that order they are how the identifier is built.
+    // ------------------------------------------------------------
+    function Na__LeModel__GetPhase(sheet) {
+        return Na__LeRec__Phase(sheet);
+    }
+    function Na__LeModel__GetDocumentId(sheet) {
+        return Na__LeRec__DocumentId(sheet);
+    }
+    function Na__LeModel__ComposeDocumentId(project, phase, drawing) {           // <-- For asking "what would this become?" before a change is committed
+        return Na__LeRec__ComposeDocumentId(project, phase, drawing);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | What a Sheet Is Called on Screen: Its Short Code, Then Its Name
+    // ------------------------------------------------------------
+    // "D03 - 3D Images". The tab, the toolbar and every list that names a
+    // sheet read this, so a drawing is called the same thing wherever it is
+    // met and a renumber in the register reaches all of them at once. With no
+    // name handed in it answers for the sheet's own; with one - the empty
+    // string included - it answers for that, which is how the Sheet panel
+    // and the tab's rename field get the "D03 -" they show in front of the box.
+    // ------------------------------------------------------------
+    function Na__LeModel__GetTabLabel(sheet, name) {
+        if (!sheet) return '';
+        const words = (typeof name === 'string') ? name : sheet.Sheet__Name;
+        const code  = Na__LeModel__GetShortCode(sheet);
+        return code ? Na__LeCfg__FormatLabel('TabLabelFormat', '{code} - {name}', { code : code, name : words }).trim() : words;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Typed Sheet Name, With Any Drawing Code Typed in Front Taken Off
+    // ------------------------------------------------------------
+    // Run before a name is kept, so "D03 - 3D Views" typed out of habit is
+    // saved as "3D Views" rather than saved whole and stripped on the next read.
+    // ------------------------------------------------------------
+    function Na__LeModel__CleanSheetName(sheet, text) {
+        return Na__LeRec__StripSheetCode(String(text === undefined || text === null ? '' : text).trim(), Na__LeRec__DrawingNumber(sheet));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Rename a Sheet; a Drawing Title That Was Only Ever the Name Goes With It
+    // ------------------------------------------------------------
+    // The name is the short one a tab shows. The title block's Drawing Title
+    // is usually a different and longer thing ("Permitted Development
+    // Compliance - Existing Conditions & Design Proposal Floor Plans"), and a
+    // rename used to write the new name straight over it - so shortening four
+    // tabs would have cost four typed titles. A stored title that differs from
+    // the name is somebody's typing and is kept. One that matches the name was
+    // only following it, and still does; one never stored follows by itself,
+    // through the default in BuildFields, and is left unstored.
+    //
+    // Mutates only. The caller announces the change, because a plain rename
+    // and a register transaction announce it differently.
+    // ------------------------------------------------------------
+    function Na__LeModel__ApplySheetName(sheet, name) {
+        if (!sheet || typeof name !== 'string' || !name) return false;
+        const fields = sheet.Sheet__Fields || (sheet.Sheet__Fields = {});
+        if (fields.Sheet__Fields__Title === sheet.Sheet__Name) fields.Sheet__Fields__Title = name;
+        sheet.Sheet__Name = name;
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Switch, Widen or Restyle a Sheet's Notes Margin
     // ------------------------------------------------------------
     // patch: { enabled, widthMm, heading (null or empty for the configured
@@ -326,9 +432,56 @@
         if (!sheet.Sheet__Fields) sheet.Sheet__Fields = {};
         if (value === null || value === undefined) delete sheet.Sheet__Fields['Sheet__Fields__' + key];
         else sheet.Sheet__Fields['Sheet__Fields__' + key] = String(value);
-        if (key === 'Title' && typeof value === 'string' && value.trim()) sheet.Sheet__Name = value.trim();
+        Na__LeModel__Touch('fields', sheet.Sheet__Id);                          // <-- A typed Drawing Title never renames the tab: the title is the long one, the name the short one
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is This Sheet Showing the Pack's Client and Site Address?
+    // ------------------------------------------------------------
+    function Na__LeModel__IsCommonFields(sheet) {
+        return Na__LeCommon__Uses(sheet);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Join This Sheet to the Pack's Two Fields, or Cut It Loose
+    // ------------------------------------------------------------
+    // 'fields' and not 'sheet-updated': this is a content edit of the title
+    // block, one undo step, kept by the browser draft, and no auto save to R2 -
+    // exactly what typing into the Client box has always been.
+    // ------------------------------------------------------------
+    function Na__LeModel__SetCommonFields(sheet, on) {
+        if (!Na__LeCommon__SetUses(sheet, on)) return false;
         Na__LeModel__Touch('fields', sheet.Sheet__Id);
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set the Client or Site Address for the WHOLE Pack
+    // ------------------------------------------------------------
+    // The sheet is passed only so the announcement names where the typing
+    // happened; the value written belongs to every sheet on Common.
+    // ------------------------------------------------------------
+    function Na__LeModel__SetCommonFieldValue(sheet, key, value) {
+        if (!Na__LeCommon__Set(key, value)) return false;
+        Na__LeModel__Touch('fields', sheet ? sheet.Sheet__Id : null);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Seed the Pack's Two Fields, Once Per Project Load
+    // ------------------------------------------------------------
+    // Marks the model dirty when it writes anything, so the seed lands with
+    // the next save rather than writing to R2 by itself.
+    // ------------------------------------------------------------
+    async function Na__LeModel__SeedCommonFields() {
+        const changed = await Na__LeCommon__Seed(Na__LeModel__Array());
+        if (changed) Na__LeModel__Touch('fields', Na__LeModel__ActiveSheetId);
+        return changed;
     }
     // ------------------------------------------------------------
 
@@ -353,8 +506,20 @@
         Na__LeModel__UpdateSheet,
         Na__LeModel__ReorderSheet,
         Na__LeModel__GetFields,
+        Na__LeModel__GetDrawingNumber,
+        Na__LeModel__GetPhase,
+        Na__LeModel__GetDocumentId,
+        Na__LeModel__ComposeDocumentId,
+        Na__LeModel__GetShortCode,
+        Na__LeModel__GetTabLabel,
+        Na__LeModel__CleanSheetName,
+        Na__LeModel__ApplySheetName,
         Na__LeModel__UpdateMarginNotes,
-        Na__LeModel__SetField
+        Na__LeModel__SetField,
+        Na__LeModel__IsCommonFields,
+        Na__LeModel__SetCommonFields,
+        Na__LeModel__SetCommonFieldValue,
+        Na__LeModel__SeedCommonFields
     };
     // ------------------------------------------------------------
 

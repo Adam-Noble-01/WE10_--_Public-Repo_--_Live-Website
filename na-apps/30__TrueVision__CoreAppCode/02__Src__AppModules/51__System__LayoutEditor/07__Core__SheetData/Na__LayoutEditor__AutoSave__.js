@@ -461,9 +461,17 @@
         Na__LeAuto__Again = false;
         if (Na__LeAuto__Running) await Na__LeAuto__Running;
     }
+    // FUNCTION | Drop a Draft Only After the Complete Sheet Snapshot Is Saved
+    // ------------------------------------------------------------
+    function Na__LeAuto__DiscardSavedDraft() {
+        Na__LeAuto__DropDraftWrite();
+        Na__LeAuto__ClearDraft();
+    }
+
     function Na__LeAuto__Resume() { Na__LeAuto__Suspended = false; }
 
     export {
+        Na__LeAuto__DiscardSavedDraft,
         Na__LeAuto__Suspend,
         Na__LeAuto__Resume,
         Na__LeAuto__Initialize,

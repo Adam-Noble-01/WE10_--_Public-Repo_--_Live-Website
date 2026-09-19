@@ -249,6 +249,21 @@
                 "ModifierMatch": "Exact"
             },
             {
+                "Id": "Edit__Save",
+                "Label": "Save the sheets and sync the specification (Ctrl+S)",
+                "Action": "Edit__Save",
+                "Enabled": true,
+                "Keys": [
+                    "s",
+                    "S"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "Exactly what the Save Sheets button does, from anywhere in the editor - the sheet, the specification or the register - because unlike the other Edit chords it is answered by the mode controller rather than by the sheet's own keys. Typing on the paper is committed first, and a panel field with focus is blurred so the value being typed into it commits too: those fields report on 'change', which a keyboard shortcut does not fire by itself, and the Save button only ever got away with it because clicking anything blurs. Taken from the browser while the editor is open, where Ctrl+S would otherwise offer to save the page as a file. An editable session only: a read-only viewer keeps the browser's own Ctrl+S."
+            },
+            {
                 "Id": "Edit__Undo",
                 "Label": "Undo the last change on the sheet",
                 "Action": "Edit__Undo",
@@ -323,8 +338,18 @@
                 "Note": "Needs at least two vectors, text items or groups. The browser Find chord is taken only when a group is made."
             },
             {
+                "Id": "Edit__Cut",
+                "Label": "Cut the selection to the clipboard",
+                "Action": "Edit__Cut",
+                "Enabled": true,
+                "Keys": [ "x", "X" ],
+                "Modifiers": [ "Ctrl" ],
+                "ModifierMatch": "Exact",
+                "Note": "Cuts unlocked selected items and nested groups. Ctrl+V pastes them in place on this sheet or another."
+            },
+            {
                 "Id": "Edit__Copy",
-                "Label": "Copy the selected viewport",
+                "Label": "Copy the selection",
                 "Action": "Edit__Copy",
                 "Enabled": true,
                 "Keys": [
@@ -335,11 +360,11 @@
                     "Ctrl"
                 ],
                 "ModifierMatch": "Exact",
-                "Note": "With no viewport selected the key is left to the browser, so copying text from a panel still works."
+                "Note": "Copies all selected sheet objects, including dimensions and nested groups. Text fields retain their normal clipboard shortcuts."
             },
             {
                 "Id": "Edit__Paste",
-                "Label": "Paste the copied viewport as a new one: new id, new name, every setting kept",
+                "Label": "Paste all copied objects in place with fresh ids",
                 "Action": "Edit__Paste",
                 "Enabled": true,
                 "Keys": [
@@ -350,7 +375,7 @@
                     "Ctrl"
                 ],
                 "ModifierMatch": "Exact",
-                "Note": "On the sheet it came from the paste steps clear of the original; on another sheet it lands in the same place."
+                "Note": "Pastes at the original paper coordinates on this sheet or another, including objects outside the page."
             },
             {
                 "Id": "Edit__Duplicate",
@@ -784,6 +809,11 @@
             {
                 "Action": "Edit__Redo",
                 "Label": "Redo",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__Cut",
+                "Label": "Cut the selection",
                 "Group": "Editing"
             },
             {

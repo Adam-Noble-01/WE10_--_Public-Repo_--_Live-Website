@@ -39,6 +39,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - PreviewSvg draws a set's leaders and dimensions as well as its text and
+//   vectors. It is the one preview every scrapbook library shares
+//   (Na__LayoutEditor__Scrapbook__TileDrag__), and a Custom item may hold
+//   either. A Standard piece is still text and vectors.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: the Mapping Data Credentials block and the north
 //   point, together and apart, for site plan sheets.
@@ -84,6 +90,8 @@
     // ------------------------------------------------------------
     const Na__LeScrap__KIND_ANNOTATION = 'annotation';
     const Na__LeScrap__KIND_SHAPE      = 'shape';
+    const Na__LeScrap__KIND_LEADER     = 'leader';                              // <-- Previewed only: a Standard piece is text and vectors
+    const Na__LeScrap__KIND_DIMENSION  = 'dimension';
     const Na__LeScrap__YEAR_TOKEN      = 'Year';                                // <-- Built in: the year an item is dropped in
     const Na__LeScrap__TOKEN_PATTERN   = /\{([A-Za-z0-9_]+)\}/g;
     const Na__LeScrap__CIRCLE_SEGMENTS = Object.freeze({ min : 8, fallback : 64, max : 360 });
@@ -388,6 +396,8 @@
         set.entries.forEach((entry) => {
             if (entry.kind === Na__LeScrap__KIND_SHAPE)      sheet.Sheet__Shapes.push(entry.record);
             if (entry.kind === Na__LeScrap__KIND_ANNOTATION) sheet.Sheet__Annotations.push(entry.record);
+            if (entry.kind === Na__LeScrap__KIND_LEADER)     sheet.Sheet__Leaders.push(entry.record);      // <-- A Custom item may hold leaders and dimensions
+            if (entry.kind === Na__LeScrap__KIND_DIMENSION)  sheet.Sheet__Dimensions.push(entry.record);
         });
         const pad      = Na__LeScrap__PREVIEW_PAD_MM;
         const leftMm   = set.origin.x - pad;
@@ -436,6 +446,7 @@
         Na__LeScrap__ItemsFor,
         Na__LeScrap__GetItem,
         Na__LeScrap__ItemName,
+        Na__LeScrap__Bounds,
         Na__LeScrap__BuildSet,
         Na__LeScrap__PreviewSvg,
         Na__LeScrap__Insert

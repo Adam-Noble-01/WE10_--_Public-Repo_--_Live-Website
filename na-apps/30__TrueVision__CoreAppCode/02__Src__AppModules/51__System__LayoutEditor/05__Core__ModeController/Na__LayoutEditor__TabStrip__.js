@@ -18,6 +18,11 @@
 //   sheet; the plus tab makes a sheet and opens it. Double-click a sheet
 //   tab to rename it (localhost). Web viewers switch tabs but cannot add,
 //   rename or reorder.
+// - A SHEET TAB READS "D03 - 3D Images": the short code cut from the Drawing
+//   Register's number, then the sheet's short name. Nobody types the code; a
+//   renumber in the register changes every tab by itself. The whole drawing
+//   number ("PS01_T02_D03") is on the hover, because on a phone it is the
+//   difference between four tabs fitting and one.
 // - THE SAME TABS EVERYWHERE, EDITOR OR WEB VIEWER. What a viewer loses is the
 //   plus, the rename and the drag, which it never had; the row of documents is
 //   the row of documents.
@@ -46,6 +51,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.6.0
+// - Short tabs. A sheet tab reads "D03 - 3D Images": the short code cut from
+//   the Drawing Register's number, then the sheet's short name
+//   (Na__LeModel__GetTabLabel). It read "PS01_T02_D03 · D03 - 3D Images" - the
+//   whole number, then a name with the number typed into it by hand, which had
+//   to be retyped on every renumber. The whole number is on the tab's hover.
+// - The rename field holds the short name alone, with the code standing in
+//   front of it as fixed text: the code is the register's, not the name's.
+//
 // 18-Sep-2026 - Version 1.5.0
 // - The tabs go into a scroller with an arrow at each end, shown only when they
 //   do not all fit. An arrow opens the tab before or after the open one by
@@ -93,7 +107,9 @@
     import {
         Na__LeModel__CHANGED_EVENT,
         Na__LeModel__GetSheets,
-        Na__LeModel__GetFields,
+        Na__LeModel__GetDrawingNumber,
+        Na__LeModel__GetShortCode,
+        Na__LeModel__GetTabLabel,
         Na__LeModel__GetActiveSheet,
         Na__LeModel__CreateSheet,
         Na__LeModel__UpdateSheet,
@@ -166,15 +182,29 @@
 
     // HELPER FUNCTION | Inline Rename of a Sheet Tab
     // ------------------------------------------------------------
+    // THE CODE STAYS PUT AND ONLY THE WORDS ARE TYPED. The tab's "D03 -" is
+    // the Drawing Register's, so it stands in front of the field as fixed text
+    // and the field holds the short name alone. Typing a code anyway does no
+    // harm: the register transaction takes it back off before the name is kept.
+    // ------------------------------------------------------------
     function Na__LeTabs__Rename(button, sheet) {
+        const frame = document.createElement('span');
+        frame.className = 'na-le-tabs__renaming';
+        const code = document.createElement('span');
+        code.className   = 'na-le-tabs__renaming-code';
+        code.textContent = Na__LeModel__GetTabLabel(sheet, '');                  // <-- The label with no name in it: "D03 -"
+        code.hidden      = !Na__LeModel__GetShortCode(sheet);
         const input = document.createElement('input');
         input.type      = 'text';
         input.className = 'na-le-tabs__rename';
         input.value     = sheet.Sheet__Name;
+        input.setAttribute('aria-label', Na__LeCfg__GetLabel('SheetNameTitle', 'Short tab name'));
         const commit = async () => { const v = input.value.trim(); if (v && v !== sheet.Sheet__Name) await Na__LeRegEdit__Metadata(sheet.Sheet__Id, 'name', v); Na__LeTabs__Render(); };
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } if (e.key === 'Escape') { input.value = sheet.Sheet__Name; input.blur(); } e.stopPropagation(); });
         input.addEventListener('blur', commit);
-        button.replaceWith(input);
+        frame.appendChild(code);
+        frame.appendChild(input);
+        button.replaceWith(frame);
         input.focus(); input.select();
     }
     // ------------------------------------------------------------
@@ -286,11 +316,15 @@
         const sitePlanTitle = Na__LeCfg__GetLabel('SitePlanTabTitle', 'Site plan drawing');
         const addSheetTab = (sheet) => {
             const sitePlan = Na__LeModel__IsSitePlanSheet(sheet);
-            const tab = Na__LeTabs__Tab(Na__LeModel__GetFields(sheet).DrawingNumber + ' · ' + sheet.Sheet__Name, !!active && active.Sheet__Id === sheet.Sheet__Id, () => Na__LeMode__Enter(sheet.Sheet__Id), sitePlan ? 'na-le-tabs__tab--siteplan' : '');
+            const tab = Na__LeTabs__Tab(Na__LeModel__GetTabLabel(sheet), !!active && active.Sheet__Id === sheet.Sheet__Id, () => Na__LeMode__Enter(sheet.Sheet__Id), sitePlan ? 'na-le-tabs__tab--siteplan' : '');   // <-- "D03 - 3D Images": the register's short code, then the short name
             tab.setAttribute('data-na-sheet-id', sheet.Sheet__Id);
-            if (sitePlan) tab.title = sitePlanTitle;
+            // THE WHOLE DRAWING NUMBER IS ON THE HOVER, not on the tab. A tab
+            // has room for "D03"; "PS01_T02_D03" on every one of them is what
+            // pushed a pack of drawings off the side of a phone.
+            const hover = [ Na__LeModel__GetDrawingNumber(sheet).trim(), sitePlan ? sitePlanTitle : '' ].filter((part) => part !== '');
+            tab.title = hover.join('. ');
             if (editable) {
-                tab.title = (sitePlan ? sitePlanTitle + '. ' : '') + 'Double-click to rename, drag to reorder';
+                tab.title = hover.concat(Na__LeCfg__GetLabel('SheetTabEditTitle', 'Double-click to rename, drag to reorder')).join('. ');
                 tab.addEventListener('dblclick', () => Na__LeTabs__Rename(tab, sheet));
                 tab.draggable = true;
                 tab.addEventListener('dragstart', (e) => { Na__LeTabs__DragId = sheet.Sheet__Id; Na__LeTabs__DragSitePlan = sitePlan; e.dataTransfer.effectAllowed = 'move'; });
@@ -338,7 +372,7 @@
     function Na__LeTabs__Sig() {
         const sheets = Na__LeModel__GetSheets();
         const active = Na__LeMode__IsActive() ? Na__LeModel__GetActiveSheet() : null;
-        return sheets.map((sheet) => sheet.Sheet__Id + '\u0001' + Na__LeModel__GetFields(sheet).DrawingNumber + '\u0001' + sheet.Sheet__Name + '\u0001' + Na__LeModel__IsSitePlanSheet(sheet)).join('\u0002')   // <-- A change of drawing type moves the tab
+        return sheets.map((sheet) => sheet.Sheet__Id + '\u0001' + Na__LeModel__GetDrawingNumber(sheet) + '\u0001' + sheet.Sheet__Name + '\u0001' + Na__LeModel__IsSitePlanSheet(sheet)).join('\u0002')   // <-- The whole number, not the short code: the hover shows it, and any renumber must redraw the tab
             + '|' + (active ? active.Sheet__Id : '') + '|' + Na__LeMode__IsActive() + '|' + Na__LeMode__IsEditable() + '|' + Na__LeCfg__IsEnabled()
             + '|' + Na__LeMode__GetView() + '|' + Na__LeSpec__IsDirty();          // <-- The specification tab: open or not, synced or not
     }

@@ -5,7 +5,6 @@
     "categories": ["business", "productivity", "utilities"],
     "lang": "en-GB",
     "dir": "ltr",
-    "start_url": "../../Index.html",
     "scope": "../../",
     "display": "standalone",
     "display_override": ["standalone", "minimal-ui", "browser"],

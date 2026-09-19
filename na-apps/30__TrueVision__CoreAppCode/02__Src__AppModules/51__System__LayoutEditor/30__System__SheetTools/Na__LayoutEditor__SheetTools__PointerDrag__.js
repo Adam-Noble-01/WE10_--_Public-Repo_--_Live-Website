@@ -203,6 +203,7 @@
     import {
         Na__LeTools__RefreshShapeInsert,
         Na__LeTools__SnapShapeTranslation,
+        Na__LeTools__SnapGroupTranslation,
         Na__LeTools__Resolve,
         Na__LeTools__Record,
         Na__LeTools__RawHit,
@@ -299,7 +300,15 @@
             if (!exact && axis) Na__LeGrips__ShowBand(drag.startMm, { x : drag.startMm.x + d.x, y : drag.startMm.y + d.y }, axis);   // <-- The band's colour is the lock, so it reads without Shift being held
             else if (!exact) Na__LeGrips__HideBand();
         }
-        if (drag.kind === 'group') { Na__LeSelSet__Apply(sheet, drag.group, d.x, d.y); return; }   // <-- Several selected items: one distance for all, Shift holding the axis
+        if (drag.kind === 'group') {
+            const lock = axis || (shift ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? 'x' : 'y') : null);
+            const move = exact ? d : Na__LeTools__SnapGroupTranslation(sheet, drag, d, lock);
+            drag.appliedMm = { x : move.x, y : move.y };
+            if (!exact && axis) Na__LeGrips__ShowBand(drag.startMm, { x : drag.startMm.x + move.x, y : drag.startMm.y + move.y }, axis);
+            Na__LeSelSet__Apply(sheet, drag.group, move.x, move.y);
+            Na__LeMeasure__Refresh();
+            return;
+        }
         if (drag.kind === 'viewport') {
             const viewport = Na__LeModel__GetViewportById(sheet, drag.id);
             if (!viewport) return;

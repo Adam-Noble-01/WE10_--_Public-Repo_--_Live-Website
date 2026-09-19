@@ -237,8 +237,9 @@
 
     // FUNCTION | Adopt a Numbering Save That Has Already Reached R2
     // ------------------------------------------------------------
-    function Na__LeReg__AdoptNumbering(payload) {
+    function Na__LeReg__AdoptNumbering(payload, deletedSheetId) {
         Na__LeReg__Base = Na__LeReg__Clone(payload.cloud[Na__LeReg__BLOCK]);
+        if (deletedSheetId) delete Na__LeReg__Doc.DrawingRegister__Revisions[deletedSheetId];
         Na__LeReg__Doc.DrawingRegister__Numbering         = Na__LeReg__Clone(Na__LeReg__Base.DrawingRegister__Numbering);
         Na__LeReg__Doc.DrawingRegister__Document__Updated = Na__LeReg__Base.DrawingRegister__Document__Updated;
         Na__LeReg__KeepDraft();

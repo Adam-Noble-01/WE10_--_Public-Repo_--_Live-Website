@@ -98,6 +98,7 @@
                      { Id : 'Edit__Ungroup',     Action : 'Edit__Ungroup',     Enabled : true, Keys : [ 'g', 'G' ],               Modifiers : [ 'Ctrl', 'Shift' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Group',       Action : 'Edit__Group',       Enabled : true, Keys : [ 'g', 'G' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Copy',        Action : 'Edit__Copy',        Enabled : true, Keys : [ 'c', 'C' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
+                     { Id : 'Edit__Cut',         Action : 'Edit__Cut',         Enabled : true, Keys : [ 'x', 'X' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Paste',       Action : 'Edit__Paste',       Enabled : true, Keys : [ 'v', 'V' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Duplicate',   Action : 'Edit__Duplicate',   Enabled : true, Keys : [ 'd', 'D' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' } ],
         keyboardSetup : { ignoreWhenTyping : true, coarseStepModifier : 'Shift', nudgeStepMm : 1, nudgeCoarseStepMm : 10,

@@ -284,7 +284,7 @@
                     { separator : true },
                     { label : label('MenuCloseScope', 'Close and step back out'), onSelect : () => { Na__LeScope__Clear(); Na__LeModel__SetSelection(null); } },
                     { separator : true }
-                ]).concat(style(found.kind, found.id)).concat(history);
+                ]).concat(Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
             }
 
             return [
@@ -292,7 +292,7 @@
                 { label : label('MenuEditDimText', 'Edit dimension value'), onSelect : () => Na__LeDim__BeginTextEdit(found.id) }
             ].concat(reset, [{ separator : true }], arrange('dimension', found.id), [
                      { separator : true }, remove('MenuDeleteDimension', 'Delete dimension'), { separator : true } ])
-                     .concat(style(found.kind, found.id)).concat(history);
+                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }
         if (found.kind === 'leader') {
             return [ { label : label('MenuEditLeaderText', 'Edit leader text'), onSelect : () => Na__LeLeader__BeginEdit(found.id) },

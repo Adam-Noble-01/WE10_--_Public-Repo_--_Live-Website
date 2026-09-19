@@ -175,6 +175,42 @@
     padding                            : 1px 4px;
 }
 
+/* THE SHEET NAME FIELD. The drawing's short code ("D03 -") is joined to the
+   front of the box as fixed text, so the row reads the way the tab does while
+   only the words after the code can be typed. The code is the Drawing
+   Register's: it changes when the register renumbers, never from here. */
+
+.na-le-namefield {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    align-items                        : stretch;
+    min-width                          : 0;
+}
+
+.na-le-namefield__code {
+    display                            : flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    padding                            : 0 7px;
+    border                             : 1px solid #ccd3d8;
+    border-right                       : none;
+    border-radius                      : 4px 0 0 4px;
+    background                         : #f4f6f8;
+    color                              : #46596b;
+    font-size                          : 0.76rem;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+    cursor                             : default;
+}
+
+.na-le-namefield__code[hidden] {
+    display                            : none;
+}
+
+.na-le-namefield__code:not([hidden]) + .na-le-input {
+    border-radius                      : 0 4px 4px 0;
+}
+
 .na-le-select--compact {
     flex                               : 0 0 92px;
     padding                            : 2px 4px;
@@ -233,6 +269,26 @@
 
 .na-le-note[hidden] {
     display                            : none;
+}
+
+/* WHAT THE PROJECT ADMIN RECORD SAYS, offered beside the pack's own client and
+   site address when the two differ. A note with a button on the end of it: the
+   text is the offer and the button takes it. It shows only when there is a
+   difference, so it must not reserve height when it is hidden - which is why
+   it sets display only in this rule and leaves [hidden] above to win. */
+.na-le-note--offer {
+    display                            : flex;
+    align-items                        : baseline;
+    gap                                : 6px;
+}
+
+.na-le-note--offer > span {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+}
+
+.na-le-note--offer > .na-le-btn {
+    flex                               : 0 0 auto;
 }
 
 /* A GROUP SUBHEAD inside a long list of toggles. It is a note, not a section

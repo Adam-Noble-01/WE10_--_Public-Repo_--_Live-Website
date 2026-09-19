@@ -34,6 +34,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.8.0
+// - Token bumped (2026-09-19-1): the Safari install fix. Index.html is
+//   network-first and carries the fix that matters (no static manifest link),
+//   so new icons are right from the first load. The bump is for the icons
+//   already out there: an icon made while the fault was live holds its own
+//   copy of the old shell, and without this it would take two launches to
+//   reach the handler that tells its owner how to replace it. It also carries
+//   the registrar that no longer reloads on a first install.
+//
 // 18-Sep-2026 - Version 1.7.2
 // - Token bumped (2026-09-18-3): the iPad round of the web viewer - the touch
 //   recogniser and the drawing surface - is shell JS again, and an installed
@@ -136,7 +145,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-18-3';                                                                      // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-19-1';                                                                      // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

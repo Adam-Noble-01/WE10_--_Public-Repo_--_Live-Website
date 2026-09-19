@@ -290,7 +290,7 @@ def _stamp_modified(config_data):
 # -----------------------------------------------------------------------------
 
 def _apply_admin_config_fields(project_dir, fields, changes):
-    """Write projectName, projectCode, projectPin and description to the config."""
+    """Write projectName, projectCode, projectPin, description and the client drawing name to the config."""
     config_path = os.path.join(project_dir, ADMIN_CONTENT_DIR, ADMIN_CONFIG_FILE)
     config_data = _read_json(config_path)
 
@@ -315,6 +315,34 @@ def _apply_admin_config_fields(project_dir, fields, changes):
         })
         config_data[key] = new_value
         touched = True
+
+    # THE DRAWING NAME | One nested block, written only when a part is given,
+    # and removed entirely when every part is cleared - an empty block would
+    # read as a client called nothing rather than as a client not yet named.
+    part_keys = ('salutation', 'initial', 'surname')
+    supplied  = {k: fields['client' + k.capitalize()] for k in part_keys if 'client' + k.capitalize() in fields}
+
+    if supplied:
+        existing  = config_data.get('clientDrawingName')
+        merged    = dict(existing) if isinstance(existing, dict) else {}
+        merged.update(supplied)
+        merged    = {k: v for k, v in merged.items() if str(v).strip()}
+        new_block = merged or None
+
+        if config_data.get('clientDrawingName') != new_block:
+            changes.append({
+                'file'  : os.path.relpath(config_path, REPO_ROOT).replace('\\', '/'),
+                'field' : 'clientDrawingName',
+                'from'  : config_data.get('clientDrawingName'),
+                'to'    : new_block
+            })
+
+            if new_block:
+                config_data['clientDrawingName'] = new_block
+            else:
+                config_data.pop('clientDrawingName', None)
+
+            touched = True
 
     if touched:
         _stamp_modified(config_data)
@@ -719,6 +747,18 @@ def manager_edit(project_code):
 
         if 'address' in fields:
             writable['address'] = str(fields['address']).strip()
+
+        # THE CLIENT NAME AS A DRAWING PRINTS IT
+        # Not the client record. The full record - given name, email, telephone
+        # - is PII and stays AES encrypted in R2 behind the admin Worker. These
+        # three parts compose "Mr P. Samra", which is what a title block has
+        # always printed and what a planning portal publishes anyway, and they
+        # are stored in the clear precisely because they are already public.
+        # TrueVision reads them to fill its title blocks.
+        for part in ('salutation', 'initial', 'surname'):
+            part_key = 'client' + part.capitalize()
+            if part_key in fields:
+                writable[part_key] = str(fields[part_key]).strip()
 
         if identity_changed:
             writable['projectCode'] = new_code

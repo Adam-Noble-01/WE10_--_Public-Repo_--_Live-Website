@@ -87,7 +87,7 @@
     const Na__LeTools__CHANGED_EVENT  = 'na-layouteditor-tool-changed';
     const Na__LeTools__DEFAULTS_EVENT = 'na-layouteditor-defaults-changed';   // <-- The settings for new objects changed from outside their panel (a palette sync)
     const Na__LeTools__MENU_SLOP_PX   = 4;      // <-- A right button that travelled further than this panned, so no menu
-    const Na__LeTools__SHEET_CHORDS   = [ 'Edit__Undo', 'Edit__Redo', 'Edit__Copy', 'Edit__Paste', 'Edit__Duplicate', 'Edit__Group', 'Edit__Ungroup' ];   // <-- Still the sheet's from a focused select, checkbox or number box
+    const Na__LeTools__SHEET_CHORDS   = [ 'Edit__Undo', 'Edit__Redo', 'Edit__Cut', 'Edit__Copy', 'Edit__Paste', 'Edit__Duplicate', 'Edit__Group', 'Edit__Ungroup' ];   // <-- Still the sheet's from a focused select, checkbox or number box
     const Na__LeTools__NON_TEXT_INPUTS = [ 'checkbox', 'radio', 'range', 'color', 'button', 'submit', 'reset', 'file', 'image', 'number' ];
     const Na__LeTools__TYPED_MIN_MM    = 1e-4;   // <-- Shorter than this (paper mm) is no length and no direction, as the Draw tool uses
     const Na__LeTools__SAME_MM         = 1e-9;   // <-- Points this close still count as untouched, as the Rectangle tool's retype check uses

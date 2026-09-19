@@ -213,24 +213,118 @@
     // ------------------------------------------------------------
 
 
+    // CONSTANTS | Register Table Columns When the Config Block Is Silent
+    // ------------------------------------------------------------
+    const Na__LeCfg__REGISTER_COLUMNS = [                                          // <-- Exactly one column carries Flex; the rest are measured from their content
+        { key : 'code',     heading : 'DRAWING No.',   align : 'left',   flex : false, minMm : 22 },
+        { key : 'name',     heading : 'DOCUMENT NAME', align : 'left',   flex : true,  minMm : 42 },
+        { key : 'type',     heading : 'TYPE',          align : 'left',   flex : false, minMm : 16 },
+        { key : 'scale',    heading : 'SCALE',         align : 'left',   flex : false, minMm : 20 },
+        { key : 'size',     heading : 'SIZE',          align : 'centre', flex : false, minMm : 15 },
+        { key : 'revision', heading : 'REV',           align : 'centre', flex : false, minMm : 13 }
+    ];
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Read the Configured Register Columns, Falling Back to the Constant
+    // ------------------------------------------------------------
+    function Na__LeCfg__RegisterColumns(configured) {
+        if (!Array.isArray(configured) || configured.length === 0) return Na__LeCfg__REGISTER_COLUMNS;
+        const columns = configured
+            .filter((column) => column && column.Key)
+            .map((column) => ({
+                key     : String(column.Key),
+                heading : String(column.Heading === undefined ? column.Key : column.Heading),
+                align   : column.Align === 'centre' || column.Align === 'center' ? 'centre' : (column.Align === 'right' ? 'right' : 'left'),
+                flex    : column.Flex === true,
+                minMm   : Number.isFinite(Number(column.MinMm)) ? Number(column.MinMm) : 14
+            }));
+        if (columns.length === 0) return Na__LeCfg__REGISTER_COLUMNS;
+        if (!columns.some((column) => column.flex)) columns[0].flex = true;         // <-- A table with no flex column could not fill the page width
+        return columns;
+    }
+    // ------------------------------------------------------------
+
+
+    // CONSTANTS | Job Stages When the Config Block Is Silent
+    // ------------------------------------------------------------
+    const Na__LeCfg__REGISTER_PHASES = [                                           // <-- T01 Concept through T04 Site: the middle third of a document code
+        { code : 'T01', name : 'Concept' },
+        { code : 'T02', name : 'Planning' },
+        { code : 'T03', name : 'Building Regs' },
+        { code : 'T04', name : 'Site & Remedial' }
+    ];
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Read the Configured Phases, Falling Back to the Constant
+    // ------------------------------------------------------------
+    function Na__LeCfg__RegisterPhases(configured) {
+        if (!Array.isArray(configured) || configured.length === 0) return Na__LeCfg__REGISTER_PHASES;
+        const phases = configured
+            .filter((phase) => phase && phase.Code)
+            .map((phase) => ({
+                code : String(phase.Code).trim(),
+                name : String(phase.Name === undefined ? phase.Code : phase.Name).trim()
+            }))
+            .filter((phase) => phase.code);
+        return phases.length ? phases : Na__LeCfg__REGISTER_PHASES;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Drawing Register Defaults and Noble Architecture Paper Palette
     // ------------------------------------------------------------
     function Na__LeCfg__GetDrawingRegisterSetup() {
         const val = (key, fallback) => Na__LeCfg__Val('DrawingRegister', key, fallback);
+        const num = (key, fallback) => {
+            const read = Number(val(key, fallback));
+            return Number.isFinite(read) ? read : fallback;
+        };
         return {
             prefix          : val('Prefix', 'D'),
             start           : val('Start', 1),
             digits          : val('Digits', 2),
-            pdfMarginMm     : val('PdfMarginMm', 15),
-            pdfFontPt       : val('PdfFontPt', 9),
-            previewScale    : val('PreviewScale', 1.25),
+            pdfMarginMm     : num('PdfMarginMm', 18),
+            pdfFontPt       : num('PdfFontPt', 9),
             pdfJsScriptPath : val('PdfJsScriptPath', '/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js'),
             pdfJsWorkerPath : val('PdfJsWorkerPath', '/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js'),
+
+            titlePt         : num('TitlePt', 19),                                  // <-- Document typography, all sized against pdfFontPt
+            headingPt       : num('HeadingPt', 11),
+            metaPt          : num('MetaPt', 8.5),
+            tableHeadPt     : num('TableHeadPt', 7.5),
+            notePt          : num('NotePt', 9),
+
+            rowPadMm        : num('RowPadMm', 4),                                  // <-- Table rhythm; a one-line row is rowPadMm * 2 + lineMm tall
+            lineMm          : num('LineMm', 4.6),
+            cellPadMm       : num('CellPadMm', 3.2),
+            headRowMm       : num('HeadRowMm', 9.5),
+            columnMaxMm     : num('ColumnMaxMm', 46),
+            columns         : Na__LeCfg__RegisterColumns(val('Columns', null)),
+
+            phases          : Na__LeCfg__RegisterPhases(val('Phases', null)),      // <-- The stages of a job, and the middle third of every document code
+            defaultPhase    : String(val('DefaultPhase', 'T01')),
+            documentCodeFmt : String(val('DocumentCodeFormat', '{project}_{phase}_{drawing}')),
+            registerSuffix  : String(val('RegisterNumberSuffix', '_REGISTER')),   // <-- PS01_REGISTER, beside the specification's PS01_SPEC
+            logoAspect      : num('LetterheadLogoAspect', 4.096),                 // <-- The asset is 2048 x 500; see TitleBlock LogoAspectWidthOverHeightNote
+
+            collapseScale   : val('CollapseScaleSuffix', true) !== false,          // <-- '1:50 @ ISO A2' prints as '1:50' when SIZE already says ISO A2
+            emptyCell       : String(val('EmptyCellText', '—')),             // <-- What an empty table cell prints instead of nothing at all
+
+            previewWidthPx  : num('PreviewPageWidthPx', 794),                      // <-- The Read view's CSS page width, and the ceiling its canvas is drawn to
+            previewMaxDpr   : num('PreviewMaxPixelRatio', 3),
+
             ink             : val('InkColour', '#5c594f'),
             muted           : val('MutedColour', '#a09d96'),
+            accent          : val('AccentColour', '#172b3a'),
             header          : val('HeaderColour', '#eeece9'),
             stripe          : val('StripeColour', '#f8f6f3'),
-            rule            : val('RuleColour', '#e1ded8')
+            rule            : val('RuleColour', '#e1ded8'),
+            warnAmberFill   : val('WarnAmberFill', '#fff4d3'),
+            warnAmberInk    : val('WarnAmberInk', '#795900'),
+            warnRedFill     : val('WarnRedFill', '#fde9e7'),
+            warnRedInk      : val('WarnRedInk', '#a32e29')
         };
     }
     // ------------------------------------------------------------

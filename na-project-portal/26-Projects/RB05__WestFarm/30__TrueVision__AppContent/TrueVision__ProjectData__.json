@@ -84,7 +84,7 @@
         }
     },
     "PresentationMode__SavedCameraScenes": {
-        "PresentationMode__SavedCameraScenes__Description": "Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition.",
+        "PresentationMode__SavedCameraScenes__Description": "Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into named Groups; Scene Order restarts at 1 within each group. A scene with PresentationMode__Scene__LayoutEditorOnly set true is available to the Layout Editor and the Dev menu but is hidden from the viewer carousel; the key is omitted when false.",
         "PresentationMode__SavedCameraScenes__Enabled": true,
         "PresentationMode__SavedCameraScenes__ShowCarouselByDefault": true,
         "PresentationMode__SavedCameraScenes__DefaultSceneId": "Scene_001",

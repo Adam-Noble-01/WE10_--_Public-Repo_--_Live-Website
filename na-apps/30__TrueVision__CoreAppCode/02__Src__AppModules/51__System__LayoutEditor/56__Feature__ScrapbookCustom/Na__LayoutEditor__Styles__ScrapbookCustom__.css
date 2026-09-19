@@ -1,0 +1,47 @@
+/* ================================================================= */
+/* TRUEVISION3D - LAYOUT EDITOR - STYLES: CUSTOM SCRAPBOOK            */
+/* ================================================================= */
+/*
+ * FILE       : Na__LayoutEditor__Styles__ScrapbookCustom__.css
+ * MODULE     : Layout Editor - Custom Scrapbook
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The save block under the Custom Scrapbook's tiles
+ * CREATED    : 19-Sep-2026
+ *
+ * DESCRIPTION:
+ * - Linked by Na__LayoutEditor__Panel__ScrapbookCustom__ when it registers, the
+ *   way the Drawing Register links its own sheet.
+ * - The tiles are the Scrapbook's (.na-le-scrap in Styles__Panels); nothing
+ *   here restyles them, so every library's tiles read alike. The rows, the
+ *   button and the notes are the panel host's.
+ *
+ * PORT NOTE:
+ * - Authored in : TrueVision3D first (19-Sep-2026). Not yet in ValeVision.
+ *
+ * DEVELOPMENT LOG:
+ * 19-Sep-2026 - Version 1.0.0
+ * - Initial implementation.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Save Block                                             */
+/* ----------------------------------------------------------------- */
+
+/* SAVING IS THE SECOND THING the section does, so it sits under the tiles
+   behind a rule, where it does not push the library down the column. */
+
+.na-le-scrap-save {
+    margin-top                         : 10px;
+    padding-top                        : 8px;
+    border-top                         : 1px solid #dde3e8;
+}
+
+.na-le-scrap-save__heading {
+    margin                             : 0 0 6px 0;
+    font-size                          : 0.72rem;
+    font-weight                        : 600;
+    color                              : #172b3a;
+}
+
+/* endregion ------------------------------------------------------- */

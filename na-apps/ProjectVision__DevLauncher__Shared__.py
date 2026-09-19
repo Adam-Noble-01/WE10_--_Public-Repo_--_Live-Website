@@ -73,6 +73,27 @@ MASTER_INDEX_RELPATH        = os.path.join(
 
 DEFAULT_YEAR                = '26'
 
+# LAST-TOUCHED SCAN | Newest file modification time inside a project folder
+# -----------------------------------------------------------------------------
+# The launcher orders cards by the job last worked on, which means reading real
+# file times rather than a recorded date. The whole portal walks in well under a
+# tenth of a second, so this runs on every request and never needs a cache.
+NA_MONTH_NAMES              = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+
+TOUCH_SCAN_SKIP_DIRS        = {'.git', '.vs', '__pycache__', 'node_modules', '.idea'}
+TOUCH_SCAN_SKIP_FILES       = {'Thumbs.db', 'desktop.ini', '.DS_Store'}
+TOUCH_SCAN_FILE_LIMIT       = 20000                                  # <-- Safety stop, well above a real project
+
+# The redirect stubs that sit at the top of every project folder are generated
+# in bulk, so they all carry the same timestamp and say nothing about the job.
+# Left in, they drag a project last opened in 2025 to the top of the list.
+TOUCH_SCAN_SKIP_ROOT_FILES  = {
+    'ProjectVision-WebApp.html',
+    'PlanVision-WebApp.html',
+    'TrueVision-WebApp.html'
+}
+
 # SUB-APPLICATION ENTRYPOINTS | Repo-relative paths under /na-apps/
 # -----------------------------------------------------------------------------
 # Casing matches the files on disk (TrueVision ships Index.html) and mirrors
@@ -181,6 +202,64 @@ def _invert_iso(iso_value):
         return -datetime.fromisoformat(iso_value).timestamp()
     except (ValueError, OSError, OverflowError):
         return 0.0
+
+
+def _newest_file_mtime(project_dir):
+    """
+    Find when a project was last actually worked on, by reading the newest file
+    modification time anywhere inside its folder.
+
+    This is deliberately not the Project Admin createdDate, nor the lastModified
+    field written into the admin JSON. Saving drawings, dropping in a survey or
+    re-rendering a sheet all touch files without ever rewriting that field, so a
+    recorded date says when the job was opened, not when it was last touched.
+
+    Returns (iso_string, house_date_string), both empty when nothing is readable.
+    """
+    if not project_dir or not os.path.isdir(project_dir):
+        return '', ''
+
+    newest    = 0.0
+    inspected = 0
+
+    for dir_path, dir_names, file_names in os.walk(project_dir):
+        dir_names[:] = [name for name in dir_names if name not in TOUCH_SCAN_SKIP_DIRS]   # <-- Prune in place, so os.walk never descends
+
+        at_project_root = os.path.normpath(dir_path) == os.path.normpath(project_dir)
+
+        for file_name in file_names:
+            if file_name in TOUCH_SCAN_SKIP_FILES:                                        # <-- OS clutter is not project work
+                continue
+
+            if at_project_root and file_name in TOUCH_SCAN_SKIP_ROOT_FILES:               # <-- Generated redirect stub, not project work
+                continue
+
+            inspected += 1
+            if inspected > TOUCH_SCAN_FILE_LIMIT:                                         # <-- Guard against an asset folder that grows without bound
+                break
+
+            try:
+                modified = os.stat(os.path.join(dir_path, file_name)).st_mtime
+            except OSError:
+                continue
+
+            if modified > newest:
+                newest = modified
+
+        if inspected > TOUCH_SCAN_FILE_LIMIT:
+            break
+
+    if not newest:
+        return '', ''
+
+    stamp = datetime.fromtimestamp(newest)
+
+    return stamp.isoformat(), _format_na_date(stamp)
+
+
+def _format_na_date(stamp):
+    """Render a datetime in the Noble Architecture house format, 17-Sep-2026."""
+    return f"{stamp.day:02d}-{NA_MONTH_NAMES[stamp.month - 1]}-{stamp.year}"
 
 
 def _build_sub_app_url(sub_app_key, project_code, project_folder, project_year):
@@ -448,6 +527,9 @@ def _describe_project(repo_root, project_code, project_name, project_folder,
     modified_sort = admin['modifiedSort']
     recency_sort  = created_sort or modified_sort or ''
 
+    # LAST TOUCHED | When the folder itself last changed, which is real work done
+    touched_sort, touched_date = _newest_file_mtime(lookup_dir)
+
     return {
         'projectCode'    : project_code,
         'projectName'    : resolved_name,
@@ -457,6 +539,8 @@ def _describe_project(repo_root, project_code, project_name, project_folder,
         'createdSort'    : created_sort,
         'modifiedSort'   : modified_sort,
         'recencySort'    : recency_sort,
+        'touchedDate'    : touched_date,
+        'touchedSort'    : touched_sort,
         'indexed'        : bool(indexed),
         'indexStale'     : index_is_stale,
         'folderExists'   : folder_exists,
@@ -518,14 +602,15 @@ def collect_dev_projects(repo_root, default_year=DEFAULT_YEAR):
             indexed_sub_apps = {}
         ))
 
-    # SORT | Newest job first
+    # SORT | Last worked on first
     # -------------------------------------------------------------------------
     # The launcher exists to get straight into the job just worked on, so the
-    # recorded project date leads. Projects with no Project Admin content carry
-    # no date at all; those fall to the back, newest year first, then by code.
+    # newest file time inside the folder leads: drawings saved this afternoon
+    # beat a project opened last year. Projects whose folder cannot be read fall
+    # back to the recorded date, then to the back, newest year first, then code.
     def _sort_key(item):
         year      = item['projectYear']
-        recency   = item['recencySort']
+        recency   = item['touchedSort'] or item['recencySort']
         year_rank = -int(year) if year.isdigit() else 0
 
         return (

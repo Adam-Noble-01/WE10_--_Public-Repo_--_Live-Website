@@ -2,6 +2,651 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.75.0  -  19-Sep-2026
+### Safari Reads the First Manifest and Never Looks Again, and the First One Was the Wrong One
+
+**Overview**
+- Adam, on the iPad: follow the Share > Add to Home Screen card, tap the new icon, and "it loads up
+  like a blank version of the app with none of the content, modal, or anything."
+- The icon was opening `Index.html` with no `?project=` on it. Every Home Screen icon made from
+  Safari since the install feature shipped (v2.9.0, 27-Aug-2026) has done the same, on iPhone, iPad
+  and Mac. Chromium installs were never affected, which is why it went three weeks unseen.
+- There was no iPad launch resolver to find, and never had been. The iOS side of the module was an
+  instruction card and one belief, written down in three places: "Safari bookmarks the page the
+  client is standing on." That is only true when the page has no manifest.
+
+**The cause**
+- `Index.html` carried a static `<link rel="manifest">` to the fallback file, and three lines below
+  it the builder swapped that link's `href` for the per-project `data:` manifest. In Chrome DevTools
+  that looks perfect: one link, a `data:` URL, the right `start_url`.
+- Safari never sees the swap. Since 15.4 WebKit fetches the manifest the moment the FIRST
+  `<link rel="manifest">` with a valid href is parsed (bug 229059, "Always fetch the first manifest
+  if provided") and `DocumentLoader::loadApplicationManifest` returns early for the rest of the
+  page's life once a loader exists. `HTMLLinkElement::process()` does call it again on an href
+  change - into that early return.
+- So the only manifest an Apple device ever held was the fallback, whose `start_url` was
+  `../../Index.html`. When a manifest is present, Add to Home Screen launches its `start_url`, not
+  the page. Bare URL, no project, empty scene.
+- The per-project label survived, because `apple-mobile-web-app-title` is a meta tag and is read at
+  share time. That is what made it so misleading: an icon correctly named after the project, that
+  opened on nothing.
+
+**The fix**
+- `Index.html` has no static manifest link, and says why in capitals. The builder creates the link
+  and gives it its `href` BEFORE it joins the document, so there is exactly one manifest for WebKit
+  to find and it is the right one. If a static link ever comes back the builder warns in the
+  console, because on Safari it has already won by then.
+- The fallback manifest lost its `start_url`. A manifest without one launches the page it was
+  installed from, query and all (`parseStartURL` returns the document URL), so the degrade path can
+  no longer produce an empty app on any engine. Chromium will not raise its own prompt without a
+  `start_url`, so on that path install is by the browser menu - a rare missing prompt beats an icon
+  that opens on nothing.
+- `refresh()` - the rebuild when the project data brings a nicer name - now documents that it
+  reaches Chromium only. The launch URL is the same in both builds, which is the part that matters.
+
+**A second fault on the same road: every first launch reloaded itself**
+- `clients.claim()` raises `controllerchange` on a page nothing was controlling, and the registrar
+  treated that as an update: load the model, then reload and load it again. A Home Screen icon gets
+  storage of its own, empty, so for an installed iPad app that was EVERY first launch. It is also
+  the "a new origin reloads once" that the local testing notes have been working round.
+- The bridge now samples `navigator.serviceWorker.controller` before registering. The first claim
+  passes without a reload; any change after it is a real update and reloads as before, still held
+  while a model is loading or the Layout Editor has unsaved work.
+
+**Icons that are already out there**
+- They cannot be repaired from here: the bare URL is stored inside the icon, and the icon's own
+  storage has never seen a project to fall back on. So the installed-standalone handler now spots
+  that launch - installed, Safari family, no project in the URL - and shows a card saying what
+  happened and how to replace the icon (remove it, open the project link in Safari, add it again),
+  worded for iPhone, iPad or Mac. It is the one card allowed to render inside an installed app
+  (`allowWhenInstalled`), and it sits above the boot loading overlay.
+- `PWA_SW_VERSION_TOKEN` bumped to `2026-09-19-1` so a broken icon's own copy of the shell reaches
+  that handler on its next launch rather than the one after.
+
+**Tested**
+- Safari cannot run on the studio PC, so the rule was replayed instead: the real `<head>` of the
+  LIVE `Index.html` and of the fixed one, written into a sandboxed frame at the true PS01 URL, with
+  WebKit's rule applied synchronously (first valid link wins, at insertion). Live: latched by the
+  parser on the static file, icon launches `/Index.html`. Fixed: latched at `appendChild` on the
+  `data:` manifest, icon launches `/Index.html?project=PS01&project-folder=PS01__MustersRoad&year=26`.
+  Static link put back with the new fallback: still launches the project. Repeated with the scripts
+  cached, because an asynchronous first attempt gave a timing-dependent answer and was thrown away.
+- The bare live URL opened in a browser is the screen Adam described: header, Tools & Settings,
+  toolbar, empty scene.
+- Registrar on a fresh origin: first install logged "no reload needed", the page marker survived,
+  the model finished loading. A second `controllerchange` on a page controlled at boot reloaded it.
+  On PS01 it was correctly held by the unsaved-work probe.
+- Repair card: shown for an iPad Safari descriptor on the bare URL; not shown on a project URL, and
+  not shown for a Chromium install. The standalone rule reads
+  `.na-pwa-install:not(.na-pwa-install--notice)`.
+- NOT tested: a real iPad. The WebKit behaviour is read from its source and release notes, not
+  observed. The check is: delete the old icon, open a project link in Safari, add it, launch it.
+
+**Files**
+- `Index.html` (static manifest link removed), `62__Feature__AppInstallability/`:
+  `TrueVision__Pwa__Manifest__Builder__.js` 1.1.0, `TrueVision__Pwa__Manifest__Fallback__.webmanifest`
+  (no `start_url`), `TrueVision__Pwa__ServiceWorker__Registrar__.js` 1.2.0,
+  `TrueVision__Pwa__Handler__InstalledStandalone__.js` 1.1.0, `TrueVision__Pwa__PromptUi__.js` 1.1.0,
+  `TrueVision__Pwa__Handler__IosSafari__.js` 1.0.1 (header only), `TrueVision__Pwa__ServiceWorker__Logic__.js`
+  1.8.0 (token), `README__PwaInstallability__.md`,
+  `03__Style__AppStylesheets/Na__UiFeature__Styles__PwaInstallability__.css` 1.1.0.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.74.0  -  19-Sep-2026
+### One Client, One Site, One Place to Type Them
+
+**Overview**
+- Adam: "it's very rare that you, on a project like this, use a different client or address. In
+  fact, I've never really actually done it in my career... otherwise, every time you edit a
+  different drawing or create a new drawing, it then means you have to laboriously refetch and
+  retype all this."
+- He was right, and PS01 was already showing the damage. Three of its four sheets ended the site
+  address `NG2 7DD ` with a trailing space and one did not, and all four said *Nottinghamshire*
+  where the project's own quotation said *Nottingham*. Four copies of one fact, disagreeing.
+
+**The pack owns the two fields, and each sheet carries a switch**
+- `LayoutEditor__DrawingsData__CommonClient` and `...__CommonSiteAddress` hold them ONCE, beside
+  `ClientDimensionsEnabled`, because they are the same kind of thing: a fact about the project,
+  not about any one sheet.
+- The Sheet panel gains one row above Client, reading **Common**, ticked. On, the Client and Site
+  Address boxes show the pack's values and typing into either retypes the whole pack. Off, this
+  one sheet keeps its own.
+- One switch covers both fields, not two. A sheet that needs its own address almost always needs
+  its own client with it, and a row of half-linked fields is harder to read than it is useful.
+- Turning it off writes BOTH current values onto the sheet first, so the override opens with the
+  right address already in it and a word gets edited rather than a postcode retyped. Turning it
+  back on drops the sheet's copies, which is what makes the pack agree with itself again.
+- `Sheet__CommonFields` is written only when `false`. Absent reads as on, so every sheet ever
+  drawn joins the pack by default and only a deliberate opt-out is recorded.
+- `BuildFields` resolves the two keys from the pack when a sheet is on Common, ahead of anything
+  stored on the sheet. Everything downstream - the screen, the PDF export, the register PDF, the
+  exported file name - reads `Na__LeModel__GetFields`, so the one change covers all of them.
+
+**Where the two facts come from: the Project Admin record**
+- `Na__LayoutEditor__ProjectRecord__.js` reads the site address from the project's own
+  `ProjectAdmin__Quotation(s)__.json` (`projectAddress`) and the client from
+  `ProjectAdmin__ProjectConfig__.json` (`clientDrawingName`). A new project fills its title
+  blocks in by itself.
+- **These files are not on R2.** The model sync carries only the TrueVision and PlanVision
+  content folders, so `cdn.noble-architecture.com/.../10__ProjectAdmin__AppContent/...` answers
+  404. They are served by the website itself, beside every other repository file, which is one
+  path that works on the live build and on a local static server alike - verified 200 on
+  `www.noble-architecture.com` before any of this was built on.
+- Read only, and by name. The admin system owns those documents; a drawing app that could
+  rewrite a quotation is a drawing app that will one day rewrite a quotation.
+
+**The client's name on a drawing is not the client's record**
+- The full record - given name, email, telephone, correspondence address - is PII and stays
+  exactly where Adam put it: AES-256-GCM encrypted in R2, decryptable only by the admin Worker
+  holding `CLIENT_DATA_KEY`. TrueVision does not ask for it and cannot read it.
+- `clientDrawingName` is a deliberately smaller thing - `{ salutation, initial, surname }`,
+  composing to "Mr P. Samra". Adam: "their name on the drawing of their address is public domain
+  anyway... less about putting their actual first and second name on and less about making it
+  easier for the data online, if it's stored anywhere unencrypted, to be easily searched."
+- So the salutation is stored, because a title block prints one and a title block has always
+  printed one; and the given name is not, because nothing on the drawing needs it. A plain
+  string is accepted too, for a company or a joint surname the parts do not fit.
+- `_apply_admin_config_fields` in the ProjectVision Project Manager writes the three parts, so
+  the field is maintained where every other project fact is maintained.
+
+**Migration adopts the sheets, never the record**
+- A pack that has never had common values takes them from its own sheets: the value most of the
+  pack already agrees on, trimmed, wins; sheets that match lose their copies and stay on Common;
+  a sheet that genuinely differs is switched off Common and keeps exactly what it was printing.
+- It does NOT take them from the admin record. An issued drawing must not quietly change its
+  printed address because a quotation spells the county differently. The record is *offered*
+  instead - one line under the fields, with a **Use it** button, shown only when there is a real
+  difference and only on a sheet that is on Common, because a loose sheet would not show the
+  change the button makes.
+- Only a project with nothing typed anywhere - a new one - seeds straight from the record.
+- The seed marks the model dirty and rides out with the next save; it never writes to R2 on its
+  own, the same way the v2.21.0 drawings migration lands.
+
+**Checked**
+- 31 assertions against the real modules and PS01's real sheet records, including the one that
+  matters: what each title block prints is unchanged by the migration apart from that invisible
+  trailing space.
+- In the app on PS01: Common ticked on all four sheets, one client and one address on the pack,
+  the offer showing *Nottingham* against the drawings' *Nottinghamshire* without touching them.
+  Untick D01, give it its own address, and D02 and D04 do not move; retype the client on D02 and
+  D04 follows while D01 does not; Ctrl+Z puts the override back. No `/r2/write` was attempted at
+  any point, and PS01's project data on disk is byte-for-byte what it was.
+- A missing repaint after **Use it** turned out to be the hidden Browser pane's dead
+  `requestAnimationFrame`, not the code: shimmed onto a timer, the title block repaints at once.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.73.0  -  19-Sep-2026
+### Ctrl+S Had to Blur Before It Could Save, Because the Button Was Getting That for Free
+
+**Overview**
+- Adam, after the close guard landed in v2.67.0: "Yes, add Ctrl+S." The guard makes losing work
+  harder; a save key makes it rarer, which is the better half of the same problem.
+- It is not where the other Edit chords are, and it does one thing before saving that the Save
+  Sheets button never had to do for itself. Both are the entry.
+
+**Why it is not with Ctrl+Z and Ctrl+C**
+- Those are answered by the sheet's own keyboard, which is attached only while a drawing tab is up.
+  Open the specification or the register and it has stood down - correctly, because its keys mean
+  nothing there.
+- Saving means something on all three. So `Edit__Save` is answered once by the mode controller, on
+  `document` in the capture phase, for as long as the editor is open, and the sheet's keyboard is
+  left exactly as it was. Capture also means the key is taken before the browser is told, which is
+  the point: Ctrl+S would otherwise offer to save the page as a file over the top of a drawing.
+- The key is taken whenever an editable editor is open, even when the save is a no-op. A read-only
+  web viewer keeps its own Ctrl+S - there is nothing there to save.
+
+**The blur, which is the whole trick**
+- Panel fields report on `'change'`, which fires on blur or Enter and NOT on every keystroke. The
+  Save button never had to think about this: clicking anything blurs the focused field, so the
+  value being typed committed on the way to the button.
+- A keyboard shortcut blurs nothing. Without help, Ctrl+S pressed while typing a dimension offset,
+  a margin heading or a lineweight would have saved the OLD value and left the new one sitting in a
+  box - the exact failure the shortcut exists to prevent, delivered with a confirmation toast.
+- So the handler commits the paper's text tool the way the specification and register tabs already
+  do, then blurs the focused field if it is inside the editor host. Focus is not restored: that is
+  what the button does too, and a field rebuilt by its own change event is a different node by then.
+- Proven in the running app: the model read `PROBE TWO` before the key and `PROBE THREE DISTINCT`
+  immediately after, with the typed value never having fired a change of its own.
+
+**A false negative worth recording, because it will happen again**
+- The first two attempts showed the blur firing and the value NOT committing, which read exactly
+  like a broken handler. It was the test: `execCommand('insertText')` had re-typed a string the
+  field already held, and a browser fires `change` only when the value at blur differs from the
+  value at focus. Re-typing the same text is not a change.
+- Worth knowing before believing a commit test in this harness: the pane's document does not have
+  focus (`document.hasFocus()` is false), though `document.activeElement` still tracks `focus()`
+  correctly, and a `blur` LISTENER never fires while `change` does.
+
+**Tested**
+- Real modules on PS01 with every non-GET refused (`/r2/read` let through, or the project loads with
+  no sheets). Ctrl+S from the stage: taken, and one `POST /r2/write` attempted - the save genuinely
+  ran, and the 503 the guard answered with produced the failure toast that proves the path end to
+  end. Ctrl+S from the specification tab: the same. Bare S: untouched. Ctrl+Shift+S: no match, so
+  `ModifierMatch: Exact` is doing its job.
+- Afterwards: margin heading restored to its original, dirty flag cleared, draft key removed, and
+  every write attempt in the session accounted for as blocked. Nothing reached R2.
+
+**Files**
+- `03__Core__Config/Na__LayoutEditor__KeyMappings__.json` (`Edit__Save`),
+  `05__Core__ModeController/Na__LayoutEditor__ModeController__.js` (`Na__LeMode__OnSaveKey`, the
+  capture listener), `40__Ui__Panels/Na__LayoutEditor__Toolbar__.js` (`Na__LeToolbar__Save`
+  exported, so the key and the button are one action rather than two that drift).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.72.0  -  19-Sep-2026
+### Three Greys, Three Shadows and Three Letterheads for One Pack of Documents
+
+**Overview**
+- Adam, on the register beside the specification: "the drawing register just looks like an
+  absolutely completely different document. The whole thing's meant to look like one cohesive
+  pack... this is like three completely different developers built it. The drawing editor UI is
+  kind of the gold standard that needs to be the same everywhere else."
+- He was right, and it was measurable. Each editor declared its own ground and its own paper
+  shadow, by hand, in its own file: the drawing editor `#d8dcdf` with `0 6px 26px .22`, the
+  specification `#eef1f4` on a `#d7dde3` desk with `0 1px 3px .16, 0 8px 24px .1`, the register
+  `#eef1f4` on `#d7dde3` with `0 3px 9px #0002`. Three answers to "what does paper look like".
+- Worse, v2.70.0 had just "fixed" the register by copying the specification's two greys into it -
+  which matched two of the three and left both differing from the drawing editor. A divergence
+  fixed by duplication is two divergences.
+
+**One place that says what a surface is**
+- `10__Core__SheetSurface/Na__LayoutEditor__Styles__Surfaces__.css` is new, loaded immediately
+  before `Styles__Main__`, and holds every ground, paper, shadow, edge and chrome token the
+  Layout Editor has. Its header says outright: never write a ground colour or a paper shadow
+  into a feature stylesheet again, add a token here and use it from both places.
+- `--Na_Le_Stage` is `#d8dcdf`, the drawing editor's, exactly as Adam specified. The drawing
+  editor's own `--Vale_LayoutGreyStage` is now an alias of it, so every existing use keeps
+  working and there is still only one value.
+- `--Na_Le_PaperShadow` is the drawing sheet's `0 6px 26px rgba(0, 0, 0, 0.22)` - the deepest of
+  the three, and the one that actually reads as a sheet lying on a desk.
+- The specification's page and reader desk, and the register's page and Read desk, all resolve to
+  the one stage. The specification's pages, the register's rasterised pages and the register's
+  Edit card all wear the one paper shadow, square-cornered (the register card's 10px radius is
+  gone: paper does not have rounded corners).
+- Audited after the change: no editor ground and no paper shadow is hard-coded anywhere in the
+  Layout Editor's stylesheets. Two hard-coded values survive on purpose and are neither - a
+  segmented-control pill on the specification's white bar, and a floating menu's own shadow.
+
+**The register wears the pack's letterhead**
+- The register PDF now opens the way the Project Specification does: the office mark left, the
+  running head and the issue right in tracked small caps, a hairline under, then the document's
+  own name, the project, and a ruled strip of PROJECT / DOCUMENT No. / DATE / CONTENTS. Drawn at
+  the specification's own measurements (6.2mm mark in an 11mm band, 6.8pt running head), because
+  the point is that they match.
+- The letterhead repeats on every page, so a loose sheet out of a printed set still says which
+  document and which project it came from. The foot follows too: the company left, the page count
+  right, both in the same small caps.
+- The document number is `PS01_REGISTER`, sitting beside the specification's `PS01_SPEC`.
+- The mark is fetched once per session and embedded as a **PNG data URL**, not pixels: jsPDF's
+  `RGBA` path drops the alpha and would print the logo on an opaque block. A failed fetch is not
+  an error - the band simply carries no mark.
+- The section heading no longer prints on page one. The title says "Drawing Register" directly
+  above it; the heading now earns its place only where the table runs on and the reader needs
+  telling what they are looking at.
+
+**The Edit table's columns**
+- Adam: "Adjust the column spacing. It's too wide now." The cause: two bare `nth-child` rules
+  pinned to the old eight-cell row. Inserting DRAWING No. and PHASE in front of DOCUMENT NAME
+  handed PHASE the `width: 48%; min-width: 240px` that belonged to the name, which is why the
+  table read as one enormous gap.
+- Replaced with a documented set covering all nine cells, counted from the row as it is actually
+  built. Only the name flexes; everything else takes what its content needs, which is the same
+  rule the printed register's columns already follow.
+- Two traps worth recording. A `width` on a cell is only a hint once another column asks for
+  `100%` - the browser squeezed the phase box back to 58px - so the floors are `min-width`, which
+  holds. And a `<select>` is as wide as its widest option, so the phase box was setting its own
+  column: the config's phase names are now Adam's own words for them ("Building Regs", not
+  "Building Regulations"), which costs 60px and is what he calls them anyway.
+- Measured in a browser against the real stylesheet at his window width: handle 31, DRAWING No.
+  101, PHASE 156, DOCUMENT CODE 124, DOCUMENT NAME 763, SCALE 136, SIZE 66, REVISION 75,
+  expand 28. No runaway column.
+
+**Verification**
+- The register's Edit view was built cell for cell against the REAL stylesheets in a real browser
+  on an isolated static server - not the live app, so nothing could reach R2. Computed values:
+  ground `rgb(216, 220, 223)` = `#d8dcdf`, card background white, border radius `0px`, box shadow
+  `rgba(0, 0, 0, 0.22) 0px 6px 26px 0px` - identical to `.na-le-paper`'s.
+- Named export resolution passes on all 340 files.
+- The register PDF built across five fixtures: Open Sans embedded on every page of every one, and
+  the letterhead mark present on every page (3 on the three-page pack, 2 on the detailed).
+- NOT verified in the running app: how the letterhead sits once the logo is fetched over HTTP
+  rather than from disk, and the Specification and drawing editor tabs against the new ground.
+  Both need the real app, and entering the Layout Editor on a real project writes to R2.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.71.0  -  19-Sep-2026
+### A Drawing Number Was Three Facts in a Trench Coat, and Renumbering Shot Two of Them
+
+**Overview**
+- Adam: "by dumbing it down as much as we have now, just for the sake of those tabs, it's now made
+  the drawing numbers lose all of their meaning and become stupidly short, which is incorrect."
+  The title block was printing `D03` where it used to print `PS01_T02_D03`.
+- This was NOT v2.70.0's tab work, which is what it looked like. `Na__LeRegNum__Plan` writes
+  `prefix + String(next++).padStart(digits, '0')` - bare `"D01"` - straight into
+  `Sheet__Fields__DrawingNumber`, and that file is untouched in this working tree. It has always
+  done that. The full codes were legacy stored values and the first renumber overwrote them.
+- Confirmed against the saved data rather than inferred: PS01's `TrueVision__ProjectData__.json`
+  stores `"D01".."D04"` on its four sheets. The `PS01_T02_` is gone from disk, and Site Plan's
+  `D10` is now `D04`, so the numbering jump went with it. Nothing failed and nothing warned.
+- A drawing is three facts - which job, which stage of it, which sheet of that stage - and they
+  were being kept in one string that one writer owned and three readers needed. That is the bug.
+  Splitting them and composing the identifier is the fix, and it makes the failure impossible
+  rather than unlikely.
+
+**The three parts**
+- `Sheet__Fields__DrawingNumber` keeps the sequence alone, `D01`, which is what the register
+  already wrote and what v2.70.0's tabs already read. No migration needed: the field now holds
+  what it was in fact holding.
+- `Sheet__Fields__Phase` is new and per sheet: T01 Concept Design, T02 Planning Approval,
+  T03 Building Regulations, T04 Site & Remedial. Per sheet, not per project, because a live job
+  runs stages concurrently - a planning set stays issued while building regs drawings are drawn
+  against it - and one project-wide phase would force a re-label on drawings already lodged with
+  an authority. Adam chose T01 as the default for a sheet that has never been set.
+- The project code is not stored on the sheet at all. It comes from the project data, so every
+  drawing in a pack carries the same one and none can drift.
+
+**Composed, never stored**
+- `Na__LeRec__ComposeDocumentId` joins the three through `DocumentCodeFormat`
+  (`{project}_{phase}_{drawing}`). An empty part takes its separator with it, so a project with no
+  phase reads `PS01_D01` not `PS01__D01`, and a literal in front of the first part is kept.
+- A renumber now changes the sequence and the title block follows; a phase change changes the
+  phase and the file name follows. Nothing can write two thirds of an identifier by writing one
+  third, which is exactly what happened before.
+- `Sheet__Fields__DocumentId` is the escape hatch, honoured over the composition for that sheet
+  alone - a drawing inherited from another practice, or one whose code was fixed on an issued
+  document. Nothing in the app writes it.
+
+**Title block: Document ID, not Drawing No.**
+- Adam's reasoning, and it is the right one: "it's more than a number; it's a code with multiple
+  levels of meaning." Calling it a number is what invites one process to rewrite it whole.
+- The row key changed `DrawingNumber` -> `DocumentId` in `TitleBlock__Rows`, the classic scan
+  anchors and the `ConfigState__SheetSetup__` fallback, so the old key keeps holding what it
+  actually holds. Its share went 18 -> 26, taken off Drawing Title and Site Address, so the strip
+  still totals 202; the classic anchor drops 2.4mm -> 2.2mm for the longer string.
+- `Na__LePdf__Filename` names exports after `fields.DocumentId`, which restores the
+  `PS01_T02_D01__FloorPlans__A2__RevB__` filenames that the flattening had quietly shortened.
+- The Sheet panel filters `DocumentId` out of its editable rows, where it filtered
+  `DrawingNumber` - the register owns the identifier, and now there is an identifier to own.
+- `History__` tracks `Phase` and `DocumentId` alongside `Title`, `DrawingNumber` and `Revision`,
+  so an undo cannot restore a drawing to a phase it was moved out of.
+
+**The register shows the construction**
+- First three columns are the three parts in the order they compose, in both the Edit table and
+  the PDF: `DRAWING No. | PHASE | DOCUMENT CODE`. Read left to right they are how the identifier
+  is built.
+- Only PHASE is editable, as a select of the configured phases - it is the one part that is a
+  choice. A phase retired from the config still shows on a sheet that carries it. Its confirmation
+  names the outcome outright ("Its document code becomes PS01_T02_D01.") rather than a code the
+  reader has to assemble. The document code cell is set quieter than the two that make it and
+  carries a hover saying where it comes from.
+- TYPE was dropped. It printed the constant `"Drawing"` on every row - the register builds it in
+  code and no sheet can say otherwise - and eight columns do not fit A4 portrait. Measured, not
+  assumed: adding it back breaks `Drawing` across two lines and takes `ISO A2` and `Rev B` with
+  it. The row still carries `type`, so restoring it is one config line once the page goes
+  landscape. Recorded in `LayoutEditor__DrawingRegister__TypeColumnNote`.
+
+**An unnumbered sheet answers in the register's own series**
+- `Na__LeRec__DrawingNumber`'s unset default was `projectCode + '-' + order`, i.e. `"PS01-04"`.
+  That composed to `PS01_T01_PS01-04`, the project code twice, and its bare-digit tail gave
+  v2.70.0's tabs no short code at all. It is now `prefix + padded order` from the register's own
+  numbering series, `"D04"`, so a never-numbered pack composes `PS01_T01_D04` and its tabs read
+  `D04 - Site Plan`. That resolves v2.70.0's `''` case rather than reopening it.
+
+**Notes**
+- `TrueVision__NOTES__DrawingNumberingSchema__.md` is new and is the document to read before
+  touching anything that writes a number, a phase or an identifier. It carries what each part
+  means, why the phase is per sheet, why the code is composed and never stored, what the
+  flattening cost, and how to recover a project whose codes were flattened.
+
+**Verification**
+- Named export resolution passes on all 340 files with every change on disk.
+- `Na__LeRec__ComposeDocumentId` was lifted out of the repo and exercised directly, not
+  reimplemented: all three parts present, each one missing in turn, all three missing, untrimmed
+  input, and four alternative formats including a leading literal and a trailing one.
+- The register PDF built against the real module and the real config across five fixtures -
+  PS01 as Adam has it, 26 drawings, empty, never-numbered, and the detailed mode - Open Sans
+  embedded on every page of every one, nothing wrapping.
+- The never-numbered pack now composes `PS01_T01_D01` where the old default would have given
+  `PS01_T01_PS01-01`.
+- Every touched module syntax-checks clean as `.mjs`, and `AppConfig` parses.
+- NOT verified in the running app: the title block strip at its new 26 share, and the Edit view's
+  phase select. Both need a real sheet with viewports, which the offline harness cannot build,
+  and entering the Layout Editor on a real project writes to R2.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.70.0  -  19-Sep-2026
+### The Number Was Typed Twice and Shown Twice: a Tab Reads "D03 - 3D Images" and Nobody Types the D03
+
+**Overview**
+- Adam: "currently these strings applied to the tabs are gigantic and really cumbersome, and I keep
+  having to update numbers in multiple places... we've got a really robust indexing system for
+  giving, assigning, and renumbering drawings. This should reference what is set in those."
+- A sheet tab read `PS01_T02_D03 · D03 - 3D Images`. The first half was the Drawing Register's whole
+  number, put on the tab that morning. The second half was the sheet's name with the same number
+  typed into it by hand, because until that morning typing it was the only way to see a number on a
+  tab at all. Two copies of one fact, and only one of them followed a renumber.
+- The proof that it had already gone wrong was in the repo: PS02's fourth sheet was NAMED
+  `D24 - Site Plan` and NUMBERED `PS01_T02_D10`. Nobody had done anything careless. The name simply
+  had no way of knowing.
+- A tab now reads `D03 - 3D Images`: the short code CUT FROM the register's number, then a short name
+  that holds words and nothing else. Measured on PS01's four sheets, a tab went from about 226px to
+  about 123px, and the four together from 904px to 493px. On a 375px phone that is one tab in view
+  becoming two and most of a third.
+
+**One reading of the number, one cut of it**
+- `Na__LeRec__DrawingNumber(sheet)` is the single reading: the number the register wrote onto the
+  sheet, else the project default. `Na__LeRec__BuildFields` now takes its default from it, so the
+  number a tab is cut from and the number the title block prints cannot come apart. It also means
+  the tab strip's change signature - run on every nudge of every item - no longer solves the scale
+  label, the paper and the date of every sheet to read one string, which it had done since the
+  register put `GetFields` there.
+- `Na__LeRec__ShortCode(number)` cuts it down: the last run of letters and the digits after them, one
+  separator allowed between. `PS01_T02_D03` and the hand-typed `PS01_T02_D01 ` (trailing space and
+  all) give `D03` and `D01`; `D1000` stays whole; a series numbered `A-101` reads `A-101`.
+- CUT FROM THE NUMBER rather than rebuilt from the numbering series, deliberately. A number typed by
+  hand before the register existed answers exactly as one the register wrote, and there is no second
+  derivation to drift.
+- NO LETTER-LED CODE, NO SHORT CODE. The project default for a pack the register has never numbered
+  is `PS01-04`, whose tail is bare digits - a place in the order, not a drawing code. The first cut
+  of this gave such a sheet the tab `01 - D01 - Plans`. It now answers `''` and the tab shows the
+  name alone, exactly as every tab did before the register; the first renumber gives it a code.
+- The whole drawing number moved to the tab's hover (`PS01_T02_D03. Double-click to rename, drag to
+  reorder`), in line with the 2.49.1 rule that a tab says what kind it is by position and hover
+  text, not by something extra printed on it.
+
+**The name holds words**
+- `Na__LeRec__StripSheetCode(name, number)` takes a code typed in front of a name back off:
+  `D03 - 3D Images` gives `3D Images`. `NormaliseSheet` runs it, so `Sheet__Name` is the short name
+  for every reader at once - tab, toolbar, register, PDF file name, specification chips - with no
+  migration step and no list of call sites to keep in step. Stored data converges on the next save
+  of any kind; a web viewer reading an unmigrated project sees the short name regardless.
+- ONLY A CODE OF THE PACK'S OWN SERIES COMES OFF: the letters of the sheet's own short code, its
+  digits, then a dash, a colon, a middle dot or a bar. So the stale `D24` comes off a sheet numbered
+  D10, which is the whole point, while `L2 - Second Floor` on a D series keeps every word and
+  `3D Images`, `1:50 Details` and `D1.5 Details` are never touched. No period in the separator list,
+  because `D1.5` is a real thing to call a detail. A name that is nothing but a code is left alone.
+- 37 cases run against the functions lifted out of the real module source, all passing, including
+  the one-pass and the idempotent second pass.
+- `Na__LeModel__CleanSheetName` runs the same strip BEFORE a rename is saved, so a code typed out of
+  habit is kept as `3D Views`, not written to R2 whole and stripped on the next read.
+
+**The trap this would have walked Adam straight into**
+- Renaming a sheet wrote the new name over `Sheet__Fields__Title` - in the register's name
+  transaction, in `UpdateSheet` and in `DuplicateSheet`, all three added with the register. On PS01
+  that field is not the name. It is `Permitted Development Compliance  -  Existing Conditions &
+  Design Proposal Floor Plans`: the long title the title block prints. The same commit had also
+  removed the Drawing Title row from the Sheet panel, so there was nowhere to type it back.
+- Shortening four tabs is exactly what this release invites. It would have cost four typed titles.
+- `Na__LeModel__ApplySheetName` is now the one rename. A stored title that DIFFERS from the name is
+  somebody's typing and survives. One that MATCHES the name was only following it, and still does.
+  One never stored follows by itself through the `BuildFields` default and is left unstored. All
+  three cases checked on scratch records in the running app.
+- The normaliser applies the same rule when it strips: a title equal to the old name goes with it
+  (`D07 - Sections` and `D07 - Sections` both become `Sections`); a typed title is never touched.
+  PS01's four long titles came through a full load byte for byte.
+- `SetField` no longer renames the sheet when the Drawing Title is typed. That line was unreachable
+  while the row was gone, and with the row back it would have renamed the tab to the long title.
+- The Drawing Title row is back among the title block fields. It is the long title; Name is the
+  short one; left blank, the title reads as the name. Drawing No. still has no row - the register
+  owns it, and it shows in front of the Name instead. NOT ASKED FOR, and the one judgement call in
+  this release: flagged to Adam as such.
+
+**Where the code shows, and that nobody types it**
+- Sheet panel, Name row: the code stands in front of the box as fixed text (`D03 -`), joined to it,
+  so the row reads the way the tab does while only the words can be typed. It is
+  `GetTabLabel(sheet, '')` - the tab's own label with no name in it - so the separator is configured
+  once (`TabLabelFormat`, `{code} - {name}`). Read on every refresh, and a renumber refreshes the
+  panel, so it follows the register by itself. Its hover carries the whole number.
+- Tab rename: the same fixed code in front of the field, inside a tab-shaped frame.
+- Toolbar, Dev menu sheet list and delete prompt, and the specification's go-to chips all name a
+  sheet through `Na__LeModel__GetTabLabel`, so a drawing is called the same thing wherever it is met.
+- Simulated renumber in the running app: writing `PS01_T02_D117` onto the open sheet and announcing
+  `register-updated` moved the tab to `D117 - Floor Plans`, the hover to the whole number, and the
+  panel's code and the toolbar with it. Put back exactly; dirty flag unchanged; no write attempted.
+- A new sheet is called `New Drawing`, not `Drawing {index}`. `D11 - Drawing 5` is two numbers on one
+  tab that need not agree, which is the fault this release exists to remove. `{index}` still answers.
+
+**The register's ground matches the specification's**
+- Adam, mid-task: "Update the background as well to match the specification. There's too much of a
+  divergence between the specification and the drawing register."
+- The register page was a warm paper (`#f8f7f5`) in both views. Its neighbour tab is a cool grey with
+  a darker desk under the pages in Read. Side by side they read as two different apps.
+- `--Na_Register_Page` `#eef1f4`, `--Na_Register_Desk` `#d7dde3` and `--Na_Register_BarRule` replace
+  `--Na_Register_Paper`. `Na__LeRegEd__Render` marks the content `na-le-register__content--read`
+  while Read is showing. Computed colours in the running app are now identical pair for pair: page,
+  Read desk and the rule under the bar.
+- The card keeps its own paper palette. That is the document, and it matches what it prints.
+
+**Worked alongside v2.69.0**
+- The register PDF was being rewritten in another session at the same time, in the same folder. The
+  two agreed a file split by message before either wrote, and that exchange caught a real
+  regression: the register's DOCUMENT NAME read raw `Sheet__Name`, so it would have lost every
+  D-number the moment the strip landed. It now composes through `Na__LeModel__GetTabLabel`.
+
+**Worth knowing, and not changed here**
+- A NEW SHEET RENUMBERS THE WHOLE PACK from the register's series, and a project that has never saved
+  a series gets the config default, `D`. PS01 had no `LayoutEditor__DrawingRegister` block. At 17:04
+  today a fifth sheet was created in the live app and PS01's hand-typed `PS01_T02_D01`…`D10` became
+  `D01`…`D05` on R2 and in the local mirror - the Site Plan went from D10 to D04. Not from this
+  session: the test page ran behind a guard that refuses every write, and its log is empty. If the
+  long form is wanted on the title blocks, set the register's prefix to `PS01_T02_D` and give the
+  Site Plan a number jump of 10. The tabs read `D01`, `D10` either way.
+
+**Verification**
+- `Na__Verify__Exports__.mjs`: 339 files, every named import resolves and every `Na__` identifier is
+  imported or declared. `Na__Verify__ModuleGraph__.mjs`: pass. All twelve changed modules
+  syntax-checked as `.mjs` copies. The config JSON parses with no duplicate keys.
+- Live on PS01, on a no-cache server and a fresh origin, behind a fetch and XHR guard installed
+  before the editor was entered and re-installed after the service worker's one reload. Tabs, hover,
+  panel code, toolbar, rename frame, the Drawing Title row, the register rows and both backgrounds
+  read back from the DOM. Zero console errors, zero writes attempted, no browser draft left behind.
+- ONE THING THE PANE COULD NOT SHOW: the hidden pane's document never has focus, so `input.blur()`
+  fires no event and the rename field does not close on Escape there. Dispatching the blur by hand
+  ran the commit path and the tab came back. That mechanism is unchanged from before this release.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.69.0  -  19-Sep-2026
+### The Register Was Never Given Its Font, So Every Reader Invented One
+
+**Overview**
+- Adam: "It seems like it's rendering it to an image, but then downloading a PDF with a completely
+  different format." The preview and the download were in fact the exact same bytes - the Read view
+  rasterises `built.doc.output('arraybuffer')`, it does not re-draw anything. What diverged was the
+  typeface, because the file carried no font at all and every reader substituted a different one.
+- `Na__LeRegPdf__BuildDocument` called `Na__LePdfFonts__Install(doc)` but never awaited
+  `Na__LePdfFonts__EnsureLoaded()`. `Install` returns `false` on the spot when the cuts are not yet
+  in memory, so it failed silently on every call, `SetFont` fell through to `helvetica`, and the
+  whole register printed in a non-embedded standard-14 face.
+- Measured on the real module offline: **10 failed installs, 9 failed font selections, 0 succeeded**,
+  and the finished file declared `Helvetica` and `Helvetica-Bold`, both NOT-EMBEDDED. PDF.js drew
+  one substitute in the pane, Adam's reader drew another, MuPDF drew a third. Same file, three faces.
+- The register also printed clumped: a fixed `[0.13, 0.43, 0.11, 0.12, 0.11, 0.10]` column split gave
+  CODE 19.4mm of text width for a 24mm drawing number, so `PS01_T02_D01` broke mid-token onto two
+  lines while DOCUMENT NAME sat on 77mm and used 27mm of it.
+
+**The font fix**
+- `BuildDocument` now awaits `Na__LePdfFonts__EnsureLoaded()` before anything is measured or drawn,
+  which is what `Na__LayoutEditor__SpecPdf__.js` has always done at its line 383. The register was
+  the odd one out, not the pattern.
+- The file now declares `OpenSans` as an embedded Type0 / Identity-H subset. 2,244 bytes to 31,118.
+  Text still extracts as clean Unicode, so the register stays searchable and copy-pasteable.
+- Because the face is in the file, the Read view and the downloaded PDF are now the same document in
+  the same type on every machine. That was the whole of the reported divergence.
+
+**The table**
+- Columns are measured from the embedded font: each takes the width of its widest cell, floored at
+  its own heading so a heading never wraps, capped at `ColumnMaxMm`. Surplus width is then shared out
+  in proportion, so the table breathes evenly instead of parking all its slack in one column. A
+  shortfall comes off the roomiest columns first, and the one `Flex` column is what is left to wrap.
+- Rows are measured whole and drawn whole. A row that will not fit starts the next page instead of
+  being sliced across the break, which the old `take = floor((bottom - y - 4) / 4.5)` loop did.
+- Cells are vertically centred on a configured rhythm (`RowPadMm`, `LineMm`, `CellPadMm`), not pinned
+  to a `y + 5.5` baseline in a 9mm box. SIZE and REV centre; the rest read left.
+- A scale of `1:50 @ ISO A2` prints as `1:50` when the SIZE column already says ISO A2 - the same
+  fact twice was the single biggest cause of the wrapping. A genuine mismatch (`@ ISO A1` on an A2
+  sheet) is left alone, because that one is worth seeing. `CollapseScaleSuffix: false` turns it off.
+  The sheet's stored Scale field is never touched either way.
+- DOCUMENT NAME now composes through `Na__LeModel__GetTabLabel(sheet)`, so the register row reads
+  exactly what the tab reads and the two cannot drift. This matters as of v2.70.0's rename work,
+  which strips a hand-typed `D01 - ` from `Sheet__Name`; without this the register would have lost
+  its D-numbers.
+- `Na__LeRegPdf__Rows()` still returns raw field values. The Edit view puts `name` and `revision`
+  straight into editable inputs and writes back what it reads, so prettifying them there would have
+  saved the decoration into the project. Presentation happens in `Na__LeRegPdf__PrintRows` instead.
+- An empty cell prints an em dash in the muted ink rather than nothing at all, so a never-numbered
+  sheet or an unrevised drawing reads as a stated blank rather than as a hole. `EmptyCellText: ""`
+  turns it off. A sheet with no revision now prints that mark instead of a bare `Rev ` with nothing
+  after it, which the first cut of this work produced and which reads as a fault.
+- `Na__LeModel__GetTabLabel` answers the sheet's name alone when `Na__LeRec__ShortCode` finds no
+  letter-led code - a never-numbered pack numbered `PS01-04` has a bare-digit tail. Checked, not
+  assumed: DOCUMENT NAME then degrades to the plain name rather than inventing a code, and an empty
+  name, an empty drawing number and an empty scale all print the absent-value mark.
+
+**The page**
+- Title band: project name (shrink-to-fit down to 12pt rather than wrapped or cut), project code
+  right, long-form date, then a 0.6mm rule in `#172b3a` - the drawings' own ink, so the register
+  reads as part of the pack it lists. Margin 15mm to 18mm.
+- Revision history flows instead of forcing one page per drawing: PS01's four drawings went from
+  five pages to two. Each entry is set against a 22mm revision rail carrying its Rev code and date,
+  with warning panels attached to the entry they belong to.
+- Footer is a hairline, `NOBLE ARCHITECTURE`, and `Page n of m`.
+
+**Preview resolution**
+- The canvas was built at a fixed 1.25 scale - 744px for an A4 page - and then stretched by CSS into
+  a `max-width: 794px` box. The Read view was an *enlargement* of the document on every display, and
+  badly soft on a HiDPI one. Scale is now `previewWidthPx * devicePixelRatio / unscaledWidth`,
+  clamped by `PreviewMaxPixelRatio`. The canvas is also opaque and pre-filled white.
+- `PreviewScale` is gone from the config, replaced by `PreviewPageWidthPx` and
+  `PreviewMaxPixelRatio`. `previewWidthPx` must stay in step with the `max-width` on
+  `.na-le-register__pdf-page`; both files now say so.
+
+**Configuration**
+- `LayoutEditor__DrawingRegister__Config` gains typography (`TitlePt`, `HeadingPt`, `MetaPt`,
+  `TableHeadPt`, `NotePt`), rhythm (`RowPadMm`, `LineMm`, `CellPadMm`, `HeadRowMm`, `ColumnMaxMm`),
+  a `Columns` array carrying order, heading, alignment, flex and floor, `CollapseScaleSuffix`,
+  `AccentColour` and the four warning colours that were hard-coded in the module.
+
+**Verification**
+- Built offline against the real module with the real `AppConfig` JSON, the real
+  `Na__LeCfg__GetDrawingRegisterSetup`, the real vendored jsPDF and the real Open Sans TTFs; only
+  the sheet model, register store and project context are fixtures. Output inspected with PyMuPDF.
+- Font embedding proven both ways: before, `Helvetica` / `Helvetica-Bold` NOT-EMBEDDED with
+  `{ensureCalls: 0, installOk: 0, installFail: 10, setFontFail: 9}`; after, `OpenSans` Type0
+  Identity-H EMBEDDED with `{ensureCalls: 1, installOk: 1, installFail: 0, setFontFail: 0}`.
+- Four fixtures: PS01 as Adam has it (1 page, 2 with history), 26 drawings with long names and
+  multi-scale strings (3 pages - repeated table head, `continued` marker, no sliced rows, scale
+  collapsing correctly firing on matching paper and correctly NOT firing on mismatched paper), and
+  an empty register, and a never-numbered pack carrying an empty name, code, scale and revision.
+- The preview module itself was run in a real browser against the real vendored PDF.js on an
+  isolated static server, not the live app, so nothing could reach R2. At dpr 1.5 it rendered
+  1191x1685 backing into a 794x1123 CSS box (ratio 1.5, never upscaled); at a forced dpr 4 the
+  canvas came back 2382px, so `PreviewMaxPixelRatio: 3` clamps as intended. Canvas confirmed opaque.
+- Pane trap worth recording: the Browser pane runs hidden, a hidden pane never fires rAF, and PDF.js
+  render tasks therefore hang forever. The canvas is sized correctly regardless - shim rAF to see
+  the task finish.
+- All three edited modules syntax-checked clean as `.mjs`, and `AppConfig` parsed clean.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.68.2  -  19-Sep-2026
 ### Two Modules Describing a Menu That No Longer Exists: a Port That Never Landed, Deleted
 
@@ -311,8 +956,23 @@
   report which one it's currently rendering." It has the app's own `.loading-spinner`, scaled to
   dialog size, beside the name of the scene being rendered, with the bar and "9 of 18" beneath it.
   The spinner is the point: a batch spends its time inside a render, where the bar moves once a
-  scene, and between two of those a still dialog is indistinguishable from a hung one. The spinner
-  stops and turns green when the run finishes, and Stop becomes Close.
+  scene, and between two of those a still dialog is indistinguishable from a hung one.
+
+**Finishing had to LOOK different from working, not just read differently**
+- Adam again, on the fixed version: "it stepped through, I could see the camera moving and the
+  thumbnails updating, but then it got stuck at the end." It was not stuck. It had finished, said
+  "7 updated.", filled its bar and put up a Close button - and still read as a hang.
+- Three reasons, all fixed. The spinner stopped animating but stayed a ring with a coloured arc,
+  which looks like working whether or not it is turning; it is now a green tick, or an amber "!"
+  when there is something to read. A finished run with nothing to report now takes itself away
+  after 2.2s rather than waiting to be dismissed, the same hold the image export overlay uses; a run
+  that failed or was stopped stays up, because a summary nobody can read is not a summary. And the
+  toast carries the same line afterwards either way, so the record outlives the dialog.
+- The summary was also lying by omission. It said "7 updated." on a project with five floor plan and
+  elevation scenes, leaving those five unexplained. The caller hands the batch a list already
+  filtered down to walkable scenes, so the batch re-partitioned a list with nothing left to skip and
+  faithfully reported zero. The skipped count now comes from the caller's own partition, and the run
+  reads "7 updated, 5 drawing scene(s) skipped."
 
 **Schema**
 - The saved-scenes block's own `Description` is now a constant in the data layer that owns the shape,

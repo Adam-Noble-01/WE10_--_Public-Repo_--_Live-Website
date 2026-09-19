@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tv-saveguard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_pmscenes_nocache_server.py",
+        "8645",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8645
+    },
+    {
+      "name": "vv-saveguard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_pmscenes_nocache_server.py",
+        "8646",
+        "D:/06__Cloud__Repo__NaCodebase__Puiblic/ValeCodebase/WebApps/ValeVision3D"
+      ],
+      "port": 8646,
+      "url": "http://app.localhost:8646"
+    }
+  ]
+}

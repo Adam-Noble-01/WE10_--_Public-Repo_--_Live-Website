@@ -50,8 +50,8 @@
     z-index                            : 5;
     display                            : flex;
     flex-direction                     : column;
-    background                         : #eef1f4;
-    color                              : #172b3a;
+    background                         : var(--Na_Le_Stage);
+    color                              : var(--Na_Le_Ink);
     font-size                          : 0.8rem;
 }
 
@@ -322,7 +322,7 @@
     flex                               : 1 1 auto;
     min-height                         : 0;
     overflow                           : auto;
-    background                         : #d7dde3;
+    background                         : var(--Na_Le_Stage);
 }
 
 .na-le-spec__reader:focus {
@@ -344,7 +344,7 @@
 
 .na-le-spec__desk > .na-le-spec-sheet {
     zoom                               : var(--na-spec-zoom);
-    box-shadow                         : 0 1px 3px rgba(23, 43, 58, 0.16), 0 8px 24px rgba(23, 43, 58, 0.1);
+    box-shadow                         : var(--Na_Le_PaperShadow);
 }
 
 /* endregion ------------------------------------------------------- */

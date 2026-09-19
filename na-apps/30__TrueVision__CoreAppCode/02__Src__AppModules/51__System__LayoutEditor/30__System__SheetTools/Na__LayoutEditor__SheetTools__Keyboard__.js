@@ -500,6 +500,7 @@
                 if (Na__LeTools__Editable) { event.preventDefault(); Na__LeHist__Redo(); }
                 return;
             case 'Edit__Copy':
+            case 'Edit__Cut':
             case 'Edit__Paste':      if (Na__LeClip__RunKeyAction(match.action, Na__LeTools__Editable)) event.preventDefault(); return;   // <-- Nothing to copy or paste: the browser keeps the key
             case 'Edit__Duplicate':  if (Na__LeTools__Editable) { event.preventDefault(); Na__LeClip__RunKeyAction(match.action, true); } return;   // <-- Never the bookmark dialog while a sheet is open
             case 'Edit__Group':      if (Na__LeTools__Editable && sheet && Na__LeGroup__Group(sheet)) event.preventDefault(); return;

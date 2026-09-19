@@ -32,10 +32,20 @@
 //   so relative paths would fail to resolve. TrueVision__Pwa__Url supplies the
 //   absolute forms.
 //
-// - iOS note: Safari's Add to Home Screen bookmarks the page the user is
-//   standing on, so a client installing from their own project link lands on
-//   their own project whether or not Safari honours start_url. The Apple meta
-//   tags injected below carry the per-project home-screen label.
+// - SAFARI READS THE FIRST MANIFEST LINK AND NEVER LOOKS AGAIN. Since Safari
+//   15.4 (WebKit bug 229059) the manifest is fetched the moment the first
+//   <link rel="manifest"> with a valid href is parsed, and the result is kept
+//   for the life of the page - changing the href afterwards does nothing.
+//   Add to Home Screen then launches THAT manifest's start_url; it does not
+//   bookmark the page the client is standing on unless there is no manifest
+//   at all. Two consequences this module is built around:
+//       * Index.html carries NO static manifest link. This module creates the
+//         link with its href already set, so the first manifest WebKit meets
+//         is the per-project one.
+//       * refresh() reaches Chromium only. On Safari the name derived from
+//         the project folder at boot is the name that is kept; the launch URL
+//         is the same either way, which is the part that matters.
+//   The Apple meta tags injected below carry the per-project home-screen label.
 //
 // - This script is loaded as a BLOCKING classic script in <head> so the
 //   manifest link is in the DOM before the browser evaluates installability.
@@ -43,6 +53,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - Fixed every iPhone, iPad and Mac Safari install opening an empty app.
+//   Index.html shipped a static link to the fallback manifest, this module
+//   then swapped its href for the per-project data: URL - and WebKit had
+//   already latched on to the static file, whose start_url is a bare
+//   Index.html with no project in it. The static link is gone, and a new link
+//   is now given its href BEFORE it joins the document so there is only ever
+//   one manifest for WebKit to find.
+// - A manifest link that was in the page before this module ran is reported
+//   in the console, because on Safari it has already won.
+//
 // 27-Aug-2026 - Version 1.0.0
 // - Initial release.
 //
@@ -198,17 +219,30 @@
 
     // HELPER FUNCTION | Upsert the Manifest Link Element
     // ---------------------------------------------------------------
+    // ORDER MATTERS HERE. WebKit fetches a manifest the instant a link with a
+    // valid href joins the document, and keeps that one for the life of the
+    // page. A new link therefore gets its href BEFORE it is appended, so the
+    // only manifest Safari ever meets is the finished per-project one.
+    // ---------------------------------------------------------------
     function TrueVision__Pwa__Manifest__UpsertManifestLink(manifestHref) {
+        const ownLinkId     = `${MANIFEST_ELEMENT_ID_PREFIX}Link`;                                                                  // <-- Id of the link this module owns
         let linkElement     = document.querySelector('link[rel="manifest"]');                                                       // <-- Look for an existing link
+
+        if (linkElement && linkElement.id !== ownLinkId && linkElement.getAttribute('href')) {
+            console.warn('[TrueVision3D PWA] A manifest link was already in the page before the builder ran. '                      // <-- Somebody put a static link back
+                       + 'Safari has latched on to it and will ignore the per-project manifest - remove it from Index.html.');
+        }
 
         if (!linkElement) {
             linkElement     = document.createElement('link');                                                                       // <-- Create when absent
             linkElement.setAttribute('rel', 'manifest');
-            linkElement.id  = `${MANIFEST_ELEMENT_ID_PREFIX}Link`;
-            document.head.appendChild(linkElement);
+            linkElement.id  = ownLinkId;
+            linkElement.setAttribute('href', manifestHref);                                                                         // <-- href first...
+            document.head.appendChild(linkElement);                                                                                 // <-- ...then into the document, complete
+            return linkElement;
         }
 
-        linkElement.setAttribute('href', manifestHref);                                                                             // <-- Point at the freshly built manifest
+        linkElement.setAttribute('href', manifestHref);                                                                             // <-- Rebuild: Chromium re-reads, Safari does not
         return linkElement;                                                                                                         // <-- Return for callers that need the handle
     }
     // ---------------------------------------------------------------
@@ -218,7 +252,13 @@
     // ------------------------------------------------------------
     // Used when the data: URL manifest cannot be built or is blocked by a
     // Content Security Policy manifest-src directive. The generic manifest
-    // loses per-project identity, but the app stays installable.
+    // loses the per-project NAME, but not the project: the static file
+    // deliberately carries no start_url, and a manifest without one launches
+    // the page it was installed from - query string and all. It used to say
+    // "../../Index.html", which installed an app that opened on nothing.
+    // Chromium will not raise its own install prompt without a start_url, so
+    // on this path the install is by the browser menu only. That is the right
+    // way round: a rare missing prompt beats an icon that opens an empty app.
     // ------------------------------------------------------------
     function TrueVision__Pwa__Manifest__UseFallbackFile() {
         if (TrueVision__Pwa__Manifest__UsingFallbackFile) return;                                                                   // <-- Already degraded, nothing to do

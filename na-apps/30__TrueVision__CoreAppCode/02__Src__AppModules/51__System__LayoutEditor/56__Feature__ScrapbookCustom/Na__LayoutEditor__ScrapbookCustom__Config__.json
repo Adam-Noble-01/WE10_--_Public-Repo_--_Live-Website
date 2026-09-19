@@ -1,0 +1,62 @@
+{
+    "LayoutEditor__ScrapbookCustom__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__ScrapbookCustom__Config__.json",
+        "Meta__Description" : "The Custom Scrapbook: items Adam saves from a selection on a sheet and drags back onto any sheet of any project. Owned by Na__LayoutEditor__ScrapbookCustom__.js (the library), Na__LayoutEditor__ScrapbookCustom__Transport__.js (the files) and Na__LayoutEditor__Panel__ScrapbookCustom__.js (the section). An item is one JSON file in a category folder of the user content folder at the app root; a dropped item becomes ordinary sheet records - vectors, text, leaders and dimensions, grouped as they were - so it moves, copies, prints and undoes like anything drawn by hand.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "19-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__Files"       : "Library__ContentFolder is the local repository, beside Index.html. Each category is a folder Adam made in it; an item is UserScrapbookItem__<Name>__<yyyymmdd-hhmmss>.json inside one. Library__IndexFile lists every item and is rewritten by the local server on every save and delete, from what is actually in the folders, so a file added or taken away by hand is picked up. The live website has no directory listing: the index is what makes the library readable there once the repository is pushed.",
+        "Meta__Saving"      : "Saving and deleting go through the ProjectVision local server (na-apps/ProjectVision__TrueVisionScrapbook__Api__.py, routes under Library__ApiPath). Without it - a plain static server, or the live website - the library is read-only and the section says so. A delete moves the file into 00__Deleted__Quarantine; nothing is unlinked.",
+        "Meta__Portable"    : "An item is made portable as it is saved: layer ids, a dimension's viewport, a bubble's specification note link and a parametric element's viewport link are all facts about the sheet or the project it came from, and are left behind. Viewports are refused: a viewport carries a scene, a snapshot and a model source."
+    },
+
+    "LayoutEditor__ScrapbookCustom__Library": {
+        "Library__Description"   : "Where the items live and what they may hold. See Meta__Files and Meta__Saving.",
+        "Library__ContentFolder" : "51__LayoutEditor__UserScrapbookContent",
+        "Library__IndexFile"     : "UserScrapbook__Index__.json",
+        "Library__ApiPath"       : "/api/truevision/scrapbook",
+        "Library__MaxNameLength" : 80,
+        "Library__AllowedKinds"  : [ "shape", "annotation", "leader", "dimension", "group" ],
+        "Library__CategoriesNote": "The folders, in the order the section lists them. Category__Folder must be a folder that exists: the server saves into the folders that are there and never makes one.",
+        "Library__Categories"    : [
+            { "Category__Folder" : "01__ScrapbookItems__General",      "Category__Name" : "General" },
+            { "Category__Folder" : "02__ScrapbookItems__Dimensions",   "Category__Name" : "Dimensions" },
+            { "Category__Folder" : "03__ScrapbookItems__Annotations",  "Category__Name" : "Annotations" },
+            { "Category__Folder" : "04__ScrapbookItems__2dEntourage",  "Category__Name" : "2D Entourage" },
+            { "Category__Folder" : "05__ScrapbookItems__GeneralNotes", "Category__Name" : "General Notes" }
+        ]
+    },
+
+    "LayoutEditor__ScrapbookCustom__Labels": {
+        "Labels__Description"     : "The Custom Scrapbook section's wording. {name} is an item's name, {count} a number of items, {category} a category's name, {reason} why something failed.",
+        "Labels__Title"           : "Custom Scrapbook",
+        "Labels__Category"        : "Category",
+        "Labels__Hint"            : "Your saved items. Drag one onto the sheet, or double-click it. Right-click one to delete it.",
+        "Labels__Empty"           : "Nothing saved in {category} yet.",
+        "Labels__Loading"         : "Reading the scrapbook...",
+        "Labels__Failed"          : "The custom scrapbook could not be read.",
+        "Labels__ReadOnlyView"    : "Items can only be placed while sheets are editable.",
+        "Labels__ItemTitle"       : "{name}: drag onto the sheet, or double-click to place it in the middle of the view. Right-click to delete it.",
+
+        "Labels__SaveHeading"     : "Save the selection",
+        "Labels__SaveName"        : "Name",
+        "Labels__SaveNameHint"    : "What to call it",
+        "Labels__SaveButton"      : "Save Selection to {category}",
+        "Labels__SaveNothing"     : "Select something on the sheet - vectors, text, leaders, dimensions or groups - to save it here.",
+        "Labels__SaveReady"       : "{count} selected. Name it and save it to {category}.",
+        "Labels__SaveViewports"   : "Viewports cannot be saved: they belong to this project. Leave them out of the selection.",
+        "Labels__SaveNoServer"    : "Saving needs the ProjectVision local server. This library is read-only here.",
+        "Labels__SaveRestart"     : "The ProjectVision local server is running without the scrapbook routes. Restart it, then save.",
+        "Labels__SaveNeedsName"   : "Give it a name first.",
+        "Labels__Saving"          : "Saving...",
+
+        "Labels__ToastSaved"      : "Saved {name} to {category}.",
+        "Labels__ToastSaveFailed" : "{name} was not saved: {reason}",
+        "Labels__ToastDeleted"    : "Moved {name} to the scrapbook's quarantine folder.",
+        "Labels__ToastDeleteFailed": "{name} was not deleted: {reason}",
+        "Labels__MenuDelete"      : "Delete {name}",
+        "Labels__MenuReload"      : "Reload the scrapbook",
+        "Labels__ConfirmDelete"   : "Delete {name} from the Custom Scrapbook? The file is moved to the scrapbook's quarantine folder, not erased."
+    }
+}

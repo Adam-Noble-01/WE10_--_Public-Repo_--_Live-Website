@@ -977,11 +977,69 @@
         border-color                       : #cc3333;
     }
 
+    /* The app's loading circle, scaled down to dialog size. It is the only
+       moving thing between two renders, so it is what tells you the run is
+       alive while the bar sits still. */
+    .na-pm-modal__spinner-row {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 12px;
+        margin-bottom                      : 10px;
+    }
+
+    .na-pm-modal__spinner {
+        flex                               : 0 0 auto;
+        width                              : 28px;
+        height                             : 28px;
+        margin-bottom                      : 0;
+    }
+
+    .na-pm-modal__spinner::before {
+        width                              : 28px;
+        height                             : 28px;
+        border-width                       : 3px;
+    }
+
+    /* A finished run shows a mark, not a stopped ring. A ring with a coloured
+       arc reads as "working" whether or not it is turning, which is how a
+       completed batch got reported as a hang. */
+    .na-pm-modal__spinner--done::before,
+    .na-pm-modal__spinner--warn::before {
+        animation                          : none;
+        border                             : none;
+        border-radius                      : 0;
+        font-size                          : 1.35rem;
+        font-weight                        : 700;
+        line-height                        : 28px;
+        text-align                         : center;
+    }
+
+    .na-pm-modal__spinner--done::before {
+        content                            : '\2713';                        /* check mark */
+        color                              : #2e7d32;
+    }
+
+    .na-pm-modal__spinner--warn::before {
+        content                            : '!';
+        color                              : #b26a00;
+    }
+
     .na-pm-modal__status {
-        margin                             : 0 0 8px;
+        flex                               : 1;
+        min-width                          : 0;
+        margin                             : 0;
         font-size                          : 0.78rem;
         color                              : #555d66;
         min-height                         : 1.2em;
+        overflow-wrap                      : anywhere;
+    }
+
+    .na-pm-modal__count {
+        margin                             : 4px 0 0;
+        font-size                          : 0.72rem;
+        color                              : #8b939c;
+        text-align                         : right;
+        min-height                         : 1em;
     }
 
     .na-pm-modal__bar {

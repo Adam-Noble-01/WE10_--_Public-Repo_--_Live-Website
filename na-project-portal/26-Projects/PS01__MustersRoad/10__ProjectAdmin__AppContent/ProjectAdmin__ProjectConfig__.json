@@ -1,5 +1,10 @@
 {
     "clientDataStorage": "cloudflare-r2-encrypted",
+    "clientDrawingName": {
+        "salutation": "Mr",
+        "initial": "P",
+        "surname": "Samra"
+    },
     "contracts": {
         "building-regulations": {
             "enabled": true,

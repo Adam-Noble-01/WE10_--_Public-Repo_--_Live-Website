@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0
+// - Project admin files: AdminFileLocation points at the project's
+//   10__ProjectAdmin__AppContent folder so the Layout Editor can read the site
+//   address and the client's drawing name off the admin record. Read only, and
+//   by name - the admin system owns those documents.
+//
 // 14-Sep-2026 - Version 1.2.0
 // - Project sibling files: TrueVision__DrawingNotes__.json is the canonical
 //   drawing-notes document. TrueVision__ProjectSpecification__.json stays on
@@ -494,6 +500,45 @@
     // ------------------------------------------------------------
 
 
+    // MODULE CONSTANTS | The Project Admin Files TrueVision May READ
+    // ------------------------------------------------------------
+    // The admin system's own documents, in the project's 10__ProjectAdmin__AppContent
+    // folder. TrueVision reads two facts out of them - the site address and the
+    // client's name as a drawing prints it - and writes NOTHING: the admin
+    // system owns these files, and a drawing app that could rewrite a quotation
+    // is a drawing app that will one day rewrite a quotation.
+    //
+    // There is no R2 key here on purpose. The model sync pushes only the
+    // TrueVision and PlanVision content folders, so the admin folder has no R2
+    // copy at all (the CDN answers 404). It is served by the website itself,
+    // beside every other repository file, which is one path that works on the
+    // live build and on a local static server alike.
+    // ------------------------------------------------------------
+    const Na__CfApi__AdminContentDir  = '10__ProjectAdmin__AppContent';
+    const Na__CfApi__AdminFileNames   = [
+        'ProjectAdmin__ProjectConfig__.json',
+        'ProjectAdmin__Quotations__.json',
+        'ProjectAdmin__Quotation__.json'      // <-- Both spellings are in use across the portal; the admin system reads either, so this does too
+    ];
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where an Admin File Lives: the Repository URL, Read Only
+    // ------------------------------------------------------------
+    // Null when the name is not on the list or the URL names no project folder.
+    // ------------------------------------------------------------
+    function Na__CfApi__AdminFileLocation(fileName) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder || Na__CfApi__AdminFileNames.indexOf(fileName) === -1) return null;
+        const relative = `${ctx.yearCode}-Projects/${ctx.projectFolder}/${Na__CfApi__AdminContentDir}/${fileName}`;
+        return {
+            repoUrl : `${window.location.origin}/na-project-portal/${relative}`,
+            cdnUrl  : `${Na__CfApi__CdnBaseUrl}/${Na__CfApi__R2Prefix}/${relative}`   // <-- Only if the sync is ever widened to carry the admin folder
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Where a Sibling File Lives: R2 Key, Public CDN URL and Repository URL
     // ------------------------------------------------------------
     // Null when the name is not on the list or the URL names no project folder.
@@ -564,7 +609,8 @@
         Na__CfApi__WriteProjectAsset,
         Na__CfApi__ProjectFileLocation,
         Na__CfApi__ReadProjectFile,
-        Na__CfApi__WriteProjectFile
+        Na__CfApi__WriteProjectFile,
+        Na__CfApi__AdminFileLocation
     };
     // ------------------------------------------------------------
 

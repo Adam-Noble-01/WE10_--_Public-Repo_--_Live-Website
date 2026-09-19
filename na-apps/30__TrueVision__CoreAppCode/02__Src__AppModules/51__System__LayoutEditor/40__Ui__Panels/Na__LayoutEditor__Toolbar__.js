@@ -29,6 +29,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.12.0
+// - The sheet's name on the toolbar is what its tab reads
+//   (Na__LeModel__GetTabLabel, "D03 - 3D Images"): the register's short code,
+//   then the short name, so a renumber reaches the toolbar with the tab.
+//
 // 17-Sep-2026 - Version 1.11.0
 // - The Move button (M), beside Select, and a tooltip on Select that says a
 //   drag no longer moves anything.
@@ -87,7 +92,7 @@
     // MODULE IMPORTS | Config, Model, Tools, Navigation, Surface, PDF
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__IsDirty, Na__LeModel__Save, Na__LeModel__UpdateMarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__GetTabLabel, Na__LeModel__IsDirty, Na__LeModel__Save, Na__LeModel__UpdateMarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeRec__MarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__IsDirty, Na__LeSpec__GetState, Na__LeSpec__Sync } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     import {
@@ -202,7 +207,7 @@
         if (zoom) zoom.textContent = Math.round(Na__LeSurface__GetZoom() * 100) + '%';
         const sheet = Na__LeModel__GetActiveSheet();
         const name  = Na__LeToolbar__Root.querySelector('.na-le-toolbar__name');
-        if (name) name.textContent = sheet ? sheet.Sheet__Name : '';
+        if (name) name.textContent = sheet ? Na__LeModel__GetTabLabel(sheet) : '';   // <-- What the tab reads: the register's short code, then the short name
         const margin = Na__LeToolbar__Root.querySelector('[data-na-toolbar="margin"]');
         if (margin) {
             const on = !!sheet && Na__LeRec__MarginNotes(sheet).Enabled === true;
@@ -219,6 +224,10 @@
 
 
     // HELPER FUNCTION | Save and Export Actions
+    // ------------------------------------------------------------
+    // Save is exported as well as wired to its button, so Ctrl+S is the SAME
+    // action rather than a second one that drifts from it: the busy guard, the
+    // specification sync and the one combined toast all come with it.
     // ------------------------------------------------------------
     async function Na__LeToolbar__Save() {
         if (Na__LeToolbar__Busy) return;
@@ -387,7 +396,8 @@
     // ------------------------------------------------------------
     export {
         Na__LeToolbar__Mount,
-        Na__LeToolbar__Unmount
+        Na__LeToolbar__Unmount,
+        Na__LeToolbar__Save
     };
     // ------------------------------------------------------------
 

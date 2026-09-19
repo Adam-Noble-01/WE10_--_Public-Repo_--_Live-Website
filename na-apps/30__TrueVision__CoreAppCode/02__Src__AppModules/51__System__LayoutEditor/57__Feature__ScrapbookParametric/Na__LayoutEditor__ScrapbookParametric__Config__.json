@@ -1,0 +1,121 @@
+{
+    "LayoutEditor__ScrapbookParametric__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
+        "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "19-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__Block"       : "Group__Parametric : { Parametric__Type, Parametric__Version, Parametric__Params, Parametric__Link }. The element's place on the paper is never stored: the Move tool and a paste shift a group's members and know nothing of this block, so the generator always writes the element's origin as the first point of its first member and the engine reads it back from there.",
+        "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between."
+    },
+
+    "LayoutEditor__ScrapbookParametric__Elements": {
+        "Elements__Description" : "The tiles the Parametric Scrapbook section shows, in this order. Element__Type names a registered element module. Element__DrawingTypes lists the drawing types an element is offered on ('siteplan', 'architectural'); an element without the key is offered on every sheet.",
+        "Elements__List"        : [
+            {
+                "Element__Type"        : "ScaleBar",
+                "Element__Name"        : "Scale Bar",
+                "Element__Description" : "A checker scale bar that reads the scale of the drawing above it. Drag the arrow at its far end to lengthen it; click the triangle above its zero for another scale."
+            }
+        ]
+    },
+
+    "LayoutEditor__ScrapbookParametric__ScaleBar": {
+        "ScaleBar__Description"              : "Element one: the scale bar. See Meta__HouseBar for where every size below came from.",
+
+        "ScaleBar__Rows"                     : 2,
+        "ScaleBar__RowHeightMm"              : 1,
+        "ScaleBar__FillColour"               : "#666666",
+        "ScaleBar__StrokeColour"             : "#172b3a",
+        "ScaleBar__StrokePt"                 : 0.2,
+
+        "ScaleBar__TextColour"               : "#172b3a",
+        "ScaleBar__TextWeight"               : 400,
+        "ScaleBar__EndTextSizeMm"            : 2.5,
+        "ScaleBar__MidTextSizeMm"            : 2,
+        "ScaleBar__TextBaselineBelowBarMm"   : 5.314,
+        "ScaleBar__MinLabelSpacingMm"        : 7,
+        "ScaleBar__MinLabelSpacingNote"      : "Divisions closer together than this on the paper are not all numbered: every second, fifth or tenth is, and the two ends always are.",
+
+        "ScaleBar__TargetLengthMm"           : 100,
+        "ScaleBar__TargetDivisionMm"         : 20,
+        "ScaleBar__TargetNote"               : "What a scale that is not in ScaleBar__Standards is solved towards: the 1, 2, 2.5 or 5 x 10^n division nearest TargetDivisionMm on the paper, and the count of them nearest TargetLengthMm.",
+        "ScaleBar__MinDivisions"             : 1,
+        "ScaleBar__MaxDivisions"             : 40,
+        "ScaleBar__MinSubdivisionPaperMm"    : 1.5,
+
+        "ScaleBar__DefaultScaleDenominator"  : 50,
+        "ScaleBar__MenuScaleDenominators"    : [ 20, 50, 100, 200, 500, 1250 ],
+        "ScaleBar__MenuScaleNote"            : "The scales the lookup grip's menu and the panel offer. The first three are the app's architectural scales and the last two its site plan ones; 1:200 is here because a street elevation wants it. Any scale in ScaleBar__Standards can be added.",
+
+        "ScaleBar__StandardsNote"            : "What a bar is put back to when its scale changes. DivisionMm and SubdivisionMm are real-world millimetres; Units is what the numerals count in ('m' or 'mm'). Every row is a 100 mm bar, and all but 1:1, 1:2, 1:20 and 1:200 are the house 5 x 20 mm.",
+        "ScaleBar__Standards"                : [
+            { "Scale" : 1,    "DivisionMm" : 10,    "Divisions" : 10, "SubdivisionMm" : 2,     "Units" : "mm" },
+            { "Scale" : 2,    "DivisionMm" : 50,    "Divisions" : 4,  "SubdivisionMm" : 10,    "Units" : "mm" },
+            { "Scale" : 5,    "DivisionMm" : 100,   "Divisions" : 5,  "SubdivisionMm" : 20,    "Units" : "mm" },
+            { "Scale" : 10,   "DivisionMm" : 200,   "Divisions" : 5,  "SubdivisionMm" : 50,    "Units" : "mm" },
+            { "Scale" : 20,   "DivisionMm" : 500,   "Divisions" : 4,  "SubdivisionMm" : 100,   "Units" : "m"  },
+            { "Scale" : 25,   "DivisionMm" : 500,   "Divisions" : 5,  "SubdivisionMm" : 100,   "Units" : "m"  },
+            { "Scale" : 50,   "DivisionMm" : 1000,  "Divisions" : 5,  "SubdivisionMm" : 200,   "Units" : "m"  },
+            { "Scale" : 100,  "DivisionMm" : 2000,  "Divisions" : 5,  "SubdivisionMm" : 500,   "Units" : "m"  },
+            { "Scale" : 200,  "DivisionMm" : 5000,  "Divisions" : 4,  "SubdivisionMm" : 1000,  "Units" : "m"  },
+            { "Scale" : 250,  "DivisionMm" : 5000,  "Divisions" : 5,  "SubdivisionMm" : 1000,  "Units" : "m"  },
+            { "Scale" : 500,  "DivisionMm" : 10000, "Divisions" : 5,  "SubdivisionMm" : 2000,  "Units" : "m"  },
+            { "Scale" : 1000, "DivisionMm" : 20000, "Divisions" : 5,  "SubdivisionMm" : 5000,  "Units" : "m"  },
+            { "Scale" : 1250, "DivisionMm" : 25000, "Divisions" : 5,  "SubdivisionMm" : 5000,  "Units" : "m"  },
+            { "Scale" : 2500, "DivisionMm" : 50000, "Divisions" : 5,  "SubdivisionMm" : 10000, "Units" : "m"  }
+        ]
+    },
+
+    "LayoutEditor__ScrapbookParametric__ViewportLink": {
+        "ViewportLink__Description"       : "The link between a parametric element and a viewport (Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js). AutoLinkOnInsert links a dropped element to the nearest 2D viewport, measured from the drop point to the viewport's frame; MaxLinkDistanceMm is how far away that viewport may be. A scale bar sits under a drawing's title, which sits under the drawing, so the frame is usually 10 to 30 mm above it. FollowScale regenerates a linked element when its viewport's scale changes, inside the same undo step.",
+        "ViewportLink__AutoLinkOnInsert"  : true,
+        "ViewportLink__MaxLinkDistanceMm" : 80,
+        "ViewportLink__FollowScale"       : true
+    },
+
+    "LayoutEditor__ScrapbookParametric__Grips": {
+        "Grips__Description"     : "The grips a selected parametric element shows. Sizes are screen pixels, held at any zoom like every other grip. Each grip stands its OffsetPx clear of the point its element type gives it, in the direction that type says: for a scale bar the stretch grip off the far end and the lookup grip off the zero end, both level with the middle of the bar.",
+        "Grips__StretchSizePx"   : 13,
+        "Grips__LookupSizePx"    : 13,
+        "Grips__StretchOffsetPx" : 12,
+        "Grips__LookupOffsetPx"  : 12,
+        "Grips__ClickSlopPx"     : 4
+    },
+
+    "LayoutEditor__ScrapbookParametric__Labels": {
+        "Labels__Description"      : "The Parametric Scrapbook's wording. {name} is an element's name, {scale} a scale as the title block writes it, {viewport} a viewport's name.",
+        "Labels__LibraryTitle"     : "Parametric Scrapbook",
+        "Labels__LibraryHint"      : "Dynamic elements. Drag one onto the sheet, or double-click it; select it afterwards for its grips and its settings.",
+        "Labels__LibraryReadOnly"  : "Elements can only be placed while sheets are editable.",
+        "Labels__LibraryFailed"    : "The parametric scrapbook could not be read, so it has no elements.",
+        "Labels__ItemTitle"        : "{name}: drag onto the sheet, or double-click to place it in the middle of the view.",
+
+        "Labels__PropsTitle"       : "Parametric Element",
+        "Labels__PropsScale"       : "Scale",
+        "Labels__PropsFromViewport": "From viewport ({scale})",
+        "Labels__PropsLink"        : "Linked to",
+        "Labels__PropsLinkNone"    : "Not linked",
+        "Labels__PropsLinkNearest" : "Link to nearest",
+        "Labels__PropsDivisions"   : "Divisions",
+        "Labels__PropsLength"      : "{real} long, {paper} mm on the paper.",
+        "Labels__PropsSubdivide"   : "Split first division",
+        "Labels__PropsSubdivision" : "Into",
+        "Labels__PropsUnits"       : "Show units",
+        "Labels__PropsReset"       : "Reset to standard",
+        "Labels__PropsExplode"     : "Ungroup it (Ctrl+Shift+G) to explode it into plain vectors and text.",
+        "Labels__PropsLocked"      : "Its layer is locked.",
+
+        "Labels__MenuFromViewport" : "From viewport ({scale})",
+        "Labels__MenuFromNearest"  : "Link to nearest viewport",
+        "Labels__MenuSubdivide"    : "Split first division",
+        "Labels__MenuUnits"        : "Show units",
+        "Labels__MenuReset"        : "Reset length",
+        "Labels__GripStretch"      : "Drag to lengthen or shorten",
+        "Labels__GripLookup"       : "Scale and options",
+        "Labels__ViewportUnnamed"  : "Viewport {id}",
+        "Labels__ToastLinked"      : "Linked to {viewport} at {scale}.",
+        "Labels__ToastNoViewport"  : "No 2D viewport is near enough to link to."
+    }
+}

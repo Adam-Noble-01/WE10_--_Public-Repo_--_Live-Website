@@ -44,6 +44,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0
+// - The default sheet name's fallback follows the shipped JSON to "New Drawing":
+//   a new sheet's tab carries the Drawing Register's short code, so the default
+//   name no longer carries a number of its own.
+//
 // 18-Sep-2026 - Version 1.2.0
 // - GetViewportCacheSetup reads how many sheets the sheet surface keeps rendered
 //   while another sheet is shown (ViewportCache MaxParkedSheets; 0 switches the
@@ -82,8 +87,8 @@
     const Na__LeCfg__FALLBACKS = Object.freeze({
         paperSizes : { A4 : { Label : 'A4', WidthMm : 297, HeightMm : 210 }, A3 : { Label : 'A3', WidthMm : 420, HeightMm : 297 },
                        A2 : { Label : 'A2', WidthMm : 594, HeightMm : 420 }, A1 : { Label : 'A1', WidthMm : 841, HeightMm : 594 } },
-        rows       : [ { Key : 'Client', Label : 'Client', WidthMm : 28 }, { Key : 'SiteAddress', Label : 'Site Address', WidthMm : 44 },
-                       { Key : 'Title', Label : 'Drawing Title', WidthMm : 38 }, { Key : 'DrawingNumber', Label : 'Drawing No.', WidthMm : 18 },
+        rows       : [ { Key : 'Client', Label : 'Client', WidthMm : 28 }, { Key : 'SiteAddress', Label : 'Site Address', WidthMm : 40 },
+                       { Key : 'Title', Label : 'Drawing Title', WidthMm : 34 }, { Key : 'DocumentId', Label : 'Document ID', WidthMm : 26 },   // <-- The whole identifier, not the sequence: PS01_T02_D01
                        { Key : 'Revision', Label : 'Rev', WidthMm : 8 }, { Key : 'Scale', Label : 'Scale', WidthMm : 30 },   // <-- Scale carries the paper size, so it is the widest of the small cells
                        { Key : 'Date', Label : 'Date', WidthMm : 16 }, { Key : 'DrawnBy', Label : 'Drawn By', WidthMm : 20 } ],
         scales     : [ 20, 50, 100 ],
@@ -113,7 +118,7 @@
             blockGapMm         : Na__LeCfg__Num('Sheet', 'BlockGapMm', 3),
             borderStrokeMm     : Na__LeCfg__Num('Sheet', 'BorderStrokeMm', 0.5),
             screenPixelsPerMm  : Na__LeCfg__Num('Sheet', 'ScreenPixelsPerMm', 3.2),
-            defaultNameFormat  : Na__LeCfg__Val('Sheet', 'DefaultNameFormat', 'Drawing {index}'),
+            defaultNameFormat  : Na__LeCfg__Val('Sheet', 'DefaultNameFormat', 'New Drawing'),   // <-- No number: the tab carries the Drawing Register's, and two numbers on one tab need not agree
             paperSizes         : (sizes && typeof sizes === 'object') ? sizes : Na__LeCfg__FALLBACKS.paperSizes
         };
     }

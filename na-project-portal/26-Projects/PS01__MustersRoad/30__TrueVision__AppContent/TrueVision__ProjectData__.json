@@ -228,7 +228,7 @@
         ]
     },
     "PresentationMode__SavedCameraScenes": {
-        "PresentationMode__SavedCameraScenes__Description": "Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into named Groups; Scene Order restarts at 1 within each group.",
+        "PresentationMode__SavedCameraScenes__Description": "Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into named Groups; Scene Order restarts at 1 within each group. A scene with PresentationMode__Scene__LayoutEditorOnly set true is available to the Layout Editor and the Dev menu but is hidden from the viewer carousel; the key is omitted when false.",
         "PresentationMode__SavedCameraScenes__Enabled": true,
         "PresentationMode__SavedCameraScenes__DefaultSceneId": "Scene_001",
         "PresentationMode__SavedCameraScenes__Groups": [
@@ -406,22 +406,22 @@
                 "PresentationMode__Scene__Order": 3
             },
             {
-                "PresentationMode__Scene__Id": "Scene_004",
-                "PresentationMode__Scene__Name": "Front",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
+                "PresentationMode__Scene__Id": "Scene_012",
+                "PresentationMode__Scene__Name": "View Into Lounge",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_012.webp",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__GroupId": "Group_002",
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 14268,
-                        "Camera__DefaultPos__PosY": 1477,
-                        "Camera__DefaultPos__PosZ": 1516
+                        "Camera__DefaultPos__PosX": 15307,
+                        "Camera__DefaultPos__PosY": 1295,
+                        "Camera__DefaultPos__PosZ": -4943
                     },
                     "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -0.0132,
-                        "Camera__DefaultRotation__RotY": 0.0444,
-                        "Camera__DefaultRotation__RotZ": 0.0006
+                        "Camera__DefaultRotation__RotX": -0.0006,
+                        "Camera__DefaultRotation__RotY": 0.3792,
+                        "Camera__DefaultRotation__RotZ": 0.0002
                     },
                     "Camera__DefaultMisc": {
                         "Camera__DefaultMisc__Fov": 55
@@ -429,9 +429,9 @@
                 },
                 "PresentationMode__Scene__OrbitHelperCubePosition": {
                     "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 13400,
-                    "OrbitHelperCube__Position__PosY": 1407,
-                    "OrbitHelperCube__Position__PosZ": -5849
+                    "OrbitHelperCube__Position__PosX": 14645,
+                    "OrbitHelperCube__Position__PosY": 1393,
+                    "OrbitHelperCube__Position__PosZ": -10560
                 },
                 "PresentationMode__Scene__LensMm": 23,
                 "PresentationMode__Scene__Visibility": {
@@ -439,10 +439,10 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
@@ -510,14 +510,14 @@
                 "PresentationMode__Scene__GroupId": "Group_002",
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 17534,
-                        "Camera__DefaultPos__PosY": 1515,
-                        "Camera__DefaultPos__PosZ": -6764
+                        "Camera__DefaultPos__PosX": 17861,
+                        "Camera__DefaultPos__PosY": 1516,
+                        "Camera__DefaultPos__PosZ": -6943
                     },
                     "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": 0.0066,
-                        "Camera__DefaultRotation__RotY": 0.0462,
-                        "Camera__DefaultRotation__RotZ": -0.0003
+                        "Camera__DefaultRotation__RotX": 0.003,
+                        "Camera__DefaultRotation__RotY": 0.0192,
+                        "Camera__DefaultRotation__RotZ": -0.0001
                     },
                     "Camera__DefaultMisc": {
                         "Camera__DefaultMisc__Fov": 55
@@ -525,9 +525,9 @@
                 },
                 "PresentationMode__Scene__OrbitHelperCubePosition": {
                     "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 13400,
-                    "OrbitHelperCube__Position__PosY": 1407,
-                    "OrbitHelperCube__Position__PosZ": -5849
+                    "OrbitHelperCube__Position__PosX": 17303,
+                    "OrbitHelperCube__Position__PosY": 1548,
+                    "OrbitHelperCube__Position__PosZ": -11759
                 },
                 "PresentationMode__Scene__LensMm": 23,
                 "PresentationMode__Scene__Visibility": {
@@ -535,10 +535,10 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
@@ -558,14 +558,14 @@
                 "PresentationMode__Scene__GroupId": "Group_002",
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 17828,
-                        "Camera__DefaultPos__PosY": 1349,
-                        "Camera__DefaultPos__PosZ": -14833
+                        "Camera__DefaultPos__PosX": 17263,
+                        "Camera__DefaultPos__PosY": 1348,
+                        "Camera__DefaultPos__PosZ": -14261
                     },
                     "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": 3.135,
-                        "Camera__DefaultRotation__RotY": -0.0774,
-                        "Camera__DefaultRotation__RotZ": 3.1411
+                        "Camera__DefaultRotation__RotX": -3.1277,
+                        "Camera__DefaultRotation__RotY": -0.6048,
+                        "Camera__DefaultRotation__RotZ": -3.1337
                     },
                     "Camera__DefaultMisc": {
                         "Camera__DefaultMisc__Fov": 55
@@ -573,9 +573,9 @@
                 },
                 "PresentationMode__Scene__OrbitHelperCubePosition": {
                     "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 13400,
-                    "OrbitHelperCube__Position__PosY": 1407,
-                    "OrbitHelperCube__Position__PosZ": -5849
+                    "OrbitHelperCube__Position__PosX": 18215,
+                    "OrbitHelperCube__Position__PosY": 1382,
+                    "OrbitHelperCube__Position__PosZ": -9848
                 },
                 "PresentationMode__Scene__LensMm": 23,
                 "PresentationMode__Scene__Visibility": {
@@ -583,10 +583,10 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
@@ -596,54 +596,6 @@
                 },
                 "PresentationMode__Scene__NavigationMode": "fly",
                 "PresentationMode__Scene__Order": 4
-            },
-            {
-                "PresentationMode__Scene__Id": "Scene_010",
-                "PresentationMode__Scene__Name": "Ensuite",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_010.webp",
-                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
-                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
-                "PresentationMode__Scene__GroupId": "Group_002",
-                "PresentationMode__Scene__CameraPosition": {
-                    "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 18226,
-                        "Camera__DefaultPos__PosY": 1283,
-                        "Camera__DefaultPos__PosZ": -8976
-                    },
-                    "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": 3.135,
-                        "Camera__DefaultRotation__RotY": -1.098,
-                        "Camera__DefaultRotation__RotZ": 3.1357
-                    },
-                    "Camera__DefaultMisc": {
-                        "Camera__DefaultMisc__Fov": 66.3
-                    }
-                },
-                "PresentationMode__Scene__OrbitHelperCubePosition": {
-                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 17303,
-                    "OrbitHelperCube__Position__PosY": 1548,
-                    "OrbitHelperCube__Position__PosZ": -11759
-                },
-                "PresentationMode__Scene__LensMm": 18,
-                "PresentationMode__Scene__Visibility": {
-                    "PresentationMode__Scene__Visibility__Categories": {
-                        "TrueVision__MainBuildingModel__ExistingWalls": true,
-                        "TrueVision__MainBuildingModel__ExistingRoofs": true,
-                        "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
-                        "TrueVision__MainBuildingModel__ProposedWalls": true,
-                        "TrueVision__MainBuildingModel__ProposedFloors": true,
-                        "TrueVision__MainBuildingModel__ProposedRoofs": true,
-                        "TrueVision__MainBuildingModel__ProposedDoors": true,
-                        "TrueVision__MainBuildingModel__ProposedFixtures": true,
-                        "TrueVision__MainBuildingModel__ProposedFurniture": true,
-                        "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
-                    }
-                },
-                "PresentationMode__Scene__NavigationMode": "fly",
-                "PresentationMode__Scene__Order": 5
             },
             {
                 "PresentationMode__Scene__Id": "Scene_011",
@@ -673,6 +625,35 @@
                 "PresentationMode__Scene__GroupId": "Group_004",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_011.webp",
                 "PresentationMode__Scene__FloorPlanId": "FloorPlan_001"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_016",
+                "PresentationMode__Scene__Name": "Roof Plan",
+                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 20000,
+                        "Camera__DefaultPos__PosY": 107397,
+                        "Camera__DefaultPos__PosZ": -20000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
+                        "Camera__DefaultRotation__RotY": 0,
+                        "Camera__DefaultRotation__RotZ": 0
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 45
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 20000,
+                    "OrbitHelperCube__Position__PosY": 6000,
+                    "OrbitHelperCube__Position__PosZ": -20000
+                },
+                "PresentationMode__Scene__GroupId": "Group_004",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_016.webp",
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002"
             },
             {
                 "PresentationMode__Scene__Id": "Scene_013",
@@ -760,35 +741,6 @@
                 "PresentationMode__Scene__GroupId": "Group_005",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_015.webp",
                 "PresentationMode__Scene__ElevationId": "Elevation_004"
-            },
-            {
-                "PresentationMode__Scene__Id": "Scene_016",
-                "PresentationMode__Scene__Name": "Roof Plan",
-                "PresentationMode__Scene__Order": 2,
-                "PresentationMode__Scene__CameraPosition": {
-                    "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 20000,
-                        "Camera__DefaultPos__PosY": 107397,
-                        "Camera__DefaultPos__PosZ": -20000
-                    },
-                    "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
-                        "Camera__DefaultRotation__RotY": 0,
-                        "Camera__DefaultRotation__RotZ": 0
-                    },
-                    "Camera__DefaultMisc": {
-                        "Camera__DefaultMisc__Fov": 45
-                    }
-                },
-                "PresentationMode__Scene__OrbitHelperCubePosition": {
-                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 20000,
-                    "OrbitHelperCube__Position__PosY": 6000,
-                    "OrbitHelperCube__Position__PosZ": -20000
-                },
-                "PresentationMode__Scene__GroupId": "Group_004",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_016.webp",
-                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002"
             }
         ]
     },
@@ -945,7 +897,7 @@
         "LayoutEditor__DrawingsData__Sheets": [
             {
                 "Sheet__Id": "Sheet_002",
-                "Sheet__Name": "D01 - Floor Plans",
+                "Sheet__Name": "Floor Plans",
                 "Sheet__Order": 1,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
@@ -954,7 +906,7 @@
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD",
                     "Sheet__Fields__DrawnBy": "A. Noble",
-                    "Sheet__Fields__DrawingNumber": "PS01_T02_D01 ",
+                    "Sheet__Fields__DrawingNumber": "D01",
                     "Sheet__Fields__Title": "Permitted Development Compliance  -  Existing Conditions & Design Proposal Floor Plans",
                     "Sheet__Fields__Revision": "B"
                 },
@@ -5107,13 +5059,13 @@
             },
             {
                 "Sheet__Id": "Sheet_001",
-                "Sheet__Name": "D02 - Elevations",
+                "Sheet__Name": "Elevations",
                 "Sheet__Order": 2,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
-                    "Sheet__Fields__DrawingNumber": "PS01_T02_D02",
+                    "Sheet__Fields__DrawingNumber": "D02",
                     "Sheet__Fields__DrawnBy": "A. Noble",
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
@@ -11165,14 +11117,14 @@
             },
             {
                 "Sheet__Id": "Sheet_003",
-                "Sheet__Name": "D03 - 3D Images",
+                "Sheet__Name": "3D Images",
                 "Sheet__Order": 3,
                 "Sheet__PaperSize": "A3",
                 "Sheet__Orientation": "landscape",
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
                     "Sheet__Fields__Title": "Permitted Development Compliance  -  3D Exterior Visuals",
-                    "Sheet__Fields__DrawingNumber": "PS01_T02_D03",
+                    "Sheet__Fields__DrawingNumber": "D03",
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
                     "Sheet__Fields__DrawnBy": "A. Noble"
@@ -11255,8 +11207,8 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__1o3b0m6.webp",
-                            "Asset__Fingerprint": "1o3b0m6",
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__16f34hx.webp",
+                            "Asset__Fingerprint": "16f34hx",
                             "Asset__PixelWidth": 4833,
                             "Asset__Samples": 16
                         },
@@ -11306,9 +11258,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__1805y12.webp",
-                            "Asset__Fingerprint": "1805y12",
-                            "Asset__PixelWidth": 5210,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__ioqkb0.webp",
+                            "Asset__Fingerprint": "ioqkb0",
+                            "Asset__PixelWidth": 4737,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11358,9 +11310,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__1v21mnd.webp",
-                            "Asset__Fingerprint": "1v21mnd",
-                            "Asset__PixelWidth": 4819,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__1ystxe8.webp",
+                            "Asset__Fingerprint": "1ystxe8",
+                            "Asset__PixelWidth": 4380,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11410,9 +11362,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__apxhkw.webp",
-                            "Asset__Fingerprint": "apxhkw",
-                            "Asset__PixelWidth": 5189,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__dcdkcm.webp",
+                            "Asset__Fingerprint": "dcdkcm",
+                            "Asset__PixelWidth": 4717,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11462,8 +11414,8 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_006__1fdost4.webp",
-                            "Asset__Fingerprint": "1fdost4",
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_006__wvejhb.webp",
+                            "Asset__Fingerprint": "wvejhb",
                             "Asset__PixelWidth": 4819,
                             "Asset__Samples": 16
                         },
@@ -11514,8 +11466,8 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_007__445yyj.webp",
-                            "Asset__Fingerprint": "445yyj",
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_007__6qm1q9.webp",
+                            "Asset__Fingerprint": "6qm1q9",
                             "Asset__PixelWidth": 5163,
                             "Asset__Samples": 16
                         },
@@ -12567,7 +12519,7 @@
             },
             {
                 "Sheet__Id": "Sheet_004",
-                "Sheet__Name": "D10 - Site Plan",
+                "Sheet__Name": "Site Plan",
                 "Sheet__Order": 4,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
@@ -12577,7 +12529,7 @@
                     "Sheet__Fields__Revision": "B",
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
-                    "Sheet__Fields__DrawingNumber": "PS01_T02_D10",
+                    "Sheet__Fields__DrawingNumber": "D04",
                     "Sheet__Fields__Title": "Permitted Development Compliance  -  Design Proposal Site Block & Location Plan"
                 },
                 "Sheet__Layers": [

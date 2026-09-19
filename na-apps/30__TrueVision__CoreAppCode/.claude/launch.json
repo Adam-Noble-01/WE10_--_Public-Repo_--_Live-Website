@@ -165,6 +165,65 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8641
+    },
+    {
+      "name": "tv-tabnames",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8652",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8652
+    },
+    {
+      "name": "tv-fsprompt",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8661",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8661
+    },
+    {
+      "name": "vv-tabnames",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8666",
+        "D:/06__Cloud__Repo__NaCodebase__Puiblic/ValeCodebase"
+      ],
+      "port": 8666
+    },
+    {
+      "name": "vv-pmscenes",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_pmscenes_nocache_server.py",
+        "8671",
+        "D:/06__Cloud__Repo__NaCodebase__Puiblic/ValeCodebase"
+      ],
+      "port": 8671
+    },
+    {
+      "name": "tv-common",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8683",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8683
+    },
+    {
+      "name": "tv-scrapbook",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/scrapbook/tv_scrapbook_test_server.py",
+        "8683"
+      ],
+      "port": 8683
     }
   ]
 }

@@ -28,6 +28,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - Short tab names. A rename goes through the sheet model's ApplySheetName,
+//   so a Drawing Title typed separately from the name survives it - it used to
+//   be overwritten with the new name, which would have cost a project its
+//   title block titles the first time its tabs were shortened. A drawing code
+//   typed in front of the new name is taken off before the save
+//   (CleanSheetName), and the confirmation names the sheet as its tab does.
+//
 // 19-Sep-2026 - Version 1.0.1
 // - Headers, region breakdown, function wrapping and the export block brought
 //   in line with the Layout Editor coding conventions. No behaviour change.
@@ -44,9 +52,20 @@
 
     // MODULE IMPORTS | Sheets, Autosave, Project Data and Register Units
     // ------------------------------------------------------------
-    import { Na__LeModel__GetSheets, Na__LeModel__GetFields, Na__LeModel__NotifyRegister } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeAuto__Suspend, Na__LeAuto__Resume } from '../07__Core__SheetData/Na__LayoutEditor__AutoSave__.js';
-    import { Na__DrawData__Save, Na__DrawData__GetBlock } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import {
+        Na__LeModel__GetSheets,
+        Na__LeModel__GetFields,
+        Na__LeModel__GetTabLabel,
+        Na__LeModel__GetPhase,
+        Na__LeModel__GetDrawingNumber,
+        Na__LeModel__ComposeDocumentId,
+        Na__LeModel__CleanSheetName,
+        Na__LeModel__ApplySheetName,
+        Na__LeModel__FinishRegisterDeletion,
+        Na__LeModel__NotifyRegister
+    } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeAuto__Suspend, Na__LeAuto__Resume, Na__LeAuto__DiscardSavedDraft } from '../07__Core__SheetData/Na__LayoutEditor__AutoSave__.js';
+    import { Na__DrawData__Save, Na__DrawData__GetBlock, Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LocalMirror__MergeKeys } from '../../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
     import {
@@ -56,6 +75,8 @@
         Na__LeReg__AdoptNumbering,
         Na__LeReg__IsBusy
     } from './Na__LayoutEditor__Register__Data__.js';
+    // @delegate: ./Na__LayoutEditor__Register__DeleteDialog__.js
+    import { Na__LeRegDelete__Confirm } from './Na__LayoutEditor__Register__DeleteDialog__.js';
     import { Na__LeRegNum__Plan, Na__LeRegNum__Apply } from './Na__LayoutEditor__Register__Numbering__.js';
     // ------------------------------------------------------------
 
@@ -182,22 +203,31 @@
     // FUNCTION | Edit the Actual Sheet Name, Title and Revision
     // ------------------------------------------------------------
     function Na__LeRegEdit__Metadata(sheetId, key, value) {
-        const next  = String(value || '').trim();
         const sheet = Na__LeModel__GetSheets().find((item) => item.Sheet__Id === sheetId);
-        if (!sheet || !['name', 'revision'].includes(key)) return Promise.resolve(false);
+        if (!sheet || !['name', 'revision', 'phase'].includes(key)) return Promise.resolve(false);
+        const next  = key === 'name' ? Na__LeModel__CleanSheetName(sheet, value) : String(value || '').trim();   // <-- A drawing code typed in front of a name comes off before it is kept: the tab carries the register's
         if (!next) {
             Na__LeRegEdit__Toast('A drawing needs a ' + key + '.', true);
             return Promise.resolve(false);
         }
-        const current = key === 'name' ? sheet.Sheet__Name : Na__LeModel__GetFields(sheet).Revision;
+        const current = key === 'name'  ? sheet.Sheet__Name
+                      : key === 'phase' ? Na__LeModel__GetPhase(sheet)
+                      : Na__LeModel__GetFields(sheet).Revision;
         if (current === next) return Promise.resolve(true);
-        return Na__LeRegEdit__Commit('Change ' + sheet.Sheet__Name + ' ' + key + ' to “' + next + '”?', (sheets) => {
+        // A phase change moves the drawing's whole identifier, so the confirmation
+        // says so outright rather than naming a code the reader has to work out.
+        const asked = key === 'phase'
+            ? 'Move ' + Na__LeModel__GetTabLabel(sheet) + ' to phase ' + next + '? Its document code becomes ' +
+              Na__LeModel__ComposeDocumentId(Na__DrawData__GetProjectCode(), next, Na__LeModel__GetDrawingNumber(sheet)) + '.'
+            : 'Change ' + Na__LeModel__GetTabLabel(sheet) + ' ' + key + ' to “' + next + '”?';
+        return Na__LeRegEdit__Commit(asked, (sheets) => {
             const live = sheets.find((item) => item.Sheet__Id === sheetId);
             if (!live) throw new Error('This sheet no longer exists.');
             live.Sheet__Fields = live.Sheet__Fields || {};
             if (key === 'name') {
-                live.Sheet__Name = next;
-                live.Sheet__Fields.Sheet__Fields__Title = next;
+                Na__LeModel__ApplySheetName(live, next);                          // <-- A Drawing Title typed separately survives; one that only followed the name follows it
+            } else if (key === 'phase') {
+                live.Sheet__Fields.Sheet__Fields__Phase = next;                   // <-- The code itself is never written: it recomposes from this
             } else {
                 live.Sheet__Fields.Sheet__Fields__Revision = next.replace(/^Rev\s+/i, '');
             }
@@ -242,6 +272,79 @@
             sheets.splice(Math.max(0, Math.min(targetIndex, sheets.length)), 0, moved);
             Na__LeRegNum__Apply(sheets, Na__LeRegNum__Plan(sheets, numbering));
         });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Delete a Sheet Locally First, Then Persist the Same Removal to R2
+    // ------------------------------------------------------------
+    async function Na__LeRegEdit__Delete(sheetId) {
+        if (!Na__LeRegEdit__Editable || Na__LeRegEdit__Busy || Na__LeReg__IsBusy()) return false;
+        if (Na__LeRegEdit__PendingLocal) { Na__LeRegEdit__Toast('Retry the local sync before deleting a drawing.', true); return false; }
+        const sheet = Na__LeModel__GetSheets().find((entry) => entry.Sheet__Id === sheetId);
+        if (!sheet) return false;
+        const number = Na__LeModel__GetFields(sheet).DrawingNumber;
+        Na__LeRegEdit__Busy = true;
+        let unlock = () => {};
+        let before = null;
+        let beforeRefs = null;
+        let beforeLocal = null;
+        let suspended = false;
+        const report = {};
+        try {
+            if (!await Na__LeRegDelete__Confirm(number, sheet.Sheet__Name)) return false;
+            unlock = Na__LeRegEdit__Lock();
+            await Na__LeAuto__Suspend(); suspended = true;
+            if (Na__LeModel__GetFields(sheet).DrawingNumber !== number) throw new Error('The drawing number changed. Please confirm the current number.');
+            const block = Na__DrawData__GetBlock();
+            const live = block.LayoutEditor__DrawingsData__Sheets;
+            const index = live.findIndex((entry) => entry.Sheet__Id === sheetId);
+            if (index < 0) throw new Error('This drawing no longer exists.');
+            before = Na__LeReg__Clone(live);
+            beforeRefs = live.slice();
+            beforeLocal = {
+                LayoutEditor__DrawingsData : Na__LeReg__Clone(block),
+                LayoutEditor__DrawingRegister : Na__LeReg__Clone(Na__LeReg__GetDocument())
+            };
+            const numbering = Na__LeReg__Clone(Na__LeReg__GetDocument().DrawingRegister__Numbering);
+            delete numbering.DrawingRegister__Numbering__Overrides[sheetId];
+            const remaining = Na__LeModel__GetSheets().filter((entry) => entry.Sheet__Id !== sheetId);
+            const plan = Na__LeRegNum__Plan(remaining, numbering);
+            const payload = Na__LeReg__NumberingPayload(numbering);
+            [payload.cloud, payload.local].forEach((keys) => { delete keys.LayoutEditor__DrawingRegister.DrawingRegister__Revisions[sheetId]; });
+            payload.localFirst = true;
+            live.splice(index, 1);
+            Na__LeRegNum__Apply(remaining, plan);
+            const saved = await Na__DrawData__Save((message, error) => { if (error) Na__LeRegEdit__Toast(message, true); }, report, payload);
+            if (!saved) throw new Error('Deletion could not be synced to R2.');
+            Na__LeReg__AdoptNumbering(payload, sheetId);
+            Na__LeModel__FinishRegisterDeletion(sheetId);
+            // A stale browser draft must never restore the removed drawing at reload.
+            Na__LeAuto__DiscardSavedDraft();
+            Na__LeRegEdit__Toast(number + ' deleted locally and synced to R2.', false);
+            return true;
+        } catch (error) {
+            if (before && !report.cloudSaved) {
+                const live = Na__DrawData__GetBlock().LayoutEditor__DrawingsData__Sheets;
+                before.forEach((record, index) => Object.assign(beforeRefs[index], record));
+                live.splice(0, live.length, ...beforeRefs);
+                if (report.localFirstWritten) {
+                    const restored = await Na__LocalMirror__MergeKeys(beforeLocal);
+                    if (!restored.ok) {
+                        Na__LeRegEdit__PendingLocal = beforeLocal;
+                        Na__LeRegEdit__Toast('Deletion was not completed. R2 retains the drawing; local restoration failed. Use Retry Local Sync. ' + (restored.error || ''), true);
+                        return false;
+                    }
+                }
+                Na__LeModel__NotifyRegister();
+            }
+            Na__LeRegEdit__Toast(error.message + (report.cloudSaved ? ' The deletion is already saved; reload the app.' : ' The drawing has been kept.'), true);
+            return false;
+        } finally {
+            if (suspended) Na__LeAuto__Resume();
+            unlock(); Na__LeRegEdit__Busy = false;
+            window.dispatchEvent(new CustomEvent('na-layouteditor-register-changed'));
+        }
     }
     // ------------------------------------------------------------
 
@@ -293,6 +396,7 @@
     // MODULE EXPORTS | Layout Editor Drawing Register Transactions API
     // ------------------------------------------------------------
     export {
+        Na__LeRegEdit__Delete,
         Na__LeRegEdit__Initialize,
         Na__LeRegEdit__Metadata,
         Na__LeRegEdit__Renumber,

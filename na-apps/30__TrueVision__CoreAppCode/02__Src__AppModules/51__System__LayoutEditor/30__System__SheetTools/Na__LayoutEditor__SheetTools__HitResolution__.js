@@ -116,7 +116,7 @@
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt, Na__LeShapeGeo__ClosestOnEdge } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__ClickToggles, Na__LeDoors__At } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
-    import { Na__LeOsnap__Find, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Find, Na__LeOsnap__FindOnViewport, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
     import {
         Na__LeScope__IsActive,
         Na__LeScope__GetVectorId,
@@ -335,6 +335,45 @@
         if (!best) { Na__LeOsnap__HideMarker(); return axis; }
         Na__LeOsnap__ShowMarker(best.hit);
         return { x : best.hit.x - best.ox, y : best.hit.y - best.oy };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Snap a Selection by Its Movable Descendants' Original Points
+    // ------------------------------------------------------------
+    // Capture supplies flattened, unlocked members even for nested groups.
+    // Keep the source points at their original positions throughout the drag;
+    // all moving members are excluded from targets, including other viewports.
+    function Na__LeTools__SnapGroupTranslation(sheet, drag, delta, lock) {
+        if (!drag.snapPoints) {
+            drag.snapPoints = [];
+            const add = (x, y) => { if (Number.isFinite(x) && Number.isFinite(y)) drag.snapPoints.push({ x, y }); };
+            (drag.group || []).forEach((entry) => {
+                const start = entry.start;
+                if (entry.kind === 'shape') start.points.forEach((p) => add(p[0], p[1]));
+                else if (entry.kind === 'dimension') { add(start.sx, start.sy); add(start.ex, start.ey); }
+                else if (entry.kind === 'viewport') {
+                    const grab = Na__LeOsnap__FindOnViewport(sheet, entry.id, drag.startMm);
+                    if (grab) add(grab.x, grab.y);
+                } else {
+                    add(start.x, start.y);
+                    if (start.tipFollows) add(start.tipX, start.tipY);
+                }
+            });
+            if (drag.group.length) add(drag.startMm.x, drag.startMm.y);
+        }
+        let best = null;
+        drag.snapPoints.forEach((point) => {
+            const hit = Na__LeOsnap__Find(sheet, { x : point.x + delta.x, y : point.y + delta.y }, drag.group);
+            if (hit && (!best || hit.score < best.hit.score)) best = { hit, point };
+        });
+        if (!best) { Na__LeOsnap__HideMarker(); return delta; }
+        const result = {
+            x : lock === 'y' ? delta.x : best.hit.x - best.point.x,
+            y : lock === 'x' ? delta.y : best.hit.y - best.point.y
+        };
+        Na__LeOsnap__ShowMarker({ ...best.hit, x : best.point.x + result.x, y : best.point.y + result.y });
+        return result;
     }
     // ------------------------------------------------------------
 
@@ -580,6 +619,7 @@
         Na__LeTools__ShapeInsertHit,
         Na__LeTools__RefreshShapeInsert,
         Na__LeTools__SnapShapeTranslation,
+        Na__LeTools__SnapGroupTranslation,
         Na__LeTools__Resolve,
         Na__LeTools__RawHit,
         Na__LeTools__Record,

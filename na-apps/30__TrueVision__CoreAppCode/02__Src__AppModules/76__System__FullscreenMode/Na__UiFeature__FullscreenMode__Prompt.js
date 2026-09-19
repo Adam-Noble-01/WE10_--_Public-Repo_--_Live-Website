@@ -25,6 +25,12 @@
 //   the invitation for the whole tab session with no way to get it back.
 // - Never shown where element full screen is unsupported (Safari on iPhone)
 //   or where the viewer is already running full screen.
+// - Never shown on a locally served build. The card is an invitation to a
+//   CLIENT who has opened a link in an ordinary browser tab; on the studio
+//   machine, where the app is the drawing tool and is usually running as an
+//   installed PWA that has no browser chrome to hide, it is only an obstacle
+//   between opening the app and working. The live web site and the live web
+//   PWA are untouched and still offer it.
 //
 // INTEGRATION:
 // - Call Na__UiFeature__FullscreenMode__Prompt__Initialize(enterFn) once after
@@ -35,6 +41,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - Suppressed on locally served builds. Gated on where the app is SERVED
+//   (Na__AppUtils__IsRunningOnLocalhost), not on the authoring gate: authoring
+//   can be unlocked on the live site, and a client session that had once been
+//   unlocked must still be offered full screen.
+//
 // 27-Aug-2026 - Version 1.1.0
 // - Removed sessionStorage dismissal suppression. The card now appears on
 //   every app open as originally specified; a dismissal applies only to the
@@ -56,6 +68,13 @@
         Na__UiFeature__FullscreenMode__IsActive,
         Na__UiFeature__FullscreenMode__IsSupported
     } from './Na__UiFeature__FullscreenMode__SystemLogic.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Environment Detection
+    // ------------------------------------------------------------
+    // @delegate: ../03__AppUtils/Na__AppUtils__ProjectLoader.js
+    // ------------------------------------------------------------
+    import { Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -247,6 +266,7 @@
     function Na__UiFeature__FullscreenMode__Prompt__Initialize(enterFn) {
         if (Na__FsPrompt__IsInitialized) return;                             // <-- Guard: already initialized
         if (!Na__UiFeature__FullscreenMode__IsSupported()) return;           // <-- Build nothing on unsupported browsers
+        if (Na__AppUtils__IsRunningOnLocalhost()) return;                    // <-- Studio build: never offered, see the header note
         Na__FsPrompt__IsInitialized = true;
 
         Na__FsPrompt__EnterFn = enterFn;

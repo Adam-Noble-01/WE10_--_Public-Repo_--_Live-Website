@@ -119,6 +119,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.26.0
+// - Re-exports the Sheets unit's short tab name API: GetDrawingNumber,
+//   GetShortCode, GetTabLabel, CleanSheetName and ApplySheetName.
+//
 // 15-Sep-2026 - Version 1.25.0
 // - Split into Na__LayoutEditor__SheetModel__State__.js,
 //   Na__LayoutEditor__SheetModel__Sheets__.js,
@@ -334,6 +338,12 @@
     import { Na__LeRec__NormaliseSheet } from './Na__LayoutEditor__SheetRecords__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Common Title Block Fields: the Per-Project Caches
+    // ------------------------------------------------------------
+    import { Na__LeCommon__Reset } from './Na__LayoutEditor__SheetModel__Common__.js';
+    import { Na__LeRecord__Reset } from './Na__LayoutEditor__ProjectRecord__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Labels (the save confirmation)
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
@@ -352,6 +362,7 @@
         Na__LeModel__SelectionItems,
         Na__LeModel__Dirty,
         Na__LeModel__Dispatch,
+        Na__LeModel__RegisterBeforeAnnounce,
         Na__LeModel__Touch,
         Na__LeModel__Array,
         Na__LeModel__AssignActiveSheetId,
@@ -374,8 +385,20 @@
         Na__LeModel__UpdateSheet,
         Na__LeModel__ReorderSheet,
         Na__LeModel__GetFields,
+        Na__LeModel__GetDrawingNumber,
+        Na__LeModel__GetPhase,
+        Na__LeModel__GetDocumentId,
+        Na__LeModel__ComposeDocumentId,
+        Na__LeModel__GetShortCode,
+        Na__LeModel__GetTabLabel,
+        Na__LeModel__CleanSheetName,
+        Na__LeModel__ApplySheetName,
         Na__LeModel__UpdateMarginNotes,
-        Na__LeModel__SetField
+        Na__LeModel__SetField,
+        Na__LeModel__IsCommonFields,
+        Na__LeModel__SetCommonFields,
+        Na__LeModel__SetCommonFieldValue,
+        Na__LeModel__SeedCommonFields
     } from './Na__LayoutEditor__SheetModel__Sheets__.js';
     import {
         Na__LeModel__GetLayers,
@@ -409,6 +432,7 @@
         Na__LeModel__GetDimensions,
         Na__LeModel__CreateAnnotation,
         Na__LeModel__InsertAnnotation,
+        Na__LeModel__InsertDimension,
         Na__LeModel__UpdateAnnotation,
         Na__LeModel__DeleteAnnotation,
         Na__LeModel__CreateDimension,
@@ -521,6 +545,18 @@
     // FUNCTION | Unsaved Changes?
     // ------------------------------------------------------------
     function Na__LeModel__IsDirty() { return Na__LeModel__Dirty; }
+    // FUNCTION | Announce a Persisted Deletion Without Scheduling Another Save
+    // ------------------------------------------------------------
+    function Na__LeModel__FinishRegisterDeletion(sheetId) {
+        if (Na__LeModel__ActiveSheetId === sheetId) {
+            Na__LeModel__AssignActiveSheetId(null);
+            Na__LeModel__AssignSelectionItems([]);
+        }
+        Na__LeModel__AssignDirty(false);
+        Na__LeModel__Dispatch('sheet-deleted', sheetId);
+        Na__LeModel__NotifyRegister();
+    }
+
     function Na__LeModel__NotifyRegister() { Na__LeModel__Dispatch('register-updated', Na__LeModel__ActiveSheetId); }
 
     function Na__LeModel__MarkDirty() { Na__LeModel__AssignDirty(true); }
@@ -607,6 +643,14 @@
             if (saved) { Na__LeModel__Dispatch('saved', Na__LeModel__ActiveSheetId); return; }   // <-- The same records, now on disk: selection and undo history stay
             Na__LeModel__AssignSelectionItems([]);
             Na__LeModel__Dispatch('loaded', Na__LeModel__ActiveSheetId);
+            // THE PACK'S CLIENT AND SITE ADDRESS | A new project brings a new
+            // admin record, so both caches are dropped before the seed runs.
+            // Fire and forget: it reads two small JSON documents off the
+            // website and announces 'fields' only if it writes anything, so a
+            // project whose pack already agrees with itself never repaints.
+            Na__LeCommon__Reset();
+            Na__LeRecord__Reset();
+            void Na__LeModel__SeedCommonFields();
         };
         window.addEventListener(Na__DrawData__LOADED_EVENT,  reload);
         window.addEventListener(Na__DrawData__CHANGED_EVENT, reload);
@@ -644,7 +688,19 @@
         Na__LeModel__IsSitePlanSheet,
         Na__LeModel__IsSitePlanViewport,
         Na__LeModel__GetFields,
+        Na__LeModel__GetDrawingNumber,
+        Na__LeModel__GetPhase,
+        Na__LeModel__GetDocumentId,
+        Na__LeModel__ComposeDocumentId,
+        Na__LeModel__GetShortCode,
+        Na__LeModel__GetTabLabel,
+        Na__LeModel__CleanSheetName,
+        Na__LeModel__ApplySheetName,
         Na__LeModel__SetField,
+        Na__LeModel__IsCommonFields,
+        Na__LeModel__SetCommonFields,
+        Na__LeModel__SetCommonFieldValue,
+        Na__LeModel__SeedCommonFields,
         Na__LeModel__UpdateMarginNotes,
         Na__LeModel__GetLayers,
         Na__LeModel__GetLayerById,
@@ -669,6 +725,7 @@
         Na__LeModel__GetDimensions,
         Na__LeModel__CreateAnnotation,
         Na__LeModel__InsertAnnotation,
+        Na__LeModel__InsertDimension,
         Na__LeModel__UpdateAnnotation,
         Na__LeModel__DeleteAnnotation,
         Na__LeModel__CreateDimension,
@@ -698,6 +755,8 @@
         Na__LeModel__GetSelectedViewport,
         Na__LeModel__IsDirty,
         Na__LeModel__MarkDirty,
+        Na__LeModel__RegisterBeforeAnnounce,
+        Na__LeModel__FinishRegisterDeletion,
         Na__LeModel__NotifyRegister,
         Na__LeModel__RestoreSheets,
         Na__LeModel__Save

@@ -2096,12 +2096,30 @@
 
     // HELPER FUNCTION | One-Line Summary of What a Batch Did
     // ------------------------------------------------------------
-    function Na__PmDev__SummariseBatch(verb, done, result) {
+    // skippedCount comes from THIS function's caller, not from the batch
+    // result. The caller hands the batch a list it has already filtered down
+    // to the walkable scenes, so the batch re-partitions a list with nothing
+    // left to skip and always reports zero - which is how a run that skipped
+    // five drawing scenes announced itself as a plain "7 updated." and left
+    // the other five unexplained.
+    // ------------------------------------------------------------
+    function Na__PmDev__SummariseBatch(verb, done, result, skippedCount) {
         const parts = [`${done} ${verb}`];
         if (result.failed)  parts.push(`${result.failed} failed`);
-        if (result.skipped) parts.push(`${result.skipped} skipped (drawing scenes)`);
-        if (result.stopped) parts.push('stopped early');
+        if (skippedCount)   parts.push(`${skippedCount} drawing scene(s) skipped`);
+        if (result.stopped && !result.noViewport) parts.push('stopped early');
         return parts.join(', ') + '.';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Did This Run Have Anything the User Must Read?
+    // ------------------------------------------------------------
+    // Skipped drawing scenes do NOT count: they were named in the confirmation
+    // before the run started and are the expected outcome, not a problem.
+    // ------------------------------------------------------------
+    function Na__PmDev__BatchHadProblems(result) {
+        return Boolean(result.failed) || Boolean(result.stopped) || Boolean(result.noViewport);
     }
     // ------------------------------------------------------------
 
@@ -2178,12 +2196,10 @@
             await Na__PmDev__SaveToR2(Na__PmDev__WorkingScenes);
         }
 
-        const summary = result.noViewport
-            ? Na__PmDev__SummariseBatch('updated', result.updated, result)
-              + ' The window lost its viewport, so the run stopped there.'
-            : Na__PmDev__SummariseBatch('updated', result.updated, result);
+        const summary = Na__PmDev__SummariseBatch('updated', result.updated, result, partition.skipped.length)
+            + (result.noViewport ? ' The window lost its viewport, so the run stopped there.' : '');
 
-        progress.Finish(summary);
+        progress.Finish(summary, { hadProblems : Na__PmDev__BatchHadProblems(result) });
         Na__PmDev__RenderEditorPanel();                                      // <-- Rows re-read their thumbnails
         if (Na__PmDev__ShowToast) {
             Na__PmDev__ShowToast('Thumbnails: ' + summary, result.failed > 0 || result.noViewport);
@@ -2243,12 +2259,10 @@
             return;
         }
 
-        const summary = result.noViewport
-            ? Na__PmDev__SummariseBatch('exported', result.exported, result)
-              + ' The window lost its viewport, so the run stopped there.'
-            : Na__PmDev__SummariseBatch('exported', result.exported, result);
+        const summary = Na__PmDev__SummariseBatch('exported', result.exported, result, partition.skipped.length)
+            + (result.noViewport ? ' The window lost its viewport, so the run stopped there.' : '');
 
-        progress.Finish(summary);
+        progress.Finish(summary, { hadProblems : Na__PmDev__BatchHadProblems(result) });
         if (Na__PmDev__ShowToast) {
             Na__PmDev__ShowToast('Images: ' + summary, result.failed > 0 || result.noViewport);
         }

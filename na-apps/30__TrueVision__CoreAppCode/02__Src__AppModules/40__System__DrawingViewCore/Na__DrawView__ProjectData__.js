@@ -64,6 +64,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - Common title block fields: CommonClient and CommonSiteAddress hold the
+//   client and the site address ONCE for the whole pack. They sit beside the
+//   client measuring grant because they are the same kind of thing - a fact
+//   about the project, not about any one sheet.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Save writes a local copy too: once R2 has the blocks, they are merged into
 //   the repository's TrueVision__ProjectData__.json through the ProjectVision
@@ -130,6 +136,8 @@
     const Na__DrawData__DESCRIPTION_KEY  = 'LayoutEditor__DrawingsData__Description';
     const Na__DrawData__VERSION_KEY      = 'LayoutEditor__DrawingsData__Version';
     const Na__DrawData__CLIENT_DIMS_KEY  = 'LayoutEditor__DrawingsData__ClientDimensionsEnabled';
+    const Na__DrawData__COMMON_CLIENT_KEY = 'LayoutEditor__DrawingsData__CommonClient';
+    const Na__DrawData__COMMON_SITE_KEY   = 'LayoutEditor__DrawingsData__CommonSiteAddress';
     const Na__DrawData__FLOOR_PLANS_KEY  = 'LayoutEditor__DrawingsData__FloorPlans';
     const Na__DrawData__ELEVATIONS_KEY   = 'LayoutEditor__DrawingsData__Elevations';
     const Na__DrawData__SHEETS_KEY       = 'LayoutEditor__DrawingsData__Sheets';
@@ -413,6 +421,47 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Common Title Block Fields
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | The Client and Site Address the Whole Pack Shares
+    // ------------------------------------------------------------
+    // One project, one client, one address: on a householder job the three
+    // are the same on every drawing, and typing them per sheet is how four
+    // sheets come to disagree about whether the postcode has a space after it.
+    // A sheet that genuinely differs turns Common off and keeps its own.
+    // Absent reads as empty, never as null, so callers can always concatenate.
+    // ------------------------------------------------------------
+    function Na__DrawData__GetCommonFields() {
+        const block = Na__DrawData__GetBlock();
+        const read  = (key) => (typeof block[key] === 'string') ? block[key] : '';
+        return { Client : read(Na__DrawData__COMMON_CLIENT_KEY), SiteAddress : read(Na__DrawData__COMMON_SITE_KEY) };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set One Common Field for the Whole Pack
+    // ------------------------------------------------------------
+    // Trimmed on the way in - a trailing space is invisible in the panel and
+    // shifts the printed cell - and an empty value removes the key rather than
+    // storing "", so an unanswered project reads the same as a new one.
+    // ------------------------------------------------------------
+    function Na__DrawData__SetCommonField(key, value) {
+        const mapKey = (key === 'Client') ? Na__DrawData__COMMON_CLIENT_KEY
+                     : (key === 'SiteAddress') ? Na__DrawData__COMMON_SITE_KEY : null;
+        if (!mapKey) return false;
+        const block = Na__DrawData__GetBlock();
+        const text  = (typeof value === 'string') ? value.trim() : '';
+        if (text) block[mapKey] = text;
+        else delete block[mapKey];
+        return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Scene Link Checks
 // -----------------------------------------------------------------------------
 
@@ -509,12 +558,22 @@
             if (registerKeys && registerKeys.cloud) Object.assign(payload, registerKeys.cloud);
             const cloudKeys = JSON.parse(JSON.stringify(payload));
             const localKeys = JSON.parse(JSON.stringify(payload));                   // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
+            // DELETION | Explicit local-first mode; a local failure never reaches R2.
+            let firstLocal = null;
+            if (registerKeys && registerKeys.localFirst) {
+                if (registerKeys.local) Object.assign(localKeys, registerKeys.local);
+                firstLocal = await Na__LocalMirror__MergeKeys(localKeys);
+                if (report) { report.local = firstLocal; report.localKeys = localKeys; report.localFirstWritten = !!firstLocal.ok; }
+                if (!firstLocal.ok) { toast('Drawing deletion was not saved locally: ' + (firstLocal.error || 'Local server unavailable.'), true); return false; }
+            }
             const result = await Na__CfApi__MergeAndSaveKeys(cloudKeys);
             if (!result || !result.ok) {
                 const reason = (result && result.error) ? result.error : 'unknown error';
                 toast(`Drawings save failed: ${reason}`, true);
                 return false;
             }
+
+            if (report) report.cloudSaved = true;
 
             if (wasMigration) {
                 Na__DrawData__MigratedFrom = null;                                   // <-- Landed; later saves are ordinary
@@ -531,7 +590,7 @@
             // confirmation, and any other caller is shown it here as an error.
             if (registerKeys && registerKeys.local) Object.assign(localKeys, registerKeys.local);
             if (report && typeof report === 'object') report.localKeys = localKeys;
-            const local = await Na__LocalMirror__MergeKeys(localKeys);
+            const local = firstLocal || await Na__LocalMirror__MergeKeys(localKeys);
             if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Drawings saved to R2; the local copy was not written:', local.error);
             if (report && typeof report === 'object') report.local = local;
             else if (!local.ok && !local.skipped) toast(`Drawings saved to R2, but the local copy was not written: ${local.error}`, true);
@@ -609,6 +668,8 @@
         Na__DrawData__GetSheetsArray,
         Na__DrawData__GetClientDimensionsEnabled,
         Na__DrawData__SetClientDimensionsEnabled,
+        Na__DrawData__GetCommonFields,
+        Na__DrawData__SetCommonField,
         Na__DrawData__IsFloorPlanScene,
         Na__DrawData__IsElevationScene,
         Na__DrawData__IsDrawingScene,

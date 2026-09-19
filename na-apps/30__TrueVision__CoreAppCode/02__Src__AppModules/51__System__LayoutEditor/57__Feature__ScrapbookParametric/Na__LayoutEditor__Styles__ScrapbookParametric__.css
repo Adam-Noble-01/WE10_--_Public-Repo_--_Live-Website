@@ -1,0 +1,104 @@
+/* ================================================================= */
+/* TRUEVISION3D - LAYOUT EDITOR - STYLES: PARAMETRIC SCRAPBOOK        */
+/* ================================================================= */
+/*
+ * FILE       : Na__LayoutEditor__Styles__ScrapbookParametric__.css
+ * MODULE     : Layout Editor - Parametric Scrapbook
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The grips a selected parametric element shows on the sheet, and the few rules its panel sections add
+ * CREATED    : 19-Sep-2026
+ *
+ * DESCRIPTION:
+ * - Linked by Na__LayoutEditor__Panel__ScrapbookParametric__ when the subsystem
+ *   is wired, the way the Drawing Register links its own sheet.
+ * - The tiles are the Scrapbook's (.na-le-scrap in Styles__Panels); nothing
+ *   here restyles them, so every library's tiles read alike.
+ * - The grips sit on the handles layer beside .na-le-grip (Styles__Main__Paper)
+ *   and keep its class, so whatever clears the grips clears them. Their size
+ *   and place are set inline, counter-scaled, by the grips module.
+ *
+ * PORT NOTE:
+ * - Authored in : TrueVision3D first (19-Sep-2026). Not yet in ValeVision.
+ *
+ * DEVELOPMENT LOG:
+ * 19-Sep-2026 - Version 1.0.0
+ * - Initial implementation.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Grips                                                  */
+/* ----------------------------------------------------------------- */
+
+/* AUTOCAD'S DYNAMIC BLOCK GRIPS, in its own light blue so they are never
+   taken for a vertex or a dimension grip: those edit a shape, these edit a
+   parameter. Unlike every other grip they take the pointer themselves - the
+   sheet tools never hear a press that lands on one. */
+
+.na-le-grip--param {
+    border                             : 0;
+    border-radius                      : 0;
+    background                         : #12a5dc;
+    pointer-events                     : auto;
+    z-index                            : 8;
+    filter                             : drop-shadow(0 0 1px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 1px rgba(23, 43, 58, 0.55));   /* <-- A casing, so it reads over black linework and over white paper alike */
+    touch-action                       : none;
+}
+
+.na-le-grip--param:hover {
+    background                         : #e01b24;                     /* <-- The house red of a grip that is held */
+}
+
+/* STRETCH | An arrow pointing the way it drags: along the bar, away from zero. */
+
+.na-le-grip--param-stretch {
+    clip-path                          : polygon(0 22%, 52% 22%, 52% 0, 100% 50%, 52% 100%, 52% 78%, 0 78%);
+    cursor                             : ew-resize;
+}
+
+/* LOOKUP | The triangle every CAD program uses for "there is a list here". */
+
+.na-le-grip--param-lookup {
+    clip-path                          : polygon(0 12%, 100% 12%, 50% 100%);
+    cursor                             : pointer;
+}
+
+/* THE BOX SAYS WHAT IT IS. A selected group is tagged "Group" inside its top
+   left corner; an element is tagged with its name, ABOVE the box, because a
+   scale bar is 2 mm tall and a tag in its corner covers the first cell. The
+   grips module re-words the groups module's own tag and adds this class. */
+
+.na-le-group-label.na-le-group-label--param {
+    top                                : auto;
+    bottom                             : 100%;
+    background                         : #12a5dc;
+    transform-origin                   : left bottom;
+}
+
+/* WHILE THE ARROW IS HELD the pointer keeps its cursor wherever it wanders,
+   and nothing on the page starts a text selection under it. */
+
+body.na-le-param-stretching,
+body.na-le-param-stretching * {
+    cursor                             : ew-resize !important;
+    user-select                        : none;
+    -webkit-user-select                : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Panel Sections                                         */
+/* ----------------------------------------------------------------- */
+
+/* THE SETTINGS SECTION'S FIRST LINE names what is selected, since a group's
+   box on the sheet only ever says "Group". */
+
+.na-le-param__name {
+    margin-top                         : 0;
+    font-weight                        : 600;
+    color                              : #172b3a;
+}
+
+/* endregion ------------------------------------------------------- */

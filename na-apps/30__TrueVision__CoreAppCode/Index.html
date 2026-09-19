@@ -27,13 +27,19 @@
 
         These three scripts are BLOCKING and must stay in <head>. They inject
         the per-project manifest link before the browser evaluates whether the
-        page is installable. The static link below is only the fallback the
-        builder replaces, and the safety net if scripting is unavailable.
+        page is installable.
+
+        THERE IS DELIBERATELY NO STATIC <link rel="manifest"> HERE - DO NOT ADD
+        ONE. Safari (WebKit, since 15.4) fetches the FIRST manifest link it
+        parses and never looks again for the life of the page; a later href
+        change is ignored. A static fallback link here was therefore the only
+        manifest an iPad ever saw, and its project-less start_url is what every
+        Home Screen icon launched: an empty app. The builder creates the link,
+        so the first manifest WebKit meets is the per-project one.
 
         @delegate: ./02__Src__AppModules/62__Feature__AppInstallability/
     -->
 
-    <link rel="manifest" href="02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Manifest__Fallback__.webmanifest">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">

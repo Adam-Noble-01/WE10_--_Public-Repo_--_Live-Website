@@ -47,6 +47,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.17.0
+// - The Custom and the Parametric Scrapbooks (56__Feature__ScrapbookCustom,
+//   57__Feature__ScrapbookParametric) register their sections: both libraries in
+//   the left column after the Scrapbook, and the selected parametric element's
+//   settings at the top of the right column.
+//
 // 18-Sep-2026 - Version 1.16.0
 // - The web viewer. A session that cannot author gets a different shell, not a
 //   disabled one: no panel columns, no toolbar row, and AttachSheetInput binds
@@ -150,7 +156,7 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Navigation, Tools, Panels, Toolbar, Snapshots
     // ------------------------------------------------------------
-    import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel, Na__LeCfg__GetPanelSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel, Na__LeCfg__GetPanelSetup, Na__LeCfg__MatchKeyBinding } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeEdge__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
     import { Na__LeComposite__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__DrawCfg__Load } from '../../40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
@@ -178,6 +184,8 @@
     import { Na__LePanelLayers__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Layers__.js';
     import { Na__LePanelSheet__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Sheet__.js';
     import { Na__LePanelScrap__Register } from '../55__Feature__Scrapbook/Na__LayoutEditor__Panel__Scrapbook__.js';
+    import { Na__LePanelScrapCustom__Register } from '../56__Feature__ScrapbookCustom/Na__LayoutEditor__Panel__ScrapbookCustom__.js';
+    import { Na__LePanelParam__RegisterLibrary, Na__LePanelParam__RegisterProperties } from '../57__Feature__ScrapbookParametric/Na__LayoutEditor__Panel__ScrapbookParametric__.js';
     import { Na__LePanelViewport__EDIT_EVENT, Na__LePanelViewport__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__ViewportSettings__.js';
     import { Na__LePanelText__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Text__.js';
     import { Na__LePanelLeaders__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Leaders__.js';
@@ -185,7 +193,7 @@
     import { Na__LePanelShapes__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Shapes__.js';
     import { Na__LePanelStyles__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Styles__.js';
     import { Na__LePanelModelLayers__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__ModelLayers__.js';
-    import { Na__LeToolbar__Mount } from '../40__Ui__Panels/Na__LayoutEditor__Toolbar__.js';
+    import { Na__LeToolbar__Mount, Na__LeToolbar__Save } from '../40__Ui__Panels/Na__LayoutEditor__Toolbar__.js';
     import { Na__LeMeasure__Mount } from '../30__System__SheetTools/Na__LayoutEditor__Measurements__.js';
     import { Na__LeSnap__Initialize, Na__LeSnap__ResetFingerprints } from '../25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js';
     import { Na__LeOsnap__Clear } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
@@ -345,11 +353,14 @@
         // are", instead of layers on one side and everything else on the other.
         Na__LePanelSheet__Register();
         Na__LePanelScrap__Register();                                          // <-- Ready-made items to drag onto the paper; shown only on a sheet that has some
+        Na__LePanelParam__RegisterLibrary();                                   // <-- Dynamic elements - the scale bar - that keep answering to their parameters
+        Na__LePanelScrapCustom__Register();                                    // <-- Items saved from a selection, one JSON file each in the user content folder
         Na__LePanelMargin__Register();                                         // <-- The sheet's notes margin, beside its other sheet settings
         Na__LePanelLayers__Register();
         Na__LePanelStyles__Register();
         Na__LePanelModelLayers__Register();
         // RIGHT COLUMN | The selected item's properties
+        Na__LePanelParam__RegisterProperties();                                // <-- First in the column, and hidden until a parametric element is selected
         Na__LePanelViewport__Register();
         Na__LePanelText__Register();
         Na__LePanelLeaders__Register();
@@ -499,6 +510,49 @@
         Na__RenderLoop__RequestRender();
         Na__LeMode__Dispatch();
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Ctrl+S Saves, From Anywhere in the Editor
+    // ------------------------------------------------------------
+    // WHY THIS IS NOT WITH THE OTHER EDIT CHORDS. Ctrl+Z, Ctrl+C and the rest
+    // are answered by the sheet's own keyboard, which is attached only while a
+    // drawing tab is up - on the specification or the register it has stood
+    // down. Saving must work on all three, so it is answered here, once, for
+    // as long as the editor is open, and the sheet's keyboard is left alone.
+    //
+    // WHAT IT COMMITS FIRST. Clicking the Save button blurs whatever had focus,
+    // and that blur is what commits a panel field: those report on 'change',
+    // which fires on blur or Enter and not on every keystroke. A keyboard
+    // shortcut blurs nothing, so a half-typed dimension offset would have been
+    // saved at its old value. Typing on the paper is committed the way the
+    // specification and register tabs already commit it, and a focused field
+    // inside the editor is blurred - the same commit the button always got for
+    // free. Focus is not put back afterwards, because that is what the button
+    // does too and a field rebuilt by its own change event is gone by then.
+    //
+    // THE KEY IS ALWAYS TAKEN while an editable editor is open, even when the
+    // save is a no-op, because the alternative is the browser offering to save
+    // the page as a file over the top of a drawing. A read-only viewer keeps
+    // its own Ctrl+S: there is nothing there to save.
+    // ------------------------------------------------------------
+    function Na__LeMode__OnSaveKey(event) {
+        if (!Na__LeMode__Active || !Na__LeMode__IsEditable()) return;            // <-- Read-only sessions keep the browser's key
+        if (event.defaultPrevented || event.repeat) return;
+        const match = Na__LeCfg__MatchKeyBinding(event.key, {
+            Ctrl : event.ctrlKey, Shift : event.shiftKey, Alt : event.altKey, Meta : event.metaKey, Space : false
+        });
+        if (!match || match.action !== 'Edit__Save') return;
+
+        event.preventDefault();                                                  // <-- Never the browser's Save Page dialog over a sheet
+        event.stopPropagation();
+
+        Na__LeText__Commit();                                                    // <-- Typing on the paper is kept
+        const focused = document.activeElement;                                  // <-- A panel field reports on 'change': blur is what commits it
+        if (focused && focused !== document.body && Na__LeMode__Host && Na__LeMode__Host.contains(focused) && typeof focused.blur === 'function') focused.blur();
+
+        void Na__LeToolbar__Save();                                              // <-- The Save Sheets action itself, busy guard and toast included
     }
     // ------------------------------------------------------------
 
@@ -719,6 +773,8 @@
             Na__LeSnap__Initialize(context);
             Na__LeSource__Initialize();                                      // <-- How many design phases stay loaded off-scene
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeMode__OnSheetsChanged);
+            document.addEventListener('keydown', Na__LeMode__OnSaveKey, true);   // <-- Ctrl+S on the sheet, the specification and the register alike; capture, so it is answered before the browser is told
+
             window.addEventListener(Na__LeTools__DEFAULTS_EVENT, (event) => { if (Na__LeMode__Active) Na__LePanels__Refresh(Na__LeMode__PanelFor(event.detail && event.detail.kind)); });   // <-- A palette sync: the panel showing the new-object settings redraws
             window.addEventListener(Na__LeDrop__CHANGED_EVENT, (event) => {     // <-- Picking a style says what is being matched, the same way a selection does
                 if (event.detail && event.detail.hasSource) Na__LeMode__FocusPanelFor(event.detail.kind);

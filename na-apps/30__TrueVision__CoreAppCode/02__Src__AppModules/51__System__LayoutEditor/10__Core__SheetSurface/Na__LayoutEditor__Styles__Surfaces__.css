@@ -1,0 +1,70 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (shared surfaces)  */
+/* ================================================================= */
+/*
+ * AUTHORED : 19-Sep-2026 for TrueVision3D (v2.72.0)
+ *
+ * WHY THIS FILE EXISTS
+ * Adam, 19-Sep-2026: "there must be so many different styles and copying
+ * lots of code... this is like three completely different developers built
+ * it. The drawing editor UI is kind of the gold standard that needs to be
+ * the same everywhere else because it's like three different user
+ * interfaces."
+ *
+ * He was right, and it was measurable. The three editors each declared their
+ * own ground and their own paper shadow, by hand, in their own file:
+ *
+ *     drawing editor   #d8dcdf   0 6px 26px rgba(0, 0, 0, 0.22)
+ *     specification    #eef1f4   0 1px 3px .16, 0 8px 24px .1   (desk #d7dde3)
+ *     drawing register #eef1f4   0 3px 9px #0002                (desk #d7dde3)
+ *
+ * Three greys and three shadows for one pack of documents, so moving between
+ * tabs read as moving between applications. The drawing editor is the gold
+ * standard, so its ground and its paper are the ones that won.
+ *
+ * HOW TO USE IT
+ * Never write a ground colour or a paper shadow into a feature stylesheet.
+ * Reach for a token here. If a surface needs something these do not cover,
+ * add a token here and use it from both places rather than declaring a
+ * one-off - the point is that there is one answer to "what does paper look
+ * like in this app", not four.
+ *
+ * LOADS: imported by Na__CoreUi__Styles__Index__.css immediately before
+ * Styles__Main__, so every Layout Editor stylesheet can read these.
+ *
+ * PORT NOTE:
+ * - Ported from : n/a (TrueVision3D first, 19-Sep-2026)
+ * - Back-port   : offer to ValeVision3D with the register tab. ValeVision
+ *                 carries the same three-way divergence.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Surface Tokens                                         */
+/* ----------------------------------------------------------------- */
+
+:root {
+
+    /* THE GROUND every editor stands on. One grey, the drawing editor's. */
+    --Na_Le_Stage                      : #d8dcdf;
+
+    /* PAPER. A document is white, square-cornered and lifted off the ground
+       by one shadow - the drawing sheet's, which is the deepest of the three
+       and the one that actually reads as a sheet lying on a desk. */
+    --Na_Le_Paper                      : #ffffff;
+    --Na_Le_PaperShadow                : 0 6px 26px rgba(0, 0, 0, 0.22);
+    --Na_Le_PaperEdge                  : 1px solid rgba(23, 43, 58, 0.08);
+    --Na_Le_PaperGap                   : 24px;                        /* <-- Between stacked pages on a desk */
+
+    /* CHROME. Bars, cards and controls that are not paper: the panel white
+       the drawing editor uses, and the hairline it separates things with. */
+    --Na_Le_Chrome                     : #ffffff;
+    --Na_Le_ChromeRule                 : rgba(23, 43, 58, 0.14);
+    --Na_Le_ChromeShadow               : 0 1px 3px rgba(23, 43, 58, 0.10);
+
+    /* INK. The drawings' own, so a document and the drawing it lists agree. */
+    --Na_Le_Ink                        : #172b3a;
+    --Na_Le_InkMuted                   : #6c757d;
+}
+
+/* endregion ------------------------------------------------------- */

@@ -19,8 +19,9 @@
 //   toast confirms it, since landing exactly in place is otherwise invisible.
 //   Duplicate (Ctrl+D) is the one that steps clear by PasteOffsetMm, because
 //   it shows no toast: the step is what says it worked.
-// - A single viewport or a single vector still goes through
-//   Na__LayoutEditor__ViewportClipboard__.
+// - Ctrl+X cuts unlocked roots; Ctrl+C/V share one selection clipboard for
+//   vectors, text, leaders, dimensions, viewports and nested groups.
+//   Clipboard coordinates stay unchanged even outside the page boundary.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ asks RunKeyAction and MenuItems from here.
@@ -39,6 +40,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0
+// - Complete mixed selections, dimensions and viewports; cut; exact in-place
+//   cross-sheet paste; remapped dimension hosts and nested group members.
+//
 // 18-Sep-2026 - Version 1.2.0
 // - Leaders join the set: copyable, pasteable and duplicable the way text
 //   already is (Ctrl+C / Ctrl+V / Ctrl+D and the right-click menu), even
@@ -77,6 +82,13 @@
         Na__LeModel__GetGroupById,
         Na__LeModel__GetLeaderById,
         Na__LeModel__GetLayerById,
+        Na__LeModel__GetViewportById,
+        Na__LeModel__IsLayerLocked,
+        Na__LeModel__DeleteItems,
+        Na__LeModel__InsertViewport,
+        Na__LeModel__InsertDimension,
+        Na__LeModel__UpdateViewport,
+        Na__LeModel__UpdateDimension,
         Na__LeModel__InsertShape,
         Na__LeModel__InsertAnnotation,
         Na__LeModel__InsertGroup,
@@ -86,6 +98,7 @@
         Na__LeModel__UpdateLeader
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
+    import { Na__LeDrawScale__DimensionAtScale } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeGroup__Expand, Na__LeGroup__ItemsBounds } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LePanels__GetContext } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
@@ -98,8 +111,7 @@
         Na__LeClip__PasteShape,
         Na__LeClip__DuplicateShape,
         Na__LeClip__HasShape,
-        Na__LeClip__RunKeyAction as Na__LeClip__RunViewportKeyAction,
-        Na__LeClip__MenuItems as Na__LeClip__ViewportMenuItems
+        Na__LeClip__RunKeyAction as Na__LeClip__RunViewportKeyAction
     } from '../20__System__Viewports/Na__LayoutEditor__ViewportClipboard__.js';
     // ------------------------------------------------------------
 
@@ -118,7 +130,7 @@
     // Ctrl+G never takes it - see Na__LayoutEditor__Groups__), but it is a
     // "Set" member here: Copy, Duplicate and Paste all read it through this
     // list rather than through Na__LeGroup__IsKind.
-    const Na__LeClip__COPYABLE_KINDS = Object.freeze([ 'shape', 'annotation', 'group', 'leader' ]);
+    const Na__LeClip__COPYABLE_KINDS = Object.freeze([ 'shape', 'annotation', 'group', 'leader', 'dimension', 'viewport' ]);
 
     let Na__LeClip__HeldSet = null;   // <-- { kind:'set', roots, entries, origin, sourceSheetId }
 
@@ -155,6 +167,17 @@
 
     function Na__LeClip__Snapshot(sheet, item) {
         if (!item) return null;
+        if (item.kind === 'dimension') {
+            const record = (sheet.Sheet__Dimensions || []).find((dim) => dim.Dimension__Id === item.id);
+            if (!record) return null;
+            const copy = Na__LeClip__Clone(record);
+            if (typeof copy.Dimension__AtScale !== 'boolean') copy.Dimension__AtScale = Na__LeDrawScale__DimensionAtScale(sheet, record);
+            return { kind : item.kind, id : item.id, record : copy };
+        }
+        if (item.kind === 'viewport') {
+            const record = Na__LeModel__GetViewportById(sheet, item.id);
+            return record ? { kind : item.kind, id : item.id, record : Na__LeClip__Clone(record) } : null;
+        }
         if (item.kind === 'shape') {
             const record = Na__LeModel__GetShapeById(sheet, item.id);
             return record ? { kind : 'shape', id : item.id, record : Na__LeClip__Clone(record) } : null;
@@ -300,9 +323,34 @@
         return true;
     }
 
-    function Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, lastKey) {
+    function Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, lastKey, sourceSheetId) {
         let last = null;
-        entries.forEach((entry) => {
+        // Insert viewports first, so dimensions can point to their new ids.
+        const ordered = entries.filter((entry) => entry.kind === 'viewport').concat(entries.filter((entry) => entry.kind !== 'viewport'));
+        ordered.forEach((entry) => {
+            if (entry.kind === 'viewport') {
+                const record = Na__LeClip__Clone(entry.record);
+                record.Viewport__FrameMm.X += dx;
+                record.Viewport__FrameMm.Y += dy;
+                record.Viewport__LayerId = Na__LeClip__LayerFor(sheet, record.Viewport__LayerId);
+                record.Viewport__Locked = false;
+                if (!Na__LeCfg__GetClipboardSetup().copySnapshot) record.Viewport__SnapshotAsset = null;
+                const key = 'viewport:' + entry.id;
+                const pasted = Na__LeModel__InsertViewport(sheet, record, lastKey == null || key !== lastKey);
+                if (pasted) { ids.set(key, pasted.Viewport__Id); last = { kind : 'viewport', id : pasted.Viewport__Id }; }
+            }
+            if (entry.kind === 'dimension') {
+                const record = Na__LeClip__Clone(entry.record);
+                record.Dimension__StartXMm += dx; record.Dimension__EndXMm += dx;
+                record.Dimension__StartYMm += dy; record.Dimension__EndYMm += dy;
+                record.Dimension__LayerId = Na__LeClip__LayerFor(sheet, record.Dimension__LayerId, 'dimension');
+                const host = record.Dimension__ViewportId;
+                record.Dimension__ViewportId = ids.get('viewport:' + host)
+                    || (sourceSheetId === sheet.Sheet__Id && Na__LeModel__GetViewportById(sheet, host) ? host : null);
+                const key = 'dimension:' + entry.id;
+                const pasted = Na__LeModel__InsertDimension(sheet, record, lastKey == null || key !== lastKey);
+                if (pasted) { ids.set(key, pasted.Dimension__Id); last = { kind : 'dimension', id : pasted.Dimension__Id }; }
+            }
             if (entry.kind === 'shape') {
                 const record = Na__LeClip__Clone(entry.record);
                 record.Shape__Points  = Na__LeShapeGeo__Translated(Na__LeShapeGeo__Points(record), dx, dy);
@@ -335,7 +383,7 @@
     function Na__LeClip__InsertGroups(sheet, entries, ids, lastKey) {
         const pending = entries.filter((entry) => entry.kind === 'group').map((entry) => Na__LeClip__Clone(entry));
         let last = null;
-        for (let guard = 0; guard < 32 && pending.length; guard++) {
+        for (let guard = 0; guard < entries.length && pending.length; guard++) {
             const next = [];
             pending.forEach((entry) => {
                 const members = (entry.record.Group__Members || []).map((member) => {
@@ -346,7 +394,7 @@
                 if (waiting) { next.push(entry); return; }
                 const key    = 'group:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
-                const pasted = Na__LeModel__InsertGroup(sheet, { Group__Members : members }, silent);
+                const pasted = Na__LeModel__InsertGroup(sheet, { ...entry.record, Group__Members : members }, silent);
                 if (pasted) { ids.set(key, pasted.Group__Id); last = { kind : 'group', id : pasted.Group__Id }; }
             });
             if (next.length === pending.length) break;
@@ -371,16 +419,22 @@
         if (!sheet || !set || !Array.isArray(set.entries) || set.entries.length === 0) return null;
         const origin  = set.origin || { x : 0, y : 0 };
         const start   = atMm || { x : origin.x, y : origin.y };
-        const spot    = Na__LeClip__PlaceSet(sheet, origin, set.size, start, !!fanOut);
+        const spot    = !atMm && !fanOut ? { X : origin.x, Y : origin.y } : Na__LeClip__PlaceSet(sheet, origin, set.size, start, !!fanOut);
         const dx      = spot.X - origin.x;
         const dy      = spot.Y - origin.y;
         const ids     = new Map();
         const entries = set.entries;
-        const leaf    = Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, null);   // <-- All silent until one announce below, so groups land in the same undo step
+        const leaf    = Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, null, set.sourceSheetId);   // <-- All silent until one announce below, so groups land in the same undo step
         Na__LeClip__InsertGroups(sheet, entries, ids, null);
         if (leaf && leaf.kind === 'shape')           Na__LeModel__UpdateShape(sheet, leaf.id, {}, false);
         else if (leaf && leaf.kind === 'annotation') Na__LeModel__UpdateAnnotation(sheet, leaf.id, {}, false);
         else if (leaf && leaf.kind === 'leader')     Na__LeModel__UpdateLeader(sheet, leaf.id, {}, false);
+        else if (leaf && leaf.kind === 'dimension')  Na__LeModel__UpdateDimension(sheet, leaf.id, {}, false);
+        else if (leaf && leaf.kind === 'viewport')   Na__LeModel__UpdateViewport(sheet, leaf.id, {}, false);
+        // A mixed paste must repaint its frames as well as its markup. Every
+        // record is already inserted, so this observes the same history state.
+        const viewportId = entries.filter((entry) => entry.kind === 'viewport').map((entry) => ids.get('viewport:' + entry.id)).find(Boolean);
+        if (viewportId && leaf && leaf.kind !== 'viewport') Na__LeModel__UpdateViewport(sheet, viewportId, {}, false);
         const selected = (set.roots || []).map((root) => {
             const id = ids.get(root.kind + ':' + root.id);
             return id ? { kind : root.kind, id : id } : null;
@@ -421,12 +475,25 @@
     // ------------------------------------------------------------
 
     function Na__LeClip__UsesSet(items) {
-        const list     = Array.isArray(items) ? items : [];
-        const copyable = Na__LeClip__Copyable(null, list);
-        if (copyable.length > 1) return true;
-        if (copyable.length === 1 && (copyable[0].kind === 'group' || copyable[0].kind === 'annotation' || copyable[0].kind === 'leader')) return true;
-        if (copyable.length >= 1 && list.length > 1) return true;
-        return false;
+        return Na__LeClip__Copyable(null, items).length > 0;
+    }
+
+    // Copy before removing anything. A group containing a locked member stays
+    // intact; other unlocked roots in the selection may still be cut.
+    function Na__LeClip__CutItems(sheet, items) {
+        const roots = Na__LeClip__Copyable(sheet, items).filter((root) =>
+            Na__LeGroup__Expand(sheet, [ root ]).every((item) => {
+                const snap = Na__LeClip__Snapshot(sheet, item);
+                if (!snap) return false;
+                if (item.kind === 'group') return true;
+                const prefix = item.kind.charAt(0).toUpperCase() + item.kind.slice(1);
+                return !Na__LeModel__IsLayerLocked(sheet, snap.record[prefix + '__LayerId'])
+                    && !(item.kind === 'viewport' && snap.record.Viewport__Locked === true);
+            }));
+        if (!roots.length || !Na__LeClip__CopyItems(sheet, roots, true)) return false;
+        const removed = Na__LeModel__DeleteItems(sheet, Na__LeGroup__Expand(sheet, roots));
+        if (removed) Na__LeClip__Toast(Na__LeCfg__FormatLabel('SelectionCut', 'Cut {count} items. Ctrl+V pastes them in place on this sheet or another.', { count : roots.length }));
+        return removed > 0;
     }
 
 // endregion -------------------------------------------------------------------
@@ -440,10 +507,9 @@
         const sheet = Na__LeModel__GetActiveSheet();
         if (!sheet || !editable) return false;
         const items = Na__LeModel__GetSelectionItems();
+        if (action === 'Edit__Cut') return Na__LeClip__CutItems(sheet, items);
         if (action === 'Edit__Copy') {
-            if (Na__LeClip__UsesSet(items)) return Na__LeClip__CopyItems(sheet, items);
-            Na__LeClip__HeldSet = null;
-            return Na__LeClip__RunViewportKeyAction(action, editable);
+            return Na__LeClip__CopyItems(sheet, items);
         }
         if (action === 'Edit__Paste') {
             if (Na__LeClip__HasSet()) return !!Na__LeClip__PasteSet(sheet, null);
@@ -462,50 +528,21 @@
             label    : Na__LeClip__PasteLabel(),
             disabled : !Na__LeClip__HasSet() && !Na__LeClip__HasShape() && !Na__LeClip__HasViewport(),
             onSelect : () => {
-                if (Na__LeClip__HasSet()) Na__LeClip__PasteSet(sheet, target ? null : (pointMm || null));
+                if (Na__LeClip__HasSet()) Na__LeClip__PasteSet(sheet, null);
                 else Na__LeClip__RunViewportKeyAction('Edit__Paste', true);
             }
         };
-        const items = Na__LeModel__GetSelectionItems();
-        if (items.length > 1 && Na__LeClip__Copyable(sheet, items).length) {
-            return [
-                { label : label('MenuCopySelection', 'Copy selection'), onSelect : () => { Na__LeClip__CopyItems(sheet, items); } },
-                { label : label('MenuDuplicateSelection', 'Duplicate selection'), onSelect : () => { Na__LeClip__DuplicateItems(sheet, items); } },
-                paste
-            ];
-        }
-        if (target && (target.kind === 'group' || target.Group__Id)) {
-            const id = target.Group__Id || target.id;
-            return [
-                { label : label('MenuCopyGroup', 'Copy group'), onSelect : () => { Na__LeClip__CopyItems(sheet, [ { kind : 'group', id : id } ]); } },
-                { label : label('MenuDuplicateGroup', 'Duplicate group'), onSelect : () => { Na__LeClip__DuplicateItems(sheet, [ { kind : 'group', id : id } ]); } },
-                paste
-            ];
-        }
-        if (target && (target.kind === 'annotation' || target.Annotation__Id)) {
-            const id = target.Annotation__Id || target.id;
-            return [
-                { label : label('MenuCopyText', 'Copy text'), onSelect : () => { Na__LeClip__CopyItems(sheet, [ { kind : 'annotation', id : id } ]); } },
-                { label : label('MenuDuplicateText', 'Duplicate text'), onSelect : () => { Na__LeClip__DuplicateItems(sheet, [ { kind : 'annotation', id : id } ]); } },
-                paste
-            ];
-        }
-        if (target && (target.kind === 'leader' || target.Leader__Id)) {
-            const id = target.Leader__Id || target.id;
-            return [
-                { label : label('MenuCopyLeader', 'Copy leader'), onSelect : () => { Na__LeClip__CopyItems(sheet, [ { kind : 'leader', id : id } ]); } },
-                { label : label('MenuDuplicateLeader', 'Duplicate leader'), onSelect : () => { Na__LeClip__DuplicateItems(sheet, [ { kind : 'leader', id : id } ]); } },
-                paste
-            ];
-        }
-        const viewportItems = Na__LeClip__ViewportMenuItems(sheet, target, pointMm);
-        if (!viewportItems.length) return [ paste ];
-        return viewportItems.map((item) => {
-            if (!item || !item.onSelect) return item;
-            if (item.label && String(item.label).indexOf('Paste') !== -1) return Na__LeClip__HasSet() ? paste : item;
-            const inner = item.onSelect;
-            return Object.assign({}, item, { onSelect : () => { Na__LeClip__HeldSet = null; inner(); } });
-        });
+        const selected = Na__LeModel__GetSelectionItems();
+        const kind = target && (target.kind || Na__LeClip__COPYABLE_KINDS.find((k) => target[k.charAt(0).toUpperCase() + k.slice(1) + '__Id']));
+        const id = target && kind && (target.id || target[kind.charAt(0).toUpperCase() + kind.slice(1) + '__Id']);
+        const items = selected.length > 1 ? selected : (id ? [ { kind, id } ] : []);
+        if (!Na__LeClip__Copyable(sheet, items).length) return [ paste ];
+        return [
+            { label : label('MenuCutSelection', 'Cut selection'), onSelect : () => { Na__LeClip__CutItems(sheet, items); } },
+            { label : label('MenuCopySelection', 'Copy selection'), onSelect : () => { Na__LeClip__CopyItems(sheet, items); } },
+            { label : label('MenuDuplicateSelection', 'Duplicate selection'), onSelect : () => { Na__LeClip__DuplicateItems(sheet, items); } },
+            paste
+        ];
     }
 
     export {
@@ -518,6 +555,7 @@
         Na__LeClip__DuplicateShape,
         Na__LeClip__HasShape,
         Na__LeClip__CopyItems,
+        Na__LeClip__CutItems,
         Na__LeClip__PasteSet,
         Na__LeClip__InsertSet,
         Na__LeClip__HasSet,

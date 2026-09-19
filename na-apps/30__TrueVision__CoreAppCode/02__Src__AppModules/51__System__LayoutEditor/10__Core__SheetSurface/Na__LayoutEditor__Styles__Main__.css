@@ -25,7 +25,7 @@
     --Vale_LayoutTabStripHeight        : 0px;                         /* <-- Written by the tab strip when it is shown */
     --Vale_LayoutLeftPanelWidth        : 250px;                       /* <-- Seeded from config by the panel host */
     --Vale_LayoutRightPanelWidth       : 300px;
-    --Vale_LayoutGreyStage             : #d8dcdf;
+    --Vale_LayoutGreyStage             : var(--Na_Le_Stage);          /* <-- Kept as an alias; the value lives in Styles__Surfaces__ */
 }
 
 /* While the editor is on screen the 3D overlays stand aside. The canvas
@@ -172,12 +172,43 @@ body.na-le-dragging * {
     color                              : #1a7fc4;
 }
 
-.na-le-tabs__rename {
+/* RENAMING A TAB. The frame is the tab-shaped box; inside it the drawing's
+   short code ("D03 -") stands as fixed text and only the name after it is a
+   field, because the code is the Drawing Register's and is never typed. */
+
+.na-le-tabs__renaming {
+    flex                               : 0 0 auto;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 5px;
     margin-top                         : 4px;
     padding                            : 0 8px;
-    font-size                          : 0.8rem;
+    background                         : #ffffff;
     border                             : 1px solid #1a7fc4;
+    border-bottom                      : none;
     border-radius                      : 6px 6px 0 0;
+    font-size                          : 0.8rem;
+}
+
+.na-le-tabs__renaming-code {
+    color                              : #46596b;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+}
+
+.na-le-tabs__renaming-code[hidden] {
+    display                            : none;
+}
+
+.na-le-tabs__rename {
+    align-self                         : stretch;
+    min-width                          : 0;
+    padding                            : 0;
+    font-family                        : inherit;
+    font-size                          : inherit;
+    color                              : #172b3a;
+    background                         : transparent;
+    border                             : none;
     outline                            : none;
 }
 

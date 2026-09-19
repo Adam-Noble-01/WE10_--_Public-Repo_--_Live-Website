@@ -29,6 +29,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.0.2
+// - Render marks the content na-le-register__content--read while Read is
+//   showing, so the pages lie on the Project Specification's darker desk.
+//
 // 19-Sep-2026 - Version 1.0.1
 // - Headers, region breakdown, function wrapping and the export block brought
 //   in line with the Layout Editor coding conventions. No behaviour change.
@@ -46,8 +50,10 @@
     // MODULE IMPORTS | Sheet Model, Register Units and Preview
     // ------------------------------------------------------------
     import { Na__LeModel__GetSheets, Na__LeModel__CHANGED_EVENT } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeCfg__GetDrawingRegisterSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeReg__EVENT, Na__LeReg__GetDocument, Na__LeReg__IsDirty, Na__LeReg__Save, Na__LeReg__Load } from './Na__LayoutEditor__Register__Data__.js';
     import {
+        Na__LeRegEdit__Delete,
         Na__LeRegEdit__Metadata,
         Na__LeRegEdit__Override,
         Na__LeRegEdit__Move,
@@ -244,10 +250,47 @@
             'number'
         ));
         tools.append(jump, Na__LeRegEd__Button('Open drawing', () => Na__LeRegEd__Options.navigation.enter(row.id)));
+        const remove = Na__LeRegEd__Button('Delete drawing', async () => {
+            if (await Na__LeRegEdit__Delete(row.id)) Na__LeRegEd__Expanded.delete(row.id);
+            Na__LeRegEd__Render();
+        });
+        remove.classList.add('na-le-register__danger');
+        tools.appendChild(remove);
         cell.appendChild(tools);
         Na__LeRegNotes__Build(cell, sheet);
         detail.appendChild(cell);
         body.appendChild(detail);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Phase Box for One Row
+    // ------------------------------------------------------------
+    // A read-only session gets the code as plain text, the way every other
+    // uneditable cell in this table reads.
+    // ------------------------------------------------------------
+    function Na__LeRegEd__Phase(row) {
+        const phases = Na__LeCfg__GetDrawingRegisterSetup().phases;
+        if (!Na__LeRegEd__Options.editable) return Na__LeRegEd__El('span', '', row.phase);
+        const select = Na__LeRegEd__El('select', 'na-le-register__phase');
+        select.setAttribute('aria-label', 'Project phase for ' + row.code);
+        phases.forEach((phase) => {
+            const option = Na__LeRegEd__El('option', '', phase.code + '  ' + phase.name);
+            option.value = phase.code;
+            select.appendChild(option);
+        });
+        if (!phases.some((phase) => phase.code === row.phase)) {                 // <-- A phase retired from the config still shows on the sheet that carries it
+            const kept = Na__LeRegEd__El('option', '', row.phase);
+            kept.value = row.phase;
+            select.appendChild(kept);
+        }
+        select.value = row.phase;
+        select.addEventListener('change', async () => {
+            const chosen = select.value;
+            const ok     = await Na__LeRegEdit__Metadata(row.id, 'phase', chosen);
+            if (!ok) select.value = row.phase;                                   // <-- Declined at the confirmation, so the box goes back to what the sheet still says
+        });
+        return select;
     }
     // ------------------------------------------------------------
 
@@ -266,7 +309,10 @@
         const table  = Na__LeRegEd__El('table');
         const head   = Na__LeRegEd__El('thead');
         const titles = Na__LeRegEd__El('tr');
-        ['', 'CODE', 'DOCUMENT NAME', 'TYPE', 'SCALE', 'SIZE', 'REVISION', ''].forEach((text) => {
+        // The first three build the document code: the sequence, the job stage,
+        // and the two of them behind the project code. Read left to right they
+        // are how a drawing's identifier is put together.
+        ['', 'DRAWING No.', 'PHASE', 'DOCUMENT CODE', 'DOCUMENT NAME', 'SCALE', 'SIZE', 'REVISION', ''].forEach((text) => {
             titles.appendChild(Na__LeRegEd__El('th', '', text));
         });
         head.appendChild(titles);
@@ -282,11 +328,17 @@
             const handleCell = Na__LeRegEd__El('td');
             handleCell.appendChild(handle);
             tr.appendChild(handleCell);
-            tr.appendChild(Na__LeRegEd__El('td', 'na-le-register__code', row.code));
+            tr.appendChild(Na__LeRegEd__El('td', 'na-le-register__code', row.drawingNo));
+            const phase = Na__LeRegEd__El('td');
+            phase.appendChild(Na__LeRegEd__Phase(row));                           // <-- The one part of the code that is a choice, so the one part that is a box
+            tr.appendChild(phase);
+            const document = Na__LeRegEd__El('td', 'na-le-register__derived', row.documentCode);
+            document.title = 'Composed from the project code, the phase and the drawing number. Change the phase or renumber the pack and this follows.';
+            tr.appendChild(document);
             const name = Na__LeRegEd__El('td');
             name.appendChild(Na__LeRegEd__Input(row.name, 'Drawing name for ' + row.code, (value) => Na__LeRegEdit__Metadata(row.id, 'name', value)));
             tr.appendChild(name);
-            [row.type, row.scale, row.size].forEach((text) => tr.appendChild(Na__LeRegEd__El('td', '', text)));
+            [row.scale, row.size].forEach((text) => tr.appendChild(Na__LeRegEd__El('td', '', text)));
             const revision = Na__LeRegEd__El('td');
             revision.appendChild(Na__LeRegEd__Input(row.revision, 'Revision for ' + row.code, (value) => Na__LeRegEdit__Metadata(row.id, 'revision', value)));
             tr.appendChild(revision);
@@ -423,7 +475,7 @@
         if (!Na__LeRegEd__Root || Na__LeRegEd__Root.hidden) return;
         Na__LeRegEd__PreviewToken++;
         Na__LeRegPreview__Clear();
-        const content = Na__LeRegEd__El('div', 'na-le-register__content');
+        const content = Na__LeRegEd__El('div', 'na-le-register__content' + ((Na__LeRegEd__View === 'edit' && Na__LeRegEd__Options.editable) ? '' : ' na-le-register__content--read'));   // <-- Read lies on the specification's darker desk
         Na__LeRegEd__Root.replaceChildren(Na__LeRegEd__BuildBar(), content);
         if (Na__LeRegEd__View === 'edit' && Na__LeRegEd__Options.editable) Na__LeRegEd__Table(content);
         else void Na__LeRegEd__Preview(content);

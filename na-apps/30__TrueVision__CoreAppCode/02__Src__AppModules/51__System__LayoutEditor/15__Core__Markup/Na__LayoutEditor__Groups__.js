@@ -42,6 +42,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - RegisterLabeller: a feature can say what a selected group's box is
+//   tagged with, in place of "Group". A parametric element's box reads its
+//   name and carries its tag above the box (Na__LayoutEditor__ScrapbookParametric__Grips__).
+//   It is answered inside Render, because Render has two callers - the grips
+//   and the sheet tools' own redraw a frame later - and a tag re-worded
+//   after the first was put back by the second. TrueVision first; not yet
+//   in ValeVision.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - MemberBounds reads a leader's box too (Na__LeMarkup__LeaderBounds), so
 //   Na__LeGroup__ItemsBounds works for a clipboard "Set" that holds one
@@ -91,6 +100,15 @@
     const Na__LeGroup__KINDS     = Object.freeze([ 'shape', 'annotation', 'group' ]);
     const Na__LeGroup__CLASS     = 'na-le-selection na-le-selection--group';
     const Na__LeGroup__PAD_MM    = 1.0;     // <-- Same pad as a selected vector's highlight box
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | Features That Name a Selected Group's Box
+    // ------------------------------------------------------------
+    // labeller(sheet, groupId) answers { text, className } for a group it
+    // knows, else null. Registered rather than imported, so this module never
+    // learns what a parametric element is.
+    // ------------------------------------------------------------
+    const Na__LeGroup__Labellers = [];
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -419,6 +437,30 @@
 // REGION | Selection Overlay
 // -----------------------------------------------------------------------------
 
+    // FUNCTION | Let a Feature Name a Selected Group's Box (once per labeller)
+    // ------------------------------------------------------------
+    function Na__LeGroup__RegisterLabeller(labeller) {
+        if (typeof labeller !== 'function' || Na__LeGroup__Labellers.indexOf(labeller) !== -1) return false;
+        Na__LeGroup__Labellers.push(labeller);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The First Labeller's Answer for a Group, or Null
+    // ------------------------------------------------------------
+    function Na__LeGroup__NameFor(sheet, groupId) {
+        for (let i = 0; i < Na__LeGroup__Labellers.length; i++) {
+            try {
+                const named = Na__LeGroup__Labellers[i](sheet, groupId);
+                if (named && typeof named.text === 'string' && named.text !== '') return named;
+            } catch (error) { /* a labeller that throws names nothing */ }
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Draw the Blue Box and "Group" Label for Every Selected Group
     // ------------------------------------------------------------
     // Appends to the handles layer. The caller clears that layer first (or
@@ -443,9 +485,10 @@
             outline.style.height      = Math.max(0, (box.HeightMm + (pad * 2)) * ppm) + 'px';
             outline.style.borderWidth = Math.max(1, 1.5 / zoom) + 'px';
             outline.style.setProperty('--na-le-note-scale', String(1 / zoom));
+            const named = Na__LeGroup__NameFor(sheet, item.id);              // <-- A feature's own name for this group, or null
             const tag = document.createElement('span');
-            tag.className   = 'na-le-group-label';
-            tag.textContent = label;
+            tag.className   = 'na-le-group-label' + ((named && named.className) ? ' ' + named.className : '');
+            tag.textContent = named ? named.text : label;
             outline.appendChild(tag);
             layer.appendChild(outline);
         });
@@ -476,6 +519,7 @@
         Na__LeGroup__CanUngroup,
         Na__LeGroup__Group,
         Na__LeGroup__Ungroup,
+        Na__LeGroup__RegisterLabeller,
         Na__LeGroup__Render
     };
     // ------------------------------------------------------------

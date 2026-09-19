@@ -38,12 +38,25 @@
 // PORT NOTE:
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
-// - Divergences   : header and folder numbers; DRAWING_ARCHITECTURAL and DRAWING_SITEPLAN are TrueVision only, and Dispatch and Touch carry the restore detail (TrueVision's AnnounceRestore).
+// - Divergences   : header and folder numbers; DRAWING_ARCHITECTURAL and DRAWING_SITEPLAN are TrueVision only, Dispatch and Touch carry the restore detail (TrueVision's AnnounceRestore), and RegisterBeforeAnnounce is TrueVision first (19-Sep-2026).
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - RegisterBeforeAnnounce: a feature can bring what it derives from a sheet
+//   up to date, silently, BEFORE a change is announced, so the one
+//   announcement - and the history's one snapshot of it - already holds it.
+//   The Parametric Scrapbook's viewport link uses it: a scale bar follows
+//   its viewport's scale inside the same undo step. It replaces a
+//   capture-phase window listener that did not work: the change event is
+//   dispatched ON window, and for an event whose target is window the
+//   listeners fire in the order they were added, whatever their phase, so
+//   the history - added first - had already taken its snapshot. Undo looked
+//   right and redo brought back a stale bar. TrueVision first; not yet in
+//   ValeVision.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetModel__.js; the code moved verbatim.
 //
@@ -97,6 +110,12 @@
     let Na__LeModel__Dirty         = false;
     // ------------------------------------------------------------
 
+    // MODULE VARIABLES | What Runs Before a Change Is Announced
+    // ------------------------------------------------------------
+    const Na__LeModel__BeforeAnnounce = [];    // <-- hook(reason, sheetId, itemId): silent edits only
+    let   Na__LeModel__RunningHooks   = false;
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -117,10 +136,48 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Touch: Mark Dirty and Announce
+    // FUNCTION | Have Something Run Just Before Every Change Is Announced (once per hook)
+    // ------------------------------------------------------------
+    // hook(reason, sheetId, itemId). For data DERIVED from a sheet that must
+    // never be seen out of step with it - a scale bar that reads its
+    // viewport's scale. The hook edits SILENTLY and announces nothing: the
+    // announcement it is running ahead of is the one that carries its work,
+    // so the history's single snapshot of the change holds both halves, and
+    // undo AND redo move them together.
+    //
+    // THIS IS NOT DONE WITH A LISTENER, AND CANNOT BE. The change event is
+    // dispatched on window, and an event whose target IS window calls its
+    // listeners in the order they were added, capture flag or no. Whoever
+    // listens first - the history - has taken its snapshot before any other
+    // listener can put anything right.
+    // ------------------------------------------------------------
+    function Na__LeModel__RegisterBeforeAnnounce(hook) {
+        if (typeof hook !== 'function' || Na__LeModel__BeforeAnnounce.indexOf(hook) !== -1) return false;
+        Na__LeModel__BeforeAnnounce.push(hook);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Touch: Mark Dirty, Run the Hooks, Then Announce
+    // ------------------------------------------------------------
+    // A restore runs no hooks: an undo or a redo puts a whole sheet back,
+    // derived data and all, and rebuilding on top of it would change what was
+    // restored. A hook that announces would come back here; the flag stops it
+    // running the hooks a second time. A hook that throws costs that hook's
+    // work, never the announcement.
     // ------------------------------------------------------------
     function Na__LeModel__Touch(reason, sheetId, itemId, restore) {
         Na__LeModel__Dirty = true;
+        if (!restore && !Na__LeModel__RunningHooks && Na__LeModel__BeforeAnnounce.length) {
+            Na__LeModel__RunningHooks = true;
+            try {
+                Na__LeModel__BeforeAnnounce.forEach((hook) => {
+                    try { hook(reason, sheetId || Na__LeModel__ActiveSheetId, itemId || null); }
+                    catch (error) { console.warn('[TrueVision3D LayoutEditor] A before-announce hook failed.', error); }
+                });
+            } finally { Na__LeModel__RunningHooks = false; }
+        }
         Na__LeModel__Dispatch(reason, sheetId, itemId, restore);
     }
     // ------------------------------------------------------------
@@ -185,6 +242,7 @@
         Na__LeModel__SelectionItems,
         Na__LeModel__Dirty,
         Na__LeModel__Dispatch,
+        Na__LeModel__RegisterBeforeAnnounce,
         Na__LeModel__Touch,
         Na__LeModel__Array,
         Na__LeModel__Unselect,

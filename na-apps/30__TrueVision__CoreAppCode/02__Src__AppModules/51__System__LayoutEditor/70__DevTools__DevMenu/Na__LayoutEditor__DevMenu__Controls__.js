@@ -31,6 +31,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0 (TrueVision)
+// - The sheet list and the delete prompt name a sheet as its tab does
+//   (Na__LeModel__GetTabLabel, "D03 - 3D Images"), in place of its place in the
+//   order and a name that no longer carries a number.
+//
 // 13-Sep-2026 - Version 1.2.0 (TrueVision)
 // - A drawing is named for a linework bake only by a viewport that draws the
 //   live design phase: the R2 linework asset is one per drawing, of the live
@@ -58,6 +63,7 @@
         Na__LeModel__KIND_3D,
         Na__LeModel__GetSheets,
         Na__LeModel__GetActiveSheet,
+        Na__LeModel__GetTabLabel,
         Na__LeModel__CreateSheet,
         Na__LeModel__DuplicateSheet,
         Na__LeModel__DeleteSheet,
@@ -141,7 +147,7 @@
     async function Na__LeDev__Delete(sheet) {
         const ok = await Na__AppUtils__ConfirmDialog__Show({
             title : Na__LeCfg__GetLabel('DeleteSheetTitle', 'Delete sheet'),
-            message : Na__LeCfg__FormatLabel('DeleteSheetPrompt', 'Delete the sheet "{name}"? Its viewports, text and dimensions go with it.', { name : sheet.Sheet__Name }),
+            message : Na__LeCfg__FormatLabel('DeleteSheetPrompt', 'Delete the sheet "{name}"? Its viewports, text and dimensions go with it.', { name : Na__LeModel__GetTabLabel(sheet) }),
             confirmLabel : Na__LeCfg__GetLabel('DeleteLabel', 'Delete'), isDestructive : true
         });
         if (ok) Na__LeModel__DeleteSheet(sheet.Sheet__Id);
@@ -207,7 +213,7 @@
             row.className = 'na-pm-dev__row na-le-dev__sheet' + (active && active.Sheet__Id === sheet.Sheet__Id ? ' na-le-dev__sheet--active' : '');
             const name = document.createElement('span');
             name.className   = 'na-pm-dev__label na-le-dev__sheet-name';
-            name.textContent = sheet.Sheet__Order + '. ' + sheet.Sheet__Name + ' (' + sheet.Sheet__PaperSize + ', ' + sheet.Sheet__Viewports.length + ' viewports)';
+            name.textContent = Na__LeModel__GetTabLabel(sheet) + ' (' + sheet.Sheet__PaperSize + ', ' + sheet.Sheet__Viewports.length + ' viewports)';
             row.appendChild(name);
             row.appendChild(Na__LeDev__Button(Na__LeCfg__GetLabel('OpenSheet', 'Open'), 'na-pm-dev__btn--primary', () => Na__LeMode__Enter(sheet.Sheet__Id)));
             row.appendChild(Na__LeDev__Button(Na__LeCfg__GetLabel('DuplicateSheet', 'Duplicate'), '', () => { const copy = Na__LeModel__DuplicateSheet(sheet.Sheet__Id); if (copy) Na__LeMode__Enter(copy.Sheet__Id); }));

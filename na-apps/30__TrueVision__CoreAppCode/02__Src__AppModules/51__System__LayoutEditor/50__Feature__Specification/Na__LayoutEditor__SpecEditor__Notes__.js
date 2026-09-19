@@ -32,12 +32,17 @@
 // PORT NOTE:
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
-// - Divergences   : n/a
-// - Back-port     : n/a (ValeVision3D's copy is already split into the same units)
+// - Divergences   : the where-it-is-used chips read Na__LeModel__GetTabLabel (short tab names, TrueVision first on 19-Sep-2026)
+// - Back-port     : offer to ValeVision3D with the short tab names.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - A where-it-is-used chip names its sheet as the tab does
+//   (Na__LeModel__GetTabLabel, "D03 - 3D Images"). The sheet's name alone no
+//   longer carries a number.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SpecEditor__.js; the code moved verbatim.
 //
@@ -48,9 +53,10 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Config
+    // MODULE IMPORTS | Config and the Sheet's Tab Label
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetSpecificationSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeModel__GetTabLabel } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';   // <-- A chip names a sheet as its tab does ("D03 - 3D Images")
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Specification Editor Units: State and Small Builders
@@ -219,7 +225,7 @@
             const links   = Na__LeSpecEd__El('div', 'na-le-spec-note__links');
             const bySheet = new Map();
             linked.forEach((item) => { if (!bySheet.has(item.sheet.Sheet__Id)) bySheet.set(item.sheet.Sheet__Id, []); bySheet.get(item.sheet.Sheet__Id).push(item); });
-            bySheet.forEach((items) => links.appendChild(Na__LeSpecEd__GotoChip(items[0].sheet.Sheet__Name + (items.length > 1 ? ' ×' + items.length : ''), items[0].sheet.Sheet__Id, items[0].leader.Leader__Id, false)));
+            bySheet.forEach((items) => links.appendChild(Na__LeSpecEd__GotoChip(Na__LeModel__GetTabLabel(items[0].sheet) + (items.length > 1 ? ' ×' + items.length : ''), items[0].sheet.Sheet__Id, items[0].leader.Leader__Id, false)));
             if (matching.length) {
                 links.appendChild(Na__LeSpecEd__El('span', 'na-le-spec-note__matching', Na__LeSpecEd__Count(matching.length, 'SpecMatchingOne', '{count} unlinked bubble reads this code', 'SpecMatchingMany', '{count} unlinked bubbles read this code')));
                 if (editable) {

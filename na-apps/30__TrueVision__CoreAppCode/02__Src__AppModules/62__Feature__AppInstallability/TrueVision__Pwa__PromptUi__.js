@@ -24,6 +24,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - show() takes allowWhenInstalled. The stylesheet hides every install card
+//   inside an installed app, which is right for an offer and wrong for the one
+//   card that only ever appears there: the installed-standalone handler's
+//   notice that an icon has lost its project. The flag adds a modifier class
+//   the stylesheet lets through, and lifts it above the boot loading overlay.
+//
 // 27-Aug-2026 - Version 1.0.0
 // - Initial release.
 //
@@ -47,6 +54,7 @@
     // ------------------------------------------------------------
     const CLASS_ROOT                    = 'na-pwa-install';                                                                         // <-- Root container
     const CLASS_ROOT_OPEN               = 'is-open';                                                                                // <-- Visible state modifier
+    const CLASS_ROOT_NOTICE             = 'na-pwa-install--notice';                                                                 // <-- Survives inside an installed app (allowWhenInstalled)
     const CLASS_BACKDROP                = 'na-pwa-install__backdrop';                                                               // <-- Dimming backdrop (card variant)
     const CLASS_CARD                    = 'na-pwa-install__card';                                                                   // <-- Card panel
     const CLASS_BAR                     = 'na-pwa-install__bar';                                                                    // <-- Compact bar panel
@@ -316,6 +324,7 @@
 
         const rootElement       = TrueVision__Pwa__PromptUi__CreateElement('div', `${CLASS_ROOT} ${CLASS_ROOT}--${variantToken}`);  // <-- Root wrapper
         rootElement.id          = PROMPT_UI_ROOT_ID;
+        if (safeConfig.allowWhenInstalled) rootElement.classList.add(CLASS_ROOT_NOTICE);                                            // <-- The stylesheet hides every other card once installed
         rootElement.setAttribute('role', 'dialog');
         rootElement.setAttribute('aria-labelledby', 'naPwaInstallPromptTitle');
 

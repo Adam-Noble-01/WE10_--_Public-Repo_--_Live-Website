@@ -8,6 +8,16 @@
  *            and the client PDF preview.
  * RESTYLED : 19-Sep-2026 - Header, regions, CSS variables and colon alignment
  *            brought in line with the Layout Editor coding conventions.
+ * GROUND   : 19-Sep-2026 - Every ground and every paper shadow now comes from
+ *            Na__LayoutEditor__Styles__Surfaces__.css. This file used to name
+ *            the Project Specification's two greys by hand, which fixed one
+ *            divergence by copying it: the register matched the specification
+ *            and both still differed from the drawing editor. Adam: "make all
+ *            editors bg = d8dcdf to match the drawing". Edit and Read now stand
+ *            on the one grey, and the card and the rasterised pages are lifted
+ *            off it by the drawing sheet's own shadow. The card keeps its own
+ *            warm paper palette inside: that is the document, and it matches
+ *            what it prints.
  */
 
 
@@ -16,7 +26,9 @@
 /* ----------------------------------------------------------------- */
 
 :root {
-    --Na_Register_Paper                : #f8f7f5;
+    --Na_Register_Page                 : var(--Na_Le_Stage);           /* <-- One ground for every editor; see Styles__Surfaces__ */
+    --Na_Register_Desk                 : var(--Na_Le_Stage);           /* <-- Edit and Read stand on the same grey: it is one document either way */
+    --Na_Register_BarRule              : rgba(23, 43, 58, 0.14);      /* <-- The line under the specification's bar (.na-le-spec__bar) */
     --Na_Register_Ink                  : #5c594f;
     --Na_Register_Muted                : #8d8063;
     --Na_Register_Caption              : #aaa69d;
@@ -58,7 +70,7 @@
     z-index                            : 12;
     display                            : flex;
     flex-direction                     : column;
-    background                         : var(--Na_Register_Paper);
+    background                         : var(--Na_Register_Page);
     color                              : var(--Na_Register_Ink);
     font                               : 14px 'Open Sans', Arial, sans-serif;
 }
@@ -75,13 +87,19 @@
     padding                            : 32px;
 }
 
+/* READ: THE PAGES LIE ON A DESK a shade darker than the page of fields, as
+   the specification's do, so the two documents of a pack are read against the
+   same ground. The class is set by Na__LeRegEd__Render while Read is showing. */
+.na-le-register__content--read {
+    background                         : var(--Na_Register_Desk);
+}
+
 .na-le-register__card {
     max-width                          : 1480px;
     margin                             : 0 auto;
     padding                            : 36px 40px 44px;
-    background                         : var(--Na_Register_White);
-    border-radius                      : 10px;
-    box-shadow                         : 0 4px 9px var(--Na_Register_Shadow);
+    background                         : var(--Na_Le_Paper);
+    box-shadow                         : var(--Na_Le_PaperShadow);           /* <-- Square-cornered and lifted, the way the drawing sheet lies on its stage */
 }
 
 .na-le-register h1 {
@@ -121,7 +139,7 @@
     gap                                : var(--Na_Register_Gap);
     padding                            : var(--Na_Register_Pad) 16px;
     background                         : var(--Na_Register_White);
-    border-bottom                      : 1px solid var(--Na_Register_Rule);
+    border-bottom                      : 1px solid var(--Na_Register_BarRule);   /* <-- The specification bar's line: a warm rule against the cool page read as a smudge */
 }
 
 .na-le-register button,
@@ -255,18 +273,82 @@
     background                         : var(--Na_Register_Stripe);
 }
 
-.na-le-register__drawing td:nth-child(3) {
-    width                              : 48%;
-    min-width                          : 240px;
+/* COLUMN WIDTHS, HEADINGS AND CELLS TOGETHER so the two cannot disagree.
+   These were two bare nth-child rules pinned to the old eight-cell row, and
+   inserting DRAWING No. and PHASE in front of DOCUMENT NAME handed PHASE the
+   48% that belonged to the name - which is why the table read as one enormous
+   gap. Counted from the row as it is actually built, they are:
+
+     1 handle   2 drawing no   3 phase   4 document code
+     5 name     6 scale        7 size    8 revision      9 expand
+
+   Only the name flexes. Everything else takes what its content needs, which
+   is the same rule the printed register's columns follow. */
+.na-le-register__drawing td:nth-child(2),
+.na-le-register th:nth-child(2) {
+    width                              : 1%;
+    white-space                        : nowrap;
 }
 
-.na-le-register__drawing td:nth-child(7) {
+/* A SELECT IS AS WIDE AS ITS WIDEST OPTION, so left alone the phase box set
+   this column rather than the other way round. The box fills the cell and
+   carries the floor itself (below), which is what stops the name column's
+   width:100% squeezing it back to nothing. */
+.na-le-register__drawing td:nth-child(3),
+.na-le-register th:nth-child(3) {
+    width                              : 1%;
+}
+
+.na-le-register__drawing td:nth-child(4),
+.na-le-register th:nth-child(4) {
+    width                              : 1%;
+    white-space                        : nowrap;
+}
+
+.na-le-register__drawing td:nth-child(5),
+.na-le-register th:nth-child(5) {
+    width                              : 100%;                        /* <-- The one column that absorbs the slack */
+    min-width                          : 220px;
+}
+
+.na-le-register__drawing td:nth-child(6),
+.na-le-register th:nth-child(6) {
+    width                              : 1%;
+    min-width                          : 116px;                       /* <-- The RAW scale field, paper suffix and all: room to wrap onto two lines, not five */
+}
+
+.na-le-register__drawing td:nth-child(7),
+.na-le-register th:nth-child(7) {
+    width                              : 1%;
+    white-space                        : nowrap;
+}
+
+.na-le-register__drawing td:nth-child(8),
+.na-le-register th:nth-child(8) {
     width                              : 80px;
 }
 
 .na-le-register__code {
     font-weight                        : 600;
     white-space                        : nowrap;
+}
+
+/* THE DOCUMENT CODE IS NOT A FIELD, it is the drawing number and the phase behind
+   the project code, composed on every read. It is set quieter than the two cells
+   that make it so the table reads as "these produce that", and it carries a hover
+   saying so. Nothing here is editable, because there is nothing to edit. */
+.na-le-register__derived {
+    font-weight                        : 400;
+    white-space                        : nowrap;
+    color                              : var(--Na_Register_Series);
+}
+
+/* The phase box sits inside a table cell, so it drops the roomy bar padding
+   and fills the width the column was given rather than pushing it out. */
+.na-le-register select.na-le-register__phase {
+    padding                            : 4px 6px;
+    width                              : 100%;
+    min-width                          : 136px;                       /* <-- Fits "T03  Building Regs", the longest phase the config offers */
 }
 
 .na-le-register__drawing td:first-child,
@@ -400,14 +482,18 @@
 /* REGION  |  Preview, Saving Overlay and Compact View               */
 /* ----------------------------------------------------------------- */
 
+/* Page box for the rasterised register.                                      */
+/* max-width is the CSS width a page is laid out at, and the preview module   */
+/* renders its canvas to match it at the display's pixel density. Keep this   */
+/* in step with LayoutEditor__DrawingRegister__PreviewPageWidthPx.            */
 .na-le-register__pdf-page {
     display                            : block;
     width                              : 100%;
     max-width                          : 794px;
     height                             : auto;
-    margin                             : 0 auto 24px;
-    box-shadow                         : 0 3px 9px var(--Na_Register_Shadow);
-    background                         : var(--Na_Register_White);
+    margin                             : 0 auto var(--Na_Le_PaperGap);
+    box-shadow                         : var(--Na_Le_PaperShadow);
+    background                         : var(--Na_Le_Paper);
 }
 
 .na-le-register__saving {
@@ -450,3 +536,13 @@
 }
 
 /* endregion ------------------------------------------------------- */
+
+/* DELETION | Destructive action remains nested in the drawing's expanded row. */
+.na-le-register .na-le-register__danger, .na-le-register__delete-dialog .na-le-register__danger { color: #a32e29; border: 1px solid #c98d88; background: #fff5f3; }
+.na-le-register__delete-dialog h2 { margin-top: 0; color: #a32e29; }
+.na-le-register__delete-dialog p { line-height: 1.6; }
+.na-le-register__delete-dialog label { display: grid; gap: 10px; }
+.na-le-register__delete-dialog input { padding: 10px; font: inherit; border: 1px solid #c8bdb8; border-radius: 4px; }
+.na-le-register__delete-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.na-le-register__delete-actions button { padding: 9px 15px; font: inherit; cursor: pointer; border-radius: 4px; }
+.na-le-register__delete-actions button:disabled { opacity: .4; cursor: not-allowed; }

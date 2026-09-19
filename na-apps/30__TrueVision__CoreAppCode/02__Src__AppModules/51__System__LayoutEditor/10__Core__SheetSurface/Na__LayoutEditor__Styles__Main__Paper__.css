@@ -30,8 +30,8 @@
     top                                : 0;
     left                               : 0;
     transform-origin                   : 0 0;
-    background                         : #ffffff;
-    box-shadow                         : 0 6px 26px rgba(0, 0, 0, 0.22);
+    background                         : var(--Na_Le_Paper);
+    box-shadow                         : var(--Na_Le_PaperShadow);
     overflow                           : visible;
 }
 

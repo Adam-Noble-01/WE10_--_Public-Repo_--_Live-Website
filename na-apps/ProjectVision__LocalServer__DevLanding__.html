@@ -724,6 +724,24 @@
         white-space    : pre-wrap;
     }
 
+    .dv-state__retry {
+        display        : block;
+        margin         : 18px auto 0;
+        padding        : 9px 20px;
+        border         : 1px solid var(--Dv_BorderMedium);
+        border-radius  : 8px;
+        background     : var(--Dv_BgTertiary);
+        color          : var(--Dv_TextPrimary);
+        font-family    : inherit;
+        font-size      : 13px;
+        font-weight    : 600;
+        cursor         : pointer;
+        transition     : border-color 140ms ease, background 140ms ease;
+    }
+
+    .dv-state__retry:hover  { border-color: var(--Dv_BrandAccent); background: var(--Dv_BgSecondary); }
+    .dv-state__retry:focus  { outline: none; border-color: var(--Dv_BrandAccent); }
+
 /* endregion ------------------------------------------------------------------- */
 
 
@@ -866,6 +884,7 @@
             <label class="dv-sort" for="dvSort">
                 <span class="dv-sort__label">Sort</span>
                 <select class="dv-sort__select" id="dvSort">
+                    <option value="touched">Last worked on</option>
                     <option value="newest">Newest first</option>
                     <option value="oldest">Oldest first</option>
                     <option value="name">Name A&ndash;Z</option>
@@ -942,9 +961,17 @@
 
         const RECENT_STORAGE_KEY  = 'na.projectvision.devlanding.recent';
         const FILTER_STORAGE_KEY  = 'na.projectvision.devlanding.filter';
-        const SORT_STORAGE_KEY    = 'na.projectvision.devlanding.sort';
+
+        // SORT STORAGE | Bumped to v2 when "Last worked on" became the default
+        // ---------------------------------------------------------
+        // A stored "newest" from the old build would otherwise pin everyone to
+        // the created-date order and hide the new default completely.
+        const SORT_STORAGE_KEY    = 'na.projectvision.devlanding.sort.v2';
         const RECENT_MAX          = 6;
-        const DEFAULT_SORT        = 'newest';   // <-- The latest job is nearly always the one wanted
+        const DEFAULT_SORT        = 'touched';  // <-- The job last worked on is nearly always the one wanted
+
+        const LOAD_RETRY_ATTEMPTS = 4;          // <-- Covers a server still coming up at login
+        const LOAD_RETRY_DELAY_MS = 600;        // <-- Multiplied by the attempt number, so 0.6s, 1.2s, 1.8s
 
         const ICON__Hub    = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.83 3.41L12 10.96 5.17 7.59 12 4.18zM4 8.82l7 3.5v7.86l-7-3.5V8.82zm9 11.36v-7.86l7-3.5v7.86l-7 3.5z"/></svg>';
         const ICON__Admin  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7H9v-2h6v2zm0 4H9v-2h6v2zm-2-8H9V7h4v2z"/></svg>';
@@ -988,7 +1015,7 @@
         let visibleProjects = [];      // <-- Current search + filter result
         let currentYear     = '';      // <-- Newest project year reported by the server
         let activeFilter    = 'all';   // <-- all | live | current
-        let activeSort      = DEFAULT_SORT;  // <-- newest | oldest | name | code
+        let activeSort      = DEFAULT_SORT;  // <-- touched | newest | oldest | name | code
         let cursorIndex     = 0;       // <-- Keyboard highlight position
 
     // endregion ----------------------------------------------
@@ -1073,6 +1100,23 @@
 
             const day = String(parsed.getDate()).padStart(2, '0');
             return day + '-' + MONTH_NAMES[parsed.getMonth()] + '-' + parsed.getFullYear();
+        }
+
+        // HELPER | The date the card should show, which follows the active sort
+        // -------------------------------------------------------------
+        // Ordering by one date while printing another makes the list look
+        // shuffled, so "Last worked on" shows when the folder last changed and
+        // every other sort keeps the date the project was opened.
+        function cardDate(project) {
+            if (activeSort !== 'touched') {
+                return { text : formatDate(project), label : 'Project opened ' };
+            }
+
+            if (project.touchedDate) {
+                return { text : project.touchedDate, label : 'Last changed ' };
+            }
+
+            return { text : formatDate(project), label : 'Project opened ' };
         }
 
     // endregion ----------------------------------------------
@@ -1208,9 +1252,10 @@
                 + '</div>'
                 : '';
 
-            const dateText  = formatDate(project);
+            const dateInfo  = cardDate(project);
+            const dateText  = dateInfo.text;
             const dateBlock = dateText
-                ? '<span class="dv-card__date" title="Project opened ' + esc(dateText) + '">' + esc(dateText) + '</span>'
+                ? '<span class="dv-card__date" title="' + esc(dateInfo.label + dateText) + '">' + esc(dateText) + '</span>'
                 : '<span class="dv-card__date dv-card__date--none" title="No Project Admin content, so no start date is recorded">no date</span>';
 
             return ''
@@ -1250,6 +1295,18 @@
             return Number.isNaN(parsed) ? 0 : parsed;
         }
 
+        // HELPER | Millisecond value of the newest file inside the project folder
+        // -------------------------------------------------------------
+        // The server reads this from the files themselves, so saving a drawing
+        // moves the project regardless of what any recorded date says. A folder
+        // that cannot be read falls back to the recorded date.
+        function touchedValue(project) {
+            const parsed = new Date(project.touchedSort || 0).getTime();
+            if (!Number.isNaN(parsed) && parsed) return parsed;
+
+            return recencyValue(project);
+        }
+
         // FUNCTION | Order the cards for the chosen sort
         // -------------------------------------------------------------
         // Undated projects have no Project Admin content, so nothing records
@@ -1257,6 +1314,21 @@
         // than jumping to the front of "Oldest first" on a zero timestamp.
         function sortProjects(projects) {
             const ordered = projects.slice();
+
+            if (activeSort === 'touched') {
+                ordered.sort(function(a, b) {
+                    const aTime = touchedValue(a);
+                    const bTime = touchedValue(b);
+
+                    if (!aTime && !bTime) return a.projectCode.localeCompare(b.projectCode);
+                    if (!aTime) return 1;                              // <-- Nothing readable, so send it to the back
+                    if (!bTime) return -1;
+
+                    return (bTime - aTime)                             // <-- Most recently touched first
+                        || a.projectCode.localeCompare(b.projectCode);
+                });
+                return ordered;
+            }
 
             if (activeSort === 'name') {
                 ordered.sort(function(a, b) {
@@ -1446,31 +1518,87 @@
     // FUNCTION | Data Loading
     // --------------------------------------------------------
 
+        // FUNCTION | Fetch the project list, retrying a server that is not up yet
+        // -------------------------------------------------------------
+        // The Studio PWA launches from the Start Menu at login, alongside the
+        // silent Flask server, so the page can easily win the race and ask for
+        // the list a moment before anything is listening. That first fetch
+        // rejects outright with "Failed to fetch" - no response, no status code
+        // - and a single attempt left the launcher dead until it was reloaded
+        // by hand. A few spaced retries cover the whole of a slow start.
         async function loadProjects() {
-            try {
-                const response = await fetch('/api/dev/projects', { cache: 'no-store' });
+            let lastError = null;
 
-                if (!response.ok) {
-                    throw new Error('HTTP ' + response.status + ' from /api/dev/projects');
+            for (let attempt = 1; attempt <= LOAD_RETRY_ATTEMPTS; attempt++) {
+                try {
+                    const response = await fetch('/api/dev/projects', { cache: 'no-store' });
+
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status + ' from /api/dev/projects');
+                    }
+
+                    const payload = await response.json();
+
+                    allProjects = Array.isArray(payload.projects) ? payload.projects : [];
+                    currentYear = payload.currentYear || '';
+
+                    renderRecent();
+                    render();
+                    return;                                             // <-- Loaded, so drop any earlier failure
+
+                } catch (err) {
+                    lastError = err;
+
+                    if (attempt < LOAD_RETRY_ATTEMPTS) {
+                        renderLoadingState(attempt);
+                        await wait(LOAD_RETRY_DELAY_MS * attempt);      // <-- Back off, a cold server needs a moment
+                    }
                 }
+            }
 
-                const payload = await response.json();
+            console.error('[DevLanding] Failed to load project list:', lastError);
+            renderLoadFailure(lastError);
+        }
 
-                allProjects = Array.isArray(payload.projects) ? payload.projects : [];
-                currentYear = payload.currentYear || '';
+        // HELPER | Promise-based pause between retries
+        function wait(milliseconds) {
+            return new Promise(function(resolve) { window.setTimeout(resolve, milliseconds); });
+        }
 
-                renderRecent();
-                render();
+        // FUNCTION | Say the server is being waited on rather than sitting blank
+        function renderLoadingState(attempt) {
+            elResults.innerHTML = ''
+                + '<div class="dv-state">'
+                +   '<p class="dv-state__title">Waiting for the local server</p>'
+                +   '<p class="dv-state__msg">Retrying /api/dev/projects '
+                +     '(attempt ' + (attempt + 1) + ' of ' + LOAD_RETRY_ATTEMPTS + ').</p>'
+                + '</div>';
+        }
 
-            } catch (err) {
-                console.error('[DevLanding] Failed to load project list:', err);
+        // FUNCTION | Report a load that never succeeded, with a way back
+        // -------------------------------------------------------------
+        // A dead end here means restarting the whole window, so the failure
+        // state carries its own retry button.
+        function renderLoadFailure(err) {
+            const message = err && err.message ? err.message : String(err);
 
-                elResults.innerHTML = ''
-                    + '<div class="dv-state">'
-                    +   '<p class="dv-state__title">Could not load the project list</p>'
-                    +   '<p class="dv-state__msg">The local Flask server did not return a usable /api/dev/projects response.</p>'
-                    +   '<p class="dv-state__pre">' + esc(err && err.message ? err.message : String(err)) + '</p>'
-                    + '</div>';
+            elResults.innerHTML = ''
+                + '<div class="dv-state">'
+                +   '<p class="dv-state__title">Could not load the project list</p>'
+                +   '<p class="dv-state__msg">The local Flask server did not answer /api/dev/projects. '
+                +     'It may still be starting, or it may have stopped.</p>'
+                +   '<p class="dv-state__pre">' + esc(message) + '</p>'
+                +   '<button class="dv-state__retry" id="dvRetry" type="button">Try again</button>'
+                + '</div>';
+
+            const retryButton = document.getElementById('dvRetry');
+
+            if (retryButton) {
+                retryButton.addEventListener('click', function() {
+                    renderLoadingState(0);
+                    loadProjects();
+                    refreshServerStatus();
+                });
             }
         }
 

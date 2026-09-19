@@ -320,7 +320,7 @@
     function Na__LePdf__Filename(sheet, layout) {
         const fields = Na__LeModel__GetFields(sheet);                              // <-- Defaults filled in, so a blank Drawing No. still names the file
         return Na__LeFileName__Build({
-            code        : fields.DrawingNumber,
+            code        : fields.DocumentId,                                       // <-- The whole identifier, PS01_T02_D01, not the D01 the register writes
             name        : sheet.Sheet__Name,
             paper       : layout.Page.SizeKey,
             revision    : fields.Revision,

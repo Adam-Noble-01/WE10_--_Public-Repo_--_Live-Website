@@ -165,6 +165,22 @@
     // buildBody receives the card and a setter for "is the dialog satisfied",
     // and returns either nothing or a function that focuses its own field.
     // ------------------------------------------------------------
+    // EVERYTHING IS BUILT INSIDE THE PROMISE EXECUTOR, and the closer is named
+    // Na__PmDevModal__SettleDialog rather than anything short.
+    //
+    // The first version built the buttons above the Promise and called a
+    // `close` that only existed inside it. That is not a ReferenceError,
+    // because `close` is a property of window: every press of Confirm and
+    // Cancel silently called `window.close()` instead. The dialog stayed up,
+    // the promise never settled, and the caller sat at its `await` forever -
+    // "I pressed Re-render All and it just hangs". Only Escape and the
+    // backdrop worked, because those two handlers happened to be written
+    // inside the executor.
+    //
+    // Never name a local `close` here. `close`, `open`, `name`, `status`,
+    // `focus`, `top` and `length` are all on window, so getting one of them
+    // out of scope fails silently instead of loudly.
+    // ------------------------------------------------------------
     function Na__PmDevModal__OpenConfirmShaped(options, buildBody) {
         const opts = options || {};
 
@@ -176,54 +192,10 @@
 
         Na__PmDevModal__BuildHead(card, opts.title, opts.message);
 
-        const footer = document.createElement('div');
-        footer.className = 'na-pm-modal__footer';
-
-        const confirmBtn = Na__PmDevModal__BuildButton(
-            opts.confirmLabel || 'Confirm',
-            'na-pm-modal__btn--confirm' + (opts.isDestructive ? ' na-pm-modal__btn--danger' : ''),
-            () => { if (!confirmBtn.disabled) close(true); }
-        );
-        const cancelBtn = Na__PmDevModal__BuildButton(
-            opts.cancelLabel || 'Cancel',
-            'na-pm-modal__btn--cancel',
-            () => close(false)
-        );
-
-        const setSatisfied = (isSatisfied) => {
-            confirmBtn.disabled = !isSatisfied;
-            confirmBtn.classList.toggle('is-disabled', !isSatisfied);
-        };
-
-        const focusBody = (typeof buildBody === 'function') ? buildBody(card, setSatisfied) : null;
-
-        footer.appendChild(cancelBtn);
-        footer.appendChild(confirmBtn);
-        card.appendChild(footer);
-
-        root.classList.add('is-open');
-        root.setAttribute('aria-hidden', 'false');
-
         return new Promise((resolve) => {
             const backdrop = root.querySelector('.na-pm-modal__backdrop');
 
-            const onKeyDown = (event) => {
-                if (event.key === 'Escape') {
-                    event.preventDefault();
-                    event.stopPropagation();                                 // <-- Never also reaches the app hotkeys
-                    close(false);
-                    return;
-                }
-                if (event.key === 'Enter' && !confirmBtn.disabled) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    close(true);
-                }
-            };
-
-            const onBackdrop = () => close(false);
-
-            const close = (result) => {
+            const Na__PmDevModal__SettleDialog = (result) => {
                 document.removeEventListener('keydown', onKeyDown, true);
                 if (backdrop) backdrop.removeEventListener('click', onBackdrop);
 
@@ -235,10 +207,54 @@
                 resolve(result === true);
             };
 
+            const footer = document.createElement('div');
+            footer.className = 'na-pm-modal__footer';
+
+            const confirmBtn = Na__PmDevModal__BuildButton(
+                opts.confirmLabel || 'Confirm',
+                'na-pm-modal__btn--confirm' + (opts.isDestructive ? ' na-pm-modal__btn--danger' : ''),
+                () => { if (!confirmBtn.disabled) Na__PmDevModal__SettleDialog(true); }
+            );
+            const cancelBtn = Na__PmDevModal__BuildButton(
+                opts.cancelLabel || 'Cancel',
+                'na-pm-modal__btn--cancel',
+                () => Na__PmDevModal__SettleDialog(false)
+            );
+
+            const setSatisfied = (isSatisfied) => {
+                confirmBtn.disabled = !isSatisfied;
+                confirmBtn.classList.toggle('is-disabled', !isSatisfied);
+            };
+
+            const focusBody = (typeof buildBody === 'function') ? buildBody(card, setSatisfied) : null;
+
+            footer.appendChild(cancelBtn);
+            footer.appendChild(confirmBtn);
+            card.appendChild(footer);
+
+            const onKeyDown = (event) => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();                                 // <-- Never also reaches the app hotkeys
+                    Na__PmDevModal__SettleDialog(false);
+                    return;
+                }
+                if (event.key === 'Enter' && !confirmBtn.disabled) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    Na__PmDevModal__SettleDialog(true);
+                }
+            };
+
+            const onBackdrop = () => Na__PmDevModal__SettleDialog(false);
+
+            root.classList.add('is-open');
+            root.setAttribute('aria-hidden', 'false');
+
             document.addEventListener('keydown', onKeyDown, true);            // <-- Capture phase: we see the key first
             if (backdrop) backdrop.addEventListener('click', onBackdrop);
 
-            Na__PmDevModal__ActiveClose = close;
+            Na__PmDevModal__ActiveClose = Na__PmDevModal__SettleDialog;
 
             // FOCUS | The typed field when there is one, otherwise Cancel, so
             // a reflex Enter on a destructive dialog still has to travel.
@@ -323,10 +339,28 @@
 
         Na__PmDevModal__BuildHead(card, opts.title, opts.message);
 
+        // SPINNER | The app's own loading circle, reused
+        // ------------------------------------------------------------
+        // A batch spends most of its time inside a render, where the bar only
+        // moves once a scene. Between two of those the dialog is a still
+        // picture, and a still picture is what "it has hung" looks like. The
+        // spinner is the only thing on here that keeps moving, so it is the
+        // thing that says the run is alive. Same .loading-spinner the image
+        // export overlay uses, scaled down to sit in a dialog.
+        // ------------------------------------------------------------
+        const spinnerRow = document.createElement('div');
+        spinnerRow.className = 'na-pm-modal__spinner-row';
+
+        const spinner = document.createElement('div');
+        spinner.className = 'loading-spinner na-pm-modal__spinner';
+        spinnerRow.appendChild(spinner);
+
         const status = document.createElement('p');
         status.className   = 'na-pm-modal__status';
         status.textContent = opts.initialStatus || 'Starting...';
-        card.appendChild(status);
+        spinnerRow.appendChild(status);
+
+        card.appendChild(spinnerRow);
 
         const track = document.createElement('div');
         track.className = 'na-pm-modal__bar';
@@ -335,6 +369,11 @@
         fill.style.width = '0%';
         track.appendChild(fill);
         card.appendChild(track);
+
+        const countEl = document.createElement('p');
+        countEl.className   = 'na-pm-modal__count';
+        countEl.textContent = '';
+        card.appendChild(countEl);
 
         let isStopped = false;
 
@@ -376,15 +415,39 @@
             Update : (step, total, label) => {
                 const safeTotal = Math.max(1, Number(total) || 1);
                 const pct       = Math.max(0, Math.min(100, Math.round((Number(step) / safeTotal) * 100)));
-                fill.style.width   = pct + '%';
-                status.textContent = label || (step + ' of ' + safeTotal);
+                fill.style.width    = pct + '%';
+                status.textContent  = label || ('Scene ' + (Number(step) + 1));
+                countEl.textContent = (Number(step) + 1) + ' of ' + safeTotal; // <-- Which one, in numbers, beneath the name
             },
-            Finish : (label) => {
-                fill.style.width   = '100%';
-                status.textContent = label || 'Done.';
+            // FINISHING HAS TO LOOK DIFFERENT FROM WORKING, not just read
+            // differently. Stopping the spinner's animation was not enough:
+            // a stationary ring with a coloured arc is still a ring with a
+            // coloured arc, and a dialog that then sits there waiting to be
+            // dismissed is indistinguishable from one that has hung - which
+            // is exactly how it was read. The ring becomes a tick, and a run
+            // with nothing to report takes itself away.
+            //
+            // options.hadProblems keeps it on screen instead, because a
+            // summary nobody can read is not a summary.
+            Finish : (label, options) => {
+                const hadProblems = Boolean(options && options.hadProblems);
+
+                fill.style.width    = '100%';
+                status.textContent  = label || 'Done.';
+                countEl.textContent = '';
+                spinner.classList.add(hadProblems
+                    ? 'na-pm-modal__spinner--warn'
+                    : 'na-pm-modal__spinner--done');                          // <-- Ring becomes a tick, or a warning mark
                 stopBtn.textContent = 'Close';
                 stopBtn.disabled    = false;
                 stopBtn.onclick     = closeDialog;                           // <-- Stop becomes Close once there is nothing to stop
+
+                if (!hadProblems) {
+                    // Long enough to read the summary, short enough that it
+                    // never becomes something to dismiss. Matches the image
+                    // export overlay's own hold.
+                    window.setTimeout(closeDialog, 2200);
+                }
             },
             Close     : closeDialog,
             IsStopped : () => isStopped

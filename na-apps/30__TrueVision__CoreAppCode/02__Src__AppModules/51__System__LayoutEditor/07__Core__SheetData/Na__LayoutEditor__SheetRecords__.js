@@ -33,6 +33,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.21.0
+// - Short tab names. DrawingNumber answers a sheet's drawing number without
+//   building every title block field; ShortCode cuts it down to what a tab
+//   carries ("PS01_T02_D03" gives "D03"); StripSheetCode takes a code of the
+//   pack's own series off the front of a name ("D03 - 3D Images" gives
+//   "3D Images").
+// - NormaliseSheet strips the name, so Sheet__Name holds the words and the
+//   Drawing Register holds the number. A stored title that was only ever the
+//   name is stripped with it; a title typed separately is never touched.
+//
 // 17-Sep-2026 - Version 1.20.0
 // - BuildFields hands the sheet's resolved paper label to SheetLabel, so the
 //   title block's Scale cell reads "1:50 @ ISO A2" and, where the viewports on
@@ -196,7 +206,8 @@
         Na__LeCfg__GetLineweightSetup,
         Na__LeCfg__GetShapeSetup,
         Na__LeCfg__GetLeaderSetup,
-        Na__LeCfg__GetMarginNotesSetup
+        Na__LeCfg__GetMarginNotesSetup,
+        Na__LeCfg__GetDrawingRegisterSetup
     } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeScale__Coerce, Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__PaperSizeMm } from './Na__LayoutEditor__SheetLayout__.js';               // <-- A leaf: it reads the sheet config and nothing else, so it cannot cycle back here
@@ -225,6 +236,7 @@
     import { Na__LeDash__Normalise } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__LeCommon__Get, Na__LeCommon__Uses, Na__LeCommon__KEYS } from './Na__LayoutEditor__SheetModel__Common__.js';   // <-- A leaf: it reaches the drawings block and the admin record, never back here
     import { Na__PresentationMode__ProjectJson__GetActiveConfig } from '../../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
     // ------------------------------------------------------------
 
@@ -756,6 +768,14 @@
         if (typeof sheet.Sheet__Name !== 'string' || !sheet.Sheet__Name) {
             sheet.Sheet__Name = Na__LeCfg__FormatLabel('SheetNameFormat', sheetSetup.defaultNameFormat, { index : index + 1 });
         }
+
+        // A DRAWING CODE TYPED INTO THE NAME COMES OFF | The tab carries the register's own (StripSheetCode)
+        const typedFields = (sheet.Sheet__Fields && typeof sheet.Sheet__Fields === 'object') ? sheet.Sheet__Fields : null;
+        const bareName    = Na__LeRec__StripSheetCode(sheet.Sheet__Name, typedFields ? typedFields.Sheet__Fields__DrawingNumber : '');
+        if (bareName !== sheet.Sheet__Name) {
+            if (typedFields && typedFields.Sheet__Fields__Title === sheet.Sheet__Name) typedFields.Sheet__Fields__Title = bareName;   // <-- A title that was only ever the name goes with it; one typed separately stays
+            sheet.Sheet__Name = bareName;
+        }
         sheet.Sheet__Order = Na__LeRec__Num(sheet.Sheet__Order, index + 1);
         if (!sheet.Sheet__PaperSize || !sheetSetup.paperSizes[sheet.Sheet__PaperSize]) sheet.Sheet__PaperSize = sheetSetup.defaultPaperSize;
         if (sheet.Sheet__Orientation !== 'portrait') sheet.Sheet__Orientation = 'landscape';
@@ -819,19 +839,181 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | A Sheet's Drawing Number: the Register's, or the Project Default
+    // ------------------------------------------------------------
+    // The one reading of it. BuildFields takes its default from here, so the
+    // number a tab is cut from and the number the title block prints cannot
+    // come apart - and a tab strip that only wants the number does not have to
+    // solve the scale and the date of every sheet to get it.
+    // ------------------------------------------------------------
+    // THE SEQUENTIAL NUMBER ALONE, NOT THE WHOLE IDENTIFIER. "D01". The
+    // register's numbering writes it and nothing else does; the tab cuts its
+    // short code from it, and Na__LeRec__DocumentId puts the job and the phase
+    // in front of it. Before 19-Sep-2026 this field was expected to hold the
+    // whole thing ("PS01_T02_D01"), which is why the first renumber of a pack
+    // silently destroyed the job and phase: numbering only ever wrote the
+    // sequence. Composing instead of storing is what stops that recurring.
+    //
+    // AN UNNUMBERED SHEET ANSWERS IN THE REGISTER'S OWN SERIES, "D04", not
+    // "PS01-04" as it did before. The old default put the project code inside
+    // the number, which composed to PS01_T01_PS01-04, and its bare-digit tail
+    // gave the tab no short code at all.
+    // ------------------------------------------------------------
+    function Na__LeRec__DrawingNumber(sheet) {
+        const stored = (sheet && sheet.Sheet__Fields) ? sheet.Sheet__Fields.Sheet__Fields__DrawingNumber : undefined;
+        if (typeof stored === 'string') return stored;
+        const setup  = Na__LeCfg__GetDrawingRegisterSetup();
+        const digits = Math.max(1, Math.min(6, Math.round(Number(setup.digits) || 2)));
+        return String(setup.prefix || 'D') + String(sheet ? sheet.Sheet__Order : 1).padStart(digits, '0');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Job Stage a Sheet Belongs To ("T02")
+    // ------------------------------------------------------------
+    // Held per sheet, because a project runs several stages at once: a planning
+    // set stays live and issued while building regulations drawings are being
+    // drawn. A sheet that has never been given one is read as the configured
+    // default, so a back catalogue drawn before the phase existed still
+    // composes a whole code rather than a broken one.
+    // ------------------------------------------------------------
+    function Na__LeRec__Phase(sheet) {
+        const stored = (sheet && sheet.Sheet__Fields) ? sheet.Sheet__Fields.Sheet__Fields__Phase : undefined;
+        if (typeof stored === 'string' && stored.trim()) return stored.trim();
+        return String(Na__LeCfg__GetDrawingRegisterSetup().defaultPhase || '').trim();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Whole Identifier a Drawing Is Known By ("PS01_T02_D01")
+    // ------------------------------------------------------------
+    // The job, the stage and the drawing, in that order - read left to right it
+    // says which project, which stage of it, and which sheet of that stage.
+    // This is what the title block prints and what the exported file is named
+    // after.
+    //
+    // COMPOSED ON EVERY READ, NOT STORED. A renumber or a phase change reaches
+    // the title block, the register and the file name together and cannot leave
+    // them disagreeing, and nothing can overwrite two thirds of it by writing
+    // the third. A sheet may still carry a typed Sheet__Fields__DocumentId,
+    // which wins for that sheet alone - for a drawing inherited from another
+    // office, or one whose code was fixed before this schema existed.
+    //
+    // An empty part takes its separator with it, so a project with no code yet
+    // reads T01_D01 rather than _T01_D01.
+    // ------------------------------------------------------------
+    function Na__LeRec__ComposeDocumentId(project, phase, drawing) {
+        const format = String(Na__LeCfg__GetDrawingRegisterSetup().documentCodeFmt || '{project}_{phase}_{drawing}');
+        const parts  = {
+            project : String(project || '').trim(),
+            phase   : String(phase   || '').trim(),
+            drawing : String(drawing || '').trim()
+        };
+        const token  = /\{(project|phase|drawing)\}/g;
+        const pieces = [];
+        let   cursor = 0;
+        let   found  = token.exec(format);
+        while (found) {
+            pieces.push({ separator : format.slice(cursor, found.index), value : parts[found[1]] });
+            cursor = token.lastIndex;
+            found  = token.exec(format);
+        }
+        const lead   = pieces.length ? pieces[0].separator : format;             // <-- Anything the format puts in FRONT of the first part is not a separator
+        let   composed = '';
+        pieces.forEach((piece) => {
+            if (!piece.value) return;                                            // <-- An empty part takes its separator with it
+            composed += (composed ? piece.separator : '') + piece.value;         // <-- ...and the first part that survives never carries one
+        });
+        return composed ? lead + composed + format.slice(cursor) : '';
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Sheet's Document ID, Typed if It Has One
+    // ------------------------------------------------------------
+    function Na__LeRec__DocumentId(sheet) {
+        const stored = (sheet && sheet.Sheet__Fields) ? sheet.Sheet__Fields.Sheet__Fields__DocumentId : undefined;
+        if (typeof stored === 'string' && stored.trim()) return stored.trim();
+        return Na__LeRec__ComposeDocumentId(Na__DrawData__GetProjectCode(), Na__LeRec__Phase(sheet), Na__LeRec__DrawingNumber(sheet));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Short Code a Tab Carries, Cut From a Drawing Number
+    // ------------------------------------------------------------
+    // "PS01_T02_D03" gives "D03". The Drawing Register writes the whole number
+    // - its series prefix, then the padded count - and a tab needs only the
+    // end of it: the last run of letters and the digits after them. The
+    // project and the task in front are the same on every tab of a pack, so on
+    // a tab they are only width, and on a phone that width is the whole strip.
+    //
+    // CUT FROM THE NUMBER rather than worked out again from the numbering
+    // series, so a number typed by hand before the register existed answers
+    // the same way as one the register wrote, and nothing here can disagree
+    // with what the title block prints. One separator may sit between the
+    // letters and the digits, so a series numbered "A-101" reads "A-101".
+    //
+    // NO LETTER-LED CODE AT THE END, NO SHORT CODE. The project default for a
+    // pack the register has never numbered is "PS01-04", whose tail is bare
+    // digits: that is a place in the order, not a drawing code, and a tab
+    // reading "04 - D04 - Site Plan" is worse than the name alone. Such a
+    // sheet answers '' and its tab shows its name, as every tab did before
+    // the register; the first renumber gives it a code.
+    // ------------------------------------------------------------
+    function Na__LeRec__ShortCode(drawingNumber) {
+        const text  = String(drawingNumber === undefined || drawingNumber === null ? '' : drawingNumber).trim();
+        const match = /[A-Za-z]+[-_ ]?\d+$/.exec(text);
+        return match ? match[0] : '';
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Sheet Name Without a Drawing Code Typed in Front of It
+    // ------------------------------------------------------------
+    // "D03 - 3D Images" gives "3D Images". Until the tabs carried the
+    // register's code the only way to see a number on one was to type it into
+    // the name, and then to retype it on every renumber - which is how PS02's
+    // "D24 - Site Plan" came to be drawing D10. The number is the register's
+    // now, so a name holds the words and nothing else.
+    //
+    // ONLY A CODE OF THE PACK'S OWN SERIES COMES OFF: the letters of the
+    // sheet's own short code, any digits, then a dash, a colon, a middle dot or
+    // a bar. "D21 - Floor Plans" loses its D21 whatever the sheet is numbered
+    // today; "L2 - Second Floor" on a D series keeps every word; and
+    // "3D Images" - no letter in front of its digit, no dash after it - is
+    // never touched. A name that is nothing but a code is left alone, because
+    // taking it off would leave nothing to show.
+    // ------------------------------------------------------------
+    function Na__LeRec__StripSheetCode(name, drawingNumber) {
+        const text = String(name === undefined || name === null ? '' : name);
+        if (!/^\s*[A-Za-z]+[-_ ]?\d/.test(text)) return text;                    // <-- The common case, settled without building a pattern
+        const letters = (/^[A-Za-z]+/.exec(Na__LeRec__ShortCode(drawingNumber)) || [ '' ])[0];
+        if (!letters) return text;                                              // <-- A pack the register has never numbered has no series to match: nothing comes off
+        const bare = text.replace(new RegExp('^\\s*' + letters + '[-_ ]?\\d+\\s*[-\\u2013\\u2014\\u00b7:|]\\s*', 'i'), '').trim();
+        return bare ? bare : text;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Title Block Fields With Project Defaults Filled In
     // ------------------------------------------------------------
     // Scale is solved from the sheet every time rather than stored, so re-papering
     // a sheet or re-scaling a viewport rewrites the cell on the next chrome build.
     // A value typed into the Sheet panel still wins, the way every other field does.
+    //
+    // CLIENT AND SITE ADDRESS ARE THE TWO EXCEPTIONS. They belong to the whole
+    // pack, not to a sheet, so on a sheet that is on Common the pack's value
+    // wins over anything stored on the sheet - a stale copy left by an older
+    // build, or by a path that wrote one before the switch was turned back on,
+    // can never print over the value every other sheet is showing.
     // ------------------------------------------------------------
     function Na__LeRec__BuildFields(sheet) {
         const setup   = Na__LeCfg__GetTitleBlockSetup();
         const stored  = (sheet && sheet.Sheet__Fields) || {};
         const config  = Na__PresentationMode__ProjectJson__GetActiveConfig();
         const project = (config && (config.projectName || config.displayName)) || '';
-        const code    = Na__DrawData__GetProjectCode() || '';
-        const index   = sheet ? sheet.Sheet__Order : 1;
+        const common  = Na__LeCommon__Get();
+        const onCommon = Na__LeCommon__Uses(sheet);
         const scales  = (sheet ? sheet.Sheet__Viewports : []).filter((v) => v.Viewport__Kind === Na__LeRec__KIND_2D).map((v) => v.Viewport__ScaleDenominator);
         const paper   = Na__LeLayout__PaperSizeMm(sheet ? sheet.Sheet__PaperSize : null, sheet ? sheet.Sheet__Orientation : null);   // <-- Resolved, not read raw: an unset or unknown size falls back to the default paper the sheet actually prints on
         const today   = new Date();
@@ -839,10 +1021,12 @@
             [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ][today.getMonth()] + ' ' + today.getFullYear();
 
         const defaults = {
-            Client        : project,
-            SiteAddress   : '',
+            Client        : common.Client || project,                            // <-- The pack's client; the project name only until one is known
+            SiteAddress   : common.SiteAddress,
             Title         : sheet ? sheet.Sheet__Name : '',
-            DrawingNumber : (code ? code + '-' : '') + String(index).padStart(2, '0'),
+            DrawingNumber : Na__LeRec__DrawingNumber(sheet),                     // <-- The sequence alone; the same reading a tab's short code is cut from
+            Phase         : Na__LeRec__Phase(sheet),
+            DocumentId    : Na__LeRec__DocumentId(sheet),                        // <-- What the title block prints and the exported file is named after
             Revision      : 'A',
             Scale         : Na__LeScale__SheetLabel(scales, paper.Label),
             Date          : dateText,
@@ -850,6 +1034,7 @@
         };
         const fields = {};
         Object.keys(defaults).forEach((key) => {
+            if (onCommon && Na__LeCommon__KEYS.indexOf(key) !== -1) { fields[key] = defaults[key]; return; }   // <-- The pack's, whatever the sheet happens to store
             const value = stored['Sheet__Fields__' + key];
             fields[key] = (typeof value === 'string') ? value : defaults[key];
         });
@@ -890,6 +1075,12 @@
         Na__LeRec__NormaliseGroup,
         Na__LeRec__NormaliseSheet,
         Na__LeRec__DefaultLayerId,
+        Na__LeRec__DrawingNumber,
+        Na__LeRec__Phase,
+        Na__LeRec__DocumentId,
+        Na__LeRec__ComposeDocumentId,
+        Na__LeRec__ShortCode,
+        Na__LeRec__StripSheetCode,
         Na__LeRec__BuildFields
     };
     // ------------------------------------------------------------

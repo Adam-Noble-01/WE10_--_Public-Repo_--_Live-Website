@@ -19,12 +19,21 @@
 //       iPad   -> Share button at the TOP of the toolbar
 //   Getting this wrong is the single most common reason a client gives up, so
 //   it is worth the branch.
-// - iOS bookmarks the page the client is standing on, so a client who follows
-//   these steps from their own project link gets their own project's icon.
+// - WHAT THE ICON OPENS IS DECIDED BY THE MANIFEST, NOT BY THE PAGE. Safari
+//   launches the manifest's start_url, and only bookmarks the page the client
+//   is standing on when there is no manifest at all. The per-project start_url
+//   is the manifest builder's job; this handler only gives the directions.
+//   See the SAFARI note in TrueVision__Pwa__Manifest__Builder__.js before
+//   changing anything about how the manifest reaches the page.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.0.1
+// - Header corrected. It said iOS bookmarks the page the client is standing
+//   on, which is only true with no manifest, and that belief is how every
+//   iPhone and iPad install came to open an empty app. No code change here.
+//
 // 27-Aug-2026 - Version 1.0.0
 // - Initial release, ported from the ValeVision3D / Whitecardopedia PWA stack.
 //

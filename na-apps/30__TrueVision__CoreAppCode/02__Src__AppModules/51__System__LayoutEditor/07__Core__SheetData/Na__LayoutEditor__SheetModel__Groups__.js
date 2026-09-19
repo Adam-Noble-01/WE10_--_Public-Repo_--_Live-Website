@@ -32,12 +32,17 @@
 // PORT NOTE:
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
-// - Divergences   : header only; the moved code matches the ValeVision3D unit.
+// - Divergences   : header; DeleteItems' silent flag, TrueVision first (19-Sep-2026, for the Parametric Scrapbook).
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - DeleteItems takes an optional silent flag: the records go and the sheet is
+//   marked dirty, with no announcement. Every existing caller passes nothing
+//   and announces exactly as before.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetModel__.js; the code moved verbatim.
 //
@@ -169,8 +174,13 @@
     // one announcement per collection that lost something - the history takes
     // its step at the first, which already holds every removal, so one Ctrl+Z
     // brings the lot back. Returns how many records went.
+    //
+    // silent skips the announcements and only marks the sheet dirty, as the
+    // silent inserts do: a parametric element being regenerated removes its
+    // left-over members this way and announces once for the whole change
+    // (Na__LayoutEditor__ScrapbookParametric__).
     // ------------------------------------------------------------
-    function Na__LeModel__DeleteItems(sheet, items) {
+    function Na__LeModel__DeleteItems(sheet, items, silent) {
         if (!sheet || !Array.isArray(items)) return 0;
         const doomed = new Set(items.filter((item) => item && item.kind && item.id).map((item) => item.kind + ':' + item.id));
         if (!doomed.size) return 0;
@@ -201,6 +211,7 @@
         if (!count) return 0;
         if (gone.size) sheet.Sheet__Dimensions.forEach((d) => { if (gone.has(d.Dimension__ViewportId)) d.Dimension__ViewportId = null; });
         Na__LeModel__AssignSelectionItems(Na__LeModel__SelectionItems.filter((item) => !doomed.has(item.kind + ':' + item.id)));
+        if (silent === true) { Na__LeModel__AssignDirty(true); return count; }   // <-- The caller announces once for everything it changed
         reasons.forEach((reason) => Na__LeModel__Touch(reason, sheet.Sheet__Id, null));
         return count;
     }
