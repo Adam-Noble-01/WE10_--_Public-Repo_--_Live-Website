@@ -40,11 +40,18 @@ function Na__TextToReader__ReadFileAsText(Na__FileObject) {
 
 // FUNCTION | Write a status message and toggle the error class
 // ------------------------------------------------------------
-function Na__TextToReader__ShowUploadStatus(Na__StatusElement, Na__Message, Na__IsError) {
-    if (!Na__StatusElement) return;
+function Na__TextToReader__ShowUploadStatus(Na__StatusElement, Na__TriggerButton, Na__Message, Na__IsError) {
+    if (Na__StatusElement) {
+        Na__StatusElement.textContent = Na__Message;
+        Na__StatusElement.classList.toggle("TTR__upload-status--error", Na__IsError === true);
+    }
 
-    Na__StatusElement.textContent = Na__Message;
-    Na__StatusElement.classList.toggle("TTR__upload-status--error", Na__IsError === true);
+    if (Na__TriggerButton) {
+        Na__TriggerButton.classList.toggle("TTR__upload-icon-button--error", Na__IsError === true);
+        if (Na__Message) {
+            Na__TriggerButton.title = Na__Message;
+        }
+    }
 }
 // ------------------------------------------------------------
 
@@ -59,10 +66,12 @@ async function Na__TextToReader__HandleFileInputChange(Na__Event, Na__Config) {
     const Na__AcceptedExtensions  = Na__Config.acceptedExtensions;
     const Na__TargetTextarea      = Na__Config.targetTextarea;
     const Na__StatusElement       = Na__Config.statusElement;
+    const Na__TriggerButton       = Na__Config.triggerButton;
 
     if (Na__TextToReader__IsSupportedFile(Na__SelectedFile, Na__AcceptedExtensions) === false) {
         Na__TextToReader__ShowUploadStatus(
             Na__StatusElement,
+            Na__TriggerButton,
             `${Na__UiText.NaMiniApp__StatusUnsupportedPrefix}: "${Na__SelectedFile.name}". ${Na__UiText.NaMiniApp__StatusUnsupportedSuffix}`,
             true
         );
@@ -80,12 +89,18 @@ async function Na__TextToReader__HandleFileInputChange(Na__Event, Na__Config) {
 
         Na__TextToReader__ShowUploadStatus(
             Na__StatusElement,
+            Na__TriggerButton,
             `${Na__UiText.NaMiniApp__StatusLoadedPrefix} "${Na__SelectedFile.name}"`,
             false
         );
+
+        if (typeof Na__Config.onFileLoaded === "function") {
+            Na__Config.onFileLoaded(Na__FileText, Na__SelectedFile);
+        }
     } catch (Na__ErrorObject) {
         Na__TextToReader__ShowUploadStatus(
             Na__StatusElement,
+            Na__TriggerButton,
             `${Na__UiText.NaMiniApp__StatusReadErrorPrefix}: ${Na__ErrorObject.message}`,
             true
         );
@@ -123,10 +138,12 @@ export function Na__TextToReader__InitialiseFileUpload(Na__Config) {
 
     fileInput.addEventListener("change", (Na__Event) => {
         Na__TextToReader__HandleFileInputChange(Na__Event, {
+            triggerButton,
             targetTextarea,
             statusElement,
             acceptedExtensions,
-            uiText
+            uiText,
+            onFileLoaded: Na__Config.onFileLoaded
         });
     });
 }

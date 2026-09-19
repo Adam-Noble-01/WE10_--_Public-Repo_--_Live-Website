@@ -2,8 +2,8 @@
 // NOBLE ARCHITECTURE - PROJECT VISION STUDIO SHELL CONTROLS
 // =============================================================================
 //
-// FILE       : NaDevShell__AppShell__Controls__.js
-// NAMESPACE  : NaDevShell
+// FILE       : NaStudioShell__AppShell__Controls__.js
+// NAMESPACE  : NaStudioShell
 // MODULE     : Studio Shell
 // AUTHOR     : Adam Noble - Noble Architecture
 // PURPOSE    : Drive the persistent application bar above the sub-app frame
@@ -30,7 +30,7 @@
 //
 // =============================================================================
 
-(function Na__DevShell__AppShell() {
+(function Na__StudioShell__AppShell() {
     'use strict';
 
     // #region ------------------------------------------------
@@ -497,7 +497,7 @@
                 if (event.origin !== window.location.origin) return;             // <-- Same-origin frames only
 
                 const payload = event.data;
-                if (!payload || payload.source !== 'na-devshell-bridge') return;
+                if (!payload || payload.source !== 'na-studio-shell-bridge') return;
                 if (payload.type !== 'shortcut') return;
 
                 applyShortcut(payload, null);

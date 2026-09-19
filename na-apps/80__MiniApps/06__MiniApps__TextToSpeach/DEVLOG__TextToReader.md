@@ -19,6 +19,20 @@ DEVELOPMENT LOG
   - Deleted sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App after live confirmation.
   - Site data library now points at this Mini App URL.
 
+----------------------------------------------------------------
+1.4.0 - 19-Sep-2026 |  Simple / Edit / Read Views
+  - Three tabs in the compact header: Simple (original paste-and-render
+    layout), Edit (full-page Markdown textarea), Read (article only).
+  - Header height roughly halved; footer height cut by 20%.
+  - Upload control moved to a square file-icon button at the far right of
+    the header, with the version number immediately to its left.
+  - Header, tabs, version, upload and footer are aria-hidden so browser
+    read-aloud skips chrome and speaks only the rendered article. The
+    Read view also hides the footer and all editor chrome.
+  - Switching to Read (or loading a file while on Read) re-renders and
+    focuses the article.
+  - View switching lives in MiniApp__TextToReader__ViewTabs__.js.
+
 
 =================================================
 FILE STRUCTURE
@@ -33,6 +47,7 @@ FILE STRUCTURE
     |
     +-- 01__AppModules/
           +-- ...__Main__.js            Controller - DOM, events, bootstrap
+          +-- ...__ViewTabs__.js        Simple / Edit / Read view switching
           +-- ...__WhatsAppParser__.js  Strip WhatsApp prefixes, emit a list
           +-- ...__CsvTable__.js        Detect ```csv``` blocks, build tables
           +-- ...__FileUpload__.js      Load a local .md / .txt file

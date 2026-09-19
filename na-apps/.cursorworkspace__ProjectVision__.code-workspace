@@ -1,60 +1,63 @@
 {
 	"folders": [
-	  {
-        "path"        : ".",
-        "description" : "This is the parent directory for all Noble Architecture Apps",
-	  },
-	  {
-        "name"        : "ProjectVision - Core App Code",
-        "description" : "This is where the Noble Architecture project specific content and project config data files are stored.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/05__ProjectVision__CoreAppCode"
-	  },
-	  {
-        "name"        : "na-project-portal",
-        "description" : "This is where the Noble Architecture project specific content and project config data files are stored.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal"
-	  },
         {
-        "name"        : "Assets - Common Web App Assets",
-        "description" : "This is where the common web app assets are stored for the Noble Architecture projects (Admin System,PlanVision and TrueVision).",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/01__Assets__NaApps__CommonAssets"
-	  },
-      {
-        "name"        : "Child App - Project Admin System & Document System",
-        "description" : "This is the sister application code for the project documentation system for Admin such as quotation and contract documents.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode"
-	  },
-      {
-        "name"        : "Child App - PlanVision",
-        "description" : "This is the sister application code for the PlanVision project, which is used for 2D construction document presentation.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/20__PlanVision__CoreAppCode"
-	  },
-	  {
-        "name"        : "Child App - TrueVision3D",
-        "description" : "This is the parent folder for the TrueVision3D project and houses the main App for each Noble Architecture project.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/30__TrueVision__CoreAppCode"
-	  },
-	  {
-        "name"        : "Mini Apps",
-        "description" : "This is where the mini apps are stored for the Noble Architecture projects.",
-        "path"        : "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/80__MiniApps"
-	  },
-	  {
-        "name"        : "REFERENCE ONLY - ValeApps - DO NOT EDIT",
-        "description" : "The is a reference only folder for the ValeApps project, do not edit this folder. it contains branches of the codebase for the ValeApps project, such as ValeVision & Whitecardopedia Project Apps ",
-        "path"        : "D:/80__External__LiveRepos/ValeCodebase/WebApps"
-	  },
-	  {
-        "name"        : "SketchUp |  SketchUp Plugins Codebase",
-        "description" : "This is the codebase for the SketchUp plugins for the Noble Architecture Tools, it contains the codebase for TrueVision GLB Exporter Plugin along with other SketchUp RubyScript Plugins.",
-        "path"        : "C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins"
-	  },
-	  {
-        "name"        : "TEMPORARY - Master Codebase Containing All Noble Architecture Project Codebases",
-        "description" : "This is a temporary folder containing the master codebase for all Noble Architecture projects. It is used to store the codebase for all Noble Architecture projects.",
-        "path"        : "D:/03__MasterCodebase"
-	  }
-	],
+            "path": ".",
+            "description": "This is the parent directory for all Noble Architecture Apps"
+        },
+        {
+            "name": "ProjectVision - Core App Code",
+            "description": "This is where the Noble Architecture project specific content and project config data files are stored.",
+            "path": "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/05__ProjectVision__CoreAppCode"
+        },
+        {
+            "name": "na-project-portal",
+            "description": "This is where the Noble Architecture project specific content and project config data files are stored.",
+            "path": "D:/WE10_--_Public-Repo_--_Live-Website/na-project-portal"
+        },
+        {
+            "name": "Assets - Common Web App Assets",
+            "description": "This is where the common web app assets are stored for the Noble Architecture projects (Admin System,PlanVision and TrueVision).",
+            "path": "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/01__Assets__NaApps__CommonAssets"
+        },
+        {
+            "name": "Child App - Project Admin System & Document System",
+            "description": "This is the sister application code for the project documentation system for Admin such as quotation and contract documents.",
+            "path": "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/10__NaProjectAdmin__DocumentSystem__CoreAppCode"
+        },
+        {
+            "name": "Child App - PlanVision",
+            "description": "This is the sister application code for the PlanVision project, which is used for 2D construction document presentation.",
+            "path": "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/20__PlanVision__CoreAppCode"
+        },
+        {
+            "name": "Child App - TrueVision3D",
+            "description": "This is the parent folder for the TrueVision3D project and houses the main App for each Noble Architecture project.",
+            "path": "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/30__TrueVision__CoreAppCode"
+        },
+        {
+            "name": "Mini Apps",
+            "description": "This is where the mini apps are stored for the Noble Architecture projects.",
+            "path": "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/80__MiniApps"
+        },
+        {
+            "name": "REFERENCE ONLY - ValeApps - DO NOT EDIT",
+            "description": "The is a reference only folder for the ValeApps project, do not edit this folder. it contains branches of the codebase for the ValeApps project, such as ValeVision & Whitecardopedia Project Apps ",
+            "path": "D:/80__External__LiveRepos/ValeCodebase/WebApps"
+        },
+        {
+            "name": "SketchUp |  SketchUp Plugins Codebase",
+            "description": "This is the codebase for the SketchUp plugins for the Noble Architecture Tools, it contains the codebase for TrueVision GLB Exporter Plugin along with other SketchUp RubyScript Plugins.",
+            "path": "C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins"
+        },
+        {
+            "name": "TEMPORARY - Master Codebase Containing All Noble Architecture Project Codebases",
+            "description": "This is a temporary folder containing the master codebase for all Noble Architecture projects. It is used to store the codebase for all Noble Architecture projects.",
+            "path": "D:/03__MasterCodebase"
+        },
+        {
+            "path": ".."
+        }
+    ],
 	"settings": {
 	  "editor.tabSize": 4,
 	  "editor.insertSpaces": true,

@@ -24,43 +24,263 @@
     --TTR_Col_StatusText                 : rgb(90, 90, 90);
     --TTR_Col_StatusError                : rgb(178, 34, 34);
     --TTR_Col_ErrorText                  : #BA5050;
+    --TTR_Col_TabIdle                    : var(--color-gray-600);
+    --TTR_Col_TabActiveBg                : var(--color-gray-200);
+    --TTR_Size_HeaderPadY                : 0.125rem;
+    --TTR_Size_HeaderTitle               : 0.90rem;
+    --TTR_Size_HeaderMinHeight           : 1.75rem;
+    --TTR_Size_FooterPadY                : 0.40rem;
+    --TTR_Size_FooterFont                : 0.60rem;
+    --TTR_Size_UploadButton              : 1.65rem;
 }
-/* endregion ---------------------------------------------------------------- */
 
-/* -----------------------------------------------------------------------------
-   REGION | Header Title As Heading
-   -------------------------------------------------------------------------- */
-.HEAD__title {
+html,
+body {
+    height                               : 100%;
     margin                               : 0;
-    font-size                            : 1.25rem;
-    font-weight                          : 600;
+}
+
+body {
+    speak                                : normal;
 }
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
-   REGION | File Upload Block
+   REGION | Compact Header And Footer
+   Shared utility header padding is 0.25rem; title is 1.25rem.
+   These overrides cut the bar to about half that height.
+   Footer padding and type are 80% of the shared 0.50rem / 0.75rem.
    -------------------------------------------------------------------------- */
-.TTR__upload-block {
+.HEAD__container {
+    padding-top                          : var(--TTR_Size_HeaderPadY);
+    padding-bottom                       : var(--TTR_Size_HeaderPadY);
+    flex-shrink                          : 0;
+}
+
+.TTR__header-nav {
+    max-width                            : none;
+    width                                : 100%;
+    min-height                           : var(--TTR_Size_HeaderMinHeight);
+    box-sizing                           : border-box;
     display                              : flex;
     align-items                          : center;
+    gap                                  : 0.50rem 0.85rem;
     flex-wrap                            : wrap;
-    gap                                  : 0.75em;
-    margin-bottom                        : 0.75em;
 }
 
-.TTR__upload-button {
-    flex                                 : 0 0 auto;
-    width                                : auto;
+.HEAD__title {
+    margin                               : 0;
+    font-size                            : var(--TTR_Size_HeaderTitle);
+    font-weight                          : 600;
+    line-height                          : 1.15;
+    white-space                          : nowrap;
+}
+
+.HEAD__version-note {
+    margin-left                          : 0;
+    font-size                            : 0.75rem;
+    line-height                          : 1;
+}
+
+.FOOT__container {
+    padding-top                          : var(--TTR_Size_FooterPadY);
+    padding-bottom                       : var(--TTR_Size_FooterPadY);
+    font-size                            : var(--TTR_Size_FooterFont);
+    line-height                          : 1.2;
+}
+
+.TTR__chrome {
+    speak                                : never;
+    user-select                          : none;
+    -webkit-user-select                  : none;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Header Tabs
+   -------------------------------------------------------------------------- */
+.TTR__tablist {
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 0.15rem;
+}
+
+.TTR__tab {
+    border                               : none;
+    background                           : transparent;
+    color                                : var(--TTR_Col_TabIdle);
+    font-family                          : var(--font-semibold);
+    font-size                            : 0.72rem;
+    font-weight                          : 600;
+    line-height                          : 1;
+    letter-spacing                       : 0.02em;
+    text-transform                       : uppercase;
+    padding                              : 0.28rem 0.55rem;
+    border-radius                        : 0.20rem;
+    cursor                               : pointer;
+    display                              : inline-flex;
+    align-items                          : center;
+}
+
+.TTR__tab:hover {
+    background-color                     : var(--TTR_Col_TabActiveBg);
+    color                                : var(--color-brand);
+}
+
+.TTR__tab--active {
+    background-color                     : var(--TTR_Col_TabActiveBg);
+    color                                : var(--color-brand);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Header Upload Icon Button
+   -------------------------------------------------------------------------- */
+.TTR__header-end {
+    margin-left                          : auto;
+    display                              : flex;
+    align-items                          : center;
+    gap                                  : 0.55rem;
 }
 
 .TTR__upload-status {
-    font-size                            : 0.85rem;
+    font-size                            : 0.65rem;
     color                                : var(--TTR_Col_StatusText);
+    max-width                            : 14rem;
+    white-space                          : nowrap;
+    overflow                             : hidden;
+    text-overflow                        : ellipsis;
+}
+
+.TTR__upload-status:empty {
+    display                              : none;
 }
 
 .TTR__upload-status--error {
     color                                : var(--TTR_Col_StatusError);
     font-weight                          : 600;
+}
+
+.TTR__upload-icon-button {
+    width                                : var(--TTR_Size_UploadButton);
+    height                               : var(--TTR_Size_UploadButton);
+    padding                              : 0;
+    display                              : inline-flex;
+    align-items                          : center;
+    justify-content                      : center;
+    flex-shrink                          : 0;
+    border                               : none;
+    border-radius                        : 0.20rem;
+    background-color                     : var(--color-action-primary);
+    color                                : var(--color-white);
+    cursor                               : pointer;
+}
+
+.TTR__upload-icon-button:hover {
+    background-color                     : var(--color-action-hover);
+}
+
+.TTR__upload-icon-button:active {
+    transform                            : translateY(1px);
+}
+
+.TTR__upload-icon-button--error {
+    background-color                     : var(--color-danger);
+}
+
+.TTR__upload-icon {
+    width                                : 0.95rem;
+    height                               : 0.95rem;
+    display                              : block;
+    pointer-events                       : none;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | View Modes — Simple / Edit / Read
+   -------------------------------------------------------------------------- */
+.PAGE__container {
+    height                               : 100%;
+    overflow                             : hidden;
+}
+
+body[data-ttr-mode="edit"] .TTR__simple-only,
+body[data-ttr-mode="edit"] .TTR__panel--actions,
+body[data-ttr-mode="edit"] .TTR__panel--output {
+    display                              : none;
+}
+
+body[data-ttr-mode="read"] .TTR__simple-only,
+body[data-ttr-mode="read"] .TTR__panel--input,
+body[data-ttr-mode="read"] .TTR__panel--actions,
+body[data-ttr-mode="read"] .TTR__upload-status,
+body[data-ttr-mode="read"] .FOOT__container {
+    display                              : none;
+}
+
+body[data-ttr-mode="edit"] .FULL__page-app-container,
+body[data-ttr-mode="read"] .FULL__page-app-container,
+body[data-ttr-mode="edit"] .MAIN__container,
+body[data-ttr-mode="read"] .MAIN__container,
+body[data-ttr-mode="edit"] .TTR__panel--input,
+body[data-ttr-mode="read"] .TTR__panel--output {
+    flex                                 : 1;
+    display                              : flex;
+    flex-direction                       : column;
+    min-height                           : 0;
+}
+
+body[data-ttr-mode="edit"] .MAIN__container,
+body[data-ttr-mode="read"] .MAIN__container {
+    max-width                            : 100%;
+    width                                : 100%;
+    margin                               : 0 auto;
+    gap                                  : 0;
+}
+
+body[data-ttr-mode="edit"] .MAIN__container {
+    padding                              : 0.50rem;
+}
+
+body[data-ttr-mode="edit"] .TTR__panel--input {
+    margin-bottom                        : 0;
+    height                               : 100%;
+}
+
+body[data-ttr-mode="edit"] .FORM__textarea {
+    flex                                 : 1;
+    height                               : auto;
+    min-height                           : 0;
+    resize                               : none;
+    font-size                            : 0.95rem;
+}
+
+body[data-ttr-mode="read"] .FULL__page-app-container {
+    background-color                     : var(--color-white);
+}
+
+body[data-ttr-mode="read"] .MAIN__container {
+    max-width                            : 52rem;
+}
+
+body[data-ttr-mode="read"] .TTR__panel--output {
+    border                               : none;
+    background                           : transparent;
+    margin-bottom                        : 0;
+    padding                              : 1.25rem 1.50rem 2.00rem;
+    overflow-y                           : auto;
+}
+
+body[data-ttr-mode="read"] .MAIN__output {
+    border                               : none;
+    background                           : transparent;
+    padding                              : 0;
+    overflow                             : visible;
+    flex                                 : 0 0 auto;
+}
+
+body[data-ttr-mode="read"] .MAIN__output:focus {
+    outline                              : none;
 }
 /* endregion ---------------------------------------------------------------- */
 
@@ -133,18 +353,31 @@
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
-   REGION | Mobile Upload Button
+   REGION | Mobile
    -------------------------------------------------------------------------- */
 @media screen and (max-width: 768px) {
-    .TTR__upload-button {
-        width                            : auto;
-        flex-grow                        : 0;
+    .HEAD__title {
+        font-size                        : 0.78rem;
+        white-space                      : normal;
+    }
+
+    .TTR__tab {
+        font-size                        : 0.65rem;
+        padding                          : 0.22rem 0.40rem;
+    }
+
+    .TTR__header-end {
+        margin-left                      : auto;
     }
 
     .CSV__table th,
     .CSV__table td {
         padding                          : 0.50em 0.65em;
         font-size                        : 0.75rem;
+    }
+
+    body[data-ttr-mode="read"] .TTR__panel--output {
+        padding                          : 0.85rem 0.85rem 1.50rem;
     }
 }
 /* endregion ---------------------------------------------------------------- */

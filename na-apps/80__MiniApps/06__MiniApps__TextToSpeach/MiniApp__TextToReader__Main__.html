@@ -9,12 +9,15 @@
 
   DESCRIPTION:
   - Paste or upload Markdown, WhatsApp chat text, or ```csv``` blocks.
+  - Three views: Simple (quick paste and render), Edit (full-page Markdown),
+    and Read (full-page article for browser read-aloud).
   - WhatsApp timestamp/sender prefixes are stripped and converted to a list.
   - CSV fenced blocks become accessible HTML tables.
   - All processing is local — no data is sent to any server.
 
   MODULES:
   - 01__AppModules/MiniApp__TextToReader__Main__.js            (controller)
+  - 01__AppModules/MiniApp__TextToReader__ViewTabs__.js        (Simple / Edit / Read)
   - 01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js  (chat cleanup)
   - 01__AppModules/MiniApp__TextToReader__CsvTable__.js        (CSV to tables)
   - 01__AppModules/MiniApp__TextToReader__FileUpload__.js      (local file load)
@@ -53,17 +56,63 @@
 <!-- ----------------------------------------------------------------- -->
 <!-- REGION | Document Body                                            -->
 <!-- ----------------------------------------------------------------- -->
-    <body>
+    <body data-ttr-mode="simple">
         <div class="PAGE__container">
 
             <!-- --------------------------------------------------------- -->
             <!-- REGION | Page Header                                      -->
+            <!-- Header, tabs, version and upload are aria-hidden so the   -->
+            <!-- browser read-aloud reader skips them and speaks only the  -->
+            <!-- rendered article — especially on the Read view.           -->
             <!-- --------------------------------------------------------- -->
-                <header class="HEAD__container">
-                    <nav class="HEAD__nav" aria-label="Application title">
-                        <h1 id="js__appTitle" class="HEAD__title">Text To Reader Utility</h1>
-                        <span id="js__appVersion" class="HEAD__version-note"></span>
-                    </nav>
+                <header class="HEAD__container TTR__chrome" aria-hidden="true">
+                    <div class="HEAD__nav TTR__header-nav">
+                        <div id="js__appTitle" class="HEAD__title">Text To Reader Utility</div>
+
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ViewTabs__.js -->
+                        <!-- Divs, not buttons: focusable controls inside aria-hidden
+                             cause browsers to ignore aria-hidden and read the chrome. -->
+                        <div class="TTR__tablist">
+                            <div id="js__tabSimple"
+                                 class="TTR__tab TTR__tab--active"
+                                 data-ttr-tab="simple">Simple</div>
+                            <div id="js__tabEdit"
+                                 class="TTR__tab"
+                                 data-ttr-tab="edit">Edit</div>
+                            <div id="js__tabRead"
+                                 class="TTR__tab"
+                                 data-ttr-tab="read">Read</div>
+                        </div>
+
+                        <div class="TTR__header-end">
+                            <span id="js__uploadFileStatus" class="TTR__upload-status"></span>
+                            <span id="js__appVersion" class="HEAD__version-note"></span>
+
+                            <!-- @delegate: 01__AppModules/MiniApp__TextToReader__FileUpload__.js -->
+                            <input id="js__fileUploadInput"
+                                   class="TTR__upload-input"
+                                   type="file"
+                                   accept=".md,.markdown,.txt,text/markdown,text/plain"
+                                   hidden />
+                            <div id="js__uploadFileButton"
+                                 class="TTR__upload-icon-button"
+                                 title="Upload Markdown / Text File">
+                                <svg class="TTR__upload-icon"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="1.75"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     focusable="false">
+                                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+                                    <path d="M14 3v5h5" />
+                                    <path d="M8 13h8" />
+                                    <path d="M8 17h6" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                 </header>
             <!-- endregion ------------------------------------------------ -->
 
@@ -76,28 +125,10 @@
                         <!-- --------------------------------------------- -->
                         <!-- REGION | Input Area                           -->
                         <!-- --------------------------------------------- -->
-                            <section class="FORM__block" aria-labelledby="js__inputLabel">
-                                <label id="js__inputLabel" for="js__inputText" class="FORM__label">
+                            <section class="FORM__block TTR__panel TTR__panel--input">
+                                <label id="js__inputLabel" for="js__inputText" class="FORM__label TTR__simple-only">
                                     Input Text (Markdown, WhatsApp Messages or CSV Blocks):
                                 </label>
-
-                                <!-- @delegate: 01__AppModules/MiniApp__TextToReader__FileUpload__.js -->
-                                <div class="TTR__upload-block">
-                                    <input id="js__fileUploadInput"
-                                           class="TTR__upload-input"
-                                           type="file"
-                                           accept=".md,.markdown,.txt,text/markdown,text/plain"
-                                           hidden />
-                                    <button id="js__uploadFileButton"
-                                            class="BTTN__standard TTR__upload-button"
-                                            type="button">
-                                        Upload Markdown / Text File
-                                    </button>
-                                    <span id="js__uploadFileStatus"
-                                          class="TTR__upload-status"
-                                          role="status"
-                                          aria-live="polite"></span>
-                                </div>
 
                                 <textarea id="js__inputText"
                                           class="FORM__textarea"
@@ -108,8 +139,8 @@
                         <!-- --------------------------------------------- -->
                         <!-- REGION | Action Buttons                       -->
                         <!-- --------------------------------------------- -->
-                            <section class="CTRL__block" aria-labelledby="js__actionsHeading">
-                                <h2 id="js__actionsHeading" class="CTRL__heading">Actions</h2>
+                            <section class="CTRL__block TTR__panel TTR__panel--actions TTR__simple-only">
+                                <h2 id="js__actionsHeading" class="CTRL__heading TTR__simple-only">Actions</h2>
                                 <div class="BTTN__container">
                                     <button id="js__renderButton" class="BTTN__standard" type="button">Render Text</button>
                                     <button id="js__clearButton"  class="BTTN__cancel"   type="button">Clear Text</button>
@@ -120,12 +151,11 @@
                         <!-- --------------------------------------------- -->
                         <!-- REGION | Output Area                          -->
                         <!-- --------------------------------------------- -->
-                            <section class="RSLT__block" aria-labelledby="js__outputHeading">
-                                <h2 id="js__outputHeading" class="CTRL__heading">Output</h2>
-                                <div id="js__output"
-                                     class="MAIN__output"
-                                     role="region"
-                                     aria-live="polite"></div>
+                            <section class="RSLT__block TTR__panel TTR__panel--output">
+                                <h2 id="js__outputHeading" class="CTRL__heading TTR__simple-only">Output</h2>
+                                <article id="js__output"
+                                         class="MAIN__output"
+                                         tabindex="-1"></article>
                             </section>
                         <!-- endregion ------------------------------------ -->
 
@@ -136,7 +166,7 @@
             <!-- --------------------------------------------------------- -->
             <!-- REGION | Page Footer                                      -->
             <!-- --------------------------------------------------------- -->
-                <footer class="FOOT__container">
+                <footer class="FOOT__container TTR__chrome" aria-hidden="true">
                     <span id="js__pageFooter">© 2026 Noble Architecture | All Rights Reserved</span>
                 </footer>
             <!-- endregion ------------------------------------------------ -->

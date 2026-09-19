@@ -12,10 +12,17 @@ REM DESCRIPTION:
 REM - Runs the Flask server under pythonw.exe so nothing appears on screen.
 REM - Opens no browser window: use Launch__ProjectVision__StudioApp__.bat, or
 REM   the installed Noble Architecture Studio PWA, to open the app itself.
-REM - Does nothing when port 8090 is already listening, so running it twice
+REM - Does nothing when the server is already answering, so running it twice
 REM   never produces a second server.
 REM - All output goes to ProjectVision__LocalServer__Startup__.log beside this
 REM   file, which is where to look when the Studio window will not connect.
+REM
+REM WHY THIS DEFERS TO THE SHARED SCRIPT:
+REM - "Is the port in use" is the wrong question on this machine.
+REM   WsToastNotification.exe holds 0.0.0.0:8090 permanently and answers HTTP 501,
+REM   so a port check would report the server as running and never start Flask.
+REM   ProjectVision__StudioApp__Launch__.ps1 asks the health endpoint for our own
+REM   service name instead, and both launchers share that one definition.
 REM
 REM INSTALLATION:
 REM - Press Win+R and run: shell:startup
@@ -29,12 +36,8 @@ REM ============================================================================
 setlocal
 cd /d "%~dp0"
 
-powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -Command ^
-    "$existingConnection = Get-NetTCPConnection -LocalPort 8090 -State Listen -ErrorAction SilentlyContinue; " ^
-    "if ($existingConnection) { exit 0 }; " ^
-    "$pythonw = Get-Command pythonw.exe -ErrorAction SilentlyContinue; " ^
-    "if ($pythonw) { $pythonExePath = $pythonw.Source } else { $pythonExePath = (Get-Command python.exe -ErrorAction Stop).Source }; " ^
-    "$serverScriptPath = Join-Path $pwd.Path 'ProjectVision__LocalServer__Main__.py'; " ^
-    "Start-Process -FilePath $pythonExePath -ArgumentList @($serverScriptPath, '--port', '8090', '--silent', '--no-browser', '--log-file', 'ProjectVision__LocalServer__Startup__.log') -WorkingDirectory $pwd.Path -WindowStyle Hidden"
+powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass ^
+    -File "%~dp0ProjectVision__StudioApp__Launch__.ps1" -Port 8090 -ServerOnly
 
+endlocal
 exit /b 0

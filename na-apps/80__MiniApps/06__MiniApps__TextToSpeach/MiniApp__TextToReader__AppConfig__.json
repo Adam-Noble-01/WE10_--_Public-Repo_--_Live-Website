@@ -3,7 +3,7 @@
         "NaMiniApp__AppTitle"    : "Text To Reader",
         "NaMiniApp__AppSubTitle" : "Reader Utils",
         "NaMiniApp__Created"     : "19-Sep-2026",
-        "NaMiniApp__Version"     : "1.0.0"
+        "NaMiniApp__Version"     : "1.4.0"
     },
 
     "NaMiniApp__Assets" : {
@@ -12,7 +12,8 @@
 
     "NaMiniApp__Defaults" : {
         "NaMiniApp__AcceptedFileExtensions" : [".md", ".markdown", ".txt"],
-        "NaMiniApp__MobileScrollBreakpoint" : 768
+        "NaMiniApp__MobileScrollBreakpoint" : 768,
+        "NaMiniApp__DefaultView"            : "simple"
     },
 
     "NaMiniApp__WhatsApp" : {
@@ -23,6 +24,9 @@
     "NaMiniApp__UiText" : {
         "NaMiniApp__AppHeading"              : "Text To Reader Utility",
         "NaMiniApp__PageTitle"               : "Text To Reader Utility",
+        "NaMiniApp__TabSimple"               : "Simple",
+        "NaMiniApp__TabEdit"                 : "Edit",
+        "NaMiniApp__TabRead"                 : "Read",
         "NaMiniApp__InputLabel"              : "Input Text (Markdown, WhatsApp Messages or CSV Blocks):",
         "NaMiniApp__InputPlaceholder"        : "Paste your text (WhatsApp or Markdown) here...",
         "NaMiniApp__UploadButton"            : "Upload Markdown / Text File",

@@ -11,8 +11,12 @@
 #
 # DESCRIPTION:
 # - Serves static files from the repository root with CORS support
-# - Serves a card-based project launcher at the server root (localhost only)
-# - Auto-opens the browser to that launcher
+# - Serves the Noble Architecture Studio shell at the server root (localhost only)
+#   from 02__ProjectVision__StudioShell__AppCode, and the card-based project
+#   gallery at /gallery inside it
+# - Injects the Studio shell bridge into every HTML page it serves, which is how
+#   the sub-applications gain the shell without a single edit to their source
+# - Opens a chromeless application window on startup
 # - Supports hot-reloading in debug mode
 # - Provides health-check, project-data and drawing-notes API endpoints
 #
@@ -22,6 +26,8 @@
 #   python ProjectVision__LocalServer__Main__.py --port 3000
 #   python ProjectVision__LocalServer__Main__.py --project NP03
 #   python ProjectVision__LocalServer__Main__.py --no-browser
+#   python ProjectVision__LocalServer__Main__.py --no-app-window
+#   python ProjectVision__LocalServer__Main__.py --silent --log-file <name>
 #
 # =============================================================================
 
@@ -88,11 +94,11 @@ DEFAULT_PROJECT          = None                                      # <-- Proje
 DEFAULT_YEAR             = '26'                                      # <-- Year folder (2026)
 
 # STUDIO SHELL | Localhost-only application shell wrapped around every sub-app
-DEV_SHELL_DIR_NAME       = 'ProjectVision__LocalServer__DevShell__'
-DEV_SHELL_URL_PREFIX     = '/__na-devshell/'
-DEV_SHELL_PAGE           = 'NaDevShell__AppShell__.html'
-DEV_SHELL_BRIDGE         = 'NaDevShell__HostedPageBridge__.js'
-DEV_SHELL_MARKER         = 'na-devshell-bridge'                      # <-- Guards against double injection
+STUDIO_SHELL_DIR_NAME    = '02__ProjectVision__StudioShell__AppCode'
+STUDIO_SHELL_URL_PREFIX  = '/__na-studio/'
+STUDIO_SHELL_PAGE        = 'NaStudioShell__AppShell__.html'
+STUDIO_SHELL_BRIDGE      = '02__Src__AppModules/NaStudioShell__HostedPageBridge__.js'
+STUDIO_SHELL_MARKER      = 'NaStudioShell__HostedPageBridge__.js'    # <-- Appears in the injected tag itself
 GALLERY_PATH             = '/gallery'                                # <-- Project gallery, inside the shell frame
 
 SILENT_MODE              = False                                     # <-- True when launched with no console
@@ -384,17 +390,17 @@ def _run_targeted_r2_sync(project_folder):
 @app.route('/')
 def index():
     """Serve the Studio shell - the single entry point for every local app."""
-    shell_dir  = os.path.join(SCRIPT_DIR, DEV_SHELL_DIR_NAME)
-    shell_page = os.path.join(shell_dir, DEV_SHELL_PAGE)
+    shell_dir  = os.path.join(SCRIPT_DIR, STUDIO_SHELL_DIR_NAME)
+    shell_page = os.path.join(shell_dir, STUDIO_SHELL_PAGE)
 
     if not os.path.isfile(shell_page):
         return (
             f"<h1>Studio shell missing</h1>"
-            f"<p>Expected: na-apps/{DEV_SHELL_DIR_NAME}/{DEV_SHELL_PAGE}</p>",
+            f"<p>Expected: na-apps/{STUDIO_SHELL_DIR_NAME}/{STUDIO_SHELL_PAGE}</p>",
             500
         )
 
-    response = send_from_directory(shell_dir, DEV_SHELL_PAGE)
+    response = send_from_directory(shell_dir, STUDIO_SHELL_PAGE)
     response.headers['Cache-Control'] = 'no-store'
     return response
 
@@ -416,10 +422,10 @@ def gallery():
     return response
 
 
-@app.route(DEV_SHELL_URL_PREFIX + '<path:filename>')
-def dev_shell_asset(filename):
+@app.route(STUDIO_SHELL_URL_PREFIX + '<path:filename>')
+def studio_shell_asset(filename):
     """Serve the Studio shell assets - stylesheet, controls, bridge and manifest."""
-    shell_dir = os.path.join(SCRIPT_DIR, DEV_SHELL_DIR_NAME)
+    shell_dir = os.path.join(SCRIPT_DIR, STUDIO_SHELL_DIR_NAME)
     full_path = os.path.join(shell_dir, filename)
 
     if not os.path.isfile(full_path):
@@ -638,12 +644,12 @@ def inject_studio_shell_bridge(response):
     if response.mimetype != 'text/html':
         return response
 
-    # ESCAPE HATCH | ?devshell=off serves the page exactly as the live site does
-    if request.args.get('devshell') == 'off':
+    # ESCAPE HATCH | ?studio=off serves the page exactly as the live site does
+    if request.args.get('studio') == 'off':
         return response
 
     # The shell hosts the bridge; it must never be given one of its own.
-    if request.path == '/' or request.path.startswith(DEV_SHELL_URL_PREFIX):
+    if request.path == '/' or request.path.startswith(STUDIO_SHELL_URL_PREFIX):
         return response
 
     try:
@@ -652,7 +658,7 @@ def inject_studio_shell_bridge(response):
     except (RuntimeError, UnicodeDecodeError):
         return response
 
-    if DEV_SHELL_MARKER in html:
+    if STUDIO_SHELL_MARKER in html:
         return response
 
     lowered    = html.lower()
@@ -663,7 +669,7 @@ def inject_studio_shell_bridge(response):
 
     script_tag = (
         f'\n<!-- Injected by the Project Vision local dev server: Studio shell bridge -->\n'
-        f'<script src="{DEV_SHELL_URL_PREFIX}{DEV_SHELL_BRIDGE}" defer></script>\n'
+        f'<script src="{STUDIO_SHELL_URL_PREFIX}{STUDIO_SHELL_BRIDGE}" defer></script>\n'
     )
 
     response.set_data(html[:insert_at] + script_tag + html[insert_at:])

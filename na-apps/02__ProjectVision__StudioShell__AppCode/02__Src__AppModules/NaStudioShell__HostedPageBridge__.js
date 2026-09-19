@@ -2,8 +2,8 @@
 // NOBLE ARCHITECTURE - STUDIO SHELL HOSTED PAGE BRIDGE
 // =============================================================================
 //
-// FILE       : NaDevShell__HostedPageBridge__.js
-// NAMESPACE  : NaDevShell
+// FILE       : NaStudioShell__HostedPageBridge__.js
+// NAMESPACE  : NaStudioShell
 // MODULE     : Studio Shell
 // AUTHOR     : Adam Noble - Noble Architecture
 // PURPOSE    : Tiny companion script injected into every page the local server
@@ -26,7 +26,7 @@
 //
 // =============================================================================
 
-(function Na__DevShell__HostedPageBridge() {
+(function Na__StudioShell__HostedPageBridge() {
     'use strict';
 
     // #region ------------------------------------------------
@@ -34,7 +34,7 @@
     // --------------------------------------------------------
 
         const SHELL_ORIGIN  = window.location.origin;
-        const PILL_ELEMENT  = 'na-devshell-open-pill';
+        const PILL_ELEMENT  = 'na-studio-open-pill';
         const SHORTCUT_KEYS = ['ArrowLeft', 'ArrowRight', 'Home'];
 
     // endregion ----------------------------------------------
@@ -58,7 +58,7 @@
                 event.preventDefault();
 
                 window.parent.postMessage({
-                    source  : 'na-devshell-bridge',
+                    source  : 'na-studio-shell-bridge',
                     type    : 'shortcut',
                     key     : event.key,
                     altKey  : Boolean(event.altKey),

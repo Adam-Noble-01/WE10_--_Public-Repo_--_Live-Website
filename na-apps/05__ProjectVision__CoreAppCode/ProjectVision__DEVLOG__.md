@@ -17,8 +17,8 @@
 - None of this touches the live website. The public apps were not modified; the shell
   exists only in front of the local Flask server, which the public site never runs.
 
-#### Studio Shell (`ProjectVision__LocalServer__DevShell__/`)
-- `NaDevShell__AppShell__.html` is served at `/` and holds a 42px application bar above
+#### Studio Shell (`02__ProjectVision__StudioShell__AppCode/`)
+- `NaStudioShell__AppShell__.html` is served at `/` and holds a 42px application bar above
   a full-bleed frame. The frame owns everything below the bar, so a sub-app's `100vh`
   resolves against the frame rather than the screen - TrueVision lays out untouched.
 - Bar carries Back, Forward, Reload, a Projects home button, the breadcrumb
@@ -31,7 +31,7 @@
   project, falling back to that project's hub when it has no content there.
 - The address hash mirrors the framed page via `replaceState`, so the window can be
   reloaded, bookmarked and deep-linked without adding phantom history entries.
-- `NaDevShell__Pwa__Manifest__.webmanifest` scopes the PWA to `/`, so every local app is
+- `NaStudioShell__Pwa__Manifest__.webmanifest` scopes the PWA to `/`, so every local app is
   inside the installed window. **No service worker is registered** - deliberately. Local
   app code is edited constantly and a caching worker is the known cause of stale modules.
 
@@ -44,7 +44,7 @@
   hotkey manager.
 - Opened directly in a browser tab, it draws a small "Open in Studio" pill that
   deep-links that exact page back into the shell.
-- `?devshell=off` serves any page exactly as the live site does.
+- `?studio=off` serves any page exactly as the live site does.
 
 #### Card Order and Filtering (`ProjectVision__DevLauncher__Shared__.py`, dev landing)
 - Cards were ordered alphabetically by project code within a year, which is arbitrary

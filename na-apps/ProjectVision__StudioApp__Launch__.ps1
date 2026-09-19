@@ -16,17 +16,21 @@
 #   window, so there is never a second server on the same port.
 # - The window is a chromeless Edge application window pointed at the Studio
 #   shell, which is the same thing the installed PWA opens.
+# - With -ServerOnly it starts the server and opens nothing. The Windows startup
+#   launcher uses that, so both routes share one definition of "already running".
 #
 # USAGE:
 #   powershell -ExecutionPolicy Bypass -File ProjectVision__StudioApp__Launch__.ps1
 #   powershell ... -File ProjectVision__StudioApp__Launch__.ps1 -Port 8095
+#   powershell ... -File ProjectVision__StudioApp__Launch__.ps1 -ServerOnly
 #
 # =============================================================================
 
 [CmdletBinding()]
 param(
     [int]    $Port        = 8090,
-    [string] $ProjectCode = ''
+    [string] $ProjectCode = '',
+    [switch] $ServerOnly                                        # <-- Start the server, open no window
 )
 
 Set-StrictMode -Version Latest
@@ -51,13 +55,21 @@ $Na__WaitSeconds = 20
 # REGION | Helper Functions
 # -----------------------------------------------------------------------------
 
-# HELPER | Is something already listening on the Studio port
-function Na__Studio__IsServerListening {
+# HELPER | Is OUR server answering on the Studio port
+# -----------------------------------------------------------------------------
+# Deliberately NOT a port-in-use test. On this machine WsToastNotification.exe
+# holds 0.0.0.0:8090 permanently, so "is the port listening" is always true and
+# would stop the Flask server from ever starting - it answers HTTP 501 instead.
+# Flask still binds 127.0.0.1:8090 alongside it, and the more specific bind wins
+# for localhost, so the only reliable question is whether the health endpoint
+# answers with our own service name.
+function Na__Studio__IsOurServerUp {
     param([int] $TargetPort)
 
     try {
-        $connection = Get-NetTCPConnection -LocalPort $TargetPort -State Listen -ErrorAction SilentlyContinue
-        return [bool] $connection
+        $response = Invoke-WebRequest -Uri "http://127.0.0.1:$TargetPort/api/health" `
+                                      -UseBasicParsing -TimeoutSec 2
+        return ($response.Content -match 'na-projectvision-local-dev')
     } catch {
         return $false
     }
@@ -96,19 +108,15 @@ function Na__Studio__ResolveBrowser {
 }
 
 
-# HELPER | Block until the server answers its health check
+# HELPER | Block until our server answers its health check
 function Na__Studio__WaitForServer {
-    param([string] $HealthUrl, [int] $TimeoutSeconds)
+    param([int] $TargetPort, [int] $TimeoutSeconds)
 
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 
     while ((Get-Date) -lt $deadline) {
-        try {
-            $response = Invoke-WebRequest -Uri $HealthUrl -UseBasicParsing -TimeoutSec 2
-            if ($response.StatusCode -eq 200) { return $true }
-        } catch {
-            Start-Sleep -Milliseconds 400
-        }
+        if (Na__Studio__IsOurServerUp -TargetPort $TargetPort) { return $true }
+        Start-Sleep -Milliseconds 400
     }
 
     return $false
@@ -121,7 +129,7 @@ function Na__Studio__WaitForServer {
 # REGION | Start the Server When It Is Not Already Up
 # -----------------------------------------------------------------------------
 
-if (-not (Na__Studio__IsServerListening -TargetPort $Port)) {
+if (-not (Na__Studio__IsOurServerUp -TargetPort $Port)) {
 
     $pythonPath = Na__Studio__ResolvePython
 
@@ -149,10 +157,15 @@ if (-not (Na__Studio__IsServerListening -TargetPort $Port)) {
                   -WorkingDirectory $Na__AppRoot `
                   -WindowStyle Hidden
 
-    if (-not (Na__Studio__WaitForServer -HealthUrl $Na__HealthUrl -TimeoutSeconds $Na__WaitSeconds)) {
+    if (-not (Na__Studio__WaitForServer -TargetPort $Port -TimeoutSeconds $Na__WaitSeconds)) {
         Write-Warning "The server did not answer $Na__HealthUrl within $Na__WaitSeconds seconds."
         Write-Warning "Check the log: $(Join-Path $Na__AppRoot $Na__LogFile)"
     }
+}
+
+# SERVER ONLY | The Windows startup launcher stops here - it opens no window
+if ($ServerOnly) {
+    exit 0
 }
 
 # endregion -------------------------------------------------------------------
