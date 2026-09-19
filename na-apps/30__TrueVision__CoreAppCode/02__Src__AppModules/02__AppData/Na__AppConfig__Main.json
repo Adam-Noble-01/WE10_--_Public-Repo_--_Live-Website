@@ -106,7 +106,7 @@
         "RenderEffect__ProgressiveRefine__Enabled": true,
         "RenderEffect__ProgressiveRefine__SampleCount": 16,
         "RenderEffect__ProgressiveRefine__PresentMilestones": [8, 16],
-        "RenderEffect__ProgressiveRefine__SettleDebounceMs": 150,
+        "RenderEffect__ProgressiveRefine__SettleDebounceMs": 90,
         "RenderEffect__ProgressiveRefine__ChunkBudgetMs": 100,
         "RenderEffect__ProgressiveRefine__MaxChunkSamples": 8,
         "RenderEffect__ProgressiveRefine__StillnessPositionMm": 1,

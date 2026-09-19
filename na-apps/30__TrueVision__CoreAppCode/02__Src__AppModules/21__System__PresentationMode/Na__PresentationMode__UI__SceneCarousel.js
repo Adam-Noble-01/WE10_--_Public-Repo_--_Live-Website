@@ -36,6 +36,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0
+// - SetActiveScene now announces the switch as na-presentation-mode-scene-
+//   activated. The Dev menu answers it by folding down to that one scene, so
+//   picking a card in the strip is also how you choose which scene the editor
+//   is pointed at - the fix for editing the wrong row by accident.
+// - The strip's scene set now comes back already free of layout-editor-only
+//   scenes, because GetSortedScenes drops them. Nothing in this module needed
+//   a flag check: the chevrons, the number hotkeys and the group counts all
+//   read that one accessor.
+//
 // 16-Sep-2026 - Version 1.2.0
 // - NavigateToScene now flashes the carousel wake state itself, so PageUp /
 //   PageDown and the number-key scene-jump hotkeys go opaque exactly like a
@@ -120,6 +130,22 @@
     const Na__PresentationMode__UI__InitialRevealHoldMs = 4000;                         // <-- Longer opaque hold on first reveal after the loading screen
     const Na__PresentationMode__UI__GROUP_EVENT        = 'na-presentation-group-changed'; // <-- Shared with the group selector bar
     const Na__PresentationMode__UI__GROUP_BAR_ID       = 'naPmSceneGroupBar';           // <-- Sibling element this module must not destroy
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Scene Activated Announcement
+    // ------------------------------------------------------------
+    // Raised whenever a scene becomes the active one, whatever moved it there
+    // - a card tap, a chevron, a number hotkey, the end of a flight. The Dev
+    // menu listens and folds itself down to that one scene, which is the whole
+    // answer to "I keep editing the wrong scene": the row you are looking at
+    // is the scene you are looking at, always.
+    //
+    // ANNOUNCEMENT, NOT A COMMAND. Nothing in the viewer changes behaviour on
+    // it, so a hosted build with no Dev menu raises it into an empty room and
+    // pays one event dispatch for the privilege.
+    // ------------------------------------------------------------
+    const Na__PresentationMode__UI__SCENE_ACTIVE_EVENT = 'na-presentation-mode-scene-activated';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -320,6 +346,10 @@
             activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             Na__PresentationMode__UI__PlayCardPopAnimation(activeCard);         // <-- Scale-up "pop" feedback, whatever triggered the switch
         }
+
+        window.dispatchEvent(new CustomEvent(Na__PresentationMode__UI__SCENE_ACTIVE_EVENT, {
+            detail : { sceneId : sceneId }                                      // <-- Dev menu folds down to this scene
+        }));
     }
     // ------------------------------------------------------------
 
@@ -781,7 +811,8 @@
         Na__PresentationMode__UI__GoToNextScene,
         Na__PresentationMode__UI__GoToPreviousScene,
         Na__PresentationMode__UI__IsCarouselVisible,
-        Na__PresentationMode__UI__GoToSceneAtIndex
+        Na__PresentationMode__UI__GoToSceneAtIndex,
+        Na__PresentationMode__UI__SCENE_ACTIVE_EVENT
     };
     // ------------------------------------------------------------
 

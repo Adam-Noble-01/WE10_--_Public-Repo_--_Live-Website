@@ -19,6 +19,10 @@
 // - Holds module-level state for the active project's scene config, the active
 //   project folder + year (used for thumbnail URL resolution) and the
 //   currently selected scene id.
+// - Owns the split between the VIEWER's scene set and the AUTHORED one. A
+//   scene flagged PresentationMode__Scene__LayoutEditorOnly is a real scene
+//   with a real camera that the model viewer must never offer, so every
+//   viewer-facing accessor here drops it and the authoring accessor keeps it.
 // - Pure data layer - no DOM, no camera operations.
 //
 // INTEGRATION:
@@ -28,6 +32,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - Added the PresentationMode__Scene__LayoutEditorOnly flag: a scene the
+//   Layout Editor may place and the Dev menu may preview, but which never
+//   appears in the viewer carousel. Absent key means false.
+// - GetSortedScenes, GetDefaultScene and HasValidSavedScenes now filter those
+//   scenes out, which is what makes one flag hide a scene from the strip, the
+//   chevrons, the number hotkeys, the group counts and the opening view at
+//   once. Added GetAllAuthoredScenes for the surfaces that want everything.
+// - The block's own schema description now lives here as a constant, so the
+//   note written into the project JSON is stamped from the module that owns
+//   the shape rather than drifting behind it.
+//
 // 21-Jun-2026 - Version 1.0.0
 // - Ported from ValeVision3D. Thumbnail URL resolution rewired to the
 //   TrueVision R2 CDN content path (folder + year aware).
@@ -71,6 +87,39 @@
     const Na__PresentationMode__ENABLED_KEY       = 'PresentationMode__SavedCameraScenes__Enabled';   // <-- Enabled flag key
     const Na__PresentationMode__SCENES_KEY        = 'PresentationMode__SavedCameraScenes__Scenes';    // <-- Scenes array key
     const Na__PresentationMode__DEFAULT_SCENE_KEY = 'PresentationMode__SavedCameraScenes__DefaultSceneId'; // <-- Default scene id key
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Layout-Editor-Only Scene Flag
+    // ------------------------------------------------------------
+    // A scene the Layout Editor may place in a viewport but the model viewer
+    // must never offer. Drawing sheets need framings nobody should be flown
+    // to - a head-on garage door at 90mm, a corner tight enough to read a
+    // cill detail - and before this flag existed the only way to have them
+    // was to let them clutter the carousel with cards that look like mistakes.
+    //
+    // ABSENT KEY MEANS false, exactly like the navigation mode and layer
+    // timing flags, so every scene authored before this existed is a viewer
+    // scene and the project JSON stays free of keys that say "default".
+    // ------------------------------------------------------------
+    const Na__PresentationMode__LAYOUT_ONLY_KEY   = 'PresentationMode__Scene__LayoutEditorOnly';     // <-- Per-scene viewer-hidden flag
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | Canonical Schema Description for the Saved Scenes Block
+    // ------------------------------------------------------------
+    // The block carries its own schema note in the project JSON, which is the
+    // first thing anyone opening the file reads. Holding the wording HERE, in
+    // the module that owns the schema, is what stops it describing a shape the
+    // code stopped writing two features ago - the dev editor stamps this onto
+    // the config on every save.
+    // ------------------------------------------------------------
+    const Na__PresentationMode__SCHEMA_DESCRIPTION =
+        'Optional per-project saved camera scenes for Presentation Mode. Camera position and orbit target values are '
+        + 'integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into '
+        + 'named Groups; Scene Order restarts at 1 within each group. A scene with '
+        + 'PresentationMode__Scene__LayoutEditorOnly set true is available to the Layout Editor and the Dev menu but is '
+        + 'hidden from the viewer carousel; the key is omitted when false.';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -128,6 +177,33 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Is This Scene Authored for the Layout Editor Only?
+    // ------------------------------------------------------------
+    // True ONLY for an explicit true, so a legacy string, a 0 or a stray null
+    // reads as "a normal viewer scene" rather than silently vanishing a card.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__ProjectJson__IsLayoutEditorOnlyScene(scene) {
+        return Boolean(scene) && scene[Na__PresentationMode__LAYOUT_ONLY_KEY] === true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Drop the Layout-Editor-Only Scenes From a List
+    // ------------------------------------------------------------
+    // The one place the viewer's scene set narrows. Everything the VIEWER
+    // walks - the carousel strip, the chevrons, the number hotkeys, the group
+    // counts, the opening scene - goes through the accessors below and so
+    // through here. Everything that AUTHORS scenes - this project's Dev menu,
+    // the Layout Editor's viewport picker - reads the raw config array and is
+    // deliberately untouched by it.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__ProjectJson__FilterViewerScenes(scenes) {
+        if (!Array.isArray(scenes)) return [];
+        return scenes.filter(scene => !Na__PresentationMode__ProjectJson__IsLayoutEditorOnlyScene(scene));
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -146,14 +222,21 @@
 
     // FUNCTION | Check Whether projectData Contains Valid Saved Scenes
     // ------------------------------------------------------------
+    // "Valid" here means valid TO THE VIEWER, because this is the gate that
+    // decides whether the carousel is built at all. A project whose every
+    // scene is layout-editor-only has plenty of scenes and nothing to show,
+    // and must get the plain bottom-toolbar layout rather than an empty strip.
+    // ------------------------------------------------------------
     function Na__PresentationMode__ProjectJson__HasValidSavedScenes(projectData) {
         const config = Na__PresentationMode__ProjectJson__GetSavedCameraScenes(projectData);
         if (!config) return false;                                           // <-- No section at all
 
         if (config[Na__PresentationMode__ENABLED_KEY] !== true) return false; // <-- Explicitly disabled
 
-        const scenes = Na__PresentationMode__ProjectJson__FilterValidScenes(config[Na__PresentationMode__SCENES_KEY]);
-        return scenes.length > 0;                                            // <-- At least one valid scene required
+        const scenes = Na__PresentationMode__ProjectJson__FilterViewerScenes(
+            Na__PresentationMode__ProjectJson__FilterValidScenes(config[Na__PresentationMode__SCENES_KEY])
+        );
+        return scenes.length > 0;                                            // <-- At least one viewer-visible scene required
     }
     // ------------------------------------------------------------
 
@@ -174,11 +257,16 @@
 
     // FUNCTION | Get the Default Scene from the Active Config
     // ------------------------------------------------------------
+    // A layout-editor-only scene is never the opening view, even when it is
+    // named as the default: the project would load looking at a framing the
+    // viewer has no card for and no way back to.
     function Na__PresentationMode__ProjectJson__GetDefaultScene(config) {
         if (!config) return null;
 
         const sorted = Na__PresentationMode__ProjectJson__SortScenesByOrder(
-            Na__PresentationMode__ProjectJson__FilterValidScenes(config[Na__PresentationMode__SCENES_KEY]),
+            Na__PresentationMode__ProjectJson__FilterViewerScenes(
+                Na__PresentationMode__ProjectJson__FilterValidScenes(config[Na__PresentationMode__SCENES_KEY])
+            ),
             config                                                           // <-- Explicit: may run before SetActiveConfig
         );
         if (sorted.length === 0) return null;
@@ -305,19 +393,45 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Get Sorted Valid Scenes from Active Config
+    // FUNCTION | Get Sorted Viewer Scenes from Active Config
     // ------------------------------------------------------------
-    // Returns EVERY valid scene across every enabled group, in playback order.
-    // Callers that want only what the carousel is currently showing filter this
-    // through Na__PresentationMode__SceneGroups__GetScenesInGroup.
+    // Returns every valid VIEWER scene across every enabled group, in playback
+    // order - layout-editor-only scenes are already gone. Callers that want
+    // only what the carousel is currently showing filter this through
+    // Na__PresentationMode__SceneGroups__GetScenesInGroup.
+    //
+    // This is the viewer's whole scene set: the strip, the chevrons, the
+    // number hotkeys and the group counts are all built from it, so one filter
+    // here is what makes a hidden scene hidden everywhere rather than a flag
+    // five call sites each have to remember. Authoring surfaces read the raw
+    // config array instead and keep seeing everything.
     // ------------------------------------------------------------
     function Na__PresentationMode__ProjectJson__GetSortedScenes() {
+        if (!Na__PresentationMode__ActiveConfig) return [];
+
+        const scenes = Na__PresentationMode__ProjectJson__FilterViewerScenes(
+            Na__PresentationMode__ProjectJson__FilterValidScenes(
+                Na__PresentationMode__ActiveConfig[Na__PresentationMode__SCENES_KEY]
+            )
+        );
+        return Na__PresentationMode__ProjectJson__SortScenesByOrder(scenes, Na__PresentationMode__ActiveConfig); // <-- Pre-sorted, pre-filtered
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Get Every Authored Scene from Active Config, Hidden Ones Included
+    // ------------------------------------------------------------
+    // What the AUTHORING surfaces want: the Dev menu's batch operations walk
+    // this, because a scene being hidden from the carousel is no reason for it
+    // to miss a thumbnail refresh or an image export.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__ProjectJson__GetAllAuthoredScenes() {
         if (!Na__PresentationMode__ActiveConfig) return [];
 
         const scenes = Na__PresentationMode__ProjectJson__FilterValidScenes(
             Na__PresentationMode__ActiveConfig[Na__PresentationMode__SCENES_KEY]
         );
-        return Na__PresentationMode__ProjectJson__SortScenesByOrder(scenes, Na__PresentationMode__ActiveConfig); // <-- Pre-sorted, pre-filtered
+        return Na__PresentationMode__ProjectJson__SortScenesByOrder(scenes, Na__PresentationMode__ActiveConfig);
     }
     // ------------------------------------------------------------
 
@@ -342,7 +456,11 @@
         Na__PresentationMode__ProjectJson__SetActiveSceneId,
         Na__PresentationMode__ProjectJson__GetActiveSceneId,
         Na__PresentationMode__ProjectJson__GetSortedScenes,
-        Na__PresentationMode__ProjectJson__BroadcastScenesChanged
+        Na__PresentationMode__ProjectJson__GetAllAuthoredScenes,
+        Na__PresentationMode__ProjectJson__IsLayoutEditorOnlyScene,
+        Na__PresentationMode__ProjectJson__BroadcastScenesChanged,
+        Na__PresentationMode__LAYOUT_ONLY_KEY       as Na__PresentationMode__ProjectJson__LAYOUT_ONLY_KEY,
+        Na__PresentationMode__SCHEMA_DESCRIPTION    as Na__PresentationMode__ProjectJson__SCHEMA_DESCRIPTION
     };
     // ------------------------------------------------------------
 

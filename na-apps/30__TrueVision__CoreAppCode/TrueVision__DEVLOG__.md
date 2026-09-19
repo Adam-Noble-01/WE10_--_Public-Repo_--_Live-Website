@@ -2,6 +2,105 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.66.0  -  19-Sep-2026
+### The Settle Was Buying Sixteen Copies of the Same Noise, and the Monitor Was Timing the Silence
+
+**Overview**
+- Adam: "I keep getting the effect dropping out on certain devices", and a proposal with it - render
+  a basic SSAO in transit and the real one for the still, "before the supersampling starts".
+- The drop-out turned out to have nothing to do with heaviness, and the proposal turned out to be
+  aimed at a moment that does not exist. Both are better for having been looked at properly.
+
+**The drop-out was a broken measurement, not a slow device**
+- The AO performance monitor timed 120 sampled frames end to end with wall clock and divided. That
+  is only a frame rate if frames arrive back to back, and in this app they never do: the render
+  loop is invalidation based, so it draws while something moves and then STOPS, and the render
+  loop deliberately withholds refinement chunks from the monitor because one chunk is several
+  frames of work in one. Both the idle and the bursts landed in the elapsed time while contributing
+  no counted frames.
+- Simulated against a machine holding a genuine locked 60fps: continuous orbiting measured 60.4fps
+  and kept AO; 1s drags with 5s of looking measured 16.5fps; 2s drags with 10s of looking measured
+  9.8fps; short nudges with 4s of looking measured 8.1fps. Every one of those below the 24fps
+  threshold, so AO was switched off with a toast telling the user to get a better device.
+- It was never about the device. It was about how long its user spent LOOKING at the scene - which
+  is to say, the more someone used the app as intended, the more certainly it took the shading away.
+- The monitor now averages the DURATION of ordinary frames that arrive back to back, rejecting any
+  delta that measures a gap rather than a frame. Re-simulated: 60fps reads 60fps, 33fps reads
+  33fps, and a real 18fps still reads 18fps and still disables AO, which is the case the monitor
+  exists for.
+- The progressive renderer did not cause this. It made a latent bug fire almost every session,
+  which is why it surfaced when it did.
+
+**There is no moment "before the supersampling starts"**
+- The refinement burst runs the whole effect chain per sample, SSAO included - `drawChain` is
+  `composer.render()` and nothing stood the AO passes down. So every settle was already paying for
+  sixteen SSAO passes and sixteen AO blurs. The progressive renderer had not relieved the heaviest
+  effect in the app; it had multiplied it by sixteen.
+- Worse, it was buying nothing with them. The kernel rotation is hashed from `vUv` - the fullscreen
+  quad's UV, which the jitter does not move, because the jitter moves the scene under the fragment
+  grid and not the grid. Every one of the sixteen passes handed a given fragment the identical
+  rotation, and sixteen copies of one noise pattern average to that same pattern.
+- Measured against a 256-rotation ground truth, on an RTX 3080: a single 8-sample frame sat at RMS
+  2.060, and the full sixteen-sample burst at 1.809. Sixteen renders to move the error by an eighth.
+
+**So the AO is progressive now, and the still is better than it was**
+- `uAoNoiseOffset` advances by the golden ratio per supersample, so the burst averages sixteen
+  INDEPENDENT estimates instead of sixteen copies of one. Same sixteen renders, same cost. The
+  settle error fell from 1.809 to 0.226 - 87.5% closer to the truth - and converges on roughly
+  Samples x 16 effective directions rather than Samples.
+- The offset is added after the hash is folded into 0..1, never inside it: 43758.5453 already
+  spends most of a highp mantissa, and adding a fraction to that product would quantise the offset
+  to a handful of values with half the samples sharing a rotation. The caller pre-folds it too.
+- `uAoActiveSamples` lets an ordinary moving frame walk fewer kernel samples - `SamplesWhileMoving`,
+  4 against a ceiling of 8 - with an early `break` inside a loop whose bound stays constant so the
+  unroll is unaffected. The shader already divides by `validCount`, so a shorter walk is an
+  unbiased, noisier estimate rather than a different effect.
+
+**The trap that would have made it pop, and did not**
+- The cosine weighting was baked into the kernel vectors at generation time, so a reduced budget
+  would have inherited a PREFIX of it: at 4 of 8 the samples reach 0.23 of the radius instead of
+  0.79, every one bunched against the surface. That is a hard contact line with no falloff - a
+  visibly different effect while moving, popping into the real one at every settle.
+- The kernel now holds unit directions and the weighting is applied in the shader against the
+  ACTIVE count, so 4 samples span the radius properly (0.10, 0.16, 0.33, 0.61). Verified
+  bit-identical to the old expression at the full count, so nothing hand-tuned moves unless
+  something explicitly asks for a reduction. Measured brightness change at the settle: 0.096 luma
+  out of 224.
+
+**Borrowed for a draw, never held across one**
+- The still exporter, the video exporter and the Layout Editor all borrow this composer between
+  frames and render through it without saying anything about quality. Full quality is therefore the
+  resting state, and the reduced budget is set immediately before an ordinary frame and restored in
+  a `finally` immediately after - the same discipline the refiner already uses for FXAA and
+  `renderToScreen`, for exactly the same reason. A budget left lowered would have quietly shipped
+  half-sampled exports.
+
+**Supersampling starts sooner**
+- `SettleDebounceMs` 150 to 90. Worth knowing that the debounce is only half the felt delay: the
+  rest is the first chunk, about 85ms at 60fps, so this is roughly 235ms to 175ms. Below about 80ms
+  a run of small nudges starts and abandons bursts, which costs more than it buys.
+
+**Tested**
+- Shader compiled and linked through three.js r184 on an RTX 3080 (ANGLE / D3D11), with both new
+  uniforms confirmed live rather than optimised away - the runtime `break` is real.
+- Kernel scale proven bit-identical at the full count, and proven to span the radius at reduced
+  counts, against the naive prefix it replaces.
+- NOT tested: a real project in the running app. The probe drove the real AO module through a real
+  composer on a synthetic corner scene, which proves the shader, the maths and the API, but not the
+  wiring under the model loader, walk/fly or section cuts.
+
+**Files**
+- `07__Scene__EnvironmentEffects/Na__RenderEffect__AmbientOcclusion__.js` (monitor measurement,
+  unit-direction kernel, quality API), `...__Shader.js` (`uAoActiveSamples`, `uAoNoiseOffset`,
+  scale against the active count).
+- `05__RenderPipeline/Na__RenderPipeline__PostProcessing__Setup.js` (exposes the three quality
+  calls), `Na__RenderEffect__ProgressiveRefine__.js` (optional `onSample` hook).
+- `01__AppCore/Na__AppFlow__LoadingSequence.js` (borrow and restore around the ordinary frame; feed
+  `onSample` into the burst).
+- `02__AppData/Na__AppConfig__Main.json` (`SamplesWhileMoving` 4, `SettleDebounceMs` 90, and a note
+  explaining which of the two sample numbers costs what).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.65.2  -  18-Sep-2026
 ### The Drawing Keeps the Finger: an iPad Was Turning the Page Every Time It Was Panned
 
