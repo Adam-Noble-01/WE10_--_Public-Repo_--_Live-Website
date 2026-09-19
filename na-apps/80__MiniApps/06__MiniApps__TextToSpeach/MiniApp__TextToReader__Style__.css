@@ -1,0 +1,150 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - TEXT TO READER - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__TextToReader__Style__.css
+   PURPOSE : App-specific styles layered on the shared utility stylesheet
+   CREATED : 19-Sep-2026
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | Font Remap And Local Variables
+   -------------------------------------------------------------------------- */
+:root {
+    --font-regular                       : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-semibold                      : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-light                         : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-medium                        : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-bold                          : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --TTR_Col_TableHeaderBg              : rgb(240, 240, 240);
+    --TTR_Col_TableBorder                : rgb(220, 220, 220);
+    --TTR_Col_TableRowOdd                : rgb(255, 255, 255);
+    --TTR_Col_TableRowEven               : rgb(250, 250, 250);
+    --TTR_Col_StatusText                 : rgb(90, 90, 90);
+    --TTR_Col_StatusError                : rgb(178, 34, 34);
+    --TTR_Col_ErrorText                  : #BA5050;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Header Title As Heading
+   -------------------------------------------------------------------------- */
+.HEAD__title {
+    margin                               : 0;
+    font-size                            : 1.25rem;
+    font-weight                          : 600;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | File Upload Block
+   -------------------------------------------------------------------------- */
+.TTR__upload-block {
+    display                              : flex;
+    align-items                          : center;
+    flex-wrap                            : wrap;
+    gap                                  : 0.75em;
+    margin-bottom                        : 0.75em;
+}
+
+.TTR__upload-button {
+    flex                                 : 0 0 auto;
+    width                                : auto;
+}
+
+.TTR__upload-status {
+    font-size                            : 0.85rem;
+    color                                : var(--TTR_Col_StatusText);
+}
+
+.TTR__upload-status--error {
+    color                                : var(--TTR_Col_StatusError);
+    font-weight                          : 600;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Output Typography
+   -------------------------------------------------------------------------- */
+.MAIN__output h1,
+.MAIN__output h2,
+.MAIN__output h3,
+.MAIN__output h4,
+.MAIN__output h5,
+.MAIN__output h6 {
+    color                                : var(--color-gray-800);
+    font-family                          : var(--font-semibold);
+}
+
+.MAIN__output ul,
+.MAIN__output ol {
+    margin-left                          : 0.25rem;
+    padding-left                         : 1.25rem;
+}
+
+.MAIN__output li {
+    margin-bottom                        : 0.35rem;
+}
+
+.TTR__error-message {
+    color                                : var(--TTR_Col_ErrorText);
+    font-weight                          : 600;
+    margin                               : 0;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | CSV Tables
+   -------------------------------------------------------------------------- */
+.CSV__table {
+    width                                : 100%;
+    border-collapse                      : collapse;
+    margin                               : 1em 0;
+}
+
+.CSV__table th {
+    background-color                     : var(--TTR_Col_TableHeaderBg);
+    padding                              : 0.75em 1em;
+    text-align                           : left;
+    font-weight                          : 700;
+    border                               : 1px solid var(--TTR_Col_TableBorder);
+}
+
+.CSV__table td {
+    padding                              : 0.75em 1em;
+    border                               : 1px solid var(--TTR_Col_TableBorder);
+}
+
+.CSV__table tbody tr:nth-child(odd) {
+    background-color                     : var(--TTR_Col_TableRowOdd);
+}
+
+.CSV__table tbody tr:nth-child(even) {
+    background-color                     : var(--TTR_Col_TableRowEven);
+}
+
+.CSV__table th:first-child,
+.CSV__table td:first-child {
+    min-width                            : 150px;
+    max-width                            : 300px;
+    word-wrap                            : break-word;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Mobile Upload Button
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 768px) {
+    .TTR__upload-button {
+        width                            : auto;
+        flex-grow                        : 0;
+    }
+
+    .CSV__table th,
+    .CSV__table td {
+        padding                          : 0.50em 0.65em;
+        font-size                        : 0.75rem;
+    }
+}
+/* endregion ---------------------------------------------------------------- */

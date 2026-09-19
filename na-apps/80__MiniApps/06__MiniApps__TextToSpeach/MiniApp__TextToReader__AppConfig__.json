@@ -1,0 +1,45 @@
+{
+    "NaMiniApp__Meta" : {
+        "NaMiniApp__AppTitle"    : "Text To Reader",
+        "NaMiniApp__AppSubTitle" : "Reader Utils",
+        "NaMiniApp__Created"     : "19-Sep-2026",
+        "NaMiniApp__Version"     : "1.0.0"
+    },
+
+    "NaMiniApp__Assets" : {
+        "NaMiniApp__MarkedEsmUrl" : "https://cdn.jsdelivr.net/npm/marked@15.0.12/lib/marked.esm.js"
+    },
+
+    "NaMiniApp__Defaults" : {
+        "NaMiniApp__AcceptedFileExtensions" : [".md", ".markdown", ".txt"],
+        "NaMiniApp__MobileScrollBreakpoint" : 768
+    },
+
+    "NaMiniApp__WhatsApp" : {
+        "NaMiniApp__TestPattern"    : "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*",
+        "NaMiniApp__ReplacePattern" : "\\[\\d{1,2}\\/\\d{1,2},\\s*\\d{1,2}:\\d{2}\\]\\s*[^:]+:\\s*"
+    },
+
+    "NaMiniApp__UiText" : {
+        "NaMiniApp__AppHeading"              : "Text To Reader Utility",
+        "NaMiniApp__PageTitle"               : "Text To Reader Utility",
+        "NaMiniApp__InputLabel"              : "Input Text (Markdown, WhatsApp Messages or CSV Blocks):",
+        "NaMiniApp__InputPlaceholder"        : "Paste your text (WhatsApp or Markdown) here...",
+        "NaMiniApp__UploadButton"            : "Upload Markdown / Text File",
+        "NaMiniApp__ActionsHeading"          : "Actions",
+        "NaMiniApp__RenderButton"            : "Render Text",
+        "NaMiniApp__ClearButton"             : "Clear Text",
+        "NaMiniApp__OutputHeading"           : "Output",
+        "NaMiniApp__FooterText"              : "© 2026 Noble Architecture | All Rights Reserved",
+        "NaMiniApp__StatusLoadedPrefix"      : "Loaded",
+        "NaMiniApp__StatusUnsupportedPrefix" : "Unsupported file type",
+        "NaMiniApp__StatusUnsupportedSuffix" : "Please choose a .md or .txt file.",
+        "NaMiniApp__StatusReadErrorPrefix"   : "Error reading file",
+        "NaMiniApp__ErrorMarkedMissing"      : "Error: Marked.js library failed to load.",
+        "NaMiniApp__ErrorRenderPrefix"       : "Error rendering content",
+        "NaMiniApp__ErrorEmptyCsv"           : "Error: Empty CSV data.",
+        "NaMiniApp__ErrorMissingDom"         : "Error: Essential HTML elements are missing.",
+        "NaMiniApp__ErrorConfigLoad"         : "Unable to load app configuration.",
+        "NaMiniApp__CsvTableAriaLabel"       : "CSV Data Table"
+    }
+}

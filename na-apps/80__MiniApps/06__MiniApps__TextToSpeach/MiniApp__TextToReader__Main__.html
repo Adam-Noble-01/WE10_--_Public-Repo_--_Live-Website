@@ -1,0 +1,150 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - TEXT TO READER
+  =============================================================================
+
+  FILE    : MiniApp__TextToReader__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : Render WhatsApp chat exports, Markdown, and CSV blocks as readable HTML
+  CREATED : 19-Sep-2026
+
+  DESCRIPTION:
+  - Paste or upload Markdown, WhatsApp chat text, or ```csv``` blocks.
+  - WhatsApp timestamp/sender prefixes are stripped and converted to a list.
+  - CSV fenced blocks become accessible HTML tables.
+  - All processing is local — no data is sent to any server.
+
+  MODULES:
+  - 01__AppModules/MiniApp__TextToReader__Main__.js            (controller)
+  - 01__AppModules/MiniApp__TextToReader__WhatsAppParser__.js  (chat cleanup)
+  - 01__AppModules/MiniApp__TextToReader__CsvTable__.js        (CSV to tables)
+  - 01__AppModules/MiniApp__TextToReader__FileUpload__.js      (local file load)
+  - 01__AppModules/MiniApp__TextToReader__MarkdownRender__.js  (render pipeline)
+  - MiniApp__TextToReader__AppConfig__.json                    (config source)
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Noble Architecture Text To Reader — render WhatsApp, Markdown and CSV as readable HTML." />
+        <meta name="author" content="Adam Noble - Noble Architecture" />
+        <title>Text To Reader Utility</title>
+
+        <link rel="icon" type="image/svg+xml"
+              href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+        <link rel="stylesheet"
+              href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
+        <link rel="stylesheet" href="MiniApp__TextToReader__Style__.css" />
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+        <div class="PAGE__container">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Header                                      -->
+            <!-- --------------------------------------------------------- -->
+                <header class="HEAD__container">
+                    <nav class="HEAD__nav" aria-label="Application title">
+                        <h1 id="js__appTitle" class="HEAD__title">Text To Reader Utility</h1>
+                        <span id="js__appVersion" class="HEAD__version-note"></span>
+                    </nav>
+                </header>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Main Content                                     -->
+            <!-- --------------------------------------------------------- -->
+                <div class="FULL__page-app-container">
+                    <main class="MAIN__container">
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Input Area                           -->
+                        <!-- --------------------------------------------- -->
+                            <section class="FORM__block" aria-labelledby="js__inputLabel">
+                                <label id="js__inputLabel" for="js__inputText" class="FORM__label">
+                                    Input Text (Markdown, WhatsApp Messages or CSV Blocks):
+                                </label>
+
+                                <!-- @delegate: 01__AppModules/MiniApp__TextToReader__FileUpload__.js -->
+                                <div class="TTR__upload-block">
+                                    <input id="js__fileUploadInput"
+                                           class="TTR__upload-input"
+                                           type="file"
+                                           accept=".md,.markdown,.txt,text/markdown,text/plain"
+                                           hidden />
+                                    <button id="js__uploadFileButton"
+                                            class="BTTN__standard TTR__upload-button"
+                                            type="button">
+                                        Upload Markdown / Text File
+                                    </button>
+                                    <span id="js__uploadFileStatus"
+                                          class="TTR__upload-status"
+                                          role="status"
+                                          aria-live="polite"></span>
+                                </div>
+
+                                <textarea id="js__inputText"
+                                          class="FORM__textarea"
+                                          placeholder="Paste your text (WhatsApp or Markdown) here..."></textarea>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Action Buttons                       -->
+                        <!-- --------------------------------------------- -->
+                            <section class="CTRL__block" aria-labelledby="js__actionsHeading">
+                                <h2 id="js__actionsHeading" class="CTRL__heading">Actions</h2>
+                                <div class="BTTN__container">
+                                    <button id="js__renderButton" class="BTTN__standard" type="button">Render Text</button>
+                                    <button id="js__clearButton"  class="BTTN__cancel"   type="button">Clear Text</button>
+                                </div>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                        <!-- --------------------------------------------- -->
+                        <!-- REGION | Output Area                          -->
+                        <!-- --------------------------------------------- -->
+                            <section class="RSLT__block" aria-labelledby="js__outputHeading">
+                                <h2 id="js__outputHeading" class="CTRL__heading">Output</h2>
+                                <div id="js__output"
+                                     class="MAIN__output"
+                                     role="region"
+                                     aria-live="polite"></div>
+                            </section>
+                        <!-- endregion ------------------------------------ -->
+
+                    </main>
+                </div>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Footer                                      -->
+            <!-- --------------------------------------------------------- -->
+                <footer class="FOOT__container">
+                    <span id="js__pageFooter">© 2026 Noble Architecture | All Rights Reserved</span>
+                </footer>
+            <!-- endregion ------------------------------------------------ -->
+
+        </div>
+
+        <script type="module" src="01__AppModules/MiniApp__TextToReader__Main__.js"></script>
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

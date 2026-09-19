@@ -125,6 +125,25 @@
             "MiniApp__LaunchInNewWindow" : false
         },
 
+        "MiniApp__TextToReader_07" : {
+            "MiniApp__LaunchFile"        : "MiniApp__TextToReader__Main__.html",
+            "MiniApp__RelativePath"      : "06__MiniApps__TextToSpeach",
+            "MiniApp__Title"             : "Text To Reader",
+            "MiniApp__Description"       : "Paste or upload WhatsApp chat exports, Markdown, or CSV code blocks and render them as clean, readable HTML. Built for mobile as well as desktop — upload a .md or .txt file instead of copy-pasting.",
+            "MiniApp__Notes"             : "Ported from sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App (legacy v1.3.0) into modular HTML/CSS/JS with AppConfig JSON. Category folder keeps the TextToSpeach name; the app itself is Text To Reader. Old sn-apps copy stays until this live Mini App is confirmed.",
+            "MiniApp__KeyWords"          : [
+                                                "Text To Reader",
+                                                "WhatsApp",
+                                                "Markdown",
+                                                "CSV",
+                                                "Upload"
+                                           ],
+            "MiniApp__Added"             : "19-Sep-2026",
+            "MiniApp__LoadOrder"         : 7,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
+        },
+
         "MiniApp__AiPromptLibrary_06" : {
             "MiniApp__LaunchFile"        : "MiniApp__AiUtils__PromptLibrary__Main__.html",
             "MiniApp__RelativePath"      : "05_MiniApps__AiUtils",
