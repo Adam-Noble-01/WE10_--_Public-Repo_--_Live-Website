@@ -2,6 +2,84 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.68.2  -  19-Sep-2026
+### Two Modules Describing a Menu That No Longer Exists: a Port That Never Landed, Deleted
+
+**Overview**
+- `Na__PresentationMode__DevMenu__SceneRowBuilders__.js` (545 lines) and
+  `...__SceneReorder__.js` (298 lines) are gone. Both came over from ValeVision at v2.21.x as part
+  of the drawing-systems re-alignment, and neither was ever imported by anything.
+- The live scene editor kept its own copies of the same logic under a different prefix, so the
+  port landed as a second, parallel set of the same functions that nothing called.
+
+**How it was confirmed dead before deleting**
+- All nine exported symbols (`BuildSceneRow`, `FovToFocalMm`, `FocalMmToFov`,
+  `TRANSITION_DEFAULT_MS`, `GetGroupSliceBounds`, `AreScenesInSameGroup`, `MoveSceneToIndex`,
+  `ResolveDropIndex`, `AttachSceneRowDragHandlers`) appear repo-wide only inside their own
+  defining file. Nothing imports either module by name or by path.
+- `Index.html` imports exactly one module from the DevMenu family, `...__SceneEditor.js`. The
+  folder's other entry point in `Index.html` is a `@delegate:` comment naming the directory, not
+  the files.
+- No dynamic `import()` reaches them. The `80__Testing__PrototypeEnvironment` harnesses and the
+  `79__Testing__GenerateObjects` sandbox do not reference them.
+- The PWA service worker does not name them: `PWA_SW_SHELL_PRECACHE_RELATIVE` is five entries
+  (Index, one stylesheet, two configs, the fallback manifest) and the vendor list is the two Three
+  builds. Nothing in `21/` is precached, so no install path can 404 on the deletion.
+
+**Why the live editor did not use them**
+- `...__SceneEditor.js` defines its own `Na__PmDev__BuildSceneRow`,
+  `Na__PmDev__AttachSceneRowDragHandlers`, `Na__PmDev__MoveSceneToIndex`,
+  `Na__PmDev__GetGroupSliceBounds`, `Na__PmDev__AreScenesInSameGroup`, `Na__PmDev__FovToFocalMm`
+  and `Na__PmDev__TRANSITION_DEFAULT`. Same behaviour, `Na__PmDev__` prefix, no import.
+- Those copies have since moved a long way. The live row folds, carries a thumbnail, puts FOV and
+  move speed on one line, has a layout-editor-only flag and a Preview button. The deleted module
+  had none of that. Keeping it meant keeping a 545-line description of a dev menu that has not
+  looked like that for weeks - the kind of file that reads as current until someone edits it and
+  wonders why nothing changes.
+
+**ValeVision still uses both - this is now a deliberate divergence**
+- Checked directly, not assumed: `ValeCodebase/WebApps/ValeVision3D/02__Src__AppModules/
+  21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneEditor.js` imports three
+  symbols from `SceneRowBuilders__` and five from `SceneReorder__`, at its lines 150 and 184.
+- It is right to. ValeVision's scene editor is 1,023 lines against TrueVision's 2,365; over there
+  the split is load-bearing, and its row builder still matches its own simpler menu.
+- So the two apps have genuinely parted company at this file, and a future re-alignment pass must
+  not read ValeVision's split as a gap on the TrueVision side and "restore" it. Re-porting would
+  drop in a row builder for a menu TrueVision no longer has. If the live editor ever needs
+  splitting, split the live editor - do not take ValeVision's copies.
+- Both re-alignment plan rows have been marked so the trap is not re-armed:
+  `TrueVision__PLAN__ValeVisionRealign__DrawingSystems__.md` section 8's Phase C table and the
+  section 12 ledger row `C | Scene editor splits (RowBuilders, Reorder)`, which until now read
+  "Not yet ported" and would have invited exactly that mistake. Both now read WITHDRAWN.
+- Not changed, and the loose end to know about: ValeVision's own parity ledger,
+  `WebApps/ValeVision3D/ValeVision__PARITY__TrueVisionLedger__.md`, is the upstream seed for that
+  table and lives in the other repo, so it was left alone. It still carries the trap from the far
+  side, in four places - its line 29 and line 34 record the splits as landed and closed, its
+  file rows at 667 and 671 list both modules as ported into TrueVision, and line 909 still asks
+  for the split outright on the grounds that "The TrueVision editor is 1622 lines, over the house
+  budget". That last one is stale twice over: the editor is 2,365 lines now, and the fix is to
+  split the live file, not to import ValeVision's. A re-alignment pass driven from the ValeVision
+  side rather than from this plan doc would walk straight back into it. Adam's call whether to
+  annotate the other repo.
+
+**Also**
+- `40__System__DrawingViewCore/Na__DrawView__RenameDrawing__.js` had an INTEGRATION note saying
+  `...__SceneRowBuilders__` routes a drawing card's name field into it. That was true of the
+  ValeVision file it was ported from and never true here. It now names the scene editor, with a
+  line recording where the old name went, so the next reader does not go looking for a file that
+  has been deleted.
+
+**Verification**
+- Booted after the deletion on a no-cache static server. The full static module graph resolved -
+  283 requests, none failed, `...__SceneEditor.js` among them at 200. Zero console errors, canvas
+  up, DOM built.
+- The decisive measurement: filtering the network log for `SceneRowBuilders` and for `SceneReorder`
+  returns no requests at all. The browser never asked for either file, before or after, which is
+  what "nothing imports them" looks like from the outside.
+- `Na__DrawView__RenameDrawing__.js` syntax-checked clean (as `.mjs`; Node reads the apps' `.js`
+  modules as CommonJS and false-fails every one).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.68.1  -  19-Sep-2026
 ### The Floor Was Shading Itself: a Grazing View Reads the Ground as Its Own Occluder
 
@@ -206,10 +284,35 @@
   scene, treating a mid-run collapse as a stop. A minimised window takes the canvas to zero by zero
   with it, and every render after that is a render with nothing to render into; without the check the
   run reports a wall of failures rather than the one fact that explains them.
-- This surfaced from the preview harness rather than from theory: a hidden browser pane collapses the
-  canvas the same way, and the app's own capture path - the pre-existing single Update Scene, not
-  anything new here - takes the renderer down with it. Worth knowing the next time a capture "just
-  crashes" in a harness.
+- The guard is still right, but the reason it got written was not. See below.
+
+**`close` is a property of window, and that cost most of an afternoon**
+- Adam: "I pressed Re-render All and it just hangs for ages. Five minutes. Then I clicked outside and
+  it disappeared and nothing had updated." Nothing WAS happening. The dialog's Confirm and Cancel
+  handlers were built above the `new Promise` and called a `close()` that only existed inside its
+  executor. That is not a ReferenceError - `close` is on `window` - so every press of either button
+  silently called `window.close()`. The dialog stayed up, the promise never settled, and the caller
+  sat at its `await` for as long as Adam was willing to wait. Escape and the backdrop worked, because
+  those two handlers happened to be written inside the executor, which is exactly why clicking
+  outside dismissed it.
+- The whole dialog is now built inside the executor and the closer is named
+  `Na__PmDevModal__SettleDialog`. Nothing in this module may be called `close` again, nor `open`,
+  `name`, `status`, `focus`, `top` or `length` - every one of them is on window, so putting one out
+  of scope fails quietly instead of loudly.
+- IT ALSO EXPLAINS THE SIX "PANE CRASHES" during the first session's testing. `window.close()` closed
+  the preview tab, every tool call after a modal button returned "Preview not found", and that was
+  read as the capture path taking the renderer down. It was not: with the scoping fixed, the batch
+  walked all eighteen scenes in about three seconds with no crash, 18 thumbnail uploads and exactly
+  one project save. A tool harness dying right after your own click is a reason to read your own
+  click first.
+
+**The progress dialog now says which scene**
+- Adam: "if it's doing something, then it needs to have a loading screen with this circular thing and
+  report which one it's currently rendering." It has the app's own `.loading-spinner`, scaled to
+  dialog size, beside the name of the scene being rendered, with the bar and "9 of 18" beneath it.
+  The spinner is the point: a batch spends its time inside a render, where the bar moves once a
+  scene, and between two of those a still dialog is indistinguishable from a hung one. The spinner
+  stops and turns green when the run finishes, and Stop becomes Close.
 
 **Schema**
 - The saved-scenes block's own `Description` is now a constant in the data layer that owns the shape,
@@ -224,9 +327,13 @@
 - The layout-only flag end to end: ticked, the card left the strip, the row kept its place with a
   LAYOUT chip, the chevrons stepped past it, Preview still reached it; unticked, the card came back.
 - Both modals, including every rejected spelling of CLEAR, with R2 writes intercepted and counted.
-- The batch confirmations and their partition (18 walked, 3 drawing scenes skipped). The render walks
-  themselves could not be driven in the preview pane for the reason above; they want one run on a
-  real window.
+  Confirm and Cancel both settle their promise now, which is the thing the first pass never actually
+  checked - it read a dead button as a working one because the tab died on the click.
+- Update All Thumbnails, run end to end against all eighteen 3D scenes: the dialog named each scene
+  as it went, finished at "18 updated", and made exactly 19 write attempts - eighteen thumbnails and
+  one project save, which is the whole point of batching them.
+- Stop, pressed mid-run: "1 updated, stopped early", the finished thumbnail saved rather than
+  stranded, and the carousel back on the scene it started from.
 
 # ---------------------------------------------------------
 ## TrueVision3D v2.67.0  -  19-Sep-2026

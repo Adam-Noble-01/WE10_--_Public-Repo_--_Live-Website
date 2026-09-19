@@ -559,7 +559,7 @@ Feature deltas only; no restructuring. Everything here is in the ledger's
 
 | Item | Files | Source |
 |---|---|---|
-| Scene row builders and reorder helpers split out of the 1,622-line scene editor | `21/Na__PresentationMode__DevMenu__SceneRowBuilders__.js`, `...__SceneReorder__.js` | VV `21/` same |
+| ~~Scene row builders and reorder helpers split out of the scene editor~~ **WITHDRAWN v2.68.2 - do not port.** The two files were ported in, never imported, and deleted. TrueVision's scene editor has its own `Na__PmDev__` row builder and reorder logic and has diverged past ValeVision's (folding rows, thumbnail, combined FOV/move-speed line, layout-editor-only flag, Preview button). Re-porting would re-import a menu TrueVision no longer has. Split the live editor if it needs splitting; do not take ValeVision's copies | ~~`21/...SceneRowBuilders__.js`, `...__SceneReorder__.js`~~ deleted | VV `21/` still uses both - deliberate divergence |
 | Async confirm dialog replacing `window.confirm` (which blocks the render loop and cannot be styled) | `21/Na__PresentationMode__DevMenu__GroupEditor__.js` + scene editor | VV `21/` same |
 | Ground Floor Plan one-click default at datum 0 | `42/Na__FloorPlan__DevMenu__Editor__.js` | VV `43/` same |
 | Per-drawing style toggles through the shared StyleRows | `42/Na__FloorPlan__DevMenu__RowBuilders__.js`, `45/Na__Elevation__DevMenu__RowBuilders__.js` | VV same |
@@ -763,7 +763,7 @@ Update this every session. `-` not started, `~` in progress, `x` done and tested
 | C | Confirm dialog, dimension config + preview splits | x | 2.21.0 | |
 | C | Ground Floor Plan quick action | - | 2.21.x | Not yet ported |
 | C | FacePick + GizmoGrip | - | 2.21.x | Not yet ported |
-| C | Scene editor splits (RowBuilders, Reorder) | - | 2.21.x | Not yet ported |
+| C | Scene editor splits (RowBuilders, Reorder) | n/a | 2.68.2 | **Withdrawn, not pending.** Both files were ported in at 2.21.x and never imported - the live scene editor kept its own `Na__PmDev__` copies and has since diverged well past ValeVision's (folding rows, thumbnail, combined FOV/move-speed line, layout-editor-only flag, Preview button). Deleted 19-Sep. ValeVision still imports both and is right to; this row is now a deliberate divergence, not a gap. Do not re-port |
 | C | Sections filed by drawing type | - | 2.21.x | Not yet ported |
 | **D** | **Projected linework** | **x** | 2.22.0 | 24 files; 6 gaps, all real missing pieces |
 | D | House-scale timings recorded | - | 2.22.0 | Not measured yet |

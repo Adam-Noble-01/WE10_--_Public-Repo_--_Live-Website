@@ -38,8 +38,10 @@
 // INTEGRATION:
 // - Na__FloorPlan__DevMenu__Editor__ and Na__Elevation__DevMenu__Editor__
 //   pass their name field's requested value straight here.
-// - Na__PresentationMode__DevMenu__SceneRowBuilders__ routes a drawing
-//   card's name field here so the record follows the card.
+// - Na__PresentationMode__DevMenu__SceneEditor routes a drawing card's name
+//   field here so the record follows the card. (It builds its own scene rows;
+//   the separate SceneRowBuilders__ module this note used to name was a stale
+//   ValeVision port, never imported, deleted in v2.68.2.)
 //
 // -----------------------------------------------------------------------------
 //
