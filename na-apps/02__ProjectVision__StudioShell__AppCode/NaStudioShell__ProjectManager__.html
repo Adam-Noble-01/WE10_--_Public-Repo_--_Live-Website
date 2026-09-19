@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Manager | Noble Architecture Studio</title>
+
+    <!-- =====================================================================
+         NOBLE ARCHITECTURE - PROJECT MANAGER
+         =====================================================================
+
+         FILE       : NaStudioShell__ProjectManager__.html
+         NAMESPACE  : NaStudioShell
+         AUTHOR     : Adam Noble - Noble Architecture
+         PURPOSE    : Multi-project admin table - edit, rename and delete
+         CREATED    : 19-Sep-2026
+
+         DESCRIPTION:
+         - Served at /project-manager by the local dev server and loaded into
+           the Studio frame from the Project Manager button in the bar.
+         - Lists every project with its local and Cloudflare R2 footprint, and
+           carries the only controls in the system that delete either.
+         - Localhost only. The live website has no server that answers these
+           endpoints, so none of this exists in public.
+
+         ===================================================================== -->
+
+    <link rel="icon" href="/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/__na-studio/03__Style__AppStylesheets/NaStudioShell__ProjectManager__Stylesheet__.css">
+</head>
+<body>
+
+    <!-- REGION | Header -->
+    <header class="pm-header">
+        <span class="pm-header__title">Project Manager</span>
+        <span class="pm-header__pill">Destructive Tools</span>
+        <span class="pm-header__spacer"></span>
+        <span class="pm-header__status">
+            <span class="pm-dot" id="pmR2Dot"></span>
+            <span id="pmR2Text">checking R2&hellip;</span>
+        </span>
+        <button class="pm-btn" id="pmRefresh" type="button">Refresh</button>
+    </header>
+    <!-- endregion -->
+
+    <div class="pm-shell">
+
+        <!-- REGION | Standing Warning -->
+        <div class="pm-notice">
+            <div>
+                <strong>This page changes real project data.</strong>
+                Deleting locally moves the project folder into
+                <code>na-project-portal/00__Deleted__Quarantine/</code>, so it leaves the gallery but the files
+                stay on disk until you empty that folder yourself.
+                <strong>Deleting from R2 is permanent</strong> &mdash; an object store has no recycle bin.
+                Renaming a project code or folder moves every R2 object to the new prefix.
+                Every action asks twice and makes you type the project code.
+            </div>
+        </div>
+        <!-- endregion -->
+
+        <!-- REGION | Toolbar -->
+        <div class="pm-toolbar">
+            <input class="pm-search" id="pmSearch" type="search"
+                   placeholder="Filter by code, name, folder or address&hellip;" autocomplete="off" spellcheck="false">
+            <span class="pm-count" id="pmCount"></span>
+            <span class="pm-header__spacer"></span>
+            <button class="pm-btn" id="pmLoadR2" type="button">Load R2 sizes</button>
+        </div>
+        <!-- endregion -->
+
+        <!-- REGION | Project Table -->
+        <div class="pm-tablewrap">
+            <table class="pm-table">
+                <thead>
+                    <tr id="pmHead">
+                        <th data-sort="projectCode">Code<span class="pm-th__arrow">&#9650;</span></th>
+                        <th data-sort="projectName">Project name<span class="pm-th__arrow">&#9650;</span></th>
+                        <th data-sort="address">Address<span class="pm-th__arrow">&#9650;</span></th>
+                        <th data-sort="projectFolder">Folder<span class="pm-th__arrow">&#9650;</span></th>
+                        <th data-sort="projectYear">Year<span class="pm-th__arrow">&#9650;</span></th>
+                        <th data-sort="recencySort">Created<span class="pm-th__arrow">&#9650;</span></th>
+                        <th data-sort="localFiles">Local<span class="pm-th__arrow">&#9650;</span></th>
+                        <th data-sort="r2Objects">R2<span class="pm-th__arrow">&#9650;</span></th>
+                        <th class="pm-th--plain">Apps</th>
+                        <th class="pm-th--plain">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="pmBody">
+                    <tr><td colspan="10">
+                        <div class="pm-state">
+                            <p class="pm-state__title">Loading projects&hellip;</p>
+                            <p>Reading the master index and the project portal.</p>
+                        </div>
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- endregion -->
+
+        <!-- REGION | Quarantine -->
+        <section class="pm-quarantine" id="pmQuarantine" hidden>
+            <h2 class="pm-quarantine__title">Quarantined projects</h2>
+            <p class="pm-quarantine__note">
+                Folders moved aside by a local delete. They are outside the year-folder pattern the gallery scans,
+                so nothing lists them any more. Delete these by hand in Explorer once you are certain, or drag one
+                back into its year folder to restore it.
+            </p>
+            <div id="pmQuarantineList"></div>
+        </section>
+        <!-- endregion -->
+
+    </div>
+
+    <!-- REGION | Confirmation Modal Host -->
+    <div id="pmModalHost"></div>
+    <!-- endregion -->
+
+    <script type="module" src="/__na-studio/02__Src__AppModules/NaStudioShell__ProjectManager__Controls__.js"></script>
+
+</body>
+</html>

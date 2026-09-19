@@ -62,6 +62,7 @@ PROJECT_ADMIN_CONTENT_DIR   = '10__ProjectAdmin__AppContent'
 PROJECT_ADMIN_CONFIG_FILE   = 'ProjectAdmin__ProjectConfig__.json'
 PROJECT_ADMIN_INVOICES_FILE = 'ProjectAdmin__Invoices__.json'
 PROJECT_ADMIN_QUOTE_FILE    = 'ProjectAdmin__Quotation__.json'
+PROJECT_ADMIN_QUOTE_FILES   = ('ProjectAdmin__Quotation__.json', 'ProjectAdmin__Quotations__.json')
 PLANVISION_CONTENT_DIR      = '20__PlanVision__AppContent'
 PLANVISION_DATA_FILENAME    = 'PlanVision__ProjectData__.json'
 TRUEVISION_CONTENT_DIR      = '30__TrueVision__AppContent'
@@ -242,12 +243,29 @@ def _summarise_project_admin(project_dir):
             summary['projectPin'] = raw_pin
 
     # FALLBACK | The quotation usually carries the description and site address
-    quote_path = os.path.join(project_dir, PROJECT_ADMIN_CONTENT_DIR, PROJECT_ADMIN_QUOTE_FILE)
-    quote_data = _read_json_file(quote_path)
+    # -------------------------------------------------------------------------
+    # Two file names are in use across the portal: the older single-quotation
+    # file, and the newer one holding a `quotations` list. Reading only the
+    # first left every project on the newer format with no address at all.
+    for quote_filename in PROJECT_ADMIN_QUOTE_FILES:
+        quote_path = os.path.join(project_dir, PROJECT_ADMIN_CONTENT_DIR, quote_filename)
+        quote_data = _read_json_file(quote_path)
 
-    if isinstance(quote_data, dict):
-        summary['quoteDescription'] = quote_data.get('projectDescription') or ''
-        summary['address']          = quote_data.get('projectAddress') or ''
+        if not isinstance(quote_data, dict):
+            continue
+
+        entries = quote_data['quotations'] if isinstance(quote_data.get('quotations'), list) else [quote_data]
+
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            if not summary['quoteDescription']:
+                summary['quoteDescription'] = entry.get('projectDescription') or ''
+            if not summary['address']:
+                summary['address'] = entry.get('projectAddress') or ''
+
+        if summary['address'] and summary['quoteDescription']:
+            break
 
     invoices_path = os.path.join(project_dir, PROJECT_ADMIN_CONTENT_DIR, PROJECT_ADMIN_INVOICES_FILE)
     invoices_data = _read_json_file(invoices_path)

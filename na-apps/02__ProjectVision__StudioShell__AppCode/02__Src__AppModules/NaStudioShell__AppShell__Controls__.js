@@ -38,6 +38,7 @@
     // --------------------------------------------------------
 
         const GALLERY_PATH  = '/gallery';                                        // <-- Project gallery inside the frame
+        const MANAGER_PATH  = '/project-manager';                                // <-- Project Manager table inside the frame
         const PROJECTS_API  = '/api/dev/projects';                               // <-- Merged project list
 
         // SUB-APPLICATION MAP | Path fragment to display name and pill order
@@ -60,6 +61,7 @@
         const elForward      = document.getElementById('nadsForward');
         const elReload       = document.getElementById('nadsReload');
         const elHome         = document.getElementById('nadsHome');
+        const elManager      = document.getElementById('nadsManager');
         const elPopOut       = document.getElementById('nadsPopOut');
         const elCrumbBtn     = document.getElementById('nadsCrumbBtn');
         const elCrumbCode    = document.getElementById('nadsCrumbCode');
@@ -81,6 +83,7 @@
         let allProjects   = [];        // <-- Merged project list from the dev API
         let activeCode    = '';        // <-- Project code currently shown in the frame
         let activeApp     = null;      // <-- Matching SUB_APPS entry, or null on the gallery
+        let activePath    = '';        // <-- Frame path, so the crumb can name the gallery pages
         let visitCount    = 0;         // <-- Frame loads since boot, for the Back button state
         let forwardDepth  = 0;         // <-- Steps stepped back, for the Forward button state
         let steppingBack  = false;     // <-- True while a Back or Forward press is in flight
@@ -201,8 +204,10 @@
             const project = findProject(activeCode);
 
             if (!activeApp) {
+                const onManager = String(activePath || '').indexOf(MANAGER_PATH) === 0;
+
                 elCrumbCode.textContent = '';
-                elCrumbName.textContent = 'All projects';
+                elCrumbName.textContent = onManager ? 'Project Manager' : 'All projects';
                 elCrumbApp.textContent  = '';
                 elCrumbSep.hidden       = true;
                 return;
@@ -249,11 +254,22 @@
             elForward.disabled = forwardDepth <= 0;
         }
 
+        // FUNCTION | Show the button for the page currently in the frame as pressed
+        function renderNavState() {
+            const path      = String(activePath || '');
+            const onManager = path.indexOf(MANAGER_PATH) === 0;
+            const onGallery = !activeApp && !onManager;
+
+            elHome.classList.toggle('nads-btn--active', onGallery);
+            elManager.classList.toggle('nads-btn--active', onManager);
+        }
+
         // FUNCTION | Refresh every part of the bar
         function renderBar() {
             renderCrumbs();
             renderPills();
             renderHistoryButtons();
+            renderNavState();
         }
 
     // endregion ----------------------------------------------
@@ -269,6 +285,7 @@
 
             activeCode = context.code;
             activeApp  = context.app;
+            activePath = context.path;
 
             if (steppingBack) {
                 steppingBack = false;                                            // <-- Depth was already adjusted by the button
@@ -427,6 +444,10 @@
 
             elHome.addEventListener('click', function() {
                 navigateFrame(GALLERY_PATH);
+            });
+
+            elManager.addEventListener('click', function() {
+                navigateFrame(MANAGER_PATH);
             });
 
             elPopOut.addEventListener('click', function() {

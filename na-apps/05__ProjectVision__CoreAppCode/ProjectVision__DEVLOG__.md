@@ -6,6 +6,81 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.4.0 - 19-Sep-2026
+
+### Added - Project Manager: multi-project admin with local and R2 in lockstep
+
+#### Why
+- Dummy projects from the original build-out (TS01, JS01, AA00) needed removing, and
+  there was nowhere in the system to do it. The R2 sync script could only purge GLBs,
+  from the command line, one project at a time.
+- The ask was a table of every project that can edit and delete them, keeping the local
+  folder, the master index and the Cloudflare R2 bucket in step.
+
+#### Project Manager Tab (`02__ProjectVision__StudioShell__AppCode/`)
+- `NaStudioShell__ProjectManager__.html` is served at `/project-manager` and opens from a
+  new button in the Studio bar beside Projects. The bar now shows whichever page is open
+  as a pressed button, so the button and the breadcrumb no longer read as duplicates.
+- Sortable on every column - code, name, address, folder, year, created, local footprint
+  and R2 footprint. Click to sort, click again to reverse.
+- **A row is read-only until Edit is pressed.** Only then does any cell become an input,
+  so no amount of clicking around the table can begin changing project data.
+- R2 sizes load on demand behind a button: it is one listing of the whole bucket prefix,
+  bucketed by project, rather than a request per row.
+
+#### Destructive Operations (`ProjectVision__ProjectManager__Api__.py`)
+- A Flask blueprint the local server registers. Localhost only.
+- **Delete local never unlinks.** It moves the folder to
+  `na-project-portal/00__Deleted__Quarantine/<stamp>__<folder>/`, which is outside the
+  `NN-Projects` pattern the launcher scans, so the project leaves the gallery while the
+  files stay on disk. The page lists what is in quarantine.
+- **Delete R2 does delete**, because an object store has no quarantine. It is always
+  preceded by a listing of exactly what will go.
+- Two confirmations on every write and every delete. The first states real counts fetched
+  from the server - local files, R2 objects, the exact prefix, the first dozen keys. The
+  second keeps its button disabled until the project code has been typed.
+- The server refuses independently: every mutating call needs a `confirm` field equal to
+  the project code, so the modal is not the only guard. Verified: a call with no `confirm`
+  and a call with another project's code are both refused with 400.
+- Paths are checked for containment in the portal before any move, so no request can aim
+  the operation outside `na-project-portal`.
+
+#### Rename
+- Changing the code, folder or year renames the folder on disk, rewrites `projectCode` in
+  the Project Admin config, copies every object under the old R2 prefix to the new one and
+  deletes the originals, then rewrites the master index - one operation.
+- Refused on a malformed code and on a collision with an existing project.
+
+#### Source of Truth and File Hygiene
+- `ProjectAdmin__ProjectConfig__.json` is authoritative for name and code. The PlanVision
+  and TrueVision project data files are generated from it by the build script, so they are
+  never written here - a rebuild would overwrite anything put in them.
+- Address and description are written to every quotation entry, in whichever quotation
+  file name that project uses.
+- `_detect_newline()` preserves each file's existing line endings. The build script pins
+  LF and the Project Admin app writes CRLF; the first implementation wrote CRLF via
+  Python's default text mode, which rewrote all 170 lines of the master index in git on
+  every edit. Caught by byte-comparing the index against a pre-test backup.
+
+#### Fixed - Address Missing on Newer Projects (`ProjectVision__DevLauncher__Shared__.py`)
+- `_summarise_project_admin()` read only `ProjectAdmin__Quotation__.json`. Projects on the
+  newer `ProjectAdmin__Quotations__.json` format (PS01, PS02, SB04, EB03, NP03) therefore
+  had no address at all. It now reads either file and walks the `quotations` list.
+- The gallery cards gained addresses from the same fix.
+
+#### Verification
+- Run on port 8095 against the real repository and the live R2 bucket, using a throwaway
+  ZZ99 project created for the purpose. No real project was edited or deleted.
+- Confirmed: preview reports true counts; a delete with no confirmation and with the wrong
+  code are both refused; a field edit writes name and address; a rename moves the folder,
+  updates the config, attempts the R2 migration and rewrites the index; a malformed code
+  and a collision are refused; delete local quarantines the folder, drops the index entry
+  and removes the row; the quarantine panel lists it.
+- The master index was byte-identical to its pre-test backup afterwards, and every test
+  artefact was removed.
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.3.0 - 19-Sep-2026
 
 ### Added - Noble Architecture Studio: one local window over the whole ecosystem

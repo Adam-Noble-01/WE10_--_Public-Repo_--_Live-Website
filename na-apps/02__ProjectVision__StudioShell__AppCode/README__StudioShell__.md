@@ -67,11 +67,14 @@ Manager, end it, and run the launcher again.
 ```
 02__ProjectVision__StudioShell__AppCode/
 ├── NaStudioShell__AppShell__.html                       The shell page, served at /
+├── NaStudioShell__ProjectManager__.html                 Project Manager, served at /project-manager
 ├── 02__Src__AppModules/
 │   ├── NaStudioShell__AppShell__Controls__.js           Bar behaviour
-│   └── NaStudioShell__HostedPageBridge__.js             Injected into every served page
+│   ├── NaStudioShell__HostedPageBridge__.js             Injected into every served page
+│   └── NaStudioShell__ProjectManager__Controls__.js     Table, editing and confirmations
 ├── 03__Style__AppStylesheets/
-│   └── NaStudioShell__AppShell__Stylesheet__.css        Bar and frame styling
+│   ├── NaStudioShell__AppShell__Stylesheet__.css        Bar and frame styling
+│   └── NaStudioShell__ProjectManager__Stylesheet__.css  Table and modal styling
 └── 05__AppData/
     └── NaStudioShell__Pwa__Manifest__.webmanifest       Installability, scoped to /
 ```
@@ -83,6 +86,12 @@ Manager, end it, and run the launcher again.
 | `NaStudioShell__HostedPageBridge__.js` | Shortcut forwarding in the frame; return pill outside it |
 | `NaStudioShell__AppShell__Stylesheet__.css` | Bar and frame styling |
 | `NaStudioShell__Pwa__Manifest__.webmanifest` | Installability, scoped to the whole local server |
+| `NaStudioShell__ProjectManager__.html` | Project Manager table, served at `/project-manager` |
+| `NaStudioShell__ProjectManager__Controls__.js` | Sorting, row editing and the two-stage confirmations |
+| `NaStudioShell__ProjectManager__Stylesheet__.css` | Table, edit mode and modal styling |
+
+The Project Manager's endpoints live in `na-apps/ProjectVision__ProjectManager__Api__.py`,
+a Flask blueprint the local server registers.
 
 The server publishes this folder at `/__na-studio/`, keeping the numbered paths,
 so the stylesheet is at
@@ -92,6 +101,65 @@ The project gallery itself is not in this folder. It is the existing
 `na-apps/ProjectVision__LocalServer__DevLanding__.html`, served at `/gallery`
 and loaded into the frame. The Project Admin dev server on port 8081 serves the
 same page at its own root, without the shell.
+
+---
+
+## Project Manager
+
+The **Project Manager** button in the bar opens a table of every project with
+its local and Cloudflare R2 footprint. It is the only place in the system that
+deletes either. Click any column header to sort, click again to reverse.
+
+Per row: **Edit**, **Delete local**, **Delete R2**, **Delete both**.
+
+**A row is read-only until you press Edit.** Only then does any cell turn into
+an input, so no amount of clicking around the table can begin changing project
+data. Editable fields are the project code, name, address, folder, year and
+description; everything else in the table is derived and read-only, because a
+rebuild would overwrite it.
+
+### What each delete actually does
+
+| Action | Effect | Reversible |
+| --- | --- | --- |
+| Delete local | Moves the project folder to `na-project-portal/00__Deleted__Quarantine/<date>__<folder>/` | Yes - drag it back, or delete the quarantine folder when you are sure |
+| Delete R2 | Deletes every object under `NaProjectPortal/<year>-Projects/<folder>/` | **No.** An object store has no recycle bin |
+| Delete both | Both of the above | The local half only |
+
+Quarantined folders are listed at the bottom of the page. They sit outside the
+`NN-Projects` pattern the gallery scans, so nothing lists them as projects any
+more.
+
+### The two confirmations
+
+Every write and every delete asks twice:
+
+1. **"Are you sure?"** - states what will happen with real counts fetched from
+   the server first: how many local files, how many R2 objects, the exact R2
+   prefix, and the first dozen object keys that would go.
+2. **"Are you really sure?"** - the button stays disabled until you have typed
+   the project code. The server independently refuses any request whose
+   `confirm` field does not match, so the modal is not the only guard.
+
+### Renaming a project
+
+Changing the code, folder or year does four things in one operation: renames the
+folder on disk, rewrites `projectCode` in the Project Admin config, copies every
+object under the old R2 prefix to the new one and deletes the originals, and
+rewrites the master index. Any bookmark using the old folder name stops working.
+This is the heaviest thing the tool does and the first modal says so.
+
+### Where edits are written
+
+`ProjectAdmin__ProjectConfig__.json` is the source of truth for the name and
+code. The PlanVision and TrueVision project data files are **generated from it**
+by the build script, so they are never written here - a rebuild would overwrite
+anything put in them. Address and description are written to every quotation
+entry, in whichever of the two quotation file names that project uses.
+
+Each file keeps the line endings it already had: the build script writes LF, the
+Project Admin app writes CRLF, and rewriting one in the other style would change
+every line of it in git.
 
 ---
 

@@ -255,58 +255,13 @@ body[data-ttr-mode="edit"] .FORM__textarea {
     font-size                            : 0.95rem;
 }
 
-body[data-ttr-mode="read"] .FULL__page-app-container {
-    background-color                     : var(--color-white);
-}
-
-body[data-ttr-mode="read"] .MAIN__container {
-    max-width                            : 52rem;
-}
-
-body[data-ttr-mode="read"] .TTR__panel--output {
-    border                               : none;
-    background                           : transparent;
-    margin-bottom                        : 0;
-    padding                              : 1.25rem 1.50rem 2.00rem;
-    overflow-y                           : auto;
-}
-
-body[data-ttr-mode="read"] .MAIN__output {
-    border                               : none;
-    background                           : transparent;
-    padding                              : 0;
-    overflow                             : visible;
-    flex                                 : 0 0 auto;
-}
-
-body[data-ttr-mode="read"] .MAIN__output:focus {
-    outline                              : none;
-}
+/* @delegate: MiniApp__TextToReader__MarkdownStyle__.css
+   Read-view A4 paper, Open Sans and Markdown typography live there. */
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
-   REGION | Output Typography
+   REGION | Error Message
    -------------------------------------------------------------------------- */
-.MAIN__output h1,
-.MAIN__output h2,
-.MAIN__output h3,
-.MAIN__output h4,
-.MAIN__output h5,
-.MAIN__output h6 {
-    color                                : var(--color-gray-800);
-    font-family                          : var(--font-semibold);
-}
-
-.MAIN__output ul,
-.MAIN__output ol {
-    margin-left                          : 0.25rem;
-    padding-left                         : 1.25rem;
-}
-
-.MAIN__output li {
-    margin-bottom                        : 0.35rem;
-}
-
 .TTR__error-message {
     color                                : var(--TTR_Col_ErrorText);
     font-weight                          : 600;
@@ -374,10 +329,6 @@ body[data-ttr-mode="read"] .MAIN__output:focus {
     .CSV__table td {
         padding                          : 0.50em 0.65em;
         font-size                        : 0.75rem;
-    }
-
-    body[data-ttr-mode="read"] .TTR__panel--output {
-        padding                          : 0.85rem 0.85rem 1.50rem;
     }
 }
 /* endregion ---------------------------------------------------------------- */

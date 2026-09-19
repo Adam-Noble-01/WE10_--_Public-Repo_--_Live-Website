@@ -33,6 +33,17 @@ DEVELOPMENT LOG
     focuses the article.
   - View switching lives in MiniApp__TextToReader__ViewTabs__.js.
 
+----------------------------------------------------------------
+1.4.1 - 19-Sep-2026 |  A4 Markdown Document Styles
+  - Rendered Markdown now uses MiniApp__TextToReader__MarkdownStyle__.css,
+    refactored from the Typora A4 document theme (03-na-document-a4-width.css)
+    and aligned with AD02_20 / DAS heading, list and table standards.
+  - Open Sans Light / Regular / Medium / SemiBold / Bold load from
+    NaApps__CommonFonts instead of Google Fonts (Medium 500 is required for
+    headings — without it they sat too heavy and looked out of kilter).
+  - Read view sits an A4-width (210 mm) white sheet on a very light grey
+    (#fafafa) canvas so the page reads as paper with grey margins.
+
 
 =================================================
 FILE STRUCTURE
@@ -41,7 +52,8 @@ FILE STRUCTURE
     06__MiniApps__TextToSpeach/
     |
     +-- MiniApp__TextToReader__Main__.html          Page shell
-    +-- MiniApp__TextToReader__Style__.css          App-specific styles
+    +-- MiniApp__TextToReader__Style__.css          App chrome (header, tabs, views)
+    +-- MiniApp__TextToReader__MarkdownStyle__.css  A4 Markdown document styles
     +-- MiniApp__TextToReader__AppConfig__.json     Config and UI text
     +-- DEVLOG__TextToReader.md                     This file
     |

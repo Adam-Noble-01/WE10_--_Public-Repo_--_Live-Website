@@ -164,6 +164,19 @@
         padding                  : 0 10px;
     }
 
+    /* The bar names where you are as well as where you can go, so the button
+       for the page already open is shown pressed rather than reading as a
+       second copy of the breadcrumb beside it. */
+    .nads-btn--active {
+        background               : var(--nads-accent-soft);
+        border-color             : var(--nads-accent);
+        color                    : #ffffff;
+    }
+
+    .nads-btn--active:hover:not(:disabled) {
+        background               : var(--nads-accent-soft);
+    }
+
 /* endregion ------------------------------------------------------------------- */
 
 

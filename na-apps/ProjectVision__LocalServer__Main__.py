@@ -52,6 +52,7 @@ from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ProjectVision__DevLauncher__Shared__ as dev_launcher      # <-- Shared with the Project Admin dev server
+from ProjectVision__ProjectManager__Api__ import project_manager_api   # <-- Multi-project admin endpoints
 
 try:
     from flask import Flask, send_from_directory, jsonify, abort, request
@@ -100,6 +101,8 @@ STUDIO_SHELL_PAGE        = 'NaStudioShell__AppShell__.html'
 STUDIO_SHELL_BRIDGE      = '02__Src__AppModules/NaStudioShell__HostedPageBridge__.js'
 STUDIO_SHELL_MARKER      = 'NaStudioShell__HostedPageBridge__.js'    # <-- Appears in the injected tag itself
 GALLERY_PATH             = '/gallery'                                # <-- Project gallery, inside the shell frame
+MANAGER_PATH             = '/project-manager'                        # <-- Project Manager table, inside the frame
+MANAGER_PAGE             = 'NaStudioShell__ProjectManager__.html'
 
 SILENT_MODE              = False                                     # <-- True when launched with no console
 APP_WINDOW_MODE          = True                                      # <-- Open a chromeless PWA-style window
@@ -184,6 +187,8 @@ CORS(app, resources={
         "allow_headers"  : ["Content-Type"]
     }
 })
+
+app.register_blueprint(project_manager_api)                      # <-- /api/manager/... Project Manager tab
 
 # endregion -------------------------------------------------------------------
 
@@ -418,6 +423,24 @@ def gallery():
         )
 
     response = send_from_directory(landing[0], landing[1])
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route(MANAGER_PATH)
+def project_manager_page():
+    """Serve the Project Manager table - multi-project admin, inside the shell."""
+    shell_dir    = os.path.join(SCRIPT_DIR, STUDIO_SHELL_DIR_NAME)
+    manager_page = os.path.join(shell_dir, MANAGER_PAGE)
+
+    if not os.path.isfile(manager_page):
+        return (
+            f"<h1>Project Manager page missing</h1>"
+            f"<p>Expected: na-apps/{STUDIO_SHELL_DIR_NAME}/{MANAGER_PAGE}</p>",
+            500
+        )
+
+    response = send_from_directory(shell_dir, MANAGER_PAGE)
     response.headers['Cache-Control'] = 'no-store'
     return response
 

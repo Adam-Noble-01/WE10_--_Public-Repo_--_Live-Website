@@ -1,0 +1,589 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - PROJECT MANAGER STYLESHEET
+   =============================================================================
+
+   FILE       : NaStudioShell__ProjectManager__Stylesheet__.css
+   NAMESPACE  : NaStudioShell
+   AUTHOR     : Adam Noble - Noble Architecture
+   PURPOSE    : Multi-project admin table, edit mode and confirmation modals
+   CREATED    : 19-Sep-2026
+
+   DESCRIPTION:
+   - Mirrors the project gallery tokens so the two pages read as one app.
+   - Destructive controls are deliberately the only red things on the page.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Design Tokens
+   ----------------------------------------------------------------------------- */
+
+    :root {
+        --Pm_BrandPrimary   : #172b3a;
+        --Pm_BrandAccent    : #2a4a5e;
+        --Pm_BgPrimary      : #f7f9fb;
+        --Pm_BgSecondary    : #ffffff;
+        --Pm_BgTertiary     : #eaeff3;
+        --Pm_TextPrimary    : #333333;
+        --Pm_TextSecondary  : #666666;
+        --Pm_TextMuted      : #999999;
+        --Pm_TextLight      : #ffffff;
+        --Pm_BorderLight    : #dce3e8;
+        --Pm_BorderMedium   : #b8c5cf;
+        --Pm_FontFamily     : 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --Pm_FontMono       : 'Cascadia Mono', 'Consolas', 'SFMono-Regular', ui-monospace, monospace;
+        --Pm_TransitionFast : 0.18s ease;
+
+        --Pm_Ok             : #2e7d32;
+        --Pm_OkBg           : #e8f5e9;
+        --Pm_Warn           : #b26a00;
+        --Pm_WarnBg         : #fff3e0;
+        --Pm_Bad            : #c62828;
+        --Pm_BadBg          : #fbe9e7;
+        --Pm_BadBorder      : #e9b0a8;
+        --Pm_Edit           : #1565c0;
+        --Pm_EditBg         : #e3f2fd;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Page Frame
+   ----------------------------------------------------------------------------- */
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin      : 0;
+        padding     : 0;
+        background  : var(--Pm_BgPrimary);
+        color       : var(--Pm_TextPrimary);
+        font-family : var(--Pm_FontFamily);
+        font-size   : 14px;
+    }
+
+    .pm-header {
+        display       : flex;
+        align-items   : center;
+        gap           : 14px;
+        height        : 60px;
+        padding       : 0 22px;
+        background    : var(--Pm_BgSecondary);
+        border-bottom : 1px solid var(--Pm_BorderLight);
+        position      : sticky;
+        top           : 0;
+        z-index       : 5;
+    }
+
+    .pm-header__title {
+        font-size   : 19px;
+        font-weight : 700;
+        color       : var(--Pm_BrandPrimary);
+    }
+
+    .pm-header__pill {
+        padding        : 3px 9px;
+        border-radius  : 4px;
+        background     : var(--Pm_WarnBg);
+        color          : var(--Pm_Warn);
+        font-family    : var(--Pm_FontMono);
+        font-size      : 10.5px;
+        font-weight    : 700;
+        letter-spacing : 0.06em;
+        text-transform : uppercase;
+    }
+
+    .pm-header__spacer { flex: 1 1 auto; }
+
+    .pm-header__status {
+        display     : inline-flex;
+        align-items : center;
+        gap         : 7px;
+        font-family : var(--Pm_FontMono);
+        font-size   : 11.5px;
+        color       : var(--Pm_TextSecondary);
+    }
+
+    .pm-dot {
+        width         : 9px;
+        height        : 9px;
+        border-radius : 50%;
+        background    : var(--Pm_TextMuted);
+    }
+
+    .pm-dot--ok  { background: var(--Pm_Ok); }
+    .pm-dot--bad { background: var(--Pm_Bad); }
+
+    .pm-shell {
+        max-width : 1720px;
+        margin    : 0 auto;
+        padding   : 22px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Warning Banner
+   ----------------------------------------------------------------------------- */
+
+    .pm-notice {
+        display       : flex;
+        gap           : 12px;
+        padding       : 13px 16px;
+        margin-bottom : 18px;
+        border        : 1px solid var(--Pm_BadBorder);
+        border-left   : 4px solid var(--Pm_Bad);
+        border-radius : 8px;
+        background    : var(--Pm_BadBg);
+        font-size     : 13px;
+        line-height   : 1.55;
+    }
+
+    .pm-notice strong { color: var(--Pm_Bad); }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Toolbar
+   ----------------------------------------------------------------------------- */
+
+    .pm-toolbar {
+        display       : flex;
+        align-items   : center;
+        gap           : 12px;
+        margin-bottom : 16px;
+        flex-wrap     : wrap;
+    }
+
+    .pm-search {
+        flex          : 1 1 280px;
+        max-width     : 420px;
+        height        : 38px;
+        padding       : 0 14px;
+        border        : 2px solid var(--Pm_BorderLight);
+        border-radius : 20px;
+        background    : var(--Pm_BgSecondary);
+        font          : inherit;
+        font-size     : 13px;
+    }
+
+    .pm-search:focus { outline: none; border-color: var(--Pm_BrandAccent); }
+
+    .pm-count {
+        font-family : var(--Pm_FontMono);
+        font-size   : 12px;
+        color       : var(--Pm_TextMuted);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Buttons
+   ----------------------------------------------------------------------------- */
+
+    .pm-btn {
+        display        : inline-flex;
+        align-items    : center;
+        justify-content: center;
+        gap            : 6px;
+        height         : 30px;
+        padding        : 0 12px;
+        border         : 1px solid var(--Pm_BorderMedium);
+        border-radius  : 6px;
+        background     : var(--Pm_BgSecondary);
+        color          : var(--Pm_TextPrimary);
+        font           : inherit;
+        font-size      : 12.5px;
+        font-weight    : 600;
+        white-space    : nowrap;
+        cursor         : pointer;
+        transition     : all var(--Pm_TransitionFast);
+    }
+
+    .pm-btn:hover:not(:disabled) { border-color: var(--Pm_BrandAccent); background: var(--Pm_BgTertiary); }
+    .pm-btn:disabled             { opacity: 0.4; cursor: default; }
+
+    .pm-btn--primary {
+        background   : var(--Pm_BrandPrimary);
+        border-color : var(--Pm_BrandPrimary);
+        color        : var(--Pm_TextLight);
+    }
+
+    .pm-btn--primary:hover:not(:disabled) { background: var(--Pm_BrandAccent); border-color: var(--Pm_BrandAccent); }
+
+    .pm-btn--edit {
+        background   : var(--Pm_EditBg);
+        border-color : var(--Pm_Edit);
+        color        : var(--Pm_Edit);
+    }
+
+    .pm-btn--danger {
+        background   : var(--Pm_BadBg);
+        border-color : var(--Pm_BadBorder);
+        color        : var(--Pm_Bad);
+    }
+
+    .pm-btn--danger:hover:not(:disabled) { background: var(--Pm_Bad); border-color: var(--Pm_Bad); color: var(--Pm_TextLight); }
+
+    .pm-btn--danger-solid {
+        background   : var(--Pm_Bad);
+        border-color : var(--Pm_Bad);
+        color        : var(--Pm_TextLight);
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Table
+   ----------------------------------------------------------------------------- */
+
+    .pm-tablewrap {
+        overflow-x    : auto;
+        background    : var(--Pm_BgSecondary);
+        border        : 1px solid var(--Pm_BorderLight);
+        border-radius : 10px;
+    }
+
+    .pm-table {
+        width           : 100%;
+        border-collapse : collapse;
+        font-size       : 13px;
+    }
+
+    .pm-table th {
+        position       : sticky;
+        top            : 60px;
+        padding        : 11px 12px;
+        background     : var(--Pm_BgTertiary);
+        border-bottom  : 1px solid var(--Pm_BorderMedium);
+        text-align     : left;
+        font-size      : 11px;
+        font-weight    : 700;
+        letter-spacing : 0.06em;
+        text-transform : uppercase;
+        color          : var(--Pm_TextSecondary);
+        white-space    : nowrap;
+        cursor         : pointer;
+        user-select    : none;
+    }
+
+    .pm-table th:hover { color: var(--Pm_BrandPrimary); }
+
+    .pm-table th.pm-th--plain { cursor: default; }
+    .pm-table th.pm-th--plain:hover { color: var(--Pm_TextSecondary); }
+
+    .pm-th__arrow {
+        margin-left : 5px;
+        opacity     : 0.35;
+        font-size   : 10px;
+    }
+
+    .pm-table th.pm-th--sorted .pm-th__arrow { opacity: 1; color: var(--Pm_BrandPrimary); }
+
+    .pm-table td {
+        padding       : 10px 12px;
+        border-bottom : 1px solid var(--Pm_BorderLight);
+        vertical-align: middle;
+    }
+
+    .pm-table tbody tr:hover { background: #fbfdfe; }
+
+    .pm-table tbody tr.pm-row--editing {
+        background  : var(--Pm_EditBg);
+        box-shadow  : inset 3px 0 0 var(--Pm_Edit);
+    }
+
+    .pm-table tbody tr.pm-row--editing:hover { background: var(--Pm_EditBg); }
+
+    .pm-cell--code {
+        font-family : var(--Pm_FontMono);
+        font-weight : 700;
+        color       : var(--Pm_BrandPrimary);
+        white-space : nowrap;
+    }
+
+    .pm-cell--mono {
+        font-family : var(--Pm_FontMono);
+        font-size   : 11.5px;
+        color       : var(--Pm_TextSecondary);
+        white-space : nowrap;
+    }
+
+    .pm-cell--wide  { min-width: 190px; }
+    .pm-cell--num   { text-align: right; font-family: var(--Pm_FontMono); font-size: 11.5px; white-space: nowrap; }
+    .pm-cell--muted { color: var(--Pm_TextMuted); font-style: italic; }
+
+    .pm-actions {
+        display   : flex;
+        gap       : 5px;
+        flex-wrap : wrap;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Editable Cells
+   ----------------------------------------------------------------------------- */
+
+    /* Only rows put into edit mode expose an editable field, so a stray click
+       on the table can never begin changing project data. */
+    .pm-edit-field {
+        width         : 100%;
+        min-width     : 90px;
+        padding       : 5px 8px;
+        border        : 1px solid var(--Pm_Edit);
+        border-radius : 4px;
+        background    : var(--Pm_BgSecondary);
+        font          : inherit;
+        font-size     : 12.5px;
+    }
+
+    .pm-edit-field:focus { outline: 2px solid var(--Pm_Edit); outline-offset: 1px; }
+
+    .pm-edit-field--mono { font-family: var(--Pm_FontMono); }
+
+    .pm-edit-field--dirty { background: #fffbe6; border-color: var(--Pm_Warn); }
+
+    .pm-cell--locked {
+        color     : var(--Pm_TextMuted);
+        font-style: italic;
+        font-size : 11.5px;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Badges
+   ----------------------------------------------------------------------------- */
+
+    .pm-badge {
+        display        : inline-block;
+        padding        : 2px 7px;
+        margin-right   : 3px;
+        border-radius  : 4px;
+        background     : var(--Pm_BgTertiary);
+        color          : var(--Pm_TextSecondary);
+        font-family    : var(--Pm_FontMono);
+        font-size      : 10.5px;
+        font-weight    : 700;
+        letter-spacing : 0.04em;
+    }
+
+    .pm-badge--on   { background: var(--Pm_OkBg);   color: var(--Pm_Ok); }
+    .pm-badge--off  { opacity: 0.4; }
+    .pm-badge--warn { background: var(--Pm_WarnBg); color: var(--Pm_Warn); }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Quarantine Panel
+   ----------------------------------------------------------------------------- */
+
+    .pm-quarantine {
+        margin-top    : 26px;
+        padding       : 16px 18px;
+        border        : 1px solid var(--Pm_BorderLight);
+        border-radius : 10px;
+        background    : var(--Pm_BgSecondary);
+    }
+
+    .pm-quarantine__title {
+        margin      : 0 0 6px;
+        font-size   : 14px;
+        font-weight : 700;
+        color       : var(--Pm_BrandPrimary);
+    }
+
+    .pm-quarantine__note {
+        margin    : 0 0 12px;
+        font-size : 12.5px;
+        color     : var(--Pm_TextSecondary);
+        line-height: 1.55;
+    }
+
+    .pm-quarantine__item {
+        display       : flex;
+        align-items   : baseline;
+        gap           : 12px;
+        padding       : 7px 0;
+        border-top    : 1px solid var(--Pm_BorderLight);
+        font-family   : var(--Pm_FontMono);
+        font-size     : 11.5px;
+        color         : var(--Pm_TextSecondary);
+    }
+
+    .pm-quarantine__name { flex: 1 1 auto; color: var(--Pm_TextPrimary); }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Confirmation Modal
+   ----------------------------------------------------------------------------- */
+
+    .pm-modal__backdrop {
+        position        : fixed;
+        inset           : 0;
+        display         : flex;
+        align-items     : center;
+        justify-content : center;
+        padding         : 24px;
+        background      : rgba(16, 31, 43, 0.62);
+        z-index         : 100;
+    }
+
+    .pm-modal {
+        width         : 100%;
+        max-width     : 620px;
+        max-height    : 88vh;
+        overflow-y    : auto;
+        border-radius : 12px;
+        background    : var(--Pm_BgSecondary);
+        box-shadow    : 0 24px 64px rgba(0, 0, 0, 0.36);
+    }
+
+    .pm-modal__head {
+        padding       : 18px 22px;
+        border-bottom : 1px solid var(--Pm_BorderLight);
+    }
+
+    .pm-modal__head--danger {
+        background : var(--Pm_BadBg);
+        border-bottom-color : var(--Pm_BadBorder);
+    }
+
+    .pm-modal__stage {
+        margin         : 0 0 4px;
+        font-family    : var(--Pm_FontMono);
+        font-size      : 10.5px;
+        font-weight    : 700;
+        letter-spacing : 0.1em;
+        text-transform : uppercase;
+        color          : var(--Pm_TextMuted);
+    }
+
+    .pm-modal__title {
+        margin      : 0;
+        font-size   : 19px;
+        font-weight : 700;
+        color       : var(--Pm_BrandPrimary);
+    }
+
+    .pm-modal__head--danger .pm-modal__title { color: var(--Pm_Bad); }
+
+    .pm-modal__body {
+        padding     : 20px 22px;
+        font-size   : 13.5px;
+        line-height : 1.62;
+    }
+
+    .pm-modal__body p { margin: 0 0 12px; }
+    .pm-modal__body p:last-child { margin-bottom: 0; }
+
+    .pm-modal__facts {
+        margin        : 0 0 16px;
+        padding       : 12px 14px;
+        border        : 1px solid var(--Pm_BorderLight);
+        border-radius : 8px;
+        background    : var(--Pm_BgPrimary);
+        font-family   : var(--Pm_FontMono);
+        font-size     : 12px;
+        line-height   : 1.75;
+    }
+
+    .pm-modal__fact {
+        display : flex;
+        gap     : 10px;
+    }
+
+    .pm-modal__fact-label {
+        flex  : 0 0 130px;
+        color : var(--Pm_TextMuted);
+    }
+
+    .pm-modal__fact-value { flex: 1 1 auto; word-break: break-all; }
+
+    .pm-modal__sample {
+        margin      : 8px 0 0;
+        padding-left: 16px;
+        color       : var(--Pm_TextSecondary);
+        font-size   : 11px;
+        line-height : 1.7;
+    }
+
+    .pm-modal__confirm-label {
+        display     : block;
+        margin      : 0 0 7px;
+        font-size   : 13px;
+        font-weight : 600;
+    }
+
+    .pm-modal__confirm-input {
+        width          : 100%;
+        height         : 46px;
+        padding        : 0 14px;
+        border         : 2px solid var(--Pm_BadBorder);
+        border-radius  : 8px;
+        background     : var(--Pm_BgSecondary);
+        font-family    : var(--Pm_FontMono);
+        font-size      : 19px;
+        font-weight    : 700;
+        letter-spacing : 0.18em;
+        text-align     : center;
+        text-transform : uppercase;
+    }
+
+    .pm-modal__confirm-input:focus { outline: none; border-color: var(--Pm_Bad); }
+
+    .pm-modal__foot {
+        display         : flex;
+        justify-content : flex-end;
+        gap             : 10px;
+        padding         : 16px 22px;
+        border-top      : 1px solid var(--Pm_BorderLight);
+        background      : var(--Pm_BgPrimary);
+    }
+
+    .pm-modal__result {
+        margin        : 0;
+        padding       : 12px 14px;
+        border-radius : 8px;
+        background    : var(--Pm_BgPrimary);
+        font-family   : var(--Pm_FontMono);
+        font-size     : 12px;
+        line-height   : 1.8;
+        white-space   : pre-wrap;
+    }
+
+    .pm-modal__result--bad { background: var(--Pm_BadBg); color: var(--Pm_Bad); }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Empty and Loading States
+   ----------------------------------------------------------------------------- */
+
+    .pm-state {
+        padding    : 44px 20px;
+        text-align : center;
+        color      : var(--Pm_TextMuted);
+    }
+
+    .pm-state__title {
+        margin      : 0 0 6px;
+        font-size   : 15px;
+        font-weight : 600;
+        color       : var(--Pm_TextSecondary);
+    }
+
+/* endregion ------------------------------------------------------------------- */
