@@ -390,7 +390,9 @@
         "LayoutEditor__AutoSave__Enabled": true,
         "LayoutEditor__AutoSave__DebounceMs": 1500,
         "LayoutEditor__AutoSave__DraftEnabled": true,
-        "LayoutEditor__AutoSave__DraftDebounceMs": 600
+        "LayoutEditor__AutoSave__DraftDebounceMs": 600,
+        "LayoutEditor__AutoSave__CloseGuardDescription": "CloseGuardEnabled asks the browser's own leave-site question before the window, the tab or the PWA closes on work the project has not been told about - sheets not yet saved, or a specification not yet synced. Content edits (viewports, text, dimensions, vectors) deliberately do not auto save, so the editor can hold a whole session behind the Save Sheets button, and Ctrl+W took it with nothing asked. The draft is flushed as the question goes up, so the answer decides when the work is picked up again rather than whether it survives. The wording belongs to the browser: every current one replaced the custom message years ago. Editable sessions only. Turning this off returns the editor to closing without a word.",
+        "LayoutEditor__AutoSave__CloseGuardEnabled": true
     },
     "LayoutEditor__Linework__Config": {
         "LayoutEditor__Linework__Description": "Paper-millimetre stroke widths for the projected linework inside sheet viewports (they print at these widths at any scale). Colours follow the Projected Linework appearance block so a sheet matches its scene.",

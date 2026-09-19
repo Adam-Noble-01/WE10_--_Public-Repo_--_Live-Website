@@ -2,6 +2,303 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.68.1  -  19-Sep-2026
+### The Floor Was Shading Itself: a Grazing View Reads the Ground as Its Own Occluder
+
+**Overview**
+- Adam, with three screenshots: "It's rendering a random band line in front here... just a random
+  smudged black element", and mid-move the whole forecourt grained. "Look for errors in the SSAO
+  method and how it works in the pipeline. Take a real holistic look at everything."
+- The grain was the tell. A flat surface has ZERO true occlusion, so anything the shader reports on
+  open ground is false, and the band is simply what that noise averages to once the burst settles.
+
+**What it was not, and how each was ruled out**
+- Not the depth source: the profile-lines normal pass hands SSAO a full-resolution FloatType depth
+  at the renderer's pixel ratio, meshes only, linework hidden.
+- Not a rendered ground plane: `Scene__GroundPlane__Enabled` is false. The ground is
+  `RB05__TrueVision__LandscapeEnvironment__MeshModel__.glb`, a 12-triangle slab 90m x 85m, so not
+  two coplanar surfaces fighting either - and a second plane 0.5mm above the first changed nothing in
+  the probe.
+- Not the reconstructed normal: on a clean plane the dFdx/dFdy normal is within 0.23 degrees of
+  true across the ground and 1.4 degrees at the horizon. A true normal buffer was prototyped and
+  measured, and it bought nothing. (An earlier read of 46 degrees was sky: every debug mode returns
+  the scene colour where there is no geometry, and white decodes as "fully occluded". Mask the sky
+  or the horizon band reads as 1.000 in every test, which it did.)
+- Not the bias: 0.005 to 0.020 barely moved it.
+
+**What it was**
+- At a grazing view one screen pixel spans a long stretch of ground. A hemisphere sample hovering
+  100mm above the floor projects to a pixel whose read-back surface point can be metres along the
+  floor from the pixel being shaded - and slightly nearer the camera than the sample, which the
+  depth test alone calls occluded. Measured on a clean plane at 12 degrees, mean occlusion per band
+  near to far: 0.02 / 0.05 / 0.15 / 0.28, where the truth is zero. Steeper views collapse it (25
+  degrees: 0.02 / 0.04 / 0.13; 45 degrees: nothing), which is why it reads as a band at the
+  mid-distance and why the near forecourt stays clean.
+- It surfaced now because two deliberate changes exposed it: the radius doubled to 100mm, and the
+  cull distance went from 8m to 50m. The mid-ground used to be culled outright; the far half of the
+  slab had never been shaded before.
+
+**The fix: an occluder has to rise out of the surface**
+- The point read back at a sample's screen position is now also measured against the tangent plane
+  of the pixel being shaded, and only its elevation above that plane counts, faded in from one bias
+  to four so the gate has no hard edge of its own. A floor point is in the plane and contributes
+  nothing however coarse the depth; a wall point stands above it and counts as before.
+- After: 12 degrees 0 / 0 / 0 / 0.013, 25 degrees all zero. A real corner (3m box on the plane, 6m
+  away) reads 0.112 at the contact row before and after, and the false darkening it used to cast on
+  the floor in front of itself (0.015 / 0.024) is gone. Confirmed on RB05 in the raw-AO view: walls
+  and near ground clean, the mid-ground grained exactly where the screenshots circled.
+- Ten lines in the fragment shader, no new uniforms, no pipeline change.
+
+**Also in this release (asked for during the same session)**
+- `RadiusMm` 50 to 100. Adam asked for twice as big and twice as dark. Doubling the radius alone
+  measured x1.95 darker (a bigger hemisphere catches more), so `Intensity` stays at 1.2: doubling it
+  as well measured x3.44.
+- `finalAo` is now clamped 0..1. Written to a HalfFloat target, a negative term is STORED and the
+  blur smears it into neighbours; above intensity 1 that is a halo darker than the maths intends.
+  A no-op wherever the term never went negative.
+- `CullDistanceMm` 8000 to 50000. It measures distance from the CAMERA, so every pixel crossed it
+  together and the whole image lost its shading as one when the camera pulled back past 8m - inside
+  a 45m orbit range. Cost measured on an RTX 3080 at 2560x1440: under 0.15ms per frame. A
+  `CullDistanceNote` in the config records the constraint so it is not lowered blind again.
+
+**Found, not changed**
+- `uResolution` is fed CSS pixels (`window.innerWidth`) while the fragment grid is CSS x pixel
+  ratio. The noise hash does not care; the AO blur does, because its texel size is 1/uResolution,
+  so on a 150% display the 5x5 blur spans 7.5 real texels. Harmless, but it means the blur is wider
+  on Adam's monitors than the config implies. Left as it is because changing it visibly narrows the
+  blur he has been tuning against; his call.
+
+**Tested**
+- Offline A/B against the real module on an RTX 3080: identical kernel in both rigs so the two
+  differ only by the shader change; sky masked out of every measurement.
+- RB05 WestFarm loaded on the static server in the raw-AO debug view (config flag flipped and
+  reverted in the same session) to confirm the signature on the actual scene.
+- NOT re-checked: the finished look in the running app after the gate; and whether 0.09-0.19 of
+  residual at the 40m band is visible under the cull fade that begins there.
+
+**Files**
+- `07__Scene__EnvironmentEffects/Na__RenderEffect__AmbientOcclusion__Shader.js` (tangent-plane
+  gate, clamp), `...AmbientOcclusion__.js` (intensity docstring).
+- `02__AppData/Na__AppConfig__Main.json` (`RadiusMm` 100, `CullDistanceMm` 50000, `CullDistanceNote`).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.68.0  -  19-Sep-2026
+### Twelve Rows of Buttons, and Only One of Them Belonged to the Scene You Were Looking At
+
+**Overview**
+- Adam: "I keep accidentally editing and breaking the wrong scenes." Then a list: fold the rows,
+  follow the carousel, show me a thumbnail, get rid of the second slider, ask before Update Scene,
+  make Clear All hard, tidy the buttons, and give me two batch operations.
+- The complaint and the feature list are the same problem seen from both ends. A panel that puts
+  twenty scenes' worth of controls on screen at once is a panel where the Update Scene button under
+  your cursor belongs to whichever scene happens to be under your cursor, and that is not
+  information you have.
+
+**One scene open at a time, and the carousel picks which**
+- Every scene row folds to a header strip. Opening one closes the rest - a single focused id, not a
+  set, because two open rows is already two sets of Update Scene and Delete on screen.
+- `SetActiveScene` now announces `na-presentation-mode-scene-activated`, and the Dev menu answers by
+  folding down to that scene: its group opens, every other group closes, the row opens and scrolls
+  into view. Pick a card, press a chevron, hit a number key - the row in front of you is the view in
+  front of you.
+- The fold is a PURE DOM PASS. It never rebuilds the panel, because it fires twice on a card click
+  (on the press, and again when the flight lands) and a rebuild there would throw away a half-typed
+  name and re-fetch twenty-one thumbnails for the privilege of changing which rows are visible. Every
+  group's rows are in the document the whole time; a folded group is a hidden container, not an
+  absent one, which is exactly what makes the class toggle sufficient.
+- Adding a scene focuses the new row the same way, set before the commit so the rebuild the commit
+  triggers reads it.
+
+**Layout-editor-only scenes**
+- New per-scene flag, `PresentationMode__Scene__LayoutEditorOnly`, off by default and absent when
+  off. The scene stays in this menu, stays in the Layout Editor's viewport picker and stays
+  reachable through Preview; it leaves the viewer carousel.
+- Drawing sheets want framings a viewer should never be flown to - a facade square-on at a focal
+  length that makes a building read as an elevation, a corner cropped tight enough to show a cill.
+  Before this the only way to have them was to let them sit in the strip looking like mistakes.
+- ONE FILTER, in `GetSortedScenes`, is what hides them. That accessor is the viewer's entire scene
+  set, so the strip, the chevrons, the number hotkeys and the group counts all narrowed together and
+  the carousel module needed no flag check at all. `GetDefaultScene` filters too, so a hidden scene
+  is never the opening view, and `HasValidSavedScenes` filters, so a project whose every scene is
+  hidden gets no carousel rather than an empty one. Authoring surfaces read the raw config array and
+  keep seeing everything; `GetAllAuthoredScenes` is there for the ones that want that explicitly.
+- Toggling it saves immediately, unlike its neighbours in Advanced. Those change how a scene behaves
+  when you arrive; this one changes whether the scene is in the strip at all, and a flag whose whole
+  effect is "the strip looks different now" has to make the strip look different now.
+
+**A thumbnail per open row**
+- The scene's own saved thumbnail, at card size, beside Name and Group; clicking it previews. It
+  confirms the row is the view you think it is without flying anywhere - and for a
+  layout-editor-only scene it is the ONLY picture of that scene anywhere in the app, which would
+  otherwise have meant authoring a view you could not see.
+
+**Move speed lost its slider**
+- It is a transition duration that is set once a project, if ever, and it was carrying a full-width
+  slider on every row. Now a value box in seconds sitting on the FOV row, clamped to the bounds the
+  slider enforced. FOV keeps its slider, because framing is the thing you drag and watch.
+- The whole row is sized to a ~280px panel inside a dropdown: the slider is the only element allowed
+  to take slack, the readout lost `deg /` for a degree glyph, and nothing else carries a min-width.
+  First cut overflowed the panel by 16px with the seconds box hanging off the right edge.
+
+**Asking before the two irreversible presses**
+- Update Scene confirms. It overwrites a saved pose, its FOV, its layers, its navigation mode and its
+  thumbnail in one press, writes that to R2, and there is no undo. Folding the rows made the
+  wrong-row version of that mistake much harder; the confirmation is for the right row at the wrong
+  moment, which folding cannot help with - the camera is simply not where you thought it was.
+- Clear All Scenes now requires the word CLEAR typed in capitals, exactly. "clear" does not open the
+  gate, nor does "Clear". Nothing is emptied, nothing is committed and nothing reaches R2 until the
+  dialog returns true - verified by instrumenting every R2 write and watching the count stay at zero
+  through "clear", "CLEA" and "Clear" with all twenty-one rows still standing.
+- Delete confirms through the same dialog rather than `window.confirm`.
+- The dialogs are a small Dev-menu modal module: confirm, type-to-confirm, and a progress dialog with
+  a Stop for the batches. The shared `Na__AppUtils__ConfirmDialog` was deliberately left alone - it
+  has no static markup in this app, so every one of its callers is really calling `window.confirm`,
+  and changing that under the Layout Editor was not this feature's business.
+
+**The buttons are a grid now, and Clear All is on the far side of a rule**
+- Six buttons of six widths wrapped into a block where the pairing was accidental: which button sat
+  next to Clear All Scenes depended on the panel's width that day. Now a two-column grid - make and
+  save, the two batch walks, export - with Clear All alone under a horizontal rule. The section is
+  deliberately unlabelled; a DANGER heading over one button is noise when the isolation and the typed
+  word already say it.
+- A square + sits at the top of the panel beside Scene Groups, doing the same job as Add Scene From
+  Camera at the foot. On a twenty-scene project the button that makes the twenty-first was three
+  screens away from the view you had just framed.
+- Per-row, Delete is given its own grid cell on the second line, so it is never the button beside the
+  one that was aimed at whatever the labels happen to measure.
+
+**Two batch walks**
+- Update All Thumbnails visits every 3D scene, re-renders its thumbnail, uploads each WebP, and saves
+  the project JSON ONCE at the end - twenty scenes cost twenty small image writes and one document
+  write, not twenty of each. A run that stops early still saves what it finished, because the
+  uploaded images are real and the records pointing at them are in memory only until that save.
+- Download All Images walks the same list through the Image Export panel's own render path. That
+  panel now publishes its live settings behind getters, so "at the current export settings" means the
+  same thing there as at the Export Now button, including an untouched panel sitting on its
+  configured defaults. Re-deriving the target size in the batch would have been a second copy of
+  those defaults, and the copy is the one that goes stale.
+- Both snapshot the camera, the orbit target, the layer visibility and the navigation mode before the
+  first scene and put all four back in a `finally` - after a stop, after a throw. A batch that left
+  the author parked inside scene nineteen with half the model switched off would be worse than no
+  batch.
+- Drawing scenes are skipped and counted, and the confirmation says so before the run rather than the
+  summary after it: "Re-render 18 thumbnails? ... 3 drawing scene(s) are skipped." A floor plan's
+  camera is derived by its own drawing and drawn flat with two overlays that only exist while that
+  drawing owns the viewport; snapping the perspective camera to one produces a picture of the 3D
+  model with a drawing's name on it. Layout-editor-only scenes ARE included - being hidden from the
+  carousel is no reason to miss a thumbnail refresh, and those are the scenes whose thumbnail is the
+  only place you ever see them.
+
+**The walk is pose-only, which it was not at first**
+- The first version applied each scene through the ordinary instant camera apply, which also enters
+  the scene's navigation mode. On a project with interior scenes that is a pointer-lock request per
+  scene, and worse: walk and fly hand the camera to a controller that keeps stepping it under gravity
+  and collision, so the frame that gets captured is no longer the pose that was just set. A run of
+  thumbnails each slightly adrift of its own saved view.
+- `ApplySceneCameraState` gained `options.skipNavigationMode`. The free-look branch still runs, because
+  that is what puts the orbit target along the camera's own look axis so `controls.update()` preserves
+  a walk scene's rotation instead of swinging the camera round to face a stale orbit point - that
+  branch is about keeping the POSE right, which is exactly what a render needs. The mode is restored
+  once, at the end, with the rest of the restore point.
+
+**A collapsed window is not a slow render**
+- Both batches refuse to start when the renderer's canvas has no pixels, and check again before every
+  scene, treating a mid-run collapse as a stop. A minimised window takes the canvas to zero by zero
+  with it, and every render after that is a render with nothing to render into; without the check the
+  run reports a wall of failures rather than the one fact that explains them.
+- This surfaced from the preview harness rather than from theory: a hidden browser pane collapses the
+  canvas the same way, and the app's own capture path - the pre-existing single Update Scene, not
+  anything new here - takes the renderer down with it. Worth knowing the next time a capture "just
+  crashes" in a harness.
+
+**Schema**
+- The saved-scenes block's own `Description` is now a constant in the data layer that owns the shape,
+  and every save stamps it. It had been describing a schema the code stopped writing two features
+  ago, which matters because that string is the first thing anyone opening
+  `TrueVision__ProjectData__.json` reads. It now documents the layout-editor-only key and the fact
+  that it is omitted when false.
+
+**Verified**
+- Fold, single-open, refold, cross-group focus, focus-follows-card and focus-follows-chevron: all
+  driven in the running app against RB05 WestFarm's twenty-one scenes.
+- The layout-only flag end to end: ticked, the card left the strip, the row kept its place with a
+  LAYOUT chip, the chevrons stepped past it, Preview still reached it; unticked, the card came back.
+- Both modals, including every rejected spelling of CLEAR, with R2 writes intercepted and counted.
+- The batch confirmations and their partition (18 walked, 3 drawing scenes skipped). The render walks
+  themselves could not be driven in the preview pane for the reason above; they want one run on a
+  real window.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.67.0  -  19-Sep-2026
+### An Hour of Drawing Sat Behind One Button, and Ctrl+W Never Asked
+
+**Overview**
+- Adam: "I've just accidentally closed it and lost a bunch of work." Closing the PWA window while
+  laying out a sheet took the session with it, without a word.
+- The editor had a browser draft and an auto save already. Neither was the thing standing between
+  an edit and the floor, and finding out why is most of this entry.
+
+**Why the two safety nets that already existed did not catch it**
+- The auto save is deliberately narrow. Structural changes - a sheet created, renamed, reordered,
+  deleted, its paper or its title block - schedule a project save. Content edits do not, and content
+  edits are the work: viewports, text, dimensions, vectors, every drag and nudge. That is the right
+  design, because a drag session that wrote the project between moves would be unusable. The cost
+  is an editor that can hold a whole afternoon behind the Save Sheets button.
+- The browser draft is written 600ms after the editing pauses, and flushed on `pagehide`. That is
+  crash insurance, and `pagehide` is a promise rather than a guarantee - it is skipped on an
+  abnormal close. It was also the ONLY thing on that path, which is a lot of weight for a courtesy
+  write into localStorage that is allowed to fail silently in private mode or a full store.
+- So the honest summary: on a close, the work was as safe as one unguaranteed event and one
+  best-effort write. Closing had no question attached to it at all.
+
+**The guard**
+- A `beforeunload` handler in the auto save - the module whose stated purpose is already "keep
+  sheets from being lost". It raises the browser's own leave-site question while anything is unsaved,
+  and does nothing at all when nothing is. Closing a clean editor is still instant.
+- Unsaved means both halves of the editor: sheets the project has not been told about, and a
+  specification that has not been synced. The sheet flag is tested first because it is a flag; the
+  specification's answer stringifies its whole document, and the PWA registrar polls this.
+- Editable sessions only. A read-only web viewer is never asked, and the check is on editability
+  rather than on the dirty flag, because "nothing to save" is the reason not to ask and the flag is
+  only its symptom.
+- **The draft is flushed as the question goes up, not on the `pagehide` after it.** This is the half
+  that actually rescues work: by the time `pagehide` would fire the decision is already made. Proven
+  in the running app - the draft key was absent when the close began inside the 600ms debounce, and
+  four sheets were on disk the instant the handler ran. The answer to the dialog now decides when
+  the work is picked up again, never whether it survives.
+- The wording belongs to the browser. Chrome, Edge, Firefox and Safari all replaced the custom
+  message years ago. `returnValue` is still set, because the browsers that did read it treat an
+  empty one as "no question", and a guard that silently does nothing somewhere is worse than none.
+
+**The trap: the PWA reloads itself, and asks nothing**
+- The service worker registrar calls `location.reload()` by itself when a new worker activates. It
+  already held that back while a model load was in flight - yanking the page from under a client
+  watching a 200MB download would be brutal - but not for unsaved drawing work, which it would have
+  taken with it.
+- Worse, with the guard in place it would have raised an unexplained leave-site dialog in the middle
+  of a drawing session, from a reload the user never asked for. So the registrar now reads
+  `TrueVision__Pwa__HasUnsavedWork` as a third hold-off signal beside the two it had. Its poll still
+  gives up after 45s; the update lands on the next fresh load.
+
+**Tested**
+- In the running app on PS01, real modules, with `/r2/write` shimmed to block and confirmed never
+  called. Clean: probe false, `beforeunload` not prevented. Dirty: probe true, prevented. The dirty
+  flag was set through a separate dynamic import of the sheet model and read back through the auto
+  save's own closure, which proves the module singleton as well as the guard.
+- Draft flush proven as described above. Config key proven in both directions:
+  `CloseGuardEnabled` false sends the close straight through, true arms it again.
+- NOT tested: the specification-dirty branch on its own. The specification only loads when the
+  editor first opens, so with it unloaded `Na__LeSpec__IsDirty()` correctly returns false and there
+  was nothing to make dirty without entering the editor and risking a write. It is one arm of an
+  OR whose function was confirmed to resolve and return a boolean.
+
+**Files**
+- `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__AutoSave__.js` (v1.3.0 - close
+  guard region, `Na__LeAuto__HasUnsavedWork`, `beforeunload`), `03__Core__Config/...ConfigState__EditorSetup__.js`
+  and `...AppConfig__.json` (`CloseGuardEnabled`), `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Registrar__.js`
+  (v1.1.0 - unsaved work holds the update reload).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.66.0  -  19-Sep-2026
 ### The Settle Was Buying Sixteen Copies of the Same Noise, and the Monitor Was Timing the Silence
 

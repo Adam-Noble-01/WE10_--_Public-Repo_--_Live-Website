@@ -21,7 +21,9 @@
 //   new worker activates and claims the page, the page reloads exactly once
 //   (sessionStorage guard) so the module graph stays consistent. The reload is
 //   held back while a model load is in flight, because yanking the page out
-//   from under a client watching a 200 MB model download would be brutal.
+//   from under a client watching a 200 MB model download would be brutal, and
+//   while the Layout Editor holds unsaved work, because it would take that
+//   work with it.
 // - Ships two recovery routes for a stale install:
 //       window.TrueVision__Pwa__ClearCache()   - wipe caches and workers
 //       window.TrueVision__Pwa__PurgeApp()     - the above plus local storage
@@ -29,6 +31,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - The idle check now also holds the update reload back while the Layout
+//   Editor has unsaved sheets or an unsynced specification, read through
+//   window.TrueVision__Pwa__HasUnsavedWork. This reload asks nothing before it
+//   happens, and the editor's new close guard would have raised the browser's
+//   leave-site question over the top of it - an unexplained dialog mid-session.
+//   The poll still gives up after its timeout; the update lands on the next
+//   fresh load.
+//
 // 27-Aug-2026 - Version 1.0.0
 // - Initial release, ported from the ValeVision3D / Whitecardopedia PWA stack.
 //
@@ -92,11 +103,35 @@
     // ---------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Is There Unsaved Editor Work
+    // ---------------------------------------------------------------
+    // The Layout Editor's auto save publishes this once it knows whether the
+    // session may edit at all. Sheets and the project specification both count.
+    // ---------------------------------------------------------------
+    function TrueVision__Pwa__ServiceWorker__Registrar__HasUnsavedWork() {
+        const probe = window.TrueVision__Pwa__HasUnsavedWork;                                                                       // <-- Published by the Layout Editor auto save
+        if (typeof probe !== 'function') return false;                                                                              // <-- Editor not initialised: nothing to protect
+
+        try { return probe() === true; } catch (error) { return false; }                                                            // <-- A broken probe must not wedge updates forever
+    }
+    // ---------------------------------------------------------------
+
+
     // HELPER FUNCTION | Is a Model Load Currently In Flight
     // ---------------------------------------------------------------
-    // Two signals, either of which means "do not reload right now":
+    // Three signals, any of which means "do not reload right now":
     //   * an explicit flag any module can raise
     //   * the boot loading overlay still being on screen
+    //   * unsaved work open in the Layout Editor
+    //
+    // The third joined the other two because this reload asks nothing before
+    // it happens. Yanking the page out from under a client watching a 200 MB
+    // model download would be brutal; doing it to an architect halfway through
+    // laying out a sheet would take the work with it. The close guard would
+    // raise the browser's leave-site question over the top of it, which is an
+    // unexplained dialog in the middle of a drawing session - worse than the
+    // update simply waiting. The poll gives up after its timeout either way,
+    // and the new worker takes over on the next fresh load.
     // ---------------------------------------------------------------
     function TrueVision__Pwa__ServiceWorker__Registrar__IsLoadInFlight() {
         if (window.TrueVision__Pwa__IsLoadingActive === true) return true;                                                          // <-- Explicit flag raised by the app
@@ -106,6 +141,8 @@
             && loadingOverlay.style.display !== 'none') {
             return true;                                                                                                            // <-- Still booting
         }
+
+        if (TrueVision__Pwa__ServiceWorker__Registrar__HasUnsavedWork()) return true;                                               // <-- Drawing work the project has not been told about
 
         return false;                                                                                                               // <-- Safe to reload
     }
@@ -136,7 +173,7 @@
 
                 elapsedMs += REGISTRAR_RELOAD_POLL_INTERVAL_MS;
                 if (elapsedMs >= REGISTRAR_RELOAD_POLL_MAX_MS) {
-                    console.warn('[TrueVision3D PWA] Load still in flight after 45s - skipping the update reload.');
+                    console.warn('[TrueVision3D PWA] Page still busy or holding unsaved work after 45s - skipping the update reload.');
                     return;                                                                                                         // <-- Give up rather than interrupt a load
                 }
 

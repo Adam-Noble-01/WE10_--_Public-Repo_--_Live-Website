@@ -390,8 +390,27 @@
 
     // FUNCTION | Instantly Apply Scene Camera State (no animation)
     // ------------------------------------------------------------
-    function Na__PresentationMode__Camera__ApplySceneCameraState(camera, controls, scene) {
+    // options.skipNavigationMode : place the camera and the layers, but do NOT
+    // enter the scene's walk or fly mode.
+    //
+    // FOR ANYTHING THAT IS PLACING THE CAMERA IN ORDER TO RENDER, rather than
+    // to hand it to a person. Entering walk or fly gives the camera to a
+    // controller that requests pointer lock and then keeps stepping it -
+    // gravity, collision, momentum - so the frame that gets captured is no
+    // longer the pose that was just set. Across a batch of twenty scenes that
+    // is twenty pointer-lock requests nobody asked for and twenty thumbnails
+    // of not-quite-the-saved-view.
+    //
+    // The free-look branch below still runs: it is what puts the orbit target
+    // along the camera's own look axis so that controls.update() preserves a
+    // walk or fly scene's rotation instead of swinging the camera round to
+    // face a stale orbit point. That is about keeping the POSE correct, which
+    // is precisely what a render needs.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__Camera__ApplySceneCameraState(camera, controls, scene, options) {
         if (!camera || !scene) return;
+
+        const skipNavigationMode = Boolean(options && options.skipNavigationMode);
 
         const values = Na__PresentationMode__Camera__ParseSceneToRuntimeValues(scene);
         if (!values) return;
@@ -422,7 +441,9 @@
         }
 
         Na__PresentationMode__Camera__ApplySceneVisibility(scene);                     // <-- Instant snap always applies visibility with camera
-        Na__PresentationMode__Camera__ApplySceneNavigationMode(targetNavMode);         // <-- Enter the scene's walk/fly mode at the new position
+        if (!skipNavigationMode) {
+            Na__PresentationMode__Camera__ApplySceneNavigationMode(targetNavMode);     // <-- Enter the scene's walk/fly mode at the new position
+        }
         Na__RenderLoop__RequestRender();                                                 // <-- Single frame redraw
     }
     // ------------------------------------------------------------

@@ -452,13 +452,27 @@
         background                         : #fce0e0;
     }
 
+    /* A GRID, not a wrapping row. Six buttons of six widths wrapped into a
+       ragged block where nothing lined up and the pairing was accidental -
+       which button sat next to Clear All Scenes depended on the panel's width
+       that day. The grid pairs them on purpose. Used by the Presentation
+       Scenes panel only; every other dev panel's buttons are
+       .na-pm-dev__actions, which is still a wrapping row. */
     .na-pm-dev__global-actions {
-        display                            : flex;
-        flex-wrap                          : wrap;
+        display                            : grid;
+        grid-template-columns              : 1fr 1fr;
         gap                                : 6px;
         padding-top                        : 10px;
         border-top                         : 1px solid #e8eaed;
         margin-top                         : 8px;
+    }
+
+    .na-pm-dev__global-actions .na-pm-dev__btn {
+        width                              : 100%;
+    }
+
+    .na-pm-dev__btn--wide {
+        grid-column                        : 1 / -1;
     }
 
     .na-pm-dev__empty {
@@ -609,6 +623,426 @@
 
     .na-pm-dev__toggle--disabled,
     .na-pm-dev__toggle:disabled {
+        opacity                            : 0.4;
+        cursor                             : not-allowed;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - Panel Head and Square Add Button
+ * ----- */
+
+    /* The group editor takes the width it needs; the + never moves off the
+       top-right corner however far that section unfolds. */
+    .na-pm-dev__panel-head {
+        display                            : flex;
+        align-items                        : flex-start;
+        gap                                : 6px;
+    }
+
+    .na-pm-dev__group-container {
+        flex                               : 1;
+        min-width                          : 0;
+    }
+
+    .na-pm-dev__square-btn {
+        flex-shrink                        : 0;
+        width                              : 26px;
+        height                             : 26px;
+        padding                            : 0;
+        font-size                          : 1.05rem;
+        line-height                        : 1;
+        border                             : 1px solid #1a7fc4;
+        border-radius                      : 5px;
+        background                         : #eef5fb;
+        color                              : #1a7fc4;
+        cursor                             : pointer;
+        transition                         : background 0.14s;
+    }
+
+    .na-pm-dev__square-btn:hover {
+        background                         : #daeaf6;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - Folded Scene Rows
+ * ----- */
+
+    /* A folded row is its header strip and nothing else. The body is present
+       in the document throughout, which is what lets the carousel re-point
+       this panel with a class toggle instead of a rebuild. */
+    .na-pm-dev__scene-body {
+        display                            : none;
+        padding-top                        : 8px;
+    }
+
+    .na-pm-dev__scene-row.is-open > .na-pm-dev__scene-body {
+        display                            : block;
+    }
+
+    .na-pm-dev__scene-row.is-open > .na-pm-dev__scene-header {
+        border-bottom                      : 1px solid #e8eaed;
+        padding-bottom                     : 5px;
+    }
+
+    .na-pm-dev__scene-title-btn {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 5px;
+        flex                               : 1;
+        min-width                          : 0;
+        padding                            : 2px 0;
+        font                               : inherit;
+        text-align                         : left;
+        background                         : none;
+        border                             : none;
+        cursor                             : pointer;
+        color                              : inherit;
+    }
+
+    .na-pm-dev__scene-title-btn:hover .na-pm-dev__scene-title {
+        color                              : #1a7fc4;
+    }
+
+    .na-pm-dev__scene-arrow {
+        flex-shrink                        : 0;
+        font-size                          : 0.7rem;
+        color                              : #9aa3ad;
+        transform                          : rotate(-90deg);
+        transition                         : transform 0.15s;
+    }
+
+    .na-pm-dev__scene-row.is-open .na-pm-dev__scene-arrow {
+        transform                          : rotate(0deg);
+    }
+
+    /* A state chip, not a ranking: same neutral treatment a folded row's
+       counterparts get, saying which kind of scene this is and nothing about
+       how important it is. */
+    .na-pm-dev__scene-badge {
+        flex-shrink                        : 0;
+        padding                            : 1px 5px;
+        font-size                          : 0.58rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.04em;
+        color                              : #6b7480;
+        background                         : #eef0f3;
+        border                             : 1px solid #dfe3e8;
+        border-radius                      : 3px;
+    }
+
+    .na-pm-dev__scene-row--layout-only .na-pm-dev__scene-title {
+        color                              : #6b7480;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - Thumbnail and Identity Block
+ * ----- */
+
+    .na-pm-dev__identity {
+        display                            : flex;
+        align-items                        : flex-start;
+        gap                                : 8px;
+        margin-bottom                      : 8px;
+    }
+
+    .na-pm-dev__identity-fields {
+        flex                               : 1;
+        min-width                          : 0;
+    }
+
+    .na-pm-dev__identity-fields .na-pm-dev__row:last-child {
+        margin-bottom                      : 0;
+    }
+
+    .na-pm-dev__thumb {
+        flex-shrink                        : 0;
+        width                              : 84px;
+        height                             : 56px;
+        padding                            : 0;
+        overflow                           : hidden;
+        border                             : 1px solid #d6dbe1;
+        border-radius                      : 4px;
+        background                         : #f4f6f8;
+        cursor                             : pointer;
+        transition                         : border-color 0.14s;
+    }
+
+    .na-pm-dev__thumb:hover {
+        border-color                       : #1a7fc4;
+    }
+
+    .na-pm-dev__thumb-img {
+        display                            : block;
+        width                              : 100%;
+        height                             : 100%;
+        object-fit                         : cover;
+    }
+
+    .na-pm-dev__thumb--empty {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        font-size                          : 0.62rem;
+        color                              : #9aa3ad;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - FOV Row with Inline Move Speed
+ * ----- */
+
+    /* Two settings on one line, in a panel about 280px wide inside a dropdown.
+       Everything here is sized to that: the slider is the only thing allowed
+       to take the slack, and nothing else carries a min-width that could push
+       the move speed box off the right edge. FOV keeps the slider because
+       framing is a thing you drag and watch; move speed is a number set once
+       a project. */
+    .na-pm-dev__slider-row--fov {
+        gap                                : 3px;
+        flex-wrap                          : nowrap;
+    }
+
+    .na-pm-dev__label--inline {
+        min-width                          : 0;
+    }
+
+    /* The slider is the only element allowed to absorb the slack, so it is
+       also the only one with room to give when the panel is at its narrowest.
+       Everything else on this row is sized to its content. */
+    .na-pm-dev__slider-row--fov .na-pm-dev__slider {
+        flex                               : 1 1 auto;
+        min-width                          : 38px;
+    }
+
+    .na-pm-dev__slider-row--fov .na-pm-dev__value {
+        min-width                          : 0;
+        font-size                          : 0.66rem;
+        white-space                        : nowrap;
+    }
+
+    .na-pm-dev__inline-field {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 2px;
+        flex                               : 0 0 auto;
+    }
+
+    .na-pm-dev__inline-label {
+        font-size                          : 0.64rem;
+        color                              : #6b7480;
+    }
+
+    .na-pm-dev__inline-suffix {
+        font-size                          : 0.64rem;
+        color                              : #6b7480;
+    }
+
+    .na-pm-dev__input--tiny {
+        width                              : 36px;
+        max-width                          : 36px;
+        flex                               : none;
+        padding                            : 2px 2px;
+        font-size                          : 0.72rem;
+        text-align                         : right;
+        -moz-appearance                    : textfield;
+    }
+
+    /* Chrome reserves room for the spinner on a number input even when it is
+       only shown on hover, which on a 36px box is most of the box. */
+    .na-pm-dev__input--tiny::-webkit-outer-spin-button,
+    .na-pm-dev__input--tiny::-webkit-inner-spin-button {
+        -webkit-appearance                 : none;
+        margin                             : 0;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Scene Editor - Action and Global Button Layout
+ * ----- */
+
+    /* A grid, so Delete lands in the far column of its own line whatever the
+       panel width - rather than sometimes sitting beside Update Scene and
+       sometimes below it, depending on how three button labels happened to
+       measure. It is never the button next to the one that was aimed at. */
+    .na-pm-dev__scene-body .na-pm-dev__actions {
+        display                            : grid;
+        grid-template-columns              : 1fr 1fr;
+        gap                                : 6px;
+    }
+
+    .na-pm-dev__scene-body .na-pm-dev__btn {
+        width                              : 100%;
+    }
+
+    .na-pm-dev__scene-body .na-pm-dev__btn--trailing {
+        grid-column                        : 2;
+        margin-left                        : 0;
+    }
+
+    .na-pm-dev__rule {
+        height                             : 0;
+        margin                             : 14px 0 10px;
+        border                             : none;
+        border-top                         : 1px solid #e0e4e9;
+    }
+
+    .na-pm-dev__danger-actions {
+        display                            : flex;
+        justify-content                    : flex-start;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
+ * REGION | Dev Menu Modal - Confirm, Type-to-Confirm and Batch Progress
+ * ----- */
+
+    /* Above the image export overlays (10001), because a batch drives those
+       overlays while its own progress dialog is on screen. */
+    .na-pm-modal {
+        display                            : none;
+        position                           : fixed;
+        inset                              : 0;
+        z-index                            : 10050;
+        align-items                        : center;
+        justify-content                    : center;
+    }
+
+    .na-pm-modal.is-open {
+        display                            : flex;
+    }
+
+    .na-pm-modal__backdrop {
+        position                           : absolute;
+        inset                              : 0;
+        background                         : rgba(20, 24, 28, 0.55);
+    }
+
+    .na-pm-modal__card {
+        position                           : relative;
+        width                              : min(420px, calc(100vw - 32px));
+        padding                            : 18px 20px 16px;
+        border-radius                      : 8px;
+        background                         : #ffffff;
+        box-shadow                         : 0 12px 40px rgba(0, 0, 0, 0.28);
+        font-family                        : inherit;
+    }
+
+    .na-pm-modal__title {
+        margin                             : 0 0 8px;
+        font-size                          : 0.95rem;
+        font-weight                        : 600;
+        color                              : #23282d;
+    }
+
+    .na-pm-modal__message {
+        margin                             : 0 0 12px;
+        font-size                          : 0.8rem;
+        line-height                        : 1.45;
+        color                              : #555d66;
+    }
+
+    .na-pm-modal__prompt {
+        margin                             : 0 0 6px;
+        font-size                          : 0.8rem;
+        color                              : #23282d;
+    }
+
+    .na-pm-modal__input {
+        width                              : 100%;
+        padding                            : 6px 8px;
+        margin-bottom                      : 4px;
+        font-size                          : 0.85rem;
+        letter-spacing                     : 0.06em;
+        border                             : 1px solid #ccc;
+        border-radius                      : 5px;
+    }
+
+    .na-pm-modal__input:focus {
+        outline                            : none;
+        border-color                       : #cc3333;
+    }
+
+    .na-pm-modal__status {
+        margin                             : 0 0 8px;
+        font-size                          : 0.78rem;
+        color                              : #555d66;
+        min-height                         : 1.2em;
+    }
+
+    .na-pm-modal__bar {
+        height                             : 6px;
+        margin-bottom                      : 4px;
+        overflow                           : hidden;
+        border-radius                      : 3px;
+        background                         : #e8eaed;
+    }
+
+    .na-pm-modal__bar-fill {
+        height                             : 100%;
+        width                              : 0%;
+        background                         : #1a7fc4;
+        transition                         : width 0.2s;
+    }
+
+    .na-pm-modal__footer {
+        display                            : flex;
+        justify-content                    : flex-end;
+        gap                                : 8px;
+        margin-top                         : 14px;
+    }
+
+    .na-pm-modal__btn {
+        padding                            : 6px 14px;
+        font-size                          : 0.8rem;
+        border                             : 1px solid #ccc;
+        border-radius                      : 5px;
+        background                         : #f4f6f8;
+        color                              : #33383d;
+        cursor                             : pointer;
+        transition                         : background 0.14s;
+    }
+
+    .na-pm-modal__btn:hover:not(:disabled) {
+        background                         : #e8edf3;
+    }
+
+    .na-pm-modal__btn--confirm {
+        border-color                       : #1a7fc4;
+        background                         : #eef5fb;
+        color                              : #1a7fc4;
+    }
+
+    .na-pm-modal__btn--confirm:hover:not(:disabled) {
+        background                         : #daeaf6;
+    }
+
+    .na-pm-modal__btn--danger {
+        border-color                       : #cc3333;
+        background                         : #fdf0f0;
+        color                              : #cc3333;
+    }
+
+    .na-pm-modal__btn--danger:hover:not(:disabled) {
+        background                         : #fce0e0;
+    }
+
+    .na-pm-modal__btn:disabled,
+    .na-pm-modal__btn.is-disabled {
         opacity                            : 0.4;
         cursor                             : not-allowed;
     }

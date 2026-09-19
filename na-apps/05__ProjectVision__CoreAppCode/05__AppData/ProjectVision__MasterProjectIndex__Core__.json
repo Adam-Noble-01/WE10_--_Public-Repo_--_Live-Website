@@ -1,5 +1,5 @@
 {
-    "buildTimestamp": "2026-09-17T20:40:45.898575+00:00",
+    "buildTimestamp": "2026-09-19T15:03:45.346892+00:00",
     "projects": {
         "JH03": {
             "projectCode": "JH03",
@@ -89,10 +89,10 @@
                 "trueVision": true
             }
         },
-        "RB05": {
-            "projectCode": "RB05",
-            "projectName": "WestFarm",
-            "projectFolder": "RB05__WestFarm",
+        "PS01": {
+            "projectCode": "PS01",
+            "projectName": "Musters Road",
+            "projectFolder": "PS01__MustersRoad",
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,
@@ -107,18 +107,18 @@
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,
-                "planVision": false,
+                "planVision": true,
                 "trueVision": true
             }
         },
-        "PS01": {
-            "projectCode": "PS01",
-            "projectName": "Musters Road",
-            "projectFolder": "PS01__MustersRoad",
+        "RB05": {
+            "projectCode": "RB05",
+            "projectName": "WestFarm",
+            "projectFolder": "RB05__WestFarm",
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,
-                "planVision": false,
+                "planVision": true,
                 "trueVision": true
             }
         },
@@ -129,8 +129,8 @@
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,
-                "planVision": false,
-                "trueVision": false
+                "planVision": true,
+                "trueVision": true
             }
         }
     }

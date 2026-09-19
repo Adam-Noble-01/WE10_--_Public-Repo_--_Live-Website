@@ -27,6 +27,7 @@
             "modelUrls": [
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__01__OrbitHelperCube__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__LandscapeEnvironment__MeshModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__Linetype__DashedLines__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingRoofs__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ExistingWalls__LineworkModel__.glb",
@@ -48,8 +49,7 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWalls__MeshModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__LineworkModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__MeshModel__.glb",
-                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__Linetype__DashedLines__LineworkModel__.glb"
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-02/PS01__TrueVision__MainBuildingModel__ProposedWindows__MeshModel__.glb"
             ]
         }
     ],
@@ -73,12 +73,12 @@
         "SitePlan__FolderName": "SitePlan__DrawingData",
         "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
         "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
-        "SitePlan__NorthAngleDeg": 0,
+        "SitePlan__NorthAngleDeg": 0.0,
         "SitePlan__BoundsMm": {
-            "MinX": 0,
+            "MinX": 0.0,
             "MinZ": -143295.2,
-            "MaxX": 150353,
-            "MaxZ": 0
+            "MaxX": 150353.0,
+            "MaxZ": 0.0
         },
         "SitePlan__Layers": [
             {
@@ -104,10 +104,10 @@
                 ],
                 "Layer__SegmentCount": 364,
                 "Layer__BoundsMm": {
-                    "MinX": 0,
+                    "MinX": 0.0,
                     "MinZ": -143295.2,
-                    "MaxX": 150353,
-                    "MaxZ": 0
+                    "MaxX": 150353.0,
+                    "MaxZ": 0.0
                 }
             },
             {
@@ -162,8 +162,8 @@
                 ],
                 "Layer__SegmentCount": 394,
                 "Layer__BoundsMm": {
-                    "MinX": 0,
-                    "MinZ": -142893,
+                    "MinX": 0.0,
+                    "MinZ": -142893.0,
                     "MaxX": 136084.7,
                     "MaxZ": -455.9
                 }

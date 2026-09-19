@@ -793,6 +793,32 @@
     }
     // ------------------------------------------------------------
 
+    // FUNCTION | Travel to a Scene by Id, Whether or Not It Has a Card (Public)
+    // ------------------------------------------------------------
+    // The Dev menu's Preview. It looks the scene up in the RAW config rather
+    // than the viewer's filtered set, because a layout-editor-only scene has
+    // to stay reachable from the panel that authors it - hiding a scene from
+    // the carousel must not mean you can no longer go and look at it.
+    //
+    // It routes through the same NavigateToScene as a card click, so a floor
+    // plan or elevation scene still opens its own drawing mode, and the strip
+    // re-aims onto the scene's group when the scene is one the viewer can see.
+    // ------------------------------------------------------------
+    function Na__PresentationMode__UI__GoToSceneById(sceneId) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const scene  = Na__PresentationMode__ProjectJson__GetSceneById(config, sceneId);
+        if (!scene) return false;
+
+        const groupId = Na__PresentationMode__SceneGroups__IsEnabled()
+            ? Na__PresentationMode__SceneGroups__ResolveSceneGroupId(scene, config)
+            : null;
+        if (groupId) Na__PresentationMode__UI__SwitchToGroup(groupId);        // <-- No-op when already showing it
+
+        Na__PresentationMode__UI__NavigateToScene(scene, sceneId);
+        return true;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -812,6 +838,7 @@
         Na__PresentationMode__UI__GoToPreviousScene,
         Na__PresentationMode__UI__IsCarouselVisible,
         Na__PresentationMode__UI__GoToSceneAtIndex,
+        Na__PresentationMode__UI__GoToSceneById,
         Na__PresentationMode__UI__SCENE_ACTIVE_EVENT
     };
     // ------------------------------------------------------------

@@ -1,6 +1,18 @@
 // -----------------------------------------------------------------------------
 // REGION | UI Feature - Image Export Controls
 // -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 19-Sep-2026 - Batch export API
+// - The panel now publishes its live settings (renderer, scene, camera,
+//   pipeline getter, and getters for the aspect / resolution / custom /
+//   enhance state) so a caller outside this file can render exactly what
+//   Export Now would render. Added IsReady, RenderCurrentView and Download.
+// - Added for the Presentation Scenes Dev menu's "Download All Images", which
+//   walks every scene and exports each one. Re-deriving the target size there
+//   would have been a second copy of this panel's defaults, and the copy is
+//   the one that goes stale.
+//
 
     // MODULE IMPORTS | Post Process Pipeline
     // ------------------------------------------------------------
@@ -50,6 +62,25 @@
     // the whitecard line work is exactly the case that needs all sixteen.
     // ------------------------------------------------------------
     const Na__UiFeature__DefaultAntiAliasSamples = 16;
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Live Export Settings, Published for Batch Callers
+    // ------------------------------------------------------------
+    // Everything the Export Now button needs, captured at init and read back
+    // through getters so a caller always gets the CURRENT slider positions
+    // rather than whatever they were when the panel was built.
+    //
+    // WHY THIS EXISTS: the Presentation Scenes Dev menu can export every scene
+    // in the project one after another, and "at the current export settings"
+    // has to mean the same thing there as it does at the button - same
+    // resolution, same aspect, same enhance state, same supersampling. A
+    // second copy of that resolution logic is a second thing to forget to
+    // update. Null until the panel initialises, which is also the honest
+    // answer to "what would an export do right now" on a build where the
+    // export config failed to validate.
+    // ------------------------------------------------------------
+    let Na__UiFeature__ImageExport__LiveSettings = null;
     // ------------------------------------------------------------
 
     // endregion --------------------------------------------------------------
@@ -333,7 +364,30 @@
             resIndex = parseInt(event.target.value, 10);
             updateLabels();
         });
-        
+
+        // PUBLISH THE LIVE SETTINGS | For callers that export without the button
+        // ------------------------------------------------------------
+        // Getters, not a snapshot: the Presentation Scenes batch export reads
+        // this at the moment it runs, so it honours a slider the user moved
+        // after the panel was built. Defaults are already in place here -
+        // ratioIndex and resIndex were clamped out of the config above - so a
+        // caller that arrives before anything has been touched gets exactly
+        // what pressing Export Now would have given it.
+        // ------------------------------------------------------------
+        Na__UiFeature__ImageExport__LiveSettings = {
+            renderer               : renderer,
+            scene                  : scene,
+            camera                 : camera,
+            getRenderPipelineState : getRenderPipelineState,
+            postProcessConfig      : postProcessConfig,
+            exportConfig           : exportConfig,
+            GetIsCustomEnabled     : () => isCustomEnabled,
+            GetIsEnhanceEnabled    : () => isEnhanceEnabled,
+            GetRatioIndex          : () => ratioIndex,
+            GetResIndex            : () => resIndex
+        };
+        // ------------------------------------------------------------
+
 
         // ------------------------------------------------------------
         // SUB FUNCTION | Handle Export Now Action
@@ -431,13 +485,68 @@
 
 
     // -------------------------------------------------------------------------
+    // REGION | Programmatic Export (batch callers)
+    // -------------------------------------------------------------------------
+
+    // FUNCTION | Are the Export Controls Live Yet?
+    // ------------------------------------------------------------
+    function Na__UiFeature__ImageExport__IsReady() {
+        return Na__UiFeature__ImageExport__LiveSettings !== null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Render the Live View at the Current Export Settings
+    // ------------------------------------------------------------
+    // Exactly what Export Now renders, minus the overlay and the download.
+    // Returns { dataUrl, width, height, aspectRatio }, or null when the export
+    // panel never initialised - a caller that gets null should say so rather
+    // than invent a size, because "the settings" would then be a fiction.
+    //
+    // THROWS ON A FAILED RENDER, like the button's own path: the tiled
+    // renderer refuses rather than hand back a blank PNG, and a batch needs to
+    // hear that on the scene it happened to, not at the end.
+    // ------------------------------------------------------------
+    async function Na__UiFeature__ImageExport__RenderCurrentView() {
+        const live = Na__UiFeature__ImageExport__LiveSettings;
+        if (!live) return null;
+
+        return Na__UiFeature__RenderToDataUrl(
+            live.renderer, live.scene, live.camera, live.getRenderPipelineState,
+            live.postProcessConfig, live.GetIsEnhanceEnabled(),
+            live.GetIsCustomEnabled(), live.exportConfig,
+            live.GetRatioIndex(), live.GetResIndex()
+        );
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Save a Rendered Data URL to the User's Downloads
+    // ------------------------------------------------------------
+    // Shared with the button so a batch download and a single download are the
+    // same gesture as far as the browser is concerned.
+    // ------------------------------------------------------------
+    function Na__UiFeature__ImageExport__Download(dataUrl, filename) {
+        if (!dataUrl || !filename) return false;
+        Na__UiFeature__DownloadImage(dataUrl, filename);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+    // endregion --------------------------------------------------------------
+
+
+    // -------------------------------------------------------------------------
     // REGION | Module Exports
     // -------------------------------------------------------------------------
 
     // MODULE EXPORTS | Image Export API
     // ------------------------------------------------------------
     export {
-        Na__UiFeature__InitializeImageExportControls
+        Na__UiFeature__InitializeImageExportControls,
+        Na__UiFeature__ImageExport__IsReady,
+        Na__UiFeature__ImageExport__RenderCurrentView,
+        Na__UiFeature__ImageExport__Download
     };
     // ------------------------------------------------------------
 

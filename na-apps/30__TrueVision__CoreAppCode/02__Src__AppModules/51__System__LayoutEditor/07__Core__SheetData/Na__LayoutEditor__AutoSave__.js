@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LeAuto
 // MODULE     : Layout Editor - Auto Save
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Keep sheets from being lost: a browser draft of every change, and a project save of its own when a sheet is created, renamed, reordered or deleted
+// PURPOSE    : Keep sheets from being lost: a browser draft of every change, a project save of its own when a sheet is created, renamed, reordered or deleted, and a question before the window closes on unsaved work
 // CREATED    : 10-Sep-2026
 //
 // DESCRIPTION:
@@ -30,10 +30,21 @@
 // - The save path is the one Save Sheets uses: Na__LeModel__Save through
 //   Na__DrawView__ProjectData__. Only a failure shows a toast; a save that
 //   worked clears the Save button's attention state through the model.
+// - CLOSE GUARD. While anything is unsaved - sheets not yet written to the
+//   project, or a specification not yet synced - closing the window, closing
+//   the tab or reloading asks the browser's own leave-site question first.
+//   The draft is flushed as the question goes up, so the answer decides
+//   whether the work is picked up now or on the next load, never whether it
+//   survives. Editable sessions only: a read-only viewer has nothing to lose.
+//   The guard also publishes TrueVision__Pwa__HasUnsavedWork, which holds the
+//   PWA registrar's automatic update reload back rather than letting it walk
+//   into the same question unannounced.
 //
 // INTEGRATION:
 // - Initialised by the mode controller with the app toast and the editable
 //   flag; listens to the sheet model and to the drawings data events.
+// - Reads the specification's dirty flag straight from its document unit, so
+//   the one guard covers both halves of the editor.
 //
 // -----------------------------------------------------------------------------
 //
@@ -47,6 +58,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0
+// - CLOSE GUARD. A beforeunload handler asks the browser's leave-site question
+//   while sheets are unsaved or the specification is unsynced. Content edits -
+//   viewports, text, dimensions, vectors - never auto save, so the editor could
+//   hold an hour of work that only the Save Sheets button would write, and
+//   Ctrl+W or the PWA window's close button took it with no question asked.
+// - The draft is flushed before the question goes up rather than waiting for
+//   pagehide. pagehide is not guaranteed on an abnormal close, and it is the
+//   only reason the draft existed at all on that path; flushing at the first
+//   sign of a close costs one localStorage write and stops the guard from
+//   being the only thing standing between an edit and the floor.
+// - The PWA registrar's automatic update reload now waits while work is
+//   unsaved. It reloads with no warning of its own, so without this the guard
+//   would have turned a silent interruption into a baffling one.
+//
 // 13-Sep-2026 - Version 1.2.0
 // - An undo or redo is saved only when the step it reverses or replays was a
 //   structural one: Na__LeAuto__CallsForSave reads the restore detail that
@@ -83,6 +109,15 @@
     import { Na__DrawData__CHANGED_EVENT, Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Specification Document (the close guard's second half)
+    // ------------------------------------------------------------
+    // Straight from the document unit, not the barrel: that unit reads the
+    // config and the R2 client and nothing else, so the sheet side of the
+    // editor does not take the specification's transport with it.
+    // ------------------------------------------------------------
+    import { Na__LeSpec__IsDirty } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__Document__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -109,6 +144,16 @@
     let Na__LeAuto__Ready     = false;
     let Na__LeAuto__Suspended = false;
     let Na__LeAuto__Running = null;
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Close Guard's Legacy Return Value
+    // ------------------------------------------------------------
+    // Every current browser shows its own wording and ignores this string. It
+    // is set because the older browsers that DID read it treat an empty
+    // returnValue as "no question", and a guard that silently does nothing on
+    // one browser is worse than no guard at all.
+    // ------------------------------------------------------------
+    const Na__LeAuto__LEAVE_PROMPT = 'This drawing has changes that have not been saved to the project.';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -290,6 +335,79 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Close Guard
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Is There Work the Project Has Not Been Told About
+    // ------------------------------------------------------------
+    // The sheet flag first, because it is a flag: the specification's answer
+    // stringifies its whole document, and the registrar polls this through
+    // Na__LeAuto__HasUnsavedWork every 750 ms while an update waits.
+    //
+    // A read-only session is never asked. Its model cannot go dirty, but the
+    // check is on editability rather than on that, because "nothing to save"
+    // is the reason not to ask and the dirty flag is only its symptom.
+    // ------------------------------------------------------------
+    function Na__LeAuto__HasUnsavedWork() {
+        if (!Na__LeAuto__Editable) return false;
+        if (Na__LeModel__IsDirty()) return true;
+        try { return Na__LeSpec__IsDirty(); } catch (e) { return false; }        // <-- The specification may never have loaded
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Window Is Closing: Save What Can Be Saved, Then Ask
+    // ------------------------------------------------------------
+    // WHAT THIS IS FOR. Content edits - viewports, text, dimensions, vectors -
+    // do not auto save, by design: a drag session must not write the project
+    // between moves. The cost of that is an editor that can hold a session's
+    // work behind one button, and Ctrl+W, a middle-clicked tab and the PWA
+    // window's close button all took it without asking.
+    //
+    // THE DRAFT IS FLUSHED FIRST, and deliberately before the question rather
+    // than on the pagehide that follows it. pagehide is the browser's promise,
+    // not a guarantee - it is skipped on an abnormal close - and by the time
+    // it would fire the decision has already been made. Flushing here means
+    // the answer to the question decides when the work is picked up again,
+    // not whether there is any.
+    //
+    // THE WORDING IS THE BROWSER'S. Chrome, Edge, Firefox and Safari all
+    // replaced the custom message years ago, so there is nowhere to say
+    // "your drawing has unsaved changes" - only somewhere to make it ask.
+    // ------------------------------------------------------------
+    function Na__LeAuto__OnBeforeUnload(event) {
+        if (!Na__LeCfg__GetAutoSaveSetup().closeGuardEnabled) return undefined;
+        if (!Na__LeAuto__HasUnsavedWork()) return undefined;                     // <-- Nothing at stake: leaving stays instant
+
+        Na__LeAuto__FlushDraft();                                                // <-- Whatever the answer, the last edit is on disk before it is given
+
+        event.preventDefault();                                                  // <-- The modern way to raise the question
+        event.returnValue = Na__LeAuto__LEAVE_PROMPT;                            // <-- The old way, for a browser that still reads it
+        return Na__LeAuto__LEAVE_PROMPT;                                         // <-- The older way still
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tell the PWA Registrar to Hold Its Update Reload
+    // ------------------------------------------------------------
+    // The registrar reloads the page by itself when a new service worker takes
+    // over, with no question of its own, and it already holds that back while a
+    // model load is in flight. Unsaved sheets are the same kind of reason: the
+    // reload is not urgent, and without this the guard above would turn a
+    // silent interruption into an unexplained leave-site dialog in the middle
+    // of a drawing session. The registrar gives up after its own timeout and
+    // lets the update land on the next fresh load.
+    // ------------------------------------------------------------
+    function Na__LeAuto__PublishUnsavedFlag() {
+        try { window.TrueVision__Pwa__HasUnsavedWork = Na__LeAuto__HasUnsavedWork; }
+        catch (e) { /* the guard still works without the registrar knowing */ }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Public API
 // -----------------------------------------------------------------------------
 
@@ -300,10 +418,12 @@
     function Na__LeAuto__Initialize(options) {
         Na__LeAuto__ShowToast = (options && options.showToast) || null;
         Na__LeAuto__Editable  = !!(options && options.editable);
+        Na__LeAuto__PublishUnsavedFlag();                                                                         // <-- Re-read on every call: editability is decided here
         if (Na__LeAuto__Ready) return true;
         Na__LeAuto__Ready = true;
         window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeAuto__OnModelChanged);
         window.addEventListener(Na__DrawData__CHANGED_EVENT, Na__LeAuto__OnDrawingsData);
+        window.addEventListener('beforeunload', Na__LeAuto__OnBeforeUnload);                                      // <-- Unsaved work is asked about before the window goes
         window.addEventListener('pagehide', () => Na__LeAuto__FlushDraft());                                      // <-- Closing the tab keeps the last edit
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Na__LeAuto__FlushDraft(); });
         return true;
@@ -347,7 +467,8 @@
         Na__LeAuto__Suspend,
         Na__LeAuto__Resume,
         Na__LeAuto__Initialize,
-        Na__LeAuto__Flush
+        Na__LeAuto__Flush,
+        Na__LeAuto__HasUnsavedWork
     };
     // ------------------------------------------------------------
 

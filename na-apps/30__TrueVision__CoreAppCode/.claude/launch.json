@@ -155,6 +155,16 @@
         "D:/10_CoreLib__ValeCodebase/WebApps/Whitecardopedia/Projects"
       ],
       "port": 8632
+    },
+    {
+      "name": "tv-pmscenes",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_pmscenes_nocache_server.py",
+        "8641",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8641
     }
   ]
 }

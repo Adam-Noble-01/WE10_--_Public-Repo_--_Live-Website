@@ -59,7 +59,10 @@
 // CONFIG (Na__AppConfig__Main.json → RenderEffect__AmbientOcclusion):
 //   Enabled          — boolean toggle
 //   RadiusMm         — world-space sampling hemisphere radius (mm)
-//   Intensity        — occlusion strength multiplier (0-2)
+//   Intensity        — occlusion strength multiplier. Values above 1 drive the
+//                      term negative in occluded pixels; the shader clamps, so a
+//                      strong setting saturates to black rather than smearing a
+//                      negative through the blur.
 //   Bias             — minimum depth difference to count as occluded
 //   Samples          — number of hemisphere kernel samples
 //   CullDistanceMm   — max distance from camera for AO (mm); 0 = unlimited

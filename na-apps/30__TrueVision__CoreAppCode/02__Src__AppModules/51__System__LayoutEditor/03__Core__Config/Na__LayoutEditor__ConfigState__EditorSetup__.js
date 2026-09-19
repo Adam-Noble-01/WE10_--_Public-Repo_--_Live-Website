@@ -70,14 +70,15 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Auto Save and Browser Draft Setup
+    // FUNCTION | Auto Save, Browser Draft and Close Guard Setup
     // ------------------------------------------------------------
     function Na__LeCfg__GetAutoSaveSetup() {
         return {
             enabled      : Na__LeCfg__Val('AutoSave', 'Enabled', true) !== false,
             debounceMs   : Math.max(200, Na__LeCfg__Num('AutoSave', 'DebounceMs', 1500)),
             draftEnabled : Na__LeCfg__Val('AutoSave', 'DraftEnabled', true) !== false,
-            draftDebounceMs : Math.max(100, Na__LeCfg__Num('AutoSave', 'DraftDebounceMs', 600))
+            draftDebounceMs : Math.max(100, Na__LeCfg__Num('AutoSave', 'DraftDebounceMs', 600)),
+            closeGuardEnabled : Na__LeCfg__Val('AutoSave', 'CloseGuardEnabled', true) !== false
         };
     }
     // ------------------------------------------------------------

@@ -227,7 +227,27 @@
 
                     // Range check prevents contribution from surfaces far beyond the AO radius
                     float rangeCheck = smoothstep(0.0, 1.0, uAoRadius / (abs(depthDiff) + 0.0001));
-                    float aoContrib  = step(uAoBias, depthDiff) * rangeCheck;
+
+                    // TANGENT-PLANE GATE | an occluder has to RISE OUT of the surface.
+                    // The depth test alone cannot tell a wall from the floor itself. At a
+                    // grazing view one screen pixel spans a long stretch of ground, so the
+                    // surface point read back at a sample's screen position can sit metres
+                    // along the floor from the pixel being shaded - and a little nearer the
+                    // camera than the sample hovering above it, which the depth test calls
+                    // occluded. On open ground that is a grey wash that grows with distance
+                    // and grain while moving (measured on a clean plane at 12 degrees:
+                    // 0.02/0.05/0.15/0.28 mean occlusion near-to-far, where the truth is
+                    // zero). The found point is therefore also measured against the tangent
+                    // plane of the shaded pixel: only elevation above that plane counts. A
+                    // floor point is in the plane and contributes nothing however coarse the
+                    // depth; a wall point stands above it and counts as before (the same
+                    // corner measured 0.114 before, 0.091 after). Faded in from one bias to
+                    // four so the gate has no hard edge of its own.
+                    vec3  toOccluder = actualViewPos - viewPos;
+                    float elevation  = dot(toOccluder, normal);
+                    float planeGate  = smoothstep(uAoBias, uAoBias * 4.0, elevation);
+
+                    float aoContrib  = step(uAoBias, depthDiff) * rangeCheck * planeGate;
 
                     occlusion  += aoContrib;
                     validCount += 1.0;
@@ -240,7 +260,18 @@
                     return;
                 }
 
-                float finalAo = 1.0 - aoFactor * uAoIntensity * cullFade;
+                // CLAMPED, BECAUSE INTENSITY IS ALLOWED PAST 1.
+                // This is written to a HalfFloat target, which STORES a negative
+                // number rather than clamping it, and the blur pass then averages
+                // that alpha across 5x5. So an intensity of 2.4 - where anything
+                // more occluded than aoFactor 0.417 goes negative, reaching -1.4 in
+                // a deep corner - does not simply bottom out at black: the negative
+                // is smeared into the neighbours, dragging a halo around every
+                // corner darker than the maths intends, and only clips to black at
+                // the very end when rgb is multiplied by it. Clamping here makes a
+                // strong setting saturate cleanly instead, and is a no-op for any
+                // intensity low enough that the term never went negative anyway.
+                float finalAo = clamp(1.0 - aoFactor * uAoIntensity * cullFade, 0.0, 1.0);
 
                 // Store sharp colour in RGB, AO factor in alpha for blur pass
                 gl_FragColor = vec4(texel.rgb, finalAo);
