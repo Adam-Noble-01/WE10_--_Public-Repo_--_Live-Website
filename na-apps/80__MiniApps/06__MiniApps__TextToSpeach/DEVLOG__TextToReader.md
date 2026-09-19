@@ -14,6 +14,11 @@ DEVELOPMENT LOG
     their own module. Debug console.log calls from the old page were dropped.
   - Old sn-apps copy is left in place until this live Mini App is confirmed.
 
+----------------------------------------------------------------
+1.0.1 - 19-Sep-2026 |  Legacy Copy Removed
+  - Deleted sn-apps/SN10_01_-_UTIL_-_Text-To-Reader-App after live confirmation.
+  - Site data library now points at this Mini App URL.
+
 
 =================================================
 FILE STRUCTURE
