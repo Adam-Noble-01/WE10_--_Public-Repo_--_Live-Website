@@ -206,6 +206,25 @@
         const detail = event.detail || {};
         if (detail.restore) return;                                             // <-- An undo or redo, however it arrived: never a new step
         const reason = detail.reason || '';
+        if (reason === 'register-updated') {
+            Na__LeHist__Entries.forEach((entry, id) => {
+                const sheet = Na__LeModel__GetSheetById(id);
+                if (!sheet) return;
+                [ ...entry.undo, ...entry.redo, entry.current ].filter(Boolean).forEach((step) => {
+                    const snapshot = JSON.parse(step.json);
+                    snapshot.Sheet__Name = sheet.Sheet__Name;
+                    snapshot.Sheet__Order = sheet.Sheet__Order;
+                    snapshot.Sheet__Fields = snapshot.Sheet__Fields || {};
+                    [ 'Title', 'DrawingNumber', 'Revision' ].forEach((key) => {
+                        const field = 'Sheet__Fields__' + key;
+                        if (sheet.Sheet__Fields && sheet.Sheet__Fields[field] !== undefined) snapshot.Sheet__Fields[field] = sheet.Sheet__Fields[field];
+                        else delete snapshot.Sheet__Fields[field];
+                    });
+                    step.json = JSON.stringify(snapshot);
+                });
+            });
+            return;
+        }
         if (reason === 'loaded') { Na__LeHist__Entries.clear(); Na__LeHist__Track(Na__LeModel__GetActiveSheet()); Na__LeHist__Dispatch(null); return; }
         if (reason === 'sheet-deleted') { Na__LeHist__Entries.delete(detail.sheetId); Na__LeHist__Dispatch(null); return; }
         if (reason === 'active') { Na__LeHist__Track(Na__LeModel__GetSheetById(detail.sheetId)); Na__LeHist__Dispatch(detail.sheetId); return; }

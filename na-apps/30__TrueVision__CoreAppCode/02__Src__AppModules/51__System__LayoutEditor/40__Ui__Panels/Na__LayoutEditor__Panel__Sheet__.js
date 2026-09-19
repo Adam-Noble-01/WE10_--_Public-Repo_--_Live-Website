@@ -80,6 +80,9 @@
 // REGION | Section
 // -----------------------------------------------------------------------------
 
+    // @delegate: ../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js
+    import { Na__LeRegEdit__Metadata } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js';
+
     // MODULE CONSTANTS | Section Id
     // ------------------------------------------------------------
     const Na__LePanelSheet__ID = 'sheet';
@@ -110,7 +113,7 @@
         heading.textContent = Na__LeCfg__GetLabel('TitleBlockFields', 'Title block fields');
         body.appendChild(heading);
 
-        Na__LeCfg__GetTitleBlockSetup().rows.forEach((row) => {
+        Na__LeCfg__GetTitleBlockSetup().rows.filter((row) => ![ 'DrawingNumber', 'Title' ].includes(row.Key)).forEach((row) => {
             const input = Na__LePanels__Input('text', 'sheet-field');
             input.setAttribute('data-na-role', row.Key);
             body.appendChild(Na__LePanels__Row(row.Label || row.Key, input));
@@ -146,8 +149,9 @@
     // FUNCTION | Register the Section and Its Controls
     // ------------------------------------------------------------
     function Na__LePanelSheet__Register() {
+        [ 'sheet-name', 'sheet-field' ].forEach((control) => Na__LePanels__OnControl('keydown', control, (event, input) => { if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); input.blur(); } }));
         Na__LePanels__OnControl('change', 'sheet-drawing-type', (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { drawingType : el.value }); });   // <-- Moves the tab; never touches a viewport
-        Na__LePanels__OnControl('change', 'sheet-name',        (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { name : el.value }); });
+        Na__LePanels__OnControl('change', 'sheet-name',        (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) void Na__LeRegEdit__Metadata(s.Sheet__Id, 'name', el.value); });
         Na__LePanels__OnControl('change', 'sheet-paper',       (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { paperSize : el.value }); });
         Na__LePanels__OnControl('change', 'sheet-orientation', (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { orientation : el.value }); });
         Na__LePanels__OnControl('change', 'sheet-titleblock',  (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__UpdateSheet(s, { titleBlockStyle : el.value }); });
@@ -155,7 +159,8 @@
         Na__LePanels__OnControl('change', 'sheet-lw-dimension', (e, el) => { const s = Na__LeModel__GetActiveSheet(); const v = parseFloat(el.value); if (s && Number.isFinite(v)) Na__LeModel__UpdateSheet(s, { lineweights : { dimensionPt : v } }); });
         Na__LePanels__OnControl('change', 'sheet-field', (e, el, key) => {
             const s = Na__LeModel__GetActiveSheet();
-            if (s) Na__LeModel__SetField(s, key, el.value.trim() === '' ? null : el.value);
+            if (s && key === 'Revision') void Na__LeRegEdit__Metadata(s.Sheet__Id, 'revision', el.value);
+            else if (s) Na__LeModel__SetField(s, key, el.value.trim() === '' ? null : el.value);
         });
         return Na__LePanels__RegisterSection('left', {
             id : Na__LePanelSheet__ID, title : Na__LeCfg__GetLabel('SheetTitle', 'Sheet'),

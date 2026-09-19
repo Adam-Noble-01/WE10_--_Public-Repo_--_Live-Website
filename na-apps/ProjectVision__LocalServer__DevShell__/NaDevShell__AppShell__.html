@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noble Architecture Studio</title>
+
+    <!-- =====================================================================
+         NOBLE ARCHITECTURE - PROJECT VISION STUDIO SHELL
+         =====================================================================
+
+         FILE       : NaDevShell__AppShell__.html
+         NAMESPACE  : NaDevShell
+         AUTHOR     : Adam Noble - Noble Architecture
+         PURPOSE    : Single entry point for every local Noble Architecture app
+         CREATED    : 19-Sep-2026
+
+         DESCRIPTION:
+         - Served at the root of the Project Vision local server (localhost only).
+         - Holds a slim persistent application bar above a full-bleed frame.
+         - The frame carries the project gallery, then any sub-application, so
+           one window covers the whole ecosystem without changing URLs by hand.
+         - Installs as a PWA, which is how this is launched from the Start Menu.
+
+         NOTE ON THE PUBLIC SITE:
+         - Nothing here is referenced by the live website. The public apps are
+           untouched; this shell only exists in front of the local dev server.
+
+         ===================================================================== -->
+
+    <link rel="manifest" href="/__na-devshell/NaDevShell__Pwa__Manifest__.webmanifest">
+    <link rel="icon" href="/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaFavicon__ICO-h32px.ico">
+    <meta name="theme-color" content="#172b3a">
+    <link rel="stylesheet" href="/__na-devshell/NaDevShell__AppShell__Stylesheet__.css">
+</head>
+<body>
+
+    <!-- REGION | Application Bar -->
+    <nav class="nads-bar" id="nadsBar" aria-label="Studio navigation">
+
+        <!-- History Controls -->
+        <div class="nads-bar__group">
+            <button class="nads-btn" id="nadsBack" type="button" title="Back (Alt+Left)" aria-label="Back" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4-4.6-4.6z"/></svg>
+            </button>
+            <button class="nads-btn" id="nadsForward" type="button" title="Forward (Alt+Right)" aria-label="Forward" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6z"/></svg>
+            </button>
+            <button class="nads-btn" id="nadsReload" type="button" title="Reload this app (F5)" aria-label="Reload">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A8 8 0 1 0 19.73 14h-2.08A6 6 0 1 1 12 6a5.9 5.9 0 0 1 4.22 1.78L13 11h7V4z"/></svg>
+            </button>
+        </div>
+
+        <div class="nads-bar__divider" aria-hidden="true"></div>
+
+        <!-- Gallery Home -->
+        <div class="nads-bar__group">
+            <button class="nads-btn nads-btn--home" id="nadsHome" type="button" title="All projects (Alt+Home)">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h7V4H4v7zm0 9h7v-7H4v7zm9 0h7v-7h-7v7zm0-16v7h7V4h-7z"/></svg>
+                <span>Projects</span>
+            </button>
+        </div>
+
+        <div class="nads-bar__divider" aria-hidden="true"></div>
+
+        <!-- Breadcrumb and Project Switcher -->
+        <div class="nads-switch" id="nadsSwitch">
+            <button class="nads-btn" id="nadsCrumbBtn" type="button" title="Switch project (Ctrl+K)" aria-haspopup="true" aria-expanded="false">
+                <span class="nads-crumbs">
+                    <span class="nads-crumbs__code" id="nadsCrumbCode"></span>
+                    <span class="nads-crumbs__name" id="nadsCrumbName">All projects</span>
+                    <span class="nads-crumbs__sep" id="nadsCrumbSep" hidden>/</span>
+                    <span class="nads-crumbs__app"  id="nadsCrumbApp"></span>
+                </span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5z"/></svg>
+            </button>
+
+            <div class="nads-switch__menu" id="nadsSwitchMenu" hidden>
+                <input class="nads-switch__search" id="nadsSwitchSearch" type="search"
+                       placeholder="Find a project by name, code or address" autocomplete="off" spellcheck="false">
+                <div id="nadsSwitchList"></div>
+            </div>
+        </div>
+
+        <div class="nads-bar__spacer"></div>
+
+        <!-- Sub-Application Pills for the Active Project -->
+        <div class="nads-pills" id="nadsPills"></div>
+
+        <div class="nads-bar__divider" aria-hidden="true"></div>
+
+        <!-- External Window -->
+        <div class="nads-bar__group">
+            <button class="nads-btn" id="nadsPopOut" type="button" title="Open this page in a normal browser tab" aria-label="Open in browser tab">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 19H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+            </button>
+        </div>
+
+    </nav>
+    <!-- endregion -->
+
+    <!-- REGION | Application Frame -->
+    <iframe class="nads-frame"
+            id="nadsFrame"
+            title="Noble Architecture application"
+            src="/gallery"
+            allow="fullscreen; clipboard-read; clipboard-write; xr-spatial-tracking"></iframe>
+    <!-- endregion -->
+
+    <script type="module" src="/__na-devshell/NaDevShell__AppShell__Controls__.js"></script>
+
+</body>
+</html>

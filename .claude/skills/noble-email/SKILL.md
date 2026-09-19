@@ -57,9 +57,9 @@ states a wrong dimension is worse.
 
 | What | Where |
 |---|---|
-| Repo root | `D:\11_RefLib__StudioRepository__RemoteSystem\NaWeb` |
+| Repo root | `D:\WE10_--_Public-Repo_--_Live-Website` |
 | Portal projects | `<repo>\na-project-portal\{YY}-Projects\{CODE}__{Name}\` |
-| This skill | `<repo>\.claude\skills\noble-email\` |
+| This skill | `D:\08__Cloud__Repo__AgentSkills__Private\21-na-admin-system-skills\noble-email\` |
 | House style | `references/house-style.md` |
 | HTML component library | `references/html-components.md` |
 | Email type playbooks | `references/email-types.md` |

@@ -151,14 +151,11 @@
     // ------------------------------------------------------------
     function Na__LeVw__Documents() {
         const sheets = Na__LeModel__GetSheets();
-        const drawings = sheets.filter((sheet) => !Na__LeModel__IsSitePlanSheet(sheet));
-        const sitePlans = sheets.filter((sheet) => Na__LeModel__IsSitePlanSheet(sheet));
-        const list = [];
-        drawings.forEach((sheet) => list.push({ id : sheet.Sheet__Id, name : sheet.Sheet__Name, kind : 'drawing', sheet : sheet }));
-        sitePlans.forEach((sheet) => list.push({ id : sheet.Sheet__Id, name : sheet.Sheet__Name, kind : 'siteplan', sheet : sheet }));
+        const list = sheets.map((sheet) => ({ id : sheet.Sheet__Id, name : sheet.Sheet__Name, kind : 'drawing', sheet }));
         if (Na__LeCfg__GetWebViewerSetup().showSpecification) {
             list.push({ id : Na__LeVw__SPEC_ID, name : Na__LeCfg__GetLabel('SpecificationTab', 'Project Specification'), kind : 'spec', sheet : null });
         }
+        list.push({ id : 'register', name : 'Drawing Register', kind : 'register', sheet : null });
         return list;
     }
     // ------------------------------------------------------------
@@ -177,6 +174,7 @@
     // ------------------------------------------------------------
     function Na__LeVw__Open(entry) {
         if (!entry || !Na__LeVw__Nav) return false;
+        if (entry.kind === 'register') return !!Na__LeVw__Nav.openRegister();
         if (entry.kind === 'spec') return !!Na__LeVw__Nav.openSpec();
         return !!Na__LeVw__Nav.enter(entry.id);
     }
@@ -418,6 +416,12 @@
 
     // FUNCTION | Put Every Reading Surface Away (leaving for the 3D model)
     // ------------------------------------------------------------
+    function Na__LeVw__ShowRegister() {
+        Na__LeVwSpec__Hide();
+        Na__LeVwDraw__Detach();
+        Na__LeVw__Current = 'register';
+    }
+
     function Na__LeVw__Teardown() {
         Na__LeVwSpec__Hide();
         Na__LeVwDraw__Detach();
@@ -484,6 +488,7 @@
         Na__LeVw__Build,
         Na__LeVw__ShowDrawing,
         Na__LeVw__ShowSpecification,
+        Na__LeVw__ShowRegister,
         Na__LeVw__Teardown,
         Na__LeVw__Sync,
         Na__LeVw__SetActive,

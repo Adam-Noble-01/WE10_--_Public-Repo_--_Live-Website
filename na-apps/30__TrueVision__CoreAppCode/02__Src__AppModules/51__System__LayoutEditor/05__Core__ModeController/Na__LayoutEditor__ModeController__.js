@@ -195,6 +195,10 @@
     import { Na__LePanelMargin__Register } from '../50__Feature__Specification/Na__LayoutEditor__Panel__MarginNotes__.js';
     import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__OPEN_EVENT, Na__LeSpec__GOTO_EVENT, Na__LeSpec__Initialize, Na__LeSpec__EnsureLoaded } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     import { Na__LeSpecLink__Initialize } from '../50__Feature__Specification/Na__LayoutEditor__SpecLinks__.js';
+    // @delegate: ../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Editor__.js
+    import { Na__LeRegEd__Mount, Na__LeRegEd__Show, Na__LeRegEd__Hide } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Editor__.js';
+    import { Na__LeReg__Initialize } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Data__.js';
+    import { Na__LeRegEdit__Initialize } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js';
     import { Na__LeSpecEd__Mount, Na__LeSpecEd__Show, Na__LeSpecEd__Hide } from '../50__Feature__Specification/Na__LayoutEditor__SpecEditor__.js';
     import { Na__LeMarginGrip__Attach, Na__LeMarginGrip__Detach } from '../50__Feature__Specification/Na__LayoutEditor__MarginGrip__.js';
     import { Na__LeText__Commit } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
@@ -227,6 +231,7 @@
         Na__LeVw__Build,
         Na__LeVw__ShowDrawing,
         Na__LeVw__ShowSpecification,
+        Na__LeVw__ShowRegister,
         Na__LeVw__Teardown,
         Na__LeVw__Sync,
         Na__LeVw__SetActive
@@ -248,6 +253,7 @@
     const Na__LeMode__CANVAS_ID     = 'renderCanvas';
     const Na__LeMode__RENDER_HOLD   = 'layout-editor';   // <-- Render loop pause reason while a sheet is open
     const Na__LeMode__VIEW_SHEET    = 'sheet';           // <-- A drawing tab: the sheet, its panels and its tools
+    const Na__LeMode__VIEW_REGISTER = 'register';
     const Na__LeMode__VIEW_SPEC     = 'spec';            // <-- The Project Specification tab, over the sheet
     // ------------------------------------------------------------
 
@@ -318,13 +324,15 @@
         Na__LeMode__Stage = host.querySelector('.na-le-stage');
 
         Na__LeSurface__Mount(Na__LeMode__Stage, { editable : editable });
+        Na__LeRegEd__Mount(host, { editable, showToast : toast, navigation : { enter : Na__LeMode__Enter, openRegister : Na__LeMode__OpenRegister } });
 
         // THE VIEWER | Its own chrome, the specification page, and nothing else
         // ------------------------------------------------------------
         if (viewer) {
             Na__LeVw__Build(host, {                                          // <-- Leaving is the 3D Model tab's, as it is in the editor
                 enter    : (sheetId) => Na__LeMode__Enter(sheetId),
-                openSpec : ()        => Na__LeMode__OpenSpecification()
+                openSpec : ()        => Na__LeMode__OpenSpecification(),
+                openRegister : () => Na__LeMode__OpenRegister()
             });
             Na__LeSpecEd__Mount(host, { editable : false, showToast : toast });   // <-- Read view only; the viewer sets it on every show
             return;
@@ -423,10 +431,11 @@
         if (!sheet) return false;
         Na__LeMode__Build();
         const current  = Na__LeModel__GetActiveSheet();
-        const fromSpec = Na__LeMode__Active && Na__LeMode__View === Na__LeMode__VIEW_SPEC;
+        const fromSpec = Na__LeMode__Active && Na__LeMode__View !== Na__LeMode__VIEW_SHEET;
         const sameSheet = fromSpec && !!current && current.Sheet__Id === sheet.Sheet__Id;
 
         if (fromSpec) {
+            Na__LeRegEd__Hide();
             if (!Na__LeVw__IsViewerMode()) Na__LeSpecEd__Hide();                 // <-- Back from the specification: the sheet was kept underneath
             Na__LeMode__View = Na__LeMode__VIEW_SHEET;                           // <-- In the viewer, ShowDrawing puts the specification away below
             Na__LeMode__AttachSheetInput();
@@ -470,6 +479,7 @@
     // FUNCTION | Close the Editor and Give the 3D View Back
     // ------------------------------------------------------------
     function Na__LeMode__Leave() {
+        Na__LeRegEd__Hide();
         if (!Na__LeMode__Active) return false;
         if (Na__LeVw__IsViewerMode()) Na__LeVw__Teardown();                     // <-- Both reading surfaces let go, whichever was showing
         else if (Na__LeMode__View === Na__LeMode__VIEW_SPEC) Na__LeSpecEd__Hide();   // <-- The sheet's input already stood down when the page opened
@@ -501,6 +511,7 @@
     // drawing tab is open opens the first sheet underneath it first.
     // ------------------------------------------------------------
     function Na__LeMode__OpenSpecification(noteId) {
+        Na__LeRegEd__Hide();
         if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
         void Na__LeSpec__EnsureLoaded();
         if (Na__LeMode__View !== Na__LeMode__VIEW_SPEC) {
@@ -522,6 +533,21 @@
 
     // FUNCTION | State
     // ------------------------------------------------------------
+    // FUNCTION | Open the Pack Register Beside the Specification
+    // ------------------------------------------------------------
+    function Na__LeMode__OpenRegister() {
+        if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
+        Na__LeText__Commit();
+        Na__LeMode__DetachSheetInput();
+        Na__LeSpecEd__Hide();
+        if (Na__LeVw__IsViewerMode()) Na__LeVw__ShowRegister();
+        Na__LeMode__View = Na__LeMode__VIEW_REGISTER;
+        Na__LeRegEd__Show();
+        Na__LeMode__Dispatch();
+        return true;
+    }
+    // ------------------------------------------------------------
+
     function Na__LeMode__IsActive() { return Na__LeMode__Active; }
     function Na__LeMode__Ready()    { return Na__LeMode__ReadyOnce || Promise.resolve(false); }
     function Na__LeMode__GetView()  { return Na__LeMode__View; }
@@ -630,7 +656,8 @@
         if (reason === 'loaded' || reason === 'sheet-deleted') {
             if (!active) { const first = Na__LeModel__GetSheets()[0]; if (first) Na__LeMode__Enter(first.Sheet__Id); else Na__LeMode__Leave(); return; }
             Na__LeSurface__SetSheet(active);
-        } else if (reason === 'sheet-updated' || reason === 'fields') Na__LeSurface__Refresh(reason === 'fields' ? 'chrome' : 'sheet');
+        } else if (reason === 'register-updated') Na__LeSurface__Refresh('chrome');
+        else if (reason === 'sheet-updated' || reason === 'fields') Na__LeSurface__Refresh(reason === 'fields' ? 'chrome' : 'sheet');
         else if (reason === 'viewports' || reason === 'viewport') Na__LeSurface__Refresh('frames');
         else if (Na__LeMode__MARKUP_REASONS.indexOf(reason) !== -1) Na__LeSurface__Refresh('markup');
         else if (reason === 'layers') Na__LeSurface__Refresh('all');
@@ -684,6 +711,9 @@
             Na__LeModel__Initialize();
             Na__LeHist__Initialize();                                        // <-- Undo and redo listen to the model from the start
             Na__LeAuto__Initialize({ showToast : context.showToast || null, editable : Na__LeMode__IsEditable() });   // <-- Browser draft and structural auto save
+            const registerOptions = { editable : Na__LeMode__IsEditable(), showToast : context.showToast || null };
+            Na__LeReg__Initialize(registerOptions);
+            Na__LeRegEdit__Initialize(registerOptions);
             Na__LeSpec__Initialize({ showToast : context.showToast || null, editable : Na__LeMode__IsEditable() });   // <-- The project specification: nothing is read until the editor opens
             Na__LeSpecLink__Initialize();                                    // <-- Bubble codes follow their notes
             Na__LeSnap__Initialize(context);
@@ -750,11 +780,13 @@
         Na__LeMode__CHANGED_EVENT,
         Na__LeMode__VIEW_SHEET,
         Na__LeMode__VIEW_SPEC,
+        Na__LeMode__VIEW_REGISTER,
         Na__LeMode__Initialize,
         Na__LeMode__Ready,
         Na__LeMode__Enter,
         Na__LeMode__Leave,
         Na__LeMode__OpenSpecification,
+        Na__LeMode__OpenRegister,
         Na__LeMode__IsActive,
         Na__LeMode__IsEditable,
         Na__LeMode__GetView

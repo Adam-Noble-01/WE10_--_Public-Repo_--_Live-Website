@@ -928,5 +928,22 @@
         "LayoutEditor__Labels__DoorsOpenAll": "Open all",
         "LayoutEditor__Labels__DoorsAllOpen": "Every door is drawn open. With the viewport selected, click a door on the plan to close it.",
         "LayoutEditor__Labels__DoorsSomeClosed": "{count} closed. Click a door on the plan to open or close it."
+    },
+
+    "LayoutEditor__DrawingRegister__Config": {
+        "LayoutEditor__DrawingRegister__Description": "Pack numbering and PDF defaults. Revision notes live in the self-contained LayoutEditor__DrawingRegister project block. Sheet ids remain unchanged.",
+        "LayoutEditor__DrawingRegister__Prefix": "D",
+        "LayoutEditor__DrawingRegister__Start": 1,
+        "LayoutEditor__DrawingRegister__Digits": 2,
+        "LayoutEditor__DrawingRegister__PdfMarginMm": 15,
+        "LayoutEditor__DrawingRegister__PdfFontPt": 9,
+        "LayoutEditor__DrawingRegister__PreviewScale": 1.25,
+        "LayoutEditor__DrawingRegister__PdfJsScriptPath": "/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js",
+        "LayoutEditor__DrawingRegister__PdfJsWorkerPath": "/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js",
+        "LayoutEditor__DrawingRegister__InkColour": "#5c594f",
+        "LayoutEditor__DrawingRegister__MutedColour": "#a09d96",
+        "LayoutEditor__DrawingRegister__HeaderColour": "#eeece9",
+        "LayoutEditor__DrawingRegister__StripeColour": "#f8f6f3",
+        "LayoutEditor__DrawingRegister__RuleColour": "#e1ded8"
     }
 }

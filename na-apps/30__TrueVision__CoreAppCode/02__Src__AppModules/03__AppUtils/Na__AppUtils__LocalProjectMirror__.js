@@ -182,7 +182,14 @@
     // partialObject: { KeyName: value, ... } - the keys the save wrote to R2.
     // Resolves to { ok, skipped, error }; never rejects.
     // ------------------------------------------------------------
-    async function Na__LocalMirror__MergeKeys(partialObject) {
+    let Na__LocalMirror__MergeQueue = Promise.resolve();
+    function Na__LocalMirror__MergeKeys(partialObject) {
+        const snapshot = JSON.parse(JSON.stringify(partialObject || null));
+        const job = Na__LocalMirror__MergeQueue.then(() => Na__LocalMirror__MergeKeysNow(snapshot));
+        Na__LocalMirror__MergeQueue = job.catch(() => {});
+        return job;
+    }
+    async function Na__LocalMirror__MergeKeysNow(partialObject) {
         if (!Na__AppUtils__IsRunningOnLocalhost()) return Na__LocalMirror__Result(false, true, null);   // <-- The web build has no local copy
         if (!partialObject || typeof partialObject !== 'object') return Na__LocalMirror__Result(false, false, 'nothing to write');
 

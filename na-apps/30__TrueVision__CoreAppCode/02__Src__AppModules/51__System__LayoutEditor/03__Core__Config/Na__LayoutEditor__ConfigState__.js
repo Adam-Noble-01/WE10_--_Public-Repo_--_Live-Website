@@ -28,7 +28,8 @@
 //   - Na__LayoutEditor__ConfigState__ToolSetup__: text, dimensions, selection,
 //     shapes, the Measurements box, leaders, eyedropper, clipboard, snapping.
 //   - Na__LayoutEditor__ConfigState__EditorSetup__: history, auto save, the
-//     project specification, margin notes, panels and navigation.
+//     project specification, margin notes, the drawing register, panels and
+//     navigation.
 //
 // INTEGRATION:
 // - The mode controller calls SetAppConfig then Ready from its Initialize,
@@ -263,6 +264,7 @@
         Na__LeCfg__GetSnappingSetup
     } from './Na__LayoutEditor__ConfigState__ToolSetup__.js';
     import {
+        Na__LeCfg__GetDrawingRegisterSetup,
         Na__LeCfg__GetHistorySetup,
         Na__LeCfg__GetAutoSaveSetup,
         Na__LeCfg__GetSpecificationSetup,
@@ -385,6 +387,7 @@
         Na__LeCfg__GetSnappingSetup,
         Na__LeCfg__GetClipboardSetup,
         Na__LeCfg__GetModelSourceSetup,
+        Na__LeCfg__GetDrawingRegisterSetup,
         Na__LeCfg__GetHistorySetup,
         Na__LeCfg__GetAutoSaveSetup,
         Na__LeCfg__PtToMm,

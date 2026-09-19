@@ -94,7 +94,7 @@
     // ------------------------------------------------------------
     const Na__LeAuto__DRAFT_PREFIX = 'Na__LayoutEditor__Draft__';
     const Na__LeAuto__STRUCTURAL   = [ 'sheet-created', 'sheet-deleted', 'sheet-updated', 'sheet-reordered' ];
-    const Na__LeAuto__IGNORED      = [ 'loaded', 'saved', 'active', 'selection' ];
+    const Na__LeAuto__IGNORED      = [ 'loaded', 'saved', 'active', 'selection', 'register-updated' ];
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Timer, In-Flight Save and Guards
@@ -107,6 +107,8 @@
     let Na__LeAuto__Again     = false;     // <-- A structural change arrived while a save was in flight
     let Na__LeAuto__Restoring = false;
     let Na__LeAuto__Ready     = false;
+    let Na__LeAuto__Suspended = false;
+    let Na__LeAuto__Running = null;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -215,7 +217,12 @@
 
     // HELPER FUNCTION | Save Now, Once, and Again if Something Arrived Meanwhile
     // ------------------------------------------------------------
-    async function Na__LeAuto__Run() {
+    function Na__LeAuto__Run() {
+        if (Na__LeAuto__Suspended) return Promise.resolve(false);
+        Na__LeAuto__Running = Na__LeAuto__RunOnce();
+        return Na__LeAuto__Running;
+    }
+    async function Na__LeAuto__RunOnce() {
         Na__LeAuto__Timer = null;
         if (Na__LeAuto__Saving) { Na__LeAuto__Again = true; return; }
         if (!Na__LeModel__IsDirty()) return;
@@ -233,6 +240,7 @@
     // HELPER FUNCTION | Schedule a Save a Debounce After the Last Structural Change
     // ------------------------------------------------------------
     function Na__LeAuto__Schedule() {
+        if (Na__LeAuto__Suspended) return;
         if (Na__LeAuto__Timer) window.clearTimeout(Na__LeAuto__Timer);
         Na__LeAuto__Timer = window.setTimeout(() => { void Na__LeAuto__Run(); }, Na__LeCfg__GetAutoSaveSetup().debounceMs);
     }
@@ -323,7 +331,21 @@
 
     // MODULE EXPORTS | Layout Editor Auto Save API
     // ------------------------------------------------------------
+    // FUNCTION | A Register Transaction Owns the Save Until Both Copies Answer
+    // ------------------------------------------------------------
+    async function Na__LeAuto__Suspend() {
+        Na__LeAuto__Suspended = true;
+        Na__LeAuto__FlushDraft();
+        if (Na__LeAuto__Timer) window.clearTimeout(Na__LeAuto__Timer);
+        Na__LeAuto__Timer = null;
+        Na__LeAuto__Again = false;
+        if (Na__LeAuto__Running) await Na__LeAuto__Running;
+    }
+    function Na__LeAuto__Resume() { Na__LeAuto__Suspended = false; }
+
     export {
+        Na__LeAuto__Suspend,
+        Na__LeAuto__Resume,
         Na__LeAuto__Initialize,
         Na__LeAuto__Flush
     };

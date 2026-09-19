@@ -325,7 +325,14 @@
     // ------------------------------------------------------------
     // partialObject: { KeyName: value, ... } merged at the document root.
     // ------------------------------------------------------------
-    async function Na__CfApi__MergeAndSaveKeys(partialObject) {
+    let Na__CfApi__MergeQueue = Promise.resolve();
+    function Na__CfApi__MergeAndSaveKeys(partialObject) {
+        const snapshot = JSON.parse(JSON.stringify(partialObject));
+        const job = Na__CfApi__MergeQueue.then(() => Na__CfApi__MergeAndSaveKeysNow(snapshot));
+        Na__CfApi__MergeQueue = job.catch(() => {});
+        return job;
+    }
+    async function Na__CfApi__MergeAndSaveKeysNow(partialObject) {
         const baseResult = await Na__CfApi__ResolveMergeBase();
         if (!baseResult.ok) return baseResult;
 

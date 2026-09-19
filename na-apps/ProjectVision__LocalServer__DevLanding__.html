@@ -276,6 +276,44 @@
         color         : var(--Dv_TextLight);
     }
 
+    .dv-sort {
+        display       : inline-flex;
+        align-items   : center;
+        gap           : 8px;
+        white-space   : nowrap;
+    }
+
+    .dv-sort__label {
+        font-size     : 12px;
+        font-weight   : 600;
+        color         : var(--Dv_TextMuted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .dv-sort__select {
+        appearance    : none;
+        font-family   : var(--Dv_FontFamily);
+        font-size     : 13px;
+        font-weight   : 600;
+        color         : var(--Dv_TextSecondary);
+        background    : var(--Dv_BgSecondary);
+        border        : 2px solid var(--Dv_BorderLight);
+        border-radius : 20px;
+        padding       : 9px 30px 9px 14px;
+        cursor        : pointer;
+        transition    : all var(--Dv_TransitionFast);
+
+        /* Chevron drawn inline so the control needs no image asset */
+        background-image    : url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666666'%3E%3Cpath d='m7 10 5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat   : no-repeat;
+        background-position : right 8px center;
+        background-size     : 16px 16px;
+    }
+
+    .dv-sort__select:hover  { border-color: var(--Dv_BorderMedium); }
+    .dv-sort__select:focus  { outline: none; border-color: var(--Dv_BrandAccent); }
+
     .dv-toolbar__count {
         font-size    : 12px;
         color        : var(--Dv_TextMuted);
@@ -479,6 +517,20 @@
         overflow       : hidden;
         text-overflow  : ellipsis;
         white-space    : nowrap;
+    }
+
+    .dv-card__date {
+        flex-shrink     : 0;
+        margin-left     : auto;
+        font-family     : var(--Dv_FontMono);
+        font-size       : 11px;
+        color           : var(--Dv_TextMuted);
+        white-space     : nowrap;
+    }
+
+    .dv-card__date--none {
+        opacity         : 0.55;
+        font-style      : italic;
     }
 
     .dv-card__folder {
@@ -811,6 +863,16 @@
             <button type="button" class="dv-chip"                 data-filter="live">Live only</button>
             <button type="button" class="dv-chip"                 data-filter="current">Current year</button>
 
+            <label class="dv-sort" for="dvSort">
+                <span class="dv-sort__label">Sort</span>
+                <select class="dv-sort__select" id="dvSort">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="name">Name A&ndash;Z</option>
+                    <option value="code">Code A&ndash;Z</option>
+                </select>
+            </label>
+
             <span class="dv-toolbar__count" id="dvCount"></span>
         </div>
 
@@ -880,7 +942,9 @@
 
         const RECENT_STORAGE_KEY  = 'na.projectvision.devlanding.recent';
         const FILTER_STORAGE_KEY  = 'na.projectvision.devlanding.filter';
+        const SORT_STORAGE_KEY    = 'na.projectvision.devlanding.sort';
         const RECENT_MAX          = 6;
+        const DEFAULT_SORT        = 'newest';   // <-- The latest job is nearly always the one wanted
 
         const ICON__Hub    = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.83 3.41L12 10.96 5.17 7.59 12 4.18zM4 8.82l7 3.5v7.86l-7-3.5V8.82zm9 11.36v-7.86l7-3.5v7.86l-7 3.5z"/></svg>';
         const ICON__Admin  = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zm-3-7H9v-2h6v2zm0 4H9v-2h6v2zm-2-8H9V7h4v2z"/></svg>';
@@ -910,6 +974,7 @@
         const elStatusDot   = document.getElementById('dvStatusDot');
         const elStatusText  = document.getElementById('dvStatusText');
         const elReload      = document.getElementById('dvReload');
+        const elSort        = document.getElementById('dvSort');
         const elChips       = Array.from(document.querySelectorAll('.dv-chip'));
 
     // endregion ----------------------------------------------
@@ -923,6 +988,7 @@
         let visibleProjects = [];      // <-- Current search + filter result
         let currentYear     = '';      // <-- Newest project year reported by the server
         let activeFilter    = 'all';   // <-- all | live | current
+        let activeSort      = DEFAULT_SORT;  // <-- newest | oldest | name | code
         let cursorIndex     = 0;       // <-- Keyboard highlight position
 
     // endregion ----------------------------------------------
@@ -975,6 +1041,38 @@
 
         function writeFilter(value) {
             try { window.localStorage.setItem(FILTER_STORAGE_KEY, value); } catch (err) { /* no-op */ }
+        }
+
+        // HELPER | Persist and restore the chosen card order
+        function readSort() {
+            try {
+                return window.localStorage.getItem(SORT_STORAGE_KEY) || DEFAULT_SORT;
+            } catch (err) {
+                return DEFAULT_SORT;
+            }
+        }
+
+        function writeSort(value) {
+            try { window.localStorage.setItem(SORT_STORAGE_KEY, value); } catch (err) { /* no-op */ }
+        }
+
+        // HELPER | Format a project date in the house style, 17-Sep-2026
+        // -------------------------------------------------------------
+        // createdDate is already written that way, so it is used as-is.
+        // The month names are spelled out rather than taken from the locale,
+        // which renders September as "Sept" and breaks the house format.
+        const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        function formatDate(project) {
+            if (project.createdDate) return project.createdDate;
+            if (!project.recencySort) return '';
+
+            const parsed = new Date(project.recencySort);
+            if (Number.isNaN(parsed.getTime())) return '';
+
+            const day = String(parsed.getDate()).padStart(2, '0');
+            return day + '-' + MONTH_NAMES[parsed.getMonth()] + '-' + parsed.getFullYear();
         }
 
     // endregion ----------------------------------------------
@@ -1090,12 +1188,18 @@
                 + '</div>'
                 : '';
 
+            const dateText  = formatDate(project);
+            const dateBlock = dateText
+                ? '<span class="dv-card__date" title="Project opened ' + esc(dateText) + '">' + esc(dateText) + '</span>'
+                : '<span class="dv-card__date dv-card__date--none" title="No Project Admin content, so no start date is recorded">no date</span>';
+
             return ''
                 + '<div class="dv-card' + stateClass + '" data-index="' + index + '" data-code="' + esc(project.projectCode) + '">'
                 +   '<div class="dv-card__body">'
                 +     '<div class="dv-card__titlerow">'
                 +       '<span class="dv-card__code">' + esc(project.projectCode) + '</span>'
                 +       '<span class="dv-card__name" title="' + esc(project.projectName) + '">' + esc(project.projectName) + '</span>'
+                +       dateBlock
                 +     '</div>'
                 +     '<div class="dv-card__folder" title="' + esc(project.projectFolder) + '">' + esc(project.projectFolder) + '</div>'
                 +     addressBlock
@@ -1120,11 +1224,57 @@
     // FUNCTION | Filtering, Grouping and Rendering
     // --------------------------------------------------------
 
-        // FUNCTION | Apply the search text and the active filter chip
+        // HELPER | Millisecond value of a project date, 0 when it has none
+        function recencyValue(project) {
+            const parsed = new Date(project.recencySort || 0).getTime();
+            return Number.isNaN(parsed) ? 0 : parsed;
+        }
+
+        // FUNCTION | Order the cards for the chosen sort
+        // -------------------------------------------------------------
+        // Undated projects have no Project Admin content, so nothing records
+        // when they started. They always sit at the back of a date sort rather
+        // than jumping to the front of "Oldest first" on a zero timestamp.
+        function sortProjects(projects) {
+            const ordered = projects.slice();
+
+            if (activeSort === 'name') {
+                ordered.sort(function(a, b) {
+                    return a.projectName.localeCompare(b.projectName, 'en-GB', { sensitivity: 'base' })
+                        || a.projectCode.localeCompare(b.projectCode);
+                });
+                return ordered;
+            }
+
+            if (activeSort === 'code') {
+                ordered.sort(function(a, b) {
+                    return a.projectCode.localeCompare(b.projectCode);
+                });
+                return ordered;
+            }
+
+            const direction = activeSort === 'oldest' ? 1 : -1;
+
+            ordered.sort(function(a, b) {
+                const aTime = recencyValue(a);
+                const bTime = recencyValue(b);
+
+                if (!aTime && !bTime) return a.projectCode.localeCompare(b.projectCode);
+                if (!aTime) return 1;                                  // <-- Undated always last
+                if (!bTime) return -1;
+
+                return (aTime - bTime) * direction
+                    || a.projectCode.localeCompare(b.projectCode);
+            });
+
+            return ordered;
+        }
+
+        // FUNCTION | Apply the search text, the active filter chip and the sort
         function computeVisible() {
             const query = elSearch.value.trim().toLowerCase();
 
-            return allProjects.filter(function(project) {
+            const matched = allProjects.filter(function(project) {
                 if (activeFilter === 'live' && !project.isLive) return false;
                 if (activeFilter === 'current' && project.projectYear !== currentYear) return false;
                 if (!query) return true;
@@ -1139,6 +1289,8 @@
 
                 return haystack.indexOf(query) !== -1;
             });
+
+            return sortProjects(matched);
         }
 
         // FUNCTION | Render the grouped card grid for the current state
@@ -1379,6 +1531,16 @@
             });
         });
 
+        // EVENT | Card order selection
+        elSort.addEventListener('change', function() {
+            activeSort = elSort.value;
+            writeSort(activeSort);
+
+            cursorIndex = 0;
+            render();
+            elSearch.focus();
+        });
+
         // EVENT | Record opened projects in the recent list
         elResults.addEventListener('click', function(event) {
             const link = event.target.closest('a[data-role]');
@@ -1420,10 +1582,17 @@
     // --------------------------------------------------------
 
         activeFilter = readFilter();
+        activeSort   = readSort();
 
         elChips.forEach(function(chip) {
             chip.classList.toggle('dv-chip--active', chip.dataset.filter === activeFilter);
         });
+
+        elSort.value = activeSort;
+        if (!elSort.value) {                                    // <-- Guard a stale value from an older build
+            activeSort   = DEFAULT_SORT;
+            elSort.value = DEFAULT_SORT;
+        }
 
         elSearch.focus();
         refreshServerStatus();

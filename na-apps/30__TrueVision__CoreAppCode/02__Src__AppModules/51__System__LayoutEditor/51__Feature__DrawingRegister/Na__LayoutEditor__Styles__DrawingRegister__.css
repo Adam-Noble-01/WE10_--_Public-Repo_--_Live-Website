@@ -1,0 +1,452 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (drawing register) */
+/* ================================================================= */
+/*
+ * AUTHORED : 19-Sep-2026 for TrueVision3D (Drawing Register)
+ * PORT NOTE: TrueVision3D first; ValeVision not yet ported. The palette is
+ *            the register's own paper character, shared by the editor table
+ *            and the client PDF preview.
+ * RESTYLED : 19-Sep-2026 - Header, regions, CSS variables and colon alignment
+ *            brought in line with the Layout Editor coding conventions.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Register Tokens                                        */
+/* ----------------------------------------------------------------- */
+
+:root {
+    --Na_Register_Paper                : #f8f7f5;
+    --Na_Register_Ink                  : #5c594f;
+    --Na_Register_Muted                : #8d8063;
+    --Na_Register_Caption              : #aaa69d;
+    --Na_Register_Rule                 : #e1ded8;
+    --Na_Register_CellRule             : #e4e1dc;
+    --Na_Register_Border               : #dedbd5;
+    --Na_Register_Header               : #eeece9;
+    --Na_Register_Stripe               : #f8f6f3;
+    --Na_Register_White                : #ffffff;
+    --Na_Register_Hover                : #f1efeb;
+    --Na_Register_Expanded             : #f4f2ee;
+    --Na_Register_Focus                : #8b8068;
+    --Na_Register_FocusRing            : #c8beaa;
+    --Na_Register_Drop                 : #ad9972;
+    --Na_Register_WarnYellow           : #d6ab40;
+    --Na_Register_WarnRed              : #b24e43;
+    --Na_Register_Handle               : #a29c90;
+    --Na_Register_Series               : #8b867c;
+    --Na_Register_Hint                 : #8f897e;
+    --Na_Register_Head                 : #a09d96;
+    --Na_Register_Shadow               : #0002;
+    --Na_Register_Backdrop             : #27241c66;
+    --Na_Register_DialogBorder         : #ddd7cc;
+    --Na_Register_Gap                  : 8px;
+    --Na_Register_Pad                  : 10px;
+    --Na_Register_Radius               : 4px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Page                                               */
+/* ----------------------------------------------------------------- */
+
+.na-le-register {
+    position                           : absolute;
+    inset                              : 0;
+    z-index                            : 12;
+    display                            : flex;
+    flex-direction                     : column;
+    background                         : var(--Na_Register_Paper);
+    color                              : var(--Na_Register_Ink);
+    font                               : 14px 'Open Sans', Arial, sans-serif;
+}
+
+.na-le-register[hidden],
+.na-le-register [hidden] {
+    display                            : none !important;
+}
+
+.na-le-register__content {
+    flex                               : 1;
+    min-height                         : 0;
+    overflow                           : auto;
+    padding                            : 32px;
+}
+
+.na-le-register__card {
+    max-width                          : 1480px;
+    margin                             : 0 auto;
+    padding                            : 36px 40px 44px;
+    background                         : var(--Na_Register_White);
+    border-radius                      : 10px;
+    box-shadow                         : 0 4px 9px var(--Na_Register_Shadow);
+}
+
+.na-le-register h1 {
+    margin                             : 0;
+    font-size                          : 28px;
+    font-weight                        : 600;
+}
+
+.na-le-register h2 {
+    font-size                          : 22px;
+    font-weight                        : 600;
+    margin                             : 26px 0 20px;
+}
+
+.na-le-register__date {
+    color                              : var(--Na_Register_Caption);
+    font-style                         : italic;
+    margin                             : 10px 0 28px;
+}
+
+.na-le-register hr {
+    border                             : 0;
+    border-top                         : 1px solid var(--Na_Register_Rule);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Bar                                                */
+/* ----------------------------------------------------------------- */
+
+.na-le-register__bar {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : var(--Na_Register_Gap);
+    padding                            : var(--Na_Register_Pad) 16px;
+    background                         : var(--Na_Register_White);
+    border-bottom                      : 1px solid var(--Na_Register_Rule);
+}
+
+.na-le-register button,
+.na-le-register select,
+.na-le-register summary {
+    cursor                             : pointer;
+}
+
+.na-le-register button,
+.na-le-register select {
+    font                               : inherit;
+    color                              : inherit;
+    border                             : 1px solid var(--Na_Register_Border);
+    border-radius                      : var(--Na_Register_Radius);
+    background                         : var(--Na_Register_White);
+    padding                            : 7px 10px;
+}
+
+.na-le-register button:hover {
+    background                         : var(--Na_Register_Hover);
+}
+
+.na-le-register button:disabled {
+    opacity                            : .55;
+    cursor                             : wait;
+}
+
+.na-le-register__views {
+    display                            : flex;
+    gap                                : 2px;
+    margin-right                       : 12px;
+}
+
+.na-le-register__views [aria-selected=true] {
+    background                         : var(--Na_Register_Ink);
+    color                              : var(--Na_Register_White);
+    border-color                       : var(--Na_Register_Ink);
+}
+
+.na-le-register__status {
+    font-size                          : 12px;
+    color                              : var(--Na_Register_Muted);
+}
+
+.na-le-register__save {
+    position                           : relative;
+    margin-left                        : auto;
+}
+
+.na-le-register__save > div {
+    position                           : absolute;
+    right                              : 0;
+    top                                : 28px;
+    z-index                            : 4;
+    display                            : grid;
+    gap                                : 6px;
+    min-width                          : 170px;
+    padding                            : 12px;
+    background                         : var(--Na_Register_White);
+    box-shadow                         : 0 3px 12px var(--Na_Register_Shadow);
+    border-radius                      : 6px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Numbering Series                                       */
+/* ----------------------------------------------------------------- */
+
+.na-le-register__series {
+    margin                             : 0 0 18px;
+    font-size                          : 13px;
+}
+
+.na-le-register__series > summary {
+    color                              : var(--Na_Register_Series);
+}
+
+.na-le-register__series-fields {
+    display                            : flex;
+    align-items                        : end;
+    gap                                : 12px;
+    flex-wrap                          : wrap;
+    padding-top                        : 14px;
+}
+
+.na-le-register__series-fields label {
+    display                            : grid;
+    gap                                : 5px;
+}
+
+.na-le-register__series-fields input {
+    width                              : 95px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Table                                              */
+/* ----------------------------------------------------------------- */
+
+.na-le-register__table-scroll {
+    overflow-x                         : auto;
+}
+
+.na-le-register table {
+    width                              : 100%;
+    border-collapse                    : collapse;
+    font-size                          : 15px;
+}
+
+.na-le-register th {
+    padding                            : 15px 10px;
+    text-align                         : left;
+    color                              : var(--Na_Register_Head);
+    background                         : var(--Na_Register_Header);
+    font-size                          : 12px;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+}
+
+.na-le-register td {
+    padding                            : 8px 10px;
+    border-bottom                      : 1px solid var(--Na_Register_CellRule);
+    vertical-align                     : middle;
+}
+
+.na-le-register__drawing:nth-of-type(even) {
+    background                         : var(--Na_Register_Stripe);
+}
+
+.na-le-register__drawing td:nth-child(3) {
+    width                              : 48%;
+    min-width                          : 240px;
+}
+
+.na-le-register__drawing td:nth-child(7) {
+    width                              : 80px;
+}
+
+.na-le-register__code {
+    font-weight                        : 600;
+    white-space                        : nowrap;
+}
+
+.na-le-register__drawing td:first-child,
+.na-le-register__drawing td:last-child {
+    width                              : 30px;
+    padding                            : 4px;
+}
+
+.na-le-register__drawing td:first-child button,
+.na-le-register__drawing td:last-child button {
+    padding                            : 5px;
+    background                         : transparent;
+    border-color                       : transparent;
+    color                              : var(--Na_Register_Handle);
+}
+
+.na-le-register__drawing td:first-child button {
+    cursor                             : grab;
+}
+
+.na-le-register input,
+.na-le-register textarea {
+    font                               : inherit;
+    color                              : inherit;
+    padding                            : 7px 8px;
+    border                             : 1px solid var(--Na_Register_Border);
+    border-radius                      : 3px;
+    background                         : var(--Na_Register_White);
+    box-sizing                         : border-box;
+}
+
+.na-le-register__drawing input {
+    width                              : 100%;
+    min-width                          : 50px;
+    padding                            : 7px 0;
+    background                         : transparent;
+    border-color                       : transparent;
+}
+
+.na-le-register__drawing input:hover {
+    border-color                       : var(--Na_Register_Border);
+}
+
+.na-le-register input:focus,
+.na-le-register textarea:focus {
+    border-color                       : var(--Na_Register_Focus);
+    outline                            : 2px solid var(--Na_Register_FocusRing);
+    outline-offset                     : 1px;
+    background                         : var(--Na_Register_White);
+}
+
+.na-le-register__drop {
+    outline                            : 2px solid var(--Na_Register_Drop);
+    outline-offset                     : -2px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Expanded Row and Revision Notes                        */
+/* ----------------------------------------------------------------- */
+
+.na-le-register__expanded {
+    padding                            : 22px 32px !important;
+    background                         : var(--Na_Register_Expanded);
+}
+
+.na-le-register__expanded h3 {
+    margin                             : 20px 0 5px;
+    font-size                          : 16px;
+}
+
+.na-le-register__expanded p {
+    color                              : var(--Na_Register_Hint);
+    font-size                          : 12px;
+}
+
+.na-le-register__row-tools {
+    display                            : flex;
+    gap                                : 18px;
+    align-items                        : center;
+}
+
+.na-le-register__row-tools input {
+    width                              : 90px;
+    margin-left                        : 10px;
+}
+
+.na-le-register__note {
+    border                             : 1px solid var(--Na_Register_Border);
+    padding                            : 16px;
+    margin                             : 14px 0;
+    background                         : var(--Na_Register_White);
+    border-radius                      : 5px;
+}
+
+.na-le-register__note[data-warning=yellow] {
+    border-left                        : 4px solid var(--Na_Register_WarnYellow);
+}
+
+.na-le-register__note[data-warning=red] {
+    border-left                        : 4px solid var(--Na_Register_WarnRed);
+}
+
+.na-le-register__note-top {
+    display                            : flex;
+    align-items                        : end;
+    flex-wrap                          : wrap;
+    gap                                : 14px;
+}
+
+.na-le-register__note-field {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 5px;
+    margin                             : 8px 0;
+    font-size                          : 13px;
+}
+
+.na-le-register__note-field textarea {
+    width                              : 100%;
+    resize                             : vertical;
+    line-height                        : 1.6;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Preview, Saving Overlay and Compact View               */
+/* ----------------------------------------------------------------- */
+
+.na-le-register__pdf-page {
+    display                            : block;
+    width                              : 100%;
+    max-width                          : 794px;
+    height                             : auto;
+    margin                             : 0 auto 24px;
+    box-shadow                         : 0 3px 9px var(--Na_Register_Shadow);
+    background                         : var(--Na_Register_White);
+}
+
+.na-le-register__saving {
+    padding                            : 26px 36px;
+    border                             : 1px solid var(--Na_Register_DialogBorder);
+    border-radius                      : 8px;
+    font                               : 15px 'Open Sans', Arial, sans-serif;
+    color                              : var(--Na_Register_Ink);
+    max-width                          : 520px;
+}
+
+.na-le-register__saving::backdrop {
+    background                         : var(--Na_Register_Backdrop);
+}
+
+@media (max-width: 700px) {
+    .na-le-register__content {
+        padding                        : 12px;
+    }
+
+    .na-le-register__card {
+        padding                        : 22px 16px;
+    }
+
+    .na-le-register__bar {
+        gap                            : 6px;
+        padding                        : 8px;
+        font-size                      : 12px;
+    }
+
+    .na-le-register__bar button {
+        padding                        : 8px;
+    }
+
+    .na-le-register__note-top,
+    .na-le-register__row-tools {
+        align-items                    : stretch;
+        flex-direction                 : column;
+    }
+}
+
+/* endregion ------------------------------------------------------- */

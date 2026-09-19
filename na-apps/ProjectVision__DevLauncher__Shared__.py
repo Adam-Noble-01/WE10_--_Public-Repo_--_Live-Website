@@ -41,6 +41,8 @@ import os
 import re
 import json
 
+from datetime import datetime
+
 # endregion -------------------------------------------------------------------
 
 
@@ -125,6 +127,61 @@ def _read_json_file(file_path):
         return None
 
 
+def _parse_na_date(raw_value):
+    """
+    Parse the several date shapes written by the Noble Architecture apps into a
+    sortable ISO-8601 string. Returns None when the value is absent or unparseable.
+
+    Recognised shapes:
+        "07-Sep-2026"                  <-- ProjectAdmin createdDate
+        "07-Sep-2026 at 21:58"         <-- ProjectAdmin lastModified (human form)
+        "2026-02-20T15:19:58.646Z"     <-- ProjectAdmin lastModified (ISO form)
+        "2026-02-20"                   <-- Plain ISO date
+    """
+    if not isinstance(raw_value, str):
+        return None
+
+    value = raw_value.strip()
+    if not value:
+        return None
+
+    # HUMAN FORM | "07-Sep-2026" with an optional " at HH:MM" tail
+    human_match = re.match(
+        r'^(\d{1,2})-([A-Za-z]{3})-(\d{4})(?:\s+at\s+(\d{1,2}):(\d{2}))?$', value)
+
+    if human_match:
+        day, month_name, year, hour, minute = human_match.groups()
+        try:
+            parsed = datetime.strptime(f"{day}-{month_name.title()}-{year}", '%d-%b-%Y')
+        except ValueError:
+            return None
+        if hour is not None:
+            parsed = parsed.replace(hour=int(hour), minute=int(minute))
+        return parsed.isoformat()
+
+    # ISO FORM | Trailing Z is not understood by fromisoformat before Python 3.11
+    iso_candidate = value[:-1] + '+00:00' if value.endswith('Z') else value
+
+    try:
+        return datetime.fromisoformat(iso_candidate).replace(tzinfo=None).isoformat()
+    except ValueError:
+        return None
+
+
+def _invert_iso(iso_value):
+    """
+    Turn an ISO-8601 string into a negative ordinal so an ascending sort reads
+    newest first. Returns 0.0 for an empty or unparseable value.
+    """
+    if not iso_value:
+        return 0.0
+
+    try:
+        return -datetime.fromisoformat(iso_value).timestamp()
+    except (ValueError, OSError, OverflowError):
+        return 0.0
+
+
 def _build_sub_app_url(sub_app_key, project_code, project_folder, project_year):
     """Build a repo-root-relative sub-application URL with project query params."""
     sub_app_path = SUB_APP_PATHS.get(sub_app_key)
@@ -157,7 +214,10 @@ def _summarise_project_admin(project_dir):
         'address'         : '',
         'projectName'     : '',
         'projectPin'      : '',
-        'unpaidInvoices'  : 0
+        'unpaidInvoices'  : 0,
+        'createdDate'     : '',
+        'createdSort'     : '',
+        'modifiedSort'    : ''
     }
 
     if not project_dir:
@@ -170,6 +230,11 @@ def _summarise_project_admin(project_dir):
         summary['onDisk']      = True
         summary['description'] = config_data.get('projectDescription') or ''
         summary['projectName'] = config_data.get('projectName') or ''
+
+        # RECENCY | createdDate is when the job was opened - the launcher sorts on it
+        summary['createdDate']  = config_data.get('createdDate') or ''
+        summary['createdSort']  = _parse_na_date(config_data.get('createdDate')) or ''
+        summary['modifiedSort'] = _parse_na_date(config_data.get('lastModified')) or ''
 
         raw_pin = config_data.get('projectPin')
         # Hashed PINs (sha256:...) are not useful on the launcher, so show plain PINs only.
@@ -360,11 +425,20 @@ def _describe_project(repo_root, project_code, project_name, project_folder,
             'url'       : _build_sub_app_url(key, project_code, project_folder, project_year) if on_disk else None
         }
 
+    # RECENCY | createdDate is the primary "newest job" signal, lastModified the fallback
+    created_sort  = admin['createdSort']
+    modified_sort = admin['modifiedSort']
+    recency_sort  = created_sort or modified_sort or ''
+
     return {
         'projectCode'    : project_code,
         'projectName'    : resolved_name,
         'projectFolder'  : project_folder or '',
         'projectYear'    : project_year or '',
+        'createdDate'    : admin['createdDate'],
+        'createdSort'    : created_sort,
+        'modifiedSort'   : modified_sort,
+        'recencySort'    : recency_sort,
         'indexed'        : bool(indexed),
         'indexStale'     : index_is_stale,
         'folderExists'   : folder_exists,
@@ -426,12 +500,21 @@ def collect_dev_projects(repo_root, default_year=DEFAULT_YEAR):
             indexed_sub_apps = {}
         ))
 
-    # SORT | Newest year first, then projects that have content, then by code
+    # SORT | Newest job first
+    # -------------------------------------------------------------------------
+    # The launcher exists to get straight into the job just worked on, so the
+    # recorded project date leads. Projects with no Project Admin content carry
+    # no date at all; those fall to the back, newest year first, then by code.
     def _sort_key(item):
-        year = item['projectYear']
+        year      = item['projectYear']
+        recency   = item['recencySort']
+        year_rank = -int(year) if year.isdigit() else 0
+
         return (
+            0 if recency else 1,                           # <-- Dated projects first
+            _invert_iso(recency),                          # <-- Newest date first
             0 if year.isdigit() else 1,                    # <-- Unknown years last
-            -int(year) if year.isdigit() else 0,           # <-- Newest year first
+            year_rank,                                     # <-- Newest year first
             0 if item['isLive'] else 1,                    # <-- Projects with content first
             item['projectCode']
         )

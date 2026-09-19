@@ -521,6 +521,8 @@
     // FUNCTION | Unsaved Changes?
     // ------------------------------------------------------------
     function Na__LeModel__IsDirty() { return Na__LeModel__Dirty; }
+    function Na__LeModel__NotifyRegister() { Na__LeModel__Dispatch('register-updated', Na__LeModel__ActiveSheetId); }
+
     function Na__LeModel__MarkDirty() { Na__LeModel__AssignDirty(true); }
     // ------------------------------------------------------------
 
@@ -696,6 +698,7 @@
         Na__LeModel__GetSelectedViewport,
         Na__LeModel__IsDirty,
         Na__LeModel__MarkDirty,
+        Na__LeModel__NotifyRegister,
         Na__LeModel__RestoreSheets,
         Na__LeModel__Save
     };

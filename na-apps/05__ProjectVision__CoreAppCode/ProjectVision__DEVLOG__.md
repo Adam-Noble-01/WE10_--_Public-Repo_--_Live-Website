@@ -6,6 +6,90 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.3.0 - 19-Sep-2026
+
+### Added - Noble Architecture Studio: one local window over the whole ecosystem
+
+#### Why
+- Working locally meant juggling folders, URLs and browser tabs to reach a project's
+  Admin, PlanVision and TrueVision content. The ask was a single PWA on the Start Menu
+  that opens a project gallery and then travels into any project and back out again.
+- None of this touches the live website. The public apps were not modified; the shell
+  exists only in front of the local Flask server, which the public site never runs.
+
+#### Studio Shell (`ProjectVision__LocalServer__DevShell__/`)
+- `NaDevShell__AppShell__.html` is served at `/` and holds a 42px application bar above
+  a full-bleed frame. The frame owns everything below the bar, so a sub-app's `100vh`
+  resolves against the frame rather than the screen - TrueVision lays out untouched.
+- Bar carries Back, Forward, Reload, a Projects home button, the breadcrumb
+  (`PS01 / Musters Road / TrueVision 3D`), sub-app pills for the active project, and a
+  pop-out to an ordinary browser tab.
+- Back and Forward drive the real session history. A navigation inside a same-origin
+  frame pushes an entry onto the top-level history, so `history.back()` steps the frame
+  back through the pages actually visited. No custom stack is kept.
+- `Ctrl+K` opens a project switcher that jumps to the **same** sub-app in another
+  project, falling back to that project's hub when it has no content there.
+- The address hash mirrors the framed page via `replaceState`, so the window can be
+  reloaded, bookmarked and deep-linked without adding phantom history entries.
+- `NaDevShell__Pwa__Manifest__.webmanifest` scopes the PWA to `/`, so every local app is
+  inside the installed window. **No service worker is registered** - deliberately. Local
+  app code is edited constantly and a caching worker is the known cause of stale modules.
+
+#### Hosted Page Bridge (injected, not authored into the apps)
+- `ProjectVision__LocalServer__Main__.py` appends one `<script>` tag to every HTML
+  response it serves (`inject_studio_shell_bridge`). The apps themselves are unchanged,
+  and any future sub-app is covered without further work.
+- Inside the frame the bridge only forwards the four shell chords (`Alt+Left`,
+  `Alt+Right`, `Alt+Home`, `Ctrl+K`) to the bar. Every other key is left to the app's own
+  hotkey manager.
+- Opened directly in a browser tab, it draws a small "Open in Studio" pill that
+  deep-links that exact page back into the shell.
+- `?devshell=off` serves any page exactly as the live site does.
+
+#### Card Order and Filtering (`ProjectVision__DevLauncher__Shared__.py`, dev landing)
+- Cards were ordered alphabetically by project code within a year, which is arbitrary
+  from the desk. They are now ordered by the project's own date, newest first.
+- `_parse_na_date()` reads the several shapes the apps write - `07-Sep-2026`,
+  `07-Sep-2026 at 21:58` and ISO-8601 with a trailing `Z` - into a sortable value.
+  `createdDate` leads (when the job was opened), `lastModified` is the fallback.
+- Projects with no Project Admin content carry no date at all. They always sit at the
+  back of a date sort rather than jumping to the front of "Oldest first" on a zero.
+- New `Sort` control on the gallery: Newest first (default), Oldest first, Name A-Z,
+  Code A-Z, persisted in local storage beside the existing filter chips.
+- Each card now shows its date, in the house `17-Sep-2026` format. The month names are
+  spelled out in the code because `toLocaleDateString('en-GB')` renders September as
+  "Sept".
+- The Project Admin dev server (port 8081) imports the same module and serves the same
+  landing page, so it gained the ordering and the dates with no change of its own.
+
+#### Launchers (`na-apps/`)
+- `Launch__ProjectVision__StudioApp__.bat` + `ProjectVision__StudioApp__Launch__.ps1` -
+  **the Start Menu entry point.** Opens the Studio in a chromeless Edge application
+  window, starting the server first only when nothing is listening on 8090. Takes an
+  optional project code to open straight into one project.
+- `Start__ProjectVision__WindowsStartUp__Silent__8090__.bat` - background server for the
+  Windows Startup folder, matching the ValePlanner and ValeSpec pattern. Runs under
+  `pythonw.exe`, opens nothing, exits quietly when the port is already held, and logs to
+  `ProjectVision__LocalServer__Startup__.log`.
+- `ProjectVision__LocalServer__Main__.bat` (the existing desktop shortcut target) still
+  runs the server in the foreground for development, and now opens the Studio window
+  rather than a browser tab.
+- Server gained `--silent`, `--log-file` and `--no-app-window`. `--silent` implies no
+  window at all, because a startup server is a background service.
+
+#### Verification
+- Ran on port 8095 against the real repository, with Adam's own 8090 server left running.
+- Confirmed: bridge injected exactly once into all four sub-apps and never into the shell
+  itself; the frame viewport measures 908px against a 950px window, so `100vh` inside
+  TrueVision is correct; Back and Forward traverse the frame and repaint the breadcrumb;
+  the switcher filters and jumps; the "Open in Studio" pill round-trips a directly opened
+  page back into the shell; all four sorts order correctly with undated projects last.
+- The silent server started under `pythonw.exe` with no console and wrote its log, and the
+  launcher opened an Edge window titled "Noble Architecture Studio" against the already
+  running server without starting a second one.
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.2.0 - 14-Sep-2026
 
 ### Added - TrueVision Site Plan Store (`SitePlan__DrawingData`)

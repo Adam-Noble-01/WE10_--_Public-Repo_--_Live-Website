@@ -51,6 +51,11 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
+    // @delegate: ../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Numbering__.js
+    import { Na__LeRegNum__Plan, Na__LeRegNum__Apply } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Numbering__.js';
+    import { Na__LeCfg__GetDrawingRegisterSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__CfApi__GetLoadedProjectData } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
+
     // MODULE IMPORTS | Record Helpers and Drawing Types
     // ------------------------------------------------------------
     import {
@@ -94,7 +99,7 @@
     function Na__LeModel__GetSheets() {
         const list = Na__LeModel__Array().filter((s) => s && typeof s === 'object' && typeof s.Sheet__Id === 'string');
         list.forEach(Na__LeRec__NormaliseSheet);
-        return list.sort((a, b) => (Na__LeModel__TabGroup(a) - Na__LeModel__TabGroup(b)) || (a.Sheet__Order - b.Sheet__Order));
+        return list.sort((a, b) => a.Sheet__Order - b.Sheet__Order);
     }
     // ------------------------------------------------------------
 
@@ -130,7 +135,17 @@
     // changes type lands beside the + tab with the number it had.
     // ------------------------------------------------------------
     function Na__LeModel__RenumberSheets() {
-        Na__LeModel__GetSheets().forEach((s, k) => { s.Sheet__Order = k + 1; });
+        const sheets = Na__LeModel__GetSheets();
+        const cfg = Na__LeCfg__GetDrawingRegisterSetup();
+        const data = Na__CfApi__GetLoadedProjectData() || {};
+        const block = data.LayoutEditor__DrawingRegister || {};
+        const numbering = block.DrawingRegister__Numbering || {
+            DrawingRegister__Numbering__Prefix : cfg.prefix,
+            DrawingRegister__Numbering__Start : cfg.start,
+            DrawingRegister__Numbering__Digits : cfg.digits,
+            DrawingRegister__Numbering__Overrides : {}
+        };
+        Na__LeRegNum__Apply(sheets, Na__LeRegNum__Plan(sheets, numbering));
     }
     // ------------------------------------------------------------
 
@@ -205,6 +220,7 @@
         copy.Sheet__Id    = Na__LeRec__NextId(list, 'Sheet_', 'Sheet__Id');
         copy.Sheet__Name  = source.Sheet__Name + ' copy';
         copy.Sheet__Order = Na__LeModel__NextOrder(list);
+        copy.Sheet__Fields.Sheet__Fields__Title = copy.Sheet__Name;
         copy.Sheet__Viewports.forEach((v) => { v.Viewport__SnapshotAsset = null; });   // <-- Snapshots are keyed by viewport id
         list.push(copy);
         Na__LeModel__RenumberSheets();
@@ -236,7 +252,7 @@
     // ------------------------------------------------------------
     function Na__LeModel__UpdateSheet(sheet, patch) {
         if (!sheet || !patch) return false;
-        if (typeof patch.name === 'string' && patch.name.trim()) sheet.Sheet__Name = patch.name.trim();
+        if (typeof patch.name === 'string' && patch.name.trim()) { sheet.Sheet__Name = patch.name.trim(); sheet.Sheet__Fields = sheet.Sheet__Fields || {}; sheet.Sheet__Fields.Sheet__Fields__Title = sheet.Sheet__Name; }
         if (typeof patch.paperSize === 'string') sheet.Sheet__PaperSize = patch.paperSize;
         if (typeof patch.orientation === 'string') sheet.Sheet__Orientation = patch.orientation;
         if (typeof patch.titleBlockStyle === 'string') sheet.Sheet__TitleBlockStyle = patch.titleBlockStyle;
@@ -261,12 +277,9 @@
         const from = list.findIndex((s) => s.Sheet__Id === sheetId);
         if (from === -1) return false;
         const [ moved ] = list.splice(from, 1);
-        const sitePlan  = Na__LeModel__TabGroup(moved) === 1;
-        const archCount = list.filter((s) => Na__LeModel__TabGroup(s) === 0).length;
-        const lowest    = sitePlan ? archCount : 0;                             // <-- A drag never crosses the + tab: it stays inside its own group
-        const highest   = sitePlan ? list.length : archCount;
-        list.splice(Math.max(lowest, Math.min(newIndex, highest)), 0, moved);
+        list.splice(Math.max(0, Math.min(newIndex, list.length)), 0, moved);
         list.forEach((s, k) => { s.Sheet__Order = k + 1; });
+        Na__LeModel__RenumberSheets();
         Na__LeModel__Touch('sheet-reordered', sheetId);
         return true;
     }
@@ -313,6 +326,7 @@
         if (!sheet.Sheet__Fields) sheet.Sheet__Fields = {};
         if (value === null || value === undefined) delete sheet.Sheet__Fields['Sheet__Fields__' + key];
         else sheet.Sheet__Fields['Sheet__Fields__' + key] = String(value);
+        if (key === 'Title' && typeof value === 'string' && value.trim()) sheet.Sheet__Name = value.trim();
         Na__LeModel__Touch('fields', sheet.Sheet__Id);
         return true;
     }

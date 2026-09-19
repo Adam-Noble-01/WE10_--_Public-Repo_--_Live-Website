@@ -469,7 +469,7 @@
     // { ok, skipped, error }, and the caller then owns saying where the save
     // landed. Without one, only a local failure is shown, as an error.
     // ------------------------------------------------------------
-    async function Na__DrawData__Save(showToast, report) {
+    async function Na__DrawData__Save(showToast, report, registerKeys) {
         const toast       = (typeof showToast === 'function') ? showToast : () => {};
         const projectCode = Na__DrawData__GetProjectCode();
 
@@ -506,8 +506,10 @@
         }
 
         try {
+            if (registerKeys && registerKeys.cloud) Object.assign(payload, registerKeys.cloud);
+            const cloudKeys = JSON.parse(JSON.stringify(payload));
             const localKeys = JSON.parse(JSON.stringify(payload));                   // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
-            const result = await Na__CfApi__MergeAndSaveKeys(payload);
+            const result = await Na__CfApi__MergeAndSaveKeys(cloudKeys);
             if (!result || !result.ok) {
                 const reason = (result && result.error) ? result.error : 'unknown error';
                 toast(`Drawings save failed: ${reason}`, true);
@@ -527,6 +529,8 @@
             // A failure here costs R2 nothing, so the save still returns true, but
             // it is never silent: a caller with a report says so in its own
             // confirmation, and any other caller is shown it here as an error.
+            if (registerKeys && registerKeys.local) Object.assign(localKeys, registerKeys.local);
+            if (report && typeof report === 'object') report.localKeys = localKeys;
             const local = await Na__LocalMirror__MergeKeys(localKeys);
             if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Drawings saved to R2; the local copy was not written:', local.error);
             if (report && typeof report === 'object') report.local = local;

@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LeCfg
 // MODULE     : Layout Editor - Config State - Editor Setup
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Answer the setup blocks for the editor around the sheet and the drawing notes
+// PURPOSE    : Answer the setup blocks for the editor around the sheet, the drawing notes and the drawing register
 // CREATED    : 15-Sep-2026
 //
 // DESCRIPTION:
@@ -14,6 +14,8 @@
 //   browser draft, the panel columns and the stage navigation.
 // - The drawing notes: the project specification (its file, code numbering,
 //   draft, undo depth and starter groups) and a sheet's margin notes column.
+// - The drawing register: pack numbering defaults, PDF.js paths and the
+//   paper palette the register PDF and preview share.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__ConfigState__ re-exports every getter here, so callers
@@ -34,6 +36,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - GetDrawingRegisterSetup moved out of the export region into the public
+//   API region and formatted to the Layout Editor conventions.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__ConfigState__.js; the code moved verbatim.
 //
@@ -205,6 +211,29 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Drawing Register Defaults and Noble Architecture Paper Palette
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetDrawingRegisterSetup() {
+        const val = (key, fallback) => Na__LeCfg__Val('DrawingRegister', key, fallback);
+        return {
+            prefix          : val('Prefix', 'D'),
+            start           : val('Start', 1),
+            digits          : val('Digits', 2),
+            pdfMarginMm     : val('PdfMarginMm', 15),
+            pdfFontPt       : val('PdfFontPt', 9),
+            previewScale    : val('PreviewScale', 1.25),
+            pdfJsScriptPath : val('PdfJsScriptPath', '/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js'),
+            pdfJsWorkerPath : val('PdfJsWorkerPath', '/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js'),
+            ink             : val('InkColour', '#5c594f'),
+            muted           : val('MutedColour', '#a09d96'),
+            header          : val('HeaderColour', '#eeece9'),
+            stripe          : val('StripeColour', '#f8f6f3'),
+            rule            : val('RuleColour', '#e1ded8')
+        };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -215,6 +244,7 @@
     // MODULE EXPORTS | Layout Editor Config State Editor Setup
     // ------------------------------------------------------------
     export {
+        Na__LeCfg__GetDrawingRegisterSetup,
         Na__LeCfg__GetHistorySetup,
         Na__LeCfg__GetAutoSaveSetup,
         Na__LeCfg__GetSpecificationSetup,

@@ -93,6 +93,7 @@
     import {
         Na__LeModel__CHANGED_EVENT,
         Na__LeModel__GetSheets,
+        Na__LeModel__GetFields,
         Na__LeModel__GetActiveSheet,
         Na__LeModel__CreateSheet,
         Na__LeModel__UpdateSheet,
@@ -107,9 +108,12 @@
         Na__LeMode__IsEditable,
         Na__LeMode__Ready,
         Na__LeMode__VIEW_SPEC,
+        Na__LeMode__VIEW_REGISTER,
+        Na__LeMode__OpenRegister,
         Na__LeMode__GetView,
         Na__LeMode__OpenSpecification
     } from './Na__LayoutEditor__ModeController__.js';
+    import { Na__LeRegEdit__Metadata, Na__LeRegEdit__Move } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js';
     import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__IsDirty } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     // ------------------------------------------------------------
 
@@ -167,7 +171,7 @@
         input.type      = 'text';
         input.className = 'na-le-tabs__rename';
         input.value     = sheet.Sheet__Name;
-        const commit = () => { const v = input.value.trim(); if (v && v !== sheet.Sheet__Name) Na__LeModel__UpdateSheet(sheet, { name : v }); else Na__LeTabs__Render(); };
+        const commit = async () => { const v = input.value.trim(); if (v && v !== sheet.Sheet__Name) await Na__LeRegEdit__Metadata(sheet.Sheet__Id, 'name', v); Na__LeTabs__Render(); };
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } if (e.key === 'Escape') { input.value = sheet.Sheet__Name; input.blur(); } e.stopPropagation(); });
         input.addEventListener('blur', commit);
         button.replaceWith(input);
@@ -272,7 +276,7 @@
         const sheets   = Na__LeModel__GetSheets();
         const editable = Na__LeMode__IsEditable();
         const onSpec   = Na__LeMode__IsActive() && Na__LeMode__GetView() === Na__LeMode__VIEW_SPEC;
-        const active   = (Na__LeMode__IsActive() && !onSpec) ? Na__LeModel__GetActiveSheet() : null;   // <-- No sheet tab is the open one while the specification is
+        const active   = (Na__LeMode__IsActive() && Na__LeMode__GetView() !== Na__LeMode__VIEW_REGISTER && !onSpec) ? Na__LeModel__GetActiveSheet() : null;   // <-- No sheet tab is the open one while the specification is
         const visible  = Na__LeCfg__IsEnabled() && (sheets.length > 0 || editable);
         Na__LeTabs__Scroller.innerHTML = '';
         Na__LeTabs__Publish(visible);
@@ -282,7 +286,7 @@
         const sitePlanTitle = Na__LeCfg__GetLabel('SitePlanTabTitle', 'Site plan drawing');
         const addSheetTab = (sheet) => {
             const sitePlan = Na__LeModel__IsSitePlanSheet(sheet);
-            const tab = Na__LeTabs__Tab(sheet.Sheet__Name, !!active && active.Sheet__Id === sheet.Sheet__Id, () => Na__LeMode__Enter(sheet.Sheet__Id), sitePlan ? 'na-le-tabs__tab--siteplan' : '');
+            const tab = Na__LeTabs__Tab(Na__LeModel__GetFields(sheet).DrawingNumber + ' · ' + sheet.Sheet__Name, !!active && active.Sheet__Id === sheet.Sheet__Id, () => Na__LeMode__Enter(sheet.Sheet__Id), sitePlan ? 'na-le-tabs__tab--siteplan' : '');
             tab.setAttribute('data-na-sheet-id', sheet.Sheet__Id);
             if (sitePlan) tab.title = sitePlanTitle;
             if (editable) {
@@ -290,18 +294,18 @@
                 tab.addEventListener('dblclick', () => Na__LeTabs__Rename(tab, sheet));
                 tab.draggable = true;
                 tab.addEventListener('dragstart', (e) => { Na__LeTabs__DragId = sheet.Sheet__Id; Na__LeTabs__DragSitePlan = sitePlan; e.dataTransfer.effectAllowed = 'move'; });
-                tab.addEventListener('dragover', (e) => { if (Na__LeTabs__DragId && Na__LeTabs__DragId !== sheet.Sheet__Id && Na__LeTabs__DragSitePlan === sitePlan) e.preventDefault(); });   // <-- Only inside its own group
+                tab.addEventListener('dragover', (e) => { if (Na__LeTabs__DragId && Na__LeTabs__DragId !== sheet.Sheet__Id) e.preventDefault(); });   // <-- Only inside its own group
                 tab.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    if (!Na__LeTabs__DragId || Na__LeTabs__DragId === sheet.Sheet__Id || Na__LeTabs__DragSitePlan !== sitePlan) return;
-                    Na__LeModel__ReorderSheet(Na__LeTabs__DragId, Na__LeModel__GetSheets().findIndex((s) => s.Sheet__Id === sheet.Sheet__Id));
+                    if (!Na__LeTabs__DragId || Na__LeTabs__DragId === sheet.Sheet__Id) return;
+                    void Na__LeRegEdit__Move(Na__LeTabs__DragId, Na__LeModel__GetSheets().findIndex((s) => s.Sheet__Id === sheet.Sheet__Id));
                     Na__LeTabs__DragId = null;
                 });
                 tab.addEventListener('dragend', () => { Na__LeTabs__DragId = null; });
             }
             Na__LeTabs__Scroller.appendChild(tab);
         };
-        sheets.filter((sheet) => !Na__LeModel__IsSitePlanSheet(sheet)).forEach(addSheetTab);   // <-- Architectural drawings, before the plus
+        sheets.forEach(addSheetTab);   // <-- Architectural drawings, before the plus
         if (editable) {
             const plus = Na__LeTabs__Tab(Na__LeCfg__GetLabel('AddSheetTab', '+'), false, () => {
                 const sheet = Na__LeModel__CreateSheet({});
@@ -310,7 +314,7 @@
             plus.title = Na__LeCfg__GetLabel('AddSheetTitle', 'New sheet');
             Na__LeTabs__Scroller.appendChild(plus);
         }
-        sheets.filter((sheet) => Na__LeModel__IsSitePlanSheet(sheet)).forEach(addSheetTab);    // <-- Site plan drawings last, beside the Project Specification
+        // Site plans follow the same register order as every other drawing. //    // <-- Site plan drawings last, beside the Project Specification
 
         // PROJECT SPECIFICATION | Last, and only while a drawing tab is open
         if (Na__LeMode__IsActive()) {
@@ -321,6 +325,7 @@
                 ? Na__LeCfg__GetLabel('SpecificationTabUnsynced', 'Project Specification - changes kept in this browser, not yet synced')
                 : Na__LeCfg__GetLabel('SpecificationTabTitle', 'Every drawing note of the project, grouped and numbered');
             Na__LeTabs__Scroller.appendChild(spec);
+            Na__LeTabs__Scroller.appendChild(Na__LeTabs__Tab('Drawing Register', Na__LeMode__GetView() === Na__LeMode__VIEW_REGISTER, () => Na__LeMode__OpenRegister(), 'na-le-tabs__tab--register'));
         }
         Na__LeTabs__SyncArrows();
         Na__LeTabs__Reveal();                                                    // <-- The tab just opened is brought back into the visible run
@@ -333,7 +338,7 @@
     function Na__LeTabs__Sig() {
         const sheets = Na__LeModel__GetSheets();
         const active = Na__LeMode__IsActive() ? Na__LeModel__GetActiveSheet() : null;
-        return sheets.map((sheet) => sheet.Sheet__Id + '\u0001' + sheet.Sheet__Name + '\u0001' + Na__LeModel__IsSitePlanSheet(sheet)).join('\u0002')   // <-- A change of drawing type moves the tab
+        return sheets.map((sheet) => sheet.Sheet__Id + '\u0001' + Na__LeModel__GetFields(sheet).DrawingNumber + '\u0001' + sheet.Sheet__Name + '\u0001' + Na__LeModel__IsSitePlanSheet(sheet)).join('\u0002')   // <-- A change of drawing type moves the tab
             + '|' + (active ? active.Sheet__Id : '') + '|' + Na__LeMode__IsActive() + '|' + Na__LeMode__IsEditable() + '|' + Na__LeCfg__IsEnabled()
             + '|' + Na__LeMode__GetView() + '|' + Na__LeSpec__IsDirty();          // <-- The specification tab: open or not, synced or not
     }

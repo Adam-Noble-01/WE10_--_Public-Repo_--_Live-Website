@@ -420,7 +420,7 @@
         if (!Na__LeSpec__ListNotes().length) { say(Na__LeCfg__GetLabel('SpecDownloadEmpty', 'There are no notes to download yet.'), 'warn'); return false; }
         try {
             const built = await Na__LeSpecPdf__BuildDocument();
-            built.doc.save(built.filename);
+            await built.doc.save(built.filename, { returnPromise : true });
             say(built.filename, 'ok');
             return true;
         } catch (error) {

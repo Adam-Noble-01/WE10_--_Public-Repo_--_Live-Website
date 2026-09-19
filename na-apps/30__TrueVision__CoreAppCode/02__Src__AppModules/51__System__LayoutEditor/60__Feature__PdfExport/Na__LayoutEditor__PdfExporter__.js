@@ -265,7 +265,7 @@
 
     // HELPER FUNCTION | Draw One Viewport
     // ------------------------------------------------------------
-    async function Na__LePdf__DrawViewport(doc, sheet, viewport) {
+    async function Na__LePdf__DrawViewport(doc, sheet, viewport, options) {
         const frame   = viewport.Viewport__FrameMm;
         const clipped = Na__LePdf__BeginClip(doc, frame);
         try {
@@ -273,13 +273,14 @@
                 const described = Na__LeVp2d__Describe(viewport);
                 if (Na__LeModel__IsSitePlanViewport(viewport)) {                 // <-- Site plan data: its fills, then the same bands the sheet paints
                     const drawing = await Na__LeVp2d__SitePlanDrawing(viewport);
+                    if (!drawing && options && options.strict) throw new Error('Site plan drawing could not be rendered.');
                     if (drawing) {
                         Na__LePdf__DrawSitePlanFills(doc, viewport, described, drawing.fills);
                         Na__LePdf__DrawLinework(doc, sheet, viewport, described, drawing.classes);
                     }
                     return;
                 }
-                if (!described.definition) return;
+                if (!described.definition) { if (options && options.strict) throw new Error('A viewport drawing source is missing.'); return; }
                 const underlay = await Na__LeVp2d__RenderForExport(viewport);
                 if (underlay && underlay.dataUrl) doc.addImage(underlay.dataUrl, 'PNG', frame.X, frame.Y, frame.WidthMm, frame.HeightMm);
                 if (viewport.Viewport__Styles.projectedLinework !== false) {
@@ -292,6 +293,7 @@
                 return;
             }
             const dataUrl = await Na__LeVp3d__RenderForExport(sheet, viewport);
+            if (!dataUrl && options && options.strict) throw new Error('A 3D viewport could not be rendered.');
             if (dataUrl) {
                 const rect = Na__LeVp3d__ExportRectMm(viewport);                   // <-- The picture's own rectangle, or the frame when it shows a window of a zoomed picture
                 doc.addImage(dataUrl, 'PNG', frame.X + rect.X, frame.Y + rect.Y, rect.WidthMm, rect.HeightMm);
@@ -336,7 +338,7 @@
 
     // FUNCTION | Build the Document for a Sheet (returns the jsPDF instance)
     // ------------------------------------------------------------
-    async function Na__LePdf__BuildDocument(sheet) {
+    async function Na__LePdf__BuildDocument(sheet, options) {
         const JsPdf  = await Na__LePdf__EnsureJsPdf();
         const setup  = Na__LeCfg__GetPdfSetup();
         const layout = Na__LeLayout__Solve(sheet);
@@ -362,7 +364,7 @@
             .filter((e) => Na__LeModel__IsLayerVisible(sheet, e.v.Viewport__LayerId))
             .sort((a, b) => (b.rank - a.rank) || (a.i - b.i))
             .map((e) => e.v);
-        for (let i = 0; i < ordered.length; i++) await Na__LePdf__DrawViewport(doc, sheet, ordered[i]);   // <-- Pictures at the raster export level
+        for (let i = 0; i < ordered.length; i++) await Na__LePdf__DrawViewport(doc, sheet, ordered[i], options);   // <-- Pictures at the raster export level
 
         // SHEET MARKUP AND CHROME
         Na__LeChrome__DrawToPdf(doc, Na__LeMarkup__BuildSheetPrimitives(sheet, layout, null));
@@ -374,14 +376,14 @@
 
     // FUNCTION | Export a Sheet and Hand the File to the Browser
     // ------------------------------------------------------------
-    async function Na__LePdf__ExportSheet(sheet, showToast) {
+    async function Na__LePdf__ExportSheet(sheet, showToast, options) {
         const toast = (typeof showToast === 'function') ? showToast : () => {};
         if (!sheet) return false;
         try {
             const cap = Na__LeCfg__GetSpecificationSetup().loadTimeoutMs;
             await Promise.race([ Na__LeSpec__EnsureLoaded(), new Promise((resolve) => { window.setTimeout(resolve, cap); }) ]);   // <-- The notes margin prints its notes, not an empty column
-            const built = await Na__LePdf__BuildDocument(sheet);
-            built.doc.save(built.filename);
+            const built = await Na__LePdf__BuildDocument(sheet, options);
+            await built.doc.save(built.filename, { returnPromise : true });
             const margin = Na__LeMargin__Report(sheet, null);
             if (margin.on && margin.overflow > 0) toast(Na__LeCfg__FormatLabel('PdfMarginOverflow', 'PDF downloaded, but {count} margin note(s) did not fit and were left out. Widen the notes margin or make its text smaller.', { count : margin.overflow }), true);
             else toast(Na__LeCfg__GetLabel('PdfReadyMessage', 'PDF downloaded.'), false);

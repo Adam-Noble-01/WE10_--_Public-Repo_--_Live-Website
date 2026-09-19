@@ -37,9 +37,12 @@ import json
 import webbrowser
 import threading
 import time
-import platform
 import argparse
 import traceback
+import shutil
+import subprocess
+
+from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ProjectVision__DevLauncher__Shared__ as dev_launcher      # <-- Shared with the Project Admin dev server
@@ -84,17 +87,31 @@ SUB_APP_PATHS            = dev_launcher.SUB_APP_PATHS
 DEFAULT_PROJECT          = None                                      # <-- Project code (None = open dev landing)
 DEFAULT_YEAR             = '26'                                      # <-- Year folder (2026)
 
+# STUDIO SHELL | Localhost-only application shell wrapped around every sub-app
+DEV_SHELL_DIR_NAME       = 'ProjectVision__LocalServer__DevShell__'
+DEV_SHELL_URL_PREFIX     = '/__na-devshell/'
+DEV_SHELL_PAGE           = 'NaDevShell__AppShell__.html'
+DEV_SHELL_BRIDGE         = 'NaDevShell__HostedPageBridge__.js'
+DEV_SHELL_MARKER         = 'na-devshell-bridge'                      # <-- Guards against double injection
+GALLERY_PATH             = '/gallery'                                # <-- Project gallery, inside the shell frame
+
+SILENT_MODE              = False                                     # <-- True when launched with no console
+APP_WINDOW_MODE          = True                                      # <-- Open a chromeless PWA-style window
+OUTPUT_LOG_HANDLE        = None                                      # <-- Held open for the lifetime of the process
+
 
 def get_landing_url():
-    """Get the local dev landing (project launcher) URL."""
+    """Get the Studio shell URL - the single entry point for every local app."""
     return f"http://localhost:{PORT}/"
 
 
 def get_server_url():
-    """Get the startup URL - dev landing unless a default project was requested."""
+    """Get the startup URL - the Studio shell, deep-linked when a project was named."""
     if not DEFAULT_PROJECT:
         return get_landing_url()
-    return f"http://localhost:{PORT}{CORE_APP_PATH}index.html?project={DEFAULT_PROJECT}"
+
+    inner_path = f"{CORE_APP_PATH}index.html?project={DEFAULT_PROJECT}"
+    return f"http://localhost:{PORT}/#{quote(inner_path, safe='')}"
 
 
 def get_base_url():
@@ -366,18 +383,56 @@ def _run_targeted_r2_sync(project_folder):
 
 @app.route('/')
 def index():
-    """Serve the local dev launcher - a card view of every project."""
+    """Serve the Studio shell - the single entry point for every local app."""
+    shell_dir  = os.path.join(SCRIPT_DIR, DEV_SHELL_DIR_NAME)
+    shell_page = os.path.join(shell_dir, DEV_SHELL_PAGE)
+
+    if not os.path.isfile(shell_page):
+        return (
+            f"<h1>Studio shell missing</h1>"
+            f"<p>Expected: na-apps/{DEV_SHELL_DIR_NAME}/{DEV_SHELL_PAGE}</p>",
+            500
+        )
+
+    response = send_from_directory(shell_dir, DEV_SHELL_PAGE)
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route(GALLERY_PATH)
+def gallery():
+    """Serve the project gallery - a card view of every project."""
     landing = dev_launcher.get_landing_file(REPO_ROOT)
 
     if not landing:
         return (
-            f"<h1>Dev launcher page missing</h1>"
+            f"<h1>Project gallery page missing</h1>"
             f"<p>Expected: na-apps/{dev_launcher.DEV_LANDING_FILENAME}</p>",
             500
         )
 
     response = send_from_directory(landing[0], landing[1])
     response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route(DEV_SHELL_URL_PREFIX + '<path:filename>')
+def dev_shell_asset(filename):
+    """Serve the Studio shell assets - stylesheet, controls, bridge and manifest."""
+    shell_dir = os.path.join(SCRIPT_DIR, DEV_SHELL_DIR_NAME)
+    full_path = os.path.join(shell_dir, filename)
+
+    if not os.path.isfile(full_path):
+        abort(404)
+
+    response = send_from_directory(shell_dir, filename)
+
+    # The shell is edited live, so it must never be served from the HTTP cache.
+    response.headers['Cache-Control'] = 'no-store'
+
+    if filename.endswith('.webmanifest'):
+        response.headers['Content-Type'] = 'application/manifest+json'
+
     return response
 
 
@@ -564,56 +619,136 @@ def serve_static(filepath):
 
 
 # #region ---------------------------------------------------------------------
+# REGION | Studio Shell Injection
+# -----------------------------------------------------------------------------
+#
+# Every HTML page this server returns gets one small script tag appended, which
+# lets the Studio shell host the sub-applications without a single edit to their
+# source. This runs on localhost only - the public website serves the very same
+# files untouched, because it never runs this server.
+#
+# -----------------------------------------------------------------------------
+
+@app.after_request
+def inject_studio_shell_bridge(response):
+    """Append the Studio shell bridge script to HTML responses."""
+    if response.status_code != 200:
+        return response
+
+    if response.mimetype != 'text/html':
+        return response
+
+    # ESCAPE HATCH | ?devshell=off serves the page exactly as the live site does
+    if request.args.get('devshell') == 'off':
+        return response
+
+    # The shell hosts the bridge; it must never be given one of its own.
+    if request.path == '/' or request.path.startswith(DEV_SHELL_URL_PREFIX):
+        return response
+
+    try:
+        response.direct_passthrough = False                          # <-- send_from_directory streams by default
+        html = response.get_data(as_text=True)
+    except (RuntimeError, UnicodeDecodeError):
+        return response
+
+    if DEV_SHELL_MARKER in html:
+        return response
+
+    lowered    = html.lower()
+    insert_at  = lowered.rfind('</body>')
+
+    if insert_at == -1:
+        return response
+
+    script_tag = (
+        f'\n<!-- Injected by the Project Vision local dev server: Studio shell bridge -->\n'
+        f'<script src="{DEV_SHELL_URL_PREFIX}{DEV_SHELL_BRIDGE}" defer></script>\n'
+    )
+
+    response.set_data(html[:insert_at] + script_tag + html[insert_at:])
+    response.headers['Cache-Control'] = 'no-store'                   # <-- The body no longer matches the file on disk
+
+    return response
+
+# endregion -------------------------------------------------------------------
+
+
+# #region ---------------------------------------------------------------------
 # REGION | Browser Launch
 # -----------------------------------------------------------------------------
 
+CHROMIUM_CANDIDATES = [
+    # EDGE | The machine default, and the browser the Studio PWA installs into
+    r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
+    r'C:\Program Files\Microsoft\Edge\Application\msedge.exe',
+    # CHROME | Fallback when Edge is absent
+    r'C:\Program Files\Google\Chrome\Application\chrome.exe',
+    r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
+]
+
+
+def find_chromium_browser():
+    """
+    Locate a Chromium browser that understands --app=, which is what turns the
+    Studio shell into a chromeless application window. Returns None when none
+    is installed, in which case the ordinary browser is used instead.
+    """
+    for candidate in CHROMIUM_CANDIDATES:
+        if os.path.isfile(candidate):
+            return candidate
+
+    for executable in ('msedge', 'chrome'):
+        resolved = shutil.which(executable)
+        if resolved:
+            return resolved
+
+    return None
+
+
+def open_app_window(url):
+    """
+    Open the Studio shell in a chromeless application window.
+    Returns True when the window was launched, False to fall back to a tab.
+    """
+    browser_path = find_chromium_browser()
+
+    if not browser_path:
+        return False
+
+    try:
+        subprocess.Popen(
+            [
+                browser_path,
+                f'--app={url}',                                      # <-- No tab strip, no address bar
+                '--window-size=1680,1000'
+            ],
+            stdout = subprocess.DEVNULL,
+            stderr = subprocess.DEVNULL
+        )
+        return True
+    except Exception as error:
+        print(f"  Note: Could not open the application window: {error}")
+        return False
+
+
 def open_browser():
-    """Open browser after short delay to ensure server is ready."""
+    """Open the Studio shell once the server is ready."""
     time.sleep(1.5)
 
     url   = get_server_url()
-    label = 'project launcher' if not DEFAULT_PROJECT else f'project {DEFAULT_PROJECT}'
+    label = 'Studio shell' if not DEFAULT_PROJECT else f'Studio shell - project {DEFAULT_PROJECT}'
+
+    if APP_WINDOW_MODE and open_app_window(url):
+        print(f"  Opening application window at {url}  ({label})...")
+        return
+
     print(f"  Opening browser to {url}  ({label})...")
 
     try:
         webbrowser.open(url)
-
-        if platform.system() == 'Windows':
-            time.sleep(0.5)
-            try:
-                import subprocess
-                subprocess.run([
-                    'powershell', '-Command',
-                    "(New-Object -ComObject WScript.Shell).AppActivate((Get-Process | "
-                    "Where-Object {$_.MainWindowTitle -like '*localhost*' -or "
-                    "$_.ProcessName -like '*chrome*' -or "
-                    "$_.ProcessName -like '*firefox*' -or "
-                    "$_.ProcessName -like '*msedge*'} | "
-                    "Select-Object -First 1).Id)"
-                ], capture_output=True, timeout=2)
-            except Exception:
-                pass
-
-        elif platform.system() == 'Darwin':
-            time.sleep(0.5)
-            try:
-                import subprocess
-                subprocess.run([
-                    'osascript', '-e',
-                    'tell application "System Events" to set frontmost of '
-                    'first process whose frontmost is true to false'
-                ])
-                subprocess.run([
-                    'osascript', '-e',
-                    'tell application "System Events" to set frontmost of '
-                    'first process whose name contains "Chrome" or '
-                    'name contains "Firefox" or name contains "Safari" to true'
-                ])
-            except Exception:
-                pass
-
-    except Exception as e:
-        print(f"  Note: Could not auto-open browser: {e}")
+    except Exception as error:
+        print(f"  Note: Could not auto-open browser: {error}")
         print(f"  Please manually open: {url}")
 
 # endregion -------------------------------------------------------------------
@@ -633,9 +768,11 @@ def print_banner():
     print(f"\n  Serving from: {REPO_ROOT}")
     print(f"  Debug mode:   {'ON' if DEBUG_MODE else 'OFF'}")
 
-    print("\n  PROJECT LAUNCHER (start here):")
+    print("\n  NOBLE ARCHITECTURE STUDIO (start here):")
     print(f"    {get_landing_url()}")
-    print("    Card view of every project - click straight into any sub-app.")
+    print("    One window over the whole ecosystem - project gallery, then any")
+    print("    sub-app, with Back, Forward and a project switcher in the bar.")
+    print(f"    Gallery on its own:  http://localhost:{PORT}{GALLERY_PATH}")
 
     if DEFAULT_PROJECT:
         print(f"\n  Startup project override: {DEFAULT_PROJECT} (Year: {DEFAULT_YEAR})")
@@ -670,9 +807,40 @@ def print_banner():
 # REGION | Command Line Arguments
 # -----------------------------------------------------------------------------
 
+def configure_output_streams(silent_mode, log_file_name):
+    """
+    Redirect stdout and stderr to a log file for console-less launches.
+    Mirrors the ValePlanner and ValeSpec silent servers so the Windows startup
+    shortcut can run this under pythonw.exe with nowhere to print.
+    """
+    global OUTPUT_LOG_HANDLE
+
+    should_redirect = silent_mode or sys.stdout is None or sys.stderr is None
+
+    if not should_redirect:
+        return
+
+    log_file_path = os.path.abspath(os.path.join(SCRIPT_DIR, log_file_name))
+
+    try:
+        os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+        OUTPUT_LOG_HANDLE = open(log_file_path, 'a', encoding='utf-8', buffering=1)
+    except OSError:
+        return                                                       # <-- Never let logging stop the server
+
+    sys.stdout = OUTPUT_LOG_HANDLE
+    sys.stderr = OUTPUT_LOG_HANDLE
+
+    print("")
+    print("=" * 70)
+    print(f"  PROJECT VISION - SILENT SERVER OUTPUT REDIRECT -> {log_file_path}")
+    print(f"  Started: {time.strftime('%d-%b-%Y %H:%M:%S')}")
+    print("=" * 70)
+
+
 def parse_arguments():
     """Parse command line arguments."""
-    global PORT, DEBUG_MODE, DEFAULT_PROJECT, DEFAULT_YEAR
+    global PORT, DEBUG_MODE, DEFAULT_PROJECT, DEFAULT_YEAR, SILENT_MODE, APP_WINDOW_MODE
 
     parser = argparse.ArgumentParser(
         description='Noble Architecture - Project Vision Local Development Server'
@@ -708,7 +876,26 @@ def parse_arguments():
     parser.add_argument(
         '--no-browser',
         action='store_true',
-        help='Do not auto-open browser on startup'
+        help='Do not auto-open the Studio shell on startup'
+    )
+
+    parser.add_argument(
+        '--no-app-window',
+        action='store_true',
+        help='Open an ordinary browser tab instead of a chromeless app window'
+    )
+
+    parser.add_argument(
+        '--silent',
+        action='store_true',
+        help='Console-less launch: redirect all output to the log file'
+    )
+
+    parser.add_argument(
+        '--log-file',
+        type=str,
+        default='ProjectVision__LocalServer__Startup__.log',
+        help='Log file path, relative to na-apps (used with --silent)'
     )
 
     args = parser.parse_args()
@@ -717,6 +904,10 @@ def parse_arguments():
     DEBUG_MODE      = args.debug
     DEFAULT_PROJECT = args.project.strip().upper() if args.project else None
     DEFAULT_YEAR    = args.year
+    SILENT_MODE     = args.silent
+    APP_WINDOW_MODE = not args.no_app_window
+
+    configure_output_streams(SILENT_MODE, args.log_file)
 
     return args
 
@@ -738,7 +929,9 @@ def main():
 
     print_banner()
 
-    if not args.no_browser:
+    # A silent startup server is a background service: it never opens a window.
+    # The Start Menu shortcut opens the Studio window against the running server.
+    if not args.no_browser and not SILENT_MODE:
         browser_thread = threading.Thread(target=open_browser, daemon=True)
         browser_thread.start()
 
