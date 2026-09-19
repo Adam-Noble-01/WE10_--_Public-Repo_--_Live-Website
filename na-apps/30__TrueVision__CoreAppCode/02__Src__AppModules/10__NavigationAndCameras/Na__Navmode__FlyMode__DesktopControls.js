@@ -150,9 +150,27 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Is the Keyboard Event Landing in a Text Field?
+    // ------------------------------------------------------------
+    // Fly mode's window-level listener still fires while a Dev Menu (or any
+    // other) text field has focus. Without this guard, preventDefault() on
+    // Space (and the arrow/page keys) blocks the field's own default action -
+    // so Space silently stops typing a space character even though the key
+    // event bubbled up from an <input> the user was actively typing into.
+    // ------------------------------------------------------------
+    function Na__FlyModeDesktop__IsTyping(event) {
+        const target = event.target;
+        if (!target) return false;
+        return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable === true;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Handle Key Down Event
     // ------------------------------------------------------------
     function Na__FlyModeDesktop__OnKeyDown(event) {
+        if (Na__FlyModeDesktop__IsTyping(event)) return;                    // <-- Leave the keyboard to the field being typed in
+
         const key = event.key.toLowerCase();
 
         if (Na__FlyModeDesktop__KeyState.hasOwnProperty(key)) {
@@ -170,6 +188,8 @@
     // HELPER FUNCTION | Handle Key Up Event
     // ------------------------------------------------------------
     function Na__FlyModeDesktop__OnKeyUp(event) {
+        if (Na__FlyModeDesktop__IsTyping(event)) return;                    // <-- Match OnKeyDown's guard so state never gets out of sync
+
         const key = event.key.toLowerCase();
 
         if (Na__FlyModeDesktop__KeyState.hasOwnProperty(key)) {

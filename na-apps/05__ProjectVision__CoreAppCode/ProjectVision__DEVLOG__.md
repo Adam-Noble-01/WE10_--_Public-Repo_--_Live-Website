@@ -68,6 +68,43 @@
   had no address at all. It now reads either file and walks the `quotations` list.
 - The gallery cards gained addresses from the same fix.
 
+#### Fixed - Action Buttons Not Lining Up With Their Row (reported as "super dangerous")
+- Three separate faults, all found by measuring the rendered geometry rather than by eye:
+  - **The sticky header never stuck.** `.pm-tablewrap` had `overflow-x: auto`, which makes
+    that element the containing block for sticky descendants, so a header told to stick
+    against the page could not. It measured at `bottom: 1px` - fully scrolled off. The
+    wrapper now scrolls in both axes and the header sticks to it.
+  - **`th` had `z-index: auto`**, so scrolling rows painted over the header. A row's delete
+    buttons measured at y = -49 to 16, on top of it. Now `z-index: 3` on a solid ground.
+  - **The four action buttons wrapped to two lines**, making rows 86px tall and putting the
+    second line hard against the row boundary, where it read as the next row's. Now
+    `flex-wrap: nowrap`.
+- The tall rows had a further cause: the three Apps badges were stacking onto three
+  separate lines in a 54px column (measured at y = 274, 292, 311). With that column set to
+  `nowrap`, every row is a uniform 45px, down from 77-86.
+- Hovering any destructive button now tints its whole row and marks its left edge, so the
+  project about to be acted on is unmistakable before the click rather than after it.
+- Destructive buttons are pale until hovered. Fifteen rows each carrying three red buttons
+  is a wall of red that stops carrying meaning; red is kept for the button under the cursor.
+- Address column widened to 400px and set to never break; name and folder likewise on one
+  line, folder truncated with the full value in its tooltip since it repeats the code and
+  the name.
+- "Delete" is said once as a group label followed by Local / R2 / Both, rather than three
+  buttons each repeating the word. That and the folder trim bought ~140px, which is what
+  let the 1680px centred cap return - the previous 1720px cap did not clear the table's
+  natural minimum once the Actions column existed, which is why it clipped.
+- Measured at 1999px: table 1635px inside a 1680px shell, 160px margins each side, no
+  clipping, last button fully visible, rows uniform at 45px.
+
+#### Added - Sub-Application Toggles in Edit Mode
+- The A / P / T badges become buttons while a row is in edit mode. Green is shown on the
+  project hub, amber is on with no content on disk, a blue ring marks an unsaved change.
+- They write the master index `subApps` flags, which are what gate the three cards on the
+  project hub page. The build script recomputes those from disk, so a toggle holds until
+  the next build - the save dialog says so, and the API reports it in its result.
+- `_update_master_index()` merges `subApps` key by key, so writing one flag cannot drop
+  the other two.
+
 #### Verification
 - Run on port 8095 against the real repository and the live R2 bucket, using a throwaway
   ZZ99 project created for the purpose. No real project was edited or deleted.
@@ -78,6 +115,124 @@
   and removes the row; the quarantine panel lists it.
 - The master index was byte-identical to its pre-test backup afterwards, and every test
   artefact was removed.
+
+#### Fixed - A Saved Toggle That Looked Like It Had Done Nothing
+- The Apps column rendered `subApps[key].available`, which is **on-disk content**, while the
+  edit-mode toggle rendered and wrote `subApps[key].indexed`, the **master index flag**. Two
+  different facts behind the same three letters.
+- Turning PlanVision off for PS02 therefore wrote `planVision: false` to the index and
+  correctly disabled the card on the project hub, while the table went on showing a green
+  P - because the PlanVision content is still on disk either way. It read as a failed save.
+- The column now shows the index flag, which is what actually governs the hub and what the
+  toggle writes. Where the flag and the disk disagree the badge turns amber and says which
+  way round it is, so a deliberate override is distinguishable from a stale index.
+- Confirmed on the live 8090 server: the index holds `planVision: false`, the API reports
+  `indexed=False onDisk=True`, the badge is amber, and the PS02 hub renders the PlanVision
+  card disabled with no href while Admin and TrueVision stay enabled.
+
+#### Fixed - The Gallery Ignored The Same Flag (`ProjectVision__LocalServer__DevLanding__.html`)
+- The project gallery had the identical fault: `buildButton()` enabled a sub-app shortcut on
+  `subApp.available` (content on disk) while the project hub gates its cards on the index
+  flag. A sub-app switched off in the Project Manager still offered a live, clickable
+  shortcut straight into a page the hub had been told to hide.
+- Buttons and card shading now both gate on `indexed && url`. A button switched off says so
+  in its tooltip - "switched off for this project in the Project Manager. The content is
+  still on disk; rerun the build script to switch it back on" - rather than the misleading
+  "no content for this project".
+- The `Index stale` chip is now `Index override`, because a mismatch is as likely to be a
+  deliberate switch-off as a stale index; the tooltip names both possibilities.
+- Verified against the live index: PS02 and PS01 show PlanVision off, SB04 shows both
+  PlanVision and TrueVision off, EB03 shows all three on, and every off button carries no
+  href.
+
+#### Note - Sub-App Flags Do Not Touch R2
+- The master project index is a repository file. The R2 sync script only ever **reads** it,
+  to resolve a project code; it is never uploaded. A sub-app toggle writes that one file
+  and nothing else - no R2 call is made, and none is needed.
+- The project hub reads the index from the local server on localhost, so a toggle takes
+  effect there on the next load. The public site reads the GitHub Pages copy, so the change
+  reaches it when the repository is committed and pushed.
+
+#### Fixed - Two "Close" Buttons On The Result Modal
+- `showResult()` reuses `showStage()`, which always rendered a cancel button beside the
+  confirm button, and both were labelled "Close". A stage can now declare `singleButton`,
+  which a result uses: an acknowledgement has nothing to cancel.
+
+#### Operational - A Toggle That Silently Did Nothing
+- An app toggle saved against a server started four minutes before the `subApps` handling
+  was written reported only "INDEX updated". The flags were posted and ignored: the route
+  existed, so nothing 404'd, and the write simply had no effect.
+- This is the quieter cousin of the stale-route 404 above, and the reason the API now
+  reports a `subApps` step in its result - the absence of that line is the tell that the
+  running server predates the feature.
+
+#### State At The End Of The Session
+- The tool was used in earnest the same afternoon. Three projects sit in
+  `na-project-portal/00__Deleted__Quarantine/`, quarantined from the live 8090 server:
+  - `2026-09-19_133345__JS01__JohnSmith`   - 9 files, 31 KB  - dummy, intended
+  - `2026-09-19_133358__TS01__TestProject` - 9 files, 25 KB  - dummy, intended
+  - `2026-09-19_133417__GA06_-_Cloves-Wood` - 16 files, 63 MB - **a real 2025 job**, with
+    PD Site Plans, Elevations and Scheme-02 RevB drawings as PDF and PNG
+- GA06 was quarantined while the mis-aligned button layout was still loaded, minutes after
+  that layout was reported as dangerous. It is intact and restorable by moving the folder
+  back into `25-Projects/`, and git also holds it. Left in place pending a decision.
+- Nothing was deleted from R2 at any point in this session.
+
+# -----------------------------------------------------------------------------
+
+## Project Vision - Version 0.3.1 - 19-Sep-2026
+
+### Changed - Studio shell folded into the numbered series, and two launcher faults fixed
+
+#### Numbered Series (`na-apps/02__ProjectVision__StudioShell__AppCode/`)
+- The shell shipped in `ProjectVision__LocalServer__DevShell__/`, the only unnumbered
+  directory under `na-apps/`. It is now `02__ProjectVision__StudioShell__AppCode`, sitting
+  above `05__ProjectVision__CoreAppCode`: 00 archive, 01 shared assets, 02 the shell that
+  hosts everything, then 05/10/20/30 the apps it hosts.
+- Internally it follows the same series as the core app - `02__Src__AppModules`,
+  `03__Style__AppStylesheets`, `05__AppData`.
+- Names were aligned to the app's actual name at the same time, since "DevShell" was only
+  ever a working label: `NaDevShell__` became `NaStudioShell__`, the asset prefix
+  `/__na-devshell/` became `/__na-studio/`, the escape hatch `?devshell=off` became
+  `?studio=off`, and the server constants `DEV_SHELL_*` became `STUDIO_SHELL_*`.
+- The served URLs keep the numbered paths, so the stylesheet is at
+  `/__na-studio/03__Style__AppStylesheets/NaStudioShell__AppShell__Stylesheet__.css`.
+
+#### Fixed - The Double-Injection Guard Never Matched
+- `inject_studio_shell_bridge()` guarded against injecting twice by searching the served
+  HTML for the marker `na-devshell-bridge`, which was not a substring of the tag it
+  injects. A page that somehow received two passes would have been given two script tags.
+- The marker is now the bridge filename, which does appear in the injected tag.
+
+#### Fixed - The Silent Startup Server Never Started (HTTP 501 on localhost:8090)
+- `Start__ProjectVision__WindowsStartUp__Silent__8090__.bat` asked
+  `Get-NetTCPConnection -LocalPort 8090 -State Listen` and exited when anything answered.
+- On this machine `WsToastNotification.exe` holds `0.0.0.0:8090` permanently, so that test
+  is **always** true: the launcher concluded the server was already up, started nothing,
+  and the browser got 501 from WsToastNotification. The absent log file was the proof.
+- Both launchers now ask whether **our** server is answering - `GET /api/health` must
+  return `na-projectvision-local-dev` - rather than whether the port is held. Flask binds
+  `127.0.0.1:8090` alongside WsToastNotification and the more specific bind wins for
+  `localhost`, so the two coexist as they always have.
+- The duplicate logic is gone: the startup `.bat` now calls
+  `ProjectVision__StudioApp__Launch__.ps1 -ServerOnly`, so the Start Menu launcher and the
+  startup server share one definition of "already running" and cannot drift apart.
+
+#### Operational - Routes Are Fixed When The Process Starts
+- A Project Manager route added at 13:11 returned 404 on a server that had been running
+  since 12:42, while the shell bar still drew its button, because the shell HTML is read
+  from disk on every request but Flask fixes its routes at start. That combination makes a
+  stale process look like a broken link.
+- The tell: `curl -i -X OPTIONS <url>` answering `Allow: OPTIONS, GET, HEAD` means only the
+  static catch-all matched, so the route does not exist in the running process.
+- This matters more now that the startup server runs under `pythonw.exe` with no console
+  and can be days old. Restart it after any change to the server-side Python.
+
+#### Documentation
+- `README__StudioShell__.md` corrected: it still described the old port-in-use logic, and
+  claimed "every shell response" was `no-store` when that covers only the shell's own
+  responses. Added a "When it will not start" section covering the 501, where the log
+  lives, and the stale-route symptom.
 
 # -----------------------------------------------------------------------------
 

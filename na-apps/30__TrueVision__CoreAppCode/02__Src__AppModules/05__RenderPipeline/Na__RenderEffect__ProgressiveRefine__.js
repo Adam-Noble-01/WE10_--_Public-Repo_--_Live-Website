@@ -612,6 +612,16 @@
             //   fxaaPass    {Pass|null}         The chain's FXAA pass, to stand aside
             //   drawChain   {function}          Runs the pre-passes and composer.render()
             //   drawOverlay {function|null}     Draws the section overlay onto the canvas
+            //   onSample    {function|null}     Told each sample's index before it draws
+            //
+            // onSample exists for effects whose own noise is a function of screen
+            // position and therefore does NOT vary with the jitter - SSAO's kernel
+            // rotation is the one that matters. Without it those effects hand every
+            // sample in the burst an identical pattern, and sixteen copies of one
+            // pattern average to that same pattern: the noise survives into the
+            // finished still having cost sixteen renders to keep. Given the index
+            // they can rotate per sample, and the same sixteen renders converge on
+            // a far larger effective kernel for nothing.
             //
             // Returns true when the frame drew something. False means the
             // buffer could not be built and the caller must draw an ordinary
@@ -623,7 +633,7 @@
             // finds it as it left it.
             // ------------------------------------------------------------
             renderChunk(context) {
-                const { camera, composer, fxaaPass, drawChain, drawOverlay } = context || {};
+                const { camera, composer, fxaaPass, drawChain, drawOverlay, onSample } = context || {};
                 if (!camera || !composer || typeof drawChain !== 'function') return false;
 
                 const sampler = Na__Refine__EnsureBuffer(composer);
@@ -650,6 +660,7 @@
                     for (let i = 0; i < chunkSize; i++) {
                         if (samplesDone > 0) shadowMap.autoUpdate = false;    // <-- Sample zero drew the maps; nothing has moved since
 
+                        if (typeof onSample === 'function') onSample(samplesDone); // <-- Let screen-space noise decorrelate across the burst
                         sampler.applyJitter(camera, samplesDone);
                         drawChain();
                         sampler.accumulate(composer.readBuffer.texture, samplesDone);

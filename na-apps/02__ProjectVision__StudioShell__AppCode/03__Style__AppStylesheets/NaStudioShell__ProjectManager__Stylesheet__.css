@@ -116,10 +116,16 @@
     .pm-dot--ok  { background: var(--Pm_Ok); }
     .pm-dot--bad { background: var(--Pm_Bad); }
 
+    /* Capped and centred, so the eye does not travel the full width of a 2000px
+       monitor to get from a project code across to its buttons.
+       The cap sits above the table's natural minimum of about 1520px. The old
+       1720px cap did not clear that once the Actions column was added, which is
+       why it clipped; trimming the Folder column and the thrice-repeated word
+       "Delete" bought the headroom this needs. */
     .pm-shell {
-        max-width : 1720px;
+        max-width : 1680px;
         margin    : 0 auto;
-        padding   : 22px;
+        padding   : 18px 22px;
     }
 
 /* endregion ------------------------------------------------------------------- */
@@ -222,13 +228,23 @@
         color        : var(--Pm_Edit);
     }
 
+    /* Destructive buttons sit quiet until pointed at. A table of fifteen rows
+       each carrying three red buttons is a wall of red that stops meaning
+       anything; red is kept for the one button under the cursor. */
     .pm-btn--danger {
-        background   : var(--Pm_BadBg);
-        border-color : var(--Pm_BadBorder);
-        color        : var(--Pm_Bad);
+        background   : var(--Pm_BgSecondary);
+        border-color : var(--Pm_BorderLight);
+        color        : var(--Pm_TextSecondary);
+        font-weight  : 500;
     }
 
-    .pm-btn--danger:hover:not(:disabled) { background: var(--Pm_Bad); border-color: var(--Pm_Bad); color: var(--Pm_TextLight); }
+    .pm-btn--danger:hover:not(:disabled),
+    .pm-btn--danger:focus-visible {
+        background   : var(--Pm_Bad);
+        border-color : var(--Pm_Bad);
+        color        : var(--Pm_TextLight);
+        font-weight  : 600;
+    }
 
     .pm-btn--danger-solid {
         background   : var(--Pm_Bad);
@@ -243,8 +259,13 @@
    REGION | Table
    ----------------------------------------------------------------------------- */
 
+    /* The wrapper scrolls in BOTH axes. It has to: an element that scrolls in
+       x becomes the containing block for sticky descendants, so a header set
+       to stick against the page never sticks at all - it scrolls away and the
+       rows then paint over it. */
     .pm-tablewrap {
-        overflow-x    : auto;
+        max-height    : calc(100vh - 250px);
+        overflow      : auto;
         background    : var(--Pm_BgSecondary);
         border        : 1px solid var(--Pm_BorderLight);
         border-radius : 10px;
@@ -258,10 +279,12 @@
 
     .pm-table th {
         position       : sticky;
-        top            : 60px;
-        padding        : 11px 12px;
+        top            : 0;                            /* <-- Sticks to the wrapper, which is the scroll container */
+        z-index        : 3;                            /* <-- Without this, scrolling rows paint over the header */
+        padding        : 11px 10px;
         background     : var(--Pm_BgTertiary);
         border-bottom  : 1px solid var(--Pm_BorderMedium);
+        box-shadow     : 0 1px 0 var(--Pm_BorderMedium);
         text-align     : left;
         font-size      : 11px;
         font-weight    : 700;
@@ -287,7 +310,7 @@
     .pm-table th.pm-th--sorted .pm-th__arrow { opacity: 1; color: var(--Pm_BrandPrimary); }
 
     .pm-table td {
-        padding       : 10px 12px;
+        padding       : 10px 10px;
         border-bottom : 1px solid var(--Pm_BorderLight);
         vertical-align: middle;
     }
@@ -315,14 +338,82 @@
         white-space : nowrap;
     }
 
-    .pm-cell--wide  { min-width: 190px; }
+    /* Names and addresses are read across, not down. Wrapping them made every
+       row two lines tall, which is what threw the action buttons out of line
+       with the row they belong to. Both stay on one line and the table scrolls
+       sideways instead. */
+    .pm-cell--name {
+        min-width     : 240px;
+        max-width     : 320px;
+        white-space   : nowrap;
+        overflow      : hidden;
+        text-overflow : ellipsis;
+    }
+
+    .pm-cell--address {
+        min-width   : 400px;
+        white-space : nowrap;
+        font-size   : 12px;
+    }
+
+    /* Three one-character badges in a 54px column stacked onto three lines,
+       which was what actually made the rows 77px tall. */
+    .pm-cell--apps {
+        white-space : nowrap;
+        width       : 1%;
+    }
+
+    /* The folder repeats the code and the name, so it is the column that gives
+       way when the table needs width. Full value stays in the tooltip. */
+    .pm-cell--folder {
+        max-width     : 150px;
+        white-space   : nowrap;
+        overflow      : hidden;
+        text-overflow : ellipsis;
+    }
+
+    /* Narrow columns size to their content rather than sharing the surplus. */
+    .pm-cell--tight { width: 1%; white-space: nowrap; }
     .pm-cell--num   { text-align: right; font-family: var(--Pm_FontMono); font-size: 11.5px; white-space: nowrap; }
     .pm-cell--muted { color: var(--Pm_TextMuted); font-style: italic; }
 
+    /* One line, never wrapped. Wrapped actions made rows 86px tall and put the
+       second line of buttons hard against the row boundary, where they read as
+       belonging to the row below - the worst possible ambiguity on a control
+       that deletes things. The table scrolls sideways instead. */
     .pm-actions {
-        display   : flex;
-        gap       : 5px;
-        flex-wrap : wrap;
+        display     : flex;
+        align-items : center;
+        gap         : 4px;
+        flex-wrap   : nowrap;
+        white-space : nowrap;
+    }
+
+    /* "Delete" said once, then what is being deleted. Three buttons each
+       repeating the word cost 90px of a table that was already clipping. */
+    .pm-actions__label {
+        margin-left    : 6px;
+        color          : var(--Pm_TextMuted);
+        font-size      : 11px;
+        font-weight    : 700;
+        letter-spacing : 0.04em;
+        text-transform : uppercase;
+    }
+
+    /* Row controls are smaller than the page controls: four of them per row,
+       fifteen rows, and they should not shout. */
+    .pm-actions .pm-btn {
+        height     : 24px;
+        padding    : 0 8px;
+        font-size  : 11.5px;
+        border-radius : 5px;
+    }
+
+    /* Hovering any destructive control tints its whole row, so the project
+       about to be acted on is unmistakable before the click, not just after. */
+    .pm-table tbody tr:has(.pm-btn--danger:hover) {
+        background : var(--Pm_BadBg);
+        box-shadow : inset 4px 0 0 var(--Pm_Bad);
     }
 
 /* endregion ------------------------------------------------------------------- */
@@ -380,6 +471,54 @@
     .pm-badge--on   { background: var(--Pm_OkBg);   color: var(--Pm_Ok); }
     .pm-badge--off  { opacity: 0.4; }
     .pm-badge--warn { background: var(--Pm_WarnBg); color: var(--Pm_Warn); }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Sub-Application Toggles (Edit Mode)
+   ----------------------------------------------------------------------------- */
+
+    .pm-apptoggles {
+        display   : flex;
+        gap       : 4px;
+        flex-wrap : nowrap;
+    }
+
+    .pm-apptoggle {
+        width          : 24px;
+        height         : 24px;
+        padding        : 0;
+        border         : 1px solid var(--Pm_BorderMedium);
+        border-radius  : 5px;
+        background     : var(--Pm_BgSecondary);
+        color          : var(--Pm_TextMuted);
+        font-family    : var(--Pm_FontMono);
+        font-size      : 11.5px;
+        font-weight    : 700;
+        cursor         : pointer;
+        transition     : all var(--Pm_TransitionFast);
+    }
+
+    .pm-apptoggle:hover { border-color: var(--Pm_Edit); }
+
+    .pm-apptoggle--on {
+        background   : var(--Pm_OkBg);
+        border-color : var(--Pm_Ok);
+        color        : var(--Pm_Ok);
+    }
+
+    /* Turning an app on for a project with nothing on disk is allowed, but it
+       should never happen without being seen. */
+    .pm-apptoggle--nocontent.pm-apptoggle--on {
+        background   : var(--Pm_WarnBg);
+        border-color : var(--Pm_Warn);
+        color        : var(--Pm_Warn);
+    }
+
+    .pm-apptoggle--dirty {
+        box-shadow : 0 0 0 2px var(--Pm_EditBg), 0 0 0 3px var(--Pm_Edit);
+    }
 
 /* endregion ------------------------------------------------------------------- */
 

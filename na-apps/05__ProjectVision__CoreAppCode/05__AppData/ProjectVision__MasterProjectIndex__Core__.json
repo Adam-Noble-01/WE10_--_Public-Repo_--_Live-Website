@@ -1,17 +1,6 @@
 {
     "buildTimestamp": "2026-09-17T20:40:45.898575+00:00",
     "projects": {
-        "GA06": {
-            "projectCode": "GA06",
-            "projectName": "GA06",
-            "projectFolder": "GA06_-_Cloves-Wood",
-            "projectYear": "25",
-            "subApps": {
-                "projectAdmin": false,
-                "planVision": false,
-                "trueVision": false
-            }
-        },
         "JH03": {
             "projectCode": "JH03",
             "projectName": "JH03",
@@ -89,43 +78,10 @@
                 "trueVision": true
             }
         },
-        "JS01": {
-            "projectCode": "JS01",
-            "projectName": "Meadow Lane",
-            "projectFolder": "JS01__JohnSmith",
-            "projectYear": "26",
-            "subApps": {
-                "projectAdmin": true,
-                "planVision": false,
-                "trueVision": false
-            }
-        },
         "NP03": {
             "projectCode": "NP03",
             "projectName": "Ashness Close",
             "projectFolder": "NP03__AshnessClose",
-            "projectYear": "26",
-            "subApps": {
-                "projectAdmin": true,
-                "planVision": true,
-                "trueVision": true
-            }
-        },
-        "PS01": {
-            "projectCode": "PS01",
-            "projectName": "Musters Road",
-            "projectFolder": "PS01__MustersRoad",
-            "projectYear": "26",
-            "subApps": {
-                "projectAdmin": true,
-                "planVision": true,
-                "trueVision": true
-            }
-        },
-        "PS02": {
-            "projectCode": "PS02",
-            "projectName": "Musters Road - Official PD Pack",
-            "projectFolder": "PS02__MustersRoad__OfficialPdPack",
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,
@@ -144,21 +100,32 @@
                 "trueVision": true
             }
         },
+        "PS02": {
+            "projectCode": "PS02",
+            "projectName": "Musters Road - Official PD Pack",
+            "projectFolder": "PS02__MustersRoad__OfficialPdPack",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": true
+            }
+        },
+        "PS01": {
+            "projectCode": "PS01",
+            "projectName": "Musters Road",
+            "projectFolder": "PS01__MustersRoad",
+            "projectYear": "26",
+            "subApps": {
+                "projectAdmin": true,
+                "planVision": false,
+                "trueVision": true
+            }
+        },
         "SB04": {
             "projectCode": "SB04",
             "projectName": "Wollaton Road",
             "projectFolder": "SB04__WollatonRoad",
-            "projectYear": "26",
-            "subApps": {
-                "projectAdmin": true,
-                "planVision": true,
-                "trueVision": true
-            }
-        },
-        "TS01": {
-            "projectCode": "TS01",
-            "projectName": "Test Project",
-            "projectFolder": "TS01__TestProject",
             "projectYear": "26",
             "subApps": {
                 "projectAdmin": true,

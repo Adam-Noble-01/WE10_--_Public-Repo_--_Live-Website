@@ -1195,13 +1195,26 @@
                     Na__Refine__DidDraw = Na__RenderLoop__Refiner.presentAgain(Na__RenderLoop__DrawSectionOverlay);
 
                 } else if (Na__Refine__FrameMode === Na__Refine__FRAME_REFINE) {
-                    Na__Refine__DidDraw = Na__RenderLoop__Refiner.renderChunk({
-                        camera      : Na__Camera__Main,
-                        composer    : Na__RenderComposer__Main,
-                        fxaaPass    : Na__RenderPipeline__State.fxaaPassRef || null,
-                        drawChain   : Na__RenderLoop__DrawEffectChain,
-                        drawOverlay : Na__RenderLoop__DrawSectionOverlay
-                    });
+                    // AO GETS THE FULL KERNEL HERE, ROTATED PER SAMPLE.
+                    // The burst already pays for sixteen SSAO passes - the effect
+                    // runs inside drawChain like everything else in the chain - so
+                    // the only question is whether those sixteen say anything
+                    // different to each other. SSAO's kernel rotation is hashed
+                    // from the fullscreen quad's UV, which the jitter does not
+                    // move, so without onSample they were sixteen identical
+                    // estimates and the noise survived into the parked image.
+                    try {
+                        Na__Refine__DidDraw = Na__RenderLoop__Refiner.renderChunk({
+                            camera      : Na__Camera__Main,
+                            composer    : Na__RenderComposer__Main,
+                            fxaaPass    : Na__RenderPipeline__State.fxaaPassRef || null,
+                            drawChain   : Na__RenderLoop__DrawEffectChain,
+                            drawOverlay : Na__RenderLoop__DrawSectionOverlay,
+                            onSample    : Na__RenderPipeline__State.setAoRefineSample
+                        });
+                    } finally {
+                        Na__RenderPipeline__State.setAoFullQuality();     // <-- Rotation put back; the exporters borrow this same pass
+                    }
                 }
 
                 // ORDINARY FRAME | Exactly the frame this loop always drew, and
@@ -1215,7 +1228,23 @@
                         Na__RenderPipeline__State.monitorAoFrame(deltaMs);   // <-- AO performance auto-disable check (post-startup only)
                     }
                     Na__RenderLoop__Refiner.noteNormalFrame(Na__RenderLoop__PrevTimestamp, deltaMs); // <-- Frame rate readout + chunk sizing
-                    Na__RenderLoop__DrawEffectChain();
+
+                    // AO ON A MOVING FRAME | BORROWED, AND PUT BACK IN THE SAME FRAME.
+                    // A reduced kernel is right here and nowhere else: this is the
+                    // image nobody studies, and the burst that follows the camera
+                    // stopping restores it and then some. The restore is not
+                    // optional and not deferrable - the still exporter, the video
+                    // exporter and the Layout Editor all borrow this composer
+                    // BETWEEN frames and render through it without asking for a
+                    // quality, so a budget left lowered here would quietly ship a
+                    // half-sampled export. Same borrow-and-return discipline the
+                    // refiner uses for FXAA and renderToScreen, for the same reason.
+                    Na__RenderPipeline__State.setAoLiveQuality();
+                    try {
+                        Na__RenderLoop__DrawEffectChain();
+                    } finally {
+                        Na__RenderPipeline__State.setAoFullQuality();
+                    }
                     Na__RenderLoop__DrawSectionOverlay();
                 }
             }

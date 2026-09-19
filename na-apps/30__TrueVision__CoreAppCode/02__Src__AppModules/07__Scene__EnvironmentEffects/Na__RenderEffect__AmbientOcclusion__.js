@@ -101,11 +101,18 @@
 
     // HELPER FUNCTION | Generate SSAO Hemisphere Sample Kernel
     //
-    // Creates `sampleCount` random points inside a unit hemisphere oriented
-    // along +Z.  Samples are cosine-weighted toward the surface (small scale
-    // values for early samples) so nearby geometry contributes more.
-    // The kernel is later oriented to the surface normal via a TBN matrix
-    // in the fragment shader.
+    // Creates `sampleCount` random UNIT directions in a hemisphere oriented
+    // along +Z.  The kernel is later oriented to the surface normal via a TBN
+    // matrix in the fragment shader.
+    //
+    // THE COSINE WEIGHTING LIVES IN THE SHADER, NOT HERE.
+    // Samples are still weighted toward the surface so nearby geometry
+    // contributes more - but that weighting is applied per frame against the
+    // number of samples the frame is actually walking (uAoActiveSamples), not
+    // baked into the vector lengths here.  Baked in, a frame on a reduced
+    // budget would inherit a PREFIX of the weighting - every sample bunched
+    // against the surface, a hard contact line with none of the falloff - and
+    // the moving image would not match the still it settles into.
     // ------------------------------------------------------------
     function Na__AmbientOcclusion__GenerateKernel(sampleCount) {
         const kernel = [];
@@ -115,12 +122,7 @@
                 Math.random() * 2.0 - 1.0,
                 Math.random()
             );
-            sample.normalize();
-
-            let scale = i / sampleCount;
-            scale = 0.1 + scale * scale * 0.9;
-            sample.multiplyScalar(scale);
-
+            sample.normalize();                                            // <-- Direction only; the shader scales it
             kernel.push(sample);
         }
         return kernel;
@@ -158,6 +160,8 @@
                 'uKernel'                  : { value: [] },
                 'uAoEnabled'               : { value: 1.0 },
                 'uAoCullDistance'           : { value: 0.0 },
+                'uAoActiveSamples'         : { value: sampleCount },
+                'uAoNoiseOffset'           : { value: 0.0 },
                 'uDebugMode'               : { value: 0 }
             },
             vertexShader:   Na__AoShader__VertexSource,
@@ -235,6 +239,19 @@
             : 0;
         const cullDistanceUnits = (cullDistanceMm > 0) ? Na__Math__ConvertMmToUnits(cullDistanceMm) : 0.0;
 
+        // THE MOVING BUDGET | How many of the kernel's samples an ordinary frame walks
+        // ------------------------------------------------------------
+        // sampleCount is the CEILING: the loop is unrolled at that length in the
+        // shader and cannot exceed it.  An ordinary frame walks this many instead,
+        // because a moving image is the one nobody studies - and because the
+        // refinement burst that follows recovers the quality and then some, by
+        // averaging sixteen differently-rotated kernels into the parked image.
+        // ------------------------------------------------------------
+        const samplesWhileMoving = Math.max(1, Math.min(sampleCount,
+            (aoConfig && Number.isFinite(aoConfig.RenderEffect__AmbientOcclusion__SamplesWhileMoving))
+                ? Math.round(aoConfig.RenderEffect__AmbientOcclusion__SamplesWhileMoving)
+                : sampleCount));                                           // <-- Absent key means no reduction at all
+
         const radiusUnits = Na__Math__ConvertMmToUnits(radiusMm);
         const kernel      = Na__AmbientOcclusion__GenerateKernel(sampleCount);
 
@@ -284,6 +301,36 @@
             blurPass.uniforms['uResolution'].value.set(width, height);
         }
 
+        // ----- Quality budget: BORROWED for a draw, always put back -----
+        //
+        // The AO pass is shared. A still export, a video export and a Layout
+        // Editor snapshot all borrow this composer and render through it without
+        // saying anything about quality, so they get whatever the last caller
+        // left behind. A reduced budget must therefore never outlive the single
+        // draw that asked for it: the render loop sets it immediately before an
+        // ordinary frame and restores full quality immediately after, the same
+        // discipline the refiner already uses for FXAA and renderToScreen.
+        // Full quality is the resting state, so anything that does not ask gets
+        // the best the effect can do.
+        // ------------------------------------------------------------
+        const GOLDEN_RATIO_CONJUGATE = 0.6180339887498949;                 // <-- Successive multiples spread evenly over 0..1
+
+        function setFullQuality() {
+            aoPass.uniforms['uAoActiveSamples'].value = sampleCount;
+            aoPass.uniforms['uAoNoiseOffset'].value   = 0.0;
+        }
+
+        function setLiveQuality() {
+            aoPass.uniforms['uAoActiveSamples'].value = samplesWhileMoving;
+            aoPass.uniforms['uAoNoiseOffset'].value   = 0.0;               // <-- Screen-static noise; a rotating pattern fizzes
+        }
+
+        function setRefineSample(index) {
+            const safeIndex = Number.isFinite(index) ? Math.max(0, index) : 0;
+            aoPass.uniforms['uAoActiveSamples'].value = sampleCount;
+            aoPass.uniforms['uAoNoiseOffset'].value   = (safeIndex * GOLDEN_RATIO_CONJUGATE) % 1;
+        }
+
         // ----- Disable both passes (perf monitor or manual) -----
         function disable() {
             aoPass.enabled   = false;
@@ -298,7 +345,11 @@
             aoPass.uniforms['uAoEnabled'].value = 1.0;
         }
 
-        return { pass: aoPass, blurPass, updateUniforms, setSize, disable, enable };
+        return {
+            pass: aoPass, blurPass, updateUniforms, setSize, disable, enable,
+            setFullQuality, setLiveQuality, setRefineSample,
+            sampleCount, samplesWhileMoving
+        };
     }
     // ------------------------------------------------------------
 
@@ -312,8 +363,9 @@
     // FUNCTION | Create FPS-Based Auto-Disable Monitor
     //
     // After an initial warmup period (WARMUP_FRAMES) the monitor begins
-    // counting frames.  Once `sampleFrames` have been collected the average
-    // FPS is compared against `fpsThreshold`.  If below threshold:
+    // sampling the DURATION of ordinary frames that arrive back to back.
+    // Once `sampleFrames` such frames have been collected their mean gives the
+    // average FPS, which is compared against `fpsThreshold`.  If below threshold:
     //   1. Both the SSAO and blur passes are disabled via aoState.disable()
     //   2. A user-facing toast says "Shadows have been switched off…"
     //
@@ -332,8 +384,27 @@
             : 120;
 
         const WARMUP_FRAMES   = 60;
+
+        // MEASURE THE FRAMES, NOT THE WALL CLOCK.
+        // This used to time 120 sampled frames end to end and divide, which is
+        // only an fps if frames arrive back to back. They do not. The render
+        // loop is invalidation based, so it draws while something is moving and
+        // then STOPS, and the caller deliberately withholds refinement chunks
+        // from this monitor because one chunk is several frames of work in one.
+        // Both gaps land in the elapsed time while contributing no counted
+        // frames, so a locked 60fps machine measured 8 to 17fps depending only
+        // on how long its user spent LOOKING at the scene, and AO was switched
+        // off underneath them with a message blaming their hardware.
+        // Averaging the per-frame deltas instead makes the measurement care
+        // about how long a frame takes and not about when the next one is
+        // asked for, which is the only question worth asking here.
+        const FRAME_MIN_MS      = 2;                                   // <-- Below this the timestamp is noise, not a frame
+        const FRAME_MAX_MS      = 250;                                 // <-- Above this the loop was idle, not slow
+        const FRAME_CONTINUITY_MS = 250;                               // <-- Gap after which the previous frame is not a neighbour
+
         let frameCount        = 0;
-        let sampleStartTime   = 0;
+        let lastFrameAt       = 0;
+        let sampleDeltaSum    = 0;
         let sampleFrameCount  = 0;
         let triggered         = false;
 
@@ -343,14 +414,21 @@
 
             if (frameCount <= WARMUP_FRAMES) return;
 
-            if (sampleFrameCount === 0) {
-                sampleStartTime = performance.now();
-            }
+            // NEIGHBOURS ONLY. deltaMs is measured from the previous TICK, which
+            // may have been a refinement chunk or the last frame before a long
+            // idle. Either way it measures a gap rather than this frame's cost,
+            // so the first ordinary frame after one is not a sample.
+            const now         = performance.now();
+            const isNeighbour = lastFrameAt > 0 && (now - lastFrameAt) < FRAME_CONTINUITY_MS;
+            lastFrameAt       = now;
+            if (!isNeighbour) return;
+            if (!(deltaMs >= FRAME_MIN_MS && deltaMs <= FRAME_MAX_MS)) return;
+
+            sampleDeltaSum += deltaMs;
             sampleFrameCount++;
 
             if (sampleFrameCount >= sampleFrames) {
-                const elapsed  = performance.now() - sampleStartTime;
-                const avgFps   = (sampleFrames / elapsed) * 1000;
+                const avgFps   = 1000 / (sampleDeltaSum / sampleFrameCount);
                 triggered = true;
 
                 if (avgFps < fpsThreshold) {

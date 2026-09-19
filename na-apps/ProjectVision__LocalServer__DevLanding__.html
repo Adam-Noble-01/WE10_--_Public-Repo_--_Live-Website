@@ -1120,7 +1120,7 @@
             }
 
             if (project.indexStale) {
-                facts.push('<span class="dv-fact dv-fact--warn" title="The master index sub-app flags no longer match what is on disk - rerun the build script">Index stale</span>');
+                facts.push('<span class="dv-fact dv-fact--warn" title="A sub-app flag in the master index does not match what is on disk. That is either a deliberate switch-off from the Project Manager, or a stale index - rerun the build script to recompute the flags from disk.">Index override</span>');
             }
 
             if (project.activePhase) {
@@ -1152,12 +1152,30 @@
         }
 
         // FUNCTION | Build one sub-application launch button
+        // -------------------------------------------------------------
+        // Gated on the MASTER INDEX flag, not on whether content sits on disk.
+        // The project hub gates its three cards the same way, so a sub-app
+        // switched off in the Project Manager has to be off here too - offering
+        // a working shortcut to something the hub refuses to open is worse than
+        // not offering it at all.
         function buildButton(subApp, role, label) {
-            const isOn    = Boolean(subApp && subApp.available && subApp.url);
+            const record  = subApp || {};
+            const indexed = Boolean(record.indexed);
+            const onDisk  = Boolean(record.onDisk);
+            const isOn    = Boolean(indexed && record.url);
+
             const classes = 'dv-btn dv-btn--' + role + (isOn ? '' : ' dv-btn--off');
-            const href    = isOn ? ' href="' + esc(subApp.url) + '"' : '';
-            const title   = isOn ? label + ' – ' + esc(subApp.url)
-                                 : label + ' – no content for this project';
+            const href    = isOn ? ' href="' + esc(record.url) + '"' : '';
+
+            let title;
+            if (isOn) {
+                title = label + ' – ' + esc(record.url);
+            } else if (onDisk) {
+                title = label + ' – switched off for this project in the Project Manager. '
+                      + 'The content is still on disk; rerun the build script to switch it back on.';
+            } else {
+                title = label + ' – no content for this project';
+            }
 
             return '<a class="' + classes + '"' + href + ' title="' + title + '" data-role="' + role + '">'
                  + ICONS_BY_ROLE[role]
@@ -1169,8 +1187,10 @@
         function buildCard(project, index) {
             const subApps = project.subApps || {};
 
+            // Counted on the index flag, matching the buttons below and the
+            // project hub, so a card's shading agrees with what it can open.
             const activeCount = ['projectAdmin', 'planVision', 'trueVision'].filter(function(key) {
-                return subApps[key] && subApps[key].available;
+                return subApps[key] && subApps[key].indexed && subApps[key].url;
             }).length;
 
             let stateClass = '';

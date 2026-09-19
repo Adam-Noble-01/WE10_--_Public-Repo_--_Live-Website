@@ -25,13 +25,17 @@
     --TTR_Col_StatusError                : rgb(178, 34, 34);
     --TTR_Col_ErrorText                  : #BA5050;
     --TTR_Col_TabIdle                    : var(--color-gray-600);
-    --TTR_Col_TabActiveBg                : var(--color-gray-200);
+    --TTR_Col_TabIdleBg                  : var(--color-gray-300);
+    --TTR_Col_TabActive                  : var(--color-brand);
+    --TTR_Col_TabActiveBg                : var(--color-white);
+    --TTR_Col_TabBorder                  : var(--color-gray-400);
     --TTR_Size_HeaderPadY                : 0.125rem;
     --TTR_Size_HeaderTitle               : 0.90rem;
     --TTR_Size_HeaderMinHeight           : 1.75rem;
     --TTR_Size_FooterPadY                : 0.40rem;
     --TTR_Size_FooterFont                : 0.60rem;
     --TTR_Size_UploadButton              : 1.65rem;
+    --TTR_Size_ContentWidth              : 210.00mm;
 }
 
 html,
@@ -97,39 +101,74 @@ body {
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
-   REGION | Header Tabs
+   REGION | Content Tab Bar — Folder Tabs On The A4 Column
    -------------------------------------------------------------------------- */
+.TTR__tab-bar {
+    display                              : flex;
+    align-items                          : flex-end;
+    flex-shrink                          : 0;
+    width                                : 100%;
+    margin-top                           : 00.00rem;
+    padding-top                          : 00.00rem;
+    padding-right                        : 00.00rem;
+    padding-bottom                       : 00.00rem;
+    padding-left                         : 00.00rem;
+    border-bottom                        : 01px solid var(--TTR_Col_TabBorder);
+}
+
 .TTR__tablist {
     display                              : flex;
-    align-items                          : center;
-    gap                                  : 0.15rem;
+    align-items                          : stretch;
+    width                                : 100%;
+    gap                                  : 00.15rem;
 }
 
 .TTR__tab {
-    border                               : none;
-    background                           : transparent;
-    color                                : var(--TTR_Col_TabIdle);
-    font-family                          : var(--font-semibold);
-    font-size                            : 0.72rem;
-    font-weight                          : 600;
-    line-height                          : 1;
-    letter-spacing                       : 0.02em;
-    text-transform                       : uppercase;
-    padding                              : 0.28rem 0.55rem;
-    border-radius                        : 0.20rem;
-    cursor                               : pointer;
+    flex                                 : 1 1 0;
     display                              : inline-flex;
     align-items                          : center;
+    justify-content                      : center;
+    margin-bottom                        : -02px;
+    padding-top                          : 00.48rem;
+    padding-right                        : 00.50rem;
+    padding-bottom                       : 00.42rem;
+    padding-left                         : 00.50rem;
+    border-top                           : 02px solid transparent;
+    border-right                         : 01px solid transparent;
+    border-bottom                        : 01px solid transparent;
+    border-left                          : 01px solid transparent;
+    border-top-left-radius               : 00.25rem;
+    border-top-right-radius              : 00.25rem;
+    background-color                     : var(--TTR_Col_TabIdleBg);
+    color                                : var(--TTR_Col_TabIdle);
+    font-family                          : var(--font-semibold);
+    font-size                            : 00.78rem;
+    font-weight                          : 600;
+    line-height                          : 1;
+    letter-spacing                       : 0.04em;
+    text-transform                       : uppercase;
+    cursor                               : pointer;
+    position                             : relative;
 }
 
 .TTR__tab:hover {
-    background-color                     : var(--TTR_Col_TabActiveBg);
-    color                                : var(--color-brand);
+    color                                : var(--TTR_Col_TabActive);
+    background-color                     : var(--color-gray-200);
 }
 
 .TTR__tab--active {
     background-color                     : var(--TTR_Col_TabActiveBg);
-    color                                : var(--color-brand);
+    border-top-color                     : var(--TTR_Col_TabActive);
+    border-right-color                   : var(--TTR_Col_TabBorder);
+    border-bottom-color                  : var(--TTR_Col_TabActiveBg);
+    border-left-color                    : var(--TTR_Col_TabBorder);
+    color                                : var(--TTR_Col_TabActive);
+    font-weight                          : 700;
+    z-index                              : 1;
+}
+
+.TTR__tab--active:hover {
+    background-color                     : var(--TTR_Col_TabActiveBg);
 }
 /* endregion ---------------------------------------------------------------- */
 
@@ -204,6 +243,41 @@ body {
     overflow                             : hidden;
 }
 
+.MAIN__container {
+    max-width                            : var(--TTR_Size_ContentWidth);
+    margin-top                           : 00.00rem;
+    margin-right                         : auto;
+    margin-bottom                        : 00.50rem;
+    margin-left                          : auto;
+    padding-top                          : 00.00rem;
+    padding-right                        : 00.00rem;
+    padding-bottom                       : 00.00rem;
+    padding-left                         : 00.00rem;
+    gap                                  : 00.00rem;
+}
+
+.FORM__block,
+.CTRL__block,
+.RSLT__block {
+    margin-bottom                        : 00.00rem;
+}
+
+body[data-ttr-mode="simple"] .TTR__panel + .TTR__panel {
+    margin-top                           : 00.40rem;
+}
+
+.TTR__tab-bar + .TTR__panel {
+    border-top                           : none;
+    border-top-left-radius               : 00.00rem;
+    border-top-right-radius              : 00.00rem;
+    margin-top                           : 00.00rem;
+}
+
+body[data-ttr-mode="simple"] .CTRL__heading {
+    margin-bottom                        : 00.45rem;
+    padding-bottom                       : 00.30rem;
+}
+
 body[data-ttr-mode="edit"] .TTR__simple-only,
 body[data-ttr-mode="edit"] .TTR__panel--actions,
 body[data-ttr-mode="edit"] .TTR__panel--output {
@@ -232,19 +306,31 @@ body[data-ttr-mode="read"] .TTR__panel--output {
 
 body[data-ttr-mode="edit"] .MAIN__container,
 body[data-ttr-mode="read"] .MAIN__container {
-    max-width                            : 100%;
     width                                : 100%;
-    margin                               : 0 auto;
+    margin-top                           : 0;
+    margin-right                         : auto;
+    margin-bottom                        : 0;
+    margin-left                          : auto;
+    padding-top                          : 0;
+    padding-right                        : 0;
+    padding-bottom                       : 00.50rem;
+    padding-left                         : 0;
     gap                                  : 0;
 }
 
-body[data-ttr-mode="edit"] .MAIN__container {
-    padding                              : 0.50rem;
+body[data-ttr-mode="edit"] .FULL__page-app-container {
+    background-color                     : var(--NaMd_Col_Canvas, #fafafa);
 }
 
 body[data-ttr-mode="edit"] .TTR__panel--input {
     margin-bottom                        : 0;
     height                               : 100%;
+    padding-top                          : 08.00mm;
+    padding-right                        : 11.00mm;
+    padding-bottom                       : 08.00mm;
+    padding-left                         : 11.00mm;
+    background-color                     : var(--NaMd_Col_Paper, #ffffff);
+    box-shadow                           : 00.00mm 00.00mm 02.00mm rgba(0, 0, 0, 0.12);
 }
 
 body[data-ttr-mode="edit"] .FORM__textarea {
@@ -252,7 +338,9 @@ body[data-ttr-mode="edit"] .FORM__textarea {
     height                               : auto;
     min-height                           : 0;
     resize                               : none;
-    font-size                            : 0.95rem;
+    font-size                            : 10.00pt;
+    font-family                          : "Open Sans", "Courier New", Courier, monospace;
+    line-height                          : 1.45;
 }
 
 /* @delegate: MiniApp__TextToReader__MarkdownStyle__.css
@@ -316,13 +404,53 @@ body[data-ttr-mode="edit"] .FORM__textarea {
         white-space                      : normal;
     }
 
+    .MAIN__container {
+        max-width                        : 100%;
+        margin-top                       : 00.00rem;
+        margin-bottom                    : 00.00rem;
+        gap                              : 00.00rem;
+    }
+
+    .FORM__block,
+    .CTRL__block,
+    .RSLT__block {
+        margin-bottom                    : 00.00rem;
+        padding-top                      : 00.65rem;
+        padding-bottom                   : 00.65rem;
+    }
+
+    .TTR__tab-bar {
+        padding-top                      : 00.00rem;
+        padding-bottom                   : 00.00rem;
+    }
+
     .TTR__tab {
-        font-size                        : 0.65rem;
-        padding                          : 0.22rem 0.40rem;
+        font-size                        : 00.70rem;
+        padding-top                      : 00.42rem;
+        padding-right                    : 00.30rem;
+        padding-bottom                   : 00.38rem;
+        padding-left                     : 00.30rem;
     }
 
     .TTR__header-end {
         margin-left                      : auto;
+    }
+
+    body[data-ttr-mode="edit"] .FULL__page-app-container {
+        background-color                 : var(--color-gray-100);
+    }
+
+    body[data-ttr-mode="edit"] .MAIN__container {
+        padding-bottom                   : 00.00rem;
+    }
+
+    body[data-ttr-mode="edit"] .TTR__panel--input {
+        padding-top                      : 00.50rem;
+        padding-right                    : 00.50rem;
+        padding-bottom                   : 00.50rem;
+        padding-left                     : 00.50rem;
+        box-shadow                       : none;
+        border-radius                    : 00.00rem;
     }
 
     .CSV__table th,

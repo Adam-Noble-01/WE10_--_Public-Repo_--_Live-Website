@@ -110,7 +110,10 @@ The **Project Manager** button in the bar opens a table of every project with
 its local and Cloudflare R2 footprint. It is the only place in the system that
 deletes either. Click any column header to sort, click again to reverse.
 
-Per row: **Edit**, **Delete local**, **Delete R2**, **Delete both**.
+Per row: **Edit**, then **Delete** followed by **Local**, **R2**, **Both**.
+The destructive buttons stay pale until pointed at; hovering one turns it red
+and tints its whole row, so the project you are about to act on is unmistakable
+before the click, not after it.
 
 **A row is read-only until you press Edit.** Only then does any cell turn into
 an input, so no amount of clicking around the table can begin changing project
@@ -118,13 +121,24 @@ data. Editable fields are the project code, name, address, folder, year and
 description; everything else in the table is derived and read-only, because a
 rebuild would overwrite it.
 
+### Switching sub-apps on and off
+
+In edit mode the **A / P / T** badges become buttons. Green means that app is
+shown on the project hub, amber means it is on but has no content on disk, and a
+blue ring marks a change you have not saved yet.
+
+These write the `subApps` flags in the master index, which are what enable or
+disable the three cards on the project hub page. **The build script recomputes
+them from what is on disk**, so a toggle holds until your next build - the save
+dialog and the result both say so.
+
 ### What each delete actually does
 
 | Action | Effect | Reversible |
 | --- | --- | --- |
-| Delete local | Moves the project folder to `na-project-portal/00__Deleted__Quarantine/<date>__<folder>/` | Yes - drag it back, or delete the quarantine folder when you are sure |
-| Delete R2 | Deletes every object under `NaProjectPortal/<year>-Projects/<folder>/` | **No.** An object store has no recycle bin |
-| Delete both | Both of the above | The local half only |
+| Delete &rarr; Local | Moves the project folder to `na-project-portal/00__Deleted__Quarantine/<date>__<folder>/` | Yes - drag it back, or delete the quarantine folder when you are sure |
+| Delete &rarr; R2 | Deletes every object under `NaProjectPortal/<year>-Projects/<folder>/` | **No.** An object store has no recycle bin |
+| Delete &rarr; Both | Both of the above | The local half only |
 
 Quarantined folders are listed at the bottom of the page. They sit outside the
 `NN-Projects` pattern the gallery scans, so nothing lists them as projects any

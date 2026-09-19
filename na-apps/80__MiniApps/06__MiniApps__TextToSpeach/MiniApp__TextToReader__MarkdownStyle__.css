@@ -111,12 +111,12 @@ body[data-ttr-mode="read"] .FULL__page-app-container {
 }
 
 body[data-ttr-mode="read"] .MAIN__container {
-    max-width                            : none;
     width                                : 100%;
+    max-width                            : var(--NaMd_Size_PaperWidth);
     margin-top                           : 0;
-    margin-right                         : 0;
+    margin-right                         : auto;
     margin-bottom                        : 0;
-    margin-left                          : 0;
+    margin-left                          : auto;
     padding-top                          : 0;
     padding-right                        : 0;
     padding-bottom                       : 0;
@@ -127,9 +127,9 @@ body[data-ttr-mode="read"] .TTR__panel--output {
     border                               : none;
     background-color                     : transparent;
     margin-bottom                        : 0;
-    padding-top                          : 10.00mm;
+    padding-top                          : 00.00mm;
     padding-right                        : 0;
-    padding-bottom                       : 15.00mm;
+    padding-bottom                       : 10.00mm;
     padding-left                         : 0;
     overflow                             : visible;
     align-items                          : center;
@@ -489,22 +489,75 @@ body[data-ttr-mode="read"] .MAIN__output > h1:first-child {
 /* endregion ---------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
-   REGION | Mobile — Keep A Grey Gutter Around The Sheet
+   REGION | Mobile — No A4 Paper Chrome; Tighter Read Type
+   Phone screens skip the grey-margin sheet. Read uses smaller type so more
+   of the article fits. A4 paper is desktop / tablet only (min-width 769px).
    -------------------------------------------------------------------------- */
 @media screen and (max-width: 768px) {
+    body[data-ttr-mode="read"] .FULL__page-app-container {
+        background-color                 : var(--NaMd_Col_Paper);
+    }
+
     body[data-ttr-mode="read"] .TTR__panel--output {
-        padding-top                      : 04.00mm;
-        padding-right                    : 04.00mm;
-        padding-bottom                   : 08.00mm;
-        padding-left                     : 04.00mm;
+        padding-top                      : 00.00mm;
+        padding-right                    : 00.00mm;
+        padding-bottom                   : 00.00mm;
+        padding-left                     : 00.00mm;
     }
 
     body[data-ttr-mode="read"] .MAIN__output {
+        width                            : 100%;
+        max-width                        : none;
         min-height                       : 0;
-        padding-top                      : 08.00mm;
-        padding-right                    : 08.00mm;
-        padding-bottom                   : 12.00mm;
-        padding-left                     : 08.00mm;
+        margin-top                       : 0;
+        margin-right                     : 0;
+        margin-bottom                    : 0;
+        margin-left                      : 0;
+        padding-top                      : 03.00mm;
+        padding-right                    : 03.50mm;
+        padding-bottom                   : 08.00mm;
+        padding-left                     : 03.50mm;
+        box-shadow                       : none;
+        font-size                        : 08.50pt;
+    }
+
+    body[data-ttr-mode="read"] .MAIN__output p,
+    body[data-ttr-mode="read"] .MAIN__output li {
+        font-size                        : 08.50pt;
+        margin-bottom                    : 02.00mm;
+        line-height                      : 1.35;
+    }
+
+    body[data-ttr-mode="read"] .MAIN__output h1 {
+        font-size                        : 14.00pt;
+        margin-top                       : 04.00mm;
+        margin-bottom                    : 02.00mm;
+    }
+
+    body[data-ttr-mode="read"] .MAIN__output h2 {
+        font-size                        : 11.50pt;
+        margin-top                       : 04.00mm;
+        margin-bottom                    : 01.50mm;
+    }
+
+    body[data-ttr-mode="read"] .MAIN__output h3 {
+        font-size                        : 10.00pt;
+        margin-top                       : 03.50mm;
+        margin-bottom                    : 01.50mm;
+    }
+
+    body[data-ttr-mode="read"] .MAIN__output h4,
+    body[data-ttr-mode="read"] .MAIN__output h5,
+    body[data-ttr-mode="read"] .MAIN__output h6 {
+        font-size                        : 09.00pt;
+        margin-top                       : 03.00mm;
+        margin-bottom                    : 01.00mm;
+    }
+
+    body[data-ttr-mode="read"] .MAIN__output ul,
+    body[data-ttr-mode="read"] .MAIN__output ol {
+        margin-bottom                    : 02.00mm;
+        padding-left                     : 05.00mm;
     }
 }
 /* endregion ---------------------------------------------------------------- */

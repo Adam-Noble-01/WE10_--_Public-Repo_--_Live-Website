@@ -200,6 +200,9 @@
         let monitorAoFrame   = () => {};
         let disableAo        = () => {};
         let enableAo         = () => {};
+        let setAoFullQuality  = () => {};                                  // <-- The resting state: anything that does not ask gets this
+        let setAoLiveQuality  = () => {};                                  // <-- Reduced kernel, borrowed for ONE ordinary frame
+        let setAoRefineSample = () => {};                                  // <-- Full kernel, rotated per progressive-refinement sample
         let aoPassRef        = null;
         const aoEnabled = aoConfig
             && aoConfig.RenderEffect__AmbientOcclusion__Enabled === true;
@@ -213,6 +216,9 @@
             setAoSize        = aoState.setSize;
             disableAo        = aoState.disable;
             enableAo         = aoState.enable;
+            setAoFullQuality  = aoState.setFullQuality;
+            setAoLiveQuality  = aoState.setLiveQuality;
+            setAoRefineSample = aoState.setRefineSample;
             aoPassRef        = aoState.pass;
             monitorAoFrame   = Na__RenderEffect__AmbientOcclusion__CreatePerformanceMonitor(aoState, aoConfig);
         }
@@ -269,6 +275,21 @@
             updateAoUniforms,
             setAoSize,
             monitorAoFrame,
+
+            // AO QUALITY BUDGET | Borrowed for a draw, never held across one
+            // ------------------------------------------------------------
+            // setAoLiveQuality() walks fewer kernel samples, for the moving
+            // frame nobody studies. setAoRefineSample(i) restores the full
+            // kernel and rotates it, so the progressive burst averages sixteen
+            // independent AO estimates rather than sixteen copies of one.
+            // setAoFullQuality() is the resting state and MUST be restored after
+            // any reduced draw: the exporters and the Layout Editor borrow this
+            // same composer and never ask for a quality, so they inherit
+            // whatever the last caller left behind.
+            // ------------------------------------------------------------
+            setAoFullQuality,
+            setAoLiveQuality,
+            setAoRefineSample,
             setFxaaSize,
             toggleAo,
             toggleProfileLines,

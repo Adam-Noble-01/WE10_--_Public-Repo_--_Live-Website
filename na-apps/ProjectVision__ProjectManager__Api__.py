@@ -386,6 +386,14 @@ def _update_master_index(old_code, new_entry):
 
     if new_entry is not None:
         merged = dict(existing) if isinstance(existing, dict) else {}
+
+        # SUB-APPS | Merged key by key, so sending one flag never drops the others
+        if isinstance(new_entry.get('subApps'), dict):
+            sub_apps = dict(merged.get('subApps')) if isinstance(merged.get('subApps'), dict) else {}
+            sub_apps.update(new_entry['subApps'])
+            new_entry = dict(new_entry)
+            new_entry['subApps'] = sub_apps
+
         merged.update(new_entry)
         projects[merged['projectCode']] = merged
 
@@ -763,6 +771,27 @@ def manager_edit(project_code):
 
     if 'projectName' in fields:
         index_entry['projectName'] = str(fields['projectName']).strip()
+
+    # SUB-APP FLAGS | These gate the three cards on the project hub page.
+    # -------------------------------------------------------------------------
+    # They live only in the master index, and the build script recomputes them
+    # from what is on disk, so a toggle set here holds until the next build.
+    if isinstance(fields.get('subApps'), dict):
+        supplied = fields['subApps']
+        flags    = {}
+
+        for key in ('projectAdmin', 'planVision', 'trueVision'):
+            if key in supplied:
+                flags[key] = bool(supplied[key])
+
+        if flags:
+            index_entry['subApps'] = flags
+            performed.append({
+                'step'   : 'subApps',
+                'status' : 'set',
+                'detail' : ', '.join(f"{key}={'on' if value else 'off'}" for key, value in flags.items())
+                           + '  (recomputed from disk on the next build)'
+            })
 
     if _update_master_index(project['projectCode'], index_entry):
         performed.append({'step': 'index', 'status': 'updated', 'detail': 'Master index rewritten.'})

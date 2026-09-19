@@ -104,7 +104,7 @@
         { key : 'glassOpaque',       label : 'Glass Transparency Off',  twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
         { key : 'whitecard',         label : 'Whitecard',               twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
         { key : 'enhanceWhitecard',  label : 'Enhance Whitecard',       twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
-        { key : 'baseImage',         label : 'Context Layer',           twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 0.80, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px' } }
+        { key : 'baseImage',         label : 'Context Layer',           twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 2.00, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px' } }
     ];
     // ------------------------------------------------------------
 

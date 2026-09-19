@@ -65,6 +65,8 @@
             uniform vec3      uKernel[${sampleCount}];
             uniform float     uAoEnabled;
             uniform float     uAoCullDistance;
+            uniform int       uAoActiveSamples;
+            uniform float     uAoNoiseOffset;
             uniform int       uDebugMode;
 
             varying vec2 vUv;
@@ -152,8 +154,26 @@
                     return;
                 }
 
-                // Per-pixel noise rotation to break banding
-                float noiseAngle = fract(sin(dot(vUv * uResolution, vec2(12.9898, 78.233))) * 43758.5453) * 6.283185;
+                // Per-pixel noise rotation to break banding.
+                //
+                // PER-SUPERSAMPLE ROTATION | uAoNoiseOffset
+                // vUv is the fullscreen quad's UV, not the scene's, so the jitter
+                // that moves a refinement sample does NOT move it: every one of the
+                // burst's sixteen passes handed this fragment the same angle, and
+                // sixteen copies of one noise pattern average to that same pattern.
+                // The offset advances by the golden ratio per sample, which spreads
+                // the rotations evenly and decorrelates them, so the burst averages
+                // sixteen independent estimates and converges to a far larger
+                // effective kernel for no extra work. It is ZERO on an ordinary
+                // frame: a pattern fixed to the screen is what stops a moving image
+                // from fizzing, and there is nothing to average there anyway.
+                // The offset is added AFTER the hash is folded into 0..1, never
+                // inside it: 43758.5453 already spends most of a highp mantissa,
+                // so adding a fraction to that product would quantise the offset
+                // to a handful of distinct values and half the samples would share
+                // a rotation. The caller pre-folds the offset into 0..1 too.
+                float aoHash     = fract(sin(dot(vUv * uResolution, vec2(12.9898, 78.233))) * 43758.5453);
+                float noiseAngle = fract(aoHash + uAoNoiseOffset) * 6.283185;
                 float cosA = cos(noiseAngle);
                 float sinA = sin(noiseAngle);
 
@@ -168,7 +188,21 @@
                 float validCount  = 0.0;
 
                 for (int i = 0; i < ${sampleCount}; i++) {
-                    vec3 ks = uKernel[i];
+                    if (i >= uAoActiveSamples) break;                  // <-- Runtime budget; the loop bound stays constant for the unroll
+
+                    // SCALE AGAINST THE ACTIVE COUNT, NOT THE KERNEL SIZE.
+                    // uKernel holds unit directions only. The cosine weighting that
+                    // pulls early samples in toward the surface is applied here,
+                    // against however many samples THIS frame is walking. Bake it
+                    // into the array as before and a reduced budget inherits a
+                    // PREFIX of that weighting - every sample bunched against the
+                    // surface, a hard contact line with none of the falloff - so the
+                    // moving image would not match the still it settles into. At the
+                    // full count this is the old expression exactly.
+                    float t     = float(i) / float(uAoActiveSamples);
+                    float scale = 0.1 + t * t * 0.9;
+
+                    vec3 ks = uKernel[i] * scale;
                     vec3 rotatedSample = vec3(
                         ks.x * cosA - ks.y * sinA,
                         ks.x * sinA + ks.y * cosA,

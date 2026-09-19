@@ -235,6 +235,12 @@
     // --------------------------------------------------------
 
         // FUNCTION | Build the sub-application badges
+        // -------------------------------------------------------------
+        // These show the MASTER INDEX flag, because that is what enables or
+        // disables the card on the project hub, and it is what the toggle in
+        // edit mode writes. Showing on-disk content here instead made a saved
+        // toggle look as though it had done nothing - the content is still on
+        // disk either way. Where the two disagree the badge turns amber.
         function buildAppBadges(project) {
             const subApps = project.subApps || {};
 
@@ -243,12 +249,60 @@
                 ['P', 'planVision',   'PlanVision'],
                 ['T', 'trueVision',   'TrueVision']
             ].map(function(entry) {
-                const on = Boolean(subApps[entry[1]] && subApps[entry[1]].available);
-                return '<span class="pm-badge ' + (on ? 'pm-badge--on' : 'pm-badge--off')
-                     + '" title="' + esc(entry[2]) + (on ? ' - present' : ' - no content') + '">'
+                const record = subApps[entry[1]] || {};
+                const shown  = Boolean(record.indexed);
+                const onDisk = Boolean(record.onDisk);
+                const stale  = shown !== onDisk;
+
+                let state = shown ? 'pm-badge--on' : 'pm-badge--off';
+                if (stale) state = 'pm-badge--warn';
+
+                let title = entry[2] + ' - ' + (shown ? 'shown' : 'hidden') + ' on the project hub';
+
+                if (stale) {
+                    title += shown
+                        ? '. Flagged on, but there is no content on disk.'
+                        : '. Content is on disk but the hub is hiding it. Rerun the build script to'
+                          + ' recompute this flag from disk.';
+                }
+
+                return '<span class="pm-badge ' + state + '" title="' + esc(title) + '">'
                      + entry[0] + '</span>';
             }).join('');
         }
+
+        // FUNCTION | The three sub-app flags as toggle buttons, for edit mode
+        // -------------------------------------------------------------
+        // The toggle writes the master index flag, which is what gates the
+        // three cards on the project hub. On-disk content is shown alongside
+        // it, so turning an app on for a project with nothing to show is a
+        // visible choice rather than an accident.
+        function buildAppToggles(project) {
+            const subApps = project.subApps || {};
+
+            return '<div class="pm-apptoggles">' + [
+                ['A', 'projectAdmin', 'Project Admin'],
+                ['P', 'planVision',   'PlanVision'],
+                ['T', 'trueVision',   'TrueVision']
+            ].map(function(entry) {
+                const record  = subApps[entry[1]] || {};
+                const isOn    = Boolean(record.indexed);
+                const onDisk  = Boolean(record.onDisk);
+
+                const title = entry[2] + ' - ' + (isOn ? 'shown' : 'hidden') + ' on the project hub'
+                            + (onDisk ? '. Content is on disk.' : '. No content on disk.');
+
+                return '<button type="button" class="pm-apptoggle'
+                     + (isOn ? ' pm-apptoggle--on' : '')
+                     + (onDisk ? '' : ' pm-apptoggle--nocontent')
+                     + '" data-app="' + entry[1] + '"'
+                     + ' data-on="' + (isOn ? '1' : '0') + '"'
+                     + ' data-original="' + (isOn ? '1' : '0') + '"'
+                     + ' aria-pressed="' + (isOn ? 'true' : 'false') + '"'
+                     + ' title="' + esc(title) + '">' + entry[0] + '</button>';
+            }).join('') + '</div>';
+        }
+
 
         // FUNCTION | One read-only row
         function buildRow(project) {
@@ -262,33 +316,37 @@
             return ''
                 + '<tr data-code="' + esc(project.projectCode) + '">'
                 +   '<td class="pm-cell--code">' + esc(project.projectCode) + '</td>'
-                +   '<td class="pm-cell--wide">' + esc(project.projectName) + '</td>'
-                +   '<td class="pm-cell--wide">' + (project.address
+                +   '<td class="pm-cell--name" title="' + esc(project.projectName) + '">'
+                +     esc(project.projectName) + '</td>'
+                +   '<td class="pm-cell--address">' + (project.address
                         ? esc(project.address)
                         : '<span class="pm-cell--muted">none recorded</span>') + '</td>'
-                +   '<td class="pm-cell--mono">' + esc(project.projectFolder) + '</td>'
-                +   '<td class="pm-cell--mono">' + esc(project.projectYear) + '</td>'
+                +   '<td class="pm-cell--mono pm-cell--folder" title="' + esc(project.projectFolder) + '">'
+                +     esc(project.projectFolder) + '</td>'
+                +   '<td class="pm-cell--mono pm-cell--tight">' + esc(project.projectYear) + '</td>'
                 +   '<td class="pm-cell--mono">' + (formatDate(project)
                         ? esc(formatDate(project))
                         : '<span class="pm-cell--muted">no date</span>') + '</td>'
                 +   '<td class="pm-cell--num" title="' + esc(formatBytes(local.bytes)) + '">'
                 +     esc(local.files + ' / ' + formatBytes(local.bytes)) + '</td>'
                 +   '<td class="pm-cell--num">' + r2Cell + '</td>'
-                +   '<td>' + buildAppBadges(project) + '</td>'
+                +   '<td class="pm-cell--apps">' + buildAppBadges(project) + '</td>'
                 +   '<td>'
                 +     '<div class="pm-actions">'
                 +       '<button class="pm-btn pm-btn--edit" data-action="edit">Edit</button>'
-                +       '<button class="pm-btn pm-btn--danger" data-action="delete-local" title="Move the project folder to the quarantine folder">Delete local</button>'
-                +       '<button class="pm-btn pm-btn--danger" data-action="delete-r2" title="Permanently delete this project from the R2 bucket">Delete R2</button>'
-                +       '<button class="pm-btn pm-btn--danger" data-action="delete-both" title="Quarantine locally and permanently delete from R2">Delete both</button>'
+                +       '<span class="pm-actions__label">Delete</span>'
+                +       '<button class="pm-btn pm-btn--danger" data-action="delete-local" title="Delete local - move the project folder to the quarantine folder">Local</button>'
+                +       '<button class="pm-btn pm-btn--danger" data-action="delete-r2" title="Delete R2 - permanently delete this project from the Cloudflare R2 bucket">R2</button>'
+                +       '<button class="pm-btn pm-btn--danger" data-action="delete-both" title="Delete both - quarantine locally and permanently delete from R2">Both</button>'
                 +     '</div>'
                 +   '</td>'
                 + '</tr>';
         }
 
         // HELPER | One editable input cell
-        function editCell(field, value, extraClass) {
-            return '<td><input class="pm-edit-field ' + (extraClass || '') + '"'
+        function editCell(field, value, extraClass, cellClass) {
+            return '<td class="' + (cellClass || '') + '">'
+                 + '<input class="pm-edit-field ' + (extraClass || '') + '"'
                  + ' data-field="' + field + '"'
                  + ' value="' + esc(value) + '"'
                  + ' data-original="' + esc(value) + '"></td>';
@@ -306,14 +364,14 @@
             return ''
                 + '<tr class="pm-row--editing" data-code="' + esc(project.projectCode) + '">'
                 +   editCell('projectCode',   project.projectCode,   'pm-edit-field--mono')
-                +   editCell('projectName',   project.projectName)
-                +   editCell('address',       project.address || '')
+                +   editCell('projectName',   project.projectName,   '', 'pm-cell--name')
+                +   editCell('address',       project.address || '',  '', 'pm-cell--address')
                 +   editCell('projectFolder', project.projectFolder, 'pm-edit-field--mono')
-                +   editCell('projectYear',   project.projectYear,   'pm-edit-field--mono')
+                +   editCell('projectYear',   project.projectYear,   'pm-edit-field--mono', 'pm-cell--tight')
                 +   '<td class="pm-cell--locked" title="Written by the Project Admin app">' + esc(formatDate(project)) + '</td>'
                 +   '<td class="pm-cell--num">' + esc(local.files + ' / ' + formatBytes(local.bytes)) + '</td>'
                 +   '<td class="pm-cell--num">' + r2Cell + '</td>'
-                +   '<td>' + buildAppBadges(project) + '</td>'
+                +   '<td class="pm-cell--apps">' + buildAppToggles(project) + '</td>'
                 +   '<td>'
                 +     '<div class="pm-actions">'
                 +       '<button class="pm-btn pm-btn--primary" data-action="save">Save changes</button>'
@@ -411,7 +469,10 @@
                             : '')
                     +     '</div>'
                     +     '<div class="pm-modal__foot">'
-                    +       '<button class="pm-btn" id="pmModalCancel">' + esc(options.cancelLabel || 'Cancel') + '</button>'
+                    +       (options.singleButton
+                            ? ''
+                            : '<button class="pm-btn" id="pmModalCancel">'
+                              + esc(options.cancelLabel || 'Cancel') + '</button>')
                     +       '<button class="pm-btn ' + (options.danger ? 'pm-btn--danger-solid' : 'pm-btn--primary')
                     +         '" id="pmModalConfirm"' + (needsTyping ? ' disabled' : '') + '>'
                     +         esc(options.confirmLabel || 'Continue') + '</button>'
@@ -443,7 +504,7 @@
                 }
 
                 elConfirm.addEventListener('click', function() { if (!elConfirm.disabled) close(true); });
-                elCancel.addEventListener('click',  function() { close(false); });
+                if (elCancel) elCancel.addEventListener('click', function() { close(false); });
                 document.addEventListener('keydown', onKey, true);
             });
         }
@@ -456,8 +517,8 @@
                 danger       : Boolean(isError),
                 bodyHtml     : '<p class="pm-modal__result' + (isError ? ' pm-modal__result--bad' : '') + '">'
                              + esc(lines.join('\n')) + '</p>',
-                confirmLabel : 'Close',
-                cancelLabel  : 'Close'
+                singleButton : true,
+                confirmLabel : 'Close'
             });
         }
 
@@ -633,6 +694,26 @@
                     }
                 });
 
+            // SUB-APPS | Always sent whole, so a partial write cannot drop a flag
+            const toggles = Array.from(
+                elBody.querySelectorAll('tr[data-code="' + project.projectCode + '"] .pm-apptoggle'));
+
+            if (toggles.length) {
+                const subApps = {};
+
+                toggles.forEach(function(toggle) {
+                    const isOn = toggle.dataset.on === '1';
+                    subApps[toggle.dataset.app] = isOn;
+
+                    if (toggle.dataset.on !== toggle.dataset.original) {
+                        changed.push([toggle.dataset.app, toggle.dataset.original === '1' ? 'shown' : 'hidden',
+                                      isOn ? 'shown' : 'hidden']);
+                    }
+                });
+
+                fields.subApps = subApps;
+            }
+
             return { fields: fields, changed: changed };
         }
 
@@ -782,6 +863,19 @@
                 if (action === 'delete-local') { runDelete(project, 'local');  return; }
                 if (action === 'delete-r2')    { runDelete(project, 'r2');     return; }
                 if (action === 'delete-both')  { runDelete(project, 'both');   return; }
+            });
+
+            // APP TOGGLES | Flip in place; nothing is written until Save
+            elBody.addEventListener('click', function(event) {
+                const toggle = event.target.closest('.pm-apptoggle');
+                if (!toggle) return;
+
+                const isOn = toggle.dataset.on === '1';
+                toggle.dataset.on = isOn ? '0' : '1';
+                toggle.setAttribute('aria-pressed', isOn ? 'false' : 'true');
+                toggle.classList.toggle('pm-apptoggle--on', !isOn);
+                toggle.classList.toggle('pm-apptoggle--dirty',
+                                        toggle.dataset.on !== toggle.dataset.original);
             });
 
             // EDIT FIELDS | Highlight what has actually been touched

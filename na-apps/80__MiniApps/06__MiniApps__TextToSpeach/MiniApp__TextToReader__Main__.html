@@ -68,21 +68,6 @@
                     <div class="HEAD__nav TTR__header-nav">
                         <div id="js__appTitle" class="HEAD__title">Text To Reader Utility</div>
 
-                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ViewTabs__.js -->
-                        <!-- Divs, not buttons: focusable controls inside aria-hidden
-                             cause browsers to ignore aria-hidden and read the chrome. -->
-                        <div class="TTR__tablist">
-                            <div id="js__tabSimple"
-                                 class="TTR__tab TTR__tab--active"
-                                 data-ttr-tab="simple">Simple</div>
-                            <div id="js__tabEdit"
-                                 class="TTR__tab"
-                                 data-ttr-tab="edit">Edit</div>
-                            <div id="js__tabRead"
-                                 class="TTR__tab"
-                                 data-ttr-tab="read">Read</div>
-                        </div>
-
                         <div class="TTR__header-end">
                             <span id="js__uploadFileStatus" class="TTR__upload-status"></span>
                             <span id="js__appVersion" class="HEAD__version-note"></span>
@@ -120,6 +105,25 @@
             <!-- --------------------------------------------------------- -->
                 <div class="FULL__page-app-container">
                     <main class="MAIN__container">
+
+                        <!-- @delegate: 01__AppModules/MiniApp__TextToReader__ViewTabs__.js -->
+                        <!-- Tabs sit above the content column, not in the header,
+                             so they stay next to the editor / paper. Divs, not
+                             buttons: focusable controls inside aria-hidden cause
+                             browsers to ignore aria-hidden and read the chrome. -->
+                        <div class="TTR__tab-bar TTR__chrome" aria-hidden="true">
+                            <div class="TTR__tablist">
+                                <div id="js__tabSimple"
+                                     class="TTR__tab TTR__tab--active"
+                                     data-ttr-tab="simple">Simple</div>
+                                <div id="js__tabEdit"
+                                     class="TTR__tab"
+                                     data-ttr-tab="edit">Edit</div>
+                                <div id="js__tabRead"
+                                     class="TTR__tab"
+                                     data-ttr-tab="read">Read</div>
+                            </div>
+                        </div>
 
                         <!-- --------------------------------------------- -->
                         <!-- REGION | Input Area                           -->

@@ -44,6 +44,22 @@ DEVELOPMENT LOG
   - Read view sits an A4-width (210 mm) white sheet on a very light grey
     (#fafafa) canvas so the page reads as paper with grey margins.
 
+----------------------------------------------------------------
+1.4.2 - 19-Sep-2026 |  Tabs By The Content, A4 Edit, Tighter Mobile Read
+  - Tabs moved out of the header and placed above the A4 content column so
+    they sit next to the editor / paper rather than beside the app title.
+  - Edit view uses the same 210 mm paper width and grey side margins as Read.
+  - On phone-width screens the A4 paper chrome is dropped for both Edit and
+    Read. Read uses smaller type (8.5 pt body) and tighter padding so more
+    of the article fits on screen.
+
+----------------------------------------------------------------
+1.4.3 - 19-Sep-2026 |  Proper Tabs And Tighter Spacing
+  - Tabs are a connected strip: equal-width folders, brand top edge and white
+    face on the open tab so the active view is obvious.
+  - Cut the 1 rem main-column gap and card margins so Simple no longer wastes
+    a grey band between Input, Actions and Output.
+
 
 =================================================
 FILE STRUCTURE
