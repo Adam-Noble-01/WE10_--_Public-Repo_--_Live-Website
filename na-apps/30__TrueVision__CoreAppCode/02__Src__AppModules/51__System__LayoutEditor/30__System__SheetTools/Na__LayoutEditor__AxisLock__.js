@@ -29,6 +29,10 @@
 //   constrain through here; Na__LayoutEditor__SheetTools__ toggles the
 //   lock from the arrow keys; Na__LayoutEditor__Grips__ colours the
 //   rubber band by the locked axis.
+// - Na__LayoutEditor__ViewportSnapMove__ reads Get() to hold a carried
+//   viewport, which is why this module IS the one source of the two axis
+//   names: a lock the keyboard sets and a lock a solver reads have to be
+//   spelled the same, or one of them silently never matches.
 //
 // -----------------------------------------------------------------------------
 //

@@ -62,7 +62,8 @@
     import { Na__LeCfg__GetStatementSetup } from '../../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeStmt__GetOpen, Na__LeStmt__GetTree, Na__LeStmt__ImageBase } from '../01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
     import { Na__LeStmtImg__Apply, Na__LeStmtImg__FileName } from '../01__Core__Data/Na__LayoutEditor__Statement__Images__.js';
-    import { Na__AppUtils__IsRunningOnLocalhost, Na__AppUtils__GetProjectCodeFromUrl, Na__AppUtils__GetProjectFolderFromUrl, Na__AppUtils__GetYearFromUrl } from '../../../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__AppUtils__IsRunningOnLocalhost, Na__AppUtils__GetProjectFolderFromUrl, Na__AppUtils__GetYearFromUrl } from '../../../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__LeStmtFig__OpenMenu, Na__LeStmtFig__IsCropping } from './Na__LayoutEditor__Statement__Editor__Figure__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -159,7 +160,7 @@
         if (/\sstyle\s*=\s*"/i.test(text)) {
             return text.replace(/(\sstyle\s*=\s*")/i, '$1zoom: ' + value + '%; ');
         }
-        return text.replace(/<img\b/i, '<img style="zoom: ' + value + '%;"');
+        return text.replace(/<([A-Za-z][A-Za-z0-9-]*)\b/, '<$1 style="zoom: ' + value + '%;"');   // <-- The FIRST tag: on a cropped figure that is the frame, not the picture
     }
     // ------------------------------------------------------------
 
@@ -173,18 +174,33 @@
     // FUNCTION | Start Dragging a Picture's Corner
     // ------------------------------------------------------------
     function Na__LeStmtCard__GripDown(event, card, onChanged) {
-        const image = card.querySelector('img');
-        if (!image) return;
+        // THE HANDLE SCALES THE OUTERMOST ELEMENT. On a plain picture that is
+        // the picture; on a cropped one it is the frame, and scaling the
+        // picture inside instead would slide it around within its own crop.
+        // Both carry a zoom of their own, so one lever moves either.
+        const body   = card.querySelector('.na-le-stmt-frozen__body');
+        const image  = card.querySelector('img');
+        const target = (body && body.firstElementChild) || image;
+        if (!image || !target) return;
         event.preventDefault();
         event.stopPropagation();
 
+        const shown = target.getBoundingClientRect().width;
+        const zoom  = Math.max(1, Na__LeStmtCard__ReadZoom(card.getAttribute('data-na-stmt-src')));
+
         Na__LeStmtCard__Drag = {
             card      : card,
-            image     : image,
+            image     : target,
             onChanged : onChanged,
             startX    : event.clientX,
-            startWide : image.getBoundingClientRect().width,
-            natural   : image.naturalWidth || image.getBoundingClientRect().width
+            startWide : shown,
+            // WHAT A ZOOM OF 100% WOULD MEASURE, which is what the percentage
+            // is a percentage OF. A picture knows its own natural width; a
+            // frame is sized in millimetres, so it is worked back from what it
+            // is showing at the zoom it currently has.
+            natural   : (target === image && image.naturalWidth)
+                ? image.naturalWidth
+                : Math.max(1, shown / (zoom / 100))
         };
         card.classList.add('is-resizing');
         window.addEventListener('pointermove', Na__LeStmtCard__GripMove);
@@ -280,6 +296,23 @@
                 for (const other of Array.from(root.querySelectorAll('.na-le-stmt-frozen.is-selected'))) other.classList.remove('is-selected');
                 card.classList.add('is-selected');
             });
+
+            // RIGHT-CLICK IS THE WAY INTO A PICTURE. Where it sits on the page
+            // and how it is trimmed live only here, and everything the hover
+            // tool row offers is repeated on it, so one gesture reaches all of
+            // it without having to find a three-millimetre button first.
+            if (card.querySelector('img')) {
+                card.addEventListener('contextmenu', (event) => {
+                    if (Na__LeStmtFig__IsCropping()) return;                    // <-- Mid-crop a menu would cover the handles being dragged
+                    for (const other of Array.from(root.querySelectorAll('.na-le-stmt-frozen.is-selected'))) other.classList.remove('is-selected');
+                    card.classList.add('is-selected');
+                    Na__LeStmtFig__OpenMenu(event, card, {
+                        onChanged : () => { Na__LeStmtCard__Repaint(card); onChanged(); },
+                        onRaw     : () => Na__LeStmtCard__OpenRaw(card, onChanged),
+                        onRemove  : () => { card.remove(); onChanged(); }
+                    });
+                });
+            }
         }
     }
     // ------------------------------------------------------------

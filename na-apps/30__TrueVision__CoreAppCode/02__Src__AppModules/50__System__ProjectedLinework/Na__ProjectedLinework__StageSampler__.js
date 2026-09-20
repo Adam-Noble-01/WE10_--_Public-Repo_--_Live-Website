@@ -57,6 +57,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0
+// - Nested LineworkModifier tags (SSOT 76-79). A mesh whose own node name names
+//   one of them is collected under that tag's owner key instead of its parent
+//   category's, so a detail nested inside a Walls or Roofs group draws at its
+//   own weight while staying in its host's GLB, storey and toggle.
+// - The match is a PREFIX, not a split on '::'. The GlbBuilder writes the node
+//   name '<TagName>::<MaterialName>', and the first cut of this read the tag
+//   back with split('::')[0] - which never matched anything, because three.js
+//   runs node names through PropertyBinding.sanitizeNodeName on load and that
+//   strips [ ] . : / . Every modifier mesh silently inherited its parent's
+//   style, which read as the feature simply not working.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Posed door panels. Collect takes rules.posedMods, the door panels the
 //   Layout Editor has stood open for a plan read. A mesh below one keeps a COPY
@@ -203,11 +215,26 @@
         if (!modifiers || modifiers.length === 0) return null;
         const name = object3d && object3d.name;
         if (typeof name !== 'string' || name.length === 0) return null;
+
+        // THE '::' DOES NOT SURVIVE THE LOADER. The GlbBuilder names a mesh node
+        // '<TagName>::<MaterialName>', but three.js puts every node name through
+        // PropertyBinding.sanitizeNodeName, which strips [ ] . : / - so what
+        // arrives here is '<TagName><MaterialName>', run together with nothing
+        // between them ('...__Walls::Default' loads as '...__WallsDefault').
+        // Splitting on '::' therefore matched nothing and every modifier mesh
+        // silently inherited its parent category's style. The tag name is still
+        // the LEADING run of the name, so that is what is matched, longest-first
+        // so a tag that happens to prefix another cannot win on list order.
         const ownTag = name.split('::')[0];
+        let   best   = null;
         for (let i = 0; i < modifiers.length; i++) {
-            if (modifiers[i].TagName === ownTag) return modifiers[i].OwnerKey;
+            const tagName = modifiers[i].TagName;
+            if (typeof tagName !== 'string' || tagName.length === 0) continue;
+            if (ownTag === tagName || name.indexOf(tagName) === 0) {
+                if (!best || tagName.length > best.TagName.length) best = modifiers[i];
+            }
         }
-        return null;
+        return best ? best.OwnerKey : null;
     }
     // ------------------------------------------------------------
 
@@ -564,7 +591,8 @@
         Na__PlSampler__Collect,
         Na__PlSampler__Sample,
         Na__PlSampler__CountTriangles,
-        Na__PlSampler__NameMatches
+        Na__PlSampler__NameMatches,
+        Na__PlSampler__ModifierOwnerFor
     };
     // ------------------------------------------------------------
 

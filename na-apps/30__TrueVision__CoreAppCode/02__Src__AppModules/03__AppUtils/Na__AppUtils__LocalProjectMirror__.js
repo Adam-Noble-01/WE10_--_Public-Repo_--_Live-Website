@@ -263,7 +263,24 @@
             const response = await fetch(`${place.origin}/api/truevision/statements/tree?${place.query}`, { cache : 'no-store' });
             if (!response.ok) {
                 const answer = await response.json().catch(() => null);
-                return { ok : false, skipped : false, entries : [], error : (answer && answer.error) || `HTTP ${response.status}` };
+
+                // A SERVER THAT NEVER LOADED THESE ROUTES LOOKS EXACTLY LIKE A
+                // PROJECT WITH NO STATEMENTS, and that is the worst answer the
+                // tab can give: it reads "no statements yet" over a folder that
+                // holds one, and offers to make a second 01__ folder beside it.
+                // The listing route is a GET, so a server without it does not
+                // even answer 405 - the static file route takes the URL and
+                // answers 404. So the server is asked who it is instead.
+                const needsRestart = await Na__LocalMirror__IsProjectVisionServer(place.origin);
+                return {
+                    ok            : false,
+                    skipped       : false,
+                    entries       : [],
+                    needsRestart  : needsRestart,
+                    error         : needsRestart
+                        ? `the ProjectVision local server at ${place.origin} is running without the statement routes - restart it to load its current routes`
+                        : ((answer && answer.error) || `no statement routes at ${place.origin} (HTTP ${response.status}) - serve the app with the ProjectVision local server`)
+                };
             }
             const data = await response.json();
             return { ok : true, skipped : false, exists : data.exists !== false, entries : Array.isArray(data.entries) ? data.entries : [], error : null };

@@ -266,6 +266,24 @@
         // A NEW STATEMENT | With its names shown as they are typed
         if (state.editable) {
             Na__LeStmtMgr__Card.appendChild(Na__LeStmtMgr__El('h2', 'na-le-stmt__manager-title', 'A new statement'));
+
+            // AN ACTION KNOWN TO FAIL IS NOT OFFERED. When the folder could
+            // not be read, Create cannot work either - the same routes make
+            // both - and the numbering would be guessed from an empty list
+            // anyway, putting a second 01__ folder beside the first.
+            if (state.serverNote) {
+                const stop = Na__LeStmtMgr__El('div', 'na-le-stmt__alert na-le-stmt__alert--stop');
+                const reason = String(state.serverNote || '').trim();
+                stop.appendChild(Na__LeStmtMgr__El('span', 'na-le-stmt__alert-text',
+                    'A statement cannot be created until the folder can be read. '
+                    + reason.charAt(0).toUpperCase() + reason.slice(1) + (/[.!?]$/.test(reason) ? '' : '.')));
+                Na__LeStmtMgr__Card.appendChild(stop);
+                const actions = Na__LeStmtMgr__El('div', 'na-le-stmt__manager-actions');
+                actions.appendChild(Na__LeStmtMgr__Button('Close', '', () => Na__LeStmtMgr__Hide()));
+                Na__LeStmtMgr__Card.appendChild(actions);
+                return;
+            }
+
             const field = Na__LeStmtMgr__El('input', 'na-le-stmt__manager-field');
             field.type = 'text';
             field.placeholder = 'Design and Access Statement';

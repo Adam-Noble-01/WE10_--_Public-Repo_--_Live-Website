@@ -101,6 +101,7 @@
     let Na__LeStmtPage__Desk      = null;
     let Na__LeStmtPage__Picker    = null;
     let Na__LeStmtPage__Status    = null;
+    let Na__LeStmtPage__Alerts    = null;
     let Na__LeStmtPage__Summary   = null;
     let Na__LeStmtPage__Views     = null;
     let Na__LeStmtPage__Progress  = null;
@@ -279,6 +280,8 @@
         Na__LeStmtPage__Status.textContent = text;
         Na__LeStmtPage__Status.setAttribute('data-state', mark);
 
+        Na__LeStmtPage__ShowAlerts(state);
+
         if (Na__LeStmtPage__Views) {
             for (const pill of Array.from(Na__LeStmtPage__Views.children)) {
                 pill.classList.toggle('is-active', pill.dataset.view === Na__LeStmtPage__View);
@@ -294,6 +297,61 @@
 // -----------------------------------------------------------------------------
 // REGION | The Views
 // -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | A Reported Reason, Made Into a Sentence
+    // ------------------------------------------------------------
+    // The reasons come from the transport layer and are written to be read
+    // mid-sentence in a console warning. Put after a full stop on screen they
+    // need a capital and a stop of their own.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__Sentence(text) {
+        const clean = String(text || '').trim();
+        if (!clean) return '';
+        return clean.charAt(0).toUpperCase() + clean.slice(1) + (/[.!?]$/.test(clean) ? '' : '.');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Say What Is Wrong, Before Anything Is Typed
+    // ------------------------------------------------------------
+    // ONE ALERT MATTERS MORE THAN THE REST. When the local server is running
+    // without the statement routes, the listing fails and the tab looks like a
+    // project that has no statements - over a folder that holds one. Somebody
+    // then types a title, presses Create, and only THEN finds out, having lost
+    // nothing but their place and their patience.
+    //
+    // So it is said at the top of the tab the moment it opens, and Create is
+    // closed while it stands: an action that is known to fail should not be
+    // offered.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__ShowAlerts(state) {
+        if (!Na__LeStmtPage__Alerts) return;
+        const notes = [];
+
+        if (state.serverNote) {
+            notes.push({
+                kind : 'stop',
+                text : 'The statements folder for this project could not be read, so nothing on disk is listed here. '
+                     + Na__LeStmtPage__Sentence(state.serverNote)
+            });
+        }
+        if (state.status === Na__LeStmt__STATUS_FAILED) {
+            notes.push({ kind : 'warn', text : 'The statement index could not be read' + (state.error ? ' (' + state.error + ')' : '') + '. Nothing is published until it can be.' });
+        }
+        if (state.textStatus === Na__LeStmt__STATUS_FAILED) {
+            notes.push({ kind : 'warn', text : 'This statement could not be read' + (state.textError ? ' (' + state.textError + ')' : '') + '.' });
+        }
+
+        Na__LeStmtPage__Alerts.textContent = '';
+        Na__LeStmtPage__Alerts.hidden = notes.length === 0;
+        for (const note of notes) {
+            const row = Na__LeStmtPage__El('div', 'na-le-stmt__alert na-le-stmt__alert--' + note.kind);
+            row.appendChild(Na__LeStmtPage__El('span', 'na-le-stmt__alert-text', note.text));
+            Na__LeStmtPage__Alerts.appendChild(row);
+        }
+    }
+    // ------------------------------------------------------------
+
 
     // FUNCTION | Show Edit or Read
     // ------------------------------------------------------------
@@ -452,6 +510,13 @@
 
         Na__LeStmtPage__Bar = Na__LeStmtPage__BuildBar();
         Na__LeStmtPage__Root.appendChild(Na__LeStmtPage__Bar);
+
+        // THE ALERTS SIT UNDER THE BAR, above everything else, because the one
+        // that matters most is about the folder this tab could not read - and
+        // it has to be seen BEFORE a title is typed, not after Create fails.
+        Na__LeStmtPage__Alerts = Na__LeStmtPage__El('div', 'na-le-stmt__alerts');
+        Na__LeStmtPage__Alerts.hidden = true;
+        Na__LeStmtPage__Root.appendChild(Na__LeStmtPage__Alerts);
 
         Na__LeStmtPage__Desk = Na__LeStmtPage__El('div', 'na-le-stmt__desk');
         Na__LeStmtPage__Desk.tabIndex = 0;

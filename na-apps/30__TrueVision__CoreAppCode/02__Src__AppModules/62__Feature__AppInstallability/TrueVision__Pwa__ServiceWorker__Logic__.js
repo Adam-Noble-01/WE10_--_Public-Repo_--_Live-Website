@@ -34,6 +34,38 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.9.8
+// - Token bumped (2026-09-20-14, over another session's -13) for the third and
+//   last half of the LineworkModifier work plus two fixes found beside it: the
+//   Base Image now honours the detail tags (SnapshotRenderer, Viewport2d Frame
+//   and Viewport2d), storey categories finally resolve their configured edge
+//   style (ModelLayers), and the model loader warns on duplicate category URLs
+//   (MultiModel). All shell JS, all cache-first, and the storey style fix in
+//   particular changes how EVERY existing drawing inks itself - a warm cache
+//   would keep inking them flat black at 1.00 and the fix would look like it
+//   had not shipped.
+//
+// 20-Sep-2026 - Version 1.9.7
+// - Token bumped (2026-09-20-12) for the second half of the LineworkModifier
+//   work: the authored-edge collector now tags per linework NODE rather than
+//   per category root, which is shell JS and so cache-first. -11 never reached
+//   a client, but it is bumped rather than carried because a client warmed on
+//   -11 would hold the sampler fix without the authored-edge fix, which is the
+//   half that actually draws the stonework.
+//
+// 20-Sep-2026 - Version 1.9.6
+// - Token bumped (2026-09-20-11) for the LineworkModifier nested detail tags
+//   (SSOT 76-79): Na__ProjectedLinework__StageSampler__.js now resolves a
+//   nested tag's own owner key instead of its parent category's, and
+//   Na__LayoutEditor__Viewport2d__Linework__.js now enforces that owner key's
+//   Model Layers checkbox at paint time. Both are shell JS, cache-first, so a
+//   client warmed on -10 or earlier kept running the old sampling and paint
+//   logic under the new panel rows and JSON style config (tv-data is
+//   network-first, so THAT half updated immediately) - the checkbox toggling
+//   nothing and the weight field doing nothing were both this, not a second
+//   bug: the config had changed but the code reading it had not yet reached
+//   the client.
+//
 // 20-Sep-2026 - Version 1.9.5
 // - Token bumped (2026-09-20-10) for the parametric scale bar stood to the
 //   right of its title. Bumped rather than carried by -9 for the same reason
@@ -231,7 +263,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-20-10';                                                                   // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-20-14';                                                                   // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -292,7 +324,21 @@
         '03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css',
         '02__Src__AppModules/02__AppData/Na__AppConfig__Main.json',
         '02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json',
-        '02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Manifest__Fallback__.webmanifest'
+        '02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Manifest__Fallback__.webmanifest',
+
+        // THE TWO STATEMENT STYLESHEETS ARE HERE FOR A REASON, and it is not
+        // that they are boot-critical - they are not. They are injected as
+        // link tags the first time the Statements tab is mounted, which kept
+        // them off the download for anyone who never writes a statement. That
+        // saving cost 54 KB and bought a bug: off this list they are ordinary
+        // shell requests, and away from localhost the shell is served
+        // stale-while-revalidate, so the FIRST load after either file changed
+        // painted the statement with the previous release's styling - wrong
+        // face, wrong heading sizes, a rule drawn as an empty box - and only
+        // a second reload put it right. Precached, the version token governs
+        // them like everything else, and a bump evicts them outright.
+        '02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__.css',
+        '02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css'
     ];
     // ------------------------------------------------------------
 

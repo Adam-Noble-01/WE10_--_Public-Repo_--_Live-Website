@@ -179,7 +179,7 @@
         Na__LeTools__ArmPalette
     } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import { Na__LeTools__RefreshShapeInsert, Na__LeTools__Record, Na__LeTools__IsViewportLocked } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
-    import { Na__LeTools__IsVertexDrag, Na__LeTools__RerunVertexDrag, Na__LeTools__IsDimEndDrag, Na__LeTools__RerunDimEndDrag, Na__LeTools__IsMoveDrag, Na__LeTools__RerunMoveDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
+    import { Na__LeTools__IsVertexDrag, Na__LeTools__RerunVertexDrag, Na__LeTools__IsDimEndDrag, Na__LeTools__RerunDimEndDrag, Na__LeTools__IsMoveDrag, Na__LeTools__RerunMoveDrag, Na__LeTools__IsViewportMoveDrag, Na__LeTools__RerunViewportDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
     import { Na__LeTools__SetEditingViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
     // ------------------------------------------------------------
 
@@ -292,6 +292,7 @@
         if (Na__LeTools__IsVertexDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunVertexDrag(); return true; }   // <-- Redrawn at once: the band takes the axis's colour and the box the axis's length
         if (Na__LeTools__IsMoveDrag())   { Na__LeAxis__Toggle(axis); Na__LeTools__RerunMoveDrag();   return true; }   // <-- A whole object held by the Move tool locks to an axis the same way
         if (Na__LeTools__IsDimEndDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunDimEndDrag(); return true; }   // <-- A measured point holds an axis the same way a vertex does
+        if (Na__LeTools__IsViewportMoveDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunViewportDrag(); return true; }   // <-- And so does a viewport frame, carried by a point or moved plain
         if (Na__LeRect__IsDrawing() || Na__LeLeader__IsPlacing()) return true;   // <-- Nothing to lock, and nudging the old selection mid-placement would surprise
         const drawing  = Na__LeShape__IsDrawing();
         const spanning = Na__LeDim__IsSpanning();                            // <-- Only the span phase: the offset phase has no axis to lock

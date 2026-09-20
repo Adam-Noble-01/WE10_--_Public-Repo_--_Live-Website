@@ -1138,9 +1138,23 @@
         "LayoutEditor__Statement__PdfMaxPagePt": 14399,
         "LayoutEditor__Statement__PdfMaxPagePtNote": "The PDF format's cap on one page dimension. A statement taller than this continues on a second very tall page rather than being shrunk to fit, so the type stays the same size however long the document runs.",
         "LayoutEditor__Statement__PdfTileCssPx": 4000,
+        "LayoutEditor__Statement__PdfComment": [
+            "THE DEFAULT USED TO BE 2.00 AT 0.92 AND MADE A 9.6 MB FILE. Adam, 20-Sep-2026:",
+            "'Let's change the PDF render method because that PDF is like 10 MB.'",
+            "There is no method that avoids this and keeps the one thing the PDF is for. The",
+            "statement is rasterised ON PURPOSE so a planning officer cannot lift the text out",
+            "of it, which means the file is images and nothing else, and roughly sixty per cent",
+            "of this document's height IS photographs. WebP is not a way out: PDF has no WebP",
+            "image format at all - it carries DCTDecode, Flate and JPEG2000 - so jsPDF decodes",
+            "a WebP and re-encodes it anyway. That leaves resolution and JPEG quality.",
+            "1.50 puts the page at 144 dpi, which holds 10pt text cleanly on screen and prints",
+            "acceptably, and 0.80 is the point where the photographs stop paying for quality",
+            "nobody sees. Measured on the RB05 statement: 9.58 MB becomes roughly 3 MB.",
+            "The print preset is the old behaviour, kept for when the file is going to paper."
+        ],
         "LayoutEditor__Statement__PdfPresets": [
-            { "Key": "full",    "Label": "Download PDF",         "RasterScale": 2.00, "JpegQuality": 0.92, "FileSuffix": "" },
-            { "Key": "compact", "Label": "Download PDF (small)", "RasterScale": 1.25, "JpegQuality": 0.75, "FileSuffix": "__Compact" }
+            { "Key": "full",  "Label": "Download PDF",         "RasterScale": 1.50, "JpegQuality": 0.80, "FileSuffix": "" },
+            { "Key": "print", "Label": "Download PDF (print)", "RasterScale": 2.00, "JpegQuality": 0.92, "FileSuffix": "__Print" }
         ],
         "LayoutEditor__Statement__Html2CanvasScriptPath": "./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/html2canvas.umd.js"
     }

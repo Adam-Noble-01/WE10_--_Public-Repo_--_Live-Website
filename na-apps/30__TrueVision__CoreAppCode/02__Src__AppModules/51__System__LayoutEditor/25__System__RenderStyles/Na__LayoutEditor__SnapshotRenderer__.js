@@ -578,6 +578,62 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Which Nested Detail Tag Owns This Linework Node, If Any
+    // ------------------------------------------------------------
+    // Matched as a LEADING PREFIX, never a split and never an exact compare:
+    // three.js rewrites node names as it loads them, stripping [ ] . : / and
+    // suffixing duplicates _1, _2 - so the exporter's '<Tag>::<Material>'
+    // arrives as '<Tag><Material>' and three nodes of one tag arrive as
+    // '<Tag>', '<Tag>_1', '<Tag>_2'. Longest match wins so a tag that happens
+    // to prefix another cannot win on list order.
+    // ------------------------------------------------------------
+    function Na__LeSnap__ModifierRuleFor(name, rules) {
+        if (typeof name !== 'string' || name.length === 0) return null;
+        let best = null;
+        for (let i = 0; i < rules.length; i++) {
+            const tag = rules[i].TagName;
+            if (typeof tag !== 'string' || tag.length === 0) continue;
+            if (name.indexOf(tag) !== 0) continue;
+            if (!best || tag.length > best.TagName.length) best = rules[i];
+        }
+        return best;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | One Cached Material per Source Material and Detail Tag
+    // ------------------------------------------------------------
+    // Cloned once and kept, not rebuilt per render: a render is tiled and this
+    // runs for every tile, so cloning each time would churn a GPU program per
+    // tile. Keyed by the source material and the tag, so two tags sharing a
+    // source material still get a width and colour each.
+    //
+    // The clone takes the layer's COLOUR as well as its width, and turns vertex
+    // colours off to do it - the imported linework carries SketchUp's own edge
+    // colours per vertex, which would otherwise multiply the chosen colour away
+    // to nothing. A tag the panel has left alone resolves to its configured
+    // grey, so this is only ever the colour the drawing asked for.
+    // ------------------------------------------------------------
+    const Na__LeSnap__ModifierMaterials = new Map();
+
+    function Na__LeSnap__ModifierMaterial(source, rule) {
+        if (!source || typeof source.clone !== 'function') return source;
+        const key   = source.uuid + '|' + rule.TagName + '|' + (rule.hex || '');
+        let   clone = Na__LeSnap__ModifierMaterials.get(key);
+        if (clone) return clone;
+
+        clone = source.clone();
+        if (typeof rule.hex === 'string' && clone.color && typeof clone.color.set === 'function') {
+            clone.color.set(rule.hex);
+            clone.vertexColors = false;                                            // <-- Or SketchUp's own edge colours multiply it away
+            clone.needsUpdate  = true;
+        }
+        Na__LeSnap__ModifierMaterials.set(key, clone);
+        return clone;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Set the Width of the Model's Own Edges for One Render
     // ------------------------------------------------------------
     // The Base Image composite weight. These are the SketchUp edges the loader
@@ -592,22 +648,57 @@
     // line too but sits under no linework root, so it keeps the Section
     // Outline weight instead of being flattened to this one.
     // ------------------------------------------------------------
-    function Na__LeSnap__SetModelEdgeWidth(widthPx, modelRoot) {
+    function Na__LeSnap__SetModelEdgeWidth(widthPx, modelRoot, modifiers) {
         const from = modelRoot || Na__LeSnap__ModelRoot;                          // <-- The design phase in the scene for this render, else the live model
         if (!from || !Number.isFinite(widthPx) || widthPx <= 0) return null;
-        const held = new Map();
+
+        const rules   = Array.isArray(modifiers) ? modifiers : null;
+        const held    = new Map();                                                // <-- material -> its own linewidth
+        const swapped = [];                                                       // <-- { node, material } put back by reference
+        const hidden  = [];                                                       // <-- nodes taken out of this one picture
+
         from.traverse((root) => {
             if (!root.userData || root.userData.Na__ModelType !== 'linework') return;
             root.traverse((node) => {
-                if (!node.isLineSegments2 || !node.material || held.has(node.material)) return;
+                if (!node.isLineSegments2 || !node.material) return;
+
+                // A NESTED DETAIL TAG IS NOT THE WALL IT SITS IN. Without this the
+                // Base Image drew it at the flat width below, so it read exactly as
+                // heavy as its host whatever the Model Layers panel said.
+                const rule = rules ? Na__LeSnap__ModifierRuleFor(node.name, rules) : null;
+
+                if (rule && rule.hidden) {
+                    if (node.visible !== false) { hidden.push(node); node.visible = false; }
+                    return;
+                }
+
+                if (rule) {
+                    // Its own material, because materials are SHARED across nodes
+                    // and the map below is keyed by material: writing this width
+                    // onto a shared one would drag every ordinary edge with it.
+                    const own = Na__LeSnap__ModifierMaterial(node.material, rule);
+                    if (own !== node.material) {
+                        swapped.push({ node : node, material : node.material });
+                        node.material = own;
+                    }
+                    own.linewidth = widthPx * rule.widthFactor;
+                    return;
+                }
+
+                if (held.has(node.material)) return;
                 held.set(node.material, node.material.linewidth);
                 node.material.linewidth = widthPx;
             });
         });
-        return held.size > 0 ? held : null;
+
+        if (held.size === 0 && swapped.length === 0 && hidden.length === 0) return null;
+        return { Widths : held, Swapped : swapped, Hidden : hidden };
     }
-    function Na__LeSnap__RestoreModelEdgeWidth(held) {
-        if (held) held.forEach((width, material) => { material.linewidth = width; });
+    function Na__LeSnap__RestoreModelEdgeWidth(state) {
+        if (!state) return;
+        state.Widths.forEach((width, material) => { material.linewidth = width; });
+        state.Swapped.forEach((entry) => { entry.node.material = entry.material; });
+        state.Hidden.forEach((node) => { node.visible = true; });
     }
     // ------------------------------------------------------------
 
@@ -787,7 +878,7 @@
                     profileWas = Na__DrawProfile__SetEdgeWidth(NaN);
                     Na__DrawProfile__SetEdgeWidth(weights.profilePx);
                 }
-                if (weights) edgesWere = Na__LeSnap__SetModelEdgeWidth(weights.modelEdgePx, phase ? phase.root : null);   // <-- No preset touches a line material, so where this sits is free
+                if (weights) edgesWere = Na__LeSnap__SetModelEdgeWidth(weights.modelEdgePx, phase ? phase.root : null, weights.modifiers);   // <-- No preset touches a line material, so where this sits is free
                 Na__DrawView__MaterialPreset__Enter(styles || {});
                 contextSaved = Na__LeSnap__HideForViewport(styles, modelLayers);
                 Na__DrawView__SectionAdapter__ReapplyClipping();
@@ -887,7 +978,7 @@
                 Na__DrawView__MaterialPreset__Enter(styles || {});
                 Na__LeSnap__HideForViewport(styles, modelLayers);                   // <-- The saved map above already puts it back
                 if (pass) pass.enabled = !(styles && styles.profileLinework === false);
-                if (weights) edgesWere = Na__LeSnap__SetModelEdgeWidth(weights.modelEdgePx, phase ? phase.root : null);
+                if (weights) edgesWere = Na__LeSnap__SetModelEdgeWidth(weights.modelEdgePx, phase ? phase.root : null, weights.modifiers);
                 // NO renderFrame HERE, ON PURPOSE. That absence is what puts a
                 // 3D snapshot on the COMPOSER route, so it is drawn by the same
                 // per-frame sequence the live viewport uses - profile lines,
@@ -947,7 +1038,9 @@
         Na__LeSnap__ResetFingerprints,
         Na__LeSnap__DrawingCentreMm,
         Na__LeSnap__Render2d,
-        Na__LeSnap__Render3d
+        Na__LeSnap__Render3d,
+        Na__LeSnap__SetModelEdgeWidth,                                            // <-- Exported to be verifiable headlessly; nothing else calls it
+        Na__LeSnap__RestoreModelEdgeWidth
     };
     // ------------------------------------------------------------
 

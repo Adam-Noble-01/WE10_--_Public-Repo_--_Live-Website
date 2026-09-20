@@ -123,6 +123,8 @@
         "Fallback__Description"  : "What a category the model loaded but this file does not list is called, and where it is put.",
         "Fallback__GroupLabel"   : "Other",
         "Fallback__StripPrefix"  : "TrueVision__",
-        "Fallback__SplitOnDouble": " - "
+        "Fallback__SplitOnDouble": " - ",
+        "Fallback__StoreyElementPrefix" : "TrueVision__MainBuildingModel__",
+        "Fallback__StoreyElementNote"   : "A storey export loads its categories as Storey__<Storey>__<Element>, while every row above names the whole-model form, TrueVision__MainBuildingModel__<Element>. The SSOT builds both from one token (Glb__ExportFileNameStem is this prefix plus the tag's Storey__ElementExportName), so a storey category is resolved to its whole-model row by swapping the prefix and wears that row's style. Without it every storey category missed the index and drew at the black / solid / 1.00 fallback, which is what every storey-exported project had been doing."
     }
 }

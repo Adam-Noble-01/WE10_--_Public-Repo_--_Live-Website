@@ -373,8 +373,17 @@
     outline-offset                     : 3px;
 }
 
+/* A FROZEN BLOCK RENDERS HTML, SO IT MUST NOT KEEP THE SOURCE'S WHITESPACE.
+   Chrome gives every contenteditable element white-space pre-wrap, and that
+   inherits all the way down into these blocks - so the newline and the indent
+   in front of a picture inside a cropped frame were drawn as a real line and
+   pushed the picture a line down inside its own frame. Any hand-written block
+   written across several lines had the same gap in the editor and not in the
+   reader, which is the worst way for it to be wrong. The source itself is
+   edited in __raw, which keeps its own pre-wrap. */
 .na-le-stmt-frozen__body {
     display                            : block;
+    white-space                        : normal;
 }
 
 /* THE TOOL ROW sits over the block's top-right corner and only while the
@@ -457,6 +466,115 @@
 .na-le-stmt-frozen.is-resizing > .na-le-stmt-figure__readout {
     display                            : block;
 }
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Crop Tool                                          */
+/* ----------------------------------------------------------------- */
+
+/* THE OVERLAY LIES EXACTLY OVER THE PICTURE as it is laid out, so what is
+   dragged is what is seen. It is positioned against the frozen block's body,
+   which is why that body is the containing block below. */
+.na-le-stmt-frozen__body {
+    position                           : relative;
+}
+
+.na-le-stmt-crop {
+    position                           : absolute;
+    z-index                            : 3;
+    cursor                             : default;
+    user-select                        : none;
+}
+
+/* WHAT IS BEING TRIMMED AWAY IS DIMMED, not hidden: a crop is judged against
+   what it is losing, and a writer needs to see what is just outside it. */
+.na-le-stmt-crop__shade {
+    position                           : absolute;
+    inset                              : 0;
+    background                         : rgba(23, 43, 58, 0.55);
+}
+
+.na-le-stmt-crop__kept {
+    position                           : absolute;
+    box-shadow                         : 0 0 0 9999px rgba(23, 43, 58, 0.55);   /* <-- The dim is a ring around what is kept, so the kept part is untouched */
+    outline                            : 1px solid rgba(255, 255, 255, 0.9);
+    cursor                             : move;
+}
+
+/* A THIRDS GRID, because a picture is cropped against its composition and not
+   against its edges. Drawn in the kept area only. */
+.na-le-stmt-crop__kept::before {
+    content                            : '';
+    position                           : absolute;
+    inset                              : 0;
+    background-image                   : linear-gradient(to right,  rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+                                          linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+    background-size                    : 33.333% 33.333%;
+    background-position                : 33.333% 33.333%;
+    background-repeat                  : repeat;
+    pointer-events                     : none;
+}
+
+.na-le-stmt-crop__grip {
+    position                           : absolute;
+    z-index                            : 2;
+    width                              : 12px;
+    height                             : 12px;
+    border                             : 1px solid #ffffff;
+    border-radius                      : 2px;
+    background                         : #1a7fc4;
+    box-shadow                         : 0 1px 3px rgba(23, 43, 58, 0.45);
+}
+
+.na-le-stmt-crop__grip--nw { left : -6px;             top : -6px; }
+.na-le-stmt-crop__grip--n  { left : calc(50% - 6px);  top : -6px; }
+.na-le-stmt-crop__grip--ne { right: -6px;             top : -6px; }
+.na-le-stmt-crop__grip--e  { right: -6px;             top : calc(50% - 6px); }
+.na-le-stmt-crop__grip--se { right: -6px;             bottom : -6px; }
+.na-le-stmt-crop__grip--s  { left : calc(50% - 6px);  bottom : -6px; }
+.na-le-stmt-crop__grip--sw { left : -6px;             bottom : -6px; }
+.na-le-stmt-crop__grip--w  { left : -6px;             top : calc(50% - 6px); }
+
+/* THE BAR SITS UNDER THE PICTURE rather than over it: a crop is judged by
+   looking at the picture, and a panel across the middle of it is in the way. */
+.na-le-stmt-crop__bar {
+    position                           : absolute;
+    left                               : 50%;
+    top                                : 100%;
+    z-index                            : 4;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    margin-top                         : 8px;
+    padding                            : 6px 8px;
+    border-radius                      : 6px;
+    background                         : rgba(23, 43, 58, 0.94);
+    box-shadow                         : 0 4px 18px rgba(0, 0, 0, 0.3);
+    white-space                        : nowrap;
+    transform                          : translateX(-50%);
+}
+
+.na-le-stmt-crop__size {
+    color                              : #ffffff;
+    font-size                          : 0.74rem;
+    font-variant-numeric               : tabular-nums;
+}
+
+/* WHILE A CROP IS BEING SET, the block's own handles are out of the way. */
+.na-le-stmt-frozen.is-cropping > .na-le-stmt-frozen__tools,
+.na-le-stmt-frozen.is-cropping > .na-le-stmt-figure__grip,
+.na-le-stmt-frozen.is-cropping > .na-le-stmt-figure__readout {
+    display                            : none !important;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Dropping a Picture In                                  */
+/* ----------------------------------------------------------------- */
 
 /* WHERE A DROPPED PICTURE WILL LAND. A line across the paper at the block the
    caret would fall into, drawn while a file is over the page. */

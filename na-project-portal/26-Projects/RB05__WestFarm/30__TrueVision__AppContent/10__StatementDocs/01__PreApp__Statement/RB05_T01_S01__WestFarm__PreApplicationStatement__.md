@@ -92,7 +92,11 @@ Revision A   *-  20ᵗʰ September 2026*
 
 #### 2.1 |  Location And Landscape Setting
 
-*[TO DRAFT  -  position relative to Woodhouse Eaves, Loughborough and the Charnwood Forest character area. The wider pattern of large individual houses in substantial grounds throughout this locality]*
+The application site lies on Deans Lane between the village of Woodhouse Eaves and the open interior of Charnwood Forest. Loughborough lies a short distance to the north east. The immediate landscape is the well known upland core of the Forest with its granite outcrops mature woodland and long views out across the Soar valley. Beacon Hill and Bradgate Park both lie within a short distance of the site.
+
+The settlement pattern in this part of the Forest is not one of continuous village frontage. It is a historically dispersed pattern of farmsteads lodges and substantial individual houses each set within its own grounds and each approached from the lane by a private drive. West Beacon Farm sits squarely within that pattern. The dwelling is not seen from Deans Lane in any meaningful way and it does not form part of any village street scene.
+
+Understanding this pattern matters because it is the established character against which the proposal will be judged. That character is examined in the following section.
 
 <img src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
 
@@ -102,7 +106,42 @@ Revision A   *-  20ᵗʰ September 2026*
 
 ​		**Fig 2.2  -**  Site Location  -  Local Context To Woodhouse Eaves And Deans Lane
 
-#### 2.2 |  The Established Holding And Its Built Development
+#### 2.2 |  The Established Pattern Of Large Houses In The Locality
+
+This part of Charnwood Forest has been characterised by large individual houses standing in substantial private grounds for the better part of two centuries. That character is documented rather than asserted and it is drawn directly from the council's own records and from the current property market in the village.
+
+The historic examples surround the site. Beaumanor Hall at Woodhouse is a Grade II* listed country house built between 1842 and 1848 by the architect William Railton in a Jacobean style and constructed in stone. Before 1939 its estate extended to some 6,500 acres of which around 350 acres formed the park. The Brand at Brand Hill in Woodhouse Eaves is a Grade II listed house of 1875 by Alfred Waterhouse and the council's own listed building record describes it as being built of granite and slate rubble stone with stone plinth cornice and dressings beneath a Swithland slate roof. Swithland Hall a short distance to the south east is a neoclassical country house of the same century by James Pennethorne again in granite and slate rubble with Swithland slate roofs. These are not distant comparators. They are the immediate architectural company that West Beacon Farm keeps.
+
+Crucially this is not a closed historic tradition. Hillview House on Benscliffe Road at Newtown Linford is a stone built country house of over 13,000 square feet standing in approximately 28 acres in the same Charnwood Forest landscape. It was built in the early 2000s in a frankly traditional Voysey and Arts and Crafts idiom rather than in a contemporary style. It was most recently marketed at £7,000,000 and is now sold subject to contract. It is the closest available analogue to this proposal and it demonstrates beyond argument that a large new house designed in a historic architectural language is an established and accepted part of this landscape within living memory.
+
+The village itself supports the same reading. Maplewell Farm at Woodhouse Eaves is currently marketed at offers over £3,000,000 standing in approximately 11 acres at the end of a long private drive. A separate period house on Maplewell Road is marketed at £3,250,000 and is approached by a private driveway of some 150 metres. A further house at Church Hill is marketed at £1,950,000 on 2.47 acres. The housing stock of this locality is therefore substantial houses on substantial plots approached by private drives which is precisely the form of development proposed.
+
+It is important to be clear about how this evidence is used. The applicants do not advance property values as a planning consideration and they are not material to the determination of this proposal. The evidence is set out because it establishes the character and appearance of the locality which is material and because it demonstrates that a large well designed house in a traditional idiom set in its own grounds is the established pattern here rather than an exception to it.
+
+There is a further point that follows from the same evidence. The prevailing historic material palette in this locality is granite and slate rubble walling with cut stone dressings beneath Swithland slate roofs. That is the council's own description of the listed buildings nearest to the site. The stone walling cut ashlar dressings and stone slate roof proposed at section 6.0 therefore sit within a documented local tradition rather than being imported from elsewhere.
+
+[TO CONFIRM: the market figures above are taken from agent marketing material available in September 2026 and are current as at that date. Screen captures should be taken for the appendix before submission. Distances from the application site to each named property to be measured on the OS data.]
+
+[TO CONFIRM: image required  -  a location plan marking the named comparator houses against the application site would carry this section far more effectively than the prose alone.]
+
+[TO CONFIRM: a recent committee report exists for Black Birds Nest on Deans Lane itself. That decision is likely to be the most directly relevant local precedent available and should be obtained and read in full before the pre-application is submitted.]
+
+<div style="
+    text-align      : center;
+    padding-top     : 04.00mm;
+    padding-bottom  : 01.00mm;
+    margin-top      : 00.00mm;
+    margin-bottom   : 00.00mm;
+">
+    <div style="
+        width            : 92%;
+        margin           : 0 auto;
+        border-top       : 0.25px solid #f3f3f3;
+        height           : 0;
+    "></div>
+</div>
+
+#### 2.3 |  The Established Holding And Its Built Development
 
 *[TO DRAFT  -  the extent of the holding, the existing dwelling plus hangar, garaging, workshops, stores and yard buildings, and the quantified existing built floorspace. This is an already extensively developed residential estate rather than open countryside]*
 
@@ -112,11 +151,11 @@ Revision A   *-  20ᵗʰ September 2026*
 
 ​		**Fig 2.3  -**  The Application Site  -  Existing Site Plan Showing The Developed Core Lake And Adjoining Land
 
-#### 2.3 |  Access And Arrival
+#### 2.4 |  Access And Arrival
 
 *[TO DRAFT  -  the long private drive from Deans Lane through mature planting, the gated entrance, the recent access permission P/25/0361/2 and the discharge of conditions under P/25/1770/2, and the degree of separation between the highway and the dwelling]*
 
-#### 2.4 |  Landscape Trees And Water
+#### 2.5 |  Landscape Trees And Water
 
 *[TO DRAFT  -  woodland belts to the west and south, the mature specimen planting around the developed core, the lake to the north west, the ponds and Wood Brook, and the visual containment all of this provides]*
 
@@ -533,7 +572,7 @@ The carriage arch is not decorative. It carries the pedestrian and service route
 
 #### 6.9 |  Existing Conditions Against The Design Proposal
 
-<img src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8); display: block; margin-left: auto; margin-right: auto;" />
 
 ​		**Fig 6.8  -**  Existing Dwelling  -  The Building To Be Replaced
 

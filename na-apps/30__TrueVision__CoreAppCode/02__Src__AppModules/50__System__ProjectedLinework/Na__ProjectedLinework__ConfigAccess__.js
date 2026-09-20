@@ -115,7 +115,7 @@
             { TagName : '78__LineworkModifier__VeryFineDetail__Walls',              OwnerKey : 'TrueVision__LineworkModifier__VeryFineDetail' },
             { TagName : '79__LineworkModifier__VeryFineDetail__WindowsAndJoinery',  OwnerKey : 'TrueVision__LineworkModifier__VeryFineDetail' }
         ],
-        buildToken              : '2026-09-20-linework-modifiers',
+        buildToken              : '2026-09-20-linework-modifiers-3',
         transparentOccludes     : false,
         transparentOpacityBelow : 0.999,
         appearance              : {
@@ -391,8 +391,10 @@
     // FUNCTION | Get the Nested Linework Modifier Tags (SSOT 76-79 range)
     // ------------------------------------------------------------
     // Each row is { TagName, OwnerKey }: TagName is the exact nested SketchUp
-    // tag name (the first '::'-delimited segment of a mesh's own glTF node
-    // name), OwnerKey is the style row it should draw under in
+    // tag name, matched as the LEADING run of a mesh's own node name (the
+    // GlbBuilder writes '<TagName>::<MaterialName>', but three.js strips the
+    // '::' when it loads, so what is matched is the prefix, not a split),
+    // OwnerKey is the style row it should draw under in
     // Na__LayoutEditor__ModelLayers__Config__.json instead of its parent
     // category's style. See Na__DataLib__CoreIndex__Tags__.json ->
     // LineworkModifierConfig for the SketchUp/exporter side of this.

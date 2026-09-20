@@ -188,6 +188,75 @@
     font-weight                        : 200;           /* <--- Light weight for H6 elements */
 }
 
+/* TWO PLACES WHERE THE NEGATIVE BOTTOM MARGIN HAS NOTHING TO BITE ON.
+   -----------------------------------------------------------------
+   h4, h5 and h6 all end two millimetres SHORT, which is right because the
+   paragraph under them opens with one em (03.53mm) of its own and the two
+   settle into a deliberate 1.53mm. A table does not: the theme sets
+   "table { margin-top: 00.00mm }", so the minus two is uncontested and the
+   table climbs over the heading. Adam, 20-Sep-2026, over a marked-up PDF:
+   "a title here is getting completely stuck behind the table" - section 6.8,
+   an h4 buried under its own specification table.
+
+   THE THEME HAS THE SAME FAULT and this is a deliberate departure from it.
+   Its own note says h5 is the heading "used where zero gap is required...
+   a table heading being the case it was added for" - but h5 carries the same
+   minus two, so it collides just as hard. There is no heading level in the
+   theme that can safely introduce a table, which is why this is fixed here
+   rather than worked around in the writing.
+
+   A table after a heading is given exactly the one em a paragraph would have
+   brought, so the gap under a heading is the same whatever follows it. */
+.na-le-stmt-doc h1 + table,
+.na-le-stmt-doc h2 + table,
+.na-le-stmt-doc h3 + table,
+.na-le-stmt-doc h4 + table,
+.na-le-stmt-doc h5 + table,
+.na-le-stmt-doc h6 + table {
+    margin-top                         : 1.00em;        /* <--- 03.53mm, the paragraph's own opening space */
+}
+
+/* AND THE SAME TABLE AGAIN, WEARING THE EDITOR'S CLOTHES. A markdown table
+   whose cells carry raw HTML - which every table in these statements does,
+   because the column widths are set with spans - is tokenised as one raw HTML
+   block, so in the READER it is a bare table and the rule above catches it,
+   while in the EDITOR the identical markup is wrapped in a frozen card and
+   the rule above cannot see it. Fixing only the reader would have left the
+   heading buried in the editor and clear on the page, which is the sort of
+   difference that gets found by a client rather than by us. */
+.na-le-stmt-doc h1 + .na-le-stmt-frozen:has(table),
+.na-le-stmt-doc h2 + .na-le-stmt-frozen:has(table),
+.na-le-stmt-doc h3 + .na-le-stmt-frozen:has(table),
+.na-le-stmt-doc h4 + .na-le-stmt-frozen:has(table),
+.na-le-stmt-doc h5 + .na-le-stmt-frozen:has(table),
+.na-le-stmt-doc h6 + .na-le-stmt-frozen:has(table) {
+    margin-top                         : 1.00em;
+}
+
+/* A HEADING THAT FOLLOWS A PICTURE NEEDS AIR THE THEME NEVER GIVES IT.
+   -----------------------------------------------------------------
+   A picture is an inline box, so it brings no bottom margin of its own, and
+   an h2 under one is left with nothing but its own 0.83em - about 4.70mm
+   measured from the picture's BASELINE, which is tighter still. On the title
+   page that is the company logo with the document title directly beneath it,
+   and Adam, 20-Sep-2026: "Under the logo, before the title, still feels too
+   congested."
+
+   Written for both shapes the document takes: in the reader a raw HTML block
+   is emitted as it stands, so the picture is a bare sibling; in the editor
+   the same block is wrapped in a frozen card. Both are matched, or the gap
+   would appear in one view and not the other. */
+.na-le-stmt-doc > img + h1,
+.na-le-stmt-doc > img + h2,
+.na-le-stmt-doc > img + h3,
+.na-le-stmt-doc > img + h4,
+.na-le-stmt-doc .na-le-stmt-frozen + h1,
+.na-le-stmt-doc .na-le-stmt-frozen + h2,
+.na-le-stmt-doc .na-le-stmt-frozen + h3,
+.na-le-stmt-doc .na-le-stmt-frozen + h4 {
+    margin-top                         : 08.00mm;
+}
+
 /* endregion ------------------------------------------------------- */
 
 
@@ -386,6 +455,26 @@
 .na-le-stmt-doc img {
     max-width                          : 100%;
     height                             : auto;
+}
+
+/* THE FIGURE FRAME, IN ONE PLACE INSTEAD OF EIGHTEEN.
+   -----------------------------------------------------------------
+   Every picture in the RB05 statement carried the same two declarations
+   written out by hand - "border: 10px solid #555041" with a 0.8 alpha black
+   shadow - and at 144 dpi that border prints about two and a half
+   millimetres thick. Adam, 20-Sep-2026, over the exported PDF: "The borders
+   around the images on the downloaded PDF don't look good either." Asked
+   which way to take it, he chose the olive kept and the weight taken out.
+   So the frame is now a class the picture wears, and the eighteen inline
+   copies have gone: change it here and every figure in every statement
+   follows, including the ones not written yet.
+
+   A CROPPED FIGURE WEARS THE CLASS ON ITS FRAME, not on the picture inside
+   it - the frame is the thing with an edge - which is why the crop builder
+   moves the class outwards and the uncrop moves it back. */
+.na-le-stmt-doc .na-figure {
+    border                             : 02.00px solid #555041;
+    box-shadow                         : 0 01.00px 06.00px rgba(0, 0, 0, 0.18);
 }
 
 /* A FIGURE CAPTION is the bold run on the line under a picture. It is written

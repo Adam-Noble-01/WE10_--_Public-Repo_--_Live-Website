@@ -2952,12 +2952,19 @@
                         "Annotation__Color": "#323232"
                     }
                 ],
-                "FloorPlan__CameraZoom": 4.363493111652624,
+                "FloorPlan__CameraZoom": 3.105848208344216,
                 "FloorPlan__CameraTargetMm": {
-                    "PosX": 13544,
-                    "PosZ": -23686
+                    "PosX": 18425,
+                    "PosZ": -22605
                 },
-                "FloorPlan__Dimensions": []
+                "FloorPlan__Dimensions": [],
+                "FloorPlan__Styles": {
+                    "Styles__ProjectedLinework": false,
+                    "Styles__ProfileLinework": true,
+                    "Styles__GlassOpaque": false,
+                    "Styles__Whitecard": true,
+                    "Styles__HiddenLines": false
+                }
             },
             {
                 "FloorPlan__Id": "FloorPlan_002",
@@ -2974,7 +2981,14 @@
                     "PosX": 20552,
                     "PosZ": -23690
                 },
-                "FloorPlan__Dimensions": []
+                "FloorPlan__Dimensions": [],
+                "FloorPlan__Styles": {
+                    "Styles__ProjectedLinework": false,
+                    "Styles__ProfileLinework": true,
+                    "Styles__GlassOpaque": false,
+                    "Styles__Whitecard": true,
+                    "Styles__HiddenLines": false
+                }
             },
             {
                 "FloorPlan__Id": "FloorPlan_003",
@@ -2991,7 +3005,14 @@
                     "PosX": 18117,
                     "PosZ": -22846
                 },
-                "FloorPlan__Dimensions": []
+                "FloorPlan__Dimensions": [],
+                "FloorPlan__Styles": {
+                    "Styles__ProjectedLinework": false,
+                    "Styles__ProfileLinework": true,
+                    "Styles__GlassOpaque": false,
+                    "Styles__Whitecard": true,
+                    "Styles__HiddenLines": false
+                }
             }
         ],
         "LayoutEditor__DrawingsData__Elevations": [
@@ -3231,7 +3252,7 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": false,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false,
+                        "Viewport__Locked": true,
                         "Viewport__ShowFrame": false
                     },
                     {
@@ -3248,7 +3269,10 @@
                             "HeightMm": 121.34823315884526
                         },
                         "Viewport__ScaleDenominator": 100,
-                        "Viewport__ModelLayers": null,
+                        "Viewport__ModelLayers": {
+                            "TrueVision__LineworkModifier__FineDetail": false,
+                            "TrueVision__LineworkModifier__VeryFineDetail": false
+                        },
                         "Viewport__LayerId": "Layer_001",
                         "Viewport__PanMm": {
                             "X": -19822.54102872072,
@@ -3263,17 +3287,34 @@
                             "Y": 0
                         },
                         "Viewport__Styles": {
-                            "baseImage": true,
+                            "baseImage": false,
                             "projectedLinework": true,
-                            "profileLinework": true,
-                            "glassOpaque": true,
-                            "whitecard": true,
+                            "profileLinework": false,
+                            "glassOpaque": false,
+                            "whitecard": false,
                             "hiddenLines": false,
-                            "enhanceWhitecard": true,
+                            "enhanceWhitecard": false,
                             "contextLayer": true,
-                            "depthFog": true
+                            "depthFog": false
                         },
-                        "Viewport__ProjectedEdges": null,
+                        "Viewport__ProjectedEdges": {
+                            "Edges__Description": "Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.",
+                            "Edges__UpdatedIso": "2026-09-20T21:12:42.702Z",
+                            "Edges__Categories": {
+                                "TrueVision__LineworkModifier__VeryFineDetail": {
+                                    "Category__Label": "Very Fine Detail Linework",
+                                    "Category__EdgeWeightFactor": 0.1,
+                                    "Category__EdgeColour": "mid-grey",
+                                    "Category__EdgeLineType": "solid"
+                                },
+                                "TrueVision__LineworkModifier__FineDetail": {
+                                    "Category__Label": "Fine Detail Linework",
+                                    "Category__EdgeWeightFactor": 0.1,
+                                    "Category__EdgeColour": "dark-grey",
+                                    "Category__EdgeLineType": "solid"
+                                }
+                            }
+                        },
                         "Viewport__CompositeWeights": {
                             "enhanceWhitecard": 40,
                             "projectedLinework": 0.5,
@@ -3283,7 +3324,7 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": false,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false,
+                        "Viewport__Locked": true,
                         "Viewport__ShowFrame": false
                     },
                     {
@@ -3330,7 +3371,7 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": false,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false,
+                        "Viewport__Locked": true,
                         "Viewport__ShowFrame": false
                     },
                     {
@@ -3347,7 +3388,10 @@
                             "HeightMm": 121.81698315884526
                         },
                         "Viewport__ScaleDenominator": 100,
-                        "Viewport__ModelLayers": null,
+                        "Viewport__ModelLayers": {
+                            "TrueVision__LineworkModifier__FineDetail": false,
+                            "TrueVision__LineworkModifier__VeryFineDetail": false
+                        },
                         "Viewport__LayerId": "Layer_001",
                         "Viewport__PanMm": {
                             "X": 20245.385496139526,
@@ -3372,7 +3416,24 @@
                             "contextLayer": true,
                             "depthFog": true
                         },
-                        "Viewport__ProjectedEdges": null,
+                        "Viewport__ProjectedEdges": {
+                            "Edges__Description": "Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.",
+                            "Edges__UpdatedIso": "2026-09-20T22:36:07.718Z",
+                            "Edges__Categories": {
+                                "TrueVision__LineworkModifier__FineDetail": {
+                                    "Category__Label": "Fine Detail Linework",
+                                    "Category__EdgeWeightFactor": 0.1,
+                                    "Category__EdgeColour": "red",
+                                    "Category__EdgeLineType": "solid"
+                                },
+                                "TrueVision__LineworkModifier__VeryFineDetail": {
+                                    "Category__Label": "Very Fine Detail Linework",
+                                    "Category__EdgeWeightFactor": 0.1,
+                                    "Category__EdgeColour": "red",
+                                    "Category__EdgeLineType": "solid"
+                                }
+                            }
+                        },
                         "Viewport__CompositeWeights": null,
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": false,
@@ -7457,7 +7518,108 @@
                         "Shape__Id": "Shape_147"
                     }
                 ],
-                "Sheet__Leaders": [],
+                "Sheet__Leaders": [
+                    {
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__Type": "bubble",
+                        "Leader__Text": "ES01",
+                        "Leader__SpecNoteId": "SpecNote_029",
+                        "Leader__TipXMm": 230.69940058938582,
+                        "Leader__TipYMm": 91.2998757046256,
+                        "Leader__AnchorXMm": 262.7438130639723,
+                        "Leader__AnchorYMm": 143.38575495725934,
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Id": "Leader_001"
+                    },
+                    {
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__Type": "bubble",
+                        "Leader__Text": "ES02",
+                        "Leader__SpecNoteId": "SpecNote_030",
+                        "Leader__TipXMm": 154.51990822383658,
+                        "Leader__TipYMm": 115.42493240937554,
+                        "Leader__AnchorXMm": 110.4233,
+                        "Leader__AnchorYMm": 144.3801,
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Id": "Leader_002"
+                    },
+                    {
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__Type": "bubble",
+                        "Leader__Text": "ES04",
+                        "Leader__SpecNoteId": "SpecNote_032",
+                        "Leader__TipXMm": 214.4877779515381,
+                        "Leader__TipYMm": 20.013916076882232,
+                        "Leader__AnchorXMm": 201.11979254826161,
+                        "Leader__AnchorYMm": 11.868756775015676,
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Id": "Leader_003"
+                    },
+                    {
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__Type": "bubble",
+                        "Leader__Text": "ES05",
+                        "Leader__SpecNoteId": "SpecNote_033",
+                        "Leader__TipXMm": 407.3997438850188,
+                        "Leader__TipYMm": 106.79215396074936,
+                        "Leader__AnchorXMm": 382.85100867606013,
+                        "Leader__AnchorYMm": 64.26178138788038,
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Id": "Leader_004"
+                    }
+                ],
                 "Sheet__Groups": [
                     {
                         "Group__Members": [
@@ -8230,7 +8392,7 @@
                 },
                 "Sheet__MarginNotes": {
                     "Enabled": true,
-                    "WidthMm": 160,
+                    "WidthMm": 178.7,
                     "Heading": null,
                     "TextSizeMm": 2,
                     "IncludeGeneral": true,
@@ -8241,7 +8403,7 @@
                 "Sheet__Id": "Sheet_003",
                 "Sheet__Name": "TEMP__Plans",
                 "Sheet__Order": 2,
-                "Sheet__PaperSize": "A3",
+                "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
                 "Sheet__TitleBlockStyle": "modern",
                 "Sheet__Fields": {
@@ -8281,7 +8443,56 @@
                         "Layer__Order": 4
                     }
                 ],
-                "Sheet__Viewports": [],
+                "Sheet__Viewports": [
+                    {
+                        "Viewport__Id": "Viewport_001",
+                        "Viewport__Kind": "2d",
+                        "Viewport__SceneId": "Scene_010",
+                        "Viewport__DrawingId": "FloorPlan_001",
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "",
+                        "Viewport__FrameMm": {
+                            "X": 37.344327849201704,
+                            "Y": 20.842507610522446,
+                            "WidthMm": 533.1968926115054,
+                            "HeightMm": 376.72905337289575
+                        },
+                        "Viewport__ScaleDenominator": 100,
+                        "Viewport__ModelLayers": null,
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 22762.163881261957,
+                            "Y": -20903.19726609827
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 180,
+                            "HeightMm": 120
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": true,
+                            "profileLinework": false,
+                            "glassOpaque": false,
+                            "whitecard": false,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": false,
+                            "contextLayer": true,
+                            "depthFog": false
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": {
+                            "baseImage": 1
+                        },
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false
+                    }
+                ],
                 "Sheet__Annotations": [],
                 "Sheet__Dimensions": [],
                 "Sheet__Shapes": [],

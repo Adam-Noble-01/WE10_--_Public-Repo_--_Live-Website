@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrueVision3D - Statement Typography Against Typora</title>
+<!--
+// =============================================================================
+// TRUEVISION3D - TEST - STATEMENT TYPOGRAPHY AGAINST TYPORA
+// =============================================================================
+//
+// FILE       : Na__Test__StatementTypography__.html
+// NAMESPACE  : Na__Test
+// MODULE     : Statement Writer - Document Styling
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Measure the statement document against the real Typora theme
+// CREATED    : 20-Sep-2026
+//
+// DESCRIPTION:
+// - "WE HAVE GOT TO RECREATE IT PERFECTLY" was the brief, and reading two
+//   stylesheets side by side is no way to prove it. This renders the SAME
+//   markup twice - once under the actual Typora theme, once under the
+//   statement stylesheet - and compares what the browser computes for every
+//   element that appears in a statement.
+// - THE REFERENCE IS THE THEME ITSELF, copied in beside this file rather than
+//   retyped, so it cannot drift from the one Typora loads.
+// - A DIFFERENCE IS A FAILURE. Where the statement is deliberately different
+//   it is listed in ALLOWED below with the reason, and nowhere else.
+//
+// USAGE:
+//     Serve the repository root and open
+//     /na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__StatementTypography__.html
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.0.0
+// - Initial implementation.
+//
+// =============================================================================
+-->
+<style>
+    body  { margin: 0; padding: 18px 22px; background: #f4f6f8; color: #172b3a;
+            font: 13px/1.6 'Open Sans', Arial, sans-serif; }
+    h1    { font-size: 17px; margin: 0 0 6px; }
+    .lede { color: #6c757d; margin: 0 0 14px; }
+    .pass { color: #2f7a46; }
+    .fail { color: #9b3b3b; font-weight: 600; }
+    .note { color: #6c757d; }
+    #out  { padding: 0; margin: 0; }
+    #out li { list-style: none; margin-bottom: 2px; white-space: pre-wrap;
+              font-family: 'Lucida Console', 'Courier New', monospace; font-size: 11px; }
+    .stage { position: absolute; left: -10000px; top: 0; width: 900px; height: 500px; border: 0; }
+</style>
+</head>
+<body>
+
+<h1>Statement Typography Against Typora</h1>
+<p class="lede">Same markup, two stylesheets, every computed value compared.</p>
+<ul id="out"><li class="note">running…</li></ul>
+
+<iframe id="typora" class="stage"></iframe>
+<iframe id="statement" class="stage"></iframe>
+
+<script type="module">
+
+    const FONTS = '../03__Style__AppStylesheets/Na__CoreUi__Styles__Fonts__.css';
+    const THEME = 'Na__Test__Reference__TyporaTheme__.css';
+    const DOCCSS = '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/'
+                 + '08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css';
+
+    // THE SAMPLE holds one of everything a statement uses.
+    const SAMPLE = `
+        <h1>Heading One</h1>
+        <h2>Heading Two</h2>
+        <h3>Heading Three</h3>
+        <h4>Heading Four</h4>
+        <h5>Heading Five</h5>
+        <h6>Heading Six</h6>
+        <p id="para">Body text with <strong id="strong">bold</strong> and <em id="em">italic</em> and
+           <code id="code">code</code> inside it.</p>
+        <ul><li id="uli">A bullet item</li></ul>
+        <ol><li id="oli">A numbered item</li></ol>
+        <blockquote id="quote"><p>A quoted line</p></blockquote>
+        <hr id="rule">
+        <table><thead><tr><th id="th">Head</th></tr></thead><tbody><tr><td id="td">Cell</td></tr></tbody></table>
+        <pre id="pre"><code>fenced code</code></pre>
+        <p><a id="link" href="#">A link</a></p>
+    `;
+
+    // WHAT IS COMPARED, and the properties that actually decide how it reads.
+    const TARGETS = [
+        ['h1', 'h1'], ['h2', 'h2'], ['h3', 'h3'], ['h4', 'h4'], ['h5', 'h5'], ['h6', 'h6'],
+        ['paragraph', '#para'], ['bold', '#strong'], ['italic', '#em'], ['inline code', '#code'],
+        ['bullet item', '#uli'], ['numbered item', '#oli'], ['block quote', '#quote'],
+        ['rule', '#rule'], ['table head', '#th'], ['table cell', '#td'],
+        ['code block', '#pre'], ['link', '#link']
+    ];
+    const PROPS = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'color',
+                   'lineHeight', 'marginTop', 'marginBottom'];
+
+    // DELIBERATE DIFFERENCES - each one needs a reason, or it is a bug.
+    //
+    // TWO THINGS THE THEME FILE ALONE CANNOT SHOW. Typora loads this theme on
+    // top of its own base stylesheet, and it drives its editor through its own
+    // classes - so read on its own, as it is here, the theme leaves some
+    // things unstyled that are plainly styled in Typora itself. Those gaps are
+    // listed below with what was done instead and why; everything else must
+    // match exactly.
+    //
+    // 1. CODE. The theme never names a bare code or pre element - only
+    //    .md-fences, .CodeMirror and .code-tooltip, which exist inside Typora
+    //    and nowhere else. So a real fenced block gets nothing from it here,
+    //    and the values below are the theme's OWN fence values (06.50pt,
+    //    #202930, #f4f4f4) applied to the elements a browser actually gets.
+    // 2. COLOUR ON LIST ITEMS, CELLS AND QUOTES. The theme colours paragraphs
+    //    #3c3c3c and stops; in Typora the rest inherit a colour from the base
+    //    stylesheet underneath. The statement sets that same #3c3c3c across
+    //    the document, so a sentence does not change colour on becoming a
+    //    bullet.
+    const CODE_REASON   = 'the theme styles only Typora’s own .md-fences / .CodeMirror; '
+                        + 'these are its fence values on the real elements';
+    const COLOUR_REASON = 'the theme colours paragraphs #3c3c3c and leaves the rest to Typora’s '
+                        + 'base stylesheet; the statement carries that colour through the document';
+    const ALLOWED = {
+        'code block|fontFamily'  : 'Lucida Console first, the app monospace, ahead of Courier New',
+        'inline code|fontFamily' : 'Lucida Console first, the app monospace, ahead of Courier New',
+        'code block|fontSize'    : CODE_REASON,
+        'code block|color'       : CODE_REASON,
+        'code block|lineHeight'  : CODE_REASON,
+        'code block|marginTop'   : CODE_REASON,
+        'code block|marginBottom': CODE_REASON,
+        'inline code|fontSize'   : CODE_REASON,
+        'inline code|color'      : CODE_REASON,
+        'inline code|lineHeight' : CODE_REASON,
+        'bullet item|color'      : COLOUR_REASON,
+        'numbered item|color'    : COLOUR_REASON,
+        'block quote|color'      : COLOUR_REASON,
+        'table cell|color'       : COLOUR_REASON
+    };
+
+    const out = document.getElementById('out');
+    let failed = 0;
+
+    function say(text, state, detail) {
+        const row = document.createElement('li');
+        row.className   = state || 'note';
+        row.textContent = (state === 'pass' ? 'PASS  ' : state === 'fail' ? 'FAIL  ' : '      ') + text
+                        + (detail ? '\n        ' + detail : '');
+        out.appendChild(row);
+        if (state === 'fail') failed++;
+    }
+
+    function write(frame, head, body) {
+        const doc = frame.contentDocument;
+        doc.open();
+        doc.write('<!DOCTYPE html><html><head><meta charset="utf-8">' + head + '</head><body>' + body + '</body></html>');
+        doc.close();
+        return doc;
+    }
+
+    async function settle(doc) {
+        await doc.fonts.ready;
+        await new Promise((done) => setTimeout(done, 60));
+    }
+
+    // Typora puts the document inside #write; the statement inside .na-le-stmt-doc
+    const typoraDoc = write(document.getElementById('typora'),
+        '<link rel="stylesheet" href="' + FONTS + '"><link rel="stylesheet" href="' + THEME + '">',
+        '<div id="write">' + SAMPLE + '</div>');
+
+    const stmtDoc = write(document.getElementById('statement'),
+        '<link rel="stylesheet" href="' + FONTS + '"><link rel="stylesheet" href="' + DOCCSS + '">',
+        '<article class="na-le-stmt-doc">' + SAMPLE + '</article>');
+
+    await settle(typoraDoc);
+    await settle(stmtDoc);
+
+    // ---------------------------------------------------------- fonts first
+    say('The faces the document asks for');
+    for (const weight of [200, 300, 400, 500, 600]) {
+        const there = stmtDoc.fonts.check(weight + ' 16px "Open Sans"');
+        say('Open Sans ' + weight + ' is available to the document', there ? 'pass' : 'fail',
+            there ? '' : 'the browser has no ' + weight + ' face, so it will synthesise one');
+    }
+
+    // Prove the document text is REALLY drawn in Open Sans, not a lookalike fallback
+    function widthOf(doc, family, weight) {
+        const span = doc.createElement('span');
+        span.textContent = 'Handgloves Wmiquj 12345';
+        span.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font-size:40px;'
+                           + 'font-family:' + family + ';font-weight:' + weight + ';';
+        doc.body.appendChild(span);
+        const wide = span.getBoundingClientRect().width;
+        span.remove();
+        return Math.round(wide * 100) / 100;
+    }
+    for (const weight of [400, 500]) {
+        const real  = widthOf(stmtDoc, '"Open Sans"', weight);
+        const bogus = widthOf(stmtDoc, '"NoSuchFontAtAll"', weight);
+        say('text at weight ' + weight + ' is drawn in Open Sans, not a fallback',
+            real !== bogus ? 'pass' : 'fail',
+            real === bogus ? 'measured ' + real + 'px either way' : real + 'px vs fallback ' + bogus + 'px');
+    }
+
+    // --------------------------------------------------- then every element
+    say('Every element against the theme');
+    for (const [label, selector] of TARGETS) {
+        const a = typoraDoc.querySelector(selector);
+        const b = stmtDoc.querySelector(selector);
+        if (!a || !b) { say(label + ' - not found in both documents', 'fail'); continue; }
+
+        const ca = typoraDoc.defaultView.getComputedStyle(a);
+        const cb = stmtDoc.defaultView.getComputedStyle(b);
+        const wrong = [];
+        for (const prop of PROPS) {
+            if (ALLOWED[label + '|' + prop]) continue;
+            if (ca[prop] !== cb[prop]) wrong.push(prop + ': theme ' + ca[prop] + '  <-->  statement ' + cb[prop]);
+        }
+        if (wrong.length === 0) say(label, 'pass');
+        else say(label, 'fail', wrong.join('\n        '));
+    }
+
+    const grouped = {};
+    for (const key of Object.keys(ALLOWED)) {
+        (grouped[ALLOWED[key]] = grouped[ALLOWED[key]] || []).push(key.replace('|', ' '));
+    }
+    say('Stated differences');
+    for (const reason of Object.keys(grouped)) say(grouped[reason].join(', '), null, reason);
+
+    say(failed === 0 ? 'ALL CHECKS PASSED' : failed + ' CHECK(S) FAILED', failed === 0 ? 'pass' : 'fail');
+    document.title = failed === 0 ? 'TYPOGRAPHY OK' : 'TYPOGRAPHY FAILED (' + failed + ')';
+
+</script>
+</body>
+</html>

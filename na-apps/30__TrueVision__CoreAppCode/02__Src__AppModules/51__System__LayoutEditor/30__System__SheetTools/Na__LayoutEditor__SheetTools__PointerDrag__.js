@@ -65,6 +65,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.7.0
+// - A VIEWPORT FRAME TAKES THE ARROW-KEY AXIS LOCK, which it never had.
+//   IsMoveDrag deliberately excludes a viewport - it has its own reading and
+//   its own typed length - and that exclusion was also, silently, the gate the
+//   arrow keys tested, so an arrow pressed mid-move fell through to the nudge
+//   and walked the very frame being dragged. RerunViewportDrag is the frame's
+//   own way back in, and IsViewportMoveDrag now defaults to the drag in flight
+//   the way IsMoveDrag does, so it can be asked with nothing.
+// - ApplyDrag hands the CONSTRAINED delta to a plain border move (no grabbed
+//   point: a 3D or raster viewport, snapping off, or a press away from the
+//   linework), which is also the first time Shift has held such a frame to an
+//   axis at all - DragPatch's border branch ignores the flag. A handle and a
+//   body pan still get the raw delta, because Shift means something else to
+//   each of them. A carried frame is held inside Na__LeVpMove__Solve instead,
+//   where the snap and the tracking lines are.
+// - GetViewportDrag reads along the locked axis, so the Measurements box is
+//   right from the moment the key is pressed rather than on the next move.
+//
 // 19-Sep-2026 - Version 1.6.0
 // - DragStartMm: a press marked `pick` - the press that selects something, or
 //   the second press of a double click - travels PickDragPx on screen before it
@@ -335,8 +353,17 @@
         // `appliedMm` is what actually landed, which is what the Measurements
         // box reads back and what a typed length aims along.
         // ------------------------------------
+        //
+        // A VIEWPORT FRAME MOVED WITHOUT A GRABBED POINT TAKES THE LOCK HERE.
+        // A carried frame gets it inside Na__LeVpMove__Solve, which has the snap
+        // and the tracking lines to hold it against; a plain border drag - a 3D
+        // or raster viewport, snapping off, or a press away from any linework -
+        // has neither, so the lock (and Shift, which this frame never honoured
+        // at all) is applied to the delta the same way a whole-object move's is.
+        // ------------------------------------
         const axis  = Na__LeAxis__Get();
-        const held  = (!exact && axis && Na__LeTools__IsMoveDrag(drag))
+        const plain = Na__LeTools__IsViewportMoveDrag(drag) && !drag.baseMm;
+        const held  = (!exact && axis && (Na__LeTools__IsMoveDrag(drag) || plain))
             ? (() => { const at = Na__LeAxis__Apply(drag.startMm, cursor); return { x : at.x - drag.startMm.x, y : at.y - drag.startMm.y }; })()
             : null;
         const d = exact ? dMm
@@ -361,13 +388,21 @@
             if (!viewport) return;
             // CARRIED BY A POINT | The snap move says where the grabbed point
             // goes; the frame moves by however far that is from where it began.
+            // A PLAIN BORDER MOVE READS THE CONSTRAINED DELTA, so the arrow lock
+            // and Shift reach it; a handle and a body pan keep the raw one,
+            // because Shift means something else to each of them inside DragPatch.
             const carried = drag.baseMm ? Na__LeVpMove__Solve(sheet, drag, cursor, shift) : null;
-            const moveBy  = carried ? { x : carried.x - drag.baseMm.x, y : carried.y - drag.baseMm.y } : dMm;
+            const moveBy  = carried ? { x : carried.x - drag.baseMm.x, y : carried.y - drag.baseMm.y }
+                          : (Na__LeTools__IsViewportMoveDrag(drag) ? d : dMm);
             const patch = Na__LeHandles__DragPatch(viewport, drag.hit, drag.start, moveBy, { shift : shift });
             if (!patch) return;
             Na__LeModel__UpdateViewport(sheet, drag.id, patch, true);
             Na__LeSurface__Refresh('frames');
-            if (Na__LeTools__IsViewportMoveDrag(drag)) Na__LeMeasure__Refresh();   // <-- The box reads the drag length as the frame moves
+            if (Na__LeTools__IsViewportMoveDrag(drag)) {
+                if (!carried && !exact && axis) Na__LeGrips__ShowBand(drag.startMm, { x : drag.startMm.x + moveBy.x, y : drag.startMm.y + moveBy.y }, axis);   // <-- A carried frame has the tracking guides instead
+                else if (!carried) Na__LeGrips__HideBand();
+                Na__LeMeasure__Refresh();                                    // <-- The box reads the drag length as the frame moves
+            }
             return;
         }
         if (drag.kind === 'annotation') {
@@ -633,7 +668,7 @@
         // ONLY A VERTEX DRAG'S OWN BAND AND LOCK GO HERE. The band and the axis
         // lock are shared with the tools that are placing points, and a drag
         // finishing is no reason to take a half-drawn polyline's band away.
-        if ((drag.kind === 'shape' && drag.mode === 'vertex') || Na__LeTools__IsDimEndDrag() || Na__LeTools__IsMoveDrag(drag)) { Na__LeGrips__HideBand(); Na__LeAxis__Clear(); }
+        if ((drag.kind === 'shape' && drag.mode === 'vertex') || Na__LeTools__IsDimEndDrag() || Na__LeTools__IsMoveDrag(drag) || Na__LeTools__IsViewportMoveDrag(drag)) { Na__LeGrips__HideBand(); Na__LeAxis__Clear(); }
         if (pointerId !== null && pointerId !== undefined && Na__LeTools__Stage) {
             try { Na__LeTools__Stage.releasePointerCapture(pointerId); } catch (e) { /* already released */ }
         }
@@ -1186,7 +1221,27 @@
     // Measurements box can take a length for.
     // ------------------------------------------------------------
     function Na__LeTools__IsViewportMoveDrag(drag) {
-        return !!(drag && drag.kind === 'viewport' && drag.hit && drag.hit.mode === 'border');
+        const d = drag || Na__LeTools__Drag;                                 // <-- Asked with nothing, it means the drag in flight, as IsMoveDrag does
+        return !!(d && d.kind === 'viewport' && d.hit && d.hit.mode === 'border');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | An Arrow Key Locked or Released the Axis Mid-Move: Redraw the Frame
+    // ------------------------------------------------------------
+    // The viewport twin of RerunMoveDrag. A frame is NOT a move drag as
+    // IsMoveDrag counts them - it has its own reading and its own typed
+    // length - so it needs its own way back in, or the arrow keys fall
+    // through to the nudge and walk the very frame being dragged.
+    // ------------------------------------------------------------
+    function Na__LeTools__RerunViewportDrag() {
+        const drag = Na__LeTools__Drag;
+        if (!Na__LeTools__IsViewportMoveDrag(drag)) return false;
+        const sheet = Na__LeModel__GetActiveSheet();
+        const point = Na__LeTools__LastPointMm;
+        if (!sheet || !point || !drag.startMm) return true;                  // <-- The lock is taken; there is simply nowhere to redraw it from yet
+        Na__LeTools__ApplyDrag(sheet, drag, { x : point.x - drag.startMm.x, y : point.y - drag.startMm.y }, Na__LeTools__ShiftHeld);
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -1207,9 +1262,10 @@
         const livePt = rect ? { x : rect.X, y : rect.Y } : null;
         const run    = livePt ? Math.hypot(livePt.x - from.x, livePt.y - from.y) : 0;
         const cursor = Na__LeTools__LastPointMm;
-        const to     = (run >= Na__LeTools__TYPED_MIN_MM) ? livePt : (cursor && drag.startMm
+        const aim    = (run >= Na__LeTools__TYPED_MIN_MM) ? livePt : (cursor && drag.startMm
             ? { x : from.x + (cursor.x - drag.startMm.x), y : from.y + (cursor.y - drag.startMm.y) }
             : livePt);
+        const to     = (aim && Na__LeAxis__Get()) ? Na__LeAxis__Apply(from, aim) : aim;   // <-- A locked drag reads along its axis, cursor fallback included
         return { from : from, to : to };
     }
     // ------------------------------------------------------------
@@ -1304,6 +1360,7 @@
         Na__LeTools__TypeVertexLength,
         Na__LeTools__RerunVertexDrag,
         Na__LeTools__IsViewportMoveDrag,
+        Na__LeTools__RerunViewportDrag,
         Na__LeTools__GetViewportDrag,
         Na__LeTools__TypeViewportLength,
         Na__LeTools__SetSuppressed

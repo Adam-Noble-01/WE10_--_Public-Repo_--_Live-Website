@@ -1,0 +1,9 @@
+{
+    "UserScrapbook__Index__Meta": {
+        "Meta__FileName": "UserScrapbook__Index__.json",
+        "Meta__Description": "Every item in the TrueVision Layout Editor Custom Scrapbook. Written by the ProjectVision local server (ProjectVision__TrueVisionScrapbook__Api__.py) from what is in the category folders, on every save and delete and whenever the library is read locally. Do not edit by hand: add or remove item files instead, and the next read puts this right. The live website reads this file, since it has no directory listing.",
+        "Meta__Author": "Adam Noble - Noble Architecture"
+    },
+    "UserScrapbook__Index__UpdatedIso": "2026-09-20T21:57:45.073Z",
+    "UserScrapbook__Index__Items": []
+}

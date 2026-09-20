@@ -125,8 +125,27 @@ sentence under it. It is stated explicitly in the stylesheet with the reason bes
 
 Started without `--debug`, the ProjectVision server on 8090 holds whatever routes it had
 when it started. A route added to `ProjectVision__TrueVisionStatements__Api__.py`
-answers **405 until Adam restarts it**. Read the running routes with `OPTIONS` (the
-`Allow` header), never with a test `POST`.
+answers **405 until Adam restarts it**.
+
+**A stale server does not look broken — it looks empty.** The listing route is a `GET`,
+so a server without it does not answer 405; the static file route takes the URL and
+answers 404. The tab then reads "This project has no statements yet" over a folder that
+holds one, and offers to make a second `01__` folder beside the first. So a failed
+listing asks `/api/health` who is answering, and a ProjectVision server missing the
+routes gets a red alert at the top of the tab with Create withdrawn.
+
+**Do not probe liveness with a write route.** `POST /api/projects/<code>/files/…` returns
+200 by *doing the write* — probing it with `{}` put an empty statement index into a real
+project folder. `OPTIONS` cannot tell these routes apart either, because the static
+catch-all answers `GET` for every URL. Start the real server on a spare port and probe
+*there*:
+
+```bash
+python ProjectVision__LocalServer__Main__.py --port 8851 --no-browser --no-app-window
+```
+
+A statement route that exists answers **404** to a project that is not there. **405**
+means the route is missing.
 
 ---
 
@@ -198,3 +217,109 @@ in the browser before pressing Publish.
       is there and the route takes it, but a pointer has not dragged a file onto the page.
 - [ ] **The web viewer reads a published statement from the CDN**, which cannot be true
       until something has been published.
+
+---
+
+## 10 · The picture menu — justify and crop
+
+Right-click a picture in the editor. The menu is the app's own
+`Na__ContextMenu__Ui__Open`, so a section is `{ id, rows }` — a bare array of rows
+opens an empty menu with no error, which cost half an hour the first time.
+
+| Row | What it writes |
+|---|---|
+| Justify left / centre / right | `display: block` plus the two margins, on the picture or, once cropped, on its frame |
+| Crop… / Crop again… | Opens the drag overlay; Apply writes the frame |
+| Remove the crop | Unwraps back to a plain picture keeping the border, the shadow and the size |
+| Edit the raw HTML… | The existing frozen-block source editor |
+| Take this out of the statement | Deletes the block |
+
+**The rewrite is done on the STRING, never through the DOM.** This is not a style
+preference. Set `element.style.border` and read it back and `#555041` returns as
+`rgb(85, 80, 65)`; `160.00mm` returns as `160mm`. Both are correct CSS and neither is
+what Adam typed, so a single justify would rewrite every figure in the document and the
+next save would show forty changed lines. `Na__LeStmtFig__SplitStyle`, `ReadDecl` and
+`WriteDecl` work on the attribute text.
+
+### The crop is a frame, and three of its declarations are load-bearing
+
+A crop never touches the image file. It writes a fixed-size `div` with
+`overflow: hidden` holding the picture at full size, pushed left and up by what was
+trimmed, so Crop again re-picks from the whole original.
+
+```html
+<div style="zoom: 100%; display: block; overflow: hidden; box-sizing: content-box;
+            width: 169.21mm; height: 105.74mm; border: 10px solid #555041;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.8); margin-left: auto; margin-right: auto;">
+    <img src="./…/Location__Far__.png"
+         style="display: block; max-width: none; width: 188.00mm; margin-left: -18.79mm;" />
+</div>
+```
+
+- **`box-sizing: content-box`** — the editor sets border-box globally. Under it the 10 mm
+  olive border eats into the kept area and shaves a strip off the right and bottom of
+  every cropped figure. The trim is measured against the PICTURE, so the frame must be
+  sized by its content box.
+- **`max-width: none`** — `.na-le-stmt-doc img { max-width: 100% }` is right for an
+  ordinary figure and fatal here. A cropped picture is deliberately wider than its frame;
+  the clamp shrinks it back and the crop takes nothing away, leaving blank paper on the
+  right.
+- **`white-space: normal` on `.na-le-stmt-frozen__body`** (in the stylesheet, not the
+  markup) — Chrome gives every contenteditable element `white-space: pre-wrap` and it
+  inherits down, so the newline and indent before the `<img>` were drawn as a real line
+  and pushed the picture a line down inside its own frame. This was never only about
+  crops: **any** raw HTML block written across several lines had that gap in the editor
+  and not in the reader.
+
+None of the three is visible in the markup. All three were found by measuring the frame's
+content box against the picture's box in a rendered document — `Na__Test__StatementFigure__.html`
+checks the markup, and only a live render catches these.
+
+---
+
+## 11 · Proving the document matches Typora
+
+Adam's charge, 20-Sep: the fonts are not Open Sans, the heading sizes are nothing like
+Typora, the spacing at the top is wrong.
+
+**Do not argue this from reading two stylesheets.** `Na__Test__StatementTypography__.html`
+renders the same markup twice — once under `Na__Test__Reference__TyporaTheme__.css`, a
+copy of the real theme kept beside it so the reference cannot drift, and once under the
+statement stylesheet — and compares family, size, weight, style, colour and both margins
+across eighteen kinds of element. It also measures a text run to prove Open Sans is
+actually being drawn rather than a lookalike fallback.
+
+The strongest check is outside the harness and worth repeating whenever this is doubted:
+render the real RB05 statement under both stylesheets with html2canvas and hash the two
+PNGs. On 20-Sep-2026 they were **the same SHA-256**.
+
+**Three differences are stated, not tolerated silently:**
+
+- The theme never names a bare `code` or `pre` — only `.md-fences`, `.CodeMirror` and
+  `.code-tooltip`, which exist inside Typora and nowhere else. The statement applies the
+  theme's own fence values (06.50pt, `#202930`, `#f4f4f4`) to the elements a browser
+  actually gets.
+- The theme colours paragraphs `#3c3c3c` and leaves list items, cells and quotes to the
+  base stylesheet Typora loads underneath it. The statement carries that one colour
+  through the document, so a sentence does not change colour on becoming a bullet.
+- Monospace is Lucida Console first, the app's own, ahead of Courier New.
+
+### Two traps that make a correct document look wrong
+
+1. **The font console lies by omission.** The block in `Index.html` used to load three
+   named weights and print three fixed lines, written before the Medium (500) cut
+   existed — so it reported Regular, SemiBold and Light loaded while every heading was
+   asking for the fourth, and read like proof that 500 was missing when it had never been
+   asked for. It now loads all four and prints what `document.fonts.check` says for each,
+   including the word MISSING.
+2. **A stale stylesheet, which is what Adam was actually seeing.** The two statement
+   stylesheets used to be injected as `<link>` tags on first mount and were NOT in the
+   service worker precache list. Away from `localhost` the shell is served
+   stale-while-revalidate, so the first load after either file changed painted the
+   statement with the previous release's styling and only a second reload put it right —
+   wrong face, wrong heading sizes, loose spacing, and the `<hr>` drawn as an empty box.
+   Both are now in `PWA_SW_SHELL_PRECACHE_RELATIVE` so the version token governs them.
+
+**If the styling ever looks wrong again, check in this order:** is the statement CSS in
+the page at all (`document.querySelector('link[href*="Styles__Statement__Document"]')`),
+does `<hr>` render as a line or a box, and only then look at the stylesheet.

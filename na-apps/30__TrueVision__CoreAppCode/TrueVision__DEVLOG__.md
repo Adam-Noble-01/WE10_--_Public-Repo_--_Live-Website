@@ -2,6 +2,268 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.98.0  -  21-Sep-2026
+### A Viewport Would Not Take the Arrow-Key Axis Lock, Because It Was Never a "Move Drag" and Its Solver Had Its Own Private One
+
+**Overview**
+- Adam, 20-Sep: "Have a look at the viewports when unlocked and using the moving command. You
+  can't use the arrow keys to lock them to an axis and then infer vertices on other viewports or
+  vectors... you can do this with vertex-based vectors... Why doesn't it work with viewports?"
+- He was right, and it was not one fault but four, stacked. Any one of them alone would have been
+  enough to kill it - which is why it read as "viewports just don't do this".
+
+**The four**
+- `IsMoveDrag` DELIBERATELY EXCLUDES A VIEWPORT - it has its own reading and its own typed length
+  since v2.24.0 - and that exclusion was also, silently, the gate the arrow keys tested. So an
+  arrow pressed during a frame move matched nothing in `AxisKey`, fell through to the nudge, and
+  walked the very frame being dragged, through a NON-silent model write. The key did not do
+  nothing; it fought the pointer.
+- `ApplyDrag` computed the locked delta behind the same `IsMoveDrag` gate, and the viewport branch
+  then ignored it anyway, handing `DragPatch` the RAW delta.
+- `DragPatch`'s border branch ignores Shift altogether, so a frame moved without a grabbed point -
+  a 3D or raster viewport, snapping off, or a press away from the linework - had NO axis constraint
+  of any kind. Shift had never held such a frame. Nobody had noticed, because the carried move
+  (the usual way a 2D viewport is moved) handles Shift itself.
+- `Na__LeVpMove__Solve` kept its own `lock`, set only by Shift, and its own duplicate copies of the
+  two axis names. It never read the shared lock.
+
+**What was already right, and is the reason the fix is small**
+- Everything downstream of `Solve`'s `lock` was already correct: a snap supplying only the free
+  coordinate, tracking suppressed on the held axis, the base guide, the dashed level and plumb
+  lines. The behaviour was built. It had ONE input where a vertex has two.
+
+**The fifth fault, which was the one that actually mattered**
+- Even with the lock plumbed through, the thing Adam asked for still could not happen: `Solve`
+  searched for a snap from the CONSTRAINED point. With an axis held, the only points within reach
+  were the ones already sitting on that axis - so sliding along the lock until a corner clear
+  across the sheet lines up, which is the entire purpose of the lock, could never find that corner.
+  A vertex drag has always searched from the FREE cursor and applied the lock to what it found.
+  Viewports now do the same. Measured on RB05 Sheet_001: the old search from the constrained point
+  returns NULL at the reference point; the new one returns it.
+
+**Proved in the app, not by reading**
+- RB05 `Sheet_001`, four 2D viewports, `Viewport_003` carried by a midpoint of its own linework:
+  - Arrow Left mid-drag takes the lock on the KEY PRESS (Y snapped back the instant it was pressed,
+    not on the next mouse move) and Y then held to 3 decimal places for the rest of the drag.
+  - With X locked, the cursor put on a point of `Viewport_004` 296 mm BELOW the axis: the carried
+    point landed on that point's x exactly (106.338) with its own y untouched (197.206).
+  - Arrow Up is the mirror image: x held at 131.226, y inferred to 493.098.
+  - An uncarried border move: 90 mm across, 0.000 down, under the arrow lock AND under Shift.
+  - Regressions: with nothing dragging, an arrow still nudges a selected viewport (and only on the
+    one axis); a corner crop handle with Shift still crops both axes (-51.97 W, -34.65 H), proving
+    the handle path still gets the raw delta.
+- NOT YET CONFIRMED BY ADAM. The on-screen guides could not be judged from a hidden browser pane -
+  the geometry is proven, the guide elements carry correct live coordinates, but their shown/hidden
+  state is not readable while the handles layer is torn down and rebuilt each frame. The guide code
+  itself is untouched; an arrow lock feeds it exactly what a Shift hold already did.
+
+**Files**
+- `51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js` (1.2.0)
+- `51__System__LayoutEditor/30__System__SheetTools/Na__LayoutEditor__SheetTools__PointerDrag__.js` (1.7.0)
+- `51__System__LayoutEditor/30__System__SheetTools/Na__LayoutEditor__SheetTools__Keyboard__.js`
+- `51__System__LayoutEditor/30__System__SheetTools/Na__LayoutEditor__AxisLock__.js` (integration note)
+
+**Not in ValeVision yet.**
+
+# ---------------------------------------------------------
+## TrueVision3D v2.97.0  -  20-Sep-2026
+### A Picture in a Statement Can Now Be Placed and Trimmed From Its Own Right-Click Menu, and the Document Finally Proves It Matches Typora Rather Than Claiming To
+
+**Overview**
+- Adam, 20-Sep, on the Statement Writer: "When you right-click on an image, have the ability to
+  open up a crop tool or to justify. Have options for Justify Left, Middle, and Right. Make a
+  right-click context menu, and the options you pick regenerate the code for the HTML in this
+  section."
+- Then, on seeing the page: "The fonts are incorrect. Why aren't you using the correct Open Sans
+  fonts? The header sizes are all fucked up as well. The spacing at the top is all messed up. Go
+  back to the original CSS file I gave you from Typora and respect it more."
+- The second half turned out not to be a styling fault at all, and the way it was proved is the
+  part worth keeping - see **The document was right and could not show it** below.
+
+**The picture menu**
+- Right-click any picture in the editor. The menu is the app's own `Na__ContextMenu__Ui__Open`, so
+  it looks and behaves like every other one: Justify left / centre / right with the current one
+  ticked, Crop, Edit the raw HTML, and Take this out of the statement. A cropped picture gets two
+  different rows instead - Crop again and Remove the crop.
+- EVERY OPTION REWRITES THE BLOCK'S OWN HTML, which is the whole point. A figure in these
+  statements is hand-written and carries a zoom, a 10 mm olive border and a drop shadow; a menu
+  that justified a picture by bolting a class on it, or by rewriting the markup in the browser's
+  own idea of CSS, would be worse than no menu. So the rewrite is done ON THE STRING. Reading a
+  style back through the DOM returns `rgb(85, 80, 65)` for `#555041` and `160mm` for `160.00mm`,
+  and after one justify the file would no longer be the file Adam wrote.
+
+**The crop is non-destructive and is a frame, not a new picture**
+- Dragging any of eight grips over the picture picks the part to keep, with the kept size shown
+  live in millimetres. Applying writes a fixed-size `div` with `overflow: hidden` holding the
+  picture at its full size, pushed left and up by what was trimmed. The image file is never
+  touched, Crop again re-picks from the whole original, and Remove the crop puts back a plain
+  picture carrying the border and the shadow it came in with.
+- THREE DECLARATIONS IN THAT FRAME LOOK LIKE NOISE AND ARE LOAD-BEARING, and all three were
+  invisible in the markup and only appeared in a rendered document:
+  - `box-sizing: content-box` - the editor sets border-box on everything, and under that the 10 mm
+    olive border eats into the kept area and shaves a strip off the right and the bottom of every
+    cropped figure.
+  - `max-width: none` on the picture - the document stylesheet clamps pictures to 100 per cent,
+    which is right for an ordinary figure and fatal here. A cropped picture is deliberately WIDER
+    than the frame holding it, and the clamp shrank it back to the frame, so the crop took nothing
+    away and left blank paper down the right-hand side.
+  - and on the frozen block itself, `white-space: normal`. Chrome gives every contenteditable
+    element `white-space: pre-wrap` and it inherits all the way down, so the newline and the indent
+    in front of the picture inside the frame were drawn as a real line and pushed the picture a line
+    down inside its own frame. That one was never only about crops: any hand-written block written
+    across several lines had the same gap in the editor and not in the reader, which is the worst
+    way for it to be wrong.
+
+**The document was right and could not show it**
+- The charge was that none of the fonts were Open Sans and the heading sizes were nothing like
+  Typora, with the app's own console offered as evidence: Regular, SemiBold and Light loaded, no
+  Medium. The console was not evidence. That block in `Index.html` asks for three named weights and
+  then prints three fixed lines, and it was written before the Medium cut existed - so it reported
+  three faces loaded while every heading in the document was asking for the fourth. It now loads
+  all four and prints what `document.fonts.check` actually says for each, including the word
+  MISSING, so it can never again read like proof of something it never looked at.
+- The styling itself was then measured rather than argued about. `Na__Test__StatementTypography__.html`
+  renders the SAME markup twice - once under a copy of Adam's real Typora theme, once under the
+  statement stylesheet - and compares family, size, weight, style, colour and both margins on
+  eighteen kinds of element. Everything matches. Then the real RB05 pre-application statement was
+  rendered under both stylesheets and photographed: the two PNGs have the SAME SHA-256. Not close;
+  the same file.
+- Three differences are stated in that harness with their reasons rather than quietly tolerated.
+  The theme never names a bare `code` or `pre` - only `.md-fences` and `.CodeMirror`, which exist
+  inside Typora and nowhere else - so the statement applies the theme's own fence values to the
+  elements a browser actually gets. Likewise the theme colours paragraphs `#3c3c3c` and leaves list
+  items, cells and quotes to the base stylesheet Typora loads underneath it; the statement carries
+  that one colour through the document so a sentence does not change colour on becoming a bullet.
+
+**So what was Adam looking at? A stale stylesheet**
+- The two statement stylesheets were injected as `link` tags the first time the tab was mounted,
+  deliberately, so that anyone who never writes a statement never downloads them. That saving was
+  54 KB and it bought a bug. Off the precache list they are ordinary shell requests, and away from
+  `localhost` the shell is served stale-while-revalidate - so the FIRST load after either file
+  changed painted the statement with the PREVIOUS release's styling and only a second reload put it
+  right. Wrong face, wrong heading sizes, loose spacing at the top, and a horizontal rule drawn as
+  an empty box: every symptom, exactly.
+- Both sheets now sit in `PWA_SW_SHELL_PRECACHE_RELATIVE`, so the version token governs them like
+  everything else and a bump evicts them outright. Token bumped to `2026-09-20-13`.
+
+**Files**
+- `02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/04__Ui__Editor/Na__LayoutEditor__Statement__Editor__Figure__.js` - new; the menu, justify, crop, uncrop
+- `.../08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__.css` - crop overlay, and `white-space: normal` on a frozen block
+- `02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` - statement stylesheets precached, token bumped
+- `Index.html` - the font report names every face and tells the truth about each
+- `80__Testing__PrototypeEnvironment/Na__Test__StatementTypography__.html` - new; the document measured against the theme
+- `80__Testing__PrototypeEnvironment/Na__Test__Reference__TyporaTheme__.css` - new; a copy of the real theme, so the reference cannot drift
+- `80__Testing__PrototypeEnvironment/Na__Test__StatementFigure__.html` - the markup rules, including the three load-bearing declarations
+
+**Not yet done**
+- Not tried by Adam, and not in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.96.0  -  20-Sep-2026
+### The Bar Belongs Under the Far Corner of the Building, Not Under the Title, So the Far End Is Now the End That Is Held
+
+**Overview**
+- Adam, 20-Sep, over a marked-up PS01 elevation with a green arrow drawn from the drawing title
+  clear across the sheet to a scale bar sitting under the building's right-hand corner: "Can you
+  see that the measuring bar is under the title here? We need a version where the bar is to the
+  right of it, and then there is an extra parameter where you can increase or decrease the step in
+  between by increments of 50 mm. Add the handle for stretching where I've shown here in blue, and
+  make sure I can infer the projected line work vertices so I can drag it from point A to, say, the
+  corner of that building. You need to reverse the extending thing so it extends the other way
+  round, so I can drag the other end of the bar to a larger value back towards the title." And,
+  separately: "these are a bit too dark on the page. The filled sections on all of the parametric
+  rulers make 20% lighter."
+- Four asks, and the third and fourth only make sense together. A bar stood under a building's far
+  corner has to STAY under it, which means the end that is placed is the end that must not move -
+  so the grip that places it is on the far end, and the grip that lengthens it is on the near one
+  and runs backwards. That one sentence decides everything below, and it is written at the top of
+  the drawing title module so the next reader does not have to rediscover it.
+
+**Where it lands** - measured off Adam's own mock-up, not designed
+- The mock-up was read at 4.10 px/mm, calibrated against the 100 mm bar and the 2 mm checker in the
+  same image. The bar's top stands 3.631 mm ABOVE the underline - which is the title's own
+  `TextBaselineAboveUnderlineMm` (1.631) plus the bar's 2 mm, so THE BAR'S FOOT SITS EXACTLY ON THE
+  TITLE'S BASELINE and the two read as one band across the foot of the drawing. Measured 15.5 px,
+  predicted 14.9: half a pixel of antialiasing. It is a rule, not a number Adam happened to drop it
+  at, and `Meta__BarRight` in the config records where it came from.
+
+**BarOffsetMm is measured from the ORIGIN, and that is a deliberate departure from the words**
+- Adam called it "the step in between", and the obvious build is the clear gap from the end of the
+  underline to the bar. It is not built that way. The underline GROWS TO FIT its title and its
+  drawn length is never stored - it comes from the browser's text metrics at build time. A gap hung
+  off that end would shove the bar sideways the moment a drawing was retitled, which is precisely
+  what must not happen to a bar that has been put under a corner. `stretchTo` and `slideTo` are
+  also handed no way to measure text, so an origin-relative offset keeps both of them pure
+  arithmetic.
+- So the stored parameter is where the bar's ZERO END stands, from the element's own origin. The
+  panel calls it Bar position (mm) and says underneath exactly what it is measured from. The 50 mm
+  step Adam asked for is the spinner's and a free drag's; a drag that lands on a snapped vertex is
+  exact and ignores it.
+
+**The two grips swap ends**
+- SLIDE, a double arrow on the far end: carries the bar along without changing its length, and it
+  is the one that snaps. `Na__LeOsnap__Snap` in the vertex tone - the same search the Draw tool
+  uses, so the projected linework of the drawing above is found first and the sheet's own vectors
+  after it. A slide moves along one line, so a corner two metres above decides its x and nothing
+  else; a dashed guide is drawn from the vertex down to the bar for the length of the drag, or
+  there is no saying WHICH corner the end has been put under.
+- STRETCH, on the near end, pointing back at the title: dragging it towards the title adds
+  divisions and pulls the offset back by the same amount, so the far end does not move. The arrow
+  is the same polygon mirrored, never a second one, so the two cannot drift apart.
+- LOOKUP steps up over the bar's near end, where nothing of the element is - the numerals are all
+  underneath - because the stretch arrow has taken its old place.
+- One drag state carries which of the two is in hand. Holding, the live rebuild, the single undo
+  step, cancel and Escape are identical for both; only the question put to the type is branched on.
+
+**Found on the sheet, not by the unit tests**
+- THE SLIDE GRIP SITS ON THE BAR'S OWN FAR CORNER, so the first drag asked the snapping module for
+  the nearest vertex to a point that WAS one of its own vertices, got it back at distance
+  0.0000 mm, and the bar locked onto itself. Proved directly rather than reasoned about: the same
+  point searched with and without an exclusion returns its own `Shape__195` at 0.0000 mm, or a
+  neighbour's vertex 2.8358 mm away. The snapping module already took the exclusions a selection
+  move passes; the grips module now hands it the element's own vectors, taken once when the arrow
+  is picked up. The Node tests could never have caught this - they do not know where the grip is.
+
+**The checker is 20% lighter** - `#666666` to `#858585`
+- One value, `ScaleBar__FillColour`, so every parametric bar in both placements changes together,
+  and the module's own fallback with it. Read as a fifth of the way from the measured grey to
+  white. The MEASURED value is still recorded in `Meta__HouseBar` beside the new one and why it
+  changed, because that block is the record of what Adam drew by hand, not of what the app draws.
+
+**A fifth tile, and any title can be switched**
+- `BarPlacement` is a parameter of the existing Drawing Title, not a new element type, so an
+  existing title changes either way from the panel or the lookup menu and the new tile - "Drawing
+  Title + Scale Bar to the Right" - is only a preset of it. The record order is unchanged in both
+  placements (the underline is vector one, the title is text one), so switching regenerates in
+  place with nothing re-keyed.
+
+**Tested**
+- Node, `Na__Test__ScrapbookDrawingTitle__.test.mjs`, grown from 45 checks to 73. The one that
+  matters drives the divisions 3 to 9 to 11 to 3 to 7 and asserts THE FAR END HAS NOT MOVED at each
+  step. Also: the foot on the baseline to a millionth, the offset unmoved by a longer title, a bar
+  placed below byte-identical to what it was, a slide stepping in 50 mm, a slide landing exactly on
+  a snapped vertex, the limits, and the offset kept to a thousandth so a rebuild writes the same
+  number. `Na__Test__ScrapbookScaleBar__.test.mjs` carries the new fill.
+- In the app on PS01 D02 (`Sheet_001`, six real 1:50 elevation viewports), fetch guarded: drop and
+  auto-link to the East elevation, the four grips each where the type says, a free slide stepping
+  in 50 mm, a snapped slide with its dashed guide drawn from the vertex to the bar, the reversed
+  stretch holding the far end through every division, Escape putting it back byte-identical, and
+  the panel's two new controls. ZERO write attempts all session; the local draft was cleared
+  afterwards.
+
+**Service worker**
+- The token was bumped to `2026-09-20-10` for this release: a client warm at `-9` would hold a
+  Drawing Title module with no `PLACE_BELOW` or `PLACE_RIGHT` export and a Grips module that never
+  imported the snapping module, beside a new panel and a new grips module that name both - an
+  import failure that takes the editor down until the second visit. Another session moved it on to
+  `-11` the same afternoon, which covers this release too; `-10`'s note is kept in the worker's own
+  log as the record of why it was needed.
+
+**Not done**
+- Adam has not tried it. It is not in ValeVision. The reversed stretch deliberately does not snap -
+  divisions are its own rule, and the snap was asked for on the placing end.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.95.0  -  20-Sep-2026
 ### The Statements a Project Is Won On Were the One Document the App Could Not Open, So It Now Writes Them
 
@@ -137,6 +399,17 @@
   cleaned up and obeyed.
 - **THE 8090 SERVER MUST BE RESTARTED** before any of that answers: started without `--debug` it
   holds the routes it had when it started, and a new route replies 405 until it does.
+- AND THE TAB NOW SAYS SO BEFORE ANY WORK IS LOST. Adam hit this within minutes: he typed a title,
+  pressed Create, and got the 405. The toast was accurate, but the tab had already told him
+  something worse and quieter — the listing route is a **GET**, so a server without it does not
+  answer 405 at all; the static file route takes the URL and answers 404. The listing came back
+  empty, the tab read "This project has no statements yet" **over a folder holding one**, and the
+  naming preview offered `01__…` beside the `01__PreApp__Statement` already there.
+  So a failed listing is no longer read as an empty folder: the server is asked who it is
+  (`/api/health`), and a ProjectVision server missing the routes gets a red alert at the top of the
+  tab the moment it opens, with Create withdrawn and the reason given in the manager. An action
+  known to fail is not offered. Verified both ways — stale server: alert shown, Create gone; real
+  server: no alert, 314 entries listed, and the preview correctly offering `02__` / `S02`.
 
 **The repository was one `git add` from a very bad day**
 - `10__StatementDocs` was untracked and NOT ignored. RB05 alone holds 713 MB there. The repository

@@ -402,6 +402,16 @@
         "8841"
       ],
       "port": 8841
+    },
+    {
+      "name": "tv-vpaxis",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8852",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8852
     }
   ]
 }

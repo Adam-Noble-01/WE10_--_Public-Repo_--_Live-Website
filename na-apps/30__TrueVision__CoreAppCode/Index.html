@@ -116,15 +116,27 @@
             if ('fonts' in document) {
                 // Modern Font Loading API
                 // ------------------------------------
-                Promise.all([
-                    document.fonts.load('400 1em "Open Sans"'),
-                    document.fonts.load('600 1em "Open Sans"'),
-                    document.fonts.load('300 1em "Open Sans"')
-                ]).then(function() {
+                // THE LIST BELOW IS THE WHOLE FAMILY, not a sample of it. It used to
+                // name 400, 600 and 300 only, which was written before the Medium cut
+                // existed - so the console reported three faces loaded while the
+                // document headings were all asking for the fourth, and the log read
+                // like proof that 500 was missing when it had simply never been asked
+                // for. Report what is actually there, face by face.
+                var Na__FontFaces = [
+                    { weight : 300, name : 'Light'    },
+                    { weight : 400, name : 'Regular'  },
+                    { weight : 500, name : 'Medium'   },
+                    { weight : 600, name : 'SemiBold' }
+                ];
+                Promise.all(Na__FontFaces.map(function (face) {
+                    return document.fonts.load(face.weight + ' 1em "Open Sans"');
+                })).then(function() {
                     console.log('=== Custom Fonts Loaded ===');
-                    console.log('Open Sans Regular (400) - Loaded');
-                    console.log('Open Sans SemiBold (600) - Loaded');
-                    console.log('Open Sans Light (300) - Loaded');
+                    Na__FontFaces.forEach(function (face) {
+                        var there = document.fonts.check(face.weight + ' 1em "Open Sans"');
+                        console.log('Open Sans ' + face.name + ' (' + face.weight + ') - '
+                                  + (there ? 'Loaded' : 'MISSING - the browser will fake this weight'));
+                    });
                     console.log('===========================');
                 }).catch(function(error) {
                     console.warn('Font loading failed, using fallback fonts:', error);

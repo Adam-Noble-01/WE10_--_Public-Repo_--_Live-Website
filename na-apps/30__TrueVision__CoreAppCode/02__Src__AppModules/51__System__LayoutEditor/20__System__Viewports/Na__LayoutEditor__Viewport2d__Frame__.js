@@ -89,6 +89,9 @@
     import { Na__LeCfg__GetLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeSnap__Render2d, Na__LeSnap__GetPipelineFingerprint } from '../25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js';
     import { Na__LeComposite__Weight } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
+    import { Na__LeEdge__Effective } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LeModelLayers__IsOn } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
+    import { Na__PlCfg__GetLineworkModifiers } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__LeRaster__Working, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     // ------------------------------------------------------------
 
@@ -143,8 +146,67 @@
             profilePx   : Na__LeComposite__Weight(viewport, 'profileLinework'),
             sectionPx   : Na__LeComposite__Weight(viewport, 'sectionOutline'),
             modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage'),
-            enhancePct  : Na__LeComposite__Weight(viewport, 'enhanceWhitecard')
+            enhancePct  : Na__LeComposite__Weight(viewport, 'enhanceWhitecard'),
+            modifiers   : Na__LeVp2d__RasterModifiers(viewport)                   // <-- Nested detail tags, resolved for the Base Image
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | How the Base Image Should Draw Each Nested Detail Tag
+    // ------------------------------------------------------------
+    // THE RASTER DREW EVERY EDGE AT ONE FLAT WIDTH. The Base Image is the
+    // model's own SketchUp edges, and the snapshot renderer used to flatten
+    // every linework material to modelEdgePx - so a LineworkModifier detail
+    // (SSOT 76-79) drew exactly as heavy as the wall it sits in, however it was
+    // styled or switched in the Model Layers panel. The vectors over the top
+    // obeyed the panel; the picture underneath did not, which reads as the
+    // feature doing nothing at all.
+    //
+    // Resolved HERE, not in the renderer, because this is where the viewport is
+    // in hand: the weight factor and colour are the same per-viewport values the
+    // vectors use, so the two halves of the drawing finally agree. Every
+    // Render2d call site already passes this object, so nothing downstream
+    // changes shape.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__RasterModifiers(viewport) {
+        const rows = Na__PlCfg__GetLineworkModifiers();
+        if (!Array.isArray(rows) || rows.length === 0) return null;
+
+        const byTag = [];
+        rows.forEach((row) => {
+            if (!row || typeof row.TagName !== 'string' || typeof row.OwnerKey !== 'string') return;
+            const style = Na__LeEdge__Effective(viewport, row.OwnerKey);
+            byTag.push({
+                TagName     : row.TagName,
+                hidden      : Na__LeModelLayers__IsOn(viewport, row.OwnerKey) === false,
+                widthFactor : Number.isFinite(style.weight) ? style.weight : 1,
+                hex         : style.hex
+            });
+        });
+        return byTag.length > 0 ? byTag : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Cache Key for How the Base Image Draws the Detail Tags
+    // ------------------------------------------------------------
+    // The underlay key already carries the Model Layers token, so switching a
+    // detail row OFF re-renders the picture. It does NOT carry the edge styles,
+    // because until now the raster ignored them entirely - and now that it
+    // honours them, a weight or colour change would leave the old picture on
+    // screen with the new vectors over it. That is precisely the kind of stale
+    // cache that reads as "the setting does nothing".
+    //
+    // Deliberately NARROW: the modifier rows only, not Na__LeEdge__Token, so
+    // restyling an ordinary category still costs no raster re-render. Empty
+    // when a project has no detail tags, and the caller appends it only when
+    // set, so every existing key is unchanged.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__RasterModifierToken(viewport) {
+        const rows = Na__LeVp2d__RasterModifiers(viewport);
+        if (!rows) return '';
+        return rows.map((r) => r.TagName + ':' + (r.hidden ? 'off' : r.widthFactor + ':' + r.hex)).join('|');
     }
     // ------------------------------------------------------------
 
@@ -434,6 +496,7 @@
         Na__LeVp2d__Linework,
         Na__LeVp2d__PathCache,
         Na__LeVp2d__RasterWeights,
+        Na__LeVp2d__RasterModifierToken,
         Na__LeVp2d__SizeLayer,
         Na__LeVp2d__State,
         Na__LeVp2d__PlaceUnderlay,

@@ -68,8 +68,8 @@
 
     // MODULE IMPORTS | Config and the Sampler's Name Matching
     // ------------------------------------------------------------
-    import { Na__PlCfg__GetSkipObjectNames } from './Na__ProjectedLinework__ConfigAccess__.js';
-    import { Na__PlSampler__NameMatches } from './Na__ProjectedLinework__StageSampler__.js';
+    import { Na__PlCfg__GetSkipObjectNames, Na__PlCfg__GetLineworkModifiers } from './Na__ProjectedLinework__ConfigAccess__.js';
+    import { Na__PlSampler__NameMatches, Na__PlSampler__ModifierOwnerFor } from './Na__ProjectedLinework__StageSampler__.js';
     import { Na__PlOwners__IdFor }         from './Na__ProjectedLinework__Owners__.js';
     // ------------------------------------------------------------
 
@@ -188,6 +188,7 @@
 
         const excludeTokens = (rules && rules.excludeTokens) || [];
         const skipNames     = Na__PlCfg__GetSkipObjectNames();
+        const modifiers     = Na__PlCfg__GetLineworkModifiers();                 // <-- Nested detail tags that own their linework node
 
         modelRoot.updateMatrixWorld(true);
 
@@ -217,18 +218,29 @@
             if (Na__PlSampler__NameMatches(object3d.name, skipNames)) continue;
 
             if (isLinework) {
-                const ownerId  = ownerTable ? Na__PlOwners__IdFor(ownerTable, entry.category) : 0;
-                const runStart = collected.length;
+                // PER NODE, NOT PER ROOT. The GlbBuilder used to flatten a
+                // category's whole linework into one unnamed node, so every
+                // authored edge could only ever be tagged with the category it
+                // arrived in. It now gives each nested LineworkModifier tag
+                // (SSOT 76-79) a node of its own, named with that tag, so a
+                // stonework or joinery detail drawn inside a wall can be styled
+                // and switched apart from the wall. Anything without a modifier
+                // name still falls to entry.category, exactly as before, which
+                // is also what an older GLB written as one flat node does.
+                const categoryOwnerId = ownerTable ? Na__PlOwners__IdFor(ownerTable, entry.category) : 0;
                 object3d.traverse((node) => {
                     if (node.visible === false) return;
-                    if (node.isLineSegments2 === true || node.isLineSegments === true || node.isLine === true) {
-                        Na__PlAuthored__PushSegments(node, collected);
-                    }
-                });
-                if (owners) {
-                    const added = (collected.length - runStart) / 6;
+                    if (node.isLineSegments2 !== true && node.isLineSegments !== true && node.isLine !== true) return;
+
+                    const runStart = collected.length;
+                    Na__PlAuthored__PushSegments(node, collected);
+                    if (!owners) return;
+
+                    const modifierKey = Na__PlSampler__ModifierOwnerFor(node, modifiers);
+                    const ownerId     = modifierKey ? Na__PlOwners__IdFor(ownerTable, modifierKey) : categoryOwnerId;
+                    const added       = (collected.length - runStart) / 6;
                     for (let k = 0; k < added; k++) owners.push(ownerId);
-                }
+                });
                 continue;                                                        // <-- The root's subtree is done
             }
 

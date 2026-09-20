@@ -199,6 +199,33 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Whole-Model Key a Storey Category Is the Same Thing As
+    // ------------------------------------------------------------
+    // A STOREY EXPORT NAMES ITS CATEGORIES DIFFERENTLY, and this file only ever
+    // listed the whole-model names. The SSOT builds both from the same token:
+    // Glb__ExportFileNameStem is "TrueVision__MainBuildingModel__" + the tag's
+    // Storey__ElementExportName, and a storey export loads as
+    // "Storey__<Storey>__" + that same element. So the two differ ONLY in the
+    // prefix, and "Storey__FirstFloor__ProposedWindows" is the same kind of
+    // thing as "TrueVision__MainBuildingModel__ProposedWindows".
+    //
+    // Without this every storey category missed the index and fell to the edge
+    // module's black / solid / 1.00 fallback - so on any storey-exported project
+    // (which is every project modelled with storey containers) the whole
+    // configured hierarchy below, windows at 0.80 and furniture at 0.50, had
+    // never once applied. Found 20-Sep-2026.
+    // ------------------------------------------------------------
+    function Na__LeModelLayers__StoreyEquivalentKey(categoryKey) {
+        if (typeof categoryKey !== 'string') return null;
+        const match = categoryKey.match(/^Storey__[^_]+(?:_[^_]+)*?__(.+)$/);
+        if (!match) return null;
+        const block  = Na__LeModelLayers__Config ? Na__LeModelLayers__Config['LayoutEditor__ModelLayers__Fallback'] : null;
+        const prefix = (block && block['Fallback__StoreyElementPrefix']) || 'TrueVision__MainBuildingModel__';
+        return prefix + match[1];
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Configured Edge Style for One Category (null When Unlisted)
     // ------------------------------------------------------------
     // Null is a real answer, not a failure: a category the model loaded that this
@@ -207,7 +234,11 @@
     // ------------------------------------------------------------
     function Na__LeModelLayers__EdgeDefault(categoryKey) {
         if (!Na__LeModelLayers__EdgeIndex) Na__LeModelLayers__BuildEdgeIndex();
-        return Na__LeModelLayers__EdgeIndex.get(categoryKey) || null;
+        const direct = Na__LeModelLayers__EdgeIndex.get(categoryKey);
+        if (direct) return direct;
+
+        const equivalent = Na__LeModelLayers__StoreyEquivalentKey(categoryKey);   // <-- A storey category wears the whole-model row's style
+        return (equivalent ? Na__LeModelLayers__EdgeIndex.get(equivalent) : null) || null;
     }
     // ------------------------------------------------------------
 

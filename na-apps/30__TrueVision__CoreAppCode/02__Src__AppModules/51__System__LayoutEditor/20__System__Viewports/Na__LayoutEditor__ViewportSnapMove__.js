@@ -30,9 +30,14 @@
 //   their intersection. This is AutoCAD's object snap tracking, and it is what
 //   lines two elevations up side by side without ever laying one over the
 //   other, or drops a plan straight above its elevation.
+// - LOCK THE AXIS WITH AN ARROW KEY, as on a vector's vertex: left or right
+//   holds the frame to X, up or down to Y, the same key again releases it, and
+//   nothing has to be held down - so a hand can come off the mouse to rest on a
+//   reference or type a length. A snap or a tracking line then only supplies
+//   the coordinate along the FREE axis, which is what lines a drawing up with a
+//   corner clean across the sheet without pulling it off the axis.
 // - SHIFT holds the move to the nearer axis, as it does for every other drag;
-//   a snap or a tracking line then only supplies the coordinate along the
-//   free axis.
+//   the arrow key beats it, because Shift's axis changes with the cursor.
 // - THE CARRIED FRAME GOES TO MULTIPLY while it moves, so the drawing
 //   underneath shows through it and its corners can be aimed at.
 // - SNAPPING OFF (F3) turns all of this off: a press anywhere on a viewport
@@ -71,6 +76,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0
+// - THE ARROW-KEY LOCK REACHES A CARRIED VIEWPORT. Solve had its own private
+//   `lock`, set only by Shift, and its own duplicate axis names; it now reads
+//   the shared Na__LayoutEditor__AxisLock__ first and falls to Shift only when
+//   no arrow has named an axis. Everything downstream already threaded `lock`
+//   correctly - the snap supplying the free coordinate, tracking suppressed on
+//   the held axis, the base guide - so the behaviour was built and had one
+//   input where a vertex has two.
+// - THE SNAP SEARCH RUNS FROM THE FREE CURSOR RATHER THAN THE HELD POINT.
+//   Looking from the constrained point meant that with an axis held, the only
+//   points in reach were ones already on that axis, so the one thing the lock
+//   is for - sliding along it until a corner across the sheet lines up - could
+//   never find that corner. This is how a vertex drag has always searched.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - The snap marker shows in the viewport tone, purple, on hover and while
 //   carrying, and the carried point's ring, the tracking crosses and the
@@ -108,6 +127,7 @@
         Na__LeOsnap__ShowMarker,
         Na__LeOsnap__HideMarker
     } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeAxis__AXIS_X, Na__LeAxis__AXIS_Y, Na__LeAxis__Get } from '../30__System__SheetTools/Na__LayoutEditor__AxisLock__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -123,8 +143,9 @@
     const Na__LeVpMove__BASE_CLASS    = 'na-le-carry-base';
     const Na__LeVpMove__POINT_CLASS   = 'na-le-track-point';
     const Na__LeVpMove__GUIDE_CLASS   = 'na-le-track-guide';
-    const Na__LeVpMove__AXIS_X        = 'x';                                   // <-- A level line: the two points share a y
-    const Na__LeVpMove__AXIS_Y        = 'y';                                   // <-- A plumb line: the two points share an x
+    const Na__LeVpMove__AXIS_X        = Na__LeAxis__AXIS_X;                    // <-- A level line: the two points share a y
+    const Na__LeVpMove__AXIS_Y        = Na__LeAxis__AXIS_Y;                    // <-- A plumb line: the two points share an x
+                                                                               //     The shared lock's own names, so an arrow key and a Shift hold speak the same two words
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Carry in Progress, Tracking Points and Their Elements
@@ -417,16 +438,36 @@
         const base  = drag.baseMm;
         let dx = cursorMm.x - drag.startMm.x;
         let dy = cursorMm.y - drag.startMm.y;
-        let lock = null;
-        if (shift) {
+
+        // WHICH AXIS IS HELD, AND WHO SAID SO. An arrow key names it outright and
+        // keeps naming it with nothing held down, which is what lets a hand come
+        // off the mouse to rest on a reference point or type a length; Shift only
+        // guesses, from wherever the cursor happens to be. The arrow wins, exactly
+        // as it does for a vertex (Na__LayoutEditor__AxisLock__). Either way `lock`
+        // means the same thing from here on: a snap or a tracking line may supply
+        // the coordinate along the FREE axis only, never pull the frame off the
+        // held one.
+        // ------------------------------------
+        let lock = Na__LeAxis__Get();
+        if (lock === Na__LeVpMove__AXIS_X)      dy = 0;
+        else if (lock === Na__LeVpMove__AXIS_Y) dx = 0;
+        else if (shift) {
             if (Math.abs(dx) >= Math.abs(dy)) { dy = 0; lock = Na__LeVpMove__AXIS_X; }
             else                              { dx = 0; lock = Na__LeVpMove__AXIS_Y; }
         }
         const wanted = { x : base.x + dx, y : base.y + dy };
+        const free   = { x : base.x + (cursorMm.x - drag.startMm.x), y : base.y + (cursorMm.y - drag.startMm.y) };
 
         // 1. SNAP | Onto a corner or a midpoint of another drawing
         // ------------------------------------
-        const hit = Na__LeOsnap__Find(sheet, wanted, { kind : 'viewport', id : drag.id });
+        // THE SEARCH RUNS FROM THE FREE CURSOR, NOT THE HELD POINT. Looking
+        // from `wanted` meant that with an axis held, the only points within
+        // reach were the ones already sitting on that axis - so the one thing
+        // the lock is for, sliding along it until a corner across the sheet
+        // lines up, could never find that corner. The cursor goes to the
+        // corner, the snap reads it, and the lock below keeps only its free
+        // coordinate. Unheld the two points are the same, so nothing changes.
+        const hit = Na__LeOsnap__Find(sheet, free, { kind : 'viewport', id : drag.id });
         Na__LeVpMove__Watch(sheet, hit);
         if (hit) {
             const at = { x : lock === Na__LeVpMove__AXIS_Y ? wanted.x : hit.x, y : lock === Na__LeVpMove__AXIS_X ? wanted.y : hit.y };

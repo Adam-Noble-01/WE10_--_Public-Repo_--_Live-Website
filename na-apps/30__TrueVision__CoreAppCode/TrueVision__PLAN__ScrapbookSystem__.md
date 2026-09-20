@@ -6,6 +6,8 @@
 Section 9 is the live ledger; section 10 audits the original brief against what exists.
 Section 12 (20-Sep-2026, v2.91.0) is a fourth library, the Specification Scrapbook, on a new
 Specification tab in the LEFT column - built and tested by Claude, not yet tried by Adam.
+Section 13 (20-Sep-2026, v2.96.0) is the drawing title with its scale bar stood away TO THE RIGHT,
+held by its far end - built and tested by Claude, not yet tried by Adam, not in ValeVision.
 
 Adam's brief (19-Sep-2026): "I need a way to be able to save and insert common elements, but we
 need two versions in the main drawings: a custom scrapbook, and a parametric element scrapbook.
@@ -92,7 +94,7 @@ the same again in ValeVision.
         Na__LayoutEditor__ScrapbookParametric__ScaleBar__.js   Na__LeParamBar    element one: parameters in, records out
         Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js  Na__LeParamLink  THE LINK TO THE VIEWPORT SYSTEM
         Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js Na__LeParamTitle the drawing title: title, underline, optional bar, written from its viewport's facts
-        Na__LayoutEditor__ScrapbookParametric__Grips__.js      Na__LeParamGrips  the stretch grip and the lookup grip
+        Na__LayoutEditor__ScrapbookParametric__Grips__.js      Na__LeParamGrips  the stretch grip, the slide grip (section 13) and the lookup grip
         Na__LayoutEditor__ScrapbookParametric__LinkNoodle__.js Na__LeParamNoodle the noodle to what an element is tied to, and the socket that re-ties it
         Na__LayoutEditor__ScrapbookParametric__Config__.json
         Na__LayoutEditor__Panel__ScrapbookParametric__.js      Na__LePanelParam  the library section and the properties section
@@ -363,6 +365,8 @@ first so it is theirs by default. The left column is back to the sheet and its l
 | 20-Sep-2026 | TWO FAULTS FOUND BY THE VALEVISION TEST. (1) ValeVision only: the north compass was rendered into a sheet's 3D viewport - the mode controller collapses every dev panel by class before it announces a sheet, so a listener that first asked "is my panel open?" always heard no. TrueVision is safe because its compass is an interactive overlay. (2) BOTH APPS: the plug's dot stayed at the far end of a noodle that was no longer there for the length of a drag; it is a grip element, not part of the noodle's drawing. Now hidden while either end is carried (4.6). `LinkNoodle__` stays 1.2.0 - it had not shipped. |
 | 20-Sep-2026 | OTHER SESSIONS MOVED THIS SYSTEM ON THE SAME MORNING, in work Adam has not yet tried: v2.86.0 rebuilt the Elevations and Floor Plans menus (presets named from north, typed elevation names reaching the title - which closes 11.6's first item) and v2.87.0 made a floor plan's storey a sixth fact (11.8, written by that session). ValeVision holds the five modules as they were before both. |
 | 20-Sep-2026 | A FOURTH LIBRARY, v2.91.0: the Specification Scrapbook, and tabs for the LEFT column (section 12). Adam asked for a concise specification beside the sheet, then in the same message for the codes as bubbles to drag on. Built in `58__Feature__ScrapbookSpecification`; the shared host gained one field (`spec.caption`) and the panel host one (`spec.hint`), no new export. In-app on scratch copies of PS01 D01 and RB05 D01, fetch guarded: tabs, list, drop (bubble centre on the drop point to 0.0000 mm), undo AND redo byte for byte and ONE step, the tail rule in five places, Escape, double-click, Enter, filter, full notes, the look following the Leaders panel, the list following a rename, a renumber and a delete, the empty specification. Real sheets byte-identical; no write attempted. NOT yet tried by Adam; NOT in ValeVision. |
+| 20-Sep-2026 | A FIFTH TILE, v2.96.0: the drawing title with its scale bar stood away TO THE RIGHT (section 13), asked for over a marked-up PS01 elevation, plus the checker fill lightened from the measured #666666 to #858585 on every parametric bar. Built as two parameters on the existing Drawing Title - `BarPlacement` and `BarOffsetMm` - so any title can be switched either way and the new tile is only a preset of it. Node: the drawing title test grew from 45 checks to 73, including the one that matters - divisions driven 3 to 9 to 11 to 3 to 7 with the FAR END asserted unmoved each time. In-app on PS01 D02 (`Sheet_001`, six real 1:50 elevation viewports), fetch guarded: drop and auto-link, the four grips where they belong, a slide stepping in 50 mm, a slide landing exactly on a snapped vertex with its dashed guide, the reversed stretch holding the far end through every step, Escape byte-identical, and the panel's two new controls. Zero write attempts all session; the local draft was cleared afterwards. NOT yet tried by Adam; NOT in ValeVision. |
+| 20-Sep-2026 | FOUND BY TESTING THE SLIDE IN THE APP, not by the Node tests: the slide grip sits ON the bar's own far corner, so `Na__LeOsnap__Find` returned that corner at distance 0 and the bar locked onto itself and would not move. Proved directly - the same point searched with and without the exclusion returns its own `Shape__195` at 0.0000 mm, or a neighbour's vertex 2.8358 mm away. The snapping module already took the exclusions a selection move passes; the grips module now passes the element's own vectors. |
 | 19-Sep-2026 | NOT YET DONE: Adam's own test in his browser through the real 8090 server, which must be RESTARTED first to load the scrapbook routes. |
 
 ---------------------------------------------------------
@@ -624,3 +628,92 @@ the correct code... a dynamic scrapbook of all of the specification items."
 Not asked for, added because the brief's own complaint ("hard to match things up on really
 complicated jobs") wanted them, and both can be switched off by not using them: the filter, and the
 quiet count of bubbles already on the sheet.
+
+---------------------------------------------------------
+## 13. The scale bar stood to the right (20-Sep-2026, v2.96.0)
+---------------------------------------------------------
+
+Adam, over a marked-up PS01 elevation: *"Can you see that the measuring bar is under the title
+here? We need a version where the bar is to the right of it... Add the handle for stretching where
+I've shown here in blue, and make sure I can infer the projected line work vertices so I can drag
+it from point A to, say, the corner of that building. You need to reverse the extending thing so it
+extends the other way round, so I can drag the other end of the bar to a larger value back towards
+the title."*
+
+### 13.1 The one decision everything else follows from
+
+**THE FAR END OF THE BAR IS THE END THAT IS HELD.** The bar is meant to sit under the far corner of
+a wide elevation, so that end is placed and must then stay placed. Every other rule is a
+consequence:
+
+- the grip on the FAR end **slides** - it carries the bar along without changing its length, and it
+  is the one that snaps;
+- the stretch grip moves to the NEAR end and runs **backwards** - dragging it towards the title
+  lengthens the bar and pulls the offset back by the same amount, so the far end does not move;
+- the lookup triangle, whose old place the stretch arrow has taken, steps up over the bar's near
+  end, where nothing of the element is (the numerals are all underneath).
+
+### 13.2 Where it lands - measured, not designed
+
+The arrangement was measured off Adam's own mock-up at 4.10 px/mm (calibrated against the 100 mm
+bar and the 2 mm checker in the same image). The bar's top stands **3.631 mm above the underline**,
+which is `TextBaselineAboveUnderlineMm` (1.631) plus the bar's own 2 mm - in other words **the
+bar's foot sits exactly on the title's baseline**, so the two read as one band across the foot of
+the drawing. Measured 15.5 px, predicted 14.9 px: half a pixel of antialiasing.
+
+### 13.3 `BarOffsetMm` is measured from the ORIGIN, not from the end of the underline
+
+Adam called it "the step in between", and the obvious reading is the clear gap from the underline's
+end to the bar. It is not built that way, deliberately:
+
+- the underline **grows to fit** its title and its length is not stored - it is measured from the
+  browser's text metrics at build time. A gap hung off it would move the bar whenever the title
+  changed length, which is precisely what must not happen to a bar that has been put under a
+  corner;
+- `stretchTo` and `slideTo` are handed no `tools`, so they cannot measure text at all. An
+  origin-relative offset keeps both of them pure arithmetic.
+
+So the parameter is where the bar's **zero end** stands, from the element's own origin. The panel
+calls it *Bar position (mm)* and says so underneath. `BarOffsetStepMm` is 50, as asked; a drag that
+lands on a snapped vertex is exact and ignores the step.
+
+### 13.4 The snap
+
+`Na__LeOsnap__Snap` in the vertex tone - the same search the Draw tool uses, so the projected
+linework of the drawing above is found first and the sheet's own vectors after it. A slide moves
+along one line, so a corner two metres above decides its x and nothing else; a dashed guide is
+drawn from the vertex down to the bar for the length of the drag, or there is no saying WHICH
+corner the end has been put under.
+
+### 13.5 Traps
+
+- **A slide must exclude the element's own vectors.** The grip sits on the bar's far corner, so
+  without the exclusion the snap finds that corner at distance 0 and the bar will not move at all.
+  Found on the sheet, not by the unit tests, which do not know where the grip is.
+- **The far end is not `offset + 100`.** It is `offset + Divisions x divisionMm`. A test helper
+  that hard-codes the length reports the far end moving when it has not - which is exactly what the
+  first in-app run appeared to show.
+- **A reversed stretch that hits a limit moves the far end.** At `MaxDivisions` the bar can grow no
+  further and the offset clamps at zero; the far end then shifts. This is the honest behaviour, not
+  a bug, but it is the one case where the promise above does not hold.
+- **The record order is unchanged**, in both placements: the underline is vector one, the title is
+  text one, the bar's cells and numerals follow. The engine's slots depend on it, so switching
+  placement regenerates in place with nothing re-keyed.
+
+### 13.6 Audit of the brief and of every mark on the two screenshots
+
+| The brief, or the mark | Where it is |
+|---|---|
+| "A version where the bar is to the right of it" | `BarPlacement : 'right'`, and a fifth tile that presets it - "Drawing Title + Scale Bar to the Right" |
+| "An extra parameter where you can increase or decrease the step in between by increments of 50 mm" | `BarOffsetMm`, `BarOffsetStepMm` 50; the panel's *Bar position (mm)* spinner, and the step a free drag lands on. Measured from the ORIGIN, not the gap - 13.3 says why |
+| Blue arrow at the bar's far end (image 3) | The slide grip, a double arrow, at exactly that end |
+| Green ring round it | Taken as "this end is the one that is placed" - the decision in 13.1 |
+| "Make sure I can infer the projected line work vertices so I can drag it from point A to, say, the corner of that building" | The slide snaps through `Na__LeOsnap__Snap`; the dashed guide draws the inference from the vertex down to the bar |
+| "Reverse the extending thing... drag the other end of the bar to a larger value back towards the title" | The stretch grip moves to the near end, points back at the title (`is-reversed`), and adds divisions as it is pulled - far end held |
+| Long green arrow from the title to the bar (image 3) | The gap itself: the thing `BarOffsetMm` sets |
+| Red box and line to the right of the title (image 2) | The same ask, sketched first: the bar belongs over there |
+| "These are a bit too dark on the page. The filled sections on all of the parametric rulers make 20% lighter" | `ScaleBar__FillColour` #666666 -> #858585, one value, every parametric bar. Read as a fifth of the way to white; the measured value is still recorded in `Meta__HouseBar` |
+
+Open, deliberately: a bar to the right is offered on every drawing title, not only on elevations,
+because a wide plan wants it too; and the reversed stretch does not snap - divisions are its own
+rule, and Adam asked for the snap on the placing end.

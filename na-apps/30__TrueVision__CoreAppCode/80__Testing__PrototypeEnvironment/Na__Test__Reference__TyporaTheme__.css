@@ -1,0 +1,545 @@
+/* region[col01]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Noble Architecture Email Theme  | --------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* DATE CREATED  |  21/09/2024                                                                                       */
+/*                                                                                                                   */
+/* VERSION TRACKER                                                                                                   */
+/* 1.0.0 | 21/09/2024 | File Creation and organized                                                                  */
+/* 1.0.1 | 21/09/2024 | Updated Bold (Global Strong) to ensure no breaking for table headers                         */
+/* 1.0.2 | 21/09/2024 | Rewritten for consistent alignment and unit usage                                            */
+/* 1.2.1 | 22/09/2024 | Adjusted padding and margins to fix text overflow and front matter position                  */
+/* 1.3.1 | 28/09/2024 | Updated headings, added level 5 for above tables                                             */
+/* 2.0.0 | 14/10/2024 | Applied coding conventions, restructured code                                                */
+/* 2.1.0 | 17/11/2024 | Added Section 12 improving consistency with how the code previews render                     */
+/* 2.1.1 | 18/11/2024 | Table Height Marginally increased, rows are now 00.50mm Taller                               */
+/*                                                                                                                   */
+/*                                                                                                                   */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/* region[col01]---------------------------------------------------------------------------------------------------- */
+/* --------------------------- |  Section 01  –  Coding Conventions For This File  | ------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+/*                                                                                                                   */
+/* ### Miscellaneous Coding Standards                                                                                */
+/* - Always Use Hex Codes For Colours                                                                                */
+/*                                                                                                                   */
+/* ### Document Specific Sizes & Units                                                                               */
+/* - When the values control properties for print media such as drawings and written documents, these standards      */
+/*   must be followed carefully to ensure consistent printing, presentation, and alignment with company documentation*/
+/* - Use 4-digit decimal default values for relevant units                                                           */
+/*   - Rationale: This keeps columns inline when values are changed                                                  */
+/*   - Example: 1mm would be written as "01.00mm"                                                                    */
+/*   - Result: Changing 1mm to 5.25mm keeps columns in line because the value changes from "01.00mm" to "05.25mm"    */
+/* - Always Use ##.##pt for document-related content text                                                            */
+/* - Always Use ##.##mm for layout elements related to document content                                              */
+/*                                                                                                                   */
+/* ### Section Headers                                                                                               */
+/* - Must be no longer than 119 chars                                                                                */
+/* - Must be sequentially numbered                                                                                   */
+/*   - Why?: This makes it easy to search, isolate, and transplant code block sections                               */
+/* - Center the heading text in the middle of the theoretical 119 character column                                   */
+/*   - Why?: This creates a central justification effect helping differentiate sections easily                       */
+/*                                                                                                                   */
+/* ### Section Colours                                                                                               */
+/* - Use "/* region[col0#]---"    <-- Declares the start and colour of the section block                             */
+/* - Use "/* endregion---"        <-- Declares the end of the section block and reverts to no colour                 */
+/*   - Why?: In VS Code, this assigns a colour to the block for easy identification                                  */
+/* - You can select from 10 colour variations using [col0#], e.g., [col02] or [col05]                                */
+/* - Colours do not need to match section heading title numbers; they are used purely for colour assignment          */
+/*                                                                                                                   */
+/* ### Comments                                                                                                      */
+/* - For configurable items, add a comment after the values like so                                                  */
+/*   - ( "VALUE"<Min_x8_Space>"/* <--- This: Is a comment */                                                 /*      */
+/* - Must be sequentially numbered                                                                                   */
+/*   - Why?: This makes it easy to search, isolate, and transplant code block sections                               */
+/*                                                                                                                   */
+/* ### Typical Code Line Structure                                                                                   */
+/* - Structure Example:                                                                                              */
+/*   ( "Property/class/def/etc": -> <Min_x4_Space> -> ":" -> "x4_Space" --> "Value:" --> <Min_x8_Space> --> "Comment"*/
+/* - Min space indicates minimum whitespace (space bar presses) between the longest line elements in the current     */
+/*   block cluster to ensure lines grouped together have a column effect.                                            */
+/*   - Keep consistent comment closing marker column alignment for sequences of rows of comments etc.                */
+/*                                                                                                                   */
+/* ### Class/Def/Function Etc Naming                                                                                 */
+/* "na_" : This mandatory prefix identifies Noble Architecture items                                                 */
+/* - Rationale: Makes it easy to identify entities that are custom and not standard libraries/framework items etc.   */
+/*                                                                                                                   */
+/* ### Naming Conventions                                                                                            */
+/* - Use BEM (Block Element Modifier) methodology for class names                                                    */
+/* - Structure: .block__element--modifier                                                                            */
+/* - Example: .na_doc_header_info_bold                                                                               */
+/*                                                                                                                   */
+/* ### Indentation and Formatting                                                                                    */
+/* - Use consistent indentation (e.g., 4 spaces) for nested elements                                                 */
+/* - Place each CSS property on a new line                                                                           */
+/*   - Enhances readability and simplifies version control diffs                                                     */
+/* - Order properties logically:                                                                                     */
+/*   1. Display and Positioning (e.g., display, flex-direction, align-items)                                         */
+/*   2. Box Model (e.g., margin, padding, border)                                                                    */
+/*   3. Color and Background (e.g., color, background-color)                                                         */
+/*   4. Typography (e.g., font-size, font-weight)                                                                    */
+/*   5. Miscellaneous (e.g., vertical-align)                                                                         */
+/*                                                                                                                   */
+/* ### Margins & Padding                                                                                             */
+/* - Always add all four parameters if margins or padding are required                                               */
+/* - Rationale: At a glance, it's easy to see all sides' values                                                      */
+/* - Example: Below example showing margins but also applied to padding                                              */
+/*   margin-top        :    01.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*   margin-bottom     :    01.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*   margin-left       :    02.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*   margin-right      :    02.00mm;        /* <--- This: Is A Comment Example  */                         /*        */
+/*                                                                                                                   */
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+/* region[col03]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------- |  Section 03  –  Canvas & Page Settings  | ----------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+body {                                      /* <--- Background canvas */
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    background-color    :    #fafafa;
+}
+
+#write {                                    /* <--- Paper space object */
+    margin-top          :    10.00mm;
+    margin-bottom       :    10.00mm;
+    margin-left         :    auto;
+    margin-right        :    auto;
+    padding-top         :    10.00mm;       /* <--- Padding: top       */
+    padding-bottom      :    20.00mm;       /* <--- Padding: bottom    */
+    padding-left        :    11.00mm;       /* <--- Padding: left      */
+    padding-right       :    11.00mm;       /* <--- Padding: right     */
+    width               :    100%;
+    max-width           :    210.00mm;      /* <--- Limit the width to A4 size */
+    background-color    :    #ffffff;
+    box-shadow          :    00.00mm 00.00mm 02.00mm rgba(0, 0, 0, 0.495);
+    box-sizing          :    border-box;
+    word-wrap           :    break-word;    /* <--- Ensure text breaks inside the container */
+    overflow-wrap       :    break-word;    /* <--- Compatibility for older browsers        */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col04]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 04  –  Standard Text Styles  | --------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+p {                                         /* <--- Paragraphs */
+    color               :    #3c3c3c;
+    margin-bottom       :    03.50mm;
+    margin-left         :    00.00mm;
+    margin-right        :    00.00mm;
+    line-height         :    1.40;
+    font-size           :    10.00pt;
+    word-wrap           :    break-word;
+    overflow-wrap       :    break-word;    /* <--- Legacy support */
+    word-break          :    break-word;    /* <--- Ensures long words break */
+}
+
+b, strong {                                 /* <--- Global style for bold text */
+    font-weight         :    500;
+    color               :    #555041;
+    font-family         :    "Open Sans", sans-serif;
+}
+
+i, em {                                     /* <--- Global style for italic text */
+    font-style          :    italic;
+    color               :    #646464;
+    font-size           :    08.00pt;
+    font-family         :    "Open Sans", sans-serif;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col05]---------------------------------------------------------------------------------------------------- */
+/* --------------------------------------- |  Section 05  –  Heading Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+h1, h2, h3, h4, h5, h6 {
+    margin-right        :    00.00mm;
+    margin-left         :    00.00mm;
+}
+
+h1 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    20.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-bottom       :    03.00mm;
+}
+
+h2 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    16.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.40;
+    margin-bottom       :    02.00mm;
+}
+
+h3 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    12.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.40;
+    margin-bottom       :    02.00mm;
+}
+
+h4 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-top          :     07.00mm;
+    margin-bottom       :    -02.00mm;
+}
+
+/* SPECIAL HEADING – Heading Level 5 */
+/* This level is used where zero gap is required between header and next element */
+/* Example: Table Headings */
+
+h5 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    11.00pt;
+    color               :    #555041;
+    font-weight         :    500;
+    line-height         :    1.00;
+    margin-bottom       :    -02.00mm;
+}
+
+/* SPECIAL HEADING – Heading Level 6 */
+/* Used for subheadings or supporting strap-lines to create subtle subtext under main titles */
+
+h6 {
+    font-family         :    "Open Sans", sans-serif;
+    font-size           :    10.00pt;
+    color               :    #787878;
+    font-weight         :    200;           /* <--- Light weight for H6 elements */
+    margin-bottom       :    -02.00mm;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col06]---------------------------------------------------------------------------------------------------- */
+/* -------------------------------- |  Section 06  –  Bullet List (Unordered) Styles  | ---------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+ul {                                        /* <--- Unordered Bullet Lists */
+    padding-left        :    03.00mm;
+    list-style-type     :    none;
+    counter-reset       :    square-counter;
+    line-height         :    1.40;
+}
+
+ul li {
+    padding-left        :    00.50mm;
+    position            :    relative;
+    line-height         :    1.40;
+}
+
+li::before {
+    content             :    counter(square-counter, square) "    ";
+    counter-increment   :    square-counter;
+    color               :    #7d7869;
+    font-size           :    06.00pt;
+    position            :    absolute;
+    left                :    -03.00mm;
+    top                 :    1.10em;
+    transform           :    translateY(-50%);
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col07]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------- |  Section 07  –  Numbered List (Ordered) Styles  | ----------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+ol {
+    list-style-type     :    none;
+    padding-left        :    07.00mm;
+    font-size           :    11.00pt;
+    line-height         :    1.50;
+    margin-bottom       :    05.00mm;
+    counter-reset       :    item;
+}
+
+ol li {
+    padding-left        :    05.00mm;
+    margin-bottom       :    02.00mm;
+    position            :    relative;
+}
+
+ol > li::before {
+    content             :    counter(item) ". ";
+    counter-increment   :    item;
+    position            :    absolute;
+    left                :    -07.00mm;
+    top                 :    00.00mm;
+}
+
+ol ol {
+    padding-left        :    07.00mm;
+    counter-reset       :    subitem;
+}
+
+ol ol > li::before {
+    content             :    counter(item) "." counter(subitem) " ";
+    counter-increment   :    subitem;
+    position            :    absolute;
+    left                :    -07.00mm;
+    top                 :    00.00mm;
+}
+
+ol ol ol {
+    padding-left        :    07.00mm;
+    counter-reset       :    subsubitem;
+}
+
+ol ol ol > li::before {
+    content             :    counter(item) "." counter(subitem) "." counter(subsubitem) " ";
+    counter-increment   :    subsubitem;
+    position            :    absolute;
+    left                :    -07.00mm;
+    top                 :    00.00mm;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col08]---------------------------------------------------------------------------------------------------- */
+/* ----------------------------------------- |  Section 08  –  Table Styles  | ------------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+table {
+    width               :    100%;
+    border-collapse     :    collapse;
+    margin-top          :    00.00mm;
+    margin-bottom       :    02.00mm;
+}
+
+th, td {
+    padding-top         :    01.25mm;
+    padding-bottom      :    01.25mm;
+    padding-left        :    01.00mm;
+    padding-right       :    01.00mm;
+    font-size           :    09.00pt;
+    line-height         :    1.20;
+}
+
+th {
+    height              :    08.00mm;
+    background-color    :    #f5f5f5;
+    font-size           :    11.00pt;
+    text-align          :    left;
+    font-weight         :    500;
+    color               :    #555041;
+}
+
+td {
+    background-color    :    inherit;
+}
+
+tr:nth-child(even) {
+    background-color    :    #fafafa;
+}
+
+td:first-child, th:first-child {
+    white-space         :    normal;        /* <--- Ensure natural text wrapping */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col09]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------ |  Section 09  –  Special Elements Styles  | ------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+hr {
+    border-top          :    00.26mm solid #b4b4b4;
+    margin-top          :    07.50mm;
+    margin-bottom       :    07.50mm;
+    opacity             :    0.5;
+}
+
+mark {
+    padding             :    00.85mm;
+    margin-top          :    01.50mm;
+    background          :    url("https://s2.svgbox.net/pen-brushes.svg?ic=brush-9&color=hsl(54,100%,80%)") !important;
+    background-size     :    cover;
+    color               :    #0f1f55;
+    border-radius       :    00.50em;
+    line-height         :    1.25em;
+}
+
+a {
+    color               :    #3c3c3c;
+    text-decoration     :    none;
+    font-size           :    08.00pt;
+}
+
+a:visited {
+    color               :    #3c3c3c;
+}
+
+a:hover {
+    color               :    #6ea8c2;
+    text-decoration     :    underline;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/*-------------------------- |  Section 10  –  Custom Noble Arch Document Classes  | --------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+
+.na_doc_header_info {                         /* <--- Class: Standard Document Header Section For Noble Architecture Docs */
+    display           :    flex;
+    flex-direction    :    column;            /* <--- This: Stacks children div elements vertically        */
+    align-items       :    flex-start;        /* <--- This: Aligns the items to the start of the container */
+    font-size         :    12.00pt;
+    margin-top        :    10.00mm;
+    margin-bottom     :    05.00mm;
+}
+
+
+.na_doc_header_info_bold {
+    font-size         :    2.00pt;
+    font-weight       :       500;
+}
+
+
+.na_doc_header_info_pipe_divider {
+    margin-top        :    01.00mm;
+    margin-bottom     :    01.00mm;
+    margin-left       :    02.00mm;        /* <--- This: Adjusts spacing left of the pipe_divider   */
+    margin-right      :    02.00mm;        /* <--- This: Adjusts spacing right of the pipe_divider  */
+    font-size         :    10.00pt;
+    vertical-align    :    middle;         /* <--- Aligns the ns_pipe_divider vertically            */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+
+/* region[col03]---------------------------------------------------------------------------------------------------- */
+/*---------------------------- |  Section 11  –  Code Block Style Configuration  | ----------------------------------*/
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.md-fences {                                 /* <--- CLASS STYLE                              */
+    background-color    :      #f4f4f4;        /* <--- This: Sets Code Block Background Colour  */
+    color               :      #202930;        /* <--- THis: Sets Code Block Text Colour        */
+    font-size           :        06.50pt;        /* <--- This: Sets Text Size                     */
+    border              :           none;        /* <--- This: Sets Code Block Style Rendered     */
+    font-family         :  "Courier New",                Courier, monospace;
+    padding-top         :        02.00mm;
+    padding-bottom      :        02.00mm;
+}
+
+.md-fences .code-tooltip {     
+    background-color    :      #465d70;        /* <--- This: Sets Code Block Language Name Background  Colour  */
+    color               :      #f4f4f4;        /* <--- This: Sets Code Block Language Name Text Colour         */
+    font-size           :        08.00pt;        /* <--- This: Sets Text Size                                    */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/* ---------------------------- |  Section 12  –  HTML Preview Element Styles  | ----------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+.CodeMirror {                                    /* <--- Main preview editor container */
+    background-color    :    #f4f4f4;         /* <--- This: Matches code fence background */
+    color              :    #202930;          /* <--- This: Matches code fence text color */
+    font-size          :    06.50pt;            /* <--- This: Matches code fence font size */
+    font-family        :    "Courier New", 
+                            Courier, monospace;
+    line-height        :    1.15;               /* <--- This: Maintains consistent line spacing */
+    padding-top        :    02.00mm;            /* <--- This: Matches code fence padding */
+    padding-bottom     :    02.00mm;            /* <--- This: Matches code fence padding */
+    padding-left       :    02.00mm;            /* <--- This: Adds consistent left padding */
+    padding-right      :    02.00mm;            /* <--- This: Adds consistent right padding */
+}
+
+.CodeMirror-selected {                               /* <--- Selected text in preview */
+    background-color    :    #465d70 !important;   /* <--- This: Matches tooltip style */
+    color              :    #f4f4f4 !important;    /* <--- This: Ensures readability */
+}
+
+.CodeMirror-cursor {                                  /* <--- Cursor in preview */
+    border-left        :    01.00pt solid #202930;  /* <--- This: Makes cursor visible */
+    border-right       :    none;
+    width             :    00.00pt;
+}
+
+.cm-s-typora-default {                        /* <--- Default preview theme */
+    background-color   :    #f4f4f4;        /* <--- This: Maintains consistency */
+    color             :    #202930;         /* <--- This: Maintains consistency */
+}
+
+.cm-s-typora-default .cm-header {             /* <--- Headers in preview */
+    color             :    #202930;        /* <--- This: Maintains consistency */
+    font-size         :    06.50pt;          /* <--- This: Matches code fence size */
+}
+
+.cm-s-typora-default .cm-comment {            /* <--- Comments in preview */
+    color             :    #465d70;         /* <--- This: Matches tooltip color */
+    font-style        :    italic;
+}
+
+.cm-s-typora-default .cm-tag {               /* <--- HTML tags in preview */
+    color             :    #465d70;        /* <--- This: Matches tooltip color */
+}
+
+.cm-s-typora-default .cm-attribute {         /* <--- HTML attributes in preview */
+    color             :    #555041;        /* <--- This: Uses theme accent color */
+}
+
+.cm-s-typora-default .cm-string {            /* <--- Strings in preview */
+    color             :    #3c3c3c;        /* <--- This: Uses theme text color */
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+
+
+/* region[col10]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------------- |  Section 14  –  END OF STYLE SHEET  | ----------------------------------- */
+/* endregion-------------------------------------------------------------------------------------------------------- */
+
+/* region[col02]---------------------------------------------------------------------------------------------------- */
+/* ------------------------------- |  Section 02  –  Front Matter Style Settings  | -------------------------------- */
+/* ----------------------------------------------------------------------------------------------------------------- */
+
+pre.md-meta-block {
+    background-color    :    #fafafa;  /* Slight Grey Background */
+    border-left         :    2px solid #dddddd; /* Slight Border Colour Style */
+    padding             :    01.00mm;
+    margin-top          :    01.00mm;
+    max-width           :   135.00mm;
+    margin-left         :    00.00mm;
+    font-family         :    "Courier New", Courier, monospace;
+    font-size           :    06.50pt;
+    line-height         :       1.15;
+    color               :    rgb(70, 70, 70);          /* Change text colour */
+    border-radius       :        5px;
+    display             :      block;                  /* Changed to block for full width */
+}
+
+/* Focused state */
+pre.md-meta-block.md-focus {
+    background-color: #e6ecf8;  /* Darker background when focused */
+    border-left: 2px solid #5e74c6;
+    color: rgb(70, 70, 70);  
+    border-radius: 5px;
+    display: block; /* Changed to block for full width */
+}
+
+/* Optional: Remove box shadow if it's applied during focus */
+pre.md-meta-block:focus {
+    box-shadow: none;
+}
+
+/* endregion-------------------------------------------------------------------------------------------------------- */

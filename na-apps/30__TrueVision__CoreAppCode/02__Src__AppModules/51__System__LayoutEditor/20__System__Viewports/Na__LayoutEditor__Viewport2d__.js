@@ -205,6 +205,7 @@
         Na__LeVp2d__CLASS_ORDER,
         Na__LeVp2d__States,
         Na__LeVp2d__RasterWeights,
+        Na__LeVp2d__RasterModifierToken,
         Na__LeVp2d__SizeLayer,
         Na__LeVp2d__State,
         Na__LeVp2d__PlaceUnderlay,
@@ -335,6 +336,7 @@
                           Math.round(win.WidthMm), Math.round(win.HeightMm), styles.whitecard, styles.glassOpaque, styles.profileLinework, styles.enhanceWhitecard, styles.contextLayer,
                           Na__LeModelLayers__Token(viewport), Na__LeRaster__Get() ]
                           .concat(Na__LeComposite__RasterToken(viewport) ? [ Na__LeComposite__RasterToken(viewport) ] : [])   // <-- Appended only when set, so every existing key is unchanged
+                          .concat(Na__LeVp2d__RasterModifierToken(viewport) ? [ Na__LeVp2d__RasterModifierToken(viewport) ] : [])   // <-- The Base Image honours the detail tags, so their weight and colour must key it
                           .join('|');
             if (state.renderedFp && state.renderedFp !== modelFp) state.underlay.hidden = true;   // <-- Another design phase's picture is never slid under this one
             else Na__LeVp2d__PlaceUnderlay(state, win, ppm);

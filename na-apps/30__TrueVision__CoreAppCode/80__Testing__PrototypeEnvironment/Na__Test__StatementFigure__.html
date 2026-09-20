@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrueVision3D - Statement Figure Markup</title>
+<!--
+// =============================================================================
+// TRUEVISION3D - TEST - STATEMENT FIGURE MARKUP
+// =============================================================================
+//
+// FILE       : Na__Test__StatementFigure__.html
+// NAMESPACE  : Na__Test
+// MODULE     : Statement Writer - Justify and Crop
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Prove the right-click menu rewrites a picture's markup without spoiling the rest of it
+// CREATED    : 20-Sep-2026
+//
+// DESCRIPTION:
+// - THE MENU EDITS SOMEBODY ELSE'S HTML. Every figure in these statements is
+//   hand-written, carrying a zoom, a 10mm olive border and a drop shadow, and
+//   the whole value of justifying or cropping from a menu disappears the
+//   moment it also reformats the markup around it. So these checks are as much
+//   about what does NOT change as about what does.
+// - AND THE RESULT MUST STILL BE ONE BLOCK. A cropped figure is a <div> with
+//   an <img> inside it across three lines; if the tokeniser cut that in half
+//   the statement would come apart at the next save. That is checked here
+//   rather than discovered later.
+//
+// USAGE:
+//     Serve the repository root and open
+//     /na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__StatementFigure__.html
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.0.0
+// - Initial implementation.
+//
+// =============================================================================
+-->
+<style>
+    body  { margin: 0; padding: 18px 22px; background: #f4f6f8; color: #172b3a;
+            font: 13px/1.6 'Open Sans', Arial, sans-serif; }
+    h1    { font-size: 17px; margin: 0 0 14px; }
+    .pass { color: #2f7a46; }
+    .fail { color: #9b3b3b; font-weight: 600; }
+    .note { color: #6c757d; }
+    #out  { padding: 0; margin: 0; }
+    #out li { list-style: none; margin-bottom: 2px; white-space: pre-wrap;
+              font-family: 'Lucida Console', 'Courier New', monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<h1>Statement Figure Markup</h1>
+<ul id="out"><li class="note">running…</li></ul>
+
+<script type="module">
+
+    const BASE = '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/';
+    const { Na__LeStmtFig__Read, Na__LeStmtFig__Justify, Na__LeStmtFig__Uncrop, Na__LeStmtFig__BuildCrop }
+        = await import(BASE + '04__Ui__Editor/Na__LayoutEditor__Statement__Editor__Figure__.js');
+    const { Na__LeStmtMd__Tokenise, Na__LeStmtMd__Join }
+        = await import(BASE + '02__Core__Markdown/Na__LayoutEditor__Statement__Md__Tokenise__.js');
+
+    const out = document.getElementById('out');
+    let failed = 0;
+
+    function say(text, state, detail) {
+        const row = document.createElement('li');
+        row.className   = state || 'note';
+        row.textContent = (state === 'pass' ? 'PASS  ' : state === 'fail' ? 'FAIL  ' : '      ') + text
+                        + (detail ? '\n        ' + detail : '');
+        out.appendChild(row);
+        if (state === 'fail') failed++;
+    }
+    function check(name, got, want) {
+        if (got === want) say(name, 'pass');
+        else say(name, 'fail', 'wanted ' + JSON.stringify(want) + '\n        got    ' + JSON.stringify(got));
+    }
+    function ok(name, condition, detail) {
+        if (condition) say(name, 'pass'); else say(name, 'fail', detail || '');
+    }
+
+    // A REAL FIGURE out of the RB05 pre-application statement
+    const FIGURE = '<img src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png" '
+                 + 'style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />';
+
+    // ------------------------------------------------------------------ read
+    say('Reading a figure');
+    check('a plain figure reads as justified left', Na__LeStmtFig__Read(FIGURE).Justify, 'left');
+    check('and as not cropped', String(Na__LeStmtFig__Read(FIGURE).Cropped), 'false');
+    check('and its source is found',
+          Na__LeStmtFig__Read(FIGURE).Src,
+          './02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png');
+
+    // --------------------------------------------------------------- justify
+    say('Justifying');
+
+    const centred = Na__LeStmtFig__Justify(FIGURE, 'centre');
+    check('centre reads back as centre', Na__LeStmtFig__Read(centred).Justify, 'centre');
+    ok('centre keeps the zoom',   centred.includes('zoom: 30%'), centred);
+    ok('centre keeps the border', centred.includes('border: 10px solid #555041'), centred);
+    ok('centre keeps the shadow', centred.includes('box-shadow: 0 2px 10px rgba(0,0,0,0.8)'), centred);
+    ok('centre keeps the src untouched', centred.includes('src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png"'), centred);
+    ok('centre sets display block', /display:\s*block/.test(centred), centred);
+    ok('centre sets both margins auto', /margin-left:\s*auto/.test(centred) && /margin-right:\s*auto/.test(centred), centred);
+    say('  ' + centred);
+
+    const right = Na__LeStmtFig__Justify(FIGURE, 'right');
+    check('right reads back as right', Na__LeStmtFig__Read(right).Justify, 'right');
+    const left = Na__LeStmtFig__Justify(right, 'left');
+    check('and left again reads back as left', Na__LeStmtFig__Read(left).Justify, 'left');
+    ok('going round the three still keeps the zoom and the border',
+       left.includes('zoom: 30%') && left.includes('border: 10px solid #555041'), left);
+    ok('and does NOT accumulate duplicate declarations',
+       (left.match(/margin-left/g) || []).length === 1 && (left.match(/display/g) || []).length === 1, left);
+
+    // ------------------------------------------------------------------ crop
+    say('Cropping');
+
+    // A picture laid out at 160mm x 112mm, trimmed 10% off the left and 20% off the bottom
+    const shown = { Width : 160 * (96 / 25.4), Height : 112 * (96 / 25.4) };
+    const rect  = { Left : 0.10, Top : 0, Right : 1, Bottom : 0.80 };
+    const cropped = Na__LeStmtFig__BuildCrop(
+        Na__LeStmtFig__Read(FIGURE).Src, rect, shown,
+        { Border : '10px solid #555041', Shadow : '0 2px 10px rgba(0,0,0,0.8)' }, 'centre');
+    say('  ' + cropped.replace(/\n/g, '\n  '));
+
+    check('the frame is 90% of 160mm wide',  /width:\s*144\.00mm/.test(cropped) ? 'yes' : cropped, 'yes');
+    check('the frame is 80% of 112mm tall',  /height:\s*89\.60mm/.test(cropped) ? 'yes' : cropped, 'yes');
+    check('the picture keeps its full width', /width:\s*160\.00mm/.test(cropped) ? 'yes' : cropped, 'yes');
+    check('and is pushed left by the trim',   /margin-left:\s*-16\.00mm/.test(cropped) ? 'yes' : cropped, 'yes');
+    ok('the frame took the border',  /border:\s*10px solid #555041/.test(cropped), cropped);
+    ok('the frame took the shadow',  /box-shadow:/.test(cropped), cropped);
+    ok('the frame carries a zoom for the drag handle', /zoom:\s*100%/.test(cropped), cropped);
+
+    // THESE TWO ONLY EVER FAILED IN A RENDERED DOCUMENT, never in the markup,
+    // so they are pinned here: without content-box the olive border eats into
+    // the kept area, and without max-width none the document stylesheet
+    // shrinks the picture back to the frame and the crop takes nothing away.
+    ok('the frame is sized by its content box, not its border',
+       /box-sizing:\s*content-box/.test(cropped), cropped);
+    ok('the picture is let out of the document max-width clamp',
+       /max-width:\s*none/.test(cropped), cropped);
+    check('a cropped figure reads as cropped', String(Na__LeStmtFig__Read(cropped).Cropped), 'true');
+    check('and keeps its justification',       Na__LeStmtFig__Read(cropped).Justify, 'centre');
+
+    // ------------------------------------------------------- one block still
+    say('It is still one block');
+    const withText = 'Before.\n\n' + cropped + '\n\nAfter.\n';
+    const blocks   = Na__LeStmtMd__Tokenise(withText);
+    const htmlOnes = blocks.filter((b) => b.Kind === 'html');
+    ok('the cropped figure tokenises as exactly ONE html block', htmlOnes.length === 1,
+       'found ' + htmlOnes.length + ' - kinds: ' + blocks.map((b) => b.Kind).join(', '));
+    ok('and the whole thing still round-trips byte for byte',
+       Na__LeStmtMd__Join(blocks) === withText);
+
+    // --------------------------------------------------------------- uncrop
+    say('Removing a crop');
+    const back = Na__LeStmtFig__Uncrop(cropped, 'centre');
+    say('  ' + back);
+    ok('unwrapping gives a plain picture again', /^<img\b/.test(back.trim()), back);
+    ok('and does NOT carry the frame-only declarations out with it',
+       !/box-sizing|max-width/.test(back), back);
+    ok('with the border back on it',  /border:\s*10px solid #555041/.test(back), back);
+    ok('with the shadow back on it',  /box-shadow:/.test(back), back);
+    ok('keeping the size the crop gave it', /width:\s*160\.00mm/.test(back), back);
+    check('and still centred', Na__LeStmtFig__Read(back).Justify, 'centre');
+    check('and no longer cropped', String(Na__LeStmtFig__Read(back).Cropped), 'false');
+
+    // ------------------------------------------------- a figure with no style
+    say('A picture with no style at all');
+    const bare = '<img src="./a/b.png" />';
+    const bareRight = Na__LeStmtFig__Justify(bare, 'right');
+    ok('gains a style attribute', /style="/.test(bareRight), bareRight);
+    check('and reads back as right', Na__LeStmtFig__Read(bareRight).Justify, 'right');
+    ok('and keeps its src', bareRight.includes('src="./a/b.png"'), bareRight);
+
+    say(failed === 0 ? 'ALL CHECKS PASSED' : failed + ' CHECK(S) FAILED', failed === 0 ? 'pass' : 'fail');
+    document.title = failed === 0 ? 'FIGURE OK' : 'FIGURE FAILED (' + failed + ')';
+
+</script>
+</body>
+</html>

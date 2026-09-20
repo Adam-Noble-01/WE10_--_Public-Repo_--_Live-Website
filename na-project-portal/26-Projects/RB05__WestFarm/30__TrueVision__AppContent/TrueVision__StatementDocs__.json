@@ -1,0 +1,22 @@
+{
+    "Statement__Description": "TrueVision Statement Writer - the project's written documents. Each entry names a folder under 10__StatementDocs and the one markdown file in it that IS the statement. The words live in that markdown file, not here.",
+    "Statement__Version": "1.0.0",
+    "Statement__Project": "RB05",
+    "Statement__UpdatedIso": "2026-09-20T22:51:56.507Z",
+    "Statement__LastId": 1,
+    "Statement__Documents": [
+        {
+            "Doc__Id": 1,
+            "Doc__Title": "PreApp Statement",
+            "Doc__Folder": "01__PreApp__Statement",
+            "Doc__File": "RB05_T01_S01__WestFarm__PreApplicationStatement__.md",
+            "Doc__Number": "",
+            "Doc__Revision": "A",
+            "Doc__CreatedIso": "2026-09-20T22:07:02.430Z",
+            "Doc__UpdatedIso": "2026-09-20T22:51:56.506Z",
+            "Doc__PublishedIso": null,
+            "Doc__PublishedUrl": null,
+            "Doc__Images": []
+        }
+    ]
+}

@@ -232,6 +232,7 @@
     // ------------------------------------------------------------
     function Na__ModelLoader__ClassifyUrls(modelUrls) {
         const categoryMap = {};
+        const collisions  = [];                                     // <-- Two files claiming one category
 
         for (const url of modelUrls) {
             const parsed = Na__ModelLoader__ParseModelUrl(url);
@@ -247,11 +248,37 @@
                 };
             }
 
-            if (parsed.modelType === 'MeshModel') {
-                categoryMap[parsed.category].meshUrl = parsed.url;
-            } else if (parsed.modelType === 'LineworkModel') {
-                categoryMap[parsed.category].lineworkUrl = parsed.url;
+            // SAME CATEGORY, TWO FILES. The URL parser strips an optional project
+            // prefix, so "RB05__Storey__X__Walls__MeshModel__.glb" and
+            // "Storey__X__Walls__MeshModel__.glb" are the SAME category - a
+            // project whose data lists both (a re-export under a changed naming,
+            // with the old entries never removed) silently loaded whichever came
+            // last and downloaded both. That was invisible: no warning, and the
+            // loser could just as easily be the current file as the stale one,
+            // because nothing here knows which is newer. It is still last-wins,
+            // because array order is the only signal available and changing the
+            // winner would change which geometry existing projects draw - but it
+            // now SAYS so, with both URLs, so a stale model is a one-line console
+            // read instead of a day.
+            const slot     = (parsed.modelType === 'MeshModel') ? 'meshUrl'
+                           : (parsed.modelType === 'LineworkModel') ? 'lineworkUrl'
+                           : null;
+            if (!slot) continue;
+
+            const previous = categoryMap[parsed.category][slot];
+            if (previous && previous !== parsed.url) {
+                collisions.push({ category : parsed.category, slot : slot, dropped : previous, kept : parsed.url });
             }
+            categoryMap[parsed.category][slot] = parsed.url;
+        }
+
+        if (collisions.length > 0) {
+            console.warn('[TrueVision3D] ' + collisions.length + ' model URL collision(s): two files claim the same category, ' +
+                         'so only the LAST is loaded and the project data is carrying duplicates. Clean the older set out of modelUrls.');
+            collisions.forEach((c) => {
+                console.warn('  ' + c.category + ' (' + c.slot + ')\n      kept    : ' + c.kept.split('/').pop() +
+                                                      '\n      dropped : ' + c.dropped.split('/').pop());
+            });
         }
 
         return categoryMap;

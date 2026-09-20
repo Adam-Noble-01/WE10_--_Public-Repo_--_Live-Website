@@ -171,6 +171,7 @@
     let Na__LeStmt__ProjectCode = null;
     let Na__LeStmt__LoadPromise = null;
     let Na__LeStmt__Tree        = [];                                           // <-- What is on disk, when a local server answered
+    let Na__LeStmt__ServerNote  = null;                                         // <-- Why the folder could not be listed, when that is the server's doing
     let Na__LeStmt__Unknown     = [];                                           // <-- Statements on disk the index has not heard of
 
     let Na__LeStmt__OpenId      = 0;
@@ -332,6 +333,14 @@
         const tree = await Na__LeStmtIo__Tree();
         Na__LeStmt__Tree    = (tree && tree.ok && Array.isArray(tree.entries)) ? tree.entries : [];
         Na__LeStmt__Unknown = Na__LeStmt__Tree.length ? Na__LeStmtIdx__Unknown(Na__LeStmt__Doc, Na__LeStmt__Tree) : [];
+
+        // A FAILED LISTING IS NOT AN EMPTY FOLDER, and the difference matters
+        // more here than almost anywhere: told nothing is there, the tab says
+        // "no statements yet" over a statement, and the next new one is
+        // numbered 01 beside the 01 already on disk. The reason is kept so the
+        // tab can say it BEFORE anyone types a title.
+        Na__LeStmt__ServerNote = (tree && !tree.ok && !tree.skipped) ? (tree.error || 'the statements folder could not be listed') : null;
+        if (Na__LeStmt__ServerNote) console.warn('[TrueVision3D] Statement Writer: ' + Na__LeStmt__ServerNote);
         return Na__LeStmt__Tree;
     }
     // ------------------------------------------------------------
@@ -724,6 +733,7 @@
             editable    : Na__LeStmt__Editable,
             count       : (Na__LeStmt__Doc[Na__LeStmtIdx__K_DOCUMENTS] || []).length,
             unknown     : Na__LeStmt__Unknown.slice(),
+            serverNote  : Na__LeStmt__ServerNote,
             openId      : Na__LeStmt__OpenId,
             open        : record,
             textStatus  : Na__LeStmt__TextStatus,
