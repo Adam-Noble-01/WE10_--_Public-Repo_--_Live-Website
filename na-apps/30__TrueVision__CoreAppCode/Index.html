@@ -584,6 +584,16 @@
                         <!-- Elevation rows generated dynamically by Na__Elevation__DevMenu__Editor__.js -->
                     </div>
                 </li>
+                <!-- @delegate: ./02__Src__AppModules/46__System__NorthDirection/Na__North__DevMenu__Editor__.js -->
+                <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naNorthDevItem" style="display:none;">
+                    <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naNorthDevToggle" aria-expanded="false">
+                        North Direction
+                        <span class="na-dropdown-menu__subarrow">&#9662;</span>
+                    </button>
+                    <div class="na-dropdown-menu__panel na-pm-dev__panel" id="naNorthDevPanel">
+                        <!-- Compass controls generated dynamically by Na__North__DevMenu__Editor__.js -->
+                    </div>
+                </li>
                 <!-- @delegate: ./02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__DevMenu__Controls__.js -->
                 <li class="na-dropdown-menu__item na-dropdown-menu__item--localhost-only" id="naProjectedLineworkDevItem" style="display:none;">
                     <button class="na-dropdown-menu__button na-dropdown-menu__button--has-submenu" id="naProjectedLineworkDevToggle" aria-expanded="false">
@@ -876,6 +886,12 @@
     import { Na__ElevGizmo__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__PlaneGizmo__.js';
     import { Na__ElevPick__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__FacePick__.js';
     import { Na__ElevGrip__Initialize } from './02__Src__AppModules/45__System__ElevationViews/Na__Elevation__GizmoGrip__.js';
+    import { Na__PlaneOverlay__Initialize } from './02__Src__AppModules/47__System__DrawingPlanes/Na__DrawingPlanes__Overlay__.js';
+    import { Na__PlaneGrip__Initialize } from './02__Src__AppModules/47__System__DrawingPlanes/Na__DrawingPlanes__Grip__.js';
+    import { Na__PlaneUi__Initialize } from './02__Src__AppModules/47__System__DrawingPlanes/Na__DrawingPlanes__DevMenu__Controls__.js';
+    import { Na__North__DevMenu__Initialize } from './02__Src__AppModules/46__System__NorthDirection/Na__North__DevMenu__Editor__.js';
+    import { Na__NorthGizmo__Initialize } from './02__Src__AppModules/46__System__NorthDirection/Na__North__CompassGizmo__.js';
+    import { Na__NorthPick__Initialize } from './02__Src__AppModules/46__System__NorthDirection/Na__North__PickTool__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1689,6 +1705,16 @@
     });
     // ------------------------------------------------------------
 
+    // DRAWING PLANES | Every plan and elevation plane, shown, dragged and picked in the 3D view
+    // @delegate: ./02__Src__AppModules/47__System__DrawingPlanes/
+    // Nothing is added to the scene and no listener is attached until a plane is
+    // switched on from the Floor Plans or Elevations Dev panel, so the live app
+    // carries none of it. The planes are never drawn into a drawing, a sheet, a
+    // thumbnail or an export: see Na__RenderLoop__InteractiveOverlays__.
+    Na__PlaneOverlay__Initialize({ scene : Na__Scene__Main, modelRoot : Na__ModelGroup__Root });
+    Na__PlaneGrip__Initialize({ renderer : Na__Renderer__Main, camera : Na__Camera__Main, controls : Na__Controls__Orbit, modelRoot : Na__ModelGroup__Root, showToast : Na__UiFeature__ShowToast });
+    Na__PlaneUi__Initialize({ showToast : Na__UiFeature__ShowToast });
+
     Na__ElevGizmo__Initialize(Na__Scene__Main);                 // <-- Setup marker lives in the scene, outside the model root
     Na__ElevPick__Initialize({ renderer : Na__Renderer__Main, camera : Na__Camera__Main, modelRoot : Na__ModelGroup__Root });   // <-- Seed an elevation by clicking a wall (D16)
     Na__ElevGrip__Initialize({ renderer : Na__Renderer__Main, camera : Na__Camera__Main, controls : Na__Controls__Orbit });     // <-- Drag the plane by its gizmo (D16)
@@ -1706,6 +1732,12 @@
             showToast : Na__UiFeature__ShowToast
         });
     });
+
+    // NORTH DIRECTION | Draw a compass in the 3D view; elevations and drawing titles are named by it
+    // @delegate: ./02__Src__AppModules/46__System__NorthDirection/
+    Na__NorthGizmo__Initialize(Na__Scene__Main);                // <-- The compass lives in the scene, outside the model root
+    Na__NorthPick__Initialize({ renderer : Na__Renderer__Main, camera : Na__Camera__Main, modelRoot : Na__ModelGroup__Root });
+    Na__North__DevMenu__Initialize({ modelRoot : Na__ModelGroup__Root, showToast : Na__UiFeature__ShowToast });   // <-- Authoring only; a saved north is read without it
 
     // DEV MENU | Navigation Modes + Orbit Max Distance (localhost-only, save to R2)
     // ------------------------------------------------------------

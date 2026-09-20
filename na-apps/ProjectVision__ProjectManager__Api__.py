@@ -83,6 +83,7 @@ ADMIN_CONFIG_FILE       = dev_launcher.PROJECT_ADMIN_CONFIG_FILE
 QUOTE_FILE_NAMES        = ('ProjectAdmin__Quotation__.json', 'ProjectAdmin__Quotations__.json')
 
 MASTER_INDEX_PATH       = os.path.join(SCRIPT_DIR, dev_launcher.MASTER_INDEX_RELPATH)
+QR_INDEX_PATH           = os.path.join(REPO_ROOT, 'q', 'index.json')         # <-- What the QR code on every TrueVision drawing resolves through
 
 R2_BASE_PREFIX          = 'NaProjectPortal'
 
@@ -426,6 +427,46 @@ def _update_master_index(old_code, new_entry):
         projects[merged['projectCode']] = merged
 
     _write_json(MASTER_INDEX_PATH, index_data)
+
+    # THE QR RESOLVER'S INDEX FOLLOWS, in the same breath. A failure here must
+    # never fail the edit that caused it: the build script rewrites that index
+    # whole on its next run, and the app reports a project it disagrees with.
+    try:
+        _update_qr_index(old_code, merged if new_entry is not None else None)   # <-- merged is the whole entry: code, folder and year
+    except Exception:
+        traceback.print_exc()
+
+    return True
+
+
+def _update_qr_index(old_code, entry):
+    """
+    Keep q/index.json in step with the master index. Every TrueVision drawing
+    carries a QR code reading https://www.noble-architecture.com/q/?PS01, and
+    q/index.html looks the code up in that file to find the project's folder and
+    year. A project renamed here and left stale there would send every drawing
+    already printed for it to a folder that no longer exists - and a STALE entry
+    is worse than a missing one, because the resolver only falls back to the
+    master index when the code is not listed at all.
+    Passing entry as None removes the project. Returns False when there is no
+    index to update yet; the build script writes the first one.
+    """
+    index_data = _read_json(QR_INDEX_PATH)
+
+    if not isinstance(index_data, dict) or not isinstance(index_data.get('projects'), dict):
+        return False
+
+    projects = index_data['projects']
+    projects.pop(old_code, None)
+
+    if isinstance(entry, dict) and entry.get('projectCode') and entry.get('projectFolder') and entry.get('projectYear'):
+        projects[entry['projectCode']] = {
+            'projectFolder' : entry['projectFolder'],
+            'projectYear'   : entry['projectYear'],
+        }
+
+    index_data['projects'] = dict(sorted(projects.items()))
+    _write_json(QR_INDEX_PATH, index_data)
     return True
 
 # endregion -------------------------------------------------------------------

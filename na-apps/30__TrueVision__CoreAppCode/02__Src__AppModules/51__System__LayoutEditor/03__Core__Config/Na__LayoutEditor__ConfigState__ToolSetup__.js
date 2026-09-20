@@ -35,6 +35,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - GetEditScopeSetup answers autoMoveOnSelect and autoMoveKinds (the kinds a
+//   Select press picks the Move tool up for), and GetSelectionSetup answers
+//   pickDragPx, doubleClickMs and doubleClickSlopPx (how far a press that
+//   picks, or the second press of a double click, travels before it moves).
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__ConfigState__.js; the code moved verbatim.
 //
@@ -123,11 +129,19 @@
     // ------------------------------------------------------------
     // boxStartPx is how far on screen a press travels before it becomes a box,
     // so a click that wobbles on bare paper still only clears the selection.
+    // pickDragPx is the same idea for a press that PICKS: the press that
+    // selects something, and the second press of a double click (known by
+    // doubleClickMs and doubleClickSlopPx), has to travel that far on screen
+    // before it moves anything, so a pick never nudges and a double click
+    // always steps inside.
     // ------------------------------------------------------------
     function Na__LeCfg__GetSelectionSetup() {
         return {
             hitToleranceMm  : Na__LeCfg__Num('Selection', 'HitToleranceMm', 1.5),
             dragThresholdMm : Na__LeCfg__Num('Selection', 'DragThresholdMm', 0.5),
+            pickDragPx        : Math.max(0, Na__LeCfg__Num('Selection', 'PickDragPx', 8)),
+            doubleClickMs     : Math.max(0, Na__LeCfg__Num('Selection', 'DoubleClickMs', 500)),
+            doubleClickSlopPx : Math.max(0, Na__LeCfg__Num('Selection', 'DoubleClickSlopPx', 6)),
             gripSizePx      : Na__LeCfg__Num('Selection', 'GripSizePx', 9),
             gripSizePickedPx: Math.max(1, Na__LeCfg__Num('Selection', 'GripSizePickedPx', 13)),   // <-- A point you have hold of is drawn larger than one you could take
             boxStartPx      : Math.max(1, Na__LeCfg__Num('Selection', 'BoxStartPx', 4)),
@@ -144,14 +158,20 @@
     // fadeOpacity is how far back the rest of the sheet drops while a vector or
     // a group is open for editing. moveToolRequired is the safety catch: with
     // it on, a whole object only travels under the Move tool, so a stray drag
-    // with Select moves nothing at all.
+    // with Select moves nothing at all. autoMoveOnSelect is what keeps the
+    // catch from being a chore: a Select press on one of autoMoveKinds picks
+    // the Move tool up by itself, and everything NOT listed - viewports and
+    // dimensions, by default - still waits for M.
     // ------------------------------------------------------------
     function Na__LeCfg__GetEditScopeSetup() {
+        const kinds = Na__LeCfg__Val('EditScope', 'AutoMoveKinds', null);
         return {
             fadeOpacity      : Na__LeCfg__Unit('EditScope', 'FadeOpacity', 0.25),
             gripToleranceFactor : Math.max(1, Na__LeCfg__Num('EditScope', 'GripToleranceFactor', 2)),
             grabRadiusPx        : Math.max(1, Na__LeCfg__Num('EditScope', 'GrabRadiusPx', 14)),
-            moveToolRequired : Na__LeCfg__Val('EditScope', 'MoveToolRequired', true) !== false
+            moveToolRequired : Na__LeCfg__Val('EditScope', 'MoveToolRequired', true) !== false,
+            autoMoveOnSelect : Na__LeCfg__Val('EditScope', 'AutoMoveOnSelect', true) !== false,
+            autoMoveKinds    : Array.isArray(kinds) ? kinds : [ 'annotation', 'shape', 'leader', 'group' ]
         };
     }
     // ------------------------------------------------------------

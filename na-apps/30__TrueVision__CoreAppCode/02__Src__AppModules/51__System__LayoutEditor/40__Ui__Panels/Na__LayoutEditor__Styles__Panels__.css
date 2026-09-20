@@ -1028,3 +1028,75 @@ body.na-le-scrap-dragging.is-over-sheet * {
 }
 
 /* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Column Tabs                                            */
+/* ----------------------------------------------------------------- */
+
+/* A COLUMN WITH TWO TABS (Na__LePanels__RegisterTab). The strip is the first
+   thing in the column's scroller and sticks to its top, so the column's own
+   layout - the scroller beside its width grip - is exactly what it was. The
+   tabs are the sheet tab strip's, a size down: the same two greys, the same
+   join to the surface below, and BOTH STYLED ALIKE - which one is up is said
+   by its weight and that join, never by a mark one tab has and the other
+   lacks. */
+
+.na-le-panel__tabs {
+    position                           : sticky;
+    top                                : 0;
+    z-index                            : 3;                           /* <-- Over the sections that scroll under it */
+    display                            : flex;
+    align-items                        : stretch;
+    gap                                : 2px;
+    padding                            : 4px 6px 0 6px;
+    background                         : #f4f6f8;
+    border-bottom                      : 1px solid var(--Na_Le_ChromeRule, rgba(23, 43, 58, 0.14));
+}
+
+.na-le-panel__tabs[hidden] {
+    display                            : none;
+}
+
+.na-le-panel__tab {
+    flex                               : 1 1 0;
+    min-width                          : 0;
+    padding                            : 5px 8px;
+    border                             : 1px solid var(--Na_Le_ChromeRule, rgba(23, 43, 58, 0.14));
+    border-bottom                      : none;
+    border-radius                      : 6px 6px 0 0;
+    background                         : #e9edf0;
+    color                              : var(--Na_Le_Ink, #172b3a);
+    font-family                        : inherit;
+    font-size                          : 0.78rem;
+    font-weight                        : 400;
+    white-space                        : nowrap;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    cursor                             : pointer;
+}
+
+.na-le-panel__tab:hover {
+    background                         : var(--Na_Le_Chrome, #ffffff);
+}
+
+.na-le-panel__tab:focus-visible {
+    outline                            : none;
+    box-shadow                         : 0 0 0 2px rgba(26, 127, 196, 0.25);
+}
+
+.na-le-panel__tab.is-active {
+    background                         : var(--Na_Le_Chrome, #ffffff);
+    font-weight                        : 600;
+    box-shadow                         : 0 2px 0 0 var(--Na_Le_Chrome, #ffffff);   /* <-- Joins the tab to the column below */
+}
+
+/* A SECTION OFF ITS TAB is put away by a class of its own, never by the hidden
+   attribute: that one is SetSectionVisible's, and a section can be both on
+   show for its tab and hidden for its sheet. */
+
+.na-le-section.is-off-tab {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */

@@ -30,9 +30,15 @@
 //   CarryTarget allows, through Na__LayoutEditor__ViewportSnapMove__), or a
 //   group drag for several selected items. A change that waits for a click
 //   runs on the release, only if the pointer never moved.
+// - The tool follows the press. On text, a vector, a leader's bubble, note or
+//   curve, or a group, Select picks the Move tool up and the press carries on
+//   into the drag; on anything else a Move that came up by itself goes back
+//   down. A press that picks, and the second press of a double click, travel
+//   further before they move anything (drag.pick).
 // - OnDoubleClick: drops a door toggle still waiting, then finishes a
-//   polyline being drawn, edits the text, the dimension value or the leader
-//   text under the pointer, or enters or leaves a viewport's content.
+//   polyline being drawn, steps inside a group, a vector or a dimension, edits
+//   the text, the dimension value or the leader text under the pointer, or
+//   enters or leaves a viewport's content. Never after a press that travelled.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ listens on the stage with OnDown and
@@ -51,6 +57,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - SELECT PICKS MOVE UP FOR WHAT IS USUALLY MOVED NEXT. A press on text, a
+//   vector, a leader by anything but its endpoint, or a group picks the Move
+//   tool up (PicksUpMove, PickUpMove) and the same press carries on into the
+//   drag; a press on anything else - a viewport, a dimension, a leader's
+//   endpoint, the open vector - puts a Move that came up by itself back down.
+//   DragFor is unchanged: it still only asks whether Move is up.
+// - SettleAutoMove puts that Move down when the selection stops warranting it
+//   without a press (Delete, a cut, an undo, stepping out of or into a
+//   container); the sheet tools run it on every model and container change.
+// - A PRESS THAT PICKS IS A PICK FIRST (drag.pick): the press that selects
+//   something, and the second press of a double click (IsRepeatPress, since a
+//   pointerdown has no click count), travel PickDragPx before they move
+//   anything. A fast double click always steps inside.
+// - OnDoubleClick ignores a double click whose second press travelled - the
+//   browser reports one at the end of "click, then at once drag" - and puts a
+//   Move that came up by itself down before it opens a text, a leader or a
+//   viewport's content. EnterScope does the same for a container.
+//
+//
 // 17-Sep-2026 - Version 1.1.0
 // - CONTAINER EDITING. EnterScope steps inside a group, a vector or a dimension
 //   (the double click, and Enter from the keys); a leaf container is selected as
@@ -84,7 +110,7 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Handles, Markup, Grips, Tools, Plan Doors, Viewport Snap Move, Selection, Menu
     // ------------------------------------------------------------
-    import { Na__LeCfg__MatchSelectionModifier, Na__LeCfg__GetGuards } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__MatchSelectionModifier, Na__LeCfg__GetGuards, Na__LeCfg__GetSelectionSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeModel__GetActiveSheet,
         Na__LeModel__GetViewportById,
@@ -123,7 +149,7 @@
         Na__LeScope__VerticesForDrag,
         Na__LeScope__SetGrip
     } from './Na__LayoutEditor__EditScope__.js';
-    import { Na__LeSelBox__COMBINE_ADD, Na__LeSelBox__COMBINE_REMOVE, Na__LeSelBox__Press, Na__LeSelBox__Combine } from './Na__LayoutEditor__SelectionBox__.js';
+    import { Na__LeSelBox__COMBINE_ADD, Na__LeSelBox__COMBINE_REMOVE, Na__LeSelBox__Press, Na__LeSelBox__Combine, Na__LeSelBox__IsActive } from './Na__LayoutEditor__SelectionBox__.js';
     import { Na__LeSelSet__Capture } from './Na__LayoutEditor__SelectionSet__.js';
     import { Na__LeMenu__Close } from './Na__LayoutEditor__ContextMenu__.js';
     // ------------------------------------------------------------
@@ -141,9 +167,14 @@
         Na__LeTools__PICK_TOOLS,
         Na__LeTools__Stage,
         Na__LeTools__Editable,
+        Na__LeTools__Drag,
         Na__LeTools__Suppressed,
+        Na__LeTools__LastPress,
+        Na__LeTools__PressTravelled,
         Na__LeTools__WriteDrag,
-        Na__LeTools__WriteRightPress
+        Na__LeTools__WriteRightPress,
+        Na__LeTools__WriteLastPress,
+        Na__LeTools__WritePressTravelled
     } from './Na__LayoutEditor__SheetTools__State__.js';
     import {
         Na__LeTools__Tool,
@@ -151,12 +182,17 @@
         Na__LeTools__GetDimensionDefaults,
         Na__LeTools__GetShapeDefaults,
         Na__LeTools__GetLeaderDefaults,
-        Na__LeTools__SyncPaletteFrom
+        Na__LeTools__SyncPaletteFrom,
+        Na__LeTools__PickUpMove,
+        Na__LeTools__PutDownMove,
+        Na__LeTools__IsMoveAuto
     } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import {
         Na__LeTools__Tolerance,
         Na__LeTools__ShapeGrabPoint,
         Na__LeTools__CanMoveWhole,
+        Na__LeTools__PicksUpMove,
+        Na__LeTools__SelectionPicksUpMove,
         Na__LeTools__ShapeGrabFor,
         Na__LeTools__DimensionGrabFor,
         Na__LeTools__ShapeInsertHit,
@@ -187,9 +223,12 @@
     // ------------------------------------------------------------
     // MOVING A WHOLE ITEM IS THE MOVE TOOL'S JOB AND NOBODY ELSE'S. With Select
     // up, a press picks what is under it and a drag does nothing at all, so a
-    // stray drag can no longer shift a viewport, a note or a vector by a
-    // millimetre without anyone noticing. Press M, and the four-way cursor says
-    // the next drag will move something.
+    // stray drag can no longer shift a viewport or a dimension by a millimetre
+    // without anyone noticing. Press M, and the four-way cursor says the next
+    // drag will move something. For text, vectors, leaders and groups the press
+    // has ALREADY picked Move up by the time this runs (OnDown, PicksUpMove), so
+    // the rule below is unchanged and still the only rule: it simply finds the
+    // Move tool up more often than it used to.
     //
     // What Select keeps is everything that edits an item rather than relocating
     // it: the crop handles, a dimension's grips, a leader's tip and head, the
@@ -258,13 +297,56 @@
     // selected would mean the first thing done inside it moved the lot.
     // Repositioning a viewport's content is a container of its own and cannot
     // be open at the same time.
+    //
+    // A Move that came up by itself is put down on the way in. It came up for
+    // the object as a whole, and stepping inside is the opposite of moving it:
+    // inside a vector a press is about its points, and inside a group nothing
+    // is selected yet. A Move that was asked for stays up, as it always has.
     // ------------------------------------------------------------
     function Na__LeTools__EnterScope(sheet, found) {
         if (!Na__LeTools__Editable || !sheet || !found) return false;
         if (!Na__LeScope__Enter(sheet, found)) return false;
+        Na__LeTools__PutDownMove();
         Na__LeSurface__SetEditingViewport(null);
         Na__LeModel__SetSelection(found.kind === 'group' ? null : { kind : found.kind, id : found.id });   // <-- A leaf container is selected, so its grips and highlight are on screen at once
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put Down a Move That Came Up by Itself, Once What It Came Up For Has Gone
+    // ------------------------------------------------------------
+    // The press keeps the tool in step with what is pressed. This keeps it in
+    // step with everything that changes the selection WITHOUT a press: Delete,
+    // a cut, an undo that takes the item away, stepping out of a container, a
+    // vector or a dimension being opened from the keys or the menu. It only
+    // ever puts Move down - picking it up takes a press or a box, so the tool
+    // never changes under a hand that is nowhere near the sheet. Never in the
+    // middle of a drag or a box, which finish under the tool they began with.
+    // Run by the sheet tools on every model and container change.
+    // ------------------------------------------------------------
+    function Na__LeTools__SettleAutoMove() {
+        if (!Na__LeTools__IsMoveAuto() || Na__LeTools__Drag || Na__LeSelBox__IsActive()) return false;
+        if (Na__LeTools__SelectionPicksUpMove(Na__LeModel__GetSelectionItems())) return false;
+        return Na__LeTools__PutDownMove();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is This the Second Press of a Double Click
+    // ------------------------------------------------------------
+    // A pointerdown carries no click count - only the click that follows it
+    // does - so the second press is known the way the browser knows it: the
+    // same item, within DoubleClickSlopPx on screen and DoubleClickMs of the
+    // press before. It matters because that press must not move what it lands
+    // on (see DragFor's pick below): the double click is about to step inside.
+    // ------------------------------------------------------------
+    function Na__LeTools__IsRepeatPress(event, pressed) {
+        const last = Na__LeTools__LastPress;
+        if (!last || !pressed || last.key !== pressed.kind + ':' + pressed.id) return false;
+        const setup = Na__LeCfg__GetSelectionSetup();
+        if ((event.timeStamp - last.time) > setup.doubleClickMs) return false;
+        return Math.hypot(event.clientX - last.x, event.clientY - last.y) <= setup.doubleClickSlopPx;
     }
     // ------------------------------------------------------------
 
@@ -320,6 +402,7 @@
         if (event.button === 2) { Na__LeTools__WriteRightPress({ x : event.clientX, y : event.clientY }); return; }   // <-- Remembered so a right click that did not pan opens the menu
         if (Na__LeTools__Suppressed) return;                                 // <-- A pan or a pinch owns this pointer
         if (!Na__LeTools__IsLeft(event)) return;
+        Na__LeTools__WritePressTravelled(false);                             // <-- A new press has not travelled yet: the drag and the box say when it has
         Na__LeMeasure__Clear();                                              // <-- A press on the sheet drops a half-typed value, as in SketchUp
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
@@ -376,6 +459,9 @@
         if (editingId && (!found || found.kind !== 'viewport' || found.id !== editingId)) Na__LeSurface__SetEditingViewport(null);   // <-- A press anywhere else finishes content editing
         const intent  = Na__LeCfg__MatchSelectionModifier({ Ctrl : !!event.ctrlKey, Shift : !!event.shiftKey, Alt : !!event.altKey, Meta : !!event.metaKey });
         const pressed = found ? { kind : found.kind, id : found.id } : null;
+        const again   = Na__LeTools__IsRepeatPress(event, pressed);           // <-- The second press of a double click, read before this press becomes the last one
+        const picking = !!pressed && !Na__LeModel__IsSelected(pressed.kind, pressed.id);   // <-- Read before the press changes the selection: this press is what picks it
+        Na__LeTools__WriteLastPress(pressed ? { time : event.timeStamp, x : event.clientX, y : event.clientY, key : pressed.kind + ':' + pressed.id } : null);
 
         // OUTSIDE THE OPEN CONTAINER | One press, two meanings, told apart by
         // whether it moves. A CLICK steps back out - that is the way out of a
@@ -464,6 +550,20 @@
         event.preventDefault();
         if (!Na__LeModel__IsSelected(pressed.kind, pressed.id)) return;         // <-- Ctrl+Shift on an unselected item: nothing to change, nothing to drag
         if (!Na__LeTools__Editable) { if (click) click(); return; }
+
+        // THE TOOL FOLLOWS WHAT WAS PRESSED | Text, a vector, a leader's bubble
+        // or a group is nearly always moved next, so Select picks Move up for it
+        // here and THIS press carries straight on into the drag - select and
+        // move are one gesture again, without giving up the safety catch. A
+        // press on anything else (a viewport, a dimension, a leader's endpoint,
+        // the vector that is open) puts a Move that came up by itself back
+        // down, so none of those can travel on a Move nobody asked for. Decided
+        // after the selection has changed, because one of several selected
+        // items answers for the whole selection. A Move that was asked for is
+        // not touched by either call.
+        // ------------------------------------
+        if (Na__LeTools__PicksUpMove(sheet, found, point)) Na__LeTools__PickUpMove();
+        else Na__LeTools__PutDownMove();
         const items  = Na__LeModel__GetSelectionItems();
         const asSet  = items.length > 1 || items.some((item) => item && item.kind === 'group');
         const moving = Na__LeTools__CanMoveWhole();
@@ -492,6 +592,13 @@
         drag.moved     = false;
         drag.pointerId = event.pointerId;
         drag.click     = click;                                              // <-- Run if the button comes up without a move
+        // A PRESS THAT PICKS IS A PICK FIRST. The press that selects something,
+        // and the second press of a double click, must travel PickDragPx on
+        // screen before it moves anything (the pointer drag unit reads this),
+        // so a pick with a wobble in it never nudges a note and a fast double
+        // click always steps inside instead of shifting what it landed on. A
+        // press on something already selected moves at the ordinary threshold.
+        drag.pick      = again || picking;
         if (door && items.length === 1) {
             const viewportId = found.id;
             drag.click = () => { if (click) click(); Na__LeDoors__ToggleSoon(sheet, viewportId, door); };   // <-- A click on a door, not a move: close or open it
@@ -510,6 +617,17 @@
     function Na__LeTools__OnDoubleClick(event) {
         Na__LeDoors__CancelPending();                                         // <-- The two clicks of a double click never toggle a door
         if (!Na__LeTools__Editable || event.button !== 0) return;
+
+        // A PRESS THAT TRAVELLED WAS A DRAG, NOT THE SECOND CLICK. The browser
+        // counts clicks when the button goes DOWN - near the last press, soon
+        // after it - and never looks at how far the pointer went before it came
+        // up. So "click to pick, then straight away drag it across the sheet"
+        // ends in a double click as far as the browser is concerned, and would
+        // open the text or step inside the vector that had just been moved. Now
+        // that a pick and a move are one gesture that is an everyday sequence,
+        // and it means a move and nothing else.
+        // ------------------------------------
+        if (Na__LeTools__PressTravelled) return;
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         if (!sheet || !point) return;
@@ -534,8 +652,15 @@
             && Na__LeGrips__DimensionGrab(Na__LeTools__Record(sheet, found), point, Na__LeTools__Tolerance(), sheet) === 'text');
         if (!onValue && Na__LeTools__EnterScope(sheet, found)) { event.preventDefault(); return; }
 
+        // TYPING INTO IT IS STEPPING INSIDE IT TOO. The first click of this
+        // double click picked the text or the leader and brought Move up with
+        // it; the double click says the words were wanted, not a move, so the
+        // Move that came up by itself goes back down before the field opens
+        // (EnterScope above does the same for a group, a vector, a dimension).
+        // ------------------------------------
         const markup = Na__LeMarkup__HitTest(sheet, point, Na__LeTools__Tolerance());
         if (markup && found && markup.kind === found.kind && markup.id === found.id) {
+            Na__LeTools__PutDownMove();
             if (markup.kind === 'annotation')     Na__LeText__BeginEdit(markup.id);
             else if (markup.kind === 'dimension') Na__LeDim__BeginTextEdit(markup.id);
             else if (markup.kind === 'leader')    Na__LeLeader__BeginEdit(markup.id);
@@ -543,6 +668,7 @@
         }
         if (!found || found.kind !== 'viewport') return;
         event.preventDefault();
+        Na__LeTools__PutDownMove();
         Na__LeTools__SetEditingViewport(Na__LeSurface__GetEditingViewport() === found.id ? null : found.id);
     }
     // ------------------------------------------------------------
@@ -559,7 +685,8 @@
     export {
         Na__LeTools__OnDown,
         Na__LeTools__OnDoubleClick,
-        Na__LeTools__EnterScope
+        Na__LeTools__EnterScope,
+        Na__LeTools__SettleAutoMove
     };
     // ------------------------------------------------------------
 

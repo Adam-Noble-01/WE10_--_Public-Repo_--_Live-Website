@@ -290,6 +290,16 @@
     } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Interactive Overlays (authoring aids drawn in the live 3D frame and nowhere else)
+    // ------------------------------------------------------------
+    // @delegate: ../05__RenderPipeline/Na__RenderLoop__InteractiveOverlays__.js
+    // ------------------------------------------------------------
+    import {
+        Na__InteractiveOverlays__BeginFrame,
+        Na__InteractiveOverlays__EndFrame
+    } from '../05__RenderPipeline/Na__RenderLoop__InteractiveOverlays__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Progressive Refinement (Idle-Time Supersampling)
     // @delegate: ../05__RenderPipeline/Na__RenderEffect__ProgressiveRefine__.js
     // ------------------------------------------------------------
@@ -1146,6 +1156,15 @@
                 return Na__RenderLoop__ActiveReasons.size > 0;               // <-- Only pan/zoom keeps frames coming
             }
 
+            // INTERACTIVE 3D FRAME | The only frame an authoring overlay is drawn in.
+            // The drawing planes sit in the main scene, and the main scene is also
+            // rendered by a sheet's 3D viewport, a thumbnail, a still and a video
+            // export. They are invisible by default and switched on HERE - past the
+            // hold and past the 2D drawing, so neither can ever show one - and
+            // switched off again in the tick's finally. A render path nobody has
+            // written yet therefore cannot print a plane.
+            Na__InteractiveOverlays__BeginFrame();
+
             if (Na__WalkMode__IsActive()) {
                 Na__WalkMode__Update(deltaMs);                               // <-- Update walk mode physics and camera
                 Na__DoorProximity__Update(Na__WalkMode__GetCapsulePosition()); // <-- Proximity door triggers (walk)
@@ -1402,6 +1421,7 @@
             } catch (error) {
                 console.error('[TrueVision3D] Render frame failed; the loop carries on:', error);
             } finally {
+                Na__InteractiveOverlays__EndFrame();                         // <-- Every path, thrown frames included: no overlay outlives its frame
                 Na__RenderLoop__ArmNextFrame(keepRendering);
             }
         }

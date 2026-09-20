@@ -26,8 +26,8 @@
 //   first looked at.
 //
 // INTEGRATION:
-// - Registered in the left column by the mode controller, after the
-//   Scrapbook and the Parametric Scrapbook.
+// - Registered by the mode controller on the right column's Scrapbook tab,
+//   after the Standard and the Parametric Scrapbooks.
 // // @delegate: ./Na__LayoutEditor__ScrapbookCustom__.js
 // // @delegate: ../55__Feature__Scrapbook/Na__LayoutEditor__Scrapbook__TileDrag__.js
 //
@@ -55,6 +55,7 @@
     import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectionItems } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
     import { Na__LeMenu__Open } from '../30__System__SheetTools/Na__LayoutEditor__ContextMenu__.js';
+    import { Na__LeScrap__TAB_ID } from '../55__Feature__Scrapbook/Na__LayoutEditor__Scrapbook__.js';
     import { Na__LeScrapDrag__Tile } from '../55__Feature__Scrapbook/Na__LayoutEditor__Scrapbook__TileDrag__.js';
     import {
         Na__LePanels__RegisterSection,
@@ -375,9 +376,9 @@
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LePanelScrapCustom__OnModelChanged);
             window.addEventListener(Na__LeScrapCustom__CHANGED_EVENT, Na__LePanelScrapCustom__OnLibraryChanged);
         }
-        const entry = Na__LePanels__RegisterSection('left', {
-            id : Na__LePanelScrapCustom__ID, title : Na__LeScrapCustom__Label('Title', 'Custom Scrapbook'),
-            build : Na__LePanelScrapCustom__Build, refresh : Na__LePanelScrapCustom__Refresh, defaultOpen : false
+        const entry = Na__LePanels__RegisterSection('right', {
+            id : Na__LePanelScrapCustom__ID, title : Na__LeScrapCustom__Label('Title', 'Custom Scrapbook'), tab : Na__LeScrap__TAB_ID,
+            build : Na__LePanelScrapCustom__Build, refresh : Na__LePanelScrapCustom__Refresh
         });
         Na__LeScrapCustom__Ready().then(() => {
             const title = entry ? entry.root.querySelector('.na-le-section__title') : null;

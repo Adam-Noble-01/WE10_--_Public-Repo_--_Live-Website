@@ -279,9 +279,9 @@
 
         if (Na__LeToolbar__Editable) {
             [ [ Na__LeTools__TOOL_SELECT, Na__LeCfg__GetLabel('ToolSelect', 'Select'),
-                  Na__LeCfg__GetLabel('ToolSelectTitle', 'Select (V or space): click to pick, drag from bare paper to box-select. Double-click a group, a vector or a dimension to edit inside it. Press M to move things.') ],
+                  Na__LeCfg__GetLabel('ToolSelectTitle', 'Select (V or space): click to pick, drag from bare paper to box-select. Picking text, a vector, a leader\'s bubble or a group picks the Move tool up too, so the next drag moves it. Double-click a group, a vector or a dimension to edit inside it, or text to type in it. Press M to move a viewport or a dimension.') ],
               [ Na__LeTools__TOOL_MOVE, Na__LeCfg__GetLabel('ToolMove', 'Move'),
-                  Na__LeCfg__GetLabel('ToolMoveTitle', 'Move tool (M): drag to move whatever is under the pointer. With the Select tool a drag moves nothing, so nothing is shifted by accident; Escape puts every tool down.') ],
+                  Na__LeCfg__GetLabel('ToolMoveTitle', 'Move tool (M): drag to move whatever is under the pointer. It comes up by itself when Select picks text, a vector, a leader\'s bubble or a group, and goes back to Select when you click anything else. Viewports and dimensions only move once M is pressed, so a drawing is never shifted by accident; Escape goes back to Select.') ],
               [ Na__LeTools__TOOL_TEXT, Na__LeCfg__GetLabel('ToolText', 'Text'), 'Place text (T)' ],
               [ Na__LeTools__TOOL_LEADER, Na__LeCfg__GetLabel('ToolLeader', 'Leader'), Na__LeCfg__GetLabel('ToolLeaderTitle', 'Place a leader (E): click the point it marks, then where its note or bubble goes - or drag from one to the other.') ],
               [ Na__LeTools__TOOL_DIMENSION, Na__LeCfg__GetLabel('ToolDimension', 'Dimension'), Na__LeCfg__GetLabel('ToolDimensionTitle', 'Place a dimension in three clicks (D): start, end, then where the line sits. Hold Shift while placing the line for a horizontal or vertical dimension.') ],

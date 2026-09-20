@@ -14,6 +14,9 @@
 /* ----------------------------------------------------------------- */
 
 /* AN A4 PAGE, in millimetres and points so the screen and the paper agree.
+   MARGINS, 19-Sep-2026: Adam, "the margins could do with being a bit tighter
+   again because they're quite wide". 18mm sides to 14mm, matching the drawing
+   register's, so the two documents of a pack hold the same text block.
    The font and the ink are the drawings' (Style FontFamily, InkColour, set
    on the desk in code). Blocks are measured as they are laid into the body;
    the one that crosses its foot starts the next page. */
@@ -25,7 +28,7 @@
     flex-direction                     : column;
     width                              : 210mm;
     height                             : 297mm;
-    padding                            : 13mm 18mm 10mm;
+    padding                            : 12mm 14mm 9mm;        /* <-- 18mm side margins were wide for A4; measured, 14mm takes the text block 174mm -> 182mm */
     overflow                           : hidden;
     background                         : #ffffff;
     color                              : var(--na-spec-ink, #172b3a);

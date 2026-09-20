@@ -22,7 +22,8 @@
 //   which every scrapbook library shares.
 //
 // INTEGRATION:
-// - Registered in the left column by the mode controller, after Sheet.
+// - Registered by the mode controller on the right column's Scrapbook tab,
+//   which RegisterTab here adds to that column.
 // // @delegate: ./Na__LayoutEditor__Scrapbook__.js
 // // @delegate: ./Na__LayoutEditor__Scrapbook__TileDrag__.js
 //
@@ -35,6 +36,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - The section moves from the left column to a Scrapbook tab at the top of
+//   the right one, which Adam asked for, beside the Parametric and Custom
+//   libraries. RegisterTab adds the tab; its wording is the config's Title.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - The tile, its drag, its ghost and its drop moved out to
 //   Na__LayoutEditor__Scrapbook__TileDrag__, so the Custom and Parametric
@@ -56,6 +62,7 @@
     // ------------------------------------------------------------
     import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__IsSitePlanSheet } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import {
+        Na__LeScrap__TAB_ID,
         Na__LeScrap__STATUS_FAILED,
         Na__LeScrap__Ready,
         Na__LeScrap__GetStatus,
@@ -68,6 +75,7 @@
     } from './Na__LayoutEditor__Scrapbook__.js';
     import { Na__LeScrapDrag__Tile, Na__LeScrapDrag__PlaceInView, Na__LeScrapDrag__EndDrag } from './Na__LayoutEditor__Scrapbook__TileDrag__.js';
     import {
+        Na__LePanels__RegisterTab,
         Na__LePanels__RegisterSection,
         Na__LePanels__SetSectionVisible,
         Na__LePanels__Refresh,
@@ -194,6 +202,21 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Add the Scrapbook Tab to the Right Column
+    // ------------------------------------------------------------
+    // Called by the mode controller after the column's first tab, so the
+    // sections that name no tab stay on that one. The three libraries'
+    // sections then name this tab. Its wording follows the config once that
+    // has been read.
+    // ------------------------------------------------------------
+    function Na__LePanelScrap__RegisterTab() {
+        const tab = Na__LePanels__RegisterTab('right', { id : Na__LeScrap__TAB_ID, title : Na__LeScrap__Label('Title', 'Scrapbook') });
+        if (tab) Na__LeScrap__Ready().then(() => { tab.button.textContent = Na__LeScrap__Label('Title', 'Scrapbook'); });
+        return tab;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Register the Section
     // ------------------------------------------------------------
     function Na__LePanelScrap__Register() {
@@ -201,14 +224,14 @@
             Na__LePanelScrap__Listening = true;
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LePanelScrap__OnModelChanged);
         }
-        const entry = Na__LePanels__RegisterSection('left', {
-            id : Na__LePanelScrap__ID, title : Na__LeScrap__Label('Title', 'Scrapbook'),
+        const entry = Na__LePanels__RegisterSection('right', {
+            id : Na__LePanelScrap__ID, title : Na__LeScrap__Label('StandardTitle', 'Standard Scrapbook'), tab : Na__LeScrap__TAB_ID,
             build : Na__LePanelScrap__Build, refresh : Na__LePanelScrap__Refresh
         });
         Na__LePanels__SetSectionVisible(Na__LePanelScrap__ID, false);           // <-- Hidden until the config says the active sheet has items
         Na__LeScrap__Ready().then(() => {
             const title = entry ? entry.root.querySelector('.na-le-section__title') : null;
-            if (title) title.textContent = Na__LeScrap__Label('Title', 'Scrapbook');
+            if (title) title.textContent = Na__LeScrap__Label('StandardTitle', 'Standard Scrapbook');
             Na__LePanelScrap__Sync();
         });
         return entry;
@@ -225,6 +248,7 @@
     // MODULE EXPORTS | Scrapbook Panel API
     // ------------------------------------------------------------
     export {
+        Na__LePanelScrap__RegisterTab,
         Na__LePanelScrap__Register,
         Na__LePanelScrap__PlaceInView
     };

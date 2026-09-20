@@ -174,6 +174,7 @@
                 scale        : fields.Scale,
                 size         : 'ISO ' + paper.Label,
                 revision     : fields.Revision,
+                status       : fields.Status,                                    // <-- What the drawing is issued for. The Edit table's Status box reads it; it is not a printed column (see the config's StatusColumnNote)
                 notes        : Na__LeReg__Clone(Na__LeReg__GetRevisions(sheet.Sheet__Id))
             };
         });
@@ -311,18 +312,44 @@
 
     // HELPER FUNCTION | Draw Wrapped Lines Into a Column Box, Aligned and Centred
     // ------------------------------------------------------------
-    function Na__LeRegPdf__Cell(ctx, lines, column, x, top, boxMm, pt) {
+    function Na__LeRegPdf__Cell(ctx, lines, column, x, top, boxMm, pt, trackMm) {
         if (!lines || !lines.length) return;
         const cfg     = ctx.cfg;
         const blockMm = lines.length * cfg.lineMm;
         const first   = top + Math.max(0, (boxMm - blockMm) / 2) + Na__LeRegPdf__Baseline(pt, cfg.lineMm);
-        let   anchor  = x + cfg.cellPadMm;
-        let   align   = 'left';
-        if (column.align === 'centre') { anchor = x + column.width / 2;              align = 'center'; }
-        if (column.align === 'right')  { anchor = x + column.width - cfg.cellPadMm;  align = 'right';  }
         lines.forEach((line, index) => {
-            ctx.doc.text(line, anchor, first + index * cfg.lineMm, { align : align, baseline : 'alphabetic' });
+            const y = first + index * cfg.lineMm;
+            if (column.align === 'centre')     Na__LeRegPdf__Draw(ctx, line, x + column.width / 2, y, trackMm, 'centre');
+            else if (column.align === 'right') Na__LeRegPdf__Draw(ctx, line, x + column.width - cfg.cellPadMm, y, trackMm, 'right');
+            else                               Na__LeRegPdf__Draw(ctx, line, x + cfg.cellPadMm, y, trackMm, 'left');
         });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Place Text Ourselves Rather Than Trust jsPDF's align
+    // ------------------------------------------------------------
+    // jsPDF's align does NOT account for setCharSpace: it measures the string
+    // untracked, so right-aligned tracked text overhangs its anchor by the whole
+    // of the tracking. Measured on the letterhead before this was written, the
+    // running head ended 17.5pt past the right margin - which is exactly the
+    // overhang Adam pointed at. Anything tracked is therefore positioned from a
+    // width this module measured itself, with the tracking counted in, and drawn
+    // left-aligned. Untracked text still goes through the same door so there is
+    // one way of placing a line, not two.
+    // ------------------------------------------------------------
+    function Na__LeRegPdf__Draw(ctx, text, anchor, y, trackMm, align) {
+        const value = String(text === undefined || text === null ? '' : text);
+        if (!value) return;
+        const track = trackMm || 0;
+        let   x     = anchor;
+        if (align === 'right' || align === 'centre') {
+            const width = ctx.doc.getTextWidth(value) + track * Math.max(0, value.length - 1);
+            x = align === 'right' ? anchor - width : anchor - width / 2;
+        }
+        if (track) ctx.doc.setCharSpace(track);
+        ctx.doc.text(value, x, y, { baseline : 'alphabetic' });
+        if (track) ctx.doc.setCharSpace(0);                                      // <-- Never left set: the next draw would inherit it
     }
     // ------------------------------------------------------------
 
@@ -445,10 +472,8 @@
         }
 
         Na__LeRegPdf__Font(ctx, Na__LeRegPdf__RUNNING_PT, Na__LeRegPdf__WEIGHT_BODY, cfg.muted);
-        ctx.doc.setCharSpace(Na__LeRegPdf__RUNNING_TRACK_MM);
-        ctx.doc.text(ctx.running, right, baseY - 2.6, { align : 'right' });
-        ctx.doc.text(ctx.issue,   right, baseY + 0.9, { align : 'right' });
-        ctx.doc.setCharSpace(0);
+        Na__LeRegPdf__Draw(ctx, ctx.running, right, baseY - 2.6, Na__LeRegPdf__RUNNING_TRACK_MM, 'right');
+        Na__LeRegPdf__Draw(ctx, ctx.issue,   right, baseY + 0.9, Na__LeRegPdf__RUNNING_TRACK_MM, 'right');
 
         Na__LeRegPdf__Rule(ctx, ctx.margin + Na__LeRegPdf__HEAD_BAND_MM, cfg.rule, 0.3);
         ctx.y = ctx.margin + Na__LeRegPdf__HEAD_BAND_MM + 8;
@@ -478,9 +503,7 @@
         Na__LeRegPdf__Rule(ctx, ctx.y, cfg.rule, 0.3);
         const step = ctx.width / kept.length;
         Na__LeRegPdf__Font(ctx, Na__LeRegPdf__RUNNING_PT, Na__LeRegPdf__WEIGHT_BODY, cfg.muted);
-        ctx.doc.setCharSpace(Na__LeRegPdf__RUNNING_TRACK_MM);
-        kept.forEach((fact, index) => ctx.doc.text(fact.label.toUpperCase(), ctx.margin + step * index, ctx.y + 4.6));
-        ctx.doc.setCharSpace(0);
+        kept.forEach((fact, index) => Na__LeRegPdf__Draw(ctx, fact.label.toUpperCase(), ctx.margin + step * index, ctx.y + 4.6, Na__LeRegPdf__RUNNING_TRACK_MM, 'left'));
         Na__LeRegPdf__Font(ctx, cfg.pdfFontPt, Na__LeRegPdf__WEIGHT_BODY, cfg.ink);
         kept.forEach((fact, index) => {
             const room = ctx.doc.splitTextToSize(String(fact.value), step - 3);
@@ -498,12 +521,10 @@
     function Na__LeRegPdf__Heading(ctx, heading, continued) {
         const cfg = ctx.cfg;
         Na__LeRegPdf__Font(ctx, cfg.headingPt, Na__LeRegPdf__WEIGHT_BOLD, cfg.ink);
-        ctx.doc.setCharSpace(Na__LeRegPdf__HEAD_TRACK_MM);
-        ctx.doc.text(heading, ctx.margin, ctx.y + 4);
-        ctx.doc.setCharSpace(0);
+        Na__LeRegPdf__Draw(ctx, heading, ctx.margin, ctx.y + 4, Na__LeRegPdf__HEAD_TRACK_MM, 'left');
         if (continued) {
             Na__LeRegPdf__Font(ctx, cfg.metaPt, Na__LeRegPdf__WEIGHT_BODY, cfg.muted);
-            ctx.doc.text('continued', ctx.margin + ctx.width, ctx.y + 4, { align : 'right' });
+            Na__LeRegPdf__Draw(ctx, 'continued', ctx.margin + ctx.width, ctx.y + 4, 0, 'right');
         }
         ctx.y += 9;
     }
@@ -539,10 +560,8 @@
             ctx.doc.setPage(index);
             Na__LeRegPdf__Rule(ctx, ruleY, cfg.rule, 0.3);
             Na__LeRegPdf__Font(ctx, Na__LeRegPdf__RUNNING_PT, Na__LeRegPdf__WEIGHT_BODY, cfg.muted);
-            ctx.doc.setCharSpace(Na__LeRegPdf__RUNNING_TRACK_MM);
-            ctx.doc.text(ctx.company.toUpperCase(), ctx.margin, baseY);
-            ctx.doc.text(('Page ' + index + ' of ' + pages).toUpperCase(), right, baseY, { align : 'right' });
-            ctx.doc.setCharSpace(0);
+            Na__LeRegPdf__Draw(ctx, ctx.company.toUpperCase(), ctx.margin, baseY, Na__LeRegPdf__RUNNING_TRACK_MM, 'left');
+            Na__LeRegPdf__Draw(ctx, ('Page ' + index + ' of ' + pages).toUpperCase(), right, baseY, Na__LeRegPdf__RUNNING_TRACK_MM, 'right');
         }
     }
     // ------------------------------------------------------------
@@ -561,13 +580,11 @@
         ctx.doc.setFillColor(cfg.header);
         ctx.doc.rect(ctx.margin, ctx.y, ctx.width, cfg.headRowMm, 'F');
         Na__LeRegPdf__Font(ctx, cfg.tableHeadPt, Na__LeRegPdf__WEIGHT_BOLD, cfg.muted);
-        ctx.doc.setCharSpace(Na__LeRegPdf__HEAD_TRACK_MM);
         let x = ctx.margin;
         columns.forEach((column) => {
-            Na__LeRegPdf__Cell(ctx, [column.heading], column, x, ctx.y, cfg.headRowMm, cfg.tableHeadPt);
+            Na__LeRegPdf__Cell(ctx, [column.heading], column, x, ctx.y, cfg.headRowMm, cfg.tableHeadPt, Na__LeRegPdf__HEAD_TRACK_MM);
             x += column.width;
         });
-        ctx.doc.setCharSpace(0);
         ctx.y += cfg.headRowMm;
         Na__LeRegPdf__Rule(ctx, ctx.y, cfg.accent, 0.4);                         // <-- The accent rule ties the head row to the header band above it
     }

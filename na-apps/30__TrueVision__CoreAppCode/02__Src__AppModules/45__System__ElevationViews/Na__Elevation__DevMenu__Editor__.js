@@ -20,10 +20,15 @@
 //   planes are centred on the model so all four are immediately meaningful
 //   rather than stranded at the world origin.
 //
-// - THE GIZMO FOLLOWS THE ROW YOU ARE TOUCHING. It appears on the first
-//   interaction with a row and tracks that row's plane until the panel is
-//   closed or a preview starts, so the numbers always have something visible
-//   attached to them without a plane hanging in the view unasked.
+// - EVERY ELEVATION HAS A PLANE IN THE 3D VIEW (47__System__DrawingPlanes). Each
+//   row can switch its own on, the bar at the head of the panel switches all of
+//   them on, and each carries the elevation's name in its own colour - the
+//   swatch beside the row's name. The plane of the row being TOUCHED is always
+//   up, as the old single gizmo was, so the numbers always have something
+//   visible attached. A plane can be dragged along its normal, snapped to a
+//   world grid, sent to a picked face (Move to face) or turned to face a wall
+//   (Aim at face, ValeVision's pick) - and every one of those writes the same
+//   two numbers the sliders write, so the numbers remain the definition.
 //
 // - Save writes the whole PresentationMode block through the existing
 //   Na__CfApi__MergeAndSaveKeys path. Elevations are nested INSIDE that block,
@@ -37,6 +42,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - Elevation planes are shown through the shared Drawing Planes system
+//   instead of Na__Elevation__PlaneGizmo__: a Show plane toggle, Move to face
+//   and Aim at face on every row, and the Drawing Planes bar (all on, snap and
+//   its grid) at the head of the panel. The editor registers an elevation
+//   SOURCE with the overlay; a drag or a pick in the 3D view runs the same
+//   commit a slider release runs and rebuilds the panel.
+// - Closing the panel no longer takes every plane down - only the one that was
+//   up because its row was being edited.
+// - "Centre on model" and Seed N / E / S / W centre on the BUILDING, on the
+//   snap grid. They used the whole model's bounds, whose centre on a real
+//   project is the landscape's: PS01's three planes sat at (20 000, -20 000),
+//   off the corner of the house, and nothing showed it until the planes did.
+//
 // 07-Sep-2026 - Version 1.0.0
 // - Initial implementation for the Elevation Drawings build.
 //
@@ -85,8 +104,11 @@
         Na__ElevData__GetElevations,
         Na__ElevData__CreateElevation,
         Na__ElevData__DeleteElevation,
+        Na__ElevData__GetAxes,
+        Na__ElevData__GetPlaneOriginMm,
         Na__ElevData__SetPlaneOriginMm,
         Na__ElevData__GetPlaneDistanceMm,
+        Na__ElevData__AzimuthFromNormal,
         Na__ElevData__IsSection,
         Na__ElevData__FindSceneFor
     } from './Na__Elevation__ProjectJson__Data__.js';
@@ -101,11 +123,6 @@
         Na__ElevFrame__GetBounds,
         Na__ElevFrame__GetCentredPlaneOriginMm
     } from './Na__Elevation__Framing__.js';
-    import {
-        Na__ElevGizmo__Show,
-        Na__ElevGizmo__Hide,
-        Na__ElevGizmo__Dispose
-    } from './Na__Elevation__PlaneGizmo__.js';
     import {
         Na__ElevRow__BuildButton,
         Na__ElevRow__BuildElevationRow
@@ -128,6 +145,40 @@
         Na__ElevationMode__StoreActiveFraming,
         Na__ElevMode__CHANGED_EVENT
     } from './Na__Elevation__ModeController__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Drawing Planes (the planes shown in the 3D view)
+    // ------------------------------------------------------------
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__Overlay__.js
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__Grip__.js
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__DevMenu__Controls__.js
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__Maths__.js
+    // ------------------------------------------------------------
+    import {
+        Na__PlaneOverlay__KIND_VERTICAL,
+        Na__PlaneOverlay__RegisterSource,
+        Na__PlaneOverlay__Select,
+        Na__PlaneOverlay__DeselectType,
+        Na__PlaneOverlay__Forget,
+        Na__PlaneOverlay__Refresh,
+        Na__PlaneOverlay__RefreshOne,
+        Na__PlaneOverlay__GetSnap
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Overlay__.js';
+    import { Na__PlaneBounds__Measure } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Bounds__.js';
+    import {
+        Na__PlaneGrip__MODE_AIM,
+        Na__PlaneGrip__CancelFacePick
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Grip__.js';
+    import {
+        Na__PlaneUi__TYPE_ELEVATION,
+        Na__PlaneUi__BuildBar,
+        Na__PlaneUi__BuildRowControls
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__DevMenu__Controls__.js';
+    import {
+        Na__PlaneMath__ApplySnap,
+        Na__PlaneMath__FormatMm,
+        Na__PlaneMath__MoveOriginToDistance
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Maths__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -204,14 +255,18 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Move the Gizmo Onto the Row Being Edited
+    // HELPER FUNCTION | Bring Up the Plane of the Row Being Edited
     // ------------------------------------------------------------
-    // Suppressed while a drawing is previewing: a translucent plane over the
-    // finished elevation would be exactly the thing the gizmo exists to avoid.
+    // Selecting a plane puts it up whether or not its Show plane toggle is on,
+    // and re-lays it out where the record now says it stands - so the numbers
+    // always have something visible attached, as the old single gizmo did.
+    // Not while a drawing is previewing: nothing of the overlay is drawn over a
+    // drawing anyway, and the selection would only flash up on the way out.
     // ------------------------------------------------------------
     function Na__ElevDev__ShowGizmo(elevation) {
         if (Na__ElevationMode__IsActive()) return;
-        Na__ElevGizmo__Show(elevation, Na__ElevFrame__GetBounds(Na__ElevDev__ModelRoot));
+        Na__PlaneOverlay__Select(Na__PlaneUi__TYPE_ELEVATION, elevation.Elevation__Id);
+        Na__PlaneOverlay__RefreshOne(Na__PlaneUi__TYPE_ELEVATION, elevation.Elevation__Id);
     }
     // ------------------------------------------------------------
 
@@ -258,6 +313,126 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Drawing Planes Source
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Centre of the BUILDING, on the Snap Grid
+    // ------------------------------------------------------------
+    // What "Centre on model" and Seed N / E / S / W mean. They used to take the
+    // centre of the whole model's bounds, and on a real project that is the
+    // centre of the LANDSCAPE: PS01's slab is 80 m square, so its three seeded
+    // planes all landed at (20 000, -20 000), off the corner of a house that
+    // stands around (15 000, -15 400). Nobody could see that until the planes
+    // were drawn. The building's own bounds come from the Drawing Planes
+    // system, which never measures the landscape; the old centre stands in only
+    // when no building can be told apart.
+    // ------------------------------------------------------------
+    function Na__ElevDev__BuildingCentreMm(elevation) {
+        const measured = Na__PlaneBounds__Measure(Na__ElevDev__ModelRoot);
+        if (!measured) return Na__ElevFrame__GetCentredPlaneOriginMm(Na__ElevDev__Measure(elevation || null));
+
+        const snap = Na__PlaneOverlay__GetSnap();
+        return {
+            xMm : Na__PlaneMath__ApplySnap(((measured.box.min.x + measured.box.max.x) / 2) * 1000, snap),
+            zMm : Na__PlaneMath__ApplySnap(((measured.box.min.z + measured.box.max.z) / 2) * 1000, snap)
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put an Elevation's Plane a Distance Along Its Own Normal
+    // ------------------------------------------------------------
+    // The record stores a POINT the plane passes through, which is what the two
+    // sliders move. The point slides along the normal and not across it, so the
+    // numbers the sliders show change by the least that moves the plane.
+    // ------------------------------------------------------------
+    function Na__ElevDev__MovePlaneTo(elevation, distanceMm) {
+        const axes   = Na__ElevData__GetAxes(elevation);
+        const origin = Na__ElevData__GetPlaneOriginMm(elevation);
+        const moved  = Na__PlaneMath__MoveOriginToDistance(origin.xMm, origin.zMm, axes.normalX, axes.normalZ, distanceMm);
+        return Na__ElevData__SetPlaneOriginMm(elevation, moved.xMm, moved.zMm);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Say Where a Plane Is, in the Panel's Own Terms
+    // ------------------------------------------------------------
+    // A plane square to the world is described by the slider that moves it;
+    // only a plane at an angle is described by its distance along the view.
+    // ------------------------------------------------------------
+    function Na__ElevDev__DescribePlane(elevation) {
+        const axes   = Na__ElevData__GetAxes(elevation);
+        const origin = Na__ElevData__GetPlaneOriginMm(elevation);
+        if (Math.abs(axes.normalZ) < 1e-6) return Na__ElevCfg__GetLabel('PlaneXFieldLabel', 'Plane X') + '  ' + Na__PlaneMath__FormatMm(origin.xMm) + ' mm';
+        if (Math.abs(axes.normalX) < 1e-6) return Na__ElevCfg__GetLabel('PlaneZFieldLabel', 'Plane Z') + '  ' + Na__PlaneMath__FormatMm(origin.zMm) + ' mm';
+        return Na__PlaneMath__FormatMm(Na__ElevData__GetPlaneDistanceMm(elevation)) + ' mm along the view';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Send an Elevation's Plane to a Picked Building Face
+    // ------------------------------------------------------------
+    // hit: { pointMm, normal } - the face's world normal, toward the camera.
+    // MOVE keeps the bearing and puts the plane through the picked point, on
+    // the snap grid. AIM first turns the elevation to face the wall square on -
+    // ValeVision's pick - and refuses a floor or a roof, which has no bearing
+    // to give. Returns the toast, or null when refused (the pick stays armed).
+    // ------------------------------------------------------------
+    function Na__ElevDev__ApplyFacePick(elevation, hit, snap, mode) {
+        if (mode === Na__PlaneGrip__MODE_AIM) {
+            const flat = Math.hypot(hit.normal.x, hit.normal.z);
+            if (flat < 0.2) {
+                Na__ElevDev__Toast('That face is a floor or a roof - click a wall to aim the elevation at.', true);
+                return null;
+            }
+            elevation.Elevation__AzimuthDeg = Na__ElevData__AzimuthFromNormal(hit.normal.x / flat, hit.normal.z / flat);
+        }
+
+        const axes     = Na__ElevData__GetAxes(elevation);
+        const distance = (hit.pointMm.x * axes.normalX) + (hit.pointMm.z * axes.normalZ);
+        Na__ElevDev__MovePlaneTo(elevation, Na__PlaneMath__ApplySnap(distance, snap));
+
+        return '"' + elevation.Elevation__Name + '" '
+            + ((mode === Na__PlaneGrip__MODE_AIM) ? ('now faces that wall (bearing ' + elevation.Elevation__AzimuthDeg + ' deg) - ') : 'moved to the face - ')
+            + Na__ElevDev__DescribePlane(elevation) + '.';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tell the Drawing Planes System About Elevations
+    // ------------------------------------------------------------
+    // Everything the shared overlay and grip need to show, move and pick an
+    // elevation's plane. A drag or a pick writes the same fields the sliders
+    // write, then runs the same commit a slider release runs - and rebuilds
+    // the panel, so the sliders show where the plane landed.
+    // ------------------------------------------------------------
+    function Na__ElevDev__RegisterPlaneSource() {
+        Na__PlaneOverlay__RegisterSource(Na__PlaneUi__TYPE_ELEVATION, {
+            kind          : Na__PlaneOverlay__KIND_VERTICAL,
+            paletteOffset : 0,
+            list          : () => Na__ElevData__GetElevations(null),
+            getId         : (elevation) => elevation.Elevation__Id,
+            getName       : (elevation) => elevation.Elevation__Name,
+            isSection     : (elevation) => Na__ElevData__IsSection(elevation),
+            getAxes       : (elevation) => Na__ElevData__GetAxes(elevation),
+            getPositionMm : (elevation) => Na__ElevData__GetPlaneDistanceMm(elevation),
+            setPositionMm : (elevation, distanceMm) => Na__ElevDev__MovePlaneTo(elevation, distanceMm),
+            describe      : (elevation) => Na__ElevDev__DescribePlane(elevation),
+            onLive        : (elevation) => Na__ElevDev__PushLiveCut(elevation, true),
+            onCommit      : (elevation) => {
+                Na__ElevDev__PushLiveCut(elevation, false);
+                Na__ElevDev__CommitGeometry(elevation);
+                if (Na__ElevDev__Panel && Na__ElevDev__Panel.classList.contains('is-open')) Na__ElevDev__Render();
+            },
+            applyFacePick : Na__ElevDev__ApplyFacePick
+        });
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Row Handler Wiring
 // -----------------------------------------------------------------------------
 
@@ -278,6 +453,7 @@
             onRename : () => {
                 Na__ElevLink__SyncSceneName(config, elevation);
                 Na__PresentationMode__ProjectJson__BroadcastScenesChanged();     // <-- The card carries the elevation name
+                Na__PlaneOverlay__Refresh();                                     // <-- And so does its plane in the 3D view
             },
 
             // A new bearing changes the camera basis outright, so the drawing
@@ -298,7 +474,7 @@
             },
 
             onCentrePlane : () => {
-                const centred = Na__ElevFrame__GetCentredPlaneOriginMm(Na__ElevDev__Measure(elevation));
+                const centred = Na__ElevDev__BuildingCentreMm(elevation);        // <-- The building's centre, not the landscape's
                 if (!centred) {
                     Na__ElevDev__Toast(Na__ElevCfg__GetLabel('NoModelMessage', 'Load a model before adding elevations.'), true);
                     return;
@@ -316,7 +492,7 @@
                 if (isActive) {
                     Na__ElevationMode__ExitElevation(null);
                 } else {
-                    Na__ElevGizmo__Hide();                                       // <-- Never leave the setup marker on the drawing
+                    Na__PlaneGrip__CancelFacePick(Na__PlaneUi__TYPE_ELEVATION);  // <-- A face is picked in the 3D view, which is about to go. The planes need no hiding: they are never drawn over a drawing
                     Na__ElevationMode__EnterElevation(elevation);
                 }
             },
@@ -363,9 +539,9 @@
     // immediately meaningful rather than stranded at the world origin.
     // ------------------------------------------------------------
     function Na__ElevDev__SeedFourSides() {
-        // The model's centre in X/Z does not depend on which way an elevation
+        // The building's centre in X/Z does not depend on which way an elevation
         // faces, so one measurement with no record serves all four.
-        const centred = Na__ElevFrame__GetCentredPlaneOriginMm(Na__ElevDev__Measure(null));
+        const centred = Na__ElevDev__BuildingCentreMm(null);
         if (!centred) {
             Na__ElevDev__Toast(Na__ElevCfg__GetLabel('NoModelMessage', 'Load a model before adding elevations.'), true);
             return 0;
@@ -406,10 +582,11 @@
         if (Na__ElevationMode__IsActive() && Na__ElevationMode__GetActiveElevation() === elevation) {
             Na__ElevationMode__ExitElevation(null);                              // <-- Never leave a deleted drawing on screen
         }
-        Na__ElevGizmo__Hide();
+        Na__PlaneGrip__CancelFacePick(Na__PlaneUi__TYPE_ELEVATION);
 
         const orphanedSceneId = Na__ElevData__DeleteElevation(config, elevation.Elevation__Id);
         if (orphanedSceneId) Na__ElevLink__RemoveSceneForElevation(config, orphanedSceneId);
+        Na__PlaneOverlay__Forget(Na__PlaneUi__TYPE_ELEVATION, elevation.Elevation__Id);   // <-- After the record has gone, so the refresh finds nothing to keep up
 
         Na__PresentationMode__ProjectJson__BroadcastScenesChanged();             // <-- Drop the card with the elevation
         Na__ElevDev__Render();
@@ -545,8 +722,21 @@
         const config     = Na__ElevDev__GetConfig();
         const elevations = config ? Na__ElevData__GetElevations(config) : [];
 
+        // DRAWING PLANES | Show all, snap and its grid - the same bar the Floor
+        // Plans panel carries, because the state behind it is shared.
+        const planesBar = (elevations.length > 0) ? Na__PlaneUi__BuildBar() : null;
+        if (planesBar) Na__ElevDev__Panel.appendChild(planesBar);
+
         for (let i = 0; i < elevations.length; i++) {
             const elevationRow = Na__ElevDev__BuildRow(elevations[i]);
+
+            // Under the name, so the swatch that ties this row to its plane in
+            // the 3D view is the first thing beside what the plane is called.
+            const planeControls = Na__PlaneUi__BuildRowControls(
+                Na__PlaneUi__TYPE_ELEVATION, elevations[i].Elevation__Id, { canAim : true }
+            );
+            if (planeControls) elevationRow.insertBefore(planeControls, elevationRow.children[1] || null);
+
             elevationRow.appendChild(Na__ElevDev__BuildSceneLinkRow(elevations[i]));
             Na__ElevDev__Panel.appendChild(elevationRow);
         }
@@ -559,8 +749,8 @@
         } else {
             const hint = document.createElement('p');
             hint.className   = 'na-fp-dev__empty';
-            hint.textContent = 'The green plane in the 3D view shows where the drawing is taken from. '
-                             + 'It follows whichever elevation you are editing.';
+            hint.textContent = 'Each elevation has a plane in the 3D view, in the colour beside its name, showing where '
+                             + 'the drawing is taken from and which way it looks. The one you are editing is always up.';
             Na__ElevDev__Panel.appendChild(hint);
         }
 
@@ -621,6 +811,7 @@
         Na__ElevDev__Initialized = true;
 
         menuItem.style.display = '';                                             // <-- Reveal alongside the other dev tools
+        Na__ElevDev__RegisterPlaneSource();                                      // <-- Elevation planes can now be shown, dragged and picked in the 3D view
 
         toggle.addEventListener('click', () => {
             const isOpen = panel.classList.contains('is-open');
@@ -629,7 +820,11 @@
             if (!isOpen) {
                 Na__ElevDev__Render();                                           // <-- Rebuild on each open so data is fresh
             } else {
-                Na__ElevGizmo__Dispose();                                        // <-- Authoring is done; release the geometry outright
+                // Authoring is done. The plane that was only up because its row
+                // was being edited goes; planes SWITCHED ON stay, which is the
+                // point of switching them on.
+                Na__PlaneGrip__CancelFacePick(Na__PlaneUi__TYPE_ELEVATION);
+                Na__PlaneOverlay__DeselectType(Na__PlaneUi__TYPE_ELEVATION);
             }
         });
 

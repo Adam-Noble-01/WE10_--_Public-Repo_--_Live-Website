@@ -44,6 +44,35 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.6.0
+// - The HeightMm fallback is back to 10. The QR code carries a short address
+//   now (a 29 module symbol for a 49 module one), so it prints a readable
+//   module in Lantern Designer's own 10 mm strip, and the 20 mm one - which
+//   Adam judged "too tall, too portrait-feeling, and stretched" - is gone.
+// - The QR cell fallbacks follow the shipped JSON onto that strip: a 56 mm
+//   cell, the fields' own paddings, Lantern's type sizes and line spacing.
+//   qrCellTextGapMm (the note stops short of the code) and
+//   qrCellCompactMinFontMm (a turned caption smaller than this is left out).
+//
+// 19-Sep-2026 - Version 1.5.0
+// - GetTitleBlockSetup reads the title block's QR cell (TitleBlock QrCell...):
+//   whether it is drawn, its width and paddings, and how its note is set. The
+//   HeightMm fallback follows the shipped JSON to 20, the height the code needs.
+//
+// 19-Sep-2026 - Version 1.4.0
+// - GetTitleBlockSetup reads the drawing statuses (TitleBlock Statuses) the Sheet
+//   panel and the Drawing Register offer, and StatusDefault, what a sheet prints
+//   until one is chosen. The built-in list stands in for a config that lists none.
+// - StatusToStore: what a sheet stores for a status chosen in a box. "Not set" is
+//   no key at all, unless the config names a default, where it has to be kept as
+//   an empty string or the default would print instead.
+// - The title block row fallbacks follow the shipped JSON: a row's WidthMm is
+//   paper millimetres now rather than a share of the strip, the Drawing Title
+//   carries Flex, and Status is the last row.
+// - The logo fallbacks follow it too. Cell width, maximum height and both paddings
+//   still described the Vale strip this was ported from, so a missing key would
+//   have drawn a different logo cell from the one the config ships.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - The default sheet name's fallback follows the shipped JSON to "New Drawing":
 //   a new sheet's tab carries the Drawing Register's short code, so the default
@@ -87,10 +116,13 @@
     const Na__LeCfg__FALLBACKS = Object.freeze({
         paperSizes : { A4 : { Label : 'A4', WidthMm : 297, HeightMm : 210 }, A3 : { Label : 'A3', WidthMm : 420, HeightMm : 297 },
                        A2 : { Label : 'A2', WidthMm : 594, HeightMm : 420 }, A1 : { Label : 'A1', WidthMm : 841, HeightMm : 594 } },
-        rows       : [ { Key : 'Client', Label : 'Client', WidthMm : 28 }, { Key : 'SiteAddress', Label : 'Site Address', WidthMm : 40 },
-                       { Key : 'Title', Label : 'Drawing Title', WidthMm : 34 }, { Key : 'DocumentId', Label : 'Document ID', WidthMm : 26 },   // <-- The whole identifier, not the sequence: PS01_T02_D01
-                       { Key : 'Revision', Label : 'Rev', WidthMm : 8 }, { Key : 'Scale', Label : 'Scale', WidthMm : 30 },   // <-- Scale carries the paper size, so it is the widest of the small cells
-                       { Key : 'Date', Label : 'Date', WidthMm : 16 }, { Key : 'DrawnBy', Label : 'Drawn By', WidthMm : 20 } ],
+        rows       : [ { Key : 'Client', Label : 'Client', WidthMm : 36 }, { Key : 'SiteAddress', Label : 'Site Address', WidthMm : 70 },   // <-- Paper millimetres now, not shares of the strip
+                       { Key : 'Title', Label : 'Drawing Title', WidthMm : 60, Flex : 1 }, { Key : 'DocumentId', Label : 'Document ID', WidthMm : 24 },   // <-- The title takes what the paper has left; the id is the whole identifier, PS01_T02_D01
+                       { Key : 'Revision', Label : 'Rev', WidthMm : 28 }, { Key : 'Scale', Label : 'Scale', WidthMm : 28 },   // <-- The four small cells are one module, sized for the widest thing any of them says
+                       { Key : 'Date', Label : 'Date', WidthMm : 28 }, { Key : 'DrawnBy', Label : 'Drawn By', WidthMm : 28 },
+                       { Key : 'Status', Label : 'Status', WidthMm : 30 } ],                                                 // <-- Last on the right: what the drawing is issued for
+        statuses   : [ 'PRELIMINARY', 'FOR INFORMATION', 'FOR COMMENT', 'FOR COORDINATION', 'FOR APPROVAL', 'FOR PLANNING',
+                       'FOR BUILDING CONTROL', 'FOR PRICING', 'FOR TENDER', 'FOR CONSTRUCTION', 'AS BUILT', 'SUPERSEDED' ],
         scales     : [ 20, 50, 100 ],
         pdfFonts   : [
             { Style : 'light',  Weight : 300, FileName : 'CommonFont-01__OpenSans__Light__.ttf' },
@@ -153,6 +185,27 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Drawing Statuses the Status Boxes Offer
+    // ------------------------------------------------------------
+    // Trimmed, without blanks or repeats, in the order the config lists them -
+    // which is the order a job moves through them. A config that lists none
+    // falls back to the built-in list rather than offering an empty box.
+    // ------------------------------------------------------------
+    function Na__LeCfg__TitleBlockStatuses(configured) {
+        if (!Array.isArray(configured)) return Na__LeCfg__FALLBACKS.statuses.slice();
+        const seen = new Set();
+        const kept = [];
+        configured.forEach((status) => {
+            const text = (typeof status === 'string') ? status.trim() : '';
+            if (!text || seen.has(text)) return;
+            seen.add(text);
+            kept.push(text);
+        });
+        return kept.length ? kept : Na__LeCfg__FALLBACKS.statuses.slice();
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get the Title Block Setup
     // ------------------------------------------------------------
     function Na__LeCfg__GetTitleBlockSetup() {
@@ -161,14 +214,14 @@
         const anchors = Na__LeCfg__Val('TitleBlock', 'ClassicFieldAnchors', null);
         return {
             defaultStyle        : Na__LeCfg__Val('TitleBlock', 'DefaultStyle', 'modern'),
-            heightMm            : Na__LeCfg__Num('TitleBlock', 'HeightMm', 10),
+            heightMm            : Na__LeCfg__Num('TitleBlock', 'HeightMm', 10),          // <-- Lantern Designer's strip. The QR cell's code is as tall as the strip allows: do not lower it without reading HeightMmNote
             logoAssetPath       : Na__LeCfg__Val('TitleBlock', 'LogoAssetPath', '../assets__CommonApplicationAssets/AppLogo__ValeHeaderImage_ValeLogo_HorizontalFormat__.png'),
-            logoCellWidthMm     : Na__LeCfg__Num('TitleBlock', 'LogoCellWidthMm', 34),
+            logoCellWidthMm     : Na__LeCfg__Num('TitleBlock', 'LogoCellWidthMm', 40),    // <-- The logo fallbacks mirror the shipped JSON, as the rows do
             logoWidthMm         : Na__LeCfg__Num('TitleBlock', 'LogoWidthMm', 33),
-            logoMaxHeightMm     : Na__LeCfg__Num('TitleBlock', 'LogoMaxHeightMm', 5.5),
+            logoMaxHeightMm     : Na__LeCfg__Num('TitleBlock', 'LogoMaxHeightMm', 8),
             logoAspect          : Na__LeCfg__Num('TitleBlock', 'LogoAspectWidthOverHeight', 4.096),
-            logoPaddingVMm      : Na__LeCfg__Num('TitleBlock', 'LogoPaddingVMm', 1.8),
-            logoPaddingHMm      : Na__LeCfg__Num('TitleBlock', 'LogoPaddingHMm', 2.5),
+            logoPaddingVMm      : Na__LeCfg__Num('TitleBlock', 'LogoPaddingVMm', 1.2),
+            logoPaddingHMm      : Na__LeCfg__Num('TitleBlock', 'LogoPaddingHMm', 4),      // <-- Air either side of the mark, so it is not hemmed in by the cell
             fontSizeLabelMm     : Na__LeCfg__Num('TitleBlock', 'FontSizeLabelMm', 1.6),
             fontSizeValueMm     : Na__LeCfg__Num('TitleBlock', 'FontSizeValueMm', 2.2),
             fieldPaddingHMm     : Na__LeCfg__Num('TitleBlock', 'FieldPaddingHMm', 1.4),
@@ -176,10 +229,49 @@
             fieldPaddingBottomMm: Na__LeCfg__Num('TitleBlock', 'FieldPaddingBottomMm', 0.8),
             labelOffsetTopMm    : Na__LeCfg__Num('TitleBlock', 'FieldLabelOffsetTopMm', 1.5),
             drawnByDefault      : Na__LeCfg__Val('TitleBlock', 'DrawnByDefault', 'Noble Architecture'),
+            statuses            : Na__LeCfg__TitleBlockStatuses(Na__LeCfg__Val('TitleBlock', 'Statuses', null)),   // <-- What the Sheet panel's and the Drawing Register's Status boxes offer
+            statusDefault       : String(Na__LeCfg__Val('TitleBlock', 'StatusDefault', '') || '').trim(),          // <-- What a sheet prints until one is chosen; shipped empty, so no drawing claims a status nobody gave it
             rows                : Array.isArray(rows) ? rows : Na__LeCfg__FALLBACKS.rows,
             classicScanAssets   : (scans && typeof scans === 'object') ? scans : {},
-            classicFieldAnchors : (anchors && typeof anchors === 'object') ? anchors : {}
+            classicFieldAnchors : (anchors && typeof anchors === 'object') ? anchors : {},
+
+            // THE QR CELL | The right-hand end of the modern strip (Na__LayoutEditor__TitleBlock__QrCell__).
+            // Where the code goes and how its note is set; what the code says
+            // belongs to the Project QR Code system, not to this config.
+            qrCellEnabled              : Na__LeCfg__Val('TitleBlock', 'QrCellEnabled', true) !== false,
+            qrCellWidthMm              : Na__LeCfg__Num('TitleBlock', 'QrCellWidthMm', 56),
+            qrCellTextGapMm            : Na__LeCfg__Num('TitleBlock', 'QrCellTextGapMm', 1),              // <-- The note stops this far short of the code's quiet zone
+            qrCellNoteMinFieldRoomMm   : Na__LeCfg__Num('TitleBlock', 'QrCellNoteMinFieldRoomMm', 250),   // <-- Less strip than this left for the fields and the cell goes compact: the code and a turned caption
+            qrCellCompactFontMm        : Na__LeCfg__Num('TitleBlock', 'QrCellCompactFontMm', 1.6),
+            qrCellCompactMinFontMm     : Na__LeCfg__Num('TitleBlock', 'QrCellCompactMinFontMm', 1.2),    // <-- A turned caption that would have to be set smaller than this is left out
+            qrCellCompactPaddingMm     : Na__LeCfg__Num('TitleBlock', 'QrCellCompactPaddingMm', 1.2),
+            qrCellPaddingHMm           : Na__LeCfg__Num('TitleBlock', 'QrCellPaddingHMm', 1.4),
+            qrCellPaddingVMm           : Na__LeCfg__Num('TitleBlock', 'QrCellPaddingVMm', 1.1),
+            qrCellHeadingFontMm        : Na__LeCfg__Num('TitleBlock', 'QrCellHeadingFontMm', 2),
+            qrCellBodyFontMm           : Na__LeCfg__Num('TitleBlock', 'QrCellBodyFontMm', 1.5),
+            qrCellLineSpacing          : Na__LeCfg__Num('TitleBlock', 'QrCellLineSpacing', 1.22),
+            qrCellHeadingGapMm         : Na__LeCfg__Num('TitleBlock', 'QrCellHeadingGapMm', 0.3),
+            qrCellBodyMaxLines         : Math.max(0, Math.round(Na__LeCfg__Num('TitleBlock', 'QrCellBodyMaxLines', 4))),
+            qrCellBodyJustify          : Na__LeCfg__Val('TitleBlock', 'QrCellBodyJustify', true) !== false,
+            qrCellJustifyMaxTrackingMm : Na__LeCfg__Num('TitleBlock', 'QrCellJustifyMaxTrackingMm', 0.1)
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | What a Sheet Stores for a Status Chosen in a Box (null = no key)
+    // ------------------------------------------------------------
+    // A chosen status is stored as chosen. "Not set" is normally no key at
+    // all, which keeps a sheet nobody has touched exactly as it was. But where
+    // the config names a StatusDefault, no key MEANS that default - so there
+    // "Not set" has to be stored, as an empty string, or choosing it would
+    // quietly print the default instead. The Sheet panel and the Drawing
+    // Register both ask here, so the two boxes cannot come to disagree.
+    // ------------------------------------------------------------
+    function Na__LeCfg__StatusToStore(chosen) {
+        const text = String(chosen === undefined || chosen === null ? '' : chosen).trim();
+        if (text) return text;
+        return Na__LeCfg__GetTitleBlockSetup().statusDefault ? '' : null;
     }
     // ------------------------------------------------------------
 
@@ -424,6 +516,7 @@
         Na__LeCfg__GetSheetSetup,
         Na__LeCfg__GetStyleSetup,
         Na__LeCfg__GetTitleBlockSetup,
+        Na__LeCfg__StatusToStore,
         Na__LeCfg__GetScaleSetup,
         Na__LeCfg__GetViewportSetup,
         Na__LeCfg__GetRasterSetup,

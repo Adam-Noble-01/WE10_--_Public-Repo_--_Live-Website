@@ -29,6 +29,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - A STATUS column in the Edit table: a box on every row offering "Not set"
+//   and the title block config's statuses, saved through the same confirmed
+//   Metadata transaction as the phase. It is the last cell of the drawing's
+//   title block, and the Sheet panel's Status box writes the same field.
+// - The headings are one constant and an expanded row spans the table by
+//   counting them. Its span was a bare 8 against nine columns, so the panel of
+//   row tools and revision notes stopped one column short of the right edge.
+//
 // 19-Sep-2026 - Version 1.0.2
 // - Render marks the content na-le-register__content--read while Read is
 //   showing, so the pages lie on the Project Specification's darker desk.
@@ -50,7 +59,7 @@
     // MODULE IMPORTS | Sheet Model, Register Units and Preview
     // ------------------------------------------------------------
     import { Na__LeModel__GetSheets, Na__LeModel__CHANGED_EVENT } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeCfg__GetDrawingRegisterSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetDrawingRegisterSetup, Na__LeCfg__GetTitleBlockSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeReg__EVENT, Na__LeReg__GetDocument, Na__LeReg__IsDirty, Na__LeReg__Save, Na__LeReg__Load } from './Na__LayoutEditor__Register__Data__.js';
     import {
         Na__LeRegEdit__Delete,
@@ -83,6 +92,16 @@
     let Na__LeRegEd__PreviewToken = 0;
     let Na__LeRegEd__DragId       = null;
     const Na__LeRegEd__Expanded   = new Set();
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Edit Table's Headings, Left to Right
+    // ------------------------------------------------------------
+    // One per cell of a drawing's row, the drag handle and the expand toggle
+    // included, so an expanded row can span the table by counting them. The
+    // stylesheet sizes these columns by position (its nth-child rules), so a
+    // column added here is a column to add there.
+    // ------------------------------------------------------------
+    const Na__LeRegEd__HEADINGS   = Object.freeze([ '', 'DWG No.', 'PHASE', 'DOCUMENT CODE', 'DOCUMENT NAME', 'SCALE', 'SIZE', 'REVISION', 'STATUS', '' ]);
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -239,7 +258,7 @@
     function Na__LeRegEd__ExpandedRow(body, row, sheet) {
         const detail = Na__LeRegEd__El('tr');
         const cell   = Na__LeRegEd__El('td', 'na-le-register__expanded');
-        cell.colSpan = 8;
+        cell.colSpan = Na__LeRegEd__HEADINGS.length;                             // <-- The whole table, counted from the headings: it was a bare 8 against nine columns, so the panel stopped one column short of the right edge
         const tools  = Na__LeRegEd__El('div', 'na-le-register__row-tools');
         const jump   = Na__LeRegEd__El('label', '', 'Optional number jump');
         const overrides = Na__LeReg__GetDocument().DrawingRegister__Numbering.DrawingRegister__Numbering__Overrides || {};
@@ -295,6 +314,43 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Status Box for One Row
+    // ------------------------------------------------------------
+    // What the drawing is issued for: the last cell of its title block. The
+    // same list the Sheet panel's Status box offers, read from the title block
+    // config, with "Not set" first - a status is the one thing on a row that a
+    // drawing may properly be without. A status that has since left the config
+    // stays on the row that carries it, as a retired phase does.
+    // ------------------------------------------------------------
+    function Na__LeRegEd__Status(row) {
+        const statuses = Na__LeCfg__GetTitleBlockSetup().statuses;
+        const current  = String(row.status === undefined || row.status === null ? '' : row.status);
+        if (!Na__LeRegEd__Options.editable) return Na__LeRegEd__El('span', '', current);
+        const select = Na__LeRegEd__El('select', 'na-le-register__status-box');
+        select.setAttribute('aria-label', 'Status of ' + row.code);
+        const none = Na__LeRegEd__El('option', '', 'Not set');
+        none.value = '';
+        select.appendChild(none);
+        statuses.forEach((status) => {
+            const option = Na__LeRegEd__El('option', '', status);
+            option.value = status;
+            select.appendChild(option);
+        });
+        if (current && statuses.indexOf(current) === -1) {                       // <-- A status retired from the config still shows on the sheet that carries it
+            const kept = Na__LeRegEd__El('option', '', current);
+            kept.value = current;
+            select.appendChild(kept);
+        }
+        select.value = current;
+        select.addEventListener('change', async () => {
+            const ok = await Na__LeRegEdit__Metadata(row.id, 'status', select.value);
+            if (!ok) select.value = current;                                     // <-- Declined at the confirmation, so the box goes back to what the sheet still says
+        });
+        return select;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Editable Register Table
     // ------------------------------------------------------------
     function Na__LeRegEd__Table(container) {
@@ -312,7 +368,7 @@
         // The first three build the document code: the sequence, the job stage,
         // and the two of them behind the project code. Read left to right they
         // are how a drawing's identifier is put together.
-        ['', 'DRAWING No.', 'PHASE', 'DOCUMENT CODE', 'DOCUMENT NAME', 'SCALE', 'SIZE', 'REVISION', ''].forEach((text) => {
+        Na__LeRegEd__HEADINGS.forEach((text) => {
             titles.appendChild(Na__LeRegEd__El('th', '', text));
         });
         head.appendChild(titles);
@@ -342,6 +398,9 @@
             const revision = Na__LeRegEd__El('td');
             revision.appendChild(Na__LeRegEd__Input(row.revision, 'Revision for ' + row.code, (value) => Na__LeRegEdit__Metadata(row.id, 'revision', value)));
             tr.appendChild(revision);
+            const status = Na__LeRegEd__El('td');
+            status.appendChild(Na__LeRegEd__Status(row));                         // <-- A choice from a fixed list, so a box like the phase - never typed
+            tr.appendChild(status);
             const expand = Na__LeRegEd__El('td');
             const toggle = Na__LeRegEd__Button(Na__LeRegEd__Expanded.has(row.id) ? '⌃' : '⌄', () => {
                 if (Na__LeRegEd__Expanded.has(row.id)) Na__LeRegEd__Expanded.delete(row.id);

@@ -66,8 +66,9 @@
     },
 
     "LayoutEditor__Scrapbook__Labels": {
-        "Labels__Description" : "The Scrapbook panel's wording. ItemTitle is each tile's tooltip, with {name} the item's name.",
+        "Labels__Description" : "The Scrapbook's wording. Title is the right column's tab, which holds all three libraries; StandardTitle is this library's own section on it. ItemTitle is each tile's tooltip, with {name} the item's name.",
         "Labels__Title"       : "Scrapbook",
+        "Labels__StandardTitle" : "Standard Scrapbook",
         "Labels__Hint"        : "Drag an item onto the sheet. Double-click one to place it in the middle of the view.",
         "Labels__ReadOnly"    : "Items can only be placed while sheets are editable.",
         "Labels__Failed"      : "The scrapbook could not be read, so it has no items.",

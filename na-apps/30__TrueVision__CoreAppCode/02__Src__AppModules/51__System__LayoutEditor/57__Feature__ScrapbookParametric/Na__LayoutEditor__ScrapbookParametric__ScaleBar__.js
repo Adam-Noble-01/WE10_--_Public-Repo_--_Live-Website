@@ -328,14 +328,18 @@
     // Both flank the bar, level with its middle: the lookup grip off the zero
     // end and the stretch grip off the far end. Nothing else of the bar is out
     // there - the numerals are all underneath - so neither grip ever covers
-    // anything. away is the way each stands clear of its point; the grips
-    // module sets how far, in screen pixels.
+    // anything. The link socket, which the noodle to the bar's drawing leaves
+    // from, stands off the top of the far end: a drawing's title sits over
+    // the bar's near end, and a noodle from there would run through it. away
+    // is the way each stands clear of its point; the grips and noodle modules
+    // set how far, in screen pixels.
     // ------------------------------------------------------------
     function Na__LeParamBar__Handles(config, params) {
         const metrics = Na__LeParamBar__Metrics(config, Na__LeParamBar__Normalise(config, params));
         return {
             stretch : { x : metrics.lengthMm, y : metrics.heightMm / 2, away : [  1, 0 ] },
-            lookup  : { x : 0,                y : metrics.heightMm / 2, away : [ -1, 0 ] }
+            lookup  : { x : 0,                y : metrics.heightMm / 2, away : [ -1, 0 ] },
+            link    : { x : metrics.lengthMm, y : 0,                    away : [ Math.SQRT1_2, -Math.SQRT1_2 ] }
         };
     }
     // ------------------------------------------------------------

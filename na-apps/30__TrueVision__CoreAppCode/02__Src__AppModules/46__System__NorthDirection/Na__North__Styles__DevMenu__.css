@@ -1,0 +1,60 @@
+/* =============================================================================
+ * TRUEVISION3D - NORTH DIRECTION - DEV MENU STYLES
+ * =============================================================================
+ *
+ * FILE       : Na__North__Styles__DevMenu__.css
+ * MODULE     : North Direction - Dev Menu Styles
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The few rules the North Direction section adds to the Dev menu's own
+ * CREATED    : 19-Sep-2026
+ *
+ * DESCRIPTION:
+ * - The section is built from the Dev menu's existing classes - panel title,
+ *   panel row, na-pm-dev__btn, na-pm-dev__actions, na-fp-dev__empty - so it
+ *   reads as one of the family. Only the list of what the elevations will be
+ *   called, and the line that says which click the compass is waiting for,
+ *   are its own.
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * DEVELOPMENT LOG:
+ * 19-Sep-2026 - Version 1.0.0
+ * - Initial implementation.
+ *
+ * ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | The Pick Hint
+ * ----------------------------------------------------------------------------- */
+
+    /* The click the compass is waiting for: the one line that must be read */
+    .na-north-dev__hint {
+        color: #12a5dc;
+        font-weight: 600;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | What the Elevations Will Be Called
+ * ----------------------------------------------------------------------------- */
+
+    .na-north-dev__elevations {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin: 2px 0 8px;
+    }
+
+    /* One elevation: its name, its stored bearing and the compass word north gives it */
+    .na-north-dev__elevation {
+        font-size: 12px;
+        line-height: 1.35;
+        padding: 3px 6px;
+        border-left: 2px solid rgba(18, 165, 220, 0.55);
+        background: rgba(18, 165, 220, 0.06);
+    }
+
+/* endregion ------------------------------------------------------------------- */

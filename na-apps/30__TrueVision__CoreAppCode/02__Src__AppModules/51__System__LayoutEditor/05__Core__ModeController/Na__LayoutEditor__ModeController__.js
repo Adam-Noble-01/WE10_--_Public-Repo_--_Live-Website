@@ -47,6 +47,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.19.0
+// - Starts Na__LayoutEditor__ViewportIdentity__ with the editor: it names
+//   unnamed elevation viewports from the model they draw and the project's
+//   north, through the sheet model's RegisterViewportNamer.
+//
+// 19-Sep-2026 - Version 1.18.0
+// - The right column has two tabs, Properties and Scrapbook. The three
+//   scrapbook libraries leave the left column for the Scrapbook tab, which
+//   Adam asked for; every section that was in the right column is on
+//   Properties, which is registered first so it is theirs by default.
+//
 // 19-Sep-2026 - Version 1.17.0
 // - The Custom and the Parametric Scrapbooks (56__Feature__ScrapbookCustom,
 //   57__Feature__ScrapbookParametric) register their sections: both libraries in
@@ -178,12 +189,12 @@
     import { Na__LePc__Attach, Na__LePc__Detach } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__Pc__.js';
     import { Na__LeTouch__Attach, Na__LeTouch__Detach } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__TouchScreen__.js';
     import { Na__LeTools__DEFAULTS_EVENT, Na__LeTools__Attach, Na__LeTools__Detach } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
-    import { Na__LePanels__Mount, Na__LePanels__Refresh, Na__LePanels__FocusSection } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
+    import { Na__LePanels__Mount, Na__LePanels__Refresh, Na__LePanels__FocusSection, Na__LePanels__RegisterTab } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     import { Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeDrop__CHANGED_EVENT } from '../30__System__SheetTools/Na__LayoutEditor__Eyedropper__.js';
     import { Na__LePanelLayers__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Layers__.js';
     import { Na__LePanelSheet__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Sheet__.js';
-    import { Na__LePanelScrap__Register } from '../55__Feature__Scrapbook/Na__LayoutEditor__Panel__Scrapbook__.js';
+    import { Na__LePanelScrap__Register, Na__LePanelScrap__RegisterTab } from '../55__Feature__Scrapbook/Na__LayoutEditor__Panel__Scrapbook__.js';
     import { Na__LePanelScrapCustom__Register } from '../56__Feature__ScrapbookCustom/Na__LayoutEditor__Panel__ScrapbookCustom__.js';
     import { Na__LePanelParam__RegisterLibrary, Na__LePanelParam__RegisterProperties } from '../57__Feature__ScrapbookParametric/Na__LayoutEditor__Panel__ScrapbookParametric__.js';
     import { Na__LePanelViewport__EDIT_EVENT, Na__LePanelViewport__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__ViewportSettings__.js';
@@ -222,6 +233,7 @@
     import { Na__PlPipe__CHANGED_EVENT, Na__PlPipe__STATUS_READY } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__Pipeline__.js';
     import { Na__PhaseLib__CHANGED_EVENT } from '../../26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js';
     import { Na__LeSource__Initialize } from '../20__System__Viewports/Na__LayoutEditor__ModelSource__.js';
+    import { Na__LeViewId__Initialize } from '../20__System__Viewports/Na__LayoutEditor__ViewportIdentity__.js';
     import { Na__DevGate__IsAuthoringEnabled } from '../../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
@@ -352,20 +364,23 @@
         // now "what is on the paper" against "what the selection's properties
         // are", instead of layers on one side and everything else on the other.
         Na__LePanelSheet__Register();
-        Na__LePanelScrap__Register();                                          // <-- Ready-made items to drag onto the paper; shown only on a sheet that has some
-        Na__LePanelParam__RegisterLibrary();                                   // <-- Dynamic elements - the scale bar - that keep answering to their parameters
-        Na__LePanelScrapCustom__Register();                                    // <-- Items saved from a selection, one JSON file each in the user content folder
         Na__LePanelMargin__Register();                                         // <-- The sheet's notes margin, beside its other sheet settings
         Na__LePanelLayers__Register();
         Na__LePanelStyles__Register();
         Na__LePanelModelLayers__Register();
-        // RIGHT COLUMN | The selected item's properties
-        Na__LePanelParam__RegisterProperties();                                // <-- First in the column, and hidden until a parametric element is selected
+        // RIGHT COLUMN | Two tabs: the selected item's properties, and the scrapbooks
+        Na__LePanels__RegisterTab('right', { id : 'properties', title : Na__LeCfg__GetLabel('PanelTabProperties', 'Properties') });   // <-- First, so every section that names no tab is on it
+        Na__LePanelScrap__RegisterTab();                                       // <-- The Scrapbook tab: the three libraries below name it
+        Na__LePanelParam__RegisterProperties();                                // <-- First on Properties, and hidden until a parametric element is selected
         Na__LePanelViewport__Register();
         Na__LePanelText__Register();
         Na__LePanelLeaders__Register();
         Na__LePanelDims__Register();
         Na__LePanelShapes__Register();
+        // THE SCRAPBOOK TAB | Three libraries, one way of dropping
+        Na__LePanelScrap__Register();                                          // <-- Standard: ready-made items from the config; shown only on a sheet that has some
+        Na__LePanelParam__RegisterLibrary();                                   // <-- Parametric: dynamic elements - the scale bar - that keep answering to their parameters
+        Na__LePanelScrapCustom__Register();                                    // <-- Custom: items saved from a selection, one JSON file each in the user content folder
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
         Na__LeMeasure__Mount(host.querySelector('.na-le-centre'), { editable : editable, stage : Na__LeMode__Stage });   // <-- The Measurements box, bottom right over the stage
         Na__LeSpecEd__Mount(host, { editable : editable, showToast : toast });    // <-- The Project Specification page, over the shell
@@ -772,6 +787,7 @@
             Na__LeSpecLink__Initialize();                                    // <-- Bubble codes follow their notes
             Na__LeSnap__Initialize(context);
             Na__LeSource__Initialize();                                      // <-- How many design phases stay loaded off-scene
+            Na__LeViewId__Initialize();                                      // <-- Unnamed elevation viewports are named from their model and the project's north
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeMode__OnSheetsChanged);
             document.addEventListener('keydown', Na__LeMode__OnSaveKey, true);   // <-- Ctrl+S on the sheet, the specification and the register alike; capture, so it is answered before the browser is told
 

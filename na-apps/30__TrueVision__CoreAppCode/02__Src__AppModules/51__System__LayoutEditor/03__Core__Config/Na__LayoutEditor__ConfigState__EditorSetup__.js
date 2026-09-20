@@ -216,12 +216,13 @@
     // CONSTANTS | Register Table Columns When the Config Block Is Silent
     // ------------------------------------------------------------
     const Na__LeCfg__REGISTER_COLUMNS = [                                          // <-- Exactly one column carries Flex; the rest are measured from their content
-        { key : 'code',     heading : 'DRAWING No.',   align : 'left',   flex : false, minMm : 22 },
-        { key : 'name',     heading : 'DOCUMENT NAME', align : 'left',   flex : true,  minMm : 42 },
-        { key : 'type',     heading : 'TYPE',          align : 'left',   flex : false, minMm : 16 },
-        { key : 'scale',    heading : 'SCALE',         align : 'left',   flex : false, minMm : 20 },
-        { key : 'size',     heading : 'SIZE',          align : 'centre', flex : false, minMm : 15 },
-        { key : 'revision', heading : 'REV',           align : 'centre', flex : false, minMm : 13 }
+        { key : 'drawingNo',    heading : 'DWG No.',       align : 'left',   flex : false, minMm : 15 },
+        { key : 'phase',        heading : 'PHASE',         align : 'centre', flex : false, minMm : 15 },
+        { key : 'documentCode', heading : 'DOCUMENT CODE', align : 'left',   flex : false, minMm : 28 },
+        { key : 'name',         heading : 'DOCUMENT NAME', align : 'left',   flex : true,  minMm : 34 },
+        { key : 'scale',        heading : 'SCALE',         align : 'left',   flex : false, minMm : 17 },
+        { key : 'size',         heading : 'SIZE',          align : 'centre', flex : false, minMm : 14 },
+        { key : 'revision',     heading : 'REV',           align : 'centre', flex : false, minMm : 12 }
     ];
     // ------------------------------------------------------------
 
@@ -285,7 +286,7 @@
             prefix          : val('Prefix', 'D'),
             start           : val('Start', 1),
             digits          : val('Digits', 2),
-            pdfMarginMm     : num('PdfMarginMm', 18),
+            pdfMarginMm     : num('PdfMarginMm', 14),
             pdfFontPt       : num('PdfFontPt', 9),
             pdfJsScriptPath : val('PdfJsScriptPath', '/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.min.js'),
             pdfJsWorkerPath : val('PdfJsWorkerPath', '/na-apps/20__PlanVision__CoreAppCode/01__AppDependencies__VersionLocked/PdfJs__3.11.174/build/pdf.worker.min.js'),
@@ -315,16 +316,16 @@
             previewWidthPx  : num('PreviewPageWidthPx', 794),                      // <-- The Read view's CSS page width, and the ceiling its canvas is drawn to
             previewMaxDpr   : num('PreviewMaxPixelRatio', 3),
 
-            ink             : val('InkColour', '#5c594f'),
-            muted           : val('MutedColour', '#a09d96'),
+            ink             : val('InkColour', '#172b3a'),
+            muted           : val('MutedColour', '#6c757d'),
             accent          : val('AccentColour', '#172b3a'),
-            header          : val('HeaderColour', '#eeece9'),
-            stripe          : val('StripeColour', '#f8f6f3'),
-            rule            : val('RuleColour', '#e1ded8'),
-            warnAmberFill   : val('WarnAmberFill', '#fff4d3'),
-            warnAmberInk    : val('WarnAmberInk', '#795900'),
-            warnRedFill     : val('WarnRedFill', '#fde9e7'),
-            warnRedInk      : val('WarnRedInk', '#a32e29')
+            header          : val('HeaderColour', '#eef1f4'),
+            stripe          : val('StripeColour', '#f6f8fa'),
+            rule            : val('RuleColour', '#d9dfe4'),
+            warnAmberFill   : val('WarnAmberFill', '#fff6e3'),
+            warnAmberInk    : val('WarnAmberInk', '#8a5a00'),
+            warnRedFill     : val('WarnRedFill', '#fdf0f0'),
+            warnRedInk      : val('WarnRedInk', '#9b3b3b')
         };
     }
     // ------------------------------------------------------------

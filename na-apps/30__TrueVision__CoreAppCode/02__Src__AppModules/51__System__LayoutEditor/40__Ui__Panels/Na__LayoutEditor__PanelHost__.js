@@ -20,6 +20,12 @@
 // - Controls are declared, not wired: an element with data-na-control
 //   names a handler registered here, and the column listens once for the
 //   event type that handler asked for.
+// - A COLUMN CAN HAVE TABS. RegisterTab names one; a section says which it
+//   belongs to with spec.tab, and a section that says nothing belongs to the
+//   column's first tab. The strip only shows once a column has two, so a
+//   column nobody has given tabs is exactly what it was. Both tabs are
+//   styled alike: which one is up is said by its weight and its join to the
+//   surface below, as on the sheet tab strip, and by nothing else.
 //
 // INTEGRATION:
 // - Mounted by the mode controller; the panel modules register into it.
@@ -30,12 +36,21 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__PanelHost__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; column tabs (1.4.0), TrueVision first on 19-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.4.0
+// - Column tabs: RegisterTab, SetActiveTab and GetActiveTab, and spec.tab on a
+//   section. Written for the right column's Scrapbook tab, which Adam asked
+//   for so the three scrapbook libraries have a home of their own instead of
+//   a place in the queue down the left column. A section off its tab is
+//   hidden by a class of its own (is-off-tab), never by the hidden attribute,
+//   which SetSectionVisible owns; and Refresh passes it by, so a library's
+//   files are not read until its tab is first opened.
+//
 // 17-Sep-2026 - Version 1.3.0
 // - SetFolded and FocusSection: the fold a header click sets, set from code as
 //   well, and one section of the accordion group opened with the rest folded.
@@ -106,6 +121,9 @@
     const Na__LePanels__Columns  = { left : null, right : null };
     const Na__LePanels__Sections = new Map();   // <-- id -> { spec, root, body, side }
     const Na__LePanels__Handlers = new Map();   // <-- 'type:name' -> handler
+    const Na__LePanels__Tabs     = { left : [], right : [] };        // <-- side -> [{ id, title, button }], in the order registered
+    const Na__LePanels__TabStrip = { left : null, right : null };
+    const Na__LePanels__TabUp    = { left : null, right : null };    // <-- side -> the id of the tab on show
     let   Na__LePanels__Editable = false;
     let   Na__LePanels__Context  = null;
     // ------------------------------------------------------------
@@ -231,6 +249,7 @@
         });
         Na__LePanels__Sections.clear();
         Na__LePanels__Handlers.clear();
+        [ 'left', 'right' ].forEach((side) => { Na__LePanels__Tabs[side] = []; Na__LePanels__TabStrip[side] = null; Na__LePanels__TabUp[side] = null; });
         Na__LePanels__Context = null;
     }
     // ------------------------------------------------------------
@@ -241,6 +260,94 @@
 // -----------------------------------------------------------------------------
 // REGION | Sections
 // -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Tab a Section Belongs To (null in a column without tabs)
+    // ------------------------------------------------------------
+    // Its own spec.tab when the column has that tab, else the column's first.
+    // ------------------------------------------------------------
+    function Na__LePanels__TabOf(entry) {
+        const tabs = Na__LePanels__Tabs[entry.side] || [];
+        if (!tabs.length) return null;
+        const named = entry.spec.tab;
+        return (named && tabs.some((tab) => tab.id === named)) ? named : tabs[0].id;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Show the Strip, Mark the Tab That Is Up and Hide the Sections That Are Not On It
+    // ------------------------------------------------------------
+    function Na__LePanels__ApplyTabs(side) {
+        const tabs  = Na__LePanels__Tabs[side] || [];
+        const strip = Na__LePanels__TabStrip[side];
+        if (strip) strip.hidden = tabs.length < 2;                               // <-- One tab is no choice: the column reads as it always did
+        const up = Na__LePanels__TabUp[side];
+        tabs.forEach((tab) => {
+            tab.button.classList.toggle('is-active', tab.id === up);
+            tab.button.setAttribute('aria-selected', String(tab.id === up));
+        });
+        Na__LePanels__Sections.forEach((entry) => {
+            if (entry.side !== side) return;
+            entry.root.classList.toggle('is-off-tab', tabs.length >= 2 && Na__LePanels__TabOf(entry) !== up);
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Add a Tab to a Column
+    // ------------------------------------------------------------
+    // spec: { id, title }. The first tab a column is given is where every
+    // section that names no tab belongs. The tab last on show is remembered
+    // per column, like the folds, and comes back up when it is registered.
+    // ------------------------------------------------------------
+    function Na__LePanels__RegisterTab(side, spec) {
+        const column = Na__LePanels__Columns[side];
+        if (!column || !spec || !spec.id || Na__LePanels__Tabs[side].some((tab) => tab.id === spec.id)) return null;
+        if (!Na__LePanels__TabStrip[side]) {
+            const strip = document.createElement('div');
+            strip.className = 'na-le-panel__tabs';
+            strip.setAttribute('role', 'tablist');
+            const scroll = column.querySelector('.na-le-panel__scroll');
+            scroll.insertBefore(strip, scroll.firstChild);                         // <-- First in the scroller and sticky there, so the column's own layout is untouched
+            Na__LePanels__TabStrip[side] = strip;
+        }
+        const button = document.createElement('button');
+        button.type        = 'button';
+        button.className   = 'na-le-panel__tab';
+        button.textContent = spec.title || spec.id;
+        button.setAttribute('role', 'tab');
+        button.setAttribute('data-na-tab', spec.id);
+        button.addEventListener('click', () => Na__LePanels__SetActiveTab(side, spec.id));
+        Na__LePanels__TabStrip[side].appendChild(button);
+        const tab = { id : spec.id, title : spec.title || spec.id, button : button };
+        Na__LePanels__Tabs[side].push(tab);
+        const remembered = Na__LePanels__Recall('tab-' + side, '');
+        if (Na__LePanels__TabUp[side] === null || remembered === spec.id) Na__LePanels__TabUp[side] = spec.id;
+        Na__LePanels__ApplyTabs(side);
+        return tab;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Bring a Column's Tab Up
+    // ------------------------------------------------------------
+    // The sections now on show are refreshed, since Refresh passed them by
+    // while they were off their tab, and the column goes back to its top.
+    // Returns true only when the tab changed.
+    // ------------------------------------------------------------
+    function Na__LePanels__SetActiveTab(side, tabId) {
+        const tabs = Na__LePanels__Tabs[side] || [];
+        if (!tabs.some((tab) => tab.id === tabId) || Na__LePanels__TabUp[side] === tabId) return false;
+        Na__LePanels__TabUp[side] = tabId;
+        Na__LePanels__Remember('tab-' + side, tabId);
+        Na__LePanels__ApplyTabs(side);
+        Na__LePanels__Sections.forEach((entry, id) => { if (entry.side === side && !entry.root.classList.contains('is-off-tab')) Na__LePanels__Refresh(id); });
+        const scroll = Na__LePanels__Columns[side] ? Na__LePanels__Columns[side].querySelector('.na-le-panel__scroll') : null;
+        if (scroll) scroll.scrollTop = 0;
+        return true;
+    }
+    function Na__LePanels__GetActiveTab(side) { return Na__LePanels__TabUp[side] || null; }
+    // ------------------------------------------------------------
+
 
     // HELPER FUNCTION | Drag the Foot of a Section to Change Its Height
     // ------------------------------------------------------------
@@ -273,7 +380,9 @@
 
     // FUNCTION | Add a Foldable Section to a Column
     // ------------------------------------------------------------
-    // spec: { id, title, build(body, context), refresh(body, context), defaultOpen }
+    // spec: { id, title, build(body, context), refresh(body, context), defaultOpen, tab }
+    // tab names the column tab the section belongs to; left out, it belongs to
+    // the column's first.
     // ------------------------------------------------------------
     function Na__LePanels__RegisterSection(side, spec) {
         const column = Na__LePanels__Columns[side];
@@ -317,8 +426,9 @@
 
         const entry = { spec : spec, root : root, body : body, side : side, header : header };
         Na__LePanels__Sections.set(spec.id, entry);
+        Na__LePanels__ApplyTabs(side);                                           // <-- Before the first refresh, so a section off its tab waits for it
         if (typeof spec.build === 'function') spec.build(body, Na__LePanels__Context);
-        if (!folded && typeof spec.refresh === 'function') spec.refresh(body, Na__LePanels__Context);
+        if (!folded && !root.classList.contains('is-off-tab') && typeof spec.refresh === 'function') spec.refresh(body, Na__LePanels__Context);
         return entry;
     }
     // ------------------------------------------------------------
@@ -330,6 +440,7 @@
         Na__LePanels__Sections.forEach((entry, id) => {
             if (sectionId && id !== sectionId) return;
             if (entry.root.classList.contains('is-folded')) return;
+            if (entry.root.classList.contains('is-off-tab')) return;             // <-- Not on show: bringing its tab up refreshes it
             if (typeof entry.spec.refresh === 'function') entry.spec.refresh(entry.body, Na__LePanels__Context);
         });
     }
@@ -350,7 +461,7 @@
         entry.root.classList.toggle('is-folded', now);
         entry.header.setAttribute('aria-expanded', String(!now));
         Na__LePanels__Remember('fold-' + sectionId, now ? '1' : '0');
-        if (!now && typeof entry.spec.refresh === 'function') entry.spec.refresh(entry.body, Na__LePanels__Context);
+        if (!now && !entry.root.classList.contains('is-off-tab') && typeof entry.spec.refresh === 'function') entry.spec.refresh(entry.body, Na__LePanels__Context);
         return true;
     }
     // ------------------------------------------------------------
@@ -688,6 +799,9 @@
         Na__LePanels__Mount,
         Na__LePanels__Unmount,
         Na__LePanels__SetWidth,
+        Na__LePanels__RegisterTab,
+        Na__LePanels__SetActiveTab,
+        Na__LePanels__GetActiveTab,
         Na__LePanels__RegisterSection,
         Na__LePanels__Refresh,
         Na__LePanels__SetFolded,

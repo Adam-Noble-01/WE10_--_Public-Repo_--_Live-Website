@@ -28,6 +28,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - Metadata takes 'status': what a drawing is issued for, chosen on its row
+//   in the register. It is the one key that may be cleared, and clearing it is
+//   asked about in its own words. What is stored comes from the config's
+//   StatusToStore, the function the Sheet panel's Status box asks too.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - Short tab names. A rename goes through the sheet model's ApplySheetName,
 //   so a Drawing Title typed separately from the name survives it - it used to
@@ -64,6 +70,7 @@
         Na__LeModel__FinishRegisterDeletion,
         Na__LeModel__NotifyRegister
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeCfg__StatusToStore } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeAuto__Suspend, Na__LeAuto__Resume, Na__LeAuto__DiscardSavedDraft } from '../07__Core__SheetData/Na__LayoutEditor__AutoSave__.js';
     import { Na__DrawData__Save, Na__DrawData__GetBlock, Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LocalMirror__MergeKeys } from '../../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
@@ -200,18 +207,19 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Edit the Actual Sheet Name, Title and Revision
+    // FUNCTION | Edit the Actual Sheet Name, Title, Revision, Phase and Status
     // ------------------------------------------------------------
     function Na__LeRegEdit__Metadata(sheetId, key, value) {
         const sheet = Na__LeModel__GetSheets().find((item) => item.Sheet__Id === sheetId);
-        if (!sheet || !['name', 'revision', 'phase'].includes(key)) return Promise.resolve(false);
+        if (!sheet || !['name', 'revision', 'phase', 'status'].includes(key)) return Promise.resolve(false);
         const next  = key === 'name' ? Na__LeModel__CleanSheetName(sheet, value) : String(value || '').trim();   // <-- A drawing code typed in front of a name comes off before it is kept: the tab carries the register's
-        if (!next) {
+        if (!next && key !== 'status') {                                         // <-- A status may be cleared: "Not set" is a real answer, where a drawing with no name or revision is a mistake
             Na__LeRegEdit__Toast('A drawing needs a ' + key + '.', true);
             return Promise.resolve(false);
         }
-        const current = key === 'name'  ? sheet.Sheet__Name
-                      : key === 'phase' ? Na__LeModel__GetPhase(sheet)
+        const current = key === 'name'   ? sheet.Sheet__Name
+                      : key === 'phase'  ? Na__LeModel__GetPhase(sheet)
+                      : key === 'status' ? Na__LeModel__GetFields(sheet).Status
                       : Na__LeModel__GetFields(sheet).Revision;
         if (current === next) return Promise.resolve(true);
         // A phase change moves the drawing's whole identifier, so the confirmation
@@ -219,6 +227,8 @@
         const asked = key === 'phase'
             ? 'Move ' + Na__LeModel__GetTabLabel(sheet) + ' to phase ' + next + '? Its document code becomes ' +
               Na__LeModel__ComposeDocumentId(Na__DrawData__GetProjectCode(), next, Na__LeModel__GetDrawingNumber(sheet)) + '.'
+            : (key === 'status' && !next)
+            ? 'Clear the status of ' + Na__LeModel__GetTabLabel(sheet) + '? Its title block will print none.'
             : 'Change ' + Na__LeModel__GetTabLabel(sheet) + ' ' + key + ' to “' + next + '”?';
         return Na__LeRegEdit__Commit(asked, (sheets) => {
             const live = sheets.find((item) => item.Sheet__Id === sheetId);
@@ -228,6 +238,10 @@
                 Na__LeModel__ApplySheetName(live, next);                          // <-- A Drawing Title typed separately survives; one that only followed the name follows it
             } else if (key === 'phase') {
                 live.Sheet__Fields.Sheet__Fields__Phase = next;                   // <-- The code itself is never written: it recomposes from this
+            } else if (key === 'status') {
+                const stored = Na__LeCfg__StatusToStore(next);                    // <-- The Sheet panel's Status box asks the same function, so the two store alike
+                if (stored === null) delete live.Sheet__Fields.Sheet__Fields__Status;
+                else live.Sheet__Fields.Sheet__Fields__Status = stored;
             } else {
                 live.Sheet__Fields.Sheet__Fields__Revision = next.replace(/^Rev\s+/i, '');
             }

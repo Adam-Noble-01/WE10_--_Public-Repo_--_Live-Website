@@ -11,7 +11,7 @@
 //
 // DESCRIPTION:
 // - One flat list of paper-millimetre primitives (rect, line, polyline,
-//   text, image, group) describes the sheet border, the viewport frames and
+//   text, image, qr, group) describes the sheet border, the viewport frames and
 //   captions, the title block and the sheet markup. The screen renders the
 //   list to an SVG overlay whose viewBox is the paper; the PDF exporter
 //   draws the same list into jsPDF. There is nothing to keep in step by
@@ -45,6 +45,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.9.0
+// - A 'qr' primitive: an encoded QR symbol in a paper-millimetre square. It
+//   carries the symbol rather than a picture of one, and both painters hand it
+//   to Na__ProjectQr__Painter__ the way a gradient goes to the gradient tool,
+//   so the code is one vector path on the screen sheet and one in the PDF. Not
+//   an 'image' on purpose: the exporter sends a classic sheet's images UNDER
+//   the viewports, which is right for the scan and wrong for a code.
+//   // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js
+//
 // 17-Sep-2026 - Version 1.8.0
 // - BuildFrame stopped truncating captions the box was built to hold. It sized the
 //   box as textMm + pad*2 and then asked FitText about boxW - pad*2, and that
@@ -127,6 +136,7 @@
     import { Na__LeTitleClassic__Build } from './Na__LayoutEditor__TitleBlock__Classic__.js';
     import { Na__LeGrad__SvgPaint, Na__LeGrad__DrawPdf } from '../35__System__DrawingTools/Na__LayoutEditor__GradientTool__.js';
     import { Na__LePdfFonts__Install, Na__LePdfFonts__SetFont } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';
+    import { Na__QrPaint__SvgGroup, Na__QrPaint__DrawPdf } from '../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js';   // <-- A leaf: a symbol and numbers in, markup or drawing calls out
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -144,6 +154,7 @@
     const Na__LeChrome__KIND_TEXT     = 'text';
     const Na__LeChrome__KIND_IMAGE    = 'image';
     const Na__LeChrome__KIND_GROUP    = 'group';
+    const Na__LeChrome__KIND_QR       = 'qr';              // <-- An encoded QR symbol, painted as vector by the Project QR Code painter
     const Na__LeChrome__MM_PER_POINT  = 25.4 / 72;
     const Na__LeChrome__CAP_HEIGHT    = 0.72;              // <-- Latin sans cap height as a fraction of the font size (Open Sans and Helvetica both sit near this)
     const Na__LeChrome__ASSET_EVENT   = 'na-layouteditor-asset-loaded';
@@ -343,6 +354,21 @@
     // ------------------------------------------------------------
     function Na__LeChrome__PushGroup(list, clipRect, children) {
         list.push({ Kind : Na__LeChrome__KIND_GROUP, ClipRect : clipRect || null, Children : children || [] });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Push a QR Symbol Into a Square
+    // ------------------------------------------------------------
+    // symbol is what Na__ProjectQr__GetSymbol returns. x, y and sizeMm are the
+    // symbol edge to edge: the caller keeps the quiet zone clear around it.
+    // The symbol travels on the primitive rather than being expanded here, so
+    // each painter emits it in its own idiom and it is vector on both surfaces.
+    // ------------------------------------------------------------
+    function Na__LeChrome__PushQr(list, x, y, sizeMm, symbol, darkColour, lightColour) {
+        if (!symbol || !Array.isArray(symbol.Runs) || !(sizeMm > 0)) return;
+        list.push({ Kind : Na__LeChrome__KIND_QR, X : x, Y : y, SizeMm : sizeMm, Symbol : symbol,
+                    DarkColour : darkColour || null, LightColour : lightColour || null });
     }
     // ------------------------------------------------------------
 
@@ -572,6 +598,12 @@
             return '<image x="' + R(primitive.X) + '" y="' + R(primitive.Y) + '" width="' + R(primitive.WidthMm) + '" height="' + R(primitive.HeightMm) +
                    '" preserveAspectRatio="none" href="' + primitive.DataUrl + '"/>';
         }
+        if (primitive.Kind === Na__LeChrome__KIND_QR) {
+            // The size goes through unrounded: it is divided by the module
+            // count to make the scale, and a rounded millimetre would set every
+            // module a hair out, adding up across the symbol.
+            return Na__QrPaint__SvgGroup(primitive.Symbol, R(primitive.X), R(primitive.Y), primitive.SizeMm, primitive.DarkColour, primitive.LightColour);
+        }
         if (primitive.Kind === Na__LeChrome__KIND_GROUP) {
             const inner = primitive.Children.map((child) => Na__LeChrome__ToSvg(child, style, clipCounter)).join('');
             if (!primitive.ClipRect) return '<g>' + inner + '</g>';
@@ -733,6 +765,10 @@
             doc.addImage(primitive.DataUrl, primitive.Format || 'PNG', primitive.X, primitive.Y, primitive.WidthMm, primitive.HeightMm);
             return;
         }
+        if (primitive.Kind === Na__LeChrome__KIND_QR) {
+            Na__QrPaint__DrawPdf(doc, primitive.Symbol, primitive.X, primitive.Y, primitive.SizeMm, primitive.DarkColour, primitive.LightColour);
+            return;
+        }
         if (primitive.Kind === Na__LeChrome__KIND_GROUP) {
             let clipped = false;
             if (primitive.ClipRect && typeof doc.saveGraphicsState === 'function' && typeof doc.clip === 'function') {
@@ -832,6 +868,7 @@
         Na__LeChrome__PushPolyline,
         Na__LeChrome__PushText,
         Na__LeChrome__PushImage,
+        Na__LeChrome__PushQr,
         Na__LeChrome__PushGroup,
         Na__LeChrome__Build,
         Na__LeChrome__ToSvgMarkup,

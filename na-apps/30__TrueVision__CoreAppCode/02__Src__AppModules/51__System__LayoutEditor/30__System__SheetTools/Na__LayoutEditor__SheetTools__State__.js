@@ -16,9 +16,10 @@
 //   TYPED_MIN_MM and SAME_MM.
 // - The attachment and interaction state that more than one sheet tools file
 //   changes: the stage, the editable flag, the drag in flight, the
-//   suppression flag, the last right press, the last pointer point, Shift and
+//   suppression flag, the last right press, the last pointer point, Shift,
 //   the vertex a typed length has just moved, which another typed length may
-//   still move again. Every file reads them as plain imports, which stay live.
+//   still move again, the last left press on an item and whether the press in
+//   hand travelled. Every file reads them as plain imports, which stay live.
 // - WRITE ACCESSORS. An imported binding cannot be assigned, so a file that
 //   changes one of these values calls its Write accessor instead. A writer
 //   only assigns: no event, no cursor, no drag finished. That is what sets it
@@ -47,6 +48,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0
+// - LastPress and PressTravelled, for the Move tool Select now picks up by
+//   itself. LastPress is where and when the last left press landed on an item,
+//   which is how the SECOND press of a double click is known for what it is
+//   (a pointerdown carries no click count). PressTravelled says the press in
+//   hand became a drag or a box, so the double click the browser still reports
+//   at the end of it is ignored. Written by the press and drag units.
+//
+//
 // 17-Sep-2026 - Version 1.2.0
 // - TOOL_MOVE (the only tool that translates a whole object) and PICK_TOOLS, the
 //   two that work on what is already on the sheet and so keep an open container.
@@ -104,6 +114,8 @@
     let Na__LeTools__ShiftHeld   = false;  // <-- Shift at the last move or Shift key: a typed dimension goes ortho by it, as a click does
     let Na__LeTools__VertexRetype = null;  // <-- { id, index, from : [x, y], dir : { x, y }, points : [[x, y], ...] } while a typed vertex length may still be retyped
     let Na__LeTools__DimEndRetype = null;  // <-- { id, mode, fixed : { x, y }, point : { x, y }, orientation, landed } while a typed dimension span may still be retyped
+    let Na__LeTools__LastPress    = null;  // <-- { time, x, y, key } of the last left press on an item: the second press of a double click is known by it
+    let Na__LeTools__PressTravelled = false;   // <-- The press in hand became a drag or a box, so a double click that ends on it is not one
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -128,6 +140,8 @@
     function Na__LeTools__WriteShiftHeld(shift)      { Na__LeTools__ShiftHeld = shift; }
     function Na__LeTools__WriteVertexRetype(record)  { Na__LeTools__VertexRetype = record; }
     function Na__LeTools__WriteDimEndRetype(record)  { Na__LeTools__DimEndRetype = record; }
+    function Na__LeTools__WriteLastPress(press)      { Na__LeTools__LastPress = press; }
+    function Na__LeTools__WritePressTravelled(flag)  { Na__LeTools__PressTravelled = flag; }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -166,6 +180,8 @@
         Na__LeTools__ShiftHeld,
         Na__LeTools__VertexRetype,
         Na__LeTools__DimEndRetype,
+        Na__LeTools__LastPress,
+        Na__LeTools__PressTravelled,
         Na__LeTools__WriteStage,
         Na__LeTools__WriteEditable,
         Na__LeTools__WriteDrag,
@@ -174,7 +190,9 @@
         Na__LeTools__WriteLastPointMm,
         Na__LeTools__WriteShiftHeld,
         Na__LeTools__WriteVertexRetype,
-        Na__LeTools__WriteDimEndRetype
+        Na__LeTools__WriteDimEndRetype,
+        Na__LeTools__WriteLastPress,
+        Na__LeTools__WritePressTravelled
     };
     // ------------------------------------------------------------
 

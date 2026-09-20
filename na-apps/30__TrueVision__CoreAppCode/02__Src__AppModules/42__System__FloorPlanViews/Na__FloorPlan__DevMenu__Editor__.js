@@ -35,6 +35,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - Every plan's CUT is a plane in the 3D view, through the shared Drawing
+//   Planes system (47__System__DrawingPlanes): a Show plane toggle and Move to
+//   face on every row, and the Drawing Planes bar (all on, snap and its grid)
+//   at the head of the panel. The plane of the plan being touched is always
+//   up. Dragging a plane changes "Cut above floor" and leaves the floor level
+//   alone; picking a FLOOR sets the floor level, picking anything else puts
+//   the cut through the point. No new record fields.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder.
 //
@@ -86,7 +95,9 @@
     import {
         Na__FpCfg__GetLabel,
         Na__FpCfg__FormatLabel,
-        Na__FpCfg__GetSceneGroupTarget
+        Na__FpCfg__GetSceneGroupTarget,
+        Na__FpCfg__GetDatumRangeMm,
+        Na__FpCfg__GetCutOffsetMm
     } from './Na__FloorPlan__ConfigState__.js';
     import {
         Na__FpFrame__MeasureModel
@@ -142,6 +153,40 @@
     import {
         Na__PresentationMode__Thumbnail__CaptureAndUpload
     } from '../21__System__PresentationMode/Na__PresentationMode__Thumbnail__Renderer.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Drawing Planes (the planes shown in the 3D view)
+    // ------------------------------------------------------------
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__Overlay__.js
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__Grip__.js
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__DevMenu__Controls__.js
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__Maths__.js
+    // @delegate: ../47__System__DrawingPlanes/Na__DrawingPlanes__ConfigState__.js
+    // ------------------------------------------------------------
+    import {
+        Na__PlaneOverlay__KIND_HORIZONTAL,
+        Na__PlaneOverlay__RegisterSource,
+        Na__PlaneOverlay__Select,
+        Na__PlaneOverlay__DeselectType,
+        Na__PlaneOverlay__Forget,
+        Na__PlaneOverlay__Refresh,
+        Na__PlaneOverlay__RefreshOne
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Overlay__.js';
+    import { Na__PlaneGrip__CancelFacePick } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Grip__.js';
+    import {
+        Na__PlaneUi__TYPE_PLAN,
+        Na__PlaneUi__BuildBar,
+        Na__PlaneUi__BuildRowControls
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__DevMenu__Controls__.js';
+    import {
+        Na__PlaneMath__ApplySnap,
+        Na__PlaneMath__FormatMm,
+        Na__PlaneMath__SolvePlanCut
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__Maths__.js';
+    import {
+        Na__PlaneCfg__GetGripSetup,
+        Na__PlaneCfg__GetAppearanceSetup
+    } from '../47__System__DrawingPlanes/Na__DrawingPlanes__ConfigState__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -309,6 +354,110 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Drawing Planes Source
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Bring Up the Plane of the Plan Being Edited
+    // ------------------------------------------------------------
+    // Selecting a plane puts it up whether or not its Show plane toggle is on,
+    // and re-lays it out at the cut the record now gives. Not while a plan is
+    // previewing: nothing of the overlay is drawn over a drawing anyway.
+    // ------------------------------------------------------------
+    function Na__FpDev__ShowPlane(plan) {
+        if (Na__FloorPlanMode__IsActive()) return;
+        Na__PlaneOverlay__Select(Na__PlaneUi__TYPE_PLAN, plan.FloorPlan__Id);
+        Na__PlaneOverlay__RefreshOne(Na__PlaneUi__TYPE_PLAN, plan.FloorPlan__Id);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put a Plan's Cut at a Height
+    // ------------------------------------------------------------
+    // The plane in the 3D view IS the cut. Moving it changes "Cut above floor"
+    // and leaves the floor level where the author set it; the floor level is
+    // carried down only when the cut would fall under its minimum, so the
+    // plane always goes where it was put. Held to what the floor level slider
+    // can show at the bottom of its travel.
+    // ------------------------------------------------------------
+    function Na__FpDev__MoveCutTo(plan, cutMm) {
+        const offset = Na__FpCfg__GetCutOffsetMm();
+        const datum  = Na__FpCfg__GetDatumRangeMm();
+        const lowest = datum.minMm + offset.minMm;
+
+        const solved = Na__PlaneMath__SolvePlanCut(plan.FloorPlan__FloorDatumMm, Math.max(cutMm, lowest), offset.minMm);
+        plan.FloorPlan__FloorDatumMm = Math.round(solved.datumMm);
+        plan.FloorPlan__CutOffsetMm  = Math.round(solved.offsetMm);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Say Where a Plan's Cut Is, as Both of Its Numbers
+    // ------------------------------------------------------------
+    function Na__FpDev__DescribePlane(plan) {
+        return 'cut at ' + Na__PlaneMath__FormatMm(Na__FpData__GetCutHeightMm(plan)) + ' mm  ('
+            + Na__PlaneMath__FormatMm(plan.FloorPlan__CutOffsetMm) + ' above floor level '
+            + Na__PlaneMath__FormatMm(plan.FloorPlan__FloorDatumMm) + ')';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Send a Plan to a Picked Building Face
+    // ------------------------------------------------------------
+    // hit: { pointMm, normal } - the face's world normal, toward the camera.
+    // A FLOOR IS A FLOOR LEVEL. Click the floor a plan is of and that height
+    // becomes its floor level, the cut staying its distance above - cutting AT
+    // the floor would draw nothing. Any other face - a wall, a sill, a reveal -
+    // puts the cut itself through the picked point. Both land on the snap grid.
+    // ------------------------------------------------------------
+    function Na__FpDev__ApplyFacePick(plan, hit, snap) {
+        const heightMm = Na__PlaneMath__ApplySnap(hit.pointMm.y, snap);
+
+        if (hit.normal.y >= Na__PlaneCfg__GetGripSetup().floorMinNormalY) {
+            const range = Na__FpCfg__GetDatumRangeMm();
+            plan.FloorPlan__FloorDatumMm = Math.min(range.maxMm, Math.max(range.minMm, heightMm));
+            return '"' + plan.FloorPlan__Name + '" floor level set to that floor - ' + Na__FpDev__DescribePlane(plan) + '.';
+        }
+
+        Na__FpDev__MoveCutTo(plan, heightMm);
+        return '"' + plan.FloorPlan__Name + '" now cuts through that point - ' + Na__FpDev__DescribePlane(plan) + '.';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tell the Drawing Planes System About Floor Plans
+    // ------------------------------------------------------------
+    // A plan's plane is horizontal, at its cut. A drag or a pick writes the
+    // same two fields the panel writes, then runs what a slider release runs -
+    // and rebuilds the panel, so it shows where the plane landed.
+    // ------------------------------------------------------------
+    function Na__FpDev__RegisterPlaneSource() {
+        Na__PlaneOverlay__RegisterSource(Na__PlaneUi__TYPE_PLAN, {
+            kind          : Na__PlaneOverlay__KIND_HORIZONTAL,
+            get paletteOffset() { return Na__PlaneCfg__GetAppearanceSetup().planPaletteOffset; },   // <-- Read when asked: the config may not have loaded when this registers
+            list          : () => Na__FpData__GetFloorPlans(null),
+            getId         : (plan) => plan.FloorPlan__Id,
+            getName       : (plan) => plan.FloorPlan__Name,
+            isSection     : () => true,                                          // <-- A plan always cuts
+            getPositionMm : (plan) => Na__FpData__GetCutHeightMm(plan),
+            setPositionMm : (plan, cutMm) => Na__FpDev__MoveCutTo(plan, cutMm),
+            describe      : (plan) => Na__FpDev__DescribePlane(plan),
+            onLive        : (plan) => Na__FpDev__PushLiveCut(plan, true),
+            onCommit      : (plan) => {
+                Na__FpDev__PushLiveCut(plan, false);
+                const config = Na__FpDev__GetConfig();
+                if (config) Na__FpLink__SyncSceneCamera(config, plan, Na__FpDev__Measure(), Na__FpDev__Fov());
+                if (Na__FpDev__Panel && Na__FpDev__Panel.classList.contains('is-open')) Na__FpDev__Render();
+            },
+            applyFacePick : Na__FpDev__ApplyFacePick
+        });
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Row Handler Wiring
 // -----------------------------------------------------------------------------
 
@@ -328,17 +477,25 @@
             onRename : () => {
                 Na__FpLink__SyncSceneName(config, plan);
                 Na__PresentationMode__ProjectJson__BroadcastScenesChanged();     // <-- The card carries the plan name
+                Na__PlaneOverlay__Refresh();                                     // <-- And so does its plane in the 3D view
             },
 
-            onDatumLive   : () => Na__FpDev__PushLiveCut(plan, true),
+            // The plane of the plan being touched is always up, and follows
+            // the slider, so the numbers have something visible attached.
+            onDatumLive   : () => {
+                Na__FpDev__PushLiveCut(plan, true);
+                Na__FpDev__ShowPlane(plan);
+            },
             onDatumCommit : () => {
                 Na__FpDev__PushLiveCut(plan, false);
                 Na__FpLink__SyncSceneCamera(config, plan, Na__FpDev__Measure(), Na__FpDev__Fov());
+                Na__FpDev__ShowPlane(plan);
             },
 
             onOffsetChange : () => {
                 Na__FpDev__PushLiveCut(plan, false);
                 Na__FpLink__SyncSceneCamera(config, plan, Na__FpDev__Measure(), Na__FpDev__Fov());
+                Na__FpDev__ShowPlane(plan);
             },
 
             // Depth changes the PLANE SET, not just a constant, so the cut has
@@ -351,6 +508,7 @@
                 if (isActive) {
                     Na__FloorPlanMode__ExitPlan(null);
                 } else {
+                    Na__PlaneGrip__CancelFacePick(Na__PlaneUi__TYPE_PLAN);       // <-- A face is picked in the 3D view, which is about to go
                     Na__FloorPlanMode__EnterPlan(plan);
                 }
             },
@@ -426,8 +584,11 @@
             Na__FloorPlanMode__ExitPlan(null);                                   // <-- Never leave a deleted plan on screen
         }
 
+        Na__PlaneGrip__CancelFacePick(Na__PlaneUi__TYPE_PLAN);
+
         const orphanedSceneId = Na__FpData__DeletePlan(config, plan.FloorPlan__Id);
         if (orphanedSceneId) Na__FpLink__RemoveSceneForPlan(config, orphanedSceneId);
+        Na__PlaneOverlay__Forget(Na__PlaneUi__TYPE_PLAN, plan.FloorPlan__Id);    // <-- After the record has gone, so the refresh finds nothing to keep up
 
         Na__PresentationMode__ProjectJson__BroadcastScenesChanged();             // <-- Drop the card with the plan
         Na__FpDev__Render();
@@ -571,8 +732,19 @@
         const config = Na__FpDev__GetConfig();
         const plans  = config ? Na__FpData__GetFloorPlans(config) : [];
 
+        // DRAWING PLANES | Show all, snap and its grid - the same bar the
+        // Elevations panel carries, because the state behind it is shared.
+        const planesBar = (plans.length > 0) ? Na__PlaneUi__BuildBar() : null;
+        if (planesBar) Na__FpDev__Panel.appendChild(planesBar);
+
         for (let i = 0; i < plans.length; i++) {
             const planRow = Na__FpDev__BuildRow(plans[i]);
+
+            // Under the name, so the swatch that ties this row to its plane in
+            // the 3D view is the first thing beside what the plane is called.
+            const planeControls = Na__PlaneUi__BuildRowControls(Na__PlaneUi__TYPE_PLAN, plans[i].FloorPlan__Id, { canAim : false });
+            if (planeControls) planRow.insertBefore(planeControls, planRow.children[1] || null);
+
             planRow.appendChild(Na__FpDev__BuildSceneLinkRow(plans[i]));
             Na__FpDev__Panel.appendChild(planRow);
         }
@@ -650,12 +822,20 @@
         Na__FpDev__Initialized = true;
 
         menuItem.style.display = '';                                             // <-- Reveal alongside the other dev tools
+        Na__FpDev__RegisterPlaneSource();                                        // <-- Plan cuts can now be shown, dragged and picked in the 3D view
 
         toggle.addEventListener('click', () => {
             const isOpen = panel.classList.contains('is-open');
             panel.classList.toggle('is-open', !isOpen);
             toggle.setAttribute('aria-expanded', String(!isOpen));
-            if (!isOpen) Na__FpDev__Render();                                    // <-- Rebuild on each open so data is fresh
+            if (!isOpen) {
+                Na__FpDev__Render();                                             // <-- Rebuild on each open so data is fresh
+            } else {
+                // The plane that was only up because its row was being edited
+                // goes; planes SWITCHED ON stay.
+                Na__PlaneGrip__CancelFacePick(Na__PlaneUi__TYPE_PLAN);
+                Na__PlaneOverlay__DeselectType(Na__PlaneUi__TYPE_PLAN);
+            }
         });
 
         // Preview and Annotate button states are derived from mode, so the

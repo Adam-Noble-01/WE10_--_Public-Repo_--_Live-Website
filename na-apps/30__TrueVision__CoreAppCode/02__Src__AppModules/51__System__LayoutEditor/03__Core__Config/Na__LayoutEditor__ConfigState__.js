@@ -51,6 +51,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.26.0
+// - Re-exports StatusToStore (the SheetSetup unit): what a sheet stores for a
+//   drawing status chosen in the Sheet panel or the Drawing Register.
+//
 // 18-Sep-2026 - Version 1.25.0
 // - Re-exports GetViewportCacheSetup (the SheetSetup unit): the sheet surface's
 //   viewport cache.
@@ -239,6 +243,7 @@
         Na__LeCfg__GetSheetSetup,
         Na__LeCfg__GetStyleSetup,
         Na__LeCfg__GetTitleBlockSetup,
+        Na__LeCfg__StatusToStore,
         Na__LeCfg__GetScaleSetup,
         Na__LeCfg__GetViewportSetup,
         Na__LeCfg__GetRasterSetup,
@@ -379,6 +384,7 @@
         Na__LeCfg__GetSheetSetup,
         Na__LeCfg__GetStyleSetup,
         Na__LeCfg__GetTitleBlockSetup,
+        Na__LeCfg__StatusToStore,
         Na__LeCfg__GetScaleSetup,
         Na__LeCfg__GetViewportSetup,
         Na__LeCfg__GetTextSetup,

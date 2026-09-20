@@ -532,7 +532,7 @@
                 ],
                 "Modifiers": [],
                 "ModifierMatch": "Exact",
-                "Note": "With Select up a press picks and a drag does nothing, so nothing is nudged out of place by a stray drag. Press M and the cursor becomes the four-way arrow: now a drag moves whatever is under it. Grips, crop handles and the points of an open vector are still dragged by Select, because those edit an object rather than relocating it."
+                "Note": "With Select up a press on a viewport or a dimension picks it and a drag does nothing, so a drawing is never nudged out of place by a stray drag. Press M and the cursor becomes the four-way arrow everywhere: now a drag moves whatever is under it, and the tool stays up until another is picked. For text, vectors, a leader's bubble and groups Select picks Move up by itself (LayoutEditor__EditScope__AutoMoveOnSelect) and puts it down again on the next press elsewhere, so M is only needed for a viewport or a dimension. Grips, crop handles and the points of an open vector are still dragged by Select, because those edit an object rather than relocating it."
             },
             {
                 "Id": "Tool__Text",

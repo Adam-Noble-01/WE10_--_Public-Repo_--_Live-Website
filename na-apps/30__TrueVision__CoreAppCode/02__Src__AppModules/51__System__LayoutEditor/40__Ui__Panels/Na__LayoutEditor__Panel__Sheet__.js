@@ -10,10 +10,11 @@
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
-// - The paper and title block settings of the active sheet, and the eight
-//   title block fields (D26). A field left blank falls back to its project
+// - The paper and title block settings of the active sheet, and the title
+//   block fields (D26). A field left blank falls back to its project
 //   default (the placeholder shows what that would be); typing overrides it
-//   for this sheet only.
+//   for this sheet only. Status is the one field that is picked from a list
+//   rather than typed.
 // - NAME IS THE SHORT NAME ON THE TAB ("3D Images"). The drawing's short code
 //   ("D03 -") stands in front of the box as fixed text, cut from the Drawing
 //   Register's number, so nobody types a number here and a renumber in the
@@ -39,6 +40,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.4.0
+// - Status, the last of the title block fields, is a box rather than a typed
+//   row: "Not set", then the statuses the config lists (FOR APPROVAL, FOR
+//   TENDER, FOR CONSTRUCTION, AS BUILT and the rest). It writes
+//   Sheet__Fields__Status through SetField like Date or Drawn By - one undo
+//   step, kept by the draft - and the Drawing Register's row offers the same
+//   list. A status no longer in the config stays on the sheet that carries it.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - Short tab names. The Name row shows the drawing's short code ("D03 -") in
 //   front of the box as fixed text, read from the Drawing Register's number on
@@ -68,7 +77,7 @@
 
     // MODULE IMPORTS | Config, Layout, Model and Panel Host
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetTitleBlockSetup, Na__LeCfg__GetLineweightSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetTitleBlockSetup, Na__LeCfg__GetLineweightSetup, Na__LeCfg__StatusToStore } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeLayout__ListPaperSizes } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import {
         Na__LeModel__GetActiveSheet,
@@ -91,6 +100,7 @@
         Na__LePanels__Row,
         Na__LePanels__Input,
         Na__LePanels__Select,
+        Na__LePanels__FillSelect,
         Na__LePanels__Button
     } from './Na__LayoutEditor__PanelHost__.js';
     import { Na__LeCommon__KEYS, Na__LeCommon__Get, Na__LeCommon__RecordOffer } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__Common__.js';
@@ -106,9 +116,28 @@
     // @delegate: ../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js
     import { Na__LeRegEdit__Metadata } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js';
 
-    // MODULE CONSTANTS | Section Id
+    // MODULE CONSTANTS | Section Id and the Title Block Row That Is a Choice
     // ------------------------------------------------------------
-    const Na__LePanelSheet__ID = 'sheet';
+    const Na__LePanelSheet__ID         = 'sheet';
+    const Na__LePanelSheet__STATUS_KEY = 'Status';                               // <-- Every other title block row is typed; this one is picked from a list
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What the Status Box Offers for a Sheet
+    // ------------------------------------------------------------
+    // "Not set", then the configured statuses in the config's order. A sheet
+    // carrying a status that has since left the config keeps it as one more
+    // option, the way the register's Phase box keeps a retired phase: taking
+    // it off the list would show the box on the wrong value and hide what the
+    // title block is actually printing.
+    // ------------------------------------------------------------
+    function Na__LePanelSheet__StatusOptions(current) {
+        const statuses = Na__LeCfg__GetTitleBlockSetup().statuses;
+        const options  = [ { value : '', label : Na__LeCfg__GetLabel('StatusNotSet', 'Not set') } ];
+        statuses.forEach((status) => options.push({ value : status, label : status }));
+        if (current && statuses.indexOf(current) === -1) options.push({ value : current, label : current });
+        return options;
+    }
     // ------------------------------------------------------------
 
 
@@ -158,7 +187,18 @@
         // shows in front of the Name above. The Drawing Title has one again -
         // it is the long title the title block prints, a different thing from
         // the short name on the tab, and left blank it reads as the name.
+        //
+        // STATUS IS A BOX, NOT A TYPED FIELD: what a drawing is issued for is
+        // one of a short list of standard phrases, and a status typed
+        // differently on every sheet is how a pack ends up saying "For
+        // Planning", "FOR PLANNING" and "Planning" on three sheets.
         Na__LeCfg__GetTitleBlockSetup().rows.filter((row) => row.Key !== 'DocumentId').forEach((row) => {
+            if (row.Key === Na__LePanelSheet__STATUS_KEY) {
+                const statusRow = Na__LePanels__Row(row.Label || row.Key, Na__LePanels__Select('sheet-status', Na__LePanelSheet__StatusOptions('')));
+                statusRow.title = Na__LeCfg__GetLabel('StatusTitle', 'What this drawing is issued for. It prints in the last cell of the title block, and can also be chosen in the Drawing Register.');
+                body.appendChild(statusRow);
+                return;
+            }
             const input = Na__LePanels__Input('text', 'sheet-field');
             input.setAttribute('data-na-role', row.Key);
             body.appendChild(Na__LePanels__Row(row.Label || row.Key, input));
@@ -218,6 +258,19 @@
             input.placeholder = fields[key] || '';
             if (document.activeElement !== input) input.value = (typeof stored === 'string') ? stored : '';
         });
+        // STATUS | The box shows what the title block is printing. Its options
+        // are refilled only when they differ, so a refresh that arrives while
+        // the list is open does not close it under the pointer. The value is
+        // set even while the box has the focus - a box keeps it after a pick,
+        // and an undo straight afterwards has to be seen to land.
+        const statusBox = body.querySelector('[data-na-control="sheet-status"]');
+        if (statusBox) {
+            const printing = fields[Na__LePanelSheet__STATUS_KEY] || '';
+            const options  = Na__LePanelSheet__StatusOptions(printing);
+            const offered  = Array.from(statusBox.options).map((option) => option.value).join('\n');
+            if (offered !== options.map((option) => option.value).join('\n')) Na__LePanels__FillSelect(statusBox, options, printing);
+            statusBox.value = printing;
+        }
         Na__LePanelSheet__ShowOffer(body, onCommon);
     }
     // ------------------------------------------------------------
@@ -266,6 +319,10 @@
             if (Na__LeCommon__KEYS.indexOf(key) !== -1 && Na__LeModel__IsCommonFields(s)) { Na__LeModel__SetCommonFieldValue(s, key, el.value); return; }
             Na__LeModel__SetField(s, key, el.value.trim() === '' ? null : el.value);
         });
+        // STATUS | A title block field like Date or Drawn By: one undo step, kept
+        // by the browser draft and saved with the sheets. The register's Status
+        // box writes the same field through its own confirmed save.
+        Na__LePanels__OnControl('change', 'sheet-status', (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__SetField(s, Na__LePanelSheet__STATUS_KEY, Na__LeCfg__StatusToStore(el.value)); });
         Na__LePanels__OnControl('change', 'sheet-common', (e, el) => { const s = Na__LeModel__GetActiveSheet(); if (s) Na__LeModel__SetCommonFields(s, el.checked); });
         Na__LePanels__OnControl('click',  'sheet-common-adopt', () => {
             const s = Na__LeModel__GetActiveSheet();

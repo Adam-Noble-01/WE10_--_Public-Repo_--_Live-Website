@@ -49,6 +49,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - The lookup menu offers the sheet's own scale beside the viewport, and says
+//   which of the two the element is tied to.
+//
 // 19-Sep-2026 - Version 1.0.0
 // - Initial implementation: the stretch grip, the lookup grip and its menu.
 //
@@ -83,11 +87,16 @@
         Na__LeParam__ResetToStandard
     } from './Na__LayoutEditor__ScrapbookParametric__.js';
     import {
-        Na__LeParamLink__ResolveById,
+        Na__LeParamLink__KIND_VIEWPORT,
+        Na__LeParamLink__KIND_SHEET,
+        Na__LeParamLink__KIND_NONE,
+        Na__LeParamLink__DescribeById,
         Na__LeParamLink__ViewportName,
         Na__LeParamLink__SetLink,
+        Na__LeParamLink__SetSheetLink,
         Na__LeParamLink__LinkNearest
     } from './Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js';
+    import { Na__LeDrawScale__SheetDenominator } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -281,7 +290,8 @@
         const params = Na__LeParam__GetParams(sheet, groupId);
         if (!params) return [];
         const items  = [];
-        const linked = Na__LeParamLink__ResolveById(sheet, groupId);
+        const tied   = Na__LeParamLink__DescribeById(sheet, groupId);
+        const linked = tied.kind === Na__LeParamLink__KIND_VIEWPORT ? tied.viewport : null;
 
         if (params.ScaleDenominator !== undefined) {
             if (linked) {
@@ -295,10 +305,13 @@
                         : Na__LeParam__Label('ToastNoViewport', 'No 2D viewport is near enough to link to.'));
                 } });
             }
+            items.push({ label : Na__LeParam__Label('MenuFromSheet', 'From the sheet\'s scale ({scale})', { scale : Na__LeDrawScale__Label(Na__LeDrawScale__SheetDenominator(sheet)) }),
+                         checked : tied.kind === Na__LeParamLink__KIND_SHEET,
+                         onSelect : () => { if (tied.kind === Na__LeParamLink__KIND_SHEET) Na__LeParamLink__SetLink(sheet, groupId, null); else Na__LeParamLink__SetSheetLink(sheet, groupId); } });   // <-- Ticked: picking it again lets go
             items.push({ separator : true });
             const scales = Na__LeParam__Block('ScaleBar').ScaleBar__MenuScaleDenominators;
             (Array.isArray(scales) ? scales : []).filter((d) => typeof d === 'number' && d > 0).forEach((denominator) => {
-                items.push({ label : Na__LeDrawScale__Label(denominator), checked : !linked && params.ScaleDenominator === denominator,
+                items.push({ label : Na__LeDrawScale__Label(denominator), checked : tied.kind === Na__LeParamLink__KIND_NONE && params.ScaleDenominator === denominator,
                              onSelect : () => { Na__LeParam__ResetToStandard(sheet, groupId, denominator, { link : null }); } });
             });
             items.push({ separator : true });

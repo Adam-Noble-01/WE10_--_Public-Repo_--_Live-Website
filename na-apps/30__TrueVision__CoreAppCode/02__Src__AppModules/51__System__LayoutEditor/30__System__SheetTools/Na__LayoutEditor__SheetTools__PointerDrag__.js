@@ -65,6 +65,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.6.0
+// - DragStartMm: a press marked `pick` - the press that selects something, or
+//   the second press of a double click - travels PickDragPx on screen before it
+//   moves anything, where a double click means something (a whole-object move,
+//   a viewport's frame or content, a leader, a dimension's value). Everything
+//   else keeps DragThresholdMm. A pick never nudges; a double click never
+//   shifts what it lands on.
+// - FinishDrag and BoxUp mark a press that travelled (PressTravelled), so the
+//   press unit can ignore the double click the browser reports at the end of
+//   "click, then at once drag".
+// - A box that leaves only text, vectors, leaders and groups selected picks
+//   the Move tool up, as a press on one of them does.
+//
 // 18-Sep-2026 - Version 1.5.0
 // - RefreshBrokenTooltip: the Select/Move hover pass explains a broken
 //   specification bubble (Na__LeLeadGeo__IsBroken) next to the pointer,
@@ -140,7 +153,7 @@
         Na__LeModel__GetSelection,
         Na__LeModel__GetSelectionItems
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__GetZoom, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__GetZoom, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeHandles__DragPatch } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeGrips__HideInsert, Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from './Na__LayoutEditor__Grips__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
@@ -197,10 +210,12 @@
         Na__LeTools__VertexRetype,
         Na__LeTools__WriteVertexRetype,
         Na__LeTools__DimEndRetype,
-        Na__LeTools__WriteDimEndRetype
+        Na__LeTools__WriteDimEndRetype,
+        Na__LeTools__WritePressTravelled
     } from './Na__LayoutEditor__SheetTools__State__.js';
-    import { Na__LeTools__Tool, Na__LeTools__CancelPlacement } from './Na__LayoutEditor__SheetTools__ToolState__.js';
+    import { Na__LeTools__Tool, Na__LeTools__CancelPlacement, Na__LeTools__PickUpMove } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import {
+        Na__LeTools__SelectionPicksUpMove,
         Na__LeTools__RefreshShapeInsert,
         Na__LeTools__SnapShapeTranslation,
         Na__LeTools__SnapGroupTranslation,
@@ -248,13 +263,45 @@
         Na__LeHoverTip__Hide();                                              // <-- A drag in flight never shows the hover tip
         const dMm = { x : point.x - drag.startMm.x, y : point.y - drag.startMm.y };
         if (!drag.moved) {
-            if (Math.hypot(dMm.x, dMm.y) < Na__LeCfg__GetSelectionSetup().dragThresholdMm / Na__LeSurface__GetZoom()) return;
+            if (Math.hypot(dMm.x, dMm.y) < Na__LeTools__DragStartMm(drag)) return;
             drag.moved = true;
             Na__LeVp2d__SetInteracting(true);
             Na__LeVp3d__SetInteracting(true);
             document.body.classList.add('na-le-dragging');
         }
         Na__LeTools__ApplyDrag(sheet, drag, dMm, event.shiftKey);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | How Far a Press Travels Before It Becomes a Drag, in Paper Millimetres
+    // ------------------------------------------------------------
+    // The ordinary threshold is DragThresholdMm, which works out at barely two
+    // pixels on screen at any zoom: right for a press on something already in
+    // hand, and far too eager for a press that is really a PICK. Now that
+    // Select picks Move up, the press that selects a note is also the start of
+    // a possible move, and two pixels of wobble would nudge it; the second
+    // press of a double click lands on something Move is already up for, and
+    // two pixels of wobble would shift it on the way in. So a press marked
+    // `pick` (the press unit marks it) travels PickDragPx ON SCREEN first.
+    //
+    // ONLY WHERE A DOUBLE CLICK MEANS SOMETHING, which is where the wobble
+    // does harm: a whole-object move, a viewport's frame or its content, a
+    // leader by any part (its text opens on a double click, tip included) and
+    // a dimension's value (its override box does). A vertex, a dimension's
+    // measured points, a crop handle and the rotate grip stay as eager as
+    // they were - nothing opens there, and precise work wants no dead zone.
+    // ------------------------------------------------------------
+    function Na__LeTools__DragStartMm(drag) {
+        const setup = Na__LeCfg__GetSelectionSetup();
+        const plain = setup.dragThresholdMm / Na__LeSurface__GetZoom();
+        if (!drag || drag.pick !== true) return plain;
+        const opens = Na__LeTools__IsMoveDrag(drag)
+            || (drag.kind === 'viewport' && !!drag.hit && drag.hit.mode !== 'handle')
+            || drag.kind === 'leader'
+            || (drag.kind === 'dimension' && drag.mode === 'text');
+        if (!opens) return plain;
+        return Math.max(plain, setup.pickDragPx / Math.max(1e-6, Na__LeSurface__GetPixelsPerMm() * Na__LeSurface__GetZoom()));
     }
     // ------------------------------------------------------------
 
@@ -519,6 +566,7 @@
         const point  = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         const result = Na__LeSelBox__Release(sheet, point, event.pointerId);
         if (!result) return;
+        if (result.dragged) Na__LeTools__WritePressTravelled(true);           // <-- A box that was dragged out is no second click either
         if (Na__LeTools__Stage) { try { Na__LeTools__Stage.releasePointerCapture(event.pointerId); } catch (e) { /* already released */ } }
 
         // THE PRESS THAT NEVER STRETCHED, OUTSIDE AN OPEN CONTAINER, IS THE WAY
@@ -542,7 +590,15 @@
         if (!taken) return;
         if (Na__LeScope__IsActive() && !taken.length) return;                 // <-- A box inside a container that caught nothing leaves the container exactly as it was
         const items = Na__LeScope__IsActive() ? taken : Na__LeGroup__ResolveItems(sheet, taken);   // <-- Inside a group the members ARE the answer: no remap to the outermost group
-        Na__LeModel__SetSelectionItems(Na__LeSelBox__Combine(Na__LeModel__GetSelectionItems(), items, result.combine));
+        const chosen = Na__LeModel__SetSelectionItems(Na__LeSelBox__Combine(Na__LeModel__GetSelectionItems(), items, result.combine));
+
+        // A BOX PICKS MOVE UP THE WAY A PRESS DOES. What a box takes is as
+        // likely to be moved next as what a click takes, so when everything it
+        // left selected is text, vectors, leaders or groups the Move tool comes
+        // up here too. One viewport or one dimension among them and the tool
+        // stays Select: a set moves as one, and those wait for M.
+        // ------------------------------------
+        if (result.dragged && Na__LeTools__SelectionPicksUpMove(chosen)) Na__LeTools__PickUpMove();
     }
     // ------------------------------------------------------------
 
@@ -584,6 +640,7 @@
         Na__LeTools__WriteDrag(null);
         document.body.classList.remove('na-le-dragging');
         Na__LeMeasure__Refresh();                                            // <-- A finished vertex drag puts the Measurements box back to rest
+        if (drag.moved) Na__LeTools__WritePressTravelled(true);              // <-- The double click the browser may still report for this press is not one
         if (!drag.moved) {
             if (drag.inserted) {                                             // <-- Shift-click on an edge: the vertex is in, even if it did not drag
                 const sheet = Na__LeModel__GetActiveSheet();

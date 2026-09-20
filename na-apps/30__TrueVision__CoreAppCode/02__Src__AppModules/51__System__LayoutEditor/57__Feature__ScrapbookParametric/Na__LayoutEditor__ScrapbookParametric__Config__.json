@@ -2,21 +2,39 @@
     "LayoutEditor__ScrapbookParametric__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
         "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
-        "Meta__Version"     : "1.0.0",
+        "Meta__Version"     : "1.1.0",
         "Meta__Created"     : "19-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
         "Meta__Block"       : "Group__Parametric : { Parametric__Type, Parametric__Version, Parametric__Params, Parametric__Link }. The element's place on the paper is never stored: the Move tool and a paste shift a group's members and know nothing of this block, so the generator always writes the element's origin as the first point of its first member and the engine reads it back from there.",
+        "Meta__HouseTitle"  : "The drawing title was measured on 19-Sep-2026 from the six elevation titles and two plan titles Adam lettered by hand on PS02 D22 and D21. All eight agree: capitals, qualifier first (EXISTING EAST ELEVATION), Open Sans 600 at 3.5 mm in #172b3a, ranged left; an underline 0.4 pt thick and exactly 60 mm long, 1.631 mm under the baseline and 0.171 mm in from the text's left; and the scale bar 6.318 mm under the underline, sharing its left end. He groups title, underline and bar as one object.",
         "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between."
     },
 
     "LayoutEditor__ScrapbookParametric__Elements": {
-        "Elements__Description" : "The tiles the Parametric Scrapbook section shows, in this order. Element__Type names a registered element module. Element__DrawingTypes lists the drawing types an element is offered on ('siteplan', 'architectural'); an element without the key is offered on every sheet.",
+        "Elements__Description" : "The tiles the Parametric Scrapbook section shows, in this order. An element is a PRESET of a type: Element__Type names a registered element module, Element__Id is the element's own (two elements may share a type; without one it is the type), Element__Params are laid onto every element dropped from it, and Element__PreviewParams are added for the tile and the drag ghost only - a title's tile reads EXISTING EAST ELEVATION where a real drop reads its own viewport. Element__DrawingTypes lists the drawing types an element is offered on ('siteplan', 'architectural'); an element without the key is offered on every sheet. Elements__TypeNames is what each type is called on the sheet's group tag and in the panel.",
+        "Elements__TypeNames"   : { "ScaleBar" : "Scale Bar", "DrawingTitle" : "Drawing Title" },
         "Elements__List"        : [
+            {
+                "Element__Id"            : "DrawingTitleWithBar",
+                "Element__Type"          : "DrawingTitle",
+                "Element__Name"          : "Drawing Title + Scale Bar",
+                "Element__Description"   : "The title under a drawing, with its underline and scale bar, written by the drawing it is tied to: Existing or Proposed from the model that drawing draws, and North, East, South or West from the north set in the 3D model. Until north is set an elevation reads {{DIRECTION}}. Drag the round socket onto another drawing to retitle it.",
+                "Element__Params"        : { "ShowScaleBar" : true },
+                "Element__PreviewParams" : { "ViewKind" : "elevation", "ViewPhase" : "existing", "ViewFacing" : "East" }
+            },
+            {
+                "Element__Id"            : "DrawingTitle",
+                "Element__Type"          : "DrawingTitle",
+                "Element__Name"          : "Drawing Title",
+                "Element__Description"   : "The title and its underline alone, written by the drawing it is tied to. Drag the arrow at the underline's end to lengthen it; the scale bar can be switched on in its settings.",
+                "Element__Params"        : { "ShowScaleBar" : false },
+                "Element__PreviewParams" : { "ViewKind" : "elevation", "ViewPhase" : "proposed", "ViewFacing" : "North" }
+            },
             {
                 "Element__Type"        : "ScaleBar",
                 "Element__Name"        : "Scale Bar",
-                "Element__Description" : "A checker scale bar that reads the scale of the drawing above it. Drag the arrow at its far end to lengthen it; click the triangle above its zero for another scale."
+                "Element__Description" : "A checker scale bar that reads the scale of the drawing above it. Drag the arrow at its far end to lengthen it; click the triangle at its zero end for another scale; drag the round socket onto another drawing to tie it to that one."
             }
         ]
     },
@@ -68,6 +86,34 @@
         ]
     },
 
+    "LayoutEditor__ScrapbookParametric__DrawingTitle": {
+        "DrawingTitle__Description"                  : "Element two: the drawing title (Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js). See Meta__HouseTitle for where every size below came from. The origin is the underline's left end; the text stands above it and the scale bar hangs below. The words themselves - Existing, Proposed, Elevation and the two placeholders - belong to 20__System__Viewports/Na__LayoutEditor__ViewportIdentity__Config__.json, and the compass words to 46__System__NorthDirection/Na__North__AppConfig__.json, because the editor names unnamed elevation viewports in the same words.",
+
+        "DrawingTitle__TextSizeMm"                   : 3.5,
+        "DrawingTitle__TextWeight"                   : 600,
+        "DrawingTitle__TextColour"                   : "#172b3a",
+        "DrawingTitle__TextOffsetXMm"                : -0.171,
+        "DrawingTitle__TextBaselineAboveUnderlineMm" : 1.631,
+
+        "DrawingTitle__UnderlineMm"                  : 60,
+        "DrawingTitle__UnderlineMinMm"               : 10,
+        "DrawingTitle__UnderlineMaxMm"               : 400,
+        "DrawingTitle__UnderlineStepMm"              : 5,
+        "DrawingTitle__UnderlineGrowsToFit"          : true,
+        "DrawingTitle__UnderlineFitExtraMm"          : 0.342,
+        "DrawingTitle__UnderlineNote"                : "UnderlineMm is the LEAST the underline is: sixty millimetres underlines EXISTING EAST ELEVATION with room to spare. With GrowsToFit on it reaches the end of a longer title, plus FitExtraMm, rounded up to a tenth of a millimetre. StepMm is what the stretch grip moves it by when the title has no scale bar.",
+        "DrawingTitle__UnderlineColour"              : "#172b3a",
+        "DrawingTitle__UnderlineStrokePt"            : 0.4,
+
+        "DrawingTitle__ScaleBarBelowUnderlineMm"     : 6.318,
+        "DrawingTitle__SocketAboveUnderlineMm"       : 4.2,
+
+        "DrawingTitle__ShowScaleBar"                 : true,
+        "DrawingTitle__Uppercase"                    : true,
+        "DrawingTitle__PhaseMode"                    : "auto",
+        "DrawingTitle__PhaseModeNote"                : "auto reads Existing or Proposed off the model the drawing draws; existing and proposed force the word; none leaves it out."
+    },
+
     "LayoutEditor__ScrapbookParametric__ViewportLink": {
         "ViewportLink__Description"       : "The link between a parametric element and a viewport (Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js). AutoLinkOnInsert links a dropped element to the nearest 2D viewport, measured from the drop point to the viewport's frame; MaxLinkDistanceMm is how far away that viewport may be. A scale bar sits under a drawing's title, which sits under the drawing, so the frame is usually 10 to 30 mm above it. FollowScale regenerates a linked element when its viewport's scale changes, inside the same undo step.",
         "ViewportLink__AutoLinkOnInsert"  : true,
@@ -81,11 +127,26 @@
         "Grips__LookupSizePx"    : 13,
         "Grips__StretchOffsetPx" : 12,
         "Grips__LookupOffsetPx"  : 12,
-        "Grips__ClickSlopPx"     : 4
+        "Grips__ClickSlopPx"     : 4,
+        "Grips__LinkSizePx"      : 11,
+        "Grips__LinkOffsetPx"    : 16
+    },
+
+    "LayoutEditor__ScrapbookParametric__Noodle": {
+        "Noodle__Description"      : "The link noodle (Na__LayoutEditor__ScrapbookParametric__LinkNoodle__.js): the curve from a selected element's round socket to what it is tied to, and the outline round that. Px values are screen pixels, held at any zoom. Reach is how far each end of the noodle runs before it turns, in paper millimetres: half the distance between the ends, held between the two limits. ScaleCellInsetMm is how far into the title block's Scale cell the noodle lands for an element tied to the sheet's scale.",
+        "Noodle__Colour"           : "#12a5dc",
+        "Noodle__Casing"           : "#ffffff",
+        "Noodle__LinePx"           : 2,
+        "Noodle__CasingPx"         : 4.5,
+        "Noodle__TargetDotPx"      : 4.5,
+        "Noodle__HighlightPx"      : 1.5,
+        "Noodle__MinReachMm"       : 10,
+        "Noodle__MaxReachMm"       : 70,
+        "Noodle__ScaleCellInsetMm" : 8
     },
 
     "LayoutEditor__ScrapbookParametric__Labels": {
-        "Labels__Description"      : "The Parametric Scrapbook's wording. {name} is an element's name, {scale} a scale as the title block writes it, {viewport} a viewport's name.",
+        "Labels__Description"      : "The Parametric Scrapbook's wording. {name} is an element's name, {scale} a scale as the title block writes it, {viewport} a viewport's name, {target} what an element is tied to.",
         "Labels__LibraryTitle"     : "Parametric Scrapbook",
         "Labels__LibraryHint"      : "Dynamic elements. Drag one onto the sheet, or double-click it; select it afterwards for its grips and its settings.",
         "Labels__LibraryReadOnly"  : "Elements can only be placed while sheets are editable.",
@@ -97,6 +158,7 @@
         "Labels__PropsFromViewport": "From viewport ({scale})",
         "Labels__PropsLink"        : "Linked to",
         "Labels__PropsLinkNone"    : "Not linked",
+        "Labels__PropsLinkSheet"   : "The sheet's scale ({scale})",
         "Labels__PropsLinkNearest" : "Link to nearest",
         "Labels__PropsDivisions"   : "Divisions",
         "Labels__PropsLength"      : "{real} long, {paper} mm on the paper.",
@@ -107,13 +169,36 @@
         "Labels__PropsExplode"     : "Ungroup it (Ctrl+Shift+G) to explode it into plain vectors and text.",
         "Labels__PropsLocked"      : "Its layer is locked.",
 
+        "Labels__PropsTitleReads"    : "Reads: {text}",
+        "Labels__PropsNeedsNorth"    : "{{Direction}} fills itself in once north is set in the 3D model: Dev Tools, North Direction, Draw Compass.",
+        "Labels__PropsNeedsLink"     : "Tie it to a drawing to fill {{Drawing}}: drag its round socket onto one.",
+        "Labels__PropsTitleTyped"    : "Typed by hand, so it no longer follows its drawing. Clear the box to go back to automatic.",
+        "Labels__PropsTitleNamed"    : "The drawing's viewport has a typed name, which the title uses. Clear that name and the title is written from the model and north.",
+        "Labels__PropsTitleText"     : "Title text",
+        "Labels__PropsTitleAuto"     : "Automatic",
+        "Labels__PropsPhase"         : "Existing / Proposed",
+        "Labels__PropsPhaseAuto"     : "Automatic (from the model)",
+        "Labels__PropsPhaseExisting" : "Existing",
+        "Labels__PropsPhaseProposed" : "Proposed",
+        "Labels__PropsPhaseNone"     : "Leave it out",
+        "Labels__PropsUppercase"     : "Capitals",
+        "Labels__PropsUnderline"     : "Underline (mm)",
+        "Labels__PropsShowBar"       : "Scale bar",
+        "Labels__ToastUntiedTitle"   : "Untied. It keeps what it says.",
+
         "Labels__MenuFromViewport" : "From viewport ({scale})",
         "Labels__MenuFromNearest"  : "Link to nearest viewport",
+        "Labels__MenuFromSheet"    : "From the sheet's scale ({scale})",
         "Labels__MenuSubdivide"    : "Split first division",
         "Labels__MenuUnits"        : "Show units",
         "Labels__MenuReset"        : "Reset length",
         "Labels__GripStretch"      : "Drag to lengthen or shorten",
         "Labels__GripLookup"       : "Scale and options",
+        "Labels__GripLink"         : "Drag onto a drawing to tie this to it, or onto the title block for the sheet's scale. Let go on bare paper to untie it.",
+        "Labels__GripLinkTied"     : "Tied to {target}.",
+        "Labels__LinkSheetName"    : "the sheet's scale ({scale})",
+        "Labels__ToastTied"        : "Tied to {target}.",
+        "Labels__ToastUntied"      : "Untied. It keeps {scale}.",
         "Labels__ViewportUnnamed"  : "Viewport {id}",
         "Labels__ToastLinked"      : "Linked to {viewport} at {scale}.",
         "Labels__ToastNoViewport"  : "No 2D viewport is near enough to link to."

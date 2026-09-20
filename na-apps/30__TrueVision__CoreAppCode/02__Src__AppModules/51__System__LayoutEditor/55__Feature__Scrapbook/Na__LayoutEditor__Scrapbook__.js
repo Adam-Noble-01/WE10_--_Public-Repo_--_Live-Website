@@ -81,6 +81,7 @@
     // ------------------------------------------------------------
     const Na__LeScrap__ConfigUrl      = new URL('./Na__LayoutEditor__Scrapbook__Config__.json', import.meta.url);
     const Na__LeScrap__PREFIX         = 'LayoutEditor__Scrapbook__';
+    const Na__LeScrap__TAB_ID         = 'scrapbook';                           // <-- The right column's Scrapbook tab, which all three libraries' sections sit on
     const Na__LeScrap__STATUS_LOADING = 'loading';
     const Na__LeScrap__STATUS_READY   = 'ready';
     const Na__LeScrap__STATUS_FAILED  = 'failed';
@@ -437,6 +438,7 @@
     // MODULE EXPORTS | Layout Editor Scrapbook API
     // ------------------------------------------------------------
     export {
+        Na__LeScrap__TAB_ID,
         Na__LeScrap__STATUS_LOADING,
         Na__LeScrap__STATUS_READY,
         Na__LeScrap__STATUS_FAILED,

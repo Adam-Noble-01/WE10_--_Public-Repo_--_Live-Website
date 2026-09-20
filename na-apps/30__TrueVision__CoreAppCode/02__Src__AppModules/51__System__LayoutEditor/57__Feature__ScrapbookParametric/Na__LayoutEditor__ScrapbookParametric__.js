@@ -34,9 +34,17 @@
 //   step however many records it touched.
 // - UNGROUP IS EXPLODE. The vectors and text stay; the block goes with the
 //   group record.
+// - A TYPE STAYS PURE BY BEING HANDED WHAT IT CANNOT REACH. build and handles
+//   are given a tools object - today one thing, a way to measure text on the
+//   paper - which the panel sets from the editor's own chrome. A type that
+//   ignores it, or runs under Node where there is none, draws all the same.
+// - AN ELEMENT IS A PRESET OF A TYPE. The library lists elements; two may be
+//   one type with different Element__Params, as the Drawing Title is offered
+//   with its scale bar and without.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__ScrapbookParametric__ScaleBar__ is the first type.
+// - Na__LayoutEditor__ScrapbookParametric__DrawingTitle__ is the second.
 // - Na__LayoutEditor__ScrapbookParametric__ViewportLink__ owns Parametric__Link.
 // - Na__LayoutEditor__ScrapbookParametric__Grips__ draws and drags the grips.
 // - Na__LayoutEditor__Panel__ScrapbookParametric__ registers the types and
@@ -55,6 +63,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0
+// - For the Drawing Title. SetTools: build and handles are handed a tools
+//   object (measureTextMm). ResetToStandard takes options.patch, so a change
+//   of scale and a change of the facts a title is written from are one
+//   rebuild. Elements are presets: ElementId, ElementParams and
+//   ElementPreviewParams, and a type's name may come from
+//   Elements__TypeNames. A type may name the parameters the link module
+//   fills from a viewport (definition.facts).
+//
+// 19-Sep-2026 - Version 1.1.0
+// - HandlesOf passes every grip point a type gives, by the name it gives it
+//   (the link socket, for the link noodle).
+//
 // 19-Sep-2026 - Version 1.0.0
 // - Initial implementation: the config, the type registry, the block,
 //   BuildSet, Insert, Regenerate, AnchorOf and Portable.
@@ -117,6 +138,7 @@
     let   Na__LeParam__Status      = Na__LeParam__STATUS_LOADING;
     let   Na__LeParam__LoadPromise = null;
     const Na__LeParam__Types       = new Map();     // <-- type name -> definition
+    let   Na__LeParam__Tools       = Object.freeze({});   // <-- What a type's build and handles are handed: { measureTextMm(text, sizeMm, weight) }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -185,9 +207,12 @@
     // ------------------------------------------------------------
     // definition: {
     //     type                        the name a block carries
+    //     keep                        the parameters a change of scale leaves alone
+    //     facts                       the parameters the link module fills from the
+    //                                 viewport an element is tied to (optional)
     //     defaults(denominator)       the standard parameters at a scale
     //     normalise(params)           made whole and held inside its limits
-    //     build(params)               { records : [{ kind, record }] } from an
+    //     build(params, tools)        { records : [{ kind, record }] } from an
     //                                 origin of (0, 0), the first record a
     //                                 vector whose first point IS (0, 0)
     //     handles(params)             { stretch, lookup } as { x, y } from the origin
@@ -202,6 +227,19 @@
     }
     function Na__LeParam__GetType(type) {
         return Na__LeParam__Types.get(type) || null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Set What a Type's Build and Handles Are Handed
+    // ------------------------------------------------------------
+    // tools: { measureTextMm(text, sizeMm, weight) -> paper millimetres }.
+    // A type is pure - it imports no DOM and no editor module - so whatever
+    // it needs from the editor arrives here. The panel sets it once.
+    // ------------------------------------------------------------
+    function Na__LeParam__SetTools(tools) {
+        Na__LeParam__Tools = Object.freeze(Object.assign({}, (tools && typeof tools === 'object') ? tools : {}));
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -226,12 +264,37 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | An Element's Id, the Parameters It Presets and the Ones Its Tile Is Drawn With
+    // ------------------------------------------------------------
+    // An element is a preset of a type. Its id is its own - two elements may
+    // share a type - and falls back to the type. Element__Params go onto
+    // every element dropped from it. Element__PreviewParams are added for
+    // the tile and the drag ghost only, so a title's tile can read EXISTING
+    // EAST ELEVATION where a real drop reads its own viewport.
+    // ------------------------------------------------------------
+    function Na__LeParam__ElementId(element) {
+        if (!element) return '';
+        return (typeof element.Element__Id === 'string' && element.Element__Id.trim() !== '') ? element.Element__Id.trim() : String(element.Element__Type || '');
+    }
+    function Na__LeParam__ElementParams(element) {
+        const params = element ? element.Element__Params : null;
+        return (params && typeof params === 'object' && !Array.isArray(params)) ? JSON.parse(JSON.stringify(params)) : {};
+    }
+    function Na__LeParam__ElementPreviewParams(element) {
+        const preview = element ? element.Element__PreviewParams : null;
+        return Object.assign(Na__LeParam__ElementParams(element), (preview && typeof preview === 'object' && !Array.isArray(preview)) ? JSON.parse(JSON.stringify(preview)) : {});
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | What a Type Is Called, for the Sheet and the Panel
     // ------------------------------------------------------------
-    // The name of the first element the config lists of that type, else the
-    // type's own name.
+    // The config's Elements__TypeNames entry for it; else the name of the
+    // first element the config lists of that type; else the type's own name.
     // ------------------------------------------------------------
     function Na__LeParam__TypeName(type) {
+        const names = Na__LeParam__Block('Elements')['Elements__TypeNames'];
+        if (names && typeof names === 'object' && typeof names[type] === 'string' && names[type].trim() !== '') return names[type].trim();
         const list = Na__LeParam__Block('Elements')['Elements__List'];
         return Na__LeParam__ElementName((Array.isArray(list) ? list : []).find((element) => !!element && element.Element__Type === type) || { Element__Type : type });
     }
@@ -372,8 +435,9 @@
 
     // FUNCTION | Where an Element's Grips Are on the Paper
     // ------------------------------------------------------------
-    // { anchor, stretch, lookup, params } in paper millimetres; null for a
-    // plain group, or a type that has no grips.
+    // { anchor, stretch, lookup, link, params, type } in paper millimetres -
+    // every point the type gives, by the name it gives it; null for a plain
+    // group, or a type that has no grips.
     // ------------------------------------------------------------
     function Na__LeParam__HandlesOf(sheet, groupId) {
         const block  = Na__LeParam__GetBlockById(sheet, groupId);
@@ -382,10 +446,10 @@
         const definition = Na__LeParam__GetType(block.Parametric__Type);
         if (typeof definition.handles !== 'function') return null;
         const params  = Na__LeParam__GetParams(sheet, groupId);
-        const handles = definition.handles(params);
+        const handles = definition.handles(params, Na__LeParam__Tools);
         if (!handles) return null;
         const place = (point) => (point ? { x : anchor.x + point.x, y : anchor.y + point.y, away : Array.isArray(point.away) ? point.away : [ 0, 0 ] } : null);   // <-- away: the way the grip stands clear of its point
-        return { anchor : anchor, stretch : place(handles.stretch), lookup : place(handles.lookup), params : params, type : block.Parametric__Type };
+        return { anchor : anchor, stretch : place(handles.stretch), lookup : place(handles.lookup), link : place(handles.link), params : params, type : block.Parametric__Type };
     }
     // ------------------------------------------------------------
 
@@ -402,7 +466,7 @@
     // the sheet's text layer and vectors on its vector layer.
     // ------------------------------------------------------------
     function Na__LeParam__BuildLeaves(definition, params, originMm) {
-        const built = definition.build(params);
+        const built = definition.build(params, Na__LeParam__Tools);
         const list  = (built && Array.isArray(built.records)) ? built.records : [];
         const dx    = originMm ? originMm.x : 0;
         const dy    = originMm ? originMm.y : 0;
@@ -618,7 +682,9 @@
     // ------------------------------------------------------------
     // What a change of scale does: the length and the divisions go back to
     // the standard, and the choices that are not about length - named by the
-    // type's keep list - stay as they were.
+    // type's keep list - stay as they were. options.patch is laid over the
+    // result, so whatever else changed with the scale - the facts a title is
+    // written from - is part of the one rebuild.
     // ------------------------------------------------------------
     function Na__LeParam__ResetToStandard(sheet, groupId, denominator, options) {
         const block = Na__LeParam__GetBlockById(sheet, groupId);
@@ -629,6 +695,7 @@
         const scale    = Number.isFinite(denominator) && denominator > 0 ? denominator : current.ScaleDenominator;
         const standard = definition.defaults(scale);
         (Array.isArray(definition.keep) ? definition.keep : []).forEach((key) => { if (current[key] !== undefined) standard[key] = current[key]; });
+        if (options && options.patch && typeof options.patch === 'object') Object.assign(standard, options.patch);
         return Na__LeParam__Regenerate(sheet, groupId, standard, options);
     }
     // ------------------------------------------------------------
@@ -653,8 +720,12 @@
         Na__LeParam__Label,
         Na__LeParam__RegisterType,
         Na__LeParam__GetType,
+        Na__LeParam__SetTools,
         Na__LeParam__ElementsFor,
         Na__LeParam__ElementName,
+        Na__LeParam__ElementId,
+        Na__LeParam__ElementParams,
+        Na__LeParam__ElementPreviewParams,
         Na__LeParam__TypeName,
         Na__LeParam__GetBlock,
         Na__LeParam__GetBlockById,

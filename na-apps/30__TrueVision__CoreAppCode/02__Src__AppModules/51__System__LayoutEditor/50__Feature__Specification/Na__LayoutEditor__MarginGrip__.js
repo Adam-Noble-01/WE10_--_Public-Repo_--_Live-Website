@@ -34,6 +34,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.1.0
+// - The grip stays up under a Move tool that came up by itself
+//   (Na__LeTools__IsMoveAuto), as it does under Select. Picking a note now
+//   picks Move up, and that must not take the margin's handle away.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -57,7 +62,7 @@
         Na__LeSurface__Refresh
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
-    import { Na__LeTools__CHANGED_EVENT, Na__LeTools__TOOL_SELECT, Na__LeTools__GetTool } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
+    import { Na__LeTools__CHANGED_EVENT, Na__LeTools__TOOL_SELECT, Na__LeTools__GetTool, Na__LeTools__IsMoveAuto } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LeSpec__CHANGED_EVENT } from './Na__LayoutEditor__SpecData__.js';
     import { Na__LeMargin__Report } from './Na__LayoutEditor__SpecMargin__.js';
     // ------------------------------------------------------------
@@ -148,7 +153,7 @@
         grip.style.top    = (rect.Y * ppm) + 'px';
         grip.style.width  = widthPx + 'px';
         grip.style.height = (rect.HeightMm * ppm) + 'px';
-        grip.hidden = !(Na__LeMarginGrip__Editable && (Na__LeMarginGrip__Drag || Na__LeTools__GetTool() === Na__LeTools__TOOL_SELECT));
+        grip.hidden = !(Na__LeMarginGrip__Editable && (Na__LeMarginGrip__Drag || Na__LeTools__GetTool() === Na__LeTools__TOOL_SELECT || Na__LeTools__IsMoveAuto()));   // <-- A Move that came up by itself is still Select at rest: picking a note must not take the grip away
         grip.classList.toggle('is-dragging', !!Na__LeMarginGrip__Drag);
 
         const badge = Na__LeMarginGrip__Badge;

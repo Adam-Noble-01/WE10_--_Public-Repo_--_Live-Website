@@ -46,6 +46,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.6.0
+// - Status joins the fields a register save writes into every kept step. The
+//   Drawing Register saves a drawing's status to R2 there and then, so a step
+//   recorded before that save must not carry the older one back on an undo.
+//
 // 14-Sep-2026 - Version 1.5.0
 // - Grouping is a step ('groups'): Ctrl+G, Ctrl+Shift+G, and a paste of a
 //   group. A selected group survives an undo that leaves it on the sheet.
@@ -56,6 +61,13 @@
 // 14-Sep-2026 - Version 1.3.0
 // - A restore keeps every selected item that still exists and drops the rest,
 //   now that the selection can hold several (Na__LeModel__GetSelectionItems).
+//
+// 19-Sep-2026 - Version 1.3.0
+// - Common title block fields. A step now carries the pack's client and site
+//   address beside the sheet snapshot, and the "changed nothing" test reads
+//   both: those two values live on the drawings block, so retyping the client
+//   on a sheet that is on Common changes not one byte of the sheet record.
+//   Apply takes the step rather than its json, and puts them back.
 //
 // 14-Sep-2026 - Version 1.2.0
 // - Leader changes are steps ('leaders' and 'leader'), and a selected leader
@@ -95,6 +107,7 @@
         Na__LeModel__GetSelectionItems,
         Na__LeModel__SetSelectionItems
     } from './Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeCommon__Get, Na__LeCommon__Set, Na__LeCommon__KEYS } from './Na__LayoutEditor__SheetModel__Common__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -166,12 +179,17 @@
     // announcement so the auto save can tell an undo of a rename from an
     // undo of a vector delete. Both redraw alike; only one saves.
     // ------------------------------------------------------------
-    function Na__LeHist__Apply(sheet, json, restore) {
-        const clone = JSON.parse(json);
+    function Na__LeHist__Apply(sheet, step, restore) {
+        const clone = JSON.parse(step.json);
         Na__LeHist__Restoring = true;
         try {
             Object.keys(sheet).forEach((key) => { if (!(key in clone)) delete sheet[key]; });
             Object.assign(sheet, clone);
+            // THE PACK'S CLIENT AND SITE ADDRESS live on the drawings block, not
+            // on the sheet, so the sheet snapshot alone cannot put them back.
+            // Restored before the announcement, so the one redraw that follows
+            // shows the whole step rather than half of it.
+            if (step.common) Na__LeCommon__KEYS.forEach((key) => Na__LeCommon__Set(key, step.common[key]));
             const selected = Na__LeModel__GetSelectionItems();
             const kept     = selected.filter((item) => Na__LeHist__SelectionExists(sheet, item));
             if (kept.length !== selected.length) Na__LeModel__SetSelectionItems(kept);
@@ -194,7 +212,7 @@
     function Na__LeHist__Track(sheet) {
         if (!sheet) return;
         const entry = Na__LeHist__Entry(sheet.Sheet__Id);
-        if (entry.current === null) entry.current = { json : JSON.stringify(sheet), reason : null };
+        if (entry.current === null) entry.current = { json : JSON.stringify(sheet), common : Na__LeCommon__Get(), reason : null };
     }
     // ------------------------------------------------------------
 
@@ -215,7 +233,7 @@
                     snapshot.Sheet__Name = sheet.Sheet__Name;
                     snapshot.Sheet__Order = sheet.Sheet__Order;
                     snapshot.Sheet__Fields = snapshot.Sheet__Fields || {};
-                    [ 'Title', 'DrawingNumber', 'Phase', 'DocumentId', 'Revision' ].forEach((key) => {
+                    [ 'Title', 'DrawingNumber', 'Phase', 'DocumentId', 'Revision', 'Status' ].forEach((key) => {   // <-- Everything the register saves. Status joined it on 19-Sep-2026: left out, an undo of any older step would have put back the status the register had just replaced on R2
                         const field = 'Sheet__Fields__' + key;
                         if (sheet.Sheet__Fields && sheet.Sheet__Fields[field] !== undefined) snapshot.Sheet__Fields[field] = sheet.Sheet__Fields[field];
                         else delete snapshot.Sheet__Fields[field];
@@ -232,14 +250,20 @@
         const sheet = Na__LeModel__GetSheetById(detail.sheetId);
         if (!sheet) return;
         const entry = Na__LeHist__Entry(sheet.Sheet__Id);
-        const next  = JSON.stringify(sheet);
-        if (entry.current === null) { entry.current = { json : next, reason : null }; return; }   // <-- First sighting: a baseline, not a step
-        if (next === entry.current.json) return;                                // <-- An announce that changed nothing
+        const next       = JSON.stringify(sheet);
+        const nextCommon = Na__LeCommon__Get();
+        if (entry.current === null) { entry.current = { json : next, common : nextCommon, reason : null }; return; }   // <-- First sighting: a baseline, not a step
+        // BOTH HALVES, because retyping the client on a sheet that is on Common
+        // changes the pack and not one byte of the sheet. Reading the sheet
+        // alone called that "an announce that changed nothing", recorded no
+        // step, and left Ctrl+Z to reach past it to an older, unrelated one.
+        const commonSame = Na__LeCommon__KEYS.every((key) => nextCommon[key] === (entry.current.common || {})[key]);
+        if (next === entry.current.json && commonSame) return;                  // <-- An announce that changed nothing
         entry.undo.push(entry.current);
         const max = Na__LeCfg__GetHistorySetup().maxSteps;
         while (entry.undo.length > max) entry.undo.shift();
         entry.redo.length = 0;
-        entry.current = { json : next, reason : reason };                       // <-- The reason goes with the step, so undoing it is saved the way it was
+        entry.current = { json : next, common : nextCommon, reason : reason };   // <-- The reason goes with the step, so undoing it is saved the way it was
         Na__LeHist__Dispatch(sheet.Sheet__Id);
     }
     // ------------------------------------------------------------
@@ -279,7 +303,7 @@
         const snapshot = entry.undo.pop();
         entry.redo.push(undone);
         entry.current = snapshot;
-        Na__LeHist__Apply(sheet, snapshot.json, { direction : 'undo', stepReason : undone.reason });
+        Na__LeHist__Apply(sheet, snapshot, { direction : 'undo', stepReason : undone.reason });
         Na__LeHist__Dispatch(sheet.Sheet__Id);
         return true;
     }
@@ -295,7 +319,7 @@
         const snapshot = entry.redo.pop();                                      // <-- The step being replayed is the one that made this snapshot
         entry.undo.push(entry.current);
         entry.current = snapshot;
-        Na__LeHist__Apply(sheet, snapshot.json, { direction : 'redo', stepReason : snapshot.reason });
+        Na__LeHist__Apply(sheet, snapshot, { direction : 'redo', stepReason : snapshot.reason });
         Na__LeHist__Dispatch(sheet.Sheet__Id);
         return true;
     }

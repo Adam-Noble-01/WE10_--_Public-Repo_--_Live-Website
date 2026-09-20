@@ -18,6 +18,8 @@
  *            off it by the drawing sheet's own shadow. The card keeps its own
  *            warm paper palette inside: that is the document, and it matches
  *            what it prints.
+ * STATUS   : 19-Sep-2026 - A ninth column for the drawing status box, sized by
+ *            the box as PHASE is, and the expand toggle moves to the tenth.
  */
 
 
@@ -29,29 +31,37 @@
     --Na_Register_Page                 : var(--Na_Le_Stage);           /* <-- One ground for every editor; see Styles__Surfaces__ */
     --Na_Register_Desk                 : var(--Na_Le_Stage);           /* <-- Edit and Read stand on the same grey: it is one document either way */
     --Na_Register_BarRule              : rgba(23, 43, 58, 0.14);      /* <-- The line under the specification's bar (.na-le-spec__bar) */
-    --Na_Register_Ink                  : #5c594f;
-    --Na_Register_Muted                : #8d8063;
-    --Na_Register_Caption              : #aaa69d;
-    --Na_Register_Rule                 : #e1ded8;
-    --Na_Register_CellRule             : #e4e1dc;
-    --Na_Register_Border               : #dedbd5;
-    --Na_Register_Header               : #eeece9;
-    --Na_Register_Stripe               : #f8f6f3;
+    --Na_Register_Ink                  : var(--Na_Le_Ink);             /* <-- #172b3a, the drawings' own ink and the specification's */
+    --Na_Register_Muted                : var(--Na_Le_InkMuted);        /* <-- #6c757d */
+    --Na_Register_Caption              : #8a949c;
+    --Na_Register_Rule                 : #d9dfe4;
+    --Na_Register_CellRule             : #e2e8ee;
+    --Na_Register_Border               : #ccd3d8;
+    --Na_Register_Header               : #eef1f4;
+    --Na_Register_Stripe               : #f6f8fa;
     --Na_Register_White                : #ffffff;
-    --Na_Register_Hover                : #f1efeb;
-    --Na_Register_Expanded             : #f4f2ee;
-    --Na_Register_Focus                : #8b8068;
-    --Na_Register_FocusRing            : #c8beaa;
-    --Na_Register_Drop                 : #ad9972;
-    --Na_Register_WarnYellow           : #d6ab40;
-    --Na_Register_WarnRed              : #b24e43;
-    --Na_Register_Handle               : #a29c90;
-    --Na_Register_Series               : #8b867c;
-    --Na_Register_Hint                 : #8f897e;
-    --Na_Register_Head                 : #a09d96;
+    --Na_Register_Hover                : #eef5fb;
+    --Na_Register_Expanded             : #f2f4f5;
+    --Na_Register_Focus                : #1a7fc4;                      /* <-- The specification's accent blue */
+    --Na_Register_FocusRing            : #cfe3f3;
+    --Na_Register_Drop                 : #1a7fc4;
+    --Na_Register_Handle               : #8a949c;
+    --Na_Register_Series               : #6c757d;
+    --Na_Register_Hint                 : #6c757d;
+    --Na_Register_Head                 : #6c757d;
     --Na_Register_Shadow               : #0002;
-    --Na_Register_Backdrop             : #27241c66;
-    --Na_Register_DialogBorder         : #ddd7cc;
+    --Na_Register_Backdrop             : #172b3a66;
+    --Na_Register_DialogBorder         : #ccd3d8;
+
+    /* SEMANTIC, NOT BRAND. A caution is amber and a stop is red wherever they
+       appear, so these stay warm - but they are the Project Specification's
+       exact warning and error colours rather than the register's own, so the
+       two documents raise a flag the same way. */
+    --Na_Register_WarnYellow           : #f0d9a8;
+    --Na_Register_WarnYellowInk        : #8a5a00;
+    --Na_Register_WarnRed              : #9b3b3b;
+    --Na_Register_WarnRedTint          : #fdf0f0;
+    --Na_Register_WarnRedBorder        : #e7c4c4;
     --Na_Register_Gap                  : 8px;
     --Na_Register_Pad                  : 10px;
     --Na_Register_Radius               : 4px;
@@ -280,9 +290,10 @@
    gap. Counted from the row as it is actually built, they are:
 
      1 handle   2 drawing no   3 phase   4 document code
-     5 name     6 scale        7 size    8 revision      9 expand
+     5 name     6 scale        7 size    8 revision      9 status   10 expand
 
-   Only the name flexes. Everything else takes what its content needs, which
+   (Na__LeRegEd__HEADINGS in the editor is the same list; add a column there
+   and it needs a rule here.) Only the name flexes. Everything else takes what its content needs, which
    is the same rule the printed register's columns follow. */
 .na-le-register__drawing td:nth-child(2),
 .na-le-register th:nth-child(2) {
@@ -328,6 +339,14 @@
     width                              : 80px;
 }
 
+/* STATUS, like PHASE, is a box that fills its cell and carries the floor
+   itself (below): a select is as wide as its widest option, so the column is
+   sized by the box rather than the box by the column. */
+.na-le-register__drawing td:nth-child(9),
+.na-le-register th:nth-child(9) {
+    width                              : 1%;
+}
+
 .na-le-register__code {
     font-weight                        : 600;
     white-space                        : nowrap;
@@ -349,6 +368,14 @@
     padding                            : 4px 6px;
     width                              : 100%;
     min-width                          : 136px;                       /* <-- Fits "T03  Building Regs", the longest phase the config offers */
+}
+
+/* The status box, on the same terms. Named -box because .na-le-register__status
+   is already the bar's sync line. */
+.na-le-register select.na-le-register__status-box {
+    padding                            : 4px 6px;
+    width                              : 100%;
+    min-width                          : 176px;                       /* <-- Fits "FOR BUILDING CONTROL", the longest status the config offers */
 }
 
 .na-le-register__drawing td:first-child,
@@ -538,11 +565,11 @@
 /* endregion ------------------------------------------------------- */
 
 /* DELETION | Destructive action remains nested in the drawing's expanded row. */
-.na-le-register .na-le-register__danger, .na-le-register__delete-dialog .na-le-register__danger { color: #a32e29; border: 1px solid #c98d88; background: #fff5f3; }
-.na-le-register__delete-dialog h2 { margin-top: 0; color: #a32e29; }
+.na-le-register .na-le-register__danger, .na-le-register__delete-dialog .na-le-register__danger { color: var(--Na_Register_WarnRed); border: 1px solid var(--Na_Register_WarnRedBorder); background: var(--Na_Register_WarnRedTint); }
+.na-le-register__delete-dialog h2 { margin-top: 0; color: var(--Na_Register_WarnRed); }
 .na-le-register__delete-dialog p { line-height: 1.6; }
 .na-le-register__delete-dialog label { display: grid; gap: 10px; }
-.na-le-register__delete-dialog input { padding: 10px; font: inherit; border: 1px solid #c8bdb8; border-radius: 4px; }
+.na-le-register__delete-dialog input { padding: 10px; font: inherit; border: 1px solid var(--Na_Register_Border); border-radius: 4px; }
 .na-le-register__delete-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
 .na-le-register__delete-actions button { padding: 9px 15px; font: inherit; cursor: pointer; border-radius: 4px; }
 .na-le-register__delete-actions button:disabled { opacity: .4; cursor: not-allowed; }

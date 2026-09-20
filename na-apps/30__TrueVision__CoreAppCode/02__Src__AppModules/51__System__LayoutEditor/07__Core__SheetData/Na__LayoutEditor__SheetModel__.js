@@ -119,6 +119,9 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.27.0
+// - Re-exports the Viewports unit's RegisterViewportNamer.
+//
 // 19-Sep-2026 - Version 1.26.0
 // - Re-exports the Sheets unit's short tab name API: GetDrawingNumber,
 //   GetShortCode, GetTabLabel, CleanSheetName and ApplySheetName.
@@ -420,7 +423,8 @@
         Na__LeModel__InsertViewport,
         Na__LeModel__DeleteViewport,
         Na__LeModel__UpdateViewport,
-        Na__LeModel__ResolveViewportSource
+        Na__LeModel__ResolveViewportSource,
+        Na__LeModel__RegisterViewportNamer
     } from './Na__LayoutEditor__SheetModel__Viewports__.js';
     // ------------------------------------------------------------
 
@@ -720,6 +724,7 @@
         Na__LeModel__DeleteViewport,
         Na__LeModel__UpdateViewport,
         Na__LeModel__ResolveViewportSource,
+        Na__LeModel__RegisterViewportNamer,
         Na__LeModel__GetAnnotations,
         Na__LeModel__GetAnnotationById,
         Na__LeModel__GetDimensions,

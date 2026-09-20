@@ -138,6 +138,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.31.0
+// - SELECT PICKS THE MOVE TOOL UP BY ITSELF for what is usually moved next:
+//   text, a vector, a leader by its bubble, note or curve, and a group
+//   (parametric ones included). The press that picks one carries straight on
+//   into the drag, and a box that leaves only those kinds selected picks Move
+//   up too. Viewports, dimensions and a leader's endpoint do not - they still
+//   wait for M, which is what the 17-Sep safety catch was for.
+// - A Move that came up by itself goes back to Select by itself: on a press on
+//   anything that does not pick it up, when the selection empties (Attach
+//   listens to the model and the container events and runs SettleAutoMove),
+//   and when a double click steps inside a group, a vector, a dimension, a
+//   text or a viewport's content. M or the toolbar gives a Move that stays.
+// - A press that picks, and the second press of a double click, travel
+//   PickDragPx before they move anything, and a double click whose second press
+//   travelled is ignored: a fast double click always steps inside, and "click,
+//   then at once drag" is only ever a move.
+// - IsMoveAuto is exported: the margin grip stays up under a Move that came up
+//   by itself, as it does under Select.
+//
+//
 // 17-Sep-2026 - Version 1.30.0
 // - CONTAINER EDITING, THE MOVE TOOL AND A REAL "NO TOOL" STATE. New unit
 //   Na__LayoutEditor__EditScope__ holds the context stack - a group, a vector or
@@ -458,6 +478,7 @@
         Na__LeTools__CancelPlacement,
         Na__LeTools__SetTool,
         Na__LeTools__GetTool,
+        Na__LeTools__IsMoveAuto,
         Na__LeTools__ArmEyedropper,
         Na__LeTools__ArmPalette
     } from './Na__LayoutEditor__SheetTools__ToolState__.js';
@@ -480,7 +501,7 @@
         Na__LeTools__TypeViewportLength,
         Na__LeTools__SetSuppressed
     } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
-    import { Na__LeTools__OnDown, Na__LeTools__OnDoubleClick } from './Na__LayoutEditor__SheetTools__PointerPress__.js';
+    import { Na__LeTools__OnDown, Na__LeTools__OnDoubleClick, Na__LeTools__SettleAutoMove } from './Na__LayoutEditor__SheetTools__PointerPress__.js';
     import {
         Na__LeTools__DeleteSelection,
         Na__LeTools__ShiftRedraw,
@@ -527,6 +548,7 @@
             keydown       : (e) => { Na__LeTools__OnKey(e); if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); },   // <-- Shift turns a dimension being placed ortho: show it without waiting for the mouse
             keyup         : (e) => { if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); },
             scopedraw     : () => Na__LeSurface__Refresh('scope'),            // <-- Opening or closing a container fades the sheet and redraws its contents
+            settlemove    : () => Na__LeTools__SettleAutoMove(),              // <-- A Move that came up by itself goes back down when the selection stops warranting it (Delete, an undo, a container opening or closing)
             dropperdraw   : () => { const sheet = Na__LeModel__GetActiveSheet(); Na__LeScope__Prune(sheet); Na__LeDrop__Refresh(sheet); Na__LeVpMove__Refresh(sheet); Na__LeSelBox__Refresh(sheet); requestAnimationFrame(() => { const els = Na__LeSurface__GetElements(); if (els && els.handles && sheet) Na__LeGroup__Render(els.handles, sheet, Na__LeModel__GetSelectionItems(), Na__LeSurface__GetPixelsPerMm(), Na__LeSurface__GetZoom()); }); }   // <-- The eyedropper's boxes, the tracking crosses and a selection box are counter-scaled, like the grips; groups paint after the surface clears the layer
         };
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'dblclick', 'contextmenu' ].forEach((name) => Na__LeTools__Stage.addEventListener(name, Na__LeTools__Handlers[name]));
@@ -534,6 +556,7 @@
         window.addEventListener('keyup', Na__LeTools__Handlers.keyup);
         [ Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeTools__Handlers.dropperdraw));
         window.addEventListener(Na__LeScope__CHANGED_EVENT, Na__LeTools__Handlers.scopedraw);
+        [ Na__LeModel__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeTools__Handlers.settlemove));
         Na__LeMeasure__Attach({                                              // <-- The Measurements box reads the tools through these, and never imports them back
             getTool              : () => Na__LeTools__Tool,
             isEditable           : () => Na__LeTools__Editable,
@@ -578,6 +601,7 @@
         window.removeEventListener('keyup', Na__LeTools__Handlers.keyup);
         [ Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeTools__Handlers.dropperdraw));
         window.removeEventListener(Na__LeScope__CHANGED_EVENT, Na__LeTools__Handlers.scopedraw);
+        [ Na__LeModel__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeTools__Handlers.settlemove));
         Na__LeTools__Stage.style.cursor = '';
         Na__LeTools__WriteSuppressed(false);                                 // <-- Never leave the tools deaf for the next mount
         Na__LeTools__WriteStage(null); Na__LeTools__Handlers = null; Na__LeTools__WriteDrag(null);
@@ -609,6 +633,7 @@
         Na__LeTools__Detach,
         Na__LeTools__SetTool,
         Na__LeTools__GetTool,
+        Na__LeTools__IsMoveAuto,
         Na__LeTools__ArmEyedropper,
         Na__LeTools__ArmPalette,
         Na__LeTools__GetTextDefaults,

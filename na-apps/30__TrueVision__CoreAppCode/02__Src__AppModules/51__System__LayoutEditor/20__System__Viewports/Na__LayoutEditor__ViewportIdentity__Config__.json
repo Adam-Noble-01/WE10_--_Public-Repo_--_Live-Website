@@ -1,0 +1,23 @@
+{
+    "LayoutEditor__ViewportIdentity__Meta": {
+        "Meta__Description": "How the Layout Editor says what a viewport is a drawing OF: which design phase it draws (Existing or Proposed), which way an elevation faces (from the project's north direction), and the words its name and its parametric title are written in. Read by Na__LayoutEditor__ViewportIdentity__.js. Every value has a built-in fallback equal to the one shipped here, because names are asked for synchronously on a sheet's first paint, which can come before this file arrives.",
+        "Meta__Version": 1
+    },
+    "LayoutEditor__ViewportIdentity__Words": {
+        "Words__Description": "The words a drawing's name is made of. The house pattern is qualifier then subject - 'Existing East Elevation' - and a parametric title writes it in capitals by its own setting. The two placeholders are shown in double braces, {{Direction}}, where a fact is still missing: Direction until north has been set in the 3D model (Dev Tools, North Direction), Drawing on a title that is tied to no viewport.",
+        "Words__Existing": "Existing",
+        "Words__Proposed": "Proposed",
+        "Words__Elevation": "Elevation",
+        "Words__PlaceholderDirection": "Direction",
+        "Words__PlaceholderDrawing": "Drawing"
+    },
+    "LayoutEditor__ViewportIdentity__Phase": {
+        "Phase__Description": "A viewport draws one of the project's model groups (its Model Source; the Project Default when none is chosen). The group is the EXISTING building when its label or id contains one of these, matched without regard to case - the same test the app's startup uses to choose the project's default model - and PROPOSED otherwise. A project with no model groups has no phase, and no qualifier is written.",
+        "Phase__ExistingLabelContains": [ "existing" ]
+    },
+    "LayoutEditor__ViewportIdentity__Naming": {
+        "Naming__Description": "Whether an elevation viewport nobody has named takes a derived name - 'Existing North Elevation' - in the panels, the link menus, the toasts and its frame caption, in place of its elevation record's own name. Only once north is set; a typed viewport name always wins. IncludePhase puts Existing or Proposed in front, which is what tells a pair of viewports of the same elevation apart.",
+        "Naming__NameElevationViewports": true,
+        "Naming__IncludePhase": true
+    }
+}

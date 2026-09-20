@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<!-- =============================================================================
+     TRUEVISION3D - TEST - TITLE BLOCK CELLS
+     =============================================================================
+     Renders the modern title block strip straight from the REAL chrome builder,
+     for sheets carrying PS01's own title block values, on every paper size - so
+     the proportions of the strip can be read without opening a project.
+     No project is loaded and nothing is written: this page asks the sheet model
+     for the fields and the chrome for the primitives, and paints nowhere else.
+
+     jsPDF is loaded the way the app loads it AND the Open Sans cuts are waited
+     for, so every cell is measured with the face it prints in. The cell widths
+     in the table under each strip are read back off the primitives (the vertical
+     rules), not recomputed, so they are what was actually drawn.
+
+     The base href is the app folder, so the config's own relative paths - the
+     logo among them - resolve exactly as they do from Index.html.
+
+     USAGE: serve the repo root and open
+       /na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__TitleBlockCells__.html
+     window.__TEST_RESULT holds the same numbers as JSON when the page has run.
+
+     The pure arithmetic has its own Node test: Na__Test__TitleBlockCells__.test.mjs
+     ============================================================================= -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="../">
+<title>Title block cells</title>
+<style>
+    body   { margin: 0; padding: 24px; background: #2b3440; color: #dfe6ec;
+             font: 13px/1.5 'Open Sans', Helvetica, Arial, sans-serif; }
+    h1     { font-size: 15px; font-weight: 600; margin: 0 0 18px; }
+    .case  { margin: 0 0 30px; }
+    .head  { margin: 0 0 6px; }
+    .head b{ color: #ffd479; font-weight: 600; }
+    .strip { background: #fff; display: block; overflow-x: auto; }
+    svg    { display: block; }
+    .cells { font: 12px/1.5 Consolas, monospace; color: #a9b6c2; white-space: pre; margin: 6px 0 0; }
+    .cells b { color: #ff9d8a; font-weight: 400; }
+    #out   { white-space: pre; font-family: Consolas, monospace; background: #1d242d;
+             padding: 12px; border-radius: 4px; margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>TrueVision3D - title block cells</h1>
+<div id="cases"></div>
+<div id="out">running...</div>
+
+<!-- The app's own import map, as Index.html has it (the base href makes the paths the same). -->
+<script type="importmap">
+{
+    "imports": {
+        "three"                        : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.module.js",
+        "three/addons/"                : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/examples/jsm/",
+        "three/webgpu"                 : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.webgpu.js",
+        "three/tsl"                    : "./04__Lib__ThirdParty__VersionLocked/01__Vendor__ThreeJs__v0.184.0/build/three.tsl.js",
+        "three-mesh-bvh"               : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/index.js",
+        "three-mesh-bvh/worker"        : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/workers/index.js",
+        "three-mesh-bvh/webgpu"        : "./04__Lib__ThirdParty__VersionLocked/02__Vendor__ThreeMeshBvh__v0.9.9/src/webgpu/index.js",
+        "clipper2-js"                  : "./04__Lib__ThirdParty__VersionLocked/03__Vendor__Clipper2Js__v0.9.0/fesm2020/clipper2-js.mjs",
+        "three-edge-projection"        : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/index.js",
+        "three-edge-projection/webgpu" : "./04__Lib__ThirdParty__VersionLocked/04__Vendor__ThreeEdgeProjection__v0.0.10/src/webgpu/index.js"
+    }
+}
+</script>
+<script src="./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js"></script>
+<script type="module">
+// The sheet model comes FIRST on purpose: the record, model and panel modules are a
+// knot of long-standing import cycles, and the app enters that knot at the model.
+import { Na__LeModel__GetFields }  from './02__Src__AppModules/51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+import { Na__LeCfg__Ready,
+         Na__LeCfg__GetTitleBlockSetup } from './02__Src__AppModules/51__System__LayoutEditor/03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+import { Na__LeLayout__Solve }     from './02__Src__AppModules/51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
+import { Na__LeChrome__Build,
+         Na__LeChrome__LoadAsset,
+         Na__LeChrome__ToSvgMarkup } from './02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+import { Na__LePdfFonts__EnsureLoaded } from './02__Src__AppModules/51__System__LayoutEditor/60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';
+
+const log = [];
+function say(line) { log.push(line); document.getElementById('out').textContent = log.join('\n'); }
+
+const PS01_TITLE = 'Permitted Development Compliance - Existing Conditions & Design Proposal Elevations';
+
+// A sheet shaped like a real one, with only what the title block and layout read.
+// Sheet__CommonFields is false so the sheet's own Client and Site Address print:
+// with no project loaded the pack has none to offer.
+function sheet(order, paper, orientation, scales, fields, drawingType) {
+    const stored = Object.assign({
+        Sheet__Fields__Client      : 'Mr P. Samra',
+        Sheet__Fields__SiteAddress : '255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD',
+        Sheet__Fields__Title       : PS01_TITLE,
+        Sheet__Fields__DocumentId  : 'PS01_T01_D' + String(order).padStart(2, '0'),
+        Sheet__Fields__Revision    : 'B',
+        Sheet__Fields__DrawnBy     : 'A. Noble',
+        Sheet__Fields__Status      : 'FOR PLANNING'
+    }, fields || {});
+    Object.keys(stored).forEach((key) => { if (stored[key] === null) delete stored[key]; });
+    return {
+        Sheet__Id          : 'Sheet_' + order,
+        Sheet__Name        : 'Elevations',
+        Sheet__Order       : order,
+        Sheet__PaperSize   : paper,
+        Sheet__Orientation : orientation,
+        Sheet__TitleBlockStyle : 'modern',
+        Sheet__DrawingType : drawingType || undefined,
+        Sheet__CommonFields : false,
+        Sheet__Fields      : stored,
+        Sheet__Layers      : [],
+        Sheet__Viewports   : scales.map((d, i) => ({ Viewport__Id : 'Vp_' + i, Viewport__Kind : '2d', Viewport__ScaleDenominator : d })),
+        Sheet__Annotations : [], Sheet__Dimensions : [], Sheet__Shapes : [],
+        Sheet__Leaders : [], Sheet__Groups : []
+    };
+}
+
+const CASES = [
+    [ 'PS01 D02 as Adam marked it up',        sheet(2, 'A2', 'landscape', [ 50 ]) ],
+    [ 'The same sheet with a short title',    sheet(3, 'A2', 'landscape', [ 50 ], { Sheet__Fields__Title : 'Proposed Floor Plans' }) ],
+    [ 'Status never chosen',                  sheet(4, 'A2', 'landscape', [ 50, 100 ], { Sheet__Fields__Status : null }) ],
+    [ 'Site plan, the widest realistic scale',sheet(5, 'A1', 'landscape', [ 500, 1250 ], { Sheet__Fields__Status : 'FOR BUILDING CONTROL' }, 'siteplan') ],
+    [ 'A3, where the room is tight',          sheet(6, 'A3', 'landscape', [ 50 ]) ],
+    [ 'A3 with three scales and a long client', sheet(7, 'A3', 'landscape', [ 20, 50, 100 ], { Sheet__Fields__Client : 'Mr & Mrs Featherstonehaugh', Sheet__Fields__Status : 'FOR CONSTRUCTION' }) ],
+    [ 'A4 landscape, narrower than the strip', sheet(8, 'A4', 'landscape', [ 50 ]) ],
+    [ 'A4 portrait, where nothing fits',      sheet(9, 'A4', 'portrait',  [ 50 ]) ]
+];
+
+(async () => {
+    try {
+        await Na__LeCfg__Ready();
+        const fonts = await Na__LePdfFonts__EnsureLoaded();
+        const setup = Na__LeCfg__GetTitleBlockSetup();
+        const logo  = await Na__LeChrome__LoadAsset(setup.logoAssetPath);
+        say('Config loaded. jsPDF present: ' + !!(window.jspdf && window.jspdf.jsPDF) + '. Open Sans loaded: ' + fonts + '. Logo loaded: ' + !!logo);
+        say('Rows: ' + setup.rows.map((row) => row.Key + ' ' + row.WidthMm + (row.Flex ? ' flex' : '')).join(' | '));
+        say('');
+
+        const host    = document.getElementById('cases');
+        const results = [];
+        CASES.forEach(([ title, s ]) => {
+            const fields = Na__LeModel__GetFields(s);
+            const layout = Na__LeLayout__Solve(s);
+            const prims  = Na__LeChrome__Build(layout, s, { fields : fields, includeFrames : false });
+            const band   = layout.TitleBlock;
+
+            // Crop the page-wide primitive list down to the title block band alone.
+            const inBand = prims.map((p) => {
+                const c = JSON.parse(JSON.stringify(p));
+                if (typeof c.Y  === 'number') c.Y  -= band.Y;
+                if (typeof c.Y1 === 'number') c.Y1 -= band.Y;
+                if (typeof c.Y2 === 'number') c.Y2 -= band.Y;
+                if (typeof c.BaselineY === 'number') c.BaselineY -= band.Y;
+                return c;
+            }).filter((c) => {
+                const y = [ c.Y, c.Y1, c.Y2, c.BaselineY ].filter((v) => typeof v === 'number');
+                return y.length === 0 || y.some((v) => v >= -1 && v <= band.HeightMm + 1);
+            });
+
+            // THE CELLS AS DRAWN | The vertical rules, left to right, read off the primitives.
+            const rules = inBand.filter((c) => c.Kind === 'line' && Math.abs(c.X1 - c.X2) < 1e-9).map((c) => c.X1).sort((a, b) => a - b);
+            const edges = rules.concat([ band.X + band.WidthMm ]);
+            const logoW = rules[0] - band.X;
+            const texts = inBand.filter((c) => c.Kind === 'text');
+            const cells = setup.rows.map((row, index) => {
+                const left  = edges[index];
+                const right = edges[index + 1];
+                const mine  = texts.filter((t) => t.X >= left && t.X < right).sort((a, b) => a.BaselineY - b.BaselineY);
+                const value = mine.length > 1 ? mine[mine.length - 1].Text : '';
+                return { key : row.Key, widthMm : right - left, label : mine.length ? mine[0].Text : '', value : value, cut : /\.\.\.$/.test(value) || (mine.length ? /\.\.\.$/.test(mine[0].Text) : false) };
+            });
+            const sum = cells.reduce((total, cell) => total + cell.widthMm, 0) + logoW;
+
+            // TWO VIEWS | The whole strip fitted to the page, for the proportions; then the
+            // same strip at a fixed 3.2 px per millimetre in a scrolling box, for the type.
+            const wrap = document.createElement('div');
+            wrap.className = 'case';
+            const pxPerMm = 3.2;
+            const markup  = Na__LeChrome__ToSvgMarkup(inBand, band.X + band.WidthMm + band.X, band.HeightMm);
+            wrap.innerHTML =
+                '<div class="head">' + title + ' &mdash; <b>' + s.Sheet__PaperSize + ' ' + s.Sheet__Orientation + '</b> &mdash; strip ' + band.WidthMm.toFixed(0) + ' mm, logo cell ' + logoW.toFixed(1) + ' mm</div>' +
+                '<div class="strip">' + markup + '</div>' +
+                '<div class="strip" style="margin-top:4px"><div style="width:' + Math.round((band.WidthMm + band.X * 2) * pxPerMm) + 'px">' + markup + '</div></div>' +
+                '<div class="cells">' + cells.map((cell) => (cell.cut ? '<b>' : '') + cell.key + ' ' + cell.widthMm.toFixed(1) + (cell.cut ? ' CUT</b>' : '')).join('   ') + '</div>';
+            host.appendChild(wrap);
+
+            results.push({ title : title, paper : s.Sheet__PaperSize + ' ' + s.Sheet__Orientation, stripMm : band.WidthMm, logoCellMm : logoW, sumMm : sum, cells : cells });
+            say((s.Sheet__PaperSize + ' ' + s.Sheet__Orientation).padEnd(14) + cells.map((cell) => cell.key + ' ' + cell.widthMm.toFixed(1) + (cell.cut ? '*' : '')).join('  ') + '   (sum ' + sum.toFixed(2) + ' of ' + band.WidthMm.toFixed(2) + ')');
+        });
+
+        say('');
+        say('* = the value or the label was cut short with an ellipsis.');
+        say('DONE - ' + CASES.length + ' sheets built with no error.');
+        window.__TEST_RESULT = { fonts : fonts, logo : !!logo, results : results };
+    } catch (error) {
+        say('ERROR: ' + (error && error.stack ? error.stack : error));
+        window.__TEST_RESULT = 'ERROR: ' + (error && error.stack ? error.stack : error);
+    }
+})();
+</script>
+</body>
+</html>

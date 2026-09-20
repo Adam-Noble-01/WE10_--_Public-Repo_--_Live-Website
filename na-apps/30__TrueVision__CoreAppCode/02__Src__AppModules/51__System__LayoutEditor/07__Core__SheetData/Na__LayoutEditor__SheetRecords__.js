@@ -33,6 +33,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.22.0
+// - BuildFields answers Status: what the drawing is issued for, the last cell
+//   of the title block. Stored per sheet as Sheet__Fields__Status and read like
+//   every other field, so a sheet from before it prints the config's
+//   StatusDefault - shipped empty, so no drawing claims a status nobody chose.
+//
 // 19-Sep-2026 - Version 1.21.0
 // - Short tab names. DrawingNumber answers a sheet's drawing number without
 //   building every title block field; ShortCode cuts it down to what a tab
@@ -1030,7 +1036,8 @@
             Revision      : 'A',
             Scale         : Na__LeScale__SheetLabel(scales, paper.Label),
             Date          : dateText,
-            DrawnBy       : setup.drawnByDefault
+            DrawnBy       : setup.drawnByDefault,
+            Status        : setup.statusDefault                                  // <-- Empty as shipped: a drawing claims no status until one is chosen for it
         };
         const fields = {};
         Object.keys(defaults).forEach((key) => {

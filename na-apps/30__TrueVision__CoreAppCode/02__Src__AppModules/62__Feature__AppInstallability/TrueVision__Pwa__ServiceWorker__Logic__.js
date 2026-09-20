@@ -34,6 +34,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.9.0
+// - Token bumped (2026-09-20-1): the North Direction tool and the parametric
+//   Drawing Title. New modules import NEW exports from modules a warm cache
+//   already holds - RegisterViewportNamer on the sheet model, SetTools and the
+//   element presets on the parametric engine - and app modules are
+//   stale-while-revalidate, so without this the first visit after the deploy
+//   would link new importers against old exporters and the editor would not
+//   load at all until the second.
+//
 // 19-Sep-2026 - Version 1.8.0
 // - Token bumped (2026-09-19-1): the Safari install fix. Index.html is
 //   network-first and carries the fix that matters (no static manifest link),
@@ -145,7 +154,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-19-1';                                                                      // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-20-1';                                                                      // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

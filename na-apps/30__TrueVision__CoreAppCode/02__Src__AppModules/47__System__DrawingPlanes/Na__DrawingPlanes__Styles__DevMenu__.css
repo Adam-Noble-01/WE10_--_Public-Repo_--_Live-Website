@@ -1,0 +1,142 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Drawing Planes Dev Menu Styles         */
+/* ================================================================= */
+/*
+ * FILE    : Na__DrawingPlanes__Styles__DevMenu__.css
+ * MODULE  : Drawing Planes - Dev Menu Controls
+ * AUTHOR  : Adam Noble - Noble Architecture
+ * CREATED : 20-Sep-2026
+ *
+ * Styles the Drawing Planes bar at the head of the Floor Plans and
+ * Elevations panels, the plane controls under each drawing's name, and
+ * the readout that follows the pointer while a plane is dragged in the
+ * 3D view. Buttons, captions and the empty-state note are the existing
+ * .na-pm-dev__*, .na-dropdown-menu__* and .na-fp-dev__* families, so the
+ * bar reads as part of the panel it sits in; only what has no
+ * equivalent there is defined here.
+ */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Drawing Planes Bar                                 */
+/* ----------------------------------------------------------------- */
+
+/* Set apart from the rows below it: it governs every plane in the
+   model, not the drawing it happens to sit above. */
+.na-plane-dev__bar {
+    margin                             : 2px 0 10px;
+    padding                            : 8px 8px 4px;
+    border                             : 1px solid rgba(0, 0, 0, 0.10);
+    border-radius                      : 6px;
+    background                         : rgba(0, 0, 0, 0.025);
+}
+
+.na-plane-dev__bar .na-fp-dev__empty {
+    margin-top                         : 6px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Snap Toggle and Increment Stepper                      */
+/* ----------------------------------------------------------------- */
+
+.na-plane-dev__snap {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 4px;
+    margin-top                         : 6px;
+}
+
+/* Square, so minus and plus read as a pair either side of the value. */
+.na-plane-dev__step {
+    flex                               : 0 0 auto;
+    min-width                          : 26px;
+    padding-left                       : 0;
+    padding-right                      : 0;
+    text-align                         : center;
+    font-weight                        : 600;
+}
+
+.na-plane-dev__step:disabled {
+    opacity                            : 0.35;
+    cursor                             : default;
+}
+
+.na-plane-dev__increment {
+    flex                               : 0 0 auto;
+    min-width                          : 58px;
+    text-align                         : center;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 12px;
+    color                              : #2b2b2b;
+}
+
+/* The grid is still chosen while snapping is off - it is just not in
+   force - so the value dims rather than disappears. */
+.na-plane-dev__increment--off {
+    color                              : #9a9a9a;
+    text-decoration                    : line-through;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Per-Drawing Plane Controls                             */
+/* ----------------------------------------------------------------- */
+
+.na-plane-dev__row {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : 4px;
+    margin                             : 4px 0 6px;
+}
+
+/* The one thing that ties this row to a plane in the 3D view. */
+.na-plane-dev__swatch {
+    flex                               : 0 0 auto;
+    width                              : 14px;
+    height                             : 14px;
+    border-radius                      : 3px;
+    border                             : 1px solid rgba(0, 0, 0, 0.25);
+    box-sizing                         : border-box;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Drag Readout (follows the pointer in the 3D view)      */
+/* ----------------------------------------------------------------- */
+
+/* Never takes a pointer event: it sits under the cursor's shoulder
+   during a drag and must not become the thing being dragged over. */
+.na-plane-readout {
+    position                           : fixed;
+    z-index                            : 9000;
+    pointer-events                     : none;
+    padding                            : 5px 9px 6px;
+    border-left                        : 4px solid #2e7d4f;
+    border-radius                      : 4px;
+    background                         : rgba(255, 255, 255, 0.94);
+    box-shadow                         : 0 2px 10px rgba(0, 0, 0, 0.18);
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 12px;
+    line-height                        : 1.45;
+    color                              : #2b2b2b;
+    white-space                        : nowrap;
+}
+
+.na-plane-readout__name {
+    font-family                        : 'Segoe UI', Arial, sans-serif;
+    font-size                          : 11px;
+    font-weight                        : 600;
+    letter-spacing                     : 0.04em;
+    color                              : #4a4a4a;
+}
+
+/* endregion ------------------------------------------------------- */

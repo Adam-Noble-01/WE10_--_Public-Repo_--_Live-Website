@@ -6,6 +6,47 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.4.1 - 20-Sep-2026
+
+### Added - The build writes the index that every drawing's QR code resolves through
+
+#### Why
+- Every TrueVision drawing now carries a QR code (TrueVision v2.81.0). It reads
+  `https://www.noble-architecture.com/q/?PS01` - 42 bytes, exactly what a 29 module
+  symbol holds - and `q/index.html` at the website root sends the phone on to the
+  project's full TrueVision address. The full address is 135 bytes, a 49 module symbol,
+  which a phone cannot read at title block size.
+- The page has to find the project's folder and year from its code, and the build script
+  is the one thing that already knows all three for every project.
+
+#### Build script (`ProjectVision__BuildScript__.py`)
+- `build_qr_link_index` writes `q/index.json` beside the master index on every build:
+  `projects`, keyed by code, each with `projectFolder` and `projectYear`. The shape is the
+  master index's on purpose - the resolver falls back to that file and reads both alike.
+- EVERY valid project is listed, with or without TrueVision content, and always all of
+  them even on a `--project` run. A printed code sits in a site bag for years; it must not
+  stop working because a content check changed its mind, or because a build was aimed at
+  another job.
+- `--qr-index-only` rewrites that one file and nothing else. `--dry-run-check` reports it.
+
+#### Project Manager (`ProjectVision__ProjectManager__Api__.py`)
+- `_update_master_index` now carries the change on to `q/index.json` (`_update_qr_index`):
+  a folder rename, a code change or a delete reaches both in the same breath. A STALE
+  entry is worse than a missing one - the resolver only falls back to the master index
+  when a code is not listed at all - so a project renamed here and left stale there would
+  have sent every drawing already printed for it to a folder that no longer exists.
+- It never fails the edit that caused it, never invents an index that is not there, and
+  keeps only the folder and the year. Proved against copies of both indexes; the real
+  ones were not touched. THE 8090 SERVER NEEDS A RESTART to pick it up.
+
+#### Never
+- Never move, rename or remove the `q` folder, and never edit `q/index.json` by hand.
+  `Na__Test__ProjectQr__.test.mjs` in TrueVision fails when it falls behind the portal.
+- It has to be PUBLISHED with the site before a drawing carrying the code is issued.
+
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.4.0 - 19-Sep-2026
 
 ### Added - Project Manager: multi-project admin with local and R2 in lockstep

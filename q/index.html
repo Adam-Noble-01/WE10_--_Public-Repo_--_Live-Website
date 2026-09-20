@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!--=========================================================================
+NOBLE ARCHITECTURE - PROJECT QR CODE RESOLVER
+=============================================================================
+
+FILE        :  index.html
+DIRECTORY   :  ./q/
+NAMESPACE   :  Na__QrResolver
+MODULE      :  Project QR Code Resolver
+AUTHOR      :  Adam Noble - Noble Architecture
+PURPOSE     :  Turn the short address printed on a drawing into the project's TrueVision address
+CREATED     :  20-Sep-2026
+
+       - - - - - -  ! ! !  CRITICAL NOTE  ! ! !  - - - - - - -
+- PRINTED QR CODES POINT HERE. THIS FOLDER MUST NEVER BE MOVED, RENAMED OR REMOVED.
+- A code on an issued drawing sits in a site bag or a planning file for years.
+  It carries  https://www.noble-architecture.com/q/?PS01  and nothing else, so
+  this page is the only thing standing between that sheet of paper and the model.
+
+DESCRIPTION:
+- Every TrueVision drawing, register and specification carries one QR code.
+  It encodes  /q/?<project code>  and this page sends the phone on to
+      /na-apps/30__TrueVision__CoreAppCode/Index.html?project=..&project-folder=..&year=..
+- WHY THE PRINTED ADDRESS IS THIS SHORT. How many modules a QR symbol has is
+  decided by how long its address is, and how big each module prints is what
+  decides whether a phone can read it. The full TrueVision address is 135
+  bytes: a 49 module symbol, which the 10 mm title block would print at
+  0.19 mm a module. This one is 42 bytes: a 29 module symbol, which it prints
+  at 0.30 mm - over half as big again. 42 bytes is EXACTLY what a version 3
+  symbol holds, so the path is one letter and the query is the bare code:
+  every character added here costs every drawing.
+- WHERE THE CODE IS LOOKED UP. index.json, beside this page, holds the folder
+  and the year for every project code. It is written by the ProjectVision
+  build script on every build (na-apps/05__ProjectVision__CoreAppCode/
+  ProjectVision__BuildScript__.py), so a project that TrueVision can open
+  already has its entry. Never edit it by hand. If it cannot be read, the
+  ProjectVision master index is asked instead.
+- THE TRUEVISION ADDRESS LIVES IN ONE PLACE - the constants below. If the app
+  is ever moved, changing them re-points every code that has ever been
+  printed. That is the whole reason a drawing does not carry the long address.
+- No frameworks, no assets, no app boot: it has to open in a second on site 4G
+  on a phone that has never seen this system.
+
+ALSO ANSWERED:  /q/?p=PS01   /q/?project=PS01   /q/#PS01
+A code is two letters and two digits, which is the build script's own rule.
+
+=============================================================================
+-->
+
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Opening the 3D model | Noble Architecture</title>
+    <link rel="icon" type="image/svg+xml" href="https://www.noble-architecture.com/assets/AD05_-_LIBR_-_Common_-_Icons-and-favicons/AD05_01_-_NA_Favicon_-_SVG-h50mm.svg">
+
+    <style>
+        :root {
+            --Color_Primary    : #555041;
+            --Color_Secondary  : #86847d;
+            --Color_Background : #f5f5f5;
+        }
+        html, body { height: 100%; margin: 0; }
+        body {
+            display: flex; align-items: center; justify-content: center;
+            background: var(--Color_Background); color: var(--Color_Primary);
+            font: 400 16px/1.5 'Open Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
+            text-align: center; padding: 24px; box-sizing: border-box;
+        }
+        main   { max-width: 28em; }
+        h1     { font-size: 1.05em; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 0.6em; }
+        p      { margin: 0 0 1em; color: var(--Color_Secondary); }
+        a      { color: var(--Color_Primary); }
+        .code  { font-weight: 600; color: var(--Color_Primary); }
+    </style>
+</head>
+
+
+<body>
+    <main>
+        <h1>Noble Architecture</h1>
+        <p id="naQrStatus" role="status" aria-live="polite">Opening the 3D model&hellip;</p>
+        <noscript><p>This link needs JavaScript to open the 3D model. Please enable it and scan the code again, or visit <a href="https://www.noble-architecture.com/">noble-architecture.com</a>.</p></noscript>
+    </main>
+
+
+    <script>
+    // =========================================================================
+    // REGION | Project QR Code Resolver
+    // =========================================================================
+    (function () {
+        'use strict';
+
+        // MODULE CONSTANTS | Where Things Are, Relative to This Page
+        // ------------------------------------------------------------
+        // Relative on purpose: the same page resolves on the live site, on a
+        // local static server and on any future host without being edited.
+        var NA_QR_TARGET_APP    = '../na-apps/30__TrueVision__CoreAppCode/Index.html';      // <-- THE ONE PLACE the TrueVision address lives for every printed code
+        var NA_QR_INDEX_URL     = './index.json';                                          // <-- Written by ProjectVision__BuildScript__.py on every build
+        var NA_QR_MASTER_INDEX  = '../na-apps/05__ProjectVision__CoreAppCode/05__AppData/ProjectVision__MasterProjectIndex__Core__.json';   // <-- Asked only when index.json cannot answer
+        var NA_QR_HOME_URL      = 'https://www.noble-architecture.com/';
+        var NA_QR_CODE_PATTERN  = /^[A-Za-z]{2}[0-9]{2}$/;                                  // <-- The build script's own rule for a project code
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Say Something on the Page
+        // ------------------------------------------------------------
+        // Built from text nodes, never markup: the code shown comes off the
+        // address bar, and an address is something a stranger can write.
+        // ------------------------------------------------------------
+        function Na__QrResolver__Say(before, code, after, withHomeLink) {
+            var status = document.getElementById('naQrStatus');
+            if (!status) return;
+            while (status.firstChild) status.removeChild(status.firstChild);
+            status.appendChild(document.createTextNode(before));
+            if (code) {
+                var mark = document.createElement('span');
+                mark.className = 'code';
+                mark.appendChild(document.createTextNode(code));
+                status.appendChild(mark);
+            }
+            status.appendChild(document.createTextNode(after || ''));
+            if (withHomeLink) {
+                var link = document.createElement('a');
+                link.href = NA_QR_HOME_URL;
+                link.appendChild(document.createTextNode('noble-architecture.com'));
+                status.appendChild(document.createTextNode(' '));
+                status.appendChild(link);
+            }
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Read the Project Code Off the Address
+        // ------------------------------------------------------------
+        // ?PS01 is what a printed code carries. The first token is taken alone,
+        // because apps that open links like to hang tracking keys on the end.
+        // ------------------------------------------------------------
+        function Na__QrResolver__ReadCode() {
+            var search = (window.location.search || '').replace(/^\?/, '');
+            var params = null;
+            try { params = new URLSearchParams(search); } catch (error) { params = null; }
+
+            var candidates = [
+                search.split('&')[0].replace(/=$/, ''),
+                params ? params.get('p') : null,
+                params ? params.get('project') : null,
+                (window.location.hash || '').replace(/^#/, '')
+            ];
+            for (var i = 0; i < candidates.length; i++) {
+                var value = candidates[i] ? decodeURIComponent(String(candidates[i])).trim() : '';
+                if (NA_QR_CODE_PATTERN.test(value)) return value.toUpperCase();
+            }
+            return '';
+        }
+        // ------------------------------------------------------------
+
+
+        // HELPER FUNCTION | Fetch One Index and Pull a Project's Entry Out of It
+        // ------------------------------------------------------------
+        // Both indexes keep their projects under "projects", keyed by code, with
+        // projectFolder and projectYear on each. Resolves null for "not there".
+        // ------------------------------------------------------------
+        function Na__QrResolver__Lookup(indexUrl, code) {
+            return fetch(indexUrl, { cache : 'no-store' }).then(function (response) {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            }).then(function (index) {
+                var entry = index && index.projects ? index.projects[code] : null;
+                if (!entry || !entry.projectFolder || !entry.projectYear) return null;
+                return { folder : String(entry.projectFolder), year : String(entry.projectYear) };
+            });
+        }
+        // ------------------------------------------------------------
+
+
+        // FUNCTION | Send the Phone on to the Project's Model
+        // ------------------------------------------------------------
+        function Na__QrResolver__Open(code, entry) {
+            var target = NA_QR_TARGET_APP +
+                '?project='        + encodeURIComponent(code) +
+                '&project-folder=' + encodeURIComponent(entry.folder) +
+                '&year='           + encodeURIComponent(entry.year);
+            window.location.replace(target);                                    // <-- replace, so Back leaves rather than bouncing through here again
+        }
+        // ------------------------------------------------------------
+
+
+        // FUNCTION | Resolve the Address This Page Was Opened With
+        // ------------------------------------------------------------
+        function Na__QrResolver__Run() {
+            var code = Na__QrResolver__ReadCode();
+            if (!code) {
+                Na__QrResolver__Say('This link does not name a project. Scan the code on the drawing again, or visit', '', '', true);
+                return;
+            }
+
+            Na__QrResolver__Lookup(NA_QR_INDEX_URL, code)
+                .catch(function () { return null; })                            // <-- An unreadable index is the same as an empty one: ask the other
+                .then(function (entry) { return entry || Na__QrResolver__Lookup(NA_QR_MASTER_INDEX, code).catch(function () { return null; }); })
+                .then(function (entry) {
+                    if (entry) { Na__QrResolver__Open(code, entry); return; }
+                    Na__QrResolver__Say('We could not find the 3D model for project ', code,
+                                        '. It may not be published yet. Please try again shortly, or visit', true);
+                });
+        }
+        // ------------------------------------------------------------
+
+        Na__QrResolver__Run();
+    })();
+    // endregion ===============================================================
+    </script>
+</body>
+</html>

@@ -19,6 +19,10 @@
 //   half-typed Measurements value), sets the stage's resting cursor
 //   (ToolCursor) and announces CHANGED_EVENT. Draw or Rectangle, whichever
 //   was picked last, is remembered for a vector palette sync.
+// - The Move tool that comes up by itself. PickUpMove takes Select to Move
+//   for a press on something that is usually moved next, PutDownMove takes
+//   that Move back to Select, and IsMoveAuto says whether the Move that is up
+//   was asked for or not. SetTool is the deliberate path and clears the flag.
 // - The eyedropper. ArmEyedropper (B) arms it, loaded from the selection when
 //   there is one; ArmPalette (Shift+B) arms it to load the palette.
 //   SyncPaletteFrom stores an item's style as the settings for new objects of
@@ -49,6 +53,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.2.0
+// - MOVE CAN COME UP BY ITSELF, AND IT REMEMBERS THAT IT DID. PickUpMove is
+//   the sheet tools' own way to Move - a Select press landed on something whose
+//   next step is nearly always a move - and PutDownMove takes it back to Select
+//   when that stops being true. SetTool is still the DELIBERATE way to a tool
+//   (the M key, the toolbar) and always clears the flag, so a Move that was
+//   asked for stays up exactly as it did. IsMoveAuto tells the two apart for
+//   the hover cursor, the press and the margin grip. All three go through one
+//   ApplyTool, and the tool event's detail says which kind of Move it is.
+//
+//
 // 17-Sep-2026 - Version 1.1.0
 // - TOOL_MOVE. SetTool keeps an open container for the two tools that edit what
 //   is already on the sheet (PICK_TOOLS: Select and Move) and closes it for
@@ -125,6 +140,7 @@
     // MODULE VARIABLES | The Active Tool and the Settings for New Objects (their only writers are below)
     // ------------------------------------------------------------
     let Na__LeTools__Tool       = Na__LeTools__TOOL_SELECT;
+    let Na__LeTools__MoveIsAuto = false;   // <-- Move came up by itself for what was pressed, and goes back to Select the same way
     let Na__LeTools__TextDefaults  = null;
     let Na__LeTools__DimDefaults   = null;
     let Na__LeTools__ShapeDefaults = null;
@@ -216,19 +232,67 @@
     // tool that PLACES something is starting new work on the sheet itself. So
     // is putting the tools down: Escape leaves no container open.
     // ------------------------------------------------------------
-    function Na__LeTools__SetTool(tool) {
+    function Na__LeTools__SetTool(tool) { return Na__LeTools__ApplyTool(tool, false); }   // <-- The deliberate way to a tool: a key, a toolbar button
+    function Na__LeTools__GetTool() { return Na__LeTools__Tool; }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put a Tool Up, Saying Whether It Came Up by Itself
+    // ------------------------------------------------------------
+    // One path for every change of tool, so the placement that is abandoned,
+    // the cursor, the Measurements box and the event are the same whoever
+    // asked. auto is only ever true for Move (PickUpMove), and it is part of
+    // the state BEFORE the event goes out, so a listener that asks IsMoveAuto
+    // from inside the event hears the truth.
+    // ------------------------------------------------------------
+    function Na__LeTools__ApplyTool(tool, auto) {
         const next = Na__LeTools__TOOLS.indexOf(tool) === -1 ? Na__LeTools__TOOL_SELECT : tool;
         if (!Na__LeTools__Editable && next !== Na__LeTools__TOOL_SELECT) return Na__LeTools__Tool;
         Na__LeTools__CancelPlacement();
         if (Na__LeTools__PICK_TOOLS.indexOf(next) === -1 && Na__LeScope__IsActive()) Na__LeScope__Clear();
-        Na__LeTools__Tool = next;
+        Na__LeTools__Tool       = next;
+        Na__LeTools__MoveIsAuto = auto === true && next === Na__LeTools__TOOL_MOVE;
         if (next === Na__LeTools__TOOL_DRAW || next === Na__LeTools__TOOL_RECT) Na__LeTools__LastVectorTool = next;
         if (Na__LeTools__Stage) Na__LeTools__Stage.style.cursor = Na__LeTools__ToolCursor(next);
         Na__LeMeasure__Refresh();                                            // <-- The Measurements box reads for the new tool, or rests
-        window.dispatchEvent(new CustomEvent(Na__LeTools__CHANGED_EVENT, { detail : { tool : next } }));
+        window.dispatchEvent(new CustomEvent(Na__LeTools__CHANGED_EVENT, { detail : { tool : next, auto : Na__LeTools__MoveIsAuto } }));
         return next;
     }
-    function Na__LeTools__GetTool() { return Na__LeTools__Tool; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Move Tool That Select Picks Up by Itself
+    // ------------------------------------------------------------
+    // SELECTING SOMETHING IS NEARLY ALWAYS THE FIRST HALF OF MOVING IT. A note,
+    // a vector, a leader's bubble, a group: the press that picks one is followed
+    // by a drag so often that reaching for M in between was the editor getting
+    // in the way. So a Select press on one of those picks Move up as well
+    // (Na__LeTools__PicksUpMove decides which), and the same press can carry on
+    // into the drag.
+    //
+    // IT IS A REAL MOVE TOOL - the four-way cursor, the lit button, the typed
+    // distance, the arrow-key axis lock - BUT IT KNOWS IT WAS NOT ASKED FOR. A
+    // Move that came up by itself goes back to Select by itself, the moment the
+    // thing it came up for is no longer what is in hand: a press on a viewport
+    // or a dimension, a selection that empties, a double click that steps
+    // inside. That is what keeps the 17-Sep safety catch whole where it
+    // matters - a viewport still never travels unless Move was picked on
+    // purpose. Press M (or the button) and it is an ordinary Move that stays.
+    //
+    // PickUpMove only ever starts from Select, so it can never take a placing
+    // tool away or turn a deliberate Move into an automatic one. PutDownMove
+    // only ever puts down a Move that came up by itself.
+    // ------------------------------------------------------------
+    function Na__LeTools__PickUpMove() {
+        if (!Na__LeTools__Editable || Na__LeTools__Tool !== Na__LeTools__TOOL_SELECT) return false;
+        return Na__LeTools__ApplyTool(Na__LeTools__TOOL_MOVE, true) === Na__LeTools__TOOL_MOVE;
+    }
+    function Na__LeTools__PutDownMove() {
+        if (!Na__LeTools__IsMoveAuto()) return false;
+        Na__LeTools__ApplyTool(Na__LeTools__TOOL_SELECT, false);
+        return true;
+    }
+    function Na__LeTools__IsMoveAuto() { return Na__LeTools__Tool === Na__LeTools__TOOL_MOVE && Na__LeTools__MoveIsAuto; }
     // ------------------------------------------------------------
 
 
@@ -372,6 +436,9 @@
         Na__LeTools__CancelPlacement,
         Na__LeTools__SetTool,
         Na__LeTools__GetTool,
+        Na__LeTools__PickUpMove,
+        Na__LeTools__PutDownMove,
+        Na__LeTools__IsMoveAuto,
         Na__LeTools__ArmEyedropper,
         Na__LeTools__ArmPalette,
         Na__LeTools__SyncPaletteFrom

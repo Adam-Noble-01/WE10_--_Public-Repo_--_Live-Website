@@ -2,6 +2,943 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.82.0  -  20-Sep-2026
+### Every Plan and Elevation Has a Plane You Can See, Grab and Snap - and the Landscape Stopped Deciding How Big It Was
+
+**Overview**
+- Adam, 20-Sep, with a marked-up screenshot of PS01: "there's no visual way to see what planes
+  correspond to what plans and elevations. In a 3D model, if you could switch on one of them, or
+  quite helpfully all of them at once, it would be useful for showing you where that plane is."
+- What there was: one green gizmo that followed the elevation row being edited and went when the
+  panel closed; nothing at all for floor plans; a face pick and a gizmo grip ported from ValeVision,
+  initialised in Index.html and never armed; and a gizmo sized from the WHOLE model. On PS01 that is
+  an 80 m landscape slab five metres deep under an 11 m house, so the plane was 86 m wide and began
+  five metres underground.
+- What there is now: a new system, `47__System__DrawingPlanes`, shared by both drawing panels. Every
+  plan and every elevation has a plane in the 3D view that can be switched on alone or with all the
+  others, carries the drawing's name in its own colour, can be dragged along its normal on a snap
+  grid, and can be sent to a picked building face. Nothing new is stored: a drag or a pick writes
+  the same fields the sliders write, so the numbers remain the definition.
+
+**His screenshot, read literally** (the audit table is in `TrueVision__PLAN__DrawingPlanes__.md`)
+- A rectangle standing through the house: the plane - a translucent face, a solid outline, and the
+  same outline again faintly with no depth test, so a plane can be followed where the building
+  hides it.
+- A boxed NORTH ELEVATION inside the top-left corner: the drawing's name as a boxed tab, in
+  capitals. It is two quads back to back, the rear one mirrored, so it never reads in mirror
+  writing and needs no per-frame camera test.
+- A boxed plus inside each of the other three corners: taken as the GRAB HANDLES, because the brief
+  asks for "plane overshoot sizes with enough space to grab". That reading is mine - Adam to confirm.
+- An arrow leaving every corner, square to the plane: the direction of view; down, for a plan.
+- One colour for all of it. The colour comes from the number in the record's own id, not its place
+  in the list, so deleting a drawing never recolours the rest. The swatch beside each row's name is
+  the same colour, and the row of the selected plane wears it down its left edge - that is what
+  ties a row to a plane.
+
+**The panels**
+- THE SAME BAR heads the Floor Plans and the Elevations panels, because the state behind it is
+  shared: All plans, All elevations, Snap, and a stepper through 10, 25, 50, 100, 250 and 500 mm
+  (50 by default; the choice is kept in the browser).
+- UNDER EACH DRAWING'S NAME: Show plane, Move to face and - for an elevation - Aim at face.
+- THE PLANE OF THE ROW BEING TOUCHED IS ALWAYS UP, as the old gizmo was. Closing a panel takes that
+  one down and leaves the planes that were SWITCHED ON, which is the point of switching them on.
+  Visibility is per session: a reload starts clean.
+- REFRESHED IN PLACE, NEVER BY REBUILDING. Touching a slider selects its plane; had that rebuilt
+  the panel, the slider would have been replaced under the author's hand. Proved: the slider is
+  still in the DOM after the selection it caused.
+
+**Grabbing and snapping**
+- THE SNAP IS ABSOLUTE. "It should always stay snapped to an increment of that in 3D space": a
+  plane's position is one number - how far along its normal it stands from the world origin - and
+  THAT is snapped, never the distance dragged. A plane that started at 15 013 landed on 15 350,
+  15 700, 16 100... every step a multiple of 50, and only Plane X moved. For the four compass
+  elevations the normal is a world axis, so the grid is the world's.
+- ALONG THE NORMAL ONLY: the closest point on the normal to the pointer ray, as the old grip solved
+  it. A plane facing the camera cannot be solved well - a pixel becomes metres - so inside 6
+  degrees it holds still and the readout says to orbit round.
+- NUMBERS WHILE DRAGGING, which ValeVision's drag never had: a readout follows the pointer with the
+  name, "Plane X 15 350 mm", how far it has come, and the grid. Escape puts the plane back.
+- ORBIT SURVIVES "ALL ON". The three grips and the name of ANY plane are always live; the FACE is a
+  handle only on the selected plane, and only where the building is not in front of it. With six
+  translucent planes up a press meant as an orbit would otherwise move a drawing. Pressing a grip
+  selects; Escape or a click on nothing deselects. A press on nothing is never taken.
+- A FLOOR PLAN'S PLANE IS ITS CUT. Dragging it changes "Cut above floor" and leaves the floor level
+  alone - which is how PS01's two plans were authored (floor level 0, cuts of 1 600 and 6 000).
+  Under the minimum cut the floor level is carried down with it, so the plane always follows.
+
+**Move to face, Aim at face**
+- MOVE TO FACE keeps the drawing's direction and puts the plane through the picked point, on the
+  grid: PS01's west wall at x = 9 775 put the plane at 9 750. With snap off it lands on the face.
+- AIM AT FACE is ValeVision's pick: the elevation turns to face the wall square on, then moves to
+  it. A south-facing wall gave bearing 180 and Plane Z -11 700. A floor or a roof has no bearing to
+  give, so it is refused in words and the pick stays armed.
+- ON A PLAN, A FLOOR IS A FLOOR LEVEL. Click the floor a plan is of and that becomes its floor
+  level, the cut keeping its distance above - cutting AT a floor draws nothing. Any other face puts
+  the cut through the point. That rule is mine; the brief only described elevations.
+- A press that travels is an orbit, so the view can be turned between arming and clicking.
+
+**The landscape is a cutting plane and nothing else**
+- "When using the bounding box calculations, ignore the landscape." A plane is sized from the
+  categories whose key holds `MainBuildingModel` or `Storey__` (config tokens), plus an overshoot -
+  the larger of 1 500 mm and 8 % of the building's longer side - which is what puts the grips clear
+  of the building's outline. PS01's planes went from 86 m wide to 13.7 and 21.6 m.
+- "Detect where its intersection with the landscape plane is, and create 100 mm above that line."
+  The plane CUTS the landscape's own triangles and the bottom edge sits 100 mm above the highest
+  crossing inside the building's span. Exact, not sampled: a level slab and a sloping site are the
+  same code. Only flat-ish faces count, so a fence panel cannot lift the edge; either winding is
+  accepted, or a reversed face would swap a slab's top for its underside. PS01: slab at +50, edge
+  at +150.
+- IT EXPOSED A FAULT NOBODY COULD SEE. "Centre on model" and Seed N / E / S / W centred on the
+  whole model's bounds - the LANDSCAPE'S centre. PS01's three elevations all sit at (20 000,
+  -20 000), off the corner of a house standing around (15 000, -15 400). Both now use the
+  building's centre, on the grid. Existing records are untouched.
+
+**Never in a drawing, never in an export**
+- The old gizmo was hidden by hand wherever a drawing opened. Planes left switched on cannot be
+  policed that way: a sheet's 3D viewport, a thumbnail, a still and a video all render the same
+  scene. So the rule is turned round (`05__RenderPipeline/Na__RenderLoop__InteractiveOverlays__`):
+  the overlay is INVISIBLE BY DEFAULT, and the render loop switches it on for the length of one
+  interactive 3D frame - past the hold and past the 2D drawing - and off in the tick's finally. A
+  render path nobody has written yet cannot print a plane.
+- PROVED through a hook on the scene: 51 renders inside the loop all saw the overlay visible; a
+  real carousel-thumbnail render, through the composer with the helper layer enabled, saw it
+  invisible while it was still switched on.
+- Hit testing therefore never reads `object.visible`. What the pointer is over is worked out from
+  each plane's own 2D frame, and every overlay object has its raycast switched off, so no other
+  system's pick can land on one.
+- The live app carries none of it: no scene object and no listener until a Dev panel shows a plane.
+
+**Proved, not eyeballed**
+- `Na__Test__DrawingPlanes__.test.mjs`, 47 checks on the import-free maths: the snap, the drag
+  solve, the plane frame, the ground under PS01's slab, a slope and a 45 degree plane, and both
+  record solves.
+- In the app on PS01, behind a fetch guard that logged NO write attempt: bounds and ground as
+  above; drag at 50, 500, 10 and free; Escape; the plan's cut; the four picks; both panels in step.
+  After a reload the project's records were exactly as they had been.
+- NOT DONE: a real mouse. Every pointer event was synthetic, and the pane's screenshots timed out
+  after the first three, so the look of a SELECTED plane has been seen in one cropped frame only.
+
+**Files**
+- New: `47__System__DrawingPlanes/` (AppConfig, ConfigState, Maths, Bounds, PlaneMesh, Overlay,
+  Grip, DevMenu Controls, styles); `05__RenderPipeline/Na__RenderLoop__InteractiveOverlays__`; the
+  test; `TrueVision__PLAN__DrawingPlanes__.md`.
+- Changed: `Na__Elevation__DevMenu__Editor__` 1.1.0 and `Na__FloorPlan__DevMenu__Editor__` 1.1.0
+  (each registers a SOURCE with the overlay); `Na__AppFlow__LoadingSequence` (one import, Begin on
+  the 3D path of the frame, End in the tick's finally); `Index.html` (three imports, three init
+  lines); the stylesheet index (one import).
+- `Na__Elevation__PlaneGizmo__`, `GizmoGrip__` and `FacePick__` are no longer used by anything but
+  are still on disk and initialised, so this change stays additive; removing them is a follow-up.
+- THE SERVICE WORKER TOKEN is not bumped again. This adds modules that import only exports a warm
+  cache already holds, the tools are localhost-only where the worker is network-first, and a
+  half-new graph merely lacks the feature. `2026-09-20-1`, undeployed, covers it.
+- Not yet signed off by Adam. Not in ValeVision, whose category keys are shorter, so the two token
+  lists in the config are the part of the port that changes.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.81.0  -  20-Sep-2026
+### A Drawing Can Be Scanned Into Its Own Model - Once Its Address Was Short Enough for the Title Block to Stay Thin
+
+**Overview**
+- Adam, 19-Sep: a new system folder that makes a QR code per project from its live address, and in
+  the bottom right-hand corner of the drawing title block "a QR code exactly like how the Lantern
+  Designer did", with a note - "anybody with a phone should be able to scan into the TrueVision
+  model automatically". The Drawing Register and the Specification are to carry the same code next.
+- WHAT I BUILT FIRST WAS WRONG, and he said so. The code carried the project's full address -
+  .../30__TrueVision__CoreAppCode/Index.html?project=PS01&project-folder=PS01__MustersRoad&year=26,
+  135 bytes. How many modules a symbol has is decided by how long its address is: that is version 8,
+  49 modules, and to print a module a phone can read it took a TWENTY millimetre title block. He had
+  said it could be taller; he had not said it could be that. "Too tall, too portrait-feeling, and
+  stretched... could we have a top-level, root-level index to handle diverting these?"
+- THE ADDRESS GOT SHORT INSTEAD OF THE STRIP GETTING TALL. A drawing now carries
+  https://www.noble-architecture.com/q/?PS01 - 42 bytes, which is EXACTLY what a version 3 symbol
+  holds, 29 modules - and a page at the website root sends the phone on to the long address. The
+  strip is back at 10 mm. The code is 8.79 mm with 0.61 mm round it: Lantern Designer's 8.8 and 0.6,
+  arrived at by rule rather than typed in, with a LARGER module than Lantern's (0.303 mm for 0.267).
+- We had both misremembered Lantern. He thought its code was "like 15 mm"; I had not checked. Its
+  strip is 10 mm and its code 8.8. The config was one grep away the whole time.
+
+**The Project QR Code system - 02__Src__AppModules/53__System__ProjectQrCode**
+- `Na__ProjectQr__Symbol__` is the one door in: the config, the symbol of the project on screen
+  (encoded once, cached against its address), the words that go beside it, and two guards below. No
+  project on the address bar, or the system switched off, and it answers null - a document then
+  draws neither the code nor the note telling people to scan it.
+- `Na__ProjectQr__Encoder__` is first-party, ported from Lantern Designer: byte mode, level M,
+  versions 1 to 10, no dependency, because the app is an offline PWA with a version-locked vendor
+  set. `Na__ProjectQr__Painter__` draws a symbol as ONE vector path - an SVG group, a whole SVG
+  document for an HTML page, or straight into jsPDF - because abutting rectangles are anti-aliased
+  one at a time and a viewer leaves hairlines between them. `Na__ProjectQr__ProjectLink__` builds
+  the address from the config's pattern and NEVER from the address bar: drawings are made on
+  localhost, which is exactly the address a printed code must not carry.
+- GUARD ONE, the print size. A document reports the square it drew and the clear paper round it;
+  under MinModuleMm (0.28) or QuietZoneModules (2) the console says so once, with the size it would
+  need. A title block made lower or a project code given a fifth character shrinks the module
+  silently; the first anyone would otherwise hear of it is a client on site.
+- GUARD TWO, the index. On the authoring machine the resolver's index is read once per project, and
+  a project missing from it - or listed under another folder or year - is reported, because a
+  drawing exported then would carry a code that opens nothing.
+
+**The resolver - q/ at the website root, outside this app**
+- `q/index.html` is a flat page: no framework, no assets, no app boot. It reads the code off the
+  address (`?PS01`, and also `?p=`, `?project=` and `#`, first token only, because apps that open
+  links hang tracking keys on the end), looks it up in `q/index.json`, falls back to the
+  ProjectVision master index, and `location.replace`s to the long address - RELATIVE, so it
+  resolves on localhost and on any future host unedited. What it shows is built from text nodes,
+  never markup: the code comes off an address a stranger can write.
+- THE TRUEVISION ADDRESS NOW LIVES IN ONE PLACE. If the app ever moves, changing two constants in
+  that page re-points every code ever printed. That is worth more than the millimetres.
+- `q/index.json` is written by `ProjectVision__BuildScript__.py` on every build
+  (`build_qr_link_index`), always for EVERY valid project even on a targeted run, with or without
+  TrueVision content - a printed code must never die because a content check changed its mind.
+  `--qr-index-only` rewrites it and nothing else; that is how today's 12 entries were made, without
+  running a build over anybody's project data.
+- THE PROJECT MANAGER WOULD HAVE LEFT IT STALE. It rewrites the master index itself on a rename or
+  a delete, and a STALE entry here is worse than a missing one - the page only falls back to the
+  master index when a code is not listed at all - so a project renamed there would have sent every
+  drawing already printed for it to a folder that no longer exists. `_update_master_index` now
+  carries the change on (`_update_qr_index`); it never fails the edit that caused it. Proved against
+  copies of both indexes. The 8090 server needs a restart to pick it up (ProjectVision 0.4.1).
+- THREE THINGS MUST NEVER BREAK, and the README in the folder says so: the `q` folder is never
+  moved or renamed; the index is never hand-edited; and if the printed pattern changes, the page
+  goes on answering the old one. There is NO HEADROOM - one more character is a version 4 symbol.
+
+**The title block cell - Na__LayoutEditor__TitleBlock__QrCell__**
+- The right-hand end of the modern strip, mirroring the logo at the left: an absolute width off the
+  end, the fields solved across what is left between. So Status - which the title block session was
+  asked the same day to put "at the very end on the right" - is the last FIELD, and the code stands
+  beyond it in the corner. It is solved before the fields and simply hands the cell solver a narrower
+  strip; with no code there is no cell and nothing moves.
+- THE CODE NEEDS NO DIMENSION. N modules and q of quiet zone either side share the strip's height:
+  module = H / (N + 2q). Make the strip taller and the code follows it.
+- NAVIGATE THIS BUILDING IN 3D (Adam's word, for "View") over his sentence, as one block centred on
+  the code. MEASURED, NOT GUESSED: every cell width from 42 to 58 mm was wrapped at three body sizes,
+  and 56 mm at 1.5 mm sets the sentence in two lines of almost exactly equal length, flush with
+  0.004 mm of letter spacing. Justification is all lines or none - one flush line over one ragged
+  one reads as a fault.
+- ON NARROW PAPER THE NOTE GOES BEFORE ANY FIELD IS CUT. Where the whole cell would leave the fields
+  under 250 mm - A4, A3 portrait - it is drawn compact: the code at full size with "3D MODEL" turned
+  up its side, 12.4 mm in place of 56. The test is the paper's width and nothing on the sheet, so
+  every sheet of one size in a pack is drawn the same. My first cell cut EVERY field on A4, the date
+  and the revision included; that is also how v2.79.1's solver fault came to light.
+- `Na__LayoutEditor__SheetChrome__` 1.9.0 has a 'qr' primitive that hands the symbol to the painter
+  the way a gradient goes to the gradient tool. Not an 'image' on purpose: the exporter sends a
+  classic sheet's images UNDER the viewports.
+
+**Proved, not eyeballed**
+- A DECODER WRITTEN SEPARATELY FROM THE ENCODER (`Na__Test__ProjectQr__.test.mjs`, 44 checks): BCH
+  codewords, every Reed-Solomon syndrome zero, the exact string back, versions 1 to 10 at their
+  longest and shortest payloads. Lantern's original was never exercised above version 4.
+- OPENCV, which nobody here wrote (`Na__Test__ProjectQr__Decode__.py`): every case reads; in every
+  run there has never been a wrong read.
+- REAL EXPORTED PDFs on A1, A2, A3 and A4, through the app's own chrome and jsPDF options,
+  rasterised by PyMuPDF at 200 to 600 dpi: every clean render decoded to the exact address; each
+  code is one filled path of 217 rectangles; 80 renderings, no wrong read. A 3 module quiet zone was
+  tried against the shipped 2 under identical noise and read LESS often (155 of 384 against 172), so
+  the tight margin Adam asked for is also what the evidence supports.
+- THE REAL EDITOR, on PS01 behind a fetch guard that logged no write attempt: all four sheets carry
+  the code, no viewport runs into the strip, nothing in the chrome is truncated.
+- NOT DONE: a phone pointed at a sheet of paper. Print one drawing and scan it before a pack goes out.
+
+**What the tests caught in my own work**
+- Two numbers I had documented from arithmetic in my head were wrong under the sizing rule - a five
+  character code prints 0.270 mm, not 0.267, and the long address 0.189, not 0.18. The test computes
+  them from the shipped config and the notes now say what it says.
+- I carried a PNG to disk by copying 8 kB of base64 through the conversation. Its CRC failed. The
+  proof PDFs went through a loopback save route on a no-cache server instead.
+- The scrapbook session found `Na__Verify__ModuleGraph__` failing on a warning string of mine that
+  put a quote after the word "from". Reworded; both verifiers pass, over 370 files.
+
+**Files**
+- New: `53__System__ProjectQrCode/` (Symbol, Encoder, Painter, ProjectLink, Config, README);
+  `Na__LayoutEditor__TitleBlock__QrCell__` 1.0.0; the two tests; `q/index.html` and `q/index.json`.
+- Changed: `SheetChrome__` 1.9.0 ('qr' primitive); `TitleBlock__Modern__` 1.3.0 (three lines and an
+  import, under v2.79.1's 1.4.0); `ConfigState__SheetSetup__` 1.6.0 (the QrCell fallbacks; HeightMm
+  went 10 to 20 to 10 and ships as 10); the AppConfig TitleBlock block (QrCell keys, and a HeightMm
+  note that keeps the history so nobody tries 20 again); `ProjectVision__BuildScript__.py` and
+  `ProjectVision__ProjectManager__Api__.py` (ProjectVision 0.4.1).
+- THE SERVICE WORKER TOKEN is not bumped again: this adds modules and a cross-module export, which
+  is the case that needs one, and `2026-09-20-1` - undeployed, like everything since v2.75.0 -
+  covers it PROVIDED the worker file ships in the same commit.
+
+**To go live, and what is next**
+- THE `q` FOLDER HAS TO BE PUBLISHED with the site before a drawing carrying the code is issued.
+- Next: the same code on the Drawing Register PDF (raw jsPDF: `Na__QrPaint__DrawPdf`) and the
+  Specification (a chrome primitive in its PDF, `Na__QrPaint__SvgDocument` in its reading view);
+  the README has the three call shapes. The classic (scanned) title block carries no code.
+- The one lever left on module size is the host: a short domain of its own would be version 2.
+- Not yet signed off by Adam. Not in ValeVision, which has no 53__ folder.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.80.0  -  20-Sep-2026
+### The App Had Been Calling the Green Axis North, and Adam Had Been Correcting It by Hand
+
+**Overview**
+- Adam: elevation viewports "should derive their names from a new direction tool added to the dev
+  menu that allows you to draw a compass in 3D space and point to north", the title should know
+  Existing from Proposed "by using which model it's pulling from", and "the text should show as a
+  placeholder within double curly braces until you set up the north arrow". Titling six elevations
+  a sheet by hand is, in his words, a real pain.
+- Mapped before building, and the map found the fault under the chore. The elevation system stores
+  an azimuth clockwise from the model's -Z axis and CALLS -Z north: "0 draws the north elevation".
+  -Z is SketchUp's green axis, which is north only on a model drawn north-up. PS01 and PS02 were
+  not. Their "North Elevation" is stored at azimuth 90, "East" at 180, "South" at 270 - seeded one
+  preset out and renamed by hand, every time. One number puts it right: where true north lies, in
+  the measure the azimuths are already in. For PS02 it is 90, and all six of its hand-lettered
+  titles then fall out of the data exactly as he wrote them.
+
+**The north direction tool** (`46__System__NorthDirection`, Dev Tools > North Direction)
+- DRAW COMPASS: one click where it sits, a second towards north. Between them the needle follows
+  the pointer. A click lands on the model, so north can be traced along anything known to run north
+  by clicking its two ends; a click that misses lands on level ground. A press that travels is an
+  orbit, not a click, so the view can be turned between the two. It works from a plan view too,
+  through the drawing broker's camera - up the plan reads 0, across it 90. Escape cancels; Shift
+  snaps. Or type the bearing: a north-up model is set to 0 in one keystroke.
+- WHAT THE ELEVATIONS WILL BE CALLED is listed under it, live while the compass is aimed: each
+  elevation, its stored bearing and the word north now gives it. A compass pointed the wrong way
+  round shows at once as "South" against the wall everybody knows faces north.
+- THE COMPASS is the Scrapbook's north point - ring, red north half, N - lying flat, drawn over the
+  model rather than hidden by it, and removed the moment the panel closes. A compass left in the
+  scene would print on the next elevation rendered for a sheet.
+- STORED INSIDE THE DRAWINGS BLOCK (`LayoutEditor__DrawingsData__North`), for the reason the
+  elevations went there: a dev-owned top-level key must be listed in three places or the next sync
+  wipes it from R2. Absent means NOT SET, never zero. Set is not saved - every open sheet follows
+  at once, Save North keeps it, and the status line says when the two differ.
+- THE COMPASS WORD: four cardinals, and intercardinals as wide as the config says. At the house
+  default of 15 degrees a wall 30 off north is still the North Elevation and one 40 off is the North
+  East; 22.5 is the ordinary eight-point compass, 0 the four-point.
+
+**What a viewport is a drawing OF** (`20__System__Viewports`)
+- `Na__LayoutEditor__ViewportIdentity__` reaches in once, for everything that wants it: the phase
+  from the viewport's Model Source (a group whose label says "existing" - the app's own startup
+  test - else proposed), the facing from the elevation's azimuth against north, the drawing's name,
+  and a viewport name only when somebody TYPED it. A paste's "East Elevation copy" is not a name:
+  PS02's three proposed elevations are copies still carrying one, and nobody wants it in capitals.
+- `Na__LayoutEditor__ViewportTitleText__` writes the sentence, and imports nothing. QUALIFIER then
+  SUBJECT, as he letters them. A missing fact is shown as `{{Direction}}` - never guessed.
+- UNNAMED ELEVATION VIEWPORTS ARE NOW NAMED from it - "Existing North Elevation" in the panels, the
+  link menus, the toasts and the frame caption - through one additive hook on the sheet model,
+  `RegisterViewportNamer`. Derived on the spot and never stored, so it cannot go stale. A typed
+  name still wins, and with north unset everything reads exactly as it did.
+
+**The parametric Drawing Title** (Scrapbook tab, two tiles)
+- His title, measured off PS02 D22 to the thousandth: capitals, 3.5 mm at weight 600, an underline
+  0.4 pt thick and exactly 60 mm long standing 1.631 mm under the baseline, and the scale bar
+  6.318 mm under that, sharing its left end. He groups the three as one object. The element draws
+  that object, and the test holds it against his.
+- Drop it under a drawing and it reads EXISTING {{DIRECTION}} ELEVATION. Draw the compass and it
+  becomes EXISTING EAST ELEVATION where it stands. Point the viewport at Scheme-02 and it says
+  PROPOSED, inside the same undo step. Drag its noodle onto another drawing and it retitles. Untie
+  it and it keeps what it says, as a bar keeps its scale.
+- THE WORDS ARE PARAMETERS. The link module lays the facts into the element (`definition.facts`),
+  so the type never sees a viewport and rebuilds from its own parameters alone. An element is now
+  a PRESET of a type - two tiles, with a bar and without - and its tile shows a worked example
+  where a real drop reads its own viewport.
+- The underline is at least its set length and GROWS TO FIT a longer title. A type is pure, so the
+  engine hands it the chrome's text measure as a tool; under Node, with none, it is its set length.
+- The settings say what it reads and, while it holds a placeholder, WHY, naming the menu to go to.
+
+**Facts that change with no sheet changing**
+- North is set in the 3D view; the design phases register after a load. Nothing is announced on a
+  sheet for either, so there is nothing to run ahead of. The link module refreshes the ACTIVE sheet
+  and announces once, booked by a timeout and never nested in the event that asked - and again
+  whenever a sheet comes up, which is how one that was away catches up. It does nothing, and marks
+  nothing dirty, when no element changed.
+
+**Tested**
+- Node: the compass 23 checks (PS02's three names from one bearing), the title text 27, the element
+  39 against his own title.
+- In the app, real modules on scratch copies of PS02 D22, D21 and D24, every write refused: all
+  twelve 2D viewports' facts before and after north; the element 68 checks, each follow inside one
+  undo step with undo AND redo byte for byte; the 3D tool 22, including a save the guard refused,
+  which it reported as a failure and did not call saved. Real sheets byte-identical afterwards.
+- NOT YET DONE: Adam's own test in his browser.
+
+**Open, on purpose**
+- The Elevations dev menu still calls -Z north: its presets and Seed N / E / S / W name by the
+  model's axes. Titles and viewport names no longer care, but the records' own names stay as typed.
+- The site plan's north point still points up the paper. It wants the same bearing.
+- A sheet that is away catches up when next opened, not before.
+
+**Files**
+- New: `46__System__NorthDirection/` (eight files); `20__System__Viewports/` ViewportIdentity,
+  its config and ViewportTitleText; `57__Feature__ScrapbookParametric/` DrawingTitle; three tests.
+- Shared, additive: `Index.html` (one dev menu item, three imports, three init lines); the
+  stylesheet index; `SheetModel__Viewports__` 1.1.0 and `SheetModel__` 1.27.0 (RegisterViewportNamer);
+  `ModeController__` 1.19.0 (starts the identity module); the service worker 1.9.0 - TOKEN BUMPED to
+  2026-09-20-1, because new modules import new exports from modules a warm cache already holds.
+- Mine: the parametric engine 1.2.0 (tools, presets, a patch on a reset), `ViewportLink__` 1.2.0
+  (facts, Refresh), the panel 1.2.0, the noodle 1.1.0, the config, the stylesheet, the plan
+  (section 11, with an audit of this brief).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.79.1  -  20-Sep-2026
+### When the Paper Runs Out, the Title Gives Way Before the Date Does
+
+**Overview**
+- Found by the QR cell's session, not by me. Its cell narrowed an A4 landscape strip to 192 mm, and
+  on PS01's sheet the Date and the Rev were cut along with the Drawing Title. I had told that
+  session "the title truncates hard and the rest survive". The code did not do that.
+- What v2.79.0's solver did on a strip too narrow even for its cells' TEXT: take the room no cell
+  was using, and then scale EVERY cell to fit. So every value lost its end together - "19 Sep 2...",
+  "PS01_T01_D...". A title cut short still says what the drawing is. A date, a scale or a drawing
+  number cut short says something false, which is the house rule the viewport caption fix of
+  v2.61.1 was made under (the config's own words: "a scale chopped to '1:12...' is worse than
+  none").
+- THE CELL THAT TAKES THE SPARE ROOM IS NOW THE ONE THAT GIVES IT BACK. Between taking the slack
+  and scaling, the `Flex` cells are cut first, down to a floor - the width of the cell's own label
+  with its padding, so a cell is never cut past saying what it is. Only if that is not enough is
+  the lot scaled. `Na__LeTitleCells__Cell` takes the floor as a third argument, and the Modern
+  builder hands in each cell's measured label.
+
+**What it changes, measured on PS01's values**
+- 192 mm strip (A4 landscape less a 55 mm end cell): only the title is cut, to 23.9 mm against a
+  15.25 mm floor; every other cell keeps its whole text. Before: all nine cut by 16 percent.
+- A4 portrait (160 mm): the title goes to its label and the rest lose 12.7 percent of their cells,
+  where they lost 29.9.
+- A1, A2, A3 and an ordinary A4 landscape are untouched: the step is only reached with every cell
+  already down to its text and the strip still overfull.
+
+**Files**
+- `Na__LayoutEditor__TitleBlock__Cells__` 1.1.0, `TitleBlock__Modern__` 1.4.0 (two lines inside
+  this release's own hunks of a file the QR session is also in), and six more checks in
+  `Na__Test__TitleBlockCells__.test.mjs` - 37 now, all passing. `Na__Verify__Exports__` passes
+  over 367 files.
+
+**ValeVision has v2.79.0 now, with this fix in it** - ported the same morning as VV v2.66.0, its
+widths re-measured in Helvetica, which sets wider than Open Sans; they all still hold. Its solver
+is byte for byte this one, so it never shipped the older behaviour. Not ported, deliberately: the
+40 mm logo cell (the Vale mark already has 4.6 mm either side in 34) and the register's Status
+column (it has no register). v2.79.0's closing line below, "Not yet in ValeVision", is history.
+
+**The service worker token, which v2.79.0 should have bumped and did not**
+- v2.79.0 added a cross-module export (`Na__LeCfg__StatusToStore`, imported by `Panel__Sheet__` and
+  `Register__Transactions__` from a `ConfigState__` every warm cache already holds) and a new module.
+  App modules are stale-while-revalidate, so that is exactly the case the worker's own log says
+  needs a bump: a warm client links new importers against old exporters and the editor does not
+  load until the second visit. I judged it "a feature release, no bump" on 19-Sep. That was wrong.
+- IT IS COVERED, by someone else's bump: the scrapbook session took the token to `2026-09-20-1`
+  (worker 1.9.0) for its own new exports, and the last DEPLOYED token is v2.75.0's `2026-09-19-1`.
+  Both releases here ride on it PROVIDED the worker file ships in the same commit as they do - it is
+  an uncommitted working-tree change on 20-Sep-2026, like everything since v2.75.0.
+- ValeVision is NOT covered. It runs under a different worker (the shared
+  `WebApps/Na__Pwa__ServiceWorker__.js`, token `2026-09-18-1` in Whitecardopedia's logic file), and
+  its port of this release adds the same export. Bumping that one evicts every Vale app's caches,
+  models included, so it is Adam's call; the ValeVision parity ledger has the detail.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.79.0  -  19-Sep-2026
+### A Title Block Cell Is a Width in Millimetres, Not a Share of the Paper - and a Drawing Now Says What It Is Issued For
+
+**Overview**
+- Adam, on PS01 D02 at A2: "Can you see how oddly proportioned it is? The client name section can be
+  significantly smaller. Same with the drawing number... The one thing that does need the space is
+  the drawing name. Can you see here? It's completely cut off."
+- The cause was one line of arithmetic. The strip's rows were RELATIVE SHARES of the width left
+  beside the logo, so every cell grew with the paper. On A2 that made Client 76 mm for
+  "Mr P. Samra", Document ID 71 mm for twelve characters and Scale 82 mm - while Drawing Title, the
+  one value that is ever long, got 93 mm and was cut off at "Elevatio...".
+- A row's `WidthMm` is now what its name always said: paper millimetres, the same on every paper
+  size, the way the logo already was. On the same A2 sheet: Client 36, Site Address 70,
+  **Drawing Title 272**, Document ID 24, then Rev, Scale, Date and Drawn By as one 28 mm module
+  ("Revision, scale, date, and drawn by can all be the same size"), then the new Status at 30.
+- The logo has air: its cell went 34 to 40 mm and its side padding 1.4 to 4, so the mark sits about
+  4.4 mm clear of the frame and of the Client rule. The mark itself is the size it was (31.1 x 7.6).
+
+**Grow if absolutely required**
+- His words for Site Address and the title, and the rule for every cell: NO VALUE IS CUT OFF WHILE
+  ANOTHER CELL HAS ROOM TO SPARE. A cell whose text overruns its width is made whole out of the
+  paper's spare room first - which costs no other cell anything, because that room was going to
+  the title - and only then out of the room other cells are not using, in proportion to how much
+  each has.
+- So a pack whose values fit has its dividers in the same place on every sheet, whatever each
+  sheet's title says, and they only move on the sheet that needs them to. A three-scale label
+  ("1:20 & 1:50 & 1:100 @ ISO A3") grows its Scale cell to 32.5 rather than printing "1:20 & 1:5...".
+- On paper narrower than the strip (A4) the cells give up the room their own text is not using
+  BEFORE anything is cut. A4 landscape now loses the end of the title and nothing else, with the
+  title at 79 mm; the old shares cut the site address as well (50 mm for a 67 mm address) and gave
+  the title 43.
+- The arithmetic is a new module that imports nothing, `Na__LayoutEditor__TitleBlock__Cells__`.
+  The Modern builder measures each cell's label and value and hands the numbers in. A config with
+  no `Flex` row shares the spare room in proportion to `WidthMm`, which is exactly the old
+  behaviour - a stale cached config still draws the old strip rather than a broken one.
+- A value that fits is printed as it is, never sent back through `FitText`: the cell was sized FROM
+  that measurement, and asking about `cell - padding * 2` can land femtometres under it and eat the
+  end off a value the cell was built to hold (the caption bug of SheetChrome v1.8.0).
+
+**Status: what the drawing is issued for**
+- The last cell on the right. Twelve statuses in the order a job moves through them: PRELIMINARY,
+  FOR INFORMATION, FOR COMMENT, FOR COORDINATION, FOR APPROVAL, FOR PLANNING, FOR BUILDING CONTROL,
+  FOR PRICING, FOR TENDER, FOR CONSTRUCTION, AS BUILT, SUPERSEDED. The list is
+  `LayoutEditor__TitleBlock__Statuses`; both boxes below follow it.
+- IN THE SHEET PANEL it is a box, the one title block field that is picked rather than typed - a
+  status typed by hand is how a pack ends up saying "For Planning", "FOR PLANNING" and "Planning".
+  It writes `Sheet__Fields__Status` like Date or Drawn By: one undo step, kept by the draft.
+- IN THE DRAWING REGISTER'S EDIT TABLE it is a STATUS column with the same box on every row, saved
+  through the register's confirmed R2-and-local transaction like the phase. It is the one key
+  that may be cleared, and clearing it is asked about in its own words.
+- NOTHING PRINTS UNTIL ONE IS CHOSEN. `StatusDefault` ships empty: every drawing made before the
+  field existed would otherwise start claiming a status nobody gave it, and a wrong status on an
+  issued drawing is worse than none. Where a default IS configured, "Not set" is stored as an
+  empty string, or choosing it would quietly print the default (`Na__LeCfg__StatusToStore`, asked
+  by both boxes so they cannot come to store differently).
+- HELD PER SHEET, not per pack: one sheet is superseded while the rest go to tender.
+- A status that has since left the config stays on the sheet that carries it and still shows in
+  both boxes, the way a retired phase does.
+
+**The undo that would have quietly reverted a saved status**
+- The register saves to R2 there and then, so the history rewrites the register's own fields into
+  every kept undo step - otherwise an undo of ANY older step restores a whole-sheet snapshot and
+  carries the old value back over what R2 now holds. `Status` was not on that list (it did not
+  exist). Added, and proved: after a register save of FOR TENDER, three undos of older steps that
+  each held a different status all left it at FOR TENDER.
+
+**Also fixed, found on the way**
+- The text drawn while the logo loads, or if it cannot be fetched, read VALE GARDEN HOUSES - left
+  behind by the port. A drawing exported with the logo missing would have printed another firm's
+  name. It reads NOBLE ARCHITECTURE.
+- The register's expanded row spanned a bare 8 columns against a table of nine, so the panel of
+  row tools and revision notes stopped one column short of the right edge. It now counts the
+  headings, which are one constant.
+- `GetTitleBlockSetup`'s logo fallbacks (cell width, maximum height, both paddings) still described
+  the Vale strip it was ported from. They mirror the shipped JSON now, as the row fallbacks do.
+
+**Not done, deliberately: STATUS is not a column of the PRINTED register**
+- Measured with the real fonts on PS01's four rows: with STATUS added the columns ask for 200 mm of
+  a 182 mm page, the shortfall rule takes room off every column, and STATUS is left 21 mm where
+  "FOR CONSTRUCTION" needs 31 - it breaks onto two lines and SCALE's "1:500 & 1:1250" with it. The
+  same wall TYPE hit. Every row carries `status`, so printing it is one config line
+  (`StatusColumnNote` has it), but the page has to go landscape, or lose a column, first. Adam's call.
+
+**Files**
+- New: `10__Core__SheetSurface/Na__LayoutEditor__TitleBlock__Cells__.js`,
+  `80__Testing__PrototypeEnvironment/Na__Test__TitleBlockCells__.test.mjs` and `.html`.
+- `TitleBlock__Modern__` 1.2.0, `ConfigState__SheetSetup__` 1.4.0 (statuses, StatusToStore, the
+  fallbacks), `ConfigState__` 1.26.0 (re-export), `SheetRecords__` 1.22.0 (BuildFields answers
+  Status), `History__` 1.6.0, `Panel__Sheet__` 1.4.0, `Register__Editor__` 1.1.0,
+  `Register__Transactions__` 1.2.0, `Register__Pdf__` (rows carry status),
+  `Styles__DrawingRegister__.css` (a ninth column), `AppConfig__.json` (TitleBlock Rows, logo cell,
+  Statuses, StatusDefault, two labels, the register's StatusColumnNote).
+- The classic (scanned) title block is untouched: its scan has no status box to write into.
+
+**Tested**
+- Cell widths chosen from measurement, not by eye: every realistic value was measured with the
+  vendored jsPDF and the real Open Sans cut at 2.2 mm before a width was picked (Document ID 24
+  holds WW88_T04_D100 at 20.4; the 28 mm module holds the site plan's "1:500 & 1:1250 @ ISO A1" at
+  27.9; Status 30 holds FOR BUILDING CONTROL at 28.6).
+- `Na__Test__TitleBlockCells__.test.mjs`: 31 checks of the solver against PS01's measured values on
+  A1 to A4 portrait - fixed cells stay fixed, identical dividers for a short and a long title,
+  the title fits A3, a 120 mm title borrows in proportion to slack, an old no-Flex config draws the
+  old shares. `Na__Verify__Exports__` passes over 353 files.
+- `Na__Test__TitleBlockCells__.html` builds eight sheets through the REAL chrome builder with Open
+  Sans loaded and reads the cell widths back off the drawn rules: nothing cut on A1, A2 or A3,
+  only the title on A4 landscape.
+- In the app, real modules, on PS01 D02 with every write refused or faked (the one R2 write was
+  answered 200 and never sent; its payload carried the status). The strip drew 40 / 36 / 70 / 272 /
+  24 / 28 / 28 / 28 / 28 / 30 with the 84 character title whole. The panel box: pick, undo, redo,
+  the longest status, and "Not set" leaving no key behind. The register box: declined at the
+  confirmation (box goes back, nothing written) and confirmed. Browser drafts cleared afterwards.
+- NOT tested: a real download of a sheet PDF. The PDF is painted from the same primitive list as
+  the screen and no painter was touched, so it is expected to match, not proved to.
+
+**Not yet in ValeVision.** Its Modern title block is still the verbatim twin this one was until today.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.78.1  -  19-Sep-2026
+### jsPDF's align Does Not Know About Letter-Spacing, So the Letterhead Hung Off the Page
+
+**Overview**
+- Adam, on the register: "use narrower margins on the left and right sides of the page, and
+  better align the text with the margin. Can you see the text is too far to the right of it?"
+  He was pointing at two different faults that looked like one.
+- The margins were wide: 18mm on A4. Now 14mm, and the Project Specification's page came in
+  with them (18mm sides to 14mm) because "the margins could do with being a bit tighter again".
+  The two documents of a pack now hold the same text block.
+- The alignment was a real bug. **jsPDF's `align: 'right'` ignores `setCharSpace`**: it measures
+  the string untracked, so tracked text overhangs its anchor by the whole of the tracking.
+  Measured before the fix: the running head ended at 561.8pt with the right margin at 544.3pt -
+  **17.5pt (6.2mm) off the end of its own margin**. The footer's page count did the same, and
+  every centred table heading was out by half the tracking for the same reason.
+
+**One door for placing a line**
+- `Na__LeRegPdf__Draw` measures the string itself, tracking counted in, and positions it
+  left-aligned. Nothing in this module calls jsPDF's `align` any more, and `setCharSpace` is set
+  and cleared in that one function so no later draw can inherit it.
+- Verified by measurement, not by eye: across all five fixtures and every page, **zero words
+  cross either margin**, worst overshoot 0.0pt. The running head and the footer both end at
+  555.5pt against a 555.6pt margin edge.
+
+**The browns are gone**
+- Adam: "get rid of all of the brown colours in the style and make them the more consistent blue,
+  like with the spec document and the rest. The brown colours are a hangover from porting it from
+  another app."
+- He was right, and it was measurable: **25 of the 26 colours** in
+  `Na__LayoutEditor__Styles__DrawingRegister__.css` had a red channel above their blue. Ink
+  `#5c594f`, muted `#8d8063`, rules `#e1ded8`, fills `#eeece9` / `#f8f6f3`, focus `#8b8068`,
+  drop `#ad9972` - a whole warm palette carried over from the app it was ported from.
+- They are now the Project Specification's: `#172b3a` ink, `#6c757d` muted, `#d9dfe4` rules,
+  `#eef1f4` head fill, `#f6f8fa` stripe, `#ccd3d8` borders, `#1a7fc4` focus and drop. The shared
+  ones read `--Na_Le_Ink` and `--Na_Le_InkMuted` from `Styles__Surfaces__`.
+- **The printed register moved with the page that edits it.** `InkColour`, `MutedColour`,
+  `HeaderColour`, `StripeColour` and `RuleColour` in the config - and their fallbacks in
+  `GetDrawingRegisterSetup`, which would otherwise have reintroduced the browns the moment the
+  block went silent - are the same blue-greys. Edit and Read still agree.
+- Two inline colours in the delete dialog that named their own reds now read tokens.
+
+**What stayed warm, deliberately**
+- The caution amber and the stop red. A warning is a meaning, not a brand, and those two are now
+  the specification's exact warning and error colours (`#fff6e3` / `#f0d9a8` / `#8a5a00` and
+  `#fdf0f0` / `#9b3b3b`) rather than the register's own, so both documents raise a flag the same
+  way. Say if they should go cool too.
+
+**Verification**
+- Five fixtures, every page: zero words over a margin, Open Sans embedded throughout.
+- A warmth audit of the register stylesheet: no colour has a red channel above its blue except
+  the six semantic warning and error values listed above.
+- Named export resolution passes on all 340 files; both edited modules syntax-check clean.
+- NOT verified in the running app: the recoloured Edit view and the tightened specification page.
+  Both need the real app, and entering the Layout Editor writes to R2.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.78.0  -  19-Sep-2026
+### Selecting Something Is the First Half of Moving It, So Select Now Picks Move Up
+
+**Overview**
+- Adam: "Everything apart from viewports, dimensions, and the endpoint of leaders, when selected,
+  automatically changes to the move tool because it is the most logical tool to use... unless
+  double-clicking. If you double-click on a leader really fast, it should enter. If you double-click
+  on a group, it should enter. If you double-click on a vector, it should enter it, and then it's the
+  same."
+- The 17-Sep Move tool (v2.59.0) was a safety catch: with Select up a drag moves nothing, so a
+  drawing is never shifted by a stray drag. It worked, and it made every ordinary move three steps -
+  click, M, drag - for the things that are moved all day. The catch is kept exactly where it matters
+  and taken off everywhere else.
+
+**What picks Move up, and what does not**
+- A Select press on TEXT, a VECTOR, a LEADER by its bubble, its note or its curve, or a GROUP
+  (a parametric one is a group) picks the Move tool up, and THE SAME PRESS CARRIES ON INTO THE DRAG.
+  Select-and-move is one gesture again. A box that leaves only those kinds selected picks it up too.
+- A VIEWPORT, a DIMENSION and a LEADER'S ENDPOINT do not. The first two still wait for M, which is
+  what the catch was for; the endpoint re-points the leader and was always a grip, not a move. Nor
+  does a text item's rotate grip, the vector that is open for editing, or anything on a locked layer.
+- Several selected items pick Move up only when EVERY one is a listed kind. A set moves as one, so
+  one viewport or one dimension among them and the lot waits for M.
+- The kinds are config: `EditScope AutoMoveKinds`, with `AutoMoveOnSelect` to turn it all off.
+
+**A Move that came up by itself goes back down by itself**
+- This is the part that makes it safe. `PickUpMove` / `PutDownMove` / `IsMoveAuto` in the tool state:
+  the tool remembers whether Move was ASKED for. One that was not goes back to Select on a press on
+  anything that would not have picked it up, when the selection empties (Delete, a cut, an undo -
+  the sheet tools listen to the model and the container events and run `SettleAutoMove`), and when a
+  double click steps inside. So a viewport can never travel on a Move nobody asked for: by the time
+  the press asks "is Move up?", it is not.
+- M, or the Move button, is still a Move that STAYS - over bare paper, over viewports, until another
+  tool is picked. `SetTool` is the deliberate path and always clears the flag.
+- It only ever comes UP on a press or a box. Undo bringing a deleted note back does not flip the
+  tool under a hand that is nowhere near the sheet.
+- One function answers "would a press here pick Move up" (`PicksUpMove`), read by the press AND the
+  hover cursor, the way `CanMoveWhole` already was - so the cursor cannot promise a move the press
+  will not make. Under Select the four-way arrow now shows over exactly the things a press would
+  move, and an automatic Move shows it in those places ONLY; a deliberate Move still wears it
+  everywhere. A leader's bubble wears the tool's own arrow, not the system one.
+- `DragFor` did not change by a line. It still only asks whether Move is up; it just finds it up
+  more often.
+
+**The double click, which is where this could have gone wrong**
+- DragThresholdMm is 0.5 mm of paper, which is under TWO PIXELS on screen at any zoom. Harmless while
+  Select could not move anything - and the moment it can, the second press of a fast double click
+  nudges the note on its way in. It already did for a leader's bubble, which Select has always
+  dragged: that is the "really fast" in Adam's message.
+- A PRESS THAT PICKS IS A PICK FIRST. The press that selects something, and the second press of a
+  double click, must travel `PickDragPx` (8) on screen before it moves anything - wherever a double
+  click means something: a whole-object move, a viewport's frame or content, a leader by any part,
+  a dimension's value. A press on something already selected moves at the ordinary threshold, and
+  vertices, measured points, crop handles and the rotate grip keep it always: nothing opens there,
+  and precise work wants no dead zone.
+- A pointerdown carries NO CLICK COUNT (only the click after it does), so the second press is known
+  the way the browser knows it: same item, within `DoubleClickSlopPx` and `DoubleClickMs` of the
+  last press.
+- AND THE OTHER WAY ROUND. The browser counts clicks when the button goes DOWN and never looks at how
+  far the pointer went before it came up, so "click to pick, then at once drag it across the sheet"
+  ends in a `dblclick` - which would have opened the text that had just been moved. That sequence is
+  now an everyday one, so a double click whose second press travelled is ignored.
+- A double click puts an automatic Move down before it opens anything: a group (nothing selected
+  inside yet), a vector (a press in there is about its points - the body of the open vector shows
+  the plain arrow and moves nothing), a dimension, a text, a leader's text, a viewport's content.
+- "And then it's the same": inside a group a press on a member picks Move up and drags that member
+  alone; double click the member and you are inside the vector, back under Select.
+
+**Small things that would have been papercuts**
+- The notes margin's drag handle hid itself under any tool but Select, so picking a note would have
+  taken it away. It stays up under an automatic Move (`IsMoveAuto` is exported for it).
+- The Select and Move tooltips and the M key's note say what now happens.
+
+**Files**
+- `30__System__SheetTools/`: `SheetTools__State__` (LastPress, PressTravelled), `__ToolState__`
+  (ApplyTool, PickUpMove, PutDownMove, IsMoveAuto; the tool event's detail carries `auto`),
+  `__HitResolution__` (PicksUpMove, SelectionPicksUpMove, HoverCursor), `__PointerPress__` (the
+  tool follows the press, IsRepeatPress, SettleAutoMove, the double click), `__PointerDrag__`
+  (DragStartMm, PressTravelled, the box), `SheetTools__` (the two listeners, the export).
+- `ConfigState__ToolSetup__`, `AppConfig__.json` (Selection and EditScope blocks, two labels),
+  `KeyMappings__.json` (the M key's note), `Toolbar__` (the two fallback tooltips), `MarginGrip__`.
+
+**Tested**
+- `Na__Verify__Exports__` and `Na__Verify__ModuleGraph__` pass over 352 files.
+- In the app, real modules, on a scratch copy of PS01 D01 with every write refused (the guard logged
+  none) and the real sheets byte-identical afterwards. 64 checks with synthetic pointer events, each
+  one undone: the pick, the put-down on bare paper, press-and-drag in one gesture, 5 px of wobble
+  moving nothing, a fast wobbly double click opening text, a leader's bubble and a group with nothing
+  moved, click-then-drag's trailing double click ignored, the endpoint putting Move down while its
+  grip drag still starts, a dimension and an unlocked viewport refusing to move from an automatic
+  Move, M moving that viewport and staying up, Delete settling back to Select, Shift-adding a vector
+  (stays) and a dimension (goes down), a box of listed kinds and a box with a dimension in it, Enter
+  stepping into a vector, a vertex still dragging inside it, and the margin handle. (The two-item
+  drag landed 12.4 mm for a 10 mm pull: a set move snaps to the linework, as it always has.)
+- NOT tested with a real mouse: the pane has no input, so the double click timing is proved against
+  the rule, not against a hand. `DoubleClickMs` 500 matches Windows' default; if Adam's is longer,
+  that is the number to raise.
+
+**Not yet in ValeVision.**
+
+# ---------------------------------------------------------
+## TrueVision3D v2.77.0  -  19-Sep-2026
+### The Tab and the Noodle Were Both in the Pictures, and I Read Them as Decoration
+
+**Overview**
+- Adam, on v2.76.0: "You still need to build out the extra tab I mentioned... Also, there needs to be
+  the linking noodle that you can see when the dynamic object is selected, so you can see what it is
+  tied to." He had mentioned both - in his images, not his words. The green box at the top of the
+  right column in image 4 I had taken for "put the settings here". The blue curve from the scale bar
+  to the drawing in image 3, labelled LINK, I had taken for a sketch of the IDEA of a link. It was a
+  drawing of the thing.
+- So the brief was gone through again, line by line and image by image, against what exists. The
+  table is section 10 of `TrueVision__PLAN__ScrapbookSystem__.md`. Two things were missing, both
+  below; one reading is still mine and marked for Adam to confirm.
+
+**The Scrapbook tab**
+- The right column has two tabs, **Properties** and **Scrapbook**. All three libraries - Standard,
+  Parametric, Custom - are on Scrapbook; every section that was in the right column is on
+  Properties. The left column is back to the sheet and its layers, where the libraries had been
+  queueing behind Sheet and above Margin Notes.
+- `Na__LePanels__RegisterTab`, `SetActiveTab`, `GetActiveTab`, and `spec.tab` on a section. A section
+  that names no tab belongs to the column's first, so Properties is registered first and not one of
+  the five property panels had to be told. A column nobody gives tabs is exactly what it was: the
+  strip only shows at two.
+- The strip is the first thing in the column's scroller and sticks to its top, which leaves the
+  column's own layout - scroller beside width grip - untouched.
+- BOTH TABS ARE STYLED ALIKE, the sheet tab strip's look a size down. Which is up is said by weight
+  and by the join to the column below, never by a mark one has and the other lacks. Checked, not
+  assumed: each tab's computed style when up is exactly the other's when up.
+- A section off its tab is put away by `is-off-tab`, never by the `hidden` attribute - that one is
+  `SetSectionVisible`'s, and the Standard library is both on its tab and hidden on an architectural
+  sheet. `Refresh` passes an off-tab section by, so the Custom library's files are not read until the
+  tab is first opened.
+- A drop does NOT switch tabs. Items are usually placed several in a row, and what was dropped
+  already has its grips on the sheet; its settings are one click away.
+
+**The link noodle**
+- Select a parametric element and a noodle runs from a round socket on it to what it reads its scale
+  from - a cap on the nearest edge of the viewport, whose frame is outlined. An element tied to
+  nothing shows a HOLLOW socket and no noodle, so "is this bar following anything?" is answered by
+  looking at it.
+- DRAG THE SOCKET TO RE-TIE IT, as in any node editor. A dashed live noodle follows the pointer and
+  whatever it is over that it could be tied to lights up. Let go on a 2D viewport: tied to that
+  drawing, at its scale. On the title block: tied to the sheet's own scale. On bare paper: untied,
+  keeping the scale it has. Escape puts it back. One undo step each, and a toast - "Tied to Existing
+  Floor Plan (1:100).", "Untied. It keeps 1:20." - because an untie is otherwise invisible.
+- It is SVG in the handles layer, drawn in millimetres on a viewBox the size of the page with every
+  width divided by the zoom, under a white casing so it reads over black linework and white paper
+  alike. It keeps the `na-le-grip` class, so whatever clears the grips clears it.
+- `...ScrapbookParametric__LinkNoodle__.js` draws what the link module describes and asks it to
+  change it. What a link IS stays in `ViewportLink__`, the one module that knows what a viewport is.
+
+**A second kind of link: the sheet's own scale**
+- The red DRAG arrow in image 3 runs from the bar down to the title block's Scale cell. My reading:
+  a bar can be tied to the scale the title block quotes. `{ Link__SheetId, Link__Kind : 'sheet' }`
+  follows `Na__LeDrawScale__SheetDenominator`, inside the same undo step as the viewport change that
+  moved it, by the same before-announce hook. An element dropped out of reach of any drawing is now
+  tied to that instead of to nothing. ADAM TO CONFIRM this is what the arrow meant.
+- THE SCALE CELL IS FOUND, NOT WORKED OUT. The title block lays its cells out privately. Rather than
+  copy its arithmetic, the noodle reads the cell off the Scale label the chrome SVG already holds at
+  the cell's left padding, with the next label along the baseline as its far edge. That was the
+  right call within the hour: another session re-laid-out the Modern strip the same evening - fixed
+  and flex cells, a wider logo, a new Status field - and nothing here had to change.
+
+**Tested**
+- Real modules on scratch copies of PS02 D21 and D24, every write refused but `/r2/read` and the
+  scrapbook route, on `Na__Test__ScrapbookServer__.py`. The tab: 11 checks. The noodle: 19 - drawn to
+  the right edge, target outlined, socket filled or hollow, dragged to another drawing, to the title
+  block, to bare paper, Escape byte for byte, undo AND redo for each, and a sheet-tied bar following
+  the sheet's scale in one step. The Standard library from its new home, and a bar on a site plan
+  reading 1:500 or 1:1250: 9. Afterwards the real sheets were byte-identical and nothing had been
+  written.
+- The harness asserted the scratch sheet's id before every mutation this time (v2.76.0's lesson).
+- NOT YET DONE: Adam's own test in his browser, through the restarted 8090 server.
+
+**Files**
+- New: `57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__LinkNoodle__.js`.
+- Shared, additive: `40__Ui__Panels/Na__LayoutEditor__PanelHost__.js` 1.4.0 and a new region at the
+  foot of `Na__LayoutEditor__Styles__Panels__.css`; `05__Core__ModeController/...ModeController__.js`
+  1.18.0 (the two tabs, and the three libraries moved across).
+- Mine: the three scrapbook panels, `ViewportLink__` 1.1.0, the engine (every grip point a type
+  gives goes through `HandlesOf`), `ScaleBar__` (the link point), `Grips__` 1.1.0, both configs, the
+  parametric stylesheet, the plan.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.76.1  -  19-Sep-2026
+### DWG No.
+
+**Overview**
+- Adam, on the printed register: "this first column is too big. Just have the column name DWG no."
+  He was pointing at a heading setting its own column - "D01" is a third the width of
+  "DRAWING No.", so the heading, not the content, was deciding how much of the page it took.
+- `DRAWING No.` to `DWG No.`, and its `MinMm` floor 20 to 15 so the shorter heading is what
+  actually governs rather than the floor taking its place. Measured from the built PDF: the
+  column went 28.7mm to 22.3mm, and the width went to DOCUMENT NAME.
+- The Edit table's heading array says the same thing, so the two views of one document agree.
+
+**Also fixed, found on the way**
+- `Na__LeCfg__REGISTER_COLUMNS`, the fallback used when the config block is silent, still
+  described the OLD six-column register: a `code` column, no PHASE, no DOCUMENT CODE, and the
+  TYPE column that v2.71.0 dropped. A fallback that does not match the shipped config is a trap -
+  it would have produced a different register the moment the block was missing or malformed - so
+  it has been brought into line as well as renamed.
+
+**Verification**
+- Built from the real module and read back by word position, not eyeballed: the heading row is
+  `DWG No. | PHASE | DOCUMENT CODE | DOCUMENT NAME | SCALE | SIZE | REV`, with column one
+  63.1pt wide where it was 81.5pt.
+- All five fixtures still build with Open Sans embedded; named export resolution passes on 340
+  files.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.76.0  -  19-Sep-2026
+### Two More Scrapbooks, a Scale Bar That Reads the Drawing Above It, and the Redo That Proved a Listener Cannot Go First
+
+**Overview**
+- Adam: "I need a way to be able to save and insert common elements, but we need two versions in the
+  main drawings: a custom scrapbook, and a parametric element scrapbook. Set both up as different
+  subsystem folders... because both will function very differently." The first parametric element is
+  the scale bar he draws by hand under every drawing title: "Think dynamic blocks in AutoCAD."
+- Three libraries now, one way of dropping. The v2.53.0 Scrapbook is the Standard one and the host;
+  `56__Feature__ScrapbookCustom` and `57__Feature__ScrapbookParametric` are new. All three go through
+  the item clipboard's `InsertSet`, so whatever lands is ordinary vectors and text: it moves, copies,
+  prints, exports, ungroups and undoes like anything drawn by hand. NO NEW RECORD KIND - a
+  `Sheet__Parametrics` collection would have needed a hand in the markup bridge, hit resolution,
+  selection, the move tool, the clipboard, draw order, the eyedropper, snapping, the PDF exporter
+  and the web viewer, and then all of it again in ValeVision.
+- The plan, the map of what it plugs into, the traps and the ledger: `TrueVision__PLAN__ScrapbookSystem__.md`.
+
+**A parametric element is a group with one extra block**
+- `Group__Parametric : { Parametric__Type, Parametric__Version, Parametric__Params, Parametric__Link }`.
+  `NormaliseGroup` rewrites `Group__Members` and nothing else, the clipboard clones the whole record
+  and `InsertGroup` is handed `{ ...record }`, so the block already survives a load, a save, a draft,
+  an undo, a copy and a paste. Nothing had to be taught that it exists.
+- Its place on the paper is NEVER stored. The Move tool and a paste shift a group's members and know
+  nothing of the block, so a stored origin is stale after the first move. Every type writes its
+  origin as the first point of its first vector, and the engine reads it back from there.
+- Regeneration edits IN PLACE: members updated slot for slot, extras inserted, left-overs deleted.
+  Ids stay put, so an undo snapshot barely changes, the element keeps its place in the draw order
+  and it stays on whatever layer it was moved to. The member list is rewritten BEFORE the
+  left-overs go - the model prunes a group of fewer than two live members, block and all.
+- Ungroup is explode, as in AutoCAD: the vectors and numerals stay, the parameters go.
+
+**The scale bar is Adam's bar, measured**
+- Read off the twelve bars he drew by hand on PS02 D21 and D22 (A2, 1:50), which all agree: five
+  cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom on even ones,
+  `#666666` on `#172b3a` at 0.2 pt, an empty cell with no fill at all; numerals centred on each
+  division 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between. The generated 1:50 bar
+  matches his point for point and fill for fill (`Na__Test__ScrapbookScaleBar__.test.mjs`).
+- A scale has a STANDARD, and changing the scale puts the bar back to it - his ask, so a 5 m bar is
+  never left 50 mm long. Fourteen scales are tabled; every one is a 100 mm bar and all but four are
+  the same 5 x 20 mm, so the bar looks the same under every drawing and only its numerals change:
+  1:50 reads 0 1 2 3 4 5, 1:100 reads 0 2 4 6 8 10, 1:1250 reads 0 25 50 75 100 125. A scale with no
+  row is solved towards the same 20 mm and 100 mm.
+- Split first division cuts the first division into sub-cells (200 mm at 1:50) in the same checker.
+  The checker counts every cell drawn, so it never stutters at the first numeral whether the split
+  is five or four.
+- The module imports nothing: parameters in, records out. It runs in Node exactly as the app runs it.
+
+**Two grips, as on a dynamic block**
+- An arrow off the far end STRETCHES, live, in whole divisions: nothing is announced during the drag
+  and one undo step is taken on release. Escape puts the sheet back byte for byte.
+- A triangle off the zero end opens a LOOKUP menu: From viewport, the scales, Split first division,
+  Show units, Reset length. The same choices sit at the top of the right column while an element is
+  selected, laid out to be read.
+- The grips own their press. They are elements in the handles layer that take pointer events and stop
+  them there; the stage listens in the bubble phase, so not a line of the pointer pipeline changed.
+  The grip is destroyed by its own drag - every step repaints the selection - so the drag listens on
+  the window and holds ids, never the element.
+- A selected element's box reads "Scale Bar", above the box. "Group" inside the corner covered the
+  first cell of a bar 2 mm tall.
+
+**The link to the viewport system has a module of its own**
+- `Na__LayoutEditor__ScrapbookParametric__ViewportLink__` is the only parametric module that knows what
+  a viewport is. A dropped bar links to the nearest 2D viewport and takes its scale.
+- A link names a sheet AND a viewport. `Viewport_001` exists on nearly every sheet, so a link whose
+  sheet is not the one the element is on - a paste elsewhere, a custom item dropped in another
+  project - is broken, and a broken link reads as no link. It is never re-pointed by accident.
+
+**The bug a test of REDO found, and why it cannot be fixed with a listener**
+- The first build followed a viewport's scale from a CAPTURE-phase listener on the model's change
+  event, "so it runs before the history". Change the scale: the bar followed, one undo step, and one
+  Ctrl+Z put both back. It passed. Then REDO brought back a viewport at 1:100 beside a bar at 1:50.
+- The model dispatches that event ON window. For an event whose TARGET is window the listeners fire
+  in the order they were added; the capture flag does not reorder them (proved in the pane, Chrome
+  152 - capture only comes first for an event travelling THROUGH window from beneath it). The
+  history is added first. It had snapshotted the old bar before the bar was rebuilt, so the step's
+  "before" was whole and its "after" was not. An undo-only test passes both designs.
+- `Na__LeModel__RegisterBeforeAnnounce`: `Touch` now runs registered hooks just before it dispatches,
+  never for a restore. Derived data is brought up to date before anyone hears of the change, by
+  construction rather than by order. Follow, viewport deletion and a custom drop were all re-tested
+  with undo AND redo, byte for byte.
+
+**The Custom Scrapbook is files**
+- Select anything, name it, Save: one JSON file in a category folder of
+  `51__LayoutEditor__UserScrapbookContent` beside Index.html, plus `UserScrapbook__Index__.json`, which
+  is what lets the live website list a library it has no directory listing for.
+- Made portable on the way out: layer ids, a dimension's viewport, a bubble's specification note
+  link and a scale bar's viewport link are all facts about where it came from, and are left behind.
+  Viewports are refused. A scale bar inside an item stays a scale bar, and re-links to the drawing it
+  lands beside - inside the drop's own undo step.
+- Saving goes through a new Flask blueprint, `na-apps/ProjectVision__TrueVisionScrapbook__Api__.py`.
+  It names every file itself, saves only into category folders that already exist, rebuilds the
+  index FROM THE FOLDERS so a file added by hand is picked up, and a delete MOVES the file to
+  `00__Deleted__Quarantine` - the Project Manager's rule. Nothing in a request is ever a path.
+- THE 8090 SERVER MUST BE RESTARTED to load the routes: it never reloads them. Until then the section
+  says so in words, rather than failing.
+
+**Shared code touched, all additive**
+- `SheetModel__State__` (`RegisterBeforeAnnounce`, hooks in `Touch`), `SheetModel__` (the re-export),
+  `SheetModel__Groups__` (`DeleteItems` silent flag), `15__Core__Markup/Groups__` (`RegisterLabeller`,
+  answered inside `Render` because the box has two painters), `Grips__` (`RegisterGroupProvider`),
+  `ModeController__` (two imports, three registrations), `Scrapbook__` (the preview draws leaders and
+  dimensions), `Panel__Scrapbook__` (its tile drag moved out to `Scrapbook__TileDrag__`, shared by
+  all three libraries), `ProjectVision__LocalServer__Main__.py` (one import, one registration).
+
+**Tested**
+- `Na__Test__ScrapbookScaleBar__.test.mjs` and `Na__Test__ScrapbookApi__.test.py` (26 checks, on a
+  temporary folder). `Na__Verify__Exports__` and `Na__Verify__ModuleGraph__` pass over 351 files.
+- In the app, real modules on a scratch copy of PS02 D21 with every write refused but `/r2/read` and
+  the scrapbook route, served by `Na__Test__ScrapbookServer__.py` (launch entry `tv-scrapbook`): the
+  REAL save blueprint pointed at a temporary folder, so a save, the index and the item file all
+  round-tripped for real and the real scrapbook folder was never written.
+- A FAULT IN MY OWN HARNESS, recorded because it will happen again: the first editor entry of a page
+  session re-announces the drawings data, which replaces the sheet list and silently drops a scratch
+  sheet made before it. The editor falls back to the first REAL sheet - which has the same viewport
+  ids, so every check still passed, on D21's in-memory copy. Two runs went that way before a link
+  naming `Sheet_002` gave it away. Nothing was saved: the guard logged no write attempt at all, and
+  the model was restored byte-identical. The harness now enters once, waits for `loaded` to go
+  quiet, makes the scratch sheet, and asserts `Sheet__Id` before every mutation.
+- NOT YET DONE: Adam's own test in his browser, through the restarted 8090 server.
+
+**Files**
+- New: `55__Feature__Scrapbook/Na__LayoutEditor__Scrapbook__TileDrag__.js`; the five files of
+  `56__Feature__ScrapbookCustom/`; the seven of `57__Feature__ScrapbookParametric/`;
+  `na-apps/ProjectVision__TrueVisionScrapbook__Api__.py`; three tests in
+  `80__Testing__PrototypeEnvironment/`; `TrueVision__PLAN__ScrapbookSystem__.md`.
+- ValeVision: not ported. It needs ItemClipboard 1.1.0, SheetModel Groups 1.1.0, SheetModel State
+  1.1.0, Groups 1.2.0 and Grips 1.8.0 first.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.75.0  -  19-Sep-2026
 ### Safari Reads the First Manifest and Never Looks Again, and the First One Was the Wrong One
 
@@ -161,6 +1098,21 @@
 - Only a project with nothing typed anywhere - a new one - seeds straight from the record.
 - The seed marks the model dirty and rides out with the next save; it never writes to R2 on its
   own, the same way the v2.21.0 drawings migration lands.
+
+**Undo had to be taught where the two values live**
+- Caught late, from the Scrapbook session's note that the model's change event fires listeners
+  in registration order. Chasing whether that bit this feature turned up something worse:
+  `Na__LeHist__OnChanged` snapshots `JSON.stringify(sheet)`, and the pack's two values are on
+  the drawings block, not on a sheet.
+- So retyping the client on a sheet that is on Common - the single most common edit this
+  feature exists for - changed not one byte of the sheet record. The step test read that as
+  "an announce that changed nothing", recorded no step, and left Ctrl+Z to reach past it to an
+  older, unrelated step. Worse than no undo: a surprising one.
+- A history step now carries `common` beside `json`, the changed-nothing test reads both
+  halves, and `Apply` takes the step rather than its json so it can put the pack's values back
+  before the announcement. `register-updated` rewrites `step.json` only and is unaffected.
+- Verified in the app: retype the client, Undo enables, Ctrl+Z restores it on the panel AND the
+  printed title block, Redo replays it, and D02 follows both ways because the pack really moved.
 
 **Checked**
 - 31 assertions against the real modules and PS01's real sheet records, including the one that

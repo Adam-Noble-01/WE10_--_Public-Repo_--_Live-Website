@@ -51,6 +51,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 19-Sep-2026 - Version 1.3.0
+// - PicksUpMove: would a Select press here pick the Move tool up. Text, a
+//   vector, a leader by anything but its endpoint, and a group do; a viewport,
+//   a dimension, a rotate grip, the open vector and anything locked do not. One
+//   of several selected items answers for the whole selection
+//   (SelectionPicksUpMove: every item a listed kind, and no vector or dimension
+//   open). The kinds are the config's EditScope AutoMoveKinds.
+// - HoverCursor shows the four-way arrow under Select wherever PicksUpMove is
+//   true, because the press there now moves; and a Move that came up by itself
+//   shows it in those places ONLY, where a Move that was asked for still wears
+//   it everywhere. The cursor never promises a move the press will not make.
+//
+//
 // 17-Sep-2026 - Version 1.2.0
 // - A PRESS NEAR A POINT OF THE OPEN CONTAINER BELONGS TO THE CONTAINER.
 //   Resolve asked the markup hit test first, and that answers for the LINE
@@ -119,6 +132,7 @@
     import { Na__LeOsnap__Find, Na__LeOsnap__FindOnViewport, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
     import {
         Na__LeScope__IsActive,
+        Na__LeScope__IsLeafOpen,
         Na__LeScope__GetVectorId,
         Na__LeScope__GetDimensionId,
         Na__LeScope__Resolve,
@@ -129,7 +143,7 @@
     // MODULE IMPORTS | Sheet Tools State and Tool State
     // ------------------------------------------------------------
     import { Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__PICK_TOOLS, Na__LeTools__Editable, Na__LeTools__Drag } from './Na__LayoutEditor__SheetTools__State__.js';
-    import { Na__LeTools__Tool } from './Na__LayoutEditor__SheetTools__ToolState__.js';
+    import { Na__LeTools__Tool, Na__LeTools__IsMoveAuto } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -157,6 +171,66 @@
         if (Na__LeTools__Tool === Na__LeTools__TOOL_MOVE) return true;
         if (Na__LeTools__Tool !== Na__LeTools__TOOL_SELECT) return false;
         return Na__LeCfg__GetEditScopeSetup().moveToolRequired === false;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Would Every Item of a Selection Pick the Move Tool Up
+    // ------------------------------------------------------------
+    // The SELECTION's half of the question, asked of kinds alone: a selection
+    // keeps a Move that came up by itself only while everything in it is a kind
+    // that picks Move up. One viewport or one dimension among them and the lot
+    // waits for M, because a set moves as one and a drawing must never travel
+    // on a Move nobody asked for. Nothing selected keeps nothing up, and
+    // neither does an open vector or dimension: in there a press edits points,
+    // and the whole object sliding out from under a missed grip is exactly what
+    // the container was built to stop.
+    // ------------------------------------------------------------
+    function Na__LeTools__SelectionPicksUpMove(items) {
+        const setup = Na__LeCfg__GetEditScopeSetup();
+        if (!setup.autoMoveOnSelect || !setup.moveToolRequired) return false;
+        if (!Array.isArray(items) || !items.length || Na__LeScope__IsLeafOpen()) return false;
+        return items.every((item) => !!item && setup.autoMoveKinds.indexOf(item.kind) !== -1);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Would a Select Press Here Pick the Move Tool Up
+    // ------------------------------------------------------------
+    // ONE ANSWER, READ BY THE PRESS AND BY THE HOVER CURSOR, for the same
+    // reason CanMoveWhole is one answer: the cursor promises what the press
+    // then does. It is only ever true under Select, or under a Move that came
+    // up by itself - a Move that was asked for already moves everything and
+    // has nothing to pick up.
+    //
+    // WHAT PICKS MOVE UP is what is usually moved next: text, a vector, a
+    // leader by its bubble, its note or its curve, a group (a parametric one
+    // is a group). WHAT DOES NOT is what is usually NOT moved next, or must
+    // never move by accident:
+    //   a viewport, a dimension   the kinds the config leaves out
+    //   a leader's endpoint       it re-points the leader: a grip, not a move
+    //   a text item's rotate grip it turns the text
+    //   the open vector           a press in there is about its points
+    //   anything on a locked layer
+    // One of SEVERAL selected items carries them all, so it answers for the
+    // whole selection rather than for itself.
+    // ------------------------------------------------------------
+    function Na__LeTools__PicksUpMove(sheet, found, pointMm) {
+        if (!Na__LeTools__Editable || !sheet || !found) return false;
+        if (Na__LeTools__Tool !== Na__LeTools__TOOL_SELECT && !Na__LeTools__IsMoveAuto()) return false;
+        const setup = Na__LeCfg__GetEditScopeSetup();
+        if (!setup.autoMoveOnSelect || !setup.moveToolRequired) return false;   // <-- With the catch off Select drags everything itself, and there is nothing to pick up
+        const items = Na__LeModel__GetSelectionItems();
+        if (items.length > 1 && Na__LeModel__IsSelected(found.kind, found.id)) return Na__LeTools__SelectionPicksUpMove(items);
+        if (setup.autoMoveKinds.indexOf(found.kind) === -1) return false;
+        if (found.kind === 'group') return true;                             // <-- Its members answer for their own locks when the set is captured
+        const record = Na__LeTools__Record(sheet, found);
+        if (!record) return false;
+        if (found.kind === 'annotation') return !Na__LeModel__IsLayerLocked(sheet, record.Annotation__LayerId) && !(found.hit && found.hit.mode === 'rotate');
+        if (found.kind === 'shape')      return !Na__LeModel__IsLayerLocked(sheet, record.Shape__LayerId) && Na__LeScope__GetVectorId() !== found.id;
+        if (found.kind === 'leader')     return !Na__LeModel__IsLayerLocked(sheet, record.Leader__LayerId) && Na__LeGrips__LeaderGrab(record, pointMm, Na__LeTools__Tolerance()) !== 'tip';
+        if (found.kind === 'dimension')  return !Na__LeModel__IsLayerLocked(sheet, record.Dimension__LayerId) && Na__LeScope__GetDimensionId() !== found.id;   // <-- Only if the config lists it
+        return !Na__LeTools__IsViewportLocked(sheet, record) && !(found.hit && found.hit.mode === 'handle') && Na__LeSurface__GetEditingViewport() !== found.id;   // <-- A viewport, likewise
     }
     // ------------------------------------------------------------
 
@@ -546,8 +620,16 @@
         // relocate something. Under Select the same things wear the plain arrow,
         // because a drag on them does nothing at all; only the grips - which
         // Select does work - sharpen to a crosshair.
-        const moving = Na__LeTools__CanMoveWhole();
-        const rest   = (moving && Na__LeTools__Tool === Na__LeTools__TOOL_MOVE) ? Na__LeGrips__MOVE_CURSOR : (moving ? 'move' : '');
+        //
+        // A MOVE THAT CAME UP BY ITSELF PROMISES NO MORE THAN SELECT DOES. It
+        // will go back to Select on a press on a viewport, a dimension or bare
+        // paper, so it shows the four-way arrow only where a press really would
+        // move something (PicksUpMove) - and Select shows it in exactly the same
+        // places, because a Select press there picks Move up and the drag
+        // carries on. Only a Move that was asked for wears the arrow everywhere.
+        const moving = Na__LeTools__CanMoveWhole() && !Na__LeTools__IsMoveAuto();
+        const rest   = moving ? (Na__LeTools__Tool === Na__LeTools__TOOL_MOVE ? Na__LeGrips__MOVE_CURSOR : 'move')
+                              : (Na__LeTools__PicksUpMove(sheet, found, pointMm) ? Na__LeGrips__MOVE_CURSOR : '');
         if (!found) return rest;
         if (found.kind === 'group') return Na__LeTools__Editable ? rest : 'default';
         const record = Na__LeTools__Record(sheet, found);
@@ -571,7 +653,7 @@
             if (Na__LeModel__IsLayerLocked(sheet, record.Leader__LayerId)) return 'default';
             const grab = Na__LeGrips__LeaderGrab(record, pointMm, tol);
             if (grab === 'whole') return rest;
-            return grab === 'tip' ? 'crosshair' : 'move';
+            return grab === 'tip' ? 'crosshair' : (rest || 'move');          // <-- The head wears the Move tool's own arrow wherever a press there brings Move up; with that turned off it is still a grip Select drags
         }
         if (Na__LeTools__DoorAt(sheet, found, pointMm)) return 'pointer';     // <-- A click here closes or opens that door, locked or not
         if (Na__LeTools__IsViewportLocked(sheet, record)) return 'default';
@@ -613,6 +695,8 @@
         Na__LeTools__ScopeGrabMm,
         Na__LeTools__ScopeGrabAt,
         Na__LeTools__CanMoveWhole,
+        Na__LeTools__SelectionPicksUpMove,
+        Na__LeTools__PicksUpMove,
         Na__LeTools__ShapeGrabPoint,
         Na__LeTools__ShapeGrabFor,
         Na__LeTools__DimensionGrabFor,

@@ -1,0 +1,71 @@
+{
+    "NorthDirection__Description": "Configuration for the North Direction system - the Dev menu tool that draws a compass in the 3D view and records which way true north lies in the model. The bearing itself is per-project and lives inside the project's LayoutEditor__DrawingsData block, so it rides the save path the drawings already use. Distances are integer millimetres and are converted to Three.js units in code.",
+    "NorthDirection__Enabled": true,
+    "NorthDirection__Compass__Config": {
+        "NorthDirection__Compass__Description": "How a bearing is put into words. Bearings are degrees clockwise seen from above, measured from the model's -Z axis (SketchUp's green axis), the same measure an elevation's azimuth is stored in. IntercardinalHalfWidthDeg is how far either side of 45 degrees a face still reads as North East rather than North or East: 22.5 is the ordinary eight-point compass, 0 is the four-point one, and the house default of 15 calls a wall 30 degrees off north the North Elevation.",
+        "NorthDirection__Compass__IntercardinalHalfWidthDeg": 15,
+        "NorthDirection__Compass__BearingDecimals": 1,
+        "NorthDirection__Compass__Words": {
+            "North": "North",
+            "NorthEast": "North East",
+            "East": "East",
+            "SouthEast": "South East",
+            "South": "South",
+            "SouthWest": "South West",
+            "West": "West",
+            "NorthWest": "North West"
+        }
+    },
+    "NorthDirection__Pick__Config": {
+        "NorthDirection__Pick__Description": "Drawing the compass: one click where it goes, a second towards north. The threshold is in pixels - a press that travels further is an orbit, not a click, so the view can still be turned between the two. While aiming, the needle follows the pointer; each step raycasts the model, so it is throttled rather than run per pointer event. Holding Shift snaps the bearing to SnapStepDeg.",
+        "NorthDirection__Pick__ClickThresholdPx": 4,
+        "NorthDirection__Pick__Cursor": "crosshair",
+        "NorthDirection__Pick__AimRecomputeMs": 60,
+        "NorthDirection__Pick__SnapStepDeg": 5,
+        "NorthDirection__Pick__MinAimDistanceMm": 100
+    },
+    "NorthDirection__Gizmo__Config": {
+        "NorthDirection__Gizmo__Description": "The compass in the 3D view. Its radius is a fraction of the model's larger horizontal span, held between the two limits, so it reads on a garden room and on a full house. It is a marker beside the building, not a ring drawn round it: the fraction and both limits were quartered on 20-Sep-2026 because on a site with landscape the compass was larger than the house. It is drawn over the model rather than hidden by it, and it is registered as an interactive overlay, so it is invisible to every render but the live 3D frame and can be left switched on without ever printing on a drawing.",
+        "NorthDirection__Gizmo__RadiusFractionOfModel": 0.075,
+        "NorthDirection__Gizmo__MinRadiusMm": 375,
+        "NorthDirection__Gizmo__MaxRadiusMm": 3000,
+        "NorthDirection__Gizmo__FallbackRadiusMm": 1000,
+        "NorthDirection__Gizmo__LiftMm": 40,
+        "NorthDirection__Gizmo__RingColour": "#172b3a",
+        "NorthDirection__Gizmo__DiscColour": "#ffffff",
+        "NorthDirection__Gizmo__DiscOpacity": 0.55,
+        "NorthDirection__Gizmo__NorthColour": "#d9534f",
+        "NorthDirection__Gizmo__SouthColour": "#9aa4ad",
+        "NorthDirection__Gizmo__LetterColour": "#d9534f",
+        "NorthDirection__Gizmo__AimingOpacity": 0.6,
+        "NorthDirection__Gizmo__ShownByDefault": false
+    },
+    "NorthDirection__Labels__Config": {
+        "NorthDirection__Labels__Description": "User-facing wording for the Dev menu North Direction section. {bearing} is the north bearing in degrees, {word} a compass word, {name} an elevation's name, {azimuth} its stored bearing.",
+        "NorthDirection__Labels__SectionTitle": "North Direction",
+        "NorthDirection__Labels__StatusUnset": "North has not been set. Until it is, drawing titles that need it read {{Direction}} and elevations keep the names they were given.",
+        "NorthDirection__Labels__StatusSet": "North is {bearing} degrees clockwise of the model's -Z axis (SketchUp's green axis).",
+        "NorthDirection__Labels__StatusUnsaved": "Not saved yet.",
+        "NorthDirection__Labels__DrawLabel": "Draw Compass",
+        "NorthDirection__Labels__RedrawLabel": "Redraw Compass",
+        "NorthDirection__Labels__CancelDrawLabel": "Cancel",
+        "NorthDirection__Labels__PickFirstHint": "Click where the compass should sit.",
+        "NorthDirection__Labels__PickSecondHint": "Now click towards north. Hold Shift to snap; Esc cancels.",
+        "NorthDirection__Labels__BearingFieldLabel": "Bearing",
+        "NorthDirection__Labels__ShowCompassLabel": "Show Compass",
+        "NorthDirection__Labels__ShowCompassOnHint": "The compass stays in the 3D view with the panel closed, so it can be read while orbiting the model alongside the drawing planes. Kept between visits.",
+        "NorthDirection__Labels__ShowCompassOffHint": "Leave the compass in the 3D view once this panel is closed.",
+        "NorthDirection__Labels__ClearLabel": "Clear North",
+        "NorthDirection__Labels__ClearPrompt": "Clear the north direction? Drawing titles that use it go back to {{Direction}}.",
+        "NorthDirection__Labels__SaveLabel": "Save North",
+        "NorthDirection__Labels__SavedMessage": "North direction saved with the drawings.",
+        "NorthDirection__Labels__SetMessage": "North set to {bearing} degrees. Save it to keep it.",
+        "NorthDirection__Labels__ClearedMessage": "North cleared. Save to keep it cleared.",
+        "NorthDirection__Labels__CancelledMessage": "Compass cancelled.",
+        "NorthDirection__Labels__NoModelMessage": "Load a model before drawing the compass.",
+        "NorthDirection__Labels__ElevationsTitle": "What the elevations will be called",
+        "NorthDirection__Labels__ElevationRowFormat": "{name} ({azimuth} degrees) faces {word}",
+        "NorthDirection__Labels__ElevationRowUnset": "{name} ({azimuth} degrees)",
+        "NorthDirection__Labels__NoElevations": "This project has no elevations yet."
+    }
+}

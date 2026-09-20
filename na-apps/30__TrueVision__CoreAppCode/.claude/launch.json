@@ -220,10 +220,94 @@
       "name": "tv-scrapbook",
       "runtimeExecutable": "python",
       "runtimeArgs": [
-        "D:/_ClaudeScratch/scrapbook/tv_scrapbook_test_server.py",
+        "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__ScrapbookServer__.py",
         "8683"
       ],
       "port": 8683
+    },
+    {
+      "name": "tv-automove",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8694",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8694
+    },
+    {
+      "name": "tv-titlecells",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8697",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8697
+    },
+    {
+      "name": "tv-projectqr",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8703",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_projectqr_out"
+      ],
+      "port": 8703
+    },
+    {
+      "name": "vv-common",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8693",
+        "D:/06__Cloud__Repo__NaCodebase__Puiblic/ValeCodebase"
+      ],
+      "port": 8693,
+      "url": "http://app.localhost:8693"
+    },
+    {
+      "name": "vv-titlecells",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8699",
+        "D:/06__Cloud__Repo__NaCodebase__Puiblic/ValeCodebase"
+      ],
+      "port": 8699
+    },
+    {
+      "name": "tv-drawingplanes",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8741",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8741
+    },
+    {
+      "name": "tv-headerfold",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8752",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8752
+    },
+    {
+      "name": "tv-compass",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8761",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8761
     }
   ]
 }
