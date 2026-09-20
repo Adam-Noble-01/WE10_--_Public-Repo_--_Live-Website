@@ -44,6 +44,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.11.0 (TrueVision)
+// - The queue says how much it is carrying. Enqueue counts a task in and out
+//   again and announces the depth on 'na-layouteditor-snapshot-queue', so
+//   something outside can tell "still drawing" from "finished" without
+//   guessing at a duration. Na__LeSnap__GetOutstanding reads it directly.
+//   Written for the first-open loading overlay, which will not show itself
+//   unless there is real work behind it. Nothing about rendering changed: the
+//   counter is incremented and decremented around the same chain as before.
+//
 // 18-Sep-2026 - Version 1.10.0 (TrueVision)
 // - The model fingerprint (what keys a 3D snapshot) takes each category's
 //   content stamp as well as its name and triangle count, through one helper
@@ -212,6 +221,11 @@
     const Na__LeSnap__PHASE_HOLD = 'layout-editor-phase';   // <-- Render loop hold while a design phase stands in for the live model
     // ------------------------------------------------------------
 
+    // MODULE CONSTANTS | The Queue Depth Event
+    // ------------------------------------------------------------
+    const Na__LeSnap__QUEUE_EVENT = 'na-layouteditor-snapshot-queue';
+    // ------------------------------------------------------------
+
     // MODULE VARIABLES | Render Context and Queue
     // ------------------------------------------------------------
     let Na__LeSnap__Renderer    = null;
@@ -222,6 +236,7 @@
     let Na__LeSnap__ModelRoot   = null;
     let Na__LeSnap__Ortho       = null;
     let Na__LeSnap__Chain       = Promise.resolve();
+    let Na__LeSnap__Outstanding = 0;       // <-- Renders queued but not yet finished; the only honest measure of "still drawing"
     let Na__LeSnap__ModelFp     = null;    // <-- Visibility-free model fingerprint, cached until the model or its toggles change
     let Na__LeSnap__PipelineFp  = null;    // <-- The projection pipeline's own fingerprint, cached the same way
     const Na__LeSnap__PhaseFp   = new Map();   // <-- groupId -> { model, pipeline }: the same pair for each design phase held off-scene
@@ -236,11 +251,36 @@
 
     // HELPER FUNCTION | Queue a Render Behind Any Other
     // ------------------------------------------------------------
+    // COUNTED IN AND OUT, so anything watching can tell a sheet that is still
+    // drawing from one that has finished. The count is the only honest answer
+    // to that question: a duration is a guess, and a viewport that was served
+    // from cache never enters the queue at all, which is exactly the case a
+    // loading overlay must not sit through. Settled with then/then rather than
+    // finally so a rejected render still counts itself out.
+    // ------------------------------------------------------------
     function Na__LeSnap__Enqueue(task) {
+        Na__LeSnap__Outstanding += 1;
+        Na__LeSnap__AnnounceQueue();
         const run = Na__LeSnap__Chain.then(task);
         Na__LeSnap__Chain = run.catch(() => {});
+        const settle = () => { Na__LeSnap__Outstanding = Math.max(0, Na__LeSnap__Outstanding - 1); Na__LeSnap__AnnounceQueue(); };
+        run.then(settle, settle);
         return run;
     }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Say How Deep the Queue Is
+    // ------------------------------------------------------------
+    function Na__LeSnap__AnnounceQueue() {
+        window.dispatchEvent(new CustomEvent(Na__LeSnap__QUEUE_EVENT, { detail : { outstanding : Na__LeSnap__Outstanding } }));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | How Many Renders Are Queued or Running
+    // ------------------------------------------------------------
+    function Na__LeSnap__GetOutstanding() { return Na__LeSnap__Outstanding; }
     // ------------------------------------------------------------
 
 
@@ -858,6 +898,8 @@
     // MODULE EXPORTS | Layout Editor Snapshot Renderer API
     // ------------------------------------------------------------
     export {
+        Na__LeSnap__QUEUE_EVENT,
+        Na__LeSnap__GetOutstanding,
         Na__LeSnap__Initialize,
         Na__LeSnap__IsReady,
         Na__LeSnap__GetModelRoot,

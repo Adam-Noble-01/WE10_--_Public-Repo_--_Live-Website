@@ -64,8 +64,20 @@ Every line of the brief and every mark on the annotated screenshot, read LITERAL
 - D5 **Orbit must survive "all on".** Six translucent planes cover most of the screen, so a plane's
   FACE is only a handle while that plane is selected, and only where the building is not in front
   of it. Grips and labels are always live. Escape, or a click on nothing, deselects.
-- D6 **Visibility is per session.** A reload starts with no planes up. Snap settings are a
-  preference and are kept.
+- D6 ~~**Visibility is per session.** A reload starts with no planes up.~~ **Reversed 20-Sep-2026
+  (v2.84.0), at Adam's request:** switching a plane on is a PERSISTENT toggle, so the shown set is
+  kept in the browser like the snap settings. It is kept UNDER THE PROJECT CODE, because a plane
+  key is a drawing id and a drawing id means nothing outside the project that issued it; a project
+  switch empties the set and refills it from what that project last had up. Twelve projects are
+  remembered, least-recently-used first.
+  - **The trap.** `Refresh` drops a shown key that names no record - that is how a deleted drawing
+    loses its plane. A key restored at startup names a record whose source has not registered yet,
+    and one that HAS registered is reading an empty list until the drawings block lands, so the
+    original prune would have thrown away everything that was switched on. Two guards: a key is
+    only ever dropped once its own TYPE has been seen with at least one record
+    (`Na__PlaneOverlay__Live`), and the overlay listens for `Na__DrawData__CHANGED_EVENT` - the
+    block arriving - to put the restored planes up. Proved by missing it first: with only the
+    source-registration refresh, the shown set survived a reload and the 3D view stayed empty.
 - D7 The old `Na__Elevation__PlaneGizmo__`, `GizmoGrip__` and `FacePick__` stay on disk and
   initialised, unused, until sign-off; removing them is a follow-up so this change stays additive.
 
@@ -101,6 +113,7 @@ loop, the two Dev menu editors, Index.html, the stylesheet index.
 |------|-------|
 | 20-Sep-2026 | Plan written. Build started. |
 | 20-Sep-2026 | **Built and tested - TrueVision3D v2.82.0. Awaiting Adam's test.** All of section 2 is in. 47 Node checks pass; both verifiers pass. In the app on PS01 behind a fetch guard (no write attempted): bounds 13.7 / 21.6 m not 86 m, ground +50 so bottom edge +150, five planes in five colours, drag at 50 / 500 / 10 / free all on the absolute grid, Escape restores, plan drag changes the cut and not the floor level, Move to face and Aim at face on a wall, a floor refused for Aim and read as a floor level for a plan, both panels refresh in place, and a real thumbnail render saw the overlay invisible while it was switched on. |
+| 20-Sep-2026 | **Switching a plane on is now a PERSISTENT toggle - v2.84.0.** Adam: "We need a persistent toggle for the compass and for the elevation planes." Section 3's "visibility is per session" is reversed: the shown set is kept in the browser under the project code, so a reload brings back exactly the planes that were up. Tested on PS01: three elevation planes switched on, full reload, all three back in the scene with no panel ever opened. The trap it exposed is written up in section 3. |
 
 ### Open after the build
 

@@ -162,6 +162,26 @@
             "MiniApp__LoadOrder"         : 6,
             "MiniApp__LaunchInNewTab"    : true,
             "MiniApp__LaunchInNewWindow" : false
+        },
+
+        "MiniApp__ConsoleImageDownloader_08" : {
+            "MiniApp__LaunchFile"        : "MiniApp__PhotoUtils__ConsoleImageDownloader__Main__.html",
+            "MiniApp__RelativePath"      : "04_MiniApps__PhotoUtils",
+            "MiniApp__Title"             : "Console Image Downloader",
+            "MiniApp__Description"       : "A clipboard utility, not a downloader. Copies a JavaScript snippet so you can paste it into the browser console on a house-buying website whose image carousel blocks right-click save. Written for Homeflow-powered estate-agent listings; downloads each carousel photo as a numbered file.",
+            "MiniApp__Notes"             : "Category: PhotoUtils. The page only copies text. The paste-ready payload is MiniApp__PhotoUtils__ConsoleImageDownloader__Snippet__HomeflowCarousel__.js and must stay header-free because it is copied as-is.",
+            "MiniApp__KeyWords"          : [
+                                                "Clipboard",
+                                                "Console",
+                                                "Homeflow",
+                                                "Carousel",
+                                                "Estate Agent",
+                                                "Images"
+                                           ],
+            "MiniApp__Added"             : "20-Sep-2026",
+            "MiniApp__LoadOrder"         : 8,
+            "MiniApp__LaunchInNewTab"    : true,
+            "MiniApp__LaunchInNewWindow" : false
         }
     }
 }

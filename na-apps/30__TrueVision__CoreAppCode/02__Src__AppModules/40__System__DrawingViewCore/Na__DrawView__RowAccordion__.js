@@ -41,13 +41,25 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 42__System__DrawingViewCore/Na__DrawView__RowAccordion__.js 1.0.0
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment Phase B)
-// - Parity        : verbatim
-// - Divergences   : Console prefix and header only.
-// - Back-port     : n/a (this IS the back-port)
+// - Parity        : adapted (was verbatim until 20-Sep-2026)
+// - Divergences   : (1) Console prefix and header.
+//                   (2) THE OPEN ROW HOLDS A DRAFT (20-Sep-2026). A change guard is asked
+//                       before the slot moves, listeners hear when it has, and a header
+//                       click ASKS (RequestOpenId) where it used to set. Wrap takes a lead
+//                       and a trail element for the header and hands back the name element.
+//                       SetOpenId, IsOpen, GetOpenId and CloseIfOpen are unchanged, so
+//                       ValeVision's callers would run against this file as they are.
+// - Back-port     : (2) goes back with the Floor Plans and Elevations menu rebuild.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - TrueVision3D v2.86.0
+// - WIRED. This module was ported on 10-Sep and never imported: both panels
+//   kept every row unfolded. They fold now.
+// - A change guard, open listeners and RequestOpenId, for the draft each open
+//   row holds; header lead and trail elements.
+//
 // 10-Sep-2026 - TrueVision3D v2.21.14
 // - Initial implementation, after authoring a set with several elevations and
 //   several plans made it too easy to edit the parameters of a drawing other
@@ -90,6 +102,20 @@
     // ------------------------------------------------------------
     let Na__DrawFold__OpenId  = null;                                            // <-- Drawing id, or null for all folded
     let Na__DrawFold__Handles = [];                                              // <-- { id, root, head, body } per mounted row
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Who May Stop the Slot Moving, and Who Hears That It Has
+    // ------------------------------------------------------------
+    // TrueVision only - see the PORT NOTE. The open row holds a DRAFT of its
+    // drawing, so leaving it is a decision: the guard is asked first and may
+    // say no (the author chose to keep editing). Listeners hear every move of
+    // the slot, which is how the draft of the row just opened is begun.
+    // @delegate: ./Na__DrawView__DraftGuard__.js
+    // ------------------------------------------------------------
+    let   Na__DrawFold__ChangeGuard   = null;                                    // <-- async (nextId, currentId) => boolean
+    let   Na__DrawFold__Requesting    = false;                                   // <-- A guarded move is waiting on its answer
+    const Na__DrawFold__OpenListeners = [];                                      // <-- (openId, previousId) => void
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -155,8 +181,19 @@
     // what makes the rule reach across Floor Plans and Elevations together.
     // ------------------------------------------------------------
     function Na__DrawFold__SetOpenId(drawingId) {
+        const previousId = Na__DrawFold__OpenId;
         Na__DrawFold__OpenId = (drawingId === undefined) ? null : (drawingId || null);
         Na__DrawFold__Prune();
+
+        if (previousId !== Na__DrawFold__OpenId) {
+            for (let i = 0; i < Na__DrawFold__OpenListeners.length; i++) {
+                try {
+                    Na__DrawFold__OpenListeners[i](Na__DrawFold__OpenId, previousId);
+                } catch (listenerError) {
+                    console.warn('[TrueVision3D] Drawing row open listener failed:', listenerError);
+                }
+            }
+        }
 
         let opened = null;
         for (let i = 0; i < Na__DrawFold__Handles.length; i++) {
@@ -189,6 +226,59 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Name Who Is Asked Before the Slot Moves
+    // ------------------------------------------------------------
+    // guard(nextId, currentId) resolves true to let the move happen. One
+    // guard, because there is one slot. A non-function clears it.
+    // ------------------------------------------------------------
+    function Na__DrawFold__SetChangeGuard(guard) {
+        Na__DrawFold__ChangeGuard = (typeof guard === 'function') ? guard : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Hear Every Move of the Open Slot
+    // ------------------------------------------------------------
+    function Na__DrawFold__OnOpenChanged(listener) {
+        if (typeof listener === 'function' && Na__DrawFold__OpenListeners.indexOf(listener) === -1) {
+            Na__DrawFold__OpenListeners.push(listener);
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Ask to Move the Open Slot - the Guard May Refuse
+    // ------------------------------------------------------------
+    // What a click on a row header does, and what an editor calls when the
+    // author does something that would leave the open row behind (previews
+    // another drawing, adds one). Resolves true when the slot moved, or was
+    // already there. A second request while one is waiting on its answer is
+    // dropped: two dialogs for one click is a race, not a question.
+    // ------------------------------------------------------------
+    async function Na__DrawFold__RequestOpenId(drawingId) {
+        const nextId = (drawingId === undefined) ? null : (drawingId || null);
+        if (nextId === Na__DrawFold__OpenId) return true;
+        if (Na__DrawFold__Requesting) return false;
+
+        if (Na__DrawFold__ChangeGuard) {
+            Na__DrawFold__Requesting = true;
+            let allowed = false;
+            try {
+                allowed = (await Na__DrawFold__ChangeGuard(nextId, Na__DrawFold__OpenId)) === true;
+            } catch (guardError) {
+                console.warn('[TrueVision3D] Drawing row change guard failed; the row stays open.', guardError);
+            } finally {
+                Na__DrawFold__Requesting = false;
+            }
+            if (!allowed) return false;
+        }
+
+        Na__DrawFold__SetOpenId(nextId);
+        return true;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -199,7 +289,8 @@
     // FUNCTION | Fold a Built Row Card Behind a Named Header
     // ------------------------------------------------------------
     // card    : the row card the panel has just built, children and all
-    // options : { id, title }
+    // options : { id, title, lead, trail }  (lead and trail are elements put
+    //           either side of the name in the header - TrueVision only)
     //
     // The card's existing children move into a body element and the header
     // goes in above them, so the row builders stay unaware of any of this.
@@ -207,7 +298,7 @@
     // go into the returned body, or it would sit outside the fold and stay
     // visible while the row is closed.
     //
-    // Returns { root, head, body }.
+    // Returns { root, head, body, name }.
     // ------------------------------------------------------------
     function Na__DrawFold__Wrap(card, options) {
         const settings = options || {};
@@ -231,21 +322,24 @@
         head.className = Na__DrawFold__HEAD_CLASS;
         head.title     = 'Open this drawing on its own. Only one drawing is open at a time.';
         head.appendChild(arrow);
+        if (settings.lead instanceof Element)  head.appendChild(settings.lead);  // <-- The plane's colour swatch, so a FOLDED row still says which plane is its
         head.appendChild(name);
+        if (settings.trail instanceof Element) head.appendChild(settings.trail); // <-- State chips: section, previewing, not updated
 
         card.classList.add(Na__DrawFold__ROOT_CLASS);
         card.appendChild(head);
         card.appendChild(body);
 
-        const handle = { id: id, root: card, head: head, body: body };
+        const handle = { id: id, root: card, head: head, body: body, name: name };
         Na__DrawFold__Prune();
         Na__DrawFold__Handles.push(handle);
         Na__DrawFold__ApplyOne(handle);
 
         // A second click on the open row folds it, which is the only way to
-        // leave the panel with nothing unfolded.
+        // leave the panel with nothing unfolded. ASKED, not done: the open row
+        // may hold changes nobody has pressed Update on.
         head.addEventListener('click', () => {
-            Na__DrawFold__SetOpenId(Na__DrawFold__IsOpen(id) ? null : id);
+            void Na__DrawFold__RequestOpenId(Na__DrawFold__IsOpen(id) ? null : id);
         });
 
         return handle;
@@ -266,7 +360,10 @@
         Na__DrawFold__GetOpenId,
         Na__DrawFold__IsOpen,
         Na__DrawFold__SetOpenId,
-        Na__DrawFold__CloseIfOpen
+        Na__DrawFold__CloseIfOpen,
+        Na__DrawFold__SetChangeGuard,
+        Na__DrawFold__OnOpenChanged,
+        Na__DrawFold__RequestOpenId
     };
     // ------------------------------------------------------------
 

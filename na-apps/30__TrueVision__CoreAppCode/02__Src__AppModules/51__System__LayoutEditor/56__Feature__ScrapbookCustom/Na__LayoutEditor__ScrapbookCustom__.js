@@ -41,8 +41,9 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported. Needs ItemClipboard 1.3.0 (leaders and
-//                   dimensions in a set) and the Parametric Scrapbook.
+// - ValeVision    : 1.0.0 ported 20-Sep-2026 as ValeVision3D v2.69.0, verbatim but for one
+//                   string. The item document is the same in both apps: a file copied from
+//                   one library folder to the other drops in either.
 //
 // -----------------------------------------------------------------------------
 //

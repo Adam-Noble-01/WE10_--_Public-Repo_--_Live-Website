@@ -12,7 +12,12 @@
 // DESCRIPTION:
 // - Purely presentational. Every action is handed back to the editor through
 //   the handlers object, so this module holds no state, saves nothing and
-//   knows nothing about R2 or the section cut engine.
+//   knows nothing about R2, drafts or the section cut engine.
+// - A ROW READS TOP TO BOTTOM AS: WHAT IT IS, WHERE IT IS, WHAT TO DO - the
+//   same order the Elevations row reads in. Its name and storey; its plane in
+//   the 3D view, its floor level, its cut and its depth; then Preview and
+//   Annotate to look, Update and Revert to keep or throw away. Delete is not
+//   here: it sits below a rule the editor draws at the foot of the row.
 // - The datum slider shows BOTH the floor level and the resulting cut height
 //   in one readout. Those are two different numbers and confusing them is the
 //   easiest way to author a plan that slices the wrong part of the building,
@@ -20,16 +25,24 @@
 // - Dragging the slider fires the live handler on every input event and the
 //   commit handler once on release, which is what lets the editor recut
 //   cheaply while dragging and exactly on drop.
-// - Reuses the existing na-pm-dev and na-dropdown-menu classes so the panel
-//   matches every other Dev menu section without new styling.
 //
 // INTEGRATION:
-// - Na__FloorPlan__DevMenu__Editor__ supplies the handlers and appends the
-//   returned elements into the Dev menu panel.
+// - Na__FloorPlan__DevMenu__Editor__ supplies the handlers and folds the
+//   returned row behind its header.
+// // @delegate: ../40__System__DrawingViewCore/Na__DrawView__DevRowShell__.js
+// // @delegate: ./Na__FloorPlan__DevMenu__StoreyRow__.js
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 2.0.0 (Floor Plans and Elevations menu rebuild)
+// - Save Thumbnail and Delete left the action row. Actions are Preview,
+//   Annotate, a green Update and Revert, from the shared row shell.
+// - The name is handed to the editor as typed (it is part of the row's draft
+//   now) instead of being written to the record here.
+// - The plane controls, the storey row and the card status are placed here,
+//   so the row has one reading order; captions over each group of controls.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder. Split out of the dev
 //   editor so both files stay inside the house 600-line limit.
@@ -52,6 +65,23 @@
         Na__FpCfg__GetLabel
     } from './Na__FloorPlan__ConfigState__.js';
     import { Na__FpData__GetCutHeightMm } from './Na__FloorPlan__ProjectJson__Data__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Storey Dropdown (its own module, another author's)
+    // ------------------------------------------------------------
+    import {
+        Na__FpStoreyRow__Build,
+        Na__FpStoreyRow__Refresh
+    } from './Na__FloorPlan__DevMenu__StoreyRow__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Parts Every Drawing Row Is Made Of
+    // ------------------------------------------------------------
+    import {
+        Na__DrawShell__Button,
+        Na__DrawShell__Caption,
+        Na__DrawShell__BuildCommitActions
+    } from '../40__System__DrawingViewCore/Na__DrawView__DevRowShell__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -81,12 +111,7 @@
     // FUNCTION | Build a Dev Menu Button
     // ------------------------------------------------------------
     function Na__FpRow__BuildButton(text, modifierClass, onClick) {
-        const button = document.createElement('button');
-        button.type        = 'button';
-        button.className   = 'na-pm-dev__btn' + (modifierClass ? ' ' + modifierClass : '');
-        button.textContent = text;
-        button.addEventListener('click', onClick);
-        return button;
+        return Na__DrawShell__Button(text, modifierClass, '', onClick);
     }
     // ------------------------------------------------------------
 
@@ -184,63 +209,29 @@
 
     // HELPER FUNCTION | Build the Name Field
     // ------------------------------------------------------------
-    function Na__FpRow__BuildNameField(plan, onRename) {
+    // The typed name goes to the editor, which holds it in the row's draft. An
+    // emptied box is put back: a plan never loses its name.
+    // Returns { input, refresh }.
+    // ------------------------------------------------------------
+    function Na__FpRow__BuildNameField(plan, onNameTyped) {
         const input = document.createElement('input');
-        input.type      = 'text';
-        input.className = 'na-pm-dev__input na-fp-dev__name';
-        input.value     = plan.FloorPlan__Name;
-        input.title     = 'Also the label on the carousel card';
+        input.type         = 'text';
+        input.className    = 'na-pm-dev__input na-fp-dev__name';
+        input.spellcheck   = false;
+        input.autocomplete = 'off';
+        input.value        = plan.FloorPlan__Name;
+        input.title        = 'Also the label on its carousel card, and the words a drawing title reads.';
         input.addEventListener('change', () => {
             const next = input.value.trim();
             if (next.length === 0) {
                 input.value = plan.FloorPlan__Name;                              // <-- Never let a plan lose its name
                 return;
             }
-            plan.FloorPlan__Name = next;
-            onRename();
+            onNameTyped(next);
         });
-        return input;
-    }
-    // ------------------------------------------------------------
 
-
-    // HELPER FUNCTION | Build the Preview / Annotate / Delete Actions
-    // ------------------------------------------------------------
-    function Na__FpRow__BuildActions(handlers) {
-        const actions = document.createElement('div');
-        actions.className = 'na-pm-dev__actions';
-
-        actions.appendChild(Na__FpRow__BuildButton(
-            handlers.isActive
-                ? Na__FpCfg__GetLabel('ExitPreviewLabel', 'Exit Preview')
-                : Na__FpCfg__GetLabel('PreviewLabel', 'Preview'),
-            'na-pm-dev__btn--primary',
-            handlers.onPreviewToggle
-        ));
-
-        const annotateBtn = Na__FpRow__BuildButton(
-            Na__FpCfg__GetLabel('AnnotateLabel', 'Annotate'), '', handlers.onAnnotate
-        );
-        annotateBtn.disabled = !handlers.isActive;                               // <-- Nothing to annotate until it is on screen
-        if (handlers.isEditMode) annotateBtn.classList.add('na-pm-dev__btn--primary');
-        actions.appendChild(annotateBtn);
-
-        // THUMBNAIL | Only while the plan is on screen, because the capture is
-        // of the viewport: pressing it from 3D would file a picture of the
-        // model as the plan's card, which is exactly the bug it exists to fix.
-        const thumbBtn = Na__FpRow__BuildButton(
-            Na__FpCfg__GetLabel('ThumbnailLabel', 'Save Thumbnail'), '', handlers.onThumbnail
-        );
-        thumbBtn.disabled = !handlers.isActive;
-        thumbBtn.title    = handlers.isActive
-            ? 'Captures the plan as it is framed right now.'
-            : 'Preview the plan first - the thumbnail is a capture of the viewport.';
-        actions.appendChild(thumbBtn);
-
-        actions.appendChild(Na__FpRow__BuildButton(
-            'Delete', 'na-pm-dev__btn--danger', handlers.onDelete
-        ));
-        return actions;
+        const refresh = () => { if (document.activeElement !== input) input.value = plan.FloorPlan__Name; };
+        return { input, refresh };
     }
     // ------------------------------------------------------------
 
@@ -249,10 +240,14 @@
     // ------------------------------------------------------------
     // handlers: {
     //   isActive, isEditMode,
-    //   onRename, onDatumLive, onDatumCommit,
-    //   onOffsetChange, onDepthChange,
-    //   onPreviewToggle, onAnnotate, onThumbnail, onDelete
+    //   planeControls - element | null : Show plane / Move to face
+    //   sceneLinkRow  - element | null : the carousel card's status
+    //   onNameTyped(text), onStoreyChange(key),
+    //   onDatumLive, onDatumCommit, onOffsetChange, onDepthChange,
+    //   onPreviewToggle, onAnnotate, onUpdate, onRevert
     // }
+    // Returns { row, refreshDraft(state), refreshIdentity() }. The editor
+    // folds `row` behind a header and adds the danger zone beneath it.
     // ------------------------------------------------------------
     function Na__FpRow__BuildPlanRow(plan, handlers) {
         const cutOffset = Na__FpCfg__GetCutOffsetMm();
@@ -260,15 +255,27 @@
         const rowRoot = document.createElement('div');
         rowRoot.className = 'na-fp-dev__row' + (handlers.isActive ? ' na-fp-dev__row--active' : '');
 
-        rowRoot.appendChild(Na__FpRow__BuildNameField(plan, handlers.onRename));
+        // WHAT IT IS | Its name, and which storey of the building it is a plan of
+        const name = Na__FpRow__BuildNameField(plan, handlers.onNameTyped);
+        rowRoot.appendChild(name.input);
+
+        const storeyRow = Na__FpStoreyRow__Build(plan, handlers.onStoreyChange);
+        rowRoot.appendChild(storeyRow);
+        const refreshStorey = () => Na__FpStoreyRow__Refresh(storeyRow);         // <-- Until a storey is chosen it is GUESSED from the cut, so it follows the cut
+
+        // WHERE IT IS | The cut's plane in the 3D view
+        if (handlers.planeControls) {
+            rowRoot.appendChild(Na__DrawShell__Caption(Na__FpCfg__GetLabel('PlaneControlsCaption', 'Cut plane in the 3D view')));
+            rowRoot.appendChild(handlers.planeControls);
+        }
 
         // FLOOR LEVEL | The datum the author actually thinks in
-        const datumCaption = document.createElement('div');
-        datumCaption.className   = 'na-dropdown-menu__panel-title';
-        datumCaption.textContent = Na__FpCfg__GetLabel('DatumFieldLabel', 'Floor level');
-        rowRoot.appendChild(datumCaption);
-
-        const datum = Na__FpRow__BuildDatumSlider(plan, handlers.onDatumLive, handlers.onDatumCommit);
+        rowRoot.appendChild(Na__DrawShell__Caption(Na__FpCfg__GetLabel('DatumFieldLabel', 'Floor level')));
+        const datum = Na__FpRow__BuildDatumSlider(
+            plan,
+            () => { handlers.onDatumLive(); },
+            () => { refreshStorey(); handlers.onDatumCommit(); }
+        );
         rowRoot.appendChild(datum.wrapper);
 
         // CUT ABOVE FLOOR | Standard architectural cut height
@@ -280,6 +287,7 @@
                 if (!Number.isFinite(value)) return;
                 plan.FloorPlan__CutOffsetMm = value;
                 datum.refreshReadout();                                          // <-- Cut height moved, datum did not
+                refreshStorey();
                 handlers.onOffsetChange();
             }
         ).row);
@@ -298,8 +306,30 @@
             }
         ).row);
 
-        rowRoot.appendChild(Na__FpRow__BuildActions(handlers));
-        return rowRoot;
+        // WHAT TO DO | Look, then keep or throw away
+        const actions = Na__DrawShell__BuildCommitActions({
+            isActive         : handlers.isActive,
+            isEditMode       : handlers.isEditMode,
+            drawingWord      : 'floor plan',
+            previewLabel     : Na__FpCfg__GetLabel('PreviewLabel', 'Preview'),
+            exitPreviewLabel : Na__FpCfg__GetLabel('ExitPreviewLabel', 'Exit Preview'),
+            annotateLabel    : Na__FpCfg__GetLabel('AnnotateLabel', 'Annotate'),
+            updateLabel      : Na__FpCfg__GetLabel('UpdateLabel', 'Update Floor Plan'),
+            revertLabel      : Na__FpCfg__GetLabel('RevertLabel', 'Revert'),
+            onPreviewToggle  : handlers.onPreviewToggle,
+            onAnnotate       : handlers.onAnnotate,
+            onUpdate         : handlers.onUpdate,
+            onRevert         : handlers.onRevert
+        });
+        rowRoot.appendChild(actions.element);
+
+        if (handlers.sceneLinkRow) rowRoot.appendChild(handlers.sceneLinkRow);
+
+        return {
+            row             : rowRoot,
+            refreshDraft    : actions.refresh,
+            refreshIdentity : () => { name.refresh(); refreshStorey(); }
+        };
     }
     // ------------------------------------------------------------
 

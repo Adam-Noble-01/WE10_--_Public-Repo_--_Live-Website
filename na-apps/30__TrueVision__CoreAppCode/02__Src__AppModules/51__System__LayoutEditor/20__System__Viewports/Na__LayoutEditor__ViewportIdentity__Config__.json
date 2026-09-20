@@ -4,10 +4,11 @@
         "Meta__Version": 1
     },
     "LayoutEditor__ViewportIdentity__Words": {
-        "Words__Description": "The words a drawing's name is made of. The house pattern is qualifier then subject - 'Existing East Elevation' - and a parametric title writes it in capitals by its own setting. The two placeholders are shown in double braces, {{Direction}}, where a fact is still missing: Direction until north has been set in the 3D model (Dev Tools, North Direction), Drawing on a title that is tied to no viewport.",
+        "Words__Description": "The words a drawing's name is made of. The house pattern is qualifier then subject - 'Existing East Elevation' - and a parametric title writes it in capitals by its own setting. The two placeholders are shown in double braces, {{Direction}}, where a fact is still missing: Direction until north has been set in the 3D model (Dev Tools, North Direction), Drawing on a title that is tied to no viewport. GenericPlan is not written anywhere: it lists the words that only say 'this is a plan'. A floor plan's title is its building storey - 'Ground Floor Plan', chosen per plan in Dev Tools, Floor Plans - and a name typed on the viewport replaces that only when it says something more. 'Proposed Floor Plan' says nothing more, whichever storey the plan is, so these words are left out of the comparison; 'Coach House Floor Plan' does, and is lettered as typed.",
         "Words__Existing": "Existing",
         "Words__Proposed": "Proposed",
         "Words__Elevation": "Elevation",
+        "Words__GenericPlan": "Floor Plan",
         "Words__PlaceholderDirection": "Direction",
         "Words__PlaceholderDrawing": "Drawing"
     },

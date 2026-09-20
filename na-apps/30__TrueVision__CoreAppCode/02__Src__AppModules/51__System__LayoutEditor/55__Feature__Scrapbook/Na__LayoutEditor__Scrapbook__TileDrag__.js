@@ -35,7 +35,7 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported; see Na__LayoutEditor__Scrapbook__.
+// - ValeVision    : ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
 //
 // -----------------------------------------------------------------------------
 //

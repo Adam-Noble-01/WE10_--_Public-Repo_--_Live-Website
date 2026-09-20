@@ -307,6 +307,16 @@
         if (patch.snapshotAsset !== undefined) viewport.Viewport__SnapshotAsset = patch.snapshotAsset;
         if (patch.modelSourceId !== undefined) viewport.Viewport__ModelSourceId = patch.modelSourceId || null;   // <-- The design phase drawn; empty is the Project Default
 
+        // SITE PLAN STORE | Which site plan a site plan viewport draws, Existing
+        // or Proposed. Merged rather than replaced, so the block keeps whatever
+        // else it holds; an empty id clears it back to the project's default,
+        // and the normaliser drops the key entirely when it is not a real id.
+        if (patch.sitePlanStoreId !== undefined && Na__LeRec__IsSitePlanViewport(viewport)) {
+            viewport.Viewport__SitePlan = Object.assign({}, viewport.Viewport__SitePlan, {
+                SitePlan__StoreId : patch.sitePlanStoreId || ''
+            });
+        }
+
         Na__LeRec__NormaliseViewport(viewport, viewport.Viewport__LayerId);
         if (silent) { Na__LeModel__AssignDirty(true); return true; }
         Na__LeModel__Touch('viewport', sheet.Sheet__Id, viewportId);

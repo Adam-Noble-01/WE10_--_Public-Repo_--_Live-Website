@@ -29,6 +29,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - ViewLevel: a title tied to a floor plan letters its storey, a title saved
+//   before there was one reads as it did, and a change of scale keeps it.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Written with the drawing title.
 //
@@ -124,6 +128,12 @@ import { tmpdir } from 'node:os';
     check('tied to nothing: {{DRAWING}}', texts(build({}))[0].Annotation__Text === '{{DRAWING}}');
     check('a plan takes its drawing\'s name', texts(build({ ViewKind : 'plan', ViewPhase : 'existing', ViewDrawing : 'Ground Floor Plan' }))[0].Annotation__Text === 'EXISTING GROUND FLOOR PLAN');
     check('a typed viewport name is the subject', texts(build({ ViewKind : 'elevation', ViewPhase : 'proposed', ViewFacing : 'East', ViewName : 'Front Elevation' }))[0].Annotation__Text === 'PROPOSED FRONT ELEVATION');
+    const D21 = { ViewKind : 'plan', ViewPhase : 'proposed', ViewLevel : 'Ground Floor Plan', ViewName : 'Proposed Floor Plan', ViewDrawing : 'Floor Plan 1' };
+    check('PS02 D21: a plan with a storey letters it, over the viewport\'s typed "Proposed Floor Plan"', texts(build(D21))[0].Annotation__Text === 'PROPOSED GROUND FLOOR PLAN', texts(build(D21))[0].Annotation__Text);
+    check('PS02 D21: and says the subject came from the storey', build(D21).title.source === 'level' && build(D21).title.resolved === true, build(D21).title);
+    check('a title saved before there was a ViewLevel reads exactly as it did', texts(build({ ViewKind : 'plan', ViewPhase : 'proposed', ViewName : 'Proposed Floor Plan', ViewDrawing : 'Floor Plan 1' }))[0].Annotation__Text === 'PROPOSED FLOOR PLAN');
+    check('a roof plan letters ROOF PLAN', texts(build({ ViewKind : 'plan', ViewPhase : 'existing', ViewLevel : 'Roof Plan', ViewDrawing : 'Roof Plan' }))[0].Annotation__Text === 'EXISTING ROOF PLAN');
+    check('a storey is made whole like any fact: one line, trimmed, text only', title.Na__LeParamTitle__Normalise(config, barCfg, { ViewLevel : '  First\n Floor  Plan ' }).ViewLevel === 'First Floor Plan' && title.Na__LeParamTitle__Normalise(config, barCfg, { ViewLevel : 7 }).ViewLevel === '');
     check('a typed title replaces it all, as typed', texts(build(Object.assign({ TitleText : '  Street   scene ' }, EAST)))[0].Annotation__Text === 'Street scene');
     check('capitals off, qualifier off', texts(build(Object.assign({ Uppercase : false, PhaseMode : 'none' }, EAST)))[0].Annotation__Text === 'East Elevation');
     check('the same parameters build the same records, byte for byte', JSON.stringify(build(Object.assign({ ScaleDenominator : 100 }, EAST))) === JSON.stringify(build(Object.assign({ ScaleDenominator : 100 }, EAST))));
@@ -156,7 +166,8 @@ import { tmpdir } from 'node:os';
 
     // THE TYPE | What the engine, the link module and the panel are told
     const type = title.Na__LeParamTitle__CreateType(() => config, () => barCfg, () => null);
-    check('the type names the facts the link module fills', type.type === 'DrawingTitle' && type.facts.join() === 'ViewKind,ViewPhase,ViewFacing,ViewName,ViewDrawing');
+    check('the type names the facts the link module fills', type.type === 'DrawingTitle' && type.facts.join() === 'ViewKind,ViewPhase,ViewFacing,ViewLevel,ViewName,ViewDrawing');
+    check('the standard title starts with no storey, and a stretch keeps the one it has', hundred.ViewLevel === '' && title.Na__LeParamTitle__StretchTo(config, barCfg, Object.assign({ ScaleDenominator : 50, ShowScaleBar : true }, D21), 139).ViewLevel === 'Ground Floor Plan');
     check('a change of scale keeps every fact and every choice', type.facts.concat([ 'ShowScaleBar', 'PhaseMode', 'TitleText', 'Uppercase', 'UnderlineMm' ]).every((key) => type.keep.indexOf(key) !== -1));
     check('the type says whether an element has a bar', type.hasBar({ ShowScaleBar : true }) === true && type.hasBar({ ShowScaleBar : false }) === false);
     check('the type says what a title reads, for the panel', type.titleText(EAST).text === 'EXISTING EAST ELEVATION' && type.titleText({ ViewKind : 'elevation' }).missing.join() === 'direction');

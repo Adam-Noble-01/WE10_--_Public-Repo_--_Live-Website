@@ -278,7 +278,7 @@
                         "Camera__DefaultPos__PosZ": 5366
                     },
                     "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -0.0236,
+                        "Camera__DefaultRotation__RotX": -0.0235,
                         "Camera__DefaultRotation__RotY": 0.2752,
                         "Camera__DefaultRotation__RotZ": 0.0064
                     },
@@ -298,15 +298,16 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
                         "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DashedLines": true
                     }
                 },
                 "PresentationMode__Scene__Order": 1,
@@ -321,14 +322,14 @@
                 "PresentationMode__Scene__GroupId": "Group_001",
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 10339,
-                        "Camera__DefaultPos__PosY": 1908,
-                        "Camera__DefaultPos__PosZ": 4075
+                        "Camera__DefaultPos__PosX": 10002,
+                        "Camera__DefaultPos__PosY": 1540,
+                        "Camera__DefaultPos__PosZ": 1285
                     },
                     "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -0.0533,
-                        "Camera__DefaultRotation__RotY": -0.4137,
-                        "Camera__DefaultRotation__RotZ": -0.0215
+                        "Camera__DefaultRotation__RotX": -0.0101,
+                        "Camera__DefaultRotation__RotY": -0.3527,
+                        "Camera__DefaultRotation__RotZ": -0.0035
                     },
                     "Camera__DefaultMisc": {
                         "Camera__DefaultMisc__Fov": 45
@@ -336,9 +337,9 @@
                 },
                 "PresentationMode__Scene__OrbitHelperCubePosition": {
                     "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 15075,
-                    "OrbitHelperCube__Position__PosY": 1333,
-                    "OrbitHelperCube__Position__PosZ": -6699
+                    "OrbitHelperCube__Position__PosX": 13307,
+                    "OrbitHelperCube__Position__PosY": 1449,
+                    "OrbitHelperCube__Position__PosZ": -7690
                 },
                 "PresentationMode__Scene__LensMm": 29,
                 "PresentationMode__Scene__Visibility": {
@@ -346,15 +347,16 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
                         "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DashedLines": true
                     }
                 },
                 "PresentationMode__Scene__Order": 2
@@ -393,66 +395,19 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
                         "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DashedLines": true
                     }
                 },
                 "PresentationMode__Scene__Order": 3
-            },
-            {
-                "PresentationMode__Scene__Id": "Scene_004",
-                "PresentationMode__Scene__Name": "Front",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_004.webp",
-                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
-                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
-                "PresentationMode__Scene__GroupId": "Group_002",
-                "PresentationMode__Scene__CameraPosition": {
-                    "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 14268,
-                        "Camera__DefaultPos__PosY": 1477,
-                        "Camera__DefaultPos__PosZ": 1516
-                    },
-                    "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -0.0132,
-                        "Camera__DefaultRotation__RotY": 0.0444,
-                        "Camera__DefaultRotation__RotZ": 0.0006
-                    },
-                    "Camera__DefaultMisc": {
-                        "Camera__DefaultMisc__Fov": 55
-                    }
-                },
-                "PresentationMode__Scene__OrbitHelperCubePosition": {
-                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 13400,
-                    "OrbitHelperCube__Position__PosY": 1407,
-                    "OrbitHelperCube__Position__PosZ": -5849
-                },
-                "PresentationMode__Scene__LensMm": 23,
-                "PresentationMode__Scene__Visibility": {
-                    "PresentationMode__Scene__Visibility__Categories": {
-                        "TrueVision__MainBuildingModel__ExistingWalls": true,
-                        "TrueVision__MainBuildingModel__ExistingRoofs": true,
-                        "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
-                        "TrueVision__MainBuildingModel__ProposedWalls": true,
-                        "TrueVision__MainBuildingModel__ProposedFloors": true,
-                        "TrueVision__MainBuildingModel__ProposedRoofs": true,
-                        "TrueVision__MainBuildingModel__ProposedDoors": true,
-                        "TrueVision__MainBuildingModel__ProposedFixtures": true,
-                        "TrueVision__MainBuildingModel__ProposedFurniture": true,
-                        "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
-                    }
-                },
-                "PresentationMode__Scene__NavigationMode": "fly",
-                "PresentationMode__Scene__Order": 1
             },
             {
                 "PresentationMode__Scene__Id": "Scene_005",
@@ -470,7 +425,7 @@
                     "Camera__DefaultRotation": {
                         "Camera__DefaultRotation__RotX": -3.1022,
                         "Camera__DefaultRotation__RotY": -0.7952,
-                        "Camera__DefaultRotation__RotZ": -3.1134
+                        "Camera__DefaultRotation__RotZ": -3.1135
                     },
                     "Camera__DefaultMisc": {
                         "Camera__DefaultMisc__Fov": 55
@@ -478,9 +433,9 @@
                 },
                 "PresentationMode__Scene__OrbitHelperCubePosition": {
                     "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 13400,
-                    "OrbitHelperCube__Position__PosY": 1407,
-                    "OrbitHelperCube__Position__PosZ": -5849
+                    "OrbitHelperCube__Position__PosX": 14645,
+                    "OrbitHelperCube__Position__PosY": 1393,
+                    "OrbitHelperCube__Position__PosZ": -10560
                 },
                 "PresentationMode__Scene__LensMm": 23,
                 "PresentationMode__Scene__Visibility": {
@@ -488,15 +443,65 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
                         "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DashedLines": true
+                    }
+                },
+                "PresentationMode__Scene__NavigationMode": "fly",
+                "PresentationMode__Scene__Order": 1
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_012",
+                "PresentationMode__Scene__Name": "Dining Area",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_012.webp",
+                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
+                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
+                "PresentationMode__Scene__GroupId": "Group_002",
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 11187,
+                        "Camera__DefaultPos__PosY": 1245,
+                        "Camera__DefaultPos__PosZ": -10890
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -3.126,
+                        "Camera__DefaultRotation__RotY": -0.9053,
+                        "Camera__DefaultRotation__RotZ": -3.1293
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 55
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 15120,
+                    "OrbitHelperCube__Position__PosY": 1197,
+                    "OrbitHelperCube__Position__PosZ": -7803
+                },
+                "PresentationMode__Scene__LensMm": 23,
+                "PresentationMode__Scene__Visibility": {
+                    "PresentationMode__Scene__Visibility__Categories": {
+                        "TrueVision__MainBuildingModel__ExistingWalls": true,
+                        "TrueVision__MainBuildingModel__ExistingRoofs": true,
+                        "TrueVision__MainBuildingModel__ExistingWindows": true,
+                        "TrueVision__MainBuildingModel__ProposedWalls": true,
+                        "TrueVision__MainBuildingModel__ProposedFloors": true,
+                        "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
+                        "TrueVision__MainBuildingModel__ProposedDoors": true,
+                        "TrueVision__MainBuildingModel__ProposedFixtures": true,
+                        "TrueVision__MainBuildingModel__ProposedFurniture": true,
+                        "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DashedLines": true
                     }
                 },
                 "PresentationMode__Scene__NavigationMode": "fly",
@@ -511,9 +516,9 @@
                 "PresentationMode__Scene__GroupId": "Group_002",
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 17534,
-                        "Camera__DefaultPos__PosY": 1515,
-                        "Camera__DefaultPos__PosZ": -6764
+                        "Camera__DefaultPos__PosX": 17522,
+                        "Camera__DefaultPos__PosY": 1517,
+                        "Camera__DefaultPos__PosZ": -7026
                     },
                     "Camera__DefaultRotation": {
                         "Camera__DefaultRotation__RotX": 0.0066,
@@ -526,9 +531,9 @@
                 },
                 "PresentationMode__Scene__OrbitHelperCubePosition": {
                     "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 13400,
-                    "OrbitHelperCube__Position__PosY": 1407,
-                    "OrbitHelperCube__Position__PosZ": -5849
+                    "OrbitHelperCube__Position__PosX": 17303,
+                    "OrbitHelperCube__Position__PosY": 1548,
+                    "OrbitHelperCube__Position__PosZ": -11759
                 },
                 "PresentationMode__Scene__LensMm": 23,
                 "PresentationMode__Scene__Visibility": {
@@ -536,15 +541,16 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
                         "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DashedLines": true
                     }
                 },
                 "PresentationMode__Scene__NavigationMode": "fly",
@@ -559,9 +565,9 @@
                 "PresentationMode__Scene__GroupId": "Group_002",
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 17828,
-                        "Camera__DefaultPos__PosY": 1349,
-                        "Camera__DefaultPos__PosZ": -14833
+                        "Camera__DefaultPos__PosX": 17598,
+                        "Camera__DefaultPos__PosY": 1351,
+                        "Camera__DefaultPos__PosZ": -14564
                     },
                     "Camera__DefaultRotation": {
                         "Camera__DefaultRotation__RotX": 3.135,
@@ -574,9 +580,9 @@
                 },
                 "PresentationMode__Scene__OrbitHelperCubePosition": {
                     "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 13400,
-                    "OrbitHelperCube__Position__PosY": 1407,
-                    "OrbitHelperCube__Position__PosZ": -5849
+                    "OrbitHelperCube__Position__PosX": 18215,
+                    "OrbitHelperCube__Position__PosY": 1382,
+                    "OrbitHelperCube__Position__PosZ": -9848
                 },
                 "PresentationMode__Scene__LensMm": 23,
                 "PresentationMode__Scene__Visibility": {
@@ -584,67 +590,20 @@
                         "TrueVision__MainBuildingModel__ExistingWalls": true,
                         "TrueVision__MainBuildingModel__ExistingRoofs": true,
                         "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedWalls": true,
                         "TrueVision__MainBuildingModel__ProposedFloors": true,
                         "TrueVision__MainBuildingModel__ProposedRoofs": true,
+                        "TrueVision__MainBuildingModel__ProposedWindows": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__MainBuildingModel__ProposedFixtures": true,
                         "TrueVision__MainBuildingModel__ProposedFurniture": true,
                         "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
+                        "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DashedLines": true
                     }
                 },
                 "PresentationMode__Scene__NavigationMode": "fly",
                 "PresentationMode__Scene__Order": 4
-            },
-            {
-                "PresentationMode__Scene__Id": "Scene_010",
-                "PresentationMode__Scene__Name": "Ensuite",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_010.webp",
-                "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
-                "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
-                "PresentationMode__Scene__GroupId": "Group_002",
-                "PresentationMode__Scene__CameraPosition": {
-                    "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 18226,
-                        "Camera__DefaultPos__PosY": 1283,
-                        "Camera__DefaultPos__PosZ": -8976
-                    },
-                    "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": 3.135,
-                        "Camera__DefaultRotation__RotY": -1.098,
-                        "Camera__DefaultRotation__RotZ": 3.1357
-                    },
-                    "Camera__DefaultMisc": {
-                        "Camera__DefaultMisc__Fov": 66.3
-                    }
-                },
-                "PresentationMode__Scene__OrbitHelperCubePosition": {
-                    "OrbitHelperCube__Position__Description": "Scene orbit target position. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 17303,
-                    "OrbitHelperCube__Position__PosY": 1548,
-                    "OrbitHelperCube__Position__PosZ": -11759
-                },
-                "PresentationMode__Scene__LensMm": 18,
-                "PresentationMode__Scene__Visibility": {
-                    "PresentationMode__Scene__Visibility__Categories": {
-                        "TrueVision__MainBuildingModel__ExistingWalls": true,
-                        "TrueVision__MainBuildingModel__ExistingRoofs": true,
-                        "TrueVision__MainBuildingModel__ExistingWindows": true,
-                        "TrueVision__MainBuildingModel__ExistingFixtures": true,
-                        "TrueVision__MainBuildingModel__ProposedWalls": true,
-                        "TrueVision__MainBuildingModel__ProposedFloors": true,
-                        "TrueVision__MainBuildingModel__ProposedRoofs": true,
-                        "TrueVision__MainBuildingModel__ProposedDoors": true,
-                        "TrueVision__MainBuildingModel__ProposedFixtures": true,
-                        "TrueVision__MainBuildingModel__ProposedFurniture": true,
-                        "TrueVision__MainBuildingModel__ProposedInteriorDecor": true,
-                        "TrueVision__LandscapeEnvironment": true
-                    }
-                },
-                "PresentationMode__Scene__NavigationMode": "fly",
-                "PresentationMode__Scene__Order": 5
             },
             {
                 "PresentationMode__Scene__Id": "Scene_011",
@@ -674,6 +633,35 @@
                 "PresentationMode__Scene__GroupId": "Group_004",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_011.webp",
                 "PresentationMode__Scene__FloorPlanId": "FloorPlan_001"
+            },
+            {
+                "PresentationMode__Scene__Id": "Scene_016",
+                "PresentationMode__Scene__Name": "Roof Plan",
+                "PresentationMode__Scene__Order": 2,
+                "PresentationMode__Scene__CameraPosition": {
+                    "Camera__DefaultPos": {
+                        "Camera__DefaultPos__PosX": 20000,
+                        "Camera__DefaultPos__PosY": 107397,
+                        "Camera__DefaultPos__PosZ": -20000
+                    },
+                    "Camera__DefaultRotation": {
+                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
+                        "Camera__DefaultRotation__RotY": 0,
+                        "Camera__DefaultRotation__RotZ": 0
+                    },
+                    "Camera__DefaultMisc": {
+                        "Camera__DefaultMisc__Fov": 45
+                    }
+                },
+                "PresentationMode__Scene__OrbitHelperCubePosition": {
+                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
+                    "OrbitHelperCube__Position__PosX": 20000,
+                    "OrbitHelperCube__Position__PosY": 6000,
+                    "OrbitHelperCube__Position__PosZ": -20000
+                },
+                "PresentationMode__Scene__GroupId": "Group_004",
+                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_016.webp",
+                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002"
             },
             {
                 "PresentationMode__Scene__Id": "Scene_013",
@@ -761,35 +749,6 @@
                 "PresentationMode__Scene__GroupId": "Group_005",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_015.webp",
                 "PresentationMode__Scene__ElevationId": "Elevation_004"
-            },
-            {
-                "PresentationMode__Scene__Id": "Scene_016",
-                "PresentationMode__Scene__Name": "Roof Plan",
-                "PresentationMode__Scene__Order": 2,
-                "PresentationMode__Scene__CameraPosition": {
-                    "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 20000,
-                        "Camera__DefaultPos__PosY": 107397,
-                        "Camera__DefaultPos__PosZ": -20000
-                    },
-                    "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -1.5707963267948966,
-                        "Camera__DefaultRotation__RotY": 0,
-                        "Camera__DefaultRotation__RotZ": 0
-                    },
-                    "Camera__DefaultMisc": {
-                        "Camera__DefaultMisc__Fov": 45
-                    }
-                },
-                "PresentationMode__Scene__OrbitHelperCubePosition": {
-                    "OrbitHelperCube__Position__Description": "Floor plan cut centre. Values are integer millimetres; convert to 3D units in code.",
-                    "OrbitHelperCube__Position__PosX": 20000,
-                    "OrbitHelperCube__Position__PosY": 6000,
-                    "OrbitHelperCube__Position__PosZ": -20000
-                },
-                "PresentationMode__Scene__GroupId": "Group_004",
-                "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_016.webp",
-                "PresentationMode__Scene__FloorPlanId": "FloorPlan_002"
             }
         ]
     },
@@ -946,7 +905,7 @@
         "LayoutEditor__DrawingsData__Sheets": [
             {
                 "Sheet__Id": "Sheet_002",
-                "Sheet__Name": "D21 - Floor Plans",
+                "Sheet__Name": "Floor Plans",
                 "Sheet__Order": 1,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
@@ -4259,7 +4218,7 @@
             },
             {
                 "Sheet__Id": "Sheet_001",
-                "Sheet__Name": "D22 - Elevations",
+                "Sheet__Name": "Elevations",
                 "Sheet__Order": 2,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
@@ -9340,7 +9299,7 @@
             },
             {
                 "Sheet__Id": "Sheet_003",
-                "Sheet__Name": "D23 - 3D Images",
+                "Sheet__Name": "3D Images",
                 "Sheet__Order": 3,
                 "Sheet__PaperSize": "A3",
                 "Sheet__Orientation": "landscape",
@@ -9427,13 +9386,15 @@
                             "contextLayer": true
                         },
                         "Viewport__ProjectedEdges": null,
-                        "Viewport__CompositeWeights": null,
+                        "Viewport__CompositeWeights": {
+                            "baseImage": 2
+                        },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__dga3vc.webp",
-                            "Asset__Fingerprint": "dga3vc",
-                            "Asset__PixelWidth": 2837,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__iz0d.webp",
+                            "Asset__Fingerprint": "iz0d",
+                            "Asset__PixelWidth": 4680,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -9478,13 +9439,15 @@
                             "contextLayer": true
                         },
                         "Viewport__ProjectedEdges": null,
-                        "Viewport__CompositeWeights": null,
+                        "Viewport__CompositeWeights": {
+                            "baseImage": 2
+                        },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__pp9qtg.webp",
-                            "Asset__Fingerprint": "pp9qtg",
-                            "Asset__PixelWidth": 3063,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__1kc1kix.webp",
+                            "Asset__Fingerprint": "1kc1kix",
+                            "Asset__PixelWidth": 5053,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -9515,8 +9478,8 @@
                             "HeightMm": 120
                         },
                         "Viewport__ImageOffsetMm": {
-                            "X": 0.2479600768135981,
-                            "Y": 4.44341944596011
+                            "X": 7.9437087741521,
+                            "Y": 13.997891649859575
                         },
                         "Viewport__ModelLayers": null,
                         "Viewport__Styles": {
@@ -9534,13 +9497,13 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__9tbrwp.webp",
-                            "Asset__Fingerprint": "9tbrwp",
-                            "Asset__PixelWidth": 2845,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__1mdz015.webp",
+                            "Asset__Fingerprint": "1mdz015",
+                            "Asset__PixelWidth": 4695,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
-                        "Viewport__ImageZoom": 0.9,
+                        "Viewport__ImageZoom": 0.7062508949941568,
                         "Viewport__ShowFrame": false
                     },
                     {
@@ -9586,9 +9549,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__1om4rm3.webp",
-                            "Asset__Fingerprint": "1om4rm3",
-                            "Asset__PixelWidth": 3085,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__qzkfd7.webp",
+                            "Asset__Fingerprint": "qzkfd7",
+                            "Asset__PixelWidth": 5091,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -9640,7 +9603,7 @@
                         "Viewport__SnapshotAsset": {
                             "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_006__13d1tp7.webp",
                             "Asset__Fingerprint": "13d1tp7",
-                            "Asset__PixelWidth": 2869,
+                            "Asset__PixelWidth": 4734,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -9692,7 +9655,7 @@
                         "Viewport__SnapshotAsset": {
                             "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_007__o503bl.webp",
                             "Asset__Fingerprint": "o503bl",
-                            "Asset__PixelWidth": 3052,
+                            "Asset__PixelWidth": 5036,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -10809,7 +10772,7 @@
             },
             {
                 "Sheet__Id": "Sheet_004",
-                "Sheet__Name": "D24 - Site Plan",
+                "Sheet__Name": "Site Plan",
                 "Sheet__Order": 4,
                 "Sheet__PaperSize": "A2",
                 "Sheet__Orientation": "landscape",
@@ -11264,9 +11227,9 @@
                         "Shape__Closed": true,
                         "Shape__StrokeColour": "#172b3a",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffc2c2",
+                        "Shape__FillColour": "#ff0000",
                         "Shape__Stroked": false,
-                        "Shape__FillOpacity": 0.34,
+                        "Shape__FillOpacity": 0.1,
                         "Shape__StrokeOpacity": 1,
                         "Shape__Gradient": null,
                         "Shape__LineStyle": null
@@ -12701,6 +12664,8 @@
                 },
                 "Sheet__DrawingType": "siteplan"
             }
-        ]
+        ],
+        "LayoutEditor__DrawingsData__CommonClient": "Mr P. Samra",
+        "LayoutEditor__DrawingsData__CommonSiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD"
     }
 }

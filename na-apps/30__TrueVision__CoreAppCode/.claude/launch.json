@@ -308,6 +308,48 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8761
+    },
+    {
+      "name": "vv-headerfold",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8756",
+        "D:/06__Cloud__Repo__NaCodebase__Puiblic/ValeCodebase"
+      ],
+      "port": 8756,
+      "url": "http://app.localhost:8756"
+    },
+    {
+      "name": "vv-scrapbook",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/06__Cloud__Repo__NaCodebase__Puiblic/ValeCodebase/WebApps/ValeVision3D/80__Testing__PrototypeEnvironment/Na__Test__ScrapbookServer__.py",
+        "8766"
+      ],
+      "port": 8766
+    },
+    {
+      "name": "tv-storey",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8772",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8772
+    },
+    {
+      "name": "tv-drawmenus",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8781",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8781
     }
   ]
 }

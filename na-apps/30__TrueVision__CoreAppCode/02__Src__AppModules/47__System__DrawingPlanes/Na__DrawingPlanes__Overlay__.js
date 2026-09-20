@@ -106,7 +106,7 @@
         Na__InteractiveOverlays__SetWanted
     } from '../05__RenderPipeline/Na__RenderLoop__InteractiveOverlays__.js';
     import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
-    import { Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__DrawData__CHANGED_EVENT, Na__DrawData__GetProjectCode } from '../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Drawing Planes Config, Maths, Bounds and Mesh
@@ -763,6 +763,20 @@
         // project that has gone. Adopting the new project empties the shown
         // set and refills it from what THAT project last had switched on.
         window.addEventListener('na-presentation-mode-scenes-loaded', Na__PlaneOverlay__AdoptProject);
+
+        // THE DRAWINGS BLOCK ARRIVING is when a restored key first names a
+        // record that can be read. A source registers at Dev menu init, before
+        // the project data has landed, so its list is empty and nothing goes
+        // up; without this a plane left switched on last visit would sit in
+        // the shown set with the panel saying it is on and nothing in the 3D
+        // view. The same event lands a save from another panel.
+        window.addEventListener(Na__DrawData__CHANGED_EVENT, () => {
+            if (Na__PlaneOverlay__AdoptProject()) return;                        // <-- A different project: adopting refreshed and announced already
+            if (Na__PlaneOverlay__Shown.size === 0) return;
+            Na__PlaneOverlay__Refresh();
+            Na__PlaneOverlay__Announce('shown');
+        });
+
         Na__PlaneOverlay__AdoptProject();                                        // <-- The project code is on the URL from the first moment
         return true;
     }

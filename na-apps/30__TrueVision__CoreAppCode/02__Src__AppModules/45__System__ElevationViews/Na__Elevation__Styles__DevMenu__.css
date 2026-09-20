@@ -18,26 +18,124 @@
 
 
 /* ----------------------------------------------------------------- */
-/* REGION  |  Compass Preset Strip                                   */
+/* REGION  |  Name, and Which Elevation This Is                      */
 /* ----------------------------------------------------------------- */
-
-/* Four equal buttons on one line. They are the ordinary way to set an
-   elevation's direction, so they get the full width rather than being
-   tucked beside the free-bearing field. */
-.na-elev-dev__compass {
-    display                            : grid;
-    grid-template-columns              : repeat(4, 1fr);
-    gap                                : 4px;
-    margin                             : 2px 0 4px;
+/* 20-Sep-2026: this region replaced the Compass Preset Strip - four
+   buttons that set a bearing against the MODEL's axis and called it north.
+   Which elevation a drawing is, is now stated from the project's north: a
+   small plan of where the viewer stands, and one sentence. */
+.na-elev-dev__identity {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 6px;
 }
 
-.na-elev-dev__compass .na-pm-dev__btn {
-    width                              : 100%;
-    padding-left                       : 0;
-    padding-right                      : 0;
-    text-align                         : center;
+/* An automatic name is set in the same weight as a typed one - it IS the
+   drawing's name - and told apart by a quiet green edge, the colour this
+   panel already uses for "derived, and correct". */
+.na-elev-dev__name--auto {
+    border-left                        : 3px solid #2e7d4f;
 }
 
+.na-elev-dev__facing {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 9px;
+    padding                            : 6px 8px;
+    border-radius                      : 5px;
+    background                         : rgba(46, 125, 79, 0.07);
+}
+
+.na-elev-dev__facing-words {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+}
+
+.na-elev-dev__facing-sentence {
+    font-size                          : 12.5px;
+    font-weight                        : 600;
+    line-height                        : 1.35;
+    color                              : #1f4d33;
+}
+
+/* North not set: a prompt, not a fact, so it does not wear the fact's colour. */
+.na-elev-dev__facing-sentence--unknown {
+    font-weight                        : 500;
+    color                              : #9a5b00;
+}
+
+.na-elev-dev__facing-detail {
+    margin-top                         : 2px;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 10.5px;
+    color                              : #5f6b63;
+}
+
+/* THE COMPASS MARK | North up: a ring, the building, and the viewer on the
+   ring looking in at the face they are drawing. */
+.na-elev-dev__mark {
+    flex                               : 0 0 auto;
+    overflow                           : visible;
+}
+
+.na-elev-dev__mark-ring {
+    fill                               : #ffffff;
+    stroke                             : #9db8a8;
+    stroke-width                       : 1;
+}
+
+.na-elev-dev__mark-north {
+    stroke                             : #1f4d33;
+    stroke-width                       : 2;
+    stroke-linecap                     : round;
+}
+
+.na-elev-dev__mark-building {
+    fill                               : #c9d6cd;
+    stroke                             : #1f4d33;
+    stroke-width                       : 1;
+}
+
+.na-elev-dev__mark-sight {
+    stroke                             : #2e7d4f;
+    stroke-width                       : 1.5;
+    stroke-dasharray                   : 2 2;
+}
+
+.na-elev-dev__mark-viewer {
+    fill                               : #2e7d4f;
+    stroke                             : #ffffff;
+    stroke-width                       : 1;
+}
+
+.na-elev-dev__mark--unknown .na-elev-dev__mark-ring,
+.na-elev-dev__mark--unknown .na-elev-dev__mark-building {
+    stroke                             : #c2b28f;
+    fill                               : #f6f1e6;
+}
+
+.na-elev-dev__mark--unknown .na-elev-dev__mark-north {
+    stroke                             : #c2b28f;
+}
+
+/* The way back from a typed name. A text button: it is an offer, not an
+   action the row is waiting on. */
+.na-pm-dev__btn.na-elev-dev__use-auto {
+    align-self                         : flex-start;
+    padding                            : 2px 8px;
+    font-size                          : 0.72rem;
+    color                              : #2e7d4f;
+    border-color                       : rgba(46, 125, 79, 0.4);
+    background                         : #ffffff;
+}
+
+.na-elev-dev__use-auto[hidden] {
+    display                            : none;
+}
+
+.na-elev-dev__bearing .na-fp-dev__empty {
+    margin                             : 4px 0 0;
+}
 /* endregion ------------------------------------------------------- */
 
 
@@ -133,10 +231,6 @@
 /* ----------------------------------------------------------------- */
 
 @media (max-width: 520px) {
-    /* Two rows of two rather than four squeezed buttons. */
-    .na-elev-dev__compass {
-        grid-template-columns          : repeat(2, 1fr);
-    }
 
     /* Stack the axis caption above its slider rather than squeezing both. */
     .na-elev-dev__axis-label {

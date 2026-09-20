@@ -34,6 +34,23 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.9.2
+// - Token bumped (2026-09-20-4): two site plan stores per project, Existing and
+//   Proposed. The site plan store gains QualifyKey, SplitKey, StoreIdForKey,
+//   ResolveAll, GetStores and DefaultStoreId, and the site plan viewport module
+//   gains SitePlanStoreId - all named by new imports in modules a warm cache
+//   already holds (ModelSource, Viewport2d, the Viewport Settings panel), so a
+//   cache at -3 would link against exports that are not in its copy.
+//
+// 20-Sep-2026 - Version 1.9.1
+// - Token bumped (2026-09-20-3): the Floor Plans and Elevations menu rebuild
+//   (v2.86.0) and the floor plan storey levels. Both add exports to modules a
+//   warm cache already holds - RegisterPayloadGuard on the drawings block,
+//   RequestOpenId on the row accordion, the Stage functions on the rename
+//   module, the storey getters on the floor plan data, the title text's source
+//   names - and cached importers link against them. (-2, earlier the same day,
+//   was another session's and carries no note of its own here.)
+//
 // 20-Sep-2026 - Version 1.9.0
 // - Token bumped (2026-09-20-1): the North Direction tool and the parametric
 //   Drawing Title. New modules import NEW exports from modules a warm cache
@@ -154,7 +171,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-20-1';                                                                      // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-20-4';                                                                      // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

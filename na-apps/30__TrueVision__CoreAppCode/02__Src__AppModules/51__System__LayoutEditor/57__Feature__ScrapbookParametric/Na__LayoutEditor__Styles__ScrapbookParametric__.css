@@ -18,7 +18,8 @@
  *   and place are set inline, counter-scaled, by the grips module.
  *
  * PORT NOTE:
- * - Authored in : TrueVision3D first (19-Sep-2026). Not yet in ValeVision.
+ * - Authored in : TrueVision3D first (19-Sep-2026)
+ * - ValeVision  : ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
  *
  * DEVELOPMENT LOG:
  * 19-Sep-2026 - Version 1.0.0
@@ -97,7 +98,8 @@ body.na-le-param-stretching * {
    of the page, drawn in millimetres; their colours and widths are set on the
    elements, from the config, divided by the zoom. It keeps the na-le-grip
    class so whatever clears the grips clears it, and sheds everything that
-   class would give a box. It never takes the pointer: only the socket does. */
+   class would give a box. It never takes the pointer: the socket and the plug,
+   which are grips laid over its two ends, do. */
 
 .na-le-param-noodle {
     background                         : transparent;
@@ -131,6 +133,24 @@ body.na-le-param-stretching * {
     border-color                       : #ffffff;
 }
 
+/* THE PLUG, where the noodle lands on what it is tied to: the other end of the
+   cable, and as much a handle as the socket. A little larger than the socket,
+   because it lies on a drawing's frame among linework and has to be found. It
+   goes red under the pointer exactly as the socket does, so the two read as
+   one kind of thing. */
+
+.na-le-grip--param-plug {
+    border                             : 2px solid #ffffff;
+    border-radius                      : 50%;
+    background                         : #12a5dc;
+    box-shadow                         : 0 0 0 1px rgba(23, 43, 58, 0.35);
+    cursor                             : grab;
+}
+
+.na-le-grip--param-plug:hover {
+    background                         : #e01b24;
+}
+
 body.na-le-param-linking,
 body.na-le-param-linking * {
     cursor                             : crosshair !important;
@@ -157,15 +177,17 @@ body.na-le-param-linking * {
 /* endregion ------------------------------------------------------- */
 
 
-/* -----------------------------------------------------------------------------
- * REGION | The Drawing Title's Read-Out
- * ----------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Drawing Title's Read-Out                           */
+/* ----------------------------------------------------------------- */
 
-    /* What a selected title says, in the settings: the one line that is the point of it */
-    .na-le-param__reads {
-        font-weight: 600;
-        color: #172b3a;
-        word-break: break-word;
-    }
+/* WHAT A SELECTED TITLE SAYS, in the settings: the one line that is the
+   point of it. */
 
-/* endregion ------------------------------------------------------------------- */
+.na-le-param__reads {
+    font-weight                        : 600;
+    color                              : #172b3a;
+    word-break                         : break-word;
+}
+
+/* endregion ------------------------------------------------------- */

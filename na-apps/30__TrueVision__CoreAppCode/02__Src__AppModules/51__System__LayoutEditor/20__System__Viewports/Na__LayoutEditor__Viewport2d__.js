@@ -211,7 +211,7 @@
         Na__LeVp2d__StyleBands,
         Na__LeVp2d__PaintLinework
     } from './Na__LayoutEditor__Viewport2d__Linework__.js';
-    import { Na__LeVp2d__SitePlanDrawing, Na__LeVp2d__FillSitePlan } from './Na__LayoutEditor__Viewport2d__SitePlan__.js';
+    import { Na__LeVp2d__SitePlanDrawing, Na__LeVp2d__FillSitePlan, Na__LeVp2d__SitePlanStoreId } from './Na__LayoutEditor__Viewport2d__SitePlan__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -225,7 +225,7 @@
     // ------------------------------------------------------------
     function Na__LeVp2d__CentreOnDrawing(sheet, viewport) {
         if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- A site plan centres on the red line, else on all of its data
-            const bounds = Na__SpStore__GetFocusBoundsMm();
+            const bounds = Na__SpStore__GetFocusBoundsMm(Na__LeVp2d__SitePlanStoreId(viewport));
             if (!bounds) return false;
             return Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pan : { X : (bounds.MinX + bounds.MaxX) / 2, Y : (bounds.MinY + bounds.MaxY) / 2 } }, true);
         }
@@ -415,8 +415,8 @@
         const state = Na__LeVp2d__States.get(viewport.Viewport__Id);
         if (!state || !state.lastArgs) return false;                             // <-- Never painted: the next refresh draws it anyway
         if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- Re-read the site plan data: a new export draws without a reload
-            await Na__SpStore__Reload();
-            await Na__SpStore__LoadAll();
+            await Na__SpStore__Reload();                                        // <-- Every store: a re-export may have rewritten either
+            await Na__SpStore__LoadAll(Na__LeVp2d__SitePlanStoreId(viewport));
             if (Na__LeVp2d__States.get(viewport.Viewport__Id) !== state) return false;
             state.lineworkKey = null; state.lineworkSvg = null; state.classes = null; state.classesKey = null;
             Na__LeVp2d__FillSitePlan(state, sheet, viewport, state.lastArgs.ppm);

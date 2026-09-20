@@ -140,3 +140,137 @@
 }
 
 /* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Drawing Panel Shell (Floor Plans, Elevations, Sections) */
+/* ----------------------------------------------------------------- */
+/*
+ * Added 20-Sep-2026 for the menu rebuild. The three drawing panels are built
+ * from 40__System__DrawingViewCore/Na__DrawView__DevRowShell__.js in the
+ * Presentation Scenes panel's own classes; these rules add only what that
+ * panel does not already have.
+ */
+
+/* THE HEAD | Title on the left, the square + hard against the right edge. */
+.na-draw-dev__panel-head {
+    align-items                        : center;
+    margin-bottom                      : 8px;
+}
+
+.na-draw-dev__panel-title {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    margin                             : 0;
+}
+
+.na-draw-dev__panel-head .na-pm-dev__square-btn:disabled {
+    opacity                            : 0.4;
+    cursor                             : not-allowed;
+}
+
+/* A FOLDED ROW'S HEADER | Swatch, name, then state chips. */
+.na-draw-dev__head-swatch {
+    flex                               : 0 0 auto;
+    width                              : 11px;
+    height                             : 11px;
+    border-radius                      : 2px;
+    border                             : 1px solid rgba(0, 0, 0, 0.25);
+    background                         : #c9ced6;
+}
+
+.na-draw-dev__chips {
+    display                            : inline-flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    gap                                : 4px;
+}
+
+/* The badge class sets no display of its own today; this keeps a hidden
+   chip hidden if it ever does. */
+.na-draw-dev__chips [hidden] {
+    display                            : none;
+}
+
+.na-draw-dev__chip--active {
+    color                              : #2e7d4f;
+    background                         : rgba(46, 125, 79, 0.10);
+    border-color                       : rgba(46, 125, 79, 0.35);
+}
+
+/* The one state that is waiting on its author. */
+.na-draw-dev__chip--dirty {
+    color                              : #9a5b00;
+    background                         : #fff4df;
+    border-color                       : #e6c78a;
+}
+
+/* A small caption over each group of controls inside an open row, so the
+   row reads as three short lists instead of one long one. */
+.na-draw-dev__caption {
+    margin-top                         : 6px;
+    font-size                          : 10.5px;
+    font-weight                        : 600;
+    letter-spacing                     : 0.05em;
+    text-transform                     : uppercase;
+    color                              : #7a828c;
+}
+
+.na-draw-dev__choice {
+    margin-top                         : 0;
+}
+
+/* ROW ACTIONS | Looking on the first line, keeping on the second. A grid,
+   as the scenes panel's row actions are, so four labels of four widths
+   line up whatever the panel's width. */
+.na-draw-dev__actions {
+    display                            : grid;
+    grid-template-columns              : 1fr 1fr;
+    gap                                : 6px;
+    margin-top                         : 12px;
+    padding-top                        : 10px;
+    border-top                         : 1px solid #e8eaed;
+}
+
+.na-draw-dev__actions .na-pm-dev__btn {
+    width                              : 100%;
+    padding-top                        : 6px;
+    padding-bottom                     : 6px;
+}
+
+.na-pm-dev__btn:disabled {
+    opacity                            : 0.45;
+    cursor                             : not-allowed;
+}
+
+/* UPDATE IS GREEN. The one button in a row that writes anything. */
+.na-draw-dev__btn--commit {
+    border-color                       : #2e7d4f;
+    color                              : #ffffff;
+    background                         : #2e7d4f;
+    font-weight                        : 600;
+}
+
+.na-draw-dev__btn--commit:hover:not(:disabled) {
+    background                         : #256842;
+}
+
+.na-draw-dev__btn--commit:disabled {
+    color                              : #2e7d4f;
+    background                         : #eef6f1;
+}
+
+/* DELETE | Below its rule, alone. */
+.na-draw-dev__danger .na-pm-dev__rule {
+    margin                             : 12px 0 8px;
+}
+
+.na-draw-dev__placeholder-list {
+    margin                             : 4px 0 8px;
+    padding-left                       : 18px;
+    font-size                          : 12px;
+    line-height                        : 1.5;
+    color                              : #4a4a4a;
+}
+
+/* endregion ------------------------------------------------------- */

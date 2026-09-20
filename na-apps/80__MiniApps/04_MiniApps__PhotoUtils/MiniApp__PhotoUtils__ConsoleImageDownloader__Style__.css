@@ -1,0 +1,192 @@
+/* =============================================================================
+   NOBLE ARCHITECTURE - PHOTO UTILS - CONSOLE IMAGE DOWNLOADER - STYLESHEET
+   =============================================================================
+
+   FILE    : MiniApp__PhotoUtils__ConsoleImageDownloader__Style__.css
+   PURPOSE : App-specific styles layered on the shared utility stylesheet
+   CREATED : 20-Sep-2026
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   REGION | Font Remap And Local Variables
+   -------------------------------------------------------------------------- */
+:root {
+    --font-regular                       : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-semibold                      : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-light                         : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-medium                        : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --font-bold                          : "Open Sans", "Segoe UI", Arial, sans-serif;
+    --CID_Font_Mono                      : "Roboto Mono", "Consolas", monospace;
+    --CID_Col_NoticeBorder               : #e0c36a;
+    --CID_Col_CopiedBg                   : var(--color-success);
+    --CID_Col_CopiedHover                : var(--color-success-hover);
+    --CID_Size_ContentWidth              : 46.00rem;
+    --CID_Size_SnippetMaxHeight          : 22.00rem;
+    --CID_Size_CopyButtonPadY            : 00.90rem;
+}
+
+html,
+body {
+    height                               : 100%;
+    margin                               : 0;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Page Layout Overrides
+   -------------------------------------------------------------------------- */
+.MAIN__container {
+    max-width                            : var(--CID_Size_ContentWidth);
+    gap                                  : 00.75rem;
+}
+
+.FORM__block {
+    margin-bottom                        : 00.00rem;
+}
+
+.HEAD__title {
+    margin                               : 0;
+}
+
+.CID__lead {
+    margin                               : 0 0 00.85rem 0;
+    font-size                            : 00.90rem;
+    line-height                          : 1.55;
+    color                                : var(--color-gray-700);
+    font-family                          : var(--font-regular);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Clipboard Notice
+   -------------------------------------------------------------------------- */
+.CID__notice {
+    background-color                     : var(--color-alert-bg);
+    border-color                         : var(--CID_Col_NoticeBorder);
+}
+
+.CID__notice-heading {
+    color                                : var(--color-alert);
+    border-bottom-color                  : var(--CID_Col_NoticeBorder);
+}
+
+.CID__notice-body {
+    margin                               : 0;
+    font-size                            : 00.95rem;
+    line-height                          : 1.60;
+    color                                : var(--color-gray-800);
+    font-family                          : var(--font-regular);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Steps And Notes Lists
+   -------------------------------------------------------------------------- */
+.CID__steps,
+.CID__notes {
+    margin                               : 0;
+    padding-left                         : 01.25rem;
+    font-size                            : 00.90rem;
+    line-height                          : 1.55;
+    color                                : var(--color-gray-800);
+    font-family                          : var(--font-regular);
+}
+
+.CID__steps li,
+.CID__notes li {
+    margin-bottom                        : 00.55rem;
+}
+
+.CID__steps li:last-child,
+.CID__notes li:last-child {
+    margin-bottom                        : 0;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Copy Button And Status
+   -------------------------------------------------------------------------- */
+.CID__copy-row {
+    margin-top                           : 00.00rem;
+    justify-content                      : stretch;
+}
+
+.CID__copy-button {
+    flex-grow                            : 1;
+    padding-top                          : var(--CID_Size_CopyButtonPadY);
+    padding-bottom                       : var(--CID_Size_CopyButtonPadY);
+    font-size                            : 01.00rem;
+}
+
+.CID__copy-button:disabled {
+    cursor                               : not-allowed;
+    opacity                              : 0.55;
+}
+
+.CID__copy-button--copied,
+.CID__copy-button--copied:hover {
+    background-color                     : var(--CID_Col_CopiedBg);
+    color                                : var(--color-white);
+}
+
+.CID__status {
+    margin                               : 00.75rem 0 0 0;
+    min-height                           : 01.35rem;
+    font-size                            : 00.85rem;
+    line-height                          : 1.45;
+    color                                : var(--color-gray-600);
+    font-family                          : var(--font-regular);
+}
+
+.CID__status--copied {
+    color                                : var(--color-success);
+    font-weight                          : 600;
+}
+
+.CID__status--error {
+    color                                : var(--color-error);
+    font-weight                          : 600;
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Snippet Preview
+   -------------------------------------------------------------------------- */
+.CID__snippet {
+    margin                               : 0;
+    max-height                           : var(--CID_Size_SnippetMaxHeight);
+    overflow                             : auto;
+    padding                              : 00.85rem 01.00rem;
+    border                               : 01px solid var(--color-gray-400);
+    border-radius                        : 00.3125rem;
+    background-color                     : var(--color-gray-200);
+    color                                : var(--color-gray-800);
+    font-family                          : var(--CID_Font_Mono);
+    font-size                            : 00.75rem;
+    line-height                          : 1.50;
+    white-space                          : pre;
+    tab-size                             : 4;
+}
+
+.CID__snippet:focus {
+    outline                              : none;
+    border-color                         : var(--color-action-primary);
+    box-shadow                           : 0 0 0 02px rgba(0, 102, 153, 0.2);
+}
+/* endregion ---------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | Responsive
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 768px) {
+    .CID__copy-button {
+        font-size                        : 00.90rem;
+    }
+
+    .CID__snippet {
+        font-size                        : 00.68rem;
+        max-height                       : 16.00rem;
+    }
+}
+/* endregion ---------------------------------------------------------------- */

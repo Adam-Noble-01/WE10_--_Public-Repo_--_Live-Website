@@ -28,6 +28,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - GetStoreyLevelSetup: the building storeys a plan can be assigned to, made
+//   whole by Na__FloorPlan__StoreyLevel__ once the config is in.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder.
 //
@@ -41,6 +45,13 @@
     // MODULE IMPORTS | Math Utilities
     // ------------------------------------------------------------
     import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Storey Levels (makes the config block whole)
+    // ------------------------------------------------------------
+    // @delegate: ./Na__FloorPlan__StoreyLevel__.js
+    // ------------------------------------------------------------
+    import { Na__FpLevel__Setup } from './Na__FloorPlan__StoreyLevel__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -58,6 +69,7 @@
     const Na__FpCfg__NAV_BLOCK      = 'FloorPlanViews__Navigation__Config';
     const Na__FpCfg__TRANS_BLOCK    = 'FloorPlanViews__Transition__Config';
     const Na__FpCfg__GROUP_BLOCK    = 'FloorPlanViews__SceneGroup__Config';
+    const Na__FpCfg__STOREYS_BLOCK  = 'FloorPlanViews__StoreyLevels__Config';
     const Na__FpCfg__LABELS_BLOCK   = 'FloorPlanViews__Labels__Config';
     // ------------------------------------------------------------
 
@@ -101,6 +113,7 @@
     // ------------------------------------------------------------
     let Na__FpCfg__Config      = null;   // <-- Parsed JSON (null until the fetch settles)
     let Na__FpCfg__LoadPromise = null;   // <-- In-flight fetch, so it happens exactly once
+    let Na__FpCfg__StoreySetup = null;   // <-- The storey levels made whole, once the config is in
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -288,6 +301,21 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Get the Storey Levels a Plan Can Be Assigned To
+    // ------------------------------------------------------------
+    // { levels, guessFromName }, as Na__FloorPlan__StoreyLevel__ makes them.
+    // Asked for on every plan title the Layout Editor writes, so it is made
+    // once - but only once the config is in: before that the built-in storeys
+    // answer, and are not kept, or a late config would never be read.
+    // ------------------------------------------------------------
+    function Na__FpCfg__GetStoreyLevelSetup() {
+        if (!Na__FpCfg__Config) return Na__FpLevel__Setup(null);
+        if (!Na__FpCfg__StoreySetup) Na__FpCfg__StoreySetup = Na__FpLevel__Setup(Na__FpCfg__Config[Na__FpCfg__STOREYS_BLOCK]);
+        return Na__FpCfg__StoreySetup;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get One Dev Menu Label by Key Suffix
     // ------------------------------------------------------------
     function Na__FpCfg__GetLabel(keySuffix, fallback) {
@@ -329,6 +357,7 @@
         Na__FpCfg__GetNavigationSetup,
         Na__FpCfg__GetTransitionSetup,
         Na__FpCfg__GetSceneGroupTarget,
+        Na__FpCfg__GetStoreyLevelSetup,
         Na__FpCfg__GetLabel,
         Na__FpCfg__FormatLabel
     };

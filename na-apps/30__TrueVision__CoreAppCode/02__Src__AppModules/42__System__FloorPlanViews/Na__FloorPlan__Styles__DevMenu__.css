@@ -11,7 +11,7 @@
  * buttons, inputs and panel rows reuse the existing na-pm-dev and
  * na-dropdown-menu classes; only the pieces with no existing equivalent
  * are defined here - the plan row card, the floor datum slider and its
- * cut-height readout.
+ * cut-height readout, and the words under a guessed storey.
  */
 /* ================================================================= */
 
@@ -80,6 +80,34 @@
     font-size                          : 11px;
     color                              : #4a4a4a;
     white-space                        : nowrap;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Storey Dropdown                                        */
+/* ----------------------------------------------------------------- */
+
+/* The row itself is the scene editor's na-pm-dev__row. Only the words
+   under a guessed storey, and the Confirm button they carry, are new. */
+.na-fp-dev__storey-note {
+    display                            : flex;
+    align-items                        : center;
+    flex-wrap                          : wrap;
+    gap                                : 4px 8px;
+    margin                             : 4px 0 0;
+}
+
+/* A display set by a class outranks the browser's own rule for the hidden
+   attribute, so the words would stay up over a storey somebody has chosen. */
+.na-fp-dev__storey-note[hidden] {
+    display                            : none;
+}
+
+.na-fp-dev__storey-note .na-pm-dev__btn {
+    padding                            : 1px 8px;
+    font-size                          : 11px;
 }
 
 /* endregion ------------------------------------------------------- */

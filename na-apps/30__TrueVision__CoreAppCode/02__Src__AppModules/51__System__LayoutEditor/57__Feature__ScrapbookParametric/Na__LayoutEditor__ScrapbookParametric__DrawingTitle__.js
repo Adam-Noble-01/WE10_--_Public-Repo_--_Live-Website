@@ -18,10 +18,13 @@
 //   end. He groups the three as one object. This type draws that object.
 // - THE WORDS ARE FACTS, NOT TYPING. Which model the viewport draws gives
 //   Existing or Proposed; its elevation's bearing against the project's north
-//   gives the compass word. The link module fills them in as parameters -
-//   ViewKind, ViewPhase, ViewFacing, ViewName, ViewDrawing - and this module,
-//   which knows nothing of viewports, only reads them. So a title rebuilds
-//   from its own parameters alone, and keeps what it says when untied.
+//   gives the compass word; its floor plan's storey gives GROUND FLOOR PLAN.
+//   The link module fills them in as parameters - ViewKind, ViewPhase,
+//   ViewFacing, ViewLevel, ViewName, ViewDrawing - and this module, which
+//   knows nothing of viewports, only reads them. So a title rebuilds from its
+//   own parameters alone, and keeps what it says when untied. A title saved
+//   before there was a ViewLevel has none, reads exactly as it did, and is
+//   given one the next time its sheet is brought into line.
 // - A FACT NOT YET KNOWN IS SHOWN IN DOUBLE BRACES. Until north is set in the
 //   3D model an elevation's title reads EXISTING {{DIRECTION}} ELEVATION, and
 //   fills itself in the moment the compass is drawn. The sentence itself is
@@ -48,11 +51,18 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported; see Na__LayoutEditor__ScrapbookParametric__.
+// - ValeVision    : 1.0.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
+// - Ahead of it   : 1.1.0 (ViewLevel) is TrueVision only. ValeVision holds
+//                   1.0.0 and its floor plans have no storey field.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - A sixth fact, ViewLevel: the storey of the floor plan a title is tied to,
+//   so it letters PROPOSED GROUND FLOOR PLAN where it wrote the plan record's
+//   name, or the viewport's typed "Proposed Floor Plan".
+//
 // 19-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -92,7 +102,7 @@
     // MODULE CONSTANTS | The Type, the Facts the Link Module Fills, and What a Change of Scale Leaves Alone
     // ------------------------------------------------------------
     const Na__LeParamTitle__TYPE  = 'DrawingTitle';
-    const Na__LeParamTitle__FACTS = Object.freeze([ 'ViewKind', 'ViewPhase', 'ViewFacing', 'ViewName', 'ViewDrawing' ]);
+    const Na__LeParamTitle__FACTS = Object.freeze([ 'ViewKind', 'ViewPhase', 'ViewFacing', 'ViewLevel', 'ViewName', 'ViewDrawing' ]);
     const Na__LeParamTitle__KEEP  = Object.freeze([ 'ShowScaleBar', 'PhaseMode', 'TitleText', 'Uppercase', 'UnderlineMm', 'SubdivideFirst', 'ShowUnits' ].concat(Na__LeParamTitle__FACTS));
     const Na__LeParamTitle__MAX_TEXT = 200;
     const Na__LeParamTitle__FALLBACK = Object.freeze({
@@ -145,7 +155,7 @@
             TitleText    : '',
             Uppercase    : Na__LeParamTitle__Flag(config, 'Uppercase', true),
             UnderlineMm  : Na__LeParamTitle__Number(config, 'UnderlineMm'),
-            ViewKind : '', ViewPhase : '', ViewFacing : '', ViewName : '', ViewDrawing : ''
+            ViewKind : '', ViewPhase : '', ViewFacing : '', ViewLevel : '', ViewName : '', ViewDrawing : ''
         });
     }
     // ------------------------------------------------------------
@@ -156,7 +166,7 @@
     function Na__LeParamTitle__Normalise(config, barConfig, params) {
         const given    = (params && typeof params === 'object') ? params : {};
         const standard = Na__LeParamTitle__Standard(config, barConfig, given.ScaleDenominator);
-        const facts    = Na__LeViewText__NormaliseFacts({ kind : given.ViewKind, phase : given.ViewPhase, facing : given.ViewFacing, name : given.ViewName, drawing : given.ViewDrawing });
+        const facts    = Na__LeViewText__NormaliseFacts({ kind : given.ViewKind, phase : given.ViewPhase, facing : given.ViewFacing, level : given.ViewLevel, name : given.ViewName, drawing : given.ViewDrawing });
         const least    = Math.max(1, Na__LeParamTitle__Number(config, 'UnderlineMinMm'));
         const most     = Math.max(least, Na__LeParamTitle__Number(config, 'UnderlineMaxMm'));
         const length   = (typeof given.UnderlineMm === 'number' && Number.isFinite(given.UnderlineMm)) ? given.UnderlineMm : standard.UnderlineMm;
@@ -169,6 +179,7 @@
             ViewKind     : facts.kind,
             ViewPhase    : facts.phase,
             ViewFacing   : facts.facing,
+            ViewLevel    : facts.level,
             ViewName     : facts.name,
             ViewDrawing  : facts.drawing
         });
@@ -189,7 +200,7 @@
     function Na__LeParamTitle__TitleText(config, barConfig, params, words) {
         const whole = Na__LeParamTitle__Normalise(config, barConfig, params);
         return Na__LeViewText__Compose(
-            { kind : whole.ViewKind, phase : whole.ViewPhase, facing : whole.ViewFacing, name : whole.ViewName, drawing : whole.ViewDrawing },
+            { kind : whole.ViewKind, phase : whole.ViewPhase, facing : whole.ViewFacing, level : whole.ViewLevel, name : whole.ViewName, drawing : whole.ViewDrawing },
             { phaseMode : whole.PhaseMode, uppercase : whole.Uppercase, override : whole.TitleText }, words || null);
     }
     // ------------------------------------------------------------

@@ -36,7 +36,9 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported. The folder and the API path are config.
+// - ValeVision    : 1.0.0 ported 20-Sep-2026 as ValeVision3D v2.69.0, adapted: its server is
+//                   Whitecardopedia's server.py, known by /api/check-localhost, with the
+//                   routes under /api/valevision/scrapbook.
 //
 // -----------------------------------------------------------------------------
 //

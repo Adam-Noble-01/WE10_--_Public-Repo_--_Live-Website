@@ -48,13 +48,20 @@
 // PORT NOTE:
 // - Ported from   : ValeVision3D 42__System__DrawingViewCore/Na__DrawView__RenameDrawing__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
-// - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Parity        : adapted (was verbatim until 20-Sep-2026)
+// - Divergences   : Console prefix, header and folder numbers; and StageFloorPlan /
+//                   StageElevation (20-Sep-2026), the same four holders brought into
+//                   step WITHOUT a save, for the Dev menu rows' one Update.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - StageFloorPlan and StageElevation: a drawing's name now rides in its row's
+//   draft and lands with everything else on Update, so the card, the section
+//   binding and the sheet fingerprints are staged here and saved by the caller.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Initial implementation: one rename path, saved and confirmed.
 //
@@ -378,6 +385,62 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Bring a Name's Other Holders Into Step, in Memory (no save)
+    // ------------------------------------------------------------
+    // For a caller that owns the save: the Floor Plans and Elevations rows
+    // hold a drawing's new name in a DRAFT with the rest of its edits, and
+    // write everything in one Update. The record already carries the name.
+    // This puts the scene card, the section binding's key and the sheet
+    // viewports' fingerprints in step with it, in the order Apply uses, and
+    // hands back what it did with an undo for a save that then fails.
+    // target: { record, nameKey, scene }.
+    // Returns { renamed, restamped, movedBinding, undo }.
+    // ------------------------------------------------------------
+    async function Na__DrawRename__StageHolders(target) {
+        const nothing = { renamed : false, restamped : 0, movedBinding : false, undo : () => {} };
+        if (!target || !target.record || !target.scene) return nothing;
+
+        const scene    = target.scene;
+        const nextName = String(target.record[target.nameKey] || '').trim();
+        const before   = scene[Na__DrawRename__SCENE_NAME];
+        if (nextName === '' || before === nextName) return nothing;
+
+        const sceneId = scene[Na__DrawRename__SCENE_ID] || null;
+        scene[Na__DrawRename__SCENE_NAME] = nextName;
+        const movedBinding = Na__SectSceneData__RenameSceneKey(before, nextName, sceneId);   // <-- Filed under the name the scene HAD
+        await Na__DrawRename__ResolveRestamp();
+        const restamped = sceneId ? (Na__LeVp3d__RestampForScene(sceneId) || 0) : 0;          // <-- Fingerprinted from the name it has NOW
+
+        return {
+            renamed      : true,
+            restamped    : restamped,
+            movedBinding : movedBinding === true,
+            undo         : () => {
+                scene[Na__DrawRename__SCENE_NAME] = before;
+                if (movedBinding) Na__SectSceneData__RenameSceneKey(nextName, before, sceneId);
+                if (restamped)    Na__LeVp3d__RestampForScene(sceneId);
+            }
+        };
+    }
+
+    function Na__DrawRename__StageFloorPlan(plan) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        return Na__DrawRename__StageHolders({
+            record : plan, nameKey : Na__DrawRename__PLAN_NAME,
+            scene  : (config && plan) ? Na__FpData__FindSceneForPlan(config, plan) : null
+        });
+    }
+
+    function Na__DrawRename__StageElevation(elevation) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        return Na__DrawRename__StageHolders({
+            record : elevation, nameKey : Na__DrawRename__ELEV_NAME,
+            scene  : (config && elevation) ? Na__ElevData__FindSceneFor(config, elevation) : null
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Is a Rename Still Writing?
     // ------------------------------------------------------------
     function Na__DrawRename__IsBusy() { return Na__DrawRename__Busy; }
@@ -396,6 +459,8 @@
         Na__DrawRename__RenameFloorPlan,
         Na__DrawRename__RenameElevation,
         Na__DrawRename__RenameSceneCard,
+        Na__DrawRename__StageFloorPlan,
+        Na__DrawRename__StageElevation,
         Na__DrawRename__FindRecordForScene,
         Na__DrawRename__OwnsScene,
         Na__DrawRename__IsBusy

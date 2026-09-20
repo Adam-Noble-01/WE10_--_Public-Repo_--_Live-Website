@@ -43,7 +43,10 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported.
+// - ValeVision    : 1.1.0 ported 20-Sep-2026 as ValeVision3D v2.67.0, adapted: no Show
+//                   Compass; the panel shuts when a sheet opens and the compass leaves the
+//                   scene while any sheet picture renders (see that file's header for the
+//                   fault its own test found).
 //
 // -----------------------------------------------------------------------------
 //

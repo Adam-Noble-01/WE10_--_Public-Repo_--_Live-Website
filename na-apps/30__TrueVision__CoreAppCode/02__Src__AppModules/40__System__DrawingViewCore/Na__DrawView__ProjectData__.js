@@ -64,6 +64,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.3.0
+// - Payload guard: Na__DrawData__RegisterPayloadGuard. The copy a save is about
+//   to write is handed to the draft guard first, so a floor plan or elevation
+//   still being edited in its Dev menu row goes out as it was last UPDATED,
+//   whoever is saving. The local copy is cut from the guarded payload, so R2
+//   and the repository file still get the same thing.
+//
 // 19-Sep-2026 - Version 1.2.0
 // - Common title block fields: CommonClient and CommonSiteAddress hold the
 //   client and the site address ONCE for the whole pack. They sit beside the
@@ -201,6 +208,23 @@
     // when it is not, and neither module has to know the other's load order.
     // ------------------------------------------------------------
     let Na__DrawData__SectionBlockProvider = null;   // <-- () => block | null
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Payload Guard (drafts stay out of other people's saves)
+    // ------------------------------------------------------------
+    // Save writes the WHOLE drawings block, whoever calls it - Save Sheets, the
+    // register, north, a rename. A floor plan or an elevation that is half way
+    // through being moved in its Dev menu row is in that block too, and used to
+    // go out with the next save from anywhere: nudge a plane, save a sheet an
+    // hour later, and every viewport of that drawing had moved under its
+    // dimensions. The draft guard registers here and is handed the COPY about
+    // to be written, so it can put the last updated record back into it.
+    // A hook for the same reason the section provider is one: this module is
+    // armed on every project and the Dev menu panels are not.
+    // @delegate: ./Na__DrawView__DraftGuard__.js
+    // ------------------------------------------------------------
+    let Na__DrawData__PayloadGuard = null;           // <-- (payloadCopy) => void
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -557,7 +581,8 @@
         try {
             if (registerKeys && registerKeys.cloud) Object.assign(payload, registerKeys.cloud);
             const cloudKeys = JSON.parse(JSON.stringify(payload));
-            const localKeys = JSON.parse(JSON.stringify(payload));                   // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
+            Na__DrawData__ApplyPayloadGuard(cloudKeys);                              // <-- A drawing still being edited goes out as it was last updated
+            const localKeys = JSON.parse(JSON.stringify(cloudKeys));                 // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
             // DELETION | Explicit local-first mode; a local failure never reaches R2.
             let firstLocal = null;
             if (registerKeys && registerKeys.localFirst) {
@@ -622,6 +647,33 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Register the Guard That Keeps Unfinished Drafts Out of a Save
+    // ------------------------------------------------------------
+    // Called by Na__DrawView__DraftGuard__ as it loads. Passing a non-function
+    // clears the registration.
+    // ------------------------------------------------------------
+    function Na__DrawData__RegisterPayloadGuard(guard) {
+        Na__DrawData__PayloadGuard = (typeof guard === 'function') ? guard : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Run the Guard Over a Payload Copy
+    // ------------------------------------------------------------
+    // A guard that throws must not cost the save: the payload then goes out as
+    // it stood, which is what happened before there was a guard at all.
+    // ------------------------------------------------------------
+    function Na__DrawData__ApplyPayloadGuard(payloadCopy) {
+        if (!Na__DrawData__PayloadGuard) return;
+        try {
+            Na__DrawData__PayloadGuard(payloadCopy);
+        } catch (guardError) {
+            console.warn('[TrueVision3D] Drawings payload guard failed; saving the block as it stands.', guardError);
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Listen for the Project Block From the Loading Sequence
     // ------------------------------------------------------------
     function Na__DrawView__ProjectData__Initialize() {
@@ -660,6 +712,7 @@
         Na__DrawData__CHANGED_EVENT,
         Na__DrawView__ProjectData__Initialize,
         Na__DrawData__RegisterSectionBlockProvider,
+        Na__DrawData__RegisterPayloadGuard,
         Na__DrawData__GetBlock,
         Na__DrawData__Load,
         Na__DrawData__GetProjectCode,

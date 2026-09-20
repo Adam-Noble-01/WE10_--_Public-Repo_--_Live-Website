@@ -51,6 +51,18 @@
         "FloorPlanViews__SceneGroup__AutoEnableTargetGroup": true
     },
 
+    "FloorPlanViews__StoreyLevels__Config": {
+        "FloorPlanViews__StoreyLevels__Description": "The building storeys a floor plan can be assigned to, in the ORDER the Dev menu dropdown offers them - the common ones first. A plan record stores a storey's Level__Key (FloorPlan__StoreyLevel) only once somebody has chosen one; until then the storey is an educated guess, worked out afresh every time it is asked for, so it follows the plan as its cut is moved. The guess reads the plan's NAME first - any Level__NameContains entry found as whole words, the longest match winning, so 'Lower Ground Floor' is a basement - and then the CUT HEIGHT against each storey's band: Level__CutFromMm is inclusive, Level__CutBelowMm is not, null is no limit, and a storey with neither is never guessed from a height. Level__TitleText is what a drawing title says for that storey: the Layout Editor's parametric title writes 'PROPOSED GROUND FLOOR PLAN' from it. The built-in fallback in Na__FloorPlan__StoreyLevel__.js mirrors this list exactly, and its test fails when the two differ.",
+        "FloorPlanViews__StoreyLevels__GuessFromName": true,
+        "FloorPlanViews__StoreyLevels__Levels": [
+            { "Level__Key": "ground",   "Level__Label": "Ground floor",   "Level__TitleText": "Ground Floor Plan", "Level__CutFromMm": -1000, "Level__CutBelowMm": 2800,  "Level__NameContains": [ "ground" ] },
+            { "Level__Key": "first",    "Level__Label": "First floor",    "Level__TitleText": "First Floor Plan",  "Level__CutFromMm": 2800,  "Level__CutBelowMm": 5000,  "Level__NameContains": [ "first" ] },
+            { "Level__Key": "second",   "Level__Label": "Second floor",   "Level__TitleText": "Second Floor Plan", "Level__CutFromMm": 5000,  "Level__CutBelowMm": 6800,  "Level__NameContains": [ "second" ] },
+            { "Level__Key": "roof",     "Level__Label": "Roof plan",      "Level__TitleText": "Roof Plan",         "Level__CutFromMm": 6800,  "Level__CutBelowMm": null,  "Level__NameContains": [ "roof" ] },
+            { "Level__Key": "basement", "Level__Label": "Basement level", "Level__TitleText": "Basement Plan",     "Level__CutFromMm": null,  "Level__CutBelowMm": -1000, "Level__NameContains": [ "basement", "cellar", "lower ground" ] }
+        ]
+    },
+
     "FloorPlanViews__Labels__Config": {
         "FloorPlanViews__Labels__Description": "User-facing wording for the Dev menu floor plan editor. Floor plan names themselves are per-project and authored here by the developer.",
         "FloorPlanViews__Labels__SectionTitle": "Floor Plans",
@@ -70,6 +82,12 @@
         "FloorPlanViews__Labels__SavedMessage": "Floor plans saved to R2.",
         "FloorPlanViews__Labels__SaveFailedMessage": "Floor plan save failed - see console.",
         "FloorPlanViews__Labels__NoModelMessage": "Load a model before adding floor plans.",
-        "FloorPlanViews__Labels__NoStoreysMessage": "No named storeys detected in this model."
+        "FloorPlanViews__Labels__NoStoreysMessage": "No named storeys detected in this model.",
+        "FloorPlanViews__Labels__StoreyFieldLabel": "Storey",
+        "FloorPlanViews__Labels__StoreyFieldHint": "Which building storey this is a plan of. A drawing title tied to this plan on a sheet reads it: PROPOSED GROUND FLOOR PLAN.",
+        "FloorPlanViews__Labels__StoreyGuessedFromHeight": "Guessed from the cut height ({cut} mm). Choose one to fix it.",
+        "FloorPlanViews__Labels__StoreyGuessedFromName": "Guessed from the plan's name. Choose one to fix it.",
+        "FloorPlanViews__Labels__StoreyConfirmLabel": "Confirm",
+        "FloorPlanViews__Labels__StoreyConfirmHint": "Keep this storey, wherever the cut is moved to."
     }
 }

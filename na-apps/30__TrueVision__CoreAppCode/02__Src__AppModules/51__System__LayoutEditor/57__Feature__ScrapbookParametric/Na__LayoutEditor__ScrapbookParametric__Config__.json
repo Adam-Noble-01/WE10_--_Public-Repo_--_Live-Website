@@ -129,7 +129,9 @@
         "Grips__LookupOffsetPx"  : 12,
         "Grips__ClickSlopPx"     : 4,
         "Grips__LinkSizePx"      : 11,
-        "Grips__LinkOffsetPx"    : 16
+        "Grips__LinkOffsetPx"    : 16,
+        "Grips__PlugSizePx"      : 13,
+        "Grips__PlugNote"        : "The plug is the handle on the noodle's FAR end, where it lands on the drawing it is tied to. It is dragged to another drawing exactly as the socket is, for people who reach for the end of the cable rather than the element it comes from."
     },
 
     "LayoutEditor__ScrapbookParametric__Noodle": {
@@ -174,6 +176,7 @@
         "Labels__PropsNeedsLink"     : "Tie it to a drawing to fill {{Drawing}}: drag its round socket onto one.",
         "Labels__PropsTitleTyped"    : "Typed by hand, so it no longer follows its drawing. Clear the box to go back to automatic.",
         "Labels__PropsTitleNamed"    : "The drawing's viewport has a typed name, which the title uses. Clear that name and the title is written from the model and north.",
+        "Labels__PropsTitleStorey"   : "Written from the plan's storey, which is chosen per floor plan in the 3D view: Dev Tools, Floor Plans, Storey.",
         "Labels__PropsTitleText"     : "Title text",
         "Labels__PropsTitleAuto"     : "Automatic",
         "Labels__PropsPhase"         : "Existing / Proposed",
@@ -195,6 +198,7 @@
         "Labels__GripStretch"      : "Drag to lengthen or shorten",
         "Labels__GripLookup"       : "Scale and options",
         "Labels__GripLink"         : "Drag onto a drawing to tie this to it, or onto the title block for the sheet's scale. Let go on bare paper to untie it.",
+        "Labels__GripPlug"         : "Drag this end onto another drawing to move the tie there, or onto the title block for the sheet's scale. Let go on bare paper to untie it.",
         "Labels__GripLinkTied"     : "Tied to {target}.",
         "Labels__LinkSheetName"    : "the sheet's scale ({scale})",
         "Labels__ToastTied"        : "Tied to {target}.",

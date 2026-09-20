@@ -47,7 +47,9 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported.
+// - ValeVision    : 1.1.0 ported 20-Sep-2026 as ValeVision3D v2.67.0, adapted: ValeVision has
+//                   no Na__InteractiveOverlays, so its compass is never kept - it is in the
+//                   scene only while the panel is open. Port the registry, then take this whole.
 //
 // -----------------------------------------------------------------------------
 //

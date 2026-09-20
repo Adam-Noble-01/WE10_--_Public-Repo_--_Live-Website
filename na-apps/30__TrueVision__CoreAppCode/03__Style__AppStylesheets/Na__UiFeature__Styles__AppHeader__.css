@@ -207,14 +207,25 @@
     /* CSS VARIABLES | Fold Timing */
     /* ------------------------------------------------------------ */
     :root {
-        --Vale_HeaderFoldDuration      : 480ms;                        /* <-- Slow enough to read as a fold, not a jump */
-        --Vale_HeaderFoldEase          : cubic-bezier(0.32, 0.72, 0, 1);  /* <-- Moves off promptly, settles gently */
+        --Vale_HeaderFoldDuration      : 1000ms;                       /* <-- THE ONE NUMBER THAT SETS THE PACE. Change it here and both bars follow. */
+        --Vale_HeaderFoldEase          : cubic-bezier(0.40, 0.00, 0.20, 1);  /* <-- Even glide; a front-loaded curve read as a snap then a crawl */
+        --Vale_HeaderFoldDelay         : 1000ms;                       /* <-- The beat the bar waits before leaving. Going away only; see below. */
     }
     /* ------------------------------------------------------------ */
 
 
     /* FOLD | The Header Itself */
     /* ------------------------------------------------------------ */
+    /* THE DELAY IS ONE-WAY, AND THAT IS NOT AN OVERSIGHT. A transition takes
+       its timing from the state it is moving TO, so declaring the delay only
+       on the folded rule buys a held beat on the way out and nothing at all on
+       the way back. That is the asymmetry the two directions deserve: pressing
+       a drawing tab, the drawing is what you came for and the bar can take its
+       time leaving; pressing 3D Model, the branding and the Dev Tools trigger
+       are what you came back for, and a second of empty space first would just
+       read as lag. Both the base rule's shorthand (delay 0) and the folded
+       rule's override are load-bearing - do not fold the delay into the
+       shorthand above, or it applies in both directions. */
     .app-header {
         transition                     : top var(--Vale_HeaderFoldDuration) var(--Vale_HeaderFoldEase),
                                          box-shadow var(--Vale_HeaderFoldDuration) var(--Vale_HeaderFoldEase);
@@ -223,6 +234,7 @@
     body.na-layout-editor--active .app-header {
         top                            : calc(-1 * var(--Vale_HeaderHeight));   /* <-- Clears the viewport; follows the 48px narrow-screen value by itself */
         box-shadow                     : 0 0 0 rgba(0, 0, 0, 0);                /* <-- Otherwise the drop shadow stays behind as a smudge over the tabs */
+        transition-delay               : var(--Vale_HeaderFoldDelay);           /* <-- Hold, then go. Only on this state; see the note below. */
     }
     /* ------------------------------------------------------------ */
 
@@ -238,6 +250,7 @@
 
     body.na-layout-editor--active .na-le-tabs {
         top                            : 0;                            /* <-- Takes the space the header gave up */
+        transition-delay               : var(--Vale_HeaderFoldDelay);  /* <-- Identical to the header's, or the two come apart during the hold */
     }
     /* ------------------------------------------------------------ */
 
@@ -268,23 +281,30 @@
        did, or has to restate that fade and drift from it later.
 
        So the canvas keeps the size, the position and the single transition it
-       has always had, and the fold is three bars moving over the top of it. */
+       has always had, and the fold is the two bars moving over the top of it. */
     /* ------------------------------------------------------------ */
 
 /* endregion ------------------------------------------------------------------- */
 
 
 /* -----------------------------------------------------------------------------
- * REGION | Reduced Motion
+ * REGION | Why There Is No prefers-reduced-motion Branch Here
  * -----------------------------------------------------------------------------
- * A fold is decoration. Anyone who has asked their system to stop moving things
- * gets the same two states with no travel between them.
+ * There was one, and it silently switched the whole feature off on the machine
+ * it was written for. Windows > Accessibility > Visual effects > Animation
+ * effects is off on the studio PC (MinAnimate = 0 in the registry), and
+ * Chromium reports that as prefers-reduced-motion: reduce. The fold ran at
+ * 0.01ms, which is the two end states and no travel - exactly the snap Adam
+ * reported, from a rule meant to be considerate.
+ *
+ * That Windows toggle is one most people flip for window animations or for
+ * speed, not as a statement about vestibular motion, so treating it as a veto
+ * over a 60px linear slide of a toolbar reads the setting far more strongly
+ * than it was meant. The fold is small, straight, one axis, no zoom, spin or
+ * parallax - the kind of motion reduced-motion guidance exists to permit.
+ *
+ * So the pace is the app's to decide, in --Vale_HeaderFoldDuration above, and
+ * not the operating system's. If it is ever wanted back, it is a three-line
+ * block here; shorten the duration rather than collapsing it, or the feature
+ * disappears again with no sign of why.
  * ----------------------------------------------------------------------------- */
-
-    @media (prefers-reduced-motion: reduce) {
-        :root {
-            --Vale_HeaderFoldDuration  : 0.01ms;                       /* <-- Not 0: transitionend still fires for anything that ever listens */
-        }
-    }
-
-/* endregion ------------------------------------------------------------------- */

@@ -55,10 +55,8 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported. Needs ItemClipboard 1.1.0 (InsertSet),
-//                   SheetModel Groups 1.1.0 (DeleteItems silent),
-//                   Grips 1.8.0 (RegisterGroupProvider) and
-//                   Groups 1.2.0 (RegisterLabeller).
+// - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, adapted: one drawing
+//                   type there. The four hooks it needed were ported with it.
 //
 // -----------------------------------------------------------------------------
 //

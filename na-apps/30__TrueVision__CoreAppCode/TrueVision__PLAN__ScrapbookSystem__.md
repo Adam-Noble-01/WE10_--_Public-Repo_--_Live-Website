@@ -217,6 +217,16 @@ see what it is tied to". `Na__LeParamNoodle` is a second group grip provider.
   Scale cell): a dashed live noodle follows the pointer and what it is over lights up. Let go
   on a 2D viewport to tie to it, on the title block for the sheet's scale, on bare paper to
   untie. Escape cancels. Each is one undo step and a toast, since an untie is invisible.
+- **The plug.** The noodle's FAR end is a handle too (v2.85.0 on, Adam: "for a lot of users it's
+  going to be more logical to grab the end point and move that to whatever they want to tag...
+  like dragging a rope or a cable"). A round grip laid over the end dot, a little larger than the
+  socket because it lies on a drawing's frame among linework. It starts the SAME drag as the
+  socket - one behaviour, two places to begin it - and keeps its press to itself, or the sheet
+  tools would pick up the viewport it lies on. No noodle, no plug: an untied element has only
+  its hollow socket, which is how a first noodle is drawn. THE PLUG IS A GRIP ELEMENT, NOT PART
+  OF THE NOODLE'S DRAWING, so taking the finished tie away for a drag does not take it: the live
+  noodle HIDES it (hidden, never removed - it may be the element the press began on) and the
+  repaint that ends every drag replaces it. Found by the ValeVision port's test, not this one's.
 - **SVG in the handles layer**, drawn in millimetres on a viewBox the size of the page, every
   width divided by the zoom. It keeps the `na-le-grip` class so the grips' clear takes it.
 - **The Scale cell is FOUND, not worked out:** it is read off the Scale label the chrome SVG
@@ -339,6 +349,10 @@ first so it is theirs by default. The left column is back to the sheet and its l
 | 19-Sep-2026 | Commit 3276740 (21:54, titled for the v2.75.0 Safari manifest work) swept in the whole system, late fixes included, and was PUSHED - so it reached origin/main before Adam had tried it. Checked each late fix in HEAD by name. The original Standard Scrapbook was then re-tested on a scratch site plan sheet after its tile drag moved out: three tiles, drag, tokens, undo and redo byte for byte, double-click, and a plain group still tagged "Group". Uncommitted at close: the v2.76.0 DEVLOG entry, this plan, the three tests, a one-line config wording fix, a launch.json entry. |
 | 19-Sep-2026 | SECOND SESSION, after Adam's "you still need to build out the extra tab... and the linking noodle". Both had been in his images and misread: the green box in image 4 was taken for "put the settings here", and the blue curve in image 3 for a sketch of the idea of a link rather than a thing to draw. Built 4.6 and 4.7. In-app on scratch copies of PS02 D21 and D24, fetch guarded: the tab (11 checks - two tabs styled alike, remembered, libraries not read until opened, a drop does not switch tabs); the noodle (19 checks - drawn to the right edge, target outlined, socket filled or hollow, drag to another drawing, to the title block, to bare paper, Escape, undo AND redo for each, a sheet-tied bar following the sheet's scale in one step); the Standard library from its new home and a bar on a site plan reading 1:500 or 1:1250 (9 checks). Real sheets byte-identical afterwards; nothing written. |
 | 20-Sep-2026 | THIRD SESSION, after Adam's "elevation viewports should derive their names from a new direction tool... the text should show as a placeholder within double curly braces until you set up the north arrow". Mapped first (three read-only searches): the app has always ASSUMED the model's -Z axis is north, and PS01/PS02 store their "North Elevation" at azimuth 90 - seeded as East, renamed by hand. Built section 11. Node: compass 23 checks, title text 27, drawing title 39 (the generated title sits where Adam's hand-lettered one does to a thousandth of a millimetre). In-app on scratch copies of PS02 D22, D21 and D24, fetch guarded: facts and names for all twelve 2D viewports before and after north (all six elevation titles come out exactly as Adam lettered them at a north bearing of 90); the title element 68 checks - placeholder on drop, fills itself in when north is set, follows model source, rename, re-tie, scale and delete each inside ONE undo step with undo AND redo byte for byte, keeps what it says when untied, catches up when its sheet next comes up, plans and site plans, the panel's controls and its why-note, the scale bar unchanged; the 3D tool 22 checks - two-click draw, an orbit drag is not a click, live aiming, Escape, typed bearing, a REFUSED save reported as a failure, clear, the compass gone when the panel closes, and picks from a plan view (up the plan = 0, right = 90). Real sheets byte-identical afterwards; the one write attempted was Save North's, refused by the guard. Service worker token bumped to 2026-09-20-1: new modules import new exports from modules a warm cache already holds. |
+| 20-Sep-2026 | Adam tried the Drawing Title in his own browser (his screenshot shows EXISTING FLOOR PLAN tied to PS01's plan) and asked for one more thing: the noodle's END to be draggable as well as its start. Built as the plug (4.6). In-app on a scratch copy of PS02 D21, fetch guarded, 23 checks: both handles up on a tied element, the plug exactly on the end dot, a press that never moves does nothing, carried to the other plan the title retitles in ONE undo step with undo AND redo byte for byte, neither drawing moved and the element stayed selected, Escape, bare paper unties and the plug goes with the noodle, the SOCKET still does all it did, the title block and back, a locked layer shows the tie with neither handle, a plain scale bar has it too. Real sheets byte-identical; no write attempted. Then asked for the whole session's work to be ported to ValeVision. |
+| 20-Sep-2026 | PORTED TO VALEVISION the same day, as VV v2.67.0 (north and viewport identity), v2.68.0 (the tab, the host, the Parametric Scrapbook with the noodle and its plug) and v2.69.0 (the Custom Scrapbook and a save route on Whitecardopedia's `server.py`). Scripted, anchored, all-or-nothing patches; every module marked verbatim proved byte-identical from its first code region down. What ValeVision does NOT get, and why, is in its DEVLOG and parity ledger: no phases (one model per project, so Existing / Proposed is chosen per title), no site plans, an EMPTY Standard library (the items here are Noble Architecture's own), no Show Compass (no `Na__InteractiveOverlays` there). ValeVision's clipboard also had to learn to land a dimension (`InsertDimension`, a dimension leaf in `InsertLeaves`) - copy there is unchanged. Tested in ValeVision: Node 23 + 27 + 35 + 39, the API 25, and in the app on a scratch copy of project 3047's sheet through a test server of its own; real sheet byte-identical, nothing written. ITS SHARED SERVICE WORKER TOKEN IS ADAM'S CALL and was not bumped. |
+| 20-Sep-2026 | TWO FAULTS FOUND BY THE VALEVISION TEST. (1) ValeVision only: the north compass was rendered into a sheet's 3D viewport - the mode controller collapses every dev panel by class before it announces a sheet, so a listener that first asked "is my panel open?" always heard no. TrueVision is safe because its compass is an interactive overlay. (2) BOTH APPS: the plug's dot stayed at the far end of a noodle that was no longer there for the length of a drag; it is a grip element, not part of the noodle's drawing. Now hidden while either end is carried (4.6). `LinkNoodle__` stays 1.2.0 - it had not shipped. |
+| 20-Sep-2026 | OTHER SESSIONS MOVED THIS SYSTEM ON THE SAME MORNING, in work Adam has not yet tried: v2.86.0 rebuilt the Elevations and Floor Plans menus (presets named from north, typed elevation names reaching the title - which closes 11.6's first item) and v2.87.0 made a floor plan's storey a sixth fact (11.8, written by that session). ValeVision holds the five modules as they were before both. |
 | 19-Sep-2026 | NOT YET DONE: Adam's own test in his browser through the real 8090 server, which must be RESTARTED first to load the scrapbook routes. |
 
 ---------------------------------------------------------
@@ -463,6 +477,11 @@ three as one object; this type draws that object.
   / S / W names by the model's axes. Titles and viewport names no longer care - they read azimuth
   against true north - but the records' own names, and their carousel cards, stay as typed. Next:
   presets relative to true north, and an offer to rename seeded records when north is set.
+  **CLOSED 20-Sep-2026, by the Elevations / Floor Plans menu session (v2.86.0), as that session
+  reports it:** the N / E / S / W preset buttons are gone, Seed names from north through
+  `Na__NorthData__FacingWordForAzimuth`, and a record carries `Elevation__NameIsAuto` (true follows
+  the direction, false is a name somebody typed and reaches the title, absent is a record from
+  before the flag and never promotes). Not re-tested here. ValeVision's menu is still the old one.
 - **The site plan's north point** still points up the paper. It wants the same bearing, as a
   parametric element (and site plan viewports have no rotation yet).
 - **Sheets that are away** catch up when next opened; a PDF of the whole pack made straight after
@@ -481,3 +500,39 @@ three as one object; this type draws that object.
 | "If it's an existing model, add the existing section... then add the elevation direction" | QUALIFIER then DIRECTION then ELEVATION, as he letters them |
 | "The text should show as a placeholder within double curly braces until you set up the north arrow" | `EXISTING {{DIRECTION}} ELEVATION`; fills itself in the moment north is set. My reading of "if you try and insert that block, it shouldn't work": the block inserts, and the WORD does not resolve - Adam to confirm |
 | "Parametric elevation tags... reach in and say, this is an existing plan... fetch the directional data" | The Drawing Title, written from the identity module's facts |
+
+### 11.8 The storey level - a sixth fact (20-Sep-2026, v2.87.0)
+
+*Written by the "Floor plan building story levels" session, which built it, and placed here by this
+one as the two agreed. Not re-tested by this session; not in ValeVision.*
+
+A floor plan record now knows which building storey it is a plan of (`FloorPlan__StoreyLevel`, chosen
+per plan in Dev Tools > Floor Plans; `42__System__FloorPlanViews/Na__FloorPlan__StoreyLevel__.js`
+holds the list and an educated guess from the plan's name, then its cut height, which is never
+written down). Viewport identity answers it as a sixth fact, `level` - the storey's own title,
+"Ground Floor Plan", '' for everything that is not a floor plan - and the Drawing Title stores it as
+`ViewLevel`. In the title text a plan with a level is lettered from it in place of its record's name.
+
+THE TRAP: a typed viewport name is the subject, and PS02 D21's two plan viewports are typed "Existing
+Floor Plan" / "Proposed Floor Plan", so the fact alone changed nothing on the very sheet Adam asked
+about. Rule: a typed name beats the storey only by SAYING MORE - every word of it, the opening
+qualifier aside, found in the storey's title or in `Words__GenericPlan` ("Floor Plan", the words that
+only say "a plan") means the storey is lettered; "Coach House Floor Plan" stays as typed, and so does
+"Ground Floor Plan" typed on a plan assigned to the roof. GenericPlan was found by falling in: without
+it, reassigning D21's plan to Roof lettered PROPOSED FLOOR PLAN, because "Floor" is no word of "Roof
+Plan" - caught in the app, not by the unit test, which had encoded the wrong expectation. Elevations
+are untouched: a typed name there always wins.
+
+Compose's answer gains `source` ('override' | 'name' | 'facing' | 'level' | 'drawing' |
+'placeholder') and the panel's why-sentence asks that instead of looking at ViewName. A title saved
+before there was a ViewLevel reads exactly as it did and gains the fact the next time its sheet is
+brought into line (Refresh: one undo step); a storey chosen in the Dev menu is announced
+(`na-floorplan-storey-changed` -> identity reason 'level') and reaches an open sheet through the same
+booked refresh north uses.
+
+Versions after it: TitleText 1.1.0, Identity 1.1.0 (+ `Words__GenericPlan` in its config),
+DrawingTitle 1.1.0, ViewportLink 1.3.0 (FactsOf only), Panel 1.3.0 (the why-sentence only). Title
+text test 48 checks (was 27), drawing title 45 (was 39). Open: unnamed PLAN viewports are still named
+by their record in the panels and toasts (the namer only names elevations) - offered to Adam, not
+built. ValeVision holds the five modules one fact behind (1.0.0 / 1.0.0 / 1.0.0 / 1.2.0 / 1.2.0) and
+has no storey field.

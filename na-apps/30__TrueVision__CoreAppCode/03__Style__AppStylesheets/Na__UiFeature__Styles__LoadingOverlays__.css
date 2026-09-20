@@ -250,3 +250,90 @@
 /* endregion ------------------------------------------------------------------- */
 
 
+
+
+/* -----------------------------------------------------------------------------
+ * REGION | Layout Editor Loading Veils
+ * -----------------------------------------------------------------------------
+ * Two veils over the two crossings between the model and the drawings.
+ * Na__LayoutEditor__LoadingVeil__.js owns WHEN each appears; this owns what
+ * they look like. They share everything but where they are anchored.
+ *
+ * GOING IN (no modifier) is mounted inside the editor host, so the drawing tabs
+ * stay readable above it - the tab that was pressed is the one that is loading
+ * - and so the top bar folds away over the top of it exactly as it does over a
+ * sheet. The host is position: fixed, which makes inset: 0 here the whole
+ * editor area and saves measuring anything.
+ *
+ * COMING OUT (--over-model) is mounted on the body and covers the viewport,
+ * because by then the host is hidden and what needs covering is the 3D canvas.
+ * Its z-index is the point: 500 sits above the canvas and the editor host but
+ * BELOW the tab strip (999) and the header (1001), so the bar unfolding is
+ * still watched over the top of it rather than hidden by the thing that is
+ * waiting for the camera.
+ *
+ * TWO CLASSES, NOT ONE. --visible switches display on, --shown fades opacity
+ * in. A single class cannot do both: display and opacity changing in the same
+ * frame skips the transition entirely, so the module commits the first, reads
+ * back a layout, then adds the second.
+ * ----------------------------------------------------------------------------- */
+
+    /* VEIL | The Cover */
+    /* ------------------------------------------------------------ */
+    .na-le-veil {
+        position                           : absolute;                     /* <-- The host is fixed; this fills it */
+        inset                              : 0;
+        display                            : none;                         /* <-- Built lazily and still not shown until it is earned */
+        flex-direction                     : column;
+        justify-content                    : center;
+        align-items                        : center;
+        gap                                : 4px;
+        background-color                   : rgba(255, 255, 255, 0.94);
+        backdrop-filter                    : blur(3px);
+        z-index                            : 40;                           /* <-- Over the stage and the panels, under the sheet context menu */
+        opacity                            : 0;
+        transition                         : opacity 320ms ease-out;       /* <-- FADE_MS in the module matches this */
+    }
+
+    .na-le-veil--over-model {
+        position                           : fixed;                        /* <-- The host is gone by now; this covers the viewport */
+        z-index                            : 500;                          /* <-- Above the canvas, below the tabs (999) and the header (1001) */
+    }
+
+    .na-le-veil--visible {
+        display                            : flex;
+    }
+
+    .na-le-veil--shown {
+        opacity                            : 1;
+    }
+    /* ------------------------------------------------------------ */
+
+
+    /* VEIL | The Words Under the Spinner */
+    /* ------------------------------------------------------------ */
+    .na-le-veil__text {
+        margin                             : 0;
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 17px;
+        font-weight                        : 600;
+        color                              : #172b3a;
+        letter-spacing                     : 0.3px;
+        text-align                         : center;
+    }
+
+    /* The second line names the job actually being waited on, so the veil can */
+    /* be believed. It is empty until there is something true to put in it.    */
+    .na-le-veil__status {
+        margin                             : 0;
+        min-height                         : 1.2em;                        /* <-- Reserved, so the headline does not hop when the line changes */
+        font-family                        : 'Open Sans', sans-serif;
+        font-size                          : 13px;
+        font-weight                        : 400;
+        color                              : rgba(23, 43, 58, 0.62);
+        letter-spacing                     : 0.2px;
+        text-align                         : center;
+    }
+    /* ------------------------------------------------------------ */
+
+/* endregion ------------------------------------------------------------------- */

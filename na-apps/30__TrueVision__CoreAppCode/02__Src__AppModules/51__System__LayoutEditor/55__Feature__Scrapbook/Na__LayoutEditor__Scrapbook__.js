@@ -32,9 +32,9 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (14-Sep-2026)
-// - ValeVision    : not yet ported. Nothing here is app-specific, but the
-//                   first items are offered on site plan sheets, which
-//                   ValeVision does not have.
+// - ValeVision    : 1.1.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, adapted: one drawing
+//                   type there. ITS LIBRARY ARRIVES EMPTY - the items here are Noble
+//                   Architecture's own site plan furniture and were deliberately not copied.
 //
 // -----------------------------------------------------------------------------
 //

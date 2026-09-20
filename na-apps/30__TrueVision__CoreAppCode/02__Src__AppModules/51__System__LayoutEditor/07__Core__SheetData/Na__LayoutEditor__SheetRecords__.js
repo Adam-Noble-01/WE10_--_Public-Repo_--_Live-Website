@@ -430,10 +430,18 @@
         // site plan data (52__System__SitePlanData) rather than a plan or an
         // elevation. Kept only on such a viewport, as an object with room for the
         // settings still to come; it is always 2D and never carries a drawing id.
+        // SitePlan__StoreId names which store it draws - the Existing site plan
+        // or the Proposed one. Stored ONLY when set: absent means the project's
+        // default store, so every viewport saved before there were two stores is
+        // left byte-identical and paints exactly what it painted before.
         if (Na__LeRec__IsSitePlanViewport(viewport)) {
             viewport.Viewport__SitePlan  = Object.assign({}, viewport.Viewport__SitePlan);
             viewport.Viewport__Kind      = Na__LeRec__KIND_2D;
             viewport.Viewport__DrawingId = null;
+            if (typeof viewport.Viewport__SitePlan.SitePlan__StoreId !== 'string'
+                || !viewport.Viewport__SitePlan.SitePlan__StoreId) {
+                delete viewport.Viewport__SitePlan.SitePlan__StoreId;
+            }
         } else {
             delete viewport.Viewport__SitePlan;
         }

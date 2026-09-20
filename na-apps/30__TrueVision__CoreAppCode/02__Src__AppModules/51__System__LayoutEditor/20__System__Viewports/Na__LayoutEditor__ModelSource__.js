@@ -57,6 +57,7 @@
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetModelSourceSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__UpdateViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__SpStore__GetLayers } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
+    import { Na__LeVp2d__SitePlanStoreId } from './Na__LayoutEditor__Viewport2d__SitePlan__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | The Design Phase Library
@@ -190,7 +191,11 @@
     // ------------------------------------------------------------
     function Na__LeSource__CategoryKeys(viewport) {
         const marker = viewport ? viewport.Viewport__SitePlan : null;
-        if (marker && typeof marker === 'object') return Na__SpStore__GetLayers().map((layer) => layer.Layer__CategoryKey);   // <-- A site plan viewport lists its site plan layers, never a model's
+        if (marker && typeof marker === 'object') {
+            // A site plan viewport lists ITS OWN STORE'S layers, never a model's
+            // and never the other store's - the two publish the same layer names.
+            return Na__SpStore__GetLayers(Na__LeVp2d__SitePlanStoreId(viewport)).map((layer) => layer.Layer__CategoryKey);
+        }
         const source = viewport ? Na__LeSource__Resolve(viewport) : null;
         return (source && source.renderId) ? Na__PhaseLib__GetCategoryKeys(source.renderId) : null;
     }

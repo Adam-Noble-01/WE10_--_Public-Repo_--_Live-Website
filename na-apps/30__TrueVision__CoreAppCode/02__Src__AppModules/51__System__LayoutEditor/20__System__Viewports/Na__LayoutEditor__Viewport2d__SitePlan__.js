@@ -81,7 +81,8 @@
         Na__SpStore__GetStatus,
         Na__SpStore__GetNote,
         Na__SpStore__GetDescriptor,
-        Na__SpStore__GetLayerData
+        Na__SpStore__GetLayerData,
+        Na__SpStore__DefaultStoreId
     } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
     // ------------------------------------------------------------
 
@@ -107,14 +108,40 @@
 // REGION | Site Plan Viewports
 // -----------------------------------------------------------------------------
 
+    // FUNCTION | Which Site Plan Store This Viewport Draws
+    // ------------------------------------------------------------
+    // Viewport__SitePlan.SitePlan__StoreId names it. A viewport that names none -
+    // every viewport saved before there were two stores - gets the store the
+    // project defaults to, which is the proposed one when it has data. So an old
+    // sheet paints exactly what it painted before.
+    //
+    // This lives here, not in SheetRecords, because SheetRecords is shared with
+    // ValeVision, which has no site plan store at all.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__SitePlanStoreId(viewport) {
+        const block = viewport && viewport.Viewport__SitePlan;
+        const id    = (block && typeof block === 'object') ? block.SitePlan__StoreId : null;
+        return (typeof id === 'string' && id) ? id : Na__SpStore__DefaultStoreId();
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | What a Site Plan Viewport's Lines Depend On, as One Token
     // ------------------------------------------------------------
-    // The export time and the layers switched off: a new export or a Model Layers
-    // toggle changes it; a pan, a crop or a restyle does not.
+    // The store, its export time and the layers switched off: a new export, a
+    // store switch or a Model Layers toggle changes it; a pan, a crop or a
+    // restyle does not.
+    //
+    // THE STORE ID MUST BE IN HERE. This token is built.key, which also keys the
+    // path cache in Na__LeVp2d__BandPaths - switch store without it and the
+    // viewport repaints the previous store's path strings.
     // ------------------------------------------------------------
     function Na__LeVp2d__SitePlanToken(viewport) {
-        const descriptor = Na__SpStore__GetDescriptor();
-        return 'siteplan:' + (descriptor ? descriptor.SitePlan__ExportedIso : 'none') + ':' + Na__LeModelLayers__Token(viewport);
+        const storeId    = Na__LeVp2d__SitePlanStoreId(viewport);
+        const descriptor = Na__SpStore__GetDescriptor(storeId);
+        return 'siteplan:' + storeId
+             + ':' + (descriptor ? descriptor.SitePlan__ExportedIso : 'none')
+             + ':' + Na__LeModelLayers__Token(viewport);
     }
     // ------------------------------------------------------------
 
@@ -140,7 +167,7 @@
     // a layer that failed once everything has settled.
     // ------------------------------------------------------------
     function Na__LeVp2d__SitePlanBuild(viewport, allowMissing) {
-        const descriptor = Na__SpStore__GetDescriptor();
+        const descriptor = Na__SpStore__GetDescriptor(Na__LeVp2d__SitePlanStoreId(viewport));
         if (!descriptor) return null;
         const loaded = [];
         const layers = descriptor.SitePlan__Layers.filter((layer) => Na__LeModelLayers__IsOn(viewport, layer.Layer__CategoryKey));
@@ -175,9 +202,10 @@
     // data. The PDF exporter awaits this; the sheet paints from the same build.
     // ------------------------------------------------------------
     async function Na__LeVp2d__SitePlanDrawing(viewport) {
-        const descriptor = await Na__SpStore__Resolve();
+        const storeId    = Na__LeVp2d__SitePlanStoreId(viewport);
+        const descriptor = await Na__SpStore__Resolve(storeId);
         if (!descriptor) return null;
-        await Na__SpStore__LoadAll();
+        await Na__SpStore__LoadAll(storeId);
         return Na__LeVp2d__SitePlanBuild(viewport, true);
     }
     // ------------------------------------------------------------
@@ -246,20 +274,21 @@
         state.markup.innerHTML = ''; state.markupKey = null;
         state.masterPt = sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null;
 
-        const status = Na__SpStore__GetStatus();
+        const storeId = Na__LeVp2d__SitePlanStoreId(viewport);
+        const status  = Na__SpStore__GetStatus(storeId);
         if (status !== Na__SpStore__STATUS_READY) {
             state.linework.innerHTML = ''; state.lineworkKey = null; state.lineworkSvg = null; state.classes = null; state.classesKey = null;
             if (status === Na__SpStore__STATUS_EMPTY) {
                 Na__LeVp2d__HideProgress(state);
                 state.empty.textContent = Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.');
-                state.empty.title       = Na__SpStore__GetNote() || '';
+                state.empty.title       = Na__SpStore__GetNote(storeId) || '';
                 state.empty.hidden      = false;
                 return;
             }
             state.empty.hidden = true;
             state.progress.textContent = Na__LeCfg__GetLabel('SitePlanLoading', 'Loading site plan data...');
             state.progress.hidden = false;
-            Na__SpStore__Resolve().then(() => Na__LeVp2d__RefillSitePlan(state, viewport.Viewport__Id, false));
+            Na__SpStore__Resolve(storeId).then(() => Na__LeVp2d__RefillSitePlan(state, viewport.Viewport__Id, false));
             return;
         }
         state.empty.hidden = true;
@@ -280,7 +309,7 @@
         }
         state.progress.textContent = Na__LeCfg__GetLabel('SitePlanLoading', 'Loading site plan data...');
         state.progress.hidden = false;
-        Na__SpStore__LoadAll().then(() => Na__LeVp2d__RefillSitePlan(state, viewport.Viewport__Id, true));
+        Na__SpStore__LoadAll(storeId).then(() => Na__LeVp2d__RefillSitePlan(state, viewport.Viewport__Id, true));
     }
     // ------------------------------------------------------------
 
@@ -291,7 +320,7 @@
         if (Na__LeVp2d__States.get(viewportId) !== state || !state.lastArgs) return;
         const args = state.lastArgs;
         if (!Na__LeModel__IsSitePlanViewport(args.viewport)) return;
-        if (settled === true && Na__SpStore__GetStatus() === Na__SpStore__STATUS_READY) {
+        if (settled === true && Na__SpStore__GetStatus(Na__LeVp2d__SitePlanStoreId(args.viewport)) === Na__SpStore__STATUS_READY) {
             const built = Na__LeVp2d__SitePlanBuild(args.viewport, true);          // <-- Everything has settled: a layer that failed is left out
             Na__LeVp2d__HideProgress(state);
             if (built) Na__LeVp2d__PaintSitePlan(state, args.viewport, built, args.ppm);
@@ -311,6 +340,7 @@
     // MODULE EXPORTS | Layout Editor Viewport 2D Site Plan Unit
     // ------------------------------------------------------------
     export {
+        Na__LeVp2d__SitePlanStoreId,
         Na__LeVp2d__SitePlanDrawing,
         Na__LeVp2d__FillSitePlan
     };

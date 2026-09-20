@@ -18,8 +18,14 @@
 //   and no noodle, so "is this bar following anything?" is answered by
 //   looking at it. Adam asked for exactly this: "so you can see what it is
 //   tied to".
-// - DRAG THE SOCKET TO RE-TIE IT. The noodle follows the pointer, and whatever
-//   it is over that it could be tied to lights up. Let go
+// - DRAG EITHER END TO RE-TIE IT. The round SOCKET on the element, to draw a
+//   new noodle out of it; or the PLUG where the noodle lands, to pull the one
+//   that is there off its drawing and carry it to another, as a cable is moved
+//   from one socket to the next. Some people see the element and reach for
+//   that; others see the noodle already tied to something and reach for its
+//   end. Both are the same drag from the moment they start. The noodle
+//   follows the pointer, and whatever it is over that it could be tied to
+//   lights up. Let go
 //       on a 2D viewport      tied to that drawing, at its scale
 //       on the title block    tied to the sheet's own scale
 //       on bare paper         untied: it keeps the scale it has
@@ -29,7 +35,8 @@
 //   viewBox the size of the page, with every width divided by the zoom so it
 //   is the same weight on screen at any zoom, like the grips. It carries the
 //   na-le-grip class, so whatever clears the grips clears it. It takes no
-//   pointer events; only the socket does.
+//   pointer events; the socket and the plug, which are grips laid over its
+//   two ends, do.
 // - THE SCALE CELL IS FOUND, NOT WORKED OUT. The title block modules lay their
 //   cells out privately, and repeating their arithmetic here would drift from
 //   it. The chrome SVG already holds the Scale label as text at its cell's
@@ -48,11 +55,21 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported; see Na__LayoutEditor__ScrapbookParametric__.
+// - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0
+// - THE PLUG. The noodle's far end is a handle as well as its near one. Adam:
+//   "for a lot of users it's going to be more logical to grab the end point and
+//   move that to whatever they want to tag... like dragging a rope or a cable".
+//   Both ends start the one drag, so there is one behaviour, not two.
+// - The plug is hidden while either end is dragged. The live noodle took the
+//   finished tie away but left the plug's dot sitting at the far end of a
+//   noodle that was no longer there - found while testing the ValeVision port.
+//   Hidden rather than removed: it may be the element the press began on.
+//
 // 20-Sep-2026 - Version 1.1.0
 // - Untying an element that has no scale bar - a Drawing Title on its own -
 //   says it keeps what it says, not that it keeps a scale.
@@ -116,11 +133,12 @@
     const Na__LeParamNoodle__CLASS        = 'na-le-grip na-le-param-noodle';                       // <-- na-le-grip: cleared with the grips
     const Na__LeParamNoodle__CLASS_LIVE   = 'na-le-grip na-le-param-noodle na-le-param-noodle--live';
     const Na__LeParamNoodle__CLASS_SOCKET = 'na-le-grip na-le-grip--param na-le-grip--param-link';
+    const Na__LeParamNoodle__CLASS_PLUG   = 'na-le-grip na-le-grip--param na-le-grip--param-plug';   // <-- The noodle's far end, where it lands on what it is tied to
     const Na__LeParamNoodle__BODY_CLASS   = 'na-le-param-linking';
     const Na__LeParamNoodle__SCALE_KEY    = 'Scale';                                               // <-- The title block row an element tied to the sheet points at
     const Na__LeParamNoodle__SWALLOWED    = Object.freeze([ 'pointerup', 'click', 'dblclick' ]);
     const Na__LeParamNoodle__FALLBACK     = Object.freeze({
-        LinkSizePx : 11, LinkOffsetPx : 16, ClickSlopPx : 4,
+        LinkSizePx : 11, LinkOffsetPx : 16, PlugSizePx : 13, ClickSlopPx : 4,
         LinePx : 2, CasingPx : 4.5, TargetDotPx : 4.5, HighlightPx : 1.5, MinReachMm : 10, MaxReachMm : 70, ScaleCellInsetMm : 8,
         Colour : '#12a5dc', Casing : '#ffffff'
     });
@@ -359,13 +377,45 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Draw a Selected Parametric Element's Tie and Its Socket
+    // HELPER FUNCTION | One Round Handle on the Noodle: the Socket or the Plug
+    // ------------------------------------------------------------
+    // at is in paper millimetres. Either handle starts the same drag, and
+    // keeps its press to itself: the plug lies on a viewport's frame, and a
+    // press that reached the sheet tools there would pick the viewport up.
+    // ------------------------------------------------------------
+    function Na__LeParamNoodle__Handle(layer, className, title, at, sizeKey, ppm, zoom, sheet, groupId) {
+        const scale  = zoom > 0 ? zoom : 1;
+        const sizePx = Na__LeParamNoodle__Setting(sizeKey) / scale;
+        const grip   = document.createElement('div');
+        grip.className         = className;
+        grip.title             = title;
+        grip.style.left        = ((at.x * ppm) - (sizePx / 2)) + 'px';
+        grip.style.top         = ((at.y * ppm) - (sizePx / 2)) + 'px';
+        grip.style.width       = sizePx + 'px';
+        grip.style.height      = sizePx + 'px';
+        grip.style.borderWidth = (2 / scale) + 'px';
+        grip.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            event.stopPropagation();                                          // <-- The handle's press, not the sheet tools'
+            Na__LeParamNoodle__OnDown(event, sheet, groupId);
+        });
+        Na__LeParamNoodle__SWALLOWED.forEach((name) => grip.addEventListener(name, (event) => event.stopPropagation()));
+        layer.appendChild(grip);
+        return grip;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Draw a Selected Parametric Element's Tie, Its Socket and Its Plug
     // ------------------------------------------------------------
     // The group grip provider. Nothing for a plain group or a type with no
-    // link point. While the socket is being dragged only the live noodle
+    // link point. While either end is being dragged only the live noodle
     // shows, so a repaint in the middle of a drag does not draw the old tie
-    // under it. An element on a locked layer still shows what it is tied to,
-    // but has no socket to take hold of.
+    // under it - nor a plug at the end of a noodle that is not there. An
+    // element on a locked layer still shows what it is tied to, but has
+    // neither handle to take hold of. An element tied to nothing has no far
+    // end, so no plug: the socket is how a first noodle is drawn.
     // ------------------------------------------------------------
     function Na__LeParamNoodle__Render(layer, sheet, selection, ppm, zoom) {
         if (!layer || !sheet || !selection || selection.kind !== 'group') return false;
@@ -375,31 +425,20 @@
         const groupId = selection.id;
         const tied    = Na__LeParamLink__DescribeById(sheet, groupId);
         const drag    = Na__LeParamNoodle__Drag;
-        if (!(drag && drag.groupId === groupId)) {
-            const landing = Na__LeParamNoodle__LandingFor(tied, socket);
-            if (landing) { const svg = Na__LeParamNoodle__Overlay(layer, Na__LeParamNoodle__CLASS); if (svg) Na__LeParamNoodle__Draw(svg, socket, landing.land, landing.box, false); }
-        }
+        const landing = (drag && drag.groupId === groupId) ? null : Na__LeParamNoodle__LandingFor(tied, socket);
+        if (landing) { const svg = Na__LeParamNoodle__Overlay(layer, Na__LeParamNoodle__CLASS); if (svg) Na__LeParamNoodle__Draw(svg, socket, landing.land, landing.box, false); }
         if (Na__LeParam__IsLocked(sheet, groupId)) return true;
 
-        const scale  = zoom > 0 ? zoom : 1;
-        const sizePx = Na__LeParamNoodle__Setting('LinkSizePx') / scale;
-        const grip   = document.createElement('div');
-        grip.className = Na__LeParamNoodle__CLASS_SOCKET + (tied.kind !== Na__LeParamLink__KIND_NONE ? ' is-tied' : '');
-        grip.title     = (tied.kind !== Na__LeParamLink__KIND_NONE ? Na__LeParam__Label('GripLinkTied', 'Tied to {target}.', { target : tied.name }) + ' ' : '')
-                       + Na__LeParam__Label('GripLink', 'Drag onto a drawing to tie this to it, or onto the title block for the sheet\'s scale. Let go on bare paper to untie it.');
-        grip.style.left        = ((socket.x * ppm) - (sizePx / 2)) + 'px';
-        grip.style.top         = ((socket.y * ppm) - (sizePx / 2)) + 'px';
-        grip.style.width       = sizePx + 'px';
-        grip.style.height      = sizePx + 'px';
-        grip.style.borderWidth = (2 / scale) + 'px';
-        grip.addEventListener('pointerdown', (event) => {
-            if (event.button !== 0) return;
-            event.preventDefault();
-            event.stopPropagation();                                          // <-- The socket's press, not the sheet tools'
-            Na__LeParamNoodle__OnDown(event, sheet, groupId);
-        });
-        Na__LeParamNoodle__SWALLOWED.forEach((name) => grip.addEventListener(name, (event) => event.stopPropagation()));
-        layer.appendChild(grip);
+        const isTied = tied.kind !== Na__LeParamLink__KIND_NONE;
+        const told   = isTied ? Na__LeParam__Label('GripLinkTied', 'Tied to {target}.', { target : tied.name }) + ' ' : '';
+        Na__LeParamNoodle__Handle(layer, Na__LeParamNoodle__CLASS_SOCKET + (isTied ? ' is-tied' : ''),
+            told + Na__LeParam__Label('GripLink', 'Drag onto a drawing to tie this to it, or onto the title block for the sheet\'s scale. Let go on bare paper to untie it.'),
+            socket, 'LinkSizePx', ppm, zoom, sheet, groupId);
+        if (landing) {
+            Na__LeParamNoodle__Handle(layer, Na__LeParamNoodle__CLASS_PLUG,
+                told + Na__LeParam__Label('GripPlug', 'Drag this end onto another drawing to move the tie there, or onto the title block for the sheet\'s scale. Let go on bare paper to untie it.'),
+                landing.land, 'PlugSizePx', ppm, zoom, sheet, groupId);   // <-- After the socket, so where the two meet on a very short noodle the plug is the one on top
+        }
         return true;
     }
     // ------------------------------------------------------------
@@ -408,7 +447,7 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Dragging the Socket
+// REGION | Dragging Either End
 // -----------------------------------------------------------------------------
 
     // HELPER FUNCTION | Redraw the Live Noodle: Socket to Pointer, and What It Is Over
@@ -421,6 +460,7 @@
         const sheet = Na__LeModel__GetSheetById(drag.sheetId);
         if (!layer || !sheet) return;
         layer.querySelectorAll('.na-le-param-noodle').forEach((el) => el.remove());       // <-- The finished tie goes while the live one is up
+        layer.querySelectorAll('.na-le-grip--param-plug').forEach((el) => { el.style.visibility = 'hidden'; });   // <-- ...and the plug at its far end with it. Hidden, not removed: it may be the element the press began on, and the repaint at the end of the drag replaces it
         const socket = Na__LeParamNoodle__SocketOf(Na__LeParam__HandlesOf(sheet, drag.groupId));
         const svg    = socket ? Na__LeParamNoodle__Overlay(layer, Na__LeParamNoodle__CLASS_LIVE) : null;
         if (!svg) return;
@@ -476,11 +516,13 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Take Hold of the Socket, Move, Let Go, Cancel
+    // HELPER FUNCTION | Take Hold of the Socket or the Plug, Move, Let Go, Cancel
     // ------------------------------------------------------------
-    // The drag listens on the window and holds ids, never the socket element:
-    // a repaint replaces it. A press that never moves further than ClickSlopPx
-    // is not a drag and ties nothing.
+    // One drag for both ends: whichever was pressed, the live noodle runs from
+    // the element's socket to the pointer, which is what the finished tie will
+    // do. The drag listens on the window and holds ids, never the handle's
+    // element: a repaint replaces it. A press that never moves further than
+    // ClickSlopPx is not a drag and ties nothing.
     // ------------------------------------------------------------
     function Na__LeParamNoodle__OnDown(event, sheet, groupId) {
         if (Na__LeParamNoodle__Drag) return;

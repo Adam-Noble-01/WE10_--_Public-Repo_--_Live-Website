@@ -168,6 +168,7 @@
     // MODULE IMPORTS | Config, Model, Surface, Navigation, Tools, Panels, Toolbar, Snapshots
     // ------------------------------------------------------------
     import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel, Na__LeCfg__GetPanelSetup, Na__LeCfg__MatchKeyBinding } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeVeil__FirstOpen, Na__LeVeil__ReturnTo3d, Na__LeVeil__Dismiss3d } from './Na__LayoutEditor__LoadingVeil__.js';
     import { Na__LeEdge__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
     import { Na__LeComposite__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__DrawCfg__Load } from '../../40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
@@ -182,7 +183,8 @@
         Na__LeModel__GetActiveSheet,
         Na__LeModel__SetActiveSheetId,
         Na__LeModel__SetSelection,
-        Na__LeModel__GetSelectionItems
+        Na__LeModel__GetSelectionItems,
+        Na__LeModel__GetViewports
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Mount, Na__LeSurface__SetSheet, Na__LeSurface__Refresh, Na__LeSurface__SetZoom, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeNav__Fit } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
@@ -420,10 +422,13 @@
     // place on screen and in another in the PDF. Asked for on the first
     // entry; the chrome and the markup redraw once they land.
     // ------------------------------------------------------------
+    // RETURNS THE PROMISE so the first-open overlay can wait on the same work
+    // rather than on a guess at how long it takes. A later call returns null:
+    // the load has already been asked for and nobody is waiting on it twice.
     function Na__LeMode__PreloadMetrics() {
-        if (Na__LeMode__Metrics) return;
+        if (Na__LeMode__Metrics) return null;
         Na__LeMode__Metrics = true;
-        Na__LePdf__EnsureJsPdf().then(() => {
+        return Na__LePdf__EnsureJsPdf().then(() => {
             if (!Na__LeMode__Active) return;
             Na__LeSurface__Refresh('chrome');
             Na__LeSurface__Refresh('markup');
@@ -452,6 +457,7 @@
     // ------------------------------------------------------------
     function Na__LeMode__Enter(sheetId) {
         if (!Na__LeMode__Context || !Na__LeCfg__IsEnabled()) return false;
+        Na__LeVeil__Dismiss3d();                                                 // <-- A drawing tab pressed while the model was still settling: its veil goes now
         const sheets = Na__LeModel__GetSheets();
         const sheet  = (sheetId && Na__LeModel__GetSheetById(sheetId)) || sheets[0] || null;
         if (!sheet) return false;
@@ -481,8 +487,26 @@
             Na__LeSnap__ResetFingerprints();                                // <-- One model walk per session, not per refresh
             Na__LeMode__AttachSheetInput();                                // <-- Pointer, keys, tools and the margin grip
         }
-        void Na__LeSpec__EnsureLoaded();                                   // <-- The specification is read when the drawing editor first opens, never before
-        Na__LeMode__PreloadMetrics();
+        const specLoad    = Na__LeSpec__EnsureLoaded();                    // <-- The specification is read when the drawing editor first opens, never before
+        const metricsLoad = Na__LeMode__PreloadMetrics();
+
+        // THE FIRST DRAWING TAB OF A SESSION IS THE EXPENSIVE ONE - the
+        // specification over the network, the PDF fonts, and every viewport
+        // rendered from the model for the first time. Na__LeFirst__Begin waits
+        // on exactly those three and puts a spinner up only if they are still
+        // going after about half a second, so a machine that opens instantly
+        // still opens instantly. It answers once per session and is a no-op
+        // afterwards, so this can sit on the ordinary path.
+        // The viewport count is read from the MODEL, here, before the surface
+        // has drawn anything. That is what lets the overlay tell "nought of two
+        // drawn" from "finished": the sheet's pictures are queued a good half
+        // second after the tab is pressed, so anything that only watched the
+        // render queue would call itself done before the first one started.
+        void Na__LeVeil__FirstOpen(Na__LeMode__Host, {
+            specification : specLoad,
+            textMetrics   : metricsLoad,
+            viewportCount : (Na__LeModel__GetViewports(sheet) || []).length
+        });
         Na__LeModel__SetActiveSheetId(sheet.Sheet__Id);
         Na__LeHist__Track(sheet);                                          // <-- Undo baseline for this sheet
         if (sameSheet) {                                                   // <-- Same sheet: keep its zoom and scroll, catch up with what changed meanwhile
@@ -523,6 +547,16 @@
         Na__DrawView__Transitions__ResumeThreeD();                          // <-- Orbit and culling back before the first 3D frame
         Na__RenderLoop__Resume(Na__LeMode__RENDER_HOLD);                    // <-- Engine runs again; one frame paints now
         Na__RenderLoop__RequestRender();
+
+        // THE MODEL IS NOT READY TO BE LOOKED AT THE INSTANT THE ENGINE
+        // RESTARTS. It flicks through stale 2D viewport frames first, and the
+        // camera is still parked wherever the reader left it rather than on a
+        // composed view. So the veil goes up at once, the camera is sent to the
+        // first presentation scene, and it lifts when the camera reports it has
+        // arrived - after the engine is resumed, because a paused engine would
+        // never animate the move.
+        void Na__LeVeil__ReturnTo3d();
+
         Na__LeMode__Dispatch();
         return true;
     }

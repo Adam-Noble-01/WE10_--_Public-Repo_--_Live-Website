@@ -141,7 +141,10 @@
         Na__SpStore__Resolve,
         Na__SpStore__GetStatus,
         Na__SpStore__GetDescriptor,
-        Na__SpStore__GetFocusBoundsMm
+        Na__SpStore__GetFocusBoundsMm,
+        Na__SpStore__GetStores,
+        Na__SpStore__ResolveAll,
+        Na__SpStore__DefaultStoreId
     } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
     import {
         Na__LeSource__HasChoices,
@@ -244,9 +247,10 @@
     // location plan starts without the trees. Resolves null, with a toast, on a
     // project with no site plan data.
     // ------------------------------------------------------------
-    async function Na__LePanelViewport__AddSitePlan(sheet, denominator) {
+    async function Na__LePanelViewport__AddSitePlan(sheet, denominator, storeId) {
         if (!sheet) return null;
-        const descriptor = await Na__SpStore__Resolve();
+        const store      = storeId || Na__SpStore__DefaultStoreId();
+        const descriptor = await Na__SpStore__Resolve(store);
         if (!descriptor) {
             const toast = Na__LePanels__GetContext() ? Na__LePanels__GetContext().showToast : null;
             if (typeof toast === 'function') toast(Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.'), true);
@@ -259,15 +263,57 @@
         const setup  = Na__LeCfg__GetViewportSetup();
         const layout = Na__LeLayout__Solve(sheet);
         const viewport = Na__LeModel__CreateViewport(sheet, {
-            kind : Na__LeModel__KIND_2D, sitePlan : {}, scaleDenominator : scale, modelLayers : off,
+            kind : Na__LeModel__KIND_2D, sitePlan : { SitePlan__StoreId : store }, scaleDenominator : scale, modelLayers : off,
             name : scale >= 1000 ? Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan') : Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan'),
             rect : Na__LeLayout__DefaultViewportRect(layout, setup.defaultWidthMm, setup.defaultHeightMm)
         });
         if (!viewport) return null;
-        const bounds = Na__SpStore__GetFocusBoundsMm();
+        const bounds = Na__SpStore__GetFocusBoundsMm(store);
         if (bounds) Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pan : { X : (bounds.MinX + bounds.MaxX) / 2, Y : (bounds.MinY + bounds.MaxY) / 2 } }, true);
         Na__LeModel__SetSelection({ kind : 'viewport', id : viewport.Viewport__Id });
         return viewport;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Site Plan Stores, as Select Options
+    // ------------------------------------------------------------
+    // Every store is offered, not only the ones with data, so a project that has
+    // exported one of them still shows the other and says it is empty rather
+    // than hiding it and leaving Adam wondering where it went.
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__StoreOptions() {
+        return Na__SpStore__GetStores().map((store) => ({
+            value : store.Store__Id,
+            label : store.Store__Available
+                ? `${store.Store__Short} (${store.Store__LayerCount})`
+                : `${store.Store__Short} - ${Na__LeCfg__GetLabel('SitePlanStoreEmpty', 'not exported')}`
+        }));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What the Add Block Says About the Project's Site Plan Data
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__StoreNote(status) {
+        if (status === Na__SpStore__STATUS_EMPTY) return Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.');
+        if (status !== Na__SpStore__STATUS_READY) return Na__LeCfg__GetLabel('SitePlanLoading', 'Loading site plan data...');
+
+        const ready = Na__SpStore__GetStores().filter((store) => store.Store__Available);
+        if (!ready.length) return Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.');
+
+        return ready.map((store) => {
+            const descriptor = Na__SpStore__GetDescriptor(store.Store__Id);
+            return Na__LeCfg__FormatLabel(
+                'SitePlanStoreReady',
+                '{store}: {count} layer(s), exported {date}.',
+                {
+                    store : store.Store__Short,
+                    count : store.Store__LayerCount,
+                    date  : Na__LePanelViewport__ExportDate(descriptor ? descriptor.SitePlan__ExportedIso : null)
+                }
+            );
+        }).join(' ');
     }
     // ------------------------------------------------------------
 
@@ -310,6 +356,7 @@
             value : d,
             label : Na__LeScale__FormatLabel(d) + ' - ' + (d >= 1000 ? Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan') : Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan'))
         }));
+        addSitePlan.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanStoreLabel', 'Site Plan'), Na__LePanels__Select('vp-add-siteplan-store', Na__LePanelViewport__StoreOptions(), '')));
         addSitePlan.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanAddScale', 'Scale'), Na__LePanels__Select('vp-add-siteplan-scale', sitePlanScales, '')));
         if (editable) addSitePlan.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('AddSitePlanViewport', 'Add Site Plan Viewport'), 'vp-add-siteplan', 'na-le-btn--primary'));
         const sitePlanNote = Na__LePanels__Note('');
@@ -349,6 +396,11 @@
         scale.setAttribute('data-na-block', 'scale');
         Na__LeScale__ListDenominators().forEach((d) => scale.appendChild(Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d)));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ScaleLabel', 'Scale'), scale));
+        const sitePlanStore = Na__LePanels__Select('vp-siteplan-store', Na__LePanelViewport__StoreOptions(), '');
+        sitePlanStore.title = Na__LeCfg__GetLabel('SitePlanStoreNote', 'Which site plan this viewport draws - the Existing one or the Proposed one.');
+        const sitePlanStoreRow = Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanStoreLabel', 'Site Plan'), sitePlanStore);
+        sitePlanStoreRow.setAttribute('data-na-block', 'siteplan-store-row');
+        edit.appendChild(sitePlanStoreRow);
         const sitePlanScale = document.createElement('div');                     // <-- A site plan viewport's own toggle: 1:500 and 1:1250
         sitePlanScale.className = 'na-le-toggle-group';
         sitePlanScale.setAttribute('data-na-block', 'scale-siteplan');
@@ -448,17 +500,14 @@
         if (addScene)    addScene.hidden    = sitePlanSheet;
         if (addSitePlan) addSitePlan.hidden = !sitePlanSheet;
         if (sitePlanSheet) {
-            const status     = Na__SpStore__GetStatus();
-            const descriptor = Na__SpStore__GetDescriptor();
-            const note       = addBlock.querySelector('[data-na-block="siteplan-note"]');
-            const button     = addBlock.querySelector('[data-na-control="vp-add-siteplan"]');
-            if (note) {
-                note.textContent = (status === Na__SpStore__STATUS_READY && descriptor)
-                    ? Na__LeCfg__FormatLabel('SitePlanReady', '{count} site plan layer(s), exported {date}.', { count : descriptor.SitePlan__Layers.length, date : Na__LePanelViewport__ExportDate(descriptor.SitePlan__ExportedIso) })
-                    : (status === Na__SpStore__STATUS_EMPTY ? Na__LeCfg__GetLabel('SitePlanNoData', 'No site plan data for this project.') : Na__LeCfg__GetLabel('SitePlanLoading', 'Loading site plan data...'));
-            }
+            const status = Na__SpStore__GetStatus();                             // <-- Across every store
+            const note   = addBlock.querySelector('[data-na-block="siteplan-note"]');
+            const button = addBlock.querySelector('[data-na-control="vp-add-siteplan"]');
+            const store  = addBlock.querySelector('[data-na-control="vp-add-siteplan-store"]');
+            if (store) Na__LePanels__FillSelect(store, Na__LePanelViewport__StoreOptions(), store.value || Na__SpStore__DefaultStoreId());
+            if (note) note.textContent = Na__LePanelViewport__StoreNote(status);
             if (button) button.disabled = status !== Na__SpStore__STATUS_READY;
-            if (status !== Na__SpStore__STATUS_READY && status !== Na__SpStore__STATUS_EMPTY) Na__SpStore__Resolve();   // <-- The store's event refreshes this panel when it lands
+            if (status !== Na__SpStore__STATUS_READY && status !== Na__SpStore__STATUS_EMPTY) Na__SpStore__ResolveAll();   // <-- The store's event refreshes this panel when it lands
         }
         const addSelect = addBlock.querySelector('[data-na-control="vp-add-scene"]');
         if (addSelect && addSelect.options.length <= 1) Na__LePanels__FillSelect(addSelect, Na__LePanelViewport__SceneOptions(), '');
@@ -499,6 +548,14 @@
 
         editBlock.querySelector('[data-na-block="scale"]').parentNode.hidden = !is2d || isSitePlan;
         editBlock.querySelector('[data-na-block="scale-siteplan"]').parentNode.hidden = !isSitePlan;
+        const storeRow = editBlock.querySelector('[data-na-block="siteplan-store-row"]');
+        if (storeRow) {
+            storeRow.hidden = !isSitePlan;
+            if (isSitePlan) {
+                const stored = (viewport.Viewport__SitePlan && viewport.Viewport__SitePlan.SitePlan__StoreId) || Na__SpStore__DefaultStoreId();
+                Na__LePanels__FillSelect(storeRow.querySelector('[data-na-control="vp-siteplan-store"]'), Na__LePanelViewport__StoreOptions(), stored);
+            }
+        }
         editBlock.querySelectorAll('[data-na-control="vp-scale"]').forEach((b) => b.classList.toggle('na-le-btn--active', parseFloat(b.getAttribute('data-na-role')) === viewport.Viewport__ScaleDenominator));
         editBlock.querySelectorAll('[data-na-control="vp-frame"]').forEach((input) => {
             if (document.activeElement !== input) input.value = String(Math.round(viewport.Viewport__FrameMm[input.getAttribute('data-na-role')] * 10) / 10);
@@ -573,8 +630,16 @@
         });
         Na__LePanels__OnControl('click', 'vp-add-siteplan', (e, el) => {
             const select = el.parentNode.querySelector('[data-na-control="vp-add-siteplan-scale"]');
+            const store  = el.parentNode.querySelector('[data-na-control="vp-add-siteplan-store"]');
             const sheet  = Na__LeModel__GetActiveSheet();
-            if (sheet) Na__LePanelViewport__AddSitePlan(sheet, select ? parseFloat(select.value) : NaN);
+            if (sheet) Na__LePanelViewport__AddSitePlan(sheet, select ? parseFloat(select.value) : NaN, store ? store.value : '');
+        });
+        Na__LePanels__OnControl('change', 'vp-siteplan-store', (e, el) => {
+            const c = Na__LePanelViewport__Current();
+            if (!c || !Na__LeModel__IsSitePlanViewport(c.viewport)) return;
+            const block = c.viewport.Viewport__SitePlan || {};
+            if ((block.SitePlan__StoreId || '') === el.value) return;
+            Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { sitePlanStoreId : el.value });   // <-- One undo step; the token changes so the frame repaints from the other store
         });
         window.addEventListener(Na__SpStore__CHANGED_EVENT, (event) => {
             if (!event.detail || event.detail.reason !== 'layer-loaded') Na__LePanels__Refresh(Na__LePanelViewport__ID);   // <-- The add note and button follow the site plan data

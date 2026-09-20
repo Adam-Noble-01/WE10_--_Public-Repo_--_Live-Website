@@ -2,6 +2,509 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.87.0  -  20-Sep-2026
+### A Plan Knew How High It Was Cut and Not Which Floor That Was
+
+**Overview**
+- Adam, with PS02 D21 on screen: his own hand-lettered blocks read EXISTING GROUND FLOOR PLAN and
+  PROPOSED GROUND FLOOR PLAN, and the parametric titles beside them EXISTING FLOOR PLAN and PROPOSED
+  FLOOR PLAN - "we don't have" the level. "We should have a way in the floor plan editor, in the dev
+  menu, for defining what building story the plan is assigned to. This is a pretty key data point
+  to capture, as there are lots of other downstream things this could be used for."
+- A plan record held a floor datum and a cut offset. 1600 mm is a number; "Ground floor" is what
+  goes on the drawing. Nothing in the project said which.
+
+**The storey**
+- `FloorPlan__StoreyLevel` on a plan record: `ground`, `first`, `second`, `roof`, `basement`. The
+  list is config (`FloorPlanViews__StoreyLevels__Config`) and its ORDER is the dropdown's: Ground
+  floor, First floor, Second floor, Roof plan, Basement level - as Adam gave it, the common ones
+  first. Each storey carries its label, its drawing title ("Roof Plan", never "Roof Floor Plan"),
+  its cut height band and the words in a plan's name that give it away.
+- A PICK IS STORED, A GUESS NEVER IS. Until somebody chooses, the storey is worked out every time
+  it is asked for, so it follows the plan: add one (cut at 1200, Ground floor), drag its plane up
+  to 4 m, and it reads First floor with nobody touching the dropdown. A guess written down at
+  creation would have been Ground floor for every plan ever added, since they are all born at the
+  default datum. It would also have made a record read as EDITED merely for having been looked at,
+  which the menu rebuild landing beside this (v2.86.0) holds every open row to account for.
+- THE GUESS. The plan's own name first, whole words, the longest match winning: "Roof Plan" is a
+  roof plan however high it is cut - PS01's and PS02's is cut at 6000 mm over a single storey
+  house, which the heights alone call a second floor - and "Lower Ground Floor" is a basement, not
+  a ground floor. Then Adam's bands on the cut height: 0 to 2.8 m ground, 2.8 to 5 m first, 5 to
+  6.8 m second, above that a roof plan, below -1 m a basement. The metre between -1 m and 0, which
+  he left unsaid, is the ground floor's: a cut just under the datum is a sunken floor far more
+  often than a cellar.
+- THE ROW. "Storey", a dropdown, straight under a plan's name in Dev Tools > Floor Plans. It shows
+  the storey chosen or guessed alike, because either way that is what the drawings will say; a
+  guess says so underneath in small words - from the cut height (1,600 mm), or from the plan's
+  name. Those words carry a Confirm button, for the one thing a dropdown cannot do: report a
+  choice of what it already shows. A guess that is RIGHT could otherwise never be kept.
+
+**The title**
+- A sixth fact. Viewport identity answers `level` - the storey's title, '' for anything that is not
+  a floor plan - the Drawing Title stores it as `ViewLevel`, and a plan with one is lettered from
+  it in place of its record's name, which on both projects is still "Floor Plan 1".
+- THE FACT ALONE CHANGED NOTHING ON THE SHEET ADAM ASKED ABOUT. A name typed on the viewport is
+  the subject, by design, and D21's two viewports were typed "Existing Floor Plan" and "Proposed
+  Floor Plan" long before a plan knew its storey - to tell them apart in the panels. So: a typed
+  name beats the storey only by SAYING MORE. Every word of it, the opening Existing or Proposed
+  aside, found in the storey's title means the storey is lettered. "Coach House Floor Plan" says
+  something no storey can and stays exactly as typed. Elevations are untouched: a typed name
+  there always wins, as it did.
+- AND THEN THE ROOF, found by falling in. With D21's plan reassigned to Roof plan the titles read
+  PROPOSED FLOOR PLAN: "Floor" is no word of "Roof Plan", so the typed name was judged to be saying
+  something. It was not. The words that only mean "a plan" (`Words__GenericPlan`, "Floor Plan")
+  never count now. The unit test had passed throughout - it had the wrong expectation written
+  into it. The app, on the real sheet, is what said so. "Ground Floor Plan" typed on a plan
+  assigned to the roof is a plain disagreement and is still kept as typed.
+- Compose says where a subject came from (`source`), and the panel's one sentence asks that where
+  it used to look at ViewName - so a typed name that gave way is no longer reported as the name in
+  use, and a title written from a storey says where that is chosen.
+- NOTHING SAVED GOES STALE. A title saved before there was a ViewLevel reads exactly as it did and
+  gains the fact the next time its sheet is brought into line: one undo step, as when north is
+  set. A storey chosen in the Dev menu is announced (`na-floorplan-storey-changed`, identity reason
+  `level`) and an open sheet retitles itself through the same booked refresh north uses.
+
+**Two sessions, one panel**
+- The Floor Plans and Elevations menus were being rebuilt wholesale in another session during the
+  same half hour (v2.86.0). Agreed by message before either touched a shared file: the dropdown is
+  its own module, `Na__FpStoreyRow__Build(plan, onChange)`, and that session mounts it; a pick is
+  to its drafts an edit of a field that moves nothing, so Update lists it - "Storey: set to Ground
+  floor." - with no sheet warning; and its Revert, which restores a record in place and so never
+  reaches the setter, re-announces the storey itself. Neither session opened the other's files.
+
+**Tested**
+- Node: the storey level, 36 checks - the list against Adam's order, every band edge, the shipped
+  JSON against the module's built-in fallback (they must be equal, or the app guesses from
+  something the test never read), names, a pick over a guess, a guess following its cut. The title
+  text, 48 (was 27): D21's two titles with their typed names, the roof, when a typed name wins,
+  `source`, and every title written from facts with no level exactly as before. The drawing
+  title, 45 (was 39). Both verifiers pass, 385 files.
+- In the app, on PS02 with every write refused: the row inside the rebuilt panel - pick, NOT
+  UPDATED lights, Revert, the key gone from the record and the guess back; nothing written by
+  reading. On a scratch copy of D21: a dropped title under each plan letters EXISTING / PROPOSED
+  GROUND FLOOR PLAN; a title stripped of its ViewLevel upgrades on Refresh and a second Refresh
+  changes nothing; First, Roof, Basement and back to the guess all retitle the open sheet by
+  themselves; "Coach House Floor Plan" typed through the model is one undo step, undo AND redo.
+  Real sheets byte-identical afterwards, both plan records without the key; no write was attempted.
+
+**For Adam**
+- PS01's and PS02's storeys are GUESSES until you choose or Confirm them: "Floor Plan 1" Ground
+  floor (from its height), "Roof Plan" Roof plan (from its name). Both right, neither saved.
+- Your parametric titles on D21 will retitle themselves the first time the sheet is opened, and
+  the sheet will then want saving - the same thing that happened when north was set.
+- Not built, offered: an unnamed PLAN viewport is still called by its record's name ("Floor Plan
+  1") in the panels and toasts. Elevation viewports are named from their facts; plans could be.
+
+**Files**
+- New, `42__System__FloorPlanViews/`: `Na__FloorPlan__StoreyLevel__` (pure, imports nothing),
+  `Na__FloorPlan__DevMenu__StoreyRow__`; `80__Testing__PrototypeEnvironment/
+  Na__Test__FloorPlanStoreyLevel__.test.mjs`.
+- `42__System__FloorPlanViews/`: `ProjectJson__Data__` 1.1.0 (the field, GetStoreyLevel,
+  IsStoreyLevelSet, GetStoreyLevelChoices, SetStoreyLevel, STOREY_CHANGED_EVENT), `ConfigState__`
+  1.1.0, the AppConfig (the storey levels block, six labels), the Dev menu stylesheet (the words
+  under a guess).
+- `51__System__LayoutEditor/`: `ViewportTitleText__` 1.1.0, `ViewportIdentity__` 1.1.0 and its
+  config (`Words__GenericPlan`), `ScrapbookParametric__DrawingTitle__` 1.1.0,
+  `ScrapbookParametric__ViewportLink__` 1.3.0, `Panel__ScrapbookParametric__` 1.3.0; their two tests.
+- ValeVision holds those five Layout Editor modules one fact behind (ported this morning as VV
+  v2.67.0 / v2.68.0) and has no storey field. Each PORT NOTE says so.
+- Service worker: exports were added to modules a warm cache holds, so this needs a token bump -
+  covered by v2.86.0's, which landed after these files were on disk.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.86.0  -  20-Sep-2026
+### A Nudged Slider Could Move Every Drawing, and the Save Button Under It Had Not Saved a Drawing in Ten Days
+
+**Overview**
+- Adam, 20-Sep, with five marked-up screenshots of Dev Tools > Floor Plans and Elevations: make them
+  "behave a lot more like the animation scenes menus"; no per-scene thumbnail button, "just have a
+  green update button that... pops up an 'Are you sure?' modal", because "updating a plan or
+  elevation view could potentially fuck up a bunch of drawings that are assigned to it"; rows
+  collapsed unless focused; Delete below an HR; no Save-all at the bottom; a plus at the top; a
+  Cross Sections placeholder; and "Viewed from" N / E / S / W replaced by a statement, the name
+  auto-populated from it and free to be typed over. "Currently, you can destroy an entire project's
+  viewports by moving a few of these around."
+- He was right, and it was worse than he thought, for two reasons found on the way in.
+
+**What was actually wrong**
+- EVERY CONTROL WROTE TO THE LIVE RECORD, ON EVERY ROW AT ONCE. A sheet viewport is not a picture
+  of a drawing: it is drawn FROM the plan's or elevation's record each time. So a slider brushed on
+  the way past moved that drawing in memory, and the drawings block is written WHOLE by whoever
+  saves next - Save Sheets, the register, north, a rename. One nudge, an hour later, from a
+  different panel, and every viewport of that drawing sat somewhere else under its dimensions.
+- SAVE ELEVATIONS AND SAVE FLOOR PLANS HAD NOT SAVED A DRAWING SINCE 10-SEP. The records moved out
+  of the presentation block into `LayoutEditor__DrawingsData` in v2.21.0. The data modules were
+  repointed; these two panels never were, and went on writing only the presentation block. A plane
+  moved here was kept by whichever OTHER panel next saved the drawings block - or not at all. The
+  row accordion, the rename module and the confirm dialog that ValeVision's panels use were all
+  ported on 10-Sep and never imported.
+
+**An open row is a draft, and Update is the only thing that keeps it**
+- ONE ROW OPEN, ACROSS BOTH PANELS. Every other row is a folded header with no controls to touch:
+  its plane's colour, its name, and chips for SECTION / ON SCREEN / NOT UPDATED. The ported
+  accordion is wired at last. Previewing a drawing opens its row; the panel follows the carousel.
+- OPENING A ROW SNAPSHOTS ITS RECORD. Edits still land on the live record, because the preview, the
+  plane in the 3D view and the sheets all read it - what you are setting up is what you see. But:
+  - **Update** (green) is the one thing that writes. It asks first, and the dialog says WHAT:
+    "Plane moved 300 mm toward the viewer (X 20 000 mm to 20 300 mm...)", "Turned: model bearing
+    180 to 270 deg - the East elevation becomes the South elevation", and WHO ELSE: "2 viewports on
+    D02 - Elevations are drawn from this elevation... dimensions, notes and leaders lettered over
+    them stay where they are on the sheet, so they may no longer line up". The confirm button is
+    red when the update moves a drawing that sheets draw from, green when it does not. One save:
+    R2, then the local project file, and the toast says where it landed - or that the local copy
+    was NOT written.
+  - **It also takes the picture.** Save Thumbnail has gone. With the drawing on screen, Update
+    records the framing and re-renders the card's thumbnail in the same press; off screen it keeps
+    the settings and says the thumbnail was left alone.
+  - **Revert** puts the record back exactly, in the SAME object (arrays emptied and refilled, not
+    replaced - the markup overlay and its undo stack hold them).
+  - **Leaving a changed row asks** - fold it, open another, close the panel, press +: Discard
+    Changes or Keep Editing, with the same list. A changed drawing is never left lying about
+    unopened.
+  - **Nobody else's save can carry it out.** `Na__DrawData__Save` now hands the COPY it is about to
+    write to a payload guard, and while a draft is changed that drawing goes out as it was last
+    updated. Proved in the app: plane at 20 300 live, Save Sheets' payload wrote 20 000.
+  - **A plane dragged in the 3D view is a draft too.** Dragging the plane of a folded row opens that
+    row (even with the panel shut - a toast says it is not kept yet); while a DIFFERENT drawing has
+    changes waiting the drag is refused and the plane stays put.
+  - Looking is not editing: the zoom and pan the mode controllers write into a record as a preview
+    settles are view state, left out of the comparison and out of a revert.
+- The carousel card's approach camera and name are brought into step on Update, not on every slider
+  release, so nothing of a draft reaches the presentation block early.
+- A + AT THE HEAD of each panel (and the full-width Add at the foot, as the scenes panel has both).
+  A new drawing is saved at once - it has no viewports to move - and opens as the one open row. A
+  new elevation is centred on the BUILDING. Seeding asks first when drawings already exist.
+- DELETE IS BELOW A RULE, ALONE, behind the app's own dialog (it was `window.confirm`), naming the
+  viewports that will have nothing left to draw. NO SAVE-ALL anywhere.
+- "Let clients measure" saves the moment it is ticked; it had been waiting on the button that went.
+
+**Which elevation it is**
+- "VIEWED FROM" AND ITS FOUR BUTTONS ARE GONE. They set a bearing against the model's -Z axis and
+  called it north; PS01's north is 90 degrees round, so its South Elevation showed "West" pressed.
+  In their place a small plan - north up, the building, the viewer on the ring looking in - and one
+  sentence from the project's north: "East elevation - the side of the building that faces east,
+  seen looking west", with the true bearing. Until north is set it says so and claims nothing.
+- THE NAME NAMES ITSELF. `Elevation__NameIsAuto` (the one new record key; ValeVision ignores it):
+  true follows the direction - "East Elevation", "North Section", "North Elevation 2" for a coach
+  house's - and is renamed when the drawing is turned, by the bearing or by Aim at face. Type over
+  it and it is the author's (false); clear the box, or press the offered `Name it "East Elevation"`,
+  and it is automatic again. Records from before the flag are left alone unless their name is
+  already exactly the automatic one - PS01's three are - and are then adopted. A name, like
+  everything else, lands on Update: the card, the section binding's key and the sheet fingerprints
+  are staged with it (`Na__DrawRename__StageElevation` / `StageFloorPlan`) and saved once.
+- A CHOSEN NAME REACHES THE SHEETS. The title system named every elevation by its compass word
+  unless the VIEWPORT was named by hand, so "Coach House East Elevation" would still have titled
+  "EXISTING EAST ELEVATION". Viewport identity now reads a name chosen for the drawing (flag false)
+  where the viewport has none: "EXISTING COACH HOUSE EAST ELEVATION". Absent never promotes -
+  nobody wants "ELEVATION 3" on a sheet.
+- The stored bearing is under a folded Advanced as "Model bearing", for the building that is square
+  to nothing. Seed N / E / S / W seeds square to the MODEL, where the faces are, and names each
+  from north - the open item from v2.80.0 ("still calling -Z north") is closed.
+
+**Cross Sections**
+- A third entry in Dev Tools, between Elevations and North Direction: the shared head with its +
+  (off, and saying why), what the panel will do, and the sections that exist today - elevations
+  whose type is Section - named, not editable. It authors nothing. The module header says how the
+  real one plugs into the accordion, the draft guard and the row shell.
+
+**Also**
+- The "Floor plan building story levels" session's storey dropdown sits under the plan's name. It
+  is a draft edit like any other (it names the drawing and moves nothing, so no sheet warning), and
+  a revert that puts the storey back announces it the way the setter would.
+
+**Tested**
+- Node: `Na__Test__DrawingDrafts__.test.mjs`, 51 checks on PS01's own project data - the view keys,
+  key order, restore in place (same object, same arrays, view left alone), the payload swap, usage
+  counted the way the sheet model resolves a viewport, names and the coach house. Export verifier
+  385 files, module graph, and the title text, drawing title, planes and compass suites all pass.
+- In the app on PS01, every R2 write answered by a guard without being sent and every local write
+  refused: rows fold; open / edit / NOT UPDATED; another save writes the saved position; leave
+  prompt both ways; typed name and back; bearing 180 to 270 names it "South Elevation 2"; Update's
+  dialog, ONE write carrying the record and its card's name; Delete's dialog, cancelled and
+  confirmed; + adds "West Elevation" on the building centre; a plane moved for a folded row claims
+  it, a second is refused; closing the panel asks; Preview then Update writes the thumbnail then
+  the data, green; exiting a preview leaves the row clean; Floor Plans the same, storey row and
+  all; the Cross Sections panel. PS01's repository file untouched throughout (mtime 09:36).
+- NOT tested: a real local write (it needs the ProjectVision server, not a static one), and a real
+  grip drag with the pointer - the source adapter the grip calls was driven directly.
+
+**Files**
+- New, `40__System__DrawingViewCore/`: `DraftMaths__` (pure), `DraftGuard__`, `DrawingUsage__`
+  (pure half), `DevRowShell__`. New, `45/`: `AutoNameText__` (pure), `AutoName__`. New folder
+  `48__System__CrossSectionViews/`. New test.
+- Rewritten: `42/` and `45/` `DevMenu__Editor__` and `DevMenu__RowBuilders__` (2.0.0).
+- Edited: `40/ProjectData__` 1.3.0 (`RegisterPayloadGuard`), `40/RowAccordion__` (change guard,
+  open listeners, `RequestOpenId`, header lead and trail - no longer verbatim, see its PORT NOTE),
+  `40/RenameDrawing__` 1.1.0 (the two Stage functions), `21/DevMenu__Modal__` 1.1.0 (`details`,
+  `footnote`, `isCommit`), `51/.../ViewportIdentity__` (the chosen name), the elevation config's
+  labels, three stylesheets, `Index.html` (one `<li>`, one import, one init line).
+- Service worker token `2026-09-20-3`: new exports on files a warm cache already holds.
+- Plan and mark audit: `TrueVision__PLAN__DrawingMenus__.md`.
+
+**Still open**
+- NOT in ValeVision. Its rows already fold and save through `Na__DrawData__Save`, but still write
+  live; the draft guard, the shell and the Update flow are the port. It has no north system, so the
+  elevation statement and auto names wait on that port.
+- `Na__Elevation__PlaneGizmo__`, `GizmoGrip__`, `FacePick__` are still on disk and initialised,
+  unused since v2.82.0.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.85.0  -  20-Sep-2026
+### The Noodle Has Two Ends, and People Reach for Different Ones
+
+**Overview**
+- Adam, having tried the Drawing Title: "make it so you can not only drag the point from the start
+  to the end, but you can click and drag the end point to move it to a different viewport... for a
+  lot of users it's going to be more logical to grab the end point and move that to whatever they
+  want to tag. Think of it like dragging a rope or a cable." And keep everything the socket did.
+- A dropped element ties itself to the nearest drawing, so the first thing anyone sees is a noodle
+  already plugged into something. Some people look at the element and reach for its socket. Others
+  look at the cable and reach for the end of it. Until now only the first lot got anywhere.
+
+**The plug**
+- The noodle's far end - the dot where it lands on the drawing, or on the title block's Scale cell
+  - is now a handle: a round grip laid over the dot, a little larger than the socket because it
+  lies on a drawing's frame among linework and has to be found. It goes red under the pointer as
+  the socket does, so the two read as one kind of thing.
+- ONE DRAG, TWO PLACES TO BEGIN IT. Whichever end is pressed, the live noodle runs from the
+  element's socket to the pointer, whatever it is over lights up, and letting go ties it: another
+  drawing, the title block for the sheet's scale, bare paper to untie, Escape to put it back. One
+  undo step and a toast, exactly as before. There is no second behaviour to learn or to keep in
+  step - the plug calls the socket's own press handler.
+- THE PLUG KEEPS ITS PRESS TO ITSELF. It lies on a viewport's frame, and a press that reached the
+  sheet tools there would pick the viewport up and move it.
+- NO NOODLE, NO PLUG. An element tied to nothing has only its hollow socket, which is how a first
+  noodle is drawn. A locked layer shows the tie and neither handle. While either end is being
+  carried the old tie and its plug are out of the way.
+
+**Tested**
+- In the app, on a scratch copy of PS02 D21 with every write refused: 23 checks - the plug exactly
+  on the end dot, a press that never moves, carried to the other plan (the title retitles, ONE undo
+  step, undo AND redo byte for byte, neither drawing moved, the element still selected), Escape,
+  bare paper, the socket still doing all it did, the title block and back, a locked layer, a plain
+  scale bar. Real sheets byte-identical afterwards; no write was attempted.
+- My own harness tripped once: Escape dispatched on window, which the sheet tools hear first and
+  clear the selection on. A real key press arrives on the body. Dispatched there, it passed.
+
+**Found afterwards, by the ValeVision port's own test**
+- "The old tie and its plug are out of the way" was half true. The live noodle took the finished
+  tie away, but the plug is a grip element, not part of the noodle's drawing, and its dot sat at
+  the far end of a noodle that was no longer there until the drag ended. It is now hidden for the
+  length of a drag - hidden, not removed, because it may be the very element the press began on;
+  the repaint that ends every drag replaces it. Proved in ValeVision on the byte-identical module:
+  visible before, still visible on a press that has not moved, hidden while carried, back after
+  Escape. Same version: nothing of 1.2.0 had shipped.
+
+**Ported** to ValeVision the same day, with the rest of the Scrapbook system, as ValeVision3D v2.68.0.
+
+**Files**
+- `57__Feature__ScrapbookParametric/`: `LinkNoodle__` 1.2.0 (the Handle helper both ends are made
+  with), the stylesheet (the plug; and the Drawing Title region put into the file's own comment
+  style), the config (`Grips__PlugSizePx`, `Labels__GripPlug`). No shared file touched.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.84.0  -  20-Sep-2026
+### The Compass Was Bigger Than the House, and Both It and the Planes Went Out Whenever You Looked Away
+
+**Overview**
+- Adam, 20-Sep, with a screenshot of PS01 with the compass up: "The compass in the directions mode
+  is too large. Make it about 25% of the size and add a toggle so you can keep it persistently
+  switched on or off, like with the elevation planes, for example. It would be helpful to have the
+  compass and elevation planes on at the same time, switched on, so you can actually look around
+  and see them. We need a persistent toggle for the compass and for the elevation planes."
+- Three things, and all three are the same thing: an authoring marker you can only see while you
+  are holding the panel open is not a marker you can check your model against.
+
+**The compass is a quarter of the size**
+- Every one of its four lengths was quartered, and nothing else about it changed - the whole rose
+  is built at a radius of one and scaled, so one number does it: the fraction of the model's
+  horizontal span 0.3 -> 0.075, the minimum 1500 -> 375 mm, the maximum 12 000 -> 3000 mm, and the
+  no-model fallback 4000 -> 1000 mm.
+- WHY IT WAS THE WHOLE VIEWPORT. It is sized from the model's larger horizontal span, and on a
+  project with landscape that is the site, not the house: PS01's span is 80 m, so 0.3 of it is 24 m
+  and the compass sat on its 12 m ceiling - a 24 m ring round an 11 m house. On the same model it
+  now measures 3 m. Measured in the app, on the group itself: scale 3, where it was 12.
+- It is a MARKER BESIDE THE BUILDING now, not a ring drawn round it, and that is the sentence the
+  config carries so the next person to touch those numbers knows what they are for.
+
+**Show Compass, and why it can be left on at all**
+- The compass used to be DISPOSED the moment the North Direction panel closed, and the comment in
+  the file said why: "a compass left in the scene would be drawn onto the next elevation rendered
+  for a sheet". That was true when it was written. It stopped being true yesterday, when the
+  drawing planes brought in `Na__RenderLoop__InteractiveOverlays__`: a registered overlay is
+  INVISIBLE BY DEFAULT and the render loop switches it on for the length of one interactive 3D
+  frame and off again at the end. A sheet's 3D viewport, a thumbnail, a still, a video and the
+  drawing preset all render the same scene and all see nothing.
+- So the compass group is registered, `Show` says WANTED rather than setting `visible`, and
+  `IsVisible` asks the registry instead of reading `object.visible` - which, between frames, is
+  always false. Proved in the running app by watching the property: across ~1.5 s of frames the
+  render loop switched the compass on three times and off three times, once per 3D frame.
+- SHOW COMPASS is then just a toggle, pressed the way a plane's Show plane button is pressed. The
+  compass is up while the panel is open, as it always was, AND while the toggle is on - the same
+  bargain a switched-on plane makes: "closing the panel takes down the one that was only up because
+  the panel was, and leaves the ones that were switched on."
+- Kept in the browser, so it survives a reload. Disabled until north is set: there is nothing to
+  point at, and the button says so rather than pretending.
+
+**The planes are kept too, per project**
+- This is the half of Adam's sentence that was NOT already true. A plane switched on stayed up when
+  its panel closed, but a reload started clean - v2.82.0 said so on purpose. Reversed: the shown
+  set is kept in the browser like the snap increment.
+- UNDER THE PROJECT CODE, because a plane key is a drawing id, and a drawing id means nothing
+  outside the project that issued it. A project switch empties the set and refills it from what
+  THAT project last had up. Twelve projects are remembered, least-recently-used dropped first.
+- THE TRAP, and it was found by falling into it. `Refresh` drops a shown key that names no record -
+  that is how a deleted drawing loses its plane. But a key restored at startup names a record whose
+  source has not registered yet, and a source that HAS registered reads an empty list until the
+  drawings block lands. The first attempt restored the set, showed "All elevations" pressed, and
+  left the 3D view empty. Two guards fix it: a key is only ever dropped once its own TYPE has been
+  seen with at least one record, and the overlay listens for the drawings block arriving and puts
+  the restored planes up then.
+
+**Tested in the app, PS01, behind a fetch guard that caught nothing**
+- Compass group measured: scale 3 (was 12), turn -30 degrees for a bearing of 30, sitting on the
+  model centre because the bearing was typed rather than drawn.
+- Show Compass on -> panel closed -> compass still wanted. Off -> panel still open -> compass still
+  up, because it does not vanish under your hand. Then closed -> gone.
+- Full reload, no panel ever opened: the toggle came back on, and the moment north was known the
+  compass put itself up. All three elevation planes came back into the scene by themselves.
+- Screenshot: the small compass beside the house with two elevation planes up at the same time,
+  with the Dev menu shut - which is the thing Adam asked for.
+
+**Files**
+- `46__System__NorthDirection/Na__North__AppConfig__.json` - the four quartered lengths, a
+  ShownByDefault flag, and the three Show Compass labels.
+- `46__System__NorthDirection/Na__North__ConfigState__.js` - matching fallbacks, `shownByDefault`.
+- `46__System__NorthDirection/Na__North__CompassGizmo__.js` - registered as an interactive overlay;
+  `IsKept` / `SetKept`.
+- `46__System__NorthDirection/Na__North__DevMenu__Editor__.js` - the Show Compass button, and
+  `SyncCompass` in place of `ShowStored`: up when kept OR the panel is open, left alone mid-pick.
+- `47__System__DrawingPlanes/Na__DrawingPlanes__Overlay__.js` - the shown set kept per project, the
+  Live guard, and the drawings-block listener.
+- `TrueVision__PLAN__DrawingPlanes__.md` - D6 reversed, with the trap written up; ledger updated.
+
+**Open**
+- NOT yet confirmed by Adam.
+- NOT in ValeVision. The plane half ports verbatim; ValeVision has no North Direction tool at all.
+- North is still saved for no project, so the kept compass has nothing to point at until Adam draws
+  one and presses Save North.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.83.0  -  20-Sep-2026
+### The Top Bar Knows When It Is Not Wanted, and Neither Crossing Is a Cold Drop Any More
+
+**Overview**
+- Adam, 20-Sep, with two screenshots - the 3D view with CLICK arrowed at the D01 tab, and the floor
+  plan editor with the whole top bar ringed and ANIMATE IT written across it: "as we've built out
+  the drawing layout editor, the tabs, the spec, and all the rest of it, it actually takes up
+  valuable space in both my localhost editor version and the live version that the clients see
+  online."
+- The 3D view is deliberately untouched: "It's great to have it there because of the branding... it
+  doesn't detract enough from the viewport in the 3D space." So: a bar that knows which tab is
+  open, and 60px of drawing back on every sheet, specification and register page.
+- It grew two more parts in the same sitting. A veil over the first drawing tab of a session, and
+  a second over the way back to the model, because both crossings were cold drops.
+
+**The fold**
+- The header slides `top: 0` to `calc(-1 * var(--Vale_HeaderHeight))`, taking its drop shadow to
+  zero so it leaves no smudge over the tabs. The tab strip slides `var(--Vale_HeaderHeight)` to 0.
+- THE TWO ARE WELDED. Measured at seven points across the curve, in both directions, the header's
+  bottom edge and the strip's top edge were the same number every time. They read as one object.
+- The editor host takes the 60px AT ONCE and does not animate. That is a correctness requirement:
+  Na__LeMode__Enter fits the paper on the next animation frame, so a host still growing then would
+  fit every freshly opened sheet to a stage 60px short. Measured 862px in the same task as the
+  click and 862px after the fold settled. The bars slide over it - a curtain lifting.
+- 1000ms on `cubic-bezier(0.40, 0.00, 0.20, 1)`, after a 1000ms hold. All three are named tokens.
+- THE HOLD IS ONE-WAY, and that is the point. A transition takes its timing from the state it moves
+  TO, so the delay is declared only on the folded rule. Pressing a drawing tab, the drawing is what
+  you came for and the bar can take its time leaving; pressing 3D Model, the branding and the Dev
+  Tools trigger are what you came back for, and a second of empty space first would read as lag.
+  Verified: going away `delay 1000, duration 1000` and dead still through 999ms; coming back
+  `delay 0`, moving by 250ms.
+
+**Why it shipped snapping, and what that was**
+- The first cut had a `prefers-reduced-motion: reduce` block collapsing the duration to 0.01ms, and
+  it switched the whole feature off on the machine it was written for. Windows > Accessibility >
+  Visual effects > Animation effects is off on the studio PC (`MinAnimate = 0` in the registry) and
+  Chromium reports that as reduced motion. Adam saw the two end states and no travel.
+- That Windows toggle is one most people flip for window animations or for speed, not as a
+  statement about vestibular motion, so treating it as a veto over a 60px linear slide of a toolbar
+  reads it far more strongly than it was meant. The block is gone; the pace is the app's, in
+  `--Vale_HeaderFoldDuration`. The reasoning is kept in the stylesheet so it is not reinstated
+  blind.
+
+**A transform would have broken the Dev Tools flyout**
+- The obvious way to slide a bar is `translateY`, and `Na__UiFeature__Styles__DevToolsMenu__.css`
+  already says why it cannot be: "The container must never carry a transform. A transformed
+  ancestor becomes the containing block for position: fixed descendants, which would trap the
+  flyout inside the 60px header." The flyout list IS fixed and IS a header descendant. So the
+  header animates `top` and carries no transform in either state - verified `none` throughout, with
+  the flyout still opening at y=106 and running 571px down the viewport.
+
+**The two veils** (`Na__LayoutEditor__LoadingVeil__.js`)
+- GOING IN, "Your Drawings Are Loading", waits 550ms before showing anything, so a machine that
+  manages the whole first open inside half a second is never interrupted by a spinner. Adam: "if it
+  knows it can load in less than a second, don't bother showing it."
+- COMING OUT, "Loading Your 3D Model", shows AT ONCE. Adam: "it seems to rapidly cycle through a
+  bunch of 2D viewports." That flicker happens the instant the render loop restarts, so a veil that
+  waited would show exactly what it was added to prevent.
+- NEITHER IS ON A TIMER. Going in waits on the specification promise, the text metrics promise, and
+  the sheet being drawn. Coming out requests the first scene in the carousel through the same
+  `GoToSceneAtIndex(1)` a number key uses - so the scene's group, visibility state and navigation
+  mode are applied the ordinary way - and lifts when the presentation camera reports it has stopped
+  transitioning. Verified landing on Exterior 01.
+- The status line names the job actually outstanding, and the drawing job carries a real count read
+  off the paper: "Drawing the Views  -  1 of 2". Title case, and a plain "  -  ", both Adam's.
+
+**The bug the first version of the veil had, and how it was found**
+- The drawing wait watched only the snapshot render queue: empty for a settle window meant done. A
+  trace of a real first open showed why that is wrong - the queue is not filled until about 800ms
+  after the tab is pressed, so "the queue is empty" is also true for the half second before any
+  work exists, and the veil called itself finished at 600ms, before the sheet had started.
+- It now counts pictures against a number known up front: the expected count comes from the MODEL,
+  handed in by the mode controller before the surface has drawn anything, and the achieved count is
+  the `.na-le-frame` elements carrying a decoded `<img>`. Nought of two is never mistaken for
+  finished. Re-traced: veil up at 621ms, 1 of 2 at 2147ms, 2 of 2 at 3494ms, gone by 4350ms.
+- A sheet with no viewports resolves at once. A viewport that never draws is given up on when the
+  queue is quiet and the count has stopped moving, rather than holding the reader to the hard cap.
+- `Na__LayoutEditor__SnapshotRenderer__` 1.11.0 counts its queue in and out for this, and announces
+  the depth. Nothing about rendering changed.
+
+**Audited and unaffected**
+- Every other consumer of `--Vale_HeaderHeight` is either 3D-tab furniture that a drawing tab
+  already hides outright (both dropdown menus, nav toolbar, help panel, carousel, export overlay,
+  breadcrumb, projected linework), or belongs to the plan and elevation drawing modes, which are
+  reached from the 3D tab with the bar down.
+- The 3D view cannot be moved by this. The renderer is sized from window.innerWidth/innerHeight and
+  never from the canvas box, so neither the framing nor the drawing buffer can follow the header.
+  The canvas is not touched at all - an earlier attempt to slide it with the bars is documented in
+  the stylesheet, with why it was taken out.
+- There is no ResizeObserver anywhere in the app, and every getBoundingClientRect in the surface
+  and the tools is taken live inside a pointer handler rather than cached at mount. That is what
+  makes a 60px change of shell height cost one layout and no re-render of a single viewport.
+- The narrow-screen 48px header folds to -48px by itself. The read-only web viewer folds
+  identically. PWA cache token bumped to 2026-09-20-2, which a new module and two new exports
+  require.
+
+**Known, accepted**
+- The tab strip's `top` is now transitioned, so it also eases the 12px when a viewport crosses the
+  600px breakpoint and `--Vale_HeaderHeight` changes between 60 and 48 - a rotation, or a desktop
+  window dragged across that width. It used to snap. CSS cannot tell that change apart from a fold,
+  and at 12px inside a rotation that reflows the whole app it is not worth JavaScript to suppress.
+- Leaving the editor now always returns the camera to the first presentation scene. That is a
+  behaviour change Adam asked for outright, not a side effect.
+
+**Files**
+- `03__Style__AppStylesheets/Na__UiFeature__Styles__AppHeader__.css` - the whole fold, in one region.
+- `03__Style__AppStylesheets/Na__UiFeature__Styles__LoadingOverlays__.css` - the veils.
+- `02__Src__AppModules/51__System__LayoutEditor/05__Core__ModeController/Na__LayoutEditor__LoadingVeil__.js` - new.
+- `.../25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js` - queue depth.
+- `.../05__Core__ModeController/Na__LayoutEditor__ModeController__.js` - both veils wired.
+
+**Not yet confirmed by Adam. Ported to ValeVision in the same sitting.**
+
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.82.0  -  20-Sep-2026
 ### Every Plan and Elevation Has a Plane You Can See, Grab and Snap - and the Landscape Stopped Deciding How Big It Was
 

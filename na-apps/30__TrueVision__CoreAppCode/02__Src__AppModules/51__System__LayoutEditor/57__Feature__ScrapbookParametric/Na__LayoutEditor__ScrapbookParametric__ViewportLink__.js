@@ -87,11 +87,19 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported; see Na__LayoutEditor__ScrapbookParametric__.
+// - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
+// - Ahead of it   : 1.3.0 (ViewLevel) is TrueVision only. ValeVision holds
+//                   1.2.0 and its floor plans have no storey field.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.3.0
+// - FactsOf answers ViewLevel as well: the storey of the floor plan a viewport
+//   draws, '' for anything else. It follows its viewport as the other facts
+//   do; a storey chosen in the Dev menu arrives as the identity module's
+//   'level' announcement, which books the same refresh north does.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - Facts: FactsOf, and the facts a type asks for laid in on a drop, a link,
 //   an adoption and a follow. InsertLinked takes an element's preset
@@ -265,13 +273,14 @@
 
     // FUNCTION | What a Viewport Is a Drawing Of, as the Parameters a Type May Ask For
     // ------------------------------------------------------------
-    // { ViewKind, ViewPhase, ViewFacing, ViewName, ViewDrawing } - the
-    // viewport identity module's facts under the names an element stores
-    // them by. ViewFacing is '' until north is set in the 3D model.
+    // { ViewKind, ViewPhase, ViewFacing, ViewLevel, ViewName, ViewDrawing } -
+    // the viewport identity module's facts under the names an element stores
+    // them by. ViewFacing is '' until north is set in the 3D model; ViewLevel
+    // is a floor plan's storey and '' for everything else.
     // ------------------------------------------------------------
     function Na__LeParamLink__FactsOf(viewport) {
         const facts = Na__LeViewId__Describe(viewport);
-        return { ViewKind : facts.kind, ViewPhase : facts.phase, ViewFacing : facts.facing, ViewName : facts.name, ViewDrawing : facts.drawing };
+        return { ViewKind : facts.kind, ViewPhase : facts.phase, ViewFacing : facts.facing, ViewLevel : facts.level || '', ViewName : facts.name, ViewDrawing : facts.drawing };
     }
     // ------------------------------------------------------------
 

@@ -1,0 +1,56 @@
+{
+    "NaMiniApp__Meta" : {
+        "NaMiniApp__AppTitle"    : "Console Image Downloader",
+        "NaMiniApp__AppSubTitle" : "Photo Utils",
+        "NaMiniApp__Created"     : "20-Sep-2026",
+        "NaMiniApp__Version"     : "1.0.0"
+    },
+
+    "NaMiniApp__Assets" : {
+        "NaMiniApp__SnippetFile" : "MiniApp__PhotoUtils__ConsoleImageDownloader__Snippet__HomeflowCarousel__.js"
+    },
+
+    "NaMiniApp__Defaults" : {
+        "NaMiniApp__CopiedResetMs" : 2500
+    },
+
+    "NaMiniApp__UiText" : {
+        "NaMiniApp__PageTitle"           : "Console Image Downloader",
+        "NaMiniApp__AppHeading"          : "Console Image Downloader",
+        "NaMiniApp__NoticeHeading"       : "Clipboard utility — not a downloader",
+        "NaMiniApp__NoticeBody"          : "This page does not download photographs. It copies a JavaScript snippet to your clipboard so you can paste it into the browser console on a house-buying website. That is for listing pages whose image carousel blocks right-click save, so you cannot grab every photo in one go.",
+        "NaMiniApp__StepsHeading"        : "How to use",
+        "NaMiniApp__CopyHeading"         : "Copy the snippet",
+        "NaMiniApp__CopyLead"            : "One click copies the console script. Nothing runs on this page except the copy.",
+        "NaMiniApp__ButtonCopy"          : "Copy snippet to clipboard",
+        "NaMiniApp__ButtonCopied"        : "Copied to clipboard",
+        "NaMiniApp__ButtonCopying"       : "Copying…",
+        "NaMiniApp__PreviewHeading"      : "Snippet preview",
+        "NaMiniApp__PreviewLead"         : "This is the exact JavaScript that is copied. Paste it on the listing page, not here.",
+        "NaMiniApp__NotesHeading"        : "What the snippet does",
+        "NaMiniApp__FooterText"          : "© 2026 Noble Architecture | Mini Apps — clipboard utility",
+        "NaMiniApp__StatusIdle"          : "Ready — click the button to copy the snippet.",
+        "NaMiniApp__StatusCopied"        : "Copied. Open the listing, press F12, paste into the Console, then press Enter.",
+        "NaMiniApp__StatusFailed"        : "Copy failed. Select the snippet below and copy it with Ctrl+C.",
+        "NaMiniApp__StatusSnippetMissing": "Unable to load the snippet file.",
+        "NaMiniApp__StatusConfigError"   : "Unable to load app configuration.",
+        "NaMiniApp__ErrorMissingDom"     : "Error: Essential HTML elements are missing.",
+        "NaMiniApp__SnippetAriaLabel"    : "Homeflow carousel image downloader console snippet"
+    },
+
+    "NaMiniApp__Steps" : [
+        "Click Copy snippet to clipboard on this page.",
+        "Open the property listing in another tab. This snippet is written for Homeflow-powered UK estate-agent sites.",
+        "Press F12, open the Console tab, paste the snippet, and press Enter.",
+        "The browser downloads each carousel image in order, named 01__original-filename, 02__original-filename, and so on."
+    ],
+
+    "NaMiniApp__Notes" : [
+        "Paste the snippet on the listing page. Pasting it here, or on a site that is not Homeflow, will fail.",
+        "It reads Homeflow.get('property').photos — the carousel data already on Homeflow agent websites.",
+        "Protocol-relative URLs (//mr1…) are turned into https:// before download.",
+        "Each image is requested at the 1920px variant (/1920x_/) rather than the small carousel thumbnail.",
+        "There is a 400ms pause between files so Chrome is less likely to block the batch.",
+        "Allow multiple downloads if the browser asks. Failed files are logged in the console; the loop continues."
+    ]
+}

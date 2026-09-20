@@ -25,6 +25,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - The storey level: PS02 D21's two plan titles, whose viewports carry the
+//   typed names "Existing Floor Plan" and "Proposed Floor Plan"; when a typed
+//   name beats a storey and when it does not; where a subject came from.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Written with the parametric drawing title.
 //
@@ -115,9 +120,49 @@ import { tmpdir } from 'node:os';
     check('configured words are used', compose({ kind : 'elevation', phase : 'existing', facing : 'East' }, {}, words).text === 'As Existing East Elev.');
     check('a configured placeholder word is used', compose({ kind : 'elevation', phase : 'proposed', facing : '' }, {}, words).text === 'Proposed {{Set North}} Elev.');
 
+    // A FLOOR PLAN IS LETTERED FROM ITS STOREY | PS02 D21, as it is on the sheet
+    const GROUND = 'Ground Floor Plan';
+    const d21 = [
+        caps({ kind : 'plan', phase : 'existing', level : GROUND, name : 'Existing Floor Plan', drawing : 'Floor Plan 1' }),
+        caps({ kind : 'plan', phase : 'proposed', level : GROUND, name : 'Proposed Floor Plan', drawing : 'Floor Plan 1' })
+    ];
+    check('PS02 D21: both plan titles come out as Adam lettered them, typed viewport names and all', d21[0].text === 'EXISTING GROUND FLOOR PLAN' && d21[1].text === 'PROPOSED GROUND FLOOR PLAN', d21.map((t) => t.text));
+    check('PS02 D21: resolved, and the subject is said to have come from the storey', d21.every((t) => t.resolved && t.missing.length === 0 && t.source === 'level'), d21);
+    check('an unnamed plan viewport is its storey, not its record\'s "Floor Plan 1"', caps({ kind : 'plan', phase : 'proposed', level : GROUND, drawing : 'Floor Plan 1' }).text === 'PROPOSED GROUND FLOOR PLAN');
+    check('a roof plan is a ROOF PLAN, never a roof floor plan', caps({ kind : 'plan', phase : 'proposed', level : 'Roof Plan', drawing : 'Roof Plan' }).text === 'PROPOSED ROOF PLAN');
+    check('a plan with no storey is its record\'s name, as it always was', caps({ kind : 'plan', phase : 'proposed', level : '', drawing : 'Floor Plan 1' }).text === 'PROPOSED FLOOR PLAN 1');
+    check('phase mode none leaves a storey title bare', caps({ kind : 'plan', phase : 'proposed', level : GROUND }, { phaseMode : 'none' }).text === 'GROUND FLOOR PLAN');
+    check('without capitals a storey title is in its own case', compose({ kind : 'plan', phase : 'existing', level : 'First Floor Plan' }, {}).text === 'Existing First Floor Plan');
+
+    // A TYPED NAME BEATS THE STOREY ONLY BY SAYING MORE
+    const coach = caps({ kind : 'plan', phase : 'proposed', level : GROUND, name : 'Coach House Floor Plan' });
+    check('a typed name with words of its own is kept exactly as typed', coach.text === 'PROPOSED COACH HOUSE FLOOR PLAN' && coach.source === 'name', coach);
+    check('PS02 D21 reassigned to the roof: the typed "Proposed Floor Plan" still gives way, "Floor" saying nothing', caps({ kind : 'plan', phase : 'proposed', level : 'Roof Plan', name : 'Proposed Floor Plan' }).text === 'PROPOSED ROOF PLAN', caps({ kind : 'plan', phase : 'proposed', level : 'Roof Plan', name : 'Proposed Floor Plan' }).text);
+    check('a typed name that DISAGREES with the storey is kept: "Ground Floor Plan" on a roof plan', caps({ kind : 'plan', phase : 'proposed', level : 'Roof Plan', name : 'Ground Floor Plan' }).text === 'PROPOSED GROUND FLOOR PLAN');
+    check('the words that only say "a plan" come from the config too', compose({ kind : 'plan', phase : 'proposed', level : 'Roof Plan', name : 'Layout Drawing' }, {}, { GenericPlan : 'Layout Drawing' }).text === 'Proposed Roof Plan' && compose({ kind : 'plan', phase : 'proposed', level : 'Roof Plan', name : 'Layout Drawing' }, {}).text === 'Proposed Layout Drawing');
+    check('a numbered typed name is kept: "Floor Plan 2"', caps({ kind : 'plan', phase : 'proposed', level : GROUND, name : 'Floor Plan 2' }).text === 'PROPOSED FLOOR PLAN 2');
+    check('a typed name that is the storey, or less, gives way to it', [ 'Plan', 'Floor Plan', 'Ground Floor', 'ground-floor plan', 'Proposed', 'Proposed Ground Floor Plan' ].every((name) => caps({ kind : 'plan', phase : 'proposed', level : GROUND, name : name }).text === 'PROPOSED GROUND FLOOR PLAN'));
+    check('"Proposed Floor Plan" typed on a viewport of the EXISTING model: the model is believed', caps({ kind : 'plan', phase : 'existing', level : GROUND, name : 'Proposed Floor Plan' }).text === 'EXISTING GROUND FLOOR PLAN');
+    check('the opening qualifier is recognised in the configured words too', compose({ kind : 'plan', phase : 'existing', level : GROUND, name : 'As Existing Floor Plan' }, {}, { Existing : 'As Existing' }).text === 'As Existing Ground Floor Plan');
+    check('SaysNoMore, asked directly', T.Na__LeViewText__SaysNoMore('Existing Floor Plan', GROUND, null) === true && T.Na__LeViewText__SaysNoMore('Annexe Floor Plan', GROUND, null) === false);
+
+    // ONLY A FLOOR PLAN HAS A STOREY
+    check('an elevation that somehow carries a storey is still named by the compass', caps({ kind : 'elevation', phase : 'existing', facing : 'East', level : GROUND }).text === 'EXISTING EAST ELEVATION');
+    check('a typed name on an elevation still always wins', caps({ kind : 'elevation', phase : 'existing', facing : 'East', level : 'Elevation', name : 'Elevation' }).text === 'EXISTING ELEVATION');
+    check('a site plan and a section ignore a storey', caps({ kind : 'siteplan', level : GROUND, drawing : 'Site Plan' }).text === 'SITE PLAN' && caps({ kind : 'section', phase : 'proposed', level : GROUND, drawing : 'Section A-A' }).text === 'PROPOSED SECTION A-A');
+
+    // WHERE THE SUBJECT CAME FROM
+    const sources = [
+        caps(facts, { override : 'Street Scene' }).source, caps({ kind : 'elevation', facing : 'East', name : 'Front Elevation' }).source,
+        caps({ kind : 'elevation', facing : '' }).source, caps({ kind : 'plan', level : GROUND }).source,
+        caps({ kind : 'section', drawing : 'Section A-A' }).source, caps({}).source
+    ];
+    check('Compose says which fact the subject came from', sources.join() === 'override,name,facing,level,drawing,placeholder', sources);
+
     // FACTS MADE WHOLE
-    const whole = T.Na__LeViewText__NormaliseFacts({ kind : 'spaceship', phase : 7, facing : '  North   East ', name : null, drawing : '  Roof\n Plan ' });
-    check('bad facts become their empty values and text is tidied to one line', whole.kind === '' && whole.phase === '' && whole.facing === 'North East' && whole.name === '' && whole.drawing === 'Roof Plan', whole);
+    const whole = T.Na__LeViewText__NormaliseFacts({ kind : 'spaceship', phase : 7, facing : '  North   East ', level : '  Ground\tFloor  Plan ', name : null, drawing : '  Roof\n Plan ' });
+    check('bad facts become their empty values and text is tidied to one line', whole.kind === '' && whole.phase === '' && whole.facing === 'North East' && whole.level === 'Ground Floor Plan' && whole.name === '' && whole.drawing === 'Roof Plan', whole);
+    check('facts with no storey at all have an empty one', T.Na__LeViewText__NormaliseFacts({ kind : 'plan' }).level === '' && T.Na__LeViewText__NormaliseFacts(null).level === '');
 
     rmSync(SCRATCH, { recursive : true, force : true });
     console.log(failures === 0 ? '\n  PASS - every check passed.' : '\n  FAIL - ' + failures + ' check(s) failed.');

@@ -12,35 +12,55 @@
 // DESCRIPTION:
 // - Purely presentational. Every action is handed back to the editor through
 //   the handlers object, so this module holds no state, saves nothing and
-//   knows nothing about R2 or the section cut engine.
+//   knows nothing about R2, drafts or the section cut engine.
 //
-// - THE SETUP IS THREE CONTROLS AND A READOUT, AND THAT IS THE POINT. The
-//   ValeVision elevation tool made you click a building face and then drag a
-//   plane along its normal, which depends on there being a face to hit, gives
-//   no numeric feedback, and cannot be reproduced after a re-export. Here:
-//     WHICH WAY  - four compass buttons, or type any bearing
-//     WHERE      - an X slider and a Z slider that move the plane bodily
-//     WHAT KIND  - elevation, or section
-//   Everything else is derived, and the derived number that actually matters -
-//   how deep into the model the plane has reached - is shown live under the
-//   sliders, because the two sliders do not contribute to it equally and
-//   guessing which one is doing the work is exactly the confusion the old
-//   tool created.
+// - A ROW READS TOP TO BOTTOM AS: WHAT IT IS, WHERE IT IS, WHAT TO DO.
+//     WHAT IT IS   - its name, and under it a sentence saying which elevation
+//                    this is, read off the project's north. The sentence is a
+//                    statement, not a control: there used to be four compass
+//                    buttons here that set the bearing against the model's own
+//                    axis and called it north, and on a project whose north is
+//                    anywhere else they lied (PS01's South Elevation showed
+//                    "West" pressed).
+//     WHERE IT IS  - the plane's controls in the 3D view, elevation or section,
+//                    the two sliders that move the plane bodily, and how deep
+//                    it has cut. The derived depth is shown live because the
+//                    two sliders do not contribute to it equally.
+//     WHAT TO DO   - Preview and Annotate to look; Update and Revert to keep or
+//                    throw away. Delete is not here: it sits below a rule the
+//                    editor draws at the foot of the row.
+//   The model bearing itself - a number only needed for a building that is not
+//   square to anything - is under Advanced, folded. Aim at face sets it.
+//
+// - THE NAME NAMES ITSELF. Left alone it follows the direction ("East
+//   Elevation"); typed over, it is the author's ("Coach House East
+//   Elevation") and the sentence underneath still says which elevation it is.
+//   Clearing the box hands it back. @delegate: ./Na__Elevation__AutoName__.js
 //
 // - Dragging a slider fires the live handler on every input event and the
 //   commit handler once on release, which is what lets the editor move the
-//   gizmo and recut cheaply while dragging and exactly on drop.
-// - Reuses the existing na-pm-dev and na-dropdown-menu classes, plus the
-//   na-fp-dev row and slider classes the floor plans already define, so the
-//   two panels are visibly one family.
+//   plane and recut cheaply while dragging and exactly on drop.
 //
 // INTEGRATION:
-// - Na__Elevation__DevMenu__Editor__ supplies the handlers and appends the
-//   returned elements into the Dev menu panel.
+// - Na__Elevation__DevMenu__Editor__ supplies the handlers and folds the
+//   returned row behind its header.
+// // @delegate: ../40__System__DrawingViewCore/Na__DrawView__DevRowShell__.js
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 2.0.0 (Floor Plans and Elevations menu rebuild)
+// - "Viewed from" and its four compass buttons are gone. In their place a
+//   compass mark and one sentence, from the project's north, saying which
+//   elevation this is - or that north has not been set.
+// - The name box auto-populates from the direction and can be typed over;
+//   a custom name offers a way back.
+// - The bearing field moved under a folded Advanced, renamed Model bearing.
+// - Save Thumbnail and Delete left the action row. Actions are Preview,
+//   Annotate, a green Update and Revert, from the shared row shell.
+// - The plane controls and the card status are handed in by the editor and
+//   placed here, so the row has one reading order.
+//
 // 07-Sep-2026 - Version 1.0.0
 // - Initial implementation for the Elevation Drawings build.
 //
@@ -58,7 +78,6 @@
     // ------------------------------------------------------------
     import {
         Na__ElevCfg__GetDirectionSetup,
-        Na__ElevCfg__GetDirectionPresets,
         Na__ElevCfg__GetPlaneOriginRangeMm,
         Na__ElevCfg__GetViewDepthMaxMm,
         Na__ElevCfg__GetLabel,
@@ -72,6 +91,25 @@
         Na__ElevData__MODE_ELEVATION,
         Na__ElevData__MODE_SECTION
     } from './Na__Elevation__ProjectJson__Data__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Name and the Sentence Under It
+    // ------------------------------------------------------------
+    import {
+        Na__ElevName__IsAuto,
+        Na__ElevName__Derive,
+        Na__ElevName__Statement
+    } from './Na__Elevation__AutoName__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Parts Every Drawing Row Is Made Of
+    // ------------------------------------------------------------
+    import {
+        Na__DrawShell__Button,
+        Na__DrawShell__Caption,
+        Na__DrawShell__BuildCommitActions,
+        Na__DrawShell__BuildAdvanced
+    } from '../40__System__DrawingViewCore/Na__DrawView__DevRowShell__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -88,6 +126,14 @@
     const Na__ElevRow__AZIMUTH_MAX    = 359;
     // ------------------------------------------------------------
 
+    // MODULE CONSTANTS | The Compass Mark (SVG user units)
+    // ------------------------------------------------------------
+    const Na__ElevRow__SVG_NS        = 'http://www.w3.org/2000/svg';
+    const Na__ElevRow__MARK_SIZE     = 34;
+    const Na__ElevRow__MARK_RADIUS   = 13;
+    const Na__ElevRow__MARK_BUILDING = 8;
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -98,12 +144,7 @@
     // FUNCTION | Build a Dev Menu Button
     // ------------------------------------------------------------
     function Na__ElevRow__BuildButton(text, modifierClass, onClick) {
-        const button = document.createElement('button');
-        button.type        = 'button';
-        button.className   = 'na-pm-dev__btn' + (modifierClass ? ' ' + modifierClass : '');
-        button.textContent = text;
-        button.addEventListener('click', onClick);
-        return button;
+        return Na__DrawShell__Button(text, modifierClass, '', onClick);
     }
     // ------------------------------------------------------------
 
@@ -143,14 +184,133 @@
     }
     // ------------------------------------------------------------
 
+// endregion -------------------------------------------------------------------
 
-    // HELPER FUNCTION | Build a Small Section Caption
+
+// -----------------------------------------------------------------------------
+// REGION | What It Is - the Name and Which Elevation
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Draw the Compass Mark
     // ------------------------------------------------------------
-    function Na__ElevRow__BuildCaption(text) {
-        const caption = document.createElement('div');
-        caption.className   = 'na-dropdown-menu__panel-title';
-        caption.textContent = text;
-        return caption;
+    // North up. A ring, the building as a square at its centre, and the
+    // viewer as a dot on the ring at their TRUE bearing with the line of
+    // sight running in to the face they are looking at - so the mark is a
+    // plan of the sentence beside it. trueBearingDeg null draws the ring and
+    // the building alone, greyed: nothing is known, so nothing is pointed at.
+    // ------------------------------------------------------------
+    function Na__ElevRow__DrawCompassMark(svg, trueBearingDeg) {
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        const centre = Na__ElevRow__MARK_SIZE / 2;
+        const radius = Na__ElevRow__MARK_RADIUS;
+        const half   = Na__ElevRow__MARK_BUILDING / 2;
+        const known  = Number.isFinite(trueBearingDeg);
+
+        const make = (tag, attributes) => {
+            const node = document.createElementNS(Na__ElevRow__SVG_NS, tag);
+            Object.keys(attributes).forEach((key) => node.setAttribute(key, String(attributes[key])));
+            svg.appendChild(node);
+            return node;
+        };
+
+        make('circle', { cx : centre, cy : centre, r : radius, class : 'na-elev-dev__mark-ring' });
+        make('line',   { x1 : centre, y1 : centre - radius - 3, x2 : centre, y2 : centre - radius + 3, class : 'na-elev-dev__mark-north' });
+        make('rect',   { x : centre - half, y : centre - half, width : half * 2, height : half * 2, class : 'na-elev-dev__mark-building' });
+
+        if (known) {
+            const angle = trueBearingDeg * (Math.PI / 180);
+            const dirX  = Math.sin(angle);
+            const dirY  = -Math.cos(angle);                                       // <-- Screen y runs down; north is up
+            make('line', {
+                x1 : centre + (dirX * radius), y1 : centre + (dirY * radius),
+                x2 : centre + (dirX * (half + 1.5)), y2 : centre + (dirY * (half + 1.5)),
+                class : 'na-elev-dev__mark-sight'
+            });
+            make('circle', { cx : centre + (dirX * radius), cy : centre + (dirY * radius), r : 3, class : 'na-elev-dev__mark-viewer' });
+        }
+        svg.classList.toggle('na-elev-dev__mark--unknown', !known);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build the Name Box, and Which Elevation This Is
+    // ------------------------------------------------------------
+    // Returns { element, refresh }. refresh re-reads the record: the name may
+    // have been rewritten by a change of direction, and the sentence always
+    // is. onNameTyped(text) and onUseAutoName() are the editor's.
+    // ------------------------------------------------------------
+    function Na__ElevRow__BuildIdentity(elevation, handlers) {
+        const element = document.createElement('div');
+        element.className = 'na-elev-dev__identity';
+
+        const input = document.createElement('input');
+        input.type         = 'text';
+        input.className    = 'na-pm-dev__input na-fp-dev__name';
+        input.spellcheck   = false;
+        input.autocomplete = 'off';
+        input.addEventListener('change', () => handlers.onNameTyped(input.value));
+        element.appendChild(input);
+
+        const facing = document.createElement('div');
+        facing.className = 'na-elev-dev__facing';
+
+        const mark = document.createElementNS(Na__ElevRow__SVG_NS, 'svg');
+        mark.setAttribute('class', 'na-elev-dev__mark');
+        mark.setAttribute('viewBox', '0 0 ' + Na__ElevRow__MARK_SIZE + ' ' + Na__ElevRow__MARK_SIZE);
+        mark.setAttribute('width', String(Na__ElevRow__MARK_SIZE));
+        mark.setAttribute('height', String(Na__ElevRow__MARK_SIZE));
+        mark.setAttribute('aria-hidden', 'true');
+        facing.appendChild(mark);
+
+        const words = document.createElement('div');
+        words.className = 'na-elev-dev__facing-words';
+
+        const sentence = document.createElement('div');
+        sentence.className = 'na-elev-dev__facing-sentence';
+        words.appendChild(sentence);
+
+        const detail = document.createElement('div');
+        detail.className = 'na-elev-dev__facing-detail';
+        words.appendChild(detail);
+
+        facing.appendChild(words);
+        element.appendChild(facing);
+
+        const useAuto = Na__DrawShell__Button('', 'na-elev-dev__use-auto', '', () => handlers.onUseAutoName());
+        element.appendChild(useAuto);
+
+        const refresh = () => {
+            const told    = Na__ElevName__Statement(elevation);
+            const isAuto  = Na__ElevName__IsAuto(elevation);
+            const derived = Na__ElevName__Derive(elevation);
+
+            if (document.activeElement !== input) input.value = elevation.Elevation__Name;   // <-- Never rewrite a box somebody is typing in
+            input.title = isAuto
+                ? 'Named from the way it faces. Type over it to give it a name of its own - "Coach House East Elevation". '
+                  + 'Also the label on its carousel card.'
+                : 'A name of its own. Clear the box to name it from the way it faces again. Also the label on its carousel card.';
+            input.classList.toggle('na-elev-dev__name--auto', isAuto);
+
+            sentence.textContent = told.text;
+            sentence.classList.toggle('na-elev-dev__facing-sentence--unknown', !told.known);
+
+            detail.textContent = told.known
+                ? 'True bearing ' + Math.round(told.trueBearingDeg) + ' deg'
+                  + (isAuto ? ' - the name follows this.' : ' - this drawing has a name of its own.')
+                : (isAuto ? 'The name will follow its direction once north is set.' : '');
+            detail.hidden = detail.textContent === '';
+
+            Na__ElevRow__DrawCompassMark(mark, told.known ? told.trueBearingDeg : null);
+
+            // THE WAY BACK | Only when there is a name to go back to.
+            useAuto.hidden      = isAuto || derived === '';
+            useAuto.textContent = 'Name it "' + derived + '"';
+            useAuto.title       = 'Drop the typed name and name this drawing from the way it faces.';
+        };
+        refresh();
+
+        return { element, refresh };
     }
     // ------------------------------------------------------------
 
@@ -158,60 +318,8 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | Direction and Mode Controls
+// REGION | Where It Is - Drawing Type and the Plane
 // -----------------------------------------------------------------------------
-
-    // HELPER FUNCTION | Build the Compass Presets and the Free Bearing Field
-    // ------------------------------------------------------------
-    // The presets ARE the ordinary case, so they come first and are one click.
-    // The number field is the escape hatch for a building that is not square
-    // to north, and the two stay in step: pressing a preset rewrites the field.
-    // ------------------------------------------------------------
-    function Na__ElevRow__BuildDirection(elevation, onChanged) {
-        const direction = Na__ElevCfg__GetDirectionSetup();
-        const presets   = Na__ElevCfg__GetDirectionPresets();
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'na-elev-dev__compass';
-
-        const field = Na__ElevRow__BuildNumberRow(
-            'Bearing', elevation.Elevation__AzimuthDeg,
-            Na__ElevRow__AZIMUTH_MIN, Na__ElevRow__AZIMUTH_MAX, direction.stepDeg, '', 'deg',
-            (value) => {
-                if (!Number.isFinite(value)) return;
-                elevation.Elevation__AzimuthDeg = value;
-                refreshPressed();
-                onChanged();
-            }
-        );
-
-        const buttons = [];
-        const refreshPressed = () => {
-            for (let i = 0; i < buttons.length; i++) {
-                const isOn = (elevation.Elevation__AzimuthDeg === buttons[i].azimuthDeg);
-                buttons[i].element.classList.toggle('na-pm-dev__btn--primary', isOn);
-            }
-            field.input.value = String(elevation.Elevation__AzimuthDeg);
-        };
-
-        for (let i = 0; i < presets.length; i++) {
-            const preset  = presets[i];
-            const element = Na__ElevRow__BuildButton(preset.label, '', () => {
-                elevation.Elevation__AzimuthDeg = preset.azimuthDeg;
-                refreshPressed();
-                onChanged();
-            });
-            element.title = 'Draw the ' + preset.label.toLowerCase() + ' elevation, seen from the '
-                + preset.label.toLowerCase() + '.';
-            buttons.push({ element: element, azimuthDeg: preset.azimuthDeg });
-            wrapper.appendChild(element);
-        }
-
-        refreshPressed();
-        return { wrapper, fieldRow: field.row, refreshPressed };
-    }
-    // ------------------------------------------------------------
-
 
     // HELPER FUNCTION | Build the Elevation / Section Choice
     // ------------------------------------------------------------
@@ -220,7 +328,7 @@
     // ------------------------------------------------------------
     function Na__ElevRow__BuildModeChoice(elevation, onChanged) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'na-pm-dev__actions';
+        wrapper.className = 'na-pm-dev__actions na-draw-dev__choice';
 
         const elevationBtn = Na__ElevRow__BuildButton(
             Na__ElevCfg__GetLabel('ModeElevationLabel', 'Elevation'), '', () => {
@@ -244,6 +352,8 @@
             const isSection = Na__ElevData__IsSection(elevation);
             elevationBtn.classList.toggle('na-pm-dev__btn--primary', !isSection);
             sectionBtn.classList.toggle('na-pm-dev__btn--primary', isSection);
+            elevationBtn.setAttribute('aria-pressed', String(!isSection));
+            sectionBtn.setAttribute('aria-pressed', String(isSection));
         };
         refreshPressed();
 
@@ -253,12 +363,6 @@
     }
     // ------------------------------------------------------------
 
-// endregion -------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// REGION | Drawing Plane Controls
-// -----------------------------------------------------------------------------
 
     // HELPER FUNCTION | Build One Axis Slider for the Drawing Plane
     // ------------------------------------------------------------
@@ -296,7 +400,7 @@
             write(elevation, parseFloat(slider.value));
             refreshValue();
             refreshReadout();
-            onLive();                                                            // <-- Throttled recut and live gizmo while dragging
+            onLive();                                                            // <-- Throttled recut and live plane while dragging
         });
         slider.addEventListener('change', () => {
             write(elevation, parseFloat(slider.value));
@@ -335,6 +439,50 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | Build the Model Bearing Field (for Advanced)
+    // ------------------------------------------------------------
+    // The number an elevation's direction is STORED as: the bearing of the
+    // viewer's side against the model's own -Z axis, not against north. It is
+    // what Aim at face writes, and it only needs typing for a building that
+    // is square to nothing - which is why it lives under Advanced and the
+    // sentence at the top of the row is what says which elevation this is.
+    // ------------------------------------------------------------
+    function Na__ElevRow__BuildBearingField(elevation, onChanged) {
+        const direction = Na__ElevCfg__GetDirectionSetup();
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'na-elev-dev__bearing';
+
+        const field = Na__ElevRow__BuildNumberRow(
+            Na__ElevCfg__GetLabel('ModelBearingFieldLabel', 'Model bearing'), elevation.Elevation__AzimuthDeg,
+            Na__ElevRow__AZIMUTH_MIN, Na__ElevRow__AZIMUTH_MAX, direction.stepDeg, '', 'deg',
+            (value) => {
+                if (!Number.isFinite(value)) {
+                    field.input.value = String(elevation.Elevation__AzimuthDeg); // <-- A direction is the one thing that cannot be blank
+                    return;
+                }
+                elevation.Elevation__AzimuthDeg = ((value % 360) + 360) % 360;
+                field.input.value = String(elevation.Elevation__AzimuthDeg);
+                onChanged();
+            }
+        );
+        field.input.title = 'Which side of the building the viewer stands on, clockwise from the model\'s own -Z axis. '
+                          + 'Aim at face sets this for you.';
+        wrapper.appendChild(field.row);
+
+        const note = document.createElement('p');
+        note.className   = 'na-fp-dev__empty';
+        note.textContent = Na__ElevCfg__GetLabel('ModelBearingNote',
+            'Measured against the model\'s own axes, not north. Aim at face sets it by clicking a wall; type it only for '
+            + 'a building that is square to nothing. Which elevation this makes it is stated at the top of the row.');
+        wrapper.appendChild(note);
+
+        const refresh = () => { field.input.value = String(elevation.Elevation__AzimuthDeg); };
+        return { wrapper, refresh };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -342,104 +490,46 @@
 // REGION | Row Assembly
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Build the Name Field
-    // ------------------------------------------------------------
-    function Na__ElevRow__BuildNameField(elevation, onRename) {
-        const input = document.createElement('input');
-        input.type      = 'text';
-        input.className = 'na-pm-dev__input na-fp-dev__name';
-        input.value     = elevation.Elevation__Name;
-        input.title     = 'Also the label on the carousel card';
-        input.addEventListener('change', () => {
-            const next = input.value.trim();
-            if (next.length === 0) {
-                input.value = elevation.Elevation__Name;                         // <-- Never let an elevation lose its name
-                return;
-            }
-            elevation.Elevation__Name = next;
-            onRename();
-        });
-        return input;
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Build the Preview / Annotate / Thumbnail / Delete Actions
-    // ------------------------------------------------------------
-    function Na__ElevRow__BuildActions(handlers) {
-        const actions = document.createElement('div');
-        actions.className = 'na-pm-dev__actions';
-
-        actions.appendChild(Na__ElevRow__BuildButton(
-            handlers.isActive
-                ? Na__ElevCfg__GetLabel('ExitPreviewLabel', 'Exit Preview')
-                : Na__ElevCfg__GetLabel('PreviewLabel', 'Preview'),
-            'na-pm-dev__btn--primary',
-            handlers.onPreviewToggle
-        ));
-
-        const annotateBtn = Na__ElevRow__BuildButton(
-            Na__ElevCfg__GetLabel('AnnotateLabel', 'Annotate'), '', handlers.onAnnotate
-        );
-        annotateBtn.disabled = !handlers.isActive;                               // <-- Nothing to annotate until it is on screen
-        if (handlers.isEditMode) annotateBtn.classList.add('na-pm-dev__btn--primary');
-        actions.appendChild(annotateBtn);
-
-        // THUMBNAIL | Only while the drawing is on screen, because the capture
-        // is of the viewport: pressing it from 3D would file a picture of the
-        // model as the elevation's card.
-        const thumbBtn = Na__ElevRow__BuildButton(
-            Na__ElevCfg__GetLabel('ThumbnailLabel', 'Save Thumbnail'), '', handlers.onThumbnail
-        );
-        thumbBtn.disabled = !handlers.isActive;
-        thumbBtn.title    = handlers.isActive
-            ? 'Captures the elevation as it is framed right now.'
-            : 'Preview the elevation first - the thumbnail is a capture of the viewport.';
-        actions.appendChild(thumbBtn);
-
-        actions.appendChild(Na__ElevRow__BuildButton(
-            'Delete', 'na-pm-dev__btn--danger', handlers.onDelete
-        ));
-        return actions;
-    }
-    // ------------------------------------------------------------
-
-
     // FUNCTION | Build One Elevation's Complete Editor Row
     // ------------------------------------------------------------
     // handlers: {
     //   isActive, isEditMode,
-    //   onRename, onDirectionChange, onModeChange,
+    //   planeControls   - element | null : Show plane / Move to face / Aim at face
+    //   sceneLinkRow    - element | null : the carousel card's status
+    //   onNameTyped(text), onUseAutoName(),
+    //   onDirectionChange, onModeChange,
     //   onPlaneLive, onPlaneCommit, onDepthChange, onCentrePlane,
-    //   onPreviewToggle, onAnnotate, onThumbnail, onDelete
+    //   onPreviewToggle, onAnnotate, onUpdate, onRevert
     // }
+    // Returns { row, refreshDraft(state), refreshIdentity() }. The editor
+    // folds `row` behind a header and adds the danger zone beneath it.
     // ------------------------------------------------------------
     function Na__ElevRow__BuildElevationRow(elevation, handlers) {
         const rowRoot = document.createElement('div');
         rowRoot.className = 'na-fp-dev__row' + (handlers.isActive ? ' na-fp-dev__row--active' : '');
 
-        rowRoot.appendChild(Na__ElevRow__BuildNameField(elevation, handlers.onRename));
+        // WHAT IT IS | Its name, and which elevation of the building this is
+        const identity = Na__ElevRow__BuildIdentity(elevation, handlers);
+        rowRoot.appendChild(identity.element);
 
-        // DIRECTION | Which side of the building the viewer stands on
+        // WHERE IT IS | The plane in the 3D view, first: it is the quickest way
+        // to put an elevation where it belongs and to point it at a wall.
         const depth = Na__ElevRow__BuildDepthReadout(elevation);
 
-        rowRoot.appendChild(Na__ElevRow__BuildCaption(
-            Na__ElevCfg__GetLabel('DirectionFieldLabel', 'Viewed from')
-        ));
-        const direction = Na__ElevRow__BuildDirection(elevation, () => {
-            depth.refresh();                                                     // <-- A new bearing changes how deep the plane reaches
-            handlers.onDirectionChange();
-        });
-        rowRoot.appendChild(direction.wrapper);
-        rowRoot.appendChild(direction.fieldRow);
+        if (handlers.planeControls) {
+            rowRoot.appendChild(Na__DrawShell__Caption(Na__ElevCfg__GetLabel('PlaneControlsCaption', 'Plane in the 3D view')));
+            rowRoot.appendChild(handlers.planeControls);
+        }
 
         // DRAWING TYPE | The same drawing with the cut on or off
-        rowRoot.appendChild(Na__ElevRow__BuildCaption(
-            Na__ElevCfg__GetLabel('ModeFieldLabel', 'Drawing type')
-        ));
-        rowRoot.appendChild(Na__ElevRow__BuildModeChoice(elevation, handlers.onModeChange).wrapper);
+        rowRoot.appendChild(Na__DrawShell__Caption(Na__ElevCfg__GetLabel('ModeFieldLabel', 'Drawing type')));
+        rowRoot.appendChild(Na__ElevRow__BuildModeChoice(elevation, () => {
+            identity.refresh();                                                  // <-- "East Elevation" becomes "East Section"
+            handlers.onModeChange();
+        }).wrapper);
 
         // DRAWING PLANE | The two controls that move it through the model
+        rowRoot.appendChild(Na__DrawShell__Caption(Na__ElevCfg__GetLabel('PlanePositionCaption', 'Plane position')));
         const sliderX = Na__ElevRow__BuildPlaneSlider(
             elevation,
             Na__ElevCfg__GetLabel('PlaneXFieldLabel', 'Plane X'),
@@ -485,8 +575,40 @@
             }
         ).row);
 
-        rowRoot.appendChild(Na__ElevRow__BuildActions(handlers));
-        return rowRoot;
+        // ADVANCED | The stored bearing, for the building that needs it typed
+        const advanced = Na__DrawShell__BuildAdvanced(elevation.Elevation__Id, 'Advanced');
+        const bearing  = Na__ElevRow__BuildBearingField(elevation, () => {
+            depth.refresh();                                                     // <-- A new bearing changes how deep the plane reaches
+            identity.refresh();                                                  // <-- And which elevation this is
+            handlers.onDirectionChange();
+        });
+        advanced.body.appendChild(bearing.wrapper);
+        rowRoot.appendChild(advanced.element);
+
+        // WHAT TO DO | Look, then keep or throw away
+        const actions = Na__DrawShell__BuildCommitActions({
+            isActive         : handlers.isActive,
+            isEditMode       : handlers.isEditMode,
+            drawingWord      : 'elevation',
+            previewLabel     : Na__ElevCfg__GetLabel('PreviewLabel', 'Preview'),
+            exitPreviewLabel : Na__ElevCfg__GetLabel('ExitPreviewLabel', 'Exit Preview'),
+            annotateLabel    : Na__ElevCfg__GetLabel('AnnotateLabel', 'Annotate'),
+            updateLabel      : Na__ElevCfg__GetLabel('UpdateLabel', 'Update Elevation'),
+            revertLabel      : Na__ElevCfg__GetLabel('RevertLabel', 'Revert'),
+            onPreviewToggle  : handlers.onPreviewToggle,
+            onAnnotate       : handlers.onAnnotate,
+            onUpdate         : handlers.onUpdate,
+            onRevert         : handlers.onRevert
+        });
+        rowRoot.appendChild(actions.element);
+
+        if (handlers.sceneLinkRow) rowRoot.appendChild(handlers.sceneLinkRow);
+
+        return {
+            row             : rowRoot,
+            refreshDraft    : actions.refresh,
+            refreshIdentity : () => { identity.refresh(); bearing.refresh(); }
+        };
     }
     // ------------------------------------------------------------
 

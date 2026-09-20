@@ -56,6 +56,14 @@ CDN_BASE_URL = 'https://cdn.noble-architecture.com'
 R2_BASE_PREFIX = 'NaProjectPortal'
 TRUEVISION_CONTENT_FOLDER = '30__TrueVision__AppContent'
 SITEPLAN_FOLDER_NAME = 'SitePlan__DrawingData'                    # TrueVision site plan store: never a design phase
+SITEPLAN_FOLDER_PREFIX = 'SitePlan__DrawingData'                  # Every site plan folder starts with this, so one test finds them all
+SITEPLAN_STORES = [                                               # A project may hold the site as found AND the scheme
+    {'id': 'existing', 'label': 'Existing Site Plan', 'folder': 'SitePlan__DrawingData__Existing'},
+    {'id': 'proposed', 'label': 'Proposed Site Plan', 'folder': 'SitePlan__DrawingData__Proposed'},
+    # The original single folder. Read as the PROPOSED store and never renamed:
+    # live TrueVision projects and published R2 keys point at this name.
+    {'id': 'proposed', 'label': 'Proposed Site Plan', 'folder': SITEPLAN_FOLDER_NAME, 'legacy': True},
+]
 SITEPLAN_MANIFEST_FILENAME = 'TrueVision__SitePlanData__Manifest__.json'
 SITEPLAN_FILE_PATTERN = re.compile(r'^(?:.*?__)?(TrueVision__SitePlan__[A-Za-z0-9]+)__(LineworkModel|FillModel)__\.glb$', re.IGNORECASE)
 PLANVISION_CONTENT_FOLDER = '20__PlanVision__AppContent'
@@ -406,8 +414,8 @@ def discover_truevision_model_groups(project_path, year_folder_name, project_fol
             continue
         if entry.startswith('.') or entry.startswith('00__'):
             continue
-        if entry == SITEPLAN_FOLDER_NAME:
-            continue                                                   # Site plan data is its own store (SitePlan__DataStore), not a design phase
+        if entry.startswith(SITEPLAN_FOLDER_PREFIX):
+            continue                                                   # Site plan data is its own store (SitePlan__DataStores), not a design phase
 
         glb_files = sorted([
             f for f in os.listdir(entry_path)
@@ -434,15 +442,16 @@ def discover_truevision_model_groups(project_path, year_folder_name, project_fol
     return groups
 
 
-def discover_truevision_siteplan_store(project_path, year_folder_name, project_folder):
-    """Describe the project's site plan store (SitePlan__DrawingData) for TrueVision.
+def discover_truevision_siteplan_store(project_path, year_folder_name, project_folder,
+                                       store_folder=SITEPLAN_FOLDER_NAME, store_id='proposed'):
+    """Describe ONE of the project's site plan stores for TrueVision.
 
     The GLB Builder's Site Plan Export writes one linework GLB per site plan tag, a fill GLB for
     fill tags, and a manifest. The folder is never a design phase: TrueVision reads it through this
     build-owned SitePlan__DataStore key, regenerated on every run. Layers come from the manifest when
     there is one, otherwise from the file names. Returns None when the folder holds no site plan GLBs.
     """
-    store_path = os.path.join(project_path, TRUEVISION_CONTENT_FOLDER, SITEPLAN_FOLDER_NAME)
+    store_path = os.path.join(project_path, TRUEVISION_CONTENT_FOLDER, store_folder)
     if not os.path.isdir(store_path):
         return None
 
@@ -455,7 +464,7 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
 
     base_url = (
         f"{CDN_BASE_URL}/{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}"
-        f"/{TRUEVISION_CONTENT_FOLDER}/{SITEPLAN_FOLDER_NAME}"
+        f"/{TRUEVISION_CONTENT_FOLDER}/{store_folder}"
     )
     present = set(glb_files)
 
@@ -477,7 +486,7 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
             linework = entry.get('Layer__LineworkFile')
             fill = entry.get('Layer__FillFile')
             if linework not in present:
-                print(f'  [WARNING] {project_folder}: the site plan manifest lists {linework}, which is not in {SITEPLAN_FOLDER_NAME}')
+                print(f'  [WARNING] {project_folder}: the site plan manifest lists {linework}, which is not in {store_folder}')
                 continue
             layers.append({
                 'Layer__CategoryKey'     : entry.get('Layer__CategoryKey'),
@@ -485,6 +494,8 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
                 'Layer__Label'           : entry.get('Layer__Label'),
                 'Layer__Group'           : entry.get('Layer__Group'),
                 'Layer__DrawOrder'       : entry.get('Layer__DrawOrder'),
+                'Layer__ZIndexLine'      : entry.get('Layer__ZIndexLine'),
+                'Layer__ZIndexFill'      : entry.get('Layer__ZIndexFill'),
                 'Layer__LineworkUrl'     : f'{base_url}/{linework}',
                 'Layer__FillUrl'         : f'{base_url}/{fill}' if fill in present else None,
                 'Layer__Style'           : entry.get('Layer__Style'),
@@ -497,7 +508,7 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
         for filename in glb_files:
             match = SITEPLAN_FILE_PATTERN.match(filename)
             if not match:
-                print(f'  [WARNING] {project_folder}: {filename} in {SITEPLAN_FOLDER_NAME} is not a site plan GLB name, skipped')
+                print(f'  [WARNING] {project_folder}: {filename} in {store_folder} is not a site plan GLB name, skipped')
                 continue
             slot = by_key.setdefault(match.group(1), {})
             slot['fill' if match.group(2).lower() == 'fillmodel' else 'linework'] = filename
@@ -512,6 +523,8 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
                 'Layer__Label'           : label,
                 'Layer__Group'           : None,
                 'Layer__DrawOrder'       : None,
+                'Layer__ZIndexLine'      : None,
+                'Layer__ZIndexFill'      : None,
                 'Layer__LineworkUrl'     : f"{base_url}/{files['linework']}",
                 'Layer__FillUrl'         : f"{base_url}/{files['fill']}" if 'fill' in files else None,
                 'Layer__Style'           : None,
@@ -525,13 +538,36 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
 
     meta = manifest if isinstance(manifest, dict) else {}
     return {
-        'SitePlan__FolderName'    : SITEPLAN_FOLDER_NAME,
+        'SitePlan__StoreId'       : store_id,
+        'SitePlan__FolderName'    : store_folder,
         'SitePlan__ManifestUrl'   : f'{base_url}/{SITEPLAN_MANIFEST_FILENAME}' if meta else None,
         'SitePlan__ExportedIso'   : meta.get('SitePlanData__ExportedIso'),
         'SitePlan__NorthAngleDeg' : meta.get('SitePlanData__NorthAngleDeg'),
         'SitePlan__BoundsMm'      : meta.get('SitePlanData__BoundsMm'),
         'SitePlan__Layers'        : layers,
     }
+
+
+def discover_truevision_siteplan_stores(project_path, year_folder_name, project_folder):
+    """Describe EVERY site plan store the project holds, in catalogue order.
+
+    A project may hold an Existing site plan, a Proposed one, or the original single
+    SitePlan__DrawingData folder, which is read as the Proposed store. Only the FIRST
+    folder found for a store id is used, so the named folder wins over the original one
+    and a project cannot publish the same store twice. Returns [] when it holds none.
+    """
+    stores = []
+    seen = set()
+    for entry in SITEPLAN_STORES:
+        if entry["id"] in seen:
+            continue
+        store = discover_truevision_siteplan_store(
+            project_path, year_folder_name, project_folder, entry["folder"], entry["id"]
+        )
+        if store:
+            stores.append(store)
+            seen.add(entry["id"])
+    return stores
 
 
 def parse_group_label(group_id):
@@ -547,7 +583,7 @@ def parse_group_label(group_id):
     return label
 
 
-def generate_truevision_project_data(project_code, project_name, model_groups, siteplan_store=None):
+def generate_truevision_project_data(project_code, project_name, model_groups, siteplan_stores=None):
     """Build the TrueVision__ProjectData__.json structure for a project."""
     data = {
         'projectCode'      : project_code,
@@ -561,8 +597,17 @@ def generate_truevision_project_data(project_code, project_name, model_groups, s
             'Camera__DefaultFov'            : 50,
         },
     }
-    if siteplan_store:
-        data['SitePlan__DataStore'] = siteplan_store                   # Build-owned: regenerated every run, never a dev key
+    # Build-owned: regenerated every run, never a dev key.
+    stores = siteplan_stores or []
+    if isinstance(stores, dict):
+        stores = [stores]                                              # A single store still works, for any caller that passes one
+    if stores:
+        data['SitePlan__DataStores'] = stores
+        # The legacy single key stays, holding the PROPOSED store, so a TrueVision
+        # build that predates two stores keeps reading exactly what it read before.
+        legacy = next((s for s in stores if s.get('SitePlan__StoreId') == 'proposed'), None)
+        if legacy:
+            data['SitePlan__DataStore'] = legacy
     return data
 
 
@@ -1124,13 +1169,13 @@ def main():
         model_groups = discover_truevision_model_groups(
             proj['folderPath'], year_folder_name, proj['projectFolder']
         )
-        siteplan_store = discover_truevision_siteplan_store(
+        siteplan_stores = discover_truevision_siteplan_stores(
             proj['folderPath'], year_folder_name, proj['projectFolder']
         )
 
-        if model_groups or siteplan_store:
+        if model_groups or siteplan_stores:
             tv_data = generate_truevision_project_data(
-                proj['projectCode'], proj['projectName'], model_groups, siteplan_store
+                proj['projectCode'], proj['projectName'], model_groups, siteplan_stores
             )
             if args.dry_run_check:
                 output_path = os.path.join(proj['folderPath'], TRUEVISION_CONTENT_FOLDER, 'TrueVision__ProjectData__.json')

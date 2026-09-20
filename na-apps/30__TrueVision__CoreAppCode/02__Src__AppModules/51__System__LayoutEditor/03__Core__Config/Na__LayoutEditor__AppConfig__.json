@@ -152,10 +152,10 @@
     },
 
     "LayoutEditor__Scales__Config": {
-        "LayoutEditor__Scales__Description": "Locked scales for 2D viewports (D27). A viewport quotes one of these; the three-way toggle on the Viewport Settings panel steps through them. A site plan viewport quotes one of SitePlanScaleDenominators instead (1:500 block plan, 1:1250 location plan).",
+        "LayoutEditor__Scales__Description": "Locked scales for 2D viewports (D27). A viewport quotes one of these; the three-way toggle on the Viewport Settings panel steps through them. A site plan viewport quotes one of SitePlanScaleDenominators instead. THE SITE PLAN LIST IS THE ONLY ONE THAT COUNTS: SitePlanExportConfig.SupportedScaleDenominators in the Tags SSOT is documentation and is read by nothing. A denominator of 500 or finer is a BLOCK PLAN, which draws the full fill / pattern / linework composite; coarser than 500 is a LOCATION PLAN, which draws only the proposed fills and keeps everything else in greyscale.",
         "LayoutEditor__Scales__AvailableScaleDenominators": [20, 50, 100],
         "LayoutEditor__Scales__DefaultScaleDenominator": 50,
-        "LayoutEditor__Scales__SitePlanScaleDenominators": [500, 1250],
+        "LayoutEditor__Scales__SitePlanScaleDenominators": [100, 200, 500, 1250, 2500],
         "LayoutEditor__Scales__SitePlanDefaultScaleDenominator": 500,
         "LayoutEditor__Scales__ScaleLabelPrefix": "1:",
         "LayoutEditor__Scales__NotToScaleLabel": "NTS",

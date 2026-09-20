@@ -956,6 +956,30 @@
         color                              : #555d66;
     }
 
+    /* WHAT EXACTLY IS ABOUT TO CHANGE | One line each, under the message. Set
+       apart on a tinted ground so the list reads as the facts of the matter and
+       the paragraph above it as the question. */
+    .na-pm-modal__details {
+        margin                             : 0 0 12px;
+        padding                            : 8px 10px 8px 24px;
+        font-size                          : 0.78rem;
+        line-height                        : 1.45;
+        color                              : #23282d;
+        background                         : #f4f6f8;
+        border-radius                      : 5px;
+    }
+
+    .na-pm-modal__details li + li {
+        margin-top                         : 3px;
+    }
+
+    /* Who else is affected: the sheets drawn from the thing being changed. */
+    .na-pm-modal__message--footnote {
+        padding-left                       : 9px;
+        border-left                        : 3px solid #e6c78a;
+        color                              : #6b5a2e;
+    }
+
     .na-pm-modal__prompt {
         margin                             : 0 0 6px;
         font-size                          : 0.8rem;
@@ -1087,6 +1111,17 @@
 
     .na-pm-modal__btn--confirm:hover:not(:disabled) {
         background                         : #daeaf6;
+    }
+
+    /* A confirm that KEEPS something (Update) rather than destroys it. */
+    .na-pm-modal__btn--commit {
+        border-color                       : #2e7d4f;
+        background                         : #2e7d4f;
+        color                              : #ffffff;
+    }
+
+    .na-pm-modal__btn--commit:hover:not(:disabled) {
+        background                         : #256842;
     }
 
     .na-pm-modal__btn--danger {

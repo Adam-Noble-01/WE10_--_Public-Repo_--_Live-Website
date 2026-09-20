@@ -42,6 +42,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - Confirm takes `details` (a list of lines, shown as a list under the
+//   message), a `footnote`, and `isCommit` for a green confirm button. For the
+//   Floor Plans and Elevations Update and Discard dialogs, which have to say
+//   WHAT changed and which sheets draw from it.
+//
 // 19-Sep-2026 - Version 1.0.0
 // - Initial implementation alongside the Presentation Scenes menu rebuild.
 //
@@ -122,7 +128,7 @@
 
     // HELPER FUNCTION | Build the Title and Message Block Shared by Every Dialog
     // ------------------------------------------------------------
-    function Na__PmDevModal__BuildHead(card, title, message) {
+    function Na__PmDevModal__BuildHead(card, title, message, details, footnote) {
         const titleEl = document.createElement('h3');
         titleEl.className   = 'na-pm-modal__title';
         titleEl.textContent = title || 'Confirm';
@@ -133,6 +139,28 @@
             messageEl.className   = 'na-pm-modal__message';
             messageEl.textContent = message;
             card.appendChild(messageEl);
+        }
+
+        // DETAILS | What exactly is about to change, one line each. A dialog
+        // that says "are you sure" without saying OF WHAT is a dialog that gets
+        // a yes by reflex; a short list of the real changes gets read.
+        const lines = Array.isArray(details) ? details.filter((line) => typeof line === 'string' && line !== '') : [];
+        if (lines.length > 0) {
+            const list = document.createElement('ul');
+            list.className = 'na-pm-modal__details';
+            lines.forEach((line) => {
+                const item = document.createElement('li');
+                item.textContent = line;
+                list.appendChild(item);
+            });
+            card.appendChild(list);
+        }
+
+        if (footnote) {
+            const footnoteEl = document.createElement('p');
+            footnoteEl.className   = 'na-pm-modal__message na-pm-modal__message--footnote';
+            footnoteEl.textContent = footnote;
+            card.appendChild(footnoteEl);
         }
     }
     // ------------------------------------------------------------
@@ -190,7 +218,7 @@
         const card = root.querySelector('.na-pm-modal__card');
         card.innerHTML = '';
 
-        Na__PmDevModal__BuildHead(card, opts.title, opts.message);
+        Na__PmDevModal__BuildHead(card, opts.title, opts.message, opts.details, opts.footnote);
 
         return new Promise((resolve) => {
             const backdrop = root.querySelector('.na-pm-modal__backdrop');
@@ -212,7 +240,9 @@
 
             const confirmBtn = Na__PmDevModal__BuildButton(
                 opts.confirmLabel || 'Confirm',
-                'na-pm-modal__btn--confirm' + (opts.isDestructive ? ' na-pm-modal__btn--danger' : ''),
+                'na-pm-modal__btn--confirm'
+                    + (opts.isDestructive ? ' na-pm-modal__btn--danger' : '')
+                    + (opts.isCommit && !opts.isDestructive ? ' na-pm-modal__btn--commit' : ''),
                 () => { if (!confirmBtn.disabled) Na__PmDevModal__SettleDialog(true); }
             );
             const cancelBtn = Na__PmDevModal__BuildButton(

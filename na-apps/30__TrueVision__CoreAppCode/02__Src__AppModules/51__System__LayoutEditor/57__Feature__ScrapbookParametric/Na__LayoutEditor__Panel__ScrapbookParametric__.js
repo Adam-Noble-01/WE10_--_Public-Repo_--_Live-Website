@@ -43,11 +43,19 @@
 //
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
-// - ValeVision    : not yet ported; see Na__LayoutEditor__ScrapbookParametric__.
+// - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
+// - Ahead of it   : 1.3.0 (the storey hint) is TrueVision only. ValeVision
+//                   holds 1.2.0 and its floor plans have no storey field.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.3.0
+// - A title's one sentence of explanation asks the sentence where its subject
+//   came from (Compose's source) where it used to look at ViewName: a typed
+//   viewport name that gives way to the plan's storey is no longer reported
+//   as the name in use. A title written from a storey says where that is set.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - The Drawing Title: registered beside the scale bar, with the viewport
 //   identity module's words and the chrome's text measure handed to the
@@ -122,7 +130,9 @@
         Na__LeViewText__MODE_PROPOSED,
         Na__LeViewText__MODE_NONE,
         Na__LeViewText__MISSING_DIRECTION,
-        Na__LeViewText__MISSING_DRAWING
+        Na__LeViewText__MISSING_DRAWING,
+        Na__LeViewText__SOURCE_NAME,
+        Na__LeViewText__SOURCE_LEVEL
     } from '../20__System__Viewports/Na__LayoutEditor__ViewportTitleText__.js';
     import { Na__LeChrome__MeasureTextMm } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import {
@@ -439,7 +449,8 @@
         if (params.TitleText !== '') why = L('PropsTitleTyped', 'Typed by hand, so it no longer follows its drawing. Clear the box to go back to automatic.');
         else if (told.missing.indexOf(Na__LeViewText__MISSING_DRAWING) !== -1) why = L('PropsNeedsLink', 'Tie it to a drawing to fill {{Drawing}}: drag its round socket onto one.');
         else if (told.missing.indexOf(Na__LeViewText__MISSING_DIRECTION) !== -1 && !Na__LeViewId__IsNorthSet()) why = L('PropsNeedsNorth', '{{Direction}} fills itself in once north is set in the 3D model: Dev Tools, North Direction, Draw Compass.');
-        else if (params.ViewName !== '') why = L('PropsTitleNamed', 'The drawing\'s viewport has a typed name, which the title uses. Clear that name and the title is written from the model and north.');
+        else if (told.source === Na__LeViewText__SOURCE_NAME) why = L('PropsTitleNamed', 'The drawing\'s viewport has a typed name, which the title uses. Clear that name and the title is written from the model and north.');   // <-- Asked of the sentence, not of ViewName: a typed "Proposed Floor Plan" gives way to the plan's storey and is NOT what the title uses
+        else if (told.source === Na__LeViewText__SOURCE_LEVEL) why = L('PropsTitleStorey', 'Written from the plan\'s storey, which is chosen per floor plan in the 3D view: Dev Tools, Floor Plans, Storey.');
         part('title-why').textContent = why;
         part('title-why').hidden      = why === '';
 

@@ -1,0 +1,163 @@
+<!-- =============================================================================
+  NOBLE ARCHITECTURE - MINI APP - PHOTO UTILS
+  =============================================================================
+
+  FILE    : MiniApp__PhotoUtils__ConsoleImageDownloader__Main__.html
+  AUTHOR  : Adam Noble - Noble Architecture
+  PURPOSE : Copy a Homeflow carousel image-download snippet to the clipboard
+  CREATED : 20-Sep-2026
+
+  DESCRIPTION:
+  - This is a clipboard utility, not an in-page image downloader.
+  - One button copies a JavaScript snippet for pasting into the browser
+    console on a house-buying website whose photo carousel blocks
+    right-click save.
+  - The snippet itself is Homeflow-specific (Homeflow.get('property').photos).
+  - All UI text is read from AppConfig JSON. The snippet file is copied as-is.
+
+  MODULES:
+  - MiniApp__PhotoUtils__ConsoleImageDownloader__Main__.js
+  - MiniApp__PhotoUtils__ConsoleImageDownloader__Style__.css
+  - MiniApp__PhotoUtils__ConsoleImageDownloader__AppConfig__.json
+  - MiniApp__PhotoUtils__ConsoleImageDownloader__Snippet__HomeflowCarousel__.js
+
+  =========================================================================== -->
+
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Head                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Noble Architecture clipboard utility — copy a console snippet to download Homeflow estate-agent carousel images." />
+        <meta name="author" content="Adam Noble - Noble Architecture" />
+        <title>Console Image Downloader</title>
+
+        <link rel="icon" type="image/svg+xml"
+              href="../../01__Assets__NaApps__CommonAssets/NaApps__CommonIcons/CommonIcon__NaLogoFavicon__SVG-h50mm.svg" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Roboto+Mono:wght@400;600&display=swap"
+              rel="stylesheet" />
+
+        <link rel="stylesheet"
+              href="../../../assets/AD02_-_STYL_-_Common_-_StyleSheets/AD02_30_-_STYL_-_Core-Default-Web-Utility-App-Stylesheet.css" />
+        <link rel="stylesheet" href="MiniApp__PhotoUtils__ConsoleImageDownloader__Style__.css" />
+    </head>
+<!-- endregion -------------------------------------------------------- -->
+
+<!-- ----------------------------------------------------------------- -->
+<!-- REGION | Document Body                                            -->
+<!-- ----------------------------------------------------------------- -->
+    <body>
+        <div class="PAGE__container">
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Header                                      -->
+            <!-- --------------------------------------------------------- -->
+                <header class="HEAD__container">
+                    <div class="HEAD__nav">
+                        <h1 id="js__appTitle" class="HEAD__title">Console Image Downloader</h1>
+                        <span id="js__appVersion" class="HEAD__version-note"></span>
+                    </div>
+                </header>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Main Content                                     -->
+            <!-- --------------------------------------------------------- -->
+                <main class="MAIN__container">
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Clipboard Notice                         -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="FORM__block CID__notice" aria-labelledby="js__noticeHeading">
+                            <h2 id="js__noticeHeading" class="CTRL__heading CID__notice-heading">Clipboard utility — not a downloader</h2>
+                            <p id="js__noticeBody" class="CID__notice-body">
+                                This page does not download photographs. It copies a JavaScript snippet
+                                to your clipboard so you can paste it into the browser console on a
+                                house-buying website.
+                            </p>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | How To Use                               -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="FORM__block" aria-labelledby="js__stepsHeading">
+                            <h2 id="js__stepsHeading" class="CTRL__heading">How to use</h2>
+                            <ol id="js__stepsList" class="CID__steps"></ol>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Copy Action                              -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="FORM__block" aria-labelledby="js__copyHeading">
+                            <h2 id="js__copyHeading" class="CTRL__heading">Copy the snippet</h2>
+                            <p id="js__copyLead" class="CID__lead">
+                                One click copies the console script. Nothing runs on this page except the copy.
+                            </p>
+                            <div class="BTTN__container CID__copy-row">
+                                <button id="js__copyButton"
+                                        type="button"
+                                        class="BTTN__standard CID__copy-button"
+                                        disabled>
+                                    Copy snippet to clipboard
+                                </button>
+                            </div>
+                            <p id="js__copyStatus"
+                               class="CID__status"
+                               role="status"
+                               aria-live="polite"></p>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Snippet Preview                          -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="FORM__block" aria-labelledby="js__previewHeading">
+                            <h2 id="js__previewHeading" class="CTRL__heading">Snippet preview</h2>
+                            <p id="js__previewLead" class="CID__lead">
+                                This is the exact JavaScript that is copied. Paste it on the listing page, not here.
+                            </p>
+                            <!-- @delegate: MiniApp__PhotoUtils__ConsoleImageDownloader__Snippet__HomeflowCarousel__.js -->
+                            <pre id="js__snippetPreview"
+                                 class="CID__snippet"
+                                 tabindex="0"
+                                 aria-label="Homeflow carousel image downloader console snippet"></pre>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                    <!-- ------------------------------------------------- -->
+                    <!-- REGION | Notes                                    -->
+                    <!-- ------------------------------------------------- -->
+                        <section class="FORM__block" aria-labelledby="js__notesHeading">
+                            <h2 id="js__notesHeading" class="CTRL__heading">What the snippet does</h2>
+                            <ul id="js__notesList" class="CID__notes"></ul>
+                        </section>
+                    <!-- endregion ---------------------------------------- -->
+
+                </main>
+            <!-- endregion ------------------------------------------------ -->
+
+            <!-- --------------------------------------------------------- -->
+            <!-- REGION | Page Footer                                      -->
+            <!-- --------------------------------------------------------- -->
+                <footer class="FOOT__container">
+                    <span id="js__pageFooter">© 2026 Noble Architecture | Mini Apps — clipboard utility</span>
+                </footer>
+            <!-- endregion ------------------------------------------------ -->
+
+        </div>
+
+        <script type="module" src="MiniApp__PhotoUtils__ConsoleImageDownloader__Main__.js"></script>
+    </body>
+<!-- endregion -------------------------------------------------------- -->
+
+</html>

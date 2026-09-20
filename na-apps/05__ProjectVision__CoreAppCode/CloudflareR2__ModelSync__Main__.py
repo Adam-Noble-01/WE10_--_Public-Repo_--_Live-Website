@@ -88,6 +88,7 @@ PROJECT_DIR_PATTERN                = re.compile(r'^([A-Z]{2}[0-9]{2})(?:__|_-_)(
 PROJECT_CODE_PATTERN               = re.compile(r'^[A-Z]{2}\d{2}$', re.IGNORECASE)
 TRUEVISION_CONTENT_FOLDER          = '30__TrueVision__AppContent'
 SITEPLAN_FOLDER_NAME               = 'SitePlan__DrawingData'                      # Site plan store: GLBs + manifest, never a design phase
+SITEPLAN_FOLDER_PREFIX             = 'SitePlan__DrawingData'                      # Every site plan folder starts with this - __Existing, __Proposed, or the original name
 SITEPLAN_MANIFEST_FILENAME         = 'TrueVision__SitePlanData__Manifest__.json'
 PLANVISION_CONTENT_FOLDER          = '20__PlanVision__AppContent'
 GLB_FILE_PATTERN                   = re.compile(r'^.+\.glb$', re.IGNORECASE)
@@ -363,7 +364,7 @@ def discover_model_groups(project_path: Path) -> List[Dict]:
 
         if glb_files:
             extra_files = []
-            if item.name == SITEPLAN_FOLDER_NAME and (item / SITEPLAN_MANIFEST_FILENAME).is_file():
+            if item.name.startswith(SITEPLAN_FOLDER_PREFIX) and (item / SITEPLAN_MANIFEST_FILENAME).is_file():
                 extra_files.append(SITEPLAN_MANIFEST_FILENAME)          # <-- The site plan manifest travels with its GLBs
             groups.append({
                 'group_id'    : item.name,

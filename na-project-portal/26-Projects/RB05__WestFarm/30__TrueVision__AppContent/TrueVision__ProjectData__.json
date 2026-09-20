@@ -65,6 +65,21 @@
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__Linetype__DottedLines__LineworkModel__.glb",
                 "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/DesignPhase01__ConceptDesign__Scheme-01/RB05__TrueVision__MainBuildingModel__ProposedDoors__MeshModel__.glb"
             ]
+        },
+        {
+            "groupId": "SitePlan__DrawingData__Existing",
+            "label": "Drawing Data - Existing",
+            "modelUrls": [
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__Contours__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__ExistingBuildings__FillModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__OsMapping__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__ParkingAndAccess__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__FillModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb",
+                "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/RB05__TrueVision__SitePlan__WallsAndFences__LineworkModel__.glb"
+            ]
         }
     ],
     "Camera__DefaultPosition": {
@@ -221,7 +236,7 @@
             },
             {
                 "PresentationMode__Scene__Id": "Scene_005",
-                "PresentationMode__Scene__Name": "Kitchen Exterior",
+                "PresentationMode__Scene__Name": "North Facade - Kitchen Building",
                 "PresentationMode__Scene__Order": 4,
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_005.webp",
                 "PresentationMode__Scene__LensMm": 38,
@@ -229,14 +244,14 @@
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
                 "PresentationMode__Scene__CameraPosition": {
                     "Camera__DefaultPos": {
-                        "Camera__DefaultPos__PosX": 4542,
+                        "Camera__DefaultPos__PosX": 4684,
                         "Camera__DefaultPos__PosY": 2912,
-                        "Camera__DefaultPos__PosZ": -58617
+                        "Camera__DefaultPos__PosZ": -58758
                     },
                     "Camera__DefaultRotation": {
-                        "Camera__DefaultRotation__RotX": -3.0844,
-                        "Camera__DefaultRotation__RotY": -0.7855,
-                        "Camera__DefaultRotation__RotZ": -3.1012
+                        "Camera__DefaultRotation__RotX": -3.0848,
+                        "Camera__DefaultRotation__RotY": -0.7797,
+                        "Camera__DefaultRotation__RotZ": -3.1016
                     },
                     "Camera__DefaultMisc": {
                         "Camera__DefaultMisc__Fov": 35
@@ -250,14 +265,16 @@
                 },
                 "PresentationMode__Scene__Visibility": {
                     "PresentationMode__Scene__Visibility__Categories": {
-                        "TrueVision__MainBuildingModel__ProposedRoofs": true,
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
-                        "TrueVision__MainBuildingModel__ProposedStairs": true,
                         "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DottedLines": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "TrueVision__Linetype__ClearanceLines": true,
                         "Storey__FirstFloor__ProposedDoors": true,
                         "Storey__FirstFloor__ProposedFixtures": true,
                         "Storey__FirstFloor__ProposedFloors": true,
                         "Storey__FirstFloor__ProposedFurniture": true,
+                        "Storey__FirstFloor__ProposedInteriorDecor": true,
                         "Storey__FirstFloor__ProposedRoofs": true,
                         "Storey__FirstFloor__ProposedStairs": true,
                         "Storey__FirstFloor__ProposedWalls": true,
@@ -291,7 +308,7 @@
             },
             {
                 "PresentationMode__Scene__Id": "Scene_020",
-                "PresentationMode__Scene__Name": "Coach House - East Facade",
+                "PresentationMode__Scene__Name": "West Facade - Coach House",
                 "PresentationMode__Scene__ThumbnailUrl": "PresentationMode/Thumbnails/Scene_020.webp",
                 "PresentationMode__Scene__TransitionTimeToNextSceneMs": 1800,
                 "PresentationMode__Scene__TransitionEasing": "easeInOutCubic",
@@ -322,6 +339,9 @@
                     "PresentationMode__Scene__Visibility__Categories": {
                         "TrueVision__MainBuildingModel__ProposedDoors": true,
                         "TrueVision__LandscapeEnvironment": true,
+                        "TrueVision__Linetype__DottedLines": true,
+                        "TrueVision__Linetype__DoorSwings": true,
+                        "TrueVision__Linetype__ClearanceLines": true,
                         "Storey__FirstFloor__ProposedDoors": true,
                         "Storey__FirstFloor__ProposedFixtures": true,
                         "Storey__FirstFloor__ProposedFloors": true,
@@ -1375,8 +1395,31 @@
                 "PresentationMode__Group__Order": 5,
                 "PresentationMode__Group__Enabled": true
             }
-        ],
-        "PresentationMode__SavedCameraScenes__FloorPlans": [
+        ]
+    },
+    "Navmode__EnabledModes": {
+        "Navmode__EnabledModes__Walk": true,
+        "Navmode__EnabledModes__Fly": true
+    },
+    "Navmode__OrbitMaxDistanceMm": 70000,
+    "RenderEffect__AssetCullDistanceMm": 35000,
+    "Navmode__FovOverrides": {
+        "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
+        "Navmode__FovOverrides__OrbitDeg": 40,
+        "Navmode__FovOverrides__WalkDeg": 50,
+        "Navmode__FovOverrides__FlyDeg": 50
+    },
+    "OrbitHelperCube__Position": {
+        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
+        "OrbitHelperCube__Position__PosX": 16252,
+        "OrbitHelperCube__Position__PosY": 2696,
+        "OrbitHelperCube__Position__PosZ": -18139
+    },
+    "LayoutEditor__DrawingsData": {
+        "LayoutEditor__DrawingsData__Description": "TrueVision-owned drawing definitions: floor plans, elevations and sections with their markup, and Layout Editor sheets. Distances are integer millimetres.",
+        "LayoutEditor__DrawingsData__Version": 1,
+        "LayoutEditor__DrawingsData__ClientDimensionsEnabled": true,
+        "LayoutEditor__DrawingsData__FloorPlans": [
             {
                 "FloorPlan__Id": "FloorPlan_001",
                 "FloorPlan__Name": "Ground Floor Plan",
@@ -1583,24 +1626,183 @@
                 "FloorPlan__Dimensions": []
             }
         ],
-        "PresentationMode__SavedCameraScenes__ClientDimensionsEnabled": true
+        "LayoutEditor__DrawingsData__Elevations": [],
+        "LayoutEditor__DrawingsData__Sheets": [
+            {
+                "Sheet__Id": "Sheet_001",
+                "Sheet__Name": "New Drawing",
+                "Sheet__Order": 1,
+                "Sheet__PaperSize": "A3",
+                "Sheet__Orientation": "landscape",
+                "Sheet__TitleBlockStyle": "modern",
+                "Sheet__Fields": {
+                    "Sheet__Fields__DrawingNumber": "D01"
+                },
+                "Sheet__Layers": [
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 1
+                    },
+                    {
+                        "Layer__Id": "Layer_002",
+                        "Layer__Name": "Text",
+                        "Layer__Type": "annotation",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 2
+                    },
+                    {
+                        "Layer__Id": "Layer_003",
+                        "Layer__Name": "Dimensions",
+                        "Layer__Type": "dimension",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_004",
+                        "Layer__Name": "Vectors",
+                        "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 4
+                    }
+                ],
+                "Sheet__Viewports": [],
+                "Sheet__Annotations": [],
+                "Sheet__Dimensions": [],
+                "Sheet__Shapes": [],
+                "Sheet__Leaders": [],
+                "Sheet__Groups": [],
+                "Sheet__Lineweights": {
+                    "ViewportPt": 0.3,
+                    "DimensionPt": 0.35
+                }
+            },
+            {
+                "Sheet__Id": "Sheet_002",
+                "Sheet__Name": "Existing Site Plans",
+                "Sheet__Order": 2,
+                "Sheet__PaperSize": "A1",
+                "Sheet__Orientation": "landscape",
+                "Sheet__TitleBlockStyle": "modern",
+                "Sheet__Fields": {
+                    "Sheet__Fields__DrawingNumber": "D02",
+                    "Sheet__Fields__Status": "PRELIMINARY"
+                },
+                "Sheet__Layers": [
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 1
+                    },
+                    {
+                        "Layer__Id": "Layer_002",
+                        "Layer__Name": "Text",
+                        "Layer__Type": "annotation",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 2
+                    },
+                    {
+                        "Layer__Id": "Layer_003",
+                        "Layer__Name": "Dimensions",
+                        "Layer__Type": "dimension",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_004",
+                        "Layer__Name": "Vectors",
+                        "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 4
+                    }
+                ],
+                "Sheet__Viewports": [
+                    {
+                        "Viewport__Id": "Viewport_001",
+                        "Viewport__Kind": "2d",
+                        "Viewport__SceneId": null,
+                        "Viewport__DrawingId": null,
+                        "Viewport__ModelSourceId": null,
+                        "Viewport__Name": "Block Plan",
+                        "Viewport__FrameMm": {
+                            "X": 20.401058675702558,
+                            "Y": 14.775640555661909,
+                            "WidthMm": 507.62416480417335,
+                            "HeightMm": 535.1995614263772
+                        },
+                        "Viewport__ScaleDenominator": 1250,
+                        "Viewport__SitePlan": {
+                            "SitePlan__StoreId": "existing"
+                        },
+                        "Viewport__ModelLayers": {
+                            "TrueVision__SitePlan__Contours@existing": false
+                        },
+                        "Viewport__LayerId": "Layer_001",
+                        "Viewport__PanMm": {
+                            "X": 430490.43943857274,
+                            "Y": -516158.10607525264
+                        },
+                        "Viewport__ImageMm": {
+                            "WidthMm": 180,
+                            "HeightMm": 120
+                        },
+                        "Viewport__ImageOffsetMm": {
+                            "X": 0,
+                            "Y": 0
+                        },
+                        "Viewport__Styles": {
+                            "baseImage": true,
+                            "projectedLinework": false,
+                            "profileLinework": false,
+                            "glassOpaque": true,
+                            "whitecard": true,
+                            "hiddenLines": false,
+                            "enhanceWhitecard": true,
+                            "contextLayer": true
+                        },
+                        "Viewport__ProjectedEdges": null,
+                        "Viewport__CompositeWeights": null,
+                        "Viewport__MarkupMode": "scene",
+                        "Viewport__ShowScaleLabel": true,
+                        "Viewport__SnapshotAsset": null,
+                        "Viewport__Locked": false
+                    }
+                ],
+                "Sheet__Annotations": [],
+                "Sheet__Dimensions": [],
+                "Sheet__Shapes": [],
+                "Sheet__Leaders": [],
+                "Sheet__Groups": [],
+                "Sheet__Lineweights": {
+                    "ViewportPt": 0.3,
+                    "DimensionPt": 0.35
+                },
+                "Sheet__DrawingType": "siteplan"
+            }
+        ]
     },
-    "Navmode__EnabledModes": {
-        "Navmode__EnabledModes__Walk": true,
-        "Navmode__EnabledModes__Fly": true
-    },
-    "Navmode__OrbitMaxDistanceMm": 70000,
-    "RenderEffect__AssetCullDistanceMm": 35000,
-    "Navmode__FovOverrides": {
-        "Navmode__FovOverrides__Description": "Per-project default camera FOVs (vertical degrees) overriding the master app config defaults.",
-        "Navmode__FovOverrides__OrbitDeg": 40,
-        "Navmode__FovOverrides__WalkDeg": 50,
-        "Navmode__FovOverrides__FlyDeg": 50
-    },
-    "OrbitHelperCube__Position": {
-        "OrbitHelperCube__Position__Description": "Orbit target position from OrbitHelperCube GLB center point. Values are integer millimeters; convert to 3D units in code.",
-        "OrbitHelperCube__Position__PosX": 16252,
-        "OrbitHelperCube__Position__PosY": 2696,
-        "OrbitHelperCube__Position__PosZ": -18139
+    "LayoutEditor__DrawingRegister": {
+        "DrawingRegister__Document__Description": "Drawing register numbering and per-sheet revision history. Sheet ids link to LayoutEditor__DrawingsData; drawing metadata stays in its sheet records.",
+        "DrawingRegister__Document__Version": 1,
+        "DrawingRegister__Document__Updated": "2026-09-20T14:49:42.063Z",
+        "DrawingRegister__Numbering": {
+            "DrawingRegister__Numbering__Prefix": "D",
+            "DrawingRegister__Numbering__Start": 1,
+            "DrawingRegister__Numbering__Digits": 2,
+            "DrawingRegister__Numbering__Overrides": {}
+        },
+        "DrawingRegister__Revisions": {}
     }
 }

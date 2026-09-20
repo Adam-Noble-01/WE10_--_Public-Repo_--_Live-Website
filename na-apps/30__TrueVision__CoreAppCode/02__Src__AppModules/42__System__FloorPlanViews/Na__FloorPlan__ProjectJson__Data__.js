@@ -26,6 +26,11 @@
 // - Annotations ride along inside each plan, so every plan cut carries its own
 //   independent markup. This module stores them opaquely; the annotations
 //   system owns their shape.
+// - A plan is a plan OF a building storey - ground floor, first floor, roof -
+//   which is a fact no height can state and plenty downstream wants: the
+//   drawing title on a sheet first. FloorPlan__StoreyLevel holds a storey's
+//   key once somebody has CHOSEN one; until then GetStoreyLevel answers with
+//   an educated guess and writes nothing. See Na__FloorPlan__StoreyLevel__.
 // - Pure data layer - no DOM, no Three.js, no camera operations.
 //
 // INTEGRATION:
@@ -36,6 +41,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - The building storey a plan is a plan of: FloorPlan__StoreyLevel, with
+//   GetStoreyLevel (chosen, or guessed from the name and the cut height and
+//   never written down), IsStoreyLevelSet, GetStoreyLevelChoices and
+//   SetStoreyLevel, which announces STOREY_CHANGED_EVENT.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder.
 //
@@ -54,8 +65,20 @@
         Na__FpCfg__GetDatumRangeMm,
         Na__FpCfg__GetCutOffsetMm,
         Na__FpCfg__GetDefaultViewDepthMm,
+        Na__FpCfg__GetStoreyLevelSetup,
         Na__FpCfg__FormatLabel
     } from './Na__FloorPlan__ConfigState__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Storey Levels (the list, and the guess for a plan nobody has chosen for)
+    // ------------------------------------------------------------
+    // @delegate: ./Na__FloorPlan__StoreyLevel__.js
+    // ------------------------------------------------------------
+    import {
+        Na__FpLevel__IsKey,
+        Na__FpLevel__Choices,
+        Na__FpLevel__Resolve
+    } from './Na__FloorPlan__StoreyLevel__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -106,6 +129,15 @@
     const Na__FpData__PLAN_ZOOM         = 'FloorPlan__CameraZoom';
     const Na__FpData__PLAN_TARGET       = 'FloorPlan__CameraTargetMm';
     const Na__FpData__PLAN_ANNOTATIONS  = 'FloorPlan__Annotations';
+    const Na__FpData__PLAN_STOREY       = 'FloorPlan__StoreyLevel';              // <-- A storey's key, ONLY once somebody has chosen one. Absent = still a guess
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Announcement That a Plan's Storey Has Been Chosen
+    // ------------------------------------------------------------
+    // detail : { planId, key }. The Layout Editor's drawing titles are written
+    // from the storey, and no sheet changes when it is chosen.
+    // ------------------------------------------------------------
+    const Na__FpData__STOREY_CHANGED_EVENT = 'na-floorplan-storey-changed';
     // ------------------------------------------------------------
 
 
@@ -299,6 +331,47 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Which Building Storey a Plan Is a Plan Of
+    // ------------------------------------------------------------
+    // { key, label, title, guessed, from } - the storey somebody chose, or an
+    // educated guess from the plan's name and then its cut height. THE GUESS
+    // IS NEVER WRITTEN TO THE RECORD: it is worked out here every time, so it
+    // follows a plan whose cut is moved, and a record is not changed by being
+    // read (the Dev menu holds each open row as a draft and would call that an
+    // edit). title is what a drawing title says: "Ground Floor Plan".
+    // from is 'set', 'name' or 'height'. Null for no plan.
+    // ------------------------------------------------------------
+    function Na__FpData__GetStoreyLevel(plan) {
+        if (!plan || typeof plan !== 'object') return null;
+        return Na__FpLevel__Resolve(
+            plan[Na__FpData__PLAN_STOREY],
+            plan[Na__FpData__PLAN_NAME],
+            Na__FpData__GetCutHeightMm(plan),
+            Na__FpCfg__GetStoreyLevelSetup()
+        );
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Has Somebody Chosen This Plan's Storey (or is it still a guess)
+    // ------------------------------------------------------------
+    function Na__FpData__IsStoreyLevelSet(plan) {
+        return Boolean(plan) && Na__FpLevel__IsKey(plan[Na__FpData__PLAN_STOREY], Na__FpCfg__GetStoreyLevelSetup());
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Storeys to Choose From, in the Order They Are Offered
+    // ------------------------------------------------------------
+    // [{ key, label }] - Ground floor, First floor, Second floor, Roof plan,
+    // Basement level, unless the config says otherwise.
+    // ------------------------------------------------------------
+    function Na__FpData__GetStoreyLevelChoices() {
+        return Na__FpLevel__Choices(Na__FpCfg__GetStoreyLevelSetup());
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get a Plan's View Depth in Millimetres (null = infinite)
     // ------------------------------------------------------------
     function Na__FpData__GetViewDepthMm(plan) {
@@ -445,6 +518,36 @@
     function Na__FpData__RenumberOrder(sceneConfig) {
         const plans = Na__FpData__GetFloorPlans(sceneConfig);
         for (let i = 0; i < plans.length; i++) plans[i][Na__FpData__PLAN_ORDER] = i + 1;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Choose a Plan's Storey, or Hand It Back to the Guess
+    // ------------------------------------------------------------
+    // key is one of GetStoreyLevelChoices; nothing (null, '') takes the choice
+    // off the record, and the plan is guessed again. A key that names no
+    // storey is refused and the record left alone. Announced at once, saved or
+    // not, so a drawing title on an open sheet follows the dropdown - the save
+    // is whoever is editing the plan's. Returns true when the record changed.
+    // ------------------------------------------------------------
+    function Na__FpData__SetStoreyLevel(plan, key) {
+        if (!plan || typeof plan !== 'object') return false;
+
+        const wanted = (typeof key === 'string') ? key.trim().toLowerCase() : '';
+        if (wanted !== '' && !Na__FpLevel__IsKey(wanted, Na__FpCfg__GetStoreyLevelSetup())) return false;
+
+        const held = (typeof plan[Na__FpData__PLAN_STOREY] === 'string') ? plan[Na__FpData__PLAN_STOREY] : '';
+        if (held === wanted) return false;                                       // <-- Nothing to say
+
+        if (wanted === '') delete plan[Na__FpData__PLAN_STOREY];                 // <-- Absent, never '': absent is what "still a guess" looks like
+        else plan[Na__FpData__PLAN_STOREY] = wanted;
+
+        if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+            window.dispatchEvent(new CustomEvent(Na__FpData__STOREY_CHANGED_EVENT, {
+                detail : { planId : plan[Na__FpData__PLAN_ID] || null, key : wanted }
+            }));
+        }
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -654,6 +757,11 @@
         Na__FpData__GetPlanForScene,
         Na__FpData__IsFloorPlanScene,
         Na__FpData__GetCutHeightMm,
+        Na__FpData__STOREY_CHANGED_EVENT,
+        Na__FpData__GetStoreyLevel,
+        Na__FpData__IsStoreyLevelSet,
+        Na__FpData__GetStoreyLevelChoices,
+        Na__FpData__SetStoreyLevel,
         Na__FpData__GetViewDepthMm,
         Na__FpData__GetSavedView,
         Na__FpData__SetSavedView,
