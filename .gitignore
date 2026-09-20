@@ -93,3 +93,44 @@ WE10_--_Public-Repo_--_Live-Website.code-workspace
 /na-apps/70__ProductionTools/Noble__CadAuditTools/04__LocalProjectCache/05__WorkingFileBackups
 /na-apps/70__ProductionTools/Noble__CadAuditTools/04__LocalProjectCache
 na-apps/70__ProductionTools/Noble__CadAuditTools/04__LocalProjectCache/03__HotCache__UndoRedoStates/Na__UndoState__20260707-113129-882__.json
+
+
+# -----------------------------------------------------------------------------
+# Parking folders - never pushed, at any depth, in any app or project folder
+# -----------------------------------------------------------------------------
+# The 00__ prefix already means "not live" to the Python tools: the model sync
+# and the DAS builder both skip folders whose name starts with it
+# (SKIP_FOLDER_PREFIXES). This makes git agree with them, so one project folder
+# can hold both the files a document uses and the ones kept only for context,
+# without the second kind ever reaching GitHub Pages.
+#   00__Archive   - superseded work kept for the record
+#   00__Images    - pictures NOT used in the document, parked rather than deleted
+# Matching is case-insensitive here (core.ignorecase is true), so 00__archive
+# and 00__images are caught too. Already-tracked files are NOT untracked by
+# these rules; they need git rm --cached.
+**/00__Archive/
+**/00__Archived/
+**/00__Images/
+
+# -----------------------------------------------------------------------------
+# Statement documents - the words are tracked, the pictures are not
+# -----------------------------------------------------------------------------
+# A statement folder under 10__StatementDocs holds its markdown, its generated
+# HTML and the photography it is built from. The first two are small and belong
+# in the repository. The third is not: RB05 alone holds 713 MB across reference
+# images and content images, against a GitHub Pages deploy limit of 1 GB.
+# The pictures are served from the CDN instead - the Statement Writer pushes
+# every linked image to R2 and rewrites the HTML to its CDN URL - so nothing is
+# lost by keeping them out of the repository.
+# AN ALLOWLIST, not a list of picture extensions. A statement folder collects
+# whatever the job needed - photographs, renders, a photogrammetry dataset, a
+# zip somebody dropped in - and a list of the formats seen so far is a list
+# that is one new format away from being wrong. So NOTHING under
+# 10__StatementDocs is tracked except the three kinds of file that are the
+# document itself. The first line excludes the folder; the second re-includes
+# the directories, without which git cannot look inside to find the rest.
+na-project-portal/**/10__StatementDocs/**
+!na-project-portal/**/10__StatementDocs/**/
+!na-project-portal/**/10__StatementDocs/**/*.md
+!na-project-portal/**/10__StatementDocs/**/*.html
+!na-project-portal/**/10__StatementDocs/**/*.json

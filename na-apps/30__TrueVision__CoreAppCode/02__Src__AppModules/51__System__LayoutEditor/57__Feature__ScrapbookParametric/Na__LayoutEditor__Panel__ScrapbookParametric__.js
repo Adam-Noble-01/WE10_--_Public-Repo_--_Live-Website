@@ -44,12 +44,19 @@
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
-// - Ahead of it   : 1.3.0 (the storey hint) is TrueVision only. ValeVision
-//                   holds 1.2.0 and its floor plans have no storey field.
+// - Ahead of it   : 1.3.0 (the storey hint) and 1.4.0 (where a title's bar
+//                   sits) are TrueVision only. ValeVision holds 1.2.0, its
+//                   floor plans have no storey field and its bar is always
+//                   below.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.4.0
+// - Where a title's scale bar sits, and how far along it stands when it sits
+//   to the right: two more of a title's own controls, the second shown only
+//   for the first's second answer, stepping by whatever the config says.
+//
 // 20-Sep-2026 - Version 1.3.0
 // - A title's one sentence of explanation asks the sentence where its subject
 //   came from (Compose's source) where it used to look at ViewName: a typed
@@ -122,7 +129,12 @@
         Na__LeParam__ResetToStandard
     } from './Na__LayoutEditor__ScrapbookParametric__.js';
     import { Na__LeParamBar__CreateType } from './Na__LayoutEditor__ScrapbookParametric__ScaleBar__.js';
-    import { Na__LeParamTitle__TYPE, Na__LeParamTitle__CreateType } from './Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js';
+    import {
+        Na__LeParamTitle__TYPE,
+        Na__LeParamTitle__PLACE_BELOW,
+        Na__LeParamTitle__PLACE_RIGHT,
+        Na__LeParamTitle__CreateType
+    } from './Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js';
     import { Na__LeViewId__Ready, Na__LeViewId__Words, Na__LeViewId__IsNorthSet } from '../20__System__Viewports/Na__LayoutEditor__ViewportIdentity__.js';
     import {
         Na__LeViewText__MODE_AUTO,
@@ -165,7 +177,7 @@
     const Na__LePanelParam__NO_LINK       = '';
     const Na__LePanelParam__SHEET_LINK    = '@sheet';                           // <-- Never a viewport id: those are Viewport_nnn
     const Na__LePanelParam__BAR_CONTROLS   = Object.freeze([ 'param-scale', 'param-divisions', 'param-subdivide', 'param-subdivision', 'param-units', 'param-reset' ]);
-    const Na__LePanelParam__TITLE_CONTROLS = Object.freeze([ 'param-title-text', 'param-title-phase', 'param-title-upper', 'param-title-underline', 'param-title-bar' ]);
+    const Na__LePanelParam__TITLE_CONTROLS = Object.freeze([ 'param-title-text', 'param-title-phase', 'param-title-upper', 'param-title-underline', 'param-title-bar', 'param-title-bar-place', 'param-title-bar-offset' ]);
     const Na__LePanelParam__LIBRARY_SHOWS = Object.freeze([ 'active', 'loaded', 'sheet-created', 'sheet-deleted', 'sheet-updated' ]);   // <-- What can alter which sheet, or which drawing type, is up
     const Na__LePanelParam__PROPS_SHOWS   = Object.freeze([ 'selection', 'active', 'loaded', 'sheet-deleted', 'sheet-updated', 'groups', 'shape', 'shapes', 'annotation', 'annotations', 'viewport', 'viewports', 'layers' ]);   // <-- What can alter the selected element, its link or its lock
     // ------------------------------------------------------------
@@ -335,6 +347,18 @@
         title.appendChild(Na__LePanels__Row(L('PropsUppercase', 'Capitals'), Na__LePanels__Input('checkbox', 'param-title-upper'), 'na-le-row--toggle'));
         title.appendChild(Na__LePanels__Row(L('PropsUnderline', 'Underline (mm)'), Na__LePanels__Input('number', 'param-title-underline', { min : 10, max : 400, step : 5 })));
         title.appendChild(Na__LePanels__Row(L('PropsShowBar', 'Scale bar'), Na__LePanels__Input('checkbox', 'param-title-bar'), 'na-le-row--toggle'));
+
+        // WHERE THAT BAR SITS | Under the title, or away along the same line. The
+        // position is the second one's only, and is hidden with it.
+        const place = Na__LePanels__Row(L('PropsBarPlace', 'Bar sits'), Na__LePanels__Select('param-title-bar-place', [], null));
+        place.setAttribute('data-na-param', 'bar-place');
+        title.appendChild(place);
+        const across = Na__LePanels__Row(L('PropsBarOffset', 'Bar position (mm)'), Na__LePanels__Input('number', 'param-title-bar-offset', { min : 0, max : 1200, step : 50 }));
+        across.setAttribute('data-na-param', 'bar-offset');
+        title.appendChild(across);
+        const acrossNote = Na__LePanels__Note('');
+        acrossNote.setAttribute('data-na-param', 'bar-offset-note');
+        title.appendChild(acrossNote);
         body.appendChild(title);
 
         // A BAR'S OWN | Shown for a scale bar, and for a title that carries one
@@ -470,6 +494,23 @@
         if (Number.isFinite(block.DrawingTitle__UnderlineStepMm)) underline.step = String(block.DrawingTitle__UnderlineStepMm);
         if (document.activeElement !== underline) underline.value = String(params.UnderlineMm);
         el('param-title-bar').checked = params.ShowScaleBar === true;
+
+        const hasBar = params.ShowScaleBar === true;
+        const right  = hasBar && params.BarPlacement === Na__LeParamTitle__PLACE_RIGHT;
+        part('bar-place').hidden = !hasBar;                                     // <-- Nowhere for a bar to sit when there is no bar
+        Na__LePanels__FillSelect(el('param-title-bar-place'), [
+            { value : Na__LeParamTitle__PLACE_BELOW, label : L('PropsBarBelow', 'Under the title') },
+            { value : Na__LeParamTitle__PLACE_RIGHT, label : L('PropsBarRight', 'To the right of it') }
+        ], params.BarPlacement);
+        part('bar-offset').hidden      = !right;
+        part('bar-offset-note').hidden = !right;
+        part('bar-offset-note').textContent = L('PropsBarOffsetNote', 'From the title\'s left edge to the bar\'s zero end, in 50 mm steps.');
+        const across = el('param-title-bar-offset');
+        if (Number.isFinite(block.DrawingTitle__BarOffsetMinMm))  across.min  = String(block.DrawingTitle__BarOffsetMinMm);
+        if (Number.isFinite(block.DrawingTitle__BarOffsetMaxMm))  across.max  = String(block.DrawingTitle__BarOffsetMaxMm);
+        if (Number.isFinite(block.DrawingTitle__BarOffsetStepMm)) across.step = String(block.DrawingTitle__BarOffsetStepMm);
+        if (document.activeElement !== across) across.value = String(params.BarOffsetMm);
+
         Na__LePanelParam__TITLE_CONTROLS.forEach((name) => { el(name).disabled = !usable; });
         el('param-title-phase').disabled = !usable || params.TitleText !== '';   // <-- A typed title has no qualifier to choose
     }
@@ -531,6 +572,8 @@
         on('change', 'param-title-upper',     guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Uppercase : el.checked })));
         on('change', 'param-title-underline', guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { UnderlineMm : mm }); }));
         on('change', 'param-title-bar',       guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowScaleBar : el.checked })));
+        on('change', 'param-title-bar-place', guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { BarPlacement : el.value })));
+        on('change', 'param-title-bar-offset', guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm)) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { BarOffsetMm : mm }); }));
         const entry = Na__LePanels__RegisterSection('right', {
             id : Na__LePanelParam__PROPS_ID, title : Na__LeParam__Label('PropsTitle', 'Parametric Element'),
             build : Na__LePanelParam__BuildProps, refresh : Na__LePanelParam__RefreshProps

@@ -1,0 +1,107 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Elevation Depth Fog Dev Menu Styles     */
+/* ================================================================= */
+/*
+ * FILE    : Na__ElevationDepthFog__Styles__DevMenu__.css
+ * MODULE  : Elevation Depth Fog - Dev Menu Row
+ * AUTHOR  : Adam Noble - Noble Architecture
+ * CREATED : 20-Sep-2026
+ *
+ * Styles the Fog block of a drawing's row in the Dev menu: the three
+ * values on one line, and the sentence under them. The subheading is
+ * the shared .na-draw-dev__caption, the Off / On pair the shared
+ * .na-pm-dev__btn in a .na-draw-dev__choice, and the number boxes the
+ * shared .na-pm-dev__input, so the block reads as part of the row it
+ * sits in; only what has no equivalent there is defined here.
+ */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Three Values on One Line                           */
+/* ----------------------------------------------------------------- */
+
+.na-depthfog-dev {
+    margin-top                         : 2px;
+}
+
+/* Three equal columns, whatever the panel's width. A row some 250 px
+   across has no room for three label-box-unit triplets side by side,
+   so each label sits OVER its box and the boxes get the whole column. */
+.na-depthfog-dev__fields {
+    display                            : grid;
+    grid-template-columns              : repeat(3, minmax(0, 1fr));
+    gap                                : 6px;
+    margin-top                         : 8px;
+}
+
+.na-depthfog-dev__field {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 3px;
+    min-width                          : 0;                           /* <-- Lets the column shrink inside the grid */
+}
+
+.na-depthfog-dev__label {
+    font-size                          : 11px;
+    color                              : #4a4a4a;
+    white-space                        : nowrap;
+}
+
+/* The unit rides with the label rather than after the box, so the box
+   keeps every pixel of its column for digits. */
+.na-depthfog-dev__unit {
+    margin-left                        : 4px;
+    font-size                          : 10px;
+    color                              : #9a9a9a;
+}
+
+/* The shared input is flex: 1 for a row it shares with a label. Here
+   it is alone in its column and simply fills it. */
+.na-depthfog-dev__input {
+    flex                               : none;
+    width                              : 100%;
+    min-width                          : 0;
+    box-sizing                         : border-box;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 11px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  What the Three Mean Together                           */
+/* ----------------------------------------------------------------- */
+
+/* A consequence, not a control - the same weight as the cut depth
+   readout above it in the row, for the same reason: reading as a
+   fourth input would invite trying to edit it. */
+.na-depthfog-dev__readout {
+    margin                             : 5px 0 6px 0;
+    font-family                        : ui-monospace, 'Cascadia Mono', 'Consolas', monospace;
+    font-size                          : 11px;
+    font-style                         : italic;
+    line-height                        : 1.35;
+    color                              : #6b6b6b;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Switched Off                                           */
+/* ----------------------------------------------------------------- */
+
+/* The boxes stay live while the fog is off - the three numbers are
+   kept, and setting them before switching on is the ordinary order of
+   work - so they are quietened, never disabled. */
+.na-depthfog-dev--off .na-depthfog-dev__fields {
+    opacity                            : 0.55;
+}
+
+.na-depthfog-dev--off .na-depthfog-dev__readout {
+    color                              : #9a9a9a;
+}
+
+/* endregion ------------------------------------------------------- */

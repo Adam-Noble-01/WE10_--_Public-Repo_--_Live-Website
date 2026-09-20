@@ -414,8 +414,9 @@
 .na-le-adv-weight  { width : 52px; text-align : right; }
 
 /* THE UNIT AFTER A COMPOSITE WEIGHT: a multiplication sign for a factor of
-   the sheet master, "px" for a render-buffer width. Two kinds of number in
-   one column need telling apart without reading the tooltip. */
+   the sheet master, "px" for a render-buffer width, "%" for how much of a post
+   pass to apply. Three kinds of number in one column need telling apart
+   without reading the tooltip. */
 .na-le-adv-unit {
     flex                               : 0 0 16px;
     color                              : #8a96a0;

@@ -41,6 +41,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0 (Elevation Depth Fog)
+// - RenderDepthInto: the live cut's caps drawn into a depth buffer somebody
+//   else is building, tested against the model and clearing nothing. The
+//   drawing's depth fog reads depth, and without the caps in it a poche took
+//   the depth of the room behind it and faded with the far wall.
+//
 // 07-Sep-2026 - Version 1.1.0
 // - Added UpsertVerticalPlane for elevation sections, and renamed the datum
 //   mover to SetPlaneDistanceMm now that "height" is only half the story.
@@ -98,7 +104,8 @@
         Na__SectMesh__RepaintAll,
         Na__SectMesh__HandleResize,
         Na__SectMesh__RecomputeCaps,
-        Na__SectMesh__RenderOverlay
+        Na__SectMesh__RenderOverlay,
+        Na__SectMesh__RenderDepthInto
     } from './Na__SectionCut__CapMeshes__.js';
     import {
         Na__SectCutCfg__Load,
@@ -529,6 +536,21 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Add the Live Cut's Caps to a Depth Buffer Being Built
+    // ------------------------------------------------------------
+    // For a pass that reads depth - the drawing's depth fog - so the cut faces
+    // count as what they are: ON the plane, not as far away as the room behind
+    // them. Draws into whatever target is bound and clears nothing; a no-op
+    // with no active cut, which is every plain elevation.
+    // @delegate: ./Na__SectionCut__CapMeshes__.js
+    // ------------------------------------------------------------
+    function Na__SectionCut__RenderDepthInto(camera) {
+        if (!Na__SectCut__ActiveId) return;
+        Na__SectMesh__RenderDepthInto(Na__SectCut__Renderer, camera);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Update Fat-Line Resolution After a Viewport Resize
     // ------------------------------------------------------------
     function Na__SectionCut__HandleResize(width, height) {
@@ -676,6 +698,7 @@
         Na__SectionCut__RemoveAllPlanes,
         Na__SectionCut__RecomputeActive,
         Na__SectionCut__RenderOverlay,
+        Na__SectionCut__RenderDepthInto,
         Na__SectionCut__HandleResize,
         Na__SectionCut__SetModelRoot,
         Na__SectionCut__IsCutting,

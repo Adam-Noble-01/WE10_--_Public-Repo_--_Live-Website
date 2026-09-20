@@ -31,6 +31,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.4.0
+// - PlanVision project data: PlansFileLocation points at the project's
+//   20__PlanVision__AppContent folder so the Layout Editor has somewhere to
+//   read the site address from on a project with no quotation. Read only, and
+//   by name, on the same terms as the admin files.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - Project admin files: AdminFileLocation points at the project's
 //   10__ProjectAdmin__AppContent folder so the Layout Editor can read the site
@@ -495,8 +501,30 @@
     // ------------------------------------------------------------
     const Na__CfApi__ProjectFileNames = [
         'TrueVision__DrawingNotes__.json',
-        'TrueVision__ProjectSpecification__.json'
+        'TrueVision__ProjectSpecification__.json',
+        'TrueVision__StatementDocs__.json'
     ];
+    // ------------------------------------------------------------
+
+
+    // MODULE CONSTANTS | The Statement Writer's Folder, and What May Go Into It
+    // ------------------------------------------------------------
+    // A statement is not one file but a folder: its markdown, the HTML built
+    // from it, and the pictures it uses, in whatever sub-folders the writer
+    // keeps them in. That does not fit ProjectFileNames, which is a list of
+    // single documents beside the project data, so statements get their own
+    // path rule.
+    //
+    // The rule is not security - the Worker key is the security - it is there
+    // so a caller cannot write outside the statements folder by accident,
+    // which is the mistake that quietly corrupts a neighbouring app's content.
+    // Depth is capped at four folders below the statements root, which is one
+    // more than the deepest a real statement uses.
+    // ------------------------------------------------------------
+    const Na__CfApi__StatementsDir     = '10__StatementDocs';
+    const Na__CfApi__StatementSegment  = /^[A-Za-z0-9_\-. &()\[\]]{1,140}$/;
+    const Na__CfApi__StatementSuffixes = /\.(md|html|json|txt|jpe?g|png|webp|gif|tiff?|bmp|svg)$/i;
+    const Na__CfApi__StatementMaxDepth = 5;
     // ------------------------------------------------------------
 
 
@@ -539,6 +567,40 @@
     // ------------------------------------------------------------
 
 
+    // MODULE CONSTANTS | The PlanVision Document TrueVision May READ
+    // ------------------------------------------------------------
+    // PlanVision's project data carries the same site address the admin system
+    // holds, written when the project's drawing portal was set up. It is the
+    // fallback for a project that has no quotation to read it from - an hourly
+    // job, or a site that is not the client's own house - and it is READ ONLY
+    // here for the same reason the admin files are: PlanVision owns it.
+    //
+    // Unlike the admin folder this one IS pushed to R2 by the model sync, so
+    // the CDN copy is a real second chance rather than a courtesy.
+    // ------------------------------------------------------------
+    const Na__CfApi__PlansContentDir  = '20__PlanVision__AppContent';
+    const Na__CfApi__PlansFileNames   = [
+        'PlanVision__ProjectData__.json'
+    ];
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a PlanVision File Lives: Repository and CDN, Read Only
+    // ------------------------------------------------------------
+    // Null when the name is not on the list or the URL names no project folder.
+    // ------------------------------------------------------------
+    function Na__CfApi__PlansFileLocation(fileName) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder || Na__CfApi__PlansFileNames.indexOf(fileName) === -1) return null;
+        const relative = `${ctx.yearCode}-Projects/${ctx.projectFolder}/${Na__CfApi__PlansContentDir}/${fileName}`;
+        return {
+            repoUrl : `${window.location.origin}/na-project-portal/${relative}`,
+            cdnUrl  : `${Na__CfApi__CdnBaseUrl}/${Na__CfApi__R2Prefix}/${relative}`
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Where a Sibling File Lives: R2 Key, Public CDN URL and Repository URL
     // ------------------------------------------------------------
     // Null when the name is not on the list or the URL names no project folder.
@@ -567,6 +629,95 @@
         const result = await Na__CfApi__ReadKey(location.key);
         if (!result.ok) return result;
         return { ok: true, data: result.data || null, missing: result.missing === true };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a Statement File Lives: R2 Key, CDN URL and Repository URL
+    // ------------------------------------------------------------
+    // relativePath is relative to the statements folder, e.g.
+    // "01__PreApp__Statement/02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png".
+    // Null when the URL names no project folder or the path is not one this
+    // app may touch.
+    // ------------------------------------------------------------
+    function Na__CfApi__StatementFileLocation(relativePath) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder) return null;
+
+        const text = String(relativePath || '').replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+        if (!text) return null;
+
+        const segments = text.split('/').filter((segment) => segment !== '');
+        if (!segments.length || segments.length > Na__CfApi__StatementMaxDepth) return null;
+        for (const segment of segments) {
+            if (segment === '.' || segment === '..') return null;
+            if (!Na__CfApi__StatementSegment.test(segment)) return null;
+        }
+        if (!Na__CfApi__StatementSuffixes.test(segments[segments.length - 1])) return null;
+
+        const inside   = `${Na__CfApi__TvContentDir}/${Na__CfApi__StatementsDir}/${segments.join('/')}`;
+        const relative = `${ctx.yearCode}-Projects/${ctx.projectFolder}/${inside}`;
+        return {
+            key     : `${Na__CfApi__R2Prefix}/${relative}`,
+            cdnUrl  : `${Na__CfApi__CdnBaseUrl}/${Na__CfApi__R2Prefix}/${encodeURI(relative)}`,
+            repoUrl : `${window.location.origin}/na-project-portal/${encodeURI(relative)}`,
+            path    : segments.join('/')
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write a Statement File to R2
+    // ------------------------------------------------------------
+    // payload: a string for markdown and HTML, a Blob for a picture. Resolves
+    // to { ok, publicUrl } so the caller can put the CDN link straight into
+    // the generated HTML.
+    // ------------------------------------------------------------
+    async function Na__CfApi__WriteStatementFile(relativePath, payload, contentType) {
+        const location = Na__CfApi__StatementFileLocation(relativePath);
+        if (!location) return { ok: false, error: `Refused statement path "${relativePath}"` };
+
+        let data, encoding, resolvedType;
+        if (payload instanceof Blob) {
+            data         = await Na__CfApi__BlobToBase64(payload);
+            encoding     = 'base64';
+            resolvedType = contentType || payload.type || 'application/octet-stream';
+        } else if (typeof payload === 'string') {
+            data         = payload;
+            encoding     = undefined;
+            resolvedType = contentType || 'text/plain; charset=utf-8';
+        } else {
+            data         = payload;
+            encoding     = undefined;
+            resolvedType = contentType || 'application/json';
+        }
+
+        const write = await Na__CfApi__WriteKey({
+            key         : location.key,
+            data        : data,
+            encoding    : encoding,
+            contentType : resolvedType
+        });
+        if (!write || !write.ok) return write || { ok: false, error: 'write failed' };
+
+        return { ok: true, publicUrl: location.cdnUrl, key: location.key, path: location.path };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read a Statement File From R2 (fresh, through the Worker)
+    // ------------------------------------------------------------
+    // Returns { ok, text, missing }. The Worker hands back text for anything
+    // stored with a text/* content type, which is how the markdown and the
+    // generated HTML were written, so a statement comes back as a string.
+    // ------------------------------------------------------------
+    async function Na__CfApi__ReadStatementFile(relativePath) {
+        const location = Na__CfApi__StatementFileLocation(relativePath);
+        if (!location) return { ok: false, error: `Refused statement path "${relativePath}"` };
+        const result = await Na__CfApi__ReadKey(location.key);
+        if (!result.ok) return result;
+        if (result.missing) return { ok: true, text: null, missing: true };
+        return { ok: true, text: (typeof result.data === 'string') ? result.data : null, missing: false };
     }
     // ------------------------------------------------------------
 
@@ -610,7 +761,11 @@
         Na__CfApi__ProjectFileLocation,
         Na__CfApi__ReadProjectFile,
         Na__CfApi__WriteProjectFile,
-        Na__CfApi__AdminFileLocation
+        Na__CfApi__StatementFileLocation,
+        Na__CfApi__ReadStatementFile,
+        Na__CfApi__WriteStatementFile,
+        Na__CfApi__AdminFileLocation,
+        Na__CfApi__PlansFileLocation
     };
     // ------------------------------------------------------------
 

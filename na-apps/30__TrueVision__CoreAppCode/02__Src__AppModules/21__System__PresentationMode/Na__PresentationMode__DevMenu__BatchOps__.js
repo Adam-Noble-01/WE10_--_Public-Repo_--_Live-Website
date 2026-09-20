@@ -26,6 +26,15 @@
 //      panel's own path, at whatever that panel is currently set to, and
 //      hands each one to the browser as a download.
 //
+// - "ALL" MEANS ALL OF THE LIST IT IS HANDED. Neither operation reads the
+//   project's scenes for itself; the caller passes the list, so the caller
+//   decides the scope. Download All Images hands over every scene; the camera
+//   button on a group heading hands over that one group's. It is the same walk
+//   either way - same restore point, same pose-only parking, same skipped
+//   drawings, same stop - which is the point: on a massive model the whole
+//   project is a long job, and one group is the same job cut shorter, not a
+//   second implementation of it.
+//
 // - THE LIVE VIEW IS PUT BACK. Both operations snapshot the camera pose, the
 //   orbit target, the model visibility and the navigation mode before the
 //   first scene and restore all four afterwards, including after a stop or a
@@ -60,6 +69,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - DownloadAllImages takes an optional third argument, { groupName }, for the
+//   per-group export. It changes the filenames and nothing else: the group goes
+//   in ahead of the ordinal, so two groups exported into one folder sort as two
+//   runs rather than interleaving on ordinals that both start at 01.
+//
 // 19-Sep-2026 - Version 1.0.0
 // - Initial implementation alongside the Presentation Scenes menu rebuild.
 //
@@ -375,34 +390,57 @@
 // REGION | Batch - Download All Images
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Build a Filename for One Exported Scene
+    // HELPER FUNCTION | Reduce a Display Name to Something a File System Will Take
     // ------------------------------------------------------------
-    // Ordinal first so a folder of them sorts into presentation order, then
-    // the scene name reduced to something a file system will take on any OS.
-    // ------------------------------------------------------------
-    function Na__PmBatch__BuildExportFilename(scene, ordinal, width, height) {
-        const projectCode = Na__AppUtils__GetProjectCodeFromUrl() || 'TrueVision3D';
-        const safeName    = Na__PmBatch__SceneLabel(scene)
+    function Na__PmBatch__ToFilenamePart(text, maxLength) {
+        return String(text || '')
             .replace(/[^a-zA-Z0-9]+/g, '-')                                  // <-- Anything awkward becomes a hyphen
             .replace(/^-+|-+$/g, '')
-            .slice(0, 60) || scene.PresentationMode__Scene__Id;
-
-        const ordinalText = String(ordinal).padStart(2, '0');
-        return `${projectCode}__${ordinalText}__${safeName}__${width}x${height}.png`;
+            .slice(0, maxLength);
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Export a Full-Size Image of Every Scene, In Order
+    // HELPER FUNCTION | Build a Filename for One Exported Scene
+    // ------------------------------------------------------------
+    // Ordinal first so a folder of them sorts into presentation order, then
+    // the scene name reduced to something a file system will take on any OS.
+    //
+    // A GROUP EXPORT PUTS THE GROUP AHEAD OF THE ORDINAL. Its ordinals restart
+    // at 01, as every group's do, so without the group in the name two groups
+    // saved into one folder would interleave - 01 of one, 01 of the other, 02
+    // of one - and a second group's 01 could land on the first's if the scene
+    // names happened to match. Group first keeps each export its own run.
+    // ------------------------------------------------------------
+    function Na__PmBatch__BuildExportFilename(scene, ordinal, width, height, groupName) {
+        const projectCode = Na__AppUtils__GetProjectCodeFromUrl() || 'TrueVision3D';
+        const safeName    = Na__PmBatch__ToFilenamePart(Na__PmBatch__SceneLabel(scene), 60)
+            || scene.PresentationMode__Scene__Id;
+        const safeGroup   = Na__PmBatch__ToFilenamePart(groupName, 40);      // <-- Empty for a whole-project export
+
+        const ordinalText = String(ordinal).padStart(2, '0');
+        const groupPart   = safeGroup ? `${safeGroup}__` : '';
+        return `${projectCode}__${groupPart}${ordinalText}__${safeName}__${width}x${height}.png`;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Export a Full-Size Image of Every Scene It Is Given, In Order
     // ------------------------------------------------------------
     // Each image is rendered through the Image Export panel's own path at
     // whatever that panel is currently set to, so "the current export
     // settings" means the same thing here as at the Export Now button - and
     // an untouched panel is already holding its configured defaults.
     //
+    // THE LIST IS THE SCOPE. Every scene in the project, or the scenes of one
+    // group - this function cannot tell and does not need to. options.groupName
+    // is set for the second case and reaches the filenames only.
+    //
     // Returns { exported, failed, skipped, stopped, notReady }.
     // ------------------------------------------------------------
-    async function Na__PmBatch__DownloadAllImages(scenes, progress) {
+    async function Na__PmBatch__DownloadAllImages(scenes, progress, options) {
+        const groupName = (options && typeof options.groupName === 'string') ? options.groupName : '';
+
         if (Na__PmBatch__IsRunning)                return { exported : 0, failed : 0, skipped : 0, stopped : true,  notReady : false };
         if (!Na__PmBatch__Camera)                  return { exported : 0, failed : 0, skipped : 0, stopped : true,  notReady : false };
         if (!Na__UiFeature__ImageExport__IsReady()) return { exported : 0, failed : 0, skipped : 0, stopped : false, notReady : true  };
@@ -445,7 +483,7 @@
                     if (result && result.dataUrl) {
                         Na__UiFeature__ImageExport__Download(
                             result.dataUrl,
-                            Na__PmBatch__BuildExportFilename(scene, index + 1, result.width, result.height)
+                            Na__PmBatch__BuildExportFilename(scene, index + 1, result.width, result.height, groupName)
                         );
                         exported++;
                         await Na__ExportYield__NextPaint();                  // <-- Let the download start before the next render

@@ -401,6 +401,80 @@
         color                              : #6b8ba3;
     }
 
+    /* THE HEADING AND ITS CAMERA ARE SIBLINGS IN A ROW, never one inside the
+       other: the heading is itself a button (the fold control), and a button
+       inside a button is invalid markup.
+
+       THE ROW IS THE STRIP. It carries the fill, the corner and the top margin
+       the heading used to, and the heading goes transparent inside it, so the
+       two buttons read as one strip with a camera on its end rather than a
+       strip and a second control beside it. Written as overrides rather than
+       by editing the heading's own rule, so a heading drawn without a row
+       still looks as it always has.                                          */
+    .na-pm-dev__group-heading-row {
+        display                            : flex;
+        align-items                        : stretch;          /* camera matches the heading's height */
+        margin-top                         : 12px;
+        border-radius                      : 5px;
+        background                         : #eef3f8;
+    }
+
+    /* The heading's right padding goes - the camera follows it, and is its
+       margin - and its two inner gaps close from 8px to 6px. Together that is
+       10px handed back to the group name, which is what pays for the camera:
+       see the note on its width below.                                       */
+    .na-pm-dev__group-heading-row > .na-pm-dev__group-heading {
+        flex                               : 1;
+        width                              : auto;
+        min-width                          : 0;
+        margin-top                         : 0;
+        padding-right                      : 2px;
+        gap                                : 6px;
+        background                         : transparent;
+    }
+
+    .na-pm-dev__group-heading-row > .na-pm-dev__group-heading:hover {
+        background                         : #e2ecf5;
+    }
+
+    /* Every group carries one; an empty group's is dimmed, not missing.
+
+       KEPT NARROW ON PURPOSE. Its width comes straight out of the group name's,
+       and the Dev menu is narrow: with a group unfolded the menu shows its
+       scrollbar, and a 26px camera standing beside the strip cut the DEFAULT
+       group names short - "EXTERIOR 3D VIEWS" by 11px, measured in the app.
+       Inside the strip at 22px, with the heading's spare padding given up, the
+       defaults are whole again.                                              */
+    .na-pm-dev__group-camera-btn {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        flex-shrink                        : 0;
+        width                              : 22px;
+        padding                            : 0;
+        border                             : none;
+        border-radius                      : 5px;
+        background                         : transparent;
+        color                              : #1a7fc4;
+        cursor                             : pointer;
+        transition                         : background 0.14s;
+    }
+
+    .na-pm-dev__group-camera-btn:hover:not(:disabled) {
+        background                         : #d3e4f3;
+    }
+
+    .na-pm-dev__group-camera-btn:disabled {
+        opacity                            : 0.35;
+        cursor                             : default;
+    }
+
+    .na-pm-dev__group-camera-glyph {
+        width                              : 15px;
+        height                             : 15px;
+        display                            : block;
+    }
+
     .na-pm-dev__group-scenes {
         display                            : none;
     }

@@ -44,6 +44,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.7.0
+// - DefaultStyles answers depthFog (DepthFog in the config, true): a viewport
+//   shows its drawing's own depth fog unless told otherwise.
+//
 // 20-Sep-2026 - Version 1.6.0
 // - The HeightMm fallback is back to 10. The QR code carries a short address
 //   now (a 29 module symbol for a 49 module one), so it prints a readable
@@ -336,7 +340,8 @@
             whitecard         : flag('Whitecard',         true),
             hiddenLines       : flag('HiddenLines',       false),
             enhanceWhitecard  : flag('EnhanceWhitecard',  true),
-            contextLayer      : flag('ContextLayer',      true)
+            contextLayer      : flag('ContextLayer',      true),
+            depthFog          : flag('DepthFog',          true)                  // <-- Follow the drawing: its own fog is off until its author switches it on, so this shows nothing until then
         };
     }
     // ------------------------------------------------------------

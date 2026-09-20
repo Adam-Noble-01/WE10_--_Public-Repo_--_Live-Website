@@ -67,6 +67,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.12.0 (TrueVision)
+// - Depth fog. Where the drawing a viewport shows has its fog switched on (Dev
+//   Tools > Elevations) and the viewport's Depth Fog composite is ticked, Fill
+//   keys and schedules a FOG IMAGE beside the underlay: the same window, raster
+//   level, composite weights and model layers, plus the fog's own token. It
+//   sits over the linework in the frame. The underlay's key and the vectors'
+//   keys are untouched - fog moves no pixel of one and no line of the other -
+//   so switching a fog on or off re-renders neither. A viewport with no fog
+//   drops any image it held. ForceRender redoes the fog with the other two
+//   halves, and RenderFogForExport is RenderForExport's twin for the PDF.
+//
 // 18-Sep-2026 - Version 1.11.0 (TrueVision)
 // - The viewport cache. Park and Restore (the Frame unit) are re-exported for
 //   the sheet surface, which keeps a sheet's frames and states while another
@@ -198,12 +209,17 @@
         Na__LeVp2d__State,
         Na__LeVp2d__PlaceUnderlay,
         Na__LeVp2d__ScheduleUnderlay,
+        Na__LeVp2d__PlaceFog,
+        Na__LeVp2d__ClearFog,
+        Na__LeVp2d__RenderFog,
+        Na__LeVp2d__ScheduleFog,
         Na__LeVp2d__ShowProgress,
         Na__LeVp2d__HideProgress,
         Na__LeVp2d__Park,
         Na__LeVp2d__Restore,
         Na__LeVp2d__SetInteracting
     } from './Na__LayoutEditor__Viewport2d__Frame__.js';
+    import { Na__LeVp2d__FogFor } from './Na__LayoutEditor__Viewport2d__DepthFog__.js';
     import {
         Na__LeVp2d__EnsureLinework,
         Na__LeVp2d__StyleToken,
@@ -249,6 +265,7 @@
         const state     = Na__LeVp2d__State(body, viewport.Viewport__Id);
         if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- Site plan data: its own path, before any drawing or design phase check
             state.lastArgs = { sheet : sheet, viewport : viewport, ppm : ppm };
+            Na__LeVp2d__ClearFog(state);                                         // <-- A site plan has no plane to be behind
             Na__LeVp2d__FillSitePlan(state, sheet, viewport, ppm);
             return;
         }
@@ -260,6 +277,7 @@
             state.empty.textContent = Na__LeCfg__GetLabel('NoDrawingLinked', 'No drawing linked to this viewport.');
             state.empty.hidden = false;
             state.underlay.hidden = true;
+            Na__LeVp2d__ClearFog(state);
             state.linework.innerHTML = ''; state.markup.innerHTML = '';
             state.lineworkKey = null; state.markupKey = null;
             return;
@@ -275,6 +293,7 @@
             Na__LeSource__Ensure(modelSource);
             if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
             state.underlay.hidden = true; state.renderedKey = null; state.renderedWindow = null; state.wantedKey = null;
+            Na__LeVp2d__ClearFog(state);                                         // <-- Nor the previous model's fog
             state.linework.innerHTML = ''; state.lineworkKey = null; state.lineworkSvg = null; state.classes = null; state.classesKey = null; state.markup.innerHTML = '';
             Na__LeVp2d__HideProgress(state);
             const failed = modelSource.status === 'failed';
@@ -321,6 +340,28 @@
             else Na__LeVp2d__PlaceUnderlay(state, win, ppm);
             state.wantedKey = key;
             if (key !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewport.Viewport__Id);
+        }
+
+        // DEPTH FOG | The drawing's own fog, as an image OVER the linework.
+        // Independent of the base image in both directions: a vector-only
+        // viewport is fogged all the same, and the underlay's key above knows
+        // nothing of the fog, so switching one on or off re-renders no picture
+        // and re-projects no line. What the fog image keys on is everything
+        // that changes DEPTH - the drawing, the model, the window, opaque glass,
+        // what is hidden, the raster level and the pixel widths of the model's
+        // own edges - and the fog's token.
+        const fog = Na__LeVp2d__FogFor(viewport, described);
+        if (!fog) {
+            Na__LeVp2d__ClearFog(state);
+        } else {
+            const fogKey = [ 'fog', described.definition.RecordHash, modelFp, Math.round(win.CentreX), Math.round(win.CentreY),
+                             Math.round(win.WidthMm), Math.round(win.HeightMm), styles.glassOpaque, styles.contextLayer,
+                             Na__LeModelLayers__Token(viewport), Na__LeRaster__Get(), Na__LeComposite__RasterToken(viewport) || '', fog.token ]
+                             .join('|');
+            if (state.fogRenderedFp && state.fogRenderedFp !== modelFp) state.fog.hidden = true;   // <-- Another design phase's fog is never slid over this one
+            else Na__LeVp2d__PlaceFog(state, win, ppm);
+            state.fogWantedKey = fogKey;
+            if (fogKey !== state.fogRenderedKey) Na__LeVp2d__ScheduleFog(state, viewport.Viewport__Id);
         }
 
         // LINEWORK | Cached classes paint now; otherwise they arrive later
@@ -465,6 +506,18 @@
                 Na__LeVp2d__PlaceUnderlay(state, Na__LeVp2d__Window(viewport), ppm);
             }
         }
+
+        // FOG | The third half. "The composite is wrong" does not say which
+        // layer is wrong either, so the fog is redone with the other two - or
+        // taken down, if the drawing no longer has one.
+        const fog = Na__LeVp2d__FogFor(viewport, described);
+        if (!fog) {
+            Na__LeVp2d__ClearFog(state);
+        } else {
+            if (state.fogTimer) { window.clearTimeout(state.fogTimer); state.fogTimer = null; }
+            state.fogRenderedKey = null; state.fogRenderedWindow = null;
+            await Na__LeVp2d__RenderFog(state, viewport.Viewport__Id, viewport, described, fog, state.fogWantedKey, Na__LeRaster__Working());
+        }
         return true;
     }
     // ------------------------------------------------------------
@@ -480,6 +533,31 @@
         const frame = viewport.Viewport__FrameMm;
         const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());   // <-- Always the export level, whatever is on screen
         return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Fresh Depth Fog Image at Export Resolution (not cached)
+    // ------------------------------------------------------------
+    // RenderForExport's twin, for the layer the PDF lays OVER a viewport's
+    // vectors. Null when this viewport has no fog - the drawing's fog is off,
+    // or the viewport's Depth Fog composite is - which is most viewports, and
+    // costs the PDF nothing. Independent of the base image: a vector-only
+    // viewport exports its fog all the same.
+    //
+    // The png carries the fog in its ALPHA, over the configured paper colour.
+    // It must reach jsPDF as a PNG data URL and be added as 'PNG': jsPDF 4.1.0
+    // drops the alpha of anything handed over as 'RGBA'.
+    // ------------------------------------------------------------
+    async function Na__LeVp2d__RenderFogForExport(viewport) {
+        if (Na__LeModel__IsSitePlanViewport(viewport)) return null;
+        const described = Na__LeVp2d__Describe(viewport);
+        const fog       = Na__LeVp2d__FogFor(viewport, described);
+        if (!fog) return null;
+        if (!(await Na__LeSource__WaitFor(described.modelSource.renderId))) return null;   // <-- Its design phase, loaded first
+        const frame = viewport.Viewport__FrameMm;
+        const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());   // <-- The export level, as the picture under it
+        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId, undefined, fog.source);
     }
     // ------------------------------------------------------------
 
@@ -506,6 +584,7 @@
         Na__LeVp2d__Restore,
         Na__LeVp2d__SetInteracting,
         Na__LeVp2d__RenderForExport,
+        Na__LeVp2d__RenderFogForExport,
         Na__LeVp2d__ForceRender,
         Na__LeVp2d__GetSnapSource,
         Na__LeVp2d__SitePlanDrawing

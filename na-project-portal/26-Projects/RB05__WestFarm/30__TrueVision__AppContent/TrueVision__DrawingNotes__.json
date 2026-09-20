@@ -1,11 +1,119 @@
 {
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
-    "ProjectSpecification__ProjectCode": null,
-    "ProjectSpecification__UpdatedIso": null,
+    "ProjectSpecification__ProjectCode": "RB05",
+    "ProjectSpecification__UpdatedIso": "2026-09-20T18:04:50.465Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 0,
+    "ProjectSpecification__LastIdNumber": 16,
     "ProjectSpecification__Revision": "A",
     "ProjectSpecification__DocumentNumber": "",
-    "ProjectSpecification__Groups": []
+    "ProjectSpecification__Groups": [
+        {
+            "Group__Id": "SpecGroup_001",
+            "Group__Prefix": "GN",
+            "Group__Title": "General Notes",
+            "Group__IsGeneral": true,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_002",
+            "Group__Prefix": "SN",
+            "Group__Title": "Structural Notes",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_003",
+            "Group__Prefix": "FN",
+            "Group__Title": "Materials & Finishes",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_004",
+            "Group__Prefix": "EN",
+            "Group__Title": "Building Features  -  Northern Elevation  -  Main House",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_005",
+            "Group__Prefix": "ES",
+            "Group__Title": "Building Features  -  Southern Elevation  -  Main House",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_007",
+            "Group__Prefix": "EE",
+            "Group__Title": "Building Features  -  Eastern Elevation  -  Main House",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_008",
+            "Group__Prefix": "EW",
+            "Group__Title": "Building Features  -  Western Elevation  -  Main House",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_010",
+            "Group__Prefix": "SE",
+            "Group__Title": "Existing Site Notes",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_009",
+            "Group__Prefix": "SP",
+            "Group__Title": "Proposed Site Notes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_011",
+                    "Note__Code": "SP01",
+                    "Note__Title": "",
+                    "Note__Body": "",
+                    "Note__UpdatedIso": "2026-09-20T16:40:29.837Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_012",
+            "Group__Prefix": "GF",
+            "Group__Title": "Plan Notes  -  Ground Floor Plan",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_013",
+                    "Note__Code": "GF01",
+                    "Note__Title": "",
+                    "Note__Body": "",
+                    "Note__UpdatedIso": "2026-09-20T16:41:08.102Z"
+                }
+            ]
+        },
+        {
+            "Group__Id": "SpecGroup_014",
+            "Group__Prefix": "FF",
+            "Group__Title": "Plan Notes  -  First Floor Plan",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_015",
+            "Group__Prefix": "SF",
+            "Group__Title": "Plan Notes  -  Second Floor Plan",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        },
+        {
+            "Group__Id": "SpecGroup_016",
+            "Group__Prefix": "CN",
+            "Group__Title": "",
+            "Group__IsGeneral": false,
+            "Group__Notes": []
+        }
+    ]
 }

@@ -49,6 +49,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0
+// - StyleBands checks Na__LeModelLayers__IsOn per resolved owner key, not just
+//   per class. A nested LineworkModifier owner (SSOT 76-79) is never a
+//   top-level model category, so switching its Model Layers row off could
+//   never reach it through the usual pre-sampling exclusion tokens - its
+//   segments still got collected and still got painted. resolve() now caches
+//   a hidden id as null and the band loop drops it before bucketing.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - ForgetPaths. A forced render cleared PathCache under the bare linework key,
 //   but BandPaths files under key@hidden@styleToken, so nothing was ever
@@ -77,6 +85,7 @@
         Na__LeEdge__SolidMeansClassDefault,
         Na__LeEdge__Token
     } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LeModelLayers__IsOn, Na__LeModelLayers__Token } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeComposite__Factor, Na__LeComposite__Token } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     // ------------------------------------------------------------
 
@@ -179,9 +188,18 @@
     // built it separately and ever disagreed, Fill would never find a match and
     // would rebuild every frame's SVG on every refresh - correct, and slow enough
     // to feel broken on a busy sheet.
+    //
+    // MODEL LAYERS TOKEN INCLUDED for a normal category this is redundant - its
+    // checkbox already changes the drawing's exclusion tokens, which changes the
+    // projected classes and so the linework KEY, well upstream of this token. But
+    // a nested LineworkModifier owner key (SSOT 76-79) is never a top-level model
+    // category, so it never touches the exclusion tokens: StyleBands resolving it
+    // as hidden is the ONLY thing that changes when its row is switched off, and
+    // without its token here that resolve would still return the BandPaths cache's
+    // stale, pre-toggle painting.
     // ------------------------------------------------------------
     function Na__LeVp2d__StyleToken(viewport) {
-        return Na__LeEdge__Token(viewport) + '#' + Na__LeComposite__Token(viewport);
+        return Na__LeEdge__Token(viewport) + '#' + Na__LeComposite__Token(viewport) + '#' + Na__LeModelLayers__Token(viewport);
     }
     // ------------------------------------------------------------
 
@@ -232,9 +250,17 @@
     // A TAGGED CLASS IS BUCKETED BY RESOLVED STYLE, not by category. Thirty
     // categories that all land on black-solid-1.0 are one band and one path, so
     // the common case costs one pass over the segments and nothing else.
+    //
+    // siteRules, OPTIONAL, is the site plan painter's { Order, Grey, Greyscale }:
+    // a Map of category key to 1-10 line Z-index, the set of categories a
+    // location plan strips the colour from, and the greyscale function. Given,
+    // the Z-index decides the order inside a class and the weight only breaks a
+    // tie; omitted - every architectural viewport, and the PDF's own path for
+    // one - this function behaves exactly as it did before it existed.
     // ------------------------------------------------------------
-    function Na__LeVp2d__StyleBands(viewport, masterPt, classes, showHidden) {
+    function Na__LeVp2d__StyleBands(viewport, masterPt, classes, showHidden, siteRules) {
         const rules   = Na__LeVp2d__StrokeRules(viewport, masterPt);
+        const site    = (siteRules && siteRules.Order instanceof Map) ? siteRules : null;   // <-- A site plan viewport: stack by Z-index, not by stroke width
         const tags    = Na__PlOwners__Read(classes);
         const styled  = Na__LeEdge__AppliesToClasses();
         const classDefaultDash = Na__LeEdge__SolidMeansClassDefault();
@@ -260,17 +286,43 @@
 
             // ONE LOOKUP PER OWNER ID, not one per segment. A model has tens of
             // categories and a drawing has tens of thousands of segments.
+            //
+            // A CATEGORY-EXCLUSION TOKEN NEVER REACHES HERE - it only ever takes a
+            // whole top-level model category out of the sampling before this runs,
+            // and a nested LineworkModifier owner key (SSOT 76-79) is never a
+            // top-level category, so its Model Layers checkbox would otherwise do
+            // nothing. Checking IsOn per owner id, here, is what actually turns it
+            // off - resolve() caches null for a hidden id (undefined still means
+            // "not resolved yet"), and the loop below drops any index it returns.
+            // ------------------------------------------------------------
             const byOwner = new Map();
             const resolve = (id) => {
                 let style = byOwner.get(id);
-                if (style) return style;
-                const effective = Na__LeEdge__Effective(viewport, Na__PlOwners__KeyFor(tags.OwnerKeys, id));
+                if (style !== undefined) return style;
+                const ownerKey  = Na__PlOwners__KeyFor(tags.OwnerKeys, id);
+                if (Na__LeModelLayers__IsOn(viewport, ownerKey) === false) {
+                    byOwner.set(id, null);
+                    return null;
+                }
+                const effective = Na__LeEdge__Effective(viewport, ownerKey);
                 const dash = (effective.lineType === 'solid' && classDefaultDash) ? base.dashMm : effective.patternMm;
+                // THE LOCATION PLAN'S GREYSCALE runs over the EFFECTIVE colour,
+                // not the layer's default, so a colour the viewport has chosen by
+                // hand is greyed too rather than quietly surviving the rule.
+                const colour = (site && site.Grey && site.Grey.has(ownerKey) && typeof site.Greyscale === 'function')
+                    ? site.Greyscale(effective.hex)
+                    : effective.hex;
+                // Z is part of the bucket key: two layers that happen to share a
+                // colour and a weight must stay in SEPARATE bands when they sit
+                // at different depths, or the stacking they were given is lost
+                // the moment two of them agree on how they look.
+                const z = site ? (site.Order.get(ownerKey) || 0) : 0;
                 style = {
-                    colour  : effective.hex,
+                    colour  : colour,
                     widthMm : base.widthMm * effective.weight,
                     dashMm  : dash,
-                    key     : effective.hex + '|' + (Math.round(base.widthMm * effective.weight * 10000) / 10000) + '|' + dash.join(',')
+                    z       : z,
+                    key     : z + '|' + colour + '|' + (Math.round(base.widthMm * effective.weight * 10000) / 10000) + '|' + dash.join(',')
                 };
                 byOwner.set(id, style);
                 return style;
@@ -279,10 +331,13 @@
             const buckets = new Map();
             for (let i = 0; i < count; i++) {
                 const style = resolve(owners[i]);
+                if (!style) continue;                                             // <-- Switched off in the Model Layers panel (a LineworkModifier owner key)
                 let list = buckets.get(style.key);
                 if (!list) { list = { style : style, indices : [] }; buckets.set(style.key, list); }
                 list.indices.push(i);
             }
+
+            if (buckets.size === 0) return;                                       // <-- Everything in this class was switched off
 
             if (buckets.size === 1) {                                             // <-- Every category agrees: one path, as before
                 const only = buckets.values().next().value;
@@ -293,8 +348,16 @@
             // HEAVIEST LAST INSIDE A CLASS. Two lines of different weight meeting
             // at a corner read better with the heavier one drawn over the lighter,
             // which is also how the class order itself is arranged.
+            //
+            // ON A SITE PLAN THE Z-INDEX COMES FIRST and weight only settles a
+            // tie. Adam, TASK 03: '10 would be the index value assigned to the
+            // red boundary line... Buildings would be around 5. Things like
+            // minor streets would be 1.' A site plan's hierarchy is what the
+            // layer MEANS, not how thick it happens to be drawn - a hairline
+            // boundary still belongs over a heavy road - so where a rule exists
+            // it overrules the weight rather than being blended with it.
             Array.from(buckets.values())
-                .sort((a, b) => a.style.widthMm - b.style.widthMm)
+                .sort((a, b) => (site ? (a.style.z - b.style.z) : 0) || (a.style.widthMm - b.style.widthMm))
                 .forEach((bucket) => {
                     bands.push({
                         className : name,

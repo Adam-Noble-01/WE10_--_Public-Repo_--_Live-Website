@@ -1,0 +1,27 @@
+/* =============================================================================
+   TRUEVISION3D - LAYOUT EDITOR - PATTERNS PANEL
+   =============================================================================
+   The hatch library tiles in the right column. Loaded by
+   Na__LayoutEditor__Panel__Patterns__ from its own folder, as the Custom
+   Scrapbook panel loads its stylesheet.
+   ============================================================================= */
+
+.na-le-hatch-library            { display: block; margin-top: 8px; }
+
+.na-le-hatch-pack               { margin-bottom: 10px; }
+.na-le-hatch-pack__title        { margin: 0 0 4px; font-size: 10px; font-weight: 600;
+                                  text-transform: uppercase; letter-spacing: 0.04em;
+                                  color: var(--na-le-text-muted, #6b7280); }
+.na-le-hatch-pack__tiles        { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+
+.na-le-hatch-tile               { display: block; width: 100%; padding: 0; cursor: pointer;
+                                  background: var(--na-le-surface, #fff);
+                                  border: 1px solid var(--na-le-border, #d7dbe0); border-radius: 3px;
+                                  text-align: left; overflow: hidden; }
+.na-le-hatch-tile:hover         { border-color: var(--na-le-accent, #2f6b33); }
+.na-le-hatch-tile__art          { display: block; line-height: 0; background: #f7f8f9; }
+.na-le-hatch-tile__art svg      { display: block; width: 100%; height: auto; }
+.na-le-hatch-tile__name         { display: block; padding: 3px 5px; font-size: 10px;
+                                  color: var(--na-le-text, #1f2933);
+                                  border-top: 1px solid var(--na-le-border, #d7dbe0);
+                                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

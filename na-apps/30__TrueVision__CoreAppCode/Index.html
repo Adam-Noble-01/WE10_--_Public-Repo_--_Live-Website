@@ -903,6 +903,7 @@
     import { Na__North__DevMenu__Initialize } from './02__Src__AppModules/46__System__NorthDirection/Na__North__DevMenu__Editor__.js';
     import { Na__NorthGizmo__Initialize } from './02__Src__AppModules/46__System__NorthDirection/Na__North__CompassGizmo__.js';
     import { Na__NorthPick__Initialize } from './02__Src__AppModules/46__System__NorthDirection/Na__North__PickTool__.js';
+    import { Na__ElevFog__Initialise } from './02__Src__AppModules/49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1750,6 +1751,15 @@
     Na__NorthGizmo__Initialize(Na__Scene__Main);                // <-- The compass lives in the scene, outside the model root
     Na__NorthPick__Initialize({ renderer : Na__Renderer__Main, camera : Na__Camera__Main, modelRoot : Na__ModelGroup__Root });
     Na__North__DevMenu__Initialize({ modelRoot : Na__ModelGroup__Root, showToast : Na__UiFeature__ShowToast });   // <-- Authoring only; a saved north is read without it
+
+    // ELEVATION DEPTH FOG | A drawing's own fog, behind its plane, laid over the finished drawing as a render layer
+    // @delegate: ./02__Src__AppModules/49__System__ElevationDepthFog/
+    // Off on every drawing until its author switches it on in the drawing's Dev
+    // menu row, and nothing is allocated until one is: a project without fog
+    // pays one null check per drawing frame. The values are the drawing's own
+    // and are saved with it (Elevation__DepthFog). NOT localhost-only - a
+    // client opening a fogged elevation from the carousel sees it fogged.
+    Na__ElevFog__Initialise({ renderer : Na__Renderer__Main, scene : Na__Scene__Main });
 
     // DEV MENU | Navigation Modes + Orbit Max Distance (localhost-only, save to R2)
     // ------------------------------------------------------------

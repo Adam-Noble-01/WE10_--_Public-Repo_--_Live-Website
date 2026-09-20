@@ -29,6 +29,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0
+// - The bar stood away to the right: where it lands (its foot on the title's
+//   baseline, its offset measured from the ORIGIN so a longer title cannot
+//   shove it), the two grips swapping ends, the slide that steps in 50 mm or
+//   lands exactly on a snapped vertex, and the stretch run backwards - which
+//   is proved the only way that matters, by adding and taking off divisions
+//   and asserting the FAR END HAS NOT MOVED.
+//
 // 20-Sep-2026 - Version 1.1.0
 // - ViewLevel: a title tied to a floor plan letters its storey, a title saved
 //   before there was one reads as it did, and a change of scale keeps it.
@@ -158,9 +166,56 @@ import { tmpdir } from 'node:os';
     check('stretching a title with a bar lengthens the bar in whole divisions and leaves the underline', stretched.Divisions === 7 && stretched.UnderlineMm === 60, stretched);
     check('a stretch keeps every word the title says', stretched.ViewFacing === 'East' && stretched.ViewPhase === 'existing' && stretched.ViewKind === 'elevation');
 
+    // THE BAR STOOD AWAY TO THE RIGHT | Where it lands, and the two grips that swap ends
+    const RIGHT  = Object.assign({ ScaleDenominator : 50, ShowScaleBar : true, BarPlacement : 'right', BarOffsetMm : 150 }, EAST);
+    const away   = build(RIGHT);
+    const awayBar = shapes(away)[1];
+    const baseline = -config.DrawingTitle__TextBaselineAboveUnderlineMm;
+    check('to the right, the underline is still the first record and still starts at the origin', away.records[0].kind === 'shape' && shapes(away)[0].Shape__Points[0][0] === 0 && shapes(away)[0].Shape__Points[0][1] === 0);
+    check('to the right, the underline itself does not move or change length', JSON.stringify(shapes(away)[0]) === JSON.stringify(shapes(house)[0]));
+    check('to the right, the bar starts at BarOffsetMm along, measured from the ORIGIN and not from the end of the underline', near(awayBar.Shape__Points[0][0], 150), awayBar.Shape__Points[0]);
+    check('to the right, the bar stands above the underline, its foot exactly on the title\'s baseline',
+        near(awayBar.Shape__Points[0][1], -3.631, 1e-6) && near(awayBar.Shape__Points[0][1] + 2, baseline, 1e-6), [ awayBar.Shape__Points[0][1], baseline ]);
+    check('to the right, the numerals go with it: the zero sits under the bar\'s own zero end, not under the title', near(texts(away)[1].Annotation__PosXMm, 150) && texts(away)[1].Annotation__Text === '0', texts(away)[1]);
+    check('to the right, it is still the same eleven vectors and seven texts, in the same order', shapes(away).length === 11 && texts(away).length === 7 && texts(away)[0].Annotation__Text === H.text.value);
+    check('a longer title does not shove the bar along: the offset is from the origin', near(shapes(build(RIGHT, measure(140)))[1].Shape__Points[0][0], 150));
+    check('placed below, BarOffsetMm does nothing at all', JSON.stringify(build(Object.assign({}, RIGHT, { BarPlacement : 'below', BarOffsetMm : 320 }))) === JSON.stringify(house));
+
+    const far = title.Na__LeParamTitle__Handles(config, barCfg, RIGHT, null, null);
+    check('to the right the stretch arrow moves to the bar\'s NEAR end and points back at the title', near(far.stretch.x, 150) && near(far.stretch.y, -2.631, 1e-6) && far.stretch.away[0] === -1, far.stretch);
+    check('to the right the slide arrow takes the FAR end and points away from the title', near(far.slide.x, 250) && near(far.slide.y, -2.631, 1e-6) && far.slide.away[0] === 1, far.slide);
+    check('to the right the lookup triangle steps up over the bar\'s near end, out of the stretch arrow\'s way', near(far.lookup.x, 150) && near(far.lookup.y, -3.631, 1e-6) && far.lookup.away.join() === '0,-1', far.lookup);
+    check('the link socket is the underline\'s end wherever the bar went', near(far.link.x, 60) && near(far.link.y, withBar.link.y));
+    check('a bar below, and a title with no bar, have no slide grip at all', withBar.slide === null && noBar.slide === null);
+
+    // THE SLIDE | The far end is PUT, in 50 mm steps, or exactly on a snapped vertex
+    const slid  = title.Na__LeParamTitle__SlideTo(config, barCfg, RIGHT, 337, false);
+    const exact = title.Na__LeParamTitle__SlideTo(config, barCfg, RIGHT, 337, true);
+    check('a free slide puts the FAR end on the nearest 50 mm, and the bar keeps its length', slid.BarOffsetMm === 250 && slid.Divisions === 5, slid.BarOffsetMm);
+    check('a snapped slide puts the far end exactly where the vertex was', near(exact.BarOffsetMm, 237) && exact.Divisions === 5, exact.BarOffsetMm);
+    check('a slide holds inside its limits and never goes behind the origin', title.Na__LeParamTitle__SlideTo(config, barCfg, RIGHT, -400, true).BarOffsetMm === 0);
+    check('a slide keeps every word the title says, and its scale', slid.ViewFacing === 'East' && slid.ScaleDenominator === 50);
+    check('sliding a bar that is below, or a title with no bar, changes nothing', title.Na__LeParamTitle__SlideTo(config, barCfg, house.records ? Object.assign({ ScaleDenominator : 50, ShowScaleBar : true }, EAST) : null, 300, false).BarOffsetMm === 150
+        && title.Na__LeParamTitle__SlideTo(config, barCfg, Object.assign({ ShowScaleBar : false, BarPlacement : 'right' }, EAST), 300, false).BarOffsetMm === 150);
+
+    // THE REVERSED STRETCH | Drag the near end towards the title and the far end stays put
+    const back = title.Na__LeParamTitle__StretchTo(config, barCfg, RIGHT, 110);
+    check('dragging the near end towards the title adds divisions', back.Divisions === 7, back.Divisions);
+    check('and the FAR end does not move a millimetre', near(back.BarOffsetMm + (back.Divisions * 20), 250), [ back.BarOffsetMm, back.Divisions ]);
+    const shorter = title.Na__LeParamTitle__StretchTo(config, barCfg, RIGHT, 205);
+    check('dragging it away from the title takes divisions off, far end still held', shorter.Divisions === 2 && near(shorter.BarOffsetMm + (shorter.Divisions * 20), 250), [ shorter.BarOffsetMm, shorter.Divisions ]);
+    const jammed = title.Na__LeParamTitle__StretchTo(config, barCfg, RIGHT, -1000);
+    check('a bar dragged past its limit stops at the most divisions it may have, and the offset stops with it', jammed.Divisions === 40 && jammed.BarOffsetMm === 0, [ jammed.Divisions, jammed.BarOffsetMm ]);
+    check('a reversed stretch keeps the title\'s words and its placement', back.ViewFacing === 'East' && back.BarPlacement === 'right');
+    check('a bar placed below still stretches the old way, from the origin', title.Na__LeParamTitle__StretchTo(config, barCfg, Object.assign({}, RIGHT, { BarPlacement : 'below' }), 139).Divisions === 7);
+
     // PARAMETERS MADE WHOLE
     const junk = title.Na__LeParamTitle__Normalise(config, barCfg, { ShowScaleBar : 'yes', PhaseMode : 'sideways', TitleText : 42, Uppercase : null, UnderlineMm : 'long', ViewKind : 'spaceship', ViewPhase : 3, ScaleDenominator : -5 });
     check('junk parameters fall back to the config\'s standard', junk.ShowScaleBar === true && junk.PhaseMode === 'auto' && junk.TitleText === '' && junk.Uppercase === true && junk.UnderlineMm === 60 && junk.ViewKind === '' && junk.ViewPhase === '' && junk.ScaleDenominator === 50, junk);
+    const wonky = title.Na__LeParamTitle__Normalise(config, barCfg, { BarPlacement : 'diagonally', BarOffsetMm : 'over there' });
+    check('a placement nobody offers, and an offset that is not a number, fall back to the config\'s', wonky.BarPlacement === 'below' && wonky.BarOffsetMm === 150, wonky);
+    check('an offset is held inside its limits', title.Na__LeParamTitle__Normalise(config, barCfg, { BarOffsetMm : -80 }).BarOffsetMm === 0 && title.Na__LeParamTitle__Normalise(config, barCfg, { BarOffsetMm : 99999 }).BarOffsetMm === 1200);
+    check('an offset is kept to a thousandth, so a rebuild writes the same number', title.Na__LeParamTitle__Normalise(config, barCfg, { BarOffsetMm : 150.00000000000003 }).BarOffsetMm === 150);
     const hundred = title.Na__LeParamTitle__Standard(config, barCfg, 100);
     check('the standard at 1:100 is the bar\'s standard at 1:100 with the title\'s settings', hundred.ScaleDenominator === 100 && hundred.DivisionMm === 2000 && hundred.Divisions === 5 && hundred.UnderlineMm === 60 && hundred.ViewFacing === '');
 
@@ -168,7 +223,8 @@ import { tmpdir } from 'node:os';
     const type = title.Na__LeParamTitle__CreateType(() => config, () => barCfg, () => null);
     check('the type names the facts the link module fills', type.type === 'DrawingTitle' && type.facts.join() === 'ViewKind,ViewPhase,ViewFacing,ViewLevel,ViewName,ViewDrawing');
     check('the standard title starts with no storey, and a stretch keeps the one it has', hundred.ViewLevel === '' && title.Na__LeParamTitle__StretchTo(config, barCfg, Object.assign({ ScaleDenominator : 50, ShowScaleBar : true }, D21), 139).ViewLevel === 'Ground Floor Plan');
-    check('a change of scale keeps every fact and every choice', type.facts.concat([ 'ShowScaleBar', 'PhaseMode', 'TitleText', 'Uppercase', 'UnderlineMm' ]).every((key) => type.keep.indexOf(key) !== -1));
+    check('a change of scale keeps every fact and every choice', type.facts.concat([ 'ShowScaleBar', 'PhaseMode', 'TitleText', 'Uppercase', 'UnderlineMm', 'BarPlacement', 'BarOffsetMm' ]).every((key) => type.keep.indexOf(key) !== -1));
+    check('the type offers the grips module a slide', typeof type.slideTo === 'function' && type.slideTo(RIGHT, 337, true).BarOffsetMm === exact.BarOffsetMm);
     check('the type says whether an element has a bar', type.hasBar({ ShowScaleBar : true }) === true && type.hasBar({ ShowScaleBar : false }) === false);
     check('the type says what a title reads, for the panel', type.titleText(EAST).text === 'EXISTING EAST ELEVATION' && type.titleText({ ViewKind : 'elevation' }).missing.join() === 'direction');
     check('the type builds with no tools at all, as it must under the tile', type.build(EAST).records.length > 2 && type.handles(EAST).link !== null);

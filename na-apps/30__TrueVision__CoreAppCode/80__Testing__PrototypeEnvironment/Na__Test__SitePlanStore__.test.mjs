@@ -209,7 +209,7 @@ check('...and the two fills stack independently of the lines',
 check('the style keeps the new fields (F8: this rebuild is a closed list)',
   Object.keys(S.Na__SpStore__GetLayers('proposed')[0].Layer__Style).sort(),
   [ 'FillColourId', 'FillHex', 'FillMaterialId', 'FillOpacity', 'HatchPatternId',
-    'LineColourId', 'LineHex', 'LineType', 'LineWeightMm', 'LineWeightPt' ])
+    'LineColourId', 'LineDashScale', 'LineHex', 'LineType', 'LineWeightMm', 'LineWeightPt' ])
 
 console.log(`\n${pass} passed, ${fail} failed`)
 process.exit(fail ? 1 : 0)

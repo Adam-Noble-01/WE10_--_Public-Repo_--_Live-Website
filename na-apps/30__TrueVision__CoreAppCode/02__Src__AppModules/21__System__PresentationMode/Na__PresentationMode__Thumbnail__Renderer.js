@@ -73,6 +73,7 @@
     import { Na__DrawView__GetCamera } from '../40__System__DrawingViewCore/Na__DrawView__ActiveView__.js';
     import { Na__DrawProfile__RenderOverlay } from '../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__SectionCut__RenderOverlay } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    import { Na__ElevFog__RenderOverlay } from '../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js';   // <-- The third overlay of a drawing's frame, between the two above
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Cloudflare R2 Write Path
@@ -190,8 +191,9 @@
         const drawingCamera = Na__DrawView__GetCamera();
 
         if (drawingCamera && Na__PmThumb__Scene) {
-            Na__PmThumb__Renderer.render(Na__PmThumb__Scene, drawingCamera); // <-- Flat: no fog, no AO
+            Na__PmThumb__Renderer.render(Na__PmThumb__Scene, drawingCamera); // <-- Flat: none of the 3D view's fog, no AO
             Na__DrawProfile__RenderOverlay(drawingCamera);                   // <-- Silhouette edges, exactly as the loop draws them
+            Na__ElevFog__RenderOverlay(drawingCamera);                       // <-- The drawing's OWN depth fog, where its author has switched one on: the card shows what they were looking at
             Na__SectionCut__RenderOverlay(drawingCamera);                    // <-- Cut fills and profile outlines on top
             return;
         }

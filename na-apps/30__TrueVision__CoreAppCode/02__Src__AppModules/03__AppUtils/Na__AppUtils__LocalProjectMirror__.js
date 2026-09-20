@@ -84,7 +84,10 @@
     const Na__LocalMirror__PortalDir    = 'na-project-portal';                  // <-- Repository folder the project data lives under
     const Na__LocalMirror__TvContentDir = '30__TrueVision__AppContent';         // <-- Per-project TrueVision content folder
     const Na__LocalMirror__TvDataFile     = 'TrueVision__ProjectData__.json';     // <-- The project data file
-    const Na__LocalMirror__SiblingFiles   = [ 'TrueVision__DrawingNotes__.json' ]; // <-- Whole documents beside the project data
+    const Na__LocalMirror__SiblingFiles   = [                                      // <-- Whole documents beside the project data
+        'TrueVision__DrawingNotes__.json',
+        'TrueVision__StatementDocs__.json'                                         // <-- The Statement Writer's index of the project's written documents
+    ];
     const Na__LocalMirror__ServerService  = 'na-projectvision-local-dev';          // <-- The name the ProjectVision local server gives in /api/health
     // ------------------------------------------------------------
 
@@ -241,6 +244,93 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Statement Files (a folder of markdown and pictures, not one document)
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | List Everything Under the Project's Statements Folder
+    // ------------------------------------------------------------
+    // A static server cannot list a folder, so the ProjectVision local server
+    // answers this one. Resolves to { ok, entries, exists, error }; never
+    // rejects. Off localhost it reports skipped, and the caller falls back to
+    // what the statement index already knows.
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__StatementTree() {
+        if (!Na__AppUtils__IsRunningOnLocalhost()) return { ok : false, skipped : true, entries : [], error : null };
+        const place = Na__LocalMirror__Locate();
+        if (!place) return { ok : false, skipped : false, entries : [], error : 'no project in the URL' };
+
+        try {
+            const response = await fetch(`${place.origin}/api/truevision/statements/tree?${place.query}`, { cache : 'no-store' });
+            if (!response.ok) {
+                const answer = await response.json().catch(() => null);
+                return { ok : false, skipped : false, entries : [], error : (answer && answer.error) || `HTTP ${response.status}` };
+            }
+            const data = await response.json();
+            return { ok : true, skipped : false, exists : data.exists !== false, entries : Array.isArray(data.entries) ? data.entries : [], error : null };
+        } catch (error) {
+            return { ok : false, skipped : false, entries : [], error : (error && error.message) || 'no answer' };
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | POST to One of the Statement Routes
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__StatementPost(route, payload) {
+        if (!Na__AppUtils__IsRunningOnLocalhost()) return Na__LocalMirror__Result(false, true, null);
+        const place = Na__LocalMirror__Locate();
+        if (!place) return Na__LocalMirror__Result(false, false, 'no project in the URL');
+        return Na__LocalMirror__PostJson(
+            `${place.origin}/api/truevision/statements/${route}?${place.query}`,
+            place.origin,
+            payload
+        );
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Write One Statement Text File Into the Project Folder
+    // ------------------------------------------------------------
+    // path is relative to 10__StatementDocs, e.g.
+    // "01__PreApp__Statement/RB05_T01_S01__WestFarm__PreApplicationStatement__.md".
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__WriteStatementFile(path, text) {
+        if (typeof text !== 'string') return Na__LocalMirror__Result(false, false, 'nothing to write');
+        return Na__LocalMirror__StatementPost('file', { path : path, text : text });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Make a Folder Under the Project's Statements Folder
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__MakeStatementFolder(path) {
+        return Na__LocalMirror__StatementPost('folder', { path : path });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Move or Rename Something Inside the Statements Folder
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__MoveStatement(fromPath, toPath) {
+        return Na__LocalMirror__StatementPost('move', { from : fromPath, to : toPath });
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Delete a Statement File or Folder
+    // ------------------------------------------------------------
+    // The server asks for the path twice - once as the instruction and once as
+    // the confirmation - because this one takes a folder of writing with it.
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__DeleteStatement(path) {
+        return Na__LocalMirror__StatementPost('delete', { path : path, confirm : path });
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -248,7 +338,12 @@
     // ------------------------------------------------------------
     export {
         Na__LocalMirror__MergeKeys,
-        Na__LocalMirror__WriteSiblingFile
+        Na__LocalMirror__WriteSiblingFile,
+        Na__LocalMirror__StatementTree,
+        Na__LocalMirror__WriteStatementFile,
+        Na__LocalMirror__MakeStatementFolder,
+        Na__LocalMirror__MoveStatement,
+        Na__LocalMirror__DeleteStatement
     };
     // ------------------------------------------------------------
 

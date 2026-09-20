@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LeParamGrips
 // MODULE     : Layout Editor - Parametric Scrapbook - Grips
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : The two grips a selected parametric element shows on the sheet: the stretch arrow that lengthens it and the lookup triangle that opens its menu
+// PURPOSE    : The grips a selected parametric element shows on the sheet: the stretch arrow that lengthens it, the slide arrow that carries it along, and the lookup triangle that opens its menu
 // CREATED    : 19-Sep-2026
 //
 // DESCRIPTION:
@@ -16,6 +16,15 @@
 //     Stretch  drag the arrow and the element follows, live, in whole steps
 //              (a scale bar's divisions). One undo step when it is let go.
 //              Escape puts it back.
+//     Slide    the double arrow a type puts on an end that is meant to be
+//              PLACED rather than pulled - today, the far end of a scale bar
+//              stood to the right of its title. It carries the element's part
+//              along without changing its length, and it SNAPS: the projected
+//              linework of the drawing above is searched exactly as the Draw
+//              tool searches it, so the end can be put on a corner of the
+//              building, and a dashed guide is drawn from that corner down to
+//              the bar while the drag is held. Off a snap it steps by whatever
+//              the type says (50 mm for a bar). Same undo step, same Escape.
 //     Lookup   click the triangle for a menu: the scales, From viewport,
 //              Split first division, Show units and Reset length.
 // - THE GRIPS OWN THEIR OWN PRESS. They are elements in the handles layer
@@ -45,10 +54,23 @@
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.1.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
+// - Ahead of it   : 1.2.0 (the slide grip) is TrueVision only.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0
+// - The slide grip, and with it the drag it shares with the stretch grip: one
+//   drag state carrying which of the two is in hand, because everything about
+//   holding, regenerating, letting go, cancelling and Escape is the same and
+//   only the question put to the type differs. A slide asks the snapping
+//   module first, hands the type the snapped point and whether it WAS snapped,
+//   and draws the dashed guide from the vertex down to the element. It leaves
+//   the element's OWN vectors out of that search: the grip sits on one of
+//   them, and caught in its own radius the bar locks onto itself and will not
+//   move. Found on the sheet, 20-Sep, the first time the arrow was dragged.
+// - The lookup menu offers a scale bar's placement when the element has one.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - The lookup menu offers the sheet's own scale beside the viewport, and says
 //   which of the two the element is tied to.
@@ -65,9 +87,10 @@
 
     // MODULE IMPORTS | Model, Scale Labels, Surface, Grips, the Menu, the Panel Host, the Engine and the Link
     // ------------------------------------------------------------
-    import { Na__LeModel__GetSheetById } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeModel__GetSheetById, Na__LeModel__GetGroupById } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeDrawScale__Label } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
-    import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__Refresh, Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeOsnap__TONE_VERTEX, Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
     import { Na__LeGroup__RegisterLabeller } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeGrips__RegisterGroupProvider } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeMenu__Open, Na__LeMenu__Close } from '../30__System__SheetTools/Na__LayoutEditor__ContextMenu__.js';
@@ -97,6 +120,7 @@
         Na__LeParamLink__LinkNearest
     } from './Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js';
     import { Na__LeDrawScale__SheetDenominator } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
+    import { Na__LeParamTitle__PLACE_BELOW, Na__LeParamTitle__PLACE_RIGHT } from './Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -109,16 +133,21 @@
     // MODULE CONSTANTS | Classes and the Sizes Used When the Config Gives None
     // ------------------------------------------------------------
     const Na__LeParamGrips__CLASS_STRETCH = 'na-le-grip na-le-grip--param na-le-grip--param-stretch';
+    const Na__LeParamGrips__CLASS_SLIDE   = 'na-le-grip na-le-grip--param na-le-grip--param-slide';
     const Na__LeParamGrips__CLASS_LOOKUP  = 'na-le-grip na-le-grip--param na-le-grip--param-lookup';
+    const Na__LeParamGrips__CLASS_GUIDE   = 'na-le-grip na-le-param-guide';   // <-- na-le-grip so whatever clears the grips clears it
     const Na__LeParamGrips__CLASS_TAG     = 'na-le-group-label--param';
     const Na__LeParamGrips__BODY_CLASS    = 'na-le-param-stretching';
+    const Na__LeParamGrips__MODE_STRETCH  = 'stretch';
+    const Na__LeParamGrips__MODE_SLIDE    = 'slide';
     const Na__LeParamGrips__SWALLOWED     = Object.freeze([ 'pointerup', 'click', 'dblclick', 'contextmenu' ]);   // <-- Kept from the stage as well as the press
-    const Na__LeParamGrips__FALLBACK      = Object.freeze({ StretchSizePx : 13, LookupSizePx : 13, StretchOffsetPx : 12, LookupOffsetPx : 12, ClickSlopPx : 4 });
+    const Na__LeParamGrips__FALLBACK      = Object.freeze({ StretchSizePx : 13, LookupSizePx : 13, SlideSizePx : 13, StretchOffsetPx : 12, LookupOffsetPx : 12, SlideOffsetPx : 12, SnapGuidePx : 1.25, ClickSlopPx : 4 });
     // ------------------------------------------------------------
 
-    // MODULE VARIABLES | The Stretch in Hand
+    // MODULE VARIABLES | The Drag in Hand, and the Guide It Draws
     // ------------------------------------------------------------
-    let Na__LeParamGrips__Drag       = null;    // <-- { pointerId, sheetId, groupId, start, steps, changed }
+    let Na__LeParamGrips__Drag       = null;    // <-- { pointerId, sheetId, groupId, mode, start, steps, changed }
+    let Na__LeParamGrips__Guide      = null;    // <-- The dashed line from a snapped vertex down to the element, kept and re-hung like the snap marker
     let Na__LeParamGrips__Registered = false;
     // ------------------------------------------------------------
 
@@ -176,7 +205,7 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | The Stretch Grip
+// REGION | The Stretch and Slide Grips
 // -----------------------------------------------------------------------------
 
     // HELPER FUNCTION | Redraw the Paper After a Silent Rebuild
@@ -186,6 +215,36 @@
     // ------------------------------------------------------------
     function Na__LeParamGrips__Repaint() {
         Na__LeSurface__Refresh('markup');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Dashed Guide From a Snapped Vertex Down to the Element
+    // ------------------------------------------------------------
+    // A slide is a horizontal move, so a vertex a metre above the bar decides
+    // its x and nothing else; without a line drawn between them there is no
+    // saying WHICH corner the end has been put under. hit is the snapping
+    // module's, toMm the element's own y. Kept and re-hung rather than rebuilt
+    // because the rebuild behind every step clears the handles layer under it.
+    // ------------------------------------------------------------
+    function Na__LeParamGrips__ShowGuide(hit, toMm) {
+        const layer = Na__LeSurface__GetElements().handles;
+        if (!layer || !hit || !Number.isFinite(toMm)) { Na__LeParamGrips__HideGuide(); return; }
+        if (!Na__LeParamGrips__Guide) Na__LeParamGrips__Guide = document.createElement('div');
+        const guide = Na__LeParamGrips__Guide;
+        guide.className = Na__LeParamGrips__CLASS_GUIDE;
+        if (guide.parentNode !== layer) layer.appendChild(guide);
+        const ppm  = Na__LeSurface__GetPixelsPerMm();
+        const zoom = Na__LeSurface__GetZoom() > 0 ? Na__LeSurface__GetZoom() : 1;
+        const wide = Na__LeParamGrips__Px('SnapGuidePx') / zoom;
+        guide.style.left            = ((hit.x * ppm) - (wide / 2)) + 'px';
+        guide.style.top             = (Math.min(hit.y, toMm) * ppm) + 'px';
+        guide.style.height          = (Math.abs(toMm - hit.y) * ppm) + 'px';
+        guide.style.borderLeftWidth = wide + 'px';
+        guide.hidden                = false;
+    }
+    function Na__LeParamGrips__HideGuide() {
+        if (Na__LeParamGrips__Guide) Na__LeParamGrips__Guide.hidden = true;
     }
     // ------------------------------------------------------------
 
@@ -205,6 +264,8 @@
         window.removeEventListener('pointercancel', Na__LeParamGrips__OnStretchCancel, true);
         window.removeEventListener('keydown',       Na__LeParamGrips__OnStretchKey, true);
         document.body.classList.remove(Na__LeParamGrips__BODY_CLASS);
+        Na__LeParamGrips__HideGuide();
+        Na__LeOsnap__HideMarker();                                            // <-- A slide leaves the snapping module's marker up; nothing else takes it down
         if (!drag || !drag.changed) return;
         const sheet = Na__LeModel__GetSheetById(drag.sheetId);
         if (!sheet) return;
@@ -215,14 +276,37 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Take Hold of the Arrow
+    // HELPER FUNCTION | An Element's Own Vectors, as Snap Exclusions
     // ------------------------------------------------------------
-    function Na__LeParamGrips__OnStretchDown(event, sheet, groupId) {
+    // A SLIDE MUST NEVER SNAP TO THE THING BEING SLID. The grip sits on the
+    // bar's own far corner, so without this the very first nudge finds that
+    // corner inside the snap radius, locks onto it and the bar will not move
+    // at all - the haunted grip every CAD program has had once. The snapping
+    // module already takes the exclusions a selection move passes; these are
+    // simply the element's own. Taken once, when the arrow is picked up: a
+    // slide changes no record's identity, only where its points are.
+    // ------------------------------------------------------------
+    function Na__LeParamGrips__OwnVectors(sheet, groupId) {
+        const group   = sheet ? Na__LeModel__GetGroupById(sheet, groupId) : null;
+        const members = (group && Array.isArray(group.Group__Members)) ? group.Group__Members : [];
+        return members.filter((member) => member.kind === 'shape').map((member) => ({ kind : 'shape', id : member.id }));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Take Hold of an Arrow
+    // ------------------------------------------------------------
+    // mode says which of the two was taken. Everything from here on - the
+    // window listeners, the live rebuild, the one undo step, Escape - is the
+    // same for both, so only the question put to the type is ever branched on.
+    // ------------------------------------------------------------
+    function Na__LeParamGrips__OnStretchDown(event, sheet, groupId, mode) {
         if (Na__LeParamGrips__Drag) return;
         const start = Na__LeParam__GetParams(sheet, groupId);
         if (!start) return;
         Na__LeMenu__Close();
-        Na__LeParamGrips__Drag = { pointerId : event.pointerId, sheetId : sheet.Sheet__Id, groupId : groupId, start : start, steps : JSON.stringify(start), changed : false };
+        Na__LeParamGrips__Drag = { pointerId : event.pointerId, sheetId : sheet.Sheet__Id, groupId : groupId, mode : mode || Na__LeParamGrips__MODE_STRETCH, start : start, steps : JSON.stringify(start), changed : false,
+                                   exclude : Na__LeParamGrips__OwnVectors(sheet, groupId) };
         document.body.classList.add(Na__LeParamGrips__BODY_CLASS);
         window.addEventListener('pointermove',   Na__LeParamGrips__OnStretchMove, true);
         window.addEventListener('pointerup',     Na__LeParamGrips__OnStretchUp, true);
@@ -232,11 +316,32 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | What a Slide's Pointer Point Really Is: the Nearest Vertex, or Itself
+    // ------------------------------------------------------------
+    // The snapping module's own search, in the vertex tone, so a slide looks
+    // for a corner exactly where the Draw tool would and marks it the same
+    // blue - the projected linework of the drawing above first, the sheet's
+    // own vectors after it, and the element's own left out (see OwnVectors).
+    // It draws its own marker; the dashed guide down to the element is this
+    // module's, and is drawn against the grip's own y - the element has not
+    // moved yet, and half a division's error there would be invisible.
+    // ------------------------------------------------------------
+    function Na__LeParamGrips__SnapSlide(sheet, groupId, point, exclude) {
+        const hit = Na__LeOsnap__Snap(sheet, point, exclude || null, Na__LeOsnap__TONE_VERTEX);
+        if (!hit || !hit.snapped) { Na__LeParamGrips__HideGuide(); return { x : point.x, exact : false }; }
+        const handles = Na__LeParam__HandlesOf(sheet, groupId);
+        Na__LeParamGrips__ShowGuide(hit, (handles && handles.slide) ? handles.slide.y : point.y);
+        return { x : hit.x, exact : true };
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Move: Rebuild Only When the Pointer Crosses Into Another Step
     // ------------------------------------------------------------
-    // The pointer is read against the element's origin, which a stretch never
-    // moves. The offset the arrow stands off the end is ignored on purpose:
-    // the element's end follows the pointer, and the arrow rides just ahead.
+    // The pointer is read against the element's origin, which neither a
+    // stretch nor a slide ever moves. The offset the arrow stands off the end
+    // is ignored on purpose: the element's end follows the pointer, and the
+    // arrow rides just ahead.
     // ------------------------------------------------------------
     function Na__LeParamGrips__OnStretchMove(event) {
         const drag = Na__LeParamGrips__Drag;
@@ -248,8 +353,13 @@
         const anchor = block ? Na__LeParam__AnchorOf(sheet, drag.groupId) : null;
         const point  = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         const type   = block ? Na__LeParam__GetType(block.Parametric__Type) : null;
-        if (!anchor || !point || !type || typeof type.stretchTo !== 'function') return;
-        const next = type.stretchTo(Na__LeParam__GetParams(sheet, drag.groupId), point.x - anchor.x, point.y - anchor.y);
+        const sliding = drag.mode === Na__LeParamGrips__MODE_SLIDE;
+        if (!anchor || !point || !type) return;
+        if (sliding ? typeof type.slideTo !== 'function' : typeof type.stretchTo !== 'function') return;
+        const params = Na__LeParam__GetParams(sheet, drag.groupId);
+        const next   = sliding
+            ? (() => { const at = Na__LeParamGrips__SnapSlide(sheet, drag.groupId, point, drag.exclude); return type.slideTo(params, at.x - anchor.x, at.exact); })()
+            : type.stretchTo(params, point.x - anchor.x, point.y - anchor.y);
         const key  = JSON.stringify(next);
         if (key === drag.steps) return;
         drag.steps   = key;
@@ -320,6 +430,11 @@
                                                               onSelect : () => { Na__LeParam__Regenerate(sheet, groupId, { SubdivideFirst : !params.SubdivideFirst }); } });
         if (params.ShowUnits !== undefined)      items.push({ label : Na__LeParam__Label('MenuUnits', 'Show units'), checked : params.ShowUnits === true,
                                                               onSelect : () => { Na__LeParam__Regenerate(sheet, groupId, { ShowUnits : !params.ShowUnits }); } });
+        if (params.BarPlacement !== undefined && params.ShowScaleBar === true) {
+            const right = params.BarPlacement === Na__LeParamTitle__PLACE_RIGHT;
+            items.push({ label : Na__LeParam__Label('MenuBarRight', 'Scale bar to the right'), checked : right,
+                         onSelect : () => { Na__LeParam__Regenerate(sheet, groupId, { BarPlacement : right ? Na__LeParamTitle__PLACE_BELOW : Na__LeParamTitle__PLACE_RIGHT }); } });
+        }
         if (params.ScaleDenominator !== undefined) {
             items.push({ separator : true });
             items.push({ label : Na__LeParam__Label('MenuReset', 'Reset length'), onSelect : () => { Na__LeParam__ResetToStandard(sheet, groupId, params.ScaleDenominator); } });
@@ -392,10 +507,18 @@
         const groupId = selection.id;
         const clear   = (point, offsetPx) => ({ x : (point.x * ppm) + (point.away[0] * offsetPx / scale), y : (point.y * ppm) + (point.away[1] * offsetPx / scale) });   // <-- A point of the unzoomed paper, stood off the way the type says
         if (handles.stretch) {
-            const at = clear(handles.stretch, Na__LeParamGrips__Px('StretchOffsetPx'));
-            Na__LeParamGrips__Add(layer, Na__LeParamGrips__CLASS_STRETCH, at.x, at.y,
-                Na__LeParamGrips__Px('StretchSizePx') / scale, Na__LeParam__Label('GripStretch', 'Drag to lengthen or shorten'),
-                (event) => Na__LeParamGrips__OnStretchDown(event, sheet, groupId));
+            const at   = clear(handles.stretch, Na__LeParamGrips__Px('StretchOffsetPx'));
+            const back = handles.stretch.away[0] < 0 && !!handles.slide;      // <-- An arrow pointing back at the title: the reversed stretch of a bar stood to the right
+            Na__LeParamGrips__Add(layer, Na__LeParamGrips__CLASS_STRETCH + (back ? ' is-reversed' : ''), at.x, at.y,
+                Na__LeParamGrips__Px('StretchSizePx') / scale,
+                back ? Na__LeParam__Label('GripStretchBack', 'Drag towards the title to lengthen; the far end stays put') : Na__LeParam__Label('GripStretch', 'Drag to lengthen or shorten'),
+                (event) => Na__LeParamGrips__OnStretchDown(event, sheet, groupId, Na__LeParamGrips__MODE_STRETCH));
+        }
+        if (handles.slide) {
+            const at = clear(handles.slide, Na__LeParamGrips__Px('SlideOffsetPx'));
+            Na__LeParamGrips__Add(layer, Na__LeParamGrips__CLASS_SLIDE, at.x, at.y,
+                Na__LeParamGrips__Px('SlideSizePx') / scale, Na__LeParam__Label('GripSlide', 'Drag to carry the bar along - it snaps to the corners of the drawing above'),
+                (event) => Na__LeParamGrips__OnStretchDown(event, sheet, groupId, Na__LeParamGrips__MODE_SLIDE));
         }
         if (handles.lookup) {
             const at = clear(handles.lookup, Na__LeParamGrips__Px('LookupOffsetPx'));

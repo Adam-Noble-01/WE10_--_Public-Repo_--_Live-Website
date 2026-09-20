@@ -56,6 +56,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0 (Elevation Depth Fog)
+// - Each elevation carries its own depth fog, Elevation__DepthFog: whether it
+//   has any, where it starts and where it is full - both BEHIND the drawing
+//   plane - and how hard it comes on. The block is the fog system's
+//   (49__System__ElevationDepthFog) and is only lent a key here; the normaliser
+//   writes it, switched off, onto a record that lacks it, before anything can
+//   take a snapshot of the record. GetDepthFogPlane says where the fog's plane
+//   is, from the same axes and distance everything else reads.
+//
 // 07-Sep-2026 - Version 1.0.0
 // - Initial implementation for the Elevation Drawings build.
 //
@@ -65,6 +74,20 @@
 // -----------------------------------------------------------------------------
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
+
+    // MODULE IMPORTS | The Drawing's Depth Fog Block
+    // ------------------------------------------------------------
+    // The fog system owns the block's shape, its defaults and its limits; this
+    // module owns only WHERE on an elevation record it is kept.
+    // @delegate: ../49__System__ElevationDepthFog/Na__ElevationDepthFog__RecordData__.js
+    // ------------------------------------------------------------
+    import {
+        Na__ElevFogData__KEY_ELEVATION,
+        Na__ElevFogData__Ensure,
+        Na__ElevFogData__Read,
+        Na__ElevFogData__Write
+    } from '../49__System__ElevationDepthFog/Na__ElevationDepthFog__RecordData__.js';
+    // ------------------------------------------------------------
 
     // MODULE IMPORTS | Elevation Config Defaults
     // ------------------------------------------------------------
@@ -243,6 +266,14 @@
             && !Number.isFinite(elevation[Na__ElevData__F_VIEW_DEPTH])) {
             elevation[Na__ElevData__F_VIEW_DEPTH] = null;
         }
+
+        // DEPTH FOG | Written here, switched off, onto a record that has none -
+        // and HERE rather than on first use, because the Dev menu's draft is a
+        // snapshot of the record taken as its row opens, and this normaliser
+        // runs on the read that finds the record for it. A block that first
+        // appeared later would read as an edit nobody made. A settled block is
+        // left untouched.
+        Na__ElevFogData__Ensure(elevation, Na__ElevFogData__KEY_ELEVATION);
         return elevation;
     }
     // ------------------------------------------------------------
@@ -451,6 +482,51 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Get an Elevation's Depth Fog as Four Plain Values
+    // ------------------------------------------------------------
+    // { enabled, startDepthMm, endDepthMm, falloffPercent } - a copy. READ IT
+    // THROUGH HERE EVERY TIME: reverting a draft replaces the record's nested
+    // objects, so a block held from an earlier read is no longer the record's.
+    // ------------------------------------------------------------
+    function Na__ElevData__GetDepthFog(elevation) {
+        return Na__ElevFogData__Read(elevation, Na__ElevFogData__KEY_ELEVATION);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Change Some of an Elevation's Depth Fog
+    // ------------------------------------------------------------
+    // patch: any of { enabled, startDepthMm, endDepthMm, falloffPercent }.
+    // Answers what is now stored, which may not be what was asked for - End
+    // gives way to a Depth typed past it.
+    // ------------------------------------------------------------
+    function Na__ElevData__SetDepthFog(elevation, patch) {
+        return Na__ElevFogData__Write(elevation, Na__ElevFogData__KEY_ELEVATION, patch);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where an Elevation's Fog Is Measured From
+    // ------------------------------------------------------------
+    // The drawing plane itself, as the fog system wants it: the unit normal
+    // from the building toward the viewer and the plane's distance along it,
+    // in millimetres. A point P lies (distanceMm - P.normal) behind the plane.
+    // Built from GetAxes and GetPlaneDistanceMm and nothing else, so the fog
+    // can never disagree with the cut, the camera or the markup about where
+    // the plane is.
+    // ------------------------------------------------------------
+    function Na__ElevData__GetDepthFogPlane(elevation) {
+        const axes = Na__ElevData__GetAxes(elevation);
+        return {
+            normalX    : axes.normalX,
+            normalY    : 0,                                                      // <-- An elevation's plane is vertical at every azimuth
+            normalZ    : axes.normalZ,
+            distanceMm : Na__ElevData__GetPlaneDistanceMm(elevation)
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get an Elevation's Saved Zoom and Pan Target
     // ------------------------------------------------------------
     // The pan target is stored in the DRAWING's axes - horizontal run and
@@ -562,6 +638,7 @@
         record[Na__ElevData__F_SCENE_ID]    = null;                              // <-- Linked when the scene is created
         record[Na__ElevData__F_ANNOTATIONS] = [];
         record[Na__ElevData__F_DIMENSIONS]  = [];
+        Na__ElevFogData__Ensure(record, Na__ElevFogData__KEY_ELEVATION);         // <-- Whole from birth: fog off, the configured three numbers waiting
 
         array.push(record);
         return record;
@@ -811,6 +888,9 @@
         Na__ElevData__RunToWorldMm,
         Na__ElevData__IsSection,
         Na__ElevData__GetViewDepthMm,
+        Na__ElevData__GetDepthFog,
+        Na__ElevData__SetDepthFog,
+        Na__ElevData__GetDepthFogPlane,
         Na__ElevData__GetSavedView,
         Na__ElevData__SetSavedView,
         Na__ElevData__NextElevationId,

@@ -53,6 +53,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.0 (TrueVision)
+// - Depth fog. A frame body has a sixth layer, an image made BETWEEN the
+//   linework and the markup - the frame's stack is DOM order, so that is what
+//   puts a drawing's fog over its vectors and under its labels. PlaceFog,
+//   ClearFog and ScheduleFog are PlaceUnderlay's and ScheduleUnderlay's twins
+//   with keys, a timer and an in-flight flag of their own, so the picture and
+//   the fog render, slide and re-arm independently; RenderFog is the one draw
+//   both the debounce and a forced render go through. Park stops the fog's
+//   timer with the underlay's, and the pointer lifting flushes both.
+//
 // 18-Sep-2026 - Version 1.1.0 (TrueVision)
 // - Park and Restore, for the sheet surface's viewport cache. Leaving a sheet
 //   no longer drops its viewports' states: each is lifted out of the state map
@@ -82,9 +92,10 @@
     import { Na__LeRaster__Working, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     // ------------------------------------------------------------
 
-    // MODULE IMPORTS | Viewport 2D Window Unit
+    // MODULE IMPORTS | Viewport 2D Window and Depth Fog Units
     // ------------------------------------------------------------
     import { Na__LeVp2d__Window, Na__LeVp2d__Describe } from './Na__LayoutEditor__Viewport2d__Window__.js';
+    import { Na__LeVp2d__FogFor } from './Na__LayoutEditor__Viewport2d__DepthFog__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -115,18 +126,24 @@
 // REGION | Frame Body and Underlay
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | The Screen-Space Widths This Viewport's Underlay Renders At
+    // HELPER FUNCTION | What This Viewport's Underlay Renders At
     // ------------------------------------------------------------
     // The Profile Linework, Section Outline and Base Image composite weights -
     // the last being how thick the model's own edges draw in the picture -
     // handed to the snapshot renderer, which sets them for one render and puts
     // them back.
+    //
+    // enhancePct is the odd one out and deliberately travels with them: it is
+    // not a width but the Enhance Whitecard strength, read here because this is
+    // already the one place that turns a viewport's composite weights into what
+    // a render needs, and the post pass runs at the end of that same render.
     // ------------------------------------------------------------
     function Na__LeVp2d__RasterWeights(viewport) {
         return {
             profilePx   : Na__LeComposite__Weight(viewport, 'profileLinework'),
             sectionPx   : Na__LeComposite__Weight(viewport, 'sectionOutline'),
-            modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage')
+            modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage'),
+            enhancePct  : Na__LeComposite__Weight(viewport, 'enhanceWhitecard')
         };
     }
     // ------------------------------------------------------------
@@ -149,15 +166,25 @@
         if (state && state.body === body) return state;
         body.innerHTML = '';
         const make = (tag, cls) => { const el = document.createElement(tag); el.className = cls; body.appendChild(el); return el; };
+        // THE ORDER THESE ARE MADE IN IS THE ORDER THEY STACK IN. No layer here
+        // carries a z-index; each is appended as it is made, and a later one
+        // paints over an earlier. So the fog is made AFTER the linework and
+        // BEFORE the markup: over the vectors it has to fade, under the labels
+        // and dimensions it must never touch.
         state = {
             body : body, underlay : make('img', 'na-le-frame__underlay'), linework : make('div', 'na-le-frame__linework'),
+            fog : make('img', 'na-le-frame__fog'),
             markup : make('div', 'na-le-frame__markup'), empty : make('div', 'na-le-frame__empty'), progress : make('div', 'na-le-frame__progress'),
             renderedKey : null, renderedWindow : null, wantedKey : null, timer : null, inFlight : false,
+            fogRenderedKey : null, fogRenderedWindow : null, fogWantedKey : null, fogTimer : null, fogInFlight : false,
             lineworkKey : null, lineworkSvg : null, markupKey : null, lastArgs : null, classes : null, classesKey : null, progressTimer : null
         };
         state.progress.hidden = true;
         state.underlay.draggable = false;
         state.underlay.alt = '';
+        state.fog.draggable = false;
+        state.fog.alt = '';
+        state.fog.hidden = true;                                                  // <-- Most viewports never have one
         Na__LeVp2d__States.set(viewportId, state);
         return state;
     }
@@ -226,6 +253,110 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Place the Last Rendered Fog Over the Current Window
+    // ------------------------------------------------------------
+    // PlaceUnderlay's twin. The fog slides with the picture during a pan, off
+    // its own rendered window, because the two are rendered at different
+    // moments and either may be the staler.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__PlaceFog(state, win, ppm) {
+        const rw = state.fogRenderedWindow;
+        if (!rw) { state.fog.hidden = true; return; }
+        const D = win.Denominator;
+        state.fog.hidden = false;
+        state.fog.style.left   = (((rw.OriginX - win.OriginX) / D) * ppm) + 'px';
+        state.fog.style.top    = (((rw.OriginY - win.OriginY) / D) * ppm) + 'px';
+        state.fog.style.width  = ((rw.WidthMm  / D) * ppm) + 'px';
+        state.fog.style.height = ((rw.HeightMm / D) * ppm) + 'px';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | This Viewport Has No Fog: Take It Down and Forget It
+    // ------------------------------------------------------------
+    // The image is emptied as well as hidden. A fog left in a hidden image would
+    // come back, stale, the moment the fog was switched on again, for as long as
+    // the fresh render took.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__ClearFog(state) {
+        if (state.fogTimer) { window.clearTimeout(state.fogTimer); state.fogTimer = null; }
+        if (!state.fog) return;
+        state.fog.hidden = true;
+        if (state.fogRenderedKey !== null) state.fog.removeAttribute('src');
+        state.fogRenderedKey = null; state.fogRenderedWindow = null; state.fogWantedKey = null; state.fogRenderedFp = null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Render One Viewport's Fog Image and Put It in the Frame
+    // ------------------------------------------------------------
+    // The one draw the debounce and a forced render both go through. Resolves
+    // true when an image landed. level is the raster level; stillWanted as
+    // Na__LeSnap__Render2d takes it, or undefined for a render nobody may skip.
+    //
+    // THE SAME PIXELS AS THE PICTURE, ON PURPOSE - the same window, the same
+    // raster fit and sample count, the same composite weights - so the snapshot
+    // renderer lays out the same tiles and the fog registers on the base image
+    // pixel for pixel. A fog rendered smaller to save time would be a fog whose
+    // silhouettes sat a fraction of a pixel off every line it was meant to fade.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__RenderFog(state, viewportId, viewport, described, fog, key, level, stillWanted) {
+        const phaseId        = described.modelSource.renderId;
+        const phaseFp        = Na__LeSnap__GetPipelineFingerprint(phaseId);
+        const frame          = viewport.Viewport__FrameMm;
+        const px             = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, level);
+        const windowSnapshot = described.window;
+
+        state.fogInFlight = true;
+        return Na__LeSnap__Render2d(described.definition, windowSnapshot, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), phaseId, stillWanted, fog.source).then((result) => {
+            state.fogInFlight = false;
+            if (!state.parked && Na__LeVp2d__States.get(viewportId) !== state) return false;   // <-- Released. A parked state keeps the fog it was already rendering
+            if (!result) return false;
+            state.fog.src           = result.dataUrl;
+            state.fogRenderedKey    = key;
+            state.fogRenderedFp     = phaseFp;
+            state.fogRenderedWindow = { OriginX : windowSnapshot.OriginX, OriginY : windowSnapshot.OriginY, WidthMm : windowSnapshot.WidthMm, HeightMm : windowSnapshot.HeightMm };
+            if (state.lastArgs) Na__LeVp2d__PlaceFog(state, Na__LeVp2d__Window(state.lastArgs.viewport), state.lastArgs.ppm);
+            return true;
+        }, () => { state.fogInFlight = false; return false; });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Render the Fog for the Wanted Window (debounced)
+    // ------------------------------------------------------------
+    // ScheduleUnderlay's twin, with a timer and an in-flight flag of its own so
+    // neither render waits on the other's debounce - they still queue one behind
+    // the other in the snapshot renderer, which is the only place they must.
+    // NOT NOW MEANS LATER, NOT NEVER, here as there: a render that cannot start
+    // re-arms itself rather than returning.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__ScheduleFog(state, viewportId) {
+        if (state.fogTimer) window.clearTimeout(state.fogTimer);
+        state.fogTimer = null;
+        if (state.parked) return;                                                 // <-- Its sheet is not on screen: Fill books the render when it is shown again
+        state.fogTimer = window.setTimeout(() => {
+            state.fogTimer = null;
+            if (!state.lastArgs) return;
+            if (Na__LeVp2d__Interacting || state.fogInFlight) { Na__LeVp2d__ScheduleFog(state, viewportId); return; }
+            const args      = state.lastArgs;
+            const described = Na__LeVp2d__Describe(args.viewport);
+            const fog       = Na__LeVp2d__FogFor(args.viewport, described);
+            if (!fog) { Na__LeVp2d__ClearFog(state); return; }                    // <-- Switched off while it waited
+            if (Na__LeSnap__GetPipelineFingerprint(described.modelSource.renderId) === null) return;   // <-- Its design phase is not in: the load's refresh schedules again
+            const key = state.fogWantedKey;
+            Na__LeVp2d__RenderFog(state, viewportId, args.viewport, described, fog, key, Na__LeRaster__Working(), () => !state.parked).then(() => {
+                // Re-armed only when what is WANTED has moved on from what this
+                // render was for. A render that simply failed is not retried
+                // here - the next refresh asks again - or a fog that cannot be
+                // drawn would be attempted three times a second for ever.
+                if (state.fogWantedKey !== null && state.fogWantedKey !== key) Na__LeVp2d__ScheduleFog(state, viewportId);
+            });
+        }, Na__LeVp2d__RENDER_DELAY_MS);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | A Badge in the Frame While the Linework Is Computed
     // ------------------------------------------------------------
     function Na__LeVp2d__ShowProgress(state, phase) {
@@ -262,6 +393,7 @@
         const state = Na__LeVp2d__States.get(viewportId);
         if (!state || (body && state.body !== body)) return null;
         if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+        if (state.fogTimer) { window.clearTimeout(state.fogTimer); state.fogTimer = null; }   // <-- The fog's own debounce, with the picture's
         Na__LeVp2d__HideProgress(state);                                          // <-- The badge's one-second tick stops; Fill shows it again if the linework is still coming
         state.parked = true;
         Na__LeVp2d__States.delete(viewportId);
@@ -282,6 +414,7 @@
         if (Na__LeVp2d__Interacting) return;
         Na__LeVp2d__States.forEach((state, viewportId) => {
             if (state.wantedKey !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewportId);
+            if (state.fogWantedKey !== null && state.fogWantedKey !== state.fogRenderedKey) Na__LeVp2d__ScheduleFog(state, viewportId);
         });
     }
     // ------------------------------------------------------------
@@ -305,6 +438,10 @@
         Na__LeVp2d__State,
         Na__LeVp2d__PlaceUnderlay,
         Na__LeVp2d__ScheduleUnderlay,
+        Na__LeVp2d__PlaceFog,
+        Na__LeVp2d__ClearFog,
+        Na__LeVp2d__RenderFog,
+        Na__LeVp2d__ScheduleFog,
         Na__LeVp2d__ShowProgress,
         Na__LeVp2d__HideProgress,
         Na__LeVp2d__Park,

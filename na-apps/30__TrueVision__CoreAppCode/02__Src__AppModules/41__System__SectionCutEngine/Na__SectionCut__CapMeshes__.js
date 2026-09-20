@@ -31,6 +31,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0 (Elevation Depth Fog)
+// - RenderDepthInto: the overlay scene drawn into a bound depth buffer with
+//   nothing cleared, beside RenderOverlay, which clears depth first because it
+//   lands on a finished picture. For the drawing's depth fog.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder. Split out of the
 //   engine so both files stay inside the house 600-line limit.
@@ -314,6 +319,34 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Add the Caps' Depth to a Depth Buffer Somebody Else Is Building
+    // ------------------------------------------------------------
+    // For a pass that reads depth rather than colour - the drawing's depth fog.
+    // The overlay above CLEARS depth before it draws, because its job is to
+    // land on top of a finished picture; a depth pre-pass wants the opposite,
+    // the caps tested against the model already in the buffer and written
+    // where they win. They always win where they are: everything nearer than
+    // the cut has been clipped away, so the cap is the first thing a ray from
+    // the viewer meets, and it lies ON the drawing plane.
+    //
+    // WITHOUT THIS A POCHE HAS THE DEPTH OF WHATEVER IS BEHIND IT - the far
+    // side of a room - and a fog measured from the plane would fade the one
+    // part of a section that is, by definition, not behind the plane at all.
+    //
+    // Nothing is cleared and the target is whatever is bound. autoClear is
+    // handed back as found.
+    // ------------------------------------------------------------
+    function Na__SectMesh__RenderDepthInto(renderer, camera) {
+        if (!renderer || !camera || !Na__SectMesh__OverlayScene) return;
+
+        const savedAutoClear = renderer.autoClear;
+        renderer.autoClear = false;                                              // <-- The model's depth must survive: the caps are tested against it
+        renderer.render(Na__SectMesh__OverlayScene, camera);
+        renderer.autoClear = savedAutoClear;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -331,7 +364,8 @@
         Na__SectMesh__RepaintAll,
         Na__SectMesh__HandleResize,
         Na__SectMesh__RecomputeCaps,
-        Na__SectMesh__RenderOverlay
+        Na__SectMesh__RenderOverlay,
+        Na__SectMesh__RenderDepthInto
     };
     // ------------------------------------------------------------
 

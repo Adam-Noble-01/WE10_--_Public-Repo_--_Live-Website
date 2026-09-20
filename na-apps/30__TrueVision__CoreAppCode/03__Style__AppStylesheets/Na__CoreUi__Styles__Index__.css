@@ -123,6 +123,13 @@
 @import url('../02__Src__AppModules/47__System__DrawingPlanes/Na__DrawingPlanes__Styles__DevMenu__.css');
 
 
+/* Elevation Depth Fog - the Fog Block of a Drawing's Dev Menu Row */
+/* ----------------------------------------------------------------- */
+/* Imported AFTER the elevation styles: the block sits inside a      */
+/* drawing's row and reuses its caption, button and input classes.   */
+@import url('../02__Src__AppModules/49__System__ElevationDepthFog/Na__ElevationDepthFog__Styles__DevMenu__.css');
+
+
 /* Plan Annotations - World-Anchored Text Layer + Editing Toolbar */
 /* ----------------------------------------------------------------- */
 @import url('../02__Src__AppModules/43__System__PlanAnnotations/Na__PlanAnnotations__Styles__.css');

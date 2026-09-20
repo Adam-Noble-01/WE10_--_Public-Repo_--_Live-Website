@@ -2,6 +2,902 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.95.0  -  20-Sep-2026
+### The Statements a Project Is Won On Were the One Document the App Could Not Open, So It Now Writes Them
+
+**Overview**
+- Adam, 20-Sep: a Statement Writer. A manager to make, rename and delete the project's written
+  documents; an Editor tab that is a Typora-style live-preview markdown editor; a Viewer tab in
+  the house document style; the endless-scroll PDF; and the whole thing saved through Flask to the
+  project folder and pushed to R2 with its pictures relinked to the CDN. "Before you code anything
+  you need to look at everything."
+- What the looking found decided most of it. The reference PDF he supplied - EB03's Design and
+  Access Statement - turned out to have been made in the BROWSER, not by the Python tool: 595.28 pt
+  wide, four pages capped at 14398.32 pt, **zero text characters**, producer jsPDF 2.5.1. That is
+  PlanVision's `DesignAccessStatement__HtmlViewer__`, itself a port of
+  `Py_PdfUtils__HtmlToPagelessPdfConverter`. So the PDF was a port, not an invention.
+- And the house document style already had one refactor behind it -
+  `StyleSheet__DesignAccessStatement__.css`, "Initial refactor from Typora theme v2.1.1" - which
+  confirmed the target without being the thing to copy.
+
+**The one promise this feature makes about somebody else's file**
+- OPEN A STATEMENT, SAVE IT WITHOUT TYPING, AND THE FILE THAT COMES BACK IS THE FILE THAT WENT IN -
+  byte for byte. Not equivalent markdown: the same 45,587 bytes. Blank lines, the trailing spaces
+  inside every divider block, the eighteen zero-width spaces in front of the figure captions and
+  the superscript in "20th September" all survive.
+- HOW. Every block carries the exact source lines it was cut from, INCLUDING the blank lines under
+  it, plus a signature of what it looked like when it was rendered. A block whose signature still
+  matches is COPIED on the way out, never regenerated. Only blocks that actually moved are written
+  from the DOM, and they put back exactly as many blank lines as they had.
+- That is why editing one heading in the RB05 pre-application statement changes ONE LINE of the
+  file. Measured, not hoped: `Na__Test__StatementRoundTrip__` (node) and
+  `Na__Test__StatementDomRoundTrip__` (a real browser, real contenteditable) both run it over the
+  real statement.
+
+**The editor is the page** - `04__Ui__Editor/`
+- No preview pane. What is typed into IS what will be read, wearing the same stylesheet at the same
+  A4 width. Type `## ` and the line becomes a heading; type `**bold**` and the words become bold.
+- NOTHING IS PATCHED IN PLACE. The block under the caret is written back out as markdown, re-read
+  and re-rendered through the same tokeniser the whole feature uses, and the caret is put back by
+  COUNTING CHARACTERS: a marker goes into the text at the caret first, so the markdown itself says
+  where it was. One mechanism answers every rule.
+- FOUR THINGS THAT ONLY A REAL BROWSER WOULD HAVE TOLD ME, all found by
+  `Na__Test__StatementTyping__`, which types one character at a time through the browser's own
+  insertion rather than calling the handlers:
+    1. The reflow read the block back through the SAVING serialiser, which escapes marks - so
+       `**bold**` came back as `\*\*bold\*\*` and could never become bold. Reading for re-parse and
+       writing for the file want opposite things; the walk now takes `{ Raw : true }`.
+    2. A block that came back empty - `<h2></h2>` after "## " - has nowhere to hold a caret, and
+       every letter typed after it was silently thrown away. An empty text node is somewhere to stand.
+    3. A single `*` opened emphasis on the second asterisk of its own `**`, leaving `<em></em>` in
+       the middle of a sentence being typed. A single mark beside another of the same kind is now
+       part of a longer run, not an opener.
+    4. The caret IS put after a new bold run, and Chrome pulls the next character back inside it
+       anyway - so "**bold** here" became one long bold run and saved as `**bold here**`. The
+       character is moved out afterwards, on `input` rather than `beforeinput`, because
+       `execCommand` does not fire `beforeinput` and a fix living there would be untestable.
+- RAW HTML IS FROZEN. These statements are full of hand-written markup - every picture is an `<img>`
+  with its own zoom, a 10 mm olive border and a shadow; every section break is a nested `<div>` with
+  CSS comments and trailing whitespace inside it. A contenteditable surface reorders attributes and
+  eats whitespace, so each raw block is an island the caret steps over, edited through a raw field
+  or through a drag handle that changes ONE number inside its own style and nothing else.
+- `Ctrl + /` shows the raw markdown in Lucida Console; `Ctrl + .` puts the RENDERED page into Lucida
+  Console with every size and colour unchanged. Both remembered in this browser.
+
+**The document style** - `08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css`
+- A fresh refactor of `01-na-diary-view-a4.css`, carried over value for value, four-digit units and
+  all, so a line can be compared against the theme. Measured in the running app: paper 210.00 mm,
+  body Open Sans 10.00 pt #3c3c3c at 1.40, h2 16.00 pt #555041 weight 500, h4 10.00 pt with 7.00 mm
+  above it, italic 8.00 pt #646464, bold #555041 weight 500.
+- THE SPACE ABOVE A PARAGRAPH IS LOAD-BEARING and the theme never states it. Setting `p` to
+  `margin-top: 0` - which the earlier DAS refactor does - made every sub-heading land ON TOP of the
+  sentence under it, because the theme gives h4, h5 and h6 NEGATIVE bottom margins measured against
+  the browser's own one em. It is now stated as `1.00em` with the reason written beside it. Found in
+  the baked PDF, not on screen.
+- OPEN SANS MEDIUM (500) was missing from the app's font sheet, so every heading in the house style
+  matched down to Regular. The TTF was already in the common font folder; only the declaration was
+  missing. Side effect, stated rather than hidden: the thirteen places in the app chrome that ask
+  for weight 500 now get Medium, which is the weight they were asking for.
+- `mark`'s brush texture is drawn in CSS at the theme's own hue instead of fetched from svgbox.net:
+  an external image cannot reach the PDF, and a highlight that is there on screen and gone on paper
+  is worse than one that is plain in both.
+
+**The PDF is a picture of the page, and that is the point** - `06__Export__Pdf/`
+- Every other exporter in this app writes real text with Open Sans embedded, because a drawing, a
+  register and a specification are documents people search and have read aloud. A planning
+  statement is not. It is an argument written for a case officer to weigh, and text that lifts
+  cleanly out of a PDF is text that goes into a language model to be reduced to three bullet points
+  by somebody who was meant to read it. So this one rasterises, on purpose. If a future change makes
+  it selectable, that is a change of policy and not a bug fix - said here, in the module header and
+  in `LayoutEditor__Statement__PdfNote`, so the next person to find three PDF exporters knows why.
+- Measured output: 595.28 pt wide, one page of 13466.28 pt, **0 text characters**, five JPEG tiles,
+  2.9 MB, 36 seconds for 4.5 metres of A4 - the same shape as the EB03 reference.
+
+**Publishing, and what it does not send** - `07__Export__Publish/`
+- Three things go to R2: the markdown exactly as it is on disk, a standalone HTML rendering of it
+  whose picture links are absolute CDN URLs, and the pictures the statement ACTUALLY LINKS TO.
+- THE MARKDOWN IS NOT REWRITTEN. Its links stay relative so the file still opens in Typora; only the
+  generated HTML carries CDN URLs. Two artefacts, two readers.
+- SIXTEEN PICTURES OUT OF 322. The statement folder holds 713 MB; the statement uses sixteen of
+  them, and publishing the folder would publish the contact sheet and the photogrammetry dataset
+  along with the document.
+- THEY GO UP SMALLER, and here is the arithmetic: a statement is A4, its text block is 188 mm, and
+  the PDF rasterises at about 192 dpi, so the widest a picture is ever SEEN at is around 1450 px -
+  against originals 6144 px wide and 13 MB each. A 2000 px long edge keeps a comfortable margin over
+  anything a reader or a printer can resolve. Measured: 13.12 MB to 468 KB, 5.31 MB to 117 KB,
+  24.5 MB of specimens down to 2.04 MB. The originals on disk are never touched.
+- A PICTURE LINK IS NOT A RELIABLE PATH - it is whatever Typora wrote, on whichever machine, before
+  whatever folder rename came after. So the file NAME is trusted and the path is not: a link is
+  tried as written, then looked for by name anywhere in the statement's folder, preferring the match
+  whose folders agree most closely with what the link asked for. Parked folders are never searched.
+- NOTHING IS MARKED PUBLISHED UNTIL IT IS. The stamp is written last, after the pictures, the HTML
+  and the markdown have all landed. Tested with R2 blocked: seventeen writes refused, every failure
+  named with its file and its reason, and the statement still reading "Saved, not published".
+
+**Where a statement lives**
+- A statement is a FOLDER under `10__StatementDocs`, holding one markdown file and its pictures.
+  The folder cannot say which of its markdown files IS the statement - RB05's holds the statement
+  and a project notes file written for an agent - so a small index beside the project data
+  remembers, and a notes file is left alone.
+- THE FOLDER IS THE TRUTH, THE INDEX IS THE MEMORY. A statement on disk the index has never heard of
+  is OFFERED, not adopted: it can be there because it was written by hand, restored, or brought from
+  another machine, and none of those are the app's to decide about.
+- Naming is derived, not typed, and shown before it is committed: "Design & Access Statement" in
+  RB05 gives `02__DaStatement`-style folder numbering and
+  `RB05_T01_S02__WestFarm__DesignAccessStatement__.md`.
+
+**Saving** - `01__Core__Data/`, `ProjectVision__TrueVisionStatements__Api__.py`
+- Typing writes the file in the project folder, quietly and often - that copy is the one Adam opens
+  in Typora. R2 is written only by Publish. A browser draft catches whatever falls between them, and
+  a load that finds a draft newer than the file says so rather than preferring one silently.
+- New Flask routes under `/api/truevision/statements/`: a tree listing (a static server cannot list
+  a folder, and the publisher, the manager and the tidy-up all need one), a text write, a picture
+  write for a dropped file, a folder make, a move and a guarded delete. Everything is fenced into
+  one folder and checked AFTER path resolution, so `..` and a symbolic link are refused rather than
+  cleaned up and obeyed.
+- **THE 8090 SERVER MUST BE RESTARTED** before any of that answers: started without `--debug` it
+  holds the routes it had when it started, and a new route replies 405 until it does.
+
+**The repository was one `git add` from a very bad day**
+- `10__StatementDocs` was untracked and NOT ignored. RB05 alone holds 713 MB there. The repository
+  already tracks 5,190 MB - 1,141 MB of it inside `00__Archive` folders, including an 82.8 MB draft
+  pack and a 62 MB codebase zip - against a GitHub Pages limit of one gigabyte.
+- The statement rule is an ALLOWLIST, not a list of picture extensions: nothing under
+  `10__StatementDocs` is tracked except `.md`, `.html` and `.json`. A list of the formats seen so
+  far is one new format away from being wrong, and a `.geprint` from the photogrammetry dataset
+  proved it before the ink was dry.
+- `00__Archive`, `00__Archived` and `00__Images` are now ignored wherever they appear, which is what
+  Adam asked for: somewhere to park a picture without leaving the project folder. The 1,141 MB
+  already in the index is untouched - a rule cannot untrack anything - and is his call.
+
+**Also**
+- The PWA token goes to `2026-09-20-9`. `-8` is still undeployed and would cover this release if
+  both ship together, but if the fog ships first a client is warm at `-8` - a bucket with a mode
+  controller and tab strip that have no Statements tab, and a PDF exporter without
+  `Na__LePdf__LoadLibrary`, which the new exporter imports by name. A needless bump costs one shell
+  download; a missed one costs the editor.
+- html2canvas 1.4.1 is vendored beside jsPDF rather than fetched from cdnjs, which is this app's
+  rule and PlanVision's divergence from it.
+- Sixty-three pictures (106 MB) the RB05 statement does not use were parked into per-folder
+  `00__Images` folders, with `00__Images__ParkedManifest__.json` recording every move so any of them
+  can be put back.
+
+**Not yet**
+- NOT CONFIRMED BY ADAM. The Editor and Viewer tabs, the manager, the PDF and the publish path have
+  all been driven end to end in the app against the real RB05 statement, but nothing has been
+  published to R2 for real - every test ran with `/r2/write` blocked.
+- NOT IN VALEVISION. Every module carries its port note; the transport unit is the one that would
+  need its own bucket paths.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.94.0  -  20-Sep-2026
+### An Elevation Drew the Coach House Forty Metres Back as Hard as the Wall in Front of It, So Each Drawing Now Has a Fog of Its Own
+
+**Overview**
+- Adam, 20-Sep, with RB05's South West Elevation on screen and a red arrow drawn from a window of
+  the main house down to the gap under View depth: "we need to create a fog depth effect [...] the
+  distance from the plane, the elevations plane. If you set a metre, it would set it a metre behind
+  the plane, away from the camera. 1 m into the building, say here, would start the fog, and then
+  add a second end value [...] Add a fall-off, and put all three values in a line in a new row.
+  Have a subheading called Fog." And the sentence the design turns on: "the depth effect goes over
+  the line work to fade out the line work, so the fog is an actual render layer, which then can be
+  inserted over the 3D viewport and also in the drawings as a render layer component."
+- He asked for the systems to be mapped before anything was written. They were - the render loop,
+  the 3D compositor, the sheet compositor, the Elevations row and the project file - and the map is
+  section 3 of `TrueVision__PLAN__ElevationDepthFog__.md`. What it found decided the shape: A DRAWING
+  NEVER GOES THROUGH THE COMPOSER. The 3D view's own fog is a composer pass, anchored on the orbit
+  cube, blind to the fat linework and with no branch for a parallel camera; it cannot reach a
+  drawing and was left alone, as asked. The precedent was `Na__DrawView__ProfileLines__` - a
+  transparent quad laid over the finished flat render - and the fog is its sibling.
+
+**The fog is the drawing's** - `Elevation__DepthFog`
+- FOUR VALUES, SAVED WITH THE ELEVATION: `DepthFog__Enabled` (off), `DepthFog__StartDepthMm`
+  (1000), `DepthFog__EndDepthMm` (15000), `DepthFog__FalloffPercent` (50). The inner keys carry the
+  BLOCK's prefix, not the record's - `Elevation__Styles`' own pattern - so a floor plan will hold
+  the same block as `FloorPlan__DepthFog` and a section its own, and nothing in the fog system
+  knows which it is on. An elevation whose type is Section is fogged by the same block today.
+- NOTHING NEW AT THE TOP OF THE PROJECT FILE. The records live inside `LayoutEditor__DrawingsData`,
+  already on all three dev-owned key lists, so the fog rides a save path that exists.
+- WRITTEN ON FIRST READ, SWITCHED OFF, by the elevation normaliser - before the Dev menu can take
+  its draft snapshot, or a block that appeared later would read as an edit nobody made. A settled
+  block is compared and left alone.
+- DEPTH IS MEASURED BEHIND THE PLANE, NOT FROM THE CAMERA: `distance - P . normal`, from the same
+  axes and distance the cut, the camera and the markup read. The camera stands 150 m back so that
+  nothing clips; that number never enters it.
+
+**The three numbers** - Dev Tools > Elevations, under View depth and above Advanced
+- FOG, then Off / On, then DEPTH, END and FALL-OFF ON ONE LINE - three columns with the label over
+  the box, because a row some 250 px across has no room for three label-box-unit triplets - and a
+  sentence under them: "fog from 1000 to 15000 mm behind the plane - 50% by half way".
+- THE SENTENCE IS THERE BECAUSE "END" CAN BE READ TWO WAYS. Both numbers are distances behind the
+  plane; End is where the fog is full, not how long it runs. That reading is mine, so the row says
+  it rather than leaving it to be found. A Depth typed past End pushes End out, and the sentence is
+  where that shows.
+- FALL-OFF IS HOW FOGGED THE DRAWING IS HALF WAY BETWEEN THE TWO. 50 is an even fade; 80 is 80%
+  fogged by half way - it comes on hard and the whole band reads denser, which is what he asked of
+  a higher number; 20 holds off until late; 0 and 100 are a wall at End and a wall at Depth. One
+  curve, Schlick's bias, the same line in the shader as in the Node test.
+- A DRAFT EDIT LIKE ANY OTHER. `Elevation__DepthFog` lights NOT UPDATED, is put into words for the
+  Update and Discard dialogs ("Fog: switched on - 1 000 mm to 15 000 mm behind the plane, fall-off
+  50%"), reverts with the row, and is NOT a move key: it changes how far back a drawing reads,
+  never where anything on it is, so an Update that only touches fog keeps its green dialog. The
+  fog layer reads the record as it draws each frame, so an edit rebuilds nothing - it asks for a
+  frame.
+
+**The layer** - `49__System__ElevationDepthFog/`
+- TWO STEPS: the scene once more through the drawing's own camera into a depth target, under its
+  OWN materials; then one full-screen quad. Own materials because only they know where a section
+  has clipped the model and what a fat line's shader does with its quads - and the fat lines write
+  depth, which is what lets a line fade at its own distance rather than its background's.
+- NO MATRICES IN THE SHADER. Under a parallel camera a pixel's distance behind the plane is affine
+  in its screen position and stored depth - `a + b.u + c.v + d.s` - so four points unprojected
+  through the camera's matrices AS THEY STAND give the four numbers, tile view offset and
+  supersample jitter included. A fifth point checks the fit; a perspective camera fails it and gets
+  no fog rather than wrong fog. The depth is read as LINEAR: three writes plain `gl_FragCoord.z`
+  for an orthographic camera even under the log depth buffer, and the 3D view's fog, which inverts
+  the log encoding, would have been wrong here.
+- NOTHING IS SIZED IN ADVANCE. The depth target follows whatever is bound at the moment of drawing
+  - the canvas, one tile of an export, a supersampler's sample target - so there is no resize to be
+  forwarded and none to be forgotten.
+- IN THE 3D VIEW it is drawn in the render loop's drawing branch AFTER the silhouettes, so it fades
+  them, and BEFORE the cut fills, so a poche stays solid. The same line went into the two other
+  places that carry that sequence - the Layout Editor's bake route and the card thumbnail - so the
+  three still read alike. The elevation on screen hands the layer two closures over its live
+  record and takes them away on leaving. A drawing with no fog costs the loop one null check.
+
+**On a sheet** - Render Composites gains DEPTH FOG, first in the list
+- THE FOG IS THE DRAWING'S; WHETHER TO SHOW IT IS THE VIEWPORT'S. The composite is ticked by
+  default and means "follow the drawing" - every drawing's fog starts off, so no sheet changes
+  until somebody asks - and unticking it shows one viewport of a fogged elevation bare. It is the
+  first composite that sits OVER the projected linework, hence first in a list that reads front to
+  back.
+- AN IMAGE OF ITS OWN, MADE BETWEEN THE LINEWORK AND THE MARKUP. The frame's stack is DOM order, so
+  that is the whole of what puts the fog over the vectors and under the labels. It is rendered
+  through `Na__LeSnap__Render2d` with the SAME staged model, window, raster fit, sample count and
+  composite weights as the picture, so the tiles match and it registers pixel for pixel; each frame
+  is the fog alone, premultiplied, on a transparent ground.
+- THE BASE IMAGE IS NEVER FOGGED. Render2d gives the fog layer NO source while a picture renders -
+  a picture fogged as well would be fogged twice, and an elevation left previewing in the 3D view
+  would otherwise have lent a sheet ITS fog, off its own plane. The underlay's key and the vectors'
+  keys know nothing of the fog, so switching one on re-renders no picture and re-projects no line.
+- THE PDF adds the same image after the vector linework and before the scene markup, as 'PNG' from
+  a PNG data URL - jsPDF 4.1.0 drops the alpha of anything handed over as 'RGBA'. Checked with
+  PyMuPDF: picture (opaque), 12 974 vector items, fog image with a soft mask, title on top.
+- A SECTION'S POCHE STAYS SOLID UNDER IT. The cut faces live in the section engine's own overlay
+  scene, so the engine gained `Na__SectionCut__RenderDepthInto`: the caps drawn into a depth buffer
+  somebody else is building, clearing nothing. Without it a poche had the depth of the room behind.
+
+**Three things that were wrong, and how each was found**
+- THE FAR WING FADED AND ITS GLAZING DID NOT. First run on RB05: walls and frames dissolved and a
+  row of dark panes hung in the air. The loader builds blended materials with depthWrite off, so a
+  pane had the depth of whatever stood BEHIND it, and behind those was open sky - "nothing drawn".
+  Every visible untextured blended material is now lent a depth write for the pre-pass and handed
+  it back in the same draw. Textured ones are left alone on purpose: a cut-out tree is a whole
+  quad, and lending it depth would print its rectangle into the fog behind it.
+- A GHOST OUTLINE OF A BUILDING THE FOG HAD TAKEN AWAY, in the PDF at 110 dpi. I diagnosed it twice
+  before I read the pixels. First guess: silhouette ink overhanging onto paper with no depth - so
+  open paper was made to look three pixels further for something drawn. It did not move. Then the
+  pixels: 93 988 of the inked pixels under it sat under an alpha of exactly 1. THE DATA WAS RIGHT
+  AND THE PICTURE WAS WRONG, which means the fault is in how two layers are put together, not in
+  either. Second guess: a viewer scales the picture and the fog apart, so ink a few pixels from the
+  fog's edge averages with "not quite covered" - so the fog was bled twelve pixels out over clean
+  paper. The ghost MOVED OUTWARD WITH THE BLEED. It was never the building's outline. It was the
+  fog's own.
+- THE FOG IMAGE WAS BLACK WHERE IT WAS CLEAR. A canvas keeps colour premultiplied, so under an
+  alpha of 0 the colour is gone and the png says black; scaled apart from its alpha, that black
+  meets paper white along every edge of the fog and draws a grey line there. The probe had said so
+  on its first line - "fog rgb min 0" - and I read past it. A layer of its own now leaves NO pixel
+  at alpha 0: below a veil of 2/255 it writes the veil, in paper white, and rounds its colour UP a
+  step so it can never land under its alpha. Measured after: 17.5 million pixels, colour plane 255
+  at every one, alpha 2 to 255, and no outline at 110 dpi or at 40. The bleed stays, for the ink
+  near an edge; the veil is what fixed the edge itself.
+
+**Tested**
+- `Na__Test__ElevationDepthFog__.test.mjs`, 68 checks: the block settles whatever it is given, the
+  fall-off means what the row says, depth is behind the plane and not from the camera (on RB05's
+  own "cut -2200 mm"), the four-sample solve reads a drawing camera, one tile of an export and a
+  camera swung off square exactly, and refuses a perspective one. Both verifiers; the module graph's
+  one failure is the group-export session's `SceneEditor` template string, not this.
+- In the app on RB05 (localhost:8811, every write refused, none attempted): the block written onto
+  all four elevations on first read, off; the 3D view fogged and the card thumbnail with it; the
+  Fog block in place between View depth and Advanced, lighting the draft with the one key, End
+  giving way to Depth, a blank box committing nothing, Revert putting record and row back; on
+  D01 - TEMP__Elevations the frame stack `underlay, linework, fog, markup`, a fog image on the two
+  fogged viewports placed exactly as their picture and none on the other two, identical bytes on a
+  second load; the PDF as above.
+- NOT tested: a real save (it needs the ProjectVision server - the fog rides `Na__DrawData__Save`
+  like every other key of the record), a real pointer in the row, and the web viewer.
+
+**Not done, and offered**
+- FLOOR PLANS AND CROSS SECTIONS. The block, the maths, the layer and the row take them as they
+  stand; what is missing is each one's wiring - a key, a plane (a plan's is its cut, looking down),
+  a row. An hour each once the Cross Sections system exists.
+- A FOG STRENGTH PER VIEWPORT. The whitecard release of the same day gave Render Composites a
+  'percent' weight; Depth Fog could carry one as a ceiling. He asked for three numbers, so it has
+  none.
+- Not in ValeVision. ValeVision keeps its composer running for a drawing, so the two draw calls
+  land elsewhere there; everything else carries over.
+
+**Files**
+- NEW `49__System__ElevationDepthFog/`: `Na__ElevationDepthFog__AppConfig__.json`,
+  `__ConfigState__` (`Na__ElevFogCfg`), `__Maths__` (`Na__ElevFogMath`, pure), `__RecordData__`
+  (`Na__ElevFogData`), `__Shader__`, `__RenderLayer__` (`Na__ElevFog`: Initialise, SetSource,
+  RenderOverlay, RenderLayerFrame), `__DevMenu__Row__` (`Na__ElevFogRow`), its stylesheet.
+  NEW `51/20/Na__LayoutEditor__Viewport2d__DepthFog__` (`Na__LeVp2d__FogFor`),
+  `80/Na__Test__ElevationDepthFog__.test.mjs`, `TrueVision__PLAN__ElevationDepthFog__.md`.
+- `45/ProjectJson__Data__` 1.1.0 (GetDepthFog, SetDepthFog, GetDepthFogPlane), `DevMenu__RowBuilders__`
+  2.1.0, `DevMenu__Editor__` 2.1.0, `ModeController__` 1.1.0. `41/Engine__` 1.2.0 and `CapMeshes__`
+  1.1.0 (RenderDepthInto). `40/RenderPreset__` 1.1.0, `01/LoadingSequence` and
+  `21/Thumbnail__Renderer` (one import, one call each). `Index.html` (one import, one Initialise),
+  the stylesheet index (one @import).
+- `51`: `SnapshotRenderer__` 1.12.0, `RenderComposites__` 1.3.0 and its config 1.4.0,
+  `Viewport2d__Frame__` 1.2.0, `Viewport2d__` 1.12.0, `SheetRecords__` 1.23.0,
+  `ConfigState__SheetSetup__` 1.7.0, `AppConfig__.json` (DefaultStyles.DepthFog),
+  `Styles__Main__Paper__.css`, `PdfExporter__` 1.6.0.
+- `PWA_SW_VERSION_TOKEN` NOT bumped again: `2026-09-20-8` is still undeployed (HEAD holds -4) and
+  covers this; the token's own log says why this release needs it. `.claude/launch.json` gains
+  `tv-depthfog`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.93.0  -  20-Sep-2026
+### The Enhance Whitecard Effect Had One Setting, and That Setting Was All of It
+
+**Overview**
+- Adam, 20-Sep, with RB05's D01 on screen and a red loop drawn around the empty space beside the
+  Enhance Whitecard checkbox: "add a box with a value, and then put a percentage next to the box.
+  You see underneath: you've got the PT there. Make this gated so you can apply it gradually: 0 is
+  0% of the effect, and 100 is 100% of the effect, because currently the effect is really strong."
+- And what the dial is FOR, in his own words: "I first need a way of testing it, and then I may
+  establish a new standard. Also, it'd be nice to be able to dial it up and down depending on how
+  bright or dark the viewports need to be or already are."
+- So: not a new effect and not a retune. The same pass, with a number in front of it.
+
+**It is a composite weight, because that machinery already existed**
+- Render Composites has stored a per-viewport number beside a composite since v2.27.0, and every
+  part of that is generic: the JSON row builds the control, the record layer keeps only what
+  someone actually set, the panel draws the box and the reset arrow, and the cache key carries it.
+- Enhance Whitecard was the row that said `"Weight__Kind": "none"` - no line, no control. Giving it
+  a weight is therefore a CONFIG EDIT plus the arithmetic, not a new UI and not a new record key.
+- A THIRD KIND OF WEIGHT, `percent`, beside `factor` and `pixels`. The distinction is not
+  decoration: a percent is not a width, it is how much of a post pass happens, and the panel
+  suffixes it `%` where a factor gets `x` and a pixel width gets `px`. Three kinds of number in one
+  column have to be tellable apart without hovering.
+
+**What a strength between the ends actually does**
+- NOT a blend of two finished pictures. That would mean running the pass and mixing the result
+  back over the original - twice the pixel work, on an image that can be 5120 px wide, for a
+  number nobody could predict from the config. Each PARAMETER travels instead, from the value that
+  does nothing to the value the style has always used:
+
+      levels white     255 -> 205   (LevelsWhite: where the whitecard greys clip to paper white)
+      levels black       0 -> 0     (LevelsBlack)
+      levels gamma     1.0 -> 1.0   (LevelsGamma)
+      sharpen opacity    0 -> 1.0   (SharpenOpacity)
+
+- At 100 every one of them is exactly where it was, so no baked sheet, no stored snapshot and no
+  PDF changes by a pixel. The default is 100 for that reason: nothing moves until someone moves it.
+- At 0 the levels are the identity remap and the sharpen has nothing to add, so BOTH PASSES ARE
+  SKIPPED rather than run with no-op numbers - cheaper, and provably identical to not running them.
+
+**The trap that nearly ate the low end**
+- `Na__ImageExport__PostProcessEffects__HighPassSharpen` reads its opacity as
+  `param.…__Opacity || 1.0`. Hand that a 0 and it does not skip the sharpen - it applies it at FULL
+  strength, the exact opposite of what was asked for. The whole pass is skipped at zero, and the
+  sharpen is guarded on `sharpenOpacity > 0` besides. There is a test that walks all 101 integer
+  strengths and asserts the effect is never handed an opacity of zero.
+
+**A percent weight belongs in the raster cache key**
+- `RasterToken` deliberately excludes `factor` weights: a factor thickens the VECTOR drawing over
+  the top and changes not one pixel of the render behind it, so letting it in would re-render a
+  multi-second supersampled underlay every time a line weight was nudged.
+- A percent is the other way round. It is a post pass over the finished raster, so moving it
+  changes every pixel of the stored picture, and leaving it out of the key would hand back the old
+  render - the dial would look broken rather than subtle. It is in, for the 2D underlay and the 3D
+  snapshot alike, and it reaches the pass through the `weights` object both render paths already
+  carry (`enhancePct`, riding alongside `profilePx`, `sectionPx` and `modelEdgePx`).
+
+**Measured on a real drawing, which is the point**
+- RB05 D01, the proposed south-west elevation, 5120 x 1298. Taking only the SHADED pixels - the
+  whitecard faces, not the paper and not the ink - and asking how many of them the pass drives to
+  pure white:
+
+      strength     0%      20%     40%     60%     80%    100%
+      mean       230.5   239.0   242.6   245.0   247.1   249.0
+      blown out    0%    47.4%   71.4%   75.9%   81.4%   84.6%
+
+- THE EFFECT IS ALMOST ALL SPENT BY 40%. Nearly half the shaded surface is already clipped to paper
+  white at a strength of 20, and the last sixty points of the dial add nine. Adam's read that it is
+  "really strong" is exactly right, and it says where the interesting range is: a new standard is
+  going to be found somewhere in 10-40, not near the middle.
+- The default stays 100 all the same. Moving it is Adam's call once he has looked, and it is one
+  number in `Na__LayoutEditor__RenderComposites__Config__.json` when he makes it.
+
+**Files**
+- `25__System__RenderStyles/Na__LayoutEditor__Enhance__.js` (1.1.0) - Apply takes a strength.
+- `25__System__RenderStyles/Na__LayoutEditor__RenderComposites__Config__.json` (1.3.0) - the row.
+- `25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js` (1.2.0) - kind, fallback, token.
+- `25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js` - `enhancePct` on both paths.
+- `20__System__Viewports/Na__LayoutEditor__Viewport2d__Frame__.js` - RasterWeights carries it.
+- `20__System__Viewports/Na__LayoutEditor__Viewport3d__.js` - the same two numbers for a scene.
+- `40__Ui__Panels/Na__LayoutEditor__Panel__Styles__.js` (1.7.0) - the `%` suffix and its hint.
+- `40__Ui__Panels/Na__LayoutEditor__Styles__Panels__.css` - the unit comment, three kinds now.
+- `80__Testing__PrototypeEnvironment/Na__Test__EnhanceWhitecardStrength__.test.mjs` - new, 23 checks.
+
+**Verified**
+- `Na__Test__EnhanceWhitecardStrength__.test.mjs` - 23 checks, all pass. The real module runs under
+  recording stubs, so the arithmetic is asserted rather than eyeballed: both ends, the straight
+  line between them, out-of-range clamping, the zero-opacity trap, and that the shipped config and
+  the built-in fallback agree about the row (different bounds either side of the fetch would clamp
+  a stored value two different ways depending on when the record was read).
+- `Na__Verify__Exports__.mjs` - 397 files, pass.
+- IN THE LIVE APP, RB05 D01, a real sheet (`Sheet_001` / `Viewport_002`): the box reads 100 with a
+  `%` beside it, lined up with the `x` and `px` boxes above; typing 40 stores
+  `Viewport__CompositeWeights: { enhanceWhitecard: 40 }`, reads back 40, lights the reset arrow and
+  moves the raster token to `enhanceWhitecard:40` for both the 2D and the 3D key; the reset arrow
+  puts it back to the config default. R2 writes were blocked at `fetch` throughout and none were
+  attempted. The brightness table above was measured by running the real pass on the real rendered
+  underlay in the live page.
+
+**Not done**
+- NOT SIGNED OFF BY ADAM, and not in ValeVision.
+- The default is still 100. Adam wanted a way to test before setting a standard; this is the way to
+  test, and the standard is his to name.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.92.0  -  20-Sep-2026
+### One Group's Images, Because the Whole Project Is a Long Job on a Massive Model
+
+**Overview**
+- Adam, 20-Sep: "Add a feature to the presentation scene groups. Add a little camera button next
+  to them. Clicking that downloads the images for that selected group. I've already got one that
+  does all of the images for all of the groups and all of the scenes, but it can be really heavy
+  on a massive model. Sometimes you just want to export the scenes in a group as the standard
+  image. Make a pipeline for this, but find the original method. Don't reinvent the wheel."
+- So every group heading in Dev Tools > Presentation Scenes carries a camera. Press it and that
+  group's scenes are exported, one download each, at whatever the Image Export panel is set to -
+  which on an untouched panel is the standard export.
+
+**The original method, and what was built on it**
+- The original is v2.68.0's Download All Images, in two halves. The Scene Editor's driver confirms,
+  opens the progress dialog and summarises; `Na__PmBatch__DownloadAllImages(scenes, progress)` in
+  `DevMenu__BatchOps__` does the walk - restore point, pose-only parking, a paint wait, the Image
+  Export panel's own render and its own download, drawing scenes skipped and counted, Stop
+  honoured between scenes, the live view put back whatever happens.
+- THE WALK ALREADY TOOK A LIST. It never read the project's scenes for itself; the caller hands
+  them over. So "one group" is not a second batch - it is the same batch given a shorter list,
+  and no line of the walk was copied. It gained one optional argument, `{ groupName }`, which
+  reaches the filenames and nothing else.
+- THE DRIVER BECAME ONE FUNCTION WITH TWO DOORS. `Na__PmDev__DownloadAllImages` is now
+  `Na__PmDev__RunImageExport(scope)`: scope is null for the whole project, or
+  `{ groupName, scenes }` for a group. Download All Images and the camera both call it, so the
+  confirmation, the progress dialog with its Stop, the summary and the toast are the same code
+  with the group's name put in. The dialogs also stopped saying "1 images" and "1 separate
+  downloads", which a whole project never showed and a one-scene group would have.
+- `Na__PmDev__GetWorkingScenesInGroup` is now the one definition of "this group's scenes" in the
+  panel: the rows under a heading, the count on it and the images its camera exports all read it,
+  so they cannot disagree. It resolves through the data layer, so a scene pointing at a deleted or
+  switched-off group is exported with the group it is actually shown under.
+- THE GROUP IS READ WHEN THE BUTTON IS PRESSED, not when it was drawn. The button carries an id;
+  the name and the scenes are looked up on the press, so a rename typed a moment ago is the name
+  on the dialog and in the filenames.
+
+**The button**
+- A SIBLING OF THE HEADING, NEVER A CHILD. The heading is itself a button - the fold control -
+  and a button inside a button is invalid markup. The two sit in a new heading row, and a press
+  on the camera cannot fold the group (checked). The focus pass, which used to find the heading
+  as the scenes container's previous sibling, reaches it through the row.
+- THE ROW IS THE STRIP. It carries the fill and the corner the heading used to, and the heading
+  goes transparent inside it, so it reads as one strip with a camera on its end rather than a
+  strip and a second control beside it. Each half still tints on its own hover.
+- IT IS NARROW ON PURPOSE, AND THAT WAS MEASURED, NOT GUESSED. The camera's width comes straight
+  out of the group name's, and the Dev menu is narrow - narrower still with a group unfolded,
+  when the menu shows its scrollbar. The first version (a 30px button beside the strip) cut the
+  DEFAULT name "EXTERIOR 3D VIEWS" short by 1px with the menu at rest and 11px with the scrollbar
+  up. Now: 22px, inside the strip, the heading's right padding given up to it and its inner gaps
+  closed from 8px to 6px. All four default names are whole in the worst case, with 3.3px over.
+  The menu list is drawn at `scale(1.2)`, so a bounding box there reads 1.2x its CSS size.
+- The heading gained hover text - the group's name - because RB05's longer names were already
+  cut short with an ellipsis before today, and the hover is where they can still be read.
+- EVERY GROUP CARRIES ONE, so the headings stay one kind of thing. A group with nothing the walk
+  can visit - empty, or floor plan and elevation scenes only - has it dimmed and disabled, with
+  the reason in its hover text ("No 3D scenes in "Floor Plans" to export"). An ungrouped project
+  has no headings, so it has no cameras; Download All Images is its only door, as before.
+- The glyph is an inline SVG in `currentColor`, as the group bar's grid glyph is. No icon file.
+
+**Filenames**
+- The whole project is unchanged: `PS01__01__Exterior-01__6144x4096.png`.
+- A group puts its name ahead of the ordinal: `PS01__Interior-3D-Views__01__Lounge__6144x4096.png`.
+  A group's ordinals restart at 01, so without the group in the name two groups saved into one
+  folder would interleave - 01 of one, 01 of the other - instead of sorting as two runs.
+
+**Tested** - in the app on `localhost:8823`, a server of this session's own, PS01 (four enabled
+groups: two of 3D scenes, Floor Plans, Elevations). Every non-GET request refused by a fetch guard
+and NONE WAS ATTEMPTED; downloads were caught at the anchor's click and read back rather than
+saved, so nothing was written to disk either.
+- The panel: four cameras, each a sibling of its heading; enabled on the two 3D groups, disabled
+  with its reason on Floor Plans and Elevations; opening the panel still unfolds the active
+  scene's group through the new row.
+- Exterior 3D Views: the dialog reads `Export 3 images from "Exterior 3D Views"?` / Export Group;
+  the progress names each scene, 1 of 3 to 3 of 3; three real PNGs, 6144 x 4096, 2.4 to 3.5 MB,
+  all three different, looked at and right; "3 exported."; the camera position and the model
+  visibility byte-identical to before the run; the fold state untouched by the press.
+- Interior 3D Views, stopped after the first scene: "1 exported, stopped early.", the warning
+  mark, the dialog kept up to be read, the view put back.
+- Download All Images, run whole as the regression check on the refactor: `Export 7 images?`,
+  "5 drawing scene(s) are skipped", seven files in the ORIGINAL naming, the dialog taking itself
+  away, the view put back.
+- `Na__Verify__Exports__.mjs` passes across 393 files.
+- NOT tested: a group holding both 3D and drawing scenes (RB05's Interior 3D - First Floor has
+  four elevation scenes in it). It is the same partition and the same sentence the whole-project
+  run showed for its five, so the dialog will say how many are skipped - but it was not seen.
+
+**The service worker token** was not bumped, on purpose. This release names no new export: the
+Scene Editor imports exactly the names it did, and BatchOps exports exactly the names it did with
+one more optional argument. A warm cache pairing the new Scene Editor with the old BatchOps still
+exports the right images, under the whole-project filenames.
+
+**Not in ValeVision**, and NOT yet tried by Adam.
+
+**Files**
+- `21__System__PresentationMode/`: `DevMenu__BatchOps__` 1.1.0 (the optional `{ groupName }`,
+  `ToFilenamePart`), `DevMenu__SceneEditor` 1.3.0 (`RunImageExport`, `DownloadGroupImages`,
+  `GetWorkingScenesInGroup`, `BuildGroupCameraButton`, `BuildCameraGlyph`, the heading row, the
+  focus pass), `Styles__SceneGroupSelector__.css` (the heading row, the camera).
+  `.claude/launch.json` gains `tv-groupexport`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.91.0  -  20-Sep-2026
+### You Cannot Read the Specification and Tag a Drawing at the Same Time, So the Specification Came to the Drawing
+
+**Overview**
+- Adam, 20-Sep, with a screenshot of RB05's D01 marked up in red - two boxes drawn at the top of
+  the left column, and a long curve from them to the right column's Properties and Scrapbook tabs:
+  "I want to do the same thing on the left-hand side because I want a separate tab that shows me
+  the specification document, but in the menu on the left in a more concise format, where it just
+  literally has the code and the note, so I can see what I'm tagging. In the drawings, quite often
+  I'll forget what the codes are, and because you can't have two separate tabs open at the same
+  time, it's hard to match things up on really complicated jobs."
+- And then the better idea, in the same breath: "Better still, it should show the codes in an
+  annotation bubble, like a detail bubble. You can drag that bubble straight onto your drawing,
+  and then it creates one of the annotations with the correct code... This is like being able to
+  create a dynamic scrapbook of all of the specification items."
+- So two things: the left column has two tabs like the right one, and the second holds a FOURTH
+  scrapbook library whose items are not written anywhere - they are the project's own notes.
+
+**The left column has two tabs**
+- DOCUMENT PREFERENCES and SPECIFICATION. Everything the column held - Sheet, Margin Notes,
+  Drawing Layers, Render Composites, Site Plan Render Composites, Model Layers - is on the first,
+  untouched, and it is the tab that is up until the other is chosen. The choice is remembered per
+  column, as the right column's is.
+- NOT A NEW TAB STRIP. The panel host's `RegisterTab` has taken a side since the day it was
+  written for the Scrapbook tab; nobody had called it with 'left'. The strip, its stylesheet and
+  its memory are the right column's, so the four tabs are one kind of thing: same two greys, same
+  weights, same join to the column. Measured in the app, not assumed.
+- ALL FOUR TABS NOW CARRY HOVER TEXT (`spec.hint` on the host). At the column's default 250 px
+  "Document Preferences" is cut short with an ellipsis and the hover text is where it can still
+  be read; at the ~360 px Adam keeps the column at, both titles are whole. I tried letting the
+  tabs size from their own width instead of equal halves, measured it, and it cut BOTH titles
+  where equal halves cut one - reverted, and the panels stylesheet is byte-identical to before.
+  The title is one label (`PanelTabDocument`) if a shorter word is wanted.
+
+**The Specification Scrapbook** - `51__System__LayoutEditor/58__Feature__ScrapbookSpecification/`
+- ONE ROW PER NOTE, every row alike: the note's code in its bubble, its title, its text. Headed
+  by group (`EX - EXISTING CONDITIONS`), in the specification's own order. The bubble is drawn by
+  the sheet's own markup builder from the record that would land, so it is not a picture of a
+  bubble - it IS the bubble, at a fraction of its paper size.
+- THERE IS NO LIBRARY FILE. The rows are read from `TrueVision__DrawingNotes__.json` through
+  `Na__LayoutEditor__SpecData__`, which the editor has already loaded by the time a sheet is up.
+  A note added, renamed, moved or deleted on the Project Specification tab is added, renamed,
+  renumbered or removed here by the specification's own change event. Nothing about a note is
+  stored in the scrapbook, so nothing can go stale.
+- THE TEXT IS CUT SHORT after three lines (`List__BodyClampLines`); the whole note is always in
+  the row's tooltip, and Show full notes - remembered - lists every note in full.
+- A FILTER, once the specification has six notes or more. A code (`RF02`), a prefix (`RF`), or
+  words of three letters or more, all of which must be found. THE LENGTH RULE WAS FOUND BY USING
+  IT: every prefix is two letters, and "rf" is inside "surface" and "interface", "ex" inside
+  "existing" and "extension" - matched against the text, a prefix found most of the list instead
+  of its own group. A short word is now read as the start of a code and nothing else. Escape
+  clears it.
+- IT SAYS WHAT IS ALREADY TAGGED. A note with bubbles on the active sheet carries a quiet `×2`
+  beside its title - grey text, no colour, no badge - and the tooltip says it in words. Kept in
+  step as bubbles are placed, deleted, linked, unlinked, undone and redone. The sheet model
+  announces those under reasons the mode controller routes to the Leaders panel alone, so the
+  section listens for itself.
+
+**Dragging a bubble onto the sheet**
+- A ROW IS A SCRAPBOOK TILE, dragged by `Na__LayoutEditor__Scrapbook__TileDrag__` - the one drag
+  every library shares. Press and drag: the bubble follows the pointer at the size it will land
+  at, faint off the sheet and clear over it. Let go over the sheet and it lands. Escape, or
+  letting go anywhere else, drops nothing. Double-click a row, or Enter on it, places one in the
+  middle of the view.
+- WHAT LANDS IS AN ORDINARY SPECIFICATION BUBBLE - the leader record the Leader tool places, type
+  `bubble`, its text the code - carrying `Leader__SpecNoteId` from birth. So it is renumbered
+  with its note, listed in the sheet's notes margin and counted in the specification's usage like
+  a bubble linked by hand. Nothing downstream can tell the two apart because there is nothing to
+  tell. It goes through the item clipboard's `InsertSet`, the one door every scrapbook drop
+  uses: one undo step, the leader selected, on the sheet's text layer.
+- IT LOOKS LIKE THE NEXT BUBBLE THE LEADER TOOL WOULD PLACE: built from the Leaders panel's
+  settings for new leaders. Only the type is forced - a bubble, even while the panel is set to
+  place notes. Change the bubble size on the panel and the rows redraw at the next refresh.
+- THE BUBBLE IS WHAT IS DRAGGED, SO THE BUBBLE IS WHAT IS PLACED. A set's origin and size are the
+  box a drop is centred on and kept on the paper by. Here they are the bubble's own square, not
+  the leader's whole box, so the circle lands centred under the pointer - to 0.0000 mm, measured
+  - exactly where its ghost was. The tile and the ghost draw the bubble BARE, with no line and no
+  endpoint, because which way the tail runs is not known until the bubble is let go.
+- THE TAIL. A leader marks a point, and a drop only says where the bubble goes. The tip is given
+  a short tail (14 mm along, 9 mm up or down, both in the config) AIMED AT THE MIDDLE OF THE
+  DRAWING the bubble was dropped on or nearest to: a bubble dropped to the right of a plan
+  points left into it, one dropped above it points down. A sheet with no drawing aims at the
+  middle of the paper, which at least keeps the tip on it. Then it is Adam's: "connect it up
+  like you normally would" - the Select tool is up and the leader is selected, so its square tip
+  grip is there to drag onto what the note describes, snapping as a tip always has.
+
+**Tested** - in the app on `localhost:8794`, a server of this session's own, every non-GET
+request refused by a fetch guard installed before the editor was entered. NO WRITE WAS ATTEMPTED
+in the whole session, and both projects' real sheets were byte-identical afterwards.
+- PS01, on a scratch copy of D01 - Floor Plans (nine groups, 31 notes, 18 real bubbles):
+  the tabs (two per column, all four identical in font, weight and fill; six sections on the
+  first; the choice remembered over a reload); the list (31 rows, 17 of them marked from the real
+  sheet, SN04 `×2`); the first drop (no ghost under four pixels, faint off the sheet, clear over
+  it, the ghost's centre on the pointer to 0 px, the bubble's centre on the drop point to
+  0.0000 mm, `Leader__SpecNoteId` set, selected, Select up, the count ticked, the left tab still
+  Specification); undo and redo BYTE FOR BYTE against a snapshot taken before the drop, and it
+  is ONE step; the tail rule in five places (left, right, between two drawings, the notes margin,
+  the paper's corner - which is kept on the paper); a drop on the panel and an Escape, both
+  landing nothing and leaving the body's classes clean; double-click and Enter; the filter;
+  Show full notes; the notes margin and the specification's usage both seeing the dropped
+  bubble; the look following the Leaders panel (13 mm, solid, red, unfilled, and still a bubble
+  with the panel set to Note); Open Project Specification and back.
+- The specification changed while the tab was open: a note renamed (the row retitles), moved to
+  the top of its group (EX02 becomes EX01, the rows reorder, the DROPPED BUBBLE READS EX01, the
+  count follows the note), and both undone - the specification identical and not dirty.
+- RB05 - Adam's screenshot's project, whose specification is empty: the section says so in
+  words and offers the Project Specification; a group and a note added in memory arrive as a row
+  on their own; dropped on a sheet with no drawing, the tail aims at the middle of the paper;
+  the note deleted, the row goes and the bubble keeps its last code and reads as broken, as any
+  bubble does. Undone; identical; not dirty.
+- My own harness tripped once: I had zoomed in to photograph the first bubble, so a later drop
+  point was off the visible stage, nothing landed, and I read the PREVIOUS leader's fields as the
+  new one's - which looked exactly like "the drop ignores the panel's settings". Fit first, and
+  assert that something landed before reading what it is.
+
+**The service worker token** was not bumped, on purpose. This release names no new export from a
+module a warm cache holds: the tile drag's `spec.caption` is a field, not an export, and a cache
+still holding the old tile drag shows a row with its code and title instead of a broken one. The
+token on disk (`2026-09-20-8`) is already ahead of the deployed one (`-4`), so whichever commit
+ships next evicts the caches anyway.
+
+**Not done, and offered**
+- The tail could FOLLOW THE POINTER after the drop - let go of the bubble, move to the wall,
+  click - which is one gesture fewer than dragging the tip grip. I built what "connect it up like
+  you normally would" says; the other is an hour if it is wanted.
+- Not in ValeVision. Nothing here is app-specific, and ValeVision holds both halves it stands on
+  (the Project Specification and the scrapbook host).
+
+**Files**
+- NEW `58__Feature__ScrapbookSpecification/`: `Na__LayoutEditor__ScrapbookSpecification__.js`
+  (`Na__LeScrapSpec`, the library: Groups, BuildSet, TailFor, Insert, UsageOnSheet),
+  `Na__LayoutEditor__Panel__ScrapbookSpecification__.js` (`Na__LePanelScrapSpec`, the tab and its
+  section), its config and its stylesheet.
+- `Scrapbook__TileDrag__` 1.1.0 (`spec.caption`), `PanelHost__` 1.5.0 (`spec.hint`),
+  `Panel__Scrapbook__` 1.2.1 (the Scrapbook tab's hover text), `ModeController__` 1.20.0 (one
+  import, the two left tabs, one Register). `.claude/launch.json` gains `tv-specscrap`.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.90.0  -  20-Sep-2026
+### A Hatch Stopped Being a Site Plan Thing and Became Something Any Vector Can Have
+
+**Overview**
+- Adam: "Continue implementing the hatch feature into an extension of the vector editor so we
+  can have hatches. It will draw over the top of the fill on our vector system we've already
+  built, but under the line work of the vector... 1. fill 2. hatch pattern 3. line work."
+- Plus 1:5000, and a per-layer way to switch a site plan wash off.
+
+**Hatches on vector shapes**
+- `Shape__Hatch` is `{ Hatch__PatternKey, Hatch__Scale, Hatch__RotationDeg }` and, optionally,
+  `Hatch__Colour`. Kept ONLY when a pattern is named, so every shape drawn before hatches
+  existed stays byte-identical on save.
+- The Vectors panel gains a Hatch block, last, under the gradient. Default OFF. Ticking it
+  opens Pattern / Pattern scale / Pattern deg and moves nothing above it; ticking it with
+  nothing chosen picks the first pattern in the library, because an empty dropdown under a
+  ticked box reads as broken. Enter commits without waiting for blur, as the site plan panel
+  now does.
+- THE DECK ORDER IS THE POINT and it is asserted on the markup the chrome actually writes:
+  solid fill, then the gradient if there is one, then the hatch over both, then the outline -
+  and the outline rides on the HATCH path, so nothing under it can paint over it. Both painters
+  stack it the same way; the PDF does it in passes exactly as it already did for a gradient.
+- A hatch with no fill under it is a real drawing and paints. A shape whose pattern the library
+  has not got keeps its fill and its outline unchanged rather than blanking. Two hatched shapes
+  on one sheet get their own `<pattern>` definitions at their own scales - share an id and the
+  first definition wins for both, which reads as the panel being ignored.
+- Sheet markup is PAPER millimetres, so no denominator: an 18 mm tile is 18 units and prints
+  the same size however the sheet's viewports are scaled. A site plan viewport draws in drawing
+  millimetres and passes its denominator, which is why the same tile holds its paper size there
+  too.
+- A hatched shape is solid for hit testing - you can click its middle - and the eyedropper
+  carries a hatch like any other style trait.
+
+**One stamper, two callers**
+- The tile stamping the site plan PDF path grew last release moved into the hatch module as
+  `Na__LeHatch__DrawPdf`, beside a new `Na__LeHatch__SvgPaint`. The pair mirror the gradient
+  tool's two painters exactly. The site plan exporter now converts a ring to paper and calls
+  the same code a drawn rectangle does, so a hatch prints identically whichever it came from.
+
+**1:5000**
+- Adam: "some location plans need to be that big for massive sites." On the site plan scale
+  list and in the Tags SSOT's documentation copy. It is coarser than 1:500, so it resolves to a
+  location plan on its own - and the Plan type dropdown overrides that, which is the whole
+  reason that dropdown is stored rather than inferred.
+
+**Per-layer "do not fill"**
+- Adam: "add a do not fill option here as well, so you can selectively turn off the fill if you
+  don't want it on certain elements." A Fill checkbox in the Patterns panel, under Pattern.
+- A SEPARATE CONTROL, NOT AN ENTRY IN THE PATTERN LIST, because the two compose: a hatch over
+  bare paper is an ordinary drafting look and folding both into one dropdown would make it
+  unreachable. The pattern list's first entry is now "None - no pattern" rather than "None -
+  plain fill", which would have contradicted the checkbox beside it.
+- `Hatch__Filled` is stored only when false, and it is in the hatch token - so switching it
+  repaints, rather than saving correctly and drawing nothing until a reload.
+
+**Verified**
+- `Na__Test__SitePlanComposites__.test.mjs` is now 67 checks. The new twelve drive the real
+  `Na__LeShapeGeo__Push` into the real `Na__LeChrome__ToSvgMarkup`.
+- The harness's import stripper was letting one import through - the one with a trailing
+  `// <--` note - which meant that module would have run against the real file instead of the
+  stub and passed by luck. Fixed.
+- Site plan store 27/27, named exports 390 files, module graph, Ruby 26 files.
+- `Na__Test__SitePlanComposites__Output__.html` gains a vector-hatch row: fill only, fill +
+  hatch + outline, hatch with no fill, and a turned half-scale tile.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.89.0  -  20-Sep-2026
+### A Site Plan Is Two Different Drawings, and the Panel That Tuned Them Was Writing to a Record Nobody Read Back
+
+**Overview**
+- Three things, and the third is the one that made the other two look broken.
+- TASK 06: a site plan viewport is a BLOCK PLAN or a LOCATION PLAN and the two have to draw
+  differently. There is now a Plan type dropdown on the Viewport panel, under Site Plan, and a
+  Site Plan Render Composites section in the left column beside the existing one.
+- The Patterns panel saved everything it was told and drew none of it until the page was
+  reloaded. Adam: "the menu doesn't seem to work in real time... you should enter a value, hit
+  Enter, and then it should regenerate that particular pattern in the selected viewport."
+
+**The subtype**
+- `Viewport__SitePlan.SitePlan__PlanType` is `block`, `location`, or absent for Automatic, which
+  follows the scale: 1:500 or finer is a block plan and anything coarser is a location plan.
+- STORED, NOT INFERRED, and that is the point. Adam: "Sometimes I will want to set whether it's
+  a block plan or a location plan to override if I've got a big site plan, like on this massive
+  job I've got here. By selecting block plan, even at huge scale, it should turn the pattern
+  vectors on." Before this there was no way to get patterns onto a 1:1250 drawing at all.
+- A LOCATION PLAN draws only the proposal fills, no patterns at all, and converts every line
+  that is not a boundary or a proposal to its own greyscale value. Greyscale by Rec. 709
+  luminance rather than to a flat grey, so the OS base map greys come through byte-identical
+  and only the woodland green and the water blue actually move.
+- The Automatic entry names what it resolved to - "Automatic - Block Plan" - and is rebuilt on
+  every refresh, so changing the scale changes the wording of the option already selected.
+- Two places still carried their own `>= 1000` threshold (naming a new viewport, and the Add
+  dropdown). Both now read the one rule, which is a number in the config, not a literal in code.
+
+**Site Plan Render Composites**
+- Left column, directly under Render Composites and hidden entirely off a site plan sheet.
+  Three checkboxes - Solid Fills, Hatch Patterns, Linework - built from
+  `Na__LayoutEditor__SitePlanComposites__Config__.json`, so adding a deck is a config edit.
+- Switching Linework off still builds the classes: they are the snap source as well as the
+  drawing, and a face you can see but cannot snap to is a worse surprise than a hidden line.
+- A location plan overrules the pattern switch, and the panel says so in a note rather than
+  leaving a checkbox that appears not to work.
+
+**The Patterns panel drew nothing until a reload**
+- `Na__LeVp2d__FillSitePlan` keeps the key its picture was painted from and, when the key has
+  not moved, resizes the SVG it already has. The site plan paint key read the store, the export
+  time, the model layers, the scale, the sheet master and the edge styles - and NOT the hatch
+  block. So a typed scale reached the record, the sheet announced the change, the frame compared
+  its key, found it identical and did nothing. The comment above the panel's patch function
+  actually claimed the opposite, which is why it survived a review.
+- `Na__LeHatch__Token` now names a viewport's pattern, scale and rotation overrides, and it goes
+  in the PAINT key only - deliberately not in the token that also keys the band path cache. A
+  hatch edit changes the `<defs>` and nothing else; putting it in the token would have repainted
+  correctly and re-serialised a hundred thousand OS segments for every keystroke.
+- Enter now commits without waiting for the field to lose focus.
+
+**The Z-order finally reaches the paint**
+- `Na__LeVp2d__StyleBands` takes the site plan rules and, when it has them, orders the bands
+  inside a class by the layer's 1-10 line Z-index with the stroke width only breaking a tie. A
+  site plan's hierarchy is what a layer MEANS, so a hairline boundary belongs over a heavy road.
+  The Z is part of the bucket key too, or two layers that happen to agree on colour and weight
+  would merge into one band and lose their stacking.
+- `Weight__Max` 6.00 -> 10.00. A weight factor is a width divided by the sheet master, so the
+  heaviest thing the SSOT asks for - the 2.00 pt proposed building outline - needed 6.67 at the
+  0.30 pt master this project draws at and was silently clamped. Every site plan line over
+  0.635 mm printed at 0.635 mm: the red boundary, the existing buildings and the proposals all
+  flattened to one weight. That is most of why the drawing read without a hierarchy.
+
+**The PDF gets the pattern deck**
+- jsPDF has no tiling primitive, so `Na__LeHatch__TilePolylines` flattens a tile's glyph paths
+  (M/L/H/V/C/S/Z, absolute or relative) to point lists once, and the exporter stamps them
+  clipped to each ring and rotated about the drawing origin exactly as `patternTransform`
+  rotates the screen's field. Vector, not a raster - and a tile cap with a warning rather than
+  an export that hangs on a huge area at a fine scale.
+
+**SSOT**
+- New tag `71__SitePlan__BaseMap__OsMapping__MajorFeature`: the dark grey the roads use, at
+  0.75 pt, between the 0.5 pt minor feature and the 1.0 pt main roads, so the base map has a
+  hierarchy of its own instead of one flat grey.
+- New field `SitePlan__LineDashScale`, set to 0.5 on Proposed Alterations. Adam: "the line could
+  be mistaken as a solid line in certain sections... I'm not talking about the line thickness.
+  I'm talking about the line dash space scaling needs to be smaller." A 2.5/1.5 mm dash is right
+  on a 1:50 plan and closes up on a site plan; this shrinks the pattern for one tag and leaves
+  every other dashed line in both apps alone. It survives a hand-picked line type, because it
+  belongs to the layer and not to the type.
+- `SupportedScaleDenominators` was still [500, 1250] while the app offered five scales.
+
+**Verified**
+- `Na__Test__SitePlanComposites__.test.mjs`, 55 checks against the shipped modules and the
+  shipped config, including the repaint guard driven through the real `FillSitePlan`: a typed
+  hatch scale repaints, an idle call does not, and the band path cache is still hit.
+- The test writes `Na__Test__SitePlanComposites__Output__.html` - every picture in it comes out
+  of the real painter.
+- Site plan store 27/27, named exports 389 files, module graph, Ruby 26 files.
+
+**Not done, and Adam knows**
+- The Vectors panel toggle that would let a drawn shape carry a hatch, the way LayOut does.
+  Held back at Adam's request until he has tested the real-time fix.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.88.0  -  20-Sep-2026
+### The Site Address Was Only Ever Written Down in a Quotation, and Not Every Job Has One
+
+**Overview**
+- Adam, on RB05 West Farm: the Project Manager table shows the site as `123 Example Street,
+  Nottingham, NG1 1AA` - the example address the project structure was cloned from - and the Layout
+  Editor's title block has nothing at all. "This is kind of a weird edge case job where I'm just
+  working for them on an hourly rate, and it's not even their house. The site is somewhere
+  different."
+- Two separate things, one cause. The real site is West Beacon Farm, Deans Lane, Woodhouse Eaves,
+  Loughborough, Leicestershire, LE12 8TE, and nothing in the project said so.
+
+**The data**
+- `RB05__WestFarm/20__PlanVision__AppContent/PlanVision__ProjectData__.json` -> `project-address`
+  now carries the real site address. That one field is what the Project Manager's Address column
+  was printing: the manager reads the quotation first and PlanVision second
+  (`ProjectVision__DevLauncher__Shared__.py`, `admin['address'] or plans['address']`), and RB05's
+  quotation has the address blank, so the example text was showing through. Nothing Python changed,
+  so a Refresh on the manager is enough - no server restart.
+
+**The fallback**
+- `Na__LayoutEditor__ProjectRecord__` read the site address from the quotation and nowhere else. An
+  hourly-rate appointment produces no quotation, so on this job it resolved to an empty string and
+  the title block seeded blank. It now falls back to PlanVision's `project-address`, which is the
+  same fact written when the drawing portal was set up.
+- The order is the ProjectVision manager's order, deliberately: quotation first, PlanVision second.
+  A title block and that table now agree about what a project's address is, instead of each having
+  its own idea.
+- The fallback fires on a BLANK address, not merely a missing file. RB05 does have a
+  `ProjectAdmin__Quotation__.json`; its `projectAddress` is `""`. A test that only covered "no
+  quotation file" would have passed while the real case still failed.
+- `Na__CfApi__PlansFileLocation` is the new read-only, allow-list-by-name location helper for the
+  project's `20__PlanVision__AppContent` folder, on the same terms as the admin one. Unlike the
+  admin folder this one IS pushed to R2 by the model sync, so its CDN URL is a real second chance
+  rather than a courtesy.
+- The client name is untouched. PlanVision's project data has a `client-name` beside the address,
+  but on a cloned project structure it still reads "Example Client", and a title block that prints
+  that is worse than one that prints nothing. The drawing name stays the admin record's alone.
+
+**The cache token**
+- `PWA_SW_VERSION_TOKEN` -> `2026-09-20-5`. This release adds an export AND imports it by name in
+  the same commit, which is the case the worker's own rule of thumb said was safe and is not: a
+  warm client can serve the new `ProjectRecord` beside the cached old `ApiClient`, and a named
+  import that is not there is a hard SyntaxError that takes the whole module graph down. The note
+  in the worker has been corrected to say so.
+
+**Proved**
+- `80__Testing__PrototypeEnvironment/Na__Test__ProjectRecordAddress__.html`: the real module over
+  HTTP against the real portal files, both cases passing. PS01 (quotation carries an address) still
+  resolves from `ProjectAdmin__Quotations__.json` and never touches PlanVision; RB05 walks config ->
+  Quotations (404) -> Quotation (200, blank) -> PlanVision, and resolves West Beacon Farm. The
+  network log was read to confirm the order rather than inferred from the answer.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.87.0  -  20-Sep-2026
 ### A Plan Knew How High It Was Cut and Not Which Floor That Was
 

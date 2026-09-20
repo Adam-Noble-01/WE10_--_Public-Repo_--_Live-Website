@@ -96,9 +96,19 @@
         "ProjectedLinework__Annotation__CategoryTokensNote": "Matched case-insensitively as substrings of the model group name, the same way the exclusion tokens are. Turning Enabled off drops annotation linework back to being clipped and cut like every other authored edge; it never hides it."
     },
 
+    "ProjectedLinework__LineworkModifiers__Config": {
+        "ProjectedLinework__LineworkModifiers__Description": "Nested SketchUp tags (the SSOT's 76-79 range) that ride inside a parent category's GLB rather than exporting to one of their own - the GlbBuilder gives a nested tag its own mesh node name ('OwnTagName::MaterialName') without moving the geometry out of the parent's file. A mesh whose own node name's first '::'-delimited segment matches one of the TagName values below is drawn under the paired OwnerKey instead of inheriting its parent category's style, so a detail nested inside ANY category group (Walls, Roofs, Floors, Windows, Doors - a cupola's louvres inside a Roofs group works exactly the same as a cill inside a Walls group) can read lighter than what it sits on while staying on exactly the same toggle, storey and GLB as its host. This match is purely by the modifier tag's own name; the parent's tag is never inspected. Exact match against the tag name, not a substring. OwnerKey rows are styled in Na__LayoutEditor__ModelLayers__Config__.json under the 'linework-modifiers' group.",
+        "ProjectedLinework__LineworkModifiers__Tags": [
+            { "TagName": "76__LineworkModifier__FineDetail__Walls",                  "OwnerKey": "TrueVision__LineworkModifier__FineDetail" },
+            { "TagName": "77__LineworkModifier__FineDetail__WindowsAndJoinery",      "OwnerKey": "TrueVision__LineworkModifier__FineDetail" },
+            { "TagName": "78__LineworkModifier__VeryFineDetail__Walls",             "OwnerKey": "TrueVision__LineworkModifier__VeryFineDetail" },
+            { "TagName": "79__LineworkModifier__VeryFineDetail__WindowsAndJoinery", "OwnerKey": "TrueVision__LineworkModifier__VeryFineDetail" }
+        ]
+    },
+
     "ProjectedLinework__Model__Config": {
         "ProjectedLinework__Model__Description": "BuildToken is folded into every fingerprint. Bump it whenever the way the model is sampled changes (a new helper skipped, glass treated differently, the cut clipping corrected, the edge rule switched) so every baked asset reads as belonging to an older sampling and is re-rendered rather than restored. Transparent materials draw their own edges but never hide what is behind them, unless the drawing's Glass Transparency Off style is on, in which case they occlude like walls.",
-        "ProjectedLinework__Model__BuildToken": "2026-09-18-linetype-annotation",
+        "ProjectedLinework__Model__BuildToken": "2026-09-20-linework-modifiers",
         "ProjectedLinework__Model__TransparentOccludes": false,
         "ProjectedLinework__Model__TransparentOpacityBelow": 0.999
     },

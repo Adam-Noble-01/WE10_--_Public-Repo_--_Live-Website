@@ -57,10 +57,16 @@
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, adapted: one drawing
 //                   type there. The four hooks it needed were ported with it.
+// - Ahead of it   : 1.3.0 (the slide grip point) is TrueVision only.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.3.0
+// - HandlesOf passes a type's slide point through with the rest. A type that
+//   has no such grip simply has no slide, exactly as one with no scale to
+//   look up has no lookup, so nothing else here had to learn what it is for.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - For the Drawing Title. SetTools: build and handles are handed a tools
 //   object (measureTextMm). ResetToStandard takes options.patch, so a change
@@ -213,8 +219,13 @@
     //     build(params, tools)        { records : [{ kind, record }] } from an
     //                                 origin of (0, 0), the first record a
     //                                 vector whose first point IS (0, 0)
-    //     handles(params)             { stretch, lookup } as { x, y } from the origin
+    //     handles(params)             { stretch, lookup, slide, link } as
+    //                                 { x, y, away } from the origin; any of
+    //                                 them null for a type that has no such grip
     //     stretchTo(params, xMm, yMm) the parameters a stretch grip at that point gives
+    //     slideTo(params, xMm, exact) the parameters a slide grip at that point
+    //                                 gives; exact says the point was snapped
+    //                                 (optional - only a type with a slide grip)
     //     describe(params)            { real, paper } for the panel's length line
     // }
     // ------------------------------------------------------------
@@ -433,9 +444,9 @@
 
     // FUNCTION | Where an Element's Grips Are on the Paper
     // ------------------------------------------------------------
-    // { anchor, stretch, lookup, link, params, type } in paper millimetres -
-    // every point the type gives, by the name it gives it; null for a plain
-    // group, or a type that has no grips.
+    // { anchor, stretch, lookup, slide, link, params, type } in paper
+    // millimetres - every point the type gives, by the name it gives it;
+    // null for a plain group, or a type that has no grips.
     // ------------------------------------------------------------
     function Na__LeParam__HandlesOf(sheet, groupId) {
         const block  = Na__LeParam__GetBlockById(sheet, groupId);
@@ -447,7 +458,7 @@
         const handles = definition.handles(params, Na__LeParam__Tools);
         if (!handles) return null;
         const place = (point) => (point ? { x : anchor.x + point.x, y : anchor.y + point.y, away : Array.isArray(point.away) ? point.away : [ 0, 0 ] } : null);   // <-- away: the way the grip stands clear of its point
-        return { anchor : anchor, stretch : place(handles.stretch), lookup : place(handles.lookup), link : place(handles.link), params : params, type : block.Parametric__Type };
+        return { anchor : anchor, stretch : place(handles.stretch), lookup : place(handles.lookup), slide : place(handles.slide), link : place(handles.link), params : params, type : block.Parametric__Type };
     }
     // ------------------------------------------------------------
 

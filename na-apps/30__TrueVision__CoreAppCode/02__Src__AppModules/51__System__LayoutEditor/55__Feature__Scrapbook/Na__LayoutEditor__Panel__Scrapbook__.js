@@ -36,6 +36,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.2.1
+// - The Scrapbook tab carries hover text (the panel host's spec.hint), as the
+//   other three column tabs now do, so no tab is marked out from its peers.
+//
 // 19-Sep-2026 - Version 1.2.0
 // - The section moves from the left column to a Scrapbook tab at the top of
 //   the right one, which Adam asked for, beside the Parametric and Custom
@@ -210,8 +214,9 @@
     // has been read.
     // ------------------------------------------------------------
     function Na__LePanelScrap__RegisterTab() {
-        const tab = Na__LePanels__RegisterTab('right', { id : Na__LeScrap__TAB_ID, title : Na__LeScrap__Label('Title', 'Scrapbook') });
-        if (tab) Na__LeScrap__Ready().then(() => { tab.button.textContent = Na__LeScrap__Label('Title', 'Scrapbook'); });
+        const hint = () => Na__LeScrap__Label('TabHint', 'Ready-made, dynamic and saved items to drag onto the sheet.');
+        const tab  = Na__LePanels__RegisterTab('right', { id : Na__LeScrap__TAB_ID, title : Na__LeScrap__Label('Title', 'Scrapbook'), hint : hint() });
+        if (tab) Na__LeScrap__Ready().then(() => { tab.button.textContent = Na__LeScrap__Label('Title', 'Scrapbook'); tab.button.title = hint(); });
         return tab;
     }
     // ------------------------------------------------------------

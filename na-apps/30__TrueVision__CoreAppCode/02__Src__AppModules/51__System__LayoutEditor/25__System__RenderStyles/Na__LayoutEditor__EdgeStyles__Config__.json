@@ -41,9 +41,9 @@
     ],
 
     "LayoutEditor__EdgeStyles__Weight": {
-        "Weight__Description" : "Bounds for a per-category weight factor. 1.0 is the sheet's master viewport lineweight exactly; 0.5 is half of it. The ceiling is 6.00 so a 0.50 mm site plan red line (4.72 at the 0.30 pt master) prints true.",
+        "Weight__Description" : "Bounds for a per-category weight factor. 1.0 is the sheet's master viewport lineweight exactly; 0.5 is half of it. THE CEILING IS 10.00 AND IT HAS TO BE. A factor is a width divided by the master, so the heaviest thing the site plan SSOT asks for - the 0.706 mm (2.00 pt) proposed building outline - needs 6.67 at the 0.30 pt master this project draws at, and 8.00 if the master ever goes to 0.25 pt. At the old ceiling of 6.00 it was silently clamped, and every site plan line heavier than 0.635 mm printed at 0.635 mm: the red boundary, the existing buildings and the proposals all flattened to one weight, which is most of why the drawing read without a hierarchy. 10.00 clears the whole SSOT with room over.",
         "Weight__Min"         : 0.10,
-        "Weight__Max"         : 6.00,
+        "Weight__Max"         : 10.00,
         "Weight__Step"        : 0.05,
         "Weight__Decimals"    : 2,
         "Weight__Default"     : 1.00

@@ -4,6 +4,8 @@
 **Opened:** 19-Sep-2026  -  **Author:** Adam Noble - Noble Architecture
 **Status:** Phases 0 to 4c built and tested by Claude; awaiting Adam's sign-off in his own browser.
 Section 9 is the live ledger; section 10 audits the original brief against what exists.
+Section 12 (20-Sep-2026, v2.91.0) is a fourth library, the Specification Scrapbook, on a new
+Specification tab in the LEFT column - built and tested by Claude, not yet tried by Adam.
 
 Adam's brief (19-Sep-2026): "I need a way to be able to save and insert common elements, but we
 need two versions in the main drawings: a custom scrapbook, and a parametric element scrapbook.
@@ -57,8 +59,9 @@ Five facts the design rests on, each checked in the code or proved in the app:
 | Standard | `55__Feature__Scrapbook` | Pieces in a config JSON | A developer, in the repo |
 | Custom | `56__Feature__ScrapbookCustom` | One JSON file each, in the user content folder | Adam, from a selection on a sheet |
 | Parametric | `57__Feature__ScrapbookParametric` | Scripted generators with parameters | A developer, one module per element |
+| Specification | `58__Feature__ScrapbookSpecification` | The project's own specification notes, one bubble each | Nobody: read live from the drawing notes file (section 12) |
 
-All three drop through `Na__LeClip__InsertSet`, so whatever lands is ordinary sheet records: it
+All of them drop through `Na__LeClip__InsertSet`, so whatever lands is ordinary sheet records: it
 moves, copies, prints, exports, ungroups and undoes like anything drawn by hand. **No new record
 kind is introduced.** That was the deciding trade: a new `Sheet__Parametrics` collection would
 have needed a hand in the markup bridge, hit resolution, selection, the move tool, the
@@ -94,6 +97,12 @@ the same again in ValeVision.
         Na__LayoutEditor__ScrapbookParametric__Config__.json
         Na__LayoutEditor__Panel__ScrapbookParametric__.js      Na__LePanelParam  the library section and the properties section
         Na__LayoutEditor__Styles__ScrapbookParametric__.css
+
+    58__Feature__ScrapbookSpecification/                     NEW 20-Sep-2026 (section 12)
+        Na__LayoutEditor__ScrapbookSpecification__.js          Na__LeScrapSpec      the library: the notes by group, a note's bubble, the tail, the drop
+        Na__LayoutEditor__Panel__ScrapbookSpecification__.js   Na__LePanelScrapSpec the LEFT column's Specification tab and its one section
+        Na__LayoutEditor__ScrapbookSpecification__Config__.json
+        Na__LayoutEditor__Styles__ScrapbookSpecification__.css
 
 30__TrueVision__CoreAppCode/
     51__LayoutEditor__UserScrapbookContent/                  THE LOCAL REPOSITORY (Adam made it)
@@ -353,6 +362,7 @@ first so it is theirs by default. The left column is back to the sheet and its l
 | 20-Sep-2026 | PORTED TO VALEVISION the same day, as VV v2.67.0 (north and viewport identity), v2.68.0 (the tab, the host, the Parametric Scrapbook with the noodle and its plug) and v2.69.0 (the Custom Scrapbook and a save route on Whitecardopedia's `server.py`). Scripted, anchored, all-or-nothing patches; every module marked verbatim proved byte-identical from its first code region down. What ValeVision does NOT get, and why, is in its DEVLOG and parity ledger: no phases (one model per project, so Existing / Proposed is chosen per title), no site plans, an EMPTY Standard library (the items here are Noble Architecture's own), no Show Compass (no `Na__InteractiveOverlays` there). ValeVision's clipboard also had to learn to land a dimension (`InsertDimension`, a dimension leaf in `InsertLeaves`) - copy there is unchanged. Tested in ValeVision: Node 23 + 27 + 35 + 39, the API 25, and in the app on a scratch copy of project 3047's sheet through a test server of its own; real sheet byte-identical, nothing written. ITS SHARED SERVICE WORKER TOKEN IS ADAM'S CALL and was not bumped. |
 | 20-Sep-2026 | TWO FAULTS FOUND BY THE VALEVISION TEST. (1) ValeVision only: the north compass was rendered into a sheet's 3D viewport - the mode controller collapses every dev panel by class before it announces a sheet, so a listener that first asked "is my panel open?" always heard no. TrueVision is safe because its compass is an interactive overlay. (2) BOTH APPS: the plug's dot stayed at the far end of a noodle that was no longer there for the length of a drag; it is a grip element, not part of the noodle's drawing. Now hidden while either end is carried (4.6). `LinkNoodle__` stays 1.2.0 - it had not shipped. |
 | 20-Sep-2026 | OTHER SESSIONS MOVED THIS SYSTEM ON THE SAME MORNING, in work Adam has not yet tried: v2.86.0 rebuilt the Elevations and Floor Plans menus (presets named from north, typed elevation names reaching the title - which closes 11.6's first item) and v2.87.0 made a floor plan's storey a sixth fact (11.8, written by that session). ValeVision holds the five modules as they were before both. |
+| 20-Sep-2026 | A FOURTH LIBRARY, v2.91.0: the Specification Scrapbook, and tabs for the LEFT column (section 12). Adam asked for a concise specification beside the sheet, then in the same message for the codes as bubbles to drag on. Built in `58__Feature__ScrapbookSpecification`; the shared host gained one field (`spec.caption`) and the panel host one (`spec.hint`), no new export. In-app on scratch copies of PS01 D01 and RB05 D01, fetch guarded: tabs, list, drop (bubble centre on the drop point to 0.0000 mm), undo AND redo byte for byte and ONE step, the tail rule in five places, Escape, double-click, Enter, filter, full notes, the look following the Leaders panel, the list following a rename, a renumber and a delete, the empty specification. Real sheets byte-identical; no write attempted. NOT yet tried by Adam; NOT in ValeVision. |
 | 19-Sep-2026 | NOT YET DONE: Adam's own test in his browser through the real 8090 server, which must be RESTARTED first to load the scrapbook routes. |
 
 ---------------------------------------------------------
@@ -536,3 +546,81 @@ text test 48 checks (was 27), drawing title 45 (was 39). Open: unnamed PLAN view
 by their record in the panels and toasts (the namer only names elevations) - offered to Adam, not
 built. ValeVision holds the five modules one fact behind (1.0.0 / 1.0.0 / 1.0.0 / 1.2.0 / 1.2.0) and
 has no storey field.
+
+---------------------------------------------------------
+## 12. The Specification Scrapbook, and tabs for the left column (20-Sep-2026, v2.91.0)
+---------------------------------------------------------
+
+Adam: "In the drawings, quite often I'll forget what the codes are, and because you can't have two
+separate tabs open at the same time, it's hard to match things up on really complicated jobs."
+Then: "Better still, it should show the codes in an annotation bubble, like a detail bubble. You
+can drag that bubble straight onto your drawing, and then it creates one of the annotations with
+the correct code... a dynamic scrapbook of all of the specification items."
+
+### 12.1 What it is
+
+- **The left column has two tabs**, Document Preferences and Specification, through the SAME
+  `Na__LePanels__RegisterTab` the right column uses - it has always taken a side. Everything the
+  column held is on the first tab, registered first so it is theirs by default. All four tabs carry
+  hover text (`spec.hint`).
+- **A fourth library with no library file.** Its items are the project's drawing notes
+  (`TrueVision__DrawingNotes__.json`, through `Na__LayoutEditor__SpecData__`), one row per note in
+  the specification's order, headed by group. It listens to the specification's change event, so it
+  cannot go stale, and stores nothing.
+- **A row is a scrapbook tile**, dragged by the shared `TileDrag`. `spec.caption` lets a library
+  fill a tile's caption itself - a row says a title and a paragraph, not one word.
+- **What lands is an ordinary specification bubble** carrying `Leader__SpecNoteId`, through
+  `InsertSet`: one undo step, selected, renumbered with its note, listed in the notes margin.
+
+### 12.2 The three decisions worth keeping
+
+1. **The set's origin and size are the BUBBLE'S square, not the leader's box.** They are what a
+   drop is centred on and kept on the paper by, and it is the bubble that was dragged. The tile
+   and the ghost draw the bubble bare (line weight 0, endpoint 0) because the tail's direction is
+   not known until the drop. The scrapbook stylesheet already gives the ghost's SVG
+   `overflow : visible`, which is why a tail could hang off that box if one were ever wanted.
+2. **The tail aims at the drawing** (`TailFor`): the middle of the viewport the bubble was dropped
+   on or nearest to; the middle of the paper on a sheet with none. Then the tip grip is the
+   user's - the leader lands selected with Select up.
+3. **A filter word under three letters matches the START OF A CODE only.** Every prefix is two
+   letters and sits inside ordinary words (surface, existing); matched against the text, "rf" found
+   seven rows in three groups instead of the five in its own.
+
+### 12.3 Traps
+
+- **The mode controller routes 'leader' and 'leaders' to the Leaders panel alone**, so a section
+  that counts bubbles must listen to the model itself (`COUNT_REASONS`), and include
+  'sheet-updated', which is what an undo or a redo announces.
+- **A tile is `display : flex`**, so the `hidden` attribute does nothing to it until the stylesheet
+  says `[hidden] { display : none }` for that modifier. The filter hides rows that way.
+- **The host's `Input` is disabled with the sheets.** The filter and Show full notes are made by
+  hand: reading the specification is never a thing to switch off.
+- **Testing: Fit before a synthetic drop, and assert something landed.** A drop point off the
+  visible stage lands nothing, and the last leader on the sheet is then the PREVIOUS one - which
+  read exactly like "the drop ignores the panel's settings" for ten minutes.
+- **RB05's specification is empty** (no groups). It is the project in Adam's screenshot, so the
+  first thing he sees there is the empty-state sentence and the Open Project Specification button,
+  not a list. PS01 (31 notes) and PS02 (29) are where the list shows.
+
+### 12.4 Audit of the brief and of every mark on the screenshot
+
+| The brief, or the mark | Where it is |
+|---|---|
+| Red box 1, over the top of the left column | The Document Preferences tab |
+| Red box 2 beside it, with an arrowhead on it | The Specification tab |
+| The long red curve from box 2 across to the right column | "Like those": the left tabs ARE the right column's tab strip, registered by side. Read as a likeness, not as a line to draw - it joins two pieces of UI, not two things on the paper |
+| Two red arrows up at Properties and Scrapbook | The model being pointed at: same strip, same styling, measured identical |
+| "Two tabs on each side... Keep everything now in the first tab" | All six left sections on Document Preferences, untouched; nothing moved between columns |
+| "Document preferences" | Read as the first tab's NAME - Adam to confirm. One label, `PanelTabDocument` |
+| "A separate tab that shows me the specification document... more concise... the code and the note" | One row per note: the code, the title, the text cut to three lines with Show full notes |
+| "Reach into the same data file that the drawings and notes [use]... PS01 or PS02" | `Na__LayoutEditor__SpecData__`: `TrueVision__DrawingNotes__.json` beside the project data |
+| "Give you a breakdown of that" | Rows grouped under the specification's own group headings |
+| "Show the codes in an annotation bubble, like a detail bubble" | Each row's bubble, drawn by the sheet's markup builder from the record that lands |
+| "Drag that bubble straight onto your drawing... creates one of the annotations with the correct code" | The shared tile drag; a leader of type bubble, linked by `Leader__SpecNoteId` |
+| "A dynamic scrapbook of all of the specification items" | No library file; rebuilt from the specification's change event |
+| "Then connect it up like you normally would" | The leader lands selected with its square tip grip up. Read as the existing grip - Adam to confirm; a tail that follows the pointer to a click was offered, not built |
+| "Implement this in a new systems subfolder" | `58__Feature__ScrapbookSpecification` |
+
+Not asked for, added because the brief's own complaint ("hard to match things up on really
+complicated jobs") wanted them, and both can be switched off by not using them: the filter, and the
+quiet count of bubbles already on the sheet.

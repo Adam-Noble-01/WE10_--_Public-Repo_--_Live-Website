@@ -48,6 +48,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0 (Elevation Depth Fog)
+// - The elevation on screen is the one whose depth fog is drawn. Registering
+//   the drawing view hands the fog layer two closures over the live record -
+//   its fog, and its plane - and leaving elevation mode takes them away. The
+//   controller draws nothing itself: the render loop's drawing branch does.
+//
 // 07-Sep-2026 - Version 1.0.0
 // - Initial implementation for the Elevation Drawings build.
 //
@@ -129,6 +135,8 @@
         Na__ElevData__GetAxes,
         Na__ElevData__GetPlaneDistanceMm,
         Na__ElevData__GetViewDepthMm,
+        Na__ElevData__GetDepthFog,
+        Na__ElevData__GetDepthFogPlane,
         Na__ElevData__IsSection,
         Na__ElevData__GetSavedView,
         Na__ElevData__SetSavedView,
@@ -149,6 +157,15 @@
         Na__ElevFrame__BuildApproachScene
     } from './Na__Elevation__Framing__.js';
     import { Na__ElevGizmo__Hide } from './Na__Elevation__PlaneGizmo__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Drawing's Depth Fog Layer
+    // ------------------------------------------------------------
+    // Only told WHOSE fog to draw. The render loop's drawing branch is what
+    // draws it, after the silhouettes and before the cut fills.
+    // @delegate: ../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js
+    // ------------------------------------------------------------
+    import { Na__ElevFog__SetSource } from '../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Markup Config Loading
@@ -444,6 +461,17 @@
             panByPlaneUnits : (du, dv) => Na__ElevCam__PanByPlaneUnits(du, dv),
             zoomByFactor    : Na__ElevCam__ZoomByFactor
         });
+
+        // DEPTH FOG | The drawing on screen is the one whose fog is drawn. Two
+        // closures over the LIVE record, read by the fog layer on every frame,
+        // so a number typed in the Dev menu, a plane dragged in the 3D view and
+        // a draft reverted are all on screen with nothing told to refresh. The
+        // record's fog is off until its author asks, and an off fog costs the
+        // loop one null check.
+        Na__ElevFog__SetSource({
+            getSettings : () => Na__ElevData__GetDepthFog(elevation),
+            getPlane    : () => Na__ElevData__GetDepthFogPlane(elevation)
+        });
     }
     // ------------------------------------------------------------
 
@@ -613,6 +641,7 @@
         Na__ElevMode__StoreFraming(elevation);
         Na__DrawMarkup__Unmount();
         Na__DrawView__ClearActiveView();                                         // <-- 3D owns the viewport again
+        Na__ElevFog__SetSource(null);                                            // <-- And no drawing's fog follows it there
         Na__DrawNav__Detach();
         Na__ElevMode__ResumeThreeDSystems();                                     // <-- Orbit and culling come back before the flight
 

@@ -36,6 +36,9 @@
 //   clean 1..N sequence after every move and saved immediately.
 // - Per-scene actions: Preview (fly there), Update Scene (recapture, behind a
 //   confirmation) and Delete.
+// - Per-group action: a camera button beside each group heading downloads an
+//   image of every scene in that group - Download All Images, cut down to the
+//   one group, for the model where the whole project is too long a job.
 // - Global controls: a square + at the top of the panel and a full-width Add
 //   Scene From Camera below it; Save All To Project; Update All Thumbnails;
 //   Download All Images; Export JSON. Clear All Scenes is kept apart under a
@@ -52,6 +55,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.3.0 (per-group image export)
+// - Each group heading carries a camera button that exports that group's
+//   scenes. It is a sibling of the heading in a new heading row, never a child:
+//   the heading is a button, and a button inside a button is invalid markup.
+//   The focus pass reaches the heading through that row.
+// - Download All Images became Na__PmDev__RunImageExport(scope), which both
+//   buttons call. No second confirmation, progress dialog or walk was written;
+//   the group is the same job over a shorter list.
+//   @delegate: ./Na__PresentationMode__DevMenu__BatchOps__.js
+// - Na__PmDev__GetWorkingScenesInGroup is now the one definition of "this
+//   group's scenes": the rows under a heading, the count on it and the images
+//   its camera exports all read it.
+//
 // 19-Sep-2026 - Version 1.2.0 (Presentation Scenes menu rebuild)
 // - Scene rows fold. One is open at a time; opening one closes the rest.
 // - The panel follows the carousel: na-presentation-mode-scene-activated folds
@@ -708,10 +724,11 @@
             const isOpen = Na__PmDev__OpenGroupIds.has(body.dataset.groupId);
             body.classList.toggle('is-open', isOpen);
 
-            const heading = body.previousElementSibling;
-            if (heading && heading.classList.contains('na-pm-dev__group-heading')) {
-                heading.setAttribute('aria-expanded', String(isOpen));
-            }
+            // The heading sits inside a row now, beside its camera button, so
+            // it is reached through the row rather than being the sibling.
+            const headingRow = body.previousElementSibling;
+            const heading    = headingRow ? headingRow.querySelector('.na-pm-dev__group-heading') : null;
+            if (heading) heading.setAttribute('aria-expanded', String(isOpen));
         });
 
         if (focusedRow && shouldScroll !== false) {
@@ -1657,6 +1674,7 @@
         const heading = document.createElement('button');
         heading.type      = 'button';
         heading.className = 'na-pm-dev__group-heading';
+        heading.title     = groupName;                                       // <-- A long name is cut short with an ellipsis; this is where it can still be read
         heading.setAttribute('aria-expanded', String(isOpen));
 
         const arrow = document.createElement('span');
@@ -1676,6 +1694,93 @@
         heading.appendChild(countEl);
 
         return heading;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build the Inline Camera Glyph SVG
+    // ------------------------------------------------------------
+    // Drawn inline rather than loaded as an icon file, as the group bar's grid
+    // glyph and the toolbar hamburger are. currentColor keeps it in step with
+    // the heading text it sits beside, disabled state included.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildCameraGlyph() {
+        const svgNs = 'http://www.w3.org/2000/svg';
+
+        const svg = document.createElementNS(svgNs, 'svg');
+        svg.setAttribute('class',   'na-pm-dev__group-camera-glyph');
+        svg.setAttribute('viewBox', '0 0 16 16');
+        svg.setAttribute('aria-hidden', 'true');
+
+        const body = document.createElementNS(svgNs, 'path');                // <-- Body with the viewfinder hump in one outline
+        body.setAttribute('d', 'M2.6 4.6h2.2l1-1.7h4.4l1 1.7h2.2c.6 0 1.1.5 1.1 1.1v6.2c0 .6-.5 1.1-1.1 1.1H2.6c-.6 0-1.1-.5-1.1-1.1V5.7c0-.6.5-1.1 1.1-1.1z');
+        svg.appendChild(body);
+
+        const lens = document.createElementNS(svgNs, 'circle');
+        lens.setAttribute('cx', '8');
+        lens.setAttribute('cy', '8.7');
+        lens.setAttribute('r',  '2.5');
+        svg.appendChild(lens);
+
+        [body, lens].forEach((shape) => {
+            shape.setAttribute('fill',            'none');
+            shape.setAttribute('stroke',          'currentColor');
+            shape.setAttribute('stroke-width',    '1.3');
+            shape.setAttribute('stroke-linejoin', 'round');
+        });
+
+        return svg;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Build the Camera Button That Exports One Group's Images
+    // ------------------------------------------------------------
+    // A SIBLING OF THE HEADING, NEVER A CHILD. The heading is itself a button
+    // (the fold control) and a button inside a button is invalid markup, so
+    // the two sit side by side in a row and a press on the camera can never
+    // also fold the group.
+    //
+    // DISABLED, WITH THE REASON IN ITS HOVER TEXT, when the group holds nothing
+    // the walk can visit - an empty group, or one of floor plan and elevation
+    // scenes only. Every group still carries the button so the headings stay
+    // one kind of thing; a missing button would read as a different kind of
+    // group rather than an empty one.
+    // ------------------------------------------------------------
+    function Na__PmDev__BuildGroupCameraButton(groupId, groupName, scenesInGroup) {
+        const walkable = Na__PresentationMode__DevMenu__PartitionBatchScenes(scenesInGroup).eligible.length;
+
+        const hint = walkable > 0
+            ? 'Download an image of each scene in "' + groupName + '", at the current Image Export settings'
+            : 'No 3D scenes in "' + groupName + '" to export';
+
+        const cameraBtn = document.createElement('button');
+        cameraBtn.type      = 'button';
+        cameraBtn.className = 'na-pm-dev__group-camera-btn';
+        cameraBtn.title     = hint;
+        cameraBtn.disabled  = walkable === 0;
+        cameraBtn.setAttribute('aria-label', hint);
+        cameraBtn.appendChild(Na__PmDev__BuildCameraGlyph());
+
+        cameraBtn.addEventListener('click', () => Na__PmDev__DownloadGroupImages(groupId));
+        return cameraBtn;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Working Scenes That Resolve Into One Group, In Panel Order
+    // ------------------------------------------------------------
+    // The one definition of "this group's scenes" for this panel: the rows
+    // under a heading, the count on it and the images its camera exports are
+    // all this list, so they cannot disagree. Resolved through the data layer,
+    // so a scene pointing at a deleted or switched-off group is counted in the
+    // group it has fallen back into - the group it is actually shown under.
+    // ------------------------------------------------------------
+    function Na__PmDev__GetWorkingScenesInGroup(groupId) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        return Na__PmDev__WorkingScenes.filter(scene =>
+            Na__PresentationMode__SceneGroups__ResolveSceneGroupId(scene, config) === groupId
+        );
     }
     // ------------------------------------------------------------
 
@@ -1711,17 +1816,18 @@
 
         // GROUPED PROJECT | A fold-down heading, then that group's own run of rows
         groups.forEach((group) => {
-            const groupId = group.PresentationMode__Group__Id;
-            const inGroup = Na__PmDev__WorkingScenes.filter(scene =>
-                Na__PresentationMode__SceneGroups__ResolveSceneGroupId(scene, config) === groupId
-            );
+            const groupId   = group.PresentationMode__Group__Id;
+            const groupName = group.PresentationMode__Group__Name || groupId;
+            const inGroup   = Na__PmDev__GetWorkingScenesInGroup(groupId);
 
             const isOpen  = Na__PmDev__OpenGroupIds.has(groupId);            // <-- Folded unless the author opened it
-            const heading = Na__PmDev__BuildGroupHeading(
-                group.PresentationMode__Group__Name || groupId,
-                inGroup.length,
-                isOpen
-            );
+            const heading = Na__PmDev__BuildGroupHeading(groupName, inGroup.length, isOpen);
+
+            // HEADING ROW | The fold control, and the group's camera beside it
+            const headingRow = document.createElement('div');
+            headingRow.className = 'na-pm-dev__group-heading-row';
+            headingRow.appendChild(heading);
+            headingRow.appendChild(Na__PmDev__BuildGroupCameraButton(groupId, groupName, inGroup));
 
             const body = document.createElement('div');
             body.className        = 'na-pm-dev__group-scenes';
@@ -1739,7 +1845,7 @@
                 }
             });
 
-            panel.appendChild(heading);
+            panel.appendChild(headingRow);
             inGroup.forEach((scene, index) => appendRow(body, scene, index, inGroup.length));
             panel.appendChild(body);
         });
@@ -2127,13 +2233,21 @@
     // HELPER FUNCTION | Describe What a Batch Is About to Walk
     // ------------------------------------------------------------
     // Returns null when there is nothing to do, having said why.
+    //
+    // scenes is the scope: every working scene when it is left out, or the
+    // narrower list a group's camera button hands over. scopeName is only for
+    // the sentence that explains an empty one.
     // ------------------------------------------------------------
-    function Na__PmDev__DescribeBatch() {
-        const partition = Na__PresentationMode__DevMenu__PartitionBatchScenes(Na__PmDev__WorkingScenes);
+    function Na__PmDev__DescribeBatch(scenes, scopeName) {
+        const partition = Na__PresentationMode__DevMenu__PartitionBatchScenes(
+            Array.isArray(scenes) ? scenes : Na__PmDev__WorkingScenes
+        );
 
         if (partition.eligible.length === 0) {
             if (Na__PmDev__ShowToast) {
-                Na__PmDev__ShowToast('No 3D scenes to walk. Floor plan and elevation scenes are handled by their own panels.', true);
+                Na__PmDev__ShowToast(
+                    (scopeName ? 'No 3D scenes in "' + scopeName + '" to walk.' : 'No 3D scenes to walk.')
+                    + ' Floor plan and elevation scenes are handled by their own panels.', true);
             }
             return null;
         }
@@ -2208,28 +2322,40 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Export a Full-Size Image of Every Scene
+    // FUNCTION | Export a Full-Size Image of Every Scene in a Scope
     // ------------------------------------------------------------
     // Renders nothing itself: it confirms, opens the progress dialog and hands
     // the walk to the batch module, which drives the Image Export panel's own
     // render path so the images match what that panel is set to.
+    //
+    // ONE DRIVER, TWO DOORS. Download All Images and the camera button on a
+    // group heading are the same job over a different list, so they are the
+    // same function: the same confirmation, the same progress dialog with its
+    // Stop, the same summary and the same walk underneath. scope is null for
+    // the whole project, or { groupName, scenes } for one group - and all it
+    // changes is which scenes are handed over and how the dialogs name them.
     // ------------------------------------------------------------
-    async function Na__PmDev__DownloadAllImages() {
+    async function Na__PmDev__RunImageExport(scope) {
         if (Na__PresentationMode__DevMenu__IsBatchBusy()) return;
 
-        const partition = Na__PmDev__DescribeBatch();
+        const groupName = scope ? scope.groupName : '';
+
+        const partition = Na__PmDev__DescribeBatch(scope ? scope.scenes : null, groupName);
         if (!partition) return;
 
         const total = partition.eligible.length;
         const confirmed = await Na__PresentationMode__DevMenu__Confirm({
-            title         : 'Export ' + total + ' images?',
-            message       : 'Every 3D scene is visited in turn and exported at the current Image Export settings, '
-                          + 'arriving as ' + total + ' separate downloads. A large resolution makes this a long job. '
+            title         : 'Export ' + total + (total === 1 ? ' image' : ' images')
+                          + (scope ? ' from "' + groupName + '"?' : '?'),
+            message       : (scope ? 'Every 3D scene in this group is' : 'Every 3D scene is')
+                          + ' visited in turn and exported at the current Image Export settings, '
+                          + (total === 1 ? 'arriving as one download. ' : 'arriving as ' + total + ' separate downloads. ')
+                          + 'A large resolution makes this a long job. '
                           + 'The viewport returns to where it is now when it finishes.'
                           + (partition.skipped.length
                               ? ' ' + partition.skipped.length + ' drawing scene(s) are skipped.'
                               : ''),
-            confirmLabel  : 'Export All',
+            confirmLabel  : scope ? 'Export Group' : 'Export All',
             cancelLabel   : 'Cancel',
             isDestructive : false
         });
@@ -2237,13 +2363,17 @@
 
         const progress = Na__PresentationMode__DevMenu__OpenProgress({
             title         : 'Exporting images',
-            message       : 'Rendering each scene at the current export settings.',
+            message       : scope
+                ? 'Rendering each scene in "' + groupName + '" at the current export settings.'
+                : 'Rendering each scene at the current export settings.',
             initialStatus : 'Starting...'
         });
 
         let result;
         try {
-            result = await Na__PresentationMode__DevMenu__DownloadAllImages(partition.eligible, progress);
+            result = await Na__PresentationMode__DevMenu__DownloadAllImages(
+                partition.eligible, progress, scope ? { groupName : groupName } : null
+            );
         } catch (batchError) {
             console.error('[TrueVision3D] Image batch failed:', batchError);
             progress.Close();
@@ -2264,8 +2394,45 @@
 
         progress.Finish(summary, { hadProblems : Na__PmDev__BatchHadProblems(result) });
         if (Na__PmDev__ShowToast) {
-            Na__PmDev__ShowToast('Images: ' + summary, result.failed > 0 || result.noViewport);
+            Na__PmDev__ShowToast(
+                (scope ? 'Images, ' + groupName + ': ' : 'Images: ') + summary,
+                result.failed > 0 || result.noViewport
+            );
         }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Export a Full-Size Image of Every Scene on the Project
+    // ------------------------------------------------------------
+    function Na__PmDev__DownloadAllImages() {
+        return Na__PmDev__RunImageExport(null);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Export a Full-Size Image of Every Scene in One Group
+    // ------------------------------------------------------------
+    // The camera button on a group heading. On a massive model the whole
+    // project is a long job, and what is wanted is often one group's views at
+    // the standard export - so this is that job cut shorter, not another one.
+    //
+    // THE GROUP IS READ WHEN THE BUTTON IS PRESSED, not when it was drawn. The
+    // button only carries an id; the name and the scenes are looked up here, so
+    // a rename typed into the group editor a moment ago is the name on the
+    // dialog and in the filenames, and the scenes are the ones under that
+    // heading now.
+    // ------------------------------------------------------------
+    function Na__PmDev__DownloadGroupImages(groupId) {
+        const config = Na__PresentationMode__ProjectJson__GetActiveConfig();
+        const group  = Na__PresentationMode__SceneGroups__GetEnabledGroups(config)
+            .find(g => g.PresentationMode__Group__Id === groupId);
+        if (!group) return Promise.resolve();                                // <-- Deleted or switched off since the panel was drawn
+
+        return Na__PmDev__RunImageExport({
+            groupName : group.PresentationMode__Group__Name || groupId,
+            scenes    : Na__PmDev__GetWorkingScenesInGroup(groupId)
+        });
     }
     // ------------------------------------------------------------
 

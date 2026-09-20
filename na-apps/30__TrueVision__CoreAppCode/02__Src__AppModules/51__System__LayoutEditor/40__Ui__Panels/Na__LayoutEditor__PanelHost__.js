@@ -42,6 +42,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.5.0
+// - A tab has hover text: spec.hint, else its title. The LEFT column gained
+//   tabs of its own the same day (Document Preferences and Specification), and
+//   at the column's narrowest "Document Preferences" is cut short with an
+//   ellipsis - the hover text is where it can still be read. Nothing else
+//   changed: the left column's tabs are the right column's, registered by
+//   side, which RegisterTab has always taken.
+//
 // 19-Sep-2026 - Version 1.4.0
 // - Column tabs: RegisterTab, SetActiveTab and GetActiveTab, and spec.tab on a
 //   section. Written for the right column's Scrapbook tab, which Adam asked
@@ -295,9 +303,12 @@
 
     // FUNCTION | Add a Tab to a Column
     // ------------------------------------------------------------
-    // spec: { id, title }. The first tab a column is given is where every
+    // spec: { id, title, hint }. The first tab a column is given is where every
     // section that names no tab belongs. The tab last on show is remembered
     // per column, like the folds, and comes back up when it is registered.
+    // hint is the tab's hover text: what the tab holds, said in words, and the
+    // only place a title cut short by a narrow column can still be read. Left
+    // out, the hover text is the title.
     // ------------------------------------------------------------
     function Na__LePanels__RegisterTab(side, spec) {
         const column = Na__LePanels__Columns[side];
@@ -314,6 +325,7 @@
         button.type        = 'button';
         button.className   = 'na-le-panel__tab';
         button.textContent = spec.title || spec.id;
+        button.title       = spec.hint || spec.title || spec.id;
         button.setAttribute('role', 'tab');
         button.setAttribute('data-na-tab', spec.id);
         button.addEventListener('click', () => Na__LePanels__SetActiveTab(side, spec.id));

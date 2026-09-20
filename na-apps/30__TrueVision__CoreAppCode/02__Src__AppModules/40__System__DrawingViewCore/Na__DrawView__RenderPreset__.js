@@ -42,6 +42,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0 (Elevation Depth Fog)
+// - RenderFrame draws the depth fog between the silhouettes and the cut fills,
+//   as the render loop's drawing branch now does, so the three places that
+//   carry this sequence - the loop, this, and the card thumbnail - still read
+//   the same. Nothing is fogged unless the fog layer has been given a drawing.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Initial implementation for re-alignment Phase B.
 //
@@ -79,6 +85,13 @@
         Na__DrawProfile__SetEdgeWidth
     } from './Na__DrawView__ProfileLines__.js';
     import { Na__SectionCut__RenderOverlay } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Depth Fog Layer
+    // ------------------------------------------------------------
+    // @delegate: ../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js
+    // ------------------------------------------------------------
+    import { Na__ElevFog__RenderOverlay } from '../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -264,11 +277,18 @@
 
     // FUNCTION | Draw One Drawing Frame With the Given Camera
     // ------------------------------------------------------------
-    // The same four steps the main render loop takes for an on-screen drawing,
-    // in the same order and for the same reasons: the flat beauty render, then
-    // the silhouette edges which BLEND ONTO it, then the cut fills which must
-    // land on top so a poche stays solid. Markup is not drawn here - it is DOM,
-    // and an offscreen render has no DOM to reproject onto.
+    // The same steps the main render loop takes for an on-screen drawing, in
+    // the same order and for the same reasons: the flat beauty render, then
+    // the silhouette edges which BLEND ONTO it, then the drawing's depth fog
+    // which must fade those edges with everything else, then the cut fills
+    // which must land on top so a poche stays solid. Markup is not drawn here -
+    // it is DOM, and an offscreen render has no DOM to reproject onto.
+    //
+    // WHOSE FOG IS THE CALLER'S BUSINESS. The fog layer draws for whichever
+    // drawing it has been given (Na__ElevFog__SetSource) and nothing when it
+    // has been given none. The Layout Editor gives it NONE for a viewport's
+    // base image, on purpose: a sheet lays the fog over its vectors as an image
+    // of its own, and a picture fogged as well would be fogged twice.
     //
     // Exposed so the Layout Editor can bake a viewport through the identical
     // path the screen uses. A sheet that renders by a different route than the
@@ -279,6 +299,7 @@
 
         Na__DrawPreset__Renderer.render(Na__DrawPreset__Scene, camera);           // <-- Flat, composer bypassed
         Na__DrawProfile__RenderOverlay(camera);                                   // <-- Silhouettes, blended onto the above
+        Na__ElevFog__RenderOverlay(camera);                                       // <-- The depth fog of whichever drawing the fog layer has been given; nothing when it has been given none
         Na__SectionCut__RenderOverlay(camera);                                    // <-- Cut fills, on top so poche stays solid
         return true;
     }

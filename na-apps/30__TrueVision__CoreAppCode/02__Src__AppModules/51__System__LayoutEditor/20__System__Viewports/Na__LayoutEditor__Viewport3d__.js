@@ -406,7 +406,11 @@
         state.inFlight = true;
         state.renderOk = false;                                                    // <-- True once THIS render's picture is held; the PDF reads it
         try {
-            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, { modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage') }, renderId, view, stillWanted);
+            const weights = {
+                modelEdgePx : Na__LeComposite__Weight(viewport, 'baseImage'),          // <-- How thick the model's own edges draw in the picture
+                enhancePct  : Na__LeComposite__Weight(viewport, 'enhanceWhitecard')    // <-- How much of the Enhance Whitecard post pass to apply
+            };
+            const result = await Na__LeSnap__Render3d(scene, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, weights, renderId, view, stillWanted);
             if (!result) return false;
             const blob    = await Na__LeAssets__CanvasToBlob(result.canvas, 'image/webp', 0.9);
             const dataUrl = blob ? await Na__LeAssets__BlobToDataUrl(blob) : result.canvas.toDataURL('image/png');

@@ -204,6 +204,17 @@
     } from '../45__System__ElevationViews/Na__Elevation__ModeController__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | A Drawing's Depth Fog Layer
+    // ------------------------------------------------------------
+    // The one effect besides the silhouette edge that a flat drawing takes, and
+    // for the same reason it goes OUTSIDE the composer: there is no composer in
+    // the drawing branch to put it in. Sizes itself to whatever it is drawn
+    // into, so it has no resize to be forwarded.
+    // @delegate: ../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js
+    // ------------------------------------------------------------
+    import { Na__ElevFog__RenderOverlay } from '../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Door Animation System
     // ------------------------------------------------------------
     import {
@@ -1151,6 +1162,7 @@
                 Na__RenderLoop__Refiner.suspend();                            // <-- A drawing owns the screen; this pass is the 3D viewport only
                 Na__Renderer__Main.render(Na__Scene__Main, Na__Drawing__Camera);
                 Na__DrawProfile__RenderOverlay(Na__Drawing__Camera);          // <-- Silhouette edges for rounded geometry
+                Na__ElevFog__RenderOverlay(Na__Drawing__Camera);              // <-- The drawing's own depth fog: AFTER the edges so it fades them, BEFORE the cut so a poche stays solid. One null check when the drawing has none
                 Na__SectionCut__RenderOverlay(Na__Drawing__Camera);          // <-- Cut fills and profile outlines
                 Na__DrawMarkup__SyncFrame();                                 // <-- Reproject the markup onto the new view
                 return Na__RenderLoop__ActiveReasons.size > 0;               // <-- Only pan/zoom keeps frames coming

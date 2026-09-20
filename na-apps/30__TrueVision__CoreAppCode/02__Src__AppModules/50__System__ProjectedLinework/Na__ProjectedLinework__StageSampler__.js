@@ -90,7 +90,8 @@
     } from './Na__ProjectedLinework__SoupBuilder__.js';
     import {
         Na__PlCfg__GetSkipObjectNames,
-        Na__PlCfg__GetModelSetup
+        Na__PlCfg__GetModelSetup,
+        Na__PlCfg__GetLineworkModifiers
     } from './Na__ProjectedLinework__ConfigAccess__.js';
     // ------------------------------------------------------------
 
@@ -187,6 +188,30 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Nested LineworkModifier Owner for One Mesh, or Null
+    // ------------------------------------------------------------
+    // A LineworkModifier tag (SSOT 76-79) nested inside a category group never
+    // gets its own THREE.Group - the GlbBuilder writes its geometry into the
+    // SAME GLB as its parent, under a glTF node name of its own
+    // ('OwnTagName::MaterialName'). So the override is read off the mesh's OWN
+    // name, not the category carried down the stack: a match here says "style
+    // this mesh's edges as the modifier, not as the wall it lives inside" -
+    // nothing else about the mesh (its visibility, storey or toggle) changes,
+    // because those all still follow entry.category, untouched.
+    // ------------------------------------------------------------
+    function Na__PlSampler__ModifierOwnerFor(object3d, modifiers) {
+        if (!modifiers || modifiers.length === 0) return null;
+        const name = object3d && object3d.name;
+        if (typeof name !== 'string' || name.length === 0) return null;
+        const ownTag = name.split('::')[0];
+        for (let i = 0; i < modifiers.length; i++) {
+            if (modifiers[i].TagName === ownTag) return modifiers[i].OwnerKey;
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Record One Instance of a Geometry
     // ------------------------------------------------------------
     function Na__PlSampler__PushInstance(list, mesh, matrixWorld, categoryName, rules) {
@@ -234,7 +259,8 @@
         const skipped   = [];
         if (!modelRoot) return { Instances : instances, Categories : seen, SkippedCategories : skipped };
 
-        const setup = Na__PlCfg__GetModelSetup();
+        const setup     = Na__PlCfg__GetModelSetup();
+        const modifiers = Na__PlCfg__GetLineworkModifiers();               // <-- Nested LineworkModifier tags (SSOT 76-79), checked per mesh below
         const walk  = {
             excludeTokens           : rules.excludeTokens || [],
             glassOpaque             : rules.glassOpaque === true,
@@ -271,15 +297,16 @@
             if (object3d.isMesh === true && object3d.geometry && object3d.geometry.attributes &&
                 object3d.geometry.attributes.position && object3d.geometry.attributes.position.count >= 3) {
 
+                const styleOwner = Na__PlSampler__ModifierOwnerFor(object3d, modifiers) || entry.category;   // <-- A nested modifier tag styles differently; it still lives in entry.category's GLB
                 if (object3d.isInstancedMesh === true) {
                     const count = object3d.count || 0;
                     for (let k = 0; k < count; k++) {
                         object3d.getMatrixAt(k, Na__PlSampler__InstanceMatrix);
                         const world = new THREE.Matrix4().multiplyMatrices(object3d.matrixWorld, Na__PlSampler__InstanceMatrix);
-                        Na__PlSampler__PushInstance(instances, object3d, world, entry.category, walk);
+                        Na__PlSampler__PushInstance(instances, object3d, world, styleOwner, walk);
                     }
                 } else {
-                    Na__PlSampler__PushInstance(instances, object3d, posedMod ? object3d.matrixWorld.clone() : object3d.matrixWorld, entry.category, walk);
+                    Na__PlSampler__PushInstance(instances, object3d, posedMod ? object3d.matrixWorld.clone() : object3d.matrixWorld, styleOwner, walk);
                 }
                 if (posedMod) drawnMods.add(posedMod);
             }

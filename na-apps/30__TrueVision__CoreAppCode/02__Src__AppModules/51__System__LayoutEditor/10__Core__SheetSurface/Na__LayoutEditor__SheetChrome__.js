@@ -102,6 +102,12 @@
 //   opacities.
 //
 // 13-Sep-2026 - Version 1.2.0
+// - A polyline primitive can carry a Hatch (a Shape__Hatch record) and a
+//   HatchInk. Both painters hand it to Na__LayoutEditor__HatchPatterns__: the
+//   SVG writes a <pattern> and fills a path of its own with it, the PDF stamps
+//   the tile clipped to the outline. It paints OVER any fill or gradient and
+//   UNDER the edges, which is the order Adam asked for - fill, hatch, then the
+//   bounding linework of the vector.
 // - A polyline primitive can carry a Gradient (a Shape__Gradient record), and
 //   both painters hand it to Na__LayoutEditor__GradientTool__. The SVG writes a
 //   <linearGradient> and fills the path with it; the PDF paints in three passes -
@@ -135,6 +141,7 @@
     import { Na__LeTitleModern__Build }  from './Na__LayoutEditor__TitleBlock__Modern__.js';
     import { Na__LeTitleClassic__Build } from './Na__LayoutEditor__TitleBlock__Classic__.js';
     import { Na__LeGrad__SvgPaint, Na__LeGrad__DrawPdf } from '../35__System__DrawingTools/Na__LayoutEditor__GradientTool__.js';
+    import { Na__LeHatch__Get, Na__LeHatch__SvgPaint, Na__LeHatch__DrawPdf } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LePdfFonts__Install, Na__LePdfFonts__SetFont } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';
     import { Na__QrPaint__SvgGroup, Na__QrPaint__DrawPdf } from '../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js';   // <-- A leaf: a symbol and numbers in, markup or drawing calls out
     // ------------------------------------------------------------
@@ -299,6 +306,35 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Resolve a Primitive's Hatch to SVG Defs and a Paint Reference
+    // ------------------------------------------------------------
+    // Null when the primitive carries no hatch, or when the library has not got
+    // the pattern it names - a missing pattern leaves the shape's fill and
+    // outline exactly as they were rather than blanking the shape.
+    //
+    // Sheet markup is measured in PAPER millimetres, so no denominator: a tile
+    // millimetre is a paper millimetre and the pattern prints at the size it was
+    // drawn at, whatever the sheet's viewports are scaled to.
+    // ------------------------------------------------------------
+    function Na__LeChrome__HatchDef(primitive) {
+        const hatch = primitive.Hatch;
+        if (!hatch || typeof hatch.Hatch__PatternKey !== 'string' || !hatch.Hatch__PatternKey) return null;
+        const pattern = Na__LeHatch__Get(hatch.Hatch__PatternKey);
+        if (!pattern) return null;
+        return {
+            pattern     : pattern,
+            scale       : hatch.Hatch__Scale,
+            rotationDeg : hatch.Hatch__RotationDeg,
+            colour      : hatch.Hatch__Colour || primitive.HatchInk || primitive.StrokeColour
+        };
+    }
+    function Na__LeChrome__HatchPaint(primitive) {
+        const def = Na__LeChrome__HatchDef(primitive);
+        return def ? Na__LeHatch__SvgPaint(def) : null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Push a Polyline (points as [x, y] pairs), Optionally Closed, Filled, Graded and Dashed
     // ------------------------------------------------------------
     // gradient is optional, so every earlier caller is unchanged. It is a
@@ -318,6 +354,8 @@
         list.push({ Kind : Na__LeChrome__KIND_POLYLINE, Points : points, StrokeColour : strokeColour || null,
                     StrokeMm : strokeMm || 0, FillColour : fillColour || null, Closed : closed === true,
                     Gradient : (gradient && typeof gradient === 'object') ? gradient : null,
+                    Hatch : (more.hatch && typeof more.hatch === 'object') ? more.hatch : null,
+                    HatchInk : (typeof more.hatchInk === 'string' && more.hatchInk) ? more.hatchInk : null,
                     DashMm : dashArray.length > 0 ? 0 : ((Number.isFinite(more.dashMm) && more.dashMm > 0) ? more.dashMm : 0),
                     DashArray : dashArray.length > 0 ? dashArray : null,
                     FillOpacity : Na__LeChrome__Alpha(more.fillOpacity), StrokeOpacity : Na__LeChrome__Alpha(more.strokeOpacity) });
@@ -579,9 +617,22 @@
             // fill gets a path of its own so the gradient's alpha end shows it
             // through; the edges ride on the gradient's path, on top of both.
             const paint = primitive.Gradient ? Na__LeGrad__SvgPaint(primitive.Points, primitive.Gradient) : null;
+            // THE HATCH IS THE DECK ABOVE BOTH FILLS AND BELOW THE EDGES, so it
+            // gets a path of its own and the edges ride on IT - the last path
+            // drawn is the one the outline belongs to.
+            const hatchPaint = Na__LeChrome__HatchPaint(primitive);
+            const solidPath  = primitive.FillColour ? '<path d="' + d + '" fill="' + primitive.FillColour + '"' + fillOp + ' stroke="none"/>' : '';
+            if (hatchPaint) {
+                // EVERY DEFINITION FIRST, then the paths in painting order. A
+                // <defs> block is legal anywhere in an SVG, but putting it in the
+                // middle makes the markup unreadable and hides the stacking from
+                // anyone checking it.
+                const defs  = (paint ? paint.defs : '') + hatchPaint.defs;
+                const grad  = paint ? '<path d="' + d + '" fill="' + paint.fill + '" stroke="none"/>' : '';
+                return defs + solidPath + grad + '<path d="' + d + '" fill="' + hatchPaint.fill + '"' + edges;
+            }
             if (paint) {
-                const solid = primitive.FillColour ? '<path d="' + d + '" fill="' + primitive.FillColour + '"' + fillOp + ' stroke="none"/>' : '';
-                return paint.defs + solid + '<path d="' + d + '" fill="' + paint.fill + '"' + edges;
+                return paint.defs + solidPath + '<path d="' + d + '" fill="' + paint.fill + '"' + edges;
             }
             return '<path d="' + d + '" fill="' + (primitive.FillColour || 'none') + '"' + (primitive.FillColour ? fillOp : '') + edges;
         }
@@ -717,12 +768,16 @@
             const fillA  = fill ? Na__LeChrome__Alpha(primitive.FillOpacity) : 1;
             const edgeA  = stroke ? Na__LeChrome__Alpha(primitive.StrokeOpacity) : 1;
             const dash   = { DashMm : primitive.DashMm > 0 ? primitive.DashMm : 0, DashArray : primitive.DashArray || null };
-            if (primitive.Gradient) {
-                // A GRADIENT GOES IN THREE PASSES rather than one fill-and-stroke:
-                // any solid fill, then the gradient clipped over it, then the edges
-                // on top, so the gradient's solid end can never paint over an edge.
+            const hatchDef = Na__LeChrome__HatchDef(primitive);
+            if (primitive.Gradient || hatchDef) {
+                // A GRADIENT OR A HATCH GOES IN PASSES rather than one
+                // fill-and-stroke: any solid fill, then the gradient clipped over
+                // it, then the hatch over that, then the edges on top - so
+                // nothing below can ever paint over the outline. The screen
+                // stacks these in the same order, in Na__LeChrome__ToSvg.
                 if (fill)   Na__LeChrome__WithOpacity(doc, fillA, 1, () => { doc.setFillColor(fill.R, fill.G, fill.B); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'F', primitive.Closed === true); });
-                Na__LeGrad__DrawPdf(doc, primitive.Points, primitive.Gradient);
+                if (primitive.Gradient) Na__LeGrad__DrawPdf(doc, primitive.Points, primitive.Gradient);
+                if (hatchDef) Na__LeHatch__DrawPdf(doc, primitive.Points, hatchDef);
                 if (stroke) Na__LeChrome__WithOpacity(doc, 1, edgeA, () => { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash(dash); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'S', primitive.Closed === true); });
                 if (Na__LeChrome__DashList(dash).length > 0) setDash({ DashMm : 0, DashArray : null });
                 return;

@@ -300,6 +300,7 @@
                 { patch : 'gradient',     field : 'Shape__Gradient',   nullable : true, palette : 'gradientOn' },  // <-- Likewise; records are never edited in place, so the held copy cannot change
                 { patch : 'dash',         field : 'Shape__LineStyle',  nullable : true, palette : 'dashOn' },      // <-- A null line style is a solid edge, a real value to copy
                 { patch : 'fillOpacity',   field : 'Shape__FillOpacity'   },
+                { patch : 'hatch',        field : 'Shape__Hatch'        },   // <-- A hatch is a style trait, so it copies with the rest
                 { patch : 'strokeOpacity', field : 'Shape__StrokeOpacity' }
             ]
         },

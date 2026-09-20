@@ -39,6 +39,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.6.0 (TrueVision)
+// - Depth fog. A 2D viewport whose drawing has its fog switched on gets a
+//   third layer in its clip: the fog image, after the vector linework and
+//   before the scene markup, as the frame stacks it on screen. It is the first
+//   raster to go OVER the vectors. Added as 'PNG' from a PNG data URL, which is
+//   what keeps its alpha; a viewport with no fog adds nothing.
+//
 // 17-Sep-2026 - Version 1.5.0 (TrueVision)
 // - A downloaded sheet is named after the drawing rather than after the app:
 //   PS01_T02_D01__FloorPlans__A2__RevB__17-Sep-2026__.pdf. The tokens are
@@ -101,7 +108,8 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__GetFields, Na__LeModel__IsLayerVisible, Na__LeModel__IsSitePlanViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeChrome__Build, Na__LeChrome__DrawToPdf, Na__LeChrome__PushPolyline } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives, Na__LeMarkup__BuildSheetPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
+    import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
+    import { Na__LeHatch__DrawPdf } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LeCfg__GetSpecificationSetup, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
@@ -200,7 +208,7 @@
 
     // HELPER FUNCTION | Draw the Projected Linework of a 2D Viewport as Vector Lines
     // ------------------------------------------------------------
-    function Na__LePdf__DrawLinework(doc, sheet, viewport, described, classes) {
+    function Na__LePdf__DrawLinework(doc, sheet, viewport, described, classes, siteRules) {
         const win   = described.window;
         const setup = Na__LeCfg__GetLineworkSetup();
         const D     = win.Denominator;
@@ -210,7 +218,7 @@
         // THE SAME BANDS THE SCREEN PAINTS. The PDF is paper millimetres already,
         // so widths and dash patterns go in unscaled; the screen multiplies both
         // by the denominator because its SVG is drawn in model millimetres.
-        const bands = Na__LeVp2d__StyleBands(viewport, sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null, classes, showHidden);
+        const bands = Na__LeVp2d__StyleBands(viewport, sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.ViewportPt : null, classes, showHidden, siteRules);
         bands.forEach((band) => {
             const segments = classes[band.className];
             if (!segments || segments.length < 4) return;
@@ -263,6 +271,42 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Draw a Site Plan Viewport's Hatch Patterns Over Its Fills
+    // ------------------------------------------------------------
+    // The ring is converted to paper millimetres once and handed to the hatch
+    // module's stamper, which is the same code the sheet's own vector shapes
+    // use - so a hatch prints identically whether it came from a site plan
+    // layer or from a rectangle somebody drew over it.
+    // ------------------------------------------------------------
+    function Na__LePdf__DrawSitePlanPatterns(doc, viewport, described, patterns) {
+        if (!patterns || patterns.length === 0) return;
+        const win   = described.window;
+        const D     = win.Denominator;
+        const frame = viewport.Viewport__FrameMm;
+        patterns.forEach((entry) => {
+            entry.rings.forEach((ring) => {
+                if (!ring.outer || !ring.points || ring.points.length < 6) return;
+                const points = [];
+                for (let i = 0; i + 1 < ring.points.length; i += 2) {
+                    points.push([ frame.X + ((ring.points[i] - win.OriginX) / D),
+                                  frame.Y + ((ring.points[i + 1] - win.OriginY) / D) ]);
+                }
+                // Clip to the frame as well: a ring can run outside it.
+                const framed = Na__LePdf__BeginClip(doc, frame);
+                try {
+                    Na__LeHatch__DrawPdf(doc, points, {
+                        pattern     : entry.pattern,
+                        scale       : entry.scale,
+                        rotationDeg : entry.rotationDeg,
+                        colour      : entry.colour
+                    });
+                } finally { Na__LePdf__EndClip(doc, framed); }
+            });
+        });
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Draw One Viewport
     // ------------------------------------------------------------
     async function Na__LePdf__DrawViewport(doc, sheet, viewport, options) {
@@ -275,8 +319,14 @@
                     const drawing = await Na__LeVp2d__SitePlanDrawing(viewport);
                     if (!drawing && options && options.strict) throw new Error('Site plan drawing could not be rendered.');
                     if (drawing) {
+                        // THE SAME THREE DECKS THE SCREEN PAINTS, in the same
+                        // order: wash, pattern, linework. The build has already
+                        // applied the subtype and the deck switches, so an empty
+                        // list here means that deck was switched off, not that
+                        // the PDF forgot it.
                         Na__LePdf__DrawSitePlanFills(doc, viewport, described, drawing.fills);
-                        Na__LePdf__DrawLinework(doc, sheet, viewport, described, drawing.classes);
+                        Na__LePdf__DrawSitePlanPatterns(doc, viewport, described, drawing.patterns);
+                        if (drawing.paintLines !== false) Na__LePdf__DrawLinework(doc, sheet, viewport, described, drawing.classes, drawing.siteRules);
                     }
                     return;
                 }
@@ -287,6 +337,18 @@
                     const classes = await Na__LeVp2d__EnsureLinework(described.definition, null, false, described.modelSource);   // <-- The viewport's own design phase
                     if (classes) Na__LePdf__DrawLinework(doc, sheet, viewport, described, classes);
                 }
+                // DEPTH FOG | The drawing's own fog, where it has one, AFTER the
+                // vectors and BEFORE the markup - the frame's own order on screen.
+                // It is the one raster that goes over the linework, because fading
+                // far LINES is the whole of what it is for; the labels and
+                // dimensions then land on top of it untouched. Null for most
+                // viewports and costs them nothing.
+                // 'PNG' AND A PNG DATA URL, NEVER 'RGBA': the fog is in the image's
+                // alpha, and jsPDF 4.1.0 drops the alpha of anything handed over
+                // as 'RGBA' - the layer would print as a solid white rectangle
+                // over the whole drawing.
+                const fog = await Na__LeVp2d__RenderFogForExport(viewport);
+                if (fog && fog.dataUrl) doc.addImage(fog.dataUrl, 'PNG', frame.X, frame.Y, frame.WidthMm, frame.HeightMm);
                 if (viewport.Viewport__MarkupMode === 'scene') {
                     Na__LeChrome__DrawToPdf(doc, Na__LePdf__Offset(Na__LeMarkup__BuildScenePrimitives(described), frame.X, frame.Y));
                 }
@@ -407,6 +469,7 @@
     // ------------------------------------------------------------
     export {
         Na__LePdf__EnsureJsPdf,
+        Na__LePdf__LoadLibrary,                                                 // <-- jsPDF ALONE, for the statement PDF: it draws no text, so the Open Sans cuts EnsureJsPdf also fetches would be half a megabyte a reader never uses
         Na__LePdf__BuildDocument,
         Na__LePdf__ExportSheet
     };

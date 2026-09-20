@@ -2,13 +2,14 @@
     "LayoutEditor__ScrapbookParametric__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
         "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
-        "Meta__Version"     : "1.1.0",
+        "Meta__Version"     : "1.2.0",
         "Meta__Created"     : "19-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
         "Meta__Block"       : "Group__Parametric : { Parametric__Type, Parametric__Version, Parametric__Params, Parametric__Link }. The element's place on the paper is never stored: the Move tool and a paste shift a group's members and know nothing of this block, so the generator always writes the element's origin as the first point of its first member and the engine reads it back from there.",
         "Meta__HouseTitle"  : "The drawing title was measured on 19-Sep-2026 from the six elevation titles and two plan titles Adam lettered by hand on PS02 D22 and D21. All eight agree: capitals, qualifier first (EXISTING EAST ELEVATION), Open Sans 600 at 3.5 mm in #172b3a, ranged left; an underline 0.4 pt thick and exactly 60 mm long, 1.631 mm under the baseline and 0.171 mm in from the text's left; and the scale bar 6.318 mm under the underline, sharing its left end. He groups title, underline and bar as one object.",
-        "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between."
+        "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between. THE FILL WAS LIGHTENED ON 20-Sep-2026 to #858585 - a fifth of the way from the measured #666666 to white - because Adam found the checker too heavy on the page. Nothing else about the bar moved, and the test fixtures carry the new value.",
+        "Meta__BarRight"    : "A SCALE BAR PLACED TO THE RIGHT was measured on 20-Sep-2026 from the arrangement Adam laid out by hand over PS01's proposed south east elevation: the title and its underline exactly where they always are, and the bar standing away along the same line with its FOOT on the title's baseline - 3.631 mm (1.631 + the bar's own 2) above the underline - so the two read as one band across the foot of the drawing. Its far end is meant to land under a corner of the building above it, which is why that end is the one that is dragged and the near end is the one that lengthens."
     },
 
     "LayoutEditor__ScrapbookParametric__Elements": {
@@ -20,8 +21,16 @@
                 "Element__Type"          : "DrawingTitle",
                 "Element__Name"          : "Drawing Title + Scale Bar",
                 "Element__Description"   : "The title under a drawing, with its underline and scale bar, written by the drawing it is tied to: Existing or Proposed from the model that drawing draws, and North, East, South or West from the north set in the 3D model. Until north is set an elevation reads {{DIRECTION}}. Drag the round socket onto another drawing to retitle it.",
-                "Element__Params"        : { "ShowScaleBar" : true },
+                "Element__Params"        : { "ShowScaleBar" : true, "BarPlacement" : "below" },
                 "Element__PreviewParams" : { "ViewKind" : "elevation", "ViewPhase" : "existing", "ViewFacing" : "East" }
+            },
+            {
+                "Element__Id"            : "DrawingTitleBarRight",
+                "Element__Type"          : "DrawingTitle",
+                "Element__Name"          : "Drawing Title + Scale Bar to the Right",
+                "Element__Description"   : "The same title, with its scale bar stood away along the same line instead of under it, for a wide elevation whose bar belongs under its far corner. Drag the arrow at the bar's FAR end to carry it along - it snaps to the corners of the drawing above - and the arrow at its NEAR end to lengthen it back towards the title. Its position also steps 50 mm at a time from the panel.",
+                "Element__Params"        : { "ShowScaleBar" : true, "BarPlacement" : "right" },
+                "Element__PreviewParams" : { "ViewKind" : "elevation", "ViewPhase" : "proposed", "ViewFacing" : "South", "BarOffsetMm" : 70 }
             },
             {
                 "Element__Id"            : "DrawingTitle",
@@ -44,7 +53,7 @@
 
         "ScaleBar__Rows"                     : 2,
         "ScaleBar__RowHeightMm"              : 1,
-        "ScaleBar__FillColour"               : "#666666",
+        "ScaleBar__FillColour"               : "#858585",
         "ScaleBar__StrokeColour"             : "#172b3a",
         "ScaleBar__StrokePt"                 : 0.2,
 
@@ -108,6 +117,17 @@
         "DrawingTitle__ScaleBarBelowUnderlineMm"     : 6.318,
         "DrawingTitle__SocketAboveUnderlineMm"       : 4.2,
 
+        "DrawingTitle__BarPlacement"                 : "below",
+        "DrawingTitle__BarPlacementNote"             : "Where the scale bar sits. 'below' is the house title Adam letters by hand: the bar 6.318 mm under the underline, sharing its left end. 'right' stands it away along the same line instead - see Meta__BarRight - for a wide elevation whose bar belongs under its far corner. A title with no bar at all ignores this.",
+        "DrawingTitle__ScaleBarAboveUnderlineMm"     : 3.631,
+        "DrawingTitle__ScaleBarAboveUnderlineNote"   : "How far the bar's TOP stands ABOVE the underline when it is placed to the right. 3.631 = TextBaselineAboveUnderlineMm + the bar's own 2 mm, which puts the bar's foot exactly on the title's baseline.",
+
+        "DrawingTitle__BarOffsetMm"                  : 150,
+        "DrawingTitle__BarOffsetMinMm"               : 0,
+        "DrawingTitle__BarOffsetMaxMm"               : 1200,
+        "DrawingTitle__BarOffsetStepMm"              : 50,
+        "DrawingTitle__BarOffsetNote"                : "Where the bar's ZERO end stands when it is placed to the right, measured from the element's OWN ORIGIN - the underline's left end - and never from the end of the underline, so retitling a drawing can lengthen the underline without shoving the bar off the corner it was put under. StepMm is what the panel's spinner and a free drag of the far arrow move it by; a drag that lands on a snapped vertex is exact and ignores the step. MaxMm is a paper limit, comfortably past the long edge of an A0.",
+
         "DrawingTitle__ShowScaleBar"                 : true,
         "DrawingTitle__Uppercase"                    : true,
         "DrawingTitle__PhaseMode"                    : "auto",
@@ -127,6 +147,10 @@
         "Grips__LookupSizePx"    : 13,
         "Grips__StretchOffsetPx" : 12,
         "Grips__LookupOffsetPx"  : 12,
+        "Grips__SlideSizePx"     : 13,
+        "Grips__SlideOffsetPx"   : 12,
+        "Grips__SlideNote"       : "The slide grip is the double arrow off the FAR end of a scale bar placed to the right of its title. It carries the bar along the line without changing its length, snapping to the projected linework so the end can be put under a corner of the drawing above; the stretch arrow at the bar's near end then lengthens it back towards the title, its far end held where the slide left it. SnapGuidePx is the dashed line drawn from a snapped vertex down to the bar while a slide is held.",
+        "Grips__SnapGuidePx"     : 1.25,
         "Grips__ClickSlopPx"     : 4,
         "Grips__LinkSizePx"      : 11,
         "Grips__LinkOffsetPx"    : 16,
@@ -187,6 +211,11 @@
         "Labels__PropsUppercase"     : "Capitals",
         "Labels__PropsUnderline"     : "Underline (mm)",
         "Labels__PropsShowBar"       : "Scale bar",
+        "Labels__PropsBarPlace"      : "Bar sits",
+        "Labels__PropsBarBelow"      : "Under the title",
+        "Labels__PropsBarRight"      : "To the right of it",
+        "Labels__PropsBarOffset"     : "Bar position (mm)",
+        "Labels__PropsBarOffsetNote" : "From the title's left edge to the bar's zero end, in 50 mm steps. On the sheet, drag the double arrow at the bar's far end to carry it along - it snaps to the corners of the drawing above - and the arrow at its near end to lengthen it back towards the title.",
         "Labels__ToastUntiedTitle"   : "Untied. It keeps what it says.",
 
         "Labels__MenuFromViewport" : "From viewport ({scale})",
@@ -195,7 +224,10 @@
         "Labels__MenuSubdivide"    : "Split first division",
         "Labels__MenuUnits"        : "Show units",
         "Labels__MenuReset"        : "Reset length",
+        "Labels__MenuBarRight"     : "Scale bar to the right",
         "Labels__GripStretch"      : "Drag to lengthen or shorten",
+        "Labels__GripStretchBack"  : "Drag towards the title to lengthen; the far end stays put",
+        "Labels__GripSlide"        : "Drag to carry the bar along - it snaps to the corners of the drawing above",
         "Labels__GripLookup"       : "Scale and options",
         "Labels__GripLink"         : "Drag onto a drawing to tie this to it, or onto the title block for the sheet's scale. Let go on bare paper to untie it.",
         "Labels__GripPlug"         : "Drag this end onto another drawing to move the tie there, or onto the title block for the sheet's scale. Let go on bare paper to untie it.",

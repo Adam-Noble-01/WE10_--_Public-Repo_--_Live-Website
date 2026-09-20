@@ -47,6 +47,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.20.0
+// - The left column has two tabs, Document Preferences and Specification, as
+//   the right column has Properties and Scrapbook. Every section the column
+//   held is on Document Preferences, which is registered first so it is theirs
+//   by default. Specification holds the Specification Scrapbook
+//   (58__Feature__ScrapbookSpecification): the project's notes, each code in a
+//   bubble that is dragged onto the paper. All four tabs carry hover text.
+//
 // 20-Sep-2026 - Version 1.19.0
 // - Starts Na__LayoutEditor__ViewportIdentity__ with the editor: it names
 //   unnamed elevation viewports from the model they draw and the project's
@@ -170,6 +178,8 @@
     import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel, Na__LeCfg__GetPanelSetup, Na__LeCfg__MatchKeyBinding } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeVeil__FirstOpen, Na__LeVeil__ReturnTo3d, Na__LeVeil__Dismiss3d } from './Na__LayoutEditor__LoadingVeil__.js';
     import { Na__LeEdge__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LePanelPatterns__Register } from '../36__System__HatchPatternTools/Na__LayoutEditor__Panel__Patterns__.js';
+    import { Na__LeHatch__Ready } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeComposite__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__DrawCfg__Load } from '../../40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
     import { Na__LeGrad__Ready } from '../35__System__DrawingTools/Na__LayoutEditor__GradientTool__.js';
@@ -199,12 +209,15 @@
     import { Na__LePanelScrap__Register, Na__LePanelScrap__RegisterTab } from '../55__Feature__Scrapbook/Na__LayoutEditor__Panel__Scrapbook__.js';
     import { Na__LePanelScrapCustom__Register } from '../56__Feature__ScrapbookCustom/Na__LayoutEditor__Panel__ScrapbookCustom__.js';
     import { Na__LePanelParam__RegisterLibrary, Na__LePanelParam__RegisterProperties } from '../57__Feature__ScrapbookParametric/Na__LayoutEditor__Panel__ScrapbookParametric__.js';
+    import { Na__LePanelScrapSpec__RegisterTab, Na__LePanelScrapSpec__Register } from '../58__Feature__ScrapbookSpecification/Na__LayoutEditor__Panel__ScrapbookSpecification__.js';
     import { Na__LePanelViewport__EDIT_EVENT, Na__LePanelViewport__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__ViewportSettings__.js';
     import { Na__LePanelText__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Text__.js';
     import { Na__LePanelLeaders__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Leaders__.js';
     import { Na__LePanelDims__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Dimensions__.js';
     import { Na__LePanelShapes__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Shapes__.js';
     import { Na__LePanelStyles__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Styles__.js';
+    import { Na__LePanelSpComp__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__SitePlanComposites__.js';
+    import { Na__LeSpComp__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
     import { Na__LePanelModelLayers__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__ModelLayers__.js';
     import { Na__LeToolbar__Mount, Na__LeToolbar__Save } from '../40__Ui__Panels/Na__LayoutEditor__Toolbar__.js';
     import { Na__LeMeasure__Mount } from '../30__System__SheetTools/Na__LayoutEditor__Measurements__.js';
@@ -220,6 +233,9 @@
     import { Na__LeRegEd__Mount, Na__LeRegEd__Show, Na__LeRegEd__Hide } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Editor__.js';
     import { Na__LeReg__Initialize } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Data__.js';
     import { Na__LeRegEdit__Initialize } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js';
+    // @delegate: ../52__Feature__StatementWriter/03__Ui__Page/Na__LayoutEditor__Statement__Page__.js
+    import { Na__LeStmtPage__Mount, Na__LeStmtPage__Show, Na__LeStmtPage__Hide } from '../52__Feature__StatementWriter/03__Ui__Page/Na__LayoutEditor__Statement__Page__.js';
+    import { Na__LeStmt__OPEN_EVENT, Na__LeStmt__Initialize } from '../52__Feature__StatementWriter/01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
     import { Na__LeSpecEd__Mount, Na__LeSpecEd__Show, Na__LeSpecEd__Hide } from '../50__Feature__Specification/Na__LayoutEditor__SpecEditor__.js';
     import { Na__LeMarginGrip__Attach, Na__LeMarginGrip__Detach } from '../50__Feature__Specification/Na__LayoutEditor__MarginGrip__.js';
     import { Na__LeText__Commit } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
@@ -277,6 +293,7 @@
     const Na__LeMode__VIEW_SHEET    = 'sheet';           // <-- A drawing tab: the sheet, its panels and its tools
     const Na__LeMode__VIEW_REGISTER = 'register';
     const Na__LeMode__VIEW_SPEC     = 'spec';            // <-- The Project Specification tab, over the sheet
+    const Na__LeMode__VIEW_STATEMENT = 'statement';      // <-- The Statements tab, over the sheet as the specification is
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Context, Shell and State
@@ -347,6 +364,8 @@
 
         Na__LeSurface__Mount(Na__LeMode__Stage, { editable : editable });
         Na__LeRegEd__Mount(host, { editable, showToast : toast, navigation : { enter : Na__LeMode__Enter, openRegister : Na__LeMode__OpenRegister } });
+        Na__LeStmt__Initialize({ editable : editable, showToast : toast });
+        Na__LeStmtPage__Mount(host, { editable : editable, showToast : toast });   // <-- Mounted for the viewer too: a reader gets the Read view and nothing else
 
         // THE VIEWER | Its own chrome, the specification page, and nothing else
         // ------------------------------------------------------------
@@ -360,7 +379,12 @@
             return;
         }
         Na__LePanels__Mount({ left : host.querySelector('.na-le-column--left'), right : host.querySelector('.na-le-column--right'), editable : editable, showToast : toast });
-        // LEFT COLUMN | Sheet, then the three things a drawing is made of:
+        // LEFT COLUMN | Two tabs, as the right column has: the document's own
+        // preferences, and the project specification as bubbles to drag in.
+        // Everything the column held before the tabs is on the first.
+        Na__LePanels__RegisterTab('left', { id : 'document', title : Na__LeCfg__GetLabel('PanelTabDocument', 'Document Preferences'), hint : Na__LeCfg__GetLabel('PanelTabDocumentHint', 'The sheet, its notes margin, its layers and what its drawings show.') });   // <-- First, so every section that names no tab is on it
+        Na__LePanelScrapSpec__RegisterTab();                                   // <-- The Specification tab: its one section below names it
+        // DOCUMENT PREFERENCES | Sheet, then the three things a drawing is made of:
         // its own layers, the render composites that make its picture, and the
         // model categories that picture is allowed to see. Left to right is
         // now "what is on the paper" against "what the selection's properties
@@ -369,9 +393,12 @@
         Na__LePanelMargin__Register();                                         // <-- The sheet's notes margin, beside its other sheet settings
         Na__LePanelLayers__Register();
         Na__LePanelStyles__Register();
+        Na__LePanelSpComp__Register();                                         // <-- Site Plan Render Composites: the same controls, the site plan's three decks; hidden off a site plan sheet
         Na__LePanelModelLayers__Register();
+        // THE SPECIFICATION TAB | The project's notes, each code in a bubble that is dragged onto the paper
+        Na__LePanelScrapSpec__Register();
         // RIGHT COLUMN | Two tabs: the selected item's properties, and the scrapbooks
-        Na__LePanels__RegisterTab('right', { id : 'properties', title : Na__LeCfg__GetLabel('PanelTabProperties', 'Properties') });   // <-- First, so every section that names no tab is on it
+        Na__LePanels__RegisterTab('right', { id : 'properties', title : Na__LeCfg__GetLabel('PanelTabProperties', 'Properties'), hint : Na__LeCfg__GetLabel('PanelTabPropertiesHint', 'The settings of what is selected on the sheet, or of the next thing each tool places.') });   // <-- First, so every section that names no tab is on it
         Na__LePanelScrap__RegisterTab();                                       // <-- The Scrapbook tab: the three libraries below name it
         Na__LePanelParam__RegisterProperties();                                // <-- First on Properties, and hidden until a parametric element is selected
         Na__LePanelViewport__Register();
@@ -383,6 +410,7 @@
         Na__LePanelScrap__Register();                                          // <-- Standard: ready-made items from the config; shown only on a sheet that has some
         Na__LePanelParam__RegisterLibrary();                                   // <-- Parametric: dynamic elements - the scale bar - that keep answering to their parameters
         Na__LePanelScrapCustom__Register();                                    // <-- Custom: items saved from a selection, one JSON file each in the user content folder
+        Na__LePanelPatterns__Register();                                       // <-- Patterns: LAST in the right column, the hatch library and each site plan layer's hatch
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
         Na__LeMeasure__Mount(host.querySelector('.na-le-centre'), { editable : editable, stage : Na__LeMode__Stage });   // <-- The Measurements box, bottom right over the stage
         Na__LeSpecEd__Mount(host, { editable : editable, showToast : toast });    // <-- The Project Specification page, over the shell
@@ -468,6 +496,7 @@
 
         if (fromSpec) {
             Na__LeRegEd__Hide();
+            Na__LeStmtPage__Hide();
             if (!Na__LeVw__IsViewerMode()) Na__LeSpecEd__Hide();                 // <-- Back from the specification: the sheet was kept underneath
             Na__LeMode__View = Na__LeMode__VIEW_SHEET;                           // <-- In the viewer, ShowDrawing puts the specification away below
             Na__LeMode__AttachSheetInput();
@@ -530,6 +559,7 @@
     // ------------------------------------------------------------
     function Na__LeMode__Leave() {
         Na__LeRegEd__Hide();
+        Na__LeStmtPage__Hide();                                                 // <-- Writes whatever was typed to disk on the way out
         if (!Na__LeMode__Active) return false;
         if (Na__LeVw__IsViewerMode()) Na__LeVw__Teardown();                     // <-- Both reading surfaces let go, whichever was showing
         else if (Na__LeMode__View === Na__LeMode__VIEW_SPEC) Na__LeSpecEd__Hide();   // <-- The sheet's input already stood down when the page opened
@@ -615,6 +645,7 @@
     // ------------------------------------------------------------
     function Na__LeMode__OpenSpecification(noteId) {
         Na__LeRegEd__Hide();
+        Na__LeStmtPage__Hide();
         if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
         void Na__LeSpec__EnsureLoaded();
         if (Na__LeMode__View !== Na__LeMode__VIEW_SPEC) {
@@ -643,6 +674,7 @@
         Na__LeText__Commit();
         Na__LeMode__DetachSheetInput();
         Na__LeSpecEd__Hide();
+        Na__LeStmtPage__Hide();
         if (Na__LeVw__IsViewerMode()) Na__LeVw__ShowRegister();
         Na__LeMode__View = Na__LeMode__VIEW_REGISTER;
         Na__LeRegEd__Show();
@@ -650,6 +682,33 @@
         return true;
     }
     // ------------------------------------------------------------
+
+    // FUNCTION | Show the Statements Tab
+    // ------------------------------------------------------------
+    // Over the sheet, exactly as the specification is: the sheet stays laid
+    // out underneath, its tools and keys stand down, and a text field still
+    // open on the paper is committed first so nothing typed is dropped.
+    // A request while no drawing tab is open opens the first sheet under it.
+    //
+    // THE VIEWER GETS THE SAME PAGE. It was mounted read-only, so a reader
+    // sees the statement and no authoring surface at all - there is no
+    // separate viewer route to keep in step.
+    // ------------------------------------------------------------
+    function Na__LeMode__OpenStatements() {
+        if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
+        Na__LeRegEd__Hide();
+        Na__LeSpecEd__Hide();
+        if (Na__LeMode__View !== Na__LeMode__VIEW_STATEMENT) {
+            Na__LeText__Commit();                                              // <-- Typing on the paper is kept, not dropped by the tools standing down
+            Na__LeMode__DetachSheetInput();
+            Na__LeMode__View = Na__LeMode__VIEW_STATEMENT;
+        }
+        void Na__LeStmtPage__Show();
+        Na__LeMode__Dispatch();
+        return true;
+    }
+    // ------------------------------------------------------------
+
 
     function Na__LeMode__IsActive() { return Na__LeMode__Active; }
     function Na__LeMode__Ready()    { return Na__LeMode__ReadyOnce || Promise.resolve(false); }
@@ -808,7 +867,7 @@
         // AND THE DRAWING VIEW CONFIG, because every viewport bake renders through
         // the drawing presets and they read their setup from it. index.html starts
         // the fetch; this is the same promise, so it is waited for, never repeated.
-        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__DrawCfg__Load() ]).then(() => {
+        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__LeHatch__Ready(), Na__LeSpComp__Ready(), Na__DrawCfg__Load() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
             Na__LeVw__Initialize({ editable : Na__LeMode__IsEditable(), showToast : context.showToast || null });   // <-- Asked before anything is built: the shell it gets depends on the answer
             Na__LeModel__Initialize();
@@ -840,6 +899,7 @@
                 Na__LePanels__Refresh('margin');
             });
             window.addEventListener(Na__LeSpec__OPEN_EVENT, (event) => { Na__LeMode__OpenSpecification(event.detail && event.detail.noteId); });
+            window.addEventListener(Na__LeStmt__OPEN_EVENT, () => { Na__LeMode__OpenStatements(); });
             window.addEventListener(Na__LeSpec__GOTO_EVENT, (event) => {     // <-- A usage chip: the sheet, with its bubble selected
                 const detail = event.detail || {};
                 if (!detail.sheetId || !Na__LeMode__Enter(detail.sheetId)) return;
@@ -887,12 +947,14 @@
         Na__LeMode__VIEW_SHEET,
         Na__LeMode__VIEW_SPEC,
         Na__LeMode__VIEW_REGISTER,
+        Na__LeMode__VIEW_STATEMENT,
         Na__LeMode__Initialize,
         Na__LeMode__Ready,
         Na__LeMode__Enter,
         Na__LeMode__Leave,
         Na__LeMode__OpenSpecification,
         Na__LeMode__OpenRegister,
+        Na__LeMode__OpenStatements,
         Na__LeMode__IsActive,
         Na__LeMode__IsEditable,
         Na__LeMode__GetView

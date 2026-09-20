@@ -39,6 +39,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.7.0
+// - A weight whose kind is 'percent' reads as a percentage: Enhance Whitecard
+//   is the first, and its number is how much of the levels and sharpen pass to
+//   apply rather than a line width.
+//
 // 13-Sep-2026 - Version 1.6.1
 // - The Section Outline weight lines up with the weights above and below it:
 //   its row keeps an empty slot where a checkbox would be. Base Image gains a
@@ -135,8 +140,24 @@
 
     // HELPER FUNCTION | The Unit a Weight Is Measured In, for Its Suffix
     // ------------------------------------------------------------
+    // Three units for three kinds of number in one column. Without them a
+    // reader has no way to tell a width from a multiplier from a dial except by
+    // hovering, and the three want reading at a glance.
+    // ------------------------------------------------------------
     function Na__LePanelStyles__Unit(kind) {
-        return kind === 'pixels' ? 'px' : '×';                               // <-- A multiplication sign: "times the master"
+        if (kind === 'pixels')  return 'px';
+        if (kind === 'percent') return '%';
+        return '×';                                                          // <-- A multiplication sign: "times the master"
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What a Weight Box Says When Hovered
+    // ------------------------------------------------------------
+    function Na__LePanelStyles__Hint(kind) {
+        if (kind === 'pixels')  return Na__LeCfg__GetLabel('CompositeWeightPixelsHint',  'Line width in render pixels');
+        if (kind === 'percent') return Na__LeCfg__GetLabel('CompositeWeightPercentHint', 'How much of the effect to apply: 0 is none of it, 100 is all of it');
+        return Na__LeCfg__GetLabel('CompositeWeightFactorHint', 'Multiplier on the sheet viewport lineweight');
     }
     // ------------------------------------------------------------
 
@@ -150,9 +171,7 @@
         const input = Na__LePanels__Input('number', 'style-weight', { min : row.weight.min, max : row.weight.max, step : row.weight.step });
         input.classList.add('na-le-adv-weight');
         input.setAttribute('data-na-role', row.key);
-        input.title = row.weight.kind === 'pixels'
-            ? Na__LeCfg__GetLabel('CompositeWeightPixelsHint', 'Line width in render pixels')
-            : Na__LeCfg__GetLabel('CompositeWeightFactorHint', 'Multiplier on the sheet viewport lineweight');
+        input.title = Na__LePanelStyles__Hint(row.weight.kind);
         cluster.appendChild(input);
 
         const unit = document.createElement('span');

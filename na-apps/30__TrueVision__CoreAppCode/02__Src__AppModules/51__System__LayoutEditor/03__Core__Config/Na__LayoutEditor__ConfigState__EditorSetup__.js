@@ -121,6 +121,56 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Statement Writer Setup (the project's written documents)
+    // ------------------------------------------------------------
+    // Where statements live, how a new one is named, what a published picture
+    // is resized to, and how the PDF is rasterised. The PDF note in the config
+    // block is worth reading before changing anything under Pdf: that exporter
+    // makes a picture of the page ON PURPOSE, and it is the only one that does.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetStatementSetup() {
+        const val     = (key, fallback) => Na__LeCfg__Val('Statement', key, fallback);
+        const num     = (key, fallback) => Na__LeCfg__Num('Statement', key, fallback);
+        const presets = val('PdfPresets', null);
+
+        return {
+            folderName        : String(val('FolderName', '10__StatementDocs')),
+            indexFileName     : String(val('IndexFileName', 'TrueVision__StatementDocs__.json')),
+            imagesFolderName  : String(val('ImagesFolderName', '02_StatementDocs__Content__Images')),
+            parkedFolderName  : String(val('ParkedImagesFolderName', '00__Images')),
+
+            filePattern       : String(val('FilePattern', '{code}_T{tranche}_S{number}__{project}__{title}__.md')),
+            folderPattern     : String(val('FolderPattern', '{index}__{title}')),
+            defaultTranche    : String(val('DefaultTranche', '01')),
+            numberDigits      : Math.max(1, Math.min(4, Math.round(num('NumberDigits', 2)))),
+
+            draftEnabled      : val('DraftEnabled', true) !== false,
+            draftDebounceMs   : Math.max(100, num('DraftDebounceMs', 700)),
+            autoSaveLocalMs   : Math.max(500, num('AutoSaveLocalMs', 4000)),
+            loadTimeoutMs     : Math.max(1000, num('LoadTimeoutMs', 15000)),
+            confirmOverwrite  : val('ConfirmCloudOverwrite', true) !== false,
+
+            htmlFileSuffix    : String(val('HtmlFileSuffix', '.html')),
+            stylesheetUrl     : String(val('StylesheetUrl', '')),
+
+            imageMaxEdgePx    : Math.max(320, Math.round(num('ImageMaxEdgePx', 2000))),
+            imageFormat       : String(val('ImageFormat', 'image/webp')),
+            imageQuality      : Math.max(0.3, Math.min(1, num('ImageQuality', 0.82))),
+            imagePassThrough  : Math.max(0, Math.round(num('ImagePassThroughBytes', 350000))),
+
+            pdfMaxPagePt      : Math.max(1000, num('PdfMaxPagePt', 14399)),
+            pdfTileCssPx      : Math.max(500, Math.round(num('PdfTileCssPx', 4000))),
+            pdfPresets        : Array.isArray(presets) && presets.length ? presets : [
+                { Key : 'full',    Label : 'Download PDF',         RasterScale : 2.00, JpegQuality : 0.92, FileSuffix : ''          },
+                { Key : 'compact', Label : 'Download PDF (small)', RasterScale : 1.25, JpegQuality : 0.75, FileSuffix : '__Compact' }
+            ],
+            html2CanvasPath   : String(val('Html2CanvasScriptPath',
+                './02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/html2canvas.umd.js'))
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Margin Notes Setup (the notes column down a sheet)
     // ------------------------------------------------------------
     // What a sheet's notes margin starts with, and the rules it is laid out by.
@@ -344,6 +394,7 @@
         Na__LeCfg__GetHistorySetup,
         Na__LeCfg__GetAutoSaveSetup,
         Na__LeCfg__GetSpecificationSetup,
+        Na__LeCfg__GetStatementSetup,
         Na__LeCfg__GetMarginNotesSetup,
         Na__LeCfg__GetPanelSetup,
         Na__LeCfg__GetNavigationSetup,

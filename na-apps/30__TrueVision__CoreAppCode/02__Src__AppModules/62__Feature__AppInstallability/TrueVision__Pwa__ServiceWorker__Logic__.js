@@ -34,6 +34,60 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.9.5
+// - Token bumped (2026-09-20-10) for the parametric scale bar stood to the
+//   right of its title. Bumped rather than carried by -9 for the same reason
+//   -9 was not carried by -8: the releases may not ship together, and HEAD
+//   still holds -4, so a client can warm at -9 before this goes out. That
+//   bucket would hold a Drawing Title module with no PLACE_BELOW or
+//   PLACE_RIGHT export and a Grips module that never imported the snapping
+//   module, beside a new panel and a new grips module that name both. The
+//   editor would fail at import and stay failed until the second visit.
+//
+// 20-Sep-2026 - Version 1.9.4
+// - Token bumped (2026-09-20-9) for the Statement Writer, and this one is
+//   bumped rather than carried by -8 because the two releases may not ship
+//   together. -8 is still undeployed (HEAD holds -4), so if both go out at
+//   once either token would do; if the fog ships first, a client would then be
+//   warm at -8 - a bucket holding a mode controller and a tab strip WITHOUT
+//   the Statements tab, and a PDF exporter without Na__LePdf__LoadLibrary,
+//   which the new statement exporter imports by name. That pairing fails at
+//   import and takes the whole editor with it until the second visit. A
+//   needless bump costs one shell download; a missed one costs the editor.
+// - Seventeen new modules under 52__Feature__StatementWriter join the graph,
+//   and the mode controller and tab strip gained new imports and exports
+//   (Na__LeMode__OpenStatements, Na__LeMode__VIEW_STATEMENT).
+//
+// 20-Sep-2026 - Version 1.9.3
+// - NO FURTHER BUMP for the Elevation Depth Fog, and it needs one: 2026-09-20-8
+//   is still undeployed (HEAD holds -4), so it covers this release with the ones
+//   below. For whoever next asks why: the fog adds exports that ALREADY-CACHED
+//   modules now name - the elevation data module's GetDepthFog / SetDepthFog /
+//   GetDepthFogPlane (the row builders, the editor and the mode controller),
+//   the section engine's RenderDepthInto, the Viewport 2D frame unit's four fog
+//   functions and Viewport2d's RenderFogForExport (the PDF exporter). A warm
+//   cache pairing any of those new importers with yesterday's exporter fails
+//   its import. If -8 has been deployed by the time this ships, bump again.
+// - Token bumped (2026-09-20-8): hatches on vector shapes. The sheet chrome now IMPORTS
+//   the hatch module, which is a new edge in the graph of cached importers, and
+//   the hatch module gained two more exports that the chrome and the PDF
+//   exporter both name. A warm cache pairing the new chrome with yesterday's
+//   hatch module fails its import and takes the whole editor down until the
+//   second visit.
+// - Token bumped (2026-09-20-7): the site plan subtype and the Site Plan Render
+//   Composites panel. Two new modules again - the composites rule module and
+//   its panel - plus a NEW EXPORT, the hatch token, that the site plan painter
+//   now imports. A warm cache holding yesterday's hatch module would serve a
+//   file without it and the painter's import would fail, which takes the whole
+//   editor down until the second visit. Also the fix for the Patterns panel
+//   not repainting: without a new token a warm client keeps the old painter
+//   and Adam sees the same bug he reported.
+// - Token bumped (2026-09-20-6): the hatch pattern system. Two new modules
+//   (36__System__HatchPatternTools) are now imported by the mode controller, the
+//   site plan painter, SheetRecords and SheetModel__Viewports - all modules a warm
+//   cache already holds, so a cached copy of any of them would link against a
+//   graph with no such files. (2026-09-20-5 was another session's, same afternoon.)
+//
 // 20-Sep-2026 - Version 1.9.2
 // - Token bumped (2026-09-20-4): two site plan stores per project, Existing and
 //   Proposed. The site plan store gains QualifyKey, SplitKey, StoreIdForKey,
@@ -152,7 +206,13 @@
 //   flight with no cut applied. It reads exactly like the feature was never
 //   wired up, on a build where it was.
 // - RULE OF THUMB: renaming or moving ANY export that crosses a module boundary
-//   needs this token bumped in the same commit. Adding a new export does not.
+//   needs this token bumped in the same commit. Adding a new export does not -
+//   UNLESS something in the same release imports it by name, which is the
+//   ordinary reason to add one. A warm client can serve the new importer beside
+//   the cached old exporter, and a named import that is not there is a hard
+//   SyntaxError: the whole module graph refuses to load, and the editor is
+//   broken until a second visit. Treat "new export plus new import of it" as a
+//   rename for the purposes of this token.
 //
 // 27-Aug-2026 - Version 1.0.1
 // - Fixed regenerated Presentation Mode scene thumbnails appearing stale on the
@@ -171,7 +231,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-20-4';                                                                      // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-20-10';                                                                   // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

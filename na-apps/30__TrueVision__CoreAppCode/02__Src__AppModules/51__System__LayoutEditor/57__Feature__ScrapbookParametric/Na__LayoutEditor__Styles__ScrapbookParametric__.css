@@ -19,9 +19,15 @@
  *
  * PORT NOTE:
  * - Authored in : TrueVision3D first (19-Sep-2026)
- * - ValeVision  : ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
+ * - ValeVision  : 1.0.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
+ * - Ahead of it : 1.1.0 (the slide grip, the reversed stretch and the snap
+ *                 guide) is TrueVision only.
  *
  * DEVELOPMENT LOG:
+ * 20-Sep-2026 - Version 1.1.0
+ * - The slide grip's double arrow, the reversed stretch arrow and the dashed
+ *   guide a snapped slide draws from the vertex it found down to the element.
+ *
  * 19-Sep-2026 - Version 1.0.0
  * - Initial implementation.
  */
@@ -50,11 +56,43 @@
     background                         : #e01b24;                     /* <-- The house red of a grip that is held */
 }
 
-/* STRETCH | An arrow pointing the way it drags: along the bar, away from zero. */
+/* STRETCH | An arrow pointing the way it drags: along the bar, away from zero.
+   REVERSED, it points back at the title instead, which is the way a scale bar
+   stood to the right of its title lengthens: its far end is held and its near
+   end is the one that is pulled. Mirrored rather than given a second polygon,
+   so the two can never drift apart. */
 
 .na-le-grip--param-stretch {
     clip-path                          : polygon(0 22%, 52% 22%, 52% 0, 100% 50%, 52% 100%, 52% 78%, 0 78%);
     cursor                             : ew-resize;
+}
+
+.na-le-grip--param-stretch.is-reversed {
+    transform                          : scaleX(-1);
+}
+
+/* SLIDE | A double arrow: this end is not pulled, it is PUT - carried along
+   the line without changing what it is the end of. It is the grip that snaps,
+   and the one dashed guide below is drawn from whatever it snapped to. */
+
+.na-le-grip--param-slide {
+    clip-path                          : polygon(0 50%, 26% 0, 26% 28%, 74% 28%, 74% 0, 100% 50%, 74% 100%, 74% 72%, 26% 72%, 26% 100%);
+    cursor                             : ew-resize;
+}
+
+/* THE SNAP GUIDE | A slide moves along one line, so a corner two metres above
+   it decides its x and nothing else. Without a line drawn between them there
+   is no saying WHICH corner the end has been put under. Same blue as the
+   vertex snap marker it hangs from, and no wider than a hairline at any zoom
+   (the width is set on the element, divided by the zoom). */
+
+.na-le-param-guide {
+    position                           : absolute;
+    width                              : 0;
+    border-left                        : 0 dashed #12a5dc;
+    pointer-events                     : none;
+    z-index                            : 7;                           /* <-- Under the grips, over the paper */
+    opacity                            : 0.85;
 }
 
 /* LOOKUP | The triangle every CAD program uses for "there is a list here". */

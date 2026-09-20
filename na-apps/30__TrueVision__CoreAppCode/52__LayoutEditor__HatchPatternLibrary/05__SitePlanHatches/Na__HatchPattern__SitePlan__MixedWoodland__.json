@@ -1,0 +1,84 @@
+{
+    "HatchPattern__MixedWoodland__Meta": {
+        "Meta__FileName"        : "Na__HatchPattern__SitePlan__MixedWoodland__.json",
+        "Meta__Description"     : "Mixed woodland - conifer and broadleaf tree glyphs scattered on a repeating tile, in the Ordnance Survey manner. Drawn as an AREA texture, not as individual surveyed canopies: it says 'this is woodland', it does not say where each tree is.",
+        "Meta__Version"         : "1.0.0",
+        "Meta__Created"         : "20-Sep-2026",
+        "Meta__Author"          : "Adam Noble - Noble Architecture",
+
+        "Meta__SourceReference" : "52__LayoutEditor__HatchPatternLibrary/OS_Symbol__Examples__Woodland&Water__.png - the 'Mixed woodland' swatch",
+
+        "Meta__WhyTransparent"  : "The tile paints GLYPHS ONLY and never a background. The solid green wash under it is the fill deck of the site plan composite, which is a separate layer with its own colour and opacity. Baking a ground into the tile would collapse two of the three decks into one and make the wash impossible to switch off on its own.",
+        "Meta__WhyPaperUnits"   : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json. A tree therefore measures the same on the sheet at 1:200 and at 1:500, which is what a drawn symbol does - the drawing gets denser as the scale coarsens, exactly as an OS sheet does. Pattern__Scale on a viewport adjusts from there.",
+        "Meta__WhyGlyphOrigin"  : "A glyph is drawn about its own BASE CENTRE, x to the right and y DOWN, so it can be placed by the point it appears to stand on. That matches the sheet's own coordinate sense and makes a tile easy to author by hand.",
+        "Meta__WhyEightGlyphs"  : "Eight glyphs on an 18 mm tile reads as woodland without the repeat becoming obvious. Fewer looks sparse and the grid shows; many more turns to mush at 1:500. The positions are hand-placed rather than generated, so the pattern is identical on screen and on paper and cannot drift between renders."
+    },
+
+    "HatchPattern__MixedWoodland__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the Patterns panel.",
+        "Identity__Key"         : "SitePlanHatch__MixedWoodland",
+        "Identity__Label"       : "Mixed Woodland",
+        "Identity__Group"       : "Land Cover",
+        "Identity__Keywords"    : ["woodland", "trees", "forest", "mixed", "conifer", "broadleaf"],
+        "Identity__Note"        : "Referenced by 75__SitePlan__SoftLandscape__Trees__MixedWoodland in the Tags SSOT, through SitePlan__FillHatchId."
+    },
+
+    "HatchPattern__MixedWoodland__Tile": {
+        "Tile__Description"  : "The repeating cell, in paper millimetres. RowOffsetMm shifts every other row sideways so the repeat does not read as a grid.",
+        "Tile__WidthMm"      : 18.0,
+        "Tile__HeightMm"     : 18.0,
+        "Tile__RowOffsetMm"  : 0.0,
+        "Tile__Note"         : "The glyph positions already stagger, so no row offset is needed here."
+    },
+
+    "HatchPattern__MixedWoodland__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with before a viewport overrides anything. A stroke colour of 'inherit' takes the layer's own line colour, so the woodland hatch is green because the woodland layer is green.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.18,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__MixedWoodland__Glyphs": {
+        "Glyphs__Description" : "Reusable shapes, each drawn about its base centre with y pointing DOWN. Path data is ordinary SVG, in tile millimetres.",
+
+        "Conifer": {
+            "Glyph__Label"  : "Conifer",
+            "Glyph__WidthMm": 2.3,
+            "Glyph__HeightMm": 3.4,
+            "Glyph__Fill"   : "none",
+            "Glyph__Path"   : "M0,0 L0,-3.4 M-1.15,-0.25 L0,-1.35 L1.15,-0.25 M-0.95,-1.35 L0,-2.3 L0.95,-1.35 M-0.7,-2.3 L0,-3.1 L0.7,-2.3",
+            "Glyph__Note"   : "A fir: a vertical stem with three chevron tiers widening downward."
+        },
+
+        "Broadleaf": {
+            "Glyph__Label"  : "Broadleaf",
+            "Glyph__WidthMm": 3.0,
+            "Glyph__HeightMm": 3.4,
+            "Glyph__Fill"   : "none",
+            "Glyph__Path"   : "M0,0 L0,-1.35 M0,-1.35 C-1.45,-1.4 -1.5,-3.4 0,-3.4 C1.5,-3.4 1.45,-1.4 0,-1.35 Z",
+            "Glyph__Note"   : "A short stem under a rounded crown. Unfilled, so the wash below shows through, as the OS sheet draws it."
+        }
+    },
+
+    "HatchPattern__MixedWoodland__Placements": [
+        { "Place__Glyph": "Conifer",   "Place__XMm": 3.2,  "Place__YMm": 5.0,  "Place__Note": "Row 1" },
+        { "Place__Glyph": "Broadleaf", "Place__XMm": 10.0, "Place__YMm": 4.4,  "Place__Note": "Row 1" },
+        { "Place__Glyph": "Broadleaf", "Place__XMm": 15.6, "Place__YMm": 8.4,  "Place__Note": "Row 2, right" },
+        { "Place__Glyph": "Conifer",   "Place__XMm": 7.0,  "Place__YMm": 10.2, "Place__Note": "Row 2, middle" },
+        { "Place__Glyph": "Conifer",   "Place__XMm": 13.2, "Place__YMm": 14.2, "Place__Note": "Row 3" },
+        { "Place__Glyph": "Broadleaf", "Place__XMm": 2.0,  "Place__YMm": 15.0, "Place__Note": "Row 3, left" },
+        { "Place__Glyph": "Broadleaf", "Place__XMm": 7.4,  "Place__YMm": 17.8, "Place__Note": "Straddles the bottom edge, so it knits to the tile below" },
+        { "Place__Glyph": "Conifer",   "Place__XMm": 17.4, "Place__YMm": 17.6, "Place__Note": "Straddles the corner, so it knits both ways" }
+    ],
+
+    "HatchPattern__MixedWoodland__Bounds": {
+        "Bounds__Description"    : "How far a viewport may scale and turn this pattern before it stops reading as woodland.",
+        "Bounds__MinScale"       : 0.25,
+        "Bounds__MaxScale"       : 4.00,
+        "Bounds__StepScale"      : 0.05,
+        "Bounds__RotationStepDeg": 15
+    }
+}

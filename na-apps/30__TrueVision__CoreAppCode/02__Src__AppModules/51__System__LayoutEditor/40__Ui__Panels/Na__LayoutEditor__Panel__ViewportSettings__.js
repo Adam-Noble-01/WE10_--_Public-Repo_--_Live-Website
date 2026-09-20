@@ -147,6 +147,13 @@
         Na__SpStore__DefaultStoreId
     } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
     import {
+        Na__LeSpComp__PLAN_AUTO,
+        Na__LeSpComp__PLAN_BLOCK,
+        Na__LeSpComp__PLAN_LOCAL,
+        Na__LeSpComp__StoredPlanType,
+        Na__LeSpComp__PlanTypeForScale
+    } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
+    import {
         Na__LeSource__HasChoices,
         Na__LeSource__Resolve,
         Na__LeSource__Options,
@@ -247,6 +254,42 @@
     // location plan starts without the trees. Resolves null, with a toast, on a
     // project with no site plan data.
     // ------------------------------------------------------------
+    // HELPER FUNCTION | What a Scale Alone Makes a Site Plan Viewport
+    // ------------------------------------------------------------
+    // One reading of the rule for the whole panel. Before TASK 06 the naming of
+    // a new viewport and the Add dropdown each carried their own `>= 1000`,
+    // which agreed with the real 1:500 boundary only because no scale between
+    // 501 and 999 was on the list.
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__PlanTypeName(denominator) {
+        return Na__LeSpComp__PlanTypeForScale(denominator) === Na__LeSpComp__PLAN_BLOCK
+            ? Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan')
+            : Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Site Plan Subtype Options
+    // ------------------------------------------------------------
+    // Adam, TASK 06: 'After the site plan dropdown, add a dropdown for the site
+    // plan type.' Three entries, not two: Automatic is the honest default and
+    // it SAYS WHAT IT RESOLVED TO at this viewport's scale, so nobody has to
+    // remember where the 1:500 line falls to know which way a viewport will
+    // draw.
+    // ------------------------------------------------------------
+    function Na__LePanelViewport__PlanTypeOptions(denominator) {
+        const block    = Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan');
+        const location = Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan');
+        const resolved = Na__LeSpComp__PlanTypeForScale(denominator) === Na__LeSpComp__PLAN_BLOCK ? block : location;
+        return [
+            { value : Na__LeSpComp__PLAN_AUTO,  label : Na__LeCfg__GetLabel('SitePlanPlanTypeAuto', 'Automatic') + ' - ' + resolved },
+            { value : Na__LeSpComp__PLAN_BLOCK, label : block },
+            { value : Na__LeSpComp__PLAN_LOCAL, label : location }
+        ];
+    }
+    // ------------------------------------------------------------
+
+
     async function Na__LePanelViewport__AddSitePlan(sheet, denominator, storeId) {
         if (!sheet) return null;
         const store      = storeId || Na__SpStore__DefaultStoreId();
@@ -264,7 +307,7 @@
         const layout = Na__LeLayout__Solve(sheet);
         const viewport = Na__LeModel__CreateViewport(sheet, {
             kind : Na__LeModel__KIND_2D, sitePlan : { SitePlan__StoreId : store }, scaleDenominator : scale, modelLayers : off,
-            name : scale >= 1000 ? Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan') : Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan'),
+            name : Na__LePanelViewport__PlanTypeName(scale),                     // <-- The config's own 1:500 rule, not a second threshold written here
             rect : Na__LeLayout__DefaultViewportRect(layout, setup.defaultWidthMm, setup.defaultHeightMm)
         });
         if (!viewport) return null;
@@ -354,7 +397,7 @@
         addSitePlan.hidden = true;
         const sitePlanScales = Na__LeScale__ListDenominators(true).map((d) => ({
             value : d,
-            label : Na__LeScale__FormatLabel(d) + ' - ' + (d >= 1000 ? Na__LeCfg__GetLabel('SitePlanLocationPlan', 'Location Plan') : Na__LeCfg__GetLabel('SitePlanBlockPlan', 'Block Plan'))
+            label : Na__LeScale__FormatLabel(d) + ' - ' + Na__LePanelViewport__PlanTypeName(d)
         }));
         addSitePlan.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanStoreLabel', 'Site Plan'), Na__LePanels__Select('vp-add-siteplan-store', Na__LePanelViewport__StoreOptions(), '')));
         addSitePlan.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanAddScale', 'Scale'), Na__LePanels__Select('vp-add-siteplan-scale', sitePlanScales, '')));
@@ -401,6 +444,11 @@
         const sitePlanStoreRow = Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanStoreLabel', 'Site Plan'), sitePlanStore);
         sitePlanStoreRow.setAttribute('data-na-block', 'siteplan-store-row');
         edit.appendChild(sitePlanStoreRow);
+        const sitePlanType = Na__LePanels__Select('vp-siteplan-type', Na__LePanelViewport__PlanTypeOptions(null), Na__LeSpComp__PLAN_AUTO);
+        sitePlanType.title = Na__LeCfg__GetLabel('SitePlanPlanTypeNote', 'Block plan or location plan. A block plan draws the full composite - solid fills, hatch patterns, then the linework. A location plan paints only the proposed fills, no patterns, and greyscales every line but the boundary. Automatic follows the scale: 1:500 or finer is a block plan.');
+        const sitePlanTypeRow = Na__LePanels__Row(Na__LeCfg__GetLabel('SitePlanPlanTypeLabel', 'Plan type'), sitePlanType);
+        sitePlanTypeRow.setAttribute('data-na-block', 'siteplan-type-row');
+        edit.appendChild(sitePlanTypeRow);
         const sitePlanScale = document.createElement('div');                     // <-- A site plan viewport's own toggle: 1:500 and 1:1250
         sitePlanScale.className = 'na-le-toggle-group';
         sitePlanScale.setAttribute('data-na-block', 'scale-siteplan');
@@ -504,7 +552,18 @@
             const note   = addBlock.querySelector('[data-na-block="siteplan-note"]');
             const button = addBlock.querySelector('[data-na-control="vp-add-siteplan"]');
             const store  = addBlock.querySelector('[data-na-control="vp-add-siteplan-store"]');
-            if (store) Na__LePanels__FillSelect(store, Na__LePanelViewport__StoreOptions(), store.value || Na__SpStore__DefaultStoreId());
+            // The stores resolve AFTER this panel first builds, so on the first
+            // pass nothing is available and the default falls back to proposed.
+            // Left alone the select would latch onto that and go on offering an
+            // empty store even once the real one has loaded. Keep the choice
+            // only while it still names a store that has data.
+            if (store) {
+                const stores = Na__SpStore__GetStores();
+                const chosen = stores.find((entry) => entry.Store__Id === store.value);
+                const keep   = chosen && chosen.Store__Available;
+                Na__LePanels__FillSelect(store, Na__LePanelViewport__StoreOptions(),
+                    keep ? store.value : Na__SpStore__DefaultStoreId());
+            }
             if (note) note.textContent = Na__LePanelViewport__StoreNote(status);
             if (button) button.disabled = status !== Na__SpStore__STATUS_READY;
             if (status !== Na__SpStore__STATUS_READY && status !== Na__SpStore__STATUS_EMPTY) Na__SpStore__ResolveAll();   // <-- The store's event refreshes this panel when it lands
@@ -554,6 +613,20 @@
             if (isSitePlan) {
                 const stored = (viewport.Viewport__SitePlan && viewport.Viewport__SitePlan.SitePlan__StoreId) || Na__SpStore__DefaultStoreId();
                 Na__LePanels__FillSelect(storeRow.querySelector('[data-na-control="vp-siteplan-store"]'), Na__LePanelViewport__StoreOptions(), stored);
+            }
+        }
+        const typeRow = editBlock.querySelector('[data-na-block="siteplan-type-row"]');
+        if (typeRow) {
+            typeRow.hidden = !isSitePlan;
+            // REBUILT EVERY REFRESH, not just filled: the Automatic entry names
+            // what the CURRENT scale resolves to, so changing the scale has to
+            // change the wording of the option that is already selected.
+            if (isSitePlan) {
+                Na__LePanels__FillSelect(
+                    typeRow.querySelector('[data-na-control="vp-siteplan-type"]'),
+                    Na__LePanelViewport__PlanTypeOptions(viewport.Viewport__ScaleDenominator),
+                    Na__LeSpComp__StoredPlanType(viewport)
+                );
             }
         }
         editBlock.querySelectorAll('[data-na-control="vp-scale"]').forEach((b) => b.classList.toggle('na-le-btn--active', parseFloat(b.getAttribute('data-na-role')) === viewport.Viewport__ScaleDenominator));
@@ -633,6 +706,15 @@
             const store  = el.parentNode.querySelector('[data-na-control="vp-add-siteplan-store"]');
             const sheet  = Na__LeModel__GetActiveSheet();
             if (sheet) Na__LePanelViewport__AddSitePlan(sheet, select ? parseFloat(select.value) : NaN, store ? store.value : '');
+        });
+        Na__LePanels__OnControl('change', 'vp-siteplan-type', (e, el) => {
+            const c = Na__LePanelViewport__Current();
+            if (!c || !Na__LeModel__IsSitePlanViewport(c.viewport)) return;
+            if (Na__LeSpComp__StoredPlanType(c.viewport) === el.value) return;
+            // Automatic is stored as nothing at all, so the record layer drops
+            // the key and a viewport on the default stays byte-identical.
+            const next = (el.value === Na__LeSpComp__PLAN_BLOCK || el.value === Na__LeSpComp__PLAN_LOCAL) ? el.value : '';
+            Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { sitePlanPlanType : next });
         });
         Na__LePanels__OnControl('change', 'vp-siteplan-store', (e, el) => {
             const c = Na__LePanelViewport__Current();

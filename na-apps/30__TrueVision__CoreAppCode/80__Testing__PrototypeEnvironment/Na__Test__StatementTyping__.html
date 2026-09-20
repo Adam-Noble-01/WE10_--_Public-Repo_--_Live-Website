@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrueVision3D - Statement Live Typing</title>
+<!--
+// =============================================================================
+// TRUEVISION3D - TEST - STATEMENT LIVE TYPING
+// =============================================================================
+//
+// FILE       : Na__Test__StatementTyping__.html
+// NAMESPACE  : Na__Test
+// MODULE     : Statement Writer - Live Markdown Typing
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Prove that typing markdown into the rendered page turns into formatting, and that the letters after it are not lost
+// CREATED    : 20-Sep-2026
+//
+// DESCRIPTION:
+// - THE FRAGILE PART OF THE WHOLE FEATURE is the moment a block is rebuilt
+//   under the caret. Two things can go wrong and both did on the first run:
+//   the markdown can come back ESCAPED, so "**bold**" can never become bold;
+//   and the caret can be left with nowhere to stand in a block that came back
+//   empty, so every letter typed after "## " is silently thrown away. Neither
+//   shows up in a round-trip test, because neither is about the file.
+// - IT TYPES THE WAY A PERSON TYPES: one character at a time, through the
+//   browser's own insertText, so the same input events fire in the same order
+//   with the same inputType and data. A test that set textContent and called
+//   the handler directly would pass while the editor was broken.
+// - The checks are the rules a writer would state: type this, see that, and
+//   what you type afterwards is still there.
+//
+// USAGE:
+//     Serve the repository root and open
+//     /na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__StatementTyping__.html
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.0.0
+// - Initial implementation.
+//
+// =============================================================================
+-->
+<link rel="stylesheet" href="../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css">
+<style>
+    body   { margin: 0; padding: 18px 22px; background: #f4f6f8; color: #172b3a;
+             font: 13px/1.6 'Open Sans', Arial, sans-serif; }
+    h1     { font-size: 17px; margin: 0 0 14px; }
+    .pass  { color: #2f7a46; }
+    .fail  { color: #9b3b3b; font-weight: 600; }
+    .note  { color: #6c757d; }
+    #out   { padding: 0; margin: 0 0 20px; }
+    #out li{ list-style: none; margin-bottom: 2px; white-space: pre-wrap; }
+    #stage { position: absolute; left: -10000px; top: 0; width: 794px; }
+</style>
+</head>
+<body>
+
+<h1>Statement Live Typing</h1>
+<ul id="out"><li class="note">running…</li></ul>
+
+<div id="stage"><div id="paper" class="na-le-stmt-doc" contenteditable="true"></div></div>
+
+<script type="module">
+
+    const BASE = '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/';
+    const { Na__LeStmtMd__Tokenise } = await import(BASE + '02__Core__Markdown/Na__LayoutEditor__Statement__Md__Tokenise__.js');
+    const { Na__LeStmtRnd__Blocks }  = await import(BASE + '02__Core__Markdown/Na__LayoutEditor__Statement__Md__Render__.js');
+    const { Na__LeStmtSer__FromRoot, Na__LeStmtSer__Stamp } = await import(BASE + '02__Core__Markdown/Na__LayoutEditor__Statement__Md__Serialise__.js');
+    const { Na__LeStmtType__Reflow, Na__LeStmtType__ShouldReflow, Na__LeStmtType__UnpinMark, Na__LeStmtType__Enter } =
+        await import(BASE + '04__Ui__Editor/Na__LayoutEditor__Statement__Editor__Typing__.js');
+
+    const out   = document.getElementById('out');
+    const paper = document.getElementById('paper');
+    let failed  = 0;
+
+    function say(text, state, detail) {
+        const row = document.createElement('li');
+        row.className   = state || 'note';
+        row.textContent = (state === 'pass' ? 'PASS  ' : state === 'fail' ? 'FAIL  ' : '      ') + text
+                        + (detail ? '\n        ' + detail : '');
+        out.appendChild(row);
+        if (state === 'fail') failed++;
+    }
+
+    // THE EDITOR'S OWN WIRING, in miniature: the same two handlers the real
+    // editor installs, so what is tested is what runs.
+    paper.addEventListener('input', (event) => {
+        Na__LeStmtType__UnpinMark(paper, event);
+        if (Na__LeStmtType__ShouldReflow(event)) Na__LeStmtType__Reflow(paper);
+    });
+
+    function startBlock() {
+        const p = document.createElement('p');
+        p.appendChild(document.createElement('br'));
+        paper.appendChild(p);
+        const range = document.createRange();
+        range.setStart(p, 0);
+        range.collapse(true);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        paper.focus();
+        return p;
+    }
+
+    // ONE CHARACTER AT A TIME, through the browser's own insertion
+    function type(text) {
+        for (const character of text) document.execCommand('insertText', false, character);
+    }
+
+    function pressEnter() {
+        if (!Na__LeStmtType__Enter(paper)) document.execCommand('insertParagraph');
+    }
+
+    function lastBlock() { return paper.lastElementChild; }
+
+    // A SPACE TYPED AGAINST THE EDGE OF AN ELEMENT GOES IN AS A HARD ONE, and
+    // it has to: a plain space in that position collapses to nothing and the
+    // writer watches it disappear as they type. The serialiser writes it back
+    // out as the space it stands for, so these checks are about the STRUCTURE
+    // and read a hard space as a space. What actually reaches the file is
+    // checked on its own, further down.
+    function shape(element) {
+        return element.innerHTML.replace(/&nbsp;/g, ' ').replace(/ /g, ' ');
+    }
+
+    function check(name, got, want) {
+        if (got === want) say(name, 'pass');
+        else say(name, 'fail', 'wanted ' + JSON.stringify(want) + '\n        got    ' + JSON.stringify(got));
+    }
+
+    // ---------------------------------------------------------------- blocks
+    say('Block prefixes');
+
+    for (const [ hashes, tag ] of [ ['#','H1'], ['##','H2'], ['###','H3'], ['####','H4'], ['#####','H5'], ['######','H6'] ]) {
+        startBlock();
+        type(hashes + ' Heading text');
+        check('"' + hashes + ' Heading text" becomes ' + tag + ' reading "Heading text"',
+              lastBlock().tagName + ' | ' + (lastBlock().textContent || '').trim(),
+              tag + ' | Heading text');
+    }
+
+    startBlock(); type('- A bullet item');
+    check('"- A bullet item" becomes a bullet list reading "A bullet item"',
+          lastBlock().tagName + ' | ' + (lastBlock().textContent || '').trim(), 'UL | A bullet item');
+
+    startBlock(); type('1. A numbered item');
+    check('"1. A numbered item" becomes a numbered list reading "A numbered item"',
+          lastBlock().tagName + ' | ' + (lastBlock().textContent || '').trim(), 'OL | A numbered item');
+
+    startBlock(); type('> A quoted line');
+    check('"> A quoted line" becomes a block quote reading "A quoted line"',
+          lastBlock().tagName + ' | ' + (lastBlock().textContent || '').trim(), 'BLOCKQUOTE | A quoted line');
+
+    // ---------------------------------------------------------------- inline
+    say('Inline marks');
+
+    startBlock(); type('Some **bold words** here');
+    check('"**bold words**" becomes bold, and the words after it survive',
+          shape(lastBlock()), 'Some <strong>bold words</strong> here');
+
+    startBlock(); type('An *italic run* too');
+    check('"*italic run*" becomes italic', shape(lastBlock()), 'An <em>italic run</em> too');
+
+    startBlock(); type('A `code span` here');
+    check('"`code span`" becomes code', shape(lastBlock()), 'A <code>code span</code> here');
+
+    startBlock(); type('A ==highlight== here');
+    check('"==highlight==" becomes a highlight', shape(lastBlock()), 'A <mark>highlight</mark> here');
+
+    startBlock(); type('A ~~struck~~ word');
+    check('"~~struck~~" becomes struck through', shape(lastBlock()), 'A <del>struck</del> word');
+
+    startBlock(); type('A [link](https://example.com) here');
+    check('"[link](url)" becomes a link', shape(lastBlock()), 'A <a href="https://example.com">link</a> here');
+
+    // WHAT MUST NOT CONVERT
+    say('What must be left alone');
+
+    startBlock(); type('Drawing RB05_T01_S01 stays as typed');
+    check('underscores inside a word are not emphasis',
+          shape(lastBlock()), 'Drawing RB05_T01_S01 stays as typed');
+
+    startBlock(); type('5 * 3 and 2 * 4 are sums');
+    check('a lone asterisk between spaces is not emphasis',
+          shape(lastBlock()), '5 * 3 and 2 * 4 are sums');
+
+    // ----------------------------------------------------------------- enter
+    say('Enter');
+
+    startBlock(); type('## A Section'); pressEnter(); type('Body text under it.');
+    check('Enter at the end of a heading starts body text',
+          paper.children[paper.children.length - 2].tagName + ' | ' + lastBlock().tagName + ' | ' + (lastBlock().textContent || '').trim(),
+          'H2 | P | Body text under it.');
+
+    startBlock(); type('---'); pressEnter();
+    check('a paragraph reading --- becomes a rule',
+          paper.children[paper.children.length - 2].tagName, 'HR');
+
+    // -------------------------------------------------- what reaches the file
+    say('What reaches the file');
+
+    startBlock(); type('Some **bold words** here');
+    check('a hard space at the edge of a bold run is written out as a plain one',
+          Na__LeStmtSer__FromRoot(paper).split('\n').filter((line) => line.indexOf('bold words') !== -1).pop(),
+          'Some **bold words** here');
+
+    startBlock(); type('## A Written Heading');
+    check('a heading is written out with its hashes',
+          Na__LeStmtSer__FromRoot(paper).split('\n').filter((line) => line.indexOf('A Written Heading') !== -1).pop(),
+          '## A Written Heading');
+
+    // ------------------------------------------------------- the whole thing
+    say('And it all still writes back out');
+
+    const written = Na__LeStmtSer__FromRoot(paper);
+    const rebuilt = document.createElement('div');
+    rebuilt.innerHTML = Na__LeStmtRnd__Blocks(Na__LeStmtMd__Tokenise(written), { Editable : true });
+    Na__LeStmtSer__Stamp(rebuilt);
+    const again = Na__LeStmtSer__FromRoot(rebuilt);
+    check('what was typed survives a save and a reload of itself', again, written);
+
+    say(failed === 0 ? 'ALL CHECKS PASSED' : failed + ' CHECK(S) FAILED', failed === 0 ? 'pass' : 'fail');
+    document.title = failed === 0 ? 'TYPING OK' : 'TYPING FAILED (' + failed + ')';
+
+</script>
+</body>
+</html>

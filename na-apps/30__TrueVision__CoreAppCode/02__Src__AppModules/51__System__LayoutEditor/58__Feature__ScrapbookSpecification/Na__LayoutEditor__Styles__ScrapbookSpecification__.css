@@ -1,0 +1,165 @@
+/* ================================================================= */
+/* TRUEVISION3D - LAYOUT EDITOR - STYLES: SPECIFICATION SCRAPBOOK     */
+/* ================================================================= */
+/*
+ * FILE       : Na__LayoutEditor__Styles__ScrapbookSpecification__.css
+ * MODULE     : Layout Editor - Specification Scrapbook
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The rows of the left column's Specification tab: a note's bubble beside its title and text
+ * CREATED    : 20-Sep-2026
+ *
+ * DESCRIPTION:
+ * - Linked by Na__LayoutEditor__Panel__ScrapbookSpecification__ when it is
+ *   wired, the way the Drawing Register and the other scrapbooks link theirs.
+ * - A row IS a scrapbook tile (.na-le-scrap__item in Styles__Panels): its
+ *   border, its hover, its focus ring, its grab cursor and its ghost are the
+ *   Scrapbook's and are not restated. What differs is the shape - the other
+ *   libraries' tiles are a picture over a name, and a note is a bubble BESIDE
+ *   a paragraph - so the modifier lays the same two parts out in a row.
+ * - Every row is styled alike. The count of bubbles already on the sheet is
+ *   quiet grey text beside the title, never a colour or a badge.
+ * - The tab strip is the panel host's (.na-le-panel__tabs in Styles__Panels),
+ *   shared with the right column: nothing here touches it.
+ *
+ * PORT NOTE:
+ * - Authored in : TrueVision3D first (20-Sep-2026)
+ * - ValeVision  : not yet ported.
+ *
+ * DEVELOPMENT LOG:
+ * 20-Sep-2026 - Version 1.0.0
+ * - Initial implementation.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Filter and Toggle                                      */
+/* ----------------------------------------------------------------- */
+
+/* THE TWO CONTROLS above the list. The filter takes the whole width - it has
+   no label, its placeholder says what it is - and the toggle is a panel row
+   like every other. Neither sets a display of its own, so the hidden
+   attribute puts either away. */
+
+.na-le-scrapspec__tools {
+    margin                             : 0 0 6px 0;
+}
+
+.na-le-scrapspec__filter {
+    box-sizing                         : border-box;
+    width                              : 100%;
+    margin                             : 0 0 6px 0;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The List and Its Rows                                  */
+/* ----------------------------------------------------------------- */
+
+.na-le-scrapspec {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 4px;
+    --Na_LeScrapSpec_ClampLines        : 3;                           /* <-- Overwritten inline from List__BodyClampLines */
+}
+
+/* A GROUP'S HEADING is the panel host's group subhead; it only sits a little
+   closer to the rows it heads than to the rows above it. */
+
+.na-le-scrapspec > .na-le-note--heading {
+    margin                             : 8px 0 0 0;
+}
+
+.na-le-scrapspec > .na-le-note--heading:first-child {
+    margin-top                         : 0;
+}
+
+/* THE ROW: the bubble at the left, the words beside it. The tile is a flex
+   column in the Scrapbook's sheet, so its display is already set and the
+   hidden attribute needs saying again for the filter to put a row away. */
+
+.na-le-scrap__item--spec {
+    flex-direction                     : row;
+    align-items                        : flex-start;
+    gap                                : 8px;
+    padding                            : 5px 6px;
+}
+
+.na-le-scrap__item--spec[hidden] {
+    display                            : none;
+}
+
+.na-le-scrap__item--spec .na-le-scrap__thumb {
+    flex                               : 0 0 36px;
+    width                              : 36px;
+    height                             : 36px;
+}
+
+/* THE BUBBLE IS DRAWN AT A FRACTION OF ITS PAPER SIZE, where its 0.35 pt edge
+   would be half a pixel and read as a smudge. In the row - never in the ghost,
+   which is at the sheet's zoom and is what lands - the edge is held at a
+   pixel so the circle reads as a circle. */
+
+.na-le-scrap__item--spec .na-le-scrap__thumb svg [stroke]:not([stroke="none"]) {
+    vector-effect                      : non-scaling-stroke;
+    stroke-width                       : 1px;
+}
+
+.na-le-scrap__item--spec .na-le-scrap__name {
+    display                            : flex;
+    flex                               : 1 1 auto;
+    flex-direction                     : column;
+    gap                                : 1px;
+    min-width                          : 0;
+}
+
+.na-le-scrapspec__head {
+    display                            : flex;
+    align-items                        : baseline;
+    gap                                : 6px;
+}
+
+.na-le-scrapspec__title {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    font-size                          : 0.74rem;
+    font-weight                        : 600;
+    line-height                        : 1.3;
+    color                              : #172b3a;
+    overflow-wrap                      : anywhere;
+}
+
+/* HOW MANY BUBBLES ON THIS SHEET already link to the note. A fact about the
+   sheet, said quietly: grey text, no fill, no colour. */
+
+.na-le-scrapspec__used {
+    flex                               : 0 0 auto;
+    font-size                          : 0.68rem;
+    font-variant-numeric               : tabular-nums;
+    color                              : #6c757d;
+}
+
+/* THE NOTE'S TEXT, cut short after a few lines unless Show full notes is on.
+   The whole note is always in the row's tooltip. */
+
+.na-le-scrapspec__body {
+    display                            : -webkit-box;
+    -webkit-box-orient                 : vertical;
+    -webkit-line-clamp                 : var(--Na_LeScrapSpec_ClampLines, 3);
+    line-clamp                         : var(--Na_LeScrapSpec_ClampLines, 3);
+    overflow                           : hidden;
+    font-size                          : 0.7rem;
+    line-height                        : 1.35;
+    color                              : #46596b;
+    overflow-wrap                      : anywhere;
+}
+
+.na-le-scrapspec.is-full .na-le-scrapspec__body {
+    display                            : block;
+    -webkit-line-clamp                 : unset;
+    line-clamp                         : unset;
+    overflow                           : visible;
+}
+
+/* endregion ------------------------------------------------------- */

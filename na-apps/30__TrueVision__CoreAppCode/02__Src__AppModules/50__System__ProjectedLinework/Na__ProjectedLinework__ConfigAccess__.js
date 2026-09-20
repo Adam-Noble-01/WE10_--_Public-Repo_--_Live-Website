@@ -109,7 +109,13 @@
         skipObjectNames         : ['OrbitHelperCube', 'Na__GridLine', 'Na__FogPlane', 'Na__Billboard', 'Na__ElevGizmo', 'DrawingCut__'],
         annotationEnabled       : true,
         annotationTokens        : ['Linetype__'],
-        buildToken              : '2026-09-18-linetype-annotation',
+        lineworkModifiers       : [
+            { TagName : '76__LineworkModifier__FineDetail__Walls',                  OwnerKey : 'TrueVision__LineworkModifier__FineDetail' },
+            { TagName : '77__LineworkModifier__FineDetail__WindowsAndJoinery',      OwnerKey : 'TrueVision__LineworkModifier__FineDetail' },
+            { TagName : '78__LineworkModifier__VeryFineDetail__Walls',              OwnerKey : 'TrueVision__LineworkModifier__VeryFineDetail' },
+            { TagName : '79__LineworkModifier__VeryFineDetail__WindowsAndJoinery',  OwnerKey : 'TrueVision__LineworkModifier__VeryFineDetail' }
+        ],
+        buildToken              : '2026-09-20-linework-modifiers',
         transparentOccludes     : false,
         transparentOpacityBelow : 0.999,
         appearance              : {
@@ -382,6 +388,22 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Get the Nested Linework Modifier Tags (SSOT 76-79 range)
+    // ------------------------------------------------------------
+    // Each row is { TagName, OwnerKey }: TagName is the exact nested SketchUp
+    // tag name (the first '::'-delimited segment of a mesh's own glTF node
+    // name), OwnerKey is the style row it should draw under in
+    // Na__LayoutEditor__ModelLayers__Config__.json instead of its parent
+    // category's style. See Na__DataLib__CoreIndex__Tags__.json ->
+    // LineworkModifierConfig for the SketchUp/exporter side of this.
+    // ------------------------------------------------------------
+    function Na__PlCfg__GetLineworkModifiers() {
+        const list = Na__PlCfg__Val('LineworkModifiers', 'Tags', null);
+        return Array.isArray(list) ? list.slice() : Na__PlCfg__FALLBACKS.lineworkModifiers.slice();
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get the Model Sampling Setup
     // ------------------------------------------------------------
     function Na__PlCfg__GetModelSetup() {
@@ -427,6 +449,7 @@
         Na__PlCfg__GetDefaultExclusionTokens,
         Na__PlCfg__GetSkipObjectNames,
         Na__PlCfg__GetAnnotationSetup,
+        Na__PlCfg__GetLineworkModifiers,
         Na__PlCfg__GetModelSetup,
         Na__PlCfg__GetLabel
     };

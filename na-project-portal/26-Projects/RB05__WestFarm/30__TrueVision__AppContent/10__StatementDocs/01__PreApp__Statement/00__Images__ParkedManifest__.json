@@ -1,0 +1,260 @@
+{
+    "Parked__Description": "Every picture moved out of the statement's content folders because the statement does not link to it. Each entry says where it came from, so a move can be put back. Written by the Statement Writer tidy-up, 20-Sep-2026.",
+    "Parked__Statement": "RB05_T01_S01__WestFarm__PreApplicationStatement__.md",
+    "Parked__WhenIso": "2026-09-20T21:03:53.393Z",
+    "Parked__Count": 63,
+    "Parked__Moves": [
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/01_01__ExistingSite__AerialShot-01__.jpeg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/01_01__ExistingSite__AerialShot-01__.jpeg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/01_10__ExistingDwelling__FrontView__.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/01_10__ExistingDwelling__FrontView__.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/01_10__ExistingDwelling__RearView__2222.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/01_10__ExistingDwelling__RearView__2222.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/01_14__ExistingDwelling__RearView__.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/01_14__ExistingDwelling__RearView__.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/01__BNT250373_05.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/01__BNT250373_05.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/04__BNT250373_40.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/04__BNT250373_40.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/1.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/1.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/2.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/2.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/22__BNT250373_03.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/22__BNT250373_03.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/24__BNT250373_33.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/24__BNT250373_33.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/25__BNT250373_32.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/25__BNT250373_32.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/26__BNT250373_58.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/26__BNT250373_58.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/27__BNT250373_34.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/27__BNT250373_34.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/28__BNT250373_35.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/28__BNT250373_35.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/29__BNT250373_38.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/29__BNT250373_38.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/3.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/3.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/30__BNT250373_60.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/30__BNT250373_60.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/31__BNT250373_59.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/31__BNT250373_59.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/32__BNT250373_41.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/32__BNT250373_41.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/33__BNT250373_57.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/33__BNT250373_57.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/34__BNT250373_61.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/34__BNT250373_61.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/35__BNT250373_51.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/35__BNT250373_51.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/36__BNT250373_48.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/36__BNT250373_48.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/37__BNT250373_53.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/37__BNT250373_53.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/39__BNT250373_10.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/39__BNT250373_10.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/4.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/4.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/43__BNT250373_56.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/43__BNT250373_56.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/45__BNT250373_54.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/45__BNT250373_54.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/46__BNT250373_55.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/46__BNT250373_55.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/47__BNT250373_46.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/47__BNT250373_46.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/48__BNT250373_06.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/48__BNT250373_06.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/5.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/5.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/6.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/6.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/7.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/7.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/8.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/8.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/9.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/9.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/NAMED.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/01__ExistingSite/00__Images/NAMED.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/01__BNT250373_05.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/01__BNT250373_05.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/21__BNT250373_30.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/21__BNT250373_30.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/22__BNT250373_03.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/22__BNT250373_03.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/23__BNT250373_31.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/23__BNT250373_31.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/24__BNT250373_33.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/24__BNT250373_33.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/25__BNT250373_32.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/25__BNT250373_32.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/28__BNT250373_35.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/28__BNT250373_35.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/39__BNT250373_10.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/39__BNT250373_10.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/41__BNT250373_11.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/41__BNT250373_11.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/42__BNT250373_12.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/42__BNT250373_12.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/44__BNT250373_04.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/44__BNT250373_04.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/45__BNT250373_54.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/45__BNT250373_54.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/46__BNT250373_55.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/46__BNT250373_55.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/Existing__AuxiliaryBuildingPlans__.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/Existing__AuxiliaryBuildingPlans__.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/Existing__HousePlans__.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/02__ExistingHouse__Interior/00__Images/Existing__HousePlans__.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-02.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/10__ExistingHouse__Photos/00__Images/10__ExistingHouse__Front-02.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-03.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/10__ExistingHouse__Photos/00__Images/10__ExistingHouse__Front-03.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Rear-02.jpg",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/10__ExistingHouse__Photos/00__Images/10__ExistingHouse__Rear-02.jpg"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__04__North-Facade-Kitchen-Building__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/20__Proposed__3dExterior/00__Images/RB05__04__North-Facade-Kitchen-Building__6144x4096.png"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__20__Birdseye-02__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/00__Images/RB05__20__Birdseye-02__6144x4096.png"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__21__Birdseye-03__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/00__Images/RB05__21__Birdseye-03__6144x4096.png"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__23__Birdseye-05__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/00__Images/RB05__23__Birdseye-05__6144x4096.png"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__24__Birdseye-06__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/00__Images/RB05__24__Birdseye-06__6144x4096.png"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__25__Birdseye-07__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/00__Images/RB05__25__Birdseye-07__6144x4096.png"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__26__Birdseye-08__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/00__Images/RB05__26__Birdseye-08__6144x4096.png"
+        },
+        {
+            "From": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__27__Birdseye-09__6144x4096.png",
+            "To": "01__PreApp__Statement/02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/00__Images/RB05__27__Birdseye-09__6144x4096.png"
+        }
+    ]
+}

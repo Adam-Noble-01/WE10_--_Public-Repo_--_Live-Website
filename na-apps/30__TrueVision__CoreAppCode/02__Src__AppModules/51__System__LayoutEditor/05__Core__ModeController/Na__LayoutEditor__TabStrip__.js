@@ -125,9 +125,11 @@
         Na__LeMode__Ready,
         Na__LeMode__VIEW_SPEC,
         Na__LeMode__VIEW_REGISTER,
+        Na__LeMode__VIEW_STATEMENT,
         Na__LeMode__OpenRegister,
         Na__LeMode__GetView,
-        Na__LeMode__OpenSpecification
+        Na__LeMode__OpenSpecification,
+        Na__LeMode__OpenStatements
     } from './Na__LayoutEditor__ModeController__.js';
     import { Na__LeRegEdit__Metadata, Na__LeRegEdit__Move } from '../51__Feature__DrawingRegister/Na__LayoutEditor__Register__Transactions__.js';
     import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__IsDirty } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
@@ -306,7 +308,8 @@
         const sheets   = Na__LeModel__GetSheets();
         const editable = Na__LeMode__IsEditable();
         const onSpec   = Na__LeMode__IsActive() && Na__LeMode__GetView() === Na__LeMode__VIEW_SPEC;
-        const active   = (Na__LeMode__IsActive() && Na__LeMode__GetView() !== Na__LeMode__VIEW_REGISTER && !onSpec) ? Na__LeModel__GetActiveSheet() : null;   // <-- No sheet tab is the open one while the specification is
+        const onStmt   = Na__LeMode__IsActive() && Na__LeMode__GetView() === Na__LeMode__VIEW_STATEMENT;
+        const active   = (Na__LeMode__IsActive() && Na__LeMode__GetView() !== Na__LeMode__VIEW_REGISTER && !onSpec && !onStmt) ? Na__LeModel__GetActiveSheet() : null;   // <-- No sheet tab is the open one while a document tab is
         const visible  = Na__LeCfg__IsEnabled() && (sheets.length > 0 || editable);
         Na__LeTabs__Scroller.innerHTML = '';
         Na__LeTabs__Publish(visible);
@@ -360,6 +363,9 @@
                 : Na__LeCfg__GetLabel('SpecificationTabTitle', 'Every drawing note of the project, grouped and numbered');
             Na__LeTabs__Scroller.appendChild(spec);
             Na__LeTabs__Scroller.appendChild(Na__LeTabs__Tab('Drawing Register', Na__LeMode__GetView() === Na__LeMode__VIEW_REGISTER, () => Na__LeMode__OpenRegister(), 'na-le-tabs__tab--register'));
+            const statements = Na__LeTabs__Tab(Na__LeCfg__GetLabel('StatementsTab', 'Statements'), onStmt, () => Na__LeMode__OpenStatements(), 'na-le-tabs__tab--statement');
+            statements.title = Na__LeCfg__GetLabel('StatementsTabTitle', 'The written documents of this project - the pre-application statement, the design and access statement');
+            Na__LeTabs__Scroller.appendChild(statements);
         }
         Na__LeTabs__SyncArrows();
         Na__LeTabs__Reveal();                                                    // <-- The tab just opened is brought back into the visible run

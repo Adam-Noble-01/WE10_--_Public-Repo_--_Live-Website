@@ -152,10 +152,10 @@
     },
 
     "LayoutEditor__Scales__Config": {
-        "LayoutEditor__Scales__Description": "Locked scales for 2D viewports (D27). A viewport quotes one of these; the three-way toggle on the Viewport Settings panel steps through them. A site plan viewport quotes one of SitePlanScaleDenominators instead. THE SITE PLAN LIST IS THE ONLY ONE THAT COUNTS: SitePlanExportConfig.SupportedScaleDenominators in the Tags SSOT is documentation and is read by nothing. A denominator of 500 or finer is a BLOCK PLAN, which draws the full fill / pattern / linework composite; coarser than 500 is a LOCATION PLAN, which draws only the proposed fills and keeps everything else in greyscale.",
+        "LayoutEditor__Scales__Description": "Locked scales for 2D viewports (D27). A viewport quotes one of these; the three-way toggle on the Viewport Settings panel steps through them. A site plan viewport quotes one of SitePlanScaleDenominators instead. THE SITE PLAN LIST IS THE ONLY ONE THAT COUNTS: SitePlanExportConfig.SupportedScaleDenominators in the Tags SSOT is documentation and is read by nothing. A denominator of 500 or finer is a BLOCK PLAN, which draws the full fill / pattern / linework composite; coarser than 500 is a LOCATION PLAN, which draws only the proposed fills, no hatch patterns, and greyscales every line that is not a boundary or a proposal. THE SCALE ONLY DECIDES A VIEWPORT THAT HAS NOT BEEN TOLD: Viewport__SitePlan.SitePlan__PlanType overrules it, so a large site CAN be drawn as a block plan at 1:1250 and keep its patterns. The rule itself lives in Na__LayoutEditor__SitePlanComposites__Config__.json, which is what the app reads; the sentence here is the note beside the scales it applies to.",
         "LayoutEditor__Scales__AvailableScaleDenominators": [20, 50, 100],
         "LayoutEditor__Scales__DefaultScaleDenominator": 50,
-        "LayoutEditor__Scales__SitePlanScaleDenominators": [100, 200, 500, 1250, 2500],
+        "LayoutEditor__Scales__SitePlanScaleDenominators": [100, 200, 500, 1250, 2500, 5000],
         "LayoutEditor__Scales__SitePlanDefaultScaleDenominator": 500,
         "LayoutEditor__Scales__ScaleLabelPrefix": "1:",
         "LayoutEditor__Scales__NotToScaleLabel": "NTS",
@@ -178,7 +178,7 @@
         "LayoutEditor__Viewport__HandleSizePx": 9,
         "LayoutEditor__Viewport__HandleHitRadiusPx": 10,
         "LayoutEditor__Viewport__ShowScaleLabel": true,
-        "LayoutEditor__Viewport__DefaultStylesNote": "What a new viewport starts with. Projected Linework is off so laying out a sheet never triggers a projection; switch it on per viewport when the layout is settled, the way a raster viewport becomes a vector one in SketchUp LayOut. The raster underlay renders either way.",
+        "LayoutEditor__Viewport__DefaultStylesNote": "What a new viewport starts with. Projected Linework is off so laying out a sheet never triggers a projection; switch it on per viewport when the layout is settled, the way a raster viewport becomes a vector one in SketchUp LayOut. The raster underlay renders either way. Depth Fog is on and means 'follow the drawing': a drawing's own fog is switched off until its author switches it on in Dev Tools > Elevations, so no viewport is fogged until then, and unticking it shows one viewport of a fogged drawing bare.",
         "LayoutEditor__Viewport__DefaultStyles": {
             "BaseImage": true,
             "ProjectedLinework": false,
@@ -187,7 +187,8 @@
             "Whitecard": true,
             "HiddenLines": false,
             "ContextLayer": true,
-            "EnhanceWhitecard": true
+            "EnhanceWhitecard": true,
+            "DepthFog": true
         },
         "LayoutEditor__Viewport__AssetFolder": "LayoutEditor/Snapshots",
         "LayoutEditor__Viewport__ImageZoomNote": "3D viewport zoom (Viewport__ImageZoom): how large the picture is drawn in its frame, as a multiple of its size before zooming. Double-click a 3D viewport and scroll over it to zoom about the cursor, Shift+scroll for fine steps (ImageZoomFineFactor of a notch), Enter to finish; or type a percentage in the Viewport panel. A run of notches is one undo step, announced once the wheel has rested for ImageZoomCommitMs. The frame renders as a window onto the zoomed picture at the frame's own resolution, so a zoom in stays sharp and a zoom out shows more of the scene.",
@@ -580,6 +581,27 @@
         "LayoutEditor__Labels__SheetNameCodeTitle": "Drawing {number}. The number comes from the Drawing Register and follows it by itself - type only the short name.",
         "LayoutEditor__Labels__SitePlanViewportName": "Site Plan",
         "LayoutEditor__Labels__SitePlanBlockPlan": "Block Plan",
+        "LayoutEditor__Labels__ShapeHatch": "Hatch",
+        "LayoutEditor__Labels__ShapeHatchTitle": "A repeating pattern over this shape, drawn above its fill and below its own outline. Paper size: a tile prints the same however the sheet is scaled.",
+        "LayoutEditor__Labels__ShapeHatchPattern": "Pattern",
+        "LayoutEditor__Labels__ShapeHatchNone": "None",
+        "LayoutEditor__Labels__ShapeHatchScale": "Pattern scale",
+        "LayoutEditor__Labels__ShapeHatchScaleTitle": "How large the pattern draws on the sheet. 1 is the size it was drawn at.",
+        "LayoutEditor__Labels__ShapeHatchRotation": "Pattern deg",
+        "LayoutEditor__Labels__ShapeHatchRotationTitle": "Turns the whole tiled field, not each mark.",
+        "LayoutEditor__Labels__ShapeHatchMissing": "This shape names a pattern the library has not got. Its fill and outline are unchanged; choose another pattern to replace it.",
+        "LayoutEditor__Labels__PatternsFilled": "Fill",
+        "LayoutEditor__Labels__PatternsFilledNote": "The solid wash under the pattern. Off leaves this layer unfilled - the hatch, if it has one, draws straight onto the paper.",
+        "LayoutEditor__Labels__PatternsNone": "None - no pattern",
+        "LayoutEditor__Labels__SitePlanPlanTypeLabel": "Plan type",
+        "LayoutEditor__Labels__SitePlanPlanTypeAuto": "Automatic",
+        "LayoutEditor__Labels__SitePlanPlanTypeNote": "Block plan or location plan. A block plan draws the full composite - solid fills, hatch patterns, then the linework. A location plan paints only the proposed fills, no patterns, and greyscales every line but the boundary. Automatic follows the scale: 1:500 or finer is a block plan.",
+        "LayoutEditor__Labels__SitePlanCompositesTitle": "Site Plan Render Composites",
+        "LayoutEditor__Labels__SitePlanCompositesNoSelection": "Select a site plan viewport on the sheet.",
+        "LayoutEditor__Labels__SitePlanCompositesLocationNote": "This viewport draws as a location plan: only the proposed fills are painted, no patterns, and every line but the boundary is greyscale. Change it under Plan type on the Viewport panel.",
+        "LayoutEditor__Labels__SitePlanDeckFills": "Solid Fills",
+        "LayoutEditor__Labels__SitePlanDeckPatterns": "Hatch Patterns",
+        "LayoutEditor__Labels__SitePlanDeckLinework": "Linework",
         "LayoutEditor__Labels__SitePlanLocationPlan": "Location Plan",
         "LayoutEditor__Labels__SitePlanAddScale": "Scale",
         "LayoutEditor__Labels__AddSitePlanViewport": "Add Site Plan Viewport",
@@ -1076,5 +1098,50 @@
         "LayoutEditor__DrawingRegister__WarnAmberInk": "#8a5a00",
         "LayoutEditor__DrawingRegister__WarnRedFill": "#fdf0f0",
         "LayoutEditor__DrawingRegister__WarnRedInk": "#9b3b3b"
+    },
+
+    "LayoutEditor__Statement__Config": {
+        "LayoutEditor__Statement__Description": "The Statement Writer tab: the project's written documents - a pre-application statement, a design and access statement, a heritage statement - each authored in markdown and read as one endless A4 page. A statement is a FOLDER under FolderName in the project's TrueVision content, holding one markdown file and the pictures it uses. The folders are numbered (01__, 02__) so they order themselves, and IndexFileName is the sibling JSON that remembers which markdown file in each folder is the statement, what it is called and when it was last published. Everything else in a statement folder - project notes, reference photography - is left alone: this app owns one file per folder and touches nothing beside it.",
+
+        "LayoutEditor__Statement__FolderName": "10__StatementDocs",
+        "LayoutEditor__Statement__IndexFileName": "TrueVision__StatementDocs__.json",
+        "LayoutEditor__Statement__ImagesFolderName": "02_StatementDocs__Content__Images",
+        "LayoutEditor__Statement__ParkedImagesFolderName": "00__Images",
+        "LayoutEditor__Statement__ParkedImagesNote": "Where a picture goes when it is no longer used by the statement. A folder whose name starts with 00__ is skipped by the model sync, the statement builder and git alike, so parking a picture there keeps it to hand on this machine without it ever being pushed anywhere.",
+
+        "LayoutEditor__Statement__NamingNote": "A new statement is named from what is typed in the manager. The folder takes the next free two-digit prefix and the typed title with its spaces removed; the markdown file takes the project code, the tranche, an S-number counted across the project's statements, the project name and the same title. Typing \"Design & Access Statement\" into project RB05 therefore gives 02__DesignAccessStatement and RB05_T01_S02__WestFarm__DesignAccessStatement__.md. Both can be renamed afterwards.",
+        "LayoutEditor__Statement__FilePattern": "{code}_T{tranche}_S{number}__{project}__{title}__.md",
+        "LayoutEditor__Statement__FolderPattern": "{index}__{title}",
+        "LayoutEditor__Statement__DefaultTranche": "01",
+        "LayoutEditor__Statement__NumberDigits": 2,
+
+        "LayoutEditor__Statement__DraftEnabled": true,
+        "LayoutEditor__Statement__DraftDebounceMs": 700,
+        "LayoutEditor__Statement__AutoSaveLocalMs": 4000,
+        "LayoutEditor__Statement__AutoSaveLocalNote": "How long the typing must pause before the markdown is written to the local file through the ProjectVision server. The local copy is a mirror, not the record, so this is frequent and silent; R2 is only written when Publish is pressed.",
+        "LayoutEditor__Statement__LoadTimeoutMs": 15000,
+        "LayoutEditor__Statement__ConfirmCloudOverwrite": true,
+
+        "LayoutEditor__Statement__PublishNote": "Publish writes three things to R2: the markdown exactly as it is on disk, a standalone HTML rendering of it, and every picture the statement actually links to. The HTML is what the client and the web viewer read, and its image links are rewritten to CDN URLs. Pictures that are in the folder but not linked are never uploaded - a statement folder holds hundreds of megabytes of reference photography and a statement uses sixteen of them.",
+        "LayoutEditor__Statement__HtmlFileSuffix": ".html",
+        "LayoutEditor__Statement__StylesheetUrl": "https://www.noble-architecture.com/na-apps/30__TrueVision__CoreAppCode/02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css",
+        "LayoutEditor__Statement__StylesheetUrlNote": "The generated HTML links the document stylesheet by its public URL, so a statement opened straight off the CDN looks like a statement. It is the same file the app itself loads, which is what stops the two drifting.",
+
+        "LayoutEditor__Statement__ImageMaxEdgePx": 2000,
+        "LayoutEditor__Statement__ImageMaxEdgePxNote": "The longest edge a published picture is resized to. A statement is A4: the text block is 188 mm, and the PDF rasterises the page at about 192 dpi, so a picture wider than roughly 1450 px adds nothing a reader can see. 2000 px leaves headroom for a higher-quality export and still takes a 13 MB render down to a few hundred kilobytes. The original is never altered - only the copy that is published.",
+        "LayoutEditor__Statement__ImageFormat": "image/webp",
+        "LayoutEditor__Statement__ImageQuality": 0.82,
+        "LayoutEditor__Statement__ImageFormatNote": "WebP at 0.82 holds the soft skies and stonework of a CGI better than JPEG at the same weight, and every browser in use reads it. A picture already smaller than ImageMaxEdgePx and already well compressed is uploaded as it is rather than re-encoded, so nothing is degraded twice.",
+        "LayoutEditor__Statement__ImagePassThroughBytes": 350000,
+
+        "LayoutEditor__Statement__PdfNote": "The statement PDF is DELIBERATELY A PICTURE OF THE PAGE, not text. Every other PDF this app makes - the drawings, the register, the specification - writes real text with real embedded fonts, because those are documents people need to search and read aloud. A planning statement is not: it is an argument written for a case officer to read, and text that lifts cleanly out of the file is text that goes straight into a language model. So this one exporter rasterises. If a future change makes the statement PDF selectable, that is a change of policy and not a bug fix.",
+        "LayoutEditor__Statement__PdfMaxPagePt": 14399,
+        "LayoutEditor__Statement__PdfMaxPagePtNote": "The PDF format's cap on one page dimension. A statement taller than this continues on a second very tall page rather than being shrunk to fit, so the type stays the same size however long the document runs.",
+        "LayoutEditor__Statement__PdfTileCssPx": 4000,
+        "LayoutEditor__Statement__PdfPresets": [
+            { "Key": "full",    "Label": "Download PDF",         "RasterScale": 2.00, "JpegQuality": 0.92, "FileSuffix": "" },
+            { "Key": "compact", "Label": "Download PDF (small)", "RasterScale": 1.25, "JpegQuality": 0.75, "FileSuffix": "__Compact" }
+        ],
+        "LayoutEditor__Statement__Html2CanvasScriptPath": "./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/html2canvas.umd.js"
     }
 }

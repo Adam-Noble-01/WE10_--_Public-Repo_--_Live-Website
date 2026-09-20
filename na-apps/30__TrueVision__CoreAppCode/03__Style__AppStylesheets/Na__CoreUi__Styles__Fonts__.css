@@ -26,6 +26,26 @@
 }
 
 
+/* Open Sans Font Family - Medium (500) */
+/* ----------------------------------------------------------------- */
+/* ADDED 20-Sep-2026 for the Statement Writer. The house document style sets
+   every heading and every bold run at weight 500, which is the Medium cut.
+   Without this face the browser matched 500 down to Regular and a statement
+   heading came out no heavier than the sentence under it. The TTF was already
+   in the common font folder; only the declaration was missing.
+   SIDE EFFECT, stated rather than hidden: the thirteen places in the app
+   chrome that already ask for weight 500 - toasts, dropdown headings - now
+   get Medium too, which is the weight they were asking for. */
+@font-face {
+    font-family                        : 'Open Sans';
+    font-style                         : normal;
+    font-weight                        : 500;
+    font-display                       : swap;
+    src                                : url('../../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Medium__.ttf') format('truetype'),
+                                         url('https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/CommonFont-01__OpenSans__Medium__.ttf') format('truetype');
+}
+
+
 /* Open Sans Font Family - Light (300) */
 /* ----------------------------------------------------------------- */
 @font-face {

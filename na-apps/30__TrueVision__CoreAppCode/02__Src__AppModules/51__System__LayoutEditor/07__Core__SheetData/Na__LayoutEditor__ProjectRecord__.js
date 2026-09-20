@@ -20,7 +20,23 @@
 //
 // WHERE THE TWO FACTS LIVE:
 // - Site address : ProjectAdmin__Quotation(s)__.json -> quotations[].projectAddress
+//                  falling back to
+//                  PlanVision__ProjectData__.json -> na-project-data-library
+//                  -> project-details -> project-address
 // - Client name  : ProjectAdmin__ProjectConfig__.json -> clientDrawingName
+//
+// WHY THE ADDRESS HAS TWO SOURCES:
+// - A quotation is the ordinary place a site address is first written down,
+//   and on most jobs it is right. Not every job has one: an hourly-rate
+//   appointment never produces a quotation, and on those the field is blank.
+// - A site is also not always the client's own house. The quotation carries
+//   the address the work is AT, and PlanVision's project data carries the same
+//   fact for the drawing portal, so when the quotation has nothing to say the
+//   portal still does. Neither is the client's correspondence address, and
+//   nothing here ever reads one.
+// - The ProjectVision project manager already resolves the address in exactly
+//   this order (ProjectVision__DevLauncher__Shared__.py), so a title block and
+//   that table now agree about what a project's address is.
 //
 // THE DRAWING NAME IS NOT THE CLIENT RECORD:
 // - The full client record - given name, email, telephone, correspondence
@@ -40,6 +56,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - Site address falls back to PlanVision's project data when no quotation
+//   carries one. RB05 West Farm is the case that found it: an hourly-rate
+//   appointment on a site that is not the client's house, so there is no
+//   quotation to read and the title block had nothing to seed from.
+//
 // 19-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -52,7 +74,7 @@
 
     // MODULE IMPORTS | Project File Locations
     // ------------------------------------------------------------
-    import { Na__CfApi__AdminFileLocation } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
+    import { Na__CfApi__AdminFileLocation, Na__CfApi__PlansFileLocation } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -66,6 +88,7 @@
     // ------------------------------------------------------------
     const Na__LeRecord__CONFIG_FILE  = 'ProjectAdmin__ProjectConfig__.json';
     const Na__LeRecord__QUOTE_FILES  = [ 'ProjectAdmin__Quotations__.json', 'ProjectAdmin__Quotation__.json' ];
+    const Na__LeRecord__PLANS_FILE   = 'PlanVision__ProjectData__.json';        // <-- The second place the site address is written
     const Na__LeRecord__FETCH_MS     = 6000;                                    // <-- A seed is a convenience; it never holds the editor open
     // ------------------------------------------------------------
 
@@ -118,6 +141,22 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | Read PlanVision's Project Data
+    // ------------------------------------------------------------
+    // The repository copy first, then the CDN: the model sync does carry this
+    // folder, so a project whose portal data is newer on R2 than in the repo
+    // still answers.
+    // ------------------------------------------------------------
+    async function Na__LeRecord__ReadPlansFile() {
+        const location = Na__CfApi__PlansFileLocation(Na__LeRecord__PLANS_FILE);
+        if (!location) return null;
+        const repo = await Na__LeRecord__FetchJson(location.repoUrl);
+        if (repo) return repo;
+        return await Na__LeRecord__FetchJson(location.cdnUrl);
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -164,6 +203,21 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Site Address Out of PlanVision's Project Data
+    // ------------------------------------------------------------
+    // The project's drawing portal was set up with the site address on it, and
+    // it is the same fact under a different key. This is what answers on a
+    // project with no quotation to read.
+    // ------------------------------------------------------------
+    function Na__LeRecord__AddressFromPlans(document) {
+        const library = document && document['na-project-data-library'];
+        const details = library && library['project-details'];
+        const address = details && details['project-address'];
+        return (typeof address === 'string') ? address.trim() : '';
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Project Admin Record, or Empty Fields If It Has None
     // ------------------------------------------------------------
     // Always resolves, always to { Client, SiteAddress } of strings. A caller
@@ -179,6 +233,7 @@
                 address = Na__LeRecord__AddressFromQuote(await Na__LeRecord__ReadAdminFile(name));
                 if (address) break;
             }
+            if (!address) address = Na__LeRecord__AddressFromPlans(await Na__LeRecord__ReadPlansFile());   // <-- No quotation, or one with the address left blank
             return {
                 Client      : config ? Na__LeRecord__ComposeClientName(config.clientDrawingName) : '',
                 SiteAddress : address

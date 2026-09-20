@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrueVision3D - Statement DOM Round Trip</title>
+<!--
+// =============================================================================
+// TRUEVISION3D - TEST - STATEMENT DOM ROUND TRIP
+// =============================================================================
+//
+// FILE       : Na__Test__StatementDomRoundTrip__.html
+// NAMESPACE  : Na__Test
+// MODULE     : Statement Writer - DOM Round Trip
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Prove the editor's own loop - markdown in, DOM, markdown out - loses nothing
+// CREATED    : 20-Sep-2026
+//
+// DESCRIPTION:
+// - Na__Test__StatementRoundTrip__ proves the TOKENISER loses nothing. This
+//   proves the whole editor loop does: tokenise, render into a real
+//   contenteditable page, read the page back, and compare with what went in.
+//   It is the difference between "the parser is sound" and "the editor is
+//   safe to open someone's 45 KB statement in".
+// - IT NEEDS A REAL BROWSER, not a simulated DOM. What this is guarding
+//   against is exactly what a real contenteditable surface does to markup -
+//   normalising attributes, moving whitespace, inventing <div> wrappers - and
+//   a stand-in DOM would not do any of it.
+// - The specimen is the real RB05 pre-application statement, fetched from the
+//   project portal beside the app.
+//
+// USAGE:
+//     Serve the repository root and open
+//     /na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__StatementDomRoundTrip__.html
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.0.0
+// - Initial implementation.
+//
+// =============================================================================
+-->
+<style>
+    body    { margin: 0; padding: 18px 22px; background: #f4f6f8; color: #172b3a;
+              font: 13px/1.5 'Open Sans', Arial, sans-serif; }
+    h1      { font-size: 17px; margin: 0 0 14px; }
+    .pass   { color: #2f7a46; }
+    .fail   { color: #9b3b3b; font-weight: 600; }
+    .note   { color: #6c757d; }
+    pre     { white-space: pre-wrap; word-break: break-all; background: #ffffff;
+              border: 1px solid #ccd3d8; border-radius: 4px; padding: 8px 10px; font-size: 11px; }
+    #stage  { position: absolute; left: -10000px; top: 0; width: 794px; }
+    #out li { margin-bottom: 3px; list-style: none; }
+    #out    { padding: 0; margin: 0; }
+</style>
+</head>
+<body>
+
+<h1>Statement DOM Round Trip</h1>
+<ul id="out"><li class="note">running…</li></ul>
+
+<!-- THE PAGE UNDER TEST. Off-screen, but really laid out and really
+     contenteditable, because a display:none element is not the thing whose
+     behaviour is in question. -->
+<div id="stage"><div id="paper" class="na-le-stmt-doc" contenteditable="true"></div></div>
+
+<script type="module">
+
+    import { Na__LeStmtMd__Tokenise, Na__LeStmtMd__Join }
+        from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Tokenise__.js';
+    import { Na__LeStmtRnd__Blocks }
+        from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Render__.js';
+    import { Na__LeStmtSer__FromRoot, Na__LeStmtSer__Stamp }
+        from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Serialise__.js';
+
+    const out    = document.getElementById('out');
+    const paper  = document.getElementById('paper');
+    let   failed = 0;
+
+    function say(text, state, detail) {
+        const row = document.createElement('li');
+        row.className   = state || 'note';
+        row.textContent = (state === 'pass' ? 'PASS  ' : state === 'fail' ? 'FAIL  ' : '      ') + text;
+        out.appendChild(row);
+        if (detail) {
+            const block = document.createElement('pre');
+            block.textContent = detail;
+            out.appendChild(block);
+        }
+        if (state === 'fail') failed++;
+    }
+
+    function firstDifference(a, b) {
+        const limit = Math.min(a.length, b.length);
+        for (let at = 0; at < limit; at++) if (a[at] !== b[at]) return at;
+        return (a.length === b.length) ? -1 : limit;
+    }
+
+    // THE LOOP UNDER TEST | markdown -> blocks -> DOM -> markdown
+    function roundTrip(text) {
+        paper.innerHTML = Na__LeStmtRnd__Blocks(Na__LeStmtMd__Tokenise(text), { Editable : true });
+        Na__LeStmtSer__Stamp(paper);
+        return Na__LeStmtSer__FromRoot(paper);
+    }
+
+    const cases = [
+        [ 'heading and paragraph', '## Title\n\nA sentence.\n' ],
+        [ 'stacked address',       '#### Site Address:\n\nWest Beacon Farm\nDeans Lane\nLE12 8TE\n\n' ],
+        [ 'bold and italic',       'A **bold** run and an *italic* one.\n\n' ],
+        [ 'figure caption',        '​\t\t**Fig 2.1  -**  Site Location\n\n' ],
+        [ 'raw img block',         '<img src="./a/b.png" style="zoom: 30%; border: 10px solid #555041;" />\n\n' ],
+        [ 'nested divider',        '<div style="a">\n    <div style="b">\n    </div>\n</div>\n\n' ],
+        [ 'bullet list',           '-   One\n-   Two\n\n' ],
+        [ 'nested bullets',        '-   One\n  -   Deeper\n-   Two\n\n' ],
+        [ 'ordered list',          '1.   One\n2.   Two\n\n' ],
+        [ 'table',                 '| A | B |\n| --- | :-: |\n| 1 | 2 |\n\n' ],
+        [ 'fenced code',           '```SiteAddress\nWest Beacon Farm\n```\n\n' ],
+        [ 'blank line runs',       'One.\n\n\n\nTwo.\n\n' ],
+        [ 'trailing newline only', 'Only.\n' ]
+    ];
+
+    say('Synthetic cases');
+    for (const [ name, text ] of cases) {
+        const back = roundTrip(text);
+        const at   = firstDifference(back, text);
+        if (back === text) say('  ' + name, 'pass');
+        else say('  ' + name, 'fail',
+                 'in : ' + JSON.stringify(text) + '\nout: ' + JSON.stringify(back) + '\nfirst difference at ' + at);
+    }
+
+    // THE REAL STATEMENT
+    const url = '/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/'
+              + '10__StatementDocs/01__PreApp__Statement/RB05_T01_S01__WestFarm__PreApplicationStatement__.md';
+
+    say('Real statement');
+    try {
+        const response = await fetch(url, { cache : 'no-store' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const text = await response.text();
+
+        const started = performance.now();
+        const back    = roundTrip(text);
+        const took    = Math.round(performance.now() - started);
+
+        const at = firstDifference(back, text);
+        if (back === text) {
+            say('  RB05 pre-application statement, ' + text.length + ' chars, '
+                + paper.children.length + ' blocks, ' + took + ' ms', 'pass');
+        } else {
+            say('  RB05 pre-application statement', 'fail',
+                'first difference at char ' + at
+                + '\n--- file ---\n' + JSON.stringify(text.slice(Math.max(0, at - 120), at + 120))
+                + '\n--- back ---\n' + JSON.stringify(back.slice(Math.max(0, at - 120), at + 120)));
+        }
+
+        // A REAL EDIT must change that block and NOTHING else
+        const headings = paper.querySelectorAll('h4');
+        if (headings.length) {
+            headings[0].textContent = 'An Edited Heading';
+            const edited = Na__LeStmtSer__FromRoot(paper);
+            const diff   = edited.split('\n').filter((line, index) => line !== text.split('\n')[index]).length;
+            say('  one edited heading changes ' + diff + ' line(s)', diff === 1 ? 'pass' : 'fail',
+                diff === 1 ? '' : 'an edit to one heading rewrote ' + diff + ' lines of the file');
+        }
+
+    } catch (error) {
+        say('  could not fetch the statement: ' + error.message, 'fail');
+    }
+
+    say(failed === 0 ? 'ALL CHECKS PASSED' : failed + ' CHECK(S) FAILED', failed === 0 ? 'pass' : 'fail');
+    document.title = failed === 0 ? 'ROUND TRIP OK' : 'ROUND TRIP FAILED (' + failed + ')';
+
+</script>
+</body>
+</html>

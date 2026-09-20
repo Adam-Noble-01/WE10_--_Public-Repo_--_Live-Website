@@ -13,11 +13,13 @@
 // - The Standard, the Custom and the Parametric scrapbooks all offer tiles
 //   that are dragged onto the paper the same way. This module is that way,
 //   written once: a library hands it a spec and gets a tile back.
-// - A spec is { id, name, title, editable, buildSet, place, modifier }.
+// - A spec is { id, name, title, editable, buildSet, place, modifier, caption }.
 //   buildSet() answers the item in the item clipboard's set shape - entries,
 //   roots, origin and size - which is what the preview and the ghost are
 //   drawn from. place(sheet, centreMm) puts it on the sheet, centred on a
-//   paper point, and answers what it selected, or null.
+//   paper point, and answers what it selected, or null. caption(element,
+//   tile) is optional: a library whose tiles say more than a name fills the
+//   caption itself.
 // - Press on a tile and drag: the item follows the pointer at the size it
 //   will land at, the sheet's own zoom - faint away from the sheet, clear
 //   over it. Let go over the sheet and it lands centred under the pointer
@@ -27,8 +29,9 @@
 //   the middle of the view instead.
 //
 // INTEGRATION:
-// - Na__LayoutEditor__Panel__Scrapbook__, Na__LayoutEditor__Panel__ScrapbookCustom__
-//   and Na__LayoutEditor__Panel__ScrapbookParametric__ build their tiles here.
+// - Na__LayoutEditor__Panel__Scrapbook__, Na__LayoutEditor__Panel__ScrapbookCustom__,
+//   Na__LayoutEditor__Panel__ScrapbookParametric__ and
+//   Na__LayoutEditor__Panel__ScrapbookSpecification__ build their tiles here.
 // // @delegate: ./Na__LayoutEditor__Scrapbook__.js
 //
 // -----------------------------------------------------------------------------
@@ -40,6 +43,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.1.0
+// - spec.caption: a library may fill a tile's caption itself. Written for the
+//   Specification Scrapbook (58__Feature__ScrapbookSpecification), whose rows
+//   carry a note's title and text beside its bubble. No new export, and a
+//   spec without one reads exactly as before - so a warm cache still holding
+//   1.0.0 shows such a tile with its name, never a broken one.
+//
 // 19-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__Panel__Scrapbook__ 1.0.0, where the drag
 //   was written for one library and knew its items by id. The gestures, the
@@ -299,6 +309,9 @@
     // comes from; spec.modifier adds a class for a library that needs a hook.
     // A spec whose buildSet answers nothing still gets a tile, with its name
     // and no picture, so a broken item can be seen and removed.
+    // spec.caption(element, tile), when a library gives one, fills the caption
+    // in place of the name - the Specification Scrapbook's rows say a note's
+    // title and text, not one word. A caption that throws leaves the name.
     // ------------------------------------------------------------
     function Na__LeScrapDrag__Tile(spec) {
         const editable = spec.editable !== false;
@@ -318,6 +331,10 @@
         const caption = document.createElement('span');
         caption.className   = 'na-le-scrap__name';
         caption.textContent = spec.name || spec.id;
+        if (typeof spec.caption === 'function') {
+            try { caption.textContent = ''; spec.caption(caption, tile); }
+            catch (error) { caption.textContent = spec.name || spec.id; console.warn('[TrueVision3D LayoutEditor] A scrapbook caption could not be written: ' + spec.id, error); }
+        }
 
         tile.appendChild(thumb);
         tile.appendChild(caption);

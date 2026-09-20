@@ -114,6 +114,7 @@
     // MODULE IMPORTS | Config, Model, Tools, Surface, Gradient Tool and Panel Host
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetLineweightSetup, Na__LeCfg__GetShapeSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeHatch__Get, Na__LeHatch__GetPacks, Na__LeHatch__ClampScale, Na__LeHatch__ClampRotation } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__GetSelectionItems, Na__LeModel__UpdateShape } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeTools__GetShapeDefaults, Na__LeTools__SetShapeDefaults } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
@@ -130,6 +131,8 @@
         Na__LePanels__ApplyToSelection,
         Na__LePanels__Row,
         Na__LePanels__Input,
+        Na__LePanels__Select,
+        Na__LePanels__FillSelect,
         Na__LePanels__Note,
         Na__LePanels__SliderRow,
         Na__LePanels__ShowSlider
@@ -223,6 +226,31 @@
         // no other control out from under the pointer. Dashed edges open among
         // the edge rows, because a two-point centre line has no fill.
         Na__LeGrad__BuildRows(body);
+        // THE HATCH GOES LAST OF ALL, after the gradient. Adam: 'add a toggle
+        // that's default off, but within vectors at the bottom, which can switch
+        // on patterns to draw over the top of the fill on that vector, just like
+        // how layout works in SketchUp.' Off, the block is one row; ticking it
+        // opens the three controls under it and moves nothing above it.
+        const hatchRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeHatch', 'Hatch'), Na__LePanels__Input('checkbox', 'shape-hatch-on'), 'na-le-row--toggle');
+        hatchRow.title = Na__LeCfg__GetLabel('ShapeHatchTitle', 'A repeating pattern over this shape, drawn above its fill and below its own outline. Paper size: a tile prints the same however the sheet is scaled.');
+        body.appendChild(hatchRow);
+        const hatchPattern = Na__LePanels__Select('shape-hatch-pattern', [], '');
+        const hatchPatternRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeHatchPattern', 'Pattern'), hatchPattern);
+        hatchPatternRow.setAttribute('data-na-block', 'shape-hatch-pattern-row');
+        body.appendChild(hatchPatternRow);
+        const hatchScale = Na__LePanels__Input('number', 'shape-hatch-scale', { min : 0.1, max : 10, step : 0.05 });
+        hatchScale.title = Na__LeCfg__GetLabel('ShapeHatchScaleTitle', 'How large the pattern draws on the sheet. 1 is the size it was drawn at.');
+        const hatchScaleRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeHatchScale', 'Pattern scale'), hatchScale);
+        hatchScaleRow.setAttribute('data-na-block', 'shape-hatch-scale-row');
+        body.appendChild(hatchScaleRow);
+        const hatchRot = Na__LePanels__Input('number', 'shape-hatch-rotation', { min : 0, max : 345, step : 15 });
+        hatchRot.title = Na__LeCfg__GetLabel('ShapeHatchRotationTitle', 'Turns the whole tiled field, not each mark.');
+        const hatchRotRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeHatchRotation', 'Pattern deg'), hatchRot);
+        hatchRotRow.setAttribute('data-na-block', 'shape-hatch-rotation-row');
+        body.appendChild(hatchRotRow);
+        const hatchNote = Na__LePanels__Note('');
+        hatchNote.setAttribute('data-na-block', 'shape-hatch-note');
+        body.appendChild(hatchNote);
         const either = Na__LePanels__Note(Na__LeCfg__GetLabel('ShapeEitherNote', 'Edges and fill are either or: switching one off switches the other on, so a shape always shows.'));
         either.setAttribute('data-na-block', 'either');
         body.appendChild(either);
@@ -247,6 +275,36 @@
         const d = Na__LeTools__GetShapeDefaults();
         if (selected) return { on : !!selected.item.Shape__Gradient, gradient : selected.item.Shape__Gradient || d.gradient };
         return { on : d.gradientOn === true, gradient : d.gradient };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Hatch in Play: the Selected Shape's, or the Defaults'
+    // ------------------------------------------------------------
+    // Returns { on, hatch }. hatch is a record even while on is false - the
+    // defaults keep their settings through the toggle - so switching a shape's
+    // hatch back on restores the pattern it had rather than starting blank.
+    //
+    // A SHAPE'S HATCH IS ON WHEN IT NAMES A PATTERN. There is no separate stored
+    // flag: the record layer drops Shape__Hatch entirely unless a pattern is
+    // named, so "on with nothing chosen" is not a state a saved shape can be in.
+    // ------------------------------------------------------------
+    function Na__LePanelShapes__Hatch() {
+        const selected = Na__LePanelShapes__Reading();
+        const d = Na__LeTools__GetShapeDefaults();
+        const fallback = d.hatch || { Hatch__PatternKey : '', Hatch__Scale : 1, Hatch__RotationDeg : 0 };
+        if (selected) return { on : !!selected.item.Shape__Hatch, hatch : selected.item.Shape__Hatch || fallback };
+        return { on : d.hatchOn === true, hatch : fallback };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Write One Field of the Hatch, Merged
+    // ------------------------------------------------------------
+    function Na__LePanelShapes__ApplyHatch(changes) {
+        const now  = Na__LePanelShapes__Hatch().hatch;
+        const next = Object.assign({}, now, changes);
+        Na__LePanelShapes__Apply({ hatch : next }, { hatchOn : !!next.Hatch__PatternKey, hatch : next });
     }
     // ------------------------------------------------------------
 
@@ -289,6 +347,35 @@
         el('shape-filled').checked = values.filled;
         el('shape-closed').checked = values.closed;
         el('shape-closed').parentNode.hidden  = !selected;
+
+        // THE HATCH BLOCK. A hatch needs an enclosed shape, so it follows the
+        // same canFill rule the solid fill does - a two-point line has nothing
+        // to hatch. Its three controls are only there once the toggle is on.
+        const hatchState = Na__LePanelShapes__Hatch();
+        const hatchOn    = hatchState.on && canFill;
+        el('shape-hatch-on').checked = hatchOn;
+        el('shape-hatch-on').parentNode.hidden = !canFill;
+        [ 'shape-hatch-pattern-row', 'shape-hatch-scale-row', 'shape-hatch-rotation-row' ]
+            .forEach((block) => { const row = body.querySelector('[data-na-block="' + block + '"]'); if (row) row.hidden = !hatchOn; });
+
+        const hatchNote = body.querySelector('[data-na-block="shape-hatch-note"]');
+        if (hatchNote) {
+            const missing = hatchOn && hatchState.hatch.Hatch__PatternKey && !Na__LeHatch__Get(hatchState.hatch.Hatch__PatternKey);
+            hatchNote.textContent = missing
+                ? Na__LeCfg__GetLabel('ShapeHatchMissing', 'This shape names a pattern the library has not got. Its fill and outline are unchanged; choose another pattern to replace it.')
+                : '';
+            hatchNote.hidden = !hatchNote.textContent;
+        }
+
+        if (hatchOn) {
+            const options = [ { value : '', label : Na__LeCfg__GetLabel('ShapeHatchNone', 'None') } ];
+            Na__LeHatch__GetPacks().forEach((pack) => {
+                pack.Pack__Patterns.forEach((pattern) => options.push({ value : pattern.Pattern__Key, label : pattern.Pattern__Label + '  (' + pack.Pack__Label + ')' }));
+            });
+            Na__LePanels__FillSelect(el('shape-hatch-pattern'), options, hatchState.hatch.Hatch__PatternKey || '');
+            set('shape-hatch-scale',    Number.isFinite(hatchState.hatch.Hatch__Scale) ? hatchState.hatch.Hatch__Scale : 1);
+            set('shape-hatch-rotation', Number.isFinite(hatchState.hatch.Hatch__RotationDeg) ? hatchState.hatch.Hatch__RotationDeg : 0);
+        }
         el('shape-stroked').parentNode.hidden = !canFill;
         el('shape-filled').parentNode.hidden  = !canFill;
         el('shape-stroke').parentNode.hidden  = !values.stroked;
@@ -393,6 +480,35 @@
             Na__LePanelShapes__Apply({ stroked : false, fillColour : colour }, { stroked : false, filled : true, fillColour : colour });   // <-- No edges left, so the fill comes on
         });
         Na__LePanels__OnControl('change', 'shape-closed', (e, el) => Na__LePanelShapes__Apply({ closed : el.checked }, null));
+        // THE HATCH. Switching it on with nothing chosen yet picks the first
+        // pattern in the library, because an empty dropdown under a ticked box
+        // reads as broken; switching it off clears the record entirely.
+        Na__LePanels__OnControl('change', 'shape-hatch-on', (e, el) => {
+            if (!el.checked) { Na__LePanelShapes__Apply({ hatch : null }, { hatchOn : false }); return; }
+            const now = Na__LePanelShapes__Hatch().hatch;
+            let key = now.Hatch__PatternKey;
+            if (!key || !Na__LeHatch__Get(key)) {
+                const packs = Na__LeHatch__GetPacks();
+                const first = packs.length && packs[0].Pack__Patterns.length ? packs[0].Pack__Patterns[0] : null;
+                key = first ? first.Pattern__Key : '';
+            }
+            if (!key) { Na__LePanels__Refresh(Na__LePanelShapes__ID); return; }   // <-- An empty library: nothing to switch on
+            Na__LePanelShapes__ApplyHatch({ Hatch__PatternKey : key });
+        });
+        Na__LePanels__OnControl('change', 'shape-hatch-pattern', (e, el) => {
+            if (!el.value) { Na__LePanelShapes__Apply({ hatch : null }, { hatchOn : false }); return; }
+            Na__LePanelShapes__ApplyHatch({ Hatch__PatternKey : el.value });
+        });
+        Na__LePanels__OnControl('change', 'shape-hatch-scale', (e, el) => {
+            const pattern = Na__LeHatch__Get(Na__LePanelShapes__Hatch().hatch.Hatch__PatternKey);
+            Na__LePanelShapes__ApplyHatch({ Hatch__Scale : Na__LeHatch__ClampScale(pattern, el.value) });
+        });
+        Na__LePanels__OnControl('change', 'shape-hatch-rotation', (e, el) => {
+            Na__LePanelShapes__ApplyHatch({ Hatch__RotationDeg : Na__LeHatch__ClampRotation(el.value) });
+        });
+        const hatchCommit = (event, el) => { if (event.key === 'Enter') { event.preventDefault(); el.blur(); } };
+        Na__LePanels__OnControl('keydown', 'shape-hatch-scale',    hatchCommit);
+        Na__LePanels__OnControl('keydown', 'shape-hatch-rotation', hatchCommit);
 
         // DRAW AT SCALE | A setting of the drawing tools, so it goes to the defaults
         // even with a shape selected, and the Measurements box reads it at once

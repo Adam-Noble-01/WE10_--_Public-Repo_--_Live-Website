@@ -189,7 +189,7 @@
     // ------------------------------------------------------------
     function Na__LeShapeGeo__Hit(shape, point, toleranceMm) {
         if (Na__LeShapeGeo__DistanceToEdge(shape, point) <= toleranceMm) return true;
-        return (!!shape.Shape__FillColour || !!shape.Shape__Gradient) && Na__LeShapeGeo__Contains(shape, point);
+        return (!!shape.Shape__FillColour || !!shape.Shape__Gradient || !!shape.Shape__Hatch) && Na__LeShapeGeo__Contains(shape, point);
     }
     // ------------------------------------------------------------
 
@@ -267,9 +267,16 @@
         const stroked  = shape.Shape__Stroked !== false;
         const fill     = (pts.length > 2 && typeof shape.Shape__FillColour === 'string') ? shape.Shape__FillColour : null;
         const gradient = (pts.length > 2 && shape.Shape__Gradient && typeof shape.Shape__Gradient === 'object') ? shape.Shape__Gradient : null;
-        if (!stroked && !fill && !gradient) return false;                    // <-- Nothing to paint
+        // THE HATCH IS A DECK, NOT A FILL. Adam, on the vector editor: 'fill,
+        // hatch pattern, line work - and when I say line work, it's the bounding
+        // line work of the vector.' So a closed shape can carry a repeating
+        // pattern that draws OVER whatever fills it and UNDER its own outline,
+        // and a shape with a hatch but no fill is a perfectly good drawing.
+        const hatch = (closed && shape.Shape__Hatch && typeof shape.Shape__Hatch === 'object') ? shape.Shape__Hatch : null;
+        if (!stroked && !fill && !gradient && !hatch) return false;           // <-- Nothing to paint
         Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient,
             { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity,
+              hatch : hatch, hatchInk : shape.Shape__StrokeColour,
               dashArray : stroked ? Na__LeDash__PatternMm(shape.Shape__LineStyle) : [] });   // <-- A record from before the toggle has no line style and paints solid
         return true;
     }

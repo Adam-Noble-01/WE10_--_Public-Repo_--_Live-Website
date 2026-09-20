@@ -69,7 +69,180 @@
             "Camera__DefaultMisc__Fov": 45
         }
     },
+    "SitePlan__DataStores": [
+        {
+            "SitePlan__StoreId": "proposed",
+            "SitePlan__FolderName": "SitePlan__DrawingData",
+            "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
+            "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
+            "SitePlan__NorthAngleDeg": 0.0,
+            "SitePlan__BoundsMm": {
+                "MinX": 0.0,
+                "MinZ": -143295.2,
+                "MaxX": 150353.0,
+                "MaxZ": 0.0
+            },
+            "SitePlan__Layers": [
+                {
+                    "Layer__CategoryKey": "TrueVision__SitePlan__OsMapping",
+                    "Layer__TagName": "71__SitePlan__BaseMap__OsMapping",
+                    "Layer__Label": "OS Mapping",
+                    "Layer__Group": "Base Map",
+                    "Layer__DrawOrder": 20,
+                    "Layer__ZIndexLine": null,
+                    "Layer__ZIndexFill": null,
+                    "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__OsMapping__LineworkModel__.glb",
+                    "Layer__FillUrl": null,
+                    "Layer__Style": {
+                        "LineColourId": "MTE103__LineColour__DarkGrey__L40",
+                        "LineHex": "#666666",
+                        "LineType": "solid",
+                        "LineWeightMm": 0.13,
+                        "FillColourId": null,
+                        "FillHex": null,
+                        "FillOpacity": null
+                    },
+                    "Layer__VisibleAtScales": [
+                        500,
+                        1250
+                    ],
+                    "Layer__SegmentCount": 364,
+                    "Layer__BoundsMm": {
+                        "MinX": 0.0,
+                        "MinZ": -143295.2,
+                        "MaxX": 150353.0,
+                        "MaxZ": 0.0
+                    }
+                },
+                {
+                    "Layer__CategoryKey": "TrueVision__SitePlan__ExistingBuildings",
+                    "Layer__TagName": "73__SitePlan__Buildings__Existing",
+                    "Layer__Label": "Existing Buildings",
+                    "Layer__Group": "Buildings",
+                    "Layer__DrawOrder": 40,
+                    "Layer__ZIndexLine": null,
+                    "Layer__ZIndexFill": null,
+                    "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb",
+                    "Layer__FillUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ExistingBuildings__FillModel__.glb",
+                    "Layer__Style": {
+                        "LineColourId": "MTE102__LineColour__SoftBlack__L20",
+                        "LineHex": "#333333",
+                        "LineType": "solid",
+                        "LineWeightMm": 0.25,
+                        "FillColourId": null,
+                        "FillHex": null,
+                        "FillOpacity": null
+                    },
+                    "Layer__VisibleAtScales": [
+                        500,
+                        1250
+                    ],
+                    "Layer__SegmentCount": 10,
+                    "Layer__BoundsMm": {
+                        "MinX": 58884.7,
+                        "MinZ": -75706.8,
+                        "MaxX": 76667.8,
+                        "MaxZ": -64888.6
+                    }
+                },
+                {
+                    "Layer__CategoryKey": "TrueVision__SitePlan__ProposedBuildingsSecondary",
+                    "Layer__TagName": "73__SitePlan__Buildings__ProposedSecondary",
+                    "Layer__Label": "Proposed Buildings - Secondary",
+                    "Layer__Group": "Buildings",
+                    "Layer__DrawOrder": 70,
+                    "Layer__ZIndexLine": null,
+                    "Layer__ZIndexFill": null,
+                    "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb",
+                    "Layer__FillUrl": null,
+                    "Layer__Style": {
+                        "LineColourId": "MTE201__LineColour__Red",
+                        "LineHex": "#E53935",
+                        "LineType": "solid",
+                        "LineWeightMm": 0.25,
+                        "FillColourId": "MTE201__LineColour__Red",
+                        "FillHex": "#E53935",
+                        "FillOpacity": 0.2
+                    },
+                    "Layer__VisibleAtScales": [
+                        500,
+                        1250
+                    ],
+                    "Layer__SegmentCount": 394,
+                    "Layer__BoundsMm": {
+                        "MinX": 0.0,
+                        "MinZ": -142893.0,
+                        "MaxX": 136084.7,
+                        "MaxZ": -455.9
+                    }
+                },
+                {
+                    "Layer__CategoryKey": "TrueVision__SitePlan__ProposedBuildings",
+                    "Layer__TagName": "73__SitePlan__Buildings__Proposed",
+                    "Layer__Label": "Proposed Buildings",
+                    "Layer__Group": "Buildings",
+                    "Layer__DrawOrder": 71,
+                    "Layer__ZIndexLine": null,
+                    "Layer__ZIndexFill": null,
+                    "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb",
+                    "Layer__FillUrl": null,
+                    "Layer__Style": {
+                        "LineColourId": "MTE201__LineColour__Red",
+                        "LineHex": "#E53935",
+                        "LineType": "solid",
+                        "LineWeightMm": 0.35,
+                        "FillColourId": "MTE201__LineColour__Red",
+                        "FillHex": "#E53935",
+                        "FillOpacity": 0.45
+                    },
+                    "Layer__VisibleAtScales": [
+                        500,
+                        1250
+                    ],
+                    "Layer__SegmentCount": 3,
+                    "Layer__BoundsMm": {
+                        "MinX": 74001.6,
+                        "MinZ": -75797.2,
+                        "MaxX": 77139.9,
+                        "MaxZ": -66330.2
+                    }
+                },
+                {
+                    "Layer__CategoryKey": "TrueVision__SitePlan__RedLineBoundary",
+                    "Layer__TagName": "72__SitePlan__Boundary__RedLine",
+                    "Layer__Label": "Red Line Boundary",
+                    "Layer__Group": "Boundaries",
+                    "Layer__DrawOrder": 90,
+                    "Layer__ZIndexLine": null,
+                    "Layer__ZIndexFill": null,
+                    "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb",
+                    "Layer__FillUrl": null,
+                    "Layer__Style": {
+                        "LineColourId": "MTE201__LineColour__Red",
+                        "LineHex": "#E53935",
+                        "LineType": "solid",
+                        "LineWeightMm": 0.5,
+                        "FillColourId": null,
+                        "FillHex": null,
+                        "FillOpacity": null
+                    },
+                    "Layer__VisibleAtScales": [
+                        500,
+                        1250
+                    ],
+                    "Layer__SegmentCount": 14,
+                    "Layer__BoundsMm": {
+                        "MinX": 48342.9,
+                        "MinZ": -78144.6,
+                        "MaxX": 93160.7,
+                        "MaxZ": -62242.1
+                    }
+                }
+            ]
+        }
+    ],
     "SitePlan__DataStore": {
+        "SitePlan__StoreId": "proposed",
         "SitePlan__FolderName": "SitePlan__DrawingData",
         "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
         "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
@@ -87,6 +260,8 @@
                 "Layer__Label": "OS Mapping",
                 "Layer__Group": "Base Map",
                 "Layer__DrawOrder": 20,
+                "Layer__ZIndexLine": null,
+                "Layer__ZIndexFill": null,
                 "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__OsMapping__LineworkModel__.glb",
                 "Layer__FillUrl": null,
                 "Layer__Style": {
@@ -116,6 +291,8 @@
                 "Layer__Label": "Existing Buildings",
                 "Layer__Group": "Buildings",
                 "Layer__DrawOrder": 40,
+                "Layer__ZIndexLine": null,
+                "Layer__ZIndexFill": null,
                 "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ExistingBuildings__LineworkModel__.glb",
                 "Layer__FillUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ExistingBuildings__FillModel__.glb",
                 "Layer__Style": {
@@ -145,6 +322,8 @@
                 "Layer__Label": "Proposed Buildings - Secondary",
                 "Layer__Group": "Buildings",
                 "Layer__DrawOrder": 70,
+                "Layer__ZIndexLine": null,
+                "Layer__ZIndexFill": null,
                 "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb",
                 "Layer__FillUrl": null,
                 "Layer__Style": {
@@ -174,6 +353,8 @@
                 "Layer__Label": "Proposed Buildings",
                 "Layer__Group": "Buildings",
                 "Layer__DrawOrder": 71,
+                "Layer__ZIndexLine": null,
+                "Layer__ZIndexFill": null,
                 "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb",
                 "Layer__FillUrl": null,
                 "Layer__Style": {
@@ -203,6 +384,8 @@
                 "Layer__Label": "Red Line Boundary",
                 "Layer__Group": "Boundaries",
                 "Layer__DrawOrder": 90,
+                "Layer__ZIndexLine": null,
+                "Layer__ZIndexFill": null,
                 "Layer__LineworkUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS02__MustersRoad__OfficialPdPack/30__TrueVision__AppContent/SitePlan__DrawingData/PS01__TrueVision__SitePlan__RedLineBoundary__LineworkModel__.glb",
                 "Layer__FillUrl": null,
                 "Layer__Style": {

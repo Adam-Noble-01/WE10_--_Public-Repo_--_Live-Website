@@ -88,6 +88,12 @@
 
     // MODULE IMPORTS | Viewport 2D Units (Window, Frame, Linework)
     // ------------------------------------------------------------
+    import { Na__LeHatch__Effective, Na__LeHatch__PatternDef, Na__LeHatch__Token } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
+    import {
+        Na__LeSpComp__IsDeckOn,
+        Na__LeSpComp__LocationRules,
+        Na__LeSpComp__Token
+    } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
     import { Na__LeVp2d__Window } from './Na__LayoutEditor__Viewport2d__Window__.js';
     import {
         Na__LeVp2d__States,
@@ -135,21 +141,47 @@
     // THE STORE ID MUST BE IN HERE. This token is built.key, which also keys the
     // path cache in Na__LeVp2d__BandPaths - switch store without it and the
     // viewport repaints the previous store's path strings.
+    //
+    // AND SO MUST EVERYTHING ELSE THAT CHANGES THE PICTURE. This string is the
+    // repaint guard: Na__LeVp2d__FillSitePlan compares it against the key the
+    // frame was last painted with and, when they match, resizes the SVG it
+    // already has rather than building a new one. A setting left out of here is
+    // a setting that saves to the record, survives a reload, and appears to do
+    // nothing at all until the page is refreshed - which is exactly what the
+    // Patterns panel did before Na__LeHatch__Token joined the list.
     // ------------------------------------------------------------
     function Na__LeVp2d__SitePlanToken(viewport) {
         const storeId    = Na__LeVp2d__SitePlanStoreId(viewport);
         const descriptor = Na__SpStore__GetDescriptor(storeId);
         return 'siteplan:' + storeId
              + ':' + (descriptor ? descriptor.SitePlan__ExportedIso : 'none')
-             + ':' + Na__LeModelLayers__Token(viewport);
+             + ':' + Na__LeModelLayers__Token(viewport)
+             + ':' + Na__LeSpComp__Token(viewport);                              // <-- The subtype and the three deck switches
     }
     // ------------------------------------------------------------
 
 
     // HELPER FUNCTION | The Repaint Guard for a Site Plan Viewport
     // ------------------------------------------------------------
+    // TWO KEYS, AND THE DIFFERENCE MATTERS. SitePlanToken above is built.key,
+    // which also keys the BAND PATH cache - the path strings for tens of
+    // thousands of exported segments. This key is the repaint guard, and it
+    // carries everything the token does PLUS the things that change the picture
+    // without changing a single line: the hatch overrides, the scale, the sheet
+    // master and the edge styles.
+    //
+    // THE HATCH BELONGS HERE AND NOT IN THE TOKEN. A pattern, a hatch scale or a
+    // rotation only ever changes the <defs> and the fills painted through them;
+    // the linework is untouched. Putting it in the token would repaint correctly
+    // and then rebuild every path string on the sheet for each keystroke, which
+    // on an OS base map is a hundred thousand segments re-serialised to move one
+    // hatch. Here, the frame repaints and the band paths come straight back out
+    // of the cache.
+    // ------------------------------------------------------------
     function Na__LeVp2d__SitePlanPaintKey(viewport, masterPt) {
-        return Na__LeVp2d__SitePlanToken(viewport) + '|' + viewport.Viewport__ScaleDenominator + '|' + masterPt + '|' + Na__LeVp2d__StyleToken(viewport);
+        return Na__LeVp2d__SitePlanToken(viewport)
+             + '|' + Na__LeHatch__Token(viewport)                                // <-- Every layer's pattern, scale and rotation on THIS viewport
+             + '|' + viewport.Viewport__ScaleDenominator + '|' + masterPt + '|' + Na__LeVp2d__StyleToken(viewport);
     }
     // ------------------------------------------------------------
 
@@ -188,10 +220,75 @@
         });
         const classes = { visible : segments, hidden : new Float32Array(0), authored : new Float32Array(0), section : new Float32Array(0) };
         Na__PlOwners__Attach(classes, { visible : owners, hidden : new Uint16Array(0), authored : new Uint16Array(0), section : new Uint16Array(0) }, table.Keys);
-        const fills = loaded
-            .filter((data) => data.rings.length > 0 && data.layer.Layer__Style.FillHex && Number.isFinite(data.layer.Layer__Style.FillOpacity) && data.layer.Layer__Style.FillOpacity > 0)
+
+        // THE SUBTYPE AND THE DECK SWITCHES decide what of this actually paints.
+        // `location` is null on a block plan and the whole rule on a location
+        // plan; the decks are the panel's three checkboxes.
+        const location = Na__LeSpComp__LocationRules(viewport);
+        const wantFill = Na__LeSpComp__IsDeckOn(viewport, 'fills');
+        const wantHatch = Na__LeSpComp__IsDeckOn(viewport, 'patterns') && (!location || location.paintPatterns === true);
+        const wantLines = Na__LeSpComp__IsDeckOn(viewport, 'linework');
+
+        // THE LINE RULES, handed to StyleBands. Order is every loaded layer's
+        // 1-10 line Z-index, so the bands stack by what a layer MEANS rather
+        // than by how thick it is drawn. Grey is the location plan's list: the
+        // layers that are neither a boundary nor a proposal, whose colour comes
+        // off so the tiny drawing reads as a drawing and not as a paint chart.
+        const siteRules = { Order : new Map(), Grey : new Set(), Greyscale : location ? location.Greyscale : null };
+        loaded.forEach((data) => {
+            siteRules.Order.set(data.categoryKey, data.layer.Layer__ZIndexLine);
+            if (location && location.greyscaleOtherInk && !location.KeepsInk(data.layer)) siteRules.Grey.add(data.categoryKey);
+        });
+
+        // THE FILL DECK. Sorted by the layer's own fill Z-index, which is
+        // INDEPENDENT of its line Z-index - that is what lets water lines sit
+        // above tree lines while the two washes stack the other way (REQ-10).
+        const withRings = loaded
+            .filter((data) => data.rings.length > 0)
+            .slice()
+            .sort((a, b) => (a.layer.Layer__ZIndexFill - b.layer.Layer__ZIndexFill)
+                         || (a.layer.Layer__DrawOrder  - b.layer.Layer__DrawOrder));
+
+        // ON A LOCATION PLAN THE ONLY WASH IS THE PROPOSAL. Adam, TASK 06: 'only
+        // show one type of fill, and that is the proposed new construction or
+        // the alterations proposed fills.'
+        const fills = !wantFill ? [] : withRings
+            .filter((data) => data.layer.Layer__Style.FillHex && Number.isFinite(data.layer.Layer__Style.FillOpacity) && data.layer.Layer__Style.FillOpacity > 0)
+            .filter((data) => Na__LeHatch__Effective(viewport, data.categoryKey, data.layer.Layer__Style.HatchPatternId).Hatch__Filled)
+            .filter((data) => !(location && location.fillsAreProposalOnly) || location.IsProposalLayer(data.layer))
             .map((data) => ({ categoryKey : data.categoryKey, hex : data.layer.Layer__Style.FillHex, opacity : data.layer.Layer__Style.FillOpacity, rings : data.rings }));
-        return { classes : classes, fills : fills, key : Na__LeVp2d__SitePlanToken(viewport) };
+
+        // THE PATTERN DECK, over the washes and under the linework. A layer's
+        // hatch comes from the Tags SSOT through Layer__Style.HatchPatternId, and
+        // a viewport may override it, rescale it or turn it. Never painted on a
+        // location plan: at 1:1250 a tree symbol is smaller than the line weight.
+        const patterns = !wantHatch ? [] : withRings.reduce((list, data) => {
+            const hatch = Na__LeHatch__Effective(viewport, data.categoryKey, data.layer.Layer__Style.HatchPatternId);
+            if (!hatch.Hatch__Pattern) return list;                              // <-- No hatch named, or the library has not got it
+            list.push({
+                categoryKey : data.categoryKey,
+                pattern     : hatch.Hatch__Pattern,
+                scale       : hatch.Hatch__Scale,
+                rotationDeg : hatch.Hatch__RotationDeg,
+                colour      : siteRules.Grey.has(data.categoryKey) && siteRules.Greyscale
+                    ? siteRules.Greyscale(data.layer.Layer__Style.LineHex)
+                    : data.layer.Layer__Style.LineHex,                           // <-- 'inherit' means the layer's own ink
+                rings       : data.rings
+            });
+            return list;
+        }, []);
+
+        // classes IS ALWAYS BUILT, even with the linework deck off: it is the
+        // snap source as well as the drawing, and a face you can see but cannot
+        // snap to is a worse surprise than a line you asked not to see.
+        return {
+            classes   : classes,
+            fills     : fills,
+            patterns  : patterns,
+            siteRules : siteRules,
+            paintLines : wantLines,
+            key       : Na__LeVp2d__SitePlanToken(viewport)
+        };
     }
     // ------------------------------------------------------------
 
@@ -234,14 +331,33 @@
         const win        = Na__LeVp2d__Window(viewport);
         const D          = win.Denominator;
         const styleToken = Na__LeVp2d__StyleToken(viewport);
-        const bands      = Na__LeVp2d__StyleBands(viewport, state.masterPt, built.classes, false);
+        const bands      = Na__LeVp2d__StyleBands(viewport, state.masterPt, built.classes, false, built.siteRules);
         const paths      = Na__LeVp2d__BandPaths(built.key + '@false@' + styleToken, bands, built.classes);
+        // THE COMPOSITE, bottom to top: solid wash, then pattern, then linework.
+        let defs = '';
         let body = '';
+
         built.fills.forEach((fill) => {
             const d = Na__LeVp2d__RingPathData(fill.rings);
             if (d) body += '<path d="' + d + '" fill="' + fill.hex + '" fill-opacity="' + fill.opacity + '" fill-rule="evenodd" stroke="none"/>';
         });
-        bands.forEach((band, index) => {
+
+        (built.patterns || []).forEach((entry, index) => {
+            const d = Na__LeVp2d__RingPathData(entry.rings);
+            if (!d) return;
+            // The id carries the viewport, or two site plan frames on one sheet
+            // would share one definition and the second would take the first's
+            // scale and rotation.
+            const id = 'na-le-hatch-' + viewport.Viewport__Id + '-' + index;
+            defs += Na__LeHatch__PatternDef(id, entry.pattern, {
+                denominator : D,
+                scale       : entry.scale,
+                rotationDeg : entry.rotationDeg,
+                colour      : entry.colour
+            });
+            body += '<path d="' + d + '" fill="url(#' + id + ')" fill-rule="evenodd" stroke="none"/>';
+        });
+        if (built.paintLines !== false) bands.forEach((band, index) => {
             const d = paths[index];
             if (!d) return;
             const dashAttr = (band.dashMm && band.dashMm.length > 0)
@@ -251,7 +367,7 @@
                     '" stroke-linecap="round" stroke-linejoin="round"' + dashAttr + '/>';
         });
         state.linework.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="na-le-frame__linework-svg" viewBox="' +
-            win.OriginX + ' ' + win.OriginY + ' ' + win.WidthMm + ' ' + win.HeightMm + '" preserveAspectRatio="none" focusable="false" aria-hidden="true">' + body + '</svg>';
+            win.OriginX + ' ' + win.OriginY + ' ' + win.WidthMm + ' ' + win.HeightMm + '" preserveAspectRatio="none" focusable="false" aria-hidden="true">' + (defs ? '<defs>' + defs + '</defs>' : '') + body + '</svg>';
         state.lineworkKey = Na__LeVp2d__SitePlanPaintKey(viewport, state.masterPt);
         state.lineworkSvg = state.linework.firstElementChild;
         state.classes     = built.classes;                                       // <-- Snap source: site plan vertices snap like any linework

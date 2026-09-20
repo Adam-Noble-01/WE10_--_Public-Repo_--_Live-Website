@@ -1,0 +1,499 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (statement document)*/
+/* ================================================================= */
+/*
+ * FILE     : Na__LayoutEditor__Styles__Statement__Document__.css
+ * PURPOSE  : The look of a Noble Architecture statement - the one stylesheet
+ *            the Editor, the Reader, the generated HTML and the PDF all use.
+ * AUTHORED : 20-Sep-2026 for TrueVision3D v2.95.0 (Statement Writer)
+ *
+ * WHERE THIS CAME FROM
+ * - Refactored from the Typora authoring theme "01-na-diary-view-a4.css"
+ *   (v2.1.1), which is the authority: a statement opened in Typora and the
+ *   same statement opened in this app must be the same document. Every size,
+ *   colour and margin below is that theme's, carried over unchanged, and the
+ *   four-digit unit convention (03.50mm, 10.00pt) is kept with them so a value
+ *   can be compared against the theme line for line.
+ * - Typora's #write becomes .na-le-stmt-doc and Typora's body becomes the
+ *   desk the paper lies on. Everything else is scoped beneath .na-le-stmt-doc
+ *   so a statement can never reach out and restyle the editor around it.
+ *
+ * WHAT IS DELIBERATELY NOT CARRIED OVER
+ * - The CodeMirror and md-meta-block focus rules (Section 12 of the theme).
+ *   They style Typora's own editor chrome, which does not exist here.
+ * - mark's brush texture, which the theme fetches from svgbox.net. An external
+ *   image cannot be rasterised into the PDF - html2canvas drops what it cannot
+ *   fetch - so the highlight is drawn in CSS at the same hue instead, and it
+ *   then looks identical on screen, in the HTML and on paper.
+ *
+ * USED BY
+ * - The Reader (05__Ui__Reader) and the Editor (04__Ui__Editor) both put this
+ *   class on their page, so what is typed is already what is read.
+ * - The PDF exporter rasterises that same DOM, so nothing can drift.
+ * - The generated standalone HTML links this file by its public URL.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Paper                                              */
+/* ----------------------------------------------------------------- */
+
+/* ONE CONTINUOUS A4-WIDE PAGE, NOT A4 SHEETS. The Project Specification lays
+   itself out as separate 297mm pages because it is printed on them. A
+   statement is not: it is written in Typora as one endless column 210mm wide
+   and it is delivered as an endless-scroll PDF, so the paper here has an A4
+   width, a top and a bottom, and no page breaks anywhere in between. */
+.na-le-stmt-doc {
+    margin-top                         : 10.00mm;
+    margin-bottom                      : 10.00mm;
+    margin-left                        : auto;
+    margin-right                       : auto;
+    padding-top                        : 10.00mm;       /* <--- Padding: top       */
+    padding-bottom                     : 20.00mm;       /* <--- Padding: bottom    */
+    padding-left                       : 11.00mm;       /* <--- Padding: left      */
+    padding-right                      : 11.00mm;       /* <--- Padding: right     */
+    width                              : 100%;
+    max-width                          : 210.00mm;      /* <--- Limit the width to A4 size */
+    background-color                   : #ffffff;
+    box-shadow                         : 00.00mm 00.00mm 02.00mm rgba(0, 0, 0, 0.495);
+    box-sizing                         : border-box;
+    color                              : #3c3c3c;
+    font-family                        : "Open Sans", sans-serif;
+    font-size                          : 10.00pt;
+    word-wrap                          : break-word;    /* <--- Ensure text breaks inside the container */
+    overflow-wrap                      : break-word;    /* <--- Compatibility for older browsers        */
+}
+
+/* THE PAPER CARRIES NO SHADOW WHILE IT IS BEING RASTERISED. html2canvas paints
+   a shadow as grey pixels down the edge of every tile, which then print as a
+   seam. The exporter sets this class on the clone it captures. */
+.na-le-stmt-doc.is-capturing {
+    margin                             : 00.00mm;
+    box-shadow                         : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Standard Text                                          */
+/* ----------------------------------------------------------------- */
+
+/* THE SPACE ABOVE A PARAGRAPH IS LODE-BEARING. The Typora theme never states
+   it, so a paragraph keeps the browser's own one em - and the headings above
+   are then given NEGATIVE bottom margins of two millimetres, measured against
+   exactly that. Set this to zero, as a statement stylesheet reasonably might,
+   and every sub-heading in the document lands on top of the sentence under it.
+   It is stated here rather than left to the browser so that the number the
+   negative margins are pulling against is written down somewhere. */
+.na-le-stmt-doc p {                                     /* <--- Paragraphs */
+    margin-top                         : 1.00em;        /* <--- 03.53mm at the 10.00pt body size; see the note above */
+    margin-bottom                      : 03.50mm;
+    margin-left                        : 00.00mm;
+    margin-right                       : 00.00mm;
+    color                              : #3c3c3c;
+    line-height                        : 1.40;
+    font-size                          : 10.00pt;
+    word-wrap                          : break-word;
+    overflow-wrap                      : break-word;    /* <--- Legacy support */
+    word-break                         : break-word;    /* <--- Ensures long words break */
+}
+
+.na-le-stmt-doc b,
+.na-le-stmt-doc strong {                                /* <--- Global style for bold text */
+    color                              : #555041;
+    font-family                        : "Open Sans", sans-serif;
+    font-weight                        : 500;
+}
+
+/* ITALIC IS SMALLER AS WELL AS SLANTED in this house style - 08.00pt against
+   the body's 10.00pt - which is what makes a [TO DRAFT] note or a figure
+   caption sit back from the text around it. It is not a mistake to correct. */
+.na-le-stmt-doc i,
+.na-le-stmt-doc em {                                    /* <--- Global style for italic text */
+    color                              : #646464;
+    font-family                        : "Open Sans", sans-serif;
+    font-size                          : 08.00pt;
+    font-style                         : italic;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Headings                                               */
+/* ----------------------------------------------------------------- */
+
+.na-le-stmt-doc h1,
+.na-le-stmt-doc h2,
+.na-le-stmt-doc h3,
+.na-le-stmt-doc h4,
+.na-le-stmt-doc h5,
+.na-le-stmt-doc h6 {
+    margin-left                        : 00.00mm;
+    margin-right                       : 00.00mm;
+    font-family                        : "Open Sans", sans-serif;
+    font-weight                        : 500;
+}
+
+.na-le-stmt-doc h1 {
+    margin-bottom                      : 03.00mm;
+    color                              : #555041;
+    font-size                          : 20.00pt;
+    line-height                        : 1.00;
+}
+
+.na-le-stmt-doc h2 {
+    margin-bottom                      : 02.00mm;
+    color                              : #555041;
+    font-size                          : 16.00pt;
+    line-height                        : 1.40;
+}
+
+.na-le-stmt-doc h3 {
+    margin-bottom                      : 02.00mm;
+    color                              : #555041;
+    font-size                          : 12.00pt;
+    line-height                        : 1.40;
+}
+
+/* H4 REACHES UP, NOT DOWN. Seven millimetres of air above it and a negative
+   two below, so it sits hard against the paragraph it introduces and clear of
+   the one it follows. That is what makes the sub-headings of a section read as
+   belonging to the text under them. */
+.na-le-stmt-doc h4 {
+    margin-top                         : 07.00mm;
+    margin-bottom                      : -02.00mm;
+    color                              : #555041;
+    font-size                          : 10.00pt;
+    line-height                        : 1.00;
+}
+
+/* SPECIAL HEADING - Heading Level 5 */
+/* Used where zero gap is required between the header and the next element, */
+/* a table heading being the case it was added for.                         */
+.na-le-stmt-doc h5 {
+    margin-bottom                      : -02.00mm;
+    color                              : #555041;
+    font-size                          : 11.00pt;
+    line-height                        : 1.00;
+}
+
+/* SPECIAL HEADING - Heading Level 6 */
+/* A supporting strap-line: light, grey, tucked under the title above it.   */
+.na-le-stmt-doc h6 {
+    margin-bottom                      : -02.00mm;
+    color                              : #787878;
+    font-size                          : 10.00pt;
+    font-weight                        : 200;           /* <--- Light weight for H6 elements */
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Bullet Lists (Unordered)                               */
+/* ----------------------------------------------------------------- */
+
+.na-le-stmt-doc ul {                                    /* <--- Unordered Bullet Lists */
+    padding-left                       : 03.00mm;
+    counter-reset                      : square-counter;
+    line-height                        : 1.40;
+    list-style-type                    : none;
+}
+
+.na-le-stmt-doc ul li {
+    position                           : relative;
+    padding-left                       : 00.50mm;
+    line-height                        : 1.40;
+}
+
+/* THE SQUARE MARKER IS SET ON EVERY LIST ITEM and then overridden for the
+   items of a numbered list by the counter rules below. The order of these two
+   blocks is the theme's and must not be swapped: a bullet nested inside a
+   numbered list gets its square from here. */
+.na-le-stmt-doc li::before {
+    content                            : counter(square-counter, square) "    ";
+    counter-increment                  : square-counter;
+    position                           : absolute;
+    left                               : -03.00mm;
+    top                                : 1.10em;
+    transform                          : translateY(-50%);
+    color                              : #7d7869;
+    font-size                          : 06.00pt;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Numbered Lists (Ordered)                               */
+/* ----------------------------------------------------------------- */
+
+.na-le-stmt-doc ol {
+    padding-left                       : 07.00mm;
+    margin-bottom                      : 05.00mm;
+    counter-reset                      : item;
+    font-size                          : 11.00pt;
+    line-height                        : 1.50;
+    list-style-type                    : none;
+}
+
+.na-le-stmt-doc ol li {
+    position                           : relative;
+    padding-left                       : 05.00mm;
+    margin-bottom                      : 02.00mm;
+}
+
+.na-le-stmt-doc ol > li::before {
+    content                            : counter(item) ". ";
+    counter-increment                  : item;
+    position                           : absolute;
+    left                               : -07.00mm;
+    top                                : 00.00mm;
+    transform                          : none;
+    color                              : inherit;
+    font-size                          : inherit;
+}
+
+.na-le-stmt-doc ol ol {
+    padding-left                       : 07.00mm;
+    counter-reset                      : subitem;
+}
+
+.na-le-stmt-doc ol ol > li::before {
+    content                            : counter(item) "." counter(subitem) " ";
+    counter-increment                  : subitem;
+    position                           : absolute;
+    left                               : -07.00mm;
+    top                                : 00.00mm;
+}
+
+.na-le-stmt-doc ol ol ol {
+    padding-left                       : 07.00mm;
+    counter-reset                      : subsubitem;
+}
+
+.na-le-stmt-doc ol ol ol > li::before {
+    content                            : counter(item) "." counter(subitem) "." counter(subsubitem) " ";
+    counter-increment                  : subsubitem;
+    position                           : absolute;
+    left                               : -07.00mm;
+    top                                : 00.00mm;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Tables                                                 */
+/* ----------------------------------------------------------------- */
+
+.na-le-stmt-doc table {
+    width                              : 100%;
+    margin-top                         : 00.00mm;
+    margin-bottom                      : 02.00mm;
+    border-collapse                    : collapse;
+}
+
+.na-le-stmt-doc th,
+.na-le-stmt-doc td {
+    padding-top                        : 01.25mm;
+    padding-bottom                     : 01.25mm;
+    padding-left                       : 01.00mm;
+    padding-right                      : 01.00mm;
+    font-size                          : 09.00pt;
+    line-height                        : 1.20;
+}
+
+.na-le-stmt-doc th {
+    height                             : 08.00mm;
+    background-color                   : #f5f5f5;
+    color                              : #555041;
+    font-size                          : 11.00pt;
+    font-weight                        : 500;
+    text-align                         : left;
+}
+
+.na-le-stmt-doc td {
+    background-color                   : inherit;
+}
+
+.na-le-stmt-doc tr:nth-child(even) {
+    background-color                   : #fafafa;
+}
+
+.na-le-stmt-doc td:first-child,
+.na-le-stmt-doc th:first-child {
+    white-space                        : normal;        /* <--- Ensure natural text wrapping */
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Rules, Highlights and Links                            */
+/* ----------------------------------------------------------------- */
+
+.na-le-stmt-doc hr {
+    margin-top                         : 07.50mm;
+    margin-bottom                      : 07.50mm;
+    border                             : none;
+    border-top                         : 00.26mm solid #b4b4b4;
+    opacity                            : 0.5;
+}
+
+/* THE HIGHLIGHT is the theme's hsl(54,100%,80%) drawn in CSS rather than
+   fetched as a brush texture from svgbox.net. See the note at the head of this
+   file: an external image cannot reach the PDF, and a highlight that is there
+   on screen and gone on paper is worse than one that is plain in both. */
+.na-le-stmt-doc mark {
+    padding                            : 00.85mm;
+    margin-top                         : 01.50mm;
+    border-radius                      : 00.50em;
+    background                         : linear-gradient(hsl(54, 100%, 84%), hsl(54, 100%, 76%));
+    color                              : #0f1f55;
+    line-height                        : 1.25em;
+}
+
+.na-le-stmt-doc a {
+    color                              : #3c3c3c;
+    font-size                          : 08.00pt;
+    text-decoration                    : none;
+}
+
+.na-le-stmt-doc a:visited {
+    color                              : #3c3c3c;
+}
+
+.na-le-stmt-doc a:hover {
+    color                              : #6ea8c2;
+    text-decoration                    : underline;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Images                                                 */
+/* ----------------------------------------------------------------- */
+
+/* NO IMAGE IS EVER WIDER THAN THE TEXT BLOCK. A statement is written against
+   6144px renders sized with Typora's zoom, which scales from the natural size
+   and so runs off a 188mm column long before it looks wrong in Typora, where
+   the same ceiling applies. Stating it here makes the app, the HTML and the
+   PDF agree with the editor the words were written in. */
+.na-le-stmt-doc img {
+    max-width                          : 100%;
+    height                             : auto;
+}
+
+/* A FIGURE CAPTION is the bold run on the line under a picture. It is written
+   as ordinary markdown - the indent is a zero-width space and two tabs - so it
+   carries no class of its own and is styled by the strong rule above. This
+   block only takes the air out from under the picture it belongs to. */
+.na-le-stmt-doc p > img:only-child {
+    display                            : block;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Code and Front Matter                                  */
+/* ----------------------------------------------------------------- */
+
+/* A FENCED CODE BLOCK, the theme's .md-fences. The statements use these for
+   blocks a reader is meant to copy exactly - a site address, a policy
+   reference - so they stay small, flat and grey. */
+.na-le-stmt-doc pre {
+    padding-top                        : 02.00mm;
+    padding-bottom                     : 02.00mm;
+    padding-left                       : 02.00mm;
+    padding-right                      : 02.00mm;
+    border                             : none;
+    background-color                   : #f4f4f4;
+    color                              : #202930;
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+    font-size                          : 06.50pt;
+    line-height                        : 1.15;
+    overflow-x                         : auto;
+    white-space                        : pre;
+}
+
+.na-le-stmt-doc pre code,
+.na-le-stmt-doc code {
+    background                         : none;
+    color                              : inherit;
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+    font-size                          : inherit;
+}
+
+.na-le-stmt-doc :not(pre) > code {
+    padding                            : 00.30mm 00.80mm;
+    border-radius                      : 00.60mm;
+    background-color                   : #f4f4f4;
+    color                              : #202930;
+    font-size                          : 08.00pt;
+}
+
+/* YAML FRONT MATTER, the theme's pre.md-meta-block. A statement rarely has
+   any; the project notes file beside it always does. */
+.na-le-stmt-doc .na-le-stmt-doc__meta {
+    display                            : block;
+    max-width                          : 135.00mm;
+    padding                            : 01.00mm;
+    margin-top                         : 01.00mm;
+    margin-left                        : 00.00mm;
+    border-left                        : 00.53mm solid #dddddd;
+    border-radius                      : 01.32mm;
+    background-color                   : #fafafa;
+    color                              : #464646;
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+    font-size                          : 06.50pt;
+    line-height                        : 1.15;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Noble Architecture Document Classes                    */
+/* ----------------------------------------------------------------- */
+
+/* Carried from Section 10 of the theme so a statement that uses these classes
+   by hand keeps rendering the way it does in Typora. */
+
+.na-le-stmt-doc .na_doc_header_info {
+    display                            : flex;
+    flex-direction                     : column;        /* <--- Stacks children vertically           */
+    align-items                        : flex-start;    /* <--- Aligns items to the start of the box */
+    margin-top                         : 10.00mm;
+    margin-bottom                      : 05.00mm;
+    font-size                          : 12.00pt;
+}
+
+/* THE ONE VALUE NOT CARRIED OVER VERBATIM. The theme reads 2.00pt here, which
+   renders this class invisible, and its own convention is four digits -
+   02.00pt - so the figure is a dropped 1 rather than a decision. It is taken
+   as 12.00pt, the size of the header block it sits inside. */
+.na-le-stmt-doc .na_doc_header_info_bold {
+    font-size                          : 12.00pt;
+    font-weight                        : 500;
+}
+
+.na-le-stmt-doc .na_doc_header_info_pipe_divider {
+    margin-top                         : 01.00mm;
+    margin-bottom                      : 01.00mm;
+    margin-left                        : 02.00mm;       /* <--- Space left of the divider  */
+    margin-right                       : 02.00mm;       /* <--- Space right of the divider */
+    font-size                          : 10.00pt;
+    vertical-align                     : middle;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  END OF STYLE SHEET                                     */
+/* endregion ------------------------------------------------------- */

@@ -350,6 +350,58 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8781
+    },
+    {
+      "name": "tv-specscrap",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8794",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8794
+    },
+    {
+      "name": "tv-depthfog",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8811",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_depthfog_out"
+      ],
+      "port": 8811
+    },
+    {
+      "name": "tv-groupexport",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8823",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8823
+    },
+    {
+      "name": "tv-enhance",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8834",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8834
+    },
+    {
+      "name": "tv-statement",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__StatementServer__.py",
+        "8841"
+      ],
+      "port": 8841
     }
   ]
 }

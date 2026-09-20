@@ -1,0 +1,34 @@
+{
+    "quotations": [
+        {
+            "quotationRef": "QUO-RB05-2026-001",
+            "quotationName": "Hourly Rate Appointment - Record Only",
+            "signatureRequired": false,
+            "quotationDate": "05-Mar-2026",
+            "projectAddress": "West Beacon Farm, Deans Lane, Woodhouse Eaves, Leicestershire, LE12 8TE",
+            "projectDescription": "Design of a Period style Georgian Home and auxiliary estate buildings at West Beacon Farm, carried out as an ongoing hourly rate appointment rather than against a fixed fee.",
+            "clientDataStorage": "cloudflare-r2-encrypted",
+            "status": "draft",
+            "lineItems": [
+                {
+                    "description": "Design Services - Charged Hourly",
+                    "itemDescription": "1. This project is run as an hourly rate appointment. No fixed fee has been quoted and no total is carried on this document, which is why every figure below reads as zero.\n2. Work is recorded by the day and charged at a reduced friends and family rate of £25.00 per hour.\n3. Time already carried out is billed in arrears through the invoices issued against this project. Those invoices, not this document, are the record of what has been charged.\n4. This record exists so the project carries a quotation alongside its invoices. It is not an offer and nothing here needs signing.",
+                    "quantity": 0,
+                    "unit": "Hours",
+                    "rate": 0,
+                    "group": "Design Phase - 01 : Concept Design"
+                }
+            ],
+            "totals": {
+                "subtotal": 0,
+                "vatApplicable": false,
+                "vatRate": 0,
+                "vat": 0,
+                "grandTotal": 0
+            },
+            "additionalTerms": "",
+            "createdDate": "20-Sep-2026 at 16:20",
+            "lastModified": "20-Sep-2026 at 16:20"
+        }
+    ]
+}

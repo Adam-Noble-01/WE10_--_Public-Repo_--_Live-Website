@@ -59,6 +59,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 2.1.0 (Elevation Depth Fog)
+// - onFogChange: an edit to the open row's Fog block. The fog layer reads the
+//   record on every frame it draws, so nothing is rebuilt - a frame is asked
+//   for and the draft is told, like any other edit. Elevation__DepthFog is a
+//   draft key for free (the comparison is per top-level key and deep), is put
+//   into words for the Update and Discard dialogs, and is NOT a move key: it
+//   changes how far back a drawing reads, never where anything on it is, so an
+//   Update that only touches fog keeps its ordinary green dialog.
+//
 // 20-Sep-2026 - Version 2.0.0 (Floor Plans and Elevations menu rebuild)
 // - Rows fold; one is open at a time, across this panel and Floor Plans.
 // - The open row is a draft. Update (green, confirmed) keeps it and writes R2
@@ -122,6 +131,14 @@
     } from '../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Render Loop Invalidation
+    // ------------------------------------------------------------
+    // For the one edit that rebuilds nothing: the depth fog is read off the
+    // record as each frame is drawn, so all a changed number needs is a frame.
+    // ------------------------------------------------------------
+    import { Na__RenderLoop__RequestRender } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Elevation Data, Config, Framing, Link, Name and Mode
     // ------------------------------------------------------------
     // @delegate: ./Na__Elevation__ProjectJson__Data__.js
@@ -142,6 +159,7 @@
         Na__ElevData__GetPlaneDistanceMm,
         Na__ElevData__AzimuthFromNormal,
         Na__ElevData__GetStyles,
+        Na__ElevData__GetDepthFog,
         Na__ElevData__IsSection,
         Na__ElevData__FindSceneFor
     } from './Na__Elevation__ProjectJson__Data__.js';
@@ -570,6 +588,20 @@
             lines.push('View depth: ' + say(before.Elevation__ViewDepthMm) + ' becomes ' + say(elevation.Elevation__ViewDepthMm) + '.');
         }
 
+        // FOG | Said as the row says it: two distances behind the plane and how
+        // hard it comes on. `before` is a parsed copy, so reading its fog
+        // through the normaliser writes nothing anybody keeps.
+        if (has('Elevation__DepthFog')) {
+            const was  = Na__ElevData__GetDepthFog(before);
+            const now  = Na__ElevData__GetDepthFog(elevation);
+            const runs = (fog) => mm(fog.startDepthMm) + ' to ' + mm(fog.endDepthMm) + ' behind the plane, fall-off ' + fog.falloffPercent + '%';
+            if (was.enabled !== now.enabled) {
+                lines.push(now.enabled ? ('Fog: switched on - ' + runs(now) + '.') : 'Fog: switched off.');
+            } else {
+                lines.push('Fog: ' + runs(was) + ' becomes ' + runs(now) + (now.enabled ? '.' : ' (it is switched off).'));
+            }
+        }
+
         if (has('Elevation__Annotations') || has('Elevation__Dimensions')) {
             lines.push('Markup: the annotations or dimensions drawn on it have changed.');
         }
@@ -579,7 +611,7 @@
         if (has('Elevation__SceneId')) lines.push('Its carousel card was added.');
 
         const known = [ 'Elevation__Name', Na__ElevName__F_AUTO, 'Elevation__AzimuthDeg', 'Elevation__PlaneOriginMm',
-            'Elevation__Mode', 'Elevation__ViewDepthMm', 'Elevation__Annotations', 'Elevation__Dimensions',
+            'Elevation__Mode', 'Elevation__ViewDepthMm', 'Elevation__DepthFog', 'Elevation__Annotations', 'Elevation__Dimensions',
             'Elevation__Styles', 'Elevation__ExcludeCategoryTokens', 'Elevation__LineworkAsset', 'Elevation__SceneId' ];
         keys.filter((key) => known.indexOf(key) === -1).forEach((key) => lines.push(key + ' has changed.'));
         return lines;
@@ -879,6 +911,15 @@
             // to be rebuilt rather than nudged.
             onDepthChange : () => {
                 Na__ElevDev__CommitGeometry(elevation);
+                Na__ElevDev__AfterEdit(elevation, false);
+            },
+
+            // THE FOG REBUILDS NOTHING. No plane moves and no cut changes; the
+            // fog layer reads this record as it draws each frame, so the edit is
+            // already in force and all it lacks is a frame to be seen in. Off
+            // screen there is nothing to draw, and the draft still learns of it.
+            onFogChange : () => {
+                Na__RenderLoop__RequestRender();
                 Na__ElevDev__AfterEdit(elevation, false);
             },
 

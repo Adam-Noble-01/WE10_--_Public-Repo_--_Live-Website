@@ -368,9 +368,17 @@
         const master = Na__LeCfg__PtToMm(Na__LeCfg__GetLineweightSetup().viewportPt);
         const fall   = Na__LeEdge__Fallback();
         return {
-            weight   : (Number.isFinite(style.LineWeightMm) && master > 0) ? style.LineWeightMm / master : fall.weight,
-            colour   : Na__LeEdge__AliasForHex(style.LineHex) || fall.colour,
-            lineType : Na__LeEdge__IsLineType(style.LineType) ? style.LineType : fall.lineType
+            weight    : (Number.isFinite(style.LineWeightMm) && master > 0) ? style.LineWeightMm / master : fall.weight,
+            colour    : Na__LeEdge__AliasForHex(style.LineHex) || fall.colour,
+            lineType  : Na__LeEdge__IsLineType(style.LineType) ? style.LineType : fall.lineType,
+            // THE DASH SCALE IS A PROPERTY OF THE LAYER, not of the line type.
+            // Adam, on the Proposed Alterations outline: 'the line could be
+            // mistaken as a solid line in certain sections... I'm not talking
+            // about the line thickness. I'm talking about the line dash space
+            // scaling needs to be smaller.' A 2.5 mm dash with a 1.5 mm gap is
+            // right on a 1:50 plan and closes up on a site plan, so the SSOT
+            // gives that one tag a 0.5 and every other dashed line is untouched.
+            dashScale : (Number.isFinite(style.LineDashScale) && style.LineDashScale > 0) ? style.LineDashScale : 1
         };
     }
     // ------------------------------------------------------------
@@ -383,11 +391,12 @@
         if (sitePlan) return sitePlan;
         const fromMap = Na__LeModelLayers__EdgeDefault(categoryKey);
         const fall    = Na__LeEdge__Fallback();
-        if (!fromMap) return { weight : fall.weight, colour : fall.colour, lineType : fall.lineType };
+        if (!fromMap) return { weight : fall.weight, colour : fall.colour, lineType : fall.lineType, dashScale : 1 };
         return {
-            weight   : Number.isFinite(fromMap.weight) ? fromMap.weight : fall.weight,
-            colour   : fromMap.colour   || fall.colour,
-            lineType : fromMap.lineType || fall.lineType
+            weight    : Number.isFinite(fromMap.weight) ? fromMap.weight : fall.weight,
+            colour    : fromMap.colour   || fall.colour,
+            lineType  : fromMap.lineType || fall.lineType,
+            dashScale : 1                                                        // <-- Only a site plan layer carries one; a model category draws its line type as configured
         };
     }
     // ------------------------------------------------------------
@@ -424,12 +433,17 @@
             if (typeof entry['Category__EdgeLineType'] === 'string')  { lineType = entry['Category__EdgeLineType'];     touched = true; }
         }
 
+        // THE DASH SCALE SURVIVES A RESTYLE. It belongs to the layer, so picking
+        // a different line type by hand gives THAT type at this layer's dash
+        // scale rather than quietly returning the drawing to full-size dashes.
+        const scale   = Number.isFinite(base.dashScale) ? base.dashScale : 1;
+        const pattern = Na__LeEdge__Pattern(lineType);
         return {
             weight     : Na__LeEdge__ClampWeight(weight),
             colour     : colour,
             lineType   : lineType,
             hex        : Na__LeEdge__Hex(colour),
-            patternMm  : Na__LeEdge__Pattern(lineType),
+            patternMm  : (scale === 1 || pattern.length === 0) ? pattern : pattern.map((mm) => mm * scale),
             overridden : touched
         };
     }

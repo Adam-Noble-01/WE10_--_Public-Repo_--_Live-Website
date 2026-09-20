@@ -49,6 +49,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 2.1.0 (Elevation Depth Fog)
+// - A Fog block directly under View depth and above Advanced: a subheading,
+//   Off / On, then Depth, End and Fall-off on one line and a sentence under
+//   them. The block is the fog system's own and is handed this elevation's
+//   accessors; an edit goes back through the new onFogChange handler. The row
+//   answers refreshFog alongside its other refreshers.
+//
 // 20-Sep-2026 - Version 2.0.0 (Floor Plans and Elevations menu rebuild)
 // - "Viewed from" and its four compass buttons are gone. In their place a
 //   compass mark and one sentence, from the project's north, saying which
@@ -87,10 +94,21 @@
         Na__ElevData__GetPlaneOriginMm,
         Na__ElevData__SetPlaneOriginMm,
         Na__ElevData__GetPlaneDistanceMm,
+        Na__ElevData__GetDepthFog,
+        Na__ElevData__SetDepthFog,
         Na__ElevData__IsSection,
         Na__ElevData__MODE_ELEVATION,
         Na__ElevData__MODE_SECTION
     } from './Na__Elevation__ProjectJson__Data__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Fog Block of a Drawing's Row
+    // ------------------------------------------------------------
+    // Built by the fog system and only PLACED here: it is handed this
+    // elevation's accessors and knows nothing else about elevations, which is
+    // what lets the Floor Plans and Cross Sections rows take the same block.
+    // ------------------------------------------------------------
+    import { Na__ElevFogRow__Build } from '../49__System__ElevationDepthFog/Na__ElevationDepthFog__DevMenu__Row__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | The Name and the Sentence Under It
@@ -498,11 +516,11 @@
     //   sceneLinkRow    - element | null : the carousel card's status
     //   onNameTyped(text), onUseAutoName(),
     //   onDirectionChange, onModeChange,
-    //   onPlaneLive, onPlaneCommit, onDepthChange, onCentrePlane,
+    //   onPlaneLive, onPlaneCommit, onDepthChange, onFogChange, onCentrePlane,
     //   onPreviewToggle, onAnnotate, onUpdate, onRevert
     // }
-    // Returns { row, refreshDraft(state), refreshIdentity() }. The editor
-    // folds `row` behind a header and adds the danger zone beneath it.
+    // Returns { row, refreshDraft(state), refreshIdentity(), refreshFog() }.
+    // The editor folds `row` behind a header and adds the danger zone beneath it.
     // ------------------------------------------------------------
     function Na__ElevRow__BuildElevationRow(elevation, handlers) {
         const rowRoot = document.createElement('div');
@@ -575,6 +593,19 @@
             }
         ).row);
 
+        // FOG | This drawing's own depth fog: whether it has any, and the three
+        // values on one line. Directly under View depth because both are about
+        // how far back the drawing reads - one cuts the distance off, the other
+        // fades it out - and an author reaching for one is thinking about the
+        // other. Null when the fog system is switched off in its config.
+        // @delegate: ../49__System__ElevationDepthFog/Na__ElevationDepthFog__DevMenu__Row__.js
+        const fog = Na__ElevFogRow__Build({
+            read      : () => Na__ElevData__GetDepthFog(elevation),
+            write     : (patch) => Na__ElevData__SetDepthFog(elevation, patch),
+            onChanged : handlers.onFogChange
+        });
+        if (fog) rowRoot.appendChild(fog.element);
+
         // ADVANCED | The stored bearing, for the building that needs it typed
         const advanced = Na__DrawShell__BuildAdvanced(elevation.Elevation__Id, 'Advanced');
         const bearing  = Na__ElevRow__BuildBearingField(elevation, () => {
@@ -607,7 +638,8 @@
         return {
             row             : rowRoot,
             refreshDraft    : actions.refresh,
-            refreshIdentity : () => { identity.refresh(); bearing.refresh(); }
+            refreshIdentity : () => { identity.refresh(); bearing.refresh(); },
+            refreshFog      : () => { if (fog) fog.refresh(); }
         };
     }
     // ------------------------------------------------------------

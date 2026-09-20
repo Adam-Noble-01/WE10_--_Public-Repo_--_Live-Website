@@ -36,7 +36,7 @@
 //
 // -----------------------------------------------------------------------------
 //
-// TWO KINDS OF WEIGHT, AND THE DIFFERENCE MATTERS
+// THREE KINDS OF WEIGHT, AND THE DIFFERENCES MATTER
 //
 //   factor   A multiplier on the sheet's master viewport lineweight. Vector
 //            work. Raising the master raises everything and the hierarchy
@@ -44,10 +44,17 @@
 //   pixels   A real pixel count in a render buffer. Screen-space effects - the
 //            Sobel silhouette, the section outline, the model's own edges in
 //            the base image - consume pixels and have no opinion about paper.
+//   percent  How much of a post pass is applied: 0 none of it, 100 all of it.
+//            Not a width at all - a dial on an effect that either happens to
+//            the finished pixels or does not. Enhance Whitecard is the first.
 //
 // A composite whose kind is 'none' draws no line and gets no control. Those rows
 // still exist in the config so the file is a complete inventory of the picture
 // rather than a selective one.
+//
+// FACTOR IS THE ONLY KIND THAT LEAVES THE RASTER ALONE. Pixels and percent both
+// change what the renderer or the post pass writes, so both belong in the raster
+// cache key; a factor thickens the vector drawing over the top and must not.
 //
 // -----------------------------------------------------------------------------
 //
@@ -61,6 +68,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.3.0
+// - A Depth Fog row, first in the built-in inventory as it is in the config:
+//   the one layer that sits over the projected linework. A toggle with no
+//   weight - the fog's own numbers are the drawing's, not the viewport's - so
+//   it enters no weight record and no raster token. Nothing else here changed.
+//
+// 20-Sep-2026 - Version 1.2.0
+// - A third weight kind, 'percent': how much of a post pass to apply. Enhance
+//   Whitecard carries it, so the levels and sharpen pass can be dialled from
+//   nothing to the full effect per viewport. RasterToken now takes percent as
+//   well as pixels, because a post pass does change the picture.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - Base Image carries a weight: how thick the model's own edges draw in the
 //   rendered picture, 2D and 3D. RasterToken takes forThreeD, so a 3D snapshot
@@ -97,13 +116,14 @@
     // weights fall back to these.
     // ------------------------------------------------------------
     const Na__LeComposite__FALLBACK = [
+        { key : 'depthFog',          label : 'Depth Fog',               twoDOnly : true,  toggle : true,  weight : { kind : 'none' } },
         { key : 'projectedLinework', label : 'Projected Linework',      twoDOnly : true,  toggle : true,  weight : { kind : 'factor', value : 1.00, min : 0.10, max : 3.00, step : 0.05, label : 'Weight'  } },
         { key : 'profileLinework',   label : 'Profile Linework Effect', twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 1.00, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px', twoDOnly : true } },
         { key : 'sectionOutline',    label : 'Section Outline',         twoDOnly : true,  toggle : false, weight : { kind : 'pixels', value : 2.00, min : 0.50, max : 8.00, step : 0.25, label : 'Cut px'  } },
         { key : 'hiddenLines',       label : 'Hidden Lines',            twoDOnly : true,  toggle : true,  weight : { kind : 'factor', value : 1.00, min : 0.10, max : 3.00, step : 0.05, label : 'Weight'  } },
         { key : 'glassOpaque',       label : 'Glass Transparency Off',  twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
         { key : 'whitecard',         label : 'Whitecard',               twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
-        { key : 'enhanceWhitecard',  label : 'Enhance Whitecard',       twoDOnly : false, toggle : true,  weight : { kind : 'none' } },
+        { key : 'enhanceWhitecard',  label : 'Enhance Whitecard',       twoDOnly : false, toggle : true,  weight : { kind : 'percent', value : 100, min : 0, max : 100, step : 5, label : 'Strength' } },
         { key : 'baseImage',         label : 'Context Layer',           twoDOnly : false, toggle : true,  weight : { kind : 'pixels', value : 2.00, min : 0.10, max : 4.00, step : 0.05, label : 'Edge px' } }
     ];
     // ------------------------------------------------------------
@@ -263,6 +283,10 @@
     // render behind it, so letting it into the raster key would re-render a
     // multi-second supersampled underlay every time someone nudged a line weight.
     //
+    // A PERCENT WEIGHT IS IN, though, alongside the pixel ones. It is a post pass
+    // over the finished raster, so moving it changes every pixel of the stored
+    // picture and the old one must not be handed back for it.
+    //
     // forThreeD narrows it again for a 3D snapshot, to the weights a 3D picture
     // can actually show. A section outline width kept from when the viewport was
     // 2D changes nothing in a scene render, and letting it in would re-render and
@@ -273,7 +297,7 @@
         if (!stored) return '';
         const keys = Object.keys(stored).filter((key) => {
             const row = Na__LeComposite__Row(key);
-            if (!row || row.weight.kind !== 'pixels') return false;
+            if (!row || (row.weight.kind !== 'pixels' && row.weight.kind !== 'percent')) return false;
             return !(forThreeD === true && (row.twoDOnly || row.weight.twoDOnly));
         }).sort();
         return keys.length === 0 ? '' : keys.map((key) => key + ':' + stored[key]).join('|');

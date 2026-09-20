@@ -44,6 +44,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.12.0 (TrueVision)
+// - Depth fog. Render2d takes an optional last argument, a fog source. Without
+//   it the render is the viewport's picture as before, and the fog layer is
+//   given no source while it runs, so no drawing's fog can be baked into a
+//   base image. With it the same staged model is drawn as the viewport's FOG
+//   IMAGE instead - each frame the fog alone, premultiplied on a transparent
+//   ground - which the 2D frame lays over its linework and the PDF over its
+//   vectors. The source the fog layer held on the way in is handed back in
+//   the finally either way. Render3d is unchanged: a scene goes through the
+//   composer, which a drawing's fog never enters.
+//
 // 20-Sep-2026 - Version 1.11.0 (TrueVision)
 // - The queue says how much it is carrying. Enqueue counts a task in and out
 //   again and announces the depth on 'na-layouteditor-snapshot-queue', so
@@ -194,6 +205,15 @@
     // ------------------------------------------------------------
     import { Na__DrawProfile__SetEdgeWidth, Na__DrawProfile__InvalidateSceneCache } from '../../40__System__DrawingViewCore/Na__DrawView__ProfileLines__.js';
     import { Na__SectCutCfg__GetAppearance, Na__SectCutCfg__SetAppearance } from '../../41__System__SectionCutEngine/Na__SectionCut__ConfigState__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Drawing's Depth Fog Layer
+    // ------------------------------------------------------------
+    // Whose fog is drawn is borrowed for the length of one render and handed
+    // back, exactly as the widths above are.
+    // @delegate: ../../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js
+    // ------------------------------------------------------------
+    import { Na__ElevFog__SetSource, Na__ElevFog__RenderLayerFrame } from '../../49__System__ElevationDepthFog/Na__ElevationDepthFog__RenderLayer__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Design Phases: the Library, and the Section Engine a Borrowed Model Is Handed To
@@ -694,7 +714,7 @@
     // viewport's Viewport__ModelLayers map, or null for a viewport showing
     // everything the model has.
     //
-    // weights is { profilePx, sectionPx, modelEdgePx } from the viewport's Render
+    // weights is { profilePx, sectionPx, modelEdgePx, enhancePct } from the viewport's Render
     // Composites, or null for the configured widths. All three are SCREEN-SPACE
     // widths - the Sobel sampling offset, the cut outline's line material and
     // the model's own edge materials - so they are set for the length of this
@@ -709,8 +729,20 @@
     // stillWanted: optional. Asked when this render's turn in the queue comes;
     // false answers null and nothing is drawn (a viewport whose sheet has been
     // left meanwhile). The PDF and the forced renders never pass it.
+    //
+    // depthFog: optional, and it changes WHAT is rendered, not how the model is
+    // stood. Left out, this is the viewport's base image, and no drawing's fog
+    // can reach it - the fog layer is given NO source for the length of the
+    // render, because a sheet lays the fog over its vectors as an image of its
+    // own and a picture fogged as well would be fogged twice (and an elevation
+    // left previewing in the 3D view would otherwise lend this picture ITS
+    // fog, off its own plane). Given - a fog source, { getSettings, getPlane } -
+    // this renders that image instead: the SAME phase, doors, cut, camera,
+    // presets, hidden categories and edge widths, so the fog registers on the
+    // picture pixel for pixel, but each frame is the fog alone on a transparent
+    // ground and the Enhance pass is skipped. The png's alpha IS the fog.
     // ------------------------------------------------------------
-    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId, stillWanted) {
+    function Na__LeSnap__Render2d(definition, windowMm, styles, widthPx, heightPx, modelLayers, antiAliasSamples, weights, modelSourceId, stillWanted, depthFog) {
         if (!Na__LeSnap__IsReady() || !definition) return Promise.resolve(null);
         return Na__LeSnap__Enqueue(async () => {
             if (typeof stillWanted === 'function' && !stillWanted()) return null;  // <-- Nobody is waiting for it any more: the queue moves on
@@ -728,6 +760,8 @@
             let   profileWas  = null;
             let   edgesWere   = null;                                              // <-- Each model edge material's own width, for the finally
             let   doorsPosed  = null;                                              // <-- The drawing's door pose, for the finally to hand back
+            const fogLayer    = depthFog || null;                                  // <-- A fog source: this render is the viewport's fog image, not its picture
+            const fogWas      = Na__ElevFog__SetSource(fogLayer);                  // <-- Borrowed for this render; null for a picture, so nothing fogs it. Handed back in the finally
             try {
                 Na__DrawView__SectionAdapter__SuspendLiveTool();
                 // THE DOORS STAND AS THE DRAWING DRAWS THEM - open on a plan, shut on
@@ -773,16 +807,19 @@
                     renderer : Na__LeSnap__Renderer, scene : Na__LeSnap__Scene, camera : camera,
                     getRenderPipelineState : () => Na__LeSnap__Pipeline(),
                     elevationOverrides     : Na__DrawView__RenderPreset__GetExportOverrides(),
-                    renderFrame            : (cam) => Na__DrawView__RenderPreset__RenderFrame(cam),   // <-- Flat render + silhouette + cut, the screen's exact order
+                    renderFrame            : fogLayer
+                        ? (cam) => Na__ElevFog__RenderLayerFrame(cam)                                 // <-- The fog alone, premultiplied on a transparent ground, through the same tiles and the same jitter as the picture
+                        : (cam) => Na__DrawView__RenderPreset__RenderFrame(cam),                      // <-- Flat render + silhouette + cut, the screen's exact order
                     antiAliasSamples       : antiAliasSamples,                                        // <-- Each tile drawn N times on sub-pixel jitter and averaged
                     targetWidth : Math.max(16, Math.round(widthPx)), targetHeight : Math.max(16, Math.round(heightPx))
                 });
-                if (styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas);   // <-- Levels and sharpen: the whitecard greys go to paper white
+                if (!fogLayer && styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas, weights ? weights.enhancePct : null);   // <-- Levels and sharpen at this viewport's strength: the whitecard greys go to paper white. Never on a fog image: levels would bend its alpha-carrying colour
                 return { dataUrl : result.canvas.toDataURL('image/png'), widthPx : result.width, heightPx : result.height };
             } catch (renderError) {
-                console.warn('[TrueVision3D LayoutEditor] 2D underlay render failed:', renderError);
+                console.warn('[TrueVision3D LayoutEditor] 2D ' + (fogLayer ? 'depth fog layer' : 'underlay') + ' render failed:', renderError);
                 return null;
             } finally {
+                Na__ElevFog__SetSource(fogWas);                                                      // <-- Whoever had a drawing on screen has its fog back
                 if (contextSaved) Na__ModelToggle__ApplySceneLayerVisibility(contextSaved);
                 Na__DrawView__MaterialPreset__Exit();
                 Na__DrawView__RenderPreset__Exit();
@@ -806,10 +843,12 @@
     // ------------------------------------------------------------
     // Returns { canvas, widthPx, heightPx }, or null. The caller converts.
     //
-    // weights is { modelEdgePx } or null. The model's own edges are the one
-    // composite width a scene render has: its profile outline is the composer's
-    // own distance-scaled effect, and the Section Outline weight belongs to a 2D
-    // drawing's cut.
+    // weights is { modelEdgePx, enhancePct } or null. The model's own edges are
+    // the one composite WIDTH a scene render has: its profile outline is the
+    // composer's own distance-scaled effect, and the Section Outline weight
+    // belongs to a 2D drawing's cut. enhancePct is not a width - it is how much
+    // of the Enhance Whitecard post pass to apply, and it means the same thing
+    // on a 3D picture as on a 2D one.
     //
     // modelSourceId: as Render2d. The phase is put in before the capture below,
     // so the visibility captured and put back is the phase's own.
@@ -864,7 +903,7 @@
                     viewWindow             : viewWindow || null,                                      // <-- What a zoomed or slid viewport's frame shows of the picture; null is all of it
                     targetWidth : Math.max(16, Math.round(widthPx)), targetHeight : Math.max(16, Math.round(heightPx))
                 });
-                if (styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas);
+                if (styles && styles.enhanceWhitecard === true) await Na__LeEnhance__Apply(result.canvas, weights ? weights.enhancePct : null);
                 return { canvas : result.canvas, widthPx : result.width, heightPx : result.height };
             } catch (renderError) {
                 console.warn('[TrueVision3D LayoutEditor] 3D snapshot render failed:', renderError);

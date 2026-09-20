@@ -78,6 +78,8 @@
     } from './Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeScale__Coerce } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeEdge__FIELD, Na__LeEdge__CAT_FIELD } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
+    import { Na__LeHatch__FIELD, Na__LeHatch__CAT_FIELD } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
+    import { Na__LeSpComp__DECK_FIELD, Na__LeSpComp__TYPE_FIELD } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
     import { Na__LeComposite__FIELD, Na__LeComposite__Clamp } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     // ------------------------------------------------------------
 
@@ -315,6 +317,43 @@
             viewport.Viewport__SitePlan = Object.assign({}, viewport.Viewport__SitePlan, {
                 SitePlan__StoreId : patch.sitePlanStoreId || ''
             });
+        }
+
+        // SITE PLAN SUBTYPE | Block plan or location plan, or back to following
+        // the scale. Merged so the store id and the deck switches survive it;
+        // the normaliser deletes anything that is not a real choice.
+        if (patch.sitePlanPlanType !== undefined && Na__LeRec__IsSitePlanViewport(viewport)) {
+            viewport.Viewport__SitePlan = Object.assign({}, viewport.Viewport__SitePlan, {
+                [Na__LeSpComp__TYPE_FIELD] : patch.sitePlanPlanType || ''
+            });
+        }
+
+        // SITE PLAN COMPOSITES | Which decks go into the picture: solid fills,
+        // hatch patterns, linework. Merged onto whatever the viewport already
+        // holds, so switching one deck leaves the other two alone, and the
+        // normaliser then drops any that agree with the config default.
+        if (patch.sitePlanComposites && typeof patch.sitePlanComposites === 'object' && Na__LeRec__IsSitePlanViewport(viewport)) {
+            const block  = Object.assign({}, viewport.Viewport__SitePlan);
+            const merged = Object.assign({}, block[Na__LeSpComp__DECK_FIELD]);
+            Object.keys(patch.sitePlanComposites).forEach((key) => {
+                if (typeof patch.sitePlanComposites[key] === 'boolean') merged[key] = patch.sitePlanComposites[key];
+            });
+            block[Na__LeSpComp__DECK_FIELD] = merged;
+            viewport.Viewport__SitePlan    = block;
+        }
+
+        // SITE PLAN HATCH | One layer's pattern, scale and rotation on this
+        // viewport. Merged all the way down, so the other layers' settings and
+        // this layer's other fields survive a change to one of them.
+        if (patch.sitePlanHatch && typeof patch.sitePlanHatch === 'object'
+            && typeof patch.sitePlanHatch.categoryKey === 'string' && Na__LeRec__IsSitePlanViewport(viewport)) {
+            const block = Object.assign({}, viewport[Na__LeHatch__FIELD]);
+            const cats  = Object.assign({}, block[Na__LeHatch__CAT_FIELD]);
+            cats[patch.sitePlanHatch.categoryKey] = Object.assign(
+                {}, cats[patch.sitePlanHatch.categoryKey], patch.sitePlanHatch.changes || {}
+            );
+            block[Na__LeHatch__CAT_FIELD] = cats;
+            viewport[Na__LeHatch__FIELD] = block;
         }
 
         Na__LeRec__NormaliseViewport(viewport, viewport.Viewport__LayerId);

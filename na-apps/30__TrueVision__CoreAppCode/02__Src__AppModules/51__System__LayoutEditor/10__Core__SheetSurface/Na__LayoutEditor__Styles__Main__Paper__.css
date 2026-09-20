@@ -135,6 +135,26 @@
     display                            : none;
 }
 
+/* A drawing's depth fog: a paper-coloured image whose ALPHA is the fog,
+   placed like the underlay but made AFTER the linework in the frame body,
+   so it fades the vectors as well as the picture. No blend mode and no
+   z-index - source-over in document order is the whole of it, which is
+   what the PDF does with the same image. */
+.na-le-frame__fog {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    display                            : block;
+    max-width                          : none;
+    pointer-events                     : none;
+    user-select                        : none;
+    image-rendering                    : auto;
+}
+
+.na-le-frame__fog[hidden] {
+    display                            : none;
+}
+
 .na-le-frame__linework,
 .na-le-frame__markup {
     position                           : absolute;

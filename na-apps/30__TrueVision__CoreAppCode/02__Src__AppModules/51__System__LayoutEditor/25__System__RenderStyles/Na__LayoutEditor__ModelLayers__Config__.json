@@ -2,13 +2,13 @@
     "LayoutEditor__ModelLayers__Meta": {
         "Meta__FileName"        : "Na__LayoutEditor__ModelLayers__Config__.json",
         "Meta__Description"     : "Maps Noble Architecture SketchUp tag names (the SSOT) to the runtime model category a loaded GLB lands in, to the short label the Model Layers panel shows, and to the edge style that category's projected linework starts with. One row per thing a person would want to switch off, or draw differently, in a drawing.",
-        "Meta__Version"         : "1.1.1",
+        "Meta__Version"         : "1.2.0",
         "Meta__Created"         : "12-Sep-2026",
         "Meta__Author"          : "Adam Noble - Noble Architecture",
 
         "Meta__SsotSource"      : "Na__DataLib__CoreIndex__Tags__.json",
         "Meta__SsotPath"        : "%AppData%/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/",
-        "Meta__SsotVersionRead" : "2.3.2",
+        "Meta__SsotVersionRead" : "2.4.0",
 
         "Meta__HowThisIsUsed"   : "The panel lists the categories the model ACTUALLY loaded, not this file: a category here with no GLB behind it never appears, and a category the model has that this file has not heard of still appears under an auto-generated label. This file supplies the wording, the grouping and the edge defaults, never the inventory.",
         "Meta__WhyKeyAndTag"    : "Layer__CategoryKey is the runtime name - the THREE.Group the multi-model loader creates, and what the render, the linework exclusion and the per-segment owner tag all actually match on. Layer__SketchUpTags are the SSOT tag names an object carries in SketchUp, kept here so the two vocabularies stay traceable to each other when either side is renamed.",
@@ -20,6 +20,7 @@
         "Meta__ExistingIsEqual" : "The Existing group deliberately carries the same weights and colours as Proposed (agreed 12-Sep-2026). Showing retained work lighter is a common convention but it is a drawing decision, not a data one; make it here, per row, when a job wants it.",
         "Meta__Annotation"      : "The Annotation group is the SketchUp LINETYPE tags - the tags a person draws on to say a line is dashed, dotted, a centre line, a clearance, an overhead extent or something coming out. Each one arrives as its own linework-only GLB written by the GlbBuilder's Linetype Linework Export (Glb__LineworkOnly in the Tags SSOT), so the category exists in a drawing only when the model actually holds lines on that tag. Their line types here mirror Glb__LineworkLineType in the SSOT: change one, change the other.",
         "Meta__AnnotationDraws" : "Annotation linework is drawn as authored, never cut at the drawing's cut plane and never occlusion-clipped - a line tagged as overhead is meant to show through the thing above it. Switch a row off in the Model Layers panel to take it off a drawing.",
+        "Meta__LineworkModifiers" : "The linework-modifiers group styles nested LineworkModifier tags (SSOT 76-79) - a stonework detail, cill or louvre tagged inside ANY numbered category group (Walls, Roofs, Floors, Windows, Doors - never at a model's top level, and never as a bare Storey-container child). The tag's own name is what is matched, never its parent's, so a joinery-styled tag inside a Roofs group (a cupola's louvres) works exactly like one inside a Windows group. Na__ProjectedLinework__StageSampler__.js reads the mesh's own glTF node name against Na__ProjectedLinework__AppConfig__.json's ProjectedLinework__LineworkModifiers__Config and assigns one of these two owner keys instead of the parent category's, so the object stays on its host's toggle, storey and GLB but draws lighter. Group__AlwaysShow (on this group only) lists both rows in the panel even though neither is ever a real loaded category; their checkbox is enforced per owner key at paint time in Na__LeVp2d__StyleBands, not through the usual pre-sampling exclusion tokens.",
         "Meta__PerViewport"     : "These are DEFAULTS. A viewport that has had a category restyled stores only that category, in full, in Viewport__ProjectedEdges - so a change to this file moves every viewport that never disagreed."
     },
 
@@ -95,6 +96,16 @@
                 { "Layer__CategoryKey": "TrueVision__Linetype__OverheadObjects",    "Layer__SketchUpTags": ["01__ModelFlag__OverheadObjects__IndicatorLines"], "Layer__TagNumbers": [1], "Layer__Label": "Overhead Objects", "Layer__EdgeWeightFactor": 0.55, "Layer__EdgeColour": "dark-grey",  "Layer__EdgeLineType": "phantom" },
                 { "Layer__CategoryKey": "TrueVision__Linetype__BuildingJoins",      "Layer__SketchUpTags": ["01__ModelFlag__BuildingJoins__IndicatorLines"],  "Layer__TagNumbers": [1], "Layer__Label": "Building Joins",   "Layer__EdgeWeightFactor": 0.60, "Layer__EdgeColour": "soft-black", "Layer__EdgeLineType": "centre" },
                 { "Layer__CategoryKey": "TrueVision__Linetype__ElementsForRemoval", "Layer__SketchUpTags": ["01__ModelFlag__ElementsForRemoval"],     "Layer__TagNumbers": [1], "Layer__Label": "Elements For Removal", "Layer__EdgeWeightFactor": 0.60, "Layer__EdgeColour": "dark-grey",  "Layer__EdgeLineType": "dashed" }
+            ]
+        },
+        {
+            "Group__Id"     : "linework-modifiers",
+            "Group__Label"  : "Linework Detail Modifiers",
+            "Group__AlwaysShow" : true,
+            "Group__Note"   : "Styles for nested LineworkModifier tags (SSOT 76-79). These are never a real loaded model category - the geometry stays inside its parent's GLB - so Group__AlwaysShow tells Na__LeModelLayers__Groups to list these two rows unconditionally rather than only when Na__ModelToggle__GetCategoryKeys reports them (it never will). The checkbox is enforced per owner key inside Na__LeVp2d__StyleBands (Na__LayoutEditor__Viewport2d__Linework__.js), not by the usual category-exclusion-token path, because that path only ever excludes a whole top-level model category before sampling, never a nested modifier's owner key.",
+            "Group__Layers" : [
+                { "Layer__CategoryKey": "TrueVision__LineworkModifier__FineDetail",     "Layer__SketchUpTags": ["76__LineworkModifier__FineDetail__Walls", "77__LineworkModifier__FineDetail__WindowsAndJoinery"],         "Layer__TagNumbers": [76, 77], "Layer__Label": "Fine Detail Linework",      "Layer__EdgeWeightFactor": 0.50, "Layer__EdgeColour": "dark-grey", "Layer__EdgeLineType": "solid" },
+                { "Layer__CategoryKey": "TrueVision__LineworkModifier__VeryFineDetail", "Layer__SketchUpTags": ["78__LineworkModifier__VeryFineDetail__Walls", "79__LineworkModifier__VeryFineDetail__WindowsAndJoinery"], "Layer__TagNumbers": [78, 79], "Layer__Label": "Very Fine Detail Linework", "Layer__EdgeWeightFactor": 0.25, "Layer__EdgeColour": "mid-grey",  "Layer__EdgeLineType": "solid" }
             ]
         },
         {

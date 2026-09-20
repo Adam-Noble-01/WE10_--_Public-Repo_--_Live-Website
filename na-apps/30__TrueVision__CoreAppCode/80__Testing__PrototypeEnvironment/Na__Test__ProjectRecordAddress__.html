@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<!-- =============================================================================
+     TRUEVISION3D - TEST HARNESS - PROJECT RECORD SITE ADDRESS
+     =============================================================================
+
+     FILE    : Na__Test__ProjectRecordAddress__.html
+     PURPOSE : Prove where the Layout Editor's title block gets its site address
+     CREATED : 20-Sep-2026
+
+     WHAT THIS PROVES:
+     - The REAL Na__LayoutEditor__ProjectRecord__ module, loaded over HTTP from
+       the repository exactly as the app loads it, reading the REAL project
+       files in na-project-portal. Nothing here is a stub.
+     - PS01 has a quotation carrying an address: the quotation must still win,
+       so the fallback cannot have displaced the ordinary path.
+     - RB05 has a quotation with the address left blank: the address must come
+       from PlanVision's project data instead. This is the case the fallback
+       exists for.
+
+     HOW TO SERVE IT:
+     - Serve the REPOSITORY ROOT (not the app folder) so /na-project-portal/
+       resolves, then open this page. It needs no URL parameters of its own -
+       it sets each project's parameters itself between runs.
+
+     ============================================================================= -->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>TrueVision - Project Record Site Address</title>
+<style>
+    body   { font-family: ui-monospace, Consolas, monospace; background: #14171a; color: #e8ecef; margin: 0; padding: 24px; font-size: 13px; }
+    h1     { font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: #9fb3c8; margin: 0 0 18px; }
+    .case  { border: 1px solid #2c3339; border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; }
+    .name  { color: #9fb3c8; margin-bottom: 8px; }
+    .row   { margin: 3px 0; }
+    .k     { display: inline-block; min-width: 190px; color: #7d8d9c; }
+    .pass  { color: #4ade80; font-weight: 700; }
+    .fail  { color: #f87171; font-weight: 700; }
+    .sum   { margin-top: 18px; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<h1>Layout Editor &mdash; where the site address comes from</h1>
+<div id="out">running&hellip;</div>
+
+<script type="module">
+
+    // -------------------------------------------------------------------------
+    // REGION | Make Sure This Page Runs Today's Code
+    // -------------------------------------------------------------------------
+    // The app registers a service worker over this whole folder, and a warm one
+    // would happily answer with the module as it was before the edit. A result
+    // from stale code is worse than no result, so the worker goes first.
+    // -------------------------------------------------------------------------
+
+    const preflight = [];
+
+    if ('serviceWorker' in navigator) {
+        const workers = await navigator.serviceWorker.getRegistrations();
+        for (const worker of workers) await worker.unregister();
+        preflight.push(`service workers unregistered: ${workers.length}`);
+    }
+
+    if (window.caches) {
+        const names = await caches.keys();
+        for (const name of names) await caches.delete(name);
+        preflight.push(`caches cleared: ${names.length}`);
+    }
+
+    // -------------------------------------------------------------------------
+    // REGION | The Module Under Test, Loaded As the App Loads It
+    // -------------------------------------------------------------------------
+
+    const MODULE_URL = '/na-apps/30__TrueVision__CoreAppCode/02__Src__AppModules/51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__ProjectRecord__.js';
+
+    const { Na__LeRecord__Fetch, Na__LeRecord__Reset } = await import(MODULE_URL + '?cachebust=' + Date.now());
+
+    // -------------------------------------------------------------------------
+    // REGION | The Cases
+    // -------------------------------------------------------------------------
+
+    const CASES = [
+        {
+            name        : 'PS01 Musters Road - a quotation carries the address',
+            code        : 'PS01',
+            folder      : 'PS01__MustersRoad',
+            expectAddr  : '255 Musters Road, West Bridgford, Nottingham, NG2 7DD',
+            expectFrom  : 'ProjectAdmin__Quotations__.json'
+        },
+        {
+            name        : 'RB05 West Farm - no quotation address, so PlanVision answers',
+            code        : 'RB05',
+            folder      : 'RB05__WestFarm',
+            expectAddr  : 'West Beacon Farm, Deans Lane, Woodhouse Eaves, Loughborough, Leicestershire, LE12 8TE',
+            expectFrom  : 'PlanVision__ProjectData__.json'
+        }
+    ];
+
+    // -------------------------------------------------------------------------
+    // REGION | Run
+    // -------------------------------------------------------------------------
+
+    const out   = document.getElementById('out');
+    let   fails = 0;
+
+    out.innerHTML = '<div class="case"><div class="name">preflight</div>'
+                  + preflight.map((line) => `<div class="row">${line}</div>`).join('')
+                  + '</div>';
+
+    for (const testCase of CASES) {
+
+        // The module reads the project off the live URL, so the URL is how a
+        // project is chosen - the same way the app chooses one.
+        history.replaceState(null, '', `${location.pathname}?project=${testCase.code}&project-folder=${testCase.folder}&year=26`);
+        Na__LeRecord__Reset();
+
+        const record = await Na__LeRecord__Fetch();
+        const actual = (record && record.SiteAddress) || '';
+        const ok     = (actual === testCase.expectAddr);
+        if (!ok) fails += 1;
+
+        const block = document.createElement('div');
+        block.className = 'case';
+        block.innerHTML =
+              `<div class="name">${testCase.name}</div>`
+            + `<div class="row"><span class="k">expected from</span>${testCase.expectFrom}</div>`
+            + `<div class="row"><span class="k">expected address</span>${testCase.expectAddr}</div>`
+            + `<div class="row"><span class="k">actual address</span>${actual || '(empty)'}</div>`
+            + `<div class="row"><span class="k">client (unchanged path)</span>${(record && record.Client) || '(empty)'}</div>`
+            + `<div class="row"><span class="k">result</span><span class="${ok ? 'pass' : 'fail'}">${ok ? 'PASS' : 'FAIL'}</span></div>`;
+        out.appendChild(block);
+
+        console.log(`[${testCase.code}] address = "${actual}"  client = "${(record && record.Client) || ''}"  ${ok ? 'PASS' : 'FAIL'}`);
+    }
+
+    const summary = document.createElement('div');
+    summary.className = 'sum ' + (fails === 0 ? 'pass' : 'fail');
+    summary.textContent = (fails === 0) ? `ALL ${CASES.length} CASES PASS` : `${fails} OF ${CASES.length} CASES FAILED`;
+    summary.id = 'summary';
+    out.appendChild(summary);
+
+    console.log(fails === 0 ? 'HARNESS: ALL PASS' : `HARNESS: ${fails} FAILED`);
+
+</script>
+
+</body>
+</html>

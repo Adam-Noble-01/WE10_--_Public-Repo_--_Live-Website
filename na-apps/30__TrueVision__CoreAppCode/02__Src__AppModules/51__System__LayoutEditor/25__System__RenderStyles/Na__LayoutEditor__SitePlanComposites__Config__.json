@@ -1,0 +1,65 @@
+{
+    "LayoutEditor__SitePlanComposites__Meta": {
+        "Meta__FileName"        : "Na__LayoutEditor__SitePlanComposites__Config__.json",
+        "Meta__Description"     : "One row per DECK that goes into a site plan viewport's picture, and the rule that decides whether that viewport is a block plan or a location plan. The Site Plan Render Composites panel is built from this file, so adding a deck is a config edit - the same arrangement as Na__LayoutEditor__RenderComposites__Config__.json, which does the same job for a 3D viewport's picture.",
+        "Meta__Version"         : "1.0.0",
+        "Meta__Created"         : "20-Sep-2026",
+        "Meta__Author"          : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyThreeDecks"   : "Adam, TASK 06: 'do three layers: 1. A solid fill base layer. 2. On top, the patterns. 3. On top of that, the linework. It's a composite of three layers that create the site plan drawing for any site plans under 1:500 scale.' The decks paint bottom to top in Deck__Order, and each one is a checkbox on the panel exactly as a render composite is, so a deck can be taken out of the picture to read what is under it.",
+        "Meta__WhyNotInStyles"  : "Viewport__Styles is a CLOSED list shared with ValeVision3D, which has no site plan data at all, and every key in it must survive a round trip through both apps' record layers. A deck switch lives in Viewport__SitePlan instead, beside the store id and the hatch overrides - the block that only exists on a site plan viewport in the first place.",
+        "Meta__WhyPlanType"     : "Adam, TASK 06: 'Add a new drop-down and viewport subtype which only appears in the site plan viewports menu so as you can differentiate block plans from location plans because the rendering has to be done differently for both.' The subtype is stored, not inferred, so a 1:1250 viewport CAN be drawn as a block plan when a drawing wants it; left on Automatic it follows the scale, which is what almost every viewport wants.",
+        "Meta__WhyLocationRule" : "Adam, TASK 06: 'For the site location plan only show one type of fill, and that is the proposed new construction or the alterations proposed fills. Only use the boundary line work colours. Omit all other colours because that plan is tiny at the 1,250 scale. It will look unprofessional and ridiculous using that amount of colour and detail.' So a location plan keeps the proposal fills and nothing else, paints no patterns at all, and converts every line that is not a boundary or a proposal to its own greyscale value. Greyscale by LUMINANCE, not to a flat grey: the OS greys are already neutral and come through untouched, while the woodland green and the water blue fall back to a grey of the same weight rather than vanishing or turning black.",
+        "Meta__WhyKeepInkList"  : "The two families that keep their colour are matched on the SketchUp TAG NAME, not on a list of export stems, because the stem is whatever the exporter was told to call the file and the tag name is the SSOT's own identity for the layer. KeepsInkTagPattern is the boundary family (72__SitePlan__Boundary__*); ProposalFillMaterialIds names the proposal fill in the Materials SSOT, and any layer carrying it keeps its ink too, since a red fill with a grey outline reads as a mistake.",
+        "Meta__KeyStability"    : "Deck__Key is what a saved viewport holds in Viewport__SitePlan.SitePlan__Composites and must not be renamed. A deck a saved viewport names that this file does not list is dropped by the record layer's normaliser, so a removed deck does not linger in the project data."
+    },
+
+    "LayoutEditor__SitePlanComposites__Decks": [
+        {
+            "Deck__Key"     : "fills",
+            "Deck__Label"   : "Solid Fills",
+            "Deck__Order"   : 10,
+            "Deck__Default" : true,
+            "Deck__Note"    : "The base layer: every enclosed face on a site plan layer that carries a fill material, painted as a flat wash at the material's own colour and opacity. Stacked by the layer's fill Z-index, which is independent of its line Z-index - that is what lets the water lines sit over the woodland lines while the two washes stack the other way."
+        },
+        {
+            "Deck__Key"     : "patterns",
+            "Deck__Label"   : "Hatch Patterns",
+            "Deck__Order"   : 20,
+            "Deck__Default" : true,
+            "Deck__Note"    : "The repeating symbols over the washes - trees, ripples - from the hatch library. A tile holds its PAPER size at every drawing scale, so the woodland reads the same on a 1:100 block plan as on a 1:500 one. Never painted on a location plan, whatever this switch says."
+        },
+        {
+            "Deck__Key"     : "linework",
+            "Deck__Label"   : "Linework",
+            "Deck__Order"   : 30,
+            "Deck__Default" : true,
+            "Deck__Note"    : "The drawing itself: the exported vectors, styled per layer and stacked by line Z-index - the red boundary at 10 over everything, minor streets at 1 under it. Off leaves the washes and patterns alone on the paper, which is a useful way to check a fill without the lines over it."
+        }
+    ],
+
+    "LayoutEditor__SitePlanComposites__PlanTypes": {
+        "PlanTypes__Description"       : "The site plan subtype. AUTO is the stored default and resolves from the viewport's scale; BLOCK and LOCATION are a deliberate choice that ignores the scale.",
+        "PlanTypes__Auto"              : "auto",
+        "PlanTypes__Block"             : "block",
+        "PlanTypes__Location"          : "location",
+        "PlanTypes__BlockMaxDenominator" : 500,
+        "PlanTypes__BlockMaxNote"      : "Adam, TASK 06: 'Site Location Plans - viewports over 1:500 (in the future if we go for even larger scales, like 1:2500, or something, for housing development location plans, the same rule would apply).' So 1:500 or FINER is a block plan and anything coarser is a location plan, a rule stated as one number rather than a list of scales, so a scale added to SitePlanScaleDenominators lands on the right side of it with no second edit."
+    },
+
+    "LayoutEditor__SitePlanComposites__LocationPlan": {
+        "LocationPlan__Description"          : "What a location plan leaves out. Read only when the resolved plan type is LOCATION.",
+        "LocationPlan__PaintPatterns"        : false,
+        "LocationPlan__FillsAreProposalOnly" : true,
+        "LocationPlan__GreyscaleOtherInk"    : true,
+        "LocationPlan__KeepsInkTagPattern"   : "^\\d{2}__SitePlan__Boundary__",
+        "LocationPlan__ProposalFillMaterialIds" : [ "MAT803__SitePlan__ProposalRed" ],
+        "LocationPlan__GreyscaleNote"        : "Rec. 709 luminance, the same weighting a monochrome print uses: 0.2126 R + 0.7152 G + 0.0722 B. A grey in gives the identical grey out, which is why the OS base map is untouched by this rule."
+    },
+
+    "LayoutEditor__SitePlanComposites__Fallback": {
+        "Fallback__Description" : "Used until the file has loaded, and if it ever fails to. The three decks are the drawing, so the picture must be able to paint without waiting for a fetch.",
+        "Fallback__Decks"       : [ "fills", "patterns", "linework" ],
+        "Fallback__Default"     : true
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "ElevationDepthFog__Description": "Configuration for the Elevation Depth Fog Effect - a paper-coloured fog that thickens with distance BEHIND a drawing's plane, laid over the finished drawing as a render layer of its own so that far linework fades as well as far surfaces. The three numbers an author sets - where it starts, where it is full, and how hard it comes on - are per drawing and live inside the drawing's own record (Elevation__DepthFog, and the same block on a floor plan or a section when those are wired), so they ride the save path the drawings already use. This file holds what a NEW drawing starts with, the limits of the boxes, what the fog looks like, and every word the Dev menu shows. Distances are integer millimetres and are converted to Three.js units in code.",
+    "ElevationDepthFog__Enabled": true,
+    "ElevationDepthFog__Defaults__Config": {
+        "ElevationDepthFog__Defaults__Description": "What a drawing's fog block holds before anybody has touched it. Off, because a drawing must look exactly as it did until its author asks for fog. StartDepthMm is how far behind the plane the fog begins - 1000 puts it a metre into the building on an elevation whose plane stands at the facade. EndDepthMm is where it is full, measured from the SAME plane, not from the start. FalloffPercent is the fog's density half way between the two: 50 is a straight ramp, more comes on harder and reads denser, less holds off until late.",
+        "ElevationDepthFog__Defaults__Enabled": false,
+        "ElevationDepthFog__Defaults__StartDepthMm": 1000,
+        "ElevationDepthFog__Defaults__EndDepthMm": 15000,
+        "ElevationDepthFog__Defaults__FalloffPercent": 50
+    },
+    "ElevationDepthFog__Limits__Config": {
+        "ElevationDepthFog__Limits__Description": "The range of the three boxes. Depths run from the plane (0) to MaxDepthMm - the far plane of a drawing camera is 500 m away, and a fog that ends beyond a hundred metres is no fog at all on a house. MinBandMm is the least distance End may stand beyond Depth: the two can be typed in either order and End is pushed out to keep the band real, because a band of nothing divides by zero. DepthStepMm is what the arrow keys and the spinner move by. Fall-off is clamped inside 0-100 by FalloffEdgePercent when the curve is drawn, so 0 and 100 are the two hard walls rather than a division by zero.",
+        "ElevationDepthFog__Limits__MaxDepthMm": 200000,
+        "ElevationDepthFog__Limits__MinBandMm": 100,
+        "ElevationDepthFog__Limits__DepthStepMm": 250,
+        "ElevationDepthFog__Limits__FalloffStepPercent": 5,
+        "ElevationDepthFog__Limits__FalloffEdgePercent": 0.5
+    },
+    "ElevationDepthFog__Appearance__Config": {
+        "ElevationDepthFog__Appearance__Description": "What the fog looks like. Colour is the paper's, so a fogged line fades INTO the sheet rather than into a grey: white on every drawing the practice issues. MaxOpacity is the ceiling the fog reaches at End - 1 takes the far distance clean away, 0.85 would leave a ghost of it. Both are one setting for every drawing on purpose: three numbers per drawing is what was asked for, and a drawing set whose fogs were different colours would not read as a set. EdgeGuardPx is how far, in pixels of the buffer being drawn, a NEAR thing's depth reaches over its neighbours: a line is drawn a pixel or so wider than the surface it belongs to, and without the guard the half of a near outline that overhangs a fogged background is fogged with it and every near line thins. 1 keeps near lines whole; 0 reads each pixel alone. EmptyReachPx is how far the fog BLEEDS over open paper beside something it has fogged, and it is there for a reason that only shows when a drawing is scaled: a sheet at Fit and a PDF in any viewer resample the picture and the fog image separately before putting one over the other, so where the fog's alpha drops from 1 to 0 within a few pixels of inked paper, a scaled-down pixel averages ink with not-quite-covered and the outline of a building the fog has taken away leaks back as a ghost. Open paper therefore takes the fog of the NEAREST drawn thing within this many pixels, which moves that edge out onto clean paper where white over white is white at any scale - and nearest, so paper beside a near outline stays clear. 12 holds to about an eighth of full size, which is a sheet at Fit; a ghost at smaller scales wants it larger, at a cost of nothing but reach, since the taps are the same thirty-two.",
+        "ElevationDepthFog__Appearance__Colour": "#ffffff",
+        "ElevationDepthFog__Appearance__MaxOpacity": 1,
+        "ElevationDepthFog__Appearance__EdgeGuardPx": 1,
+        "ElevationDepthFog__Appearance__EmptyReachPx": 12
+    },
+    "ElevationDepthFog__Labels__Config": {
+        "ElevationDepthFog__Labels__Description": "Every word the Fog block of a drawing's Dev menu row shows. The readout sentences take {start}, {end} and {band} in whole millimetres and {falloff} as the typed percentage.",
+        "ElevationDepthFog__Labels__Caption": "Fog",
+        "ElevationDepthFog__Labels__OffLabel": "Off",
+        "ElevationDepthFog__Labels__OnLabel": "On",
+        "ElevationDepthFog__Labels__OffTitle": "No fog on this drawing. The three values are kept for when it is switched on.",
+        "ElevationDepthFog__Labels__OnTitle": "Fade what lies behind the drawing's plane into the paper - surfaces and linework alike - in the 3D view and on every sheet that draws it.",
+        "ElevationDepthFog__Labels__StartField": "Depth",
+        "ElevationDepthFog__Labels__EndField": "End",
+        "ElevationDepthFog__Labels__FalloffField": "Fall-off",
+        "ElevationDepthFog__Labels__DepthUnit": "mm",
+        "ElevationDepthFog__Labels__FalloffUnit": "%",
+        "ElevationDepthFog__Labels__StartTitle": "Where the fog starts: how far BEHIND the drawing's plane, away from the viewer. 1000 starts it a metre into the building.",
+        "ElevationDepthFog__Labels__EndTitle": "Where the fog is full, measured from the same plane. Everything beyond it is gone.",
+        "ElevationDepthFog__Labels__FalloffTitle": "How hard the fog comes on, 0 to 100: how fogged the drawing is half way between Depth and End. 50 is an even fade. Higher is more aggressive and reads denser; lower holds off until late.",
+        "ElevationDepthFog__Labels__ReadoutOn": "fog from {start} to {end} mm behind the plane - {falloff}% by half way",
+        "ElevationDepthFog__Labels__ReadoutOff": "off - would run {start} to {end} mm behind the plane"
+    }
+}

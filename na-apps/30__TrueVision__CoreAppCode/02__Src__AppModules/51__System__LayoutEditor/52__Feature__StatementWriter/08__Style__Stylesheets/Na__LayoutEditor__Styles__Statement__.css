@@ -1,0 +1,668 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Layout Editor Styles (statement writer)  */
+/* ================================================================= */
+/*
+ * FILE     : Na__LayoutEditor__Styles__Statement__.css
+ * PURPOSE  : The chrome around a statement - the bar, the two views, the desk
+ *            the paper lies on, the document manager, and the editor's own
+ *            affordances. The statement itself is styled by
+ *            Na__LayoutEditor__Styles__Statement__Document__.css.
+ * AUTHORED : 20-Sep-2026 for TrueVision3D v2.95.0 (Statement Writer)
+ *
+ * THE PALETTE IS NOT THIS FEATURE'S OWN. Every ground, paper, shadow and rule
+ * comes from Na__LayoutEditor__Styles__Surfaces__.css, and the bar, the pills
+ * and the buttons are the Project Specification's and the Drawing Register's,
+ * because all three are tabs of one pack and must read as one application.
+ * Nothing here invents a grey.
+ *
+ * PORT NOTE:
+ * - Ported from : n/a (TrueVision3D first, 20-Sep-2026)
+ * - Back-port   : offer to ValeVision3D with the statement tab.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Page                                               */
+/* ----------------------------------------------------------------- */
+
+/* THE PAGE LIES OVER THE DRAWING EDITOR rather than replacing it, exactly as
+   the Project Specification's does, so the sheet underneath keeps its zoom
+   and its scroll for the return trip. */
+.na-le-stmt {
+    position                           : absolute;
+    inset                              : 0;
+    z-index                            : 12;
+    display                            : flex;
+    flex-direction                     : column;
+    background                         : var(--Na_Le_Stage);
+    color                              : var(--Na_Le_Ink);
+    font                               : 14px 'Open Sans', Arial, sans-serif;
+}
+
+.na-le-stmt[hidden],
+.na-le-stmt [hidden] {
+    display                            : none !important;
+}
+
+/* THE SHEET UNDER THE PAGE is hidden as well as covered while a statement is
+   up, so a Read Aloud or a browser find never reaches the panels beneath it.
+   The same rule the specification carries, for the same reason. */
+.is-stmt-shown > .na-le-shell {
+    visibility                         : hidden;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Bar                                                */
+/* ----------------------------------------------------------------- */
+
+.na-le-stmt__bar {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : 6px;
+    padding                            : 8px 14px;
+    border-bottom                      : 1px solid var(--Na_Le_ChromeRule);
+    background                         : var(--Na_Le_Chrome);
+}
+
+.na-le-stmt__heading {
+    display                            : flex;
+    align-items                        : baseline;
+    gap                                : 10px;
+    min-width                          : 0;
+    margin-right                       : 8px;
+}
+
+.na-le-stmt__title {
+    font-size                          : 0.95rem;
+    font-weight                        : 600;
+    white-space                        : nowrap;
+}
+
+.na-le-stmt__summary {
+    color                              : var(--Na_Le_InkMuted);
+    font-size                          : 0.74rem;
+    white-space                        : nowrap;
+}
+
+.na-le-stmt__spacer {
+    flex                               : 1 1 auto;
+}
+
+/* WHICH STATEMENT IS OPEN. A box rather than a row of tabs: a project will
+   hold a pre-app, a design and access statement, a heritage statement and a
+   planning statement before long, and four more tabs on a strip that already
+   scrolls sideways on a phone is not a gain. */
+.na-le-stmt__picker {
+    flex                               : 0 1 260px;
+    min-width                          : 140px;
+    padding                            : 4px 8px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #ffffff;
+    font                               : inherit;
+    font-size                          : 0.76rem;
+}
+
+.na-le-stmt__status {
+    padding                            : 3px 8px;
+    border-radius                      : 5px;
+    color                              : var(--Na_Le_InkMuted);
+    font-size                          : 0.74rem;
+    white-space                        : nowrap;
+}
+
+.na-le-stmt__status[data-state="dirty"]     { background : #fff6e3; color : #8a5a00; }
+.na-le-stmt__status[data-state="failed"]    { background : #fdf0f0; color : #9b3b3b; }
+.na-le-stmt__status[data-state="synced"]    { color : #2f7a46; }
+.na-le-stmt__status[data-state="syncing"]   { color : #1a7fc4; }
+.na-le-stmt__status[data-state="publishing"]{ color : #1a7fc4; }
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Edit and Read                                          */
+/* ----------------------------------------------------------------- */
+
+/* TWO TABS INSIDE THE TAB. Edit is the live-preview markdown editor and is
+   built only where this session may author; Read is the same document with
+   nothing to click. The pills are the specification's, to the pixel. */
+.na-le-stmt__views {
+    display                            : inline-flex;
+    flex                               : 0 0 auto;
+    gap                                : 2px;
+    margin-right                       : 6px;
+    padding                            : 2px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 6px;
+    background                         : #eef1f4;
+}
+
+.na-le-stmt__view {
+    padding                            : 3px 14px;
+    border                             : 1px solid transparent;
+    border-radius                      : 4px;
+    background                         : transparent;
+    color                              : #46596b;
+    font                               : inherit;
+    font-size                          : 0.76rem;
+    line-height                        : 1.3;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+}
+
+.na-le-stmt__view:hover {
+    background                         : rgba(255, 255, 255, 0.7);
+    color                              : var(--Na_Le_Ink);
+}
+
+.na-le-stmt__view.is-active {
+    border-color                       : rgba(23, 43, 58, 0.16);
+    background                         : #ffffff;
+    color                              : var(--Na_Le_Ink);
+    font-weight                        : 600;
+    box-shadow                         : 0 1px 2px rgba(23, 43, 58, 0.1);
+}
+
+.na-le-stmt__view:focus-visible {
+    outline                            : none;
+    border-color                       : #1a7fc4;
+}
+
+/* WHAT BELONGS TO ONE VIEW is put away in the other. */
+.na-le-stmt.is-reading [data-na-stmt-only="edit"],
+.na-le-stmt:not(.is-reading) [data-na-stmt-only="read"] {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Alerts                                                 */
+/* ----------------------------------------------------------------- */
+
+.na-le-stmt__alerts {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 6px;
+    padding                            : 8px 14px 0;
+}
+
+.na-le-stmt__alert {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : 6px;
+    padding                            : 6px 10px;
+    border-radius                      : 6px;
+    font-size                          : 0.75rem;
+    line-height                        : 1.35;
+}
+
+.na-le-stmt__alert-text {
+    margin-right                       : 4px;
+}
+
+.na-le-stmt__alert--warn { border : 1px solid #f0d9a8; background : #fff6e3; color : #6b4a00; }
+.na-le-stmt__alert--info { border : 1px solid #cfe3f3; background : #eef5fb; color : #24506f; }
+.na-le-stmt__alert--stop { border : 1px solid #e7c4c4; background : #fdf0f0; color : #9b3b3b; }
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Desk                                               */
+/* ----------------------------------------------------------------- */
+
+/* THE PAPER LIES ON THE SAME GREY every other editor stands on, and it is one
+   continuous A4-wide page rather than a stack of A4 sheets - a statement is
+   written as one column and delivered as one endless scroll. */
+.na-le-stmt__desk {
+    flex                               : 1 1 auto;
+    min-height                         : 0;
+    overflow                           : auto;
+    background                         : var(--Na_Le_Stage);
+}
+
+.na-le-stmt__desk:focus {
+    outline                            : none;
+}
+
+.na-le-stmt__desk:focus-visible {
+    box-shadow                         : inset 0 0 0 2px rgba(26, 127, 196, 0.45);
+}
+
+.na-le-stmt__sheet {
+    --na-stmt-zoom                     : 1;
+    display                            : flex;
+    flex-direction                     : column;
+    align-items                        : center;
+    padding                            : 26px 24px 72px;
+}
+
+/* A DESK NARROWER THAN A4 SHRINKS THE PAPER; nothing is ever enlarged. The
+   zoom is set in code from the desk's width, as the specification's is. */
+.na-le-stmt__sheet > .na-le-stmt-doc {
+    zoom                               : var(--na-stmt-zoom);
+    box-shadow                         : var(--Na_Le_PaperShadow);
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Editor Surface                                     */
+/* ----------------------------------------------------------------- */
+
+/* THE EDITED DOCUMENT IS THE RENDERED DOCUMENT. There is no second pane and
+   no preview: the paper itself is contenteditable and the house stylesheet is
+   already on it, so a heading looks like a heading the moment it becomes one. */
+.na-le-stmt-doc[contenteditable="true"] {
+    outline                            : none;
+    cursor                             : text;
+    -webkit-user-modify                : read-write-plaintext-only;
+}
+
+.na-le-stmt-doc[contenteditable="true"]:focus {
+    outline                            : none;
+}
+
+/* THE ACTIVE BLOCK SHOWS ITS MARKDOWN, the way Typora does. The mark is a
+   pseudo-element in the left margin, so it never enters the text and can
+   never be selected, copied or serialised back into the file. */
+.na-le-stmt-doc [data-na-stmt-mark] {
+    position                           : relative;
+}
+
+.na-le-stmt-doc.is-marking [data-na-stmt-mark].is-caret::before {
+    content                            : attr(data-na-stmt-mark);
+    position                           : absolute;
+    right                              : calc(100% + 2.2mm);
+    top                                : 0;
+    color                              : #b3bcc4;
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+    font-size                          : 07.00pt;
+    font-weight                        : 400;
+    font-style                         : normal;
+    line-height                        : inherit;
+    white-space                        : nowrap;
+    pointer-events                     : none;
+    user-select                        : none;
+}
+
+/* CTRL+. PUTS THE WHOLE DOCUMENT INTO LUCIDA CONSOLE without leaving the live
+   preview. The sizes, colours and spacing stay exactly as they were: this is
+   a typing face for drafting, not a different view of the document. */
+.na-le-stmt-doc.is-mono,
+.na-le-stmt-doc.is-mono p,
+.na-le-stmt-doc.is-mono li,
+.na-le-stmt-doc.is-mono td,
+.na-le-stmt-doc.is-mono th,
+.na-le-stmt-doc.is-mono h1,
+.na-le-stmt-doc.is-mono h2,
+.na-le-stmt-doc.is-mono h3,
+.na-le-stmt-doc.is-mono h4,
+.na-le-stmt-doc.is-mono h5,
+.na-le-stmt-doc.is-mono h6,
+.na-le-stmt-doc.is-mono b,
+.na-le-stmt-doc.is-mono strong,
+.na-le-stmt-doc.is-mono i,
+.na-le-stmt-doc.is-mono em {
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+}
+
+/* CTRL+/ SHOWS THE FILE ITSELF. Raw markdown in a plain field, the same width
+   as the paper so a line wraps where it will wrap in Typora. Editing here and
+   editing the rendered page are the same edit; the view is a lens, not a copy. */
+.na-le-stmt__source {
+    display                            : block;
+    width                              : 100%;
+    max-width                          : 210.00mm;
+    min-height                         : 60vh;
+    margin                             : 0 auto;
+    padding                            : 10.00mm 11.00mm 20.00mm;
+    border                             : none;
+    background                         : #ffffff;
+    box-shadow                         : var(--Na_Le_PaperShadow);
+    box-sizing                         : border-box;
+    color                              : #202930;
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+    font-size                          : 09.00pt;
+    line-height                        : 1.45;
+    resize                             : none;
+    tab-size                           : 4;
+    white-space                        : pre-wrap;
+}
+
+.na-le-stmt__source:focus {
+    outline                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Frozen Blocks and the Image Widget                     */
+/* ----------------------------------------------------------------- */
+
+/* A RAW HTML BLOCK IS NOT EDITED IN PLACE. These statements carry hand-written
+   HTML - the divider rules, images with their own border and shadow - and a
+   contenteditable surface rewrites inline styles it is allowed to touch. So
+   every raw block is atomic: it renders exactly as written, the caret steps
+   over it, and its text is changed in a field of its own or in raw markdown.
+   Nothing normalises it, so nothing drifts. */
+.na-le-stmt-doc .na-le-stmt-frozen {
+    position                           : relative;
+    display                            : block;
+    border-radius                      : 4px;
+    outline                            : 1px dashed transparent;
+    outline-offset                     : 3px;
+}
+
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen:hover {
+    outline-color                      : #b7c6d2;
+}
+
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen.is-selected {
+    outline                            : 2px solid #1a7fc4;
+    outline-offset                     : 3px;
+}
+
+.na-le-stmt-frozen__body {
+    display                            : block;
+}
+
+/* THE TOOL ROW sits over the block's top-right corner and only while the
+   pointer is on it, so a page of pictures is a page of pictures. */
+.na-le-stmt-frozen__tools {
+    position                           : absolute;
+    top                                : 4px;
+    right                              : 4px;
+    z-index                            : 2;
+    display                            : none;
+    gap                                : 4px;
+    padding                            : 3px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : rgba(255, 255, 255, 0.94);
+    box-shadow                         : var(--Na_Le_ChromeShadow);
+}
+
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen:hover > .na-le-stmt-frozen__tools,
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen.is-selected > .na-le-stmt-frozen__tools {
+    display                            : flex;
+}
+
+.na-le-stmt-frozen__raw {
+    display                            : block;
+    width                              : 100%;
+    min-height                         : 90px;
+    margin-top                         : 6px;
+    padding                            : 8px 10px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    background                         : #f4f6f8;
+    box-sizing                         : border-box;
+    color                              : #202930;
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+    font-size                          : 08.00pt;
+    line-height                        : 1.4;
+    resize                             : vertical;
+    white-space                        : pre;
+}
+
+/* THE IMAGE WIDGET. A picture keeps the exact markup it was written with -
+   the zoom, the border, the shadow - and the handle at its corner changes one
+   number inside that markup and nothing else. */
+.na-le-stmt-figure__grip {
+    position                           : absolute;
+    right                              : -5px;
+    bottom                             : -5px;
+    z-index                            : 2;
+    display                            : none;
+    width                              : 14px;
+    height                             : 14px;
+    border                             : 1px solid #ffffff;
+    border-radius                      : 3px;
+    background                         : #1a7fc4;
+    box-shadow                         : 0 1px 3px rgba(23, 43, 58, 0.35);
+    cursor                             : nwse-resize;
+}
+
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen:hover > .na-le-stmt-figure__grip,
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-frozen.is-selected > .na-le-stmt-figure__grip {
+    display                            : block;
+}
+
+.na-le-stmt-figure__readout {
+    position                           : absolute;
+    right                              : 4px;
+    bottom                             : 4px;
+    z-index                            : 2;
+    display                            : none;
+    padding                            : 2px 6px;
+    border-radius                      : 4px;
+    background                         : rgba(23, 43, 58, 0.82);
+    color                              : #ffffff;
+    font-size                          : 0.68rem;
+    font-variant-numeric               : tabular-nums;
+    pointer-events                     : none;
+}
+
+.na-le-stmt-frozen.is-resizing > .na-le-stmt-figure__readout {
+    display                            : block;
+}
+
+/* WHERE A DROPPED PICTURE WILL LAND. A line across the paper at the block the
+   caret would fall into, drawn while a file is over the page. */
+.na-le-stmt-doc.is-dropping {
+    box-shadow                         : var(--Na_Le_PaperShadow), inset 0 0 0 2px #1a7fc4;
+}
+
+.na-le-stmt-doc .na-le-stmt__drop-line {
+    display                            : block;
+    height                             : 0;
+    margin                             : 0;
+    border-top                         : 2px solid #1a7fc4;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Document Manager                                   */
+/* ----------------------------------------------------------------- */
+
+/* CREATE, RENAME AND DELETE live in a sheet of their own over the desk rather
+   than in the bar: they are done rarely, they ask questions, and a row of
+   destructive buttons beside Save is a row of destructive buttons beside Save. */
+.na-le-stmt__manager {
+    position                           : absolute;
+    inset                              : 0;
+    z-index                            : 3;
+    display                            : flex;
+    align-items                        : flex-start;
+    justify-content                    : center;
+    padding                            : 48px 24px;
+    overflow                           : auto;
+    background                         : rgba(23, 43, 58, 0.40);
+}
+
+.na-le-stmt__manager-card {
+    width                              : 100%;
+    max-width                          : 640px;
+    padding                            : 20px 22px 18px;
+    border-radius                      : 8px;
+    background                         : var(--Na_Le_Chrome);
+    box-shadow                         : var(--Na_Le_PaperShadow);
+}
+
+.na-le-stmt__manager-title {
+    margin                             : 0 0 4px;
+    font-size                          : 1.02rem;
+    font-weight                        : 600;
+}
+
+.na-le-stmt__manager-hint {
+    margin                             : 0 0 14px;
+    color                              : var(--Na_Le_InkMuted);
+    font-size                          : 0.76rem;
+    line-height                        : 1.45;
+}
+
+.na-le-stmt__manager-list {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 6px;
+    margin                             : 0 0 14px;
+}
+
+.na-le-stmt__manager-row {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    padding                            : 8px 10px;
+    border                             : 1px solid #e2e8ee;
+    border-radius                      : 6px;
+    background                         : #ffffff;
+}
+
+.na-le-stmt__manager-row.is-open {
+    border-color                       : #1a7fc4;
+    background                         : #eef5fb;
+}
+
+.na-le-stmt__manager-name {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+}
+
+.na-le-stmt__manager-label {
+    display                            : block;
+    font-size                          : 0.82rem;
+    font-weight                        : 600;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+.na-le-stmt__manager-path {
+    display                            : block;
+    color                              : var(--Na_Le_InkMuted);
+    font-size                          : 0.70rem;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+.na-le-stmt__manager-field {
+    width                              : 100%;
+    padding                            : 6px 9px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 5px;
+    box-sizing                         : border-box;
+    font                               : inherit;
+    font-size                          : 0.82rem;
+}
+
+.na-le-stmt__manager-preview {
+    margin                             : 6px 0 0;
+    color                              : var(--Na_Le_InkMuted);
+    font-family                        : "Lucida Console", "Courier New", Courier, monospace;
+    font-size                          : 0.70rem;
+    line-height                        : 1.5;
+    word-break                         : break-all;
+}
+
+.na-le-stmt__manager-actions {
+    display                            : flex;
+    justify-content                    : flex-end;
+    gap                                : 8px;
+    padding-top                        : 12px;
+    border-top                         : 1px solid #e2e8ee;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Progress                                               */
+/* ----------------------------------------------------------------- */
+
+/* PUBLISHING AND PDF BOTH TAKE A WHILE - a statement is dozens of megabytes of
+   photography and several metres of rasterised page - so both say where they
+   are rather than freezing the button and hoping. */
+.na-le-stmt__progress {
+    position                           : absolute;
+    left                               : 50%;
+    bottom                             : 26px;
+    z-index                            : 4;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 10px;
+    min-width                          : 280px;
+    padding                            : 10px 14px;
+    border-radius                      : 8px;
+    background                         : rgba(23, 43, 58, 0.92);
+    box-shadow                         : 0 6px 26px rgba(0, 0, 0, 0.3);
+    color                              : #ffffff;
+    font-size                          : 0.78rem;
+    transform                          : translateX(-50%);
+}
+
+.na-le-stmt__progress-text {
+    flex                               : 1 1 auto;
+}
+
+.na-le-stmt__progress-track {
+    flex                               : 0 0 90px;
+    height                             : 4px;
+    border-radius                      : 2px;
+    background                         : rgba(255, 255, 255, 0.28);
+    overflow                           : hidden;
+}
+
+.na-le-stmt__progress-fill {
+    width                              : 0%;
+    height                             : 100%;
+    background                         : #6fb7e8;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Narrow Screens                                         */
+/* ----------------------------------------------------------------- */
+
+/* A CLIENT OPENS THE LINK ON A PHONE. The bar keeps the title and the two
+   views; everything the reader cannot act on gets out of the way. */
+@media (max-width: 720px) {
+
+    .na-le-stmt__bar {
+        gap                                : 5px;
+        padding                            : 6px 10px;
+    }
+
+    .na-le-stmt__summary,
+    .na-le-stmt__picker {
+        display                            : none;
+    }
+
+    .na-le-stmt__sheet {
+        padding                            : 12px 10px 56px;
+    }
+
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ================================================================= */
+/* REGION  |  END OF STYLE SHEET                                     */
+/* endregion ------------------------------------------------------- */

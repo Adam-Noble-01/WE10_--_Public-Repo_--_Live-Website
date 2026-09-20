@@ -33,6 +33,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.23.0
+// - The depthFog style: whether a viewport shows its drawing's own depth fog.
+//   On by default, from LayoutEditor__Viewport__DefaultStyles, so a viewport
+//   saved before the key existed follows its drawing - and since every drawing's
+//   fog starts switched off, no sheet changes until somebody asks.
+//
 // 19-Sep-2026 - Version 1.22.0
 // - BuildFields answers Status: what the drawing is issued for, the last cell
 //   of the title block. Stored per sheet as Sheet__Fields__Status and read like
@@ -238,6 +244,15 @@
         Na__LeComposite__Row,
         Na__LeComposite__Clamp
     } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
+    import { Na__LeHatch__FIELD, Na__LeHatch__CAT_FIELD } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
+    import {
+        Na__LeSpComp__DECK_FIELD,
+        Na__LeSpComp__TYPE_FIELD,
+        Na__LeSpComp__PLAN_BLOCK,
+        Na__LeSpComp__PLAN_LOCAL,
+        Na__LeSpComp__DeckKeys,
+        Na__LeSpComp__DeckDefault
+    } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
     import { Na__LeGrad__Normalise } from '../35__System__DrawingTools/Na__LayoutEditor__GradientTool__.js';   // <-- A leaf too: it reaches only the panel host, which reaches only the config
     import { Na__LeDash__Normalise } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
@@ -258,7 +273,7 @@
     const Na__LeRec__KIND_2D     = '2d';
     const Na__LeRec__KIND_3D     = '3d';
     const Na__LeRec__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'mixed' ];
-    const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer' ];
+    const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer', 'depthFog' ];
     const Na__LeRec__ID_PAD      = 3;
     const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
     const Na__LeRec__LEADER_LINE_STYLES = [ 'solid', 'dashed' ];
@@ -408,6 +423,101 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Tidy a Site Plan Viewport's Hatch Overrides
+    // ---------------------------------------------------------------
+    // Keeps only what a viewport has actually changed. A layer whose entry says
+    // nothing is dropped, and an empty block is removed entirely, so a viewport
+    // that has never had a hatch touched stays byte-identical on save - the same
+    // rule as Viewport__ShowFrame and Sheet__DrawingType.
+    //
+    // An EMPTY pattern key is kept on purpose: '' means "no hatch on this layer",
+    // which is a real choice and different from "never set".
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseSitePlanHatches(viewport) {
+        const block = viewport[Na__LeHatch__FIELD];
+        if (!block || typeof block !== 'object') { delete viewport[Na__LeHatch__FIELD]; return; }
+
+        const source = block[Na__LeHatch__CAT_FIELD];
+        const kept   = {};
+        if (source && typeof source === 'object') {
+            Object.keys(source).forEach((categoryKey) => {
+                const entry = source[categoryKey];
+                if (!entry || typeof entry !== 'object') return;
+                const out = {};
+                if (typeof entry.Hatch__PatternKey === 'string') out.Hatch__PatternKey = entry.Hatch__PatternKey;
+                if (Number.isFinite(entry.Hatch__Scale))         out.Hatch__Scale       = entry.Hatch__Scale;
+                if (Number.isFinite(entry.Hatch__RotationDeg))   out.Hatch__RotationDeg = entry.Hatch__RotationDeg;
+                if (entry.Hatch__Filled === false)               out.Hatch__Filled      = false;   // <-- Only the OFF case is stored; on is the default
+                if (Object.keys(out).length) kept[categoryKey] = out;
+            });
+        }
+
+        if (Object.keys(kept).length) viewport[Na__LeHatch__FIELD] = { [Na__LeHatch__CAT_FIELD] : kept };
+        else delete viewport[Na__LeHatch__FIELD];
+    }
+    // ---------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tidy a Site Plan Viewport's Subtype and Deck Switches
+    // ---------------------------------------------------------------
+    // SitePlan__PlanType is kept only when it is a real choice: 'auto' and
+    // anything unrecognised are DELETED, because absent already means "follow
+    // the scale" and storing the default twice is two ways to say one thing.
+    //
+    // SitePlan__Composites keeps only a deck that DISAGREES with its config
+    // default, and only a deck the config still lists. So a viewport nobody has
+    // touched saves byte-identical, a default moved in the config moves every
+    // viewport that never disagreed, and a deck retired from the config does
+    // not linger in the project data forever.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseSitePlanComposites(viewport) {
+        const block = viewport.Viewport__SitePlan;
+
+        const type = block[Na__LeSpComp__TYPE_FIELD];
+        if (type !== Na__LeSpComp__PLAN_BLOCK && type !== Na__LeSpComp__PLAN_LOCAL) delete block[Na__LeSpComp__TYPE_FIELD];
+
+        const stored = block[Na__LeSpComp__DECK_FIELD];
+        if (!stored || typeof stored !== 'object') { delete block[Na__LeSpComp__DECK_FIELD]; return; }
+        const kept = {};
+        Na__LeSpComp__DeckKeys().forEach((key) => {
+            if (typeof stored[key] !== 'boolean') return;
+            if (stored[key] === Na__LeSpComp__DeckDefault(key)) return;
+            kept[key] = stored[key];
+        });
+        if (Object.keys(kept).length) block[Na__LeSpComp__DECK_FIELD] = kept;
+        else delete block[Na__LeSpComp__DECK_FIELD];
+    }
+    // ---------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tidy a Shape's Hatch
+    // ---------------------------------------------------------------
+    // Shape__Hatch is { Hatch__PatternKey, Hatch__Scale, Hatch__RotationDeg },
+    // and it is kept ONLY when a pattern is actually named. A shape with the
+    // hatch switched off has no key at all, so every shape drawn before hatches
+    // existed - and every shape whose hatch is off - stays byte-identical on
+    // save, the same rule Viewport__SitePlan's hatch block follows.
+    //
+    // The pattern key is NOT checked against the library here. The record layer
+    // loads before the library does, and a key the library has not got yet must
+    // survive the round trip or opening a sheet on a slow connection would strip
+    // every hatch off it.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseShapeHatch(item) {
+        const block = item.Shape__Hatch;
+        if (!block || typeof block !== 'object' || typeof block.Hatch__PatternKey !== 'string' || !block.Hatch__PatternKey) {
+            delete item.Shape__Hatch;
+            return;
+        }
+        const out = { Hatch__PatternKey : block.Hatch__PatternKey };
+        if (Number.isFinite(block.Hatch__Scale)       && block.Hatch__Scale > 0) out.Hatch__Scale       = block.Hatch__Scale;
+        if (Number.isFinite(block.Hatch__RotationDeg))                           out.Hatch__RotationDeg = block.Hatch__RotationDeg;
+        if (typeof block.Hatch__Colour === 'string' && block.Hatch__Colour)      out.Hatch__Colour      = block.Hatch__Colour;
+        item.Shape__Hatch = out;
+    }
+    // ---------------------------------------------------------------
+
+
     // FUNCTION | Is This a Site Plan Viewport (Viewport__SitePlan)
     // ------------------------------------------------------------
     function Na__LeRec__IsSitePlanViewport(viewport) {
@@ -442,8 +552,11 @@
                 || !viewport.Viewport__SitePlan.SitePlan__StoreId) {
                 delete viewport.Viewport__SitePlan.SitePlan__StoreId;
             }
+            Na__LeRec__NormaliseSitePlanComposites(viewport);
+            Na__LeRec__NormaliseSitePlanHatches(viewport);
         } else {
             delete viewport.Viewport__SitePlan;
+            delete viewport[Na__LeHatch__FIELD];                                 // <-- A hatch has no meaning off a site plan viewport
         }
         // MODEL SOURCE | The design phase drawn: a model group's groupId, or null
         // for the Project Default (Na__LayoutEditor__ModelSource__). An id the
@@ -506,7 +619,8 @@
             whitecard         : pick('whitecard'),
             hiddenLines       : pick('hiddenLines'),
             enhanceWhitecard  : pick('enhanceWhitecard'),
-            contextLayer      : pick('contextLayer')
+            contextLayer      : pick('contextLayer'),
+            depthFog          : pick('depthFog')                                 // <-- "Show the drawing's own depth fog, if it has one". The fog itself is the DRAWING's (Elevation__DepthFog); this only lets one viewport show it bare
         };
         // PROJECTED EDGE STYLES and COMPOSITE WEIGHTS | Curation, stored only
         // where it happened. Both are null on a viewport nobody has curated,
@@ -642,6 +756,7 @@
         item.Shape__StrokePt = Na__LeRec__Num(item.Shape__StrokePt, setup.defaultStrokePt);
         if (typeof item.Shape__FillColour !== 'string') item.Shape__FillColour = null;
         item.Shape__FillOpacity   = Na__LeRec__Unit(item.Shape__FillOpacity, 1);         // <-- A record from before opacity was solid
+        Na__LeRec__NormaliseShapeHatch(item);                                             // <-- The repeating pattern over its fill, if it has one
         item.Shape__StrokeOpacity = Na__LeRec__Unit(item.Shape__StrokeOpacity, 1);
         item.Shape__Gradient = Na__LeGrad__Normalise(item.Shape__Gradient);              // <-- A fresh object or null: no two shapes ever hold the same gradient
         item.Shape__LineStyle = Na__LeDash__Normalise(item.Shape__LineStyle);            // <-- Likewise: null is a solid edge, and a record from before the toggle stays one

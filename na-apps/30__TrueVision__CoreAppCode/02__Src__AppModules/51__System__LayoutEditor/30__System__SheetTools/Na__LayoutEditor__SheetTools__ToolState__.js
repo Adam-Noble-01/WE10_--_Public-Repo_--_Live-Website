@@ -181,7 +181,8 @@
             Na__LeTools__ShapeDefaults = { strokeColour : s.defaultStrokeColour, strokePt : s.defaultStrokePt, fillColour : s.defaultFillColour, filled : s.defaultFilled, stroked : s.defaultStroked,
                                            fillOpacity : s.defaultFillOpacity, strokeOpacity : 1, atScale : s.defaultAtScale,   // <-- Draw at scale: the Vectors panel's first control
                                            gradientOn : Na__LeGrad__Defaults().on === true, gradient : Na__LeGrad__Create(),   // <-- The settings outlive the toggle, so switching it back on restores them
-                                           dashOn : Na__LeDash__Defaults().on === true, dash : Na__LeDash__Create() };
+                                           dashOn : Na__LeDash__Defaults().on === true, dash : Na__LeDash__Create(),
+                                           hatchOn : false, hatch : { Hatch__PatternKey : '', Hatch__Scale : 1, Hatch__RotationDeg : 0 } };   // <-- OFF by default, at Adam's request; the settings outlive the toggle
         }
         return Na__LeTools__ShapeDefaults;
     }

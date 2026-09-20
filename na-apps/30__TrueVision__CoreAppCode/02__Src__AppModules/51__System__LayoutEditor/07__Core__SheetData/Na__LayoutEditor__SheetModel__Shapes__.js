@@ -132,6 +132,7 @@
             Shape__FillColour   : (typeof opts.fillColour === 'string') ? opts.fillColour : null,
             Shape__Stroked      : opts.stroked !== false,
             Shape__FillOpacity  : opts.fillOpacity,                            // <-- Left out, or not 0 to 1: the normaliser makes it solid
+            Shape__Hatch        : (opts.hatch && typeof opts.hatch === 'object') ? opts.hatch : null,   // <-- The normaliser drops it unless it names a pattern
             Shape__StrokeOpacity: opts.strokeOpacity,
             Shape__Gradient     : (opts.gradient && typeof opts.gradient === 'object') ? opts.gradient : null,   // <-- The normaliser copies it, so the caller's object is never shared
             Shape__LineStyle    : (opts.dash && typeof opts.dash === 'object') ? opts.dash : null
@@ -152,6 +153,13 @@
         if (patch.dash !== undefined) item.Shape__LineStyle = (patch.dash && typeof patch.dash === 'object') ? patch.dash : null;                   // <-- null is a solid edge
         if (typeof patch.stroked === 'boolean') item.Shape__Stroked = patch.stroked;
         if (Number.isFinite(patch.fillOpacity))   item.Shape__FillOpacity   = patch.fillOpacity;
+        // MERGED, NOT REPLACED, so setting the scale leaves the pattern and the
+        // rotation alone. `null` is how the panel says "no hatch at all".
+        if (patch.hatch !== undefined) {
+            item.Shape__Hatch = (patch.hatch && typeof patch.hatch === 'object')
+                ? Object.assign({}, item.Shape__Hatch, patch.hatch)
+                : null;
+        }
         if (Number.isFinite(patch.strokeOpacity)) item.Shape__StrokeOpacity = patch.strokeOpacity;
         if (typeof patch.layerId === 'string') item.Shape__LayerId = patch.layerId;
         Na__LeRec__NormaliseShape(item, item.Shape__LayerId);

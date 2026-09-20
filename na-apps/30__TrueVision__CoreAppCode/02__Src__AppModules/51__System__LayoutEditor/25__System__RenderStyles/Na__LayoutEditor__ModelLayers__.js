@@ -37,6 +37,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 20-Sep-2026 - Version 1.4.0
+// - Group__AlwaysShow. A group whose rows are never a real loaded model
+//   category (the linework-modifiers group - see Na__DataLib__CoreIndex__Tags
+//   76-79) now lists its rows regardless, instead of being silently dropped
+//   by the "model did not load it" check every other group still gets.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Site plan layers. Groups lists a site plan viewport's layers under their
 //   export's own groups and labels, in draw order, ahead of any model groups.
@@ -261,11 +267,12 @@
         sitePlanGroups.forEach((rows, groupLabel) => groups.push({ id : 'siteplan-' + groupLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-'), label : groupLabel, layers : rows }));
 
         mapped.forEach((group) => {
-            const rows = [];
+            const rows       = [];
+            const alwaysShow = group['Group__AlwaysShow'] === true;               // <-- A style-only group (e.g. linework-modifiers): never a loaded category, list it anyway
             (group['Group__Layers'] || []).forEach((layer) => {
                 const key = layer['Layer__CategoryKey'];
-                if (!remaining.has(key)) return;                                  // <-- The model did not load it: it is not a choice
-                remaining.delete(key);
+                if (!alwaysShow && !remaining.has(key)) return;                   // <-- The model did not load it: it is not a choice
+                remaining.delete(key);                                            // <-- Harmless when absent; keeps an always-shown key out of "Other" if the model happens to carry it too
                 rows.push({
                     key   : key,
                     label : layer['Layer__Label'] || Na__LeModelLayers__Generated(key),

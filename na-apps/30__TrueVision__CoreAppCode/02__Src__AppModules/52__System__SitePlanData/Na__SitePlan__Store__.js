@@ -364,6 +364,7 @@
             LineType       : text(style.LineType, 'solid'),
             LineWeightMm   : num(style.LineWeightMm, 0.25),
             LineWeightPt   : num(style.LineWeightPt, null),                     // <-- What Adam authored; the mm above is the converted figure
+            LineDashScale  : num(style.LineDashScale, null),                    // <-- Shrinks this layer's dash pattern; null means the line type as drawn
             FillColourId   : text(style.FillColourId, null),
             FillMaterialId : text(style.FillMaterialId, null),                  // <-- A MAT id from the Materials SSOT
             FillHex        : text(style.FillHex, null),
