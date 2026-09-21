@@ -34,6 +34,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - A pattern may carry its OWN INK. Defaults__StrokeColour written as a hex is
+//   parsed into Pattern__Ink; 'inherit' (every pattern before this) parses to
+//   null and keeps taking the layer's line colour. The site plan build applies
+//   it, and a library swatch shows it. Wanted by the Grassland and Rough
+//   Grassland patterns, whose tags draw grey edges over green tufts.
+// - (1.1.0, recorded in the site plan composites plan ledger, added
+//   TilePolylines and DrawPdf without an entry here.)
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation. Library loading, pattern resolution, and SVG <pattern>
 //   generation for the site plan composite's middle deck.
@@ -166,6 +175,13 @@
             Pattern__Marks       : marks,
             Pattern__StrokeMm    : num(defaults.Defaults__StrokeMm, 0.18),
             Pattern__StrokeColour: typeof defaults.Defaults__StrokeColour === 'string' ? defaults.Defaults__StrokeColour : Na__LeHatch__INHERIT,
+            // THE PATTERN'S OWN INK, or null when it inherits the layer's.
+            // Resolved once here so no painter has to validate a colour string.
+            // Grass is the case that needs it: the Grassland tag draws its edges
+            // in the OS base map grey, so an inherited ink would paint grey
+            // tufts. Anything that is not a six-digit hex - 'inherit', a typo -
+            // is null, and the layer's line colour applies as it always did.
+            Pattern__Ink         : /^#[0-9a-fA-F]{6}$/.test(String(defaults.Defaults__StrokeColour || '')) ? defaults.Defaults__StrokeColour : null,
             Pattern__Opacity     : num(defaults.Defaults__Opacity, 1),
             Pattern__Scale       : num(defaults.Defaults__Scale, 1),
             Pattern__RotationDeg : num(defaults.Defaults__RotationDeg, 0),
@@ -663,7 +679,7 @@
     function Na__LeHatch__SwatchMarkup(pattern, widthPx, heightPx, colour) {
         if (!pattern) return '';
         const id  = 'na-le-hatch-swatch-' + Na__LeHatch__Esc(pattern.Pattern__Key);
-        const ink = colour || '#43A047';
+        const ink = pattern.Pattern__Ink || colour || '#43A047';                   // <-- A pattern with its own ink shows in it
         // 3 makes a tile read at tile size on a small chip without the glyphs
         // shrinking to nothing.
         const def = Na__LeHatch__PatternDef(id, pattern, { denominator : 3, scale : 1, rotationDeg : 0, colour : ink });

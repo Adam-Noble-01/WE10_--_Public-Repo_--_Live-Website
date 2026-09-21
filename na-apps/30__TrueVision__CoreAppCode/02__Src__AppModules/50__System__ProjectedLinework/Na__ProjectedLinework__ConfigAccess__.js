@@ -38,6 +38,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - GetStoreySetup answers the storey rule for plans: on unless the config
+//   says false, the category prefix that names a storey, the tolerance a
+//   line may sit under its storey's floor, and the annotation tokens kept to
+//   a plan's storey. The fallbacks carry all four, and the build token that
+//   re-projects every plan drawn with other storeys' swings on it.
+//
 // 18-Sep-2026 - Version 1.1.1
 // - GetAnnotationSetup answers the annotation category tokens and its Enabled
 //   flag (on unless the config says false). The fallbacks carry both, and the
@@ -109,13 +116,17 @@
         skipObjectNames         : ['OrbitHelperCube', 'Na__GridLine', 'Na__FogPlane', 'Na__Billboard', 'Na__ElevGizmo', 'DrawingCut__'],
         annotationEnabled       : true,
         annotationTokens        : ['Linetype__'],
+        storeysEnabled          : true,
+        storeyCategoryPrefix    : 'Storey__',
+        storeyFloorToleranceMm  : 500,
+        storeyAnnotationTokens  : ['Linetype__DoorSwings', 'Linetype__ClearanceLines'],
         lineworkModifiers       : [
             { TagName : '76__LineworkModifier__FineDetail__Walls',                  OwnerKey : 'TrueVision__LineworkModifier__FineDetail' },
             { TagName : '77__LineworkModifier__FineDetail__WindowsAndJoinery',      OwnerKey : 'TrueVision__LineworkModifier__FineDetail' },
             { TagName : '78__LineworkModifier__VeryFineDetail__Walls',              OwnerKey : 'TrueVision__LineworkModifier__VeryFineDetail' },
             { TagName : '79__LineworkModifier__VeryFineDetail__WindowsAndJoinery',  OwnerKey : 'TrueVision__LineworkModifier__VeryFineDetail' }
         ],
-        buildToken              : '2026-09-20-linework-modifiers-3',
+        buildToken              : '2026-09-21-storey-swings',
         transparentOccludes     : false,
         transparentOpacityBelow : 0.999,
         appearance              : {
@@ -388,6 +399,29 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Get the Storey Rule for Plans
+    // ------------------------------------------------------------
+    // A plan draws the door swings, and the storey-bound annotation, of the
+    // storey its cut passes through and no other. categoryPrefix names a
+    // storey's category groups (Storey__<Key>__<Element>, as the storey toggle
+    // reads them); floorToleranceMm is how far under its storey's measured
+    // floor a line may sit and still belong to it; annotationTokens pick the
+    // annotation categories kept to a storey - the ones drawn flat on a floor.
+    // ------------------------------------------------------------
+    function Na__PlCfg__GetStoreySetup() {
+        const F      = Na__PlCfg__FALLBACKS;
+        const prefix = Na__PlCfg__Val('Storeys', 'CategoryPrefix', F.storeyCategoryPrefix);
+        const tokens = Na__PlCfg__Val('Storeys', 'AnnotationTokens', null);
+        return {
+            enabled          : Na__PlCfg__Val('Storeys', 'Enabled', F.storeysEnabled) !== false,
+            categoryPrefix   : (typeof prefix === 'string' && prefix.length > 0) ? prefix : F.storeyCategoryPrefix,
+            floorToleranceMm : Math.max(0, Na__PlCfg__Num('Storeys', 'FloorToleranceMm', F.storeyFloorToleranceMm)),
+            annotationTokens : Array.isArray(tokens) ? tokens.slice() : F.storeyAnnotationTokens.slice()
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Get the Nested Linework Modifier Tags (SSOT 76-79 range)
     // ------------------------------------------------------------
     // Each row is { TagName, OwnerKey }: TagName is the exact nested SketchUp
@@ -451,6 +485,7 @@
         Na__PlCfg__GetDefaultExclusionTokens,
         Na__PlCfg__GetSkipObjectNames,
         Na__PlCfg__GetAnnotationSetup,
+        Na__PlCfg__GetStoreySetup,
         Na__PlCfg__GetLineworkModifiers,
         Na__PlCfg__GetModelSetup,
         Na__PlCfg__GetLabel

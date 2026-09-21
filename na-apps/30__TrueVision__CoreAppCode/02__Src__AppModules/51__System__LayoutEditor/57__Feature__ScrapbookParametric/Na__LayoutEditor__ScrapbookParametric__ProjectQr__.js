@@ -62,6 +62,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - The handset in the Scan Me button is a modern smartphone: a slimmer,
+//   taller body (4.6 mm, was 4.0) with rounder corners and a filled Dynamic
+//   Island pill at the top, in place of the bar across the foot of a squat
+//   box that did not read as a phone. Still two records, in the same slots.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - The type is set properly. Every gap in this block is a BASELINE TO
 //   BASELINE distance, and the first numbers were chosen as though they were
@@ -124,7 +130,7 @@
         ButtonTextWeight    : 600,
         ButtonTextColour    : '#172b3a',
         ButtonIconWidthMm   : 2.4,
-        ButtonIconHeightMm  : 4.0,
+        ButtonIconHeightMm  : 4.6,
         ButtonIconGapMm     : 2.0,
         ButtonIconStrokePt  : 0.6,
 
@@ -393,19 +399,32 @@
 
     // HELPER FUNCTION | The Phone Glyph Inside the Button
     // ------------------------------------------------------------
-    // Two records: the handset, a rounded rectangle, and the bar across its
-    // foot. Drawn from the top left of its own box. It is what tells somebody
-    // who has never met a QR code what the square beside it is for, which is
-    // the whole point of the button.
+    // Two records: the handset, a slim rounded rectangle, and the Dynamic
+    // Island - a filled pill across the top of the screen. Drawn from the top
+    // left of its own box. It is what tells somebody who has never met a QR
+    // code what the square beside it is for, which is the whole point of the
+    // button.
+    //
+    // IT HAS TO READ AS THE PHONE IN THEIR POCKET. The first glyph was a
+    // squat box with a bar across its foot, and at 4 mm that could as well
+    // have been a door, a battery or a tablet (Adam, 21-Sep-2026: "a bit too
+    // ambiguous"). A body about half as wide as it is tall, corners rounded
+    // well past a rectangle's, and the pill at the top are the three things
+    // every current phone shares. Every size in it is a fraction of the
+    // width, so a wider or narrower handset in the config keeps its look.
+    //
+    // STILL TWO RECORDS, AND IN THE SAME ORDER, so a block already on a sheet
+    // rebuilds into the slots it has. The pill writes every key the old bar
+    // did, so nothing of the bar is left behind in the record.
     // ------------------------------------------------------------
     function Na__LeParamQr__PhoneGlyph(config, x, y, widthMm, heightMm) {
         const colour   = Na__LeParamQr__Text(config, 'ButtonTextColour');
         const strokePt = Na__LeParamQr__Number(config, 'ButtonIconStrokePt');
-        const barY     = y + heightMm - (heightMm * 0.22);
-        const inset    = widthMm * 0.22;
+        const islandW  = widthMm * 0.42;
+        const islandH  = widthMm * 0.15;
         return [
             { kind : 'shape', record : {
-                Shape__Points       : Na__LeParamQr__RoundedRect(x, y, widthMm, heightMm, widthMm * 0.22),
+                Shape__Points       : Na__LeParamQr__RoundedRect(x, y, widthMm, heightMm, widthMm * 0.29),
                 Shape__Closed       : true,
                 Shape__Stroked      : true,
                 Shape__StrokeColour : colour,
@@ -413,12 +432,12 @@
                 Shape__FillColour   : null
             } },
             { kind : 'shape', record : {
-                Shape__Points       : [ [ x + inset, barY ], [ x + widthMm - inset, barY ] ],
-                Shape__Closed       : false,
-                Shape__Stroked      : true,
+                Shape__Points       : Na__LeParamQr__RoundedRect(x + ((widthMm - islandW) / 2), y + (widthMm * 0.18), islandW, islandH, islandH / 2),
+                Shape__Closed       : true,
+                Shape__Stroked      : false,                                  // <-- A solid pill, no rule round it: a 0.2 mm rule would swallow a 0.36 mm shape
                 Shape__StrokeColour : colour,
                 Shape__StrokePt     : strokePt,
-                Shape__FillColour   : null
+                Shape__FillColour   : colour
             } }
         ];
     }

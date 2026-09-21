@@ -48,6 +48,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - Storeys. BuildOptions carries the storey rule (Storeys: the category
+//   prefix, the floor tolerance in scene units and the annotation tokens kept
+//   to a plan's storey), null for an explicit backend override or while the
+//   config switches it off. Collect measures the building's floors from where
+//   each storey's doors stand, before the doors are posed, and keeps them on
+//   the collection (Storeys) for the swings and the annotation of each plan -
+//   whatever the options, and whether the rule is on or off, as the collection
+//   may be reused by another render. The door pose is applied with the
+//   drawing's cut, so a plan stands open only its own storey's doors.
+//
 // 18-Sep-2026 - Version 1.4.1
 // - BuildOptions carries AnnotationCategoryTokens. Empty for an explicit
 //   backend override, with the other 3D-matching rules, so a Diff still
@@ -109,7 +120,8 @@
     import {
         Na__PlCfg__GetProjectionSetup,
         Na__PlCfg__GetPerformanceSetup,
-        Na__PlCfg__GetAnnotationSetup
+        Na__PlCfg__GetAnnotationSetup,
+        Na__PlCfg__GetStoreySetup
     } from './Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__ProjectedLinework__Scheduler__DriveGenerator } from './Na__ProjectedLinework__Scheduler__.js';
     import {
@@ -123,7 +135,7 @@
         Na__PlSampler__CountTriangles
     } from './Na__ProjectedLinework__StageSampler__.js';
     import { Na__PlAuthored__Collect } from './Na__ProjectedLinework__AuthoredEdges__.js';
-    import { Na__PlDoors__Apply, Na__PlDoors__PutBack, Na__PlDoors__SwingEdges } from './Na__ProjectedLinework__DoorPose__.js';
+    import { Na__PlDoors__Apply, Na__PlDoors__PutBack, Na__PlDoors__SwingEdges, Na__PlDoors__Storeys } from './Na__ProjectedLinework__DoorPose__.js';
     import {
         Na__PlCpu__PrepareIntersections,
         Na__PlCpu__ProjectView
@@ -274,6 +286,7 @@
         const projection  = Na__PlCfg__GetProjectionSetup();
         const performance = Na__PlCfg__GetPerformanceSetup();
         const annotation  = Na__PlCfg__GetAnnotationSetup();
+        const storeys     = Na__PlCfg__GetStoreySetup();
         const requested   = backendOverride || performance.backend || Na__PlProjector__BACKEND_AUTO;
         const backend     = Na__PlProjector__ResolveBackend(requested, definition, !!backendOverride);   // <-- An explicit override is the Diff harness: a render nothing keeps
 
@@ -299,7 +312,22 @@
             IntersectionMaxPairs     : projection.intersectionMaxPairs,
             IntersectionSelfMaxTriangles : projection.intersectionSelfMaxTriangles,
             NeedsIntersectionEdges   : backend === Na__PlProjector__BACKEND_CPU && projection.includeIntersectionEdges,
-            AnnotationCategoryTokens : (!backendOverride && annotation.enabled) ? annotation.categoryTokens : []   // <-- Linetype linework: drawn as tagged, neither cut nor clipped
+            AnnotationCategoryTokens : (!backendOverride && annotation.enabled) ? annotation.categoryTokens : [],  // <-- Linetype linework: drawn as tagged, neither cut nor clipped
+            Storeys                  : (!backendOverride && storeys.enabled) ? Na__PlProjector__StoreyRule(storeys) : null   // <-- A plan draws one storey's swings: the one its cut passes through
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Storey Rule in the Units the Engine Reads
+    // ------------------------------------------------------------
+    // storeys is Na__PlCfg__GetStoreySetup(). Scene units are metres.
+    // ------------------------------------------------------------
+    function Na__PlProjector__StoreyRule(storeys) {
+        return {
+            CategoryPrefix   : storeys.categoryPrefix,
+            ToleranceUnits   : storeys.floorToleranceMm * Na__PlProjector__SCALE_DIVISOR,
+            AnnotationTokens : storeys.annotationTokens
         };
     }
     // ------------------------------------------------------------
@@ -315,21 +343,31 @@
     // ------------------------------------------------------------
     // Cached by the pipeline per model state and collection key. Everything
     // here is independent of the cut: the instance list, the authored edges,
-    // the primed bounds trees, and (lazily) the intersection lines.
+    // the building's floors, the primed bounds trees, and (lazily) the
+    // intersection lines.
     // ------------------------------------------------------------
     async function Na__PlProjector__Collect(modelRoot, definition, options, onPhase) {
         if (typeof onPhase === 'function') onPhase(Na__PlProjector__PHASE_COLLECTING);
         const startedAt = performance.now();
 
+        // THE BUILDING'S FLOORS, measured where each storey's doors stand, before
+        // anything is posed. A property of the model, like the owner table, so
+        // measured for every collection whatever the options - a Diff's leave the
+        // rule off, and so does a session switch, but either may build the
+        // collection a later kept render reuses. A render applies them only when
+        // its options carry the rule, only on a plan, and only with two storeys.
+        const storeys = Na__PlDoors__Storeys(modelRoot, Na__PlProjector__StoreyRule(Na__PlCfg__GetStoreySetup()));
+
         // DOORS STAND WHERE THE DRAWING WANTS THEM, for this read only. A Layout
-        // Editor plan carries a door pose: every door open bar the ones its
-        // viewport closed. An elevation or section carries the shut pose: every
-        // door shut. Posed, read and put back in one synchronous run, so no
+        // Editor plan carries a door pose: every door of the storey its cut
+        // passes through open, bar the ones its viewport closed, and every other
+        // storey's doors shut. An elevation or section carries the shut pose:
+        // every door shut. Posed, read and put back in one synchronous run, so no
         // frame and no other reader ever sees a door the 3D view did not move -
         // and put back exactly where they stood, so a read that lands between
         // the tiles of an underlay render leaves that render's pose standing.
         const doorPose = definition.DoorPose || null;
-        const posed    = doorPose ? Na__PlDoors__Apply(modelRoot, doorPose) : null;
+        const posed    = doorPose ? Na__PlDoors__Apply(modelRoot, doorPose, definition.Cut) : null;
         let   collected;
         try {
             collected = Na__PlSampler__Collect(modelRoot, {
@@ -352,6 +390,7 @@
         } finally {
             Na__PlDoors__PutBack(posed);                                         // <-- Exactly where they stood, whatever the read did
         }
+        collected.Storeys           = storeys;
         collected.IntersectionEdges = new Float64Array(0);
         collected.IntersectionOwners = new Uint16Array(0);
         collected.HasIntersections  = false;

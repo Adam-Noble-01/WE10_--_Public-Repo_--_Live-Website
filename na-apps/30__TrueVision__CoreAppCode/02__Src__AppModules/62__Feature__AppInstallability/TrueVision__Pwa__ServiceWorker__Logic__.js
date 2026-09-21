@@ -34,6 +34,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.10
+// - Token bumped (2026-09-21-02) for the storey band on plans (v2.105.0).
+//   A new module, 50__System__ProjectedLinework/Na__ProjectedLinework__Storeys__,
+//   and new exports that existing modules now import across files:
+//   Na__PlCfg__GetStoreySetup (ConfigAccess, imported by DoorPose and the
+//   Projector) and Na__PlDoors__Storeys (DoorPose, imported by the Projector).
+//   HEAD's 2026-09-21-01 is not pushed yet, but this work is not committed
+//   with it and may ship in a later push, so it takes a bump of its own
+//   (agreed with the Floor Areas session, which stays at v2.106.0 and checks
+//   the token against HEAD again at its own commit).
+//
 // 21-Sep-2026 - Version 1.9.9
 // - The token already reads 2026-09-21-01, bumped earlier today for the
 //   Project Portal block; the deployed one is still 2026-09-20-14 (HEAD), so
@@ -275,7 +286,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-21-01';                                                                   // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-21-02';                                                                   // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

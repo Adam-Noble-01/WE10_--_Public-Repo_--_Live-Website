@@ -58,7 +58,8 @@
 <script type="module">
 
     const BASE = '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/';
-    const { Na__LeStmtFig__Read, Na__LeStmtFig__Justify, Na__LeStmtFig__Uncrop, Na__LeStmtFig__BuildCrop }
+    const { Na__LeStmtFig__Read, Na__LeStmtFig__Justify, Na__LeStmtFig__Uncrop, Na__LeStmtFig__BuildCrop,
+            Na__LeStmtFig__Dress }
         = await import(BASE + '04__Ui__Editor/Na__LayoutEditor__Statement__Editor__Figure__.js');
     const { Na__LeStmtMd__Tokenise, Na__LeStmtMd__Join }
         = await import(BASE + '02__Core__Markdown/Na__LayoutEditor__Statement__Md__Tokenise__.js');
@@ -168,6 +169,47 @@
     ok('keeping the size the crop gave it', /width:\s*160\.00mm/.test(back), back);
     check('and still centred', Na__LeStmtFig__Read(back).Justify, 'centre');
     check('and no longer cropped', String(Na__LeStmtFig__Read(back).Cropped), 'false');
+
+    // ------------------------------------------- the frame as a class (2026-09-21)
+    // THE FRAME MOVED OUT OF THE MARKUP AND INTO THE STYLESHEET. A figure now
+    // says class="na-figure" and the border and the shadow are drawn by
+    // Na__LayoutEditor__Styles__Statement__Document__.css. The thing that can
+    // go wrong is the crop: the frame is the element with an edge, so the
+    // class has to move OUT onto it and back IN again, and neither step may
+    // invent an inline border to make up for it.
+    say('A figure that wears its frame as a class');
+
+    const CLASSED = '<img class="na-figure" src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png" '
+                  + 'style="zoom: 30%;" />';
+
+    const worn = Na__LeStmtFig__Dress(CLASSED);
+    check('the class is read off the picture', worn.Class, 'na-figure');
+    check('and no inline border is imagined', String(worn.Border), 'null');
+
+    const classedCentre = Na__LeStmtFig__Justify(CLASSED, 'centre');
+    ok('justifying keeps the class', /class="na-figure"/.test(classedCentre), classedCentre);
+    ok('and still writes no border', !/border\s*:/.test(classedCentre), classedCentre);
+
+    const classedCrop = Na__LeStmtFig__BuildCrop(
+        Na__LeStmtFig__Read(CLASSED).Src, rect, shown, worn, 'centre');
+    say('  ' + classedCrop.replace(/\n/g, '\n  '));
+    ok('the FRAME wears the class after a crop', /^<div class="na-figure"/.test(classedCrop), classedCrop);
+    ok('and the picture inside does NOT',
+       !/<img[^>]*class="na-figure"/.test(classedCrop), classedCrop);
+    ok('and nothing invented an inline border', !/border\s*:/.test(classedCrop), classedCrop);
+    ok('the frame is still sized by its content box',
+       /box-sizing:\s*content-box/.test(classedCrop), classedCrop);
+
+    const classedBack = Na__LeStmtFig__Uncrop(classedCrop, 'centre');
+    say('  ' + classedBack);
+    ok('uncropping gives the class back to the picture',
+       /^<img class="na-figure"/.test(classedBack.trim()), classedBack);
+    ok('and leaves no frame behind', !/^<div/.test(classedBack.trim()), classedBack);
+    ok('and still writes no inline border', !/border\s*:/.test(classedBack), classedBack);
+
+    ok('a cropped classed figure is still exactly ONE html block',
+       Na__LeStmtMd__Tokenise('Before.\n\n' + classedCrop + '\n\nAfter.\n')
+           .filter((b) => b.Kind === 'html').length === 1);
 
     // ------------------------------------------------- a figure with no style
     say('A picture with no style at all');

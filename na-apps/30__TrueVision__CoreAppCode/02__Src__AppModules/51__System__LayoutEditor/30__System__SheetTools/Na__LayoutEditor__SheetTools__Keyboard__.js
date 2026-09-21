@@ -19,7 +19,7 @@
 //   editing, Delete removes, the arrows nudge the selection or lock the axis
 //   a point is being placed on or a vertex dragged along (AxisKey), the tool
 //   keys pick a tool or arm the eyedropper,
-//   the snap key toggles snapping, Ctrl+Z and Ctrl+Y step the history (or a
+//   the snap key toggles snapping, K toggles Draft mode, Ctrl+Z and Ctrl+Y step the history (or a
 //   polyline's vertices), and Ctrl+C, Ctrl+V, Ctrl+D, Ctrl+G and
 //   Ctrl+Shift+G run the clipboard and groups.
 // - DeleteSelection removes the selection (a viewport asks first) and Nudge
@@ -46,6 +46,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0
+// - View__DraftToggle (K) switches Draft mode (Na__LayoutEditor__DraftMode__):
+//   only the viewports' vector linework, hairlines, no fills, no raster
+//   pictures. A view, not a tool: the tool, the selection and any point half
+//   placed are left alone. A held K counts once.
+//
 // 17-Sep-2026 - Version 1.6.0
 // - AxisKey also locks the axis of a WHOLE-OBJECT MOVE, so the Move tool's drag
 //   constrains to X or Y on the arrow keys exactly as a vertex drag does - and
@@ -134,6 +140,7 @@
     import { Na__LeDrop__Clear, Na__LeDrop__HasSource } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeAxis__AXIS_X, Na__LeAxis__AXIS_Y, Na__LeAxis__Toggle } from './Na__LayoutEditor__AxisLock__.js';
     import { Na__LeOsnap__Toggle } from './Na__LayoutEditor__Snapping__.js';
+    import { Na__LeDraft__Toggle } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
     import { Na__LeVpMove__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeClip__RunKeyAction } from './Na__LayoutEditor__ItemClipboard__.js';
     import { Na__LeGroup__Expand, Na__LeGroup__Group, Na__LeGroup__Ungroup } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
@@ -496,6 +503,17 @@
             case 'Tool__Eyedropper': Na__LeTools__ArmEyedropper();                      return;
             case 'Tool__EyedropperPalette': Na__LeTools__ArmPalette();                  return;
             case 'Snap__Toggle':     Na__LeOsnap__Toggle(); event.preventDefault(); return;
+            // DRAFT MODE IS A VIEW, NOT A TOOL. K switches it (SketchUp LayOut's
+            // key) without touching the tool, the selection or a point half
+            // placed, so it can be pressed in the middle of drawing a room to
+            // get round a heavy sheet and pressed again to see it whole. A held
+            // K repeats; only the first press counts, or the sheet would flicker.
+            // ------------------------------------
+            case 'View__DraftToggle':
+                event.preventDefault();
+                if (event.repeat) return;
+                Na__LeDraft__Toggle();
+                return;
             case 'Edit__Undo':
                 if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__UndoVertex(sheet); Na__LeMeasure__Refresh(); return; }
                 if (Na__LeRect__IsDrawing()) { event.preventDefault(); Na__LeRect__Cancel(); Na__LeMeasure__Refresh(); return; }   // <-- A rubber box is not a record yet: undo it the way Escape does

@@ -1,0 +1,204 @@
+/* =============================================================================
+   TRUEVISION3D - LAYOUT EDITOR - DRAFT MODE - STYLES
+   =============================================================================
+
+   FILE    : Na__LayoutEditor__Styles__DraftMode__.css
+   PURPOSE : The whole look of Draft mode (K): only the viewports' vector
+             linework, every line on the paper a hairline in its own colour,
+             no dashes, no fills, and no raster picture drawn anywhere.
+   CREATED : 21-Sep-2026
+   AUTHOR  : Adam Noble - Noble Architecture
+
+   NOTES:
+   - Every rule is keyed on body.na-le-draft, which Na__LayoutEditor__DraftMode__
+     puts on and takes off. Nothing here applies outside Draft.
+   - WHY A STYLESHEET. Strokes and fills on the paper are SVG presentation
+     ATTRIBUTES, and any author rule outranks an attribute, so Draft restyles
+     the paper without rebuilding one line of markup or repainting one
+     linework string - and the PDF, which never reads the screen, cannot see
+     any of it.
+   - THE HAIRLINE. vector-effect: non-scaling-stroke measures a width in the
+     SVG's own CSS pixels, whatever its viewBox (paper mm for the sheet,
+     drawing mm for a viewport). The paper's zoom is a CSS transform above the
+     SVGs, which it does not undo, so --na-le-draft-hairline is written by the
+     module as HairlineDevicePx / (zoom x devicePixelRatio): one device pixel.
+   - Selectors name the paper's SVGs by class, never by position: the sheet's
+     markup is several svg.na-le-paper__markup (the selection highlights are
+     the last, .na-le-paper__highlights, and keep their own look), the border
+     and title block are svg.na-le-paper__chrome.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Raster Layers: Not Drawn At All
+   -----------------------------------------------------------------------------
+   display:none, not visibility or opacity: an element that is not displayed is
+   not painted and not composited, so a base image, a depth fog or a 3D picture
+   costs the browser nothing while Draft is on. The pictures stay in their
+   elements, so switching Draft off shows them again at once. (No new one is
+   RENDERED meanwhile either - the viewport modules refuse to book one.)
+   ----------------------------------------------------------------------------- */
+
+    body.na-le-draft .na-le-frame__underlay,
+    body.na-le-draft .na-le-frame__fog,
+    body.na-le-draft .na-le-frame__snapshot {
+        display                            : none !important;
+    }
+
+    /* Images placed on the sheet - a logo in the title block, a picture -
+       are rasters too. */
+    body.na-le-draft .na-le-paper__markup image,
+    body.na-le-draft .na-le-paper__chrome image,
+    body.na-le-draft .na-le-paper__focus image,
+    body.na-le-draft .na-le-frame__markup-svg image {
+        display                            : none !important;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Viewports' Linework: Hairlines in Their Own Colours
+   -----------------------------------------------------------------------------
+   Every band keeps its stroke colour. The width, the dash (hidden lines) and
+   the round caps go - LayOut's Draft drops line weights and dashes for the
+   same reason: a dash is the most expensive stroke there is to rasterise.
+   ----------------------------------------------------------------------------- */
+
+    body.na-le-draft .na-le-frame__linework-svg path {
+        fill                               : none !important;
+        stroke-width                       : var(--na-le-draft-hairline, 1px) !important;
+        stroke-dasharray                   : none !important;
+        vector-effect                      : non-scaling-stroke;
+    }
+
+    /* A site plan viewport's washes and hatch decks are fill-only paths in
+       the same SVG. They are not lines, and their rings are the layer's own
+       linework anyway, so they are not drawn at all. */
+    body.na-le-draft .na-le-frame__linework-svg path[stroke="none"] {
+        display                            : none !important;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Sheet's Drawn Elements: Hairlines, No Fills, No Dashes
+   -----------------------------------------------------------------------------
+   Vectors, rooms, dimensions, leaders, annotations, the notes margin, the
+   border and title block, and a viewport's scene markup. Text is a <text>
+   element painted with fill and is deliberately not in these lists, so every
+   word stays exactly as it was.
+   ----------------------------------------------------------------------------- */
+
+    body.na-le-draft .na-le-paper__markup:not(.na-le-paper__highlights) :is(path, rect, line, polyline, polygon, circle, ellipse),
+    body.na-le-draft .na-le-paper__chrome :is(path, rect, line, polyline, polygon, circle, ellipse),
+    body.na-le-draft .na-le-paper__focus :is(path, rect, line, polyline, polygon, circle, ellipse),
+    body.na-le-draft .na-le-frame__markup-svg :is(path, rect, line, polyline, polygon, circle, ellipse) {
+        fill                               : none !important;
+        stroke-width                       : var(--na-le-draft-hairline, 1px) !important;
+        stroke-dasharray                   : none !important;
+        vector-effect                      : non-scaling-stroke;
+    }
+
+    /* A SHAPE THAT HAD ONLY A FILL has no line of its own to keep - a
+       leader's dot, a bubble's wash, a room with its outline switched off, a
+       dimension's text mask, the notes margin's mask - so with fills gone it
+       would vanish. It is outlined in the draft ink instead (config
+       Lines__FillOnlyInk), so it is still there to see and to aim at. */
+    body.na-le-draft .na-le-paper__markup:not(.na-le-paper__highlights) :is(path, rect, polyline, polygon, circle, ellipse):is([stroke="none"], :not([stroke])),
+    body.na-le-draft .na-le-paper__chrome :is(path, rect, polyline, polygon, circle, ellipse):is([stroke="none"], :not([stroke])),
+    body.na-le-draft .na-le-paper__focus :is(path, rect, polyline, polygon, circle, ellipse):is([stroke="none"], :not([stroke])),
+    body.na-le-draft .na-le-frame__markup-svg :is(path, rect, polyline, polygon, circle, ellipse):is([stroke="none"], :not([stroke])) {
+        stroke                             : var(--na-le-draft-fill-ink, #7a8591) !important;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Aliased Hairlines (config Lines__Smooth false)
+   ----------------------------------------------------------------------------- */
+
+    body.na-le-draft.na-le-draft--crisp .na-le-frame__linework-svg path,
+    body.na-le-draft.na-le-draft--crisp .na-le-paper__markup:not(.na-le-paper__highlights) :is(path, rect, line, polyline, polygon, circle, ellipse),
+    body.na-le-draft.na-le-draft--crisp .na-le-paper__chrome :is(path, rect, line, polyline, polygon, circle, ellipse),
+    body.na-le-draft.na-le-draft--crisp .na-le-paper__focus :is(path, rect, line, polyline, polygon, circle, ellipse),
+    body.na-le-draft.na-le-draft--crisp .na-le-frame__markup-svg :is(path, rect, line, polyline, polygon, circle, ellipse) {
+        shape-rendering                    : crispEdges !important;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | A Viewport With Nothing to Draw in Draft
+   -----------------------------------------------------------------------------
+   A raster-only 2D viewport (Projected Linework off) and every 3D viewport are
+   pictures and nothing else, so in Draft they show as their outline and a note
+   - LayOut's "Disable Raster-Rendered Object Drawing". Sized in screen pixels
+   through --na-le-draft-inv-zoom, so they read the same at any zoom. The
+   module marks the raster-only 2D frame body (na-le-frame__body--raster-only)
+   on every Fill.
+   ----------------------------------------------------------------------------- */
+
+    body.na-le-draft .na-le-frame__body--raster-only,
+    body.na-le-draft .na-le-frame--3d .na-le-frame__body {
+        outline                            : calc(1px * var(--na-le-draft-inv-zoom, 1)) dashed var(--na-le-draft-fill-ink, #7a8591);
+        outline-offset                     : calc(-1px * var(--na-le-draft-inv-zoom, 1));
+    }
+
+    body.na-le-draft .na-le-frame__body--raster-only::after,
+    body.na-le-draft .na-le-frame--3d .na-le-frame__body::after {
+        content                            : var(--na-le-draft-raster-note, "Raster only - not drawn in Draft (K)");
+        position                           : absolute;
+        left                               : 0;
+        top                                : 0;
+        padding                            : 4px 8px;
+        font-family                        : 'Open Sans', Helvetica, Arial, sans-serif;
+        font-size                          : 11px;
+        line-height                        : 1.3;
+        color                              : #6c757d;
+        white-space                        : nowrap;
+        pointer-events                     : none;
+        transform                          : scale(var(--na-le-draft-inv-zoom, 1));
+        transform-origin                   : left top;
+    }
+
+    body.na-le-draft .na-le-frame--3d .na-le-frame__body::after {
+        content                            : var(--na-le-draft-3d-note, "3D picture - not drawn in Draft (K)");
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Navigation: What the Browser Redraws While You Move
+   -----------------------------------------------------------------------------
+   - The paper's drop shadow is a large blur, rasterised again at every zoom
+     step; in Draft a hairline edge marks the sheet instead.
+   - The stage is hinted as a composited scroller, so a pan moves pixels
+     already drawn rather than painting them again.
+   - WHILE A ZOOM GESTURE IS UNDER WAY (na-le-draft--moving, put on by the
+     module on the first step and taken off RedrawDelayMs after the last) the
+     paper is held as one composited layer: each step scales the picture
+     already drawn instead of rasterising the whole sheet again. When the
+     wheel rests the hold comes off and the sheet is drawn once, crisp, at
+     its new zoom - LayOut's Pan and Zoom Redraw Delay.
+   ----------------------------------------------------------------------------- */
+
+    body.na-le-draft .na-le-paper {
+        box-shadow                         : none !important;
+        outline                            : calc(1px * var(--na-le-draft-inv-zoom, 1)) solid rgba(23, 43, 58, 0.22);
+    }
+
+    body.na-le-draft .na-le-stage {
+        will-change                        : scroll-position;
+    }
+
+    body.na-le-draft.na-le-draft--moving .na-le-paper {
+        will-change                        : transform;
+    }
+
+/* endregion ------------------------------------------------------------------- */

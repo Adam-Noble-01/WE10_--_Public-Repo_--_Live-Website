@@ -2,7 +2,7 @@
     "HatchPattern__MixedWoodland__Meta": {
         "Meta__FileName"        : "Na__HatchPattern__SitePlan__MixedWoodland__.json",
         "Meta__Description"     : "Mixed woodland - conifer and broadleaf tree glyphs scattered on a repeating tile, in the Ordnance Survey manner. Drawn as an AREA texture, not as individual surveyed canopies: it says 'this is woodland', it does not say where each tree is.",
-        "Meta__Version"         : "1.0.0",
+        "Meta__Version"         : "1.0.1",
         "Meta__Created"         : "20-Sep-2026",
         "Meta__Author"          : "Adam Noble - Noble Architecture",
 
@@ -71,7 +71,8 @@
         { "Place__Glyph": "Conifer",   "Place__XMm": 13.2, "Place__YMm": 14.2, "Place__Note": "Row 3" },
         { "Place__Glyph": "Broadleaf", "Place__XMm": 2.0,  "Place__YMm": 15.0, "Place__Note": "Row 3, left" },
         { "Place__Glyph": "Broadleaf", "Place__XMm": 7.4,  "Place__YMm": 17.8, "Place__Note": "Straddles the bottom edge, so it knits to the tile below" },
-        { "Place__Glyph": "Conifer",   "Place__XMm": 17.4, "Place__YMm": 17.6, "Place__Note": "Straddles the corner, so it knits both ways" }
+        { "Place__Glyph": "Conifer",   "Place__XMm": 17.4, "Place__YMm": 17.6, "Place__Note": "Straddles the right edge: its arms reach 0.55 mm past it" },
+        { "Place__Glyph": "Conifer",   "Place__XMm": -0.6, "Place__YMm": 17.6, "Place__Note": "Its other half, one tile to the left, so the two meet exactly across the seam. Without it the browser clipped the three right-hand arms of this conifer in every wood, while the PDF printed them whole (21-Sep-2026)" }
     ],
 
     "HatchPattern__MixedWoodland__Bounds": {

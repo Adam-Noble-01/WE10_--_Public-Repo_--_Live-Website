@@ -29,6 +29,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.13.0
+// - Draft: a toggle after Notes switches Draft mode (K,
+//   Na__LayoutEditor__DraftMode__) and is lit while it is on. Its words come
+//   from the draft config and are re-read on every sync, because that config
+//   can land after the toolbar is built.
+//
 // 19-Sep-2026 - Version 1.12.0
 // - The sheet's name on the toolbar is what its tab reads
 //   (Na__LeModel__GetTabLabel, "D03 - 3D Images"): the register's short code,
@@ -119,6 +125,7 @@
     import { Na__LeSurface__ZOOM_EVENT, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LePdf__ExportSheet } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';
     import { Na__LeRaster__LEVELS, Na__LeRaster__CHANGED_EVENT, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
+    import { Na__LeDraft__CHANGED_EVENT, Na__LeDraft__IsOn, Na__LeDraft__Toggle, Na__LeDraft__Label } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -176,6 +183,18 @@
         });
         const snap = Na__LeToolbar__Root.querySelector('[data-na-toolbar="snap"]');
         if (snap) { snap.classList.toggle('na-le-toolbar__btn--active', Na__LeOsnap__IsEnabled()); snap.setAttribute('aria-pressed', String(Na__LeOsnap__IsEnabled())); }
+        const draft = Na__LeToolbar__Root.querySelector('[data-na-toolbar="draft"]');
+        if (draft) {
+            draft.classList.toggle('na-le-toolbar__btn--active', Na__LeDraft__IsOn());
+            draft.setAttribute('aria-pressed', String(Na__LeDraft__IsOn()));
+            // THE WORDS ARE RE-READ because the draft config may land after the
+            // toolbar is built - and written only when they differ, because this
+            // sync runs on every zoom step.
+            const text  = Na__LeDraft__Label('Toggle', 'Draft');
+            const title = Na__LeDraft__Label('ToggleTitle', 'Draft mode (K): only the vector linework, every line a hairline, no fills and no raster pictures.');
+            if (draft.textContent !== text) draft.textContent = text;
+            if (draft.title !== title) draft.title = title;
+        }
         const undo = Na__LeToolbar__Root.querySelector('[data-na-toolbar="undo"]');
         if (undo) undo.disabled = !Na__LeHist__CanUndo();
         const redo = Na__LeToolbar__Root.querySelector('[data-na-toolbar="redo"]');
@@ -305,6 +324,10 @@
                 const sheet = Na__LeModel__GetActiveSheet();
                 if (sheet) Na__LeModel__UpdateMarginNotes(sheet, { enabled : Na__LeRec__MarginNotes(sheet).Enabled !== true });
             }));
+            // DRAFT | K, as in LayOut: a view of the sheet, not a setting of it,
+            // so it sits with the other toggles and is lit while it is on.
+            // ------------------------------------
+            root.appendChild(Na__LeToolbar__Button(Na__LeDraft__Label('Toggle', 'Draft'), 'draft', Na__LeDraft__Label('ToggleTitle', 'Draft mode (K): only the vector linework, every line a hairline, no fills and no raster pictures.'), () => Na__LeDraft__Toggle()));
 
             // EYEDROPPER HINT | What the dropper is holding and what to do next.
             // It lives beside the tool buttons because that is where the eye
@@ -369,7 +392,7 @@
         container.appendChild(root);
         Na__LeToolbar__Root = root;
         Na__LeToolbar__Listeners = () => Na__LeToolbar__Sync();
-        [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
+        [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
         Na__LeToolbar__Sync();
         return true;
     }
@@ -380,7 +403,7 @@
     // ------------------------------------------------------------
     function Na__LeToolbar__Unmount() {
         if (Na__LeToolbar__Listeners) {
-            [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
+            [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
         }
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
         Na__LeToolbar__Root = Na__LeToolbar__Listeners = null;

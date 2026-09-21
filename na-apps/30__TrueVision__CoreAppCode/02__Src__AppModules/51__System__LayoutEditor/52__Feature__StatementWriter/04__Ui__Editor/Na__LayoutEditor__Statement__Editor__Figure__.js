@@ -80,6 +80,7 @@
     // ------------------------------------------------------------
     const Na__LeStmtFig__PX_PER_MM = 96 / 25.4;                                 // <-- A CSS millimetre, which is what the document is laid out in
     const Na__LeStmtFig__MIN_SPAN  = 0.08;                                      // <-- A crop may not take more than 92% of either side away
+    const Na__LeStmtFig__FIGURE_CLASS = 'na-figure';                            // <-- The frame - border and shadow - lives in the stylesheet under this name
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Eight Handles, and Which Edges Each One Moves
@@ -293,7 +294,12 @@
             nudge('margin-top',  offsetY)
         ].filter(Boolean).join('; ') + ';';
 
-        return '<div style="' + frame + '">\n'
+        // THE CLASS MOVES OUTWARDS ONTO THE FRAME. The frame is the thing with
+        // an edge now, so leaving it on the picture would draw the border
+        // inside the window and clip three sides of it off.
+        const dressed = dress.Class ? ' class="' + dress.Class + '"' : '';
+
+        return '<div' + dressed + ' style="' + frame + '">\n'
              + '    <img src="' + source + '" style="' + picture + '" />\n'
              + '</div>';
     }
@@ -332,21 +338,43 @@
             (shadow ? 'box-shadow: ' + shadow : null)
         ].filter(Boolean).join('; ') + ';';
 
+        // AND THE CLASS COMES BACK IN OFF THE FRAME, so a figure that is
+        // uncropped is the figure it was before anyone cropped it.
+        const worn    = Na__LeStmtFig__ReadClass(frame.Before);
+        const dressed = worn ? ' class="' + worn + '"' : '';
+
         const source = Na__LeStmtFig__Read(text).Src;
-        return Na__LeStmtFig__Justify('<img src="' + source + '" style="' + style + '" />', justify);
+        return Na__LeStmtFig__Justify('<img' + dressed + ' src="' + source + '" style="' + style + '" />', justify);
     }
     // ------------------------------------------------------------
 
 
     // HELPER FUNCTION | The Border and Shadow a Figure Is Wearing
     // ------------------------------------------------------------
+    // TWO WAYS OF WEARING A FRAME, and both have to be carried. Since
+    // 21-Sep-2026 a figure says "class=na-figure" and the stylesheet draws the
+    // edge, so there is nothing inline to lift; every statement written before
+    // that spells the border and the shadow out on the picture itself. Reading
+    // both means an old figure keeps exactly the frame it was written with
+    // instead of silently changing the moment somebody crops it.
+    // ------------------------------------------------------------
     function Na__LeStmtFig__Dress(markup) {
         const parts = Na__LeStmtFig__SplitStyle(markup);
         const style = parts ? parts.Style : '';
         return {
             Border : Na__LeStmtFig__ReadDecl(style, 'border'),
-            Shadow : Na__LeStmtFig__ReadDecl(style, 'box-shadow')
+            Shadow : Na__LeStmtFig__ReadDecl(style, 'box-shadow'),
+            Class  : Na__LeStmtFig__ReadClass(markup)
         };
+    }
+
+    // HELPER FUNCTION | The Figure Class, If the Picture Is Wearing One
+    // ------------------------------------------------------------
+    function Na__LeStmtFig__ReadClass(markup) {
+        const found = /\bclass\s*=\s*["']([^"']*)["']/i.exec(String(markup || ''));
+        if (!found) return null;
+        const names = found[1].split(/\s+/).filter(Boolean);
+        return names.includes(Na__LeStmtFig__FIGURE_CLASS) ? Na__LeStmtFig__FIGURE_CLASS : null;
     }
     // ------------------------------------------------------------
 
@@ -639,6 +667,7 @@
         Na__LeStmtFig__Justify,
         Na__LeStmtFig__Uncrop,
         Na__LeStmtFig__BuildCrop,
+        Na__LeStmtFig__Dress,
         Na__LeStmtFig__WriteDecl
     };
     // ------------------------------------------------------------

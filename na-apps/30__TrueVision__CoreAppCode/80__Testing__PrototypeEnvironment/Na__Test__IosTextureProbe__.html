@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TrueVision - iOS Texture Probe</title>
+<!--
+=============================================================================
+TRUEVISION3D - TESTING - iOS TEXTURE PROBE
+=============================================================================
+
+FILE       : Na__Test__IosTextureProbe__.html
+PURPOSE    : Find out, ON THE DEVICE, why a model texture renders black
+CREATED    : 21-Sep-2026
+
+WHY THIS EXISTS:
+- RB05's sheet viewports draw their stone wall faces BLACK on one iPad while
+  the same sheets, the same data and the same build are correct on an iPhone
+  and on the desktop. Black is what WebGL samples from a texture that is not
+  complete - an upload that failed, a mip chain that was never built, or a
+  texture whose storage the system took back. Which of those it is cannot be
+  guessed from a photograph, and the device has no console to read.
+- So this page asks the device itself, in plain WebGL2 with no app, no
+  three.js and no model. It uploads textures the way the app's own loader
+  does - an ImageBitmap, sRGB, mipmapped - draws each one, reads the pixel
+  back, and prints PASS or BLACK in type big enough to photograph.
+
+WHAT IT REPORTS:
+  1. The environment: WebGL2, the GPU's own name, the size limits.
+  2. One row per texture shape, the real one included (2321 x 2321, NPOT,
+     sRGB, mipmapped). A single BLACK row names the cause outright.
+  3. A memory ramp: 2048 x 2048 sRGB textures allocated one after another,
+     re-sampling the FIRST one each time, which is what finds a device that
+     quietly drops what it has already been given.
+  4. The premultiplied alpha round trip - a WebGL canvas whose colour sits one
+     step above its alpha, through drawImage and toDataURL - because the depth
+     fog layer writes exactly that, and what a browser does with it is
+     undefined.
+
+HOW TO RUN IT: open this file's URL on the device and photograph the result.
+=============================================================================
+-->
+<style>
+    :root { color-scheme: light; }
+    body {
+        margin: 0;
+        padding: 16px;
+        padding-top: calc(16px + env(safe-area-inset-top, 0px));
+        padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 17px;
+        line-height: 1.45;
+        color: #1b2535;
+        background: #f4f6f8;
+    }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    h2 { font-size: 18px; margin: 22px 0 8px; }
+    .sub { color: #5a6678; font-size: 14px; margin: 0 0 14px; }
+    .verdict {
+        font-size: 20px; font-weight: 700; padding: 14px 16px; border-radius: 10px;
+        background: #e7ebf0; margin: 0 0 18px; border: 2px solid #c9d2dc;
+    }
+    .verdict.bad  { background: #fdecec; border-color: #e3a7a7; color: #8c1c1c; }
+    .verdict.good { background: #eaf6ee; border-color: #a9d5b9; color: #14532d; }
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    th, td { border: 1px solid #ccd4de; padding: 8px 10px; text-align: left; font-size: 15px; vertical-align: top; }
+    th { background: #eef2f6; }
+    td.k { font-weight: 700; white-space: nowrap; }
+    .pass  { color: #14532d; font-weight: 700; }
+    .black { color: #8c1c1c; font-weight: 700; }
+    .warn  { color: #8a5a00; font-weight: 700; }
+    code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 14px; }
+    canvas { display: none; }
+</style>
+</head>
+<body>
+
+<h1>TrueVision - iOS Texture Probe</h1>
+<p class="sub">Photograph this whole page. Nothing here touches the app or any project data.</p>
+
+<div class="verdict" id="verdict">Running...</div>
+
+<h2>1. Environment</h2>
+<table id="envTable"><tbody></tbody></table>
+
+<h2>2. Texture uploads</h2>
+<p class="sub">Each row uploads a texture, draws it and reads the pixel back. BLACK means the device refused that texture.</p>
+<table id="texTable"><thead><tr><th>Texture</th><th>Read back</th><th>Result</th></tr></thead><tbody></tbody></table>
+
+<h2>3. Memory ramp</h2>
+<p class="sub">2048 x 2048 sRGB textures, allocated one after another. The FIRST texture is re-sampled each time.</p>
+<table id="memTable"><thead><tr><th>Allocated</th><th>Total</th><th>First texture</th><th>Newest texture</th></tr></thead><tbody></tbody></table>
+
+<h2>4. Premultiplied alpha round trip</h2>
+<p class="sub">Colour written one step ABOVE alpha, as the depth fog layer writes it, through drawImage and toDataURL.</p>
+<table id="pmaTable"><thead><tr><th>Alpha in</th><th>Colour in</th><th>Colour out</th><th>Result</th></tr></thead><tbody></tbody></table>
+
+<canvas id="glCanvas" width="256" height="256"></canvas>
+
+<script>
+// -----------------------------------------------------------------------------
+// REGION | Page Helpers
+// -----------------------------------------------------------------------------
+
+    function addRow(tableId, cells) {
+        const row = document.createElement('tr');
+        cells.forEach((cell, index) => {
+            const el = document.createElement(index === 0 && tableId !== 'envTable' ? 'td' : 'td');
+            el.innerHTML = cell;
+            if (index === 0) el.className = 'k';
+            row.appendChild(el);
+        });
+        document.querySelector('#' + tableId + ' tbody').appendChild(row);
+        return row;
+    }
+
+    function verdict(text, kind) {
+        const el = document.getElementById('verdict');
+        el.textContent = text;
+        el.className = 'verdict' + (kind ? ' ' + kind : '');
+    }
+
+    const yieldToPaint = () => new Promise(r => setTimeout(r, 30));
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | WebGL Set Up - One Quad, One Sampler
+// -----------------------------------------------------------------------------
+
+    const canvas = document.getElementById('glCanvas');
+    const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, premultipliedAlpha: true });
+
+    let program = null;
+
+    function buildProgram() {
+        const vs = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vs, `#version 300 es
+            in vec2 aPos;
+            out vec2 vUv;
+            void main() { vUv = (aPos * 0.5) + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }
+        `);
+        gl.compileShader(vs);
+
+        const fs = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fs, `#version 300 es
+            precision highp float;
+            precision highp sampler2D;
+            uniform sampler2D uTex;
+            in vec2 vUv;
+            out vec4 fragColour;
+            void main() { fragColour = vec4(texture(uTex, vUv).rgb, 1.0); }
+        `);
+        gl.compileShader(fs);
+
+        const prog = gl.createProgram();
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([ -1, -1, 3, -1, -1, 3 ]), gl.STATIC_DRAW);
+        const loc = gl.getAttribLocation(prog, 'aPos');
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+        gl.uniform1i(gl.getUniformLocation(prog, 'uTex'), 0);
+        return prog;
+    }
+
+    // A square of one flat colour, as an ImageBitmap - the same kind of source
+    // the glTF loader hands three.js for every model texture.
+    async function makeBitmap(size, rgb) {
+        const c = document.createElement('canvas');
+        c.width = size; c.height = size;
+        const x = c.getContext('2d');
+        x.fillStyle = 'rgb(' + rgb.join(',') + ')';
+        x.fillRect(0, 0, size, size);
+        // A little detail, so a mip chain has something to average.
+        x.fillStyle = 'rgb(' + rgb.map(v => Math.max(0, v - 60)).join(',') + ')';
+        for (let i = 0; i < size; i += 64) x.fillRect(i, 0, 8, size);
+        return createImageBitmap(c);
+    }
+
+    function uploadTexture(bitmap, options) {
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        const internal = options.srgb ? gl.SRGB8_ALPHA8 : gl.RGBA8;
+        gl.texImage2D(gl.TEXTURE_2D, 0, internal, gl.RGBA, gl.UNSIGNED_BYTE, bitmap);
+        const uploadError = gl.getError();
+        let mipError = 0;
+        if (options.mips) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+            mipError = gl.getError();
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+        } else {
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        }
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        return { tex, uploadError, mipError };
+    }
+
+    function sampleTexture(tex) {
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0, 0, 1, 1);                                   // <-- Blue, so "nothing drawn" cannot be mistaken for black
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        const pixel = new Uint8Array(4);
+        gl.readPixels(128, 128, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+        return pixel;
+    }
+
+    const isBlack = (p) => p[0] < 8 && p[1] < 8 && p[2] < 8;
+
+    function errorName(code) {
+        const names = { 0: 'none', 1280: 'INVALID_ENUM', 1281: 'INVALID_VALUE', 1282: 'INVALID_OPERATION', 1285: 'OUT_OF_MEMORY', 1286: 'INVALID_FRAMEBUFFER_OPERATION' };
+        return names[code] || String(code);
+    }
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | The Probe
+// -----------------------------------------------------------------------------
+
+    async function runEnvironment() {
+        const rows = [];
+        rows.push([ 'User agent', '<code>' + navigator.userAgent + '</code>' ]);
+        rows.push([ 'Screen', window.screen.width + ' x ' + window.screen.height + ' at dpr ' + (window.devicePixelRatio || 1) ]);
+        rows.push([ 'Standalone PWA', (window.navigator.standalone === true ? 'yes' : 'no') ]);
+        if (!gl) {
+            rows.push([ 'WebGL2', '<span class="black">NOT AVAILABLE</span>' ]);
+            rows.forEach(r => addRow('envTable', r));
+            return false;
+        }
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        rows.push([ 'WebGL2', 'yes' ]);
+        rows.push([ 'GPU', dbg ? (gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) + ' / ' + gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL)) : gl.getParameter(gl.RENDERER) ]);
+        rows.push([ 'Max texture size', gl.getParameter(gl.MAX_TEXTURE_SIZE) ]);
+        rows.push([ 'Max renderbuffer', gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) ]);
+        rows.push([ 'Texture units', gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS) ]);
+        rows.push([ 'Float colour buffers', (gl.getExtension('EXT_color_buffer_float') ? 'EXT_color_buffer_float ' : '') + (gl.getExtension('EXT_color_buffer_half_float') ? 'EXT_color_buffer_half_float' : '') || 'none' ]);
+        rows.forEach(r => addRow('envTable', r));
+        return true;
+    }
+
+    async function runTextureTests() {
+        const cases = [
+            { label: '512 x 512, sRGB, mipmapped',                 size: 512,  srgb: true,  mips: true  },
+            { label: '2048 x 2048, sRGB, mipmapped',               size: 2048, srgb: true,  mips: true  },
+            { label: '<b>2321 x 2321, sRGB, mipmapped (the app\'s own)</b>', size: 2321, srgb: true,  mips: true  },
+            { label: '2321 x 2321, sRGB, NO mipmaps',              size: 2321, srgb: true,  mips: false },
+            { label: '2321 x 2321, linear (not sRGB), mipmapped',  size: 2321, srgb: false, mips: true  }
+        ];
+        let anyBlack = false;
+        for (const test of cases) {
+            let row;
+            try {
+                const bitmap = await makeBitmap(test.size, [ 200, 120, 60 ]);
+                const up = uploadTexture(bitmap, test);
+                const pixel = sampleTexture(up.tex);
+                const black = isBlack(pixel);
+                if (black) anyBlack = true;
+                const notes = (up.uploadError ? ' upload:' + errorName(up.uploadError) : '') + (up.mipError ? ' mipmap:' + errorName(up.mipError) : '');
+                row = addRow('texTable', [
+                    test.label,
+                    'rgb(' + pixel[0] + ', ' + pixel[1] + ', ' + pixel[2] + ')' + notes,
+                    black ? '<span class="black">BLACK</span>' : '<span class="pass">PASS</span>'
+                ]);
+                gl.deleteTexture(up.tex);
+                bitmap.close && bitmap.close();
+            } catch (error) {
+                anyBlack = true;
+                row = addRow('texTable', [ test.label, '<code>' + error + '</code>', '<span class="black">THREW</span>' ]);
+            }
+            await yieldToPaint();
+        }
+        return anyBlack;
+    }
+
+    async function runMemoryRamp() {
+        const held = [];
+        const MAX = 20;
+        let firstFailedAt = 0;
+        const bitmap = await makeBitmap(2048, [ 60, 160, 210 ]);
+        for (let i = 1; i <= MAX; i++) {
+            let up;
+            try {
+                up = uploadTexture(bitmap, { srgb: true, mips: true });
+            } catch (error) {
+                addRow('memTable', [ i, '-', '<span class="black">THREW</span>', '<code>' + error + '</code>' ]);
+                firstFailedAt = firstFailedAt || i;
+                break;
+            }
+            held.push(up.tex);
+            const newest = sampleTexture(up.tex);
+            const first = sampleTexture(held[0]);
+            const megabytes = Math.round(i * 2048 * 2048 * 4 * 1.34 / (1024 * 1024));
+            const firstBlack = isBlack(first);
+            const newestBlack = isBlack(newest);
+            if ((firstBlack || newestBlack) && !firstFailedAt) firstFailedAt = i;
+            addRow('memTable', [
+                i,
+                '~' + megabytes + ' MB',
+                firstBlack ? '<span class="black">BLACK</span>' : '<span class="pass">ok</span>',
+                newestBlack ? '<span class="black">BLACK</span>' : '<span class="pass">ok</span>'
+            ]);
+            await yieldToPaint();
+            if (firstFailedAt) break;
+        }
+        held.forEach(t => gl.deleteTexture(t));
+        bitmap.close && bitmap.close();
+        return firstFailedAt;
+    }
+
+    // THE DEPTH FOG LAYER'S OWN PIXELS. It writes premultiplied colour one
+    // 8-bit step ABOVE the alpha, which is not a valid premultiplied value and
+    // is undefined by the WebGL spec. Chrome clamps it to white. If a browser
+    // divides without clamping instead, the colour wraps round to near zero and
+    // every partly fogged pixel turns black - so ask this device directly.
+    async function runPremultipliedTest() {
+        const c = document.createElement('canvas');
+        c.width = 8; c.height = 1;
+        const ctx2 = c.getContext('webgl2', { alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true, antialias: false });
+        if (!ctx2) { addRow('pmaTable', [ 'n/a', '-', '-', 'no second WebGL context' ]); return null; }
+
+        const alphas = [ 2, 51, 128, 204, 254, 255 ];
+        const fs = `#version 300 es
+            precision highp float;
+            uniform float uAlpha;
+            out vec4 fragColour;
+            void main() {
+                float a = uAlpha / 255.0;
+                float colour = min(1.0, a + (1.0 / 255.0));      // one step ABOVE alpha
+                fragColour = vec4(vec3(colour), a);
+            }`;
+        const vs = `#version 300 es
+            in vec2 aPos; void main() { gl_Position = vec4(aPos, 0.0, 1.0); }`;
+        const compile = (type, src) => { const s = ctx2.createShader(type); ctx2.shaderSource(s, src); ctx2.compileShader(s); return s; };
+        const prog = ctx2.createProgram();
+        ctx2.attachShader(prog, compile(ctx2.VERTEX_SHADER, vs));
+        ctx2.attachShader(prog, compile(ctx2.FRAGMENT_SHADER, fs));
+        ctx2.linkProgram(prog); ctx2.useProgram(prog);
+        const buf = ctx2.createBuffer();
+        ctx2.bindBuffer(ctx2.ARRAY_BUFFER, buf);
+        ctx2.bufferData(ctx2.ARRAY_BUFFER, new Float32Array([ -1, -1, 3, -1, -1, 3 ]), ctx2.STATIC_DRAW);
+        const loc = ctx2.getAttribLocation(prog, 'aPos');
+        ctx2.enableVertexAttribArray(loc);
+        ctx2.vertexAttribPointer(loc, 2, ctx2.FLOAT, false, 0, 0);
+        const uAlpha = ctx2.getUniformLocation(prog, 'uAlpha');
+
+        let wrapped = false;
+        for (const alpha of alphas) {
+            ctx2.viewport(0, 0, 8, 1);
+            ctx2.uniform1f(uAlpha, alpha);
+            ctx2.drawArrays(ctx2.TRIANGLES, 0, 3);
+
+            const flat = document.createElement('canvas');
+            flat.width = 8; flat.height = 1;
+            const fctx = flat.getContext('2d');
+            fctx.drawImage(c, 0, 0);
+            // Read the PNG back through createImageBitmap rather than an
+            // <img>: an image element's load event never fires in a browser
+            // pane that is not being composited, and this page has to be
+            // runnable in one to be checked before it is handed to a device.
+            const out = await (async () => {
+                try {
+                    const blob = await (await fetch(flat.toDataURL('image/png'))).blob();
+                    const bitmap = await createImageBitmap(blob);
+                    const back = document.createElement('canvas');
+                    back.width = 8; back.height = 1;
+                    const bctx = back.getContext('2d');
+                    bctx.drawImage(bitmap, 0, 0);
+                    return bctx.getImageData(0, 0, 1, 1).data;
+                } catch (error) { return null; }
+            })();
+            const colourIn = Math.min(255, alpha + 1);
+            const colourOut = out ? out[0] : -1;
+            const wrong = out && alpha > 8 && colourOut < 200;
+            if (wrong) wrapped = true;
+            addRow('pmaTable', [
+                alpha, colourIn, out ? (colourOut + ' (alpha ' + out[3] + ')') : 'failed',
+                wrong ? '<span class="black">WRAPPED - goes dark</span>' : '<span class="pass">clamped to white</span>'
+            ]);
+            await yieldToPaint();
+        }
+        return wrapped;
+    }
+
+    (async function main() {
+        const ok = await runEnvironment();
+        if (!ok) { verdict('This device has no WebGL2 at all - that alone would explain a black model.', 'bad'); return; }
+        buildProgram();
+
+        verdict('Running texture tests...');
+        const anyBlack = await runTextureTests();
+
+        verdict('Running memory ramp...');
+        const failedAt = await runMemoryRamp();
+
+        verdict('Running premultiplied alpha test...');
+        const wrapped = await runPremultipliedTest();
+
+        const notes = [];
+        if (anyBlack) notes.push('a texture shape this device refuses');
+        if (failedAt) notes.push('textures go black after ' + failedAt + ' x 2048 square (about ' + Math.round(failedAt * 22) + ' MB)');
+        if (wrapped) notes.push('premultiplied colour above alpha wraps to dark');
+        if (!notes.length) verdict('All clear: this device uploaded every texture, held ' + 20 + ' large ones, and clamps premultiplied colour correctly.', 'good');
+        else verdict('FOUND: ' + notes.join('; ') + '.', 'bad');
+    })();
+
+// endregion -------------------------------------------------------------------
+</script>
+</body>
+</html>

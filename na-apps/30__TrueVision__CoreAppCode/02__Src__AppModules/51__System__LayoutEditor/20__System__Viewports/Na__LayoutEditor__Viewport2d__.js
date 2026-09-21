@@ -67,6 +67,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.13.0 (TrueVision)
+// - Draft mode (K, Na__LayoutEditor__DraftMode__). While Draft is on, Fill
+//   books no underlay and no fog render and cancels any still waiting on its
+//   debounce; the wanted keys are kept and the pictures held stay in their
+//   elements (the draft stylesheet hides them), so switching Draft off shows
+//   them at once, or books one render where something changed meanwhile. The
+//   linework is painted exactly as before - Draft restyles it in CSS, so no
+//   paint key and no path string changes, and the PDF cannot see it.
+// - MarkRasterOnly: a frame whose viewport has Projected Linework off carries
+//   na-le-frame__body--raster-only, which Draft outlines and labels instead of
+//   leaving an empty rectangle.
+// - Release also clears the fog's debounce timer. It cleared only the
+//   underlay's, so a fog render could still start for a frame already let go.
+// - ForceRender is unchanged in Draft - it is an explicit request - and its
+//   picture waits, hidden, for Draft to end.
+//
 // 20-Sep-2026 - Version 1.12.0 (TrueVision)
 // - Depth fog. Where the drawing a viewport shows has its fog switched on (Dev
 //   Tools > Elevations) and the viewport's Depth Fog composite is ticked, Fill
@@ -180,6 +196,7 @@
     import { Na__LeModelLayers__Token } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeComposite__RasterToken } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__LeRaster__Get, Na__LeRaster__Working, Na__LeRaster__Export, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
+    import { Na__LeDraft__IsOn } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__State__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Projected Linework (definitions, pipeline, owners)
@@ -260,12 +277,27 @@
 // REGION | Fill
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Mark a Frame Whose Drawing Is a Picture and Nothing Else
+    // ------------------------------------------------------------
+    // A viewport with Projected Linework off has no vectors at all, so in Draft
+    // mode - which draws no pictures - it would be an empty rectangle. The draft
+    // stylesheet outlines a body carrying this class and says why it is empty.
+    // Set on every Fill (one class toggle), so it follows the composite as it is
+    // ticked; it changes nothing outside Draft.
+    // ------------------------------------------------------------
+    function Na__LeVp2d__MarkRasterOnly(state, flag) {
+        if (state && state.body) state.body.classList.toggle('na-le-frame__body--raster-only', flag === true);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Fill (or Refresh) the Body of a 2D Frame
     // ------------------------------------------------------------
     function Na__LeVp2d__Fill(body, sheet, viewport, ppm) {
         const state     = Na__LeVp2d__State(body, viewport.Viewport__Id);
         if (Na__LeModel__IsSitePlanViewport(viewport)) {                         // <-- Site plan data: its own path, before any drawing or design phase check
             state.lastArgs = { sheet : sheet, viewport : viewport, ppm : ppm };
+            Na__LeVp2d__MarkRasterOnly(state, false);                            // <-- All vectors: Draft draws its lines
             Na__LeVp2d__ClearFog(state);                                         // <-- A site plan has no plane to be behind
             Na__LeVp2d__FillSitePlan(state, sheet, viewport, ppm);
             return;
@@ -273,6 +305,7 @@
         const described = Na__LeVp2d__Describe(viewport);
         const win       = described.window;
         state.lastArgs  = { sheet : sheet, viewport : viewport, ppm : ppm };
+        Na__LeVp2d__MarkRasterOnly(state, !!described.definition && viewport.Viewport__Styles.projectedLinework === false);
 
         if (!described.definition) {
             state.empty.textContent = Na__LeCfg__GetLabel('NoDrawingLinked', 'No drawing linked to this viewport.');
@@ -341,7 +374,12 @@
             if (state.renderedFp && state.renderedFp !== modelFp) state.underlay.hidden = true;   // <-- Another design phase's picture is never slid under this one
             else Na__LeVp2d__PlaceUnderlay(state, win, ppm);
             state.wantedKey = key;
-            if (key !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewport.Viewport__Id);
+            // DRAFT MODE: THE PICTURE IS NEITHER DRAWN NOR RENDERED. The wanted key
+            // is still kept, and the picture held stays in its element (hidden by
+            // the draft stylesheet), so switching Draft off shows it at once when
+            // nothing has changed and books exactly one render when something has.
+            if (Na__LeDraft__IsOn()) { if (state.timer) { window.clearTimeout(state.timer); state.timer = null; } }
+            else if (key !== state.renderedKey) Na__LeVp2d__ScheduleUnderlay(state, viewport.Viewport__Id);
         }
 
         // DEPTH FOG | The drawing's own fog, as an image OVER the linework.
@@ -363,7 +401,8 @@
             if (state.fogRenderedFp && state.fogRenderedFp !== modelFp) state.fog.hidden = true;   // <-- Another design phase's fog is never slid over this one
             else Na__LeVp2d__PlaceFog(state, win, ppm);
             state.fogWantedKey = fogKey;
-            if (fogKey !== state.fogRenderedKey) Na__LeVp2d__ScheduleFog(state, viewport.Viewport__Id);
+            if (Na__LeDraft__IsOn()) { if (state.fogTimer) { window.clearTimeout(state.fogTimer); state.fogTimer = null; } }   // <-- Draft: kept, not rendered, as the picture
+            else if (fogKey !== state.fogRenderedKey) Na__LeVp2d__ScheduleFog(state, viewport.Viewport__Id);
         }
 
         // LINEWORK | Cached classes paint now; otherwise they arrive later
@@ -436,6 +475,7 @@
         const state = Na__LeVp2d__States.get(viewportId);
         if (!state || (body && state.body !== body)) return;
         if (state.timer) window.clearTimeout(state.timer);
+        if (state.fogTimer) window.clearTimeout(state.fogTimer);                  // <-- The fog's own debounce too, or it renders a fog for a frame that has gone
         Na__LeVp2d__HideProgress(state);
         Na__LeVp2d__States.delete(viewportId);
     }

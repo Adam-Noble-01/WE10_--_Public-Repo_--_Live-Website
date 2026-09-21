@@ -33,14 +33,23 @@
 //   scene space when the model is read, kept only by drawings whose cut keeps
 //   the door, and join the visible class tagged with the door's category, so
 //   they take the Doors layer's line style. The shut pose traces none.
+// - ONE STOREY PER PLAN. A plan stands open only the doors of the storey its
+//   cut passes through (Na__ProjectedLinework__Storeys__); every other door
+//   is shut, as on an elevation, and draws no swing. The cut alone let every
+//   storey BELOW a plan through - a plan with no view depth keeps everything
+//   under its cut, a swing joins the drawing after the occlusion clip so no
+//   floor slab hides it, and a lower storey's exterior doors, stood open,
+//   swung out past the roofs below. StoreySamples measures where each
+//   storey's doors stand, which is how high each storey is.
 // - HIT TEST. The door under a drawing point, from where each leaf stands shut,
 //   where it stands open and the ground its swing covers, all read from the
 //   same pose, so a click lands on what the plan draws. The shut pose answers
-//   nothing: an elevation's doors are not there to be opened.
+//   nothing: an elevation's doors are not there to be opened, and nor is a
+//   door on another storey.
 //
 // INTEGRATION:
 // - Na__ProjectedLinework__Projector__ (Apply, SwingEdges and PutBack around
-//   Collect), Na__ProjectedLinework__Pipeline__ (AppendSwings),
+//   Collect, Storeys), Na__ProjectedLinework__Pipeline__ (AppendSwings),
 //   Na__LayoutEditor__SnapshotRenderer__ (Apply and Restore around Render2d),
 //   Na__LayoutEditor__PlanDoors__ (HitTest).
 //
@@ -53,6 +62,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - One storey per plan. StoreySamples measures where each door stands (the
+//   bottom of its ADR group, cached per door) and which Storey__ group it is
+//   in; Storeys turns those into the building's floors, and StoreyBand gives
+//   a posed plan the band of the storey its cut passes through. Apply takes
+//   the drawing's cut and stands open only the doors on that storey, shutting
+//   the rest (the handle's OffStorey); SwingEdges traces none for them.
+//   AppendSwings also keeps a swing only when its leaf stands on the storey
+//   (collected.Storeys, measured once per collection by the projector) and
+//   counts the rest into an optional tally. HitTest answers only for a door
+//   on that storey.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - The shut pose. DoorPose { Shut : true } stands every door shut, for a
 //   Layout Editor elevation or section: IsClosed answers true for every panel,
@@ -99,6 +120,13 @@
     import { Na__PlOwners__Read, Na__PlOwners__IdFor } from './Na__ProjectedLinework__Owners__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Storeys (which floor a plan is cut through), Their Config and Units
+    // ------------------------------------------------------------
+    import { Na__PlStorey__KeyOf, Na__PlStorey__Measure, Na__PlStorey__ForCut, Na__PlStorey__Holds } from './Na__ProjectedLinework__Storeys__.js';
+    import { Na__PlCfg__GetStoreySetup } from './Na__ProjectedLinework__ConfigAccess__.js';
+    import { Na__Math__ConvertMmToUnits } from '../04__MathUtils/Na__Math__Units.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -118,6 +146,8 @@
     // MODULE VARIABLES | Leaf Measurements and Scratch
     // ------------------------------------------------------------
     const Na__PlDoors__Leaves     = new WeakMap();   // <-- panel -> leaf measurements, or null for a panel with no geometry
+    const Na__PlDoors__Bottoms    = new WeakMap();   // <-- ADR group -> the scene height the door stands at
+    const Na__PlDoors__Box        = new THREE.Box3();
     const Na__PlDoors__Position   = new THREE.Vector3();
     const Na__PlDoors__Quaternion = new THREE.Quaternion();
     const Na__PlDoors__Local      = new THREE.Matrix4();
@@ -221,17 +251,24 @@
 
     // FUNCTION | Stand the Doors of a Model at a Drawing's Pose
     // ------------------------------------------------------------
-    // Every door open bar the ones the pose closes, or every door shut. Returns
-    // the handle PutBack and Restore take - { Records, Mods, Stood }, Mods
-    // being the posed mesh panels, whose meshes a reader must copy matrices
-    // from, and Stood where each moving panel's objects stood before - or null
-    // when the model has no doors.
+    // Every door open bar the ones the pose closes, or every door shut. cut
+    // (optional) is the drawing's Cut: on a plan, only the doors of the storey
+    // the cut passes through stand open, and every other door is shut, as on
+    // an elevation - so a lower storey's exterior doors do not swing out past
+    // the roofs below a first floor plan. Returns the handle PutBack and
+    // Restore take - { Records, Mods, Stood, OffStorey }, Mods being the posed
+    // mesh panels, whose meshes a reader must copy matrices from, Stood where
+    // each moving panel's objects stood before, and OffStorey the records shut
+    // for standing on another storey - or null when the model has no doors.
     // ------------------------------------------------------------
-    function Na__PlDoors__Apply(modelRoot, pose) {
+    function Na__PlDoors__Apply(modelRoot, pose, cut) {
         const records = Na__PlDoors__Records(modelRoot);
         if (records.length === 0) return null;
-        const handle = { Records : records, Mods : new Set(), Stood : [] };
+        const band   = Na__PlDoors__StoreyBand(modelRoot, pose, cut, records);
+        const handle = { Records : records, Mods : new Set(), Stood : [], OffStorey : new Set() };
         records.forEach((record) => {
+            const offStorey = !Na__PlDoors__OnStorey(band, record);
+            if (offStorey) handle.OffStorey.add(record);
             record.panels.forEach((panel) => {
                 if (panel.type === Na__DoorAnim__MOD_TYPE_FIXED) return;
                 [ panel.modObjectMesh, panel.modObjectLinework ].forEach((object3d) => {
@@ -239,7 +276,7 @@
                 });
                 if (panel.modObjectMesh) handle.Mods.add(panel.modObjectMesh);
             });
-            Na__PlDoors__SetPanels(record, (panel) => (Na__PlDoors__IsClosed(pose, record, panel) ? 0 : 1));
+            Na__PlDoors__SetPanels(record, (panel) => ((offStorey || Na__PlDoors__IsClosed(pose, record, panel)) ? 0 : 1));
         });
         return handle;
     }
@@ -394,7 +431,9 @@
     // ------------------------------------------------------------
     // The kept side of the cut, no deeper than the view depth: the same band
     // the sampler clips to. A first floor door is above a ground floor plan's
-    // cut; a door below the view depth is out of the drawing too.
+    // cut; a door below the view depth is out of the drawing too. A plan with
+    // no view depth keeps every storey below it - the storey band does that
+    // half (Na__PlDoors__Storeys).
     // ------------------------------------------------------------
     function Na__PlDoors__InBand(cut, x, minY, maxY, z) {
         if (!cut) return true;
@@ -410,6 +449,93 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Storeys
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Scene Height a Door Stands At
+    // ------------------------------------------------------------
+    // The bottom of its ADR group - frame and leaves - which is its storey's
+    // finished floor. Measured once per door: a door opens about an upright
+    // hinge or slides level, so no pose moves it. NaN for a door with no
+    // geometry.
+    // ------------------------------------------------------------
+    function Na__PlDoors__BottomOf(record) {
+        const adr = record ? record.adrObjectMesh : null;
+        if (!adr) return NaN;
+        if (Na__PlDoors__Bottoms.has(adr)) return Na__PlDoors__Bottoms.get(adr);
+        adr.updateWorldMatrix(true, false);                                      // <-- An off-scene design phase may never have been drawn
+        Na__PlDoors__Box.setFromObject(adr);
+        const bottom = Na__PlDoors__Box.isEmpty() ? NaN : Na__PlDoors__Box.min.y;
+        Na__PlDoors__Bottoms.set(adr, bottom);
+        return bottom;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where Each Storey's Doors Stand
+    // ------------------------------------------------------------
+    // One { Key, FloorUnits } per door whose category is a storey's
+    // (Storey__<Key>__<Element>): its storey key and the height it stands at.
+    // Doors in a category of no storey tell no storey's height and are left
+    // out. records is optional, for a caller already holding them.
+    // ------------------------------------------------------------
+    function Na__PlDoors__StoreySamples(modelRoot, categoryPrefix, records) {
+        if (!modelRoot) return [];
+        const samples = [];
+        (records || Na__PlDoors__Records(modelRoot)).forEach((record) => {
+            const key = Na__PlStorey__KeyOf(Na__PlDoors__CategoryOf(record.adrObjectMesh, modelRoot), categoryPrefix);
+            if (!key) return;
+            const bottom = Na__PlDoors__BottomOf(record);
+            if (Number.isFinite(bottom)) samples.push({ Key : key, FloorUnits : bottom });
+        });
+        return samples;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Building's Floors, Measured From Its Doors
+    // ------------------------------------------------------------
+    // setup: { CategoryPrefix, ToleranceUnits }. Na__PlStorey__Measure's
+    // answer - { Floors, ToleranceUnits } - or null for a model with fewer
+    // than two storeys that have doors, where nothing is separated.
+    // ------------------------------------------------------------
+    function Na__PlDoors__Storeys(modelRoot, setup, records) {
+        if (!modelRoot || !setup) return null;
+        return Na__PlStorey__Measure(Na__PlDoors__StoreySamples(modelRoot, setup.CategoryPrefix, records), setup.ToleranceUnits);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Storey Band a Posed Plan Keeps Its Doors To
+    // ------------------------------------------------------------
+    // Null - every door as the pose alone says - for the shut pose (an
+    // elevation or section), for a drawing with no plan cut, with the storey
+    // rule switched off, or for a model with fewer than two storeys that have
+    // doors. records is optional, for a caller already holding them.
+    // ------------------------------------------------------------
+    function Na__PlDoors__StoreyBand(modelRoot, pose, cut, records) {
+        if (!modelRoot || !pose || pose.Shut === true || !cut) return null;
+        const setup = Na__PlCfg__GetStoreySetup();
+        if (!setup.enabled) return null;
+        const storeys = Na__PlDoors__Storeys(modelRoot, { CategoryPrefix : setup.categoryPrefix, ToleranceUnits : Na__Math__ConvertMmToUnits(setup.floorToleranceMm) }, records);
+        return Na__PlStorey__ForCut(storeys, cut);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Whether a Door Stands on a Band's Storey (no band: every door does)
+    // ------------------------------------------------------------
+    function Na__PlDoors__OnStorey(band, record) {
+        if (!band) return true;
+        const bottom = Na__PlDoors__BottomOf(record);
+        return !Number.isFinite(bottom) || Na__PlStorey__Holds(band, bottom);   // <-- A door with no geometry stands nowhere, and is left to the pose
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Swings
 // -----------------------------------------------------------------------------
 
@@ -417,7 +543,8 @@
     // ------------------------------------------------------------
     // Run while the model is read. drawnMods is the set of posed panels the
     // sampler took meshes from, so a door left out of the drawing - excluded,
-    // hidden or skipped - draws no swing either. Returns { Edges, Heights,
+    // hidden or skipped - draws no swing either, and nor does a door Apply
+    // shut for standing on another storey. Returns { Edges, Heights,
     // Categories }: six scene space doubles per arc segment, the leaf's lowest
     // and highest point per segment, and the door's category per segment. The
     // shut pose has no open leaf, so it returns all three empty.
@@ -429,6 +556,7 @@
             const from = new THREE.Vector3(), to = new THREE.Vector3();
             handle.Records.forEach((record) => {
                 if (!Na__PlDoors__IsHinged(record)) return;
+                if (handle.OffStorey && handle.OffStorey.has(record)) return;   // <-- Shut: it stands on another storey
                 const category = Na__PlDoors__CategoryOf(record.adrObjectMesh, modelRoot);
                 record.panels.forEach((panel) => {
                     if (panel.type !== Na__DoorAnim__MOD_TYPE_ROT_ONLY || Na__PlDoors__IsClosed(pose, record, panel)) return;
@@ -454,11 +582,14 @@
 
     // FUNCTION | Add a Drawing's Door Swings to Its Visible Class
     // ------------------------------------------------------------
-    // Keeps the swings of the doors this drawing's cut keeps, places them on
-    // the page as the section outline is placed, and appends them with owner
-    // tags from the collection's own table. Returns the segments added.
+    // Keeps the swings of the doors this drawing's cut keeps - and, on a plan,
+    // that stand on the storey its cut passes through (collected.Storeys) -
+    // places them on the page as the section outline is placed, and appends
+    // them with owner tags from the collection's own table. Returns the
+    // segments added. tally, when given, gains OffStorey: the segments the cut
+    // kept that stand on another storey.
     // ------------------------------------------------------------
-    function Na__PlDoors__AppendSwings(classes, collected, definition, options) {
+    function Na__PlDoors__AppendSwings(classes, collected, definition, options, tally) {
         const swings = collected ? collected.DoorSwings : null;
         if (!classes || !definition || !swings || swings.Edges.length === 0) return 0;
 
@@ -466,15 +597,19 @@
         const table = collected.OwnerTable || null;
         if (tags && !table) return 0;                                            // <-- Tagged with no table to tag by: leave the drawing whole
 
+        const band  = Na__PlStorey__ForCut((options && options.Storeys) ? (collected.Storeys || null) : null, definition.Cut);   // <-- Null off a plan, with fewer than two storeys, or with the rule off: the cut alone decides
         const kept  = [];
         const names = [];
         const count = Math.floor(swings.Edges.length / 6);
+        let   offStorey = 0;
         for (let i = 0; i < count; i++) {
             const at = i * 6;
             if (!Na__PlDoors__InBand(definition.Cut, swings.Edges[at], swings.Heights[i * 2], swings.Heights[(i * 2) + 1], swings.Edges[at + 2])) continue;
+            if (!Na__PlStorey__Holds(band, swings.Heights[i * 2])) { offStorey++; continue; }   // <-- A storey below: under the slab, never drawn
             for (let k = 0; k < 6; k++) kept.push(swings.Edges[at + k]);
             names.push(swings.Categories[i]);
         }
+        if (tally) tally.OffStorey = (tally.OffStorey || 0) + offStorey;
         if (kept.length === 0) return 0;
 
         const owners = tags ? Uint16Array.from(names, (name) => Na__PlOwners__IdFor(table, name)) : null;
@@ -585,7 +720,9 @@
     // an open one where it stands open, where it would stand shut, and the ground
     // its swing covers. Returns { Key, AdrName, Closed, Independent, PanelKeys }
     // for the nearest door within the tolerance, or null - always null for the
-    // shut pose, whose doors are not there to be opened.
+    // shut pose, whose doors are not there to be opened, and for a door on a
+    // storey other than the one the plan is cut through, whose swing the plan
+    // does not draw.
     // ------------------------------------------------------------
     function Na__PlDoors__HitTest(modelRoot, definition, pointMm, toleranceMm, scaleDivisor) {
         const pose = definition ? definition.DoorPose : null;
@@ -593,10 +730,13 @@
         const viewMap   = Na__PlSoup__ViewMapFromBasis(definition.Basis);
         const tolerance = Math.max(0, Number(toleranceMm) || 0);
         const scene     = new THREE.Vector3();
+        const records   = Na__PlDoors__Records(modelRoot);
+        const band      = Na__PlDoors__StoreyBand(modelRoot, pose, definition.Cut, records);   // <-- The storey the plan stands its doors open on, as Apply found it
         let best = null;
 
-        Na__PlDoors__Records(modelRoot).forEach((record) => {
+        records.forEach((record) => {
             if (!Na__PlDoors__IsDrawn(record, modelRoot, definition.ExcludeTokens)) return;
+            if (!Na__PlDoors__OnStorey(band, record)) return;                        // <-- Another storey's door: shut and swingless on this plan
             const hinged = Na__PlDoors__IsHinged(record);
             record.panels.forEach((panel) => {
                 const leaf = Na__PlDoors__Leaf(panel);
@@ -645,6 +785,9 @@
         Na__PlDoors__KeyFor,
         Na__PlDoors__IsClosed,
         Na__PlDoors__Records,
+        Na__PlDoors__StoreySamples,
+        Na__PlDoors__Storeys,
+        Na__PlDoors__StoreyBand,
         Na__PlDoors__Apply,
         Na__PlDoors__PutBack,
         Na__PlDoors__Restore,

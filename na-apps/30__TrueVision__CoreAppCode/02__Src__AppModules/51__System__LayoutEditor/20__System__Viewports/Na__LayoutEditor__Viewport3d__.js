@@ -52,6 +52,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0 (TrueVision)
+// - Draft mode (K, Na__LayoutEditor__DraftMode__). A 3D viewport is a picture
+//   and nothing else, so in Draft it books, renders and uploads nothing: Fill
+//   returns before any key is compared, the debounced scheduler drops a timer
+//   that fires while Draft is on, and the render queue's stillWanted skips a
+//   queued render the moment Draft goes on. The picture held is kept, so
+//   switching Draft off shows it at once. The draft stylesheet hides the image
+//   and outlines the frame. ForceRender, the bake and the PDF are unchanged.
+//
 // 18-Sep-2026 - Version 1.7.0 (TrueVision)
 // - The viewport cache. Park lifts a viewport's state out of the map while its
 //   sheet is off screen and Restore puts it back (the sheet surface keeps it
@@ -128,6 +137,7 @@
     import { Na__LeSource__Resolve, Na__LeSource__Ensure, Na__LeSource__WaitFor, Na__LeSource__StatusText } from './Na__LayoutEditor__ModelSource__.js';
     import { Na__LeComposite__Weight, Na__LeComposite__RasterToken } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__LeRaster__Working, Na__LeRaster__Export, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
+    import { Na__LeDraft__IsOn } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__State__.js';
     import {
         Na__LeAssets__CanvasToBlob,
         Na__LeAssets__BlobToDataUrl,
@@ -447,6 +457,7 @@
             // here dropped the render outright and left the frame showing a
             // snapshot of a pose or a frame it no longer had.
             if (!state.lastArgs) return;
+            if (Na__LeDraft__IsOn()) return;                                      // <-- Draft draws no picture, so renders and uploads none; Fill books it again when Draft goes off
             if (Na__LeVp3d__Interacting || state.inFlight) { Na__LeVp3d__Schedule(state, viewportId); return; }
             const { sheet, viewport } = state.lastArgs;
             const scene = Na__LeModel__ResolveViewportSource(viewport).scene;
@@ -477,7 +488,7 @@
             }
             if (!Na__LeSnap__IsReady()) return;
             if (state.parked) return;                                             // <-- Left while the stored picture was looked for
-            await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile, () => !state.parked);   // <-- Still queued when its sheet is left: skipped
+            await Na__LeVp3d__RenderNow(state, sheet, viewport, scene, key, profile, () => !state.parked && !Na__LeDraft__IsOn());   // <-- Still queued when its sheet is left, or when Draft goes on: skipped
         }, Na__LeVp3d__RENDER_DELAY_MS);
     }
     // ------------------------------------------------------------
@@ -495,6 +506,16 @@
         if (!scene) {
             state.empty.textContent = Na__LeCfg__GetLabel('NoSceneLinked', 'No scene linked to this viewport.');
             state.empty.hidden = false; state.img.hidden = true; state.key = null;
+            return;
+        }
+        // DRAFT MODE | A 3D viewport is a picture and nothing else, and Draft
+        // draws no pictures: nothing is booked, rendered or uploaded, and the
+        // picture held stays in the state (the draft stylesheet hides it and
+        // outlines the frame), so switching Draft off shows it at once - or, if
+        // it went stale meanwhile, books its render through the rest of Fill.
+        if (Na__LeDraft__IsOn()) {
+            if (state.timer) { window.clearTimeout(state.timer); state.timer = null; }
+            state.empty.hidden = true;
             return;
         }
         // BASE IMAGE OFF | An empty frame: nothing is rendered, and the last

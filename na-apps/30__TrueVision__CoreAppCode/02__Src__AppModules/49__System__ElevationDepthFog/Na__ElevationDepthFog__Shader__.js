@@ -207,17 +207,29 @@
             // the canvas and makes the colour plane white from edge to edge.
             // White over white is white at any scale.
             //
-            // AND THE COLOUR IS ROUNDED UP, NEVER DOWN (NA_STEP). Colour and
-            // alpha reach the png by different roads - the colour through the
-            // bake's linear buffer and its sRGB encode, the alpha straight -
-            // and each is rounded to 8 bits on its own. Where the colour lands
-            // a step under the alpha, un-premultiplying gives 5/6 of white: a
-            // thin fog that is faintly GREY, measured at 213 in a PDF. One step
-            // up and the quotient can only be white or over, and over is
-            // clamped to white.
+            // AND THE COLOUR IS ROUNDED UP, NEVER DOWN (NA_STEP) - BUT ONLY
+            // WHERE IT HAS TO BE. Colour and alpha reach the png by different
+            // roads when a bake is supersampled - the colour through the linear
+            // buffer and its sRGB encode, the alpha straight - and each is
+            // rounded to 8 bits on its own. Where the colour lands a step under
+            // the alpha, un-premultiplying gives 5/6 of white: a thin fog that
+            // is faintly GREY, measured at 213 in a PDF. So on THAT road the
+            // step goes on, and the present pass holds the result back down to
+            // the alpha, which lands the two on the same 8-bit number.
+            //
+            // WRITING STRAIGHT TO THE CANVAS, THE TWO TRAVEL TOGETHER and the
+            // step is not only needless but wrong: premultiplied colour above
+            // its own alpha is not a colour at all, and the WebGL spec leaves
+            // what a browser does with it undefined. Chrome clamps it to white;
+            // nothing says the next browser will. Measured 21-Sep-2026 on an
+            // RB05 elevation, 99.7% of this layer's pixels were leaving here
+            // invalid - a whole picture resting on one implementation's mercy.
+            // With the colour equal to the alpha it is a valid premultiplied
+            // white on every road, and it un-premultiplies to exactly 255.
             float alpha         = max(density, NA_VEIL);
-            vec3  premultiplied = ((density < NA_VEIL) ? vec3(alpha) : (uFogColour * alpha)) + vec3(NA_STEP);
-            if (uEncodeFollows > 0.5) premultiplied = naSrgbToLinear(min(premultiplied, vec3(1.0)));
+            vec3  premultiplied = (density < NA_VEIL) ? vec3(alpha) : (uFogColour * alpha);
+            if (uEncodeFollows > 0.5) premultiplied = naSrgbToLinear(min(premultiplied + vec3(NA_STEP), vec3(1.0)));
+            else                      premultiplied = min(premultiplied, vec3(alpha));
             gl_FragColor = vec4(premultiplied, alpha);
         }
     `;

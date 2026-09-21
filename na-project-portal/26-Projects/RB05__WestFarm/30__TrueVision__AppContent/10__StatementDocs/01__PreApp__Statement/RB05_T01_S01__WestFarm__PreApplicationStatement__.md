@@ -48,6 +48,9 @@ Revision A   *-  20ᵗʰ September 2026*
     </div>                                
 </div>  
 
+
+## TEST TEST
+
 ### 1.0 |  Introduction
 
 *[TO DRAFT  -  opening paragraph. What this statement is, what is proposed in one sentence, and the fact that it accompanies a pre-application enquiry rather than a planning application]*
@@ -86,11 +89,45 @@ Revision A   *-  20ᵗʰ September 2026*
     </div>                                
 </div>  
 
-### 2.0 |  The Application Site And Its Context
+### 2.0 |  The Proposed Replacement Dwelling
+
+The proposal is the demolition of the existing 1960s dwelling and the  of a replacement country house in the Georgian farmhouse tradition. It is built in stone beneath a stone slate roof. It is composed as a group of linked buildings rather than as a single block and the whole of it sits within the developed core of an estate that is already extensively built upon.
+
+The two visualisations below show the scheme as it will be seen from the arrival courtyard and from the garden. Everything that follows in this statement is in service of what these two images show.
+
+![RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__](http://localhost:8090/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__.png)
+
+**Fig 2.1  -**  Concept Visualisation  -  The South East Entrance Front Of The Proposed Replacement Dwelling
+
+
+
+![RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__](http://localhost:8090/na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__.png)
+
+**Fig 2.2  -**  Concept Visualisation  -  The North West Garden Front With The Orangery Link And The Kitchen Building Beyond
+
+The application site the existing dwelling and the site constraints are examined at sections 3.0 to 5.0. The design strategy follows at section 6.0 and the scheme is then taken apart elevation by elevation at section 7.0.
+
+<div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
+    text-align           :     center;    
+    padding-top          :    05.00mm;    /*  <--- Space Above The Divider Line  */
+    padding-bottom       :    05.00mm;    /*  <--- Space Below The Divider Line  */
+    margin-top           :    00.00mm;    
+    margin-bottom        :    00.00mm;    
+    ">                                   
+    <div style="                         
+        width            :       100%;    
+        border-style     :      solid;    
+        border-width     :     0.01pt;    
+        border-color     :    #ebebeb;    
+        ">                               
+    </div>                                
+</div>  
+
+### 3.0 |  The Application Site And Its Context
 
 *[TO DRAFT  -  opening paragraph establishing West Beacon Farm as an established rural residential holding within the Charnwood Forest landscape, deeply set within its own land rather than addressing Deans Lane]*
 
-#### 2.1 |  Location And Landscape Setting
+#### 3.1 |  Location And Landscape Setting
 
 The application site lies on Deans Lane between the village of Woodhouse Eaves and the open interior of Charnwood Forest. Loughborough lies a short distance to the north east. The immediate landscape is the well known upland core of the Forest with its granite outcrops mature woodland and long views out across the Soar valley. Beacon Hill and Bradgate Park both lie within a short distance of the site.
 
@@ -98,15 +135,15 @@ The settlement pattern in this part of the Forest is not one of continuous villa
 
 Understanding this pattern matters because it is the established character against which the proposal will be judged. That character is examined in the following section.
 
-<img src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png" style="zoom: 25%; display: block; margin-left: auto; margin-right: auto;" />
 
-​		**Fig 2.1  -**  Site Location  -  Wider Context Within Charnwood And North Leicestershire
+​		**Fig 3.1  -**  Site Location  -  Wider Context Within Charnwood And North Leicestershire
 
-<img src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Near__.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/02__Site__Location/Location__Near__.png" style="zoom: 26%; display: block; margin-left: auto; margin-right: auto;" />
 
-​		**Fig 2.2  -**  Site Location  -  Local Context To Woodhouse Eaves And Deans Lane
+​		**Fig 3.2  -**  Site Location  -  Local Context To Woodhouse Eaves And Deans Lane
 
-#### 2.2 |  The Established Pattern Of Large Houses In The Locality
+#### 3.2 |  The Established Pattern Of Large Houses In The Locality
 
 This part of Charnwood Forest has been characterised by large individual houses standing in substantial private grounds for the better part of two centuries. That character is documented rather than asserted and it is drawn directly from the council's own records and from the current property market in the village.
 
@@ -118,13 +155,13 @@ The village itself supports the same reading. Maplewell Farm at Woodhouse Eaves 
 
 It is important to be clear about how this evidence is used. The applicants do not advance property values as a planning consideration and they are not material to the determination of this proposal. The evidence is set out because it establishes the character and appearance of the locality which is material and because it demonstrates that a large well designed house in a traditional idiom set in its own grounds is the established pattern here rather than an exception to it.
 
-There is a further point that follows from the same evidence. The prevailing historic material palette in this locality is granite and slate rubble walling with cut stone dressings beneath Swithland slate roofs. That is the council's own description of the listed buildings nearest to the site. The stone walling cut ashlar dressings and stone slate roof proposed at section 6.0 therefore sit within a documented local tradition rather than being imported from elsewhere.
+There is a further point that follows from the same evidence. The prevailing historic material palette in this locality is granite and slate rubble walling with cut stone dressings beneath Swithland slate roofs. That is the council's own description of the listed buildings nearest to the site. The stone walling cut ashlar dressings and stone slate roof proposed at section 7.0 therefore sit within a documented local tradition rather than being imported from elsewhere.
 
 [TO CONFIRM: the market figures above are taken from agent marketing material available in September 2026 and are current as at that date. Screen captures should be taken for the appendix before submission. Distances from the application site to each named property to be measured on the OS data.]
 
 [TO CONFIRM: image required  -  a location plan marking the named comparator houses against the application site would carry this section far more effectively than the prose alone.]
 
-[TO CONFIRM: a recent committee report exists for Black Birds Nest on Deans Lane itself. That decision is likely to be the most directly relevant local precedent available and should be obtained and read in full before the pre-application is submitted.]
+[TO CONFIRM: application P/23/0512/2 at Black Birds Nest, Deans Lane, Woodhouse Eaves went to the Charnwood Plans Committee on 19 October 2023 as item 5a. The property carries the postcode LE12 8TE, which is the same postcode unit as the application site, so this is the nearest comparable decision on record. The committee report is document s12672 on the Charnwood moderngov site. It has not been read and nothing from it is relied upon in this statement. The officer report, the decision notice and the approved plans are to be obtained from the Charnwood public access record and this section and section 5.1 updated once they have been read in full.]
 
 <div style="
     text-align      : center;
@@ -141,27 +178,27 @@ There is a further point that follows from the same evidence. The prevailing his
     "></div>
 </div>
 
-#### 2.3 |  The Established Holding And Its Built Development
+#### 3.3 |  The Established Holding And Its Built Development
 
 *[TO DRAFT  -  the extent of the holding, the existing dwelling plus hangar, garaging, workshops, stores and yard buildings, and the quantified existing built floorspace. This is an already extensively developed residential estate rather than open countryside]*
 
 [TO CONFIRM: red line boundary and site area. Marketing material gives conflicting figures of 23 and 29 acres against a historic holding of circa 50 acres. Figure to be taken from the Land Registry title before submission.]
 
-<img src="./02_StatementDocs__Content__Images/02__ExistingHouse__Interior/ExistingSitePlan.jpg" style="zoom: 26%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/02__ExistingHouse__Interior/ExistingSitePlan.jpg" style="zoom: 26%;" />
 
-​		**Fig 2.3  -**  The Application Site  -  Existing Site Plan Showing The Developed Core Lake And Adjoining Land
+​		**Fig 3.3  -**  The Application Site  -  Existing Site Plan Showing The Developed Core Lake And Adjoining Land
 
-#### 2.4 |  Access And Arrival
+#### 3.4 |  Access And Arrival
 
 *[TO DRAFT  -  the long private drive from Deans Lane through mature planting, the gated entrance, the recent access permission P/25/0361/2 and the discharge of conditions under P/25/1770/2, and the degree of separation between the highway and the dwelling]*
 
-#### 2.5 |  Landscape Trees And Water
+#### 3.5 |  Landscape Trees And Water
 
 *[TO DRAFT  -  woodland belts to the west and south, the mature specimen planting around the developed core, the lake to the north west, the ponds and Wood Brook, and the visual containment all of this provides]*
 
-<img src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/01_10__ExistingSite__AerialShot-01__.jpeg" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/01_10__ExistingSite__AerialShot-01__.jpeg" style="zoom: 30%;" />
 
-​		**Fig 2.4  -**  The Application Site  -  Aerial View Showing The Degree Of Containment Provided By Established Woodland
+​		**Fig 3.4  -**  The Application Site  -  Aerial View Showing The Degree Of Containment Provided By Established Woodland
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -179,35 +216,35 @@ There is a further point that follows from the same evidence. The prevailing his
     </div>                                
 </div>  
 
-### 3.0 |  The Existing Dwelling
+### 4.0 |  The Existing Dwelling
 
 *[TO DRAFT  -  opening paragraph. The existing house as a highly individual late twentieth century dwelling that has evolved incrementally rather than as a single coherent composition]*
 
-#### 3.1 |  Architectural Character
+#### 4.1 |  Architectural Character
 
 *[TO DRAFT  -  1960s origin, the 2009 external thermal envelope, the conservatory and the externally mounted renewable equipment. White render, exposed rubble stone, dark slate roofs and brown stained joinery. Criticised architecturally and never personally]*
 
-<img src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-01.jpg" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-01.jpg" style="zoom: 30%;" />
 
-​		**Fig 3.1  -**  The Existing Dwelling  -  The Principal Range Viewed From The North East
+​		**Fig 4.1  -**  The Existing Dwelling  -  The Principal Range Viewed From The North East
 
-#### 3.2 |  Form Massing And Accommodation
+#### 4.2 |  Form Massing And Accommodation
 
 *[TO DRAFT  -  the low spreading bungalow like range with the one and a half storey element, the additive composition, and the accommodation schedule of circa 456 square metres across four bedrooms and three reception rooms based on the marketing floor plans]*
 
 [TO CONFIRM: existing floor areas are taken from marketing floor plans and require a measured survey before they are relied upon in a full application.]
 
-<img src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Rear-01.jpg" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Rear-01.jpg" style="zoom: 30%;" />
 
-​		**Fig 3.2  -**  The Existing Dwelling  -  Garden Elevation Showing The Conservatory And Mounted Solar Arrays
+​		**Fig 4.2  -**  The Existing Dwelling  -  Garden Elevation Showing The Conservatory And Mounted Solar Arrays
 
-#### 3.3 |  Relationship With The Setting
+#### 4.3 |  Relationship With The Setting
 
 *[TO DRAFT  -  the contrast between an exceptional mature landscape and a dwelling that engages with it only weakly. The opportunity a replacement presents]*
 
-<img src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Side.jpg" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Side.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
 
-​		**Fig 3.3  -**  The Existing Estate  -  Helicopter Landing Area Hangar And Lake Within The Established Developed Core
+​**Fig 4.3  -**  The Existing Estate  -  Helicopter Landing Area Hangar And Lake Within The Established Developed Core
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -225,35 +262,37 @@ There is a further point that follows from the same evidence. The prevailing his
     </div>                                
 </div>  
 
-### 4.0 |  Site Constraints And Planning Baseline
+### 5.0 |  Site Constraints And Planning Baseline
 
 *[TO DRAFT  -  opening paragraph on the proactive constraint sweep and the sources used. Findings recorded in the project research log]*
 
-#### 4.1 |  Planning History And The Lawful Residential Baseline
+#### 5.1 |  Planning History And The Lawful Residential Baseline
 
 *[TO DRAFT  -  P/25/2510/2 certificate of existing lawful development for continued use as a dwellinghouse following breach of a condition on the original 1960s permission 1643/63. The replacement dwelling is therefore assessed against an established lawful residential baseline]*
 
 [TO CONFIRM: application references and decision dates to be verified against the Charnwood public access record and the decision notices downloaded into the project reference folder.]
 
-#### 4.2 |  Heritage And The Historic Environment Record
+[TO CONFIRM: the planning history of Deans Lane itself is to be set out here once obtained, beginning with P/23/0512/2 at Black Birds Nest which was determined at committee on 19 October 2023, together with P/25/0361/2 and P/25/1770/2 on the access to this site and P/25/2510/2 the certificate of lawful use.]
+
+#### 5.2 |  Heritage And The Historic Environment Record
 
 *[TO DRAFT  -  West Beacon Farm recorded in the Leicestershire Historic Environment Record as MLE24039, the U shaped courtyard farm complex already redeveloped by the 1969 aerial photograph, and the local heritage asset listing in the Woodhouse Neighbourhood Plan evidence base. Nearest designated heritage assets and distances]*
 
 [TO CONFIRM: nearest listed buildings, their grades and distances, and whether any local heritage asset designation applies to the site. To be established from the National Heritage List and the Charnwood constraints mapping.]
 
-#### 4.3 |  Trees Woodland And Ecology
+#### 5.3 |  Trees Woodland And Ecology
 
 *[TO DRAFT  -  Priority Habitat deciduous woodland to the south and west, the scale of planting undertaken by the previous owner, recorded Daubenton's bat activity, and the survey work the applicants anticipate commissioning]*
 
 [TO CONFIRM: presence or absence of Tree Preservation Orders affecting the site, from the Charnwood TPO register.]
 
-#### 4.4 |  Flood Risk Drainage And Ground Conditions
+#### 5.4 |  Flood Risk Drainage And Ground Conditions
 
 *[TO DRAFT  -  flood zone position, the lake and Wood Brook, existing private foul drainage, and the buried aviation fuel tank and oil tank as ground condition matters to be screened]*
 
 [TO CONFIRM: flood zone from the Environment Agency flood map for planning, with a map capture for this section.]
 
-#### 4.5 |  Adjoining Land And The Solar Development
+#### 5.5 |  Adjoining Land And The Solar Development
 
 *[TO DRAFT  -  the historic subdivision of the holding, the separately owned adjoining parcel containing the West Beacon solar development, and confirmation that the proposal lies wholly within the applicants' own land]*
 
@@ -275,25 +314,25 @@ There is a further point that follows from the same evidence. The prevailing his
     </div>                                
 </div>  
 
-### 5.0 |  Design Strategy
+### 6.0 |  Design Strategy
 
-#### 5.1 |  Design Principles
+#### 6.1 |  Design Principles
 
 *[TO DRAFT  -  the brief and the ambition. A faithful Georgian farmhouse rather than a stately home, the iterative addition and removal of ornamentation, and the decision to compose the accommodation as a group of linked buildings]*
 
-#### 5.2 |  Siting Within The Established Developed Core
+#### 6.2 |  Siting Within The Established Developed Core
 
 *[TO DRAFT  -  the decision to place the replacement within the existing developed footprint rather than anywhere more prominent, and what that protects]*
 
-#### 5.3 |  The Composition Of The Group
+#### 6.3 |  The Composition Of The Group
 
 *[TO DRAFT  -  the main house, the linked kitchen building read as a converted barn, the orangery style infill and the coach house read as a converted stable range. Why the accommodation was distributed rather than piled into a single mass]*
 
-#### 5.4 |  Alternatives Considered
+#### 6.4 |  Alternatives Considered
 
 *[TO DRAFT  -  options discounted, including the fully glazed contemporary winter garden link and any larger single footprint arrangement, with the reason each was rejected]*
 
-#### 5.5 |  Scale And Massing
+#### 6.5 |  Scale And Massing
 
 *[TO DRAFT  -  height, storeys and footprint relative to the existing dwelling, and the visual containment provided by the surrounding tree canopy]*
 
@@ -312,7 +351,7 @@ There is a further point that follows from the same evidence. The prevailing his
     "></div>
 </div>
 
-#### 5.6 |  Existing And Proposed Schedule
+#### 6.6 |  Existing And Proposed Schedule
 
 | <span style="display:inline-block; width:35mm; white-space:nowrap;">Measure</span> | <span style="display:inline-block; width:45mm; white-space:nowrap;">Existing Dwelling</span> | Proposed Replacement                                         |
 
@@ -336,13 +375,13 @@ There is a further point that follows from the same evidence. The prevailing his
 
 *[TO DRAFT  -  closing paragraph reading the schedule in the applicants' favour once the figures are in]*
 
-<img src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 5.1  -**  The Proposed Composition  -  Main House Linked Kitchen Building And Coach House
+​		**Fig 6.1  -**  The Proposed Composition  -  Main House Linked Kitchen Building And Coach House
 
-<img src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 5.2  -**  The Proposed Dwelling  -  Roof Form And Massing Of The Principal House
+​		**Fig 6.2  -**  The Proposed Dwelling  -  Roof Form And Massing Of The Principal House
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -360,9 +399,9 @@ There is a further point that follows from the same evidence. The prevailing his
     </div>                                
 </div>  
 
-### 6.0 |  Appearance And Materials
+### 7.0 |  Appearance And Materials
 
-#### 6.1 |  Architectural Intent
+#### 7.1 |  Architectural Intent
 
 The replacement dwelling has been designed as a convincing Georgian farmhouse. This is a deliberate position that has been held throughout the design process. A house of this size can very easily fail in one of two directions. It can inflate into a stately home which would be entirely false on a holding of this character. It can equally collapse into the thin applied classicism of speculative housing where porticos and pediments are fixed onto an otherwise conventional box. The scheme steers firmly between the two. The formal architecture is concentrated on the principal block alone. The remaining accommodation is handled as buildings that read as a converted barn and a converted stable range. The group therefore presents as a farmstead that has been added to over generations rather than as a single overscaled house.
 
@@ -370,13 +409,13 @@ The elevations have been set out using classical proportional rules rather than 
 
 Consistency is what makes the difference between a faithful building and a pastiche. A single order is used throughout. One walling stone and one dressing stone are used throughout. The glazing bar pattern is consistent across every window on every building in the group. No feature has been applied to an elevation that is not doing structural or compositional work.
 
-#### 6.2 |  The Material Palette
+#### 7.2 |  The Material Palette
 
 The walls are stone. The principal walling is a coursed squared stone in the manner of a traditional estate building and every dressed element is cut ashlar of the same stone. The dressings comprise the plinth the quoins the window and door surrounds the cills the eaves cornice the canted bays the loggia columns and entablature and the entrance porch. This contrast between rougher coursed walling and finely cut dressings is the essential discipline of the style. It is also what prevents a large stone elevation from reading as a uniform veneer.
 
 The roof is proposed as a natural stone slate laid to diminishing courses which sits comfortably against the stone walling and carries the correct weight and texture for the building. All external joinery is painted timber with slender glazing bars. The rooflights serving the kitchen building are proposed as conservation pattern units set flush within the roof plane. The link between the kitchen building and the house is a painted timber orangery with a bespoke glazed lantern in the established British classical tradition.
 
-[TO CONFIRM: the walling stone the dressing stone and the roof covering are all to be fixed before a full application. The council's view on the appropriate palette for this part of the Charnwood Forest landscape is one of the matters on which advice is sought at section 10.0.]
+[TO CONFIRM: the walling stone the dressing stone and the roof covering are all to be fixed before a full application. The council's view on the appropriate palette for this part of the Charnwood Forest landscape is one of the matters on which advice is sought at section 11.0.]
 
 <div style="
     text-align      : center;
@@ -393,7 +432,7 @@ The roof is proposed as a natural stone slate laid to diminishing courses which 
     "></div>
 </div>
 
-#### 6.3 |  South East Elevation  -  The House Front Fascade
+#### 7.3 |  South East Elevation  -  The House Front Fascade
 
 The south east elevation is the principal entrance front and addresses the arrival courtyard. It is a two storey composition arranged symmetrically about a central entrance. The entrance itself is the single most emphatic element on the building. A pair of Tuscan columns stands on plinth blocks and carries a full entablature with a projecting moulded cornice. Beneath this sits a six panel door with a semicircular radial fanlight above it. The whole composition is dressed in cut ashlar and is approached over a shallow flight of stone steps. The porch projects only slightly from the wall plane which keeps it subordinate to the elevation as a whole.
 
@@ -403,13 +442,9 @@ Cut ashlar quoins define every external angle and tie the composition together a
 
 To the left of the entrance front the loggia of the south west elevation returns at the corner and is visible in oblique views from the drive. To the right the elevation steps down to the single storey colonnade entrance which leads through to the kitchen building and on to the coach house archway. This stepping down of eaves and ridge heights from the principal block to the subsidiary buildings is fundamental to the intent. It establishes the hierarchy of a farmstead where the house is plainly the house and everything else defers to it.
 
-<img src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__01__South-Facade-Front-Facing__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__01__South-Facade-Front-Facing__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 6.1  -**  Proposed South East Elevation  -  House Front Fascade Addressing The Arrival Courtyard
-
-<img src="./02_StatementDocs__Content__Images/21__Proposed__ExteriorCgi/RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
-
-​		**Fig 6.2  -**  Concept Visualisation  -  The Entrance Front Showing The Proposed Stone Walling Ashlar Dressings And Stone Slate Roof
+​		**Fig 7.1  -**  Proposed South East Elevation  -  House Front Fascade Addressing The Arrival Courtyard
 
 <div style="
     text-align      : center;
@@ -426,7 +461,7 @@ To the left of the entrance front the loggia of the south west elevation returns
     "></div>
 </div>
 
-#### 6.4 |  South West Elevation  -  The House Loggia Side Fascade
+#### 7.4 |  South West Elevation  -  The House Loggia Side Fascade
 
 The south west elevation carries the loggia and is the most architecturally enriched face of the building. Three arched openings sit within a recessed bay at ground floor level. Each arch is fitted with French doors beneath a radial fanlight. The arches are carried on Tuscan columns with matching responds returned against the flanking walls and the whole arcade is capped by a full entablature with a plain frieze and a projecting cornice.
 
@@ -434,9 +469,9 @@ Crucially the loggia is recessed into the wall plane rather than applied to the 
 
 The wall above the loggia returns flush and is lit by regularly spaced sashes. Larger windows flank the arcade at both levels and three hipped dormers sit above within the roof slope. The space behind the arcade is the Loggia Atrium which opens directly onto the terrace and the gardens on this side.
 
-<img src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__02__West-Facade-Side-Facing__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__02__West-Facade-Side-Facing__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 6.3  -**  Proposed South West Elevation  -  House Loggia Side Fascade With The Recessed Three Arch Loggia
+​		**Fig 7.2  -**  Proposed South West Elevation  -  House Loggia Side Fascade With The Recessed Three Arch Loggia
 
 <div style="
     text-align      : center;
@@ -453,7 +488,7 @@ The wall above the loggia returns flush and is lit by regularly spaced sashes. L
     "></div>
 </div>
 
-#### 6.5 |  North West Elevation  -  The House Rear Fascade
+#### 7.5 |  North West Elevation  -  The House Rear Fascade
 
 The north west elevation faces the open land the lake and the long view out to the north. It is the elevation the family will live against and it has been composed with the same formality as the entrance front.
 
@@ -463,13 +498,9 @@ The entrance is flanked by canted bay windows at ground floor level. These are e
 
 Beyond the bays this elevation steps down into the orangery link and then into the kitchen building. The result is a long and gently descending garden front rather than a single monolithic wall of stone. This is a considered response to the openness of the landscape on this side of the house where the building is seen against the lake and the far horizon.
 
-<img src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__03__North-Facade-Rear-Facing__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__03__North-Facade-Rear-Facing__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 6.4  -**  Proposed North West Elevation  -  House Rear Fascade Facing The Lake And The Open Landscape
-
-<img src="./02_StatementDocs__Content__Images/21__Proposed__ExteriorCgi/RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
-
-​		**Fig 6.5  -**  Concept Visualisation  -  The Garden Front With The Canted Ashlar Bays The Orangery Link And The Kitchen Building Beyond
+​		**Fig 7.3  -**  Proposed North West Elevation  -  House Rear Fascade Facing The Lake And The Open Landscape
 
 <div style="
     text-align      : center;
@@ -486,15 +517,15 @@ Beyond the bays this elevation steps down into the orangery link and then into t
     "></div>
 </div>
 
-#### 6.6 |  The Kitchen Building And The Orangery Link
+#### 7.6 |  The Kitchen Building And The Orangery Link
 
 The kitchen building is designed to read as a tastefully converted agricultural barn. Its gable end is pierced by two tall arched windows with radial fanlights set in cut ashlar surrounds and a substantial stone chimney stack rises against the gable. A run of conservation pattern rooflights is set into the roof slope in the manner of a converted farm building. The eaves line sits well below the eaves of the main house so the building is unambiguously subservient to it.
 
 The link between the kitchen building and the house is an orangery of the type built by the established British classical orangery makers. It is glazed the full height of its bays with painted timber joinery and is covered by a bespoke glazed lantern. An entirely glazed contemporary winter garden was tested at concept stage and discounted. It detracted from the group and failed to make a convincing junction between two buildings of traditional character. The orangery solves the same problem while remaining true to the period language of the rest of the scheme.
 
-<img src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 6.6  -**  The Composition Of The Group  -  Principal House Orangery Link Kitchen Building And Coach House
+​		**Fig 7.4  -**  The Composition Of The Group  -  Principal House Orangery Link Kitchen Building And Coach House
 
 <div style="
     text-align      : center;
@@ -511,7 +542,7 @@ The link between the kitchen building and the house is an orangery of the type b
     "></div>
 </div>
 
-#### 6.7 |  North East Elevation  -  The Coach House Rear Fascade
+#### 7.7 |  North East Elevation  -  The Coach House Rear Fascade
 
 The coach house is designed as a converted stable range and it completes the courtyard. It is a long low single storey range under a continuous pitched roof with a central gabled carriage arch. The arch itself is turned in voussoirs with cut ashlar imposts and quoined jambs. The gable above carries a louvred oculus and is crowned by a cupola with a weathervane which is the traditional signature of a stable building.
 
@@ -519,9 +550,9 @@ The windows along the range are small and segmentally headed in the manner of st
 
 The carriage arch is not decorative. It carries the pedestrian and service route through from the courtyard on the south east side and it is the point at which the coach house joins the group. Guest accommodation and utility space are contained within this range which is precisely how the scheme avoids inflating the principal house. Accommodation that would otherwise have added mass to the main block has instead been distributed into a building that looks like a farm building because it does the work of one.
 
-<img src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__05__West-Facade-Coach-House__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__05__West-Facade-Coach-House__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 6.7  -**  Proposed North East Elevation  -  Coach House Rear Fascade With Central Carriage Arch Oculus And Cupola
+​		**Fig 7.5  -**  Proposed North East Elevation  -  Coach House Rear Fascade With Central Carriage Arch Oculus And Cupola
 
 <div style="
     text-align      : center;
@@ -538,7 +569,7 @@ The carriage arch is not decorative. It carries the pedestrian and service route
     "></div>
 </div>
 
-#### 6.8 |  Material Specification Comparison
+#### 7.8 |  Material Specification Comparison
 
 | <span style="display:inline-block; width:30mm; white-space:nowrap;">Building Element</span> | <span style="display:inline-block; width:60mm; white-space:nowrap;">Existing Dwelling</span> | Proposed Replacement                                         |
 | :----------------------------------------------------------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
@@ -570,15 +601,15 @@ The carriage arch is not decorative. It carries the pedestrian and service route
     "></div>
 </div>
 
-#### 6.9 |  Existing Conditions Against The Design Proposal
+#### 7.9 |  Existing Conditions Against The Design Proposal
 
-<img src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8); display: block; margin-left: auto; margin-right: auto;" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg" style="zoom: 30%; display: block; margin-left: auto; margin-right: auto;" />
 
-​		**Fig 6.8  -**  Existing Dwelling  -  The Building To Be Replaced
+​		**Fig 7.6  -**  Existing Dwelling  -  The Building To Be Replaced
 
-<img src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.png" style="zoom: 30%; border: 10px solid #555041; box-shadow: 0 2px 10px rgba(0,0,0,0.8);" />
+<img class="na-figure" src="./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.png" style="zoom: 30%;" />
 
-​		**Fig 6.9  -**  Proposed Replacement Dwelling  -  Roof Form Dormers And Massing Of The Principal House
+​		**Fig 7.7  -**  Proposed Replacement Dwelling  -  Roof Form Dormers And Massing Of The Principal House
 
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
@@ -597,23 +628,23 @@ The carriage arch is not decorative. It carries the pedestrian and service route
     </div>                                
 </div>  
 
-### 7.0 |  Landscape Ecology And Sustainability
+### 8.0 |  Landscape Ecology And Sustainability
 
-#### 7.1 |  Landscape Strategy And Visual Containment
+#### 8.1 |  Landscape Strategy And Visual Containment
 
 *[TO DRAFT  -  retention of the woodland structure and mature specimen planting, the treatment of the setting around the new house, and why the replacement will be no more visible in the wider landscape than the building it replaces]*
 
-#### 7.2 |  Trees And Ecology
+#### 8.2 |  Trees And Ecology
 
 *[TO DRAFT  -  the arboricultural and ecological work the applicants intend to commission, and the seasonal constraints that make early instruction sensible]*
 
-#### 7.3 |  Biodiversity Net Gain
+#### 8.3 |  Biodiversity Net Gain
 
 *[TO DRAFT  -  the position on biodiversity net gain for this application, which turns on the red line area]*
 
 [TO CONFIRM: biodiversity net gain position depends on the red line area against the 0.2 hectare exemption threshold for applications made from 6 August 2026. To be settled once the red line is fixed.]
 
-#### 7.4 |  Energy And Existing Renewable Infrastructure
+#### 8.4 |  Energy And Existing Renewable Infrastructure
 
 *[TO DRAFT  -  the water source heat pump served by the lake, the photovoltaic generation and battery storage, the borehole and rainwater harvesting, and the applicants' intentions for carrying that legacy into the new dwelling]*
 
@@ -633,21 +664,21 @@ The carriage arch is not decorative. It carries the pedestrian and service route
     </div>                                
 </div>  
 
-### 8.0 |  Access Servicing And Amenity
+### 9.0 |  Access Servicing And Amenity
 
-#### 8.1 |  Vehicular Access And Parking
+#### 9.1 |  Vehicular Access And Parking
 
 *[TO DRAFT  -  use of the existing access and drive, parking and turning provision, and the absence of any change to the highway situation]*
 
-#### 8.2 |  Inclusive Access
+#### 9.2 |  Inclusive Access
 
 *[TO DRAFT  -  level thresholds, circulation and the provisions made for accessible use of the principal accommodation]*
 
-#### 8.3 |  Drainage Water And Utilities
+#### 9.3 |  Drainage Water And Utilities
 
 *[TO DRAFT  -  foul drainage strategy, surface water strategy, water supply and the three phase electricity supply]*
 
-#### 8.4 |  Neighbouring Amenity
+#### 9.4 |  Neighbouring Amenity
 
 *[TO DRAFT  -  separation distances to any other dwelling and why there is no material effect on the amenity of any neighbouring occupier]*
 
@@ -667,7 +698,7 @@ The carriage arch is not decorative. It carries the pedestrian and service route
     </div>                                
 </div>  
 
-### 9.0 |  Planning Policy Context
+### 10.0 |  Planning Policy Context
 
 *[TO DRAFT  -  opening paragraph establishing the development plan for the area and the section 38(6) duty, written once the adopted documents are in hand]*
 
@@ -697,31 +728,31 @@ The carriage arch is not decorative. It carries the pedestrian and service route
     </div>                                
 </div>  
 
-### 10.0 |  Matters On Which The Council's Advice Is Sought
+### 11.0 |  Matters On Which The Council's Advice Is Sought
 
 *[TO DRAFT  -  short opening paragraph framing the questions as the purpose of the enquiry]*
 
-#### 10.1 |  The Policy Route For The Proposal
+#### 11.1 |  The Policy Route For The Proposal
 
 *[TO DRAFT  -  whether the council assesses the scheme as a replacement dwelling against the lawful residential baseline, and which policies it will be tested against]*
 
-#### 10.2 |  Scale Massing And Landscape Impact
+#### 11.2 |  Scale Massing And Landscape Impact
 
 *[TO DRAFT  -  the officer's initial view on the scale and character of the replacement in this landscape setting]*
 
-#### 10.3 |  Demolition Of The Existing Buildings
+#### 11.3 |  Demolition Of The Existing Buildings
 
 *[TO DRAFT  -  the officer's view on the demolition of the existing dwelling given the Historic Environment Record entry, and on the status of the hangar and other ancillary buildings]*
 
-#### 10.4 |  Consultees And Specialist Reports
+#### 11.4 |  Consultees And Specialist Reports
 
 *[TO DRAFT  -  which consultees will be engaged and which surveys and reports the council will expect to accompany a full application]*
 
-#### 10.5 |  The Material Palette
+#### 11.5 |  The Material Palette
 
 *[TO DRAFT  -  the officer's view on the proposed stone walling ashlar dressings and stone slate roof for this part of the Charnwood Forest landscape, and whether the council would expect a locally sourced stone or slate]*
 
-#### 10.6 |  Validation Requirements
+#### 11.6 |  Validation Requirements
 
 *[TO DRAFT  -  confirmation of the documents required by the current local validation list, and the biodiversity net gain position]*
 
@@ -741,7 +772,7 @@ The carriage arch is not decorative. It carries the pedestrian and service route
     </div>                                
 </div>  
 
-### 11.0 |  Conclusion
+### 12.0 |  Conclusion
 
 *[TO DRAFT  -  recap of the baseline, the absence of harm, the architectural gain, and a courteous request for the council's advice so that a full application can be prepared on an informed basis]*
 

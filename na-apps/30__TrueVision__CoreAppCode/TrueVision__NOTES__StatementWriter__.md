@@ -323,3 +323,91 @@ PNGs. On 20-Sep-2026 they were **the same SHA-256**.
 **If the styling ever looks wrong again, check in this order:** is the statement CSS in
 the page at all (`document.querySelector('link[href*="Styles__Statement__Document"]')`),
 does `<hr>` render as a line or a box, and only then look at the stylesheet.
+
+---
+
+## 12 · The figure frame, and the two places the theme collides
+
+### The frame is a class now, not eighteen inline copies
+
+A figure says `class="na-figure"` and
+`Na__LayoutEditor__Styles__Statement__Document__.css` draws the edge:
+
+```css
+.na-le-stmt-doc .na-figure {
+    border      : 02.00px solid #555041;
+    box-shadow  : 0 01.00px 06.00px rgba(0, 0, 0, 0.18);
+}
+```
+
+Until 21-Sep-2026 every figure spelled out `border: 10px solid #555041` and a 0.8-alpha
+black shadow inline — eighteen identical copies in the RB05 statement. At 144 dpi that
+border prints about 2.5 mm and reads as a picture rail around a white CGI. Adam chose the
+olive kept and the weight taken out.
+
+**The crop had to learn this.** The frame is the element with an edge, so:
+
+- `BuildCrop` moves the class OUTWARDS onto the `<div>`; leaving it on the `<img>` would
+  draw the border inside the window and clip three sides off it.
+- `Uncrop` moves it back IN onto the picture.
+- `Na__LeStmtFig__Dress` reads **both** forms — the class and the old inline border/shadow —
+  so a statement written before today keeps exactly the frame it was written with instead of
+  silently changing the first time somebody crops it. Do not delete that branch.
+
+The logo is an `<img>` too and must NOT wear the class; it is the one picture in the
+document with no frame.
+
+### Two places the Typora theme collides with itself
+
+Both are **stated departures from the theme**, not alignments — the theme has the same fault.
+
+1. **A heading immediately before a table.** h4, h5 and h6 end two millimetres SHORT
+   (`margin-bottom: -02.00mm`), which works because a paragraph opens with `1em` of its own
+   and the two settle into a deliberate 1.53 mm. A table brings nothing —
+   `table { margin-top: 00.00mm }` — so the heading gets buried. The theme's own note calls
+   h5 the heading "used where zero gap is required... a table heading being the case it was
+   added for", but h5 carries the same minus two, so **no heading level in the theme can
+   safely introduce a table.** Fixed with `h1..h6 + table { margin-top: 1.00em }`.
+
+2. **A heading immediately after a picture.** A picture is inline and brings no bottom
+   margin, so a title under the company logo has only its own 0.83em measured from the
+   logo's *baseline*. Fixed with 8 mm.
+
+**Both rules are written twice, once for each shape the document takes.** In the READER a
+raw HTML block is emitted as it stands, so a table is a bare `<table>` and a picture a bare
+`<img>`. In the EDITOR the identical markup is wrapped in `.na-le-stmt-frozen`, and the
+adjacent-sibling selector cannot see through it — hence the `:has(table)` variants. Every
+table in these statements is a raw HTML block, because the column widths are set with
+spans. Fix only the reader and the heading stays buried in the editor and clear on the page.
+
+---
+
+## 13 · Why the PDF is big, and why there is no clever fix
+
+**9.58 MB at the old default. Do not go looking for a smarter encoder.**
+
+The statement is rasterised ON PURPOSE (section 1) so the text cannot be lifted out of it.
+That means the file is images and nothing else, and roughly sixty per cent of the RB05
+document's height IS photographs. The only levers are resolution and JPEG quality.
+
+**WebP is not a way out**, which is worth stating because it looks like one: jsPDF exposes a
+`processWEBP`, but **PDF has no WebP image format** — it carries DCTDecode (JPEG), Flate and
+JPEG2000 — so jsPDF decodes the WebP and re-encodes it anyway.
+
+Measured on the RB05 statement, re-encoding its own tiles:
+
+| RasterScale | JpegQuality | page dpi | file |
+|---|---|---|---|
+| 2.00 | 0.92 | 192 | 9.58 MB |
+| 1.50 | 0.80 | 144 | **4.15 MB** ← the default since 21-Sep-2026 |
+| 1.25 | 0.75 | 120 | 2.91 MB |
+
+`LayoutEditor__Statement__PdfPresets` now holds two: `full` (the default, 1.50/0.80) and
+`print` (2.00/0.92, the old behaviour). Each preset becomes a button on the statement bar,
+so adding a third adds a third button.
+
+**Check zero-text after any change to the exporter** — it is the whole point of the module:
+
+```bash
+python -c "import fitz; d=fitz.open('file.pdf'); print(len(d[0].get_text().strip()), 'chars')"
+```

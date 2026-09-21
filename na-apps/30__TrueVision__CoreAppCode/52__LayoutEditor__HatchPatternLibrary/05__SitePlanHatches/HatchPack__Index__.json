@@ -2,7 +2,7 @@
     "HatchPack__SitePlanHatches__Meta": {
         "Meta__FileName"     : "HatchPack__Index__.json",
         "Meta__Description"  : "The site plan pack: Ordnance-Survey-style area textures for site plan drawings. One entry per pattern file in this folder.",
-        "Meta__Version"      : "1.0.0",
+        "Meta__Version"      : "1.1.0",
         "Meta__Created"      : "20-Sep-2026",
         "Meta__Author"       : "Adam Noble - Noble Architecture",
 
@@ -18,6 +18,8 @@
 
     "HatchPack__SitePlanHatches__Patterns": [
         { "Pattern__Key": "SitePlanHatch__MixedWoodland", "Pattern__Label": "Mixed Woodland", "Pattern__Group": "Land Cover", "Pattern__File": "Na__HatchPattern__SitePlan__MixedWoodland__.json", "Pattern__Note": "Conifer and broadleaf glyphs; the woodland tag's default." },
-        { "Pattern__Key": "SitePlanHatch__PondsAndLakes", "Pattern__Label": "Ponds & Lakes", "Pattern__Group": "Water",      "Pattern__File": "Na__HatchPattern__SitePlan__PondsAndLakes__.json", "Pattern__Note": "The OS still-water ripple; the waterbodies tag's default." }
+        { "Pattern__Key": "SitePlanHatch__PondsAndLakes", "Pattern__Label": "Ponds & Lakes", "Pattern__Group": "Water",      "Pattern__File": "Na__HatchPattern__SitePlan__PondsAndLakes__.json", "Pattern__Note": "The OS still-water ripple; the waterbodies tag's default." },
+        { "Pattern__Key": "SitePlanHatch__Grassland",      "Pattern__Label": "Grassland",       "Pattern__Group": "Land Cover", "Pattern__File": "Na__HatchPattern__SitePlan__Grassland__.json",      "Pattern__Note": "Small five-blade tufts, sparse; the grassland tag's default." },
+        { "Pattern__Key": "SitePlanHatch__RoughGrassland", "Pattern__Label": "Rough Grassland", "Pattern__Group": "Land Cover", "Pattern__File": "Na__HatchPattern__SitePlan__RoughGrassland__.json", "Pattern__Note": "Taller splayed tufts with a loose leaf, further apart; the rough grassland tag's default." }
     ]
 }

@@ -93,7 +93,16 @@
         "ProjectedLinework__Annotation__Description": "Annotation linework is the SketchUp LINETYPE tags - dashed, dotted, centre, door swings, clearances, overhead extents, building joins, demolition. The GlbBuilder gives each tag a linework-only GLB, so each arrives as its own model category whose name carries one of the tokens below. It reaches a drawing through the AUTHORED class like any other SketchUp linework, but two things are done differently, because it is drawing data rather than model geometry: it is not divided at the drawing's cut plane, and it is not occlusion-clipped. A line tagged as an overhead extent is meant to be seen through the roof above it, and a clearance drawn flat on a floor slab must not be clipped away by the slab it sits on. Switch a layer off in the Model Layers panel to take it off a drawing.",
         "ProjectedLinework__Annotation__Enabled": true,
         "ProjectedLinework__Annotation__CategoryTokens": ["Linetype__"],
-        "ProjectedLinework__Annotation__CategoryTokensNote": "Matched case-insensitively as substrings of the model group name, the same way the exclusion tokens are. Turning Enabled off drops annotation linework back to being clipped and cut like every other authored edge; it never hides it."
+        "ProjectedLinework__Annotation__CategoryTokensNote": "Matched case-insensitively as substrings of the model group name, the same way the exclusion tokens are. Turning Enabled off drops annotation linework back to being clipped and cut like every other authored edge; it never hides it. On a floor plan, the annotation categories named in ProjectedLinework__Storeys__AnnotationTokens are also kept to the storey the plan is cut through - see the Storeys block."
+    },
+
+    "ProjectedLinework__Storeys__Config": {
+        "ProjectedLinework__Storeys__Description": "A floor plan draws the door swings of ONE storey: the storey its cut plane passes through. The model's storeys are its Storey__<Key>__<Element> category groups - the groups the 3D view's storey toggle shows and hides - and each storey's floor is measured from where its doors stand (the median of their bottoms). A plan belongs to the storey with the highest floor at or below its cut; its band runs from FloorToleranceMm under that floor to FloorToleranceMm under the next floor up, the lowest storey's band running down for ever and the top storey's up for ever. Three things are kept to the band: the doors a Layout Editor plan stands open (every other storey's doors are shut, as on an elevation, in the linework and the base image alike - without this a lower storey's exterior doors swung out past the roofs below an upper plan), the swing traced for each open door (a plan with no view depth keeps everything below its cut, and a swing is added after the occlusion clip, so without this a first floor plan drew every ground floor swing through the slab), and the annotation categories named in AnnotationTokens (the SketchUp linetype GLBs are one file for the whole building, drawn uncut and unclipped, so without this every plan drew every storey's lines). Pick annotation that lies flat on a floor: door swings and clearances. Leave out overhead extents, which are drawn at the height of the thing above, and anything drawn once for every storey. A model with no Storey__ groups, or with doors on only one storey, keeps everything as before. Elevations and sections are never touched. Changing a value here does not re-key drawings already rendered; bump ProjectedLinework__Model__BuildToken with it.",
+        "ProjectedLinework__Storeys__Enabled": true,
+        "ProjectedLinework__Storeys__CategoryPrefix": "Storey__",
+        "ProjectedLinework__Storeys__FloorToleranceMm": 500,
+        "ProjectedLinework__Storeys__AnnotationTokens": ["Linetype__DoorSwings", "Linetype__ClearanceLines"],
+        "ProjectedLinework__Storeys__AnnotationTokensNote": "Matched case-insensitively as substrings of the model group name, like the annotation category tokens. An empty list keeps every annotation line on every plan, as before this rule."
     },
 
     "ProjectedLinework__LineworkModifiers__Config": {
@@ -108,7 +117,7 @@
 
     "ProjectedLinework__Model__Config": {
         "ProjectedLinework__Model__Description": "BuildToken is folded into every fingerprint. Bump it whenever the way the model is sampled changes (a new helper skipped, glass treated differently, the cut clipping corrected, the edge rule switched) so every baked asset reads as belonging to an older sampling and is re-rendered rather than restored. Transparent materials draw their own edges but never hide what is behind them, unless the drawing's Glass Transparency Off style is on, in which case they occlude like walls.",
-        "ProjectedLinework__Model__BuildToken": "2026-09-20-linework-modifiers-3",
+        "ProjectedLinework__Model__BuildToken": "2026-09-21-storey-swings",
         "ProjectedLinework__Model__TransparentOccludes": false,
         "ProjectedLinework__Model__TransparentOpacityBelow": 0.999
     },

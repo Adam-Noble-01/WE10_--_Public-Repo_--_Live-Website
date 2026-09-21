@@ -161,6 +161,7 @@
 @import url('../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__Styles__Surfaces__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__Paper__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/26__System__DraftMode/Na__LayoutEditor__Styles__DraftMode__.css');   /* <-- Draft mode (K): every rule keyed on body.na-le-draft, so it is inert until Draft is on */
 @import url('../02__Src__AppModules/51__System__LayoutEditor/40__Ui__Panels/Na__LayoutEditor__Styles__Panels__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__Notes__.css');

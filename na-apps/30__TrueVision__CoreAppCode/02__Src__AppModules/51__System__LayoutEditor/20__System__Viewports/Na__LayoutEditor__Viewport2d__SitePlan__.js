@@ -49,6 +49,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - SitePlanBuild inks a pattern with the pattern's OWN colour when it names
+//   one (Pattern__Ink), and with the layer's line colour otherwise. Grass tufts
+//   stay green on the Grassland layer, whose edges are OS base map grey.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__Viewport2d__.js; the code moved verbatim.
 //
@@ -265,14 +270,20 @@
         const patterns = !wantHatch ? [] : withRings.reduce((list, data) => {
             const hatch = Na__LeHatch__Effective(viewport, data.categoryKey, data.layer.Layer__Style.HatchPatternId);
             if (!hatch.Hatch__Pattern) return list;                              // <-- No hatch named, or the library has not got it
+            // A PATTERN THAT NAMES ITS OWN INK KEEPS IT. Grass tufts are green on
+            // a layer whose edges are drawn in the OS base map grey; everything
+            // else ('inherit') takes the layer's line colour, as it always has.
+            // Decided HERE so the screen and the PDF, which both paint this list,
+            // cannot disagree - and greyed like any other ink on a location plan.
+            const ink = hatch.Hatch__Pattern.Pattern__Ink || data.layer.Layer__Style.LineHex;
             list.push({
                 categoryKey : data.categoryKey,
                 pattern     : hatch.Hatch__Pattern,
                 scale       : hatch.Hatch__Scale,
                 rotationDeg : hatch.Hatch__RotationDeg,
                 colour      : siteRules.Grey.has(data.categoryKey) && siteRules.Greyscale
-                    ? siteRules.Greyscale(data.layer.Layer__Style.LineHex)
-                    : data.layer.Layer__Style.LineHex,                           // <-- 'inherit' means the layer's own ink
+                    ? siteRules.Greyscale(ink)
+                    : ink,
                 rings       : data.rings
             });
             return list;

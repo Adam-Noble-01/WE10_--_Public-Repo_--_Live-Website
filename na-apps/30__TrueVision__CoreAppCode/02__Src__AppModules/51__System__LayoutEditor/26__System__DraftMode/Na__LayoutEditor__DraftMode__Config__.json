@@ -1,0 +1,38 @@
+{
+    "LayoutEditor__DraftMode__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__DraftMode__Config__.json",
+        "Meta__Description" : "Draft mode: the Layout Editor's answer to SketchUp LayOut's Draft Mode, on the same key (K). It draws a sheet as bare as it goes, to navigate a heavy drawing fast: in every viewport only the projected vector linework, every line on the paper a hairline in its own colour, no fills, no dashes, and no raster picture anywhere - not drawn and not rendered. It is a VIEW, never a change to the drawing: nothing is written to a sheet, and the PDF, which never reads the screen, prints exactly as it always does.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Research"    : "LayOut 2024.0 introduced Draft Mode with its new graphics engine: it 'defers the final rendering of entities', showing them 'without the final line weights, dashes, or pattern fills', toggled with K, either 'Pan and Zoom Only' or 'Always On' (the setting for tracing over a model, because a thin line is shown). Two stronger options hide SketchUp viewports and raster-rendered objects to their bounding boxes, and a Pan and Zoom Redraw Delay (0.1 s to 3 s, default 0.3 s) waits for navigation to rest before the full render. Output is never affected. TrueVision's Draft is Always On plus the raster option: the vectors are already cheap to keep, so they stay, and every raster goes. The plan doc TrueVision__PLAN__DraftMode__.md has the sources."
+    },
+
+    "LayoutEditor__DraftMode__Lines": {
+        "Lines__Description"      : "How every line on the paper is drawn in Draft: the viewports' linework, the sheet's vectors, dimensions, leaders and annotations, and the border and title block.",
+        "Lines__HairlineDevicePx" : 1,
+        "Lines__HairlineNote"     : "The width of every line in DEVICE pixels, whatever the zoom: 1 is the thinnest line a screen can draw. The draft stylesheet draws it with vector-effect non-scaling-stroke and a width of this value divided by the sheet zoom and the device pixel ratio, re-solved each time a zoom comes to rest. Proved in headless Chrome to print exactly one device pixel of ink at zoom 0.5 to 4 and at 100% and 150% display scaling.",
+        "Lines__Smooth"           : true,
+        "Lines__SmoothNote"       : "True draws the hairlines anti-aliased. False draws them aliased (shape-rendering crispEdges): the cheapest line a browser can draw, and a jagged one on the diagonals.",
+        "Lines__FillOnlyInk"      : "#7a8591",
+        "Lines__FillOnlyInkNote"  : "A shape that had ONLY a fill - a leader's dot, a bubble's wash, a room's colour with its outline switched off, a dimension's text mask - has no line of its own to keep, so with fills gone it would vanish. It is outlined in this ink instead, so it is still there to see and to aim at."
+    },
+
+    "LayoutEditor__DraftMode__Navigation": {
+        "Navigation__Description"        : "LayOut's Pan and Zoom Redraw Delay, for the one thing a browser redraws on every zoom step: the whole sheet, rasterised again at the new scale.",
+        "Navigation__HoldWhileZooming"   : true,
+        "Navigation__HoldNote"           : "While a zoom gesture is under way the paper is held as one composited layer, so each wheel step scales pixels already drawn instead of rasterising the sheet again. The crisp hairlines are drawn once, when the wheel has rested for RedrawDelayMs. False rasterises every step, as the sheet does outside Draft.",
+        "Navigation__RedrawDelayMs"      : 300,
+        "Navigation__RedrawDelayNote"    : "How long the wheel must rest before the held picture is redrawn crisp. LayOut's default is 0.3 s and its range 0.1 s to 3 s; the same bounds are enforced here."
+    },
+
+    "LayoutEditor__DraftMode__Labels": {
+        "Labels__Description"  : "Every word Draft mode puts on the screen.",
+        "Labels__Toggle"       : "Draft",
+        "Labels__ToggleTitle"  : "Draft mode (K): only the viewports' vector linework, every line a hairline in its own colour, no fills and no raster pictures, for fast navigation. Snapping is unchanged and the PDF prints in full. K again switches it off.",
+        "Labels__RasterNote"   : "Raster only - not drawn in Draft (K)",
+        "Labels__Picture3dNote": "3D picture - not drawn in Draft (K)",
+        "Labels__ConsoleOn"    : "Draft mode on: vector linework only, hairlines, no fills, no raster renders.",
+        "Labels__ConsoleOff"   : "Draft mode off: the full composite is drawn again."
+    }
+}

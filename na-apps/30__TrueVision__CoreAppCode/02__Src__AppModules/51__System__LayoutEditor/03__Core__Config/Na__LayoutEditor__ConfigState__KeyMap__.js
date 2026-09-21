@@ -36,6 +36,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - The fallback carries View__DraftToggle (K, Draft mode), mirroring the new
+//   row in the shipped JSON, so K still works if the key map fails to load.
+//   (The fallback has drifted from the JSON elsewhere - it lacks
+//   Tool__SelectSpace, Tool__Move and Edit__Save and still has Edit__Deselect
+//   on the space bar - which is left for its own change.)
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__ConfigState__.js; the code moved verbatim.
 //
@@ -85,6 +92,7 @@
                      { Id : 'Tool__Text',        Action : 'Tool__Text',        Enabled : true, Keys : [ 't', 'T' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Dimension',   Action : 'Tool__Dimension',   Enabled : true, Keys : [ 'd', 'D' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Snap__Toggle',      Action : 'Snap__Toggle',      Enabled : true, Keys : [ 'F3' ],                   Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'View__DraftToggle', Action : 'View__DraftToggle', Enabled : true, Keys : [ 'k', 'K' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Undo',        Action : 'Edit__Undo',        Enabled : true, Keys : [ 'z', 'Z' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Redo',        Action : 'Edit__Redo',        Enabled : true, Keys : [ 'y', 'Y' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__RedoShift',   Action : 'Edit__Redo',        Enabled : true, Keys : [ 'z', 'Z' ],               Modifiers : [ 'Ctrl', 'Shift' ], ModifierMatch : 'Exact' },

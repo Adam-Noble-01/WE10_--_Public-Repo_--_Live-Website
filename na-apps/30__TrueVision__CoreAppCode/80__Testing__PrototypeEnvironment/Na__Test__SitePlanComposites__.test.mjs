@@ -29,6 +29,13 @@
 // - THE Z-ORDER. Two layers that agree on colour and weight must still stack by
 //   Z-index, which is the case a bucket-by-appearance painter gets wrong.
 // - THE DASH SCALE reaching the effective style, and NOT touching the weight.
+// - A PATTERN'S OWN INK (21-Sep-2026). Grass tufts stay green on the grey-edged
+//   Grassland layer, and an inheriting pattern still takes its layer's colour.
+// - THE SEAM. No glyph in any library pattern is cut at a tile edge without its
+//   other half across it - the browser clips a <pattern>, the PDF does not.
+// - THE SSOT AGAINST THE LIBRARY. Every hatch id and face material a site plan tag
+//   names really exists. The SSOT is in another repository, so nothing else would
+//   notice a typo until a wash or a hatch silently failed to paint.
 //
 // =============================================================================
 
@@ -174,6 +181,7 @@ const STUBS = `
     const Na__LeVp2d__Window          = () => ({ Denominator : 500, OriginX : 0, OriginY : 0, WidthMm : 100, HeightMm : 100 });
     const Na__LeModelLayers__ExcludeTokens = () => [];
     const Na__LeModelLayers__Token    = () => 'ml';
+    const Na__LeModelLayers__IsOn     = () => true;                             // <-- StyleBands has asked per owner since the linework modifiers (62dade1); without it this whole test died at load
     const Na__LeEdge__Token           = () => 'edge';
     const Na__LeVp2d__CLASS_ORDER     = ['visible', 'hidden', 'authored', 'section'];
     const Na__LeVp2d__Linework        = new Map();
@@ -257,6 +265,59 @@ check('the curved broadleaf crown was subdivided, not left as two points',
 check('the water tile flattens too', H.Na__LeHatch__TilePolylines(water).lines.length >= 5, true)
 check('the flattening is cached, not redone per stamp', H.Na__LeHatch__TilePolylines(wood) === woodTile, true)
 
+// ---- the grass patterns (21-Sep-2026) --------------------------------------------
+// Adam: "Build out the grassland and rough grassland materials". Both load through
+// the shipped loader and both carry their OWN ink: their tags draw grey OS edges,
+// so an inherited ink would paint grey grass.
+const grass = H.Na__LeHatch__Get('SitePlanHatch__Grassland')
+const rough = H.Na__LeHatch__Get('SitePlanHatch__RoughGrassland')
+const sitePack = H.Na__LeHatch__GetPacks().find((pk) => pk.Pack__Key === 'SitePlanHatches')
+check('Grassland and Rough Grassland load from the site plan pack, after the first two',
+  sitePack.Pack__Patterns.map((p) => p.Pattern__Key),
+  ['SitePlanHatch__MixedWoodland', 'SitePlanHatch__PondsAndLakes', 'SitePlanHatch__Grassland', 'SitePlanHatch__RoughGrassland'])
+check('their tiles keep their paper size',
+  [grass.Pattern__TileWidthMm, grass.Pattern__TileHeightMm, rough.Pattern__TileWidthMm, rough.Pattern__TileHeightMm], [28, 26, 32, 30])
+check('every placement found its glyph (10 tufts, and 9 in two shapes)',
+  [grass.Pattern__Marks.length, rough.Pattern__Marks.length, new Set(rough.Pattern__Marks.map((m) => m.Mark__Glyph.Glyph__Name)).size], [10, 9, 2])
+check('a pattern that names a hex carries it as its own ink, and "inherit" parses to null',
+  [grass.Pattern__Ink, rough.Pattern__Ink, wood.Pattern__Ink, water.Pattern__Ink], ['#43A047', '#43A047', null, null])
+
+// One mark's flattened centreline box, through the SHIPPED flattener: a throwaway
+// pattern holding that mark alone.
+const markBox = (pattern, mark) => {
+  const flat = H.Na__LeHatch__TilePolylines({ Pattern__Marks : [mark], Pattern__TileWidthMm : pattern.Pattern__TileWidthMm,
+    Pattern__TileHeightMm : pattern.Pattern__TileHeightMm, Pattern__StrokeMm : pattern.Pattern__StrokeMm, Pattern__Opacity : 1 })
+  const pts = flat.lines.flat()
+  return { minX : Math.min(...pts.map((p) => p[0])), maxX : Math.max(...pts.map((p) => p[0])),
+           minY : Math.min(...pts.map((p) => p[1])), maxY : Math.max(...pts.map((p) => p[1])) }
+}
+const tallest = (pattern) => Math.max(...pattern.Pattern__Marks.map((m) => { const b = markBox(pattern, m); return b.maxY - b.minY }))
+check('a rough tuft stands taller than a grass tuft, so the two read apart at a glance',
+  tallest(rough) > tallest(grass) * 1.2, true)
+
+// THE SEAM GUARD, over EVERY pattern in the library. A browser clips a <pattern> at
+// its tile edge; the PDF stamper does not. So a glyph crossing the seam must have its
+// other half one tile away - then screen and paper agree - or it is cut on screen and
+// whole on paper. Mixed Woodland shipped that way: one conifer reached 0.55 mm past
+// the right edge and lost its three right-hand arms in every wood on screen. Checked
+// on the centreline; a round cap a tenth of a millimetre over the edge is invisible.
+const seamCuts = []
+H.Na__LeHatch__GetPacks().forEach((pk) => pk.Pack__Patterns.forEach((p) => {
+  const W = p.Pattern__TileWidthMm, TH = p.Pattern__TileHeightMm, eps = 1e-6
+  const has = (m, dx, dy) => p.Pattern__Marks.some((o) => o.Mark__Glyph === m.Mark__Glyph
+    && Math.abs(o.Mark__XMm - (m.Mark__XMm + dx)) < eps && Math.abs(o.Mark__YMm - (m.Mark__YMm + dy)) < eps)
+  p.Pattern__Marks.forEach((m) => {
+    const b = markBox(p, m)
+    const needs = []
+    if (b.minX < -eps)     needs.push([W, 0])
+    if (b.maxX > W + eps)  needs.push([-W, 0])
+    if (b.minY < -eps)     needs.push([0, TH])
+    if (b.maxY > TH + eps) needs.push([0, -TH])
+    needs.forEach(([dx, dy]) => { if (!has(m, dx, dy)) seamCuts.push(`${p.Pattern__Key} ${m.Mark__Glyph.Glyph__Name} at ${m.Mark__XMm},${m.Mark__YMm}`) })
+  })
+}))
+check('no glyph in any pattern is cut at a tile seam without its other half across it', seamCuts, [])
+
 // -----------------------------------------------------------------------------
 // The dash scale
 // -----------------------------------------------------------------------------
@@ -280,6 +341,54 @@ check('OsMapping__MajorFeature exists, in the dark grey, bolder than the minor o
   ['MTE103__LineColour__DarkGrey__L40', true, true])
 check('and it has an export stem, or the exporter would skip it',
   major.SitePlan__ExportFileNameStem, 'TrueVision__SitePlan__OsMappingMajorFeature')
+
+// ---- the grass and hard standing tags (21-Sep-2026), against the SSOT AND the library
+// Adam: "Find the SSOT and add new tags and materials for those as well... If there is
+// a hard standing tag, make a material so I can make the driveway a very light grey."
+// The SSOT lives in another repository, so these are the checks that catch a hatch id
+// or a MAT id that names nothing - which paints no hatch, or no wash, and says nothing.
+const matsDoc = JSON.parse(fs.readFileSync('C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json', 'utf8'))
+const matById = {}
+Object.values(matsDoc.Na__DataLib__CoreIndex__Materials).forEach((series) => Object.entries(series).forEach(([k, v]) => { matById[k] = v }))
+const rgbOf = (id) => (matById[id] && /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/.test(matById[id].BaseColor)) ? matById[id].BaseColor.replace(/\s+/g, '') : null
+const GRASS_TAG = sp['75__SitePlan__SoftLandscape__Grassland']
+const ROUGH_TAG = sp['75__SitePlan__SoftLandscape__RoughGrassland']
+const osGeneral = sp['71__SitePlan__BaseMap__OsMapping__General']
+const lineOf = (t) => [t.SitePlan__LineColourId, t.SitePlan__LineType, t.SitePlan__LineWeightPt, t.SitePlan__LineWeightMm, t.SitePlan__ZIndexLine]
+check('Grassland and Rough Grassland are site plan tags with stems of their own',
+  [GRASS_TAG && GRASS_TAG.SitePlan__ExportFileNameStem, ROUGH_TAG && ROUGH_TAG.SitePlan__ExportFileNameStem],
+  ['TrueVision__SitePlan__Grassland', 'TrueVision__SitePlan__RoughGrassland'])
+check('their edges draw EXACTLY like the OS base map, so a field traced over its OS boundary merges into the same line',
+  [lineOf(GRASS_TAG), lineOf(ROUGH_TAG)], [lineOf(osGeneral), lineOf(osGeneral)])
+check('they export faces, opaque, at the bottom of the fill stack (fill Z 1)',
+  [GRASS_TAG, ROUGH_TAG].map((t) => [t.SitePlan__ExportFills, t.SitePlan__FillOpacity, t.SitePlan__ZIndexFill]), [[true, 1, 1], [true, 1, 1]])
+check('every other wash sits above grass, so a drive or a wood painted over a field wins',
+  Object.values(sp).filter((t) => t && t.SitePlan__ExportFills === true && t !== GRASS_TAG && t !== ROUGH_TAG).every((t) => t.SitePlan__ZIndexFill > 1), true)
+check('each names a hatch the library really has, and a face material the Materials SSOT really has',
+  [ !!H.Na__LeHatch__Get(GRASS_TAG.SitePlan__FillHatchId), !!H.Na__LeHatch__Get(ROUGH_TAG.SitePlan__FillHatchId),
+    rgbOf(GRASS_TAG.SitePlan__FillMaterialId), rgbOf(ROUGH_TAG.SitePlan__FillMaterialId) ],
+  [true, true, 'rgb(229,242,214)', 'rgb(231,235,217)'])
+check('EVERY site plan tag that names a hatch names one the library has',
+  Object.values(sp).filter((t) => t && t.SitePlan__FillHatchId).filter((t) => !H.Na__LeHatch__Get(t.SitePlan__FillHatchId)).map((t) => t.Tag__SketchUpName), [])
+check('EVERY site plan tag that names a face material names one the Materials SSOT has, as rgb()',
+  Object.values(sp).filter((t) => t && t.SitePlan__FillMaterialId).filter((t) => !rgbOf(t.SitePlan__FillMaterialId)).map((t) => t.Tag__SketchUpName), [])
+
+const HARD = ['73__SitePlan__SiteFeature__Access', '73__SitePlan__SiteFeature__Paths', '74__SitePlan__ExternalWorks__HardSurfaces']
+check('the drive, the paths and the hard standing all wash in the one very light grey, opaque, at fill Z 2',
+  HARD.map((k) => [sp[k].SitePlan__ExportFills, sp[k].SitePlan__FillMaterialId, sp[k].SitePlan__FillOpacity, sp[k].SitePlan__ZIndexFill]),
+  HARD.map(() => [true, 'MAT806__SitePlan__HardStandingGrey', 1, 2]))
+check('and that grey is very light and neutral', rgbOf('MAT806__SitePlan__HardStandingGrey'), 'rgb(235,235,235)')
+check('no hatch on hard standing - a plain wash', HARD.map((k) => sp[k].SitePlan__FillHatchId), [null, null, null])
+
+const EX = tags.ExportExclusions
+check('the new tags are in BOTH exclusion lists (the model export never writes them; Edge Paint leaves their edges alone)',
+  [GRASS_TAG, ROUGH_TAG].map((t) => [EX.FullyExcludedTagNames.includes(t.Tag__SketchUpName), EX.AdvancedSwapOffTagNames.includes(t.Tag__SketchUpName)]),
+  [[true, true], [true, true]])
+const stems = Object.values(sp).filter((t) => t && t.SitePlan__ExportFileNameStem).map((t) => t.SitePlan__ExportFileNameStem)
+check('no two site plan tags share a stem (a shared stem would overwrite one GLB with the other)', stems.length, new Set(stems).size)
+check('every site plan weight in points matches its millimetres',
+  Object.values(sp).filter((t) => t && Number.isFinite(t.SitePlan__LineWeightPt))
+    .filter((t) => Math.abs(t.SitePlan__LineWeightPt * 0.352778 - t.SitePlan__LineWeightMm) > 0.0015).map((t) => t.Tag__SketchUpName), [])
 
 
 // -----------------------------------------------------------------------------
@@ -472,6 +581,34 @@ check('two viewports on one sheet get their own pattern definitions',
 check('and the quarter-scale viewport really paints a quarter-size tile',
   [/width="9000"/.test(svgBlock), /width="2250"/.test(svgQuarter), /width="9000"/.test(svgQuarter)], [true, true, false])
 
+// ---- a pattern's OWN INK, through the shipped painter (21-Sep-2026) --------------
+// The Grassland and Rough Grassland tags draw their edges in the OS base map grey.
+// Their tufts must still be green: a pattern that names a hex keeps it. A pattern
+// that inherits must still take the layer's ink, or every existing wood would move.
+LS.push(mkLayer('grass', '75__SitePlan__SoftLandscape__Grassland',      1, 1, '#666666', 'MAT804__SitePlan__GrasslandGreen',      '#E5F2D6', 1, 'SitePlanHatch__Grassland'))
+LS.push(mkLayer('rough', '75__SitePlan__SoftLandscape__RoughGrassland', 1, 1, '#666666', 'MAT805__SitePlan__RoughGrasslandOlive', '#E7EBD9', 1, 'SitePlanHatch__RoughGrassland'))
+globalThis.__LAYERDATA.grass = { categoryKey : 'grass', layer : LS[3], segments : new Float32Array([1500, 22500, 19500, 22500]), segmentCount : 1, rings : BOX(1500, 22500, 18000, 6500) }
+globalThis.__LAYERDATA.rough = { categoryKey : 'rough', layer : LS[4], segments : new Float32Array([20000, 22500, 38500, 22500]), segmentCount : 1, rings : BOX(20000, 22500, 18500, 6500) }
+globalThis.__EFFECTIVE.grass = { weight : 1, colour : 'dark-grey', lineType : 'solid', hex : '#666666', patternMm : [], overridden : false }
+globalThis.__EFFECTIVE.rough = { weight : 1, colour : 'dark-grey', lineType : 'solid', hex : '#666666', patternMm : [], overridden : false }
+
+// The pattern list is sorted by fill Z, so grass (1) and rough (1) come before the
+// wood (3): pattern ids end -0, -1, -2 in that order.
+const patternInk = (svg, id) => { const m = new RegExp('<pattern id="' + id + '"[^>]*><g[^>]*stroke="([^"]+)"').exec(svg); return m ? m[1] : null }
+const svgGrass = paint(freshState(), variant('vpGrass', {}))
+check('the grass and rough tufts paint in their OWN green on layers whose lines are grey',
+  [patternInk(svgGrass, 'na-le-hatch-vpGrass-0'), patternInk(svgGrass, 'na-le-hatch-vpGrass-1')], ['#43A047', '#43A047'])
+check('their tiles print at paper size: 28 and 32 mm, which is 14000 and 16000 drawing mm at 1:500',
+  [/<pattern id="na-le-hatch-vpGrass-0"[^>]*width="14000"/.test(svgGrass), /<pattern id="na-le-hatch-vpGrass-1"[^>]*width="16000"/.test(svgGrass)], [true, true])
+check('the grass washes paint first (fill Z 1), under the woodland wash (fill Z 3)',
+  [bodyOf(svgGrass).indexOf('fill="#E5F2D6"') !== -1, bodyOf(svgGrass).indexOf('fill="#E5F2D6"') < bodyOf(svgGrass).indexOf('fill="#DCEDCF"')], [true, true])
+const svgGrassAsWood = paint(freshState(), variant('vpGrassWood', { [HF] : { [HC] : { grass : { Hatch__PatternKey : 'SitePlanHatch__MixedWoodland' } } } }))
+check('an INHERITING pattern put on the grey grass layer takes the layer\'s grey - inheritance is untouched',
+  patternInk(svgGrassAsWood, 'na-le-hatch-vpGrassWood-0'), '#666666')
+const svgGrassLocation = paint(freshState(), variant('vpGrassLoc', { Viewport__ScaleDenominator : 1250 }))
+check('a location plan paints no grass wash - the proposal is its only fill',
+  [/fill="#E5F2D6"/.test(svgGrassLocation), /fill="#E7EBD9"/.test(svgGrassLocation), /fill="#FF0000"/.test(svgGrassLocation)], [false, false, true])
+
 
 
 
@@ -658,6 +795,11 @@ svg{display:block;width:340px;height:255px;background:#fff}</style>
  <div class="card">${svgBlock}<div class="cap">Scale 1 &middot; 18 mm tile</div></div>
  <div class="card">${svgQuarter}<div class="cap">Scale 0.25 &middot; 4.5 mm tile</div></div>
  <div class="card">${swapped}<div class="cap">Pattern swapped to Ponds &amp; Lakes</div></div>
+</div>
+<h2>Grassland and Rough Grassland (the bottom strip) - green tufts on layers whose edges are grey</h2>
+<div class="row">
+ <div class="card">${svgGrass}<div class="cap">Grassland left, Rough Grassland right, under the wood</div></div>
+ <div class="card">${svgGrassAsWood}<div class="cap">An inheriting pattern on the grass layer takes its grey</div></div>
 </div>`, 'utf8')
 
 console.log(`\n${pass} passed, ${fail} failed`)

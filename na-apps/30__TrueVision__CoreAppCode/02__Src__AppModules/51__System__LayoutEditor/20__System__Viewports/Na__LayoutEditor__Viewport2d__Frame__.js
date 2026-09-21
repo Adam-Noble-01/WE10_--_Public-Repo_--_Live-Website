@@ -53,6 +53,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0 (TrueVision)
+// - Draft mode (K, Na__LayoutEditor__DraftMode__). A frame draws no raster
+//   picture in Draft, so it renders none: the two debounced schedulers drop a
+//   render whose timer fires while Draft is on (dropped, not re-armed - the
+//   refresh that switches Draft off books it again through Fill), and the
+//   render queue's stillWanted skips a queued picture or fog the moment Draft
+//   goes on. A render already inside the renderer finishes and its picture
+//   waits, hidden by the draft stylesheet, for Draft to end.
+//
 // 20-Sep-2026 - Version 1.2.0 (TrueVision)
 // - Depth fog. A frame body has a sixth layer, an image made BETWEEN the
 //   linework and the markup - the frame's stack is DOM order, so that is what
@@ -93,6 +102,7 @@
     import { Na__LeModelLayers__IsOn } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
     import { Na__PlCfg__GetLineworkModifiers } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__LeRaster__Working, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
+    import { Na__LeDraft__IsOn } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__State__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport 2D Window and Depth Fog Units
@@ -286,6 +296,10 @@
             // the drift. Re-arm instead, and the pointer-up or the in-flight
             // render that blocked us is simply the thing we wait for.
             if (!state.lastArgs) return;
+            // DRAFT MODE DRAWS NO PICTURE, so none is rendered: dropped here,
+            // not re-armed. Switching Draft off refreshes every frame, and
+            // Fill books this render again then if it is still wanted.
+            if (Na__LeDraft__IsOn()) return;
             if (Na__LeVp2d__Interacting || state.inFlight) { Na__LeVp2d__ScheduleUnderlay(state, viewportId); return; }
             const args = state.lastArgs;
             const described = Na__LeVp2d__Describe(args.viewport);
@@ -298,7 +312,7 @@
             const px      = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Working());   // <-- The global working level
             const windowSnapshot = described.window;
             state.inFlight = true;
-            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport), phaseId, () => !state.parked).then((result) => {   // <-- Still queued when its sheet is left: skipped, not rendered for nobody
+            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport), phaseId, () => !state.parked && !Na__LeDraft__IsOn()).then((result) => {   // <-- Still queued when its sheet is left, or when Draft goes on: skipped, not rendered for nobody
                 state.inFlight = false;
                 if (!state.parked && Na__LeVp2d__States.get(viewportId) !== state) return;   // <-- Released. A parked state keeps the picture it was already rendering
                 if (result) {
@@ -400,6 +414,7 @@
         state.fogTimer = window.setTimeout(() => {
             state.fogTimer = null;
             if (!state.lastArgs) return;
+            if (Na__LeDraft__IsOn()) return;                                      // <-- Draft: no fog is rendered either; Fill books it again when Draft goes off
             if (Na__LeVp2d__Interacting || state.fogInFlight) { Na__LeVp2d__ScheduleFog(state, viewportId); return; }
             const args      = state.lastArgs;
             const described = Na__LeVp2d__Describe(args.viewport);
@@ -407,7 +422,7 @@
             if (!fog) { Na__LeVp2d__ClearFog(state); return; }                    // <-- Switched off while it waited
             if (Na__LeSnap__GetPipelineFingerprint(described.modelSource.renderId) === null) return;   // <-- Its design phase is not in: the load's refresh schedules again
             const key = state.fogWantedKey;
-            Na__LeVp2d__RenderFog(state, viewportId, args.viewport, described, fog, key, Na__LeRaster__Working(), () => !state.parked).then(() => {
+            Na__LeVp2d__RenderFog(state, viewportId, args.viewport, described, fog, key, Na__LeRaster__Working(), () => !state.parked && !Na__LeDraft__IsOn()).then(() => {
                 // Re-armed only when what is WANTED has moved on from what this
                 // render was for. A render that simply failed is not retried
                 // here - the next refresh asks again - or a fog that cannot be

@@ -58,6 +58,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - One storey per plan. The collection key carries the storey a posed plan
+//   is cut through, because the read now stands open only that storey's
+//   doors: plans on two storeys never share a read. The door swing append
+//   takes a tally of the swings left off because they stand on another
+//   storey, and the report and the timings line name the plan's storey and
+//   count what was left off it (door swings, and storey-bound annotation from
+//   the backend).
+//
 // 14-Sep-2026 - Version 1.4.0
 // - Door pose. The collection key carries a definition's door pose, so a plan
 //   read with its doors open never reuses a collection read with them as
@@ -106,7 +115,8 @@
         Na__PlView__Fingerprint,
         Na__PlView__Hash
     } from './Na__ProjectedLinework__ViewDefinition__.js';
-    import { Na__PlDoors__AppendSwings } from './Na__ProjectedLinework__DoorPose__.js';
+    import { Na__PlDoors__AppendSwings, Na__PlDoors__StoreyBand } from './Na__ProjectedLinework__DoorPose__.js';
+    import { Na__PlStorey__Describe } from './Na__ProjectedLinework__Storeys__.js';
     import { Na__PlStage__Describe } from './Na__ProjectedLinework__ModelStage__.js';
     import { Na__ProjectedLinework__WebGpuBackend__ProbeHardware } from './Na__ProjectedLinework__WebGpuBackend__.js';
     import {
@@ -216,13 +226,15 @@
     // ------------------------------------------------------------
     // Everything that changes which instances are read, or what the cached
     // intersection pass finds: the model state, the exclusion list, the
-    // occluder rule, the linework first rule and the door pose (the doors a
-    // Layout Editor plan reads open, and the swings traced while they are).
+    // occluder rule, the linework first rule, the door pose (the doors a
+    // Layout Editor plan reads open, and the swings traced while they are)
+    // and the storey a posed plan is cut through (only its doors stand open).
     // ------------------------------------------------------------
-    function Na__PlPipe__CollectionKey(definition, modelFingerprint, options) {
+    function Na__PlPipe__CollectionKey(definition, modelFingerprint, options, storeyBand) {
         return modelFingerprint + '|' + definition.ExcludeTokens.join(',') + '|' + (definition.Styles.glassOpaque ? 'g1' : 'g0') +
             '|' + ((options && options.LineworkFirst === true) ? 'lf1' : 'lf0') +
-            (definition.DoorPose ? '|dp' + Na__PlView__Hash(JSON.stringify(definition.DoorPose)) : '');   // <-- Appended only when set, so every other key is unchanged
+            (definition.DoorPose ? '|dp' + Na__PlView__Hash(JSON.stringify(definition.DoorPose)) : '') +   // <-- Appended only when set, so every other key is unchanged
+            (storeyBand ? '|st' + storeyBand.Keys.join('+') : '');               // <-- Plans on different storeys stand different doors open, so never share a read
     }
     // ------------------------------------------------------------
 
@@ -240,6 +252,8 @@
             (report.SeamsOcclude ? ', seams occlude' : ', seams open') +
             (report.HideFlushJoins ? ', flush joins hidden' : ', flush joins drawn') +
             (report.DoorSwingCount ? ', ' + report.DoorSwingCount + ' door swing segments' : '') +
+            (report.Storey ? ' | storey ' + Na__PlStorey__Describe(report.Storey) + ', left off from other storeys: ' +
+                report.DoorSwingsOffStorey + ' door swing and ' + report.Storey.AnnotationOffStorey + ' annotation segments' : '') +
             ' | ' + report.SegmentCount + ' segments in ' + report.ProjectMs + ' ms | total ' + report.TotalMs + ' ms'
         );
         if (report.Phases && report.Phases.length) console.table(report.Phases);
@@ -314,13 +328,14 @@
     // modelRoot is the root the fingerprint was read from; see RenderDefinition.
     // ------------------------------------------------------------
     async function Na__PlPipe__GetCollection(definition, modelFingerprint, options, report, onPhase, modelRoot) {
-        const key = Na__PlPipe__CollectionKey(definition, modelFingerprint, options);
+        const root = modelRoot || Na__PlPipe__ModelRoot;
+        const key  = Na__PlPipe__CollectionKey(definition, modelFingerprint, options, Na__PlDoors__StoreyBand(root, definition.DoorPose, definition.Cut));
         let collected = Na__PlPipe__Collections.get(key);
 
         if (collected) {
             report.CollectReused = true;
         } else {
-            collected = await Na__PlProjector__Collect(modelRoot || Na__PlPipe__ModelRoot, definition, options, onPhase);
+            collected = await Na__PlProjector__Collect(root, definition, options, onPhase);
             Na__PlPipe__Collections.set(key, collected);
             Na__PlPipe__Bound(Na__PlPipe__Collections, Na__PlPipe__MAX_COLLECTIONS);
             report.CollectMs     = collected.Report.CollectMs;
@@ -374,7 +389,7 @@
             Backend : settings.Backend, CollectReused : false, CollectMs : 0, TriangleTotal : described.TriangleTotal,
             IntersectionCount : 0, OccluderCount : 0, EdgeCount : 0, SegmentCount : 0, ProjectMs : 0, TotalMs : 0, Phases : [],
             LineworkFirst : settings.LineworkFirst === true, LineworkCategoryCount : 0, SeamsOcclude : settings.SeamsOcclude === true,
-            HideFlushJoins : settings.HideFlushJoins === true, DoorSwingCount : 0
+            HideFlushJoins : settings.HideFlushJoins === true, DoorSwingCount : 0, DoorSwingsOffStorey : 0, Storey : null
         };
 
         if (described.TriangleTotal > settings.MaxTriangles) {
@@ -401,10 +416,15 @@
         report.Phases        = projection.Phases;
         report.OccluderCount = projection.OccluderCount;
         report.EdgeCount     = projection.EdgeCount;
+        report.Storey        = projection.Storey || null;                        // <-- A plan's storey, when the model has two or more
         // DOOR SWINGS | The arc each open hinged door of a posed plan sweeps, on
         // the visible class with the door's category, before anything counts or
-        // keeps the classes.
-        if (definition.DoorPose && collected.DoorSwings) report.DoorSwingCount = Na__PlDoors__AppendSwings(projection.Classes, collected, definition, settings);
+        // keeps the classes - the doors of the plan's own storey only.
+        if (definition.DoorPose && collected.DoorSwings) {
+            const tally = { OffStorey : 0 };
+            report.DoorSwingCount      = Na__PlDoors__AppendSwings(projection.Classes, collected, definition, settings, tally);
+            report.DoorSwingsOffStorey = tally.OffStorey;
+        }
         report.SegmentCount  = Na__PlPipe__CountSegments(projection.Classes);
 
         return {

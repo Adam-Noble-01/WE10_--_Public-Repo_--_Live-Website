@@ -190,9 +190,10 @@
         "ProjectQr__ButtonTextWeight"   : 600,
         "ProjectQr__ButtonTextColour"   : "#172b3a",
         "ProjectQr__ButtonIconWidthMm"  : 2.4,
-        "ProjectQr__ButtonIconHeightMm" : 4.0,
+        "ProjectQr__ButtonIconHeightMm" : 4.6,
         "ProjectQr__ButtonIconGapMm"    : 2.0,
         "ProjectQr__ButtonIconStrokePt" : 0.6,
+        "ProjectQr__ButtonIconNote"     : "The handset is a MODERN SMARTPHONE, drawn the way the phone in somebody's pocket looks: a slim body about half as wide as it is tall, well-rounded corners, and the Dynamic Island pill filled in across the top of the screen. The first glyph was a squat rounded box with a bar across its foot, which Adam found too ambiguous to read as a phone (21-Sep-2026) - at this size it could have been a door, a battery or a tablet. The pill is what says 'phone' at 4.6 mm; its size and place are fractions of the width, set in the module.",
         "ProjectQr__ButtonNote"         : "The Scan Me button: a stadium the width of the code's box, with a handset and the words centred in it as one pair. It is not a control and nothing happens when it is clicked - it is the thing that tells somebody who has never met a QR code that the square above it is for pointing a phone at, which is the whole reason this block exists rather than the title block's code being left to do the work.",
 
         "ProjectQr__GapsNote"           : "EVERY GAP BELOW IS BASELINE TO BASELINE, not a space between two lines - which is the only way to set type that stays even when one line is a heading and the next is a caption. A gap therefore has to carry three things: the descender of the line above, the air wanted between them, and the CAP HEIGHT of the line below (0.72 of its size in Open Sans). A 4.6 mm gap under a 3.5 mm heading leaves 1.3 mm of air; the same 4.6 under the 5.4 mm title leaves none at all, which is what had the project name sitting on the title's descenders. The numbers here were re-set on 21-Sep-2026 against a rendering of both forms at 30 mm, and the title has a gap of its own for exactly that reason.",

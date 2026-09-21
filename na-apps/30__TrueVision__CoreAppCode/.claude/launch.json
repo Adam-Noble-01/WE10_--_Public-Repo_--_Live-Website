@@ -2,6 +2,20 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "tv-iosprobe",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8877",
+        "--bind",
+        "0.0.0.0",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8877
+    },
+    {
       "name": "truevision-static-vertexlock",
       "runtimeExecutable": "python",
       "runtimeArgs": [
@@ -412,6 +426,51 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8852
+    },
+    {
+      "name": "tv-portal",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8867",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_portal_out"
+      ],
+      "port": 8867
+    },
+    {
+      "name": "tv-floorareas",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8886",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8886
+    },
+    {
+      "name": "tv-storeyswings",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8903",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_storeyswings_out"
+      ],
+      "port": 8903
+    },
+    {
+      "name": "tv-draftmode",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8631",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_draftmode_out"
+      ],
+      "port": 8631
     }
   ]
 }

@@ -1,0 +1,79 @@
+{
+    "HatchPattern__Grassland__Meta": {
+        "Meta__FileName"        : "Na__HatchPattern__SitePlan__Grassland__.json",
+        "Meta__Description"     : "Grassland - fields, paddocks, lawns and open grass. Small five-blade tufts, a tall centre blade between four short ones, scattered sparsely in the Ordnance Survey manner. Drawn as an AREA texture: it says 'this is grass', it does not say where each tuft grows.",
+        "Meta__Version"         : "1.0.0",
+        "Meta__Created"         : "21-Sep-2026",
+        "Meta__Author"          : "Adam Noble - Noble Architecture",
+
+        "Meta__SourceReference" : "52__LayoutEditor__HatchPatternLibrary/OS_Symbol__Examples__Woodland&Water__.png - the 'Grassland' swatch",
+
+        "Meta__WhyTransparent"  : "The tile paints TUFTS ONLY and never a background. The pale green wash under it is the fill deck of the site plan composite, a separate layer with its own colour and opacity, so either can be switched off on its own.",
+        "Meta__WhyOwnInk"       : "The tufts carry their OWN ink, #43A047 - the woodland green - rather than 'inherit'. The Grassland tag draws its edges in the OS base map grey, so tracing a field over its OS boundary adds nothing to the linework, and an inherited ink would therefore paint grey grass. A hex here beats the layer's line colour, on screen and on paper.",
+        "Meta__WhyPaperUnits"   : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so a tuft measures the same on the sheet at 1:200 and at 1:500. Pattern__Scale on a viewport adjusts from there.",
+        "Meta__WhySparse"       : "Ten tufts on a 28 x 26 mm tile, about one every 73 square millimetres - the density of the reference sheet. Grass covers whole fields, so it must be the quietest texture on the drawing: smaller and sparser than the woodland beside it.",
+        "Meta__WhyScatter"      : "The positions are a blue-noise scatter, generated ONCE and written in below as fixed numbers, so screen and paper can never disagree. It was scored on a torus - the gap across a tile seam counts like any other gap - and against the three regularities that survive a repeat: two tufts sharing a column (an endless vertical line once the tile repeats), two sharing a row, and three nearly in line. No two tufts are closer than 6.8 mm. A skewed lattice was tried first and laid the tufts out in diagonal stripes across a field.",
+        "Meta__WhyInsideTheTile": "Every tuft sits wholly inside the tile. A browser clips a <pattern> at its tile edge and the PDF stamper does not, so a tuft crossing the seam would print whole and show cut on screen."
+    },
+
+    "HatchPattern__Grassland__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the Patterns panel.",
+        "Identity__Key"         : "SitePlanHatch__Grassland",
+        "Identity__Label"       : "Grassland",
+        "Identity__Group"       : "Land Cover",
+        "Identity__Keywords"    : ["grass", "grassland", "field", "pasture", "paddock", "meadow", "lawn"],
+        "Identity__Note"        : "Referenced by 75__SitePlan__SoftLandscape__Grassland in the Tags SSOT, through SitePlan__FillHatchId."
+    },
+
+    "HatchPattern__Grassland__Tile": {
+        "Tile__Description"  : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"      : 28.0,
+        "Tile__HeightMm"     : 26.0,
+        "Tile__RowOffsetMm"  : 0.0,
+        "Tile__Note"         : "The scatter already staggers, so no row offset is needed."
+    },
+
+    "HatchPattern__Grassland__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with before a viewport overrides anything. A stroke colour written as a hex is the pattern's own ink and beats the layer's line colour; 'inherit' would take the layer's.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.18,
+        "Defaults__StrokeColour" : "#43A047",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__Grassland__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's base centre, y pointing DOWN, in tile millimetres.",
+
+        "Tuft": {
+            "Glyph__Label"   : "Grass tuft",
+            "Glyph__WidthMm" : 2.6,
+            "Glyph__HeightMm": 1.9,
+            "Glyph__Fill"    : "none",
+            "Glyph__Path"    : "M-1.0,0 L-1.3,-0.8 M-0.5,0 L-0.62,-0.82 M0,0 L0,-1.9 M0.5,0 L0.62,-0.82 M1.0,0 L1.3,-0.8",
+            "Glyph__Note"    : "Five blades on one baseline: a tall centre blade, a short one either side of it, and an outer pair leaning away. The lean of the outer pair is what makes it read as a tuft rather than a comb."
+        }
+    },
+
+    "HatchPattern__Grassland__Placements": [
+        { "Place__Glyph": "Tuft", "Place__XMm": 6.4,  "Place__YMm": 3.8,  "Place__Note": "Top band, left" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 14.7, "Place__YMm": 7.2,  "Place__Note": "Upper band, centre" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 2.2,  "Place__YMm": 9.5,  "Place__Note": "Upper band, left - 0.8 mm clear of the left edge" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 21.3, "Place__YMm": 11.7, "Place__Note": "Middle band, right" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 8.8,  "Place__YMm": 13.9, "Place__Note": "Middle band, left" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 25.3, "Place__YMm": 17.4, "Place__Note": "Lower band, right - 1.3 mm clear of the right edge" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 16.9, "Place__YMm": 19.1, "Place__Note": "Lower band, centre" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 4.8,  "Place__YMm": 21.4, "Place__Note": "Bottom band, left" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 23.7, "Place__YMm": 24.0, "Place__Note": "Bottom band, right" },
+        { "Place__Glyph": "Tuft", "Place__XMm": 12.8, "Place__YMm": 25.7, "Place__Note": "Bottom band, centre - its base 0.2 mm clear of the bottom edge" }
+    ],
+
+    "HatchPattern__Grassland__Bounds": {
+        "Bounds__Description"    : "How far a viewport may scale and turn this pattern before it stops reading as grass.",
+        "Bounds__MinScale"       : 0.25,
+        "Bounds__MaxScale"       : 4.00,
+        "Bounds__StepScale"      : 0.05,
+        "Bounds__RotationStepDeg": 15
+    }
+}

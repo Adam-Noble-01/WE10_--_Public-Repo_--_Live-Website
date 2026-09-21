@@ -44,6 +44,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.12.1 (TrueVision)
+// - A plan's base image stands open only the doors of the storey its cut
+//   passes through: Render2d hands the drawing's cut to Na__PlDoors__Apply,
+//   which shuts every other storey's doors, exactly as the linework read
+//   does, so the picture and the lines over it agree.
+//
 // 20-Sep-2026 - Version 1.12.0 (TrueVision)
 // - Depth fog. Render2d takes an optional last argument, a fog source. Without
 //   it the render is the viewport's picture as before, and the fog layer is
@@ -855,11 +861,12 @@
             const fogWas      = Na__ElevFog__SetSource(fogLayer);                  // <-- Borrowed for this render; null for a picture, so nothing fogs it. Handed back in the finally
             try {
                 Na__DrawView__SectionAdapter__SuspendLiveTool();
-                // THE DOORS STAND AS THE DRAWING DRAWS THEM - open on a plan, shut on
-                // an elevation or section - before anything reads the model, so the
-                // cut's caps and the picture both meet the posed leaves and the base
-                // image agrees with the linework over it.
-                if (definition.DoorPose) doorsPosed = Na__PlDoors__Apply(phase ? phase.root : Na__LeSnap__ModelRoot, definition.DoorPose);
+                // THE DOORS STAND AS THE DRAWING DRAWS THEM - open on a plan (its own
+                // storey's, the storey its cut passes through; every other storey's
+                // shut), shut on an elevation or section - before anything reads the
+                // model, so the cut's caps and the picture both meet the posed leaves
+                // and the base image agrees with the linework over it.
+                if (definition.DoorPose) doorsPosed = Na__PlDoors__Apply(phase ? phase.root : Na__LeSnap__ModelRoot, definition.DoorPose, definition.Cut);
                 // THE OUTLINE WIDTH GOES IN BEFORE THE CUT IS BUILT. The cap
                 // meshes read it when they are created, so setting it after
                 // ApplyCut would draw this viewport at whatever width the last

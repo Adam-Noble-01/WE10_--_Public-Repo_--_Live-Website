@@ -362,6 +362,21 @@
                             linear * 12.92,
                             vec3(lessThanEqual(linear, vec3(0.0031308)))
                         );
+                        // THE CANVAS IS PREMULTIPLIED, SO NO CHANNEL MAY STAND
+                        // ABOVE THE ALPHA. Colour and alpha reach this line by
+                        // different roads: the colour was averaged in linear
+                        // light and is being encoded here, the alpha was
+                        // averaged straight and is not touched. The encode is
+                        // concave, so wherever the samples of a pixel differ -
+                        // every soft edge in a transparent layer - it returns a
+                        // colour ABOVE the averaged alpha, which is not a
+                        // premultiplied colour at all and is undefined by the
+                        // WebGL spec. Chrome clamps such a pixel to white and
+                        // the depth fog layer has been living on that. Held to
+                        // the alpha here it is valid everywhere, and an opaque
+                        // frame - every base image, where alpha is 1 - cannot
+                        // notice, because nothing it writes exceeds 1 anyway.
+                        total.rgb = min(total.rgb, vec3(total.a));
                     #endif
                     gl_FragColor = total;
                 }

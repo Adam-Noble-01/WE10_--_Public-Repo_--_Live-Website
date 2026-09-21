@@ -127,8 +127,21 @@ import { tmpdir } from 'node:os';
         Math.max.apply(null, sizes) === 30 && Math.min.apply(null, sizes) === 15, sizes);
 
     // THE BLOCK'S PARTS | Everything Adam drew in the mock-up, and nothing else
-    check('the compact block is the code, the button, the handset and its bar: four vectors',
+    check('the compact block is the code, the button, the handset and its island: four vectors',
         shapes(compact).length === 4, shapes(compact).length);
+    // THE HANDSET IS A MODERN PHONE (21-Sep-2026). The first glyph was a squat
+    // box with a bar across its foot, and Adam found it too ambiguous to read
+    // as a phone. A tall slim body with a filled pill across the top of its
+    // screen is what every current phone looks like.
+    const handset = shapes(compact)[2];
+    const island  = shapes(compact)[3];
+    const spanOf  = (record, axis) => Math.max.apply(null, record.Shape__Points.map((p) => p[axis])) - Math.min.apply(null, record.Shape__Points.map((p) => p[axis]));
+    const topOf   = (record) => Math.min.apply(null, record.Shape__Points.map((p) => p[1]));
+    check('the handset is a slim phone, at least half again as tall as it is wide',
+        handset.Shape__Closed === true && spanOf(handset, 1) >= spanOf(handset, 0) * 1.5, [ spanOf(handset, 0), spanOf(handset, 1) ]);
+    check('the island is a solid pill, filled and unruled, in the top quarter of the handset',
+        island.Shape__Closed === true && island.Shape__Stroked === false && island.Shape__FillColour === handset.Shape__StrokeColour &&
+        topOf(island) > topOf(handset) && topOf(island) < topOf(handset) + (spanOf(handset, 1) / 4), island);
     check('it letters the button, the caption, the heading, the project and the four bullets',
         words(compact).join('|') === [ 'Scan Me', 'Use your phone or tablet camera', 'View Project Portal', 'PS01 - Musters Road',
             '·   Walk Through the 3D Model', '·   Saved Scenes and Viewpoints', '·   Measuring Tools', '·   Live Drawings Online' ].join('|'), words(compact));

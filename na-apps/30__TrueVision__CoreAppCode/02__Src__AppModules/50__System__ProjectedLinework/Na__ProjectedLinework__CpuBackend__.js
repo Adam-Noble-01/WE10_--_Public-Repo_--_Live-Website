@@ -32,7 +32,9 @@
 //     authored   the SketchUp linework, occlusion-clipped like the rest -
 //                except the LINETYPE tags (dashed, dotted, centre, door swings,
 //                clearances, overhead extents, joins, demolition), which are
-//                drawing data and go to the page uncut and unclipped
+//                drawing data and go to the page uncut and unclipped; on a
+//                plan, the ones drawn flat on a floor (door swings and
+//                clearances) keep to the storey its cut passes through
 //     section    the outline of cut material, never occluded because the
 //                cut is by definition the nearest thing to the viewer
 //
@@ -78,6 +80,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - One storey per plan. The linetype GLBs are one file for the whole
+//   building, so a plan drew every storey's door swings and clearances. On a
+//   plan, the annotation whose category matches options.Storeys.AnnotationTokens
+//   is kept to the storey the cut passes through (Na__ProjectedLinework__Storeys__,
+//   the floors measured on collected.Storeys); the rest of the annotation, and
+//   every elevation and section, is drawn exactly as before. ProjectView returns
+//   Storey - which storey, and how many annotation edges were left off it.
+//
 // 18-Sep-2026 - Version 1.3.1
 // - Annotation linework. Na__PlCpu__SplitAnnotation divides the authored
 //   edges by owner key against options.AnnotationCategoryTokens: the SketchUp
@@ -131,6 +142,15 @@
         Na__PlOwners__Blank,
         Na__PlOwners__Attach
     } from './Na__ProjectedLinework__Owners__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Storeys (a plan's storey band)
+    // ------------------------------------------------------------
+    import {
+        Na__PlStorey__ForCut,
+        Na__PlStorey__MarkKeys,
+        Na__PlStorey__KeepEdges
+    } from './Na__ProjectedLinework__Storeys__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -399,8 +419,15 @@
         // own edges here, before the clip; the authored linework never passes through.
         const modelEdges = options.HideFlushJoins === true ? Na__PlFlush__CutFlushJoins(soup, viewEdges) : viewEdges;
         const drawnEdges = Na__PlEdges__ToViewSpace(authored.Kept, viewMap, options.EdgeLiftWorldUnits, authored.KeptOwners);
+        // STOREY | On a plan, the annotation drawn flat on a floor keeps to the
+        // storey the cut passes through: the linetype GLBs hold every storey's
+        // lines in one file, and nothing below would take the others away.
+        const band     = options.Storeys ? Na__PlStorey__ForCut(collected.Storeys || null, definition.Cut) : null;
+        const onStorey = band
+            ? Na__PlStorey__KeepEdges(annotated.Annotation, annotated.AnnotationOwners, Na__PlStorey__MarkKeys(ownerTable ? ownerTable.Keys : null, options.Storeys.AnnotationTokens), band)
+            : { Edges : annotated.Annotation, Owners : annotated.AnnotationOwners, Dropped : 0 };
         // ANNOTATION | Straight to the page from here: no cut, no clip.
-        const annotationDrawn = Na__PlEdges__ToDrawingSegments(annotated.Annotation, viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm, annotated.AnnotationOwners);
+        const annotationDrawn = Na__PlEdges__ToDrawingSegments(onStorey.Edges, viewMap, options.ScaleDivisor, options.MinimumSegmentLengthMm, onStorey.Owners);
         mark(Na__PlCpu__PHASE_EDGES, startedAt);
         Na__PlCpu__CheckAbort(settings);
 
@@ -467,9 +494,10 @@
         return {
             Classes       : classes,
             Phases        : phases,
-            EdgeCount     : modelEdges.Count + drawnEdges.Count + Math.floor(annotated.Annotation.length / 6),
+            EdgeCount     : modelEdges.Count + drawnEdges.Count + Math.floor(onStorey.Edges.length / 6),
             OccluderCount : soup.TriCount,
-            StagedCount   : soup.SourceCount
+            StagedCount   : soup.SourceCount,
+            Storey        : band ? { Keys : band.Keys, FloorUnits : band.FloorUnits, CutUnits : band.CutUnits, AnnotationOffStorey : onStorey.Dropped } : null
         };
     }
     // ------------------------------------------------------------

@@ -2,6 +2,158 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.108.0  -  21-Sep-2026
+### The Scan Me Button's Handset Now Looks Like the Phone in Somebody's Pocket
+
+**Overview**
+- From Adam, on the Project Portal block's Scan Me button: the phone glyph was "a bit too ambiguous" and should
+  convey a modern smartphone. It was a squat rounded box (2.4 x 4.0 mm) with a bar across its foot - at that
+  size it could as well have been a door, a battery or a tablet.
+- Six candidates were drawn at print size and at 12.5 px/mm (the old one, two Dynamic Island pills, a home
+  indicator bar, an inset screen and a notch). The Dynamic Island reads as a phone soonest, at both sizes.
+
+**What changed**
+- `Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js` 1.2.0: the handset is 2.4 x 4.6 mm (was 4.0), with
+  corners at 0.29 of its width (was 0.22) and a FILLED, unruled pill across the top of the screen - 0.42 of the
+  width wide, 0.15 tall, 0.18 down - in place of the bar. Every size is a fraction of the width, so a different
+  handset width in the config keeps the look.
+- Still two records in the same slots (handset, then pill), and the pill writes every key the old bar did, so a
+  block already on a sheet rebuilds into the records it has and keeps nothing of the bar.
+- Config: `ProjectQr__ButtonIconHeightMm` 4.0 -> 4.6 (the fallback too), and a `ProjectQr__ButtonIconNote`.
+- Test: `Na__Test__ScrapbookProjectQr__.test.mjs` asserts a slim handset (at least 1.5 times as tall as wide)
+  and a filled, unruled pill in its top quarter. All checks pass; `Na__Verify__Exports__.mjs` passes.
+
+**Checked in the app**
+- Built through the served module and painted with `Na__LeShapeGeo__Push` + `Na__LeChrome__ToSvgMarkup` on
+  PS01, at 30 mm and 15 mm, without entering the editor: the pill paints as `fill` with `stroke="none"`, inside
+  the handset, at both sizes. NOT tried by Adam; NOT in ValeVision (the block itself is not ported yet).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.107.0  -  21-Sep-2026
+### Draft Mode, on LayOut's Own Key: A Heavy Sheet Was Never Slow to Draw, Only to Draw Again at Every Zoom Step
+
+**Overview**
+- From Adam, on RB05 West Farm's ground floor plan - "very slow and quite painful to use": a Draft mode like
+  SketchUp LayOut's, on K. Only the viewports' vector linework, every line the thinnest one a screen can draw
+  in its own colour, no fills, no raster layer drawing or rendering anything - "the most bare-bones,
+  optimising speed above everything else" - and K again to switch it off.
+- Built as asked: K toggles it (a Draft button beside Snap and Notes does the same and is lit while it is on).
+  New folder `51__System__LayoutEditor/26__System__DraftMode`. Researched and mapped before any code:
+  `TrueVision__PLAN__DraftMode__.md` - section 3 is LayOut, section 4 the map, section 5 what is still mine.
+
+**What LayOut does, and the TrueVision reading of it**
+- LayOut 2024.0's Draft Mode "defers the final rendering of entities": no line weights, no dashes, no pattern
+  fills while you work (users call it the hairline view); K; "Pan and Zoom Only" or "Always On" (the one for
+  tracing over a model); options to hide SketchUp viewports and raster-rendered objects to their bounding boxes;
+  a 0.1-3 s redraw delay (default 0.3 s) after a pan or zoom; printing and export never affected.
+- TrueVision's vector linework is already cheap to KEEP (one SVG per viewport, never rebuilt on zoom), so Draft
+  here is Always On plus the raster option: the vectors stay, every raster goes, plus the redraw delay.
+
+**Why the sheet was slow - and what was NOT the reason**
+- Nothing is regenerated on zoom. A zoom is one CSS transform on the paper; no markup, stroke width or picture
+  is rebuilt (the map, 4.1 and 4.4). What happens instead is that the BROWSER rasterises the whole paper again
+  at every zoom step: every linework band at full width with round caps and joins, every dash, every fill,
+  hatch and gradient, the base image resampled (5,120 x 3,618 px for D02's one frame at Medium), the depth fog,
+  and the paper's blurred shadow. That per-step raster is what Draft takes away.
+
+**What Draft draws**
+- **No raster picture, drawn or rendered.** Base images, depth fog and 3D pictures are `display:none` - not
+  painted, not composited. And none is RENDERED: `Na__LeVp2d__Fill` and `Na__LeVp3d__Fill` book nothing and
+  cancel a render waiting on its debounce, the three debounced schedulers drop a timer that fires in Draft, and
+  the render queue's `stillWanted` skips a queued picture the moment Draft goes on. The pictures held stay in
+  their elements, so switching Draft off shows them at once, or books exactly one render where something went
+  stale meanwhile.
+- **Every line a hairline in its own colour.** `vector-effect: non-scaling-stroke` measures a width in the SVG's
+  own CSS pixels whatever its viewBox (paper mm for the sheet, drawing mm for a viewport); the paper's zoom is a
+  transform above the SVGs that it does not undo, so the module writes the width as
+  1 / (zoom x devicePixelRatio). No dashes (hidden and overhead lines draw solid, in their own grey).
+- **No fills.** Text keeps its fill; a shape that had ONLY a fill (a leader's dot, a bubble's wash, a room with
+  its outline off, a text mask) is outlined in the draft ink so it does not vanish. Site plan washes and hatch
+  decks are not drawn at all. Images on the sheet (the title block logo) are hidden.
+- **A viewport with nothing to draw** - Projected Linework off, or any 3D viewport - shows a dashed outline and a
+  note ("Raster only - not drawn in Draft (K)"), LayOut's bounding box. Draft never switches Projected Linework
+  on for it: that starts a projection, seconds per viewport, the opposite of fast.
+- **The zoom hold (LayOut's redraw delay).** From the first zoom step the paper is held as one composited layer
+  (`will-change: transform`), so a step scales pixels already drawn; 300 ms after the wheel rests the hold comes
+  off and the hairline width is re-solved in the same task, so the sheet is rasterised ONCE, crisp, at its new
+  zoom. The width is deliberately not re-solved per step: a paint change inside the held layer would make the
+  browser rasterise it again. The stage is hinted as a composited scroller for pans; the paper's shadow goes.
+- **A view, never a setting.** Nothing is written to a sheet, a viewport record, the browser draft or
+  localStorage; it is off on every load, survives switching sheets and leaving the editor, and K leaves the tool,
+  the selection and a point half placed alone - it can be pressed in the middle of drawing a room. Snapping reads
+  data, never paint, so every vector snap point is unchanged. **The PDF cannot see Draft**: Draft is a
+  stylesheet plus six screen-side functions, and the exporter calls none of them.
+
+**Numbers** - the live D02 plan markup captured from the app, zoomed 0.45x to 3.2x in 72 steps in headless
+Chrome at 150% display scaling, three runs each (they agreed to within a few percent):
+
+| | Normal | Draft | Draft + zoom hold |
+|---|---|---|---|
+| CPU raster - per step (median) | 110 ms (108-136) | 52 ms (36) | **17.5 ms (17)** |
+| CPU raster - frames per second | 9 | 19 | **57** |
+| GPU raster - per step (median) | 76 ms (67-83) | 50 ms (23) | **20 ms (17)** |
+| GPU raster - frames per second | 13 | 20 | **50** |
+
+The one crisp redraw when the wheel rests costs ~34 ms. The hold is what reaches the display's own frame rate;
+the Draft styling alone roughly doubles the rate. Headless Chrome on this workstation, not Adam's Edge - the
+ratios are the point, not the milliseconds.
+
+**Also fixed**
+- `Na__LeVp2d__Release` cleared the underlay's debounce timer but not the fog's, so a fog render could still
+  start for a frame already let go.
+
+**Proved**
+- The hairline maths in headless Chrome BEFORE any app code: zoom 0.5 to 4 at devicePixelRatio 1 and 1.5, in a
+  paper-mm SVG and a 1:100 drawing-mm SVG - exactly 1.0 device pixel of ink in every case; without the zoom
+  term the line grew with the zoom (2.0 at x2, 4.0 at x4), which is why the term is there.
+- In the app, RB05 on a no-store server, every write refused by a guard (one was attempted - a test 3D
+  viewport's snapshot upload, refused and never sent):
+  - K on the stage switches it; the width read back as 1.64358 px at zoom 0.4056 x dpr 1.5 - one device pixel -
+    with the band colours kept and the dashes gone; the base image `display:none`; text fills untouched; the
+    toolbar button lit.
+  - Raster level Medium -> High in Draft (it re-keys every base image): **0 renders** in 2.5 s. K off: the old
+    picture back at once, then exactly one render. Two sheets never yet shown this session, entered in Draft (four
+    elevations, two site plans): **0 renders**; all vectors painted; the site plan washes and hatches not drawn.
+  - The zoom hold: six quick steps held the layer and left the width alone; 300 ms after the last, the hold was
+    off and the width read exactly 1 / (1.5473 x 1.5) = 0.430855 px.
+  - A held K counts once; K typed in a panel field stays in the field; Ctrl+K is left to the browser; Caps Lock
+    K works. K in the middle of a floor area: the tool and the room in progress survive, a corner placed in
+    Draft lands, and nothing is written.
+  - A raster-only viewport (flipped in memory, no model call, put back): the dashed outline one screen pixel wide
+    and the note at 11 px at any zoom; restored, its lines repaint from the cache with no render. A 3D viewport
+    (a stand-in body, through the real `Na__LeVp3d__Fill`): nothing booked in Draft, its render booked 1.2 s after.
+  - The same live markup rendered offline in both modes - the raster wall fill, the raster-only furniture and
+    the logo go; every vector line stays at one pixel; text and the title block stay.
+- Both verifiers: every named import resolves (431 files); the module graph shows only its two old
+  false positives (Statement PDF and SceneEditor string literals). No import cycle - the flag lives in a leaf
+  module, `DraftMode__State__`, so the viewport modules never import the sheet surface back.
+
+**Decisions that are mine until Adam confirms them** (plan doc section 5)
+- Always On, toggled by K - LayOut's "Pan and Zoom Only" was not asked for and is one config switch away.
+- A raster-only or 3D viewport is an outline and a note; Force Render still renders (an explicit request) and its
+  picture waits, hidden, for Draft to end; the title block and border are drafted too; the fill-only ink is a
+  neutral grey (CSS cannot read a fill colour into a stroke); Draft is for the session only.
+
+**Service worker**
+- No bump from this release, checked against HEAD: every new import names a NEW file, and the three sheet surface
+  exports the new controller imports (`ZOOM_EVENT`, `GetZoom`, `Refresh`) are all in HEAD's copy, so a warm cache
+  links whichever mix of old and new modules it holds. The token on disk already reads `2026-09-21-02` (the storey
+  band session), and that one eviction carries this release's stylesheet to warm clients too.
+
+**Files**
+- New: `51__System__LayoutEditor/26__System__DraftMode/` - `Na__LayoutEditor__DraftMode__.js`,
+  `Na__LayoutEditor__DraftMode__State__.js`, `Na__LayoutEditor__DraftMode__Config__.json`,
+  `Na__LayoutEditor__Styles__DraftMode__.css`; `TrueVision__PLAN__DraftMode__.md`
+- `20__System__Viewports/` - `Viewport2d__.js` (1.13.0), `Viewport2d__Frame__.js` (1.3.0), `Viewport3d__.js` (1.8.0)
+- `30__System__SheetTools/Na__LayoutEditor__SheetTools__Keyboard__.js` (1.7.0)
+- `03__Core__Config/` - `KeyMappings__.json` (the K row and its catalogue entry), `ConfigState__KeyMap__.js` (1.1.0)
+- `40__Ui__Panels/Na__LayoutEditor__Toolbar__.js` (1.13.0)
+- `03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css` (one @import)
+
+**ValeVision**
+- Not ported. It waits for Adam's sign-off, then the question.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.106.0  -  21-Sep-2026
 ### The Layers List Was Only Ever the Order of the Viewports; Now It Is the Order of the Sheet
 
@@ -140,6 +292,111 @@
 - `TrueVision__PLAN__FloorAreas__.md` (ledger and decisions)
 
 # ---------------------------------------------------------
+## TrueVision3D v2.105.0  -  21-Sep-2026
+### A Floor Plan Is One Storey: Its Cut Picks the Floor, and Every Other Floor's Doors and Swings Stay Off It
+
+**Overview**
+- From Adam, on RB05 West Farm's D02 ground floor plan: faint door swings in the Gallery, the Kids Lounge and
+  the atria where the ground floor has no door - "it's rendering all of the door swings for all of the floors.
+  It should only do the doors within that story."
+- A plan now draws the doors of ONE storey - the storey its cut plane passes through. Other storeys' swings,
+  their SketchUp-drawn swing arcs and their open door leaves stay off it, in the linework, the base image and
+  the PDF. Nothing is stored and nothing needs setting: the storey is found from the cut and the model.
+
+**What was drawing them - two leaks, found by measuring RB05, not by reading code**
+- **The SketchUp linetype swings** (`TrueVision__Linetype__DoorSwings`, the ghosts in Adam's screenshot). The
+  GlbBuilder writes ONE linetype GLB for the whole building - 1,740 segments on RB05: 1,199 at the ground floor,
+  366 at 4.2 m, 150 at 7.5 m and 25 strays 10 m below ground - and since v2.63.1 linetype annotation goes to the
+  page uncut and unclipped. So every plan drew every storey's arcs, at the Door Swings layer's 0.10 mm grey.
+  The 3D storey toggle could never switch them off: they are in no storey's group.
+- **The automatic swings** (v2.42.0). Right on the ground floor - its cut drops everything above - but a plan
+  with no view depth keeps everything BELOW its cut, and a swing joins the drawing after the occlusion clip, so
+  no slab hides it: the First Floor Plan drew all 770 ground floor swing segments, the Second Floor Plan both
+  storeys'. The pose also stood every door in the building open, so the ground floor's exterior doors swung out
+  past the single-storey roofs on the First Floor Plan, and a click on an upper plan could shut a door on the
+  floor below.
+
+**The rule - the cut picks the storey, the doors say how high it is**
+- The model's storeys are its `Storey__<Key>__<Element>` category groups - the ones the storey toggle shows and
+  hides. No record says how HIGH a storey is (RB05's three plans all have datum 0; the cut offsets of 2000,
+  6200 and 8600 mm carry the heights), so it is measured: a storey's floor is the median bottom of its doors.
+  RB05: ground 0 mm, first 4200 mm, second 7500 mm. (The bounding boxes Seed From Model Storeys uses put the
+  first floor at 2500 mm - slabs and stairs hang below a storey's floor. Doors stand on it.)
+- A plan belongs to the storey with the highest floor at or below its cut. Its band runs from 500 mm under that
+  floor to 500 mm under the next floor up; the lowest storey's runs down for ever (ground falls away outside), the
+  top storey's up for ever. A door, a swing or a floor-lying line belongs to the storey whose band holds it.
+- **Why not the plan's Storey dropdown (v2.87.0) or its name.** Every RB05 storey is a guess, from the name: by
+  height the dropdown would call the First Floor Plan "second" and the Second Floor Plan "roof". Nothing links
+  "first" to `Storey__FirstFloor` or to a height, and the linetype arcs carry no storey at all - their height is
+  all there is. And a per-door "does the cut plane touch it" test fails at RB05's 2000 mm ground cut, which is
+  door-head height. The plane's height against the measured floors is the robust form of the same idea.
+- A model with no `Storey__` groups, or doors on only one storey, keeps everything exactly as before. Elevations
+  and sections are untouched.
+
+**What keeps to the band, on a plan**
+- **The doors stood open.** Only the plan's own storey's doors open; every other door is shut, as on an
+  elevation - in the linework read and in the base image, which both pose through `Na__PlDoors__Apply`.
+- **The automatic swings**, traced only for the doors stood open, and kept to the band again when added.
+- **Storey-bound annotation**: the linetype categories named in the config - door swings and clearances, the ones
+  drawn flat on a floor. Overhead extents are left out on purpose (drawn at the height of the thing above, so a
+  band would move them to the wrong plan), and so is anything drawn once for every storey.
+- **The door hit test**: a click answers only for a door on the plan's storey.
+
+**Keys**
+- The collection key carries the storey a posed plan is cut through (plans on two storeys stand different doors
+  open, so never share a read). The underlay key already held the cut and the model, so it needs nothing new.
+- `BuildToken` moves to `2026-09-21-storey-swings`: every cached and baked drawing re-projects once.
+
+**Config** - `ProjectedLinework__Storeys__Config`
+- `Enabled` (true), `CategoryPrefix` (`Storey__`), `FloorToleranceMm` (500), `AnnotationTokens`
+  (`Linetype__DoorSwings`, `Linetype__ClearanceLines`). A change here needs a BuildToken bump with it.
+
+**Files**
+- New: `50__System__ProjectedLinework/Na__ProjectedLinework__Storeys__.js` 1.0.0 (`Na__PlStorey__`) - pure: storey
+  keys, the floors measured from door samples, a plan's band, and keeping edges to it.
+- Projected linework: `DoorPose__` 1.2.0 (StoreySamples, Storeys, StoreyBand; Apply takes the cut; SwingEdges,
+  AppendSwings and HitTest keep to the band), `Projector__` 1.5.0, `CpuBackend__` 1.4.0, `Pipeline__` 1.5.0,
+  `ConfigAccess__` 1.2.0 (`GetStoreySetup`); `AppConfig__.json`.
+- Layout Editor: `SnapshotRenderer__` 1.12.1 (hands Apply the cut).
+- Test: `80__Testing__PrototypeEnvironment/Na__Test__StoreyBand__.test.mjs` (53 checks, RB05's measured doors).
+- Service worker: token `2026-09-21-02`.
+
+**Verification**
+- The storey band test passes (53 checks, including the config fallbacks against the shipped JSON), and the
+  named-export verifier passes on every module.
+- In the app on RB05 (localhost:8903, every non-read request refused and none attempted), each plan rendered with
+  the rule on and off on the same loaded model:
+
+  | Plan | Automatic swings | SketchUp swings | Clearances | Lower storeys' door lines |
+  |---|---|---|---|---|
+  | Ground (cut 2000) | 770 -> 770 | 1,740 -> 1,224 | 20 -> 8 | - |
+  | First (cut 6200) | 1,134 -> 364 | 1,740 -> 366 | 20 -> 12 | 6,531 -> 70 |
+  | Second (cut 8600) | 1,242 -> 108 | 1,740 -> 150 | 20 -> 0 | 8,926 -> 1,050 |
+
+  Each plan's own storey's door lines were identical on and off, and on the ground floor plan the drawings
+  differed by exactly the 528 segments left off: nothing else moved. The 1,224 kept on the ground floor are its
+  own 1,199 and the 25 strays under it.
+- The pose: each plan stood open exactly its own storey's doors (27 / 15 / 6; the two ground floor leaves that
+  stay shut are ADR025's fixed panels, the same with the rule off); the shut pose ignores the band; all 146
+  moving panel objects went back exactly.
+- The hit test, at six door points per storey: rule off, the First Floor Plan answered 6/6 ground floor doors
+  through the slab; rule on, each plan answers 6/6 of its own and 0/6 of every other storey's.
+- The First Floor Plan's base image differs in 1,076 pixels on and off - the ground floor's exterior door
+  leaves that used to stand open past the roofs - and nowhere else.
+- The service worker picked up the new token on the running page ("New service worker active - reloading").
+
+**Known, and left alone**
+- RB05's elevations still draw the SketchUp door swings: 1,706 segments on the South East Elevation, flat lines
+  at 0, 4.21 and 7.51 m, uncut and unclipped. Elevations were left as they were; offered to Adam.
+- 25 stray swing segments sit 10 m below ground, 2 m east of the building (x 47-48 m, z -17 m). Below the lowest
+  floor counts as the ground floor, so the Ground Floor Plan still draws them; they want deleting in SketchUp.
+- RB05's first floor Velux rooflights are modelled as doors, so the First Floor Plan draws them open with swings.
+- A ground floor door now carries two arcs where SketchUp drew one too: the automatic swing and the linetype one.
+
+**ValeVision**
+- Not yet ported: rides with the pending plan doors port, on Adam's sign-off.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.104.0  -  21-Sep-2026
 ### A Room's Area Is Not Something to Store, It Is a Question to Ask the Drawing Underneath It
 
@@ -257,6 +514,60 @@
 - `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (log entry only)
 
 # ---------------------------------------------------------
+## TrueVision3D v2.103.0  -  21-Sep-2026
+### Every Pixel of the Depth Fog Was a Colour That Does Not Exist, and Chrome Was Quietly Forgiving It
+
+**Overview**
+- Chasing a black render on Adam's iPad, the fog layer's own pixels were read back off the canvas
+  for the first time - 1,459,200 of them, from RB05's South East elevation. **99.69% were invalid**:
+  a premultiplied colour standing ABOVE its own alpha, which the WebGL specification leaves
+  undefined. Chrome clamps such a pixel to white, so the fog has always looked right here. Nothing
+  says the next browser, the next PDF viewer or the next iPadOS will.
+- This entry does NOT claim to fix the iPad - see v2.102.0 and the probe page; the evidence points at
+  a model texture, not at this. It fixes a real fault found on the way, with a harness that proved
+  it rather than a theory that explained it.
+
+**Where the invalid colour came from - two places, one deliberate**
+- **The step.** A premultiplied white fog writes colour equal to alpha. Colour and alpha reach the
+  PNG by different roads when a bake is supersampled - the colour through the linear buffer and its
+  sRGB encode, the alpha straight - and round to 8 bits apart, so a colour landing ONE step under
+  its alpha un-premultiplies to 5/6 of white: a thin fog, faintly grey, measured at 213 in a PDF in
+  v2.94.0. The cure then was to add a step to the colour. That put it one step OVER instead, which
+  is not a colour at all.
+- **The encode.** Worse, and not deliberate: the samples of a pixel are averaged in linear light and
+  the sRGB encode is concave, so wherever the samples differ - every soft edge in the layer - the
+  encoded colour comes out ABOVE the straight-averaged alpha on its own. Measured up to 62 steps
+  over, against the step's 1.
+
+**The fix, in two lines**
+- The fog shader keeps the step only on the road that needs it (the supersampled bake), and writes
+  colour exactly equal to alpha when it draws straight to the canvas, where the two travel together.
+- The supersampler's present pass holds the encoded colour down to the alpha - `min(rgb, a)` - which
+  is the last thing written before the canvas and is correct for any premultiplied output. An opaque
+  frame, which is every base image, cannot notice: nothing it writes exceeds 1 anyway.
+
+**Proved, not asserted**
+- Same viewport, same 4 samples, before and after: colour above alpha **1,454,642 pixels -> 0**.
+  Every pixel now has colour EXACTLY equal to alpha.
+- The picture is unchanged where it already worked: the PNG's colour plane is 255 on all 1,459,200
+  pixels, as before, and the 2/255 veil that keeps a scaled layer from drawing a grey line round its
+  own fog is untouched.
+- And it no longer depends on anyone's mercy: simulating a browser that divides without clamping,
+  **0 pixels** now differ from a browser that clamps. Before the fix that simulation is the whole
+  elevation gone grey.
+
+**Also**
+- `80__Testing__PrototypeEnvironment/Na__Test__IosTextureProbe__.html` - a page that asks a device
+  itself why a texture renders black: the sizes and shapes the app really uses, a memory ramp, and
+  this same premultiplied round trip. Plain WebGL2, no app and no three.js, printed big enough to
+  photograph, because an iPad has no console to read.
+
+**Files**
+- `02__Src__AppModules/49__System__ElevationDepthFog/Na__ElevationDepthFog__Shader__.js`
+- `02__Src__AppModules/05__RenderPipeline/Na__RenderEffect__Supersampler__.js`
+- `80__Testing__PrototypeEnvironment/Na__Test__IosTextureProbe__.html` (new)
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.102.0  -  21-Sep-2026
 ### The Project Portal Block Was Placed, Not Set: Every Gap Was a Baseline, Measured as Though It Were a Space
 
@@ -305,6 +616,100 @@
 - `02__Src__AppModules/51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js`
 - `02__Src__AppModules/51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__Config__.json`
 - `80__Testing__PrototypeEnvironment/Na__Test__ScrapbookProjectQr__.test.mjs`
+
+# ---------------------------------------------------------
+## TrueVision3D v2.101.0  -  21-Sep-2026
+### The Fields Were the Gaps: Grassland, Rough Grassland and a Light Grey for the Drives - and a Hatch That Keeps Its Own Colour
+
+**Overview**
+- Adam, 21-Sep, ringing six empty white patches on RB05's site plan: "Build out the grassland and
+  rough grassland materials here... Find the SSOT and add new tags and materials for those as
+  well... Create a light grey as well for whatever tag we have set up for driveways. If there is a
+  hard standing tag, make a material so I can make the driveway a very light grey as well...
+  I need some materials to fill out the scene for the site plan because there are huge gaps in it."
+- Two hatch patterns, two tags, three face materials, and the light grey wash put on the three tags
+  that can hold a drive. None of it paints until faces are tagged in SketchUp and exported - the
+  recipe, and the trap that will bite first, are in the plan document, section 11c.
+
+**The two patterns, drawn against the OS sheet**
+- **Grassland**: a five-blade tuft - a tall centre blade, a short one either side, an outer pair
+  leaning away - on a 28 x 26 mm tile, ten to a tile, about one every 73 square millimetres, which
+  is the reference sheet's density. Grass covers whole fields, so it has to be the quietest texture
+  on the drawing: smaller and sparser than the woodland beside it.
+- **Rough Grassland**: taller blades, a wider splay and a loose leaf above them, in TWO alternating
+  shapes leaning opposite ways, nine to a 32 x 30 mm tile. Rough grass is irregular by definition;
+  one stamped tuft repeated reads as a planted lawn.
+- **The positions are a blue-noise scatter, generated once and written in as fixed numbers**, scored
+  on a torus - a gap across the tile seam counts like any other - against the three regularities
+  that survive a repeat: two tufts sharing a column (an endless vertical line once the tile
+  repeats), two sharing a row, and three nearly in line. The first attempt was a skewed lattice, and
+  at x3 it laid visible diagonal stripes across a field.
+- Both were rendered at TRUE PRINT SIZE, on their wash, inside an outlined field, before a line of
+  code was written.
+
+**A pattern may now carry its own ink**
+- The Grassland tag draws its EDGES in the OS base map grey, on purpose: a field is traced over OS
+  linework that is already on the drawing, and at the same colour, weight and Z the two merge into
+  one band - so tracing a field adds nothing to the linework. Green outlines round every field would
+  bury the OS structure the base map is for.
+- But grass is green. `Defaults__StrokeColour` written as a hex is now the pattern's own ink and
+  beats the layer's line colour; `'inherit'` - every pattern before these two - still takes it, so
+  no existing wood or pond moves. The field was already in the format and already parsed; only the
+  painter ignored it.
+- Decided in `Na__LeVp2d__SitePlanBuild`, which is the ONE list the screen and the PDF both paint
+  from, so paper cannot disagree with the screen.
+
+**The SSOT**
+- Tags 2.6.0: `75__SitePlan__SoftLandscape__Grassland` and `__RoughGrassland` - edges styled exactly
+  as `OsMapping__General`, fill Z **1**, the bottom of the stack, so every other wash (hard standing
+  2, woodland 3, water 4, buildings 5, proposal 8) paints over grass and one big grass face under
+  the whole site is a legitimate way to work. Both in the two exclusion lists.
+- Materials 1.6.0: MAT804 grass `rgb(229,242,214)` and MAT805 rough `rgb(231,235,217)`, both
+  sampled from the OS reference sheet, and MAT806 hard standing `rgb(235,235,235)` - about 8 per
+  cent grey, light enough to read as paving, dark enough to survive a laser printer.
+- The hard standing wash went on THREE tags, not one: Site Access (the SSOT's drive), **Site Paths -
+  which is where RB05 actually draws its drives, 497 segments** - and Hard Surfaces. Adam asked for
+  "whatever tag we have set up for driveways", and in his own model that is Paths.
+
+**A conifer that has been cut in half on screen since the woodland shipped**
+- Found while writing the seam guard, not by looking for it. Mixed Woodland places a conifer at
+  x 17.4 on an 18 mm tile, so its arms reach 0.55 mm past the right edge. A browser CLIPS a
+  `<pattern>` at its tile edge and the PDF stamper does NOT - so every wood on screen had that
+  conifer's three right-hand arms sliced off, while the paper copy printed it whole.
+- Fixed with a knit copy one tile to the left, the way Ponds & Lakes already did it. The test now
+  checks every glyph of every pattern in the library.
+
+**Proved, not read**
+- `Na__Test__SitePlanComposites__.test.mjs`: 67 -> 91 checks. **It had failed outright since
+  v2.95.0** - `Viewport2d__Linework` began asking `Na__LeModelLayers__IsOn` and the first stub block
+  was never given it, so the whole file died at load. Repaired, so it guards again.
+- The two checks that matter were CALIBRATED: against the pre-fix woodland file the seam guard names
+  the conifer, and against HEAD's painter the tufts paint `#666666`. Both pass on the new code.
+- The SSOT is in another repository, so the test now reads it: every hatch id and every face
+  material a site plan tag names must really exist, no two tags may share a stem, and every weight
+  in points must match its millimetres.
+- In the app on RB05, behind a write guard: the library loads four patterns, the Patterns panel
+  lists all four with swatches, and **the Grassland tile painted GREEN on the Proposed Alterations
+  layer, whose ink is red** - own ink, end to end, through the panel. Sheet left byte-identical,
+  nothing sent.
+
+**Files**
+- `52__LayoutEditor__HatchPatternLibrary/05__SitePlanHatches/Na__HatchPattern__SitePlan__Grassland__.json` (NEW, 1.0.0)
+- `52__LayoutEditor__HatchPatternLibrary/05__SitePlanHatches/Na__HatchPattern__SitePlan__RoughGrassland__.json` (NEW, 1.0.0)
+- `52__LayoutEditor__HatchPatternLibrary/05__SitePlanHatches/Na__HatchPattern__SitePlan__MixedWoodland__.json` (1.0.1, the seam)
+- `52__LayoutEditor__HatchPatternLibrary/05__SitePlanHatches/HatchPack__Index__.json` (1.1.0)
+- `51__System__LayoutEditor/36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js` (1.2.0)
+- `51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__Viewport2d__SitePlan__.js` (1.1.0)
+- `80__Testing__PrototypeEnvironment/Na__Test__SitePlanComposites__.test.mjs`
+- `TrueVision__PLAN__SitePlanComposites__.md` sections 2 (SC23-SC26), 11c and 12
+- Plugins: `Na__DataLib__CoreIndex__Tags__.json` (2.6.0), `Na__DataLib__CoreIndex__Materials__.json` (1.6.0)
+
+**No service worker token bump**: this release adds no new export and no new import, so a warm cache
+cannot be left holding half a graph. The uncommitted `2026-09-21-01` from the Project Portal block
+covers these files if the two ship together.
+
+**NOT YET TRIED BY ADAM**, and nothing paints until he tags faces in SketchUp and exports. Not in
+ValeVision - it has no site plan system at all.
 
 # ---------------------------------------------------------
 ## TrueVision3D v2.100.0  -  21-Sep-2026
@@ -391,6 +796,84 @@
 
 **NOT YET TRIED BY ADAM. Not in ValeVision yet** - it needs `Shape__Qr` in its record layer and shape
 painter, and a Project QR Code system of its own.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.99.0  -  21-Sep-2026
+### Four Things Wrong With a Statement Read on Paper - a Buried Heading, a Congested Title, Frames Like Picture Rails, and a Ten Megabyte File
+
+**Overview**
+- Adam, 21-Sep, over a marked-up export of the RB05 pre-application statement: "Under the
+  logo, before the title, still feels too congested. The borders around the images on the
+  downloaded PDF don't look good either. Let's change the PDF render method because that PDF
+  is like 10 MB. And a title here is getting completely stuck behind the table."
+- Four separate faults in one screenshot, and only one of them was where it looked.
+
+**The buried heading was the theme's own fault, faithfully reproduced**
+- `#### 6.8 | Material Specification Comparison` sat UNDER its own table. h4, h5 and h6 all
+  end two millimetres SHORT - `margin-bottom: -02.00mm` - which is right, because the
+  paragraph under them opens with one em of its own and the two settle into a deliberate
+  1.53 mm. A table brings nothing: the theme says `table { margin-top: 00.00mm }`, so the
+  minus two is uncontested and the table climbs over the heading.
+- THE TYPORA THEME HAS EXACTLY THE SAME FAULT, so this is a stated departure from it rather
+  than an alignment. Its own note calls h5 the heading "used where zero gap is required... a
+  table heading being the case it was added for" - but h5 carries the same minus two and
+  collides just as hard. There is no heading level in the theme that can safely introduce a
+  table.
+- A table after a heading is now given exactly the one em a paragraph would have brought, so
+  the gap under a heading is the same whatever follows it.
+- AND THE SAME TABLE AGAIN, WEARING THE EDITOR'S CLOTHES. Every table in these statements
+  sets its column widths with spans, so the whole table is one raw HTML block: in the READER
+  that is a bare `<table>` and the rule catches it, while in the EDITOR the identical markup
+  is wrapped in a frozen card and the rule cannot see it. Fixing only the reader would have
+  left the heading buried in the editor and clear on the page - the sort of difference a
+  client finds rather than we do.
+
+**The congested title**
+- A picture is an inline box and brings no bottom margin, so the document title under the
+  company logo had nothing but its own 0.83 em, measured from the logo's BASELINE, which is
+  tighter still. A heading that directly follows a picture now gets 8 mm. Written for both
+  shapes the document takes - a bare sibling in the reader, a frozen card in the editor - or
+  the gap would have appeared in one view and not the other.
+
+**The frames: eighteen inline copies became one house rule**
+- Every figure carried the same two declarations written out by hand, `border: 10px solid
+  #555041` and a 0.8-alpha black shadow. At 144 dpi that border prints about two and a half
+  millimetres thick, and around a white-background CGI it reads as a picture rail. Asked
+  which way to take it, Adam chose the olive kept and the weight taken out: 2 px, and the
+  shadow eased to 0.18.
+- It is now a class - `na-figure` - and the stylesheet draws the edge. The eighteen inline
+  copies have gone from the statement, so changing it again is one line, and figures not yet
+  written inherit it.
+- THE CROP HAD TO LEARN THIS. The frame is the element with an edge, so the class moves
+  OUTWARDS onto the frame on a crop and back IN onto the picture on an uncrop; leaving it on
+  the picture would draw the border inside the window and clip three sides off it.
+  `Na__LeStmtFig__Dress` reads BOTH forms, so a statement written before today keeps exactly
+  the frame it was written with instead of silently changing the moment somebody crops it.
+
+**Ten megabytes, and why there is no clever way out**
+- There is no render method that makes this small and keeps the one thing the PDF is for. The
+  statement is rasterised ON PURPOSE so a planning officer cannot lift the text out of it,
+  which means the file is images and nothing else, and roughly sixty per cent of this
+  document's height IS photographs.
+- WEBP IS NOT A WAY OUT, which is worth writing down because it looks like one. jsPDF has a
+  `processWEBP`, but PDF has no WebP image format at all - it carries DCTDecode, Flate and
+  JPEG2000 - so a WebP is decoded and re-encoded anyway.
+- That leaves resolution and JPEG quality. The default is now 1.50 at 0.80, which puts the
+  page at 144 dpi: 10 pt text stays clean on screen and prints acceptably, and 0.80 is where
+  the photographs stop paying for quality nobody sees. Measured on the same statement,
+  **9.58 MB became 4.15 MB**. The old 2.00 at 0.92 is kept as a second button, Download PDF
+  (print), for when it is going to paper.
+- Zero extractable text, checked again on the new file.
+
+**Files**
+- `.../52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css` - heading-before-table, heading-after-picture, and the `na-figure` frame
+- `.../52__Feature__StatementWriter/04__Ui__Editor/Na__LayoutEditor__Statement__Editor__Figure__.js` - the class moves out onto a crop frame and back again
+- `02__Src__AppModules/51__System__LayoutEditor/03__Core__Config/Na__LayoutEditor__AppConfig__.json` - PDF presets, with the reasoning kept beside them
+- `na-project-portal/26-Projects/RB05__WestFarm/.../RB05_T01_S01__WestFarm__PreApplicationStatement__.md` - eighteen figures now wear the class (a `.before-figure-class` copy sits beside it)
+- `80__Testing__PrototypeEnvironment/Na__Test__StatementFigure__.html` - the class path pinned, the inline path kept
+
+**Not yet done**
+- Not tried by Adam, and not in ValeVision.
 
 # ---------------------------------------------------------
 ## TrueVision3D v2.98.0  -  21-Sep-2026

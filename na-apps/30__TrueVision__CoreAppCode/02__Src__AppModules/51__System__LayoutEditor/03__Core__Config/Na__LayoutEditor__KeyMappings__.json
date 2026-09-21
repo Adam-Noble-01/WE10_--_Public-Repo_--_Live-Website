@@ -249,6 +249,19 @@
                 "ModifierMatch": "Exact"
             },
             {
+                "Id": "View__DraftToggle",
+                "Label": "Toggle Draft mode: only the viewports' vector linework, every line a hairline (SketchUp LayOut's K)",
+                "Action": "View__DraftToggle",
+                "Enabled": true,
+                "Keys": [
+                    "k",
+                    "K"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "LayOut's own key for its Draft Mode. Every line on the paper draws one device pixel wide in its own colour, with no dashes and no fills; base images, depth fog and 3D pictures are neither drawn nor rendered. A view, not a tool: the tool, the selection and a point half placed are left alone, so it can be pressed mid-drawing. K again switches it off. Exact modifiers leave Ctrl+K to the browser."
+            },
+            {
                 "Id": "Edit__Save",
                 "Label": "Save the sheets and sync the specification (Ctrl+S)",
                 "Action": "Edit__Save",
@@ -817,6 +830,11 @@
             {
                 "Action": "Snap__Toggle",
                 "Label": "Toggle object snapping",
+                "Group": "Tools"
+            },
+            {
+                "Action": "View__DraftToggle",
+                "Label": "Toggle Draft mode",
                 "Group": "Tools"
             },
             {

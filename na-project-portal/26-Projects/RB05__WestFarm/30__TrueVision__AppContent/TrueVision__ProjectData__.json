@@ -3170,20 +3170,12 @@
                 },
                 "Sheet__Layers": [
                     {
-                        "Layer__Id": "Layer_001",
-                        "Layer__Name": "Viewports",
-                        "Layer__Type": "viewport",
-                        "Layer__Visible": true,
-                        "Layer__Locked": false,
-                        "Layer__Order": 1
-                    },
-                    {
                         "Layer__Id": "Layer_002",
                         "Layer__Name": "Text",
                         "Layer__Type": "annotation",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 2
+                        "Layer__Order": 1
                     },
                     {
                         "Layer__Id": "Layer_003",
@@ -3191,12 +3183,20 @@
                         "Layer__Type": "dimension",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 3
+                        "Layer__Order": 2
                     },
                     {
                         "Layer__Id": "Layer_004",
                         "Layer__Name": "Vectors",
                         "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
                         "Layer__Order": 4
@@ -3269,10 +3269,7 @@
                             "HeightMm": 121.34823315884526
                         },
                         "Viewport__ScaleDenominator": 100,
-                        "Viewport__ModelLayers": {
-                            "TrueVision__LineworkModifier__FineDetail": false,
-                            "TrueVision__LineworkModifier__VeryFineDetail": false
-                        },
+                        "Viewport__ModelLayers": null,
                         "Viewport__LayerId": "Layer_001",
                         "Viewport__PanMm": {
                             "X": -19822.54102872072,
@@ -4208,7 +4205,7 @@
                                 427.6178
                             ],
                             [
-                                222.2955,
+                                211.5955,
                                 427.6178
                             ]
                         ],
@@ -5037,7 +5034,7 @@
                                 278.8382
                             ],
                             [
-                                231.9955,
+                                220.8955,
                                 278.8382
                             ]
                         ],
@@ -5866,7 +5863,7 @@
                                 146.5677
                             ],
                             [
-                                233.3955,
+                                222.6955,
                                 146.5677
                             ]
                         ],
@@ -6695,7 +6692,7 @@
                                 572.3756
                             ],
                             [
-                                221.9955,
+                                209.7955,
                                 572.3756
                             ]
                         ],
@@ -8397,7 +8394,8 @@
                     "TextSizeMm": 2,
                     "IncludeGeneral": true,
                     "GroupHeadings": false
-                }
+                },
+                "Sheet__LayerStack": 2
             },
             {
                 "Sheet__Id": "Sheet_003",
@@ -8411,20 +8409,12 @@
                 },
                 "Sheet__Layers": [
                     {
-                        "Layer__Id": "Layer_001",
-                        "Layer__Name": "Viewports",
-                        "Layer__Type": "viewport",
-                        "Layer__Visible": true,
-                        "Layer__Locked": false,
-                        "Layer__Order": 1
-                    },
-                    {
                         "Layer__Id": "Layer_002",
                         "Layer__Name": "Text",
                         "Layer__Type": "annotation",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 2
+                        "Layer__Order": 1
                     },
                     {
                         "Layer__Id": "Layer_003",
@@ -8432,7 +8422,7 @@
                         "Layer__Type": "dimension",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 3
+                        "Layer__Order": 2
                     },
                     {
                         "Layer__Id": "Layer_004",
@@ -8440,7 +8430,23 @@
                         "Layer__Type": "vector",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
                         "Layer__Order": 4
+                    },
+                    {
+                        "Layer__Id": "Layer_005",
+                        "Layer__Name": "Floor Areas",
+                        "Layer__Type": "area",
+                        "Layer__Order": 5,
+                        "Layer__Visible": true,
+                        "Layer__Locked": false
                     }
                 ],
                 "Sheet__Viewports": [
@@ -8473,7 +8479,7 @@
                             "Y": 0
                         },
                         "Viewport__Styles": {
-                            "baseImage": true,
+                            "baseImage": false,
                             "projectedLinework": true,
                             "profileLinework": false,
                             "glassOpaque": false,
@@ -8490,18 +8496,985 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": null,
-                        "Viewport__Locked": false
+                        "Viewport__Locked": true,
+                        "Viewport__ClosedDoors": [
+                            "ADR001__ExteriorlDoor__LH__BespokeGeorgian__w1200mm-x-h2450__#3",
+                            "ADR002__ExternallDoor__BespokeGeorgian__CollanadeEntrance__20",
+                            "ADR024__ExteriorDoubleDoor__::MOD001__ROT__-100-Deg__ExteriorDoubleDoorPanel_5",
+                            "ADR024__ExteriorDoubleDoor__::MOD002__ROT__100-Deg__ExteriorDoubleDoorPanel_5",
+                            "ADR026__ExteriorDoubleDoor__::MOD002__ROT__100-Deg__ExteriorDoubleDoorPanel",
+                            "ADR026__ExteriorDoubleDoor___1::MOD001__ROT__-100-Deg__ExteriorDoubleDoorPanel_1",
+                            "ADR026__ExteriorDoubleDoor___1::MOD002__ROT__100-Deg__ExteriorDoubleDoorPanel_1",
+                            "ADR026__ExteriorDoubleDoor___2::MOD001__ROT__-100-Deg__ExteriorDoubleDoorPanel_2",
+                            "ADR026__ExteriorDoubleDoor___2::MOD002__ROT__100-Deg__ExteriorDoubleDoorPanel_2",
+                            "ADR028__ExteriorDoubleDoor__GroundFloor__BayWindowDoubleDoors::MOD001__ROT__-100-Deg__ExteriorDoubleDoorPanel_6",
+                            "ADR028__ExteriorDoubleDoor__GroundFloor__BayWindowDoubleDoors::MOD002__ROT__100-Deg__ExteriorDoubleDoorPanel_6",
+                            "ADR028__ExteriorDoubleDoor__GroundFloor__BayWindowDoubleDoors_1::MOD001__ROT__-100-Deg__ExteriorDoubleDoorPanel_7",
+                            "ADR028__ExteriorDoubleDoor__GroundFloor__BayWindowDoubleDoors_1::MOD002__ROT__100-Deg__ExteriorDoubleDoorPanel_7"
+                        ]
                     }
                 ],
-                "Sheet__Annotations": [],
+                "Sheet__Annotations": [
+                    {
+                        "Annotation__Text": "Floor Areas",
+                        "Annotation__PosXMm": 89.72887652305869,
+                        "Annotation__PosYMm": 312.08579519257506,
+                        "Annotation__SizeMm": 3.2,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_009"
+                    },
+                    {
+                        "Annotation__Text": "Room",
+                        "Annotation__PosXMm": 89.72887652305869,
+                        "Annotation__PosYMm": 317.28579519257505,
+                        "Annotation__SizeMm": 2.4,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_010"
+                    },
+                    {
+                        "Annotation__Text": "Area",
+                        "Annotation__PosXMm": 167.7288765230587,
+                        "Annotation__PosYMm": 317.28579519257505,
+                        "Annotation__SizeMm": 2.4,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "right",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_011"
+                    },
+                    {
+                        "Annotation__Text": "Kids Lounge",
+                        "Annotation__PosXMm": 93.32887652305865,
+                        "Annotation__PosYMm": 321.385795192575,
+                        "Annotation__SizeMm": 2.4,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_012"
+                    },
+                    {
+                        "Annotation__Text": "39.50 m²",
+                        "Annotation__PosXMm": 167.7288765230587,
+                        "Annotation__PosYMm": 321.385795192575,
+                        "Annotation__SizeMm": 2.4,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "right",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_013"
+                    },
+                    {
+                        "Annotation__Text": "Total",
+                        "Annotation__PosXMm": 89.72887652305869,
+                        "Annotation__PosYMm": 327.31079519257503,
+                        "Annotation__SizeMm": 2.4,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_014"
+                    },
+                    {
+                        "Annotation__Text": "39.50 m²",
+                        "Annotation__PosXMm": 167.7288765230587,
+                        "Annotation__PosYMm": 327.31079519257503,
+                        "Annotation__SizeMm": 2.4,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "right",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_015"
+                    },
+                    {
+                        "Annotation__Text": "Scan Me",
+                        "Annotation__PosXMm": -31.171364659728567,
+                        "Annotation__PosYMm": -38.52062094621243,
+                        "Annotation__SizeMm": 3.2,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_016"
+                    },
+                    {
+                        "Annotation__Text": "Use your phone or tablet camera",
+                        "Annotation__PosXMm": -44.04086465972857,
+                        "Annotation__PosYMm": -32.57262094621243,
+                        "Annotation__SizeMm": 2.1,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_017"
+                    },
+                    {
+                        "Annotation__Text": "View Project Portal",
+                        "Annotation__PosXMm": -44.04086465972857,
+                        "Annotation__PosYMm": -26.172620946212433,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_018"
+                    },
+                    {
+                        "Annotation__Text": "·   Walk Through the 3D Model",
+                        "Annotation__PosXMm": -44.04086465972857,
+                        "Annotation__PosYMm": -20.57262094621243,
+                        "Annotation__SizeMm": 2.7,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_019"
+                    },
+                    {
+                        "Annotation__Text": "·   Saved Scenes and Viewpoints",
+                        "Annotation__PosXMm": -44.04086465972857,
+                        "Annotation__PosYMm": -16.172620946212433,
+                        "Annotation__SizeMm": 2.7,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_020"
+                    },
+                    {
+                        "Annotation__Text": "·   Measuring Tools",
+                        "Annotation__PosXMm": -44.04086465972857,
+                        "Annotation__PosYMm": -11.772620946212427,
+                        "Annotation__SizeMm": 2.7,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_021"
+                    },
+                    {
+                        "Annotation__Text": "·   Live Drawings Online",
+                        "Annotation__PosXMm": -44.04086465972857,
+                        "Annotation__PosYMm": -7.372620946212436,
+                        "Annotation__SizeMm": 2.7,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_022"
+                    },
+                    {
+                        "Annotation__Text": "Project Portal",
+                        "Annotation__PosXMm": 1.1591353402714333,
+                        "Annotation__PosYMm": -75.37262094621244,
+                        "Annotation__SizeMm": 5.4,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_023"
+                    },
+                    {
+                        "Annotation__Text": "RB05 - West Farm",
+                        "Annotation__PosXMm": 1.1591353402714333,
+                        "Annotation__PosYMm": -69.57262094621242,
+                        "Annotation__SizeMm": 2.4,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_024"
+                    },
+                    {
+                        "Annotation__Text": "Point your phone or tablet camera at the code and the whole",
+                        "Annotation__PosXMm": 1.1591353402714333,
+                        "Annotation__PosYMm": -64.17262094621243,
+                        "Annotation__SizeMm": 3.1,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_025"
+                    },
+                    {
+                        "Annotation__Text": "building opens in 3D. Walk through it at full size, step between",
+                        "Annotation__PosXMm": 1.1591353402714333,
+                        "Annotation__PosYMm": -59.372620946212436,
+                        "Annotation__SizeMm": 3.1,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_026"
+                    },
+                    {
+                        "Annotation__Text": "the saved views and scenes, measure anything you like, and read",
+                        "Annotation__PosXMm": 1.1591353402714333,
+                        "Annotation__PosYMm": -54.57262094621243,
+                        "Annotation__SizeMm": 3.1,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_027"
+                    },
+                    {
+                        "Annotation__Text": "every drawing live online. Nothing to download - it opens straight",
+                        "Annotation__PosXMm": 1.1591353402714333,
+                        "Annotation__PosYMm": -49.772620946212434,
+                        "Annotation__SizeMm": 3.1,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_028"
+                    },
+                    {
+                        "Annotation__Text": "in your browser.",
+                        "Annotation__PosXMm": 1.1591353402714333,
+                        "Annotation__PosYMm": -44.97262094621243,
+                        "Annotation__SizeMm": 3.1,
+                        "Annotation__FontWeight": 400,
+                        "Annotation__Colour": "#5f6b74",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_029"
+                    }
+                ],
                 "Sheet__Dimensions": [],
-                "Sheet__Shapes": [],
+                "Sheet__Shapes": [
+                    {
+                        "Shape__Id": "Shape_005",
+                        "Shape__LayerId": "Layer_005",
+                        "Shape__Points": [
+                            [
+                                292.57113534233486,
+                                264.48900695795294
+                            ],
+                            [
+                                235.12113534233484,
+                                264.48900695795294
+                            ],
+                            [
+                                235.12113534233484,
+                                195.73900695795294
+                            ],
+                            [
+                                292.57113534233486,
+                                195.73900695795294
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__StrokeColour": "#2e6f96",
+                        "Shape__StrokePt": 0.3,
+                        "Shape__FillColour": "#bcd9ee",
+                        "Shape__Stroked": true,
+                        "Shape__FillOpacity": 0.5,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Area": {
+                            "Area__Name": "Kids Lounge",
+                            "Area__TextSizeMm": 3
+                        }
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                89.72887652305869,
+                                313.885795192575
+                            ],
+                            [
+                                167.7288765230587,
+                                313.885795192575
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_006"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                89.72887652305869,
+                                318.48579519257504
+                            ],
+                            [
+                                167.7288765230587,
+                                318.48579519257504
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#858585",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_007"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                89.72887652305869,
+                                319.945795192575
+                            ],
+                            [
+                                91.72887652305869,
+                                319.945795192575
+                            ],
+                            [
+                                91.72887652305869,
+                                321.945795192575
+                            ],
+                            [
+                                89.72887652305869,
+                                321.945795192575
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": false,
+                        "Shape__StrokeColour": "#bcd9ee",
+                        "Shape__StrokePt": 0.2,
+                        "Shape__FillColour": "#bcd9ee",
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_008"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                89.72887652305869,
+                                324.08579519257506
+                            ],
+                            [
+                                167.7288765230587,
+                                324.08579519257506
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_009"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                -44.04086465972857,
+                                -79.97262094621243
+                            ],
+                            [
+                                -9.840864659728567,
+                                -79.97262094621243
+                            ],
+                            [
+                                -9.840864659728567,
+                                -45.772620946212434
+                            ],
+                            [
+                                -44.04086465972857,
+                                -45.772620946212434
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#858585",
+                        "Shape__StrokePt": 0.7,
+                        "Shape__FillColour": null,
+                        "Shape__Qr": {
+                            "Qr__MarginMm": 2.1
+                        },
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_010"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                -13.340864659728567,
+                                -43.17262094621243
+                            ],
+                            [
+                                -12.658064659728566,
+                                -43.10532094621243
+                            ],
+                            [
+                                -12.001464659728555,
+                                -42.90622094621243
+                            ],
+                            [
+                                -11.396364659728562,
+                                -42.58272094621243
+                            ],
+                            [
+                                -10.865964659728562,
+                                -42.14752094621243
+                            ],
+                            [
+                                -10.430764659728567,
+                                -41.61712094621244
+                            ],
+                            [
+                                -10.107264659728571,
+                                -41.01202094621243
+                            ],
+                            [
+                                -9.908164659728556,
+                                -40.35542094621243
+                            ],
+                            [
+                                -9.840864659728567,
+                                -39.67262094621243
+                            ],
+                            [
+                                -9.840864659728567,
+                                -39.67262094621243
+                            ],
+                            [
+                                -9.908164659728556,
+                                -38.98982094621243
+                            ],
+                            [
+                                -10.107264659728571,
+                                -38.333220946212435
+                            ],
+                            [
+                                -10.430764659728567,
+                                -37.728120946212435
+                            ],
+                            [
+                                -10.865964659728562,
+                                -37.197720946212435
+                            ],
+                            [
+                                -11.396364659728562,
+                                -36.76252094621243
+                            ],
+                            [
+                                -12.001464659728555,
+                                -36.43902094621243
+                            ],
+                            [
+                                -12.658064659728566,
+                                -36.239920946212436
+                            ],
+                            [
+                                -13.340864659728567,
+                                -36.17262094621243
+                            ],
+                            [
+                                -40.54086465972856,
+                                -36.17262094621243
+                            ],
+                            [
+                                -41.22366465972857,
+                                -36.239920946212436
+                            ],
+                            [
+                                -41.88026465972857,
+                                -36.43902094621243
+                            ],
+                            [
+                                -42.48536465972856,
+                                -36.76252094621243
+                            ],
+                            [
+                                -43.01576465972856,
+                                -37.197720946212435
+                            ],
+                            [
+                                -43.45096465972857,
+                                -37.728120946212435
+                            ],
+                            [
+                                -43.774464659728565,
+                                -38.333220946212435
+                            ],
+                            [
+                                -43.97356465972857,
+                                -38.98982094621243
+                            ],
+                            [
+                                -44.04086465972857,
+                                -39.67262094621243
+                            ],
+                            [
+                                -44.04086465972857,
+                                -39.67262094621243
+                            ],
+                            [
+                                -43.97356465972857,
+                                -40.35542094621243
+                            ],
+                            [
+                                -43.774464659728565,
+                                -41.01202094621243
+                            ],
+                            [
+                                -43.45096465972857,
+                                -41.61712094621244
+                            ],
+                            [
+                                -43.01576465972856,
+                                -42.14752094621243
+                            ],
+                            [
+                                -42.48536465972856,
+                                -42.58272094621243
+                            ],
+                            [
+                                -41.88026465972857,
+                                -42.90622094621243
+                            ],
+                            [
+                                -41.22366465972857,
+                                -43.10532094621243
+                            ],
+                            [
+                                -40.54086465972856,
+                                -43.17262094621243
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#858585",
+                        "Shape__StrokePt": 0.7,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_011"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                -33.699364659728566,
+                                -41.67262094621243
+                            ],
+                            [
+                                -33.596364659728565,
+                                -41.66252094621243
+                            ],
+                            [
+                                -33.497264659728565,
+                                -41.632420946212434
+                            ],
+                            [
+                                -33.40596465972857,
+                                -41.583620946212434
+                            ],
+                            [
+                                -33.32596465972856,
+                                -41.51802094621243
+                            ],
+                            [
+                                -33.260364659728566,
+                                -41.43792094621243
+                            ],
+                            [
+                                -33.211564659728566,
+                                -41.34672094621243
+                            ],
+                            [
+                                -33.18146465972856,
+                                -41.247620946212436
+                            ],
+                            [
+                                -33.17136465972857,
+                                -41.144620946212434
+                            ],
+                            [
+                                -33.17136465972857,
+                                -38.20062094621243
+                            ],
+                            [
+                                -33.18146465972856,
+                                -38.09762094621243
+                            ],
+                            [
+                                -33.211564659728566,
+                                -37.99852094621243
+                            ],
+                            [
+                                -33.260364659728566,
+                                -37.90732094621244
+                            ],
+                            [
+                                -33.32596465972856,
+                                -37.827220946212435
+                            ],
+                            [
+                                -33.40596465972857,
+                                -37.76162094621243
+                            ],
+                            [
+                                -33.497264659728565,
+                                -37.71282094621243
+                            ],
+                            [
+                                -33.596364659728565,
+                                -37.682720946212434
+                            ],
+                            [
+                                -33.699364659728566,
+                                -37.67262094621243
+                            ],
+                            [
+                                -35.04336465972857,
+                                -37.67262094621243
+                            ],
+                            [
+                                -35.14636465972856,
+                                -37.682720946212434
+                            ],
+                            [
+                                -35.245364659728565,
+                                -37.71282094621243
+                            ],
+                            [
+                                -35.33666465972856,
+                                -37.76162094621243
+                            ],
+                            [
+                                -35.41666465972857,
+                                -37.827220946212435
+                            ],
+                            [
+                                -35.48236465972857,
+                                -37.90732094621244
+                            ],
+                            [
+                                -35.53116465972857,
+                                -37.99852094621243
+                            ],
+                            [
+                                -35.56116465972857,
+                                -38.09762094621243
+                            ],
+                            [
+                                -35.571364659728566,
+                                -38.20062094621243
+                            ],
+                            [
+                                -35.571364659728566,
+                                -41.144620946212434
+                            ],
+                            [
+                                -35.56116465972857,
+                                -41.247620946212436
+                            ],
+                            [
+                                -35.53116465972857,
+                                -41.34672094621243
+                            ],
+                            [
+                                -35.48236465972857,
+                                -41.43792094621243
+                            ],
+                            [
+                                -35.41666465972857,
+                                -41.51802094621243
+                            ],
+                            [
+                                -35.33666465972856,
+                                -41.583620946212434
+                            ],
+                            [
+                                -35.245364659728565,
+                                -41.632420946212434
+                            ],
+                            [
+                                -35.14636465972856,
+                                -41.66252094621243
+                            ],
+                            [
+                                -35.04336465972857,
+                                -41.67262094621243
+                            ]
+                        ],
+                        "Shape__Closed": true,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.6,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_012"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                -35.04336465972857,
+                                -38.55262094621243
+                            ],
+                            [
+                                -33.699364659728566,
+                                -38.55262094621243
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.6,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_013"
+                    }
+                ],
                 "Sheet__Leaders": [],
-                "Sheet__Groups": [],
+                "Sheet__Groups": [
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_006"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_007"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_008"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_009"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_009"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_010"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_011"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_012"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_013"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_014"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_015"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "AreaSchedule",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "Form": "areas",
+                                "Group": "",
+                                "ShowGroups": true,
+                                "ShowTotal": true,
+                                "ShowSwatch": true,
+                                "Units": "m2",
+                                "Decimals": 2,
+                                "TitleText": "",
+                                "WidthMm": 78,
+                                "TextSizeMm": 2.4,
+                                "Data": {
+                                    "Areas": [
+                                        {
+                                            "Name": "Kids Lounge",
+                                            "AreaM2": 39.496875,
+                                            "Colour": "#bcd9ee"
+                                        }
+                                    ],
+                                    "Groups": [],
+                                    "TotalM2": 39.496875
+                                }
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_002"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_010"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_011"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_012"
+                            },
+                            {
+                                "kind": "shape",
+                                "id": "Shape_013"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_016"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_017"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_018"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_019"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_020"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_021"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_022"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_023"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_024"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_025"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_026"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_027"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_028"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_029"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "ProjectQr",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "SizeMm": 30,
+                                "Form": "full",
+                                "BodyWidthMm": 95,
+                                "ProjectName": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_003"
+                    }
+                ],
                 "Sheet__Lineweights": {
                     "ViewportPt": 0.3,
                     "DimensionPt": 0.35
-                }
+                },
+                "Sheet__LayerStack": 2
             },
             {
                 "Sheet__Id": "Sheet_002",
@@ -8516,20 +9489,12 @@
                 },
                 "Sheet__Layers": [
                     {
-                        "Layer__Id": "Layer_001",
-                        "Layer__Name": "Viewports",
-                        "Layer__Type": "viewport",
-                        "Layer__Visible": true,
-                        "Layer__Locked": false,
-                        "Layer__Order": 1
-                    },
-                    {
                         "Layer__Id": "Layer_002",
                         "Layer__Name": "Text",
                         "Layer__Type": "annotation",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 2
+                        "Layer__Order": 1
                     },
                     {
                         "Layer__Id": "Layer_003",
@@ -8537,12 +9502,20 @@
                         "Layer__Type": "dimension",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 3
+                        "Layer__Order": 2
                     },
                     {
                         "Layer__Id": "Layer_004",
                         "Layer__Name": "Vectors",
                         "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
                         "Layer__Order": 4
@@ -10318,7 +11291,8 @@
                     "TextSizeMm": 2,
                     "IncludeGeneral": true,
                     "GroupHeadings": false
-                }
+                },
+                "Sheet__LayerStack": 2
             }
         ],
         "LayoutEditor__DrawingsData__CommonSiteAddress": "West Beacon Farm, Deans Lane, Woodhouse Eaves, Leicestershire, LE12 8TE",
