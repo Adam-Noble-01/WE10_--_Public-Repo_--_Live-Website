@@ -65,6 +65,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - The Area tool draws rectangular rooms through this one
+//   (59__Feature__FloorAreas): `area` and `layerId` ride through the defaults
+//   to CreateShape, so the rectangle lands as a measured room on the Floor
+//   Areas layer. With no `area` in the defaults nothing here behaves
+//   differently, and a rectangle is still an ordinary closed vector.
+//
 // 14-Sep-2026 - Version 1.2.0
 // - A rectangle takes the Vectors panel's dashed-edge default when it is on,
 //   as a drawn shape does.
@@ -197,7 +204,9 @@
         const item = Na__LeModel__CreateShape(sheet, points, {
             strokeColour : d.strokeColour, strokePt : d.strokePt, fillColour : d.filled ? d.fillColour : null,
             fillOpacity : d.fillOpacity, strokeOpacity : d.strokeOpacity,     // <-- The opacity defaults too, as for a drawn shape
-            gradient : d.gradientOn ? d.gradient : null, dash : d.dashOn ? d.dash : null, closed : true, stroked : d.stroked !== false   // <-- The dashed-edge default reaches a rectangle exactly as it reaches a drawn shape
+            gradient : d.gradientOn ? d.gradient : null, dash : d.dashOn ? d.dash : null, closed : true, stroked : d.stroked !== false,   // <-- The dashed-edge default reaches a rectangle exactly as it reaches a drawn shape
+            area : (d.area && typeof d.area === 'object') ? d.area : null,    // <-- The Area tool drawing a rectangular room: the block that names and measures it
+            layerId : d.layerId || null                                       // <-- ...on the Floor Areas layer
         });                                                                  // <-- Not silent: created and announced at once, so one undo step
         if (!item) return null;
         Na__LeRect__Landed = { id : item.Shape__Id, anchor : [ points[0][0], points[0][1] ], points : points.map((p) => [ p[0], p[1] ]) };

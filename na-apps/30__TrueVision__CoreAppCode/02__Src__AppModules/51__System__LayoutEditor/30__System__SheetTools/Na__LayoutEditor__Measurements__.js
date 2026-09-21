@@ -116,6 +116,7 @@
     // ------------------------------------------------------------
     import { Na__LeShape__Measure, Na__LeShape__TypeLength } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Measure, Na__LeRect__TypeSize } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
+    import { Na__LeAreaTool__IsRectangle, Na__LeAreaTool__Settled } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';   // <-- Which of the two the Area tool is drawing with
     import { Na__LeDim__Measure, Na__LeDim__TypeSpan, Na__LeDim__TypeOffset } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     // ------------------------------------------------------------
 
@@ -131,6 +132,7 @@
     const Na__LeMeasure__TOOL_DRAW      = 'draw';
     const Na__LeMeasure__TOOL_RECT      = 'rectangle';
     const Na__LeMeasure__TOOL_DIMENSION = 'dimension';
+    const Na__LeMeasure__TOOL_AREA      = 'area';       // <-- The Area tool, which IS one of the two above with a room's settings on it
     const Na__LeMeasure__KIND_LENGTH    = 'length';     // <-- One figure: a line, a span or an offset
     const Na__LeMeasure__KIND_PAIR      = 'pair';       // <-- Width and height
     // ------------------------------------------------------------
@@ -184,7 +186,35 @@
     // HELPER FUNCTION | Is This One of the Tools That Measure
     // ------------------------------------------------------------
     function Na__LeMeasure__IsMeasuringTool(tool) {
-        return tool === Na__LeMeasure__TOOL_DRAW || tool === Na__LeMeasure__TOOL_RECT || tool === Na__LeMeasure__TOOL_DIMENSION;
+        const asked = Na__LeMeasure__Effective(tool);
+        return asked === Na__LeMeasure__TOOL_DRAW || asked === Na__LeMeasure__TOOL_RECT || asked === Na__LeMeasure__TOOL_DIMENSION;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Typed Value May Have Just Landed a Room
+    // ------------------------------------------------------------
+    // A typed length can be the value that CLOSES a room - typed back onto its
+    // first corner - and a typed width and height lands a rectangular one
+    // outright. Neither goes through the Area tool's own press, so this is
+    // where it is told, and it answers to nothing else.
+    // ------------------------------------------------------------
+    function Na__LeMeasure__Settle(ctx, sheet) {
+        if (ctx.getTool() === Na__LeMeasure__TOOL_AREA) Na__LeAreaTool__Settled(sheet);   // <-- The panel then puts the cursor in the new room's name box
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Tool a Reading Is Really Taken From
+    // ------------------------------------------------------------
+    // The Area tool draws a room with the Draw tool point by point and with
+    // the Rectangle tool corner to corner, so a length or a width by a height
+    // is read and typed exactly as it is for a vector. Asking which of the two
+    // it is here is what keeps every reading, hint and commit below unchanged.
+    // ------------------------------------------------------------
+    function Na__LeMeasure__Effective(tool) {
+        if (tool !== Na__LeMeasure__TOOL_AREA) return tool;
+        return Na__LeAreaTool__IsRectangle() ? Na__LeMeasure__TOOL_RECT : Na__LeMeasure__TOOL_DRAW;
     }
     // ------------------------------------------------------------
 
@@ -332,7 +362,7 @@
     function Na__LeMeasure__Reading() {
         const ctx   = Na__LeMeasure__Context;
         const sheet = Na__LeModel__GetActiveSheet();
-        const tool  = ctx ? ctx.getTool() : null;
+        const tool  = ctx ? Na__LeMeasure__Effective(ctx.getTool()) : null;   // <-- The Area tool reads as whichever of Draw and Rectangle is drawing the room
         if (!ctx || !sheet || !ctx.isEditable()) {
             return { active : false, kind : null, label : Na__LeMeasure__L('MeasureIdle', 'Measurements'), value : '', atScale : true, denominator : null };
         }
@@ -766,15 +796,15 @@
         const text  = Na__LeMeasure__Input ? Na__LeMeasure__Input.value.trim() : '';
         const sheet = Na__LeModel__GetActiveSheet();
         if (!ctx || !text || !sheet || !ctx.isEditable()) return false;
-        const tool = ctx.getTool();
+        const tool = Na__LeMeasure__Effective(ctx.getTool());
         let outcome;
         if (Na__LeMeasure__Vertex(ctx))                   outcome = Na__LeMeasure__CommitVertex(sheet, text, ctx);
         else if (Na__LeMeasure__DimEnd(ctx))              outcome = Na__LeMeasure__CommitDimEnd(sheet, text, ctx);
         else if (Na__LeMeasure__DimOffset(ctx))           outcome = Na__LeMeasure__CommitDimOffset(sheet, text, ctx);
         else if (Na__LeMeasure__ViewportDrag(ctx))        outcome = Na__LeMeasure__CommitViewport(sheet, text, ctx);
         else if (Na__LeMeasure__MoveDrag(ctx))            outcome = Na__LeMeasure__CommitMove(sheet, text, ctx);
-        else if (tool === Na__LeMeasure__TOOL_DRAW)       outcome = Na__LeMeasure__CommitDraw(sheet, text, ctx);
-        else if (tool === Na__LeMeasure__TOOL_RECT)       outcome = Na__LeMeasure__CommitRectangle(sheet, text, ctx);
+        else if (tool === Na__LeMeasure__TOOL_DRAW)     { outcome = Na__LeMeasure__CommitDraw(sheet, text, ctx);      Na__LeMeasure__Settle(ctx, sheet); }
+        else if (tool === Na__LeMeasure__TOOL_RECT)     { outcome = Na__LeMeasure__CommitRectangle(sheet, text, ctx); Na__LeMeasure__Settle(ctx, sheet); }
         else if (tool === Na__LeMeasure__TOOL_DIMENSION)  outcome = Na__LeMeasure__CommitDimension(sheet, text, ctx);
         else return false;
         if (!outcome.ok) { Na__LeMeasure__ShowHint(outcome.message, true, true); return true; }

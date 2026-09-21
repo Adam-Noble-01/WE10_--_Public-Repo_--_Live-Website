@@ -39,6 +39,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - Shape__Qr: a shape carrying the block is drawn as it always was, and the
+//   PROJECT'S OWN QR SYMBOL is then painted inside its box, Qr__MarginMm in
+//   from it. One record, not one per module - the chrome's 'qr' primitive
+//   carries the symbol whole and each surface paints it in its own idiom, so
+//   the code is one filled path on the screen and one in the PDF, with no
+//   seams between its runs and nothing for the model to carry but a rectangle.
+//   The symbol is asked for at painting time, so a shape pasted into another
+//   project draws THAT project's code, and a project with no code draws the
+//   plain shape. Its printed size is reported to the QR system's own check.
+//
 // 14-Sep-2026 - Version 1.5.0
 // - Shape__LineStyle reaches the primitive as a dash array of paper
 //   millimetres (Na__LayoutEditor__LineStyleTool__). A solid edge - null, or
@@ -78,9 +89,23 @@
     // MODULE IMPORTS | Config and Chrome Primitives
     // ------------------------------------------------------------
     import { Na__LeCfg__PtToMm } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeChrome__PushPolyline } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LeChrome__PushPolyline, Na__LeChrome__PushQr } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeDash__PatternMm } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
+    import { Na__ProjectQr__GetSymbol, Na__ProjectQr__GetSetup, Na__ProjectQr__CheckPrint } from '../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js';
+    // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Constants
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | How a Shape Names Itself to the QR System's Print Check
+    // ------------------------------------------------------------
+    const Na__LeShapeGeo__QR_WHERE = 'A QR code drawn on a sheet';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -189,7 +214,11 @@
     // ------------------------------------------------------------
     function Na__LeShapeGeo__Hit(shape, point, toleranceMm) {
         if (Na__LeShapeGeo__DistanceToEdge(shape, point) <= toleranceMm) return true;
-        return (!!shape.Shape__FillColour || !!shape.Shape__Gradient || !!shape.Shape__Hatch) && Na__LeShapeGeo__Contains(shape, point);
+        // A MEASURED ROOM IS ITS INSIDE. It is picked up anywhere within its
+        // outline even with the wash turned off, because what it names is the
+        // floor, not the line round it - and a room that could only be caught
+        // by its edge would be a room nobody could click on a busy plan.
+        return (!!shape.Shape__FillColour || !!shape.Shape__Gradient || !!shape.Shape__Hatch || !!shape.Shape__Qr || !!shape.Shape__Area) && Na__LeShapeGeo__Contains(shape, point);   // <-- A QR code paints its whole box, so it is picked up anywhere on it
     }
     // ------------------------------------------------------------
 
@@ -258,6 +287,38 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Push the Project's QR Symbol Inside a Shape's Box
+    // ------------------------------------------------------------
+    // The symbol is squared off inside the shape's bounding box and centred
+    // in it, Qr__MarginMm in on every side, so a box drawn taller than it is
+    // wide still carries a square code with its margin kept.
+    //
+    // NO PROJECT, NO CODE, AND NOTHING IN ITS PLACE. The Project QR Code
+    // system answers null with nothing on the address bar, or with codes
+    // switched off; the shape is then simply the shape, which is a frame
+    // waiting for a code rather than a code that opens nothing.
+    //
+    // The printed size goes to the QR system's own check, so a box drawn too
+    // small for a phone to read - or one whose margin has been squeezed -
+    // says so on the console, once, exactly as the title block's cell does.
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__PushQr(list, shape) {
+        const block = shape.Shape__Qr;
+        if (!block || typeof block !== 'object') return false;
+        const symbol = Na__ProjectQr__GetSymbol();
+        if (!symbol) return false;
+        const box    = Na__LeShapeGeo__Bounds(shape);
+        const margin = (Number.isFinite(block.Qr__MarginMm) && block.Qr__MarginMm > 0) ? block.Qr__MarginMm : 0;
+        const sizeMm = Math.min(box.WidthMm, box.HeightMm) - (margin * 2);
+        if (!(sizeMm > 0)) return false;
+        Na__ProjectQr__CheckPrint(symbol, sizeMm, margin, Na__LeShapeGeo__QR_WHERE);
+        const colours = Na__ProjectQr__GetSetup().symbol;
+        Na__LeChrome__PushQr(list, box.X + ((box.WidthMm - sizeMm) / 2), box.Y + ((box.HeightMm - sizeMm) / 2), sizeMm, symbol, colours.darkColour, colours.lightColour);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Push the Shape as One Polyline Primitive (edges, fill, gradient, or a mix)
     // ------------------------------------------------------------
     function Na__LeShapeGeo__Push(list, shape) {
@@ -273,11 +334,19 @@
         // pattern that draws OVER whatever fills it and UNDER its own outline,
         // and a shape with a hatch but no fill is a perfectly good drawing.
         const hatch = (closed && shape.Shape__Hatch && typeof shape.Shape__Hatch === 'object') ? shape.Shape__Hatch : null;
-        if (!stroked && !fill && !gradient && !hatch) return false;           // <-- Nothing to paint
-        Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient,
-            { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity,
-              hatch : hatch, hatchInk : shape.Shape__StrokeColour,
-              dashArray : stroked ? Na__LeDash__PatternMm(shape.Shape__LineStyle) : [] });   // <-- A record from before the toggle has no line style and paints solid
+        // THE QR CODE IS A DECK OF ITS OWN, ABOVE EVERYTHING ELSE THE SHAPE
+        // HAS. It is drawn last so the box's own rule, fill and hatch are
+        // under it, and it is enough on its own: a shape carrying a code is
+        // never "nothing to paint", even with its edges off and no fill.
+        const code = (shape.Shape__Qr && typeof shape.Shape__Qr === 'object') ? shape.Shape__Qr : null;
+        if (!stroked && !fill && !gradient && !hatch && !code) return false;  // <-- Nothing to paint
+        if (stroked || fill || gradient || hatch) {
+            Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient,
+                { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity,
+                  hatch : hatch, hatchInk : shape.Shape__StrokeColour,
+                  dashArray : stroked ? Na__LeDash__PatternMm(shape.Shape__LineStyle) : [] });   // <-- A record from before the toggle has no line style and paints solid
+        }
+        if (code) Na__LeShapeGeo__PushQr(list, shape);
         return true;
     }
     // ------------------------------------------------------------

@@ -1,0 +1,146 @@
+{
+    "LayoutEditor__FloorAreas__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__FloorAreas__Config__.json",
+        "Meta__Description" : "Floor Areas: measuring rooms on a drawing and reporting what they add up to. A floor area is an ordinary vector shape in Sheet__Shapes carrying a Shape__Area block, drawn on a layer of its own (Layer__Type 'area', named Floor Areas), so it snaps, moves, stretches, copies, prints and undoes exactly as any other vector does. What this file holds is what a NEW area looks like, how its measurement is written, and the wording of the panel. The area itself is never stored - it is solved from the points and the drawing's scale every time it is read, so a room moved onto a 1:100 drawing reports itself at 1:100 with nothing to migrate.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__Block"       : "Shape__Area : { Area__Name, Area__Group, Area__ScaleDenominator, Area__Label, Area__TextSizeMm, Area__LabelDXMm, Area__LabelDYMm }. Every key but the name is optional and is stored only when it is a real decision, so a room that takes the standard settings carries almost nothing. Area__Group is the group's NAME, not an id: ids are per sheet and a paste onto another sheet would have filed the room under whatever that id means there.",
+        "Meta__Scale"       : "An area with no Area__ScaleDenominator is measured at the scale of the 2D viewport its middle sits over, and at the sheet's own scale off every viewport - the same rule a dimension follows. That viewport is found whether or not its layer is switched on, which is the one place this departs from Na__LayoutEditor__DrawingScale__: hiding the Viewports layer must never change a reported area."
+    },
+
+    "LayoutEditor__FloorAreas__Layer": {
+        "Layer__Description" : "The layer every floor area lives on. New sheets are seeded with it; an older sheet gets one the first time an area lands. Switching it off takes the areas and their labels off the screen, off the PDF and out of the web viewer, while the index and every schedule go on reporting them - which is how Adam asked to work: the overlay is drawn once, then hidden, and switched back on when a vertex needs moving.",
+        "Layer__Name"        : "Floor Areas",
+        "Layer__ShowOnDrop"  : true,
+        "Layer__ShowOnDropNote" : "An area dropped, pasted or drawn while the layer is hidden switches the layer back on. Without it the work simply does not appear, which reads as a fault rather than as a hidden layer."
+    },
+
+    "LayoutEditor__FloorAreas__Defaults": {
+        "Defaults__Description"   : "What a newly drawn area looks like. They are ordinary shape fields, so the Vectors panel edits them afterwards exactly as it edits any vector; the Floor Areas panel offers the same two that matter - the colour and how solid it is - so a room can be drawn, named and coloured without leaving the one panel.",
+        "Defaults__FillColour"    : "#bcd9ee",
+        "Defaults__FillOpacity"   : 0.5,
+        "Defaults__StrokeColour"  : "#2e6f96",
+        "Defaults__StrokePt"      : 0.3,
+        "Defaults__Stroked"       : true,
+        "Defaults__ColourNote"    : "A pale wash with a thin darker edge: it has to read as a measurement laid over a drawing, not as a filled shape that is part of it. The wash is what makes a room clickable anywhere inside it rather than on its outline alone."
+    },
+
+    "LayoutEditor__FloorAreas__Label": {
+        "Label__Description"      : "The name and the figure written in the middle of a room. Not a text record - it is painted from the shape every time the sheet is drawn, which is what makes it follow a vertex as the vertex is dragged rather than a moment later. It sits at the room's VISUAL centre (the middle of the largest circle that fits inside it), so an L-shaped room is labelled inside the L.",
+        "Label__Mode"             : "both",
+        "Label__ModeNote"         : "What a new area shows: 'both' (the name over the figure), 'name', 'value' or 'none'. Each area can be switched afterwards.",
+        "Label__NameSizeMm"       : 2.4,
+        "Label__NameWeight"       : 600,
+        "Label__NameColour"       : "#172b3a",
+        "Label__ValueSizeMm"      : 2.1,
+        "Label__ValueWeight"      : 400,
+        "Label__ValueColour"      : "#172b3a",
+        "Label__LineGapMm"        : 0.9,
+        "Label__MinTextSizeMm"    : 1.2,
+        "Label__ShrinkToFit"      : true,
+        "Label__ShrinkToFitNote"  : "A name wider than the room it names is set smaller until it fits the circle that fits the room, down to MinTextSizeMm. A cupboard therefore labels itself in small type instead of writing across the hall next door.",
+        "Label__UnnamedText"      : "Unnamed",
+        "Label__CrossedText"      : "outline crosses itself",
+        "Label__CrossedTextNote"  : "What the figure is replaced with when the outline crosses itself. Such a run has no honest area - the shoelace subtracts one lobe from the other - so a number is never shown for it."
+    },
+
+    "LayoutEditor__FloorAreas__Measurement": {
+        "Measurement__Description"   : "How a measured area is written, on the label, in the panel and in a schedule. British planning drawings are in square metres; the square feet are for the people reading them.",
+        "Measurement__Units"         : "m2",
+        "Measurement__UnitsNote"     : "'m2', 'ft2' or 'both'. Both writes 18.45 m² (199 ft²), metres first.",
+        "Measurement__Decimals"      : 2,
+        "Measurement__FeetDecimals"  : 0,
+        "Measurement__LengthDecimals": 2,
+        "Measurement__Separator"     : ",",
+        "Measurement__SeparatorNote" : "The thousands separator, for a site plan measured in thousands of square metres. Empty for none.",
+        "Measurement__SuffixM2"      : " m²",
+        "Measurement__SuffixFt2"     : " ft²",
+        "Measurement__SuffixM"       : " m",
+        "Measurement__SuffixFt"      : " ft"
+    },
+
+    "LayoutEditor__FloorAreas__Groups": {
+        "Groups__Description"  : "The groups a room can be filed under - Ground Floor, First Floor, Garage - which are what the second table reports. A group is a name and a colour; an area holds the NAME, so a room copied to another sheet brings its group with it and the sheet's list gains it. Group__Suggestions are offered as the first names when a group is added, for no reason but speed.",
+        "Groups__Suggestions"  : [ "Ground Floor", "First Floor", "Second Floor", "Basement", "Garage", "Outbuilding" ],
+        "Groups__Palette"      : [ "#bcd9ee", "#c6e0c6", "#f3dcc0", "#e3cfe6", "#f6eec2", "#cdd6e3", "#f2cfcf", "#cfe9e6" ],
+        "Groups__PaletteNote"  : "Taken in turn as groups are added, so the floors of a house are told apart by colour without anyone choosing one. Every entry is a pale wash that prints and photocopies as a tint rather than as ink.",
+        "Groups__PaintOnAssign": true,
+        "Groups__PaintOnAssignNote" : "Filing a room under a group paints it in that group's colour, unless it has been given a colour of its own by hand. It is what makes a coloured plan fall out of naming the rooms."
+    },
+
+    "LayoutEditor__FloorAreas__Labels": {
+        "Labels__Description"       : "The Floor Areas panel's wording. {n}, {name}, {area}, {scale}, {group} and {count} are filled in.",
+
+        "Labels__PanelTitle"        : "Floor Areas",
+        "Labels__PanelIntro"        : "Draw round a room to measure it. Areas live on their own layer, so they can be switched off once they are drawn and switched back on to move a corner.",
+        "Labels__ShowLayer"         : "Show on the sheet",
+        "Labels__LockLayer"         : "Lock",
+        "Labels__DrawButton"        : "Draw an area",
+        "Labels__DrawRectButton"    : "Rectangle",
+        "Labels__DrawingNote"       : "Click each corner and click the first one again to close. Enter or a double click closes it too; Escape abandons it.",
+        "Labels__MakeAreaButton"    : "Measure this shape",
+        "Labels__MakeAreaNote"      : "The selected closed vector becomes a floor area, on the Floor Areas layer.",
+
+        "Labels__SelectedHeading"   : "The selected area",
+        "Labels__Name"              : "Name",
+        "Labels__NamePlaceholder"   : "Kitchen",
+        "Labels__Group"             : "Group",
+        "Labels__GroupNone"         : "Ungrouped",
+        "Labels__GroupNew"          : "New group...",
+        "Labels__Colour"            : "Colour",
+        "Labels__Opacity"           : "Opacity",
+        "Labels__LabelShows"        : "Label shows",
+        "Labels__LabelBoth"         : "Name and area",
+        "Labels__LabelName"         : "Name only",
+        "Labels__LabelValue"        : "Area only",
+        "Labels__LabelNone"         : "Nothing",
+        "Labels__TextSize"          : "Label size (mm)",
+        "Labels__Scale"             : "Measured at",
+        "Labels__ScaleAuto"         : "The drawing under it ({scale})",
+        "Labels__ScaleAutoSheet"    : "The sheet's scale ({scale})",
+        "Labels__Reads"             : "{area}, {perimeter} round, at {scale}",
+        "Labels__ReadsFrom"         : "{area}, {perimeter} round, at {scale} from {name}",
+        "Labels__Crossed"           : "This outline crosses itself, so it has no area. Drag the crossed corners apart.",
+        "Labels__ResetLabel"        : "Centre the label",
+        "Labels__ConvertToVector"   : "Make it a plain vector",
+        "Labels__SelectedMany"      : "{count} areas selected - {area} in total.",
+
+        "Labels__DefaultsHeading"   : "New areas",
+        "Labels__DefaultsNote"      : "What the next area drawn takes. An area is a vector, so everything else about it is in the Vectors panel.",
+
+        "Labels__IndexHeading"      : "Area index",
+        "Labels__IndexEmpty"        : "No areas on this sheet yet. Draw one, or select a closed vector and press Measure this shape.",
+        "Labels__IndexTotal"        : "Total",
+        "Labels__IndexUngrouped"    : "Ungrouped",
+        "Labels__IndexCount"        : "{count} areas",
+        "Labels__IndexCountOne"     : "1 area",
+        "Labels__AddGroup"          : "New group",
+        "Labels__GroupRename"       : "Rename this group",
+        "Labels__GroupColour"       : "The colour its areas are painted - changing it paints them",
+        "Labels__GroupUp"           : "Move up",
+        "Labels__GroupDown"         : "Move down",
+        "Labels__GroupDelete"       : "Delete the group (its areas stay, ungrouped)",
+        "Labels__RowSelect"         : "Select it on the sheet",
+        "Labels__NewGroupName"      : "Group {n}",
+
+        "Labels__TablesHeading"     : "Schedules",
+        "Labels__TablesNote"        : "A schedule is a dynamic block: drag it anywhere, and it re-writes itself whenever an area is drawn, renamed, regrouped or stretched. The same two are in the Parametric Scrapbook.",
+        "Labels__InsertSchedule"    : "Insert area schedule",
+        "Labels__InsertSummary"     : "Insert group summary",
+        "Labels__TableInserted"     : "Schedule placed in the middle of the view.",
+
+        "Labels__MenuMeasure"       : "Measure this shape as a floor area",
+        "Labels__MenuRename"        : "Rename this area...",
+        "Labels__MenuGroup"         : "Group: {group}",
+        "Labels__MenuUngrouped"     : "Group: none",
+        "Labels__MenuScaleAuto"     : "Measure at the drawing's scale ({scale})",
+        "Labels__MenuScaleFixed"    : "Measure at {scale}",
+        "Labels__MenuCentreLabel"   : "Centre its label",
+        "Labels__MenuConvert"       : "Make it a plain vector",
+        "Labels__ToastMeasured"     : "{name}: {area}.",
+        "Labels__ToastConverted"    : "It is a plain vector again.",
+        "Labels__ToastNotClosed"    : "A floor area has to be a closed shape of at least three corners."
+    }
+}

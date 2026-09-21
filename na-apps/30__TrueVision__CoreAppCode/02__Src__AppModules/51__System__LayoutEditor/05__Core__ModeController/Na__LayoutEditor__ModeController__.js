@@ -179,6 +179,10 @@
     import { Na__LeVeil__FirstOpen, Na__LeVeil__ReturnTo3d, Na__LeVeil__Dismiss3d } from './Na__LayoutEditor__LoadingVeil__.js';
     import { Na__LeEdge__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
     import { Na__LePanelPatterns__Register } from '../36__System__HatchPatternTools/Na__LayoutEditor__Panel__Patterns__.js';
+    import { Na__LePanelArea__Register } from '../59__Feature__FloorAreas/Na__LayoutEditor__Panel__FloorAreas__.js';
+    import { Na__LeArea__Ready, Na__LeArea__Is } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__.js';
+    import { Na__LeAreaTable__Attach } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Table__.js';
+    // @delegate: ../59__Feature__FloorAreas/
     import { Na__LeHatch__Ready } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeComposite__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__DrawCfg__Load } from '../../40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
@@ -194,6 +198,7 @@
         Na__LeModel__SetActiveSheetId,
         Na__LeModel__SetSelection,
         Na__LeModel__GetSelectionItems,
+        Na__LeModel__GetShapeById,
         Na__LeModel__GetViewports
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Mount, Na__LeSurface__SetSheet, Na__LeSurface__Refresh, Na__LeSurface__SetZoom, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
@@ -410,7 +415,8 @@
         Na__LePanelScrap__Register();                                          // <-- Standard: ready-made items from the config; shown only on a sheet that has some
         Na__LePanelParam__RegisterLibrary();                                   // <-- Parametric: dynamic elements - the scale bar - that keep answering to their parameters
         Na__LePanelScrapCustom__Register();                                    // <-- Custom: items saved from a selection, one JSON file each in the user content folder
-        Na__LePanelPatterns__Register();                                       // <-- Patterns: LAST in the right column, the hatch library and each site plan layer's hatch
+        Na__LePanelPatterns__Register();                                       // <-- Patterns: the hatch library and each site plan layer's hatch
+        Na__LePanelArea__Register();                                           // <-- Floor Areas: LAST in the right column, below Patterns as Adam asked - the rooms measured on this sheet and what they add up to
         Na__LeToolbar__Mount(host.querySelector('.na-le-centre__toolbar'), { editable : editable, showToast : toast });
         Na__LeMeasure__Mount(host.querySelector('.na-le-centre'), { editable : editable, stage : Na__LeMode__Stage });   // <-- The Measurements box, bottom right over the stage
         Na__LeSpecEd__Mount(host, { editable : editable, showToast : toast });    // <-- The Project Specification page, over the shell
@@ -740,6 +746,7 @@
         'shape',      'shapes',
         'leader',     'leaders',
         'group',      'groups',
+        'areas',                                                                // <-- A room's name, the group it is filed under, or the sheet's group list: all of it is drawn on the paper
         'margin'                                                                // <-- The notes margin is drawn with the markup
     ]);
     // ------------------------------------------------------------
@@ -764,6 +771,7 @@
         if (reason === 'shape'      || reason === 'shapes')      return 'shapes';
         if (reason === 'leader'     || reason === 'leaders')     return 'leaders';
         if (reason === 'margin')                                 return 'margin';
+        if (reason === 'areas')                                  return 'floor-areas';
         return null;                                                            // <-- Viewports and structural changes: everything may have moved
     }
     // ------------------------------------------------------------
@@ -775,12 +783,23 @@
     // change announcement. A kind with no section of its own - a viewport, a
     // group - answers null and the folds are left alone.
     // ------------------------------------------------------------
-    function Na__LeMode__SectionForKind(kind) {
+    function Na__LeMode__SectionForKind(kind, items) {
         if (kind === 'annotation') return 'text';
         if (kind === 'dimension')  return 'dimensions';
-        if (kind === 'shape')      return 'shapes';
+        // A MEASURED ROOM IS A VECTOR, AND ITS PANEL IS NOT THE VECTORS ONE.
+        // Everything somebody wants the moment they select one - its name, its
+        // group, what it measures - is in Floor Areas, so that is what opens.
+        // The Vectors panel is still there for its edge and its hatch, one
+        // fold away, because a room IS a vector.
+        if (kind === 'shape')      return Na__LeMode__AllAreas(items) ? 'floor-areas' : 'shapes';
         if (kind === 'leader')     return 'leaders';
         return null;
+    }
+    function Na__LeMode__AllAreas(items) {
+        const sheet = Na__LeModel__GetActiveSheet();
+        const shapes = (Array.isArray(items) ? items : []).filter((item) => item && item.kind === 'shape');
+        if (!sheet || !shapes.length) return false;
+        return shapes.every((item) => Na__LeArea__Is(Na__LeModel__GetShapeById(sheet, item.id)));
     }
     // ------------------------------------------------------------
 
@@ -793,18 +812,19 @@
     // what would be edited. Groups are opened up first, so windowing a grouped
     // block of notes still lands on Leaders.
     // ------------------------------------------------------------
-    function Na__LeMode__FocusPanelFor(kind) {
+    function Na__LeMode__FocusPanelFor(kind, items) {
         if (!Na__LeMode__Active || !Na__LeCfg__GetPanelSetup().focusOnSelect) return false;
-        const section = Na__LeMode__SectionForKind(kind);
+        const section = Na__LeMode__SectionForKind(kind, items);
         return section ? Na__LePanels__FocusSection(section) : false;
     }
     function Na__LeMode__FocusPanelForSelection() {
         const items = Na__LeModel__GetSelectionItems();
         if (!items.length) return false;                                        // <-- Nothing selected: the folds are the user's again
-        const kinds = new Set(Na__LeGroup__Expand(Na__LeModel__GetActiveSheet(), items).map((item) => item.kind));
+        const opened = Na__LeGroup__Expand(Na__LeModel__GetActiveSheet(), items);
+        const kinds  = new Set(opened.map((item) => item.kind));
         kinds.delete('group');
         if (kinds.size !== 1) return false;                                     // <-- Mixed: no one panel describes it
-        return Na__LeMode__FocusPanelFor(kinds.values().next().value);
+        return Na__LeMode__FocusPanelFor(kinds.values().next().value, opened);
     }
     // ------------------------------------------------------------
 
@@ -867,7 +887,7 @@
         // AND THE DRAWING VIEW CONFIG, because every viewport bake renders through
         // the drawing presets and they read their setup from it. index.html starts
         // the fetch; this is the same promise, so it is waited for, never repeated.
-        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__LeHatch__Ready(), Na__LeSpComp__Ready(), Na__DrawCfg__Load() ]).then(() => {
+        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__LeHatch__Ready(), Na__LeSpComp__Ready(), Na__LeArea__Ready(), Na__DrawCfg__Load() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
             Na__LeVw__Initialize({ editable : Na__LeMode__IsEditable(), showToast : context.showToast || null });   // <-- Asked before anything is built: the shell it gets depends on the answer
             Na__LeModel__Initialize();
@@ -881,6 +901,7 @@
             Na__LeSnap__Initialize(context);
             Na__LeSource__Initialize();                                      // <-- How many design phases stay loaded off-scene
             Na__LeViewId__Initialize();                                      // <-- Unnamed elevation viewports are named from their model and the project's north
+            Na__LeAreaTable__Attach();                                       // <-- Area schedules follow the rooms they report, inside the same undo step
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeMode__OnSheetsChanged);
             document.addEventListener('keydown', Na__LeMode__OnSaveKey, true);   // <-- Ctrl+S on the sheet, the specification and the register alike; capture, so it is answered before the browser is told
 

@@ -119,6 +119,7 @@
         Na__LeTools__TOOL_RECT,
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
+        Na__LeTools__TOOL_AREA,
         Na__LeTools__TOOLS,
         Na__LeTools__PICK_TOOLS,
         Na__LeTools__CHANGED_EVENT,

@@ -33,6 +33,34 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.25.0
+// - FLOOR AREAS. Three additions, all of them additive:
+//   - 'area' joins LAYER_TYPES, so a sheet can carry a Floor Areas layer.
+//     Without it NormaliseLayer turned one into 'mixed' on the first load.
+//   - Shape__Area on the shape record, kept only when it is an object, the
+//     rule Shape__Hatch and Shape__Qr follow - so every shape drawn before
+//     floor areas existed saves byte-identical. It holds what the room is
+//     called, the NAME of the group it is filed under and the few settings
+//     that are real decisions; the measurement itself is never stored, but
+//     solved from the points and the drawing's scale on every read. A shape
+//     carrying it is held closed and counts as something to paint.
+//   - Sheet__AreaGroups, the sheet's list of groups (a name and a colour
+//     each), kept only when there is one. Names are merged case-insensitively,
+//     because a paste from two sheets can bring the same group twice.
+// - New sheets are seeded with a fifth layer, Floor Areas. A sheet that
+//   already has layers is untouched; the feature gives it one when the first
+//   area lands.
+//
+// 21-Sep-2026 - Version 1.24.0
+// - Shape__Qr on the shape record: { Qr__MarginMm }, and nothing else. A shape
+//   carrying it is drawn as it always was AND has the project's QR symbol
+//   painted inside it, that far in from its box (Na__LayoutEditor__ShapeGeometry__).
+//   The block names no project and holds no matrix: the symbol is the one the
+//   Project QR Code system answers for whatever project is open, so a shape
+//   copied into another project carries that project's code. Kept only when it
+//   is an object, so every shape drawn before it stays byte-identical on save -
+//   the rule Shape__Hatch follows.
+//
 // 20-Sep-2026 - Version 1.23.0
 // - The depthFog style: whether a viewport shows its drawing's own depth fog.
 //   On by default, from LayoutEditor__Viewport__DefaultStyles, so a viewport
@@ -272,7 +300,7 @@
     // ------------------------------------------------------------
     const Na__LeRec__KIND_2D     = '2d';
     const Na__LeRec__KIND_3D     = '3d';
-    const Na__LeRec__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'mixed' ];
+    const Na__LeRec__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'area', 'mixed' ];   // <-- 'area' is the Floor Areas layer: measured rooms, which are vectors carrying Shape__Area
     const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer', 'depthFog' ];
     const Na__LeRec__ID_PAD      = 3;
     const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
@@ -518,6 +546,116 @@
     // ---------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Tidy a Shape's Floor Area Block
+    // ---------------------------------------------------------------
+    // Shape__Area is what makes a vector a MEASURED ROOM
+    // (59__Feature__FloorAreas). Every key but the name is stored only when it
+    // is a real decision, so a room drawn with the standard settings carries
+    // four short fields and nothing else:
+    //     Area__Name              what the room is called
+    //     Area__Group             the NAME of the group it is filed under
+    //     Area__ScaleDenominator  only when the scale has been SET by hand;
+    //                             absent means "the drawing under it"
+    //     Area__Label             only when it is not the standard 'both'
+    //     Area__TextSizeMm        only when the label size has been changed
+    //     Area__LabelDXMm/DYMm    only while the label has been dragged off centre
+    //
+    // THE AREA ITSELF IS NEVER STORED. It is solved from the points and the
+    // drawing's scale every time it is read, so a room moved onto another
+    // drawing reports itself at that drawing's scale with nothing to migrate
+    // and nothing that can go stale.
+    //
+    // Kept ONLY when the block is an object, the rule Shape__Hatch and
+    // Shape__Qr follow, so every shape drawn before floor areas existed stays
+    // byte-identical on save.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseShapeArea(item) {
+        const block = item.Shape__Area;
+        if (!block || typeof block !== 'object' || Array.isArray(block)) {
+            delete item.Shape__Area;
+            return;
+        }
+        const out = {};
+        out.Area__Name  = (typeof block.Area__Name  === 'string') ? block.Area__Name.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
+        const group     = (typeof block.Area__Group === 'string') ? block.Area__Group.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
+        if (group !== '') out.Area__Group = group;
+        const denominator = Number(block.Area__ScaleDenominator);
+        if (Number.isFinite(denominator) && denominator > 0) out.Area__ScaleDenominator = denominator;
+        if ([ 'name', 'value', 'none' ].indexOf(block.Area__Label) !== -1) out.Area__Label = block.Area__Label;   // <-- 'both' is the standard, and the standard is no key
+        const sizeMm = Number(block.Area__TextSizeMm);
+        if (Number.isFinite(sizeMm) && sizeMm > 0) out.Area__TextSizeMm = Math.min(20, Math.max(0.5, sizeMm));
+        const dx = Number(block.Area__LabelDXMm), dy = Number(block.Area__LabelDYMm);
+        const hasDx = Number.isFinite(dx), hasDy = Number.isFinite(dy);
+        if ((hasDx || hasDy) && Math.hypot(hasDx ? dx : 0, hasDy ? dy : 0) >= 1e-6) {   // <-- A label dragged home takes both keys off again, as a dimension's value does
+            out.Area__LabelDXMm = hasDx ? dx : 0;
+            out.Area__LabelDYMm = hasDy ? dy : 0;
+        }
+        item.Shape__Area   = out;
+        item.Shape__Closed = true;                                               // <-- An open room is not a room; the tools close one on finishing, and this holds it closed
+    }
+    // ---------------------------------------------------------------
+
+
+    // FUNCTION | Tidy a Sheet's Floor Area Groups
+    // ---------------------------------------------------------------
+    // Sheet__AreaGroups : [ { AreaGroup__Name, AreaGroup__Colour } ], in the
+    // order they are shown and reported. Kept only when there is at least one,
+    // so a sheet that has never had a group is unchanged by a load.
+    //
+    // A GROUP IS KNOWN BY ITS NAME, which is why there is no id here. Ids are
+    // per sheet and sequential; an area pasted onto another sheet would have
+    // been filed under whatever that id happened to mean there, while a name
+    // means the same thing on any sheet and in any project. Duplicates - which
+    // a paste from two sheets could bring - are merged, case-insensitively,
+    // keeping the first spelling.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseAreaGroups(sheet) {
+        if (!sheet) return [];
+        const raw  = Array.isArray(sheet.Sheet__AreaGroups) ? sheet.Sheet__AreaGroups : [];
+        const seen = new Set();
+        const kept = [];
+        raw.forEach((entry) => {
+            if (!entry || typeof entry !== 'object') return;
+            const name = (typeof entry.AreaGroup__Name === 'string') ? entry.AreaGroup__Name.replace(/\s+/g, ' ').trim().slice(0, 120) : '';
+            if (name === '' || seen.has(name.toLowerCase())) return;
+            seen.add(name.toLowerCase());
+            const group = { AreaGroup__Name : name };
+            if (typeof entry.AreaGroup__Colour === 'string' && entry.AreaGroup__Colour.trim() !== '') group.AreaGroup__Colour = entry.AreaGroup__Colour.trim();
+            kept.push(group);
+        });
+        if (kept.length) sheet.Sheet__AreaGroups = kept;
+        else delete sheet.Sheet__AreaGroups;
+        return kept;
+    }
+    // ---------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tidy a Shape's QR Block
+    // ---------------------------------------------------------------
+    // Shape__Qr is { Qr__MarginMm } and NOTHING ELSE. It says "paint the
+    // project's QR symbol inside this shape's box, this far in from it" and
+    // names neither a project nor a matrix: the symbol comes from the Project
+    // QR Code system at painting time, so the same shape pasted into another
+    // project carries that project's code. The margin is clear paper the
+    // symbol is owed and the shape's own rule sits at the edge of, so a
+    // margin of nothing is still a margin of nothing and is kept as zero.
+    //
+    // Kept ONLY when the block is an object, the rule Shape__Hatch follows,
+    // so every shape drawn before QR codes existed stays byte-identical on
+    // save and nothing has to migrate.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseShapeQr(item) {
+        const block = item.Shape__Qr;
+        if (!block || typeof block !== 'object' || Array.isArray(block)) {
+            delete item.Shape__Qr;
+            return;
+        }
+        const margin = Number(block.Qr__MarginMm);
+        item.Shape__Qr = { Qr__MarginMm : (Number.isFinite(margin) && margin > 0) ? margin : 0 };
+    }
+    // ---------------------------------------------------------------
+
+
     // FUNCTION | Is This a Site Plan Viewport (Viewport__SitePlan)
     // ------------------------------------------------------------
     function Na__LeRec__IsSitePlanViewport(viewport) {
@@ -757,13 +895,16 @@
         if (typeof item.Shape__FillColour !== 'string') item.Shape__FillColour = null;
         item.Shape__FillOpacity   = Na__LeRec__Unit(item.Shape__FillOpacity, 1);         // <-- A record from before opacity was solid
         Na__LeRec__NormaliseShapeHatch(item);                                             // <-- The repeating pattern over its fill, if it has one
+        Na__LeRec__NormaliseShapeQr(item);                                                // <-- The project's QR symbol inside its box, if it carries one
+        Na__LeRec__NormaliseShapeArea(item);                                              // <-- What it is called and what it is filed under, if it is a measured room
         item.Shape__StrokeOpacity = Na__LeRec__Unit(item.Shape__StrokeOpacity, 1);
         item.Shape__Gradient = Na__LeGrad__Normalise(item.Shape__Gradient);              // <-- A fresh object or null: no two shapes ever hold the same gradient
         item.Shape__LineStyle = Na__LeDash__Normalise(item.Shape__LineStyle);            // <-- Likewise: null is a solid edge, and a record from before the toggle stays one
         item.Shape__Stroked = item.Shape__Stroked !== false;                             // <-- A record written before the flag existed drew its edges
         const filled  = item.Shape__FillColour !== null || item.Shape__Gradient !== null;   // <-- A gradient is a fill as far as visibility goes
         const canFill = filled && item.Shape__Points.length > 2;                            // <-- Two points enclose nothing, so they cannot be a fill
-        if (!item.Shape__Stroked && !canFill) item.Shape__Stroked = true;                   // <-- Edges or fill, never neither: an invisible shape is a lost shape
+        const paints  = canFill || !!item.Shape__Qr || !!item.Shape__Area;                  // <-- A QR block paints the whole box and a floor area writes its name in the middle, so neither is ever invisible
+        if (!item.Shape__Stroked && !paints) item.Shape__Stroked = true;                    // <-- Edges, fill or a code, never none of them: an invisible shape is a lost shape
         return item;
     }
     // ------------------------------------------------------------
@@ -917,7 +1058,8 @@
                 { Layer__Id : 'Layer_001', Layer__Name : 'Viewports',  Layer__Type : 'viewport',   Layer__Visible : true, Layer__Locked : false, Layer__Order : 1 },
                 { Layer__Id : 'Layer_002', Layer__Name : 'Text',       Layer__Type : 'annotation', Layer__Visible : true, Layer__Locked : false, Layer__Order : 2 },
                 { Layer__Id : 'Layer_003', Layer__Name : 'Dimensions', Layer__Type : 'dimension',  Layer__Visible : true, Layer__Locked : false, Layer__Order : 3 },
-                { Layer__Id : 'Layer_004', Layer__Name : 'Vectors',    Layer__Type : 'vector',     Layer__Visible : true, Layer__Locked : false, Layer__Order : 4 }
+                { Layer__Id : 'Layer_004', Layer__Name : 'Vectors',    Layer__Type : 'vector',     Layer__Visible : true, Layer__Locked : false, Layer__Order : 4 },
+                { Layer__Id : 'Layer_005', Layer__Name : 'Floor Areas', Layer__Type : 'area',     Layer__Visible : true, Layer__Locked : false, Layer__Order : 5 }   // <-- Measured rooms, on a layer of their own so they can be switched off once drawn
             ];
         }
         sheet.Sheet__Layers.forEach(Na__LeRec__NormaliseLayer);
@@ -935,6 +1077,7 @@
         const lw = (sheet.Sheet__Lineweights && typeof sheet.Sheet__Lineweights === 'object') ? sheet.Sheet__Lineweights : {};
         sheet.Sheet__Lineweights = { ViewportPt : Na__LeRec__Num(lw.ViewportPt, lwSetup.viewportPt), DimensionPt : Na__LeRec__Num(lw.DimensionPt, lwSetup.dimensionPt) };
         Na__LeRec__NormaliseMarginNotes(sheet);                                  // <-- Only a sheet that has a notes margin
+        Na__LeRec__NormaliseAreaGroups(sheet);                                   // <-- Only a sheet that has floor area groups
 
         sheet.Sheet__Viewports.forEach((v)   => Na__LeRec__NormaliseViewport(v,   Na__LeRec__DefaultLayerId(sheet, 'viewport')));
         sheet.Sheet__Annotations.forEach((a) => Na__LeRec__NormaliseAnnotation(a, Na__LeRec__DefaultLayerId(sheet, 'annotation')));
@@ -1192,6 +1335,8 @@
         Na__LeRec__IsSitePlanSheet,
         Na__LeRec__IsSitePlanViewport,
         Na__LeRec__NormaliseShape,
+        Na__LeRec__NormaliseShapeArea,
+        Na__LeRec__NormaliseAreaGroups,
         Na__LeRec__NormaliseLeader,
         Na__LeRec__NormaliseMarginNotes,
         Na__LeRec__MarginNotes,

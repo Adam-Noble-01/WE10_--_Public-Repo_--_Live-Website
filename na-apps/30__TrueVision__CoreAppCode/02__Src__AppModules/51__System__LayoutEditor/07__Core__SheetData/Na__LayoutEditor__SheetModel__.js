@@ -119,6 +119,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.28.0
+// - Re-exports the Shapes unit's ShapeLayerType and ShapeLayerId, and the new
+//   Area Groups unit (Na__LayoutEditor__SheetModel__AreaGroups__): a sheet's
+//   floor area groups, and the 'areas' announcement every floor area edit is
+//   carried by.
+//
 // 19-Sep-2026 - Version 1.27.0
 // - Re-exports the Viewports unit's RegisterViewportNamer.
 //
@@ -445,11 +451,24 @@
     } from './Na__LayoutEditor__SheetModel__TextAndDimensions__.js';
     import {
         Na__LeModel__GetShapeById,
+        Na__LeModel__ShapeLayerType,
+        Na__LeModel__ShapeLayerId,
         Na__LeModel__CreateShape,
         Na__LeModel__InsertShape,
         Na__LeModel__UpdateShape,
         Na__LeModel__DeleteShape
     } from './Na__LayoutEditor__SheetModel__Shapes__.js';
+    import {
+        Na__LeModel__AREAS_REASON,
+        Na__LeModel__AreaGroupKey,
+        Na__LeModel__GetAreaGroups,
+        Na__LeModel__AnnounceAreas,
+        Na__LeModel__AddAreaGroup,
+        Na__LeModel__RenameAreaGroup,
+        Na__LeModel__SetAreaGroupColour,
+        Na__LeModel__MoveAreaGroup,
+        Na__LeModel__DeleteAreaGroup
+    } from './Na__LayoutEditor__SheetModel__AreaGroups__.js';
     import {
         Na__LeModel__GetLeaders,
         Na__LeModel__GetLeaderById,
@@ -737,10 +756,21 @@
         Na__LeModel__UpdateDimension,
         Na__LeModel__DeleteDimension,
         Na__LeModel__GetShapeById,
+        Na__LeModel__ShapeLayerType,
+        Na__LeModel__ShapeLayerId,
         Na__LeModel__CreateShape,
         Na__LeModel__InsertShape,
         Na__LeModel__UpdateShape,
         Na__LeModel__DeleteShape,
+        Na__LeModel__AREAS_REASON,
+        Na__LeModel__AreaGroupKey,
+        Na__LeModel__GetAreaGroups,
+        Na__LeModel__AnnounceAreas,
+        Na__LeModel__AddAreaGroup,
+        Na__LeModel__RenameAreaGroup,
+        Na__LeModel__SetAreaGroupColour,
+        Na__LeModel__MoveAreaGroup,
+        Na__LeModel__DeleteAreaGroup,
         Na__LeModel__GetLeaders,
         Na__LeModel__GetLeaderById,
         Na__LeModel__CreateLeader,

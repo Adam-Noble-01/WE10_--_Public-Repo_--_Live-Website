@@ -51,6 +51,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0
+// - The Area tool draws through this one (59__Feature__FloorAreas): two more
+//   defaults ride through to CreateShape - `area`, the Shape__Area block that
+//   makes the shape a measured room, and `layerId`, the Floor Areas layer -
+//   and a draft that carries the block is finished CLOSED whatever finished
+//   it, and is deleted below three corners rather than left as a line. Every
+//   other caller is unchanged: with no `area` in the defaults this is the
+//   polyline tool it has always been.
+//
 // 14-Sep-2026 - Version 1.6.0
 // - A new shape takes the Vectors panel's dashed-edge default when it is on,
 //   so a run of centre lines or hidden lines can be drawn with nothing selected.
@@ -257,10 +266,12 @@
             const item = Na__LeModel__CreateShape(sheet, [ pt ], {
                 strokeColour : d.strokeColour, strokePt : d.strokePt, fillColour : d.filled ? d.fillColour : null,
                 fillOpacity : d.fillOpacity, strokeOpacity : d.strokeOpacity,
-                gradient : d.gradientOn ? d.gradient : null, dash : d.dashOn ? d.dash : null, closed : false, stroked : true, silent : true
+                gradient : d.gradientOn ? d.gradient : null, dash : d.dashOn ? d.dash : null, closed : false, stroked : true, silent : true,
+                area : (d.area && typeof d.area === 'object') ? d.area : null,   // <-- The Area tool is drawing: the shape is a measured room from its first point
+                layerId : d.layerId || null                                      // <-- ...and lands on the Floor Areas layer rather than the Vectors one
             });
             if (!item) return false;
-            Na__LeShape__Draft  = { id : item.Shape__Id, points : [ pt ], stroked : d.stroked !== false, aim : null };   // <-- Drawn with edges, finished as the default asks
+            Na__LeShape__Draft  = { id : item.Shape__Id, points : [ pt ], stroked : d.stroked !== false, aim : null, area : !!(d.area && typeof d.area === 'object') };   // <-- Drawn with edges, finished as the default asks
             Na__LeShape__Undone = [];
             Na__LeAxis__Clear();                                             // <-- The point landed: the lock is spent
             Na__LeGrips__ShowBand(pt, pt, null);
@@ -304,8 +315,14 @@
         Na__LeGrips__HideBand();
         Na__LeOsnap__HideMarker();
         if (!sheet) return false;
-        if (draft.points.length < 2) { Na__LeModel__DeleteShape(sheet, draft.id); return false; }   // <-- One point is not a shape
-        const closed = close === true && draft.points.length > 2;
+        // A MEASURED ROOM NEEDS THREE CORNERS AND IS ALWAYS CLOSED. Two points
+        // enclose nothing, so a room abandoned on its second corner is deleted
+        // rather than left as a line on the Floor Areas layer; and a room is
+        // closed however it was finished - Enter, a double click and a right
+        // click all close it, where a polyline they would have left open.
+        const floor = draft.area ? 3 : 2;
+        if (draft.points.length < floor) { Na__LeModel__DeleteShape(sheet, draft.id); return false; }   // <-- One point is not a shape
+        const closed = (close === true || draft.area === true) && draft.points.length > 2;
         Na__LeModel__UpdateShape(sheet, draft.id, { points : draft.points.slice(), closed : closed, stroked : draft.stroked }, false);   // <-- One announcement: one history step
         Na__LeModel__SetSelection({ kind : 'shape', id : draft.id });
         return true;

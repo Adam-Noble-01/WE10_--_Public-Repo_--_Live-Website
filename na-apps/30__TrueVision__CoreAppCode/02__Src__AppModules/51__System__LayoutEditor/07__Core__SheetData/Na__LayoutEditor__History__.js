@@ -46,6 +46,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0
+// - 'areas' counts as a step: a floor area's name, the group it is filed
+//   under, and the sheet's own list of groups. An unlisted reason is not
+//   merely un-undoable - it leaves the baseline stale, so the NEXT step
+//   snapshots the change as part of itself and one Ctrl+Z throws both away.
+//
 // 19-Sep-2026 - Version 1.6.0
 // - Status joins the fields a register save writes into every kept step. The
 //   Drawing Register saves a drawing's status to R2 there and then, so a step
@@ -120,7 +126,7 @@
     // MODULE CONSTANTS | Event and the Reasons That Count as a Step
     // ------------------------------------------------------------
     const Na__LeHist__CHANGED_EVENT = 'na-layouteditor-history-changed';
-    const Na__LeHist__STEP_REASONS  = [ 'sheet-updated', 'fields', 'layers', 'viewports', 'viewport', 'annotations', 'annotation', 'dimensions', 'dimension', 'shapes', 'shape', 'leaders', 'leader', 'margin', 'groups' ];
+    const Na__LeHist__STEP_REASONS  = [ 'sheet-updated', 'fields', 'layers', 'viewports', 'viewport', 'annotations', 'annotation', 'dimensions', 'dimension', 'shapes', 'shape', 'leaders', 'leader', 'margin', 'groups', 'areas' ];   // <-- 'areas': a floor area's name, its group, and the sheet's group list
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Per-Sheet Stacks

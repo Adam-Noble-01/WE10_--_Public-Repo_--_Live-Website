@@ -417,6 +417,16 @@
         if (kind === 'shape') {
             copy.Shape__Points = (Array.isArray(copy.Shape__Points) ? copy.Shape__Points : []).map((p) => [ Na__LeScrapCustom__Round(p[0] + dx), Na__LeScrapCustom__Round(p[1] + dy) ]);
             delete copy.Shape__LayerId;
+            // A MEASURED ROOM KEEPS ITS NAME AND LOSES THE REST. The group it
+            // was filed under belongs to the sheet it came from, and a scale
+            // set by hand was set for a drawing this item will never see
+            // again - dropped into another project it measures itself at
+            // whatever is under it, which is the only answer that can be
+            // right. The same reasoning as a leader's note id above.
+            if (copy.Shape__Area && typeof copy.Shape__Area === 'object') {
+                delete copy.Shape__Area.Area__Group;
+                delete copy.Shape__Area.Area__ScaleDenominator;
+            }
         }
         if (kind === 'annotation') {
             shift('Annotation__PosXMm', 'Annotation__PosYMm');

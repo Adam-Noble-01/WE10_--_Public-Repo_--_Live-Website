@@ -102,6 +102,7 @@
         Na__LeTools__TOOL_DIMENSION,
         Na__LeTools__TOOL_DRAW,
         Na__LeTools__TOOL_RECT,
+        Na__LeTools__TOOL_AREA,
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__CHANGED_EVENT,
@@ -287,6 +288,7 @@
               [ Na__LeTools__TOOL_DIMENSION, Na__LeCfg__GetLabel('ToolDimension', 'Dimension'), Na__LeCfg__GetLabel('ToolDimensionTitle', 'Place a dimension in three clicks (D): start, end, then where the line sits. Hold Shift while placing the line for a horizontal or vertical dimension.') ],
               [ Na__LeTools__TOOL_DRAW, Na__LeCfg__GetLabel('ToolDraw', 'Draw'), 'Draw lines and polygons: click points, click the first point to close, Enter to finish (L)' ],
               [ Na__LeTools__TOOL_RECT, Na__LeCfg__GetLabel('ToolRectangle', 'Rectangle'), Na__LeCfg__GetLabel('ToolRectangleTitle', 'Draw a rectangle (R): click one corner then the opposite corner, or drag from one to the other. Shift keeps it square, Esc abandons it.') ],
+              [ Na__LeTools__TOOL_AREA, Na__LeCfg__GetLabel('ToolFloorArea', 'Floor Area'), Na__LeCfg__GetLabel('ToolFloorAreaTitle', 'Measure a room (A): draw round it and click the first corner again to close - or switch to rectangles in the Floor Areas panel. It lands on the Floor Areas layer, named and coloured, with its area written in the middle of it.') ],
               [ Na__LeTools__TOOL_EYEDROP, Na__LeCfg__GetLabel('ToolEyedropper', 'Eyedropper'), Na__LeCfg__GetLabel('ToolEyedropperTitle', 'Match properties (B): click the object to copy FROM, then each object to copy ONTO. Alt+click picks a new source, Esc finishes.') ] ].forEach((entry) => {
                 // The eyedropper arms through its own call so the button behaves
                 // exactly as the B key does: with something selected it comes up

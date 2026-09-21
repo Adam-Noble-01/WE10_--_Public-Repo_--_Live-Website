@@ -2,19 +2,20 @@
     "LayoutEditor__ScrapbookParametric__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
         "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
-        "Meta__Version"     : "1.2.0",
+        "Meta__Version"     : "1.3.0",
         "Meta__Created"     : "19-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
         "Meta__Block"       : "Group__Parametric : { Parametric__Type, Parametric__Version, Parametric__Params, Parametric__Link }. The element's place on the paper is never stored: the Move tool and a paste shift a group's members and know nothing of this block, so the generator always writes the element's origin as the first point of its first member and the engine reads it back from there.",
         "Meta__HouseTitle"  : "The drawing title was measured on 19-Sep-2026 from the six elevation titles and two plan titles Adam lettered by hand on PS02 D22 and D21. All eight agree: capitals, qualifier first (EXISTING EAST ELEVATION), Open Sans 600 at 3.5 mm in #172b3a, ranged left; an underline 0.4 pt thick and exactly 60 mm long, 1.631 mm under the baseline and 0.171 mm in from the text's left; and the scale bar 6.318 mm under the underline, sharing its left end. He groups title, underline and bar as one object.",
         "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between. THE FILL WAS LIGHTENED ON 20-Sep-2026 to #858585 - a fifth of the way from the measured #666666 to white - because Adam found the checker too heavy on the page. Nothing else about the bar moved, and the test fixtures carry the new value.",
-        "Meta__BarRight"    : "A SCALE BAR PLACED TO THE RIGHT was measured on 20-Sep-2026 from the arrangement Adam laid out by hand over PS01's proposed south east elevation: the title and its underline exactly where they always are, and the bar standing away along the same line with its FOOT on the title's baseline - 3.631 mm (1.631 + the bar's own 2) above the underline - so the two read as one band across the foot of the drawing. Its far end is meant to land under a corner of the building above it, which is why that end is the one that is dragged and the near end is the one that lengthens."
+        "Meta__BarRight"    : "A SCALE BAR PLACED TO THE RIGHT was measured on 20-Sep-2026 from the arrangement Adam laid out by hand over PS01's proposed south east elevation: the title and its underline exactly where they always are, and the bar standing away along the same line with its FOOT on the title's baseline - 3.631 mm (1.631 + the bar's own 2) above the underline - so the two read as one band across the foot of the drawing. Its far end is meant to land under a corner of the building above it, which is why that end is the one that is dragged and the near end is the one that lengthens.",
+        "Meta__Portal"      : "THE PROJECT PORTAL BLOCK (21-Sep-2026) is drawn from two mock-ups Adam made: a narrow column - code, Scan Me button, heading, bullets - and a wider one that stands that column beside a heading and a paragraph. Its code is NEVER encoded here: the box is one vector carrying a Shape__Qr block, and the shape painter fills it with whatever symbol the Project QR Code system answers for the project on screen, which is the same symbol the title block prints. So a block dragged onto a sheet carries THIS project's code, and one copied into another project carries that one's. The size of the code is the parameter (30 mm as shipped, the rest of the list on the lookup grip); everything round it is set in paper millimetres and does not scale with it, because type on a drawing is house sizes or it is wrong."
     },
 
     "LayoutEditor__ScrapbookParametric__Elements": {
         "Elements__Description" : "The tiles the Parametric Scrapbook section shows, in this order. An element is a PRESET of a type: Element__Type names a registered element module, Element__Id is the element's own (two elements may share a type; without one it is the type), Element__Params are laid onto every element dropped from it, and Element__PreviewParams are added for the tile and the drag ghost only - a title's tile reads EXISTING EAST ELEVATION where a real drop reads its own viewport. Element__DrawingTypes lists the drawing types an element is offered on ('siteplan', 'architectural'); an element without the key is offered on every sheet. Elements__TypeNames is what each type is called on the sheet's group tag and in the panel.",
-        "Elements__TypeNames"   : { "ScaleBar" : "Scale Bar", "DrawingTitle" : "Drawing Title" },
+        "Elements__TypeNames"   : { "ScaleBar" : "Scale Bar", "DrawingTitle" : "Drawing Title", "ProjectQr" : "Project Portal", "AreaSchedule" : "Area Schedule" },
         "Elements__List"        : [
             {
                 "Element__Id"            : "DrawingTitleWithBar",
@@ -44,6 +45,36 @@
                 "Element__Type"        : "ScaleBar",
                 "Element__Name"        : "Scale Bar",
                 "Element__Description" : "A checker scale bar that reads the scale of the drawing above it. Drag the arrow at its far end to lengthen it; click the triangle at its zero end for another scale; drag the round socket onto another drawing to tie it to that one."
+            },
+            {
+                "Element__Id"          : "ProjectPortalCompact",
+                "Element__Type"        : "ProjectQr",
+                "Element__Name"        : "Project Portal QR",
+                "Element__Description" : "The project's own QR code, big enough to see across a table, with a Scan Me button and the few lines that make somebody want to point a phone at it. The code is this project's and fills itself in. Click the triangle for another size - 30 mm as dropped - or for the version with the full description beside it.",
+                "Element__Params"      : { "Form" : "compact" }
+            },
+            {
+                "Element__Id"          : "ProjectPortalFull",
+                "Element__Type"        : "ProjectQr",
+                "Element__Name"        : "Project Portal QR + Description",
+                "Element__Description" : "The same block with a heading and a paragraph beside it, for a cover sheet or a presentation drawing. Drag the arrow at the end of the paragraph to set how wide the words are set; click the triangle for another code size.",
+                "Element__Params"      : { "Form" : "full" }
+            },
+            {
+                "Element__Id"            : "AreaScheduleRooms",
+                "Element__Type"          : "AreaSchedule",
+                "Element__Name"          : "Area Schedule",
+                "Element__Description"   : "Every room measured on this sheet, under its group with a subtotal, and the total at the foot. It re-writes itself whenever a room is drawn, renamed, regrouped or stretched. Drag the arrow to set how wide it is set; click the triangle for one group only, for square feet, or for the summary form.",
+                "Element__Params"        : { "Form" : "areas" },
+                "Element__PreviewParams" : { "Data" : { "Areas" : [ { "Name" : "Kitchen", "Group" : "Ground Floor", "AreaM2" : 18.45, "Colour" : "#bcd9ee" }, { "Name" : "Living Room", "Group" : "Ground Floor", "AreaM2" : 24.1, "Colour" : "#bcd9ee" }, { "Name" : "Bedroom 1", "Group" : "First Floor", "AreaM2" : 15.2, "Colour" : "#c6e0c6" } ], "Groups" : [ { "Name" : "Ground Floor", "AreaM2" : 42.55, "Count" : 2, "Colour" : "#bcd9ee" }, { "Name" : "First Floor", "AreaM2" : 15.2, "Count" : 1, "Colour" : "#c6e0c6" } ], "TotalM2" : 57.75 } }
+            },
+            {
+                "Element__Id"            : "AreaScheduleGroups",
+                "Element__Type"          : "AreaSchedule",
+                "Element__Name"          : "Area Summary by Group",
+                "Element__Description"   : "One row per group - Ground Floor, First Floor, Garage - with its total and the whole sheet's total. The summary a planning statement quotes. The groups are made in the Floor Areas panel by filing each room under one.",
+                "Element__Params"        : { "Form" : "groups" },
+                "Element__PreviewParams" : { "Data" : { "Areas" : [], "Groups" : [ { "Name" : "Ground Floor", "AreaM2" : 42.55, "Count" : 2, "Colour" : "#bcd9ee" }, { "Name" : "First Floor", "AreaM2" : 15.2, "Count" : 1, "Colour" : "#c6e0c6" } ], "TotalM2" : 57.75 } }
             }
         ]
     },
@@ -134,6 +165,156 @@
         "DrawingTitle__PhaseModeNote"                : "auto reads Existing or Proposed off the model the drawing draws; existing and proposed force the word; none leaves it out."
     },
 
+    "LayoutEditor__ScrapbookParametric__ProjectQr": {
+        "ProjectQr__Description"        : "Element three: the Project Portal block (Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js). See Meta__Portal for where it came from. The origin is the top left corner of the code's box; the button, the caption, the heading and the bullets run down from it, and the full form's heading and paragraph stand to its right. The SYMBOL is not here and is not in the record: the box carries a Shape__Qr block and the shape painter asks the Project QR Code system (02__Src__AppModules/53__System__ProjectQrCode/) for the project's own code every time the sheet is drawn.",
+
+        "ProjectQr__SizeMm"             : 30,
+        "ProjectQr__SizeChoicesMm"      : [ 15, 20, 25, 30 ],
+        "ProjectQr__SizeMinMm"          : 15,
+        "ProjectQr__SizeMaxMm"          : 120,
+        "ProjectQr__SizeNote"           : "The symbol edge to edge, in paper millimetres, and the ONLY thing that makes this block bigger or smaller. 30 mm is what a code has to be to be noticed on a drawing rather than looked for: three and a half times the 8.8 mm the title block prints. The list is what the lookup grip's triangle and the panel offer, and it runs 15 to 30 - the sizes that sit on a drawing beside other things. 40 and 50 were dropped because at that size the code stops being a detail on a sheet and starts being the sheet, and the type round it, which is house sizes and does NOT grow with the code, reads as an afterthought against it. Every size here is far above what a phone needs - a 29 module symbol at 15 mm is a 0.52 mm module against the 0.28 mm floor - so the limits are about the page, not the camera, and the shape painter reports the printed size to the QR system's own check either way. A block already set to a size that has left the list keeps it: only the menu changed, and Normalise still holds anything between SizeMinMm and SizeMaxMm.",
+
+        "ProjectQr__MarginFraction"     : 0.07,
+        "ProjectQr__MarginFractionNote" : "The clear paper inside the box, as a fraction of the code rather than a count of millimetres - which is what keeps the quiet zone at the same number of MODULES whatever size the code is drawn at. 0.07 of a 29 module symbol is 2.03 modules, the two the QR system asks for, and a longer address (a bigger symbol, more modules) only ever gives it more. The box's own rule sits at the edge of that margin and counts as not clear, which is why the rule is where the margin ends and not inside it.",
+
+        "ProjectQr__BoxColour"          : "#858585",
+        "ProjectQr__BoxStrokePt"        : 0.7,
+
+        "ProjectQr__ButtonGapMm"        : 2.6,
+        "ProjectQr__ButtonHeightMm"     : 7.0,
+        "ProjectQr__ButtonPadMm"        : 2.6,
+        "ProjectQr__ButtonPadNote"      : "The least paper between the handset-and-words pair and the end of the stadium. The button is the code box's width OR the pair plus twice this, whichever is more: the label is a house size and does not shrink with the code, so at 15 mm the pair is wider than the box and a button locked to the box wore its own words out of both ends. At 20 mm and above the content fits inside the box's width and the button is exactly the box, as it always was.",
+        "ProjectQr__ButtonColour"       : "#858585",
+        "ProjectQr__ButtonStrokePt"     : 0.7,
+        "ProjectQr__ButtonTextSizeMm"   : 3.2,
+        "ProjectQr__ButtonTextWeight"   : 600,
+        "ProjectQr__ButtonTextColour"   : "#172b3a",
+        "ProjectQr__ButtonIconWidthMm"  : 2.4,
+        "ProjectQr__ButtonIconHeightMm" : 4.0,
+        "ProjectQr__ButtonIconGapMm"    : 2.0,
+        "ProjectQr__ButtonIconStrokePt" : 0.6,
+        "ProjectQr__ButtonNote"         : "The Scan Me button: a stadium the width of the code's box, with a handset and the words centred in it as one pair. It is not a control and nothing happens when it is clicked - it is the thing that tells somebody who has never met a QR code that the square above it is for pointing a phone at, which is the whole reason this block exists rather than the title block's code being left to do the work.",
+
+        "ProjectQr__GapsNote"           : "EVERY GAP BELOW IS BASELINE TO BASELINE, not a space between two lines - which is the only way to set type that stays even when one line is a heading and the next is a caption. A gap therefore has to carry three things: the descender of the line above, the air wanted between them, and the CAP HEIGHT of the line below (0.72 of its size in Open Sans). A 4.6 mm gap under a 3.5 mm heading leaves 1.3 mm of air; the same 4.6 under the 5.4 mm title leaves none at all, which is what had the project name sitting on the title's descenders. The numbers here were re-set on 21-Sep-2026 against a rendering of both forms at 30 mm, and the title has a gap of its own for exactly that reason.",
+
+        "ProjectQr__CaptionGapMm"       : 3.6,
+        "ProjectQr__CaptionSizeMm"      : 2.1,
+        "ProjectQr__CaptionWeight"      : 400,
+        "ProjectQr__CaptionColour"      : "#5f6b74",
+        "ProjectQr__CaptionNote"        : "Measured from the FOOT OF THE BUTTON, not from a baseline, because the button is a shape and has no baseline to measure from. 3.6 leaves 2.1 mm of paper between the button's rule and the caption's capitals. The caption is ranged LEFT on the column's own edge like everything under it: centred on the code box it overhung that edge at every size where the wording was wider than the box - which is every size below 25 mm - and an element whose left edge moves with its code size cannot be lined up with anything on a sheet.",
+
+        "ProjectQr__HeadingGapMm"       : 6.4,
+        "ProjectQr__HeadingSizeMm"      : 3.5,
+        "ProjectQr__HeadingWeight"      : 600,
+        "ProjectQr__HeadingColour"      : "#172b3a",
+
+        "ProjectQr__NameGapMm"          : 4.4,
+        "ProjectQr__NameSizeMm"         : 2.4,
+        "ProjectQr__NameWeight"         : 400,
+        "ProjectQr__NameColour"         : "#5f6b74",
+        "ProjectQr__NameNote"           : "The project's name, under whichever heading leads the block: the compact form's own, and the full form's larger one. It is read live from the project on screen, so renaming the project rewrites every block in the pack; a name typed into the panel wins and stops it following, and clearing that box puts it back. It is lettered ONCE - the full form's left-hand column leaves it out, because the heading beside it is already carrying it and saying it twice reads as a mistake.",
+
+        "ProjectQr__BulletsGapMm"       : 5.6,
+        "ProjectQr__BulletSizeMm"       : 2.7,
+        "ProjectQr__BulletWeight"       : 400,
+        "ProjectQr__BulletColour"       : "#5f6b74",
+        "ProjectQr__BulletPitchMm"      : 4.4,
+        "ProjectQr__BulletMark"         : "·   ",
+
+        "ProjectQr__ColumnGapMm"        : 11,
+        "ProjectQr__TitleSizeMm"        : 5.4,
+        "ProjectQr__TitleWeight"        : 600,
+        "ProjectQr__TitleColour"        : "#172b3a",
+        "ProjectQr__TitleBaselineMm"    : 4.6,
+        "ProjectQr__TitleNameGapMm"     : 5.8,
+        "ProjectQr__TitleNameGapNote"   : "The full form's title is 5.4 mm where the compact form's heading is 3.5, so the drop to the project name underneath cannot be the same number in both. This is the title's own: 5.8 baseline to baseline leaves 1.9 mm between the title's descenders and the name's capitals. NameGapMm stays what the compact heading wants. One number under two different sizes of type is the fault this key exists to undo.",
+        "ProjectQr__BodyGapMm"          : 5.4,
+        "ProjectQr__BodySizeMm"         : 3.1,
+        "ProjectQr__BodyWeight"         : 400,
+        "ProjectQr__BodyColour"         : "#5f6b74",
+        "ProjectQr__BodyPitchMm"        : 4.8,
+        "ProjectQr__BodyWidthMm"        : 95,
+        "ProjectQr__BodyWidthMinMm"     : 45,
+        "ProjectQr__BodyWidthMaxMm"     : 260,
+        "ProjectQr__BodyWidthStepMm"    : 5,
+        "ProjectQr__BodyWidthNote"      : "How wide the full form's paragraph is set, in paper millimetres, measured from the left edge of its own column. The stretch arrow at the end of the paragraph drags it in 5 mm steps and the words re-wrap as it moves. MaxMm is a paper limit, comfortably inside the long edge of an A0.",
+
+        "ProjectQr__ButtonText"         : "Scan Me",
+        "ProjectQr__CaptionText"        : "Use your phone or tablet camera",
+        "ProjectQr__CaptionTextNote"    : "Said in plain words on purpose. Anybody under forty points a camera at a QR code without being told; the people this drawing is put in front of - a client, a neighbour, a planning officer - very often have not, and 'Scan Me' alone assumes they know what to scan it WITH.",
+        "ProjectQr__HeadingText"        : "View Project Portal",
+        "ProjectQr__TitleText"          : "Project Portal",
+        "ProjectQr__BodyText"           : "Point your phone or tablet camera at the code and the whole building opens in 3D. Walk through it at full size, step between the saved views and scenes, measure anything you like, and read every drawing live online. Nothing to download - it opens straight in your browser.",
+        "ProjectQr__BodyTextNote"       : "Written to be scanned, not read: what to do, what happens, and the one objection that stops people - having to install something. It names no app and no system, because what is being offered is the building, not the software.",
+        "ProjectQr__Bullets"            : [
+            "Walk Through the 3D Model",
+            "Saved Scenes and Viewpoints",
+            "Measuring Tools",
+            "Live Drawings Online"
+        ],
+        "ProjectQr__BulletsNote"        : "One line each, in the order somebody would care about them, and short enough that the column stays the width of the code's box and a little over. They are lettered exactly as written here - no capitalising, no full stops - so the wording is entirely this file's."
+    },
+
+    "LayoutEditor__ScrapbookParametric__AreaSchedule": {
+        "AreaSchedule__Description"      : "Element four: the area schedule (Na__LayoutEditor__ScrapbookParametric__AreaSchedule__.js), which reports what the rooms measured on a sheet add up to. Two forms of one type: 'areas' is a row per room under its group heading with a subtotal, and 'groups' is a row per group - the summary a planning statement quotes. The origin is the LEFT END OF THE TOP RULE, with the title above it and the rows below, as the drawing title's origin is the left end of its underline. THE NUMBERS ARE NOT HERE AND ARE NOT TYPED: they arrive as the Data parameter, filled from the sheet's own index by 59__Feature__FloorAreas, so a table always says what the drawing beside it says.",
+
+        "AreaSchedule__WidthMm"          : 78,
+        "AreaSchedule__WidthMinMm"       : 40,
+        "AreaSchedule__WidthMaxMm"       : 260,
+        "AreaSchedule__WidthStepMm"      : 2,
+        "AreaSchedule__WidthNote"        : "How wide the table is set, in paper millimetres: the name runs from the left edge and the figure is ranged right at the far edge, so this is the distance between them. 78 mm is a column that sits comfortably beside an A2 title block. The stretch arrow drags it in 2 mm steps.",
+
+        "AreaSchedule__TextSizeMm"       : 2.4,
+        "AreaSchedule__TextWeight"       : 400,
+        "AreaSchedule__TextColour"       : "#172b3a",
+        "AreaSchedule__HeadWeight"       : 600,
+        "AreaSchedule__HeadColour"       : "#172b3a",
+        "AreaSchedule__MutedColour"      : "#5f6b74",
+        "AreaSchedule__TextNote"         : "House type sizes. EVERY VERTICAL MEASUREMENT BELOW IS TAKEN AS A RATIO TO TextSizeMm, so changing the type size in the panel sets the whole table larger or smaller without any of it colliding.",
+
+        "AreaSchedule__TitleSizeMm"      : 3.2,
+        "AreaSchedule__TitleWeight"      : 600,
+        "AreaSchedule__TitleColour"      : "#172b3a",
+        "AreaSchedule__TitleAboveRuleMm" : 1.8,
+
+        "AreaSchedule__RulePt"           : 0.4,
+        "AreaSchedule__HairlinePt"       : 0.2,
+        "AreaSchedule__RuleColour"       : "#172b3a",
+        "AreaSchedule__HairlineColour"   : "#858585",
+        "AreaSchedule__RuleNote"         : "Two weights and no more: the 0.4 pt rule under the title and above the total, and a 0.2 pt hairline under the column heads. A table on a drawing is read by its numbers, and a box round every cell reads as a form to fill in.",
+
+        "AreaSchedule__HeaderBaselineMm" : 3.4,
+        "AreaSchedule__HeaderRuleMm"     : 4.6,
+        "AreaSchedule__RowPitchMm"       : 4.2,
+        "AreaSchedule__RowBaselineMm"    : 2.9,
+        "AreaSchedule__GroupGapMm"       : 1.6,
+        "AreaSchedule__TotalGapMm"       : 1.4,
+
+        "AreaSchedule__SwatchSizeMm"     : 2.0,
+        "AreaSchedule__SwatchGapMm"      : 1.6,
+        "AreaSchedule__IndentMm"         : 3.0,
+        "AreaSchedule__SwatchNote"       : "The colour chip at the head of a row is the same colour the room is washed with on the drawing, which is what lets somebody read the table against a coloured plan without a legend. Switched off from the lookup grip for a table that is going to be printed in black.",
+
+        "AreaSchedule__HeadingAreas"     : "Floor Areas",
+        "AreaSchedule__HeadingGroups"    : "Area Summary",
+        "AreaSchedule__ColumnRoom"       : "Room",
+        "AreaSchedule__ColumnGroup"      : "Group",
+        "AreaSchedule__ColumnArea"       : "Area",
+        "AreaSchedule__TotalLabel"       : "Total",
+        "AreaSchedule__UngroupedLabel"   : "Ungrouped",
+        "AreaSchedule__EmptyLabel"       : "No areas measured on this sheet",
+        "AreaSchedule__CrossedLabel"     : "-",
+        "AreaSchedule__CrossedNote"      : "What is printed instead of a figure for a room whose outline crosses itself. Such a run has no honest area - the shoelace subtracts one lobe from the other - so a number is never shown for it, here or on the room itself.",
+
+        "AreaSchedule__Units"            : "m2",
+        "AreaSchedule__Decimals"         : 2,
+        "AreaSchedule__FeetDecimals"     : 0,
+        "AreaSchedule__Separator"        : ",",
+        "AreaSchedule__SuffixM2"         : " m²",
+        "AreaSchedule__SuffixFt2"        : " ft²",
+        "AreaSchedule__UnitsNote"        : "British planning drawings are in square metres, so that is what leads: 'both' writes 18.45 m² (199 ft²), for a client or an agent who thinks in feet. These are the SCHEDULE'S own settings - the label written in the middle of each room has its own, in the Floor Areas config - so a table can quote feet while the plan stays metric."
+    },
+
     "LayoutEditor__ScrapbookParametric__ViewportLink": {
         "ViewportLink__Description"       : "The link between a parametric element and a viewport (Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js). AutoLinkOnInsert links a dropped element to the nearest 2D viewport, measured from the drop point to the viewport's frame; MaxLinkDistanceMm is how far away that viewport may be. A scale bar sits under a drawing's title, which sits under the drawing, so the frame is usually 10 to 30 mm above it. FollowScale regenerates a linked element when its viewport's scale changes, inside the same undo step.",
         "ViewportLink__AutoLinkOnInsert"  : true,
@@ -217,6 +398,47 @@
         "Labels__PropsBarOffset"     : "Bar position (mm)",
         "Labels__PropsBarOffsetNote" : "From the title's left edge to the bar's zero end, in 50 mm steps. On the sheet, drag the double arrow at the bar's far end to carry it along - it snaps to the corners of the drawing above - and the arrow at its near end to lengthen it back towards the title.",
         "Labels__ToastUntiedTitle"   : "Untied. It keeps what it says.",
+
+        "Labels__PropsQrSize"        : "Code size (mm)",
+        "Labels__PropsQrSizeNote"    : "How big the QR code itself prints. Everything round it is a fixed size, so the block grows only by its code.",
+        "Labels__PropsQrForm"        : "Shows",
+        "Labels__PropsQrFormCompact" : "Code and list",
+        "Labels__PropsQrFormFull"    : "The full description too",
+        "Labels__PropsQrWidth"       : "Description width (mm)",
+        "Labels__PropsQrWidthNote"   : "How wide the paragraph is set, in 5 mm steps. On the sheet, drag the arrow at the end of it.",
+        "Labels__PropsQrProject"     : "Project name",
+        "Labels__PropsQrProjectAuto" : "Automatic",
+        "Labels__PropsQrReads"       : "Names: {text}",
+        "Labels__PropsQrTyped"       : "Typed by hand, so it no longer follows the project. Clear the box to go back to automatic.",
+        "Labels__PropsQrNeedsName"   : "{{Project}} fills itself in once the project's data has loaded. Type a name here to letter one now.",
+        "Labels__PropsQrCode"        : "The code is this project's own, and is the same one the title block prints. It fills itself in - there is nothing to choose.",
+        "Labels__MenuAreaFormAreas"  : "Every area, by group",
+        "Labels__MenuAreaFormGroups" : "Totals by group",
+        "Labels__MenuAreaAllGroups"  : "Every group",
+        "Labels__MenuAreaOnlyGroup"  : "Only {group}",
+        "Labels__MenuAreaHeadings"   : "Group headings and subtotals",
+        "Labels__MenuAreaTotal"      : "Total row",
+        "Labels__MenuAreaSwatch"     : "Colour chips",
+        "Labels__MenuAreaUnitsM2"    : "Square metres",
+        "Labels__MenuAreaUnitsFt2"   : "Square feet",
+        "Labels__MenuAreaUnitsBoth"  : "Both, feet in brackets",
+        "Labels__PropsAreaForm"      : "Shows",
+        "Labels__PropsAreaGroup"     : "Only the group",
+        "Labels__PropsAreaGroupAll"  : "Every group",
+        "Labels__PropsAreaWidth"     : "Width (mm)",
+        "Labels__PropsAreaTextSize"  : "Type size (mm)",
+        "Labels__PropsAreaUnits"     : "Units",
+        "Labels__PropsAreaDecimals"  : "Decimal places",
+        "Labels__PropsAreaHeadings"  : "Group headings",
+        "Labels__PropsAreaTotal"     : "Total row",
+        "Labels__PropsAreaSwatch"    : "Colour chips",
+        "Labels__PropsAreaTitle"     : "Title",
+        "Labels__PropsAreaTitleAuto" : "Automatic",
+        "Labels__PropsAreaReads"     : "{count} rows, {total} in total.",
+        "Labels__PropsAreaEmpty"     : "No rooms have been measured on this sheet yet. Draw one with the Floor Area tool (A) and this fills itself in.",
+        "Labels__MenuQrCompact"      : "Code and list",
+        "Labels__MenuQrFull"         : "With the full description",
+        "Labels__GripStretchWords"   : "Drag to set how wide the words are set",
 
         "Labels__MenuFromViewport" : "From viewport ({scale})",
         "Labels__MenuFromNearest"  : "Link to nearest viewport",

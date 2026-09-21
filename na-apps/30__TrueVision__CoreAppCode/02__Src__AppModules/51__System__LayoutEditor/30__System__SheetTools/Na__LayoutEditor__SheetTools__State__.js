@@ -92,7 +92,8 @@
     const Na__LeTools__TOOL_RECT      = 'rectangle';
     const Na__LeTools__TOOL_EYEDROP   = 'eyedropper';
     const Na__LeTools__TOOL_LEADER    = 'leader';
-    const Na__LeTools__TOOLS          = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__TOOL_TEXT, Na__LeTools__TOOL_DIMENSION, Na__LeTools__TOOL_DRAW, Na__LeTools__TOOL_RECT, Na__LeTools__TOOL_EYEDROP, Na__LeTools__TOOL_LEADER ];
+    const Na__LeTools__TOOL_AREA      = 'area';     // <-- A: draws a measured room through the Draw or Rectangle tool (59__Feature__FloorAreas)
+    const Na__LeTools__TOOLS          = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__TOOL_TEXT, Na__LeTools__TOOL_DIMENSION, Na__LeTools__TOOL_DRAW, Na__LeTools__TOOL_RECT, Na__LeTools__TOOL_EYEDROP, Na__LeTools__TOOL_LEADER, Na__LeTools__TOOL_AREA ];
     const Na__LeTools__PICK_TOOLS     = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE ];   // <-- The two that work on what is already on the sheet: they keep an open container, the rest close it
     const Na__LeTools__CHANGED_EVENT  = 'na-layouteditor-tool-changed';
     const Na__LeTools__DEFAULTS_EVENT = 'na-layouteditor-defaults-changed';   // <-- The settings for new objects changed from outside their panel (a palette sync)
@@ -162,6 +163,7 @@
         Na__LeTools__TOOL_RECT,
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
+        Na__LeTools__TOOL_AREA,
         Na__LeTools__TOOLS,
         Na__LeTools__PICK_TOOLS,
         Na__LeTools__CHANGED_EVENT,

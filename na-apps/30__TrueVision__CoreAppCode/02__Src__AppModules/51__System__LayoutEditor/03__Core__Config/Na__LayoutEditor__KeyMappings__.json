@@ -453,6 +453,19 @@
                 "Note": "Click one corner then the opposite one, or drag from one to the other; Shift keeps it square. What it makes is an ordinary closed vector, so its corners are then dragged by their grips like any polygon's. Exact modifiers leave Ctrl+R to the browser."
             },
             {
+                "Id": "Tool__FloorArea",
+                "Label": "Floor Area tool: measure a room",
+                "Action": "Tool__FloorArea",
+                "Enabled": true,
+                "Keys": [
+                    "a",
+                    "A"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "Draws a measured room on the Floor Areas layer: point by point like the Draw tool, or corner to corner when the Floor Areas panel is set to rectangles. It is finished CLOSED however it is finished - clicking the first corner again, Enter, a double click or a right click - because an open room encloses nothing. Exact modifiers leave Ctrl+A to the browser."
+            },
+            {
                 "Id": "Tool__Leader",
                 "Label": "Leader tool: a note or a specification bubble on a curved leader",
                 "Action": "Tool__Leader",
@@ -779,6 +792,11 @@
             {
                 "Action": "Tool__Rectangle",
                 "Label": "Rectangle tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__FloorArea",
+                "Label": "Floor Area tool",
                 "Group": "Tools"
             },
             {

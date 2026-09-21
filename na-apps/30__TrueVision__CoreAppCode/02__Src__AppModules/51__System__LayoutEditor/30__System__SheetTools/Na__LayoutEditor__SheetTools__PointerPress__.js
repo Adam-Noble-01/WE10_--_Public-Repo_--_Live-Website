@@ -135,6 +135,7 @@
     import { Na__LeDim__Click, Na__LeDim__BeginTextEdit } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Click, Na__LeShape__Finish, Na__LeShape__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Press } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
+    import { Na__LeAreaTool__Press, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';   // <-- The Area tool: the two above, drawing a measured room
     import { Na__LeMeasure__Refresh, Na__LeMeasure__Clear } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__Press, Na__LeLeader__IsPlacing, Na__LeLeader__BeginEdit } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeDrop__Click, Na__LeDrop__Hover, Na__LeDrop__MODE_PALETTE, Na__LeDrop__GetMode } from './Na__LayoutEditor__Eyedropper__.js';
@@ -164,6 +165,7 @@
         Na__LeTools__TOOL_RECT,
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
+        Na__LeTools__TOOL_AREA,
         Na__LeTools__PICK_TOOLS,
         Na__LeTools__Stage,
         Na__LeTools__Editable,
@@ -415,6 +417,18 @@
             if (Na__LeTools__Tool === Na__LeTools__TOOL_DIMENSION) { Na__LeDim__Click(sheet, point, event.shiftKey, Na__LeTools__GetDimensionDefaults()); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      { Na__LeShape__Click(sheet, point, event.shiftKey, Na__LeTools__GetShapeDefaults()); Na__LeMeasure__Refresh(); return; }
 
+            // FLOOR AREA | The same two ways of drawing, on the Floor Areas
+            // layer and carrying a name: point by point it is the Draw tool,
+            // corner to corner the Rectangle tool. The pointer is captured for
+            // both, because either may be dragged out past the stage's edge.
+            // ------------------------------------
+            if (Na__LeTools__Tool === Na__LeTools__TOOL_AREA) {
+                Na__LeAreaTool__Press(sheet, point, event.shiftKey, Na__LeTools__GetShapeDefaults(), event.pointerId);
+                Na__LeMeasure__Refresh();
+                try { Na__LeTools__Stage.setPointerCapture(event.pointerId); } catch (e) { /* capture refused */ }
+                return;
+            }
+
             // RECTANGLE | The press sets or lands a corner. The pointer is
             // captured so a rectangle dragged out past the edge of the stage
             // still delivers its release here, where it lands the far corner.
@@ -631,6 +645,7 @@
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         if (!sheet || !point) return;
+        if (Na__LeTools__Tool === Na__LeTools__TOOL_AREA) { if (Na__LeAreaTool__IsDrawing()) { event.preventDefault(); Na__LeAreaTool__Finish(sheet); } return; }   // <-- A double click closes the room, where it would leave a polyline open
         if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW) { if (Na__LeShape__IsDrawing()) { event.preventDefault(); Na__LeShape__Finish(sheet, false); } return; }
         if (Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) return;
         const found = Na__LeTools__Resolve(sheet, point);

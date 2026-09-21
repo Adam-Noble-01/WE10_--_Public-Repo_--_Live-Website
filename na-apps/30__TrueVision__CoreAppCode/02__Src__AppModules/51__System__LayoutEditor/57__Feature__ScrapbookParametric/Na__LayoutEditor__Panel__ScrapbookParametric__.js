@@ -114,6 +114,7 @@
         Na__LeParam__Label,
         Na__LeParam__RegisterType,
         Na__LeParam__GetType,
+        Na__LeParam__IsLinkable,
         Na__LeParam__SetTools,
         Na__LeParam__ElementsFor,
         Na__LeParam__ElementName,
@@ -135,6 +136,22 @@
         Na__LeParamTitle__PLACE_RIGHT,
         Na__LeParamTitle__CreateType
     } from './Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js';
+    import {
+        Na__LeParamArea__TYPE,
+        Na__LeParamArea__FORM_AREAS,
+        Na__LeParamArea__FORM_GROUPS,
+        Na__LeParamArea__CreateType
+    } from './Na__LayoutEditor__ScrapbookParametric__AreaSchedule__.js';
+    import {
+        Na__LeParamQr__TYPE,
+        Na__LeParamQr__FORM_COMPACT,
+        Na__LeParamQr__FORM_FULL,
+        Na__LeParamQr__NAME_MISSING,
+        Na__LeParamQr__CreateType
+    } from './Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js';
+    import { Na__QrLink__CurrentProject } from '../../53__System__ProjectQrCode/Na__ProjectQr__ProjectLink__.js';
+    import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__CfApi__GetLoadedProjectData } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
     import { Na__LeViewId__Ready, Na__LeViewId__Words, Na__LeViewId__IsNorthSet } from '../20__System__Viewports/Na__LayoutEditor__ViewportIdentity__.js';
     import {
         Na__LeViewText__MODE_AUTO,
@@ -178,6 +195,8 @@
     const Na__LePanelParam__SHEET_LINK    = '@sheet';                           // <-- Never a viewport id: those are Viewport_nnn
     const Na__LePanelParam__BAR_CONTROLS   = Object.freeze([ 'param-scale', 'param-divisions', 'param-subdivide', 'param-subdivision', 'param-units', 'param-reset' ]);
     const Na__LePanelParam__TITLE_CONTROLS = Object.freeze([ 'param-title-text', 'param-title-phase', 'param-title-upper', 'param-title-underline', 'param-title-bar', 'param-title-bar-place', 'param-title-bar-offset' ]);
+    const Na__LePanelParam__QR_CONTROLS    = Object.freeze([ 'param-qr-size', 'param-qr-form', 'param-qr-width', 'param-qr-project' ]);
+    const Na__LePanelParam__AREA_CONTROLS  = Object.freeze([ 'param-area-form', 'param-area-group', 'param-area-width', 'param-area-text', 'param-area-units', 'param-area-decimals', 'param-area-headings', 'param-area-total', 'param-area-swatch', 'param-area-title' ]);
     const Na__LePanelParam__LIBRARY_SHOWS = Object.freeze([ 'active', 'loaded', 'sheet-created', 'sheet-deleted', 'sheet-updated' ]);   // <-- What can alter which sheet, or which drawing type, is up
     const Na__LePanelParam__PROPS_SHOWS   = Object.freeze([ 'selection', 'active', 'loaded', 'sheet-deleted', 'sheet-updated', 'groups', 'shape', 'shapes', 'annotation', 'annotations', 'viewport', 'viewports', 'layers' ]);   // <-- What can alter the selected element, its link or its lock
     // ------------------------------------------------------------
@@ -195,6 +214,73 @@
 // REGION | The Subsystem's Wiring
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | What the Project on Screen Is Called
+    // ------------------------------------------------------------
+    // The PWA's own project context first - "Musters Road" - which is what
+    // the Project Specification and the Drawing Register both print, so three
+    // documents in one pack can never call the project three things. Then the
+    // project data's own name, then nothing.
+    //
+    // THE CODE IS PUT IN FRONT OF IT - PS01 - Musters Road - because that code
+    // is what the QR symbol beside it carries and what every drawing number in
+    // the pack begins with. A name that already starts with its code is left
+    // alone, and a project with a code and no name is its code.
+    //
+    // Empty when nothing is known yet. The type shows {{Project}} then, and
+    // the next rebuild fills it in - never a guess at what the project might
+    // be called.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__ProjectName() {
+        const context = window.TrueVision__Pwa__ProjectContext;
+        const active  = (context && typeof context.get === 'function') ? context.get() : null;
+        const loaded  = Na__CfApi__GetLoadedProjectData() || {};
+        const named   = String((active && (active.displayName || active.shortName)) || loaded.Project__Name || '').trim();
+        const code    = String(Na__QrLink__CurrentProject().projectCode || Na__DrawData__GetProjectCode() || '').trim();
+        if (named === '') return code;
+        if (code === '' || named.toUpperCase().indexOf(code.toUpperCase()) === 0) return named;
+        return code + ' - ' + named;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Two Form Names, as the Config Words Them
+    // ------------------------------------------------------------
+    // Handed to the Project Portal type so its lookup menu is worded from the
+    // config like everything else, without the type - which is pure - having
+    // to read a file.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__QrMenuWords() {
+        return {
+            compact : Na__LeParam__Label('MenuQrCompact', 'Code and list'),
+            full    : Na__LeParam__Label('MenuQrFull', 'With the full description')
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Area Schedule's Menu Words, as the Config Words Them
+    // ------------------------------------------------------------
+    // Handed to the schedule type so its lookup menu is worded from the config
+    // like everything else, without the type - which is pure - reading a file.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__AreaMenuWords() {
+        const L = Na__LeParam__Label;
+        return {
+            formAreas     : L('MenuAreaFormAreas', 'Every area, by group'),
+            formGroups    : L('MenuAreaFormGroups', 'Totals by group'),
+            allGroups     : L('MenuAreaAllGroups', 'Every group'),
+            onlyGroup     : L('MenuAreaOnlyGroup', 'Only {group}'),
+            groupHeadings : L('MenuAreaHeadings', 'Group headings and subtotals'),
+            total         : L('MenuAreaTotal', 'Total row'),
+            swatch        : L('MenuAreaSwatch', 'Colour chips'),
+            unitsM2       : L('MenuAreaUnitsM2', 'Square metres'),
+            unitsFt2      : L('MenuAreaUnitsFt2', 'Square feet'),
+            unitsBoth     : L('MenuAreaUnitsBoth', 'Both, feet in brackets')
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Register the Types, Start the Follower, Hand Over the Grips (once)
     // ------------------------------------------------------------
     // A type is registered with a reader for its config block rather than the
@@ -211,7 +297,12 @@
         document.head.appendChild(link);
         Na__LeParam__RegisterType(Na__LeParamBar__CreateType(() => Na__LeParam__Block('ScaleBar')));
         Na__LeParam__RegisterType(Na__LeParamTitle__CreateType(() => Na__LeParam__Block('DrawingTitle'), () => Na__LeParam__Block('ScaleBar'), Na__LeViewId__Words));
-        Na__LeParam__SetTools({ measureTextMm : (value, sizeMm, weight) => Na__LeChrome__MeasureTextMm(value, sizeMm, weight) });   // <-- A type is pure; the way to measure text is the chrome's, handed over
+        Na__LeParam__RegisterType(Na__LeParamQr__CreateType(() => Na__LeParam__Block('ProjectQr'), Na__LePanelParam__QrMenuWords));
+        Na__LeParam__RegisterType(Na__LeParamArea__CreateType(() => Na__LeParam__Block('AreaSchedule'), Na__LePanelParam__AreaMenuWords));   // <-- The area schedule; its numbers are filled in by 59__Feature__FloorAreas
+        Na__LeParam__SetTools({                                               // <-- A type is pure; whatever it cannot reach is handed over here
+            measureTextMm : (value, sizeMm, weight) => Na__LeChrome__MeasureTextMm(value, sizeMm, weight),   // <-- The chrome's own measurer, so a line breaks where it breaks on paper
+            projectName   : Na__LePanelParam__ProjectName                     // <-- Called on every build, so renaming the project rewrites the blocks that letter it
+        });
         void Na__LeViewId__Ready();
         Na__LeParamLink__Attach();
         Na__LeParamGrips__Attach();
@@ -330,7 +421,9 @@
         name.classList.add('na-le-param__name');
         body.appendChild(name);
 
-        body.appendChild(Na__LePanels__Row(L('PropsLink', 'Linked to'), Na__LePanels__Select('param-link', [], null)));
+        const linkRow = Na__LePanels__Row(L('PropsLink', 'Linked to'), Na__LePanels__Select('param-link', [], null));
+        linkRow.setAttribute('data-na-param', 'link-row');
+        body.appendChild(linkRow);
 
         // A TITLE'S OWN | Shown for a Drawing Title and for nothing else
         const title = document.createElement('div');
@@ -383,6 +476,57 @@
         bar.appendChild(Na__LePanels__Button(L('PropsReset', 'Reset to standard'), 'param-reset', ''));
         barBlock.appendChild(bar);
 
+        // THE PROJECT PORTAL BLOCK'S OWN | Shown for it and for nothing else.
+        // There is no control for the code: it is the project's, it fills
+        // itself in, and a box offering to change it would be offering
+        // something that cannot be done and should not be wanted.
+        const portal = document.createElement('div');
+        portal.setAttribute('data-na-param', 'qr-block');
+        const names = Na__LePanels__Note('');
+        names.setAttribute('data-na-param', 'qr-reads');
+        names.classList.add('na-le-param__reads');
+        portal.appendChild(names);
+        const qrWhy = Na__LePanels__Note('');
+        qrWhy.setAttribute('data-na-param', 'qr-why');
+        portal.appendChild(qrWhy);
+        portal.appendChild(Na__LePanels__Row(L('PropsQrSize', 'Code size (mm)'), Na__LePanels__Select('param-qr-size', [], null)));
+        portal.appendChild(Na__LePanels__Row(L('PropsQrForm', 'Shows'), Na__LePanels__Select('param-qr-form', [], null)));
+        const width = Na__LePanels__Row(L('PropsQrWidth', 'Description width (mm)'), Na__LePanels__Input('number', 'param-qr-width', { min : 45, max : 260, step : 5 }));
+        width.setAttribute('data-na-param', 'qr-width');
+        portal.appendChild(width);
+        const widthNote = Na__LePanels__Note('');
+        widthNote.setAttribute('data-na-param', 'qr-width-note');
+        portal.appendChild(widthNote);
+        portal.appendChild(Na__LePanels__Row(L('PropsQrProject', 'Project name'), Na__LePanels__Input('text', 'param-qr-project', { maxlength : 80, placeholder : L('PropsQrProjectAuto', 'Automatic') })));
+        const qrCode = Na__LePanels__Note(L('PropsQrCode', 'The code is this project\'s own, and is the same one the title block prints. It fills itself in - there is nothing to choose.'));
+        qrCode.setAttribute('data-na-param', 'qr-code-note');
+        portal.appendChild(qrCode);
+        body.appendChild(portal);
+
+        // THE AREA SCHEDULE'S OWN | Shown for a schedule and for nothing else.
+        // There is no control for the numbers: they are the sheet's rooms, they
+        // fill themselves in, and a box offering to type over them would be
+        // offering to make the drawing and its table disagree.
+        const schedule = document.createElement('div');
+        schedule.setAttribute('data-na-param', 'area-block');
+        const areaReads = Na__LePanels__Note('');
+        areaReads.setAttribute('data-na-param', 'area-reads');
+        areaReads.classList.add('na-le-param__reads');
+        schedule.appendChild(areaReads);
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaForm', 'Shows'), Na__LePanels__Select('param-area-form', [], null)));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaGroup', 'Only the group'), Na__LePanels__Select('param-area-group', [], null)));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaTitle', 'Title'), Na__LePanels__Input('text', 'param-area-title', { maxlength : 120, placeholder : L('PropsAreaTitleAuto', 'Automatic') })));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaUnits', 'Units'), Na__LePanels__Select('param-area-units', [], null)));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaDecimals', 'Decimal places'), Na__LePanels__Input('number', 'param-area-decimals', { min : 0, max : 3, step : 1 })));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaWidth', 'Width (mm)'), Na__LePanels__Input('number', 'param-area-width', { min : 40, max : 260, step : 2 })));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaTextSize', 'Type size (mm)'), Na__LePanels__Input('number', 'param-area-text', { min : 0.8, max : 12, step : 0.1 })));
+        const headings = Na__LePanels__Row(L('PropsAreaHeadings', 'Group headings'), Na__LePanels__Input('checkbox', 'param-area-headings'), 'na-le-row--toggle');
+        headings.setAttribute('data-na-param', 'area-headings-row');
+        schedule.appendChild(headings);
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaTotal', 'Total row'), Na__LePanels__Input('checkbox', 'param-area-total'), 'na-le-row--toggle'));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaSwatch', 'Colour chips'), Na__LePanels__Input('checkbox', 'param-area-swatch'), 'na-le-row--toggle'));
+        body.appendChild(schedule);
+
         const foot = Na__LePanels__Note('');
         foot.setAttribute('data-na-param', 'foot');
         body.appendChild(foot);
@@ -413,18 +557,37 @@
         const part   = (name) => body.querySelector('[data-na-param="' + name + '"]');
 
         part('name').textContent = Na__LeParam__TypeName(picked.type.type);
-        const isTitle = picked.type.type === Na__LeParamTitle__TYPE;
-        const hasBar  = (typeof picked.type.hasBar === 'function') ? picked.type.hasBar(params) : true;   // <-- A type that does not say is a bar
+        const isTitle  = picked.type.type === Na__LeParamTitle__TYPE;
+        const isPortal = picked.type.type === Na__LeParamQr__TYPE;
+        const isArea   = picked.type.type === Na__LeParamArea__TYPE;
+        const hasBar   = (typeof picked.type.hasBar === 'function') ? picked.type.hasBar(params) : true;   // <-- A type that does not say is a bar
+        const linkable = Na__LeParam__IsLinkable(picked.type.type);
         part('title-block').hidden = !isTitle;
         part('bar-block').hidden   = !hasBar;
-        if (isTitle) Na__LePanelParam__RefreshTitle(body, picked, usable);
+        part('qr-block').hidden    = !isPortal;
+        part('area-block').hidden  = !isArea;
+        part('link-row').hidden    = !linkable;                                 // <-- An element that is never tied to a drawing is shown no cable to tie
+        if (isTitle)  Na__LePanelParam__RefreshTitle(body, picked, usable);
+        if (isPortal) Na__LePanelParam__RefreshPortal(body, picked, usable);
+        if (isArea)   Na__LePanelParam__RefreshSchedule(body, picked, usable);
+
+        // A TYPE WITH NO SCALE HAS NOTHING BELOW THIS LINE TO REFLECT, and the
+        // rows are hidden anyway. Filled in regardless, an undefined scale
+        // would go into the scale list and an undefined count into the
+        // divisions box, and both would be waiting there the next time a bar
+        // was selected.
+        if (!linkable && !hasBar) {
+            [ 'param-link' ].concat(Na__LePanelParam__BAR_CONTROLS).forEach((name) => { el(name).disabled = true; });
+            part('foot').textContent = locked ? L('PropsLocked', 'Its layer is locked.') : L('PropsExplode', 'Ungroup it (Ctrl+Shift+G) to explode it into plain vectors and text.');
+            return;
+        }
 
         const tied     = Na__LeParamLink__DescribeById(picked.sheet, picked.groupId);
-        const linkable = Na__LeParamLink__Candidates(picked.sheet);
-        const sheetIs  = L('PropsLinkSheet', 'The sheet\'s scale ({scale})', { scale : Na__LeDrawScale__Label(Na__LeDrawScale__SheetDenominator(picked.sheet)) });
+        const choosable = Na__LeParamLink__Candidates(picked.sheet);
+        const sheetIs   = L('PropsLinkSheet', 'The sheet\'s scale ({scale})', { scale : Na__LeDrawScale__Label(Na__LeDrawScale__SheetDenominator(picked.sheet)) });
         Na__LePanels__FillSelect(el('param-link'),
             [ { value : Na__LePanelParam__NO_LINK, label : L('PropsLinkNone', 'Not linked') }, { value : Na__LePanelParam__SHEET_LINK, label : sheetIs } ]
-                .concat(linkable.map((viewport) => ({ value : viewport.Viewport__Id, label : Na__LeParamLink__ViewportName(viewport) }))),
+                .concat(choosable.map((viewport) => ({ value : viewport.Viewport__Id, label : Na__LeParamLink__ViewportName(viewport) }))),
             tied.kind === Na__LeParamLink__KIND_VIEWPORT ? tied.viewport.Viewport__Id : (tied.kind === Na__LeParamLink__KIND_SHEET ? Na__LePanelParam__SHEET_LINK : Na__LePanelParam__NO_LINK));
 
         const listed = Na__LeParam__Block('ScaleBar').ScaleBar__MenuScaleDenominators;
@@ -517,6 +680,109 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Reflect a Selected Project Portal Block
+    // ------------------------------------------------------------
+    // What it names the project, and - when the name is still a placeholder,
+    // or has been typed over - the one sentence that says why and what to do.
+    // The description's width is the full form's alone and is hidden with it.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__RefreshPortal(body, picked, usable) {
+        const L      = Na__LeParam__Label;
+        const params = picked.params;
+        const el     = (name) => body.querySelector('[data-na-control="' + name + '"]');
+        const part   = (name) => body.querySelector('[data-na-param="' + name + '"]');
+        const told   = (typeof picked.type.projectText === 'function') ? picked.type.projectText(params, { projectName : Na__LePanelParam__ProjectName }) : { text : '', resolved : true, typed : false };
+
+        part('qr-reads').textContent = L('PropsQrReads', 'Names: {text}', { text : told.text });
+        let why = '';
+        if (told.typed)          why = L('PropsQrTyped', 'Typed by hand, so it no longer follows the project. Clear the box to go back to automatic.');
+        else if (!told.resolved) why = L('PropsQrNeedsName', '{{Project}} fills itself in once the project\'s data has loaded. Type a name here to letter one now.');
+        part('qr-why').textContent = why;
+        part('qr-why').hidden      = why === '';
+
+        const sizes = (typeof picked.type.sizeChoices === 'function') ? picked.type.sizeChoices() : [];
+        if (sizes.indexOf(params.SizeMm) === -1) sizes.push(params.SizeMm);     // <-- A size typed into the file by hand that the list leaves out
+        sizes.sort((a, b) => a - b);
+        Na__LePanels__FillSelect(el('param-qr-size'), sizes.map((sizeMm) => ({ value : sizeMm, label : String(sizeMm) + ' mm' })), params.SizeMm);
+
+        Na__LePanels__FillSelect(el('param-qr-form'), [
+            { value : Na__LeParamQr__FORM_COMPACT, label : L('PropsQrFormCompact', 'Code and list') },
+            { value : Na__LeParamQr__FORM_FULL,    label : L('PropsQrFormFull', 'The full description too') }
+        ], params.Form);
+
+        const full  = params.Form === Na__LeParamQr__FORM_FULL;
+        const block = Na__LeParam__Block('ProjectQr');
+        part('qr-width').hidden      = !full;
+        part('qr-width-note').hidden = !full;
+        part('qr-width-note').textContent = L('PropsQrWidthNote', 'How wide the paragraph is set, in 5 mm steps. On the sheet, drag the arrow at the end of it.');
+        const width = el('param-qr-width');
+        if (Number.isFinite(block.ProjectQr__BodyWidthMinMm))  width.min  = String(block.ProjectQr__BodyWidthMinMm);
+        if (Number.isFinite(block.ProjectQr__BodyWidthMaxMm))  width.max  = String(block.ProjectQr__BodyWidthMaxMm);
+        if (Number.isFinite(block.ProjectQr__BodyWidthStepMm)) width.step = String(block.ProjectQr__BodyWidthStepMm);
+        if (document.activeElement !== width) width.value = String(params.BodyWidthMm);
+
+        const typed = el('param-qr-project');
+        if (document.activeElement !== typed) typed.value = params.ProjectName;
+
+        Na__LePanelParam__QR_CONTROLS.forEach((name) => { el(name).disabled = !usable; });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Reflect a Selected Area Schedule
+    // ------------------------------------------------------------
+    // What it is reporting, then the choices about how it reports it. The
+    // group list is built from the numbers the table is holding, so it offers
+    // exactly the groups the sheet has - and says so in words when the sheet
+    // has no measured rooms at all, which is the state somebody who has just
+    // dropped a table is most likely to be looking at.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__RefreshSchedule(body, picked, usable) {
+        const L      = Na__LeParam__Label;
+        const params = picked.params;
+        const el     = (name) => body.querySelector('[data-na-control="' + name + '"]');
+        const part   = (name) => body.querySelector('[data-na-param="' + name + '"]');
+        const rows   = (typeof picked.type.rowsOf === 'function') ? picked.type.rowsOf(params) : [];
+        const data   = params.Data || { Areas : [], Groups : [], TotalM2 : 0 };
+
+        part('area-reads').textContent = data.Areas.length || data.Groups.length
+            ? L('PropsAreaReads', '{count} rows, {total} in total.', { count : rows.filter((row) => row.kind !== 'empty').length, total : (typeof picked.type.figure === 'function' ? picked.type.figure(params, data.TotalM2) : String(data.TotalM2)) })
+            : L('PropsAreaEmpty', 'No rooms have been measured on this sheet yet.');
+
+        Na__LePanels__FillSelect(el('param-area-form'), [
+            { value : Na__LeParamArea__FORM_AREAS,  label : L('MenuAreaFormAreas', 'Every area, by group') },
+            { value : Na__LeParamArea__FORM_GROUPS, label : L('MenuAreaFormGroups', 'Totals by group') }
+        ], params.Form);
+
+        Na__LePanels__FillSelect(el('param-area-group'),
+            [ { value : '', label : L('PropsAreaGroupAll', 'Every group') } ]
+                .concat(data.Groups.filter((group) => !!group.Name).map((group) => ({ value : group.Name, label : group.Name }))),
+            params.Group);
+
+        Na__LePanels__FillSelect(el('param-area-units'), [
+            { value : 'm2',   label : L('MenuAreaUnitsM2', 'Square metres') },
+            { value : 'ft2',  label : L('MenuAreaUnitsFt2', 'Square feet') },
+            { value : 'both', label : L('MenuAreaUnitsBoth', 'Both, feet in brackets') }
+        ], params.Units);
+
+        const typed = el('param-area-title');
+        if (document.activeElement !== typed) typed.value = params.TitleText;
+        const width = el('param-area-width');
+        if (document.activeElement !== width) width.value = String(params.WidthMm);
+        const size = el('param-area-text');
+        if (document.activeElement !== size) size.value = String(params.TextSizeMm);
+        const places = el('param-area-decimals');
+        if (document.activeElement !== places) places.value = String(params.Decimals);
+        el('param-area-headings').checked = params.ShowGroups === true;
+        el('param-area-total').checked    = params.ShowTotal === true;
+        el('param-area-swatch').checked   = params.ShowSwatch === true;
+        part('area-headings-row').hidden  = params.Form !== Na__LeParamArea__FORM_AREAS;   // <-- A table of groups IS its headings
+
+        Na__LePanelParam__AREA_CONTROLS.forEach((name) => { el(name).disabled = !usable; });
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Show the Settings Only While One Parametric Element Is Selected
     // ------------------------------------------------------------
     function Na__LePanelParam__SyncProps() {
@@ -574,6 +840,20 @@
         on('change', 'param-title-bar',       guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowScaleBar : el.checked })));
         on('change', 'param-title-bar-place', guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { BarPlacement : el.value })));
         on('change', 'param-title-bar-offset', guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm)) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { BarOffsetMm : mm }); }));
+        on('change', 'param-qr-size',    guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { SizeMm : mm }); }));
+        on('change', 'param-qr-form',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Form : el.value })));
+        on('change', 'param-qr-width',   guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { BodyWidthMm : mm }); }));
+        on('change', 'param-qr-project', guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ProjectName : el.value })));
+        on('change', 'param-area-form',     guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Form : el.value })));
+        on('change', 'param-area-group',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Group : el.value })));
+        on('change', 'param-area-title',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TitleText : el.value })));
+        on('change', 'param-area-units',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Units : el.value })));
+        on('change', 'param-area-decimals', guarded((picked, el) => { const n = parseInt(el.value, 10); if (Number.isFinite(n)) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Decimals : n }); }));
+        on('change', 'param-area-width',    guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { WidthMm : mm }); }));
+        on('change', 'param-area-text',     guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TextSizeMm : mm }); }));
+        on('change', 'param-area-headings', guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowGroups : el.checked })));
+        on('change', 'param-area-total',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowTotal : el.checked })));
+        on('change', 'param-area-swatch',   guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowSwatch : el.checked })));
         const entry = Na__LePanels__RegisterSection('right', {
             id : Na__LePanelParam__PROPS_ID, title : Na__LeParam__Label('PropsTitle', 'Parametric Element'),
             build : Na__LePanelParam__BuildProps, refresh : Na__LePanelParam__RefreshProps

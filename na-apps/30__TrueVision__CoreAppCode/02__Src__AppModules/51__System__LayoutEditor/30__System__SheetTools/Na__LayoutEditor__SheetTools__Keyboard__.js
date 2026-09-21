@@ -127,6 +127,7 @@
     import { Na__LeDim__Move, Na__LeDim__IsPlacing, Na__LeDim__IsSpanning, Na__LeDim__IsPlacingLine } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Move, Na__LeShape__Finish, Na__LeShape__IsDrawing, Na__LeShape__UndoVertex, Na__LeShape__RedoVertex } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Move, Na__LeRect__Cancel, Na__LeRect__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
+    import { Na__LeAreaTool__Rerun, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';
     import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__IsPlacing } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeLeadGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
@@ -164,6 +165,7 @@
         Na__LeTools__TOOL_DRAW,
         Na__LeTools__TOOL_RECT,
         Na__LeTools__TOOL_LEADER,
+        Na__LeTools__TOOL_AREA,
         Na__LeTools__SHEET_CHORDS,
         Na__LeTools__NON_TEXT_INPUTS,
         Na__LeTools__Editable,
@@ -230,7 +232,8 @@
         if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
         const points = Na__LeShapeGeo__Points(shape);
         const kept   = points.filter((point, index) => picked.indexOf(index) === -1).map((point) => [ point[0], point[1] ]);
-        if (kept.length < 2 || kept.length === points.length) return false;   // <-- Two points is the least that still draws
+        const floor  = shape.Shape__Area ? 3 : 2;                             // <-- A measured room needs three corners to enclose anything; a plain vector needs two to draw
+        if (kept.length < floor || kept.length === points.length) return false;
         Na__LeScope__ClearVertices();
         return Na__LeModel__UpdateShape(sheet, shapeId, { points : kept }, false);
     }
@@ -341,7 +344,8 @@
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeTools__LastPointMm;
         if (!Na__LeTools__Editable || !sheet || !point) return false;
-        if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)           Na__LeShape__Move(sheet, point, Na__LeTools__ShiftHeld);
+        if (Na__LeTools__Tool === Na__LeTools__TOOL_AREA)           Na__LeAreaTool__Rerun(sheet, point, Na__LeTools__ShiftHeld);
+        else if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      Na__LeShape__Move(sheet, point, Na__LeTools__ShiftHeld);
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_DIMENSION) Na__LeDim__Move(sheet, point, Na__LeTools__ShiftHeld);
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_RECT)      Na__LeRect__Move(sheet, point, Na__LeTools__ShiftHeld, false);
         else return false;
@@ -427,6 +431,7 @@
             // keyboard's way to do what a double click does.
             // ------------------------------------
             case 'Edit__Finish': {
+                if (Na__LeTools__Tool === Na__LeTools__TOOL_AREA && Na__LeAreaTool__IsDrawing() && sheet) { event.preventDefault(); Na__LeAreaTool__Finish(sheet); return; }   // <-- A room is finished CLOSED, whatever finished it
                 if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__Finish(sheet, false); return; }
                 if (Na__LeSurface__GetEditingViewport()) { event.preventDefault(); Na__LeTools__SetEditingViewport(null); return; }   // <-- A 3D picture keeps the zoom it was left at
                 const one = Na__LeModel__GetSelectionItems();
@@ -486,6 +491,7 @@
             case 'Tool__Dimension':  Na__LeTools__SetTool(Na__LeTools__TOOL_DIMENSION); return;
             case 'Tool__Draw':       Na__LeTools__SetTool(Na__LeTools__TOOL_DRAW);      return;
             case 'Tool__Rectangle':  Na__LeTools__SetTool(Na__LeTools__TOOL_RECT);      return;
+            case 'Tool__FloorArea':  Na__LeTools__SetTool(Na__LeTools__TOOL_AREA);      return;
             case 'Tool__Leader':     Na__LeTools__SetTool(Na__LeTools__TOOL_LEADER);    return;
             case 'Tool__Eyedropper': Na__LeTools__ArmEyedropper();                      return;
             case 'Tool__EyedropperPalette': Na__LeTools__ArmPalette();                  return;

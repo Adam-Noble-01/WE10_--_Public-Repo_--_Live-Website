@@ -136,10 +136,15 @@
     // ------------------------------------------------------------
     import {
         Na__LeTools__MENU_SLOP_PX,
+        Na__LeTools__TOOL_AREA,
         Na__LeTools__Editable,
         Na__LeTools__RightPress,
         Na__LeTools__WriteRightPress
     } from './Na__LayoutEditor__SheetTools__State__.js';
+    import { Na__LeTools__Tool } from './Na__LayoutEditor__SheetTools__ToolState__.js';   // <-- The active tool has one writer and lives beside it, not in the State unit
+    import { Na__LeAreaTool__IsDrawing, Na__LeAreaTool__Finish } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';   // <-- A right click ends a room, closed
+    import { Na__LeAreaMenu__ItemsFor } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Menu__.js';   // <-- What a measured room offers above the vector entries
+    // @delegate: ../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Menu__.js
     import { Na__LeTools__SyncPaletteFrom } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record, Na__LeTools__ShapeInsertHit } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
     import { Na__LeTools__SetEditingViewport, Na__LeTools__RecentreViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
@@ -330,10 +335,20 @@
                 ].concat(history);
             }
 
-            return [ { label : label('MenuEnterVector', 'Edit vector points'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'shape', id : found.id }); } },
+            // WHAT A MEASURED ROOM OFFERS comes first, and is asked for rather
+            // than written here: naming it, filing it under a group and
+            // setting the scale it is read at mean nothing to a vector, and
+            // this module has no business learning them (the rule the
+            // parametric grips' menu already follows). A plain vector - and a
+            // closed vector that could BECOME a room - gets its own one-line
+            // offer from the same place.
+            // ------------------------------------
+            const area = Na__LeAreaMenu__ItemsFor(sheet, shape, pointMm);
+            return area.concat([
+                     { label : label('MenuEnterVector', 'Edit vector points'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'shape', id : found.id }); } },
                      { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3,
                        onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
-                     { separator : true } ].concat(arrange('shape', found.id), [
+                     { separator : true } ]).concat(arrange('shape', found.id), [
                      { separator : true }, remove('MenuDeleteShape', 'Delete shape'), { separator : true } ])
                      .concat(Na__LeClip__MenuItems(sheet, shape || found, pointMm), style(found.kind, found.id)).concat(history);
         }
@@ -386,6 +401,7 @@
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         if (!sheet || !point) return;
+        if (Na__LeTools__Tool === Na__LeTools__TOOL_AREA && Na__LeAreaTool__IsDrawing()) { Na__LeAreaTool__Finish(sheet); return; }   // <-- A right click ends a room too, and a room always ends CLOSED
         if (Na__LeShape__IsDrawing()) { Na__LeShape__Finish(sheet, false); return; }   // <-- As in CAD, a right click ends the line
         if (Na__LeDim__IsPlacing())   { Na__LeDim__Cancel(sheet); return; }
         if (Na__LeRect__IsDrawing())  { Na__LeRect__Cancel(); return; }        // <-- A rectangle has no half worth keeping

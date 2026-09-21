@@ -182,6 +182,7 @@
     import { Na__LeDimGeo__OffsetKeepingLine, Na__LeDimGeo__SpanMm, Na__LeDimGeo__HORIZONTAL, Na__LeDimGeo__VERTICAL } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeShape__Move } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Move, Na__LeRect__Release, Na__LeRect__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
+    import { Na__LeAreaTool__Move, Na__LeAreaTool__Release, Na__LeAreaTool__Cancel, Na__LeAreaTool__IsRectangle } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';
     import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__Move, Na__LeLeader__Release, Na__LeLeader__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeDrop__Hover } from './Na__LayoutEditor__Eyedropper__.js';
@@ -213,6 +214,7 @@
         Na__LeTools__TOOL_RECT,
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
+        Na__LeTools__TOOL_AREA,
         Na__LeTools__TYPED_MIN_MM,
         Na__LeTools__SAME_MM,
         Na__LeTools__Stage,
@@ -268,6 +270,7 @@
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_DIMENSION) { Na__LeDim__Move(sheet, point, event.shiftKey); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      { Na__LeShape__Move(sheet, point, event.shiftKey); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_RECT)      { Na__LeRect__Move(sheet, point, event.shiftKey, (event.buttons & 1) === 1 || event.pointerType === 'touch'); Na__LeMeasure__Refresh(); return; }
+            if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_AREA)      { Na__LeAreaTool__Move(sheet, point, event.shiftKey, (event.buttons & 1) === 1 || event.pointerType === 'touch'); Na__LeMeasure__Refresh(); return; }   // <-- Whichever of the two is drawing the room
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_LEADER)    { Na__LeLeader__Move(sheet, point, (event.buttons & 1) === 1 || event.pointerType === 'touch'); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_EYEDROP)   { Na__LeTools__Stage.style.cursor = Na__LeDrop__Hover(sheet, Na__LeTools__Resolve(sheet, point, true, true, true)); return; }
             if (Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) return;   // <-- Move hovers too: its cursor sharpens on a grip like Select's
@@ -543,6 +546,7 @@
     function Na__LeTools__OnUp(event) {
         if (Na__LeSelBox__IsActive()) Na__LeTools__BoxUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_RECT) Na__LeTools__RectangleUp(event);
+        if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_AREA) Na__LeTools__AreaUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_LEADER) Na__LeTools__LeaderUp(event);
         const drag = Na__LeTools__Drag;
         if (!drag || event.pointerId !== drag.pointerId) return;
@@ -563,6 +567,23 @@
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         if (sheet && point) Na__LeRect__Release(sheet, point, event.shiftKey, event.pointerId);
         Na__LeMeasure__Refresh();                                            // <-- A rectangle dragged out has landed: the box reads it
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Button Comes Up While a Room Is Being Drawn
+    // ------------------------------------------------------------
+    // Only a rectangular room has anything to land on a release; a room drawn
+    // point by point lands on a click, as a polyline does, and the adapter
+    // simply answers false. A cancelled pointer abandons whichever was in
+    // hand - there is no half a room worth keeping.
+    // ------------------------------------------------------------
+    function Na__LeTools__AreaUp(event) {
+        if (event.type === 'pointercancel') { if (Na__LeAreaTool__IsRectangle()) Na__LeAreaTool__Cancel(Na__LeModel__GetActiveSheet()); return; }
+        const sheet = Na__LeModel__GetActiveSheet();
+        const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
+        if (sheet && point) Na__LeAreaTool__Release(sheet, point, event.shiftKey, event.pointerId);
+        Na__LeMeasure__Refresh();
     }
     // ------------------------------------------------------------
 

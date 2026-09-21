@@ -36,6 +36,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - DeleteLayer re-homes SHAPES as it re-homes everything else. It never did,
+//   so a deleted layer left its vectors pointing at a layer that was gone:
+//   still drawn (an unknown layer reads as visible) and unreachable from the
+//   Layers panel. Found while giving floor areas a layer of their own, where
+//   it would have orphaned a whole set of measured rooms.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetModel__.js; the code moved verbatim.
 //
@@ -121,6 +128,16 @@
         sheet.Sheet__Viewports.forEach((v)   => { if (v.Viewport__LayerId   === layerId) v.Viewport__LayerId   = Na__LeModel__DefaultLayerId(sheet, 'viewport'); });
         sheet.Sheet__Annotations.forEach((a) => { if (a.Annotation__LayerId === layerId) a.Annotation__LayerId = Na__LeModel__DefaultLayerId(sheet, 'annotation'); });
         sheet.Sheet__Dimensions.forEach((d)  => { if (d.Dimension__LayerId  === layerId) d.Dimension__LayerId  = Na__LeModel__DefaultLayerId(sheet, 'dimension'); });
+        // VECTORS AND MEASURED ROOMS were the one kind this did not re-home,
+        // so deleting a layer that held them left every one pointing at a
+        // layer that was gone - drawn, because an unknown layer reads as
+        // visible, and unreachable from the Layers panel ever after. A room
+        // goes to the Floor Areas layer and a plain vector to the Vectors one.
+        (sheet.Sheet__Shapes || []).forEach((s) => {
+            if (s.Shape__LayerId !== layerId) return;
+            const area = s.Shape__Area && typeof s.Shape__Area === 'object';
+            s.Shape__LayerId = Na__LeModel__DefaultLayerId(sheet, area ? 'area' : 'vector');
+        });
         (sheet.Sheet__Leaders || []).forEach((l) => { if (l.Leader__LayerId === layerId) l.Leader__LayerId = Na__LeModel__DefaultLayerId(sheet, 'annotation'); });
         Na__LeModel__Touch('layers', sheet.Sheet__Id, layerId);
         return true;

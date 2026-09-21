@@ -2,6 +2,123 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.104.0  -  21-Sep-2026
+### A Room's Area Is Not Something to Store, It Is a Question to Ask the Drawing Underneath It
+
+**Overview**
+- Floor Areas: draw round a room and it measures itself, names itself and writes its figure in
+  its own middle; file the rooms under Ground Floor, First Floor, Garage; drop a schedule on the
+  sheet and it re-writes itself every time a corner moves. New panel under Patterns, new toolbar
+  button, `A`, and a new feature folder - `51__System__LayoutEditor/59__Feature__FloorAreas`.
+- The whole design is one decision: **an area is an ordinary vector.** It is a record in
+  `Sheet__Shapes` carrying a `Shape__Area` block, drawn on a layer whose `Layer__Type` is `'area'`.
+  So it selects, moves, stretches, snaps to the drawing beneath it, copies, pastes onto another
+  sheet, prints, exports and undoes through the code that already does all of that - none of which
+  was written again here, and none of which can drift from how every other vector behaves.
+
+**Nothing is stored that can be solved**
+- The area is **not in the record.** It is solved from the points and the drawing's scale every
+  time it is read. A room dragged from a 1:50 plan onto a 1:100 one reports itself at 1:100 with
+  nothing to migrate and nothing to go stale - and because the scale is squared, a fixture that
+  half-remembered its scale would be out by four, not by two.
+- Which drawing? The 2D viewport its **centre** sits over, front to back, and the sheet's own scale
+  off every viewport - the rule a dimension already follows. One departure, deliberate: the
+  viewport is found whether or not the Viewports layer is switched on. Hiding a layer must never
+  change a reported area. A right click sets a fixed scale instead, and says which drawing it is
+  reading when it does not.
+- Everything else in the block is stored only when it is a real decision: a room that takes the
+  standard settings carries a name and nothing else, and every record written before today is
+  byte-identical after a load and a save.
+
+**The label goes where a person would put it**
+- Not at the centroid - an L-shaped room's centroid can fall in the hall next door. The label sits
+  at the **visual centre**: the middle of the largest circle that fits inside the room. Solved with
+  a binary-heap search over the polygon, with a convex fast path (a rectangle answers in 0.6 µs, a
+  six-point L in 0.1 ms, a deliberately cruel 48-point comb in 3.7 ms), and cached on the points,
+  so it keeps up with a vertex being dragged rather than catching up afterwards.
+- That circle is also what the type is measured against: a name too wide for the room it names is
+  set smaller until it fits, down to 1.2 mm. A cupboard labels itself in small type instead of
+  writing across the hall.
+- An outline that crosses itself has no honest area - the shoelace quietly subtracts one lobe from
+  the other - so no number is shown for it at all. It says so, on the label and in the panel.
+
+**Groups are names, not ids**
+- A room holds its group's **name**. Ids are per sheet, so a room pasted onto another sheet would
+  have been filed under whatever that id happens to mean there. By name it brings its group with
+  it and the new sheet gains it.
+- Adding a group takes the next colour off an eight-strong pale palette and filing a room under it
+  paints the room, unless it has been coloured by hand. A coloured plan falls out of naming the
+  rooms, which was the point.
+
+**Two schedules, and they are parametric blocks**
+- `AreaSchedule` - a new parametric scrapbook type, in the scrapbook proper as two tiles: every
+  room by group, or the groups alone. Drag it anywhere, stretch it by its right-hand grip, and it
+  re-writes itself whenever an area is drawn, renamed, regrouped, restretched or deleted.
+- The type itself is **pure** - rows in, shapes and texts out, no knowledge of a sheet - and lives
+  in folder 57 with the other parametric types. The bridge that reads the sheet and feeds it lives
+  in folder 59 with the rest of Floor Areas. That line is why the schedule can be unit-tested
+  without an app at all.
+
+**Three faults the app found that the tests could not**
+- **A table rebuilt itself on every announcement, for ever.** The data it stored had been through
+  the type's own `normalise`; the data it compared against had not. Identical figures, different
+  key order, so the strings never matched: every announcement regenerated every schedule and
+  dirtied the sheet behind it. Both sides now go through `normalise` before they are compared.
+  Idle now rebuilds nothing, measured.
+- **The group headings in the index read "G" and "F...".** A Paint button was squeezing the name
+  out of its own row. The button is gone - the swatch next to the name repaints the group, which
+  is where anyone would have looked first.
+- **A schedule's group heading sat 1.6 mm low**, because the gap above a group was added to the
+  band and again to the text. Found by measuring the SVG the app itself writes, not by reading it.
+
+**Also fixed on the way**
+- **Deleting a layer orphaned its shapes.** Pre-existing, nothing to do with areas: the shapes
+  stayed on a layer that no longer existed and simply stopped being drawn. They are now re-homed.
+- **`toFixed` rounds 18.45 down to 18.4.** Both the label and the schedule now round half away from
+  zero, and a test pins them together on the awkward numbers - 18.45, 2.675, 99.995 - at 0 to 3
+  decimal places, because a label and a schedule disagreeing about the same room is the one bug
+  nobody would report as a bug.
+
+**Proved**
+- `Na__Test__FloorAreas__.test.mjs` (37 checks) and `Na__Test__AreaSchedule__.test.mjs` - geometry,
+  scale, grouping, totals, row spacing and the two formatters against each other.
+- In the app, on PS01, behind a guard that allowed `POST /r2/read` and refused every write: zero
+  writes, every real sheet byte-identical afterwards, and the drawn result rendered through the
+  app's own `ToSvgMarkup` rather than a screenshot, so what is above is the sheet's own output.
+- `Na__Verify__Exports__.mjs` clean across 427 files.
+
+**Service worker**
+- No new token. The one on disk (`2026-09-21-01`) is still ahead of the deployed one and had not
+  shipped yet, so a single eviction covers this release too - but it **is** needed: the new modules
+  import new exports from `Na__LayoutEditor__SheetModel__`, and a warm cache holding the old copy
+  would fail to link them. Entry added to that file's own log saying so.
+
+**Files** (new)
+- `02__Src__AppModules/51__System__LayoutEditor/59__Feature__FloorAreas/` - `FloorAreas__.js`,
+  `__Config__.json`, `__Geometry__.js`, `__Menu__.js`, `__Paint__.js`, `__Table__.js`, `__Tool__.js`,
+  `Na__LayoutEditor__Panel__FloorAreas__.js`, `Na__LayoutEditor__Styles__FloorAreas__.css`
+- `02__Src__AppModules/51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetModel__AreaGroups__.js`
+- `02__Src__AppModules/51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__AreaSchedule__.js`
+- `80__Testing__PrototypeEnvironment/Na__Test__FloorAreas__.test.mjs`, `Na__Test__AreaSchedule__.test.mjs`
+- `TrueVision__PLAN__FloorAreas__.md`
+
+**Files** (changed - all additive)
+- `51__System__LayoutEditor/03__Core__Config/` - `AppConfig__.json`, `KeyMappings__.json`, `ConfigState__KeyMap__.js`
+- `51__System__LayoutEditor/05__Core__ModeController/Na__LayoutEditor__ModeController__.js`
+- `51__System__LayoutEditor/07__Core__SheetData/` - `SheetRecords__.js`, `SheetModel__.js`,
+  `SheetModel__Shapes__.js`, `SheetModel__Layers__.js`, `History__.js`
+- `51__System__LayoutEditor/15__Core__Markup/` - `MarkupBridge__.js`, `ShapeGeometry__.js`
+- `51__System__LayoutEditor/30__System__SheetTools/` - `SheetTools__.js`, `__State__.js`, `__ToolState__.js`,
+  `__PointerPress__.js`, `__PointerDrag__.js`, `__Keyboard__.js`, `__ContextMenu__.js`,
+  `Measurements__.js`, `SelectionBox__.js`, `ItemClipboard__.js`
+- `51__System__LayoutEditor/35__System__DrawingTools/` - `ShapeTool__.js`, `RectangleTool__.js`
+- `51__System__LayoutEditor/40__Ui__Panels/` - `Toolbar__.js`, `Panel__Layers__.js`
+- `51__System__LayoutEditor/56__Feature__ScrapbookCustom/Na__LayoutEditor__ScrapbookCustom__.js`
+- `51__System__LayoutEditor/57__Feature__ScrapbookParametric/` - `Panel__ScrapbookParametric__.js`,
+  `ScrapbookParametric__Config__.json`
+- `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (log entry only)
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.98.0  -  21-Sep-2026
 ### A Viewport Would Not Take the Arrow-Key Axis Lock, Because It Was Never a "Move Drag" and Its Solver Had Its Own Private One
 

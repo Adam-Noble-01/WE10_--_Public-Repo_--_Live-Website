@@ -92,7 +92,7 @@
     // MODULE CONSTANTS | Section Id and Type Labels
     // ------------------------------------------------------------
     const Na__LePanelLayers__ID = 'layers';
-    const Na__LePanelLayers__TYPE_LABELS = { viewport : 'Viewports', annotation : 'Annotations', dimension : 'Dimensions', vector : 'Vectors', mixed : 'General' };
+    const Na__LePanelLayers__TYPE_LABELS = { viewport : 'Viewports', annotation : 'Annotations', dimension : 'Dimensions', vector : 'Vectors', area : 'Floor Areas', mixed : 'General' };   // <-- 'area' holds the measured rooms (59__Feature__FloorAreas)
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Grip

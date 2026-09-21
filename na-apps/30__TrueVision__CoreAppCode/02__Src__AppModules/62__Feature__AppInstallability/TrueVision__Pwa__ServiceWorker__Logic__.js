@@ -34,6 +34,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.9
+// - The token already reads 2026-09-21-01, bumped earlier today for the
+//   Project Portal block; the deployed one is still 2026-09-20-14 (HEAD), so
+//   ONE eviction covers both that release and Floor Areas, and no second bump
+//   was made. Floor Areas needs it: new modules
+//   (51__System__LayoutEditor/59__Feature__FloorAreas) import new exports from
+//   Na__LayoutEditor__SheetModel__ - the area groups and their announcement -
+//   and a warm cache holds the OLD copy of that module, so a new importer
+//   would link against exports it does not have and the editor would not load
+//   at all until the second visit. Checked against HEAD before deciding, the
+//   way the note under Traps says to.
+//
 // 20-Sep-2026 - Version 1.9.8
 // - Token bumped (2026-09-20-14, over another session's -13) for the third and
 //   last half of the LineworkModifier work plus two fixes found beside it: the
@@ -263,7 +275,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-20-14';                                                                   // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-21-01';                                                                   // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

@@ -40,6 +40,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.14.0
+// - A shape carrying Shape__Area writes its name and its measured area in the
+//   middle of itself (59__Feature__FloorAreas). Pushed here rather than as a
+//   text record, so it follows a corner AS the corner is dragged - a record
+//   would only catch up when the drag was let go - and so it reaches the
+//   screen, the PDF, the web viewer and the scrapbook previews through this
+//   one painter. A room on a hidden layer takes its label with it, because
+//   the label is pushed inside the layer test.
+//
 // 18-Sep-2026 - Version 1.13.0
 // - BuildSheetPrimitives takes an optional options object, passed straight
 //   through to each leader's Push. The interactive sheet surface is the only
@@ -167,6 +176,8 @@
         Na__LeDimGeo__SpanMm
     } from './Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeShapeGeo__Push, Na__LeShapeGeo__Bounds, Na__LeShapeGeo__Hit } from './Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeAreaPaint__Push } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Paint__.js';   // <-- A measured room writes its name and its figure in the middle of itself
+    // @delegate: ../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Paint__.js
     import { Na__LeLeadGeo__Push, Na__LeLeadGeo__Bounds, Na__LeLeadGeo__Hit } from './Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeMargin__Push } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
     import { Na__LeDrawScale__DimensionDenominator } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
@@ -686,6 +697,7 @@
         sheet.Sheet__Shapes.forEach((shape) => {
             if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId)) return;
             Na__LeShapeGeo__Push(list, shape);
+            Na__LeAreaPaint__Push(list, sheet, shape);                           // <-- A measured room's name and figure, worked out live so they follow a dragged corner
             if (isChosen('shape', shape.Shape__Id)) highlights.push(Na__LeShapeGeo__Bounds(shape));
         });
 
@@ -756,6 +768,7 @@
             if (!wanted.has('shape:' + shape.Shape__Id)) return;
             if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId)) return;
             Na__LeShapeGeo__Push(list, shape);
+            Na__LeAreaPaint__Push(list, sheet, shape);                           // <-- A room opened for editing keeps its label at full strength with its outline
         });
         sheet.Sheet__Annotations.forEach((item) => {
             if (!wanted.has('annotation:' + item.Annotation__Id)) return;

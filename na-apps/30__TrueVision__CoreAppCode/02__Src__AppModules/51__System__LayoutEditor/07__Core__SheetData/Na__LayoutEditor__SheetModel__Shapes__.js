@@ -35,6 +35,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - Floor areas. CreateShape takes `area` (the Shape__Area block) and
+//   UpdateShape takes it as a patch key, MERGED so a panel that sets one field
+//   does not take the other five off the room; null makes it a plain vector
+//   again. ShapeLayerType and ShapeLayerId are the one rule for which layer a
+//   shape lands on - a measured room on the Floor Areas layer, every other
+//   vector on the Vectors layer - and both CreateShape and InsertShape ask it,
+//   so a paste, a duplicate or a scrapbook drop can no longer pull a room onto
+//   the Vectors layer.
+//
+// 21-Sep-2026 - Version 1.1.0
+// - UpdateShape takes `qr`: the Shape__Qr block, replaced whole rather than
+//   merged, with null taking the code off the shape. What lets the parametric
+//   scrapbook's Project Portal element resize its code in place, one record,
+//   without the box having to be deleted and drawn again.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetModel__.js; the code moved verbatim.
 //
@@ -76,6 +92,32 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Which Kind of Layer a Shape Belongs On
+    // ------------------------------------------------------------
+    // A measured room belongs on the Floor Areas layer and every other vector
+    // on the Vectors layer. Asked by the two ways a shape reaches a sheet, so
+    // a room pasted, duplicated or dropped from a scrapbook cannot be pulled
+    // onto the Vectors layer and lost among the linework - which is what
+    // happened before this existed, because a shape's layer was simply
+    // required to be a 'vector' one.
+    // ------------------------------------------------------------
+    function Na__LeModel__ShapeLayerType(record) {
+        const area = record ? record.Shape__Area : null;
+        return (area && typeof area === 'object' && !Array.isArray(area)) ? 'area' : 'vector';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Layer a Shape of That Kind Lands On, Made if the Sheet Has None
+    // ------------------------------------------------------------
+    function Na__LeModel__ShapeLayerId(sheet, type) {
+        const found = sheet.Sheet__Layers.find((l) => l.Layer__Type === type)
+            || Na__LeModel__CreateLayer(sheet, { name : type === 'area' ? 'Floor Areas' : 'Vectors', type : type });
+        return found ? found.Layer__Id : Na__LeModel__DefaultLayerId(sheet, type);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Put a Complete Vector Record Onto a Sheet (fresh id, one announcement)
     // ------------------------------------------------------------
     // Where CreateShape builds a shape from points and a handful of options,
@@ -91,11 +133,9 @@
         const item = JSON.parse(JSON.stringify(record));
         item.Shape__Id = Na__LeRec__NextId(sheet.Sheet__Shapes, 'Shape_', 'Shape__Id');
         let layerId = item.Shape__LayerId;
-        const layer = Na__LeModel__GetLayerById(sheet, layerId);
-        if (!layer || layer.Layer__Type !== 'vector') {
-            const found = sheet.Sheet__Layers.find((l) => l.Layer__Type === 'vector') || Na__LeModel__CreateLayer(sheet, { name : 'Vectors', type : 'vector' });
-            layerId = found ? found.Layer__Id : Na__LeModel__DefaultLayerId(sheet, 'vector');
-        }
+        const wanted = Na__LeModel__ShapeLayerType(item);                        // <-- A measured room wants an 'area' layer, every other vector a 'vector' one
+        const layer  = Na__LeModel__GetLayerById(sheet, layerId);
+        if (!layer || layer.Layer__Type !== wanted) layerId = Na__LeModel__ShapeLayerId(sheet, wanted);
         Na__LeRec__NormaliseShape(item, layerId);
         sheet.Sheet__Shapes.push(item);
         if (silent) { Na__LeModel__AssignDirty(true); return item; }
@@ -117,11 +157,9 @@
     function Na__LeModel__CreateShape(sheet, points, options) {
         if (!sheet || !Array.isArray(points)) return null;
         const opts = options || {};
+        const area = (opts.area && typeof opts.area === 'object') ? opts.area : null;   // <-- The Floor Area block, when the Area tool is the one drawing
         let layerId = opts.layerId || null;
-        if (!layerId) {
-            const layer = sheet.Sheet__Layers.find((l) => l.Layer__Type === 'vector') || Na__LeModel__CreateLayer(sheet, { name : 'Vectors', type : 'vector' });
-            layerId = layer ? layer.Layer__Id : Na__LeModel__DefaultLayerId(sheet, 'vector');
-        }
+        if (!layerId) layerId = Na__LeModel__ShapeLayerId(sheet, area ? 'area' : 'vector');
         const item = Na__LeRec__NormaliseShape({
             Shape__Id           : Na__LeRec__NextId(sheet.Sheet__Shapes, 'Shape_', 'Shape__Id'),
             Shape__LayerId      : layerId,
@@ -135,7 +173,8 @@
             Shape__Hatch        : (opts.hatch && typeof opts.hatch === 'object') ? opts.hatch : null,   // <-- The normaliser drops it unless it names a pattern
             Shape__StrokeOpacity: opts.strokeOpacity,
             Shape__Gradient     : (opts.gradient && typeof opts.gradient === 'object') ? opts.gradient : null,   // <-- The normaliser copies it, so the caller's object is never shared
-            Shape__LineStyle    : (opts.dash && typeof opts.dash === 'object') ? opts.dash : null
+            Shape__LineStyle    : (opts.dash && typeof opts.dash === 'object') ? opts.dash : null,
+            Shape__Area         : area                                          // <-- The normaliser drops it unless it is an object, and holds a room closed
         }, layerId);
         sheet.Sheet__Shapes.push(item);
         if (opts.silent) Na__LeModel__AssignDirty(true); else Na__LeModel__Touch('shapes', sheet.Sheet__Id, item.Shape__Id);   // <-- The draw tool announces once, on finishing
@@ -158,6 +197,22 @@
         if (patch.hatch !== undefined) {
             item.Shape__Hatch = (patch.hatch && typeof patch.hatch === 'object')
                 ? Object.assign({}, item.Shape__Hatch, patch.hatch)
+                : null;
+        }
+        // REPLACED, NOT MERGED, unlike the hatch above: the QR block holds one
+        // number and whoever sets it is building the whole box, so a half-set
+        // block is never what is wanted. `null` takes the code off the shape.
+        if (patch.qr !== undefined) {
+            item.Shape__Qr = (patch.qr && typeof patch.qr === 'object') ? Object.assign({}, patch.qr) : null;
+        }
+        // MERGED, NOT REPLACED, like the hatch above: the Floor Areas panel
+        // sets one field at a time - a name, a group, a label mode - and a
+        // patch of one must not take the other five off the room. `null` is
+        // how "this is a plain vector again" is said, and it takes the whole
+        // block with it.
+        if (patch.area !== undefined) {
+            item.Shape__Area = (patch.area && typeof patch.area === 'object')
+                ? Object.assign({}, item.Shape__Area, patch.area)
                 : null;
         }
         if (Number.isFinite(patch.strokeOpacity)) item.Shape__StrokeOpacity = patch.strokeOpacity;
@@ -190,6 +245,8 @@
     // ------------------------------------------------------------
     export {
         Na__LeModel__GetShapeById,
+        Na__LeModel__ShapeLayerType,
+        Na__LeModel__ShapeLayerId,
         Na__LeModel__CreateShape,
         Na__LeModel__InsertShape,
         Na__LeModel__UpdateShape,

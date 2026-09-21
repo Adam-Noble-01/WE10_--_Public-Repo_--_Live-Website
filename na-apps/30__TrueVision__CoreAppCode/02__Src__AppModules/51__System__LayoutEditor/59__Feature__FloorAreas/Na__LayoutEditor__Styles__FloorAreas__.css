@@ -1,0 +1,187 @@
+/* =============================================================================
+   TRUEVISION3D - LAYOUT EDITOR - FLOOR AREAS - PANEL STYLES
+   =============================================================================
+
+   FILE    : Na__LayoutEditor__Styles__FloorAreas__.css
+   PURPOSE : The Floor Areas panel's own list - the index of every room on the
+             sheet, under its group, with its subtotal and the sheet's total.
+   CREATED : 21-Sep-2026
+   AUTHOR  : Adam Noble - Noble Architecture
+
+   NOTES:
+   - Linked at runtime by Na__LayoutEditor__Panel__FloorAreas__, as the
+     Patterns panel links its own. Everything else the panel uses - rows,
+     notes, buttons, sliders, colour boxes - is the shared panel stylesheet's,
+     so only the index is here.
+   - Literal colours, as Na__LayoutEditor__Styles__Panels__.css uses: the
+     custom properties the Patterns sheet reaches for are not defined anywhere,
+     so only its fallbacks have ever applied.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Index
+   ----------------------------------------------------------------------------- */
+
+    .na-le-area-index {
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 6px;
+        margin                             : 2px 0 8px;
+    }
+
+    .na-le-area-group {
+        display                            : flex;
+        flex-direction                     : column;
+        gap                                : 2px;
+    }
+
+    /* THE GROUP HEADING | Its colour, its name, its subtotal, and the four
+       small buttons that curate it. The subtotal is what a floor is read by,
+       so it sits hard against the right edge in the same column as the rows'
+       own figures. */
+    .na-le-area-group__head {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 4px;
+        padding                            : 3px 4px;
+        border-radius                      : 4px;
+        background                         : #eef2f5;
+        font-size                          : 0.74rem;
+        font-weight                        : 600;
+        color                              : #172b3a;
+    }
+
+    .na-le-area-group__name {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+        cursor                             : default;
+    }
+
+    .na-le-area-group__value {
+        flex                               : 0 0 auto;
+        font-variant-numeric               : tabular-nums;
+    }
+
+    .na-le-area-group__rename {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+    }
+
+    .na-le-area-group__head .na-le-input--colour {
+        flex                               : 0 0 auto;
+        width                              : 16px;
+        height                             : 16px;
+        padding                            : 0;
+        border-radius                      : 3px;
+    }
+
+    .na-le-area-group__head .na-le-btn--icon {
+        flex                               : 0 0 auto;
+        padding                            : 1px 4px;
+        font-size                          : 0.68rem;
+        line-height                        : 1.2;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | One Room
+   ----------------------------------------------------------------------------- */
+
+    /* A ROW IS A BUTTON, because it does something: it selects that room on the
+       paper. Which is how a figure in the list is checked against the drawing
+       without hunting for the outline it belongs to. */
+    .na-le-area-row {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 6px;
+        width                              : 100%;
+        padding                            : 2px 6px 2px 10px;
+        border                             : 1px solid transparent;
+        border-radius                      : 4px;
+        background                         : #f8f9fa;
+        font                               : inherit;
+        font-size                          : 0.72rem;
+        color                              : #33424d;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-le-area-row:hover {
+        background                         : #eef2f5;
+        border-color                       : #d6dde3;
+    }
+
+    .na-le-area-row__dot {
+        flex                               : 0 0 auto;
+        width                              : 9px;
+        height                             : 9px;
+        border                             : 1px solid #ffffff;
+        border-radius                      : 2px;
+        background                         : #cdd6e3;
+        box-shadow                         : 0 0 0 1px #c3ccd3;
+    }
+
+    .na-le-area-row__name {
+        flex                               : 1 1 auto;
+        min-width                          : 0;
+        overflow                           : hidden;
+        text-overflow                      : ellipsis;
+        white-space                        : nowrap;
+    }
+
+    .na-le-area-row__value {
+        flex                               : 0 0 auto;
+        font-variant-numeric               : tabular-nums;
+        color                              : #5f6b74;
+    }
+
+    /* AN OUTLINE THAT CROSSES ITSELF has no honest area, so its row says so
+       instead of a figure, in the colour the rest of the editor warns in. */
+    .na-le-area-row.is-broken .na-le-area-row__value {
+        color                              : #b3261e;
+        font-style                         : italic;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Total and the Reading
+   ----------------------------------------------------------------------------- */
+
+    .na-le-area-total {
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : space-between;
+        gap                                : 6px;
+        margin-top                         : 2px;
+        padding                            : 4px 4px 2px;
+        border-top                         : 1px solid #c3ccd3;
+        font-size                          : 0.76rem;
+        font-weight                        : 600;
+        color                              : #172b3a;
+    }
+
+    .na-le-area-total__value {
+        font-variant-numeric               : tabular-nums;
+    }
+
+    /* WHAT THE SELECTED ROOM MEASURES, in words: the line a drawing is checked
+       against, so it reads as a statement rather than as a hint. */
+    .na-le-area__reads {
+        margin                             : 2px 0 6px;
+        padding                            : 4px 6px;
+        border-radius                      : 4px;
+        background                         : #eef2f5;
+        color                              : #172b3a;
+        font-size                          : 0.74rem;
+    }
+
+/* endregion ------------------------------------------------------------------- */

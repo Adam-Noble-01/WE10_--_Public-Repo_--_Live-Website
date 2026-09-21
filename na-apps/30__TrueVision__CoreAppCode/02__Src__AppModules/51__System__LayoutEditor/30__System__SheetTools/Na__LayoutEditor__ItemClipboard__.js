@@ -90,6 +90,7 @@
         Na__LeModel__UpdateViewport,
         Na__LeModel__UpdateDimension,
         Na__LeModel__InsertShape,
+        Na__LeModel__ShapeLayerType,
         Na__LeModel__InsertAnnotation,
         Na__LeModel__InsertGroup,
         Na__LeModel__InsertLeader,
@@ -354,7 +355,7 @@
             if (entry.kind === 'shape') {
                 const record = Na__LeClip__Clone(entry.record);
                 record.Shape__Points  = Na__LeShapeGeo__Translated(Na__LeShapeGeo__Points(record), dx, dy);
-                record.Shape__LayerId = Na__LeClip__LayerFor(sheet, record.Shape__LayerId, 'vector');
+                record.Shape__LayerId = Na__LeClip__LayerFor(sheet, record.Shape__LayerId, Na__LeModel__ShapeLayerType(record));   // <-- A measured room wants the Floor Areas layer, not the Vectors one
                 const key    = 'shape:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
                 const pasted = Na__LeModel__InsertShape(sheet, record, silent);

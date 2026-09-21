@@ -293,7 +293,12 @@
         const pts = Na__LeShapeGeo__Points(shape).map((p) => [ p[0], p[1] ]);
         if (!pts.length) return [];
         const filled = !!shape.Shape__FillColour || !!shape.Shape__Gradient;       // <-- As the hit test reads a fill
-        return [ { points : pts, closed : pts.length > 2 && (shape.Shape__Closed === true || filled), area : false } ];
+        // A MEASURED ROOM COUNTS AS ITS INSIDE, so a box drawn within one
+        // picks it up - which is how a floor's worth of rooms is selected to
+        // be filed under a group in one gesture. A plain vector is still its
+        // edges alone: a box inside a big rectangle is nearly always somebody
+        // reaching for what is drawn on top of it.
+        return [ { points : pts, closed : pts.length > 2 && (shape.Shape__Closed === true || filled), area : !!shape.Shape__Area } ];
     }
     // ------------------------------------------------------------
 
