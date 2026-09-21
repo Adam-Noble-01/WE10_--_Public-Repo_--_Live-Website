@@ -15,7 +15,7 @@
 //   fly mode toggle function when provided.
 // - Na__UiFeature__InitializeFlyModeHotkey is retained as a no-op for
 //   backwards compatibility. Fly mode hotkeys are now managed centrally by
-//   Na__Hotkeys__Manager.js, driven from Na__AppConfig__Hotkeys.json.
+//   Na__Hotkeys__Manager.js, driven from Na__Hotkeys__3dModelTab__.json.
 //
 // @delegate: ./Na__Hotkeys__Manager.js
 //
@@ -28,7 +28,7 @@
 // DEVELOPMENT LOG:
 // 22-Jun-2026 - Version 1.1.0
 // - Na__UiFeature__InitializeFlyModeHotkey deprecated (no-op). Fly hotkeys
-//   superseded by Na__Hotkeys__Manager.js + Na__AppConfig__Hotkeys.json.
+//   superseded by Na__Hotkeys__Manager.js + Na__Hotkeys__3dModelTab__.json.
 //
 // 25-May-2026 - Version 1.0.0
 // - Initial implementation mirroring the Walk Mode event listeners module.

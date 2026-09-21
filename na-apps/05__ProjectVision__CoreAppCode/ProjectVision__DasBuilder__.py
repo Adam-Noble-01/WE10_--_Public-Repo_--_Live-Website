@@ -38,6 +38,8 @@ from pathlib import Path
 from datetime import datetime
 from urllib.parse import unquote, quote
 
+from ProjectVision__FileWriter__ import write_json_file, write_text_file
+
 
 # -----------------------------------------------------------------------------
 # REGION | Module Constants and Configuration
@@ -440,9 +442,7 @@ def update_project_data_json(project_path, das_object):
     library = data.setdefault('na-project-data-library', {})
     library['design-access-statement'] = das_object
 
-    with open(json_path, 'w', encoding='utf-8', newline='\n') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.write('\n')
+    write_json_file(json_path, data)
 
     return json_path
     # ------------------------------------------------------------
@@ -487,8 +487,7 @@ def build_das_for_project(project_path, year_folder_name, project_folder,
     resolved = resolve_markdown_image_links(original_text, das_path, os.path.dirname(md_path), report)
 
     if resolved != original_text:
-        with open(md_path, 'w', encoding='utf-8', newline='\n') as f:
-            f.write(resolved)
+        write_text_file(md_path, resolved)
         print(f'  [RELINKED] {md_filename} ({len(report["relinked"])} image link(s) resolved)')
 
     if report['copied']:
@@ -505,8 +504,7 @@ def build_das_for_project(project_path, year_folder_name, project_folder,
     html_document   = build_html_document(document_title, body_html, project_code)
 
     html_path = os.path.join(das_path, html_filename)
-    with open(html_path, 'w', encoding='utf-8', newline='\n') as f:
-        f.write(html_document)
+    write_text_file(html_path, html_document)                          # <-- Temp + rename: a git diff mapping the file cannot block it
     print(f'  [WRITTEN] {html_path}')
 
     # STEP 3 | Detect an optional statement PDF for the fallback route

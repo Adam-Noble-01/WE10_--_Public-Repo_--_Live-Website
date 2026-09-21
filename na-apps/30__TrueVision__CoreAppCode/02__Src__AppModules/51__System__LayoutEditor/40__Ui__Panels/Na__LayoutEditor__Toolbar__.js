@@ -29,6 +29,33 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.18.0
+// - Image: a button after the tool buttons that asks for picture files and
+//   places them on the sheet (Na__LayoutEditor__SheetImages__Insert__), the
+//   same as dragging them onto it.
+//
+// 21-Sep-2026 - Version 1.17.0
+// - The Notes toggle is gone from the toolbar: the Margin Notes section is
+//   always in the left column (Na__LayoutEditor__Panel__MarginNotes__), so the
+//   toolbar carried a second switch for a setting that already had a home,
+//   spending a button's worth of a strip that is tight for tools. Show notes
+//   margin there is the only way to switch it now.
+//
+// 21-Sep-2026 - Version 1.16.0
+// - Grid and Grid Snap: two toggles after Draft switch the drawing grid
+//   (F6, Show Grid) and its snap (F7, Grid Snap), SketchUp LayOut's pair
+//   (Na__LayoutEditor__DrawingGrid__), in the same plain button as Snap,
+//   Notes, Draft and Ortho, each lit while it is on. Their words come from the
+//   grid config and are re-read on every sync; the toolbar re-syncs on
+//   Na__LeGrid__CHANGED_EVENT.
+//
+// 21-Sep-2026 - Version 1.15.0
+// - Ortho: a toggle after the other drafting toggles switches Ortho mode (F8,
+//   Na__LayoutEditor__OrthoMode__) and is lit while it is on - AutoCAD's Ortho
+//   Mode button - in the same plain toolbar button as Snap, Notes and Draft.
+//   Its words come from the ortho config and are re-read on every sync; it
+//   re-syncs on Na__LeOrtho__CHANGED_EVENT, listened for on a line of its own.
+//
 // 21-Sep-2026 - Version 1.14.0
 // - A zoom step updates the zoom readout and nothing else (SyncZoom). The full
 //   Sync used to run on every wheel notch, and it reads the active sheet four
@@ -104,8 +131,7 @@
     // MODULE IMPORTS | Config, Model, Tools, Navigation, Surface, PDF
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__GetTabLabel, Na__LeModel__IsDirty, Na__LeModel__Save, Na__LeModel__UpdateMarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeRec__MarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js';
+    import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__GetTabLabel, Na__LeModel__IsDirty, Na__LeModel__Save } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__IsDirty, Na__LeSpec__GetState, Na__LeSpec__Sync } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     import {
         Na__LeTools__TOOL_SELECT,
@@ -127,11 +153,15 @@
     import { Na__LeScope__CHANGED_EVENT, Na__LeScope__Get, Na__LeScope__GetVectorId, Na__LeScope__GetDimensionId } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
     import { Na__LeNav__Fit, Na__LeNav__ZoomTo } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
     import { Na__LeOsnap__CHANGED_EVENT, Na__LeOsnap__IsEnabled, Na__LeOsnap__Toggle } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOrtho__CHANGED_EVENT, Na__LeOrtho__IsOn, Na__LeOrtho__Toggle, Na__LeOrtho__Label } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__.js';
     import { Na__LeHist__CHANGED_EVENT, Na__LeHist__CanUndo, Na__LeHist__CanRedo, Na__LeHist__Undo, Na__LeHist__Redo } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
     import { Na__LeSurface__ZOOM_EVENT, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LePdf__ExportSheet } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';
     import { Na__LeRaster__LEVELS, Na__LeRaster__CHANGED_EVENT, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeDraft__CHANGED_EVENT, Na__LeDraft__IsOn, Na__LeDraft__Toggle, Na__LeDraft__Label } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
+    import { Na__LeGrid__CHANGED_EVENT, Na__LeGrid__IsShowing, Na__LeGrid__IsSnapping, Na__LeGrid__ToggleShow, Na__LeGrid__ToggleSnap, Na__LeGrid__Label } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js';
+    import { Na__LeImgIns__Pick } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Insert__.js';   // <-- The Image button: pictures onto the sheet
+    import { Na__LeImgCfg__Label } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Setup__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -190,6 +220,18 @@
         });
         const snap = Na__LeToolbar__Root.querySelector('[data-na-toolbar="snap"]');
         if (snap) { snap.classList.toggle('na-le-toolbar__btn--active', Na__LeOsnap__IsEnabled()); snap.setAttribute('aria-pressed', String(Na__LeOsnap__IsEnabled())); }
+        const ortho = Na__LeToolbar__Root.querySelector('[data-na-toolbar="ortho"]');
+        if (ortho) {
+            ortho.classList.toggle('na-le-toolbar__btn--active', Na__LeOrtho__IsOn());
+            ortho.setAttribute('aria-pressed', String(Na__LeOrtho__IsOn()));
+            // Re-read for the same reason as Draft's words below: the ortho
+            // config can land after the toolbar is built. Written only when
+            // they differ, because this sync runs often.
+            const orthoText  = Na__LeOrtho__Label('Toggle', 'Ortho');
+            const orthoTitle = Na__LeOrtho__Label('ToggleTitle', 'Ortho Mode (F8): restricts the cursor to horizontal and vertical from the last point. Hold Shift to draw one at an angle.');
+            if (ortho.textContent !== orthoText) ortho.textContent = orthoText;
+            if (ortho.title !== orthoTitle) ortho.title = orthoTitle;
+        }
         const draft = Na__LeToolbar__Root.querySelector('[data-na-toolbar="draft"]');
         if (draft) {
             draft.classList.toggle('na-le-toolbar__btn--active', Na__LeDraft__IsOn());
@@ -202,6 +244,20 @@
             if (draft.textContent !== text) draft.textContent = text;
             if (draft.title !== title) draft.title = title;
         }
+        // GRID AND GRID SNAP | Lit while on; the words re-read, because the grid
+        // config can land after the toolbar is built, and written only when
+        // they differ.
+        [ [ 'grid', Na__LeGrid__IsShowing(), 'ToolbarGrid', 'Grid', 'ToolbarGridTitle' ],
+          [ 'grid-snap', Na__LeGrid__IsSnapping(), 'ToolbarSnap', 'Grid Snap', 'ToolbarSnapTitle' ] ].forEach((entry) => {
+            const button = Na__LeToolbar__Root.querySelector('[data-na-toolbar="' + entry[0] + '"]');
+            if (!button) return;
+            button.classList.toggle('na-le-toolbar__btn--active', entry[1]);
+            button.setAttribute('aria-pressed', String(entry[1]));
+            const words = Na__LeGrid__Label(entry[2], entry[3]);
+            const title = Na__LeGrid__Label(entry[4], button.title);
+            if (button.textContent !== words) button.textContent = words;
+            if (button.title !== title) button.title = title;
+        });
         const undo = Na__LeToolbar__Root.querySelector('[data-na-toolbar="undo"]');
         if (undo) undo.disabled = !Na__LeHist__CanUndo();
         const redo = Na__LeToolbar__Root.querySelector('[data-na-toolbar="redo"]');
@@ -234,13 +290,6 @@
         const sheet = Na__LeModel__GetActiveSheet();
         const name  = Na__LeToolbar__Root.querySelector('.na-le-toolbar__name');
         if (name) name.textContent = sheet ? Na__LeModel__GetTabLabel(sheet) : '';   // <-- What the tab reads: the register's short code, then the short name
-        const margin = Na__LeToolbar__Root.querySelector('[data-na-toolbar="margin"]');
-        if (margin) {
-            const on = !!sheet && Na__LeRec__MarginNotes(sheet).Enabled === true;
-            margin.classList.toggle('na-le-toolbar__btn--active', on);
-            margin.setAttribute('aria-pressed', String(on));
-            margin.disabled = !sheet;
-        }
         const save = Na__LeToolbar__Root.querySelector('[data-na-toolbar="save"]');
         if (save) { save.classList.toggle('na-le-toolbar__btn--attention', Na__LeModel__IsDirty() || Na__LeSpec__IsDirty()); save.disabled = Na__LeToolbar__Busy; }
         const pdf = Na__LeToolbar__Root.querySelector('[data-na-toolbar="pdf"]');
@@ -342,15 +391,26 @@
                 button.setAttribute('data-na-tool', entry[0]);
                 root.appendChild(button);
             });
+            // IMAGE | Places pictures: asks for files and centres them in the
+            // view. Not a tool that stays up - the pictures arrive selected,
+            // with Move picked up - and dragging files onto the sheet does
+            // the same without the button.
+            // ------------------------------------
+            root.appendChild(Na__LeToolbar__Button(Na__LeImgCfg__Label('ToolImage', 'Image'), 'image', Na__LeImgCfg__Label('ToolImageTitle', 'Place a picture (CGI, photograph) on this sheet. You can also drag picture files straight onto the sheet.'), () => Na__LeImgIns__Pick()));
             root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('SnapToggle', 'Snap'), 'snap', Na__LeCfg__GetLabel('SnapToggleTitle', 'Snap to endpoints and midpoints of the linework and the sheet\'s own vectors and dimensions (F3)'), () => Na__LeOsnap__Toggle()));
-            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('MarginToggle', 'Notes'), 'margin', Na__LeCfg__GetLabel('MarginToggleTitle', 'Show the notes margin on this sheet: the specification notes its bubbles link to, with the general notes last. Drag its left edge to resize it.'), () => {
-                const sheet = Na__LeModel__GetActiveSheet();
-                if (sheet) Na__LeModel__UpdateMarginNotes(sheet, { enabled : Na__LeRec__MarginNotes(sheet).Enabled !== true });
-            }));
             // DRAFT | K, as in LayOut: a view of the sheet, not a setting of it,
             // so it sits with the other toggles and is lit while it is on.
             // ------------------------------------
             root.appendChild(Na__LeToolbar__Button(Na__LeDraft__Label('Toggle', 'Draft'), 'draft', Na__LeDraft__Label('ToggleTitle', 'Draft mode (K): only the vector linework, every line a hairline, no fills and no raster pictures.'), () => Na__LeDraft__Toggle()));
+            // GRID AND GRID SNAP | F6 and F7, SketchUp LayOut's Show Grid and
+            // Grid Snap: two switches, as there, each lit while it is on.
+            // ------------------------------------
+            root.appendChild(Na__LeToolbar__Button(Na__LeGrid__Label('ToolbarGrid', 'Grid'), 'grid', Na__LeGrid__Label('ToolbarGridTitle', 'Show grid (F6): points every millimetre across the whole sheet, heavier every 10 mm. Never printed.'), () => Na__LeGrid__ToggleShow()));
+            root.appendChild(Na__LeToolbar__Button(Na__LeGrid__Label('ToolbarSnap', 'Grid Snap'), 'grid-snap', Na__LeGrid__Label('ToolbarSnapTitle', 'Grid snap (F7): every point placed or dragged lands on the nearest grid point.'), () => Na__LeGrid__ToggleSnap()));
+            // ORTHO | F8, as in AutoCAD: a way of drawing, lit while it is on,
+            // like AutoCAD's Ortho Mode button on its status bar.
+            // ------------------------------------
+            root.appendChild(Na__LeToolbar__Button(Na__LeOrtho__Label('Toggle', 'Ortho'), 'ortho', Na__LeOrtho__Label('ToggleTitle', 'Ortho Mode (F8): restricts the cursor to horizontal and vertical from the last point. Hold Shift to draw one at an angle.'), () => Na__LeOrtho__Toggle()));
 
             // EYEDROPPER HINT | What the dropper is holding and what to do next.
             // It lives beside the tool buttons because that is where the eye
@@ -416,8 +476,9 @@
         Na__LeToolbar__Root = root;
         Na__LeToolbar__Listeners = () => Na__LeToolbar__Sync();
         Na__LeToolbar__ZoomListener = () => Na__LeToolbar__SyncZoom();
-        [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
+        [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
         window.addEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeToolbar__ZoomListener);   // <-- The readout tracks the wheel live; nothing else on the toolbar changes with the zoom
+        window.addEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);     // <-- F8 lights the Ortho button, whoever switched it
         Na__LeToolbar__Sync();
         return true;
     }
@@ -428,9 +489,10 @@
     // ------------------------------------------------------------
     function Na__LeToolbar__Unmount() {
         if (Na__LeToolbar__Listeners) {
-            [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
+            [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
         }
         if (Na__LeToolbar__ZoomListener) window.removeEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeToolbar__ZoomListener);
+        if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
         Na__LeToolbar__Root = Na__LeToolbar__Listeners = Na__LeToolbar__ZoomListener = null;
     }

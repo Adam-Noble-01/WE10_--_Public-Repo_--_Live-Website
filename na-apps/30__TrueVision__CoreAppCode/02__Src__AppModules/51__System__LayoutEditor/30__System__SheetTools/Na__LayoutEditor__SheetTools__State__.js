@@ -18,8 +18,8 @@
 //   changes: the stage, the editable flag, the drag in flight, the
 //   suppression flag, the last right press, the last pointer point, Shift,
 //   the vertex a typed length has just moved, which another typed length may
-//   still move again, the last left press on an item and whether the press in
-//   hand travelled. Every file reads them as plain imports, which stay live.
+//   still move again (and the dimension end, and the last whole move), the
+//   last left press on an item and whether the press in hand travelled. Every file reads them as plain imports, which stay live.
 // - WRITE ACCESSORS. An imported binding cannot be assigned, so a file that
 //   changes one of these values calls its Write accessor instead. A writer
 //   only assigns: no event, no cursor, no drag finished. That is what sets it
@@ -48,6 +48,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - MoveRetype: the last whole-object move (a vector, a note, a leader, a
+//   dimension or a selection moved as one) or viewport frame move, kept so a
+//   value typed into the Measurements box after it - by the mouse or by a
+//   typed length - lands it again that far along the same line, from where it
+//   started. SketchUp's rule. Written by the pointer drag unit, cleared by
+//   CancelPlacement.
+//
+// 21-Sep-2026 - Version 1.4.0
+// - SHEET_CHORDS takes Ortho__Toggle (F8, Na__LayoutEditor__OrthoMode__),
+//   View__GridToggle (F6, show the drawing grid) and Snap__GridToggle (F7,
+//   snap to it): a function key types nothing, so
+//   a panel's select, checkbox or number box left holding the focus no longer
+//   swallows it - F8 still switches Ortho straight after a panel was used.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - LastPress and PressTravelled, for the Move tool Select now picks up by
 //   itself. LastPress is where and when the last left press landed on an item,
@@ -98,7 +113,7 @@
     const Na__LeTools__CHANGED_EVENT  = 'na-layouteditor-tool-changed';
     const Na__LeTools__DEFAULTS_EVENT = 'na-layouteditor-defaults-changed';   // <-- The settings for new objects changed from outside their panel (a palette sync)
     const Na__LeTools__MENU_SLOP_PX   = 4;      // <-- A right button that travelled further than this panned, so no menu
-    const Na__LeTools__SHEET_CHORDS   = [ 'Edit__Undo', 'Edit__Redo', 'Edit__Cut', 'Edit__Copy', 'Edit__Paste', 'Edit__Duplicate', 'Edit__Group', 'Edit__Ungroup' ];   // <-- Still the sheet's from a focused select, checkbox or number box
+    const Na__LeTools__SHEET_CHORDS   = [ 'Edit__Undo', 'Edit__Redo', 'Edit__Cut', 'Edit__Copy', 'Edit__Paste', 'Edit__Duplicate', 'Edit__Group', 'Edit__Ungroup', 'Ortho__Toggle', 'View__GridToggle', 'Snap__GridToggle' ];   // <-- Still the sheet's from a focused select, checkbox or number box (F8, F6 and F7 type nothing, so they are the sheet's too)
     const Na__LeTools__NON_TEXT_INPUTS = [ 'checkbox', 'radio', 'range', 'color', 'button', 'submit', 'reset', 'file', 'image', 'number' ];
     const Na__LeTools__TYPED_MIN_MM    = 1e-4;   // <-- Shorter than this (paper mm) is no length and no direction, as the Draw tool uses
     const Na__LeTools__SAME_MM         = 1e-9;   // <-- Points this close still count as untouched, as the Rectangle tool's retype check uses
@@ -115,6 +130,7 @@
     let Na__LeTools__ShiftHeld   = false;  // <-- Shift at the last move or Shift key: a typed dimension goes ortho by it, as a click does
     let Na__LeTools__VertexRetype = null;  // <-- { id, index, from : [x, y], dir : { x, y }, points : [[x, y], ...] } while a typed vertex length may still be retyped
     let Na__LeTools__DimEndRetype = null;  // <-- { id, mode, fixed : { x, y }, point : { x, y }, orientation, landed } while a typed dimension span may still be retyped
+    let Na__LeTools__MoveRetype   = null;  // <-- { drag, sheetId, fromMm, dir, lengthMm, selection, landed } while the last whole-object move or viewport frame move may still be retyped
     let Na__LeTools__LastPress    = null;  // <-- { time, x, y, key } of the last left press on an item: the second press of a double click is known by it
     let Na__LeTools__PressTravelled = false;   // <-- The press in hand became a drag or a box, so a double click that ends on it is not one
     // ------------------------------------------------------------
@@ -141,6 +157,7 @@
     function Na__LeTools__WriteShiftHeld(shift)      { Na__LeTools__ShiftHeld = shift; }
     function Na__LeTools__WriteVertexRetype(record)  { Na__LeTools__VertexRetype = record; }
     function Na__LeTools__WriteDimEndRetype(record)  { Na__LeTools__DimEndRetype = record; }
+    function Na__LeTools__WriteMoveRetype(record)    { Na__LeTools__MoveRetype = record; }
     function Na__LeTools__WriteLastPress(press)      { Na__LeTools__LastPress = press; }
     function Na__LeTools__WritePressTravelled(flag)  { Na__LeTools__PressTravelled = flag; }
     // ------------------------------------------------------------
@@ -182,6 +199,7 @@
         Na__LeTools__ShiftHeld,
         Na__LeTools__VertexRetype,
         Na__LeTools__DimEndRetype,
+        Na__LeTools__MoveRetype,
         Na__LeTools__LastPress,
         Na__LeTools__PressTravelled,
         Na__LeTools__WriteStage,
@@ -193,6 +211,7 @@
         Na__LeTools__WriteShiftHeld,
         Na__LeTools__WriteVertexRetype,
         Na__LeTools__WriteDimEndRetype,
+        Na__LeTools__WriteMoveRetype,
         Na__LeTools__WriteLastPress,
         Na__LeTools__WritePressTravelled
     };

@@ -14,7 +14,7 @@
 //   letter picks a tool: R a rectangle, T text, L a line. A document tab is
 //   somewhere to write, where a bare letter is a letter. So the documents have
 //   a keyboard of their own, with its own key map
-//   (Na__LayoutEditor__DocumentKeys__Config__.json), live only while one of
+//   (Na__Hotkeys__DocumentTabs__.json), live only while one of
 //   them is on screen - the document key scope (Na__AppUtils__KeyScope__).
 // - WHAT WENT WRONG WITHOUT IT. The drawing tools' keys already stood down on
 //   a document tab, but the 3D Model tab's did not: R typed into a statement
@@ -49,9 +49,11 @@
 //   screen (Na__KeyScope__Follow).
 // - Na__LayoutEditor__Statement__Page__ registers Save (Ctrl+S), the raw
 //   markdown (Ctrl+/) and the Lucida Console page (Ctrl+.).
-// - The Project Specification and the Drawing Register register nothing yet:
-//   their keys belong to single controls on their pages (the key map's
-//   PageKeys block lists them) and are answered there.
+// - Na__LayoutEditor__Register__Editor__ registers Save (Ctrl+S): the
+//   revision notes, to R2 and the project file.
+// - The Project Specification registers nothing: its Ctrl+S goes on to the
+//   editor's save, which syncs it, and its other keys belong to single
+//   controls on its page (the key map's PageKeys block lists them).
 //
 // -----------------------------------------------------------------------------
 //
@@ -63,6 +65,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - The key map file is renamed Na__Hotkeys__DocumentTabs__.json (it was
+//   Na__LayoutEditor__DocumentKeys__Config__.json): one of the app's three
+//   hotkey files, each named for the kind of tab it serves.
+//
+// 21-Sep-2026 - Version 1.0.1
+// - Documentation only: the Drawing Register now registers Doc__Save.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the key map and its fallback, the registry of
 //   documents, the matching, the typing rule, and the capture listener.
@@ -90,7 +100,7 @@
 
     // MODULE CONSTANTS | Where the Key Map Is
     // ------------------------------------------------------------
-    const Na__LeDocKeys__ConfigUrl = new URL('./Na__LayoutEditor__DocumentKeys__Config__.json', import.meta.url);
+    const Na__LeDocKeys__ConfigUrl = new URL('./Na__Hotkeys__DocumentTabs__.json', import.meta.url);
     const Na__LeDocKeys__PREFIX    = 'LayoutEditor__DocumentKeys__';
     // ------------------------------------------------------------
 

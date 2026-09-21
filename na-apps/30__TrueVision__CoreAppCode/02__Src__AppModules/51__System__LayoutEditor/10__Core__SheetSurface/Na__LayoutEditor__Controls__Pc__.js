@@ -16,7 +16,7 @@
 //   is the Lantern Designer rule: pan capture on a bare left button swallows the
 //   click before it ever reaches a dimension grip or a viewport handle.
 // - NOTHING HERE IS BOUND TO A FIXED BUTTON OR KEY. Every gesture is looked up
-//   in Na__LayoutEditor__KeyMappings__.json through the config state, so a
+//   in Na__Hotkeys__DrawingTabs__.json through the config state, so a
 //   binding is changed by editing that file and a user personalisation screen
 //   can later write overrides into the same shape without this module changing.
 // - The guards from the key map keep their own input: a wheel over a viewport
@@ -28,6 +28,9 @@
 // - Pans that claim the left button (space drag, empty stage drag - both off by
 //   default) raise the sheet tools suppression flag for the length of the drag,
 //   so a pan can never also start an edit.
+// - A PRESS ON THE STAGE TAKES THE KEYBOARD (TakeKeyboard): the focus moves
+//   to the stage before any tool sees the press, so a control used in a
+//   panel never keeps the sheet's keys.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__ModeController__ attaches on entering the editor and
@@ -51,6 +54,31 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - A PRESS ON THE STAGE TAKES THE KEYBOARD (TakeKeyboard). The sheet tools
+//   take every press on the paper from the browser (preventDefault on
+//   pointerdown), and in Chrome that also stops the press moving the focus:
+//   a tick box, a list or a number box used in a panel - or the Raster list
+//   on the toolbar - kept the keyboard through any number of clicks on the
+//   paper, so M, V, Escape and the arrows went nowhere and a list took the
+//   letter for itself (M switched Raster to Medium). The stage now listens in
+//   the capture phase and takes the focus first, as the browser would have:
+//   the control blurs, committing what was typed into it, before the press
+//   acts. Focus already inside the stage (text being typed on the paper) is
+//   left to the tool that opened it. Exported for the mode controller, which
+//   gives the stage the keyboard whenever a drawing is opened from another tab.
+// - A focused control keeps only the keys it uses (Na__KeyScope__ControlKeepsKey):
+//   Page Up / Page Down turn the drawings from a ticked box, and stay a list's.
+//
+// 21-Sep-2026 - Version 1.3.0
+// - PAGE UP AND PAGE DOWN TURN THE DRAWINGS. Nav__PreviousSheet and
+//   Nav__NextSheet ask the mode controller (STEP_SHEET_EVENT) for the drawing
+//   before or after this one, in tab order, exactly as clicking its tab does.
+//   The first and the last drawing are ends, not a loop, and the key is taken
+//   there too: until v2.110.0 the 3D Model tab's keys swallowed Page Up and
+//   Page Down under every tab, and since then they had scrolled the stage.
+//   A held key turns one drawing, not a run of them - each one renders.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - Wheel zoom is gathered into one zoom per animation frame (FlushWheelZoom):
 //   the steps are multiplied and applied once about the latest pointer
@@ -96,6 +124,7 @@
     import { Na__LeSurface__GetElements, Na__LeSurface__GetZoom } from './Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeTools__SetSuppressed } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LeVpZoom__OnWheel } from '../20__System__Viewports/Na__LayoutEditor__Viewport3dZoom__.js';
+    import { Na__KeyScope__ControlKeepsKey } from '../../03__AppUtils/Na__AppUtils__KeyScope__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -110,6 +139,23 @@
     const Na__LePc__BUTTON_NAMES  = [ 'Left', 'Middle', 'Right' ];               // <-- Indexed by MouseEvent.button
     const Na__LePc__PANNING_CLASS = 'na-le-stage--panning';
     const Na__LePc__LINE_HEIGHT_PX = 20;                                         // <-- deltaMode 1 reports lines, not pixels
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | What a Press Can Land On and Keep Its Own Focus
+    // ------------------------------------------------------------
+    // A real control pressed on the stage - the box text is typed into, a
+    // dimension's value - is pressed to be used, so TakeKeyboard leaves it be.
+    // ------------------------------------------------------------
+    const Na__LePc__OWN_FOCUS_SELECTOR = 'input, select, textarea, button, [contenteditable="true"], [contenteditable=""], [contenteditable="plaintext-only"]';
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Request for the Drawing Before or After This One
+    // ------------------------------------------------------------
+    // Answered by Na__LayoutEditor__ModeController__, which owns which sheet is
+    // open: this module is one of its imports, so asking by event is what keeps
+    // the pair from forming a cycle. detail { direction : -1 | 1 }
+    // ------------------------------------------------------------
+    const Na__LePc__STEP_SHEET_EVENT = 'na-layouteditor-step-sheet';
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Attached Stage and Gesture State
@@ -176,15 +222,26 @@
 // REGION | Navigation Actions
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Ask for the Drawing Before or After This One
+    // ------------------------------------------------------------
+    function Na__LePc__StepSheet(direction) {
+        window.dispatchEvent(new CustomEvent(Na__LePc__STEP_SHEET_EVENT, { detail : { direction : direction < 0 ? -1 : 1 } }));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Run One Navigation Action From the Keyboard
     // ------------------------------------------------------------
     // Returns true when the action was recognised and handled, so the caller
-    // knows whether to take the key away from the browser.
-    function Na__LePc__RunKeyAction(action, coarse) {
+    // knows whether to take the key away from the browser. repeat is a key
+    // held down: a turn of the drawings is taken but not repeated.
+    function Na__LePc__RunKeyAction(action, coarse, repeat) {
         const keys = Na__LeCfg__GetKeyboardSetup();
         const step = coarse ? keys.panCoarseStepPx : keys.panStepPx;
 
         switch (action) {
+            case 'Nav__PreviousSheet'  : if (!repeat) Na__LePc__StepSheet(-1);                return true;
+            case 'Nav__NextSheet'      : if (!repeat) Na__LePc__StepSheet(1);                 return true;
             case 'Nav__ZoomFit'        : Na__LeNav__Fit();                                    return true;
             case 'Nav__ZoomActualSize' : Na__LeNav__ZoomTo(1);                                return true;
             case 'Nav__ZoomIn'         : Na__LeNav__ZoomTo(Na__LeSurface__GetZoom() * keys.zoomKeyStep); return true;
@@ -336,11 +393,11 @@
         }
 
         const keys = Na__LeCfg__GetKeyboardSetup();
-        if (typing && keys.ignoreWhenTyping) return;
+        if (typing && keys.ignoreWhenTyping && Na__KeyScope__ControlKeepsKey(event.target, event.key)) return;   // <-- Only what the focused control uses itself: Page Down from a ticked box turns the drawing, in a list it stays the list's
 
         const match = Na__LeCfg__MatchKeyBinding(event.key, Na__LePc__Modifiers(event));
         if (!match) return;
-        if (Na__LePc__RunKeyAction(match.action, match.coarse)) event.preventDefault();        // <-- Edit and Tool actions belong to the sheet tools
+        if (Na__LePc__RunKeyAction(match.action, match.coarse, !!event.repeat)) event.preventDefault();   // <-- Edit and Tool actions belong to the sheet tools
     }
     // ------------------------------------------------------------
 
@@ -353,6 +410,42 @@
     function Na__LePc__OnBlur() {
         Na__LePc__SpaceHeld = false;
         Na__LePc__OnPointerUp(null);                                                          // <-- A pan cannot survive the window losing focus
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Give the Keyboard to the Sheet
+    // ------------------------------------------------------------
+    // WHY A PRESS ON THE PAPER HAS TO SAY SO. The sheet tools take every press
+    // they act on from the browser (preventDefault on pointerdown), and in
+    // Chrome that also stops the press moving the focus. So a tick box, a list
+    // or a number box used in a panel - or the Raster list on the toolbar -
+    // kept the keyboard through any number of clicks on the paper, and the
+    // sheet's keys went to it: M, V, Escape and the arrows did nothing, and a
+    // list took the letter for itself (M switched Raster to Medium). Clicking a
+    // toolbar button was the only way out, because a button takes the focus.
+    //
+    // Called in the capture phase of every press on the stage, ahead of the
+    // tools, and by the mode controller (with no press) whenever a drawing is
+    // opened from another tab. The stage takes the focus as the browser would
+    // have given it: the control blurs, which commits what was typed into it,
+    // before the press does anything to the sheet.
+    //
+    // LEFT ALONE: a press on a real control on the stage (it is being used),
+    // and a focus already inside the stage - text being typed on the paper is
+    // committed by the tool that opened it, as the press already does.
+    // Returns true when the focus moved to the stage.
+    // ------------------------------------------------------------
+    function Na__LePc__TakeKeyboard(event) {
+        const stage = Na__LePc__Stage;
+        if (!stage || typeof document === 'undefined') return false;
+        const target = event ? event.target : null;
+        if (target && target.closest && target.closest(Na__LePc__OWN_FOCUS_SELECTOR)) return false;   // <-- A control pressed on the paper is being used
+        const focused = document.activeElement;
+        if (focused === stage) return false;                                                 // <-- Already the sheet's
+        if (focused && focused !== document.body && stage.contains(focused)) return false;   // <-- A field on the paper: its tool commits it on the press
+        try { stage.focus({ preventScroll : true }); } catch (error) { return false; }
+        return document.activeElement === stage;
     }
     // ------------------------------------------------------------
 
@@ -379,8 +472,10 @@
             contextmenu   : (e) => Na__LePc__OnContextMenu(e),
             keydown       : (e) => Na__LePc__OnKeyDown(e),
             keyup         : (e) => Na__LePc__OnKeyUp(e),
-            blur          : ()  => Na__LePc__OnBlur()
+            blur          : ()  => Na__LePc__OnBlur(),
+            takekeys      : (e) => { Na__LePc__TakeKeyboard(e); }
         };
+        Na__LePc__Stage.addEventListener('pointerdown', Na__LePc__Handlers.takekeys, true);   // <-- Capture: the keyboard is the sheet's before any tool sees the press
         Na__LePc__Stage.addEventListener('wheel', Na__LePc__Handlers.wheel, { passive : false });
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'contextmenu' ].forEach((name) => {
             Na__LePc__Stage.addEventListener(name, Na__LePc__Handlers[name]);
@@ -399,6 +494,7 @@
         if (!Na__LePc__Stage || !Na__LePc__Handlers) return;
         if (Na__LePc__WheelZoom) { window.cancelAnimationFrame(Na__LePc__WheelZoom.frame); Na__LePc__WheelZoom = null; }   // <-- Steps gathered for a stage that is going
         if (Na__LePc__Pan && Na__LePc__Pan.claimsLeft) Na__LeTools__SetSuppressed(false);
+        Na__LePc__Stage.removeEventListener('pointerdown', Na__LePc__Handlers.takekeys, true);
         Na__LePc__Stage.removeEventListener('wheel', Na__LePc__Handlers.wheel);
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'contextmenu' ].forEach((name) => {
             Na__LePc__Stage.removeEventListener(name, Na__LePc__Handlers[name]);
@@ -428,8 +524,10 @@
     // MODULE EXPORTS | Layout Editor PC Controls API
     // ------------------------------------------------------------
     export {
+        Na__LePc__STEP_SHEET_EVENT,
         Na__LePc__Attach,
         Na__LePc__Detach,
+        Na__LePc__TakeKeyboard,
         Na__LePc__IsPanning
     };
     // ------------------------------------------------------------

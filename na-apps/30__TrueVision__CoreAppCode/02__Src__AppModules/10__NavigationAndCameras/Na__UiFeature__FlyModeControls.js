@@ -32,6 +32,11 @@
 // 25-May-2026 - Version 1.0.0
 // - Initial implementation mirroring the Walk Mode controls module.
 //
+// 21-Sep-2026 - Version 1.0.1
+// - Leaving Fly now stops the 'fly-mode' active render it asked for on the
+//   way in. Nothing ever stopped it, so after one flight the render loop kept
+//   drawing every frame for the rest of the session, idle or not.
+//
 // =============================================================================
 
 
@@ -78,6 +83,7 @@
     // ------------------------------------------------------------
     import {
         Na__RenderLoop__RequestActiveRender,
+        Na__RenderLoop__StopActiveRender,
         Na__RenderLoop__RequestRender
     } from '../05__RenderPipeline/Na__RenderLoop__Invalidation.js';
     // ------------------------------------------------------------
@@ -153,6 +159,7 @@
                 Na__UiFeature__FlyMode__Controls
             );
 
+            Na__RenderLoop__StopActiveRender('fly-mode');                        // <-- Let go of the continuous frames asked for on the way in
             Na__RenderLoop__RequestRender();                                     // <-- Redraw once after returning to orbit mode
             if (onDeactivate) onDeactivate();                                    // <-- Fire caller UI callback
         } else {

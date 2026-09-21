@@ -53,6 +53,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - CancelPlacement also ends the last move's retype (MoveRetype): a new
+//   tool, Escape or a pan that takes the left button starts a new cycle, as
+//   it already did for a vertex or a dimension end.
+//
 // 19-Sep-2026 - Version 1.2.0
 // - MOVE CAN COME UP BY ITSELF, AND IT REMEMBERS THAT IT DID. PickUpMove is
 //   the sheet tools' own way to Move - a Select press landed on something whose
@@ -127,7 +132,8 @@
         Na__LeTools__Stage,
         Na__LeTools__Editable,
         Na__LeTools__WriteVertexRetype,
-        Na__LeTools__WriteDimEndRetype
+        Na__LeTools__WriteDimEndRetype,
+        Na__LeTools__WriteMoveRetype
     } from './Na__LayoutEditor__SheetTools__State__.js';
     // ------------------------------------------------------------
 
@@ -219,6 +225,7 @@
         Na__LeAxis__Clear();
         Na__LeTools__WriteVertexRetype(null);                                // <-- A vertex a typed length could still be retyped for stops being one
         Na__LeTools__WriteDimEndRetype(null);                                // <-- And a dimension whose span could still be retyped
+        Na__LeTools__WriteMoveRetype(null);                                  // <-- And the last move a typed value could land again: a new tool is a new cycle
         Na__LeVpMove__Clear();                                               // <-- Tracking points and the carry marker go with the tool
         Na__LeSelBox__Cancel();                                              // <-- So does a selection box being dragged out
         Na__LeMeasure__Clear();                                              // <-- And a value half typed into the Measurements box

@@ -48,6 +48,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - GetSetup().symbol.portalDarkColour (Symbol PortalDarkColour, #595959 -
+//   hsl(0, 0%, 35%)): the dark colour of a code a vector carries, which is the
+//   parametric scrapbook's Project Portal block. Adam wanted it softer than
+//   black on the page. darkColour, which every document's own code is painted
+//   in - the title block's included - stays black.
+//
 // 20-Sep-2026 - Version 1.1.0
 // - The code carries the resolver's short address (Link BaseUrl and
 //   QueryPattern; LiveAppUrl is gone): a 29 module symbol for a 49 module one.
@@ -95,6 +102,7 @@
         queryPattern        : '?{projectCode}',                                  // <-- 42 bytes with the base: exactly a 29 module symbol, and not a character to spare
         indexUrl            : '../../../../q/index.json',                        // <-- The resolver's index, relative to this folder; the ProjectVision build script writes it
         darkColour          : '#000000',                                         // <-- Black, not the sheet's ink: a mono laser screens a colour and prints black solid
+        portalDarkColour    : '#595959',                                         // <-- hsl(0, 0%, 35%): the Project Portal block's code, softer on the page, big enough not to need black
         lightColour         : '#ffffff',
         quietZoneModules    : 2,                                                 // <-- What a document sizes its code from: Lantern Designer's 0.6 mm in a 10 mm strip
         minModuleMm         : 0.28,
@@ -194,6 +202,7 @@
             },
             symbol  : {
                 darkColour       : Na__ProjectQr__Text('Symbol', 'DarkColour', F.darkColour),
+                portalDarkColour : Na__ProjectQr__Text('Symbol', 'PortalDarkColour', F.portalDarkColour),   // <-- A code a vector carries (Shape__Qr): the Project Portal block
                 lightColour      : Na__ProjectQr__Text('Symbol', 'LightColour', F.lightColour),
                 quietZoneModules : Na__ProjectQr__Num('Symbol', 'QuietZoneModules', F.quietZoneModules),
                 minModuleMm      : Na__ProjectQr__Num('Symbol', 'MinModuleMm', F.minModuleMm)

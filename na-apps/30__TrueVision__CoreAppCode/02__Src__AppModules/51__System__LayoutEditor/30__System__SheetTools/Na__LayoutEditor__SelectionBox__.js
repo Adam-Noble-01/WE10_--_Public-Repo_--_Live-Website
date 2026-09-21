@@ -33,6 +33,8 @@
 //   A window takes an item only when every one of those parts is inside it.
 // - Hidden layers, locked layers and locked viewports are never taken. Locked
 //   is background: lock a viewport and a box can start on it and sweep over it.
+//   Nor is anything on a REFERENCE layer (the Layers panel's Ref), which the
+//   pointer passes straight through.
 // - While the box is dragged, everything it would take is outlined in the
 //   box's colour, so the two rules can be told apart before the button comes up.
 // - Nothing here writes the selection. Release reports what the box took and
@@ -61,6 +63,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - Nothing on a REFERENCE layer (Layer__Selectable false) is a candidate,
+//   inside an open container or out of one: a box sweeps over a reference
+//   layer the way it sweeps over a locked viewport. TrueVision first; not
+//   yet in ValeVision.
+//
 // 17-Sep-2026 - Version 1.4.0
 // - A BOX DRAWN INSIDE A CONTAINER TAKES WHAT IS IN THAT CONTAINER. Candidates
 //   asks Na__LayoutEditor__EditScope__ first: inside a vector each vertex is a
@@ -100,7 +108,7 @@
     // MODULE IMPORTS | Config, Model, Surface, Markup and Geometry
     // ------------------------------------------------------------
     import { Na__LeCfg__GetSelectionSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__IsLayerVisible, Na__LeModel__IsLayerLocked } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeModel__IsLayerVisible, Na__LeModel__IsLayerLocked, Na__LeModel__IsLayerSelectable } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import {
         Na__LeMarkup__AnnotationCorners,
@@ -385,6 +393,18 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Can a Box Take What Sits on This Layer
+    // ------------------------------------------------------------
+    // Not a hidden layer, not a locked one, and not a reference layer - the
+    // one the pointer passes straight through. An item's own lock (a
+    // viewport's) is its row's business, asked separately.
+    // ------------------------------------------------------------
+    function Na__LeSelBox__Takeable(sheet, layerId) {
+        return Na__LeModel__IsLayerVisible(sheet, layerId) && !Na__LeModel__IsLayerLocked(sheet, layerId) && Na__LeModel__IsLayerSelectable(sheet, layerId);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | One Item's Parts and Bounds, by Kind (null when it cannot be taken)
     // ------------------------------------------------------------
     // The same reading Candidates makes of a whole sheet, for one named item.
@@ -398,7 +418,7 @@
         if (!row) return null;
         const records = Array.isArray(sheet[row.list]) ? sheet[row.list] : [];
         const record  = records.find((candidate) => candidate && candidate[row.idKey] === item.id);
-        if (!record || !Na__LeModel__IsLayerVisible(sheet, record[row.layerKey]) || Na__LeModel__IsLayerLocked(sheet, record[row.layerKey])) return null;
+        if (!record || !Na__LeSelBox__Takeable(sheet, record[row.layerKey])) return null;
         if (row.ownLock && row.ownLock(record)) return null;
         const parts = row.parts(sheet, record).filter((part) => part && Array.isArray(part.points) && part.points.length > 0);
         return parts.length ? { parts : parts, bounds : Na__LeSelBox__BoundsOf(parts) } : null;
@@ -425,7 +445,7 @@
         Na__LeSelBox__KINDS.forEach((row) => {
             const records = Array.isArray(sheet[row.list]) ? sheet[row.list] : [];
             records.forEach((record) => {
-                if (!record || !Na__LeModel__IsLayerVisible(sheet, record[row.layerKey]) || Na__LeModel__IsLayerLocked(sheet, record[row.layerKey])) return;
+                if (!record || !Na__LeSelBox__Takeable(sheet, record[row.layerKey])) return;
                 if (row.ownLock && row.ownLock(record)) return;                     // <-- Locked is background: never taken
                 const parts = row.parts(sheet, record).filter((part) => part && Array.isArray(part.points) && part.points.length > 0);
                 if (parts.length) list.push({ kind : row.kind, id : record[row.idKey], parts : parts, bounds : Na__LeSelBox__BoundsOf(parts) });

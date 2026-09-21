@@ -25,6 +25,9 @@
 //   figure, 1,500,900 is 1500 by 900. Either side may be left out to keep
 //   the size the cursor gives (3000, or ,2000); a single figure with no
 //   separator means a square.
+// - AN ARRAY is SketchUp's Move tool count, typed after a copy: 3x, x3, *3 or
+//   3* for copies at one, two and three times the copy's distance, /3 or 3/
+//   for copies dividing that distance into three.
 // - Pure: no imports, no DOM, no config. The caller hands in the separator
 //   and precision to format with, so the rules can be tested in Node.
 //
@@ -35,6 +38,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - Array: SketchUp's Move tool multiplier (3x, x3, *3, 3*) and divider (/3,
+//   3/), for a Ctrl-drag copy (Na__LayoutEditor__SheetTools__CopyDrag__).
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: lengths with units and thousands separators,
 //   width and height pairs, and the readout format.
@@ -67,6 +74,13 @@
     const Na__LeMParse__REASON_NUMBER = 'number';   // <-- Not a number this reader understands
     const Na__LeMParse__REASON_UNIT   = 'unit';     // <-- A number followed by a unit it does not know
     const Na__LeMParse__REASON_PAIR   = 'pair';     // <-- Not a width and a height
+    const Na__LeMParse__REASON_COUNT  = 'count';    // <-- An array whose count is not a whole number of at least one
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Two Kinds of Array (SketchUp's Move tool)
+    // ------------------------------------------------------------
+    const Na__LeMParse__ARRAY_TIMES  = 'times';     // <-- 3x, x3, *3, 3*: copies at the move's distance, twice it, three times it
+    const Na__LeMParse__ARRAY_DIVIDE = 'divide';    // <-- /3, 3/: copies that divide the move's distance into equal parts
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -227,6 +241,31 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Read an Array Count (SketchUp's Move Tool Multiplier and Divider)
+    // ------------------------------------------------------------
+    // Typed after a copy: 3x, x3, *3 and 3* ask for copies at the copy's
+    // distance, twice it and three times it; /3 and 3/ divide the distance into
+    // three equal parts with a copy at each. x is either case and spaces may
+    // sit either side of the sign. Returns { ok : true, mode, count }, or
+    // { ok : false, reason } - REASON_COUNT when it is an array but its count
+    // is not a whole number of at least one (0x, 2.5x, /0), REASON_NUMBER
+    // when it is not an array at all, so a length can be tried instead.
+    // ------------------------------------------------------------
+    function Na__LeMParse__Array(text) {
+        const src = String(text === undefined || text === null ? '' : text).trim();
+        if (!src) return { ok : false, reason : Na__LeMParse__REASON_EMPTY };
+        const found = /^(?:([xX*])\s*([0-9.,]+)|([0-9.,]+)\s*([xX*])|\/\s*([0-9.,]+)|([0-9.,]+)\s*\/)$/.exec(src);
+        if (!found) return { ok : false, reason : Na__LeMParse__REASON_NUMBER };
+        const digits = found[2] || found[3] || found[5] || found[6];
+        const mode   = (found[5] || found[6]) ? Na__LeMParse__ARRAY_DIVIDE : Na__LeMParse__ARRAY_TIMES;
+        if (!/^[0-9]+$/.test(digits)) return { ok : false, reason : Na__LeMParse__REASON_COUNT };
+        const count = parseInt(digits, 10);
+        if (!(count >= 1)) return { ok : false, reason : Na__LeMParse__REASON_COUNT };
+        return { ok : true, mode : mode, count : count };
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -268,8 +307,12 @@
         Na__LeMParse__REASON_NUMBER,
         Na__LeMParse__REASON_UNIT,
         Na__LeMParse__REASON_PAIR,
+        Na__LeMParse__REASON_COUNT,
+        Na__LeMParse__ARRAY_TIMES,
+        Na__LeMParse__ARRAY_DIVIDE,
         Na__LeMParse__Length,
         Na__LeMParse__Pair,
+        Na__LeMParse__Array,
         Na__LeMParse__Format
     };
     // ------------------------------------------------------------

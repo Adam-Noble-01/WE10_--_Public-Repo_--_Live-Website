@@ -19,6 +19,18 @@
 // -----
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - upload: raw bytes straight into a key (PUT /r2/upload?key=...), with the
+//   request's Content-Type and an optional Cache-Control, for the pictures
+//   placed on Layout Editor sheets. A base64 JSON body costs a third more on
+//   the wire and the whole picture as a string in the Worker; this streams.
+// - copy: one key to another inside the bucket, type and metadata kept - how
+//   a renumbered drawing's pictures follow it to their new document folder
+//   without going back up the wire.
+// - write: an optional cacheControl is stored on the object, so a picture
+//   written through the base64 route (a browser on an older client) is still
+//   served as immutable.
+//
 // 21-Jun-2026 - Version 1.0.0
 // - Initial release. Ported from na-projectadmin-api R2 handler.
 //
@@ -47,6 +59,12 @@
 
             case 'delete':
                 return await deleteFromR2(request, env);
+
+            case 'upload':
+                return await uploadToR2(request, env);
+
+            case 'copy':
+                return await copyInR2(request, env);
 
             default:
                 return jsonResponse({ error: 'Unknown R2 operation' }, 400);
@@ -149,6 +167,9 @@
 
             let content;
             let httpMetadata     = { contentType: contentType || 'application/json' };
+            if (typeof body.cacheControl === 'string' && body.cacheControl) {
+                httpMetadata.cacheControl = body.cacheControl.slice(0, 200);
+            }
 
             if (typeof data === 'object') {
                 content          = JSON.stringify(data, null, 2);
@@ -264,6 +285,109 @@
         } catch (error) {
             console.error('R2 delete error:', error);
             return jsonResponse({ error: 'Failed to delete from R2' }, 500);
+        }
+    }
+
+// endregion ----
+
+// #Region ---
+// REGION | Upload Operation (raw bytes)
+// -----
+
+    async function uploadToR2(request, env) {
+        if (request.method !== 'PUT' && request.method !== 'POST') {
+            return jsonResponse({ error: 'Method not allowed' }, 405);
+        }
+
+        try {
+            const url            = new URL(request.url);
+            const key            = url.searchParams.get('key');
+            const cacheControl   = url.searchParams.get('cacheControl');
+
+            if (!key) {
+                return jsonResponse({ error: 'Key required' }, 400);
+            }
+
+            const prefix         = env.R2_PREFIX || 'NaProjectPortal/';
+            if (!key.startsWith(prefix) || key.includes('..')) {
+                return jsonResponse({ error: 'Access denied' }, 403);
+            }
+            if (!request.body) {
+                return jsonResponse({ error: 'Body required' }, 400);
+            }
+
+            const httpMetadata   = { contentType: request.headers.get('Content-Type') || 'application/octet-stream' };
+            if (cacheControl) {
+                httpMetadata.cacheControl = cacheControl.slice(0, 200);
+            }
+
+            const stored         = await env.R2_BUCKET.put(key, request.body, { httpMetadata: httpMetadata });
+
+            console.log('R2 upload:', key, stored ? stored.size : '?');
+
+            return jsonResponse({
+                success          : true,
+                key              : key,
+                size             : stored ? stored.size : null,
+                etag             : stored ? stored.etag : null
+            });
+
+        } catch (error) {
+            console.error('R2 upload error:', error);
+            return jsonResponse({ error: 'Failed to upload to R2' }, 500);
+        }
+    }
+
+// endregion ----
+
+// #Region ---
+// REGION | Copy Operation (inside the bucket)
+// -----
+
+    async function copyInR2(request, env) {
+        if (request.method !== 'POST') {
+            return jsonResponse({ error: 'Method not allowed' }, 405);
+        }
+
+        try {
+            const body           = await request.json();
+            const { from, to, cacheControl } = body;
+
+            if (!from || !to) {
+                return jsonResponse({ error: 'From and to required' }, 400);
+            }
+
+            const prefix         = env.R2_PREFIX || 'NaProjectPortal/';
+            if (!from.startsWith(prefix) || !to.startsWith(prefix) || from.includes('..') || to.includes('..')) {
+                return jsonResponse({ error: 'Access denied' }, 403);
+            }
+
+            const object         = await env.R2_BUCKET.get(from);
+            if (!object) {
+                return jsonResponse({ error: 'Not found', key: from }, 404);
+            }
+
+            const httpMetadata   = Object.assign({}, object.httpMetadata || {});
+            if (typeof cacheControl === 'string' && cacheControl) {
+                httpMetadata.cacheControl = cacheControl.slice(0, 200);
+            }
+
+            await env.R2_BUCKET.put(to, object.body, {
+                httpMetadata     : httpMetadata,
+                customMetadata   : object.customMetadata || {}
+            });
+
+            console.log('R2 copy:', from, '->', to);
+
+            return jsonResponse({
+                success          : true,
+                from             : from,
+                key              : to
+            });
+
+        } catch (error) {
+            console.error('R2 copy error:', error);
+            return jsonResponse({ error: 'Failed to copy in R2' }, 500);
         }
     }
 

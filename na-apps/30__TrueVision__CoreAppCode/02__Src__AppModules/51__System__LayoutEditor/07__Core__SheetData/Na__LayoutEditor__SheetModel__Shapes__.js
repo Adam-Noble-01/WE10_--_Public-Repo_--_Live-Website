@@ -35,6 +35,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - InsertShape keeps a layer the sheet has, whatever its type, as the other
+//   Insert functions always did. It used to insist on a layer of the shape's
+//   own type, so once the Layer flyout let a line live on a layer of the
+//   user's own (typed General), every duplicate, Ctrl-drag copy and rebuilt
+//   parametric member of it went back to the Vectors layer. A layer id the
+//   sheet does not have still falls back by kind (ShapeLayerType), and a
+//   paste from another sheet is still vetted by the clipboard.
+// - That fallback is now written onto the record. NormaliseShape only fills
+//   a layer id that is missing, so a record naming a layer the sheet lacks
+//   used to keep the dead id, and the fallback worked out above it was
+//   thrown away - the type check it sat behind never took effect either.
+//
+// 21-Sep-2026 - Version 1.3.0
+// - Pictures (54__Feature__SheetImages): ShapeLayerType answers 'image' for a
+//   shape carrying Shape__Image, so a picture pasted, duplicated or dropped
+//   lands on the Images layer, made over the drawings when the sheet has
+//   none. CreateShape takes opts.image; UpdateShape merges patch.image, where
+//   an Image__Crop of null is the whole picture again.
+//
 // 21-Sep-2026 - Version 1.2.1
 // - A Floor Areas or Vectors layer a paste has to make goes straight over the
 //   frontmost drawing (LayerIndexAboveDrawings) instead of to the bottom of the
@@ -107,7 +127,9 @@
     // required to be a 'vector' one.
     // ------------------------------------------------------------
     function Na__LeModel__ShapeLayerType(record) {
-        const area = record ? record.Shape__Area : null;
+        const area  = record ? record.Shape__Area : null;
+        const image = record ? record.Shape__Image : null;
+        if (image && typeof image === 'object' && !Array.isArray(image)) return 'image';   // <-- A picture belongs on the Images layer, over the drawings and under the markup
         return (area && typeof area === 'object' && !Array.isArray(area)) ? 'area' : 'vector';
     }
     // ------------------------------------------------------------
@@ -120,8 +142,9 @@
     // pasted vector would land behind the very drawing it was pasted onto.
     // ------------------------------------------------------------
     function Na__LeModel__ShapeLayerId(sheet, type) {
+        const name  = type === 'area' ? 'Floor Areas' : (type === 'image' ? 'Images' : 'Vectors');
         const found = sheet.Sheet__Layers.find((l) => l.Layer__Type === type)
-            || Na__LeModel__CreateLayer(sheet, { name : type === 'area' ? 'Floor Areas' : 'Vectors', type : type, index : Na__LeModel__LayerIndexAboveDrawings(sheet) });
+            || Na__LeModel__CreateLayer(sheet, { name : name, type : type, index : Na__LeModel__LayerIndexAboveDrawings(sheet) });
         return found ? found.Layer__Id : Na__LeModel__DefaultLayerId(sheet, type);
     }
     // ------------------------------------------------------------
@@ -133,18 +156,29 @@
     // this takes a complete record - vertices, closed, edges, fill, gradient,
     // opacities - deep-copies it and gives it a fresh id, so a vector copied
     // once can be put down again with every setting intact. A layer id the
-    // sheet does not have, or that is not a vector layer, falls back to the
-    // default vector layer; a sheet without one gets one. Appended last, so
-    // it draws in front on its layer. One announcement, so one undo step.
+    // sheet does not have falls back to the layer the shape's kind lands on -
+    // Floor Areas for a room, Images for a picture, Vectors for the rest - and
+    // a sheet without one gets one. Appended last, so it draws in front on its
+    // layer. One announcement, so one undo step.
+    //
+    // A LAYER THE SHEET HAS IS KEPT, WHATEVER ITS TYPE, as InsertAnnotation,
+    // InsertDimension, InsertLeader and InsertViewport keep theirs: the caller
+    // has already chosen it. Since the right-click menu's Layer flyout, a line
+    // can live on a layer of the user's own - Construction Lines, typed
+    // General - and a duplicate of it, a Ctrl-drag copy, or a parametric
+    // element rebuilding its members (which asks for the layer the element is
+    // on) must land there too. This used to insist on a layer of the shape's
+    // own type and quietly sent every such copy to the Vectors layer. A paste
+    // from ANOTHER sheet, where the same id may name another layer, is vetted
+    // by the clipboard before it gets here (Na__LeClip__LayerFor).
     // ------------------------------------------------------------
     function Na__LeModel__InsertShape(sheet, record, silent) {
         if (!sheet || !record || typeof record !== 'object') return null;
         const item = JSON.parse(JSON.stringify(record));
         item.Shape__Id = Na__LeRec__NextId(sheet.Sheet__Shapes, 'Shape_', 'Shape__Id');
         let layerId = item.Shape__LayerId;
-        const wanted = Na__LeModel__ShapeLayerType(item);                        // <-- A measured room wants an 'area' layer, every other vector a 'vector' one
-        const layer  = Na__LeModel__GetLayerById(sheet, layerId);
-        if (!layer || layer.Layer__Type !== wanted) layerId = Na__LeModel__ShapeLayerId(sheet, wanted);
+        if (!Na__LeModel__GetLayerById(sheet, layerId)) layerId = Na__LeModel__ShapeLayerId(sheet, Na__LeModel__ShapeLayerType(item));   // <-- A measured room to Floor Areas, a picture to Images, a vector to Vectors
+        item.Shape__LayerId = layerId;                                           // <-- Written here: the normaliser only fills a layer id that is MISSING, not one naming a layer this sheet lacks
         Na__LeRec__NormaliseShape(item, layerId);
         sheet.Sheet__Shapes.push(item);
         if (silent) { Na__LeModel__AssignDirty(true); return item; }
@@ -166,9 +200,10 @@
     function Na__LeModel__CreateShape(sheet, points, options) {
         if (!sheet || !Array.isArray(points)) return null;
         const opts = options || {};
-        const area = (opts.area && typeof opts.area === 'object') ? opts.area : null;   // <-- The Floor Area block, when the Area tool is the one drawing
+        const area  = (opts.area && typeof opts.area === 'object') ? opts.area : null;   // <-- The Floor Area block, when the Area tool is the one drawing
+        const image = (opts.image && typeof opts.image === 'object') ? opts.image : null;   // <-- The picture block, when a picture is being placed
         let layerId = opts.layerId || null;
-        if (!layerId) layerId = Na__LeModel__ShapeLayerId(sheet, area ? 'area' : 'vector');
+        if (!layerId) layerId = Na__LeModel__ShapeLayerId(sheet, image ? 'image' : (area ? 'area' : 'vector'));
         const item = Na__LeRec__NormaliseShape({
             Shape__Id           : Na__LeRec__NextId(sheet.Sheet__Shapes, 'Shape_', 'Shape__Id'),
             Shape__LayerId      : layerId,
@@ -183,7 +218,8 @@
             Shape__StrokeOpacity: opts.strokeOpacity,
             Shape__Gradient     : (opts.gradient && typeof opts.gradient === 'object') ? opts.gradient : null,   // <-- The normaliser copies it, so the caller's object is never shared
             Shape__LineStyle    : (opts.dash && typeof opts.dash === 'object') ? opts.dash : null,
-            Shape__Area         : area                                          // <-- The normaliser drops it unless it is an object, and holds a room closed
+            Shape__Area         : area,                                         // <-- The normaliser drops it unless it is an object, and holds a room closed
+            Shape__Image        : image ? Object.assign({}, image) : null       // <-- The normaliser drops it unless it names a file, and holds the picture to its proportions
         }, layerId);
         sheet.Sheet__Shapes.push(item);
         if (opts.silent) Na__LeModel__AssignDirty(true); else Na__LeModel__Touch('shapes', sheet.Sheet__Id, item.Shape__Id);   // <-- The draw tool announces once, on finishing
@@ -223,6 +259,14 @@
             item.Shape__Area = (patch.area && typeof patch.area === 'object')
                 ? Object.assign({}, item.Shape__Area, patch.area)
                 : null;
+        }
+        // MERGED, like the area block: the frame switch, the crop and the
+        // save's re-filing each set one field. A crop arrives with the points
+        // it leaves in the same patch, so the normaliser below sees the two
+        // agree and never has to pull the box back into proportion.
+        if (patch.image !== undefined && patch.image && typeof patch.image === 'object' && item.Shape__Image) {
+            item.Shape__Image = Object.assign({}, item.Shape__Image, patch.image);
+            if (patch.image.Image__Crop === null) delete item.Shape__Image.Image__Crop;   // <-- null is "the whole picture again"
         }
         if (Number.isFinite(patch.strokeOpacity)) item.Shape__StrokeOpacity = patch.strokeOpacity;
         if (typeof patch.layerId === 'string') item.Shape__LayerId = patch.layerId;

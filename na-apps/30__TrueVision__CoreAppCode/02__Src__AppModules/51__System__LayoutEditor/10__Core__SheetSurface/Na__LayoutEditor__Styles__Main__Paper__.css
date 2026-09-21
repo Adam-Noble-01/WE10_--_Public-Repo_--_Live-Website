@@ -568,6 +568,68 @@
     background                         : rgba(23, 43, 58, 0.14);
 }
 
+/* SOME OF THE SELECTION, NOT ALL OF IT: a ring where the dot would be. The   */
+/* Layer flyout rings every layer holding part of a selection spread across  */
+/* several, and dots the one layer holding all of it.                        */
+.na-le-menu__item--mixed::before {
+    content                            : "";
+    position                           : absolute;
+    left                               : 11px;
+    top                                : 50%;
+    width                              : 8px;
+    height                             : 8px;
+    box-sizing                         : border-box;
+    border                             : 1.5px solid #1a7fc4;
+    border-radius                      : 50%;
+    transform                          : translateY(-50%);
+}
+
+/* A ROW WITH A HINT: its label, then muted words at the far end - the layer */
+/* the item sits on, or what a layer in the flyout is (Hidden, Locked).      */
+.na-le-menu__item--hinted {
+    display                            : flex;
+    align-items                        : baseline;
+    gap                                : 18px;
+}
+
+.na-le-menu__hint {
+    margin-left                        : auto;
+    color                              : #8a96a0;
+    font-size                          : 0.92em;
+}
+
+/* A ROW THAT OPENS A FLYOUT: a chevron at the far end, and the row stays    */
+/* lit while its flyout is open, so the eye can follow the one to the other. */
+.na-le-menu__item--submenu {
+    padding-right                      : 30px;
+}
+
+.na-le-menu__item--submenu::after {
+    content                            : "";
+    position                           : absolute;
+    right                              : 13px;
+    top                                : 50%;
+    width                              : 5px;
+    height                             : 5px;
+    border-top                         : 1.5px solid currentColor;
+    border-right                       : 1.5px solid currentColor;
+    opacity                            : 0.55;
+    transform                          : translateY(-50%) rotate(45deg);
+}
+
+.na-le-menu__item--open,
+.na-le-menu__item--open:hover:not(:disabled) {
+    background                         : #e3eaf1;
+}
+
+/* THE FLYOUT is a second card, over the first where the two meet. A sheet  */
+/* with a long Layers list scrolls inside it rather than off the window.    */
+.na-le-menu--flyout {
+    z-index                            : 1201;
+    max-height                         : calc(100vh - 8px);
+    overflow-y                         : auto;
+}
+
 /* endregion ------------------------------------------------------- */
 
 

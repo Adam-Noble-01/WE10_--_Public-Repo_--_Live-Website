@@ -2,7 +2,7 @@
     "LayoutEditor__ScrapbookParametric__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
         "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
-        "Meta__Version"     : "1.3.0",
+        "Meta__Version"     : "1.4.0",
         "Meta__Created"     : "19-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
@@ -141,7 +141,11 @@
         "DrawingTitle__UnderlineStepMm"              : 5,
         "DrawingTitle__UnderlineGrowsToFit"          : true,
         "DrawingTitle__UnderlineFitExtraMm"          : 0.342,
-        "DrawingTitle__UnderlineNote"                : "UnderlineMm is the LEAST the underline is: sixty millimetres underlines EXISTING EAST ELEVATION with room to spare. With GrowsToFit on it reaches the end of a longer title, plus FitExtraMm, rounded up to a tenth of a millimetre. StepMm is what the stretch grip moves it by when the title has no scale bar.",
+        "DrawingTitle__UnderlinePastTextMm"          : 5,
+        "DrawingTitle__UnderlineBarGapMm"            : 5,
+        "DrawingTitle__UnderlineNote"                : "UnderlineMm is the LEAST the underline is: sixty millimetres underlines EXISTING EAST ELEVATION with room to spare. With GrowsToFit on, the line ALWAYS runs PastTextMm beyond the end of the words - measured from where the text starts (TextOffsetXMm) plus its width - and is rounded up to a tenth of a millimetre. StepMm is what the stretch grip moves it by when the title has no scale bar.",
+        "DrawingTitle__UnderlinePastTextNote"        : "Adam, 21-Sep-2026, over RB05's long elevation titles: 'make sure this line always goes at least 5 mm past... because it looks kind of weird being short.' PAPER millimetres, like every size in this block, so it is 5 mm on the sheet at every scale - 500 mm of building at 1:100, 250 at 1:50. Until then the line stopped a hair past the last letter (FitExtraMm), which read as flush, and a title rebuilt before the paper's text metrics had loaded stopped ten per cent SHORT of it: the chrome's estimate is an average width, and capitals are wider than average. The engine now rebuilds any title whose underline no longer ends where this rule puts it, once those metrics are in.",
+        "DrawingTitle__UnderlineBarGapNote"          : "The one thing allowed to shorten that run: a scale bar stood to the RIGHT, whose numerals hang across the underline's level at its zero end. The run past the words stops BarGapMm short of the bar's zero end rather than strike through them - but never short of the words themselves (their width plus FitExtraMm, the length the line was drawn to before the rule). A bar below, or none, never shortens it.",
         "DrawingTitle__UnderlineColour"              : "#172b3a",
         "DrawingTitle__UnderlineStrokePt"            : 0.4,
 

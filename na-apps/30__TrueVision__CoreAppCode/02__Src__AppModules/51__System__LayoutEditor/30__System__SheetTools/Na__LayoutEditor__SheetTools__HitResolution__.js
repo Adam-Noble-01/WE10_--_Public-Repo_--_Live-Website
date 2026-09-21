@@ -51,6 +51,31 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - Resolve looks straight through a viewport on a REFERENCE layer (the
+//   Layers panel's Ref): its frame is not there to the pointer at all, its
+//   handles included, so a press on it finds the paper or what lies beneath.
+//   The markup hit test already passes through a reference layer's markup.
+//   The drawing-scale lookups (a dimension's host, a room's scale) still read
+//   a viewport under a point whatever its layer: they are measurements, not
+//   picks.
+//
+// 21-Sep-2026 - Version 1.5.0
+// - SnapShapeTranslation keeps a held axis through a snap. With Shift held, or
+//   Ortho on (F8), a vector moved whole took the snap outright and left its
+//   axis - 2.9 mm off it on PS01's plan the moment a corner reached the
+//   linework. The snap now supplies only the coordinate along the held axis,
+//   as it already did for a vertex, a dimension end and a selection moved as
+//   one, and the grid fallback is handed the same axis.
+//
+// 21-Sep-2026 - Version 1.4.0
+// - SnapShapeTranslation and SnapGroupTranslation fall back to the drawing
+//   grid when no object snap is in reach (Na__LeTools__GridTranslation): with
+//   Grid Snap on (F7) the move is carried by the point it was picked up from
+//   - a corner, a midpoint or a filled vector's centre near the press, else
+//   the point pressed - and that point lands on the grid, held to any axis
+//   the move is held to. With Grid Snap off they return the move as before.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - PicksUpMove: would a Select press here pick the Move tool up. Text, a
 //   vector, a leader by anything but its endpoint, and a group do; a viewport,
@@ -113,6 +138,7 @@
         Na__LeModel__GetViewportById,
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
+        Na__LeModel__IsLayerSelectable,
         Na__LeModel__GetSelection,
         Na__LeModel__GetSelectionItems,
         Na__LeModel__IsSelected
@@ -130,6 +156,7 @@
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__ClickToggles, Na__LeDoors__At } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeOsnap__Find, Na__LeOsnap__FindOnViewport, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
+    import { Na__LeTools__GridTranslation } from './Na__LayoutEditor__SheetTools__GridDrag__.js';   // <-- No object snap in reach: the drawing grid (F7) carries the move
     import {
         Na__LeScope__IsActive,
         Na__LeScope__IsLeafOpen,
@@ -395,9 +422,19 @@
     // Every vertex and the press's grab point are offered at the axis-locked
     // delta; the nearest snap wins, and the translation puts THAT point on it.
     // The shape being moved is excluded, so a corner never snaps to itself.
+    //
+    // A HELD AXIS STAYS HELD THROUGH A SNAP. shift is what holds the nearer
+    // axis - a held Shift, or Ortho (F8) - and while it holds one the snap
+    // supplies only the coordinate ALONG that axis: the corner lines up with
+    // what it snapped to and the move stays on its line, the rule a vertex, a
+    // dimension end and a selection moved as one already keep. The snap used
+    // to win outright, so a vector moved "along the inferred lock" jumped off
+    // it the moment a corner came within reach of the linework, and the
+    // Measurements box then read a distance that was not along the lock.
     // ------------------------------------------------------------
     function Na__LeTools__SnapShapeTranslation(sheet, drag, dMm, shift) {
-        const axis = shift ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? { x : dMm.x, y : 0 } : { x : 0, y : dMm.y }) : dMm;
+        const lock = shift ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? 'x' : 'y') : null;   // <-- The axis the move is held TO: 'x' runs across the paper, 'y' down it
+        const axis = lock === 'x' ? { x : dMm.x, y : 0 } : (lock === 'y' ? { x : 0, y : dMm.y } : dMm);
         const exclude = { kind : 'shape', id : drag.id };
         let best = null;
         const offer = (ox, oy) => {
@@ -406,9 +443,13 @@
         };
         if (drag.baseMm) offer(drag.baseMm.x, drag.baseMm.y);
         (drag.start || []).forEach((p) => offer(p[0], p[1]));
-        if (!best) { Na__LeOsnap__HideMarker(); return axis; }
-        Na__LeOsnap__ShowMarker(best.hit);
-        return { x : best.hit.x - best.ox, y : best.hit.y - best.oy };
+        if (!best) return Na__LeTools__GridTranslation(sheet, drag, axis, lock);   // <-- No object snap: Grid Snap (F7) puts the grab point on the grid, else the move as it was
+        const move = {
+            x : lock === 'y' ? axis.x : best.hit.x - best.ox,                  // <-- Held down the paper: x stays where the lock put it
+            y : lock === 'x' ? axis.y : best.hit.y - best.oy                   // <-- Held across it: y does
+        };
+        Na__LeOsnap__ShowMarker(lock ? { ...best.hit, x : best.ox + move.x, y : best.oy + move.y } : best.hit);   // <-- Held: the ring sits where the snapped point lands on the line
+        return move;
     }
     // ------------------------------------------------------------
 
@@ -441,7 +482,7 @@
             const hit = Na__LeOsnap__Find(sheet, { x : point.x + delta.x, y : point.y + delta.y }, drag.group);
             if (hit && (!best || hit.score < best.hit.score)) best = { hit, point };
         });
-        if (!best) { Na__LeOsnap__HideMarker(); return delta; }
+        if (!best) return Na__LeTools__GridTranslation(sheet, drag, delta, lock);   // <-- No object snap: Grid Snap (F7) puts the grab point on the grid, else the move as it was
         const result = {
             x : lock === 'y' ? delta.x : best.hit.x - best.point.x,
             y : lock === 'x' ? delta.y : best.hit.y - best.point.y
@@ -541,13 +582,14 @@
         const zoom = Na__LeSurface__GetZoom();
         const selection = Na__LeModel__GetSelection();
         const selected  = (selection && selection.kind === 'viewport') ? Na__LeModel__GetViewportById(sheet, selection.id) : null;
-        if (selected && Na__LeModel__IsLayerVisible(sheet, selected.Viewport__LayerId)
+        if (selected && Na__LeModel__IsLayerVisible(sheet, selected.Viewport__LayerId) && Na__LeModel__IsLayerSelectable(sheet, selected.Viewport__LayerId)
                 && !(skipLockedViewports && Na__LeTools__IsViewportLocked(sheet, selected))) {
             const hit = Na__LeHandles__HitTest(selected, pointMm, ppm, zoom, true);
             if (hit) return { kind : 'viewport', id : selected.Viewport__Id, hit : hit };
         }
         const ordered = Na__LeHandles__FrontToBack(sheet);
         for (let i = 0; i < ordered.length; i++) {
+            if (!Na__LeModel__IsLayerSelectable(sheet, ordered[i].Viewport__LayerId)) continue;   // <-- A reference layer's frame is not there to the pointer at all
             if (skipLockedViewports && Na__LeTools__IsViewportLocked(sheet, ordered[i])) continue;   // <-- Look through a locked frame
             if (Na__LeHandles__Contains(ordered[i], pointMm)) return { kind : 'viewport', id : ordered[i].Viewport__Id, hit : null };
         }

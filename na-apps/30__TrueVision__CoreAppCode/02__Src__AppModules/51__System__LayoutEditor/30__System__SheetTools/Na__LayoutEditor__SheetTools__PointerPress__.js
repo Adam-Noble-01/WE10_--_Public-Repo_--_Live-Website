@@ -57,6 +57,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - CTRL-DRAG COPIES (Na__LayoutEditor__SheetTools__CopyDrag__). A press that
+//   starts a whole-object move or a frame move marks the drag copyable, and
+//   with the key map's CopyDragModifier held (Ctrl) marks it a copy, taking
+//   the pick threshold so a Ctrl+click that wobbles never copies. It records
+//   the roots a copy would clone. The copy itself is made by the pointer drag
+//   unit once the press becomes a drag. Ctrl still adds an unselected item at
+//   the press, as before. Nothing is copyable while a vector or a dimension
+//   is open.
+//
+// 21-Sep-2026 - Version 1.3.0
+// - A double click on a picture (Sheet Images) opens its crop
+//   (Na__LeImgCrop__Open) instead of stepping inside it: a picture's points are
+//   its box, and its corners are scaled by grips that are always there.
+//
 // 19-Sep-2026 - Version 1.2.0
 // - SELECT PICKS MOVE UP FOR WHAT IS USUALLY MOVED NEXT. A press on text, a
 //   vector, a leader by anything but its endpoint, or a group picks the Move
@@ -144,6 +159,7 @@
     import { Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import {
         Na__LeScope__IsActive,
+        Na__LeScope__IsLeafOpen,
         Na__LeScope__GetVectorId,
         Na__LeScope__Enter,
         Na__LeScope__ClearVertices,
@@ -206,6 +222,7 @@
     } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
     import { Na__LeTools__SetEditingViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
     import { Na__LeTools__IsViewportMoveDrag, Na__LeTools__IsMoveDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
+    import { Na__LeImgCrop__Open } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Crop__.js';   // <-- A double click on a picture opens its crop
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -613,6 +630,18 @@
         // click always steps inside instead of shifting what it landed on. A
         // press on something already selected moves at the ordinary threshold.
         drag.pick      = again || picking;
+        // CTRL CARRIES A COPY (Na__LayoutEditor__SheetTools__CopyDrag__, SketchUp
+        // LayOut's Ctrl-drag). Only what a move carries whole can be copied - a
+        // whole-object move, or a frame moved by its border - and nothing while
+        // a vector or a dimension is open. The press only marks it: the copy is
+        // made once the press becomes a drag, so a Ctrl+click never leaves one
+        // behind, and a press that starts as a copy is a pick first, travelling
+        // PickDragPx before it copies anything. roots are what a copy clones:
+        // the item pressed, or the whole selection a set drag carries.
+        drag.copyable  = (Na__LeTools__IsMoveDrag(drag) || Na__LeTools__IsViewportMoveDrag(drag)) && !Na__LeScope__IsLeafOpen();
+        drag.copy      = drag.copyable && intent.copy === true;
+        drag.roots     = asSet ? items.map((item) => ({ kind : item.kind, id : item.id })) : [ { kind : found.kind, id : found.id } ];
+        if (drag.copy) drag.pick = true;
         if (door && items.length === 1) {
             const viewportId = found.id;
             drag.click = () => { if (click) click(); Na__LeDoors__ToggleSoon(sheet, viewportId, door); };   // <-- A click on a door, not a move: close or open it
@@ -649,6 +678,13 @@
         if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW) { if (Na__LeShape__IsDrawing()) { event.preventDefault(); Na__LeShape__Finish(sheet, false); } return; }
         if (Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) return;
         const found = Na__LeTools__Resolve(sheet, point);
+
+        // A PICTURE OPENS ITS CROP (Sheet Images). It has no points to step
+        // inside to - its points are its box - and the crop is the one edit a
+        // picture has beyond its corner grips. Open returns false for any
+        // shape that is not a picture, which goes on as it always did.
+        // ------------------------------------
+        if (found && found.kind === 'shape' && Na__LeImgCrop__Open(sheet, found.id)) { event.preventDefault(); return; }
 
         // STEP INSIDE | A group opens as a group, so the next double click can
         // open something inside it; a vector or a dimension opens as itself, and

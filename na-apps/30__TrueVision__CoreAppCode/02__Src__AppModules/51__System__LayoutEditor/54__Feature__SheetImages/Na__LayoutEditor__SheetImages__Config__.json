@@ -1,0 +1,122 @@
+{
+    "LayoutEditor__SheetImages__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__SheetImages__Config__.json",
+        "Meta__Description" : "Sheet Images: pictures placed on a Layout Editor sheet - CGIs, photographs, a site location plan - composed with the drawings the way a project introduction sheet is. A picture is an ordinary vector shape in Sheet__Shapes carrying a Shape__Image block, on a layer of its own (Layer__Type 'image', named Images), so it selects, moves, snaps, copies, stacks, locks, hides, prints and undoes exactly as any other vector does. Its four points are the corners of the part of the picture that shows; the block says which stored file it is and which part of that file is kept.",
+        "Meta__Version"     : "1.1.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__Block"       : "Shape__Image : { Image__File, Image__Folder, Image__PixelW, Image__PixelH, Image__Crop, Image__Frame, Image__Alpha, Image__Name, Image__SourceW, Image__SourceH }. Image__File is the stored file's name, which ends in the first ten hex digits of its SHA-256, so two pictures can never share a name and the same picture dropped twice is stored once. Image__Folder is where that file was last filed; the save files it again under the sheet's document id whenever the two differ. Image__PixelW/H are the stored file's pixels and Image__SourceW/H the dropped original's (absent on pictures placed before print-size storage). Image__Crop is the kept part as fractions of the stored picture { L, T, R, B }, absent when the whole picture shows.",
+        "Meta__Folders"     : "Every stored picture lives in <project>/30__TrueVision__AppContent/05__Layout__DrawingDocs__Images/<document id>/, the document id being the one the title block prints (RB05_T01_D01). Nothing is written when a picture is dropped: the images folder is made by the first save after a picture is placed on any sheet of the project, never by the build script, and a document's own folder the first time a picture is saved on that document. A renumber, a phase change or a typed document id moves the pictures with the drawing: the next save - and every register edit IS a save - files each picture under the new id, pushes it to R2, and only then writes the drawings that point at it.",
+        "Meta__Sources"     : "The web viewer reads a picture from R2 through the CDN and falls back to the copy GitHub Pages serves only if R2 does not answer. On localhost the editor reads the repository copy first, the one the local server has; a picture just dropped is drawn from memory until the save files it."
+    },
+
+    "LayoutEditor__SheetImages__Storage": {
+        "Storage__Description"      : "How a dropped picture is stored. A render is usually a PNG of 10 to 20 MB. It is read into memory when it drops and nothing is written; the save that follows cuts the picture the project keeps from it - a WebP at this quality with the pixels a print at PrintDpi needs at the size the sheet shows it - and that is what both R2 and the repository keep: under a megabyte for a CGI 200 mm wide. The file that was dropped is never kept anywhere - it stays wherever it came from.",
+        "Storage__FolderNote"       : "The folder is 05__Layout__DrawingDocs__Images and it never changes, so it is not a setting: the R2 client (Na__CfApi__SHEET_IMAGES_DIR) and the local server route both name it.",
+        "Storage__ArchiveNote"      : "A picture no drawing uses any more is MOVED into the images folder's 00__Archive by the save, never deleted: an undo that brings the picture back finds it again, and the next save puts it back where the drawing wants it. Only files this feature stored are ever moved - a file whose name does not end in __<ten hex digits> is somebody's own and is left where it is.",
+        "Storage__Format"           : "image/webp",
+        "Storage__Quality"          : 0.9,
+        "Storage__QualityNote"      : "0.90 matches the fidelity of the JPEG q90 at 300 dpi in Adam's own compressed introduction PDFs (NP03), at about three quarters of that JPEG's size (measured 21-Sep-2026 on RB05's front CGI: 2.03 MB against 2.73 MB at 3840 x 2160). Never above 0.99: Chrome writes a WebP of quality 1.0 LOSSLESS, 10.8 MB for the same render.",
+        "Storage__PrintDpi"         : 300,
+        "Storage__PrintHeadroom"    : 1,
+        "Storage__PrintNote"        : "The save stores each picture with the pixels a print at PrintDpi needs at the largest size any drawing shows it (times PrintHeadroom, 1 to 2), never more than the original has. The PDF never uses more than Pdf MaxDpi, so pixels beyond that only ever cost R2, the repository and every viewer's download. The cut is made from the dropped original, which stays in memory for the session: resized again, the next save cuts it again. A picture saved in an earlier session is never re-encoded - enlarge one past its stored size and the panel says so; Replace, with the original render, restores it. A PrintHeadroom of 1.25 leaves room to enlarge a quarter without that, at about half again the bytes.",
+        "Storage__MaxEdgePx"        : 4096,
+        "Storage__MaxEdgeNote"      : "A picture larger than this on its long side is scaled down to it. 4096 px across a 400 mm wide A1 picture is 260 dpi, and a sheet picture is rarely half that wide.",
+        "Storage__PassThroughTypes" : [ "image/webp", "image/jpeg" ],
+        "Storage__PassThroughMaxBytes" : 6291456,
+        "Storage__PassThroughNote"  : "A WebP or JPEG already inside the size limit and no larger than this is stored byte for byte rather than re-encoded, so a photograph is never compressed twice.",
+        "Storage__MaxInputBytes"    : 104857600,
+        "Storage__AcceptTypes"      : [ "image/png", "image/jpeg", "image/webp", "image/gif", "image/bmp", "image/avif" ]
+    },
+
+    "LayoutEditor__SheetImages__Placement": {
+        "Placement__Description"       : "Where a new picture lands. Dropped, it is centred on the point it was let go at; from the Image button, on the middle of the part of the sheet in view. Several dropped together are stepped down and to the right so none hides another.",
+        "Placement__InsertWidthFraction" : 0.4,
+        "Placement__InsertWidthNote"   : "A new picture's width as a fraction of the sheet's drawing area, then shrunk further if its height would not fit.",
+        "Placement__MinSizeMm"         : 5,
+        "Placement__CascadeMm"         : 8,
+        "Placement__LayerName"         : "Images",
+        "Placement__LayerNote"         : "The layer every picture lands on. Made the first time a picture lands on a sheet, directly over the drawings and under every other layer, so notes and dimensions sit over a picture and the drawings under it."
+    },
+
+    "LayoutEditor__SheetImages__Frame": {
+        "Frame__Description"   : "The frame of the project introduction sheets (EB03, NP03): a rule in the dark bronze of the title block, centred on the picture's edge, over a soft drop shadow. The rule is centred on the edge as it is on EB03, so a framed picture shows the same part of the picture as an unframed one, less half the rule.",
+        "Frame__Default"       : true,
+        "Frame__Colour"        : "#555041",
+        "Frame__WidthPt"       : 1.5,
+        "Frame__WidthNote"     : "EB03 used 4 pt at A1; on an A3 sheet that read too heavy (Adam, 21-Sep-2026), so the rule is 1.5 pt.",
+        "Frame__Shadow"        : true,
+        "Frame__ShadowColour"  : "#1f1d18",
+        "Frame__ShadowOpacity" : 0.3,
+        "Frame__ShadowBlurMm"  : 1.6,
+        "Frame__ShadowOffsetXMm" : 0,
+        "Frame__ShadowOffsetYMm" : 0.9,
+        "Frame__ShadowNote"    : "A soft shadow, not a flat block: a Gaussian blur of the picture's box (ShadowBlurMm is its standard deviation, in paper millimetres), dropped by the offsets, in a warm near-black at this opacity. The screen draws it with an SVG blur and the PDF with the same blur pre-rendered as a transparent PNG, so the two match. A picture with transparency has no shadow: under a cut-out it would show as a box."
+    },
+
+    "LayoutEditor__SheetImages__Crop": {
+        "Crop__Description"   : "The crop, opened by a double-click on a picture or from its right-click menu. The whole picture is shown dimmed round the kept part; the eight handles move the kept part's edges and a drag inside it moves the kept part across the picture. The picture stays exactly where it was on the sheet: cropping takes paper away from the frame, it never scales the picture.",
+        "Crop__MinSpan"       : 0.04,
+        "Crop__MinSpanNote"   : "The smallest kept part, as a fraction of the picture's width or height."
+    },
+
+    "LayoutEditor__SheetImages__Pdf": {
+        "Pdf__Description"   : "How a picture goes into Download PDF. The kept part is cut out and resampled to this resolution at the size it prints, never higher than the stored file, so a small picture on a large sheet does not bloat the file.",
+        "Pdf__MaxDpi"        : 300,
+        "Pdf__JpegQuality"   : 0.95,
+        "Pdf__JpegNote"      : "0.95, not 0.90: a picture stored at print size is already on the PDF's own pixel grid, so the PDF's JPEG lands on the WebP's pixels with no resampling to soften the two. At 0.95 the printed picture measures closer to the render than the old export did (SSIM 0.9879 against 0.9856) and level with Adam's compressed PDFs (0.9871), for about a third more bytes per picture in the PDF.",
+        "Pdf__AlphaNote"     : "A picture with any transparency goes in as PNG instead, which keeps it; jsPDF drops the alpha of raw RGBA."
+    },
+
+    "LayoutEditor__SheetImages__Sources": {
+        "Sources__Description"  : "Where a picture is read from. The web viewer tries R2 through the CDN first and the copy GitHub Pages serves second - the Pages copy only exists once the repository is pushed, so it is the fallback of last resort, never the plan. The editor on localhost reads the repository copy first, the one the local server has; a picture just dropped is drawn from memory until a save files it.",
+        "Sources__PagesBaseUrl" : "https://www.noble-architecture.com",
+        "Sources__TimeoutMs"    : 20000
+    },
+
+    "LayoutEditor__SheetImages__Labels": {
+        "Labels__ToolImage"          : "Image",
+        "Labels__ToolImageTitle"     : "Place a picture (CGI, photograph) on this sheet. You can also drag picture files straight onto the sheet. It lands on the Images layer with its frame; drag a corner to scale it, double-click it to crop it, right-click it for the frame.",
+        "Labels__PanelTitle"         : "Images",
+        "Labels__MenuFrameOn"        : "Show frame",
+        "Labels__MenuCrop"           : "Crop picture...",
+        "Labels__MenuResetCrop"      : "Reset crop",
+        "Labels__MenuReplace"        : "Replace picture...",
+        "Labels__MenuActualSize"     : "Fit to its print resolution",
+        "Labels__CropDone"           : "Done",
+        "Labels__CropCancel"         : "Cancel",
+        "Labels__CropReset"          : "Whole picture",
+        "Labels__CropHint"           : "Drag the handles to crop, or drag inside to move the kept part. Enter keeps it, Esc cancels.",
+        "Labels__Loading"            : "Loading picture",
+        "Labels__Missing"            : "Picture not found: {file}",
+        "Labels__DropHint"           : "Drop to place on this sheet",
+        "Labels__Storing"            : "Preparing {name}...",
+        "Labels__Placed"             : "{count} picture(s) placed on {folder}. Saving stores them at print size.",
+        "Labels__Refused"            : "{name} is not a picture this sheet can take.",
+        "Labels__TooLarge"           : "{name} is larger than {limit} MB.",
+        "Labels__DecodeFailed"       : "{name} could not be read as a picture.",
+        "Labels__NoSheet"            : "Open a sheet before placing a picture.",
+        "Labels__SavePushed"         : "{count} picture(s) pushed to R2.",
+        "Labels__SaveRefiled"        : "{count} picture(s) filed under their new document id.",
+        "Labels__SaveFailed"         : "{count} picture(s) could not be pushed to R2 ({error}).",
+        "Labels__SaveMissing"        : "{count} picture(s) could not be found anywhere: {files}.",
+        "Labels__SaveLocal"          : "Pictures were not filed in the project folder ({error}).",
+        "Labels__SaveSized"          : "{count} picture(s) stored at {dpi} dpi for their size on the sheet: {stored} MB, from {dropped} MB dropped.",
+        "Labels__Replaced"           : "Picture replaced with {name}. Saving stores it at print size.",
+        "Labels__PanelMany"          : "{count} pictures selected.",
+        "Labels__PanelFile"          : "File",
+        "Labels__PanelFolder"        : "Folder",
+        "Labels__PanelPixels"        : "Pixels",
+        "Labels__PanelPrints"        : "Prints at",
+        "Labels__PanelSize"          : "Size",
+        "Labels__PanelWidth"         : "Width (mm)",
+        "Labels__PanelFrame"         : "Frame",
+        "Labels__PanelCrop"          : "Crop",
+        "Labels__PanelPixelsOf"      : "{w} x {h} of {sw} x {sh}",
+        "Labels__PanelRecut"         : "Saving stores it at {dpi} dpi for this size.",
+        "Labels__PanelReplace"       : "Stored for a smaller size. Replace it with the original render to print sharp at {dpi} dpi.",
+        "Labels__PanelLowRes"        : "Below {dpi} dpi at this size: it may print soft.",
+        "Labels__PanelNone"          : "Select a picture on the sheet to see its file, its print resolution and its frame. Drag picture files onto the sheet, or use the Image button, to place one."
+    }
+}

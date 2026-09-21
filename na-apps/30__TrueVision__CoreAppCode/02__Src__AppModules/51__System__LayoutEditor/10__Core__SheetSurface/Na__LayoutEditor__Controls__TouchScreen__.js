@@ -26,7 +26,7 @@
 //   raised for the length of it, so a second finger can never leave a half
 //   finished drag behind on the sheet.
 // - NOTHING HERE IS BOUND TO A FIXED GESTURE. Every switch, slop and timing
-//   value is read from Na__LayoutEditor__KeyMappings__.json through the config
+//   value is read from Na__Hotkeys__DrawingTabs__.json through the config
 //   state, so touch behaviour is personalised in the same file as the mouse.
 //
 // INTEGRATION:

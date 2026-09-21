@@ -20,7 +20,7 @@
     "LayoutEditor__FloorAreas__Defaults": {
         "Defaults__Description"   : "What a newly drawn area looks like. They are ordinary shape fields, so the Vectors panel edits them afterwards exactly as it edits any vector; the Floor Areas panel offers the same two that matter - the colour and how solid it is - so a room can be drawn, named and coloured without leaving the one panel.",
         "Defaults__FillColour"    : "#bcd9ee",
-        "Defaults__FillOpacity"   : 0.5,
+        "Defaults__FillOpacity"   : 0.3,
         "Defaults__StrokeColour"  : "#2e6f96",
         "Defaults__StrokePt"      : 0.3,
         "Defaults__Stroked"       : true,

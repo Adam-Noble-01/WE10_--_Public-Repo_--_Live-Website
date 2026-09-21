@@ -41,6 +41,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0 (TrueVision)
+// - Pictures (Sheet Images). BuildDocument first waits for every picture on
+//   the sheet to be cut to its print copy (Na__LeImgPdf__Prepare): the kept
+//   part, at 300 dpi at its printed size or its own pixels if fewer, JPEG or
+//   PNG with transparency - and each framed picture's soft shadow rendered
+//   as a transparent PNG with the screen's blur. The page then prints each
+//   where its layer puts it, like the rest of the markup. Offset moves a
+//   'picture'.
+//
 // 21-Sep-2026 - Version 1.7.0 (TrueVision)
 // - The page is laid down in the Layers list's order. It used to print every
 //   viewport, then all the sheet markup, then all the chrome - so a layer the
@@ -129,6 +138,7 @@
     import { Na__LeCfg__GetSpecificationSetup, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeSpec__EnsureLoaded } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     import { Na__LeMargin__Push, Na__LeMargin__Report } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
+    import { Na__LeImgPdf__Prepare } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Pdf__.js';   // <-- Pictures are cut to print size before the page is drawn
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -184,6 +194,7 @@
         return primitives.map((p) => {
             const c = Object.assign({}, p);
             if (p.Kind === 'rect' || p.Kind === 'image' || p.Kind === 'qr') { c.X = p.X + dx; c.Y = p.Y + dy; }   // <-- A QR symbol is placed by its top left corner, like a rectangle
+            else if (p.Kind === 'picture') { c.X = p.X + dx; c.Y = p.Y + dy; }   // <-- A picture: its shadow is laid round its box, so it moves with it
             else if (p.Kind === 'line') { c.X1 = p.X1 + dx; c.Y1 = p.Y1 + dy; c.X2 = p.X2 + dx; c.Y2 = p.Y2 + dy; }
             else if (p.Kind === 'polyline') { c.Points = p.Points.map((pt) => [ pt[0] + dx, pt[1] + dy ]); }
             else if (p.Kind === 'text') { c.X = p.X + dx; c.BaselineY = p.BaselineY + dy; }
@@ -420,6 +431,8 @@
         const layout = Na__LeLayout__Solve(sheet);
         const doc    = new JsPdf({ orientation : layout.Page.Orientation, unit : 'mm', format : [ layout.Page.WidthMm, layout.Page.HeightMm ], compress : true, putOnlyUsedFonts : true });
         Na__LePdfFonts__Install(doc);                                             // <-- Open Sans into this document; Helvetica remains if the TTF never arrived
+        const pictures = await Na__LeImgPdf__Prepare(sheet);                      // <-- Every picture cut to its print copy now: the page itself is drawn synchronously
+        if (pictures.missing.length) console.warn('[TrueVision3D LayoutEditor] PDF: ' + pictures.missing.length + ' picture(s) print as placeholders: ' + pictures.missing.join(', '));
         const scales = sheet.Sheet__Viewports.filter((v) => v.Viewport__Kind === Na__LeModel__KIND_2D).map((v) => v.Viewport__ScaleDenominator);
         doc.setProperties({
             title   : sheet.Sheet__Name,

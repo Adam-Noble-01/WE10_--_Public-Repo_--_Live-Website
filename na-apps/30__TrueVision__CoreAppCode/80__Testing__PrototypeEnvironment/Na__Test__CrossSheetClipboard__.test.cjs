@@ -39,6 +39,7 @@ function fixture() {
         Na__LeModel__SetSelectionItems: items => { selection = items; },
         Na__LeModel__GetLayerById: (_, id) => id ? { Layer__Id: id, Layer__Type: id, Layer__Locked: id === 'locked' } : null,
         Na__LeModel__IsLayerLocked: (_, id) => id === 'locked',
+        Na__LeModel__ShapeLayerType: record => (record && record.Shape__Area) ? 'area' : 'vector',   // Missing since Floor Areas: every shape paste threw here
         Na__LeModel__DefaultLayerId: (_, type) => type,
         Na__LeModel__AssignDirty() {},
         Na__LeModel__Touch: (_, id) => notifications.push(plain(id === from.Sheet__Id ? from : to)),
@@ -191,7 +192,7 @@ test('context menu copy and paste preserve a complete selection and original coo
 });
 
 test('configured and fallback Ctrl+X/C/V bindings route to clipboard and text input remains guarded', () => {
-    const map = JSON.parse(read('03__Core__Config/Na__LayoutEditor__KeyMappings__.json'));
+    const map = JSON.parse(read('03__Core__Config/Na__Hotkeys__DrawingTabs__.json'));
     const bindings = [];
     function walk(value) { if (!value || typeof value !== 'object') return; if (value.Id && value.Keys) bindings.push(value); Object.values(value).forEach(walk); }
     walk(map);

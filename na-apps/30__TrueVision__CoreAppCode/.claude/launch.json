@@ -2,6 +2,18 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "tv-titleunderline",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8695",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8695
+    },
+    {
       "name": "tv-iosprobe",
       "runtimeExecutable": "python",
       "runtimeArgs": [
@@ -471,6 +483,48 @@
         "D:/_ClaudeScratch/tv_draftmode_out"
       ],
       "port": 8631
+    },
+    {
+      "name": "tv-movekeys",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8914",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8914
+    },
+    {
+      "name": "tv-drawinggrid",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8941",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_drawinggrid_out"
+      ],
+      "port": 8941
+    },
+    {
+      "name": "tv-sheetimages",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8971",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_sheetimages_out"
+      ],
+      "port": 8971
+    },
+    {
+      "name": "tv-vcb",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8958",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8958
     }
   ]
 }

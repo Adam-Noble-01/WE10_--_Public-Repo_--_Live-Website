@@ -162,9 +162,11 @@
 @import url('../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__Paper__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/26__System__DraftMode/Na__LayoutEditor__Styles__DraftMode__.css');   /* <-- Draft mode (K): every rule keyed on body.na-le-draft, so it is inert until Draft is on */
+@import url('../02__Src__AppModules/51__System__LayoutEditor/27__System__DrawingGrid/Na__LayoutEditor__Styles__DrawingGrid__.css');   /* <-- Drawing grid (F6 / F7): the grid's canvas on the paper and the grid snap ring */
 @import url('../02__Src__AppModules/51__System__LayoutEditor/40__Ui__Panels/Na__LayoutEditor__Styles__Panels__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__Notes__.css');
 @import url('../02__Src__AppModules/51__System__LayoutEditor/50__Feature__Specification/Na__LayoutEditor__Styles__Specification__Read__.css');
+@import url('../02__Src__AppModules/51__System__LayoutEditor/54__Feature__SheetImages/Na__LayoutEditor__Styles__SheetImages__.css');   /* <-- Sheet Images: the drop look, a picture's corner grips, the crop overlay and the Images panel */
 @import url('../02__Src__AppModules/51__System__LayoutEditor/80__Feature__WebViewer/Na__LayoutEditor__Styles__WebViewer__.css');   /* <-- LAST of the Layout Editor sheets: it reshapes the shell and the specification page for the read-only web viewer */
 /* endregion -------------------------------------------------------- */

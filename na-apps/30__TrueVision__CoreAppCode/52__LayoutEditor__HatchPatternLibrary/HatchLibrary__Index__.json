@@ -2,17 +2,16 @@
     "HatchLibrary__Meta": {
         "Meta__FileName"     : "HatchLibrary__Index__.json",
         "Meta__Description"  : "The hatch pattern library: every pack the Patterns panel offers. Each pack is a folder holding its own HatchPack__Index__.json and its pattern files.",
-        "Meta__Version"      : "1.0.0",
+        "Meta__Version"      : "1.0.1",
         "Meta__Created"      : "20-Sep-2026",
         "Meta__Author"       : "Adam Noble - Noble Architecture",
 
-        "Meta__WhyAnIndex"   : "Nothing lists a directory - not GitHub Pages, not the Flask dev server. A pack folder that is not listed here is invisible to the editor, and a pack listed here that has no index file is skipped quietly rather than breaking the panel. That is what lets an empty placeholder folder sit on disk costing nothing.",
-        "Meta__HowToAddAPack": "Make the folder, put a HatchPack__Index__.json in it listing its patterns, then add a row below. No code changes."
+        "Meta__WhyAnIndex"   : "Nothing lists a directory - not GitHub Pages, not the Flask dev server. A pack folder that is not listed here is invisible to the editor. A pack listed here with no index file does not break the panel - the loader skips it - but the browser still prints a red 404 for it in the console on every load, and no script can hide that. So an empty folder costs nothing only while it is NOT listed.",
+        "Meta__HowToAddAPack": "Make the folder, put a HatchPack__Index__.json in it listing its patterns, then add a row below - in that order. No code changes.",
+        "Meta__EmptyPacks"   : "On disk, empty, and deliberately not listed until each has a HatchPack__Index__.json: 01__GeometricHatches (Pack__Key GeometricHatches, label 'Geometric' - cross hatches, diagonals, stipples), 02__ConstructionMaterialHatches (Pack__Key ConstructionMaterialHatches, label 'Construction Materials' - brick, block, insulation, concrete), and 03__Placeholder / 04__Placeholder (not yet named)."
     },
 
     "HatchLibrary__Packs": [
-        { "Pack__Key": "GeometricHatches",          "Pack__Label": "Geometric",             "Pack__Folder": "01__GeometricHatches",           "Pack__Note": "Cross hatches, diagonals, stipples. Empty for now." },
-        { "Pack__Key": "ConstructionMaterialHatches","Pack__Label": "Construction Materials","Pack__Folder": "02__ConstructionMaterialHatches","Pack__Note": "Brick, block, insulation, concrete. Empty for now." },
         { "Pack__Key": "SitePlanHatches",           "Pack__Label": "Site Plan Hatches",     "Pack__Folder": "05__SitePlanHatches",           "Pack__Note": "Ordnance-Survey-style land cover and water." }
     ]
 }

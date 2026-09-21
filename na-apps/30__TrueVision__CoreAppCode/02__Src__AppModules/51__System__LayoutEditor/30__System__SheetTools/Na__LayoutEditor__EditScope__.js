@@ -60,6 +60,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - Prune closes an open vector or dimension whose layer is hidden or made a
+//   REFERENCE layer (the Layers panel's Ref): its points could otherwise go
+//   on being dragged about while it could be neither seen nor picked. It runs
+//   on every model change, so the switch in the panel closes it at once.
+//
+// 21-Sep-2026 - Version 1.1.1
+// - A picture (a shape carrying Shape__Image) is not a container: CanEnter
+//   answers null, so neither a double click nor Enter opens it for vertex
+//   editing. Its corner grips and its crop are how it is edited.
+//
 // 17-Sep-2026 - Version 1.1.0
 // - Dimensions are containers too (KIND_DIM, LEAF_KINDS): entering one is what
 //   puts its grips on screen and makes its measured points draggable.
@@ -84,7 +95,9 @@
     import {
         Na__LeModel__GetGroupById,
         Na__LeModel__GetShapeById,
-        Na__LeModel__GetAnnotationById
+        Na__LeModel__GetAnnotationById,
+        Na__LeModel__IsLayerVisible,
+        Na__LeModel__IsLayerSelectable
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeGroup__ParentOf, Na__LeGroup__Resolve, Na__LeGroup__Descendants } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeShapeGeo__Points } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
@@ -219,7 +232,10 @@
     function Na__LeScope__CanEnter(sheet, found) {
         if (!sheet || !found || !found.id) return null;
         if (found.kind === Na__LeScope__KIND_GROUP)  return Na__LeModel__GetGroupById(sheet, found.id)     ? { kind : Na__LeScope__KIND_GROUP,  id : found.id } : null;
-        if (found.kind === Na__LeScope__KIND_VECTOR) return Na__LeModel__GetShapeById(sheet, found.id)     ? { kind : Na__LeScope__KIND_VECTOR, id : found.id } : null;
+        if (found.kind === Na__LeScope__KIND_VECTOR) {
+            const shape = Na__LeModel__GetShapeById(sheet, found.id);
+            return (shape && !shape.Shape__Image) ? { kind : Na__LeScope__KIND_VECTOR, id : found.id } : null;   // <-- A picture has no points to edit: its box is scaled by its corner grips and cut by its crop
+        }
         if (found.kind === Na__LeScope__KIND_DIM)    return Na__LeScope__DimensionById(sheet, found.id) ? { kind : Na__LeScope__KIND_DIM,    id : found.id } : null;
         return null;
     }
@@ -293,14 +309,19 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Drop a Container Whose Record Has Gone (an undo, a delete, a new sheet)
+    // FUNCTION | Drop a Container Whose Record Has Gone (an undo, a delete, a new sheet) or Is Out of Reach
+    // ------------------------------------------------------------
+    // A vector or a dimension whose layer has been hidden, or made a
+    // reference layer, closes as well: open, its points could still be
+    // dragged while the thing itself could be neither seen nor picked.
     // ------------------------------------------------------------
     function Na__LeScope__Prune(sheet) {
         if (!Na__LeScope__Stack.length) return false;
+        const reachable = (record, layerKey) => !!record && Na__LeModel__IsLayerVisible(sheet, record[layerKey]) && Na__LeModel__IsLayerSelectable(sheet, record[layerKey]);
         const alive = Na__LeScope__Stack.every((entry) => {
             if (entry.kind === Na__LeScope__KIND_GROUP)  return !!Na__LeModel__GetGroupById(sheet, entry.id);
-            if (entry.kind === Na__LeScope__KIND_DIM)    return !!Na__LeScope__DimensionById(sheet, entry.id);
-            return !!Na__LeModel__GetShapeById(sheet, entry.id);
+            if (entry.kind === Na__LeScope__KIND_DIM)    return reachable(Na__LeScope__DimensionById(sheet, entry.id), 'Dimension__LayerId');
+            return reachable(Na__LeModel__GetShapeById(sheet, entry.id), 'Shape__LayerId');
         });
         if (alive) return Na__LeScope__ClampVertices(sheet);
         return Na__LeScope__Clear();

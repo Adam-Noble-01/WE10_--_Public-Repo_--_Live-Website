@@ -26,6 +26,8 @@
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ asks RunKeyAction and MenuItems from here.
 // - Na__LayoutEditor__Scrapbook__ drops its items through InsertSet.
+// - Na__LayoutEditor__SheetTools__CopyDrag__ clones a Ctrl-drag's copy
+//   through CloneInPlace.
 // // @delegate: ../20__System__Viewports/Na__LayoutEditor__ViewportClipboard__.js
 // // @delegate: ../15__Core__Markup/Na__LayoutEditor__Groups__.js
 //
@@ -40,6 +42,25 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - A COPY LANDING ON THE SHEET IT CAME FROM KEEPS ITS ORIGINAL'S LAYER,
+//   whatever that layer's type (LayerFor's sameSheet). A line moved onto a
+//   layer of the user's own with the Layer flyout - Construction Lines,
+//   typed General - used to have every duplicate, Ctrl-drag copy and paste
+//   of it sent back to Vectors, because the layer was not a 'vector' one.
+//   Layer ids are per sheet, so a copy landing on ANOTHER sheet still needs a
+//   layer of its own type there, as before.
+// - No copy lands on a REFERENCE layer (Layer__Selectable false), as none
+//   lands on a hidden or a locked one: it would be out of reach the moment it
+//   landed. It goes to its kind's layer instead.
+//
+// 21-Sep-2026 - Version 1.4.0
+// - CloneInPlace: the records Duplicate would make, landing exactly on the
+//   originals and announcing nothing, for the Ctrl-drag copy
+//   (Na__LayoutEditor__SheetTools__CopyDrag__), which carries them off at
+//   once and announces on release - one undo step. Copy's snapshot loop is
+//   now Entries, shared by the two.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - Complete mixed selections, dimensions and viewports; cut; exact in-place
 //   cross-sheet paste; remapped dimension hosts and nested group members.
@@ -151,10 +172,20 @@
         if (context && typeof context.showToast === 'function') context.showToast(message, false);
     }
 
-    function Na__LeClip__LayerFor(sheet, layerId, type) {
+    // HELPER FUNCTION | The Layer a Copy Keeps, or Null for Its Kind's Layer
+    // ------------------------------------------------------------
+    // Never a hidden, a locked or a reference layer: a copy there would
+    // vanish, refuse to move or be out of reach the moment it landed. Layer
+    // ids are per sheet, so on ANOTHER sheet the same id may name a layer of
+    // another purpose, and type, when given, must match there. On the sheet
+    // it came from (sameSheet) the id names the very layer the original is on,
+    // and the copy stays on it whatever its type - a user's own layer made
+    // with the Layer flyout included.
+    // ------------------------------------------------------------
+    function Na__LeClip__LayerFor(sheet, layerId, type, sameSheet) {
         const layer = layerId ? Na__LeModel__GetLayerById(sheet, layerId) : null;
-        if (!layer || layer.Layer__Visible === false || layer.Layer__Locked === true) return null;
-        if (type && layer.Layer__Type !== type) return null;
+        if (!layer || layer.Layer__Visible === false || layer.Layer__Locked === true || layer.Layer__Selectable === false) return null;
+        if (type && layer.Layer__Type !== type && sameSheet !== true) return null;
         return layer.Layer__Id;
     }
 
@@ -296,12 +327,14 @@
 // REGION | Copy and Paste a Set
 // -----------------------------------------------------------------------------
 
-    function Na__LeClip__CopyItems(sheet, items, quiet) {
-        const roots = Na__LeClip__Copyable(sheet, items);
-        if (!sheet || !roots.length) return false;
-        const expanded = Na__LeGroup__Expand(sheet, roots);
-        const entries  = [];
-        const seen     = new Set();
+    // HELPER FUNCTION | A Snapshot of Every Record a Set Holds, Each Once
+    // ------------------------------------------------------------
+    // expanded: the roots with every nested member (Na__LeGroup__Expand). What
+    // Copy puts on the clipboard, and what a Ctrl-drag copy clones in place.
+    // ------------------------------------------------------------
+    function Na__LeClip__Entries(sheet, expanded) {
+        const entries = [];
+        const seen    = new Set();
         expanded.forEach((item) => {
             const key = item.kind + ':' + item.id;
             if (seen.has(key)) return;
@@ -310,6 +343,15 @@
             seen.add(key);
             entries.push(snap);
         });
+        return entries;
+    }
+    // ------------------------------------------------------------
+
+    function Na__LeClip__CopyItems(sheet, items, quiet) {
+        const roots = Na__LeClip__Copyable(sheet, items);
+        if (!sheet || !roots.length) return false;
+        const expanded = Na__LeGroup__Expand(sheet, roots);
+        const entries  = Na__LeClip__Entries(sheet, expanded);
         if (!entries.length) return false;
         const box = Na__LeGroup__ItemsBounds(sheet, expanded) || { X : 0, Y : 0, WidthMm : 0, HeightMm : 0 };
         Na__LeClip__HeldSet = {
@@ -326,6 +368,7 @@
 
     function Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, lastKey, sourceSheetId) {
         let last = null;
+        const same = sourceSheetId === sheet.Sheet__Id;                          // <-- Landing where it came from: every copy keeps its original's layer
         // Insert viewports first, so dimensions can point to their new ids.
         const ordered = entries.filter((entry) => entry.kind === 'viewport').concat(entries.filter((entry) => entry.kind !== 'viewport'));
         ordered.forEach((entry) => {
@@ -333,7 +376,7 @@
                 const record = Na__LeClip__Clone(entry.record);
                 record.Viewport__FrameMm.X += dx;
                 record.Viewport__FrameMm.Y += dy;
-                record.Viewport__LayerId = Na__LeClip__LayerFor(sheet, record.Viewport__LayerId);
+                record.Viewport__LayerId = Na__LeClip__LayerFor(sheet, record.Viewport__LayerId, null, same);
                 record.Viewport__Locked = false;
                 if (!Na__LeCfg__GetClipboardSetup().copySnapshot) record.Viewport__SnapshotAsset = null;
                 const key = 'viewport:' + entry.id;
@@ -344,7 +387,7 @@
                 const record = Na__LeClip__Clone(entry.record);
                 record.Dimension__StartXMm += dx; record.Dimension__EndXMm += dx;
                 record.Dimension__StartYMm += dy; record.Dimension__EndYMm += dy;
-                record.Dimension__LayerId = Na__LeClip__LayerFor(sheet, record.Dimension__LayerId, 'dimension');
+                record.Dimension__LayerId = Na__LeClip__LayerFor(sheet, record.Dimension__LayerId, 'dimension', same);
                 const host = record.Dimension__ViewportId;
                 record.Dimension__ViewportId = ids.get('viewport:' + host)
                     || (sourceSheetId === sheet.Sheet__Id && Na__LeModel__GetViewportById(sheet, host) ? host : null);
@@ -355,7 +398,7 @@
             if (entry.kind === 'shape') {
                 const record = Na__LeClip__Clone(entry.record);
                 record.Shape__Points  = Na__LeShapeGeo__Translated(Na__LeShapeGeo__Points(record), dx, dy);
-                record.Shape__LayerId = Na__LeClip__LayerFor(sheet, record.Shape__LayerId, Na__LeModel__ShapeLayerType(record));   // <-- A measured room wants the Floor Areas layer, not the Vectors one
+                record.Shape__LayerId = Na__LeClip__LayerFor(sheet, record.Shape__LayerId, Na__LeModel__ShapeLayerType(record), same);   // <-- From another sheet, a measured room wants the Floor Areas layer, not the Vectors one
                 const key    = 'shape:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
                 const pasted = Na__LeModel__InsertShape(sheet, record, silent);
@@ -363,7 +406,7 @@
             }
             if (entry.kind === 'annotation') {
                 const record = Na__LeClip__ShiftAnnotation(Na__LeClip__Clone(entry.record), dx, dy);
-                record.Annotation__LayerId = Na__LeClip__LayerFor(sheet, record.Annotation__LayerId, 'annotation');
+                record.Annotation__LayerId = Na__LeClip__LayerFor(sheet, record.Annotation__LayerId, 'annotation', same);
                 const key    = 'annotation:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
                 const pasted = Na__LeModel__InsertAnnotation(sheet, record, silent);
@@ -371,7 +414,7 @@
             }
             if (entry.kind === 'leader') {
                 const record = Na__LeClip__ShiftLeader(Na__LeClip__Clone(entry.record), dx, dy);
-                record.Leader__LayerId = Na__LeClip__LayerFor(sheet, record.Leader__LayerId, 'annotation');
+                record.Leader__LayerId = Na__LeClip__LayerFor(sheet, record.Leader__LayerId, 'annotation', same);
                 const key    = 'leader:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
                 const pasted = Na__LeModel__InsertLeader(sheet, record, silent);
@@ -475,6 +518,37 @@
     }
     // ------------------------------------------------------------
 
+    // FUNCTION | Clone Items Exactly Where They Are, Silently (a Ctrl-drag copy)
+    // ------------------------------------------------------------
+    // The records Duplicate would make - fresh ids, a group's members and a
+    // dimension's viewport remapped, a viewport unlocked - landing exactly on
+    // the originals and announcing nothing: the copy drag carries them off at
+    // once, and its release is the one undo step
+    // (Na__LayoutEditor__SheetTools__CopyDrag__). The clipboard and the
+    // selection are left alone. Returns { roots, from, items } - the new roots
+    // with from[i] the root roots[i] was cloned from, and every record put in,
+    // so a copy called off can be taken back out - or null when nothing could
+    // be cloned (and then nothing is left behind).
+    // ------------------------------------------------------------
+    function Na__LeClip__CloneInPlace(sheet, items) {
+        const roots = Na__LeClip__Copyable(sheet, items);
+        if (!sheet || !roots.length) return null;
+        const entries = Na__LeClip__Entries(sheet, Na__LeGroup__Expand(sheet, roots));
+        if (!entries.length) return null;
+        const ids = new Map();
+        Na__LeClip__InsertLeaves(sheet, entries, ids, 0, 0, null, sheet.Sheet__Id);   // <-- No last key: every record goes in silently
+        Na__LeClip__InsertGroups(sheet, entries, ids, null);
+        const made = (item) => { const id = ids.get(item.kind + ':' + item.id); return id ? { kind : item.kind, id : id } : null; };
+        const all  = entries.map(made).filter(Boolean);
+        const from = roots.filter((root) => !!made(root));
+        if (!from.length) {
+            if (all.length) Na__LeModel__DeleteItems(sheet, all, true);          // <-- A set whose roots could not land is no copy at all
+            return null;
+        }
+        return { roots : from.map(made), from : from.map((root) => ({ kind : root.kind, id : root.id })), items : all };
+    }
+    // ------------------------------------------------------------
+
     function Na__LeClip__UsesSet(items) {
         return Na__LeClip__Copyable(null, items).length > 0;
     }
@@ -559,6 +633,7 @@
         Na__LeClip__CutItems,
         Na__LeClip__PasteSet,
         Na__LeClip__InsertSet,
+        Na__LeClip__CloneInPlace,
         Na__LeClip__HasSet,
         Na__LeClip__RunKeyAction,
         Na__LeClip__MenuItems

@@ -16,6 +16,8 @@
 # - Uploads .glb files to Cloudflare R2 via boto3 (S3-compatible API)
 # - Also uploads TrueVision__ProjectData__.json and TrueVision__DrawingNotes__.json for each project
 # - Uses incremental sync (HEAD check, date comparison, skip/new/update)
+# - Mirrors the GLBs: a GLB on R2 under a project's TrueVision folder that the
+#   local folders no longer hold is deleted, once every upload has landed
 # - Dry-run preview then yes/no confirmation before uploading
 # - Colourful console output using ANSI escape codes
 # - GLB purge mode: delete all GLB files from R2 for a given project
@@ -39,8 +41,11 @@ import boto3
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import List, Dict, Tuple, Optional
+from urllib.parse import unquote
 from dotenv import load_dotenv
 from botocore.exceptions import ClientError, NoCredentialsError
+
+from ProjectVision__FileWriter__ import write_bytes_file
 
 
 # -----------------------------------------------------------------------------
@@ -595,8 +600,7 @@ def sync_project_data_to_local(operations: List[Dict]) -> int:
 
         try:
             local_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(local_path, 'wb') as fh:
-                fh.write(merged_bytes)
+            write_bytes_file(local_path, merged_bytes)                  # <-- Temp + rename: a git diff mapping the file cannot block it
             updated += 1
             pulled = op.get('dev_preserved') or []
             note   = f" [pulled: {', '.join(pulled)}]" if pulled else ''
@@ -800,6 +804,128 @@ def collect_sync_operations(
     # ------------------------------------------------------------
 
 
+    # FUNCTION | List Every GLB R2 Holds Under a Project's TrueVision Folder
+    # ------------------------------------------------------------
+def list_r2_project_glbs(s3_client, bucket_name: str, year_folder_name: str, project_folder: str) -> List[Dict]:
+    """Return {key, size} for every .glb object under the project's TrueVision prefix, at any depth."""
+    prefix  = f"{R2_BASE_PREFIX}/{year_folder_name}/{project_folder}/{TRUEVISION_CONTENT_FOLDER}/"
+    objects = []
+    for page in s3_client.get_paginator('list_objects_v2').paginate(Bucket=bucket_name, Prefix=prefix):
+        for obj in page.get('Contents', []):
+            if GLB_FILE_PATTERN.match(obj['Key']):
+                objects.append({'key': obj['Key'], 'size': obj['Size']})
+    return objects
+    # ------------------------------------------------------------
+
+
+    # HELPER FUNCTION | Every R2 Key a Project Data Document Points At
+    # ------------------------------------------------------------
+def referenced_glb_keys(document) -> set:
+    """Collect the R2 key behind every CDN .glb URL anywhere in the document."""
+    base, keys, pending = CDN_BASE_URL + '/', set(), [document]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
+        elif isinstance(value, str) and value.startswith(base) and GLB_FILE_PATTERN.match(value):
+            keys.add(unquote(value[len(base):]))
+    return keys
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Collect Deletions for GLBs the Local Folders No Longer Hold
+    # ------------------------------------------------------------
+def collect_stale_glb_operations(
+    s3_client, bucket_name: str,
+    year_folder_name: str, project: Dict, tv_operations: List[Dict]
+) -> List[Dict]:
+    """Mirror the local GLB set: a GLB on R2 that this sync would not upload is stale.
+
+    The local folders are the source of truth - the build lists exactly their GLBs
+    in TrueVision__ProjectData__.json - so a GLB only R2 holds is an old export: a
+    tag since removed, a file renamed, a scheme deleted or archived. Only .glb keys
+    under the project's TrueVision folder are considered; JSON, drawing notes and
+    PlanVision content are never touched.
+
+    A GLB the project data R2 serves after this sync still points at is kept, with a
+    warning: a sync run without a fresh build must not pull a model out from under
+    the app.
+    """
+    prefix   = f"{R2_BASE_PREFIX}/{year_folder_name}/{project['project_folder']}/{TRUEVISION_CONTENT_FOLDER}/"
+    expected = {op['r2_key'] for op in tv_operations if op['content_type'] == CONTENT_TYPE_GLB}
+
+    live_document = None
+    for op in tv_operations:
+        if op['group_id'] == '__project_data__' and op.get('merged_bytes'):
+            live_document = json.loads(op['merged_bytes'].decode('utf-8'))   # <-- What R2 will serve once this sync lands
+    if live_document is None:
+        live_document = fetch_r2_json(
+            s3_client, bucket_name, build_r2_key_project_data(year_folder_name, project['project_folder'])
+        )                                                                    # <-- No local project data: R2's copy stays live
+    referenced = referenced_glb_keys(live_document) if live_document else set()
+
+    operations = []
+    for obj in list_r2_project_glbs(s3_client, bucket_name, year_folder_name, project['project_folder']):
+        relative = obj['key'][len(prefix):]
+        if obj['key'] in expected:
+            continue
+        if obj['key'] in referenced:
+            print(f"  {C_YELLOW}[KEPT] {relative} - not in the local folders, but "
+                  f"{JSON_PROJECT_DATA_FILENAME} still points at it. Run the build, then sync again.{C_RESET}")
+            continue
+        operations.append({
+            'local_path'   : None,
+            'r2_key'       : obj['key'],
+            'content_type' : CONTENT_TYPE_GLB,
+            'action'       : 'delete',
+            'detail'       : f"DELETE (on R2 only, {format_size(obj['size'])})",
+            'size'         : 0,                                          # <-- Nothing is uploaded for a deletion
+            'group_id'     : '__stale_glbs__',
+            'filename'     : relative,
+        })
+
+    return operations
+    # ------------------------------------------------------------
+
+
+    # HELPER FUNCTION | Say What R2 Holds When No Local Folder Has a GLB
+    # ------------------------------------------------------------
+def report_unmirrored_glbs(s3_client, bucket_name: str, year_folder_name: str, project: Dict) -> None:
+    """A project with no local GLBs at all is never mirrored.
+
+    That reads as a missing or half-copied checkout, not as an instruction to
+    empty the bucket, so its R2 GLBs are left alone and the count is reported.
+    """
+    remote = list_r2_project_glbs(s3_client, bucket_name, year_folder_name, project['project_folder'])
+    if remote:
+        print(f"  {C_YELLOW}[!] {project['project_folder']} - no local folder holds a GLB, so the "
+              f"{len(remote)} GLB(s) on R2 were left alone. To clear them: --purge {project['project_code']}{C_RESET}")
+    # ------------------------------------------------------------
+
+
+    # FUNCTION | Delete the Stale GLBs From R2
+    # ------------------------------------------------------------
+def delete_stale_glbs(s3_client, bucket_name: str, stale_operations: List[Dict]) -> Tuple[int, int]:
+    """Delete each stale GLB key. Returns (deleted, failed)."""
+    deleted = 0
+    failed  = 0
+
+    for op in stale_operations:
+        try:
+            s3_client.delete_object(Bucket=bucket_name, Key=op['r2_key'])
+            deleted += 1
+            print(f"  {C_RED}[REMOVED] {op['r2_key']}{C_RESET}")
+        except Exception as error:
+            failed += 1
+            print(f"  {C_RED}[ERROR] Failed to delete {op['r2_key']}: {error}{C_RESET}")
+        sys.stdout.flush()
+
+    return deleted, failed
+    # ------------------------------------------------------------
+
+
     # FUNCTION | Resolve Content Type from File Extension
     # ------------------------------------------------------------
 def resolve_content_type(filename: str) -> str:
@@ -887,13 +1013,15 @@ def print_project_operations(project: Dict, operations: List[Dict]):
     new_count    = sum(1 for op in operations if op['action'] == 'new')
     update_count = sum(1 for op in operations if op['action'] == 'update')
     skip_count   = sum(1 for op in operations if op['action'] == 'skip')
+    delete_count = sum(1 for op in operations if op['action'] == 'delete')
     total_size   = sum(op['size'] for op in operations)
 
     print(f"  {C_CYAN}{C_BOLD}[PROJECT] {project['project_folder']}{C_RESET}")
-    print(f"           Files: {len(operations)}  |  "
+    print(f"           Files: {len(operations) - delete_count}  |  "
           f"{C_GREEN}New: {new_count}{C_RESET}  |  "
           f"{C_YELLOW}Update: {update_count}{C_RESET}  |  "
           f"{C_BLUE}Skip: {skip_count}{C_RESET}  |  "
+          f"{C_RED}Delete: {delete_count}{C_RESET}  |  "
           f"Size: {format_size(total_size)}")
 
     current_group = None
@@ -904,6 +1032,8 @@ def print_project_operations(project: Dict, operations: List[Dict]):
                 print(f"    {C_MAGENTA}[Config]{C_RESET}")
             elif current_group == '__drawing_notes__':
                 print(f"    {C_MAGENTA}[Drawing Notes]{C_RESET}")
+            elif current_group == '__stale_glbs__':
+                print(f"    {C_RED}[On R2 only - no longer in the local folders]{C_RESET}")
             else:
                 print(f"    {C_DIM}[{current_group}]{C_RESET}")
 
@@ -913,6 +1043,8 @@ def print_project_operations(project: Dict, operations: List[Dict]):
             print(f"      {C_YELLOW}[^] {op['filename']}{C_RESET} - {op['detail']}")
         elif op['action'] == 'skip':
             print(f"      {C_BLUE}[=] {op['filename']}{C_RESET} - {op['detail']}")
+        elif op['action'] == 'delete':
+            print(f"      {C_RED}[-] {op['filename']}{C_RESET} - {op['detail']}")
 
     print()
     # ------------------------------------------------------------
@@ -922,7 +1054,8 @@ def print_project_operations(project: Dict, operations: List[Dict]):
     # ------------------------------------------------------------
 def print_summary(all_operations: List[Dict], dry_run: bool):
     """Print the overall sync summary."""
-    total       = len(all_operations)
+    del_count   = sum(1 for op in all_operations if op['action'] == 'delete')
+    total       = len(all_operations) - del_count
     new_count   = sum(1 for op in all_operations if op['action'] == 'new')
     upd_count   = sum(1 for op in all_operations if op['action'] == 'update')
     skip_count  = sum(1 for op in all_operations if op['action'] == 'skip')
@@ -935,10 +1068,11 @@ def print_summary(all_operations: List[Dict], dry_run: bool):
     print(f"  {C_GREEN}New uploads          : {new_count}{C_RESET}")
     print(f"  {C_YELLOW}Updated files        : {upd_count}{C_RESET}")
     print(f"  {C_BLUE}Skipped (unchanged)  : {skip_count}{C_RESET}")
+    print(f"  {C_RED}Stale GLBs to delete : {del_count}{C_RESET}")
     print(f"  Total data size      : {format_size(total_size)}")
 
     if dry_run:
-        print(f"\n  {C_YELLOW}{C_BOLD}DRY RUN - No files were uploaded{C_RESET}")
+        print(f"\n  {C_YELLOW}{C_BOLD}DRY RUN - No files were uploaded or deleted{C_RESET}")
 
     print(f"{C_CYAN}{'=' * 80}{C_RESET}\n")
     # ------------------------------------------------------------
@@ -952,22 +1086,26 @@ def print_summary(all_operations: List[Dict], dry_run: bool):
 
     # FUNCTION | Prompt for Upload Confirmation
     # ------------------------------------------------------------
-def prompt_confirmation() -> bool:
+def prompt_confirmation(stale_count: int = 0) -> bool:
     """Ask user to confirm upload. Returns True if confirmed."""
     print(f"\n{C_YELLOW}{C_BOLD}{'=' * 80}{C_RESET}")
     print(f"{C_YELLOW}{C_BOLD}  CONFIRMATION REQUIRED{C_RESET}")
     print(f"{C_YELLOW}{C_BOLD}{'=' * 80}{C_RESET}")
 
+    question = 'Proceed with uploading files to Cloudflare R2?'
+    if stale_count:
+        question = f'Proceed with the Cloudflare R2 sync, deleting {stale_count} stale GLB file(s)?'
+
     try:
         response = input(
-            f"\n  {C_CYAN}Proceed with uploading files to Cloudflare R2? (yes/no): {C_RESET}"
+            f"\n  {C_CYAN}{question} (yes/no): {C_RESET}"
         ).strip().lower()
 
         if response in ('yes', 'y'):
             print(f"  {C_GREEN}[OK] Confirmed - Proceeding with upload...{C_RESET}\n")
             return True
         else:
-            print(f"  {C_RED}[CANCEL] Upload cancelled. No files were uploaded.{C_RESET}\n")
+            print(f"  {C_RED}[CANCEL] Upload cancelled. No files were uploaded or deleted.{C_RESET}\n")
             return False
     except (KeyboardInterrupt, EOFError):
         print(f"\n  {C_RED}[CANCEL] Cancelled by user.{C_RESET}\n")
@@ -1257,6 +1395,9 @@ def run_r2_sync(
                         project_data_path if project_data_path.is_file() else None
                     )
                     project_operations.extend(tv_ops)
+                    project_operations.extend(collect_stale_glb_operations(
+                        s3_client, bucket_name, year_folder_name, project, tv_ops
+                    ))                                                   # <-- A sync mirrors: R2 loses GLBs the local folders lost
                 elif project_data_path.is_file():
                     # No GLBs yet -- sync the project data JSON on its own so the
                     # TrueVision app can load the project config from CDN before
@@ -1270,6 +1411,7 @@ def run_r2_sync(
                     )
                     if drawing_notes_op:
                         project_operations.append(drawing_notes_op)
+                    report_unmirrored_glbs(s3_client, bucket_name, year_folder_name, project)
 
             # PlanVision sync
             if sync_planvision:
@@ -1298,6 +1440,7 @@ def run_r2_sync(
     print_summary(all_operations, dry_run=True)
 
     needs_upload = any(op['action'] in ('new', 'update') for op in all_operations)
+    stale_ops    = [op for op in all_operations if op['action'] == 'delete']
 
     if dry_run_only:
         return 0
@@ -1308,14 +1451,14 @@ def run_r2_sync(
     if local_synced:
         print(f"  {C_GREEN}[OK] Synced R2 config into {local_synced} local project data file(s).{C_RESET}\n")
 
-    if not needs_upload:
+    if not needs_upload and not stale_ops:
         print(f"  {C_GREEN}All files are up to date. No uploads needed.{C_RESET}\n")
         return 0
 
     # STEP 6 | Confirm and upload
     if auto_confirm_upload:
         print(f"  {C_GREEN}[OK] Upload confirmed by caller. Skipping interactive prompt.{C_RESET}\n")
-    elif not prompt_confirmation():
+    elif not prompt_confirmation(len(stale_ops)):
         return 0
 
     print(f"  {C_GREEN}{C_BOLD}MODE: UPLOADING FILES TO R2{C_RESET}\n")
@@ -1324,7 +1467,7 @@ def run_r2_sync(
     upload_fail    = 0
 
     for op in all_operations:
-        if op['action'] == 'skip':
+        if op['action'] in ('skip', 'delete'):
             continue
 
         if op.get('merged_bytes') is not None:
@@ -1345,7 +1488,19 @@ def run_r2_sync(
           f"{upload_success} file(s) uploaded, {upload_fail} failed.{C_RESET}\n")
     sys.stdout.flush()
 
-    return 0 if upload_fail == 0 else 1
+    # STEP 7 | Remove the stale GLBs - last, and only after a clean upload. Until
+    # the new project data has landed, the live copy on R2 may still point at them.
+    delete_fail = 0
+    if stale_ops and upload_fail:
+        print(f"  {C_YELLOW}[HELD] {len(stale_ops)} stale GLB(s) left on R2 because {upload_fail} upload(s) failed. "
+              f"Sync again once the uploads succeed.{C_RESET}\n")
+    elif stale_ops:
+        print(f"  {C_RED}{C_BOLD}MODE: REMOVING STALE GLBS FROM R2{C_RESET}\n")
+        deleted, delete_fail = delete_stale_glbs(s3_client, bucket_name, stale_ops)
+        print(f"\n  {C_GREEN}{C_BOLD}Stale GLB cleanup: {deleted} removed from R2, {delete_fail} failed.{C_RESET}\n")
+        sys.stdout.flush()
+
+    return 0 if upload_fail == 0 and delete_fail == 0 else 1
     # ------------------------------------------------------------
 
 # endregion -------------------------------------------------------------------
@@ -1372,8 +1527,11 @@ INSTRUCTIONS_TEXT = f"""
   1. Scans na-project-portal/{{year}}-Projects/ for project folders
   2. Finds all .glb files under 30__TrueVision__AppContent/ subfolders
   3. Compares local file dates against remote R2 timestamps
-  4. Shows a dry-run preview of new, updated, and unchanged files
-  5. Prompts for confirmation before uploading
+  4. Lists GLBs R2 holds under the project's TrueVision folder that the
+     local folders no longer do - old exports, renamed or removed tags
+  5. Shows a dry-run preview of new, updated, unchanged and stale files
+  6. Prompts for confirmation, uploads, then deletes the stale GLBs
+     (only once every upload has succeeded)
 
   {C_BOLD}COMMANDS{C_RESET}
 

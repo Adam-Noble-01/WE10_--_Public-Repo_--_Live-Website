@@ -31,6 +31,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - Sheet Images: SheetImageLocation, ListSheetImages, UploadSheetImage,
+//   CopySheetImage and DeleteSheetImage for the pictures placed on Layout
+//   Editor sheets, in 05__Layout__DrawingDocs__Images/<document id>/. Uploads
+//   go through the Worker's new /r2/upload (raw bytes, immutable cache
+//   header) and copies through /r2/copy; a Worker deployed before them is
+//   detected once and every call falls back to /r2/write for the session.
+//
 // 20-Sep-2026 - Version 1.4.0
 // - PlanVision project data: PlansFileLocation points at the project's
 //   20__PlanVision__AppContent folder so the Layout Editor has somewhere to
@@ -740,6 +748,233 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Sheet Images (the Layout Editor's Pictures)
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Pictures Folder and the Names That May Go Into It
+    // ------------------------------------------------------------
+    // Every picture placed on a Layout Editor sheet lives in
+    //     <project>/30__TrueVision__AppContent/05__Layout__DrawingDocs__Images/<document id>/<file>
+    // on R2 and in the repository alike. The folder name never changes; the
+    // document id folder follows the drawing's number (the Sheet Images save
+    // step re-files a picture whenever the two part). One level of folders
+    // and a flat file name, both checked here so no caller can write outside
+    // the pictures folder by passing a wrong one. The archive folder is the
+    // save's own, and nothing is ever published from it.
+    // @delegate: ../51__System__LayoutEditor/54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Publish__.js
+    // ------------------------------------------------------------
+    const Na__CfApi__SHEET_IMAGES_DIR     = '05__Layout__DrawingDocs__Images';
+    const Na__CfApi__SHEET_IMAGES_ARCHIVE = '00__Archive';
+    const Na__CfApi__SheetImageFolder     = /^[A-Za-z0-9][A-Za-z0-9_\-.]{0,119}$/;
+    const Na__CfApi__SheetImageFile       = /^[A-Za-z0-9][A-Za-z0-9_\-.]{0,159}\.(webp|jpg|jpeg|png)$/i;
+    const Na__CfApi__SheetImageCache      = 'public, max-age=31536000, immutable';   // <-- A stored name carries its content hash, so a name never means two pictures
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | Which Worker Routes This Worker Has
+    // ------------------------------------------------------------
+    // /r2/upload and /r2/copy arrived with Sheet Images. A Worker deployed
+    // before them answers "Unknown R2 operation", and every call then falls
+    // back to /r2/write for the rest of the session - slower, never broken.
+    // ------------------------------------------------------------
+    let Na__CfApi__RawUploadMissing = false;
+    let Na__CfApi__CopyMissing      = false;
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a Sheet Picture Lives: R2 Key, CDN URL, Repository URL
+    // ------------------------------------------------------------
+    // Null when the URL names no project or the folder or file is not one
+    // this app may touch. `relative` is the path under the portal root, which
+    // the Sheet Images source builds its GitHub Pages fallback from.
+    // ------------------------------------------------------------
+    function Na__CfApi__SheetImageLocation(folder, fileName) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder) return null;
+        if (!Na__CfApi__SheetImageFolder.test(String(folder || '')) || folder === Na__CfApi__SHEET_IMAGES_ARCHIVE) return null;
+        if (!Na__CfApi__SheetImageFile.test(String(fileName || ''))) return null;
+        const relative = `${ctx.yearCode}-Projects/${ctx.projectFolder}/${Na__CfApi__TvContentDir}/${Na__CfApi__SHEET_IMAGES_DIR}/${folder}/${fileName}`;
+        return {
+            key      : `${Na__CfApi__R2Prefix}/${relative}`,
+            cdnUrl   : `${Na__CfApi__CdnBaseUrl}/${Na__CfApi__R2Prefix}/${relative}`,
+            repoUrl  : `${window.location.origin}/na-project-portal/${relative}`,
+            relative : `na-project-portal/${relative}`,
+            folder   : folder,
+            file     : fileName
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The R2 Key Every Picture of This Project Starts With
+    // ------------------------------------------------------------
+    function Na__CfApi__SheetImagesPrefix() {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder) return null;
+        return `${Na__CfApi__R2Prefix}/${ctx.yearCode}-Projects/${ctx.projectFolder}/${Na__CfApi__TvContentDir}/${Na__CfApi__SHEET_IMAGES_DIR}/`;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Every Picture of This Project on R2
+    // ------------------------------------------------------------
+    // Resolves to { ok, objects: [{ key, folder, file, size, etag }] }, every
+    // page of the listing followed. Only keys one folder deep are reported:
+    // nothing else is a picture this feature stored.
+    // ------------------------------------------------------------
+    async function Na__CfApi__ListSheetImages() {
+        if (!Na__CfApi__IsConfigured()) return { ok: false, error: 'Worker not configured', objects: [] };
+        const prefix = Na__CfApi__SheetImagesPrefix();
+        if (!prefix) return { ok: false, error: 'No project-folder in URL', objects: [] };
+        const objects = [];
+        let cursor = null;
+        try {
+            for (let page = 0; page < 50; page++) {
+                const response = await fetch(`${Na__CfApi__WorkerBaseUrl}/r2/list`, {
+                    method  : 'POST',
+                    headers : { 'Content-Type': 'application/json' },
+                    body    : JSON.stringify(cursor ? { prefix, limit: 1000, cursor } : { prefix, limit: 1000 })
+                });
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    return { ok: false, error: err.error || `List failed (${response.status})`, objects };
+                }
+                const result = await response.json();
+                (Array.isArray(result.objects) ? result.objects : []).forEach((object) => {
+                    const rest  = String(object.key || '').slice(prefix.length).split('/');
+                    if (rest.length !== 2 || !rest[0] || !rest[1]) return;
+                    objects.push({ key: object.key, folder: rest[0], file: rest[1], size: object.size, etag: object.etag });
+                });
+                if (!result.truncated || !result.cursor) break;
+                cursor = result.cursor;
+            }
+            return { ok: true, objects };
+        } catch (error) {
+            console.error('[TrueVision3D] CfApi sheet image list error:', error);
+            return { ok: false, error: 'Worker unreachable', objects };
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put One Picture on R2
+    // ------------------------------------------------------------
+    // The bytes go up as they are through /r2/upload, with their type and an
+    // immutable cache header; a Worker without that route takes them as
+    // base64 through /r2/write instead. Resolves to { ok, key, error }.
+    // ------------------------------------------------------------
+    async function Na__CfApi__UploadSheetImage(folder, fileName, blob) {
+        if (!Na__CfApi__IsConfigured()) return { ok: false, error: 'Worker not configured' };
+        const location = Na__CfApi__SheetImageLocation(folder, fileName);
+        if (!location) return { ok: false, error: `Refused picture path "${folder}/${fileName}"` };
+        if (!(blob instanceof Blob) || !blob.size) return { ok: false, error: 'Nothing to upload' };
+        const type = blob.type || (/\.png$/i.test(fileName) ? 'image/png' : (/\.jpe?g$/i.test(fileName) ? 'image/jpeg' : 'image/webp'));
+
+        if (!Na__CfApi__RawUploadMissing) {
+            try {
+                const query    = new URLSearchParams({ key: location.key, cacheControl: Na__CfApi__SheetImageCache });
+                const response = await fetch(`${Na__CfApi__WorkerBaseUrl}/r2/upload?${query.toString()}`, {
+                    method  : 'PUT',
+                    headers : { 'Content-Type': type },
+                    body    : blob
+                });
+                if (response.ok) return { ok: true, key: location.key };
+                const err = await response.json().catch(() => ({}));
+                if (!(response.status === 400 && /unknown r2 operation/i.test(err.error || '')) && response.status !== 404 && response.status !== 405) {
+                    return { ok: false, error: err.error || `Upload failed (${response.status})` };
+                }
+                Na__CfApi__RawUploadMissing = true;                              // <-- An older Worker: base64 from here on
+                console.info('[TrueVision3D] The Worker has no /r2/upload yet (deploy it with wrangler); pictures go up through /r2/write.');
+            } catch (error) {
+                console.error('[TrueVision3D] CfApi picture upload error:', error);
+                return { ok: false, error: 'Worker unreachable' };
+            }
+        }
+        const write = await Na__CfApi__WriteKey({
+            key          : location.key,
+            data         : await Na__CfApi__BlobToBase64(blob),
+            encoding     : 'base64',
+            contentType  : type,
+            cacheControl : Na__CfApi__SheetImageCache
+        });
+        return write.ok ? { ok: true, key: location.key } : write;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Copy a Picture From One Document Folder to Another, on R2
+    // ------------------------------------------------------------
+    // How a renumbered drawing's pictures follow it without going back up
+    // the wire: /r2/copy copies inside the bucket. A Worker without it has
+    // the picture read from the CDN and written again. Resolves to { ok, key, error }.
+    // ------------------------------------------------------------
+    async function Na__CfApi__CopySheetImage(fromFolder, toFolder, fileName) {
+        if (!Na__CfApi__IsConfigured()) return { ok: false, error: 'Worker not configured' };
+        const from = Na__CfApi__SheetImageLocation(fromFolder, fileName);
+        const to   = Na__CfApi__SheetImageLocation(toFolder, fileName);
+        if (!from || !to) return { ok: false, error: `Refused picture copy "${fromFolder}" -> "${toFolder}"` };
+
+        if (!Na__CfApi__CopyMissing) {
+            try {
+                const response = await fetch(`${Na__CfApi__WorkerBaseUrl}/r2/copy`, {
+                    method  : 'POST',
+                    headers : { 'Content-Type': 'application/json' },
+                    body    : JSON.stringify({ from: from.key, to: to.key, cacheControl: Na__CfApi__SheetImageCache })
+                });
+                if (response.ok) return { ok: true, key: to.key };
+                const err = await response.json().catch(() => ({}));
+                if (response.status === 404 && err.error === 'Not found') return { ok: false, error: 'Not on R2', missing: true };
+                if (!(response.status === 400 && /unknown r2 operation/i.test(err.error || '')) && response.status !== 405) {
+                    return { ok: false, error: err.error || `Copy failed (${response.status})` };
+                }
+                Na__CfApi__CopyMissing = true;
+                console.info('[TrueVision3D] The Worker has no /r2/copy yet (deploy it with wrangler); pictures are copied through the CDN.');
+            } catch (error) {
+                console.error('[TrueVision3D] CfApi picture copy error:', error);
+                return { ok: false, error: 'Worker unreachable' };
+            }
+        }
+        try {
+            const response = await fetch(from.cdnUrl, { mode: 'cors', cache: 'no-store' });
+            if (response.status === 404) return { ok: false, error: 'Not on R2', missing: true };
+            if (!response.ok) return { ok: false, error: `CDN read failed (${response.status})` };
+            return await Na__CfApi__UploadSheetImage(toFolder, fileName, await response.blob());
+        } catch (error) {
+            return { ok: false, error: 'CDN unreachable' };
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take a Picture Off R2
+    // ------------------------------------------------------------
+    // Called by the save only for a picture no drawing in the file it has
+    // just written points at, and only after that file is safely on R2.
+    // ------------------------------------------------------------
+    async function Na__CfApi__DeleteSheetImage(folder, fileName) {
+        if (!Na__CfApi__IsConfigured()) return { ok: false, error: 'Worker not configured' };
+        const location = Na__CfApi__SheetImageLocation(folder, fileName);
+        if (!location) return { ok: false, error: `Refused picture path "${folder}/${fileName}"` };
+        try {
+            const response = await fetch(`${Na__CfApi__WorkerBaseUrl}/r2/delete`, {
+                method  : 'POST',
+                headers : { 'Content-Type': 'application/json' },
+                body    : JSON.stringify({ key: location.key })
+            });
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                return { ok: false, error: err.error || `Delete failed (${response.status})` };
+            }
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error: 'Worker unreachable' };
+        }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -765,7 +1000,15 @@
         Na__CfApi__ReadStatementFile,
         Na__CfApi__WriteStatementFile,
         Na__CfApi__AdminFileLocation,
-        Na__CfApi__PlansFileLocation
+        Na__CfApi__PlansFileLocation,
+        Na__CfApi__SHEET_IMAGES_DIR,
+        Na__CfApi__SHEET_IMAGES_ARCHIVE,
+        Na__CfApi__SheetImageLocation,
+        Na__CfApi__SheetImagesPrefix,
+        Na__CfApi__ListSheetImages,
+        Na__CfApi__UploadSheetImage,
+        Na__CfApi__CopySheetImage,
+        Na__CfApi__DeleteSheetImage
     };
     // ------------------------------------------------------------
 

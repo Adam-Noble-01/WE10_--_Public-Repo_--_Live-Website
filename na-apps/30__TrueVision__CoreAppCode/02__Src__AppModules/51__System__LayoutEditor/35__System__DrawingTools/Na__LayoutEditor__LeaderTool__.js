@@ -50,6 +50,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - The head (the note or bubble end) follows the drawing grid while Grid
+//   Snap is on (F7, Na__LayoutEditor__DrawingGrid__), as it is drawn out and
+//   where it lands; the tip reaches the grid through Na__LeOsnap__Snap.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Project Specification: a bubble committed with a code links to the note
 //   that has it, and reads that code exactly ("ee2" becomes EE02); a code no
@@ -82,6 +87,7 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetZoom, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeGrid__SnapPoint } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- Grid Snap (F7): a leaf, the nearest grid point
     import { Na__LeText__OpenField } from './Na__LayoutEditor__TextTool__.js';
     import { Na__LeLeadGeo__TYPE_BUBBLE, Na__LeLeadGeo__Layout, Na__LeLeadGeo__Lines } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeSpecLink__PatchForText, Na__LeSpecLink__StartFor, Na__LeSpecLink__NoteIdOf } from '../50__Feature__Specification/Na__LayoutEditor__SpecLinks__.js';
@@ -207,6 +213,7 @@
         if (!sheet || !pointMm) return false;
         const p = Na__LeLeader__Placement;
         if (!p) { Na__LeOsnap__Snap(sheet, pointMm, null); return false; }
+        pointMm = Na__LeGrid__SnapPoint(pointMm);                               // <-- Grid Snap (F7): the head follows the grid; the tip already snapped to it
         if (pressed && !p.dragging) {
             const slop = Na__LeCfg__GetSelectionSetup().dragThresholdMm / Na__LeSurface__GetZoom();
             if (Math.hypot(pointMm.x - p.pressMm.x, pointMm.y - p.pressMm.y) >= slop) p.dragging = true;
@@ -250,6 +257,7 @@
     function Na__LeLeader__Land(sheet, pointMm) {
         const p = Na__LeLeader__Placement;
         if (!p || !Na__LeLeader__Far(p.tipMm, pointMm)) return false;          // <-- Not a leader yet: keep placing
+        pointMm = Na__LeGrid__SnapPoint(pointMm);                               // <-- The head lands where the band showed it
         Na__LeLeader__Placement = null;
         Na__LeOsnap__HideMarker();
         let id = p.id;

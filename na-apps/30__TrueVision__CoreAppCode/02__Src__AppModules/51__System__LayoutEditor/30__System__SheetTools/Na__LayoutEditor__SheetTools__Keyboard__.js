@@ -6,28 +6,33 @@
 // NAMESPACE  : Na__LeTools
 // MODULE     : Layout Editor - Sheet Tools - Keyboard
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : The keys while the editor is on screen: back out, delete, nudge or lock the axis, pick a tool, step the history, run the clipboard and groups, and redraw on Shift
+// PURPOSE    : The keys while the editor is on screen: back out, delete, nudge or lock the axis, pick a tool, step the history, run the clipboard and groups, switch Ortho, and redraw on Shift
 // CREATED    : 15-Sep-2026
 //
 // DESCRIPTION:
 // - OnKey: the key map's binding, not the key, decides. A text field keeps
-//   every key (IsTextEntry); a select, a checkbox or a number box keeps its
-//   bare keys, but a Ctrl chord (SHEET_CHORDS) still reaches the sheet.
+//   every key (IsTextEntry); a select, a checkbox or a number box keeps only
+//   the bare keys it uses (Na__KeyScope__ControlKeepsKey) - any other bound
+//   key is the sheet's, the focus with it (TakeKeyFromControl) - and a Ctrl
+//   chord (SHEET_CHORDS) always reaches the sheet.
 //   Escape backs out one step at a time (and clears the viewport snap move's
 //   tracking points), Space puts Select up and then down again
 //   (Tool__Select, which the space bar and V both run), Enter finishes a polyline or content
 //   editing, Delete removes, the arrows nudge the selection or lock the axis
 //   a point is being placed on or a vertex dragged along (AxisKey), the tool
 //   keys pick a tool or arm the eyedropper,
-//   the snap key toggles snapping, K toggles Draft mode, Ctrl+Z and Ctrl+Y step the history (or a
+//   the snap key toggles snapping, F8 toggles Ortho mode (AutoCAD's key),
+//   F6 shows the drawing grid and F7 snaps to it (Adam's LayOut keys),
+//   K toggles Draft mode, Ctrl+Z and Ctrl+Y step the history (or a
 //   polyline's vertices), and Ctrl+C, Ctrl+V, Ctrl+D, Ctrl+G and
 //   Ctrl+Shift+G run the clipboard and groups.
 // - DeleteSelection removes the selection (a viewport asks first) and Nudge
 //   moves it by the nudge step; several items, or a group, go together.
-// - ShiftRedraw redraws a dimension line being placed, and the insert
-//   diamond, as Shift goes down or up, without waiting for the mouse. Rerun
-//   runs the placing tool's move again from the last pointer position once
-//   the Measurements box has placed a point.
+// - RedrawHeld runs whatever is being placed or dragged again from the last
+//   pointer position, so F8 and Shift re-aim a band, a dimension line or a
+//   drag at once. ShiftRedraw uses it, and redraws the insert diamond, as
+//   Shift goes down or up, without waiting for the mouse. Rerun runs the
+//   placing tool's move again once the Measurements box has placed a point.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ listens on the window with OnKey and
@@ -46,6 +51,54 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.11.0
+// - CopyKey: the copy key (Ctrl, the key map's CopyDragModifier) going down
+//   during a whole-object or frame move turns it into a copy - the original
+//   back where it started, a copy on the pointer - and pressed again back
+//   into a move (Na__LayoutEditor__SheetTools__CopyDrag__), redrawn at once
+//   (RedrawHeld). A held key counts once; letting go changes nothing.
+// - An arrow with the copy key still held mid-move is still the axis lock
+//   (MatchUnderCopy): Ctrl+Right matched no binding, so the lock failed while
+//   Ctrl was down. Only the four axis actions are looked up without it.
+//
+// 21-Sep-2026 - Version 1.10.0
+// - A FOCUSED CONTROL KEEPS ONLY THE KEYS IT USES. OnKey stood down for every
+//   bare key while a select, a tick box or a number box had the focus, and a
+//   panel control keeps the focus after it is clicked - so after ticking a
+//   box or picking from a list, M, V, Escape and Delete went nowhere until
+//   something else was clicked, and a list took the letter for itself (M
+//   chose "Medium" in the Raster list). Only the keys the control really uses
+//   stay with it now (Na__KeyScope__ControlKeepsKey: an arrow in a list,
+//   Space on a tick box, a figure in a number box); any other bound key is
+//   the sheet's, taken from the control with the focus (TakeKeyFromControl),
+//   so the keys after it are the sheet's too. A text field still keeps every
+//   key, and the chords still reach the sheet from any control.
+// - ENTER IN A ONE-LINE PANEL FIELD GIVES THE KEYS BACK (EnterLeavesField). A
+//   panel's text box kept the focus after Enter, so the next M, V or Escape
+//   went on into it - M straight after naming a room in Floor Areas was typed
+//   onto the end of the name. Once the field has answered its Enter, the stage
+//   takes the focus, which blurs the field and commits it.
+//
+// 21-Sep-2026 - Version 1.9.0
+// - View__GridToggle (F6) shows or hides the drawing grid and
+//   Snap__GridToggle (F7) switches Grid Snap (Na__LayoutEditor__DrawingGrid__):
+//   SketchUp LayOut's View > Show Grid and Arrange > Grid Snap, on the keys
+//   Adam's own LayOut has them on. Views, not tools; F7 re-aims what is in
+//   flight at once (RedrawHeld). A held key counts once.
+//
+// 21-Sep-2026 - Version 1.8.0
+// - Ortho__Toggle (F8) switches Ortho mode (Na__LayoutEditor__OrthoMode__),
+//   AutoCAD's: new lines, dimensions and moves held horizontal or vertical,
+//   Shift its temporary override. A way of drawing, not a tool - the tool, the
+//   selection and a point half placed are left alone - and a held F8 counts
+//   once. F8 still reaches the sheet from a focused select, checkbox or number
+//   box (SHEET_CHORDS), because it types nothing.
+// - RedrawHeld: F8 and Shift re-aim what is in flight at once - a drag that
+//   has really moved (vertex, whole-object move, dimension end, viewport
+//   frame), else the Draw or Area tool's band or the Dimension tool's span or
+//   line. ShiftRedraw now runs it, so a held Shift re-aims the Draw band and a
+//   drag as well as the dimension line it always redrew.
+//
 // 21-Sep-2026 - Version 1.7.0
 // - View__DraftToggle (K) switches Draft mode (Na__LayoutEditor__DraftMode__):
 //   only the viewports' vector linework, hairlines, no fills, no raster
@@ -109,7 +162,7 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Tools, Eyedropper, Axis Lock, Snapping, Viewport Snap Move, Clipboard, Groups, Selection, History, Confirm Dialog
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetLabel, Na__LeCfg__GetKeyboardSetup, Na__LeCfg__MatchKeyBinding } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetLabel, Na__LeCfg__GetKeyboardSetup, Na__LeCfg__MatchKeyBinding, Na__LeCfg__GetCopyDragModifier, Na__LeCfg__IsCopyDragKey } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeModel__GetActiveSheet,
         Na__LeModel__GetViewportById,
@@ -130,7 +183,7 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetEditingViewport } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
-    import { Na__LeDim__Move, Na__LeDim__IsPlacing, Na__LeDim__IsSpanning, Na__LeDim__IsPlacingLine } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
+    import { Na__LeDim__Move, Na__LeDim__IsPlacing, Na__LeDim__IsSpanning } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Move, Na__LeShape__Finish, Na__LeShape__IsDrawing, Na__LeShape__UndoVertex, Na__LeShape__RedoVertex } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Move, Na__LeRect__Cancel, Na__LeRect__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
     import { Na__LeAreaTool__Rerun, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';
@@ -140,7 +193,9 @@
     import { Na__LeDrop__Clear, Na__LeDrop__HasSource } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeAxis__AXIS_X, Na__LeAxis__AXIS_Y, Na__LeAxis__Toggle } from './Na__LayoutEditor__AxisLock__.js';
     import { Na__LeOsnap__Toggle } from './Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOrtho__Toggle } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__.js';
     import { Na__LeDraft__Toggle } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
+    import { Na__LeGrid__ToggleShow, Na__LeGrid__ToggleSnap } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js';
     import { Na__LeVpMove__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeClip__RunKeyAction } from './Na__LayoutEditor__ItemClipboard__.js';
     import { Na__LeGroup__Expand, Na__LeGroup__Group, Na__LeGroup__Ungroup } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
@@ -160,6 +215,7 @@
     import { Na__LeSelSet__Nudge, Na__LeSelSet__Delete } from './Na__LayoutEditor__SelectionSet__.js';
     import { Na__LeHist__Undo, Na__LeHist__Redo } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
+    import { Na__KeyScope__ControlKeepsKey } from '../../03__AppUtils/Na__AppUtils__KeyScope__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Sheet Tools Units
@@ -175,7 +231,9 @@
         Na__LeTools__TOOL_AREA,
         Na__LeTools__SHEET_CHORDS,
         Na__LeTools__NON_TEXT_INPUTS,
+        Na__LeTools__Stage,
         Na__LeTools__Editable,
+        Na__LeTools__Drag,
         Na__LeTools__LastPointMm,
         Na__LeTools__ShiftHeld,
         Na__LeTools__WriteShiftHeld
@@ -190,6 +248,7 @@
     import { Na__LeTools__RefreshShapeInsert, Na__LeTools__Record, Na__LeTools__IsViewportLocked } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
     import { Na__LeTools__IsVertexDrag, Na__LeTools__RerunVertexDrag, Na__LeTools__IsDimEndDrag, Na__LeTools__RerunDimEndDrag, Na__LeTools__IsMoveDrag, Na__LeTools__RerunMoveDrag, Na__LeTools__IsViewportMoveDrag, Na__LeTools__RerunViewportDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
     import { Na__LeTools__SetEditingViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
+    import { Na__LeTools__ToggleCopyDrag } from './Na__LayoutEditor__SheetTools__CopyDrag__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -320,23 +379,95 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Shift Went Down or Up: Redraw a Dimension Line Being Placed
+    // HELPER FUNCTION | Ortho or Shift Changed: Redraw Whatever Is Being Placed or Dragged
     // ------------------------------------------------------------
-    // Shift turns the dimension whose line is following the cursor ortho, but
-    // the pointer only reports Shift when it moves: without this, pressing
-    // Shift over a still mouse showed nothing until the mouse was nudged.
-    // Redraws from the last pointer position. Returns true when it did.
+    // The pointer only reports Shift when it moves, and F8 not at all, so
+    // without this a rubber band, a dimension line or a dragged vertex kept
+    // its old aim until the mouse was nudged. Runs the same move again from
+    // the last pointer position with the Shift last seen: a drag in flight
+    // first - a vertex, a whole-object move, a dimension end or a viewport
+    // frame, and only once it has really moved, so a press still under the
+    // drag threshold is never shifted by a key - else the Draw tool's band
+    // (the Area tool's too, while it draws corner by corner) or the Dimension
+    // tool's span or line. A rectangle is left alone: Ortho has no say there,
+    // and Shift's square follows the next move as it always has. Returns true
+    // when something was redrawn.
+    // ------------------------------------------------------------
+    function Na__LeTools__RedrawHeld() {
+        if (!Na__LeTools__Editable) return false;
+        const drag = Na__LeTools__Drag;
+        if (drag && drag.moved === true) {
+            if (Na__LeTools__RerunVertexDrag() || Na__LeTools__RerunMoveDrag() || Na__LeTools__RerunDimEndDrag() || Na__LeTools__RerunViewportDrag()) return true;
+        }
+        const sheet = Na__LeModel__GetActiveSheet();
+        const point = Na__LeTools__LastPointMm;
+        if (!sheet || !point) return false;
+        const tool = Na__LeTools__Tool;
+        if ((tool === Na__LeTools__TOOL_DRAW || tool === Na__LeTools__TOOL_AREA) && Na__LeShape__IsDrawing()) Na__LeShape__Move(sheet, point, Na__LeTools__ShiftHeld);
+        else if (tool === Na__LeTools__TOOL_DIMENSION && Na__LeDim__IsPlacing()) Na__LeDim__Move(sheet, point, Na__LeTools__ShiftHeld);
+        else return false;
+        Na__LeMeasure__Refresh();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Shift Went Down or Up: Redraw Whatever Shift Holds
+    // ------------------------------------------------------------
+    // Shift turns the dimension whose line is following the cursor ortho, holds
+    // a band or a drag to the nearer axis - and, with Ortho on, frees them -
+    // but the pointer only reports Shift when it moves: without this, pressing
+    // Shift over a still mouse showed nothing until the mouse was nudged. It
+    // used to redraw the dimension line alone; since Ortho (F8) made Shift its
+    // temporary override it redraws the band and the drag as well
+    // (RedrawHeld). Returns true when something was redrawn.
     // ------------------------------------------------------------
     function Na__LeTools__ShiftRedraw(shift) {
         Na__LeTools__WriteShiftHeld(!!shift);                                // <-- Remembered for a value typed into the Measurements box
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeTools__LastPointMm;
         Na__LeTools__RefreshShapeInsert(sheet, point, shift);                 // <-- The insert diamond appears as soon as Shift goes down, without a mouse nudge
-        if (!Na__LeTools__Editable || Na__LeTools__Tool !== Na__LeTools__TOOL_DIMENSION || !Na__LeDim__IsPlacingLine()) return false;
-        if (!sheet || !point) return false;
-        Na__LeDim__Move(sheet, point, shift);
-        Na__LeMeasure__Refresh();
+        return Na__LeTools__RedrawHeld();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Copy Key Went Down: a Move in Flight Carries a Copy, or the Original Again
+    // ------------------------------------------------------------
+    // SketchUp's and LayOut's Move: Ctrl pressed during a move turns it into a
+    // copy - the original goes back where it started and a copy follows the
+    // pointer - and pressed again turns it back into a move. A tap is enough;
+    // letting go changes nothing, so the hand can go to an arrow key or type a
+    // length. A held key repeats and only the first press counts. The drag is
+    // redrawn at once from the last pointer position (Na__LayoutEditor__
+    // SheetTools__CopyDrag__ makes or removes the copy). Returns true when a
+    // move took the key.
+    // ------------------------------------------------------------
+    function Na__LeTools__CopyKey(event) {
+        if (!event || event.repeat || !Na__LeCfg__IsCopyDragKey(event.key)) return false;
+        if (!Na__LeTools__ToggleCopyDrag()) return false;
+        Na__LeTools__RedrawHeld();
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | An Arrow With the Copy Key Still Held Is Still the Axis Lock
+    // ------------------------------------------------------------
+    // Ctrl held through a copy drag belongs to the drag, not to a chord, but the
+    // key map reads it as one: Ctrl+Right matches no binding, so without this
+    // the arrow lock would fail for as long as Ctrl was down. While a move is
+    // in flight the arrows are looked up again without the copy key, and only
+    // the axis lock may answer - no other Ctrl chord changes meaning.
+    // ------------------------------------------------------------
+    const Na__LeTools__AXIS_ACTIONS = Object.freeze([ 'Edit__NudgeLeft', 'Edit__NudgeRight', 'Edit__NudgeUp', 'Edit__NudgeDown' ]);
+
+    function Na__LeTools__MatchUnderCopy(key, held) {
+        const drag = Na__LeTools__Drag;
+        const name = Na__LeCfg__GetCopyDragModifier();
+        if (!drag || drag.copyable !== true || !name || !held[name]) return null;
+        const bare = Na__LeCfg__MatchKeyBinding(key, Object.assign({}, held, { [name] : false }));
+        return (bare && Na__LeTools__AXIS_ACTIONS.indexOf(bare.action) !== -1) ? bare : null;
     }
     // ------------------------------------------------------------
 
@@ -377,6 +508,50 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Enter in a One-Line Panel Field: the Typing Is Done, the Keys Go Back to the Sheet
+    // ------------------------------------------------------------
+    // A panel's text box keeps every key while it is typed in - the letters
+    // are the name being written. It used to keep the focus after Enter too,
+    // so the next M, V or Escape went on into it (M straight after naming a
+    // room in Floor Areas was typed onto the end of the name) and the sheet's
+    // keys stayed dead until the paper was clicked. Enter is where the typing
+    // ends: once the field has answered it, the stage takes the focus, which
+    // blurs the field and commits it. Left alone: a text area and anything
+    // contenteditable (Enter is a new line there), text typed on the paper
+    // (its tool commits it), a field already put away by its own Enter, and
+    // an Enter that is finishing an input method's composition.
+    // ------------------------------------------------------------
+    function Na__LeTools__EnterLeavesField(event) {
+        const target = event.target;
+        const stage  = Na__LeTools__Stage;
+        if (!stage || !target || target.tagName !== 'INPUT' || event.isComposing || typeof document === 'undefined') return false;
+        if (typeof stage.contains === 'function' && stage.contains(target)) return false;   // <-- Text on the paper: its tool commits it
+        if (document.activeElement !== target) return false;                              // <-- Already put away by its own Enter
+        try { stage.focus({ preventScroll : true }); } catch (error) { return false; }
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Bound Key the Focused Control Has No Use For: the Sheet's, and the Focus With It
+    // ------------------------------------------------------------
+    // The control must not act on the key as well - a list would jump to the
+    // option starting with that letter - and the keys after it are the
+    // sheet's, so the stage takes the focus. The control blurs on the way,
+    // which commits what was typed into it exactly as clicking away does.
+    // ------------------------------------------------------------
+    function Na__LeTools__TakeKeyFromControl(event) {
+        event.preventDefault();
+        const stage = Na__LeTools__Stage;
+        if (stage && typeof stage.focus === 'function') {
+            try { stage.focus({ preventScroll : true }); return; } catch (error) { /* not focusable: blur below */ }
+        }
+        const target = event.target;
+        if (target && typeof target.blur === 'function') target.blur();
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Key Handling While the Editor Is on Screen
     // ------------------------------------------------------------
     function Na__LeTools__OnKey(event) {
@@ -384,21 +559,34 @@
         const typing = !!(target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable));
         const keys   = Na__LeCfg__GetKeyboardSetup();
         const guard  = typing && keys.ignoreWhenTyping;
-        if (guard && Na__LeTools__IsTextEntry(target)) return;               // <-- A text field keeps every key, its own undo and paste included
+        if (guard && Na__LeTools__IsTextEntry(target)) {                     // <-- A text field keeps every key, its own undo and paste included
+            if (event.key === 'Enter') Na__LeTools__EnterLeavesField(event); // <-- ...and once it has had its Enter, the keys go back to the sheet
+            return;
+        }
 
         // The binding, not the key, decides what happens. Navigation actions
-        // are left alone here: the PC controls module owns those.
-        const match = Na__LeCfg__MatchKeyBinding(event.key, {
-            Ctrl : !!event.ctrlKey, Shift : !!event.shiftKey, Alt : !!event.altKey, Meta : !!event.metaKey, Space : false
-        });
+        // are left alone here: the PC controls module owns those. An arrow with
+        // the copy key still held mid-move is the axis lock all the same.
+        const held  = { Ctrl : !!event.ctrlKey, Shift : !!event.shiftKey, Alt : !!event.altKey, Meta : !!event.metaKey, Space : false };
+        const match = Na__LeCfg__MatchKeyBinding(event.key, held) || Na__LeTools__MatchUnderCopy(event.key, held);
         if (!match || !match.action) return;
-        // A SELECT, A CHECKBOX OR A NUMBER BOX KEEPS ITS BARE KEYS - an arrow
-        // or a digit means something to it - but it has no undo or paste of its
-        // own, so a Ctrl chord belongs to the sheet. Without this, Ctrl+Z
+        // A SELECT, A CHECKBOX OR A NUMBER BOX HAS NO UNDO OR PASTE OF ITS OWN,
+        // so a Ctrl chord always belongs to the sheet. Without this, Ctrl+Z
         // straight after choosing a scene in the Viewport panel, or after
         // changing Edge pt on a vector, went nowhere: the control still had
         // the focus.
-        if (guard && Na__LeTools__SHEET_CHORDS.indexOf(match.action) === -1) return;
+        //
+        // AND IT KEEPS ONLY THE BARE KEYS IT USES (Na__KeyScope__ControlKeepsKey):
+        // an arrow in a list, Space on a tick box, a figure in a number box.
+        // This used to stand down for every bare key, so after ticking a box or
+        // picking from a list M, V, Escape and Delete went nowhere, and a list
+        // took the letter for itself (M chose "Medium" in the Raster list). Any
+        // other bound key is the sheet's: taken from the control, focus and all,
+        // so the key after it is the sheet's too.
+        if (guard && Na__LeTools__SHEET_CHORDS.indexOf(match.action) === -1) {
+            if (Na__KeyScope__ControlKeepsKey(target, event.key)) return;
+            Na__LeTools__TakeKeyFromControl(event);
+        }
         const step  = match.coarse ? keys.nudgeCoarseStepMm : keys.nudgeStepMm;
         const sheet = Na__LeModel__GetActiveSheet();
 
@@ -503,6 +691,18 @@
             case 'Tool__Eyedropper': Na__LeTools__ArmEyedropper();                      return;
             case 'Tool__EyedropperPalette': Na__LeTools__ArmPalette();                  return;
             case 'Snap__Toggle':     Na__LeOsnap__Toggle(); event.preventDefault(); return;
+            // ORTHO MODE IS A WAY OF DRAWING, NOT A TOOL. F8, AutoCAD's key,
+            // switches it without touching the tool, the selection or a point
+            // half placed, and a band, a dimension line or a drag in flight is
+            // re-aimed at once, as AutoCAD re-aims its rubber band. A held F8
+            // repeats; only the first press counts, or Ortho would flicker.
+            // ------------------------------------
+            case 'Ortho__Toggle':
+                event.preventDefault();
+                if (event.repeat) return;
+                Na__LeOrtho__Toggle();
+                Na__LeTools__RedrawHeld();
+                return;
             // DRAFT MODE IS A VIEW, NOT A TOOL. K switches it (SketchUp LayOut's
             // key) without touching the tool, the selection or a point half
             // placed, so it can be pressed in the middle of drawing a room to
@@ -513,6 +713,25 @@
                 event.preventDefault();
                 if (event.repeat) return;
                 Na__LeDraft__Toggle();
+                return;
+            // THE DRAWING GRID IS LAYOUT'S PAIR OF SWITCHES, on the keys Adam's
+            // own LayOut has them on: F6 shows or hides the grid (View > Show
+            // Grid) and F7 snaps to it or not (Arrange > Grid Snap). Views, not
+            // tools: the tool, the selection and a point half placed are left
+            // alone, and a band or a drag in flight is re-aimed at once when the
+            // snap changes. The browser's own F6 (the address bar) and F7 (caret
+            // browsing) are kept from it. A held key only counts once.
+            // ------------------------------------
+            case 'View__GridToggle':
+                event.preventDefault();
+                if (event.repeat) return;
+                Na__LeGrid__ToggleShow();
+                return;
+            case 'Snap__GridToggle':
+                event.preventDefault();
+                if (event.repeat) return;
+                Na__LeGrid__ToggleSnap();
+                Na__LeTools__RedrawHeld();
                 return;
             case 'Edit__Undo':
                 if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__UndoVertex(sheet); Na__LeMeasure__Refresh(); return; }
@@ -548,6 +767,7 @@
         Na__LeTools__DeleteSelection,
         Na__LeTools__DeleteVertices,
         Na__LeTools__ShiftRedraw,
+        Na__LeTools__CopyKey,
         Na__LeTools__Rerun,
         Na__LeTools__OnKey
     };

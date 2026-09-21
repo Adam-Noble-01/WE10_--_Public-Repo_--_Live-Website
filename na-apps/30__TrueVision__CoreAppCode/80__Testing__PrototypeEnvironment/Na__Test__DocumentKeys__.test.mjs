@@ -162,7 +162,7 @@ import { tmpdir } from 'node:os';
     const ran = [];
     Hotkeys.Na__Hotkeys__Initialize(
         { TrueVision__NavMode__ResetView : () => ran.push('reset'), TrueVision__NavMode__SetWalkMode : () => ran.push('walk'), TrueVision__PresentationMode__GoToScene1 : () => ran.push('scene1') },
-        JSON.parse(readFileSync(resolve(SRC, '02__AppData/Na__AppConfig__Hotkeys.json'), 'utf8'))
+        JSON.parse(readFileSync(resolve(SRC, '02__AppData/Na__Hotkeys__3dModelTab__.json'), 'utf8'))
     );
     const hotkeyListener = listeners.find((entry) => entry.type === 'keydown' && !entry.capture);
     const press3d = (scope, focus, name) => {

@@ -1,16 +1,17 @@
 {
     "LayoutEditor__DocumentKeys__Meta": {
-        "Meta__FileName"    : "Na__LayoutEditor__DocumentKeys__Config__.json",
-        "Meta__Description" : "The document tabs' own keyboard: the Project Specification, the Drawing Register and the Statements. A drawing tab is a canvas, where a bare letter picks a tool; a document tab is somewhere to write, where a bare letter is a letter. So the documents have a key map of their own, separate from the drawing tools' (Na__LayoutEditor__KeyMappings__.json) and from the 3D Model tab's (Na__AppConfig__Hotkeys.json), and it is heard before any other key in the app while a document tab is up.",
-        "Meta__Version"     : "1.0.0",
+        "Meta__FileName"    : "Na__Hotkeys__DocumentTabs__.json",
+        "Meta__Description" : "The document tabs' own keyboard: the Project Specification, the Drawing Register and the Statements. A drawing tab is a canvas, where a bare letter picks a tool; a document tab is somewhere to write, where a bare letter is a letter. So the documents have a key map of their own, separate from the drawing tools' (Na__Hotkeys__DrawingTabs__.json) and from the 3D Model tab's (Na__Hotkeys__3dModelTab__.json), and it is heard before any other key in the app while a document tab is up.",
+        "Meta__Version"     : "1.1.0",
         "Meta__Created"     : "21-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture"
     },
 
     "LayoutEditor__DocumentKeys__Scopes": {
         "Scopes__Description" : "The app has three keyboards and exactly one of them is live at a time (Na__AppUtils__KeyScope__). Which one is answered by the Layout Editor's mode controller from the tab on screen, afresh on every key. Nothing here needs setting: this block says how the three fit together.",
+        "Scopes__Files"       : "Three hotkey files, one per kind of tab: the 3D Model tab's (Na__Hotkeys__3dModelTab__.json, 02__AppData), the drawing tabs' (Na__Hotkeys__DrawingTabs__.json, 51__System__LayoutEditor/03__Core__Config) and the document tabs' - the Project Specification, the Drawing Register and the Statements - (Na__Hotkeys__DocumentTabs__.json, 51__System__LayoutEditor/31__System__DocumentKeys).",
         "Scopes__Model"       : "The 3D Model tab: R resets the view, B, T and Y pick Orbit, Walk and Fly, 1-9 and Page Up / Page Down go to presentation scenes. Silent on every other tab.",
-        "Scopes__Sheet"       : "A drawing tab: the drawing tools' bare-letter keys (V, M, T, R, L, D, E, A, B, K) and their chords. Attached only while a drawing tab is up.",
+        "Scopes__Sheet"       : "A drawing tab: the drawing tools' bare-letter keys (V, M, T, R, L, D, E, A, B, K) and their chords, and Page Up / Page Down to turn the drawings. Attached only while a drawing tab is up.",
         "Scopes__Document"    : "The Project Specification, the Drawing Register and the Statements: the bindings below, heard first, and every other key left to the field or the page it was typed into."
     },
 
@@ -33,7 +34,7 @@
                 "Keys"          : [ "s", "S" ],
                 "Modifiers"     : [ "Ctrl" ],
                 "ModifierMatch" : "Exact",
-                "Documents"     : "Statements: writes the open statement to its markdown file, as the tab's Save button does, committing a raw HTML block or a title still being edited first. The Project Specification and the Drawing Register have no answer of their own, so on those tabs the key goes on to the editor's save: the sheets saved and the specification synced, as before."
+                "Documents"     : "Statements: writes the open statement to its markdown file, as the tab's Save button does, committing a raw HTML block or a title still being edited first. Drawing Register: saves the revision notes to R2 and the project file, as its Save to R2 button does - the notes are the one thing on that tab not saved the moment it is confirmed - and says so instead of writing when they already match R2. The Project Specification has no answer of its own, so there the key goes on to the editor's save: the sheets saved and the specification synced, as before."
             },
             {
                 "Id"            : "Doc__ToggleSource",

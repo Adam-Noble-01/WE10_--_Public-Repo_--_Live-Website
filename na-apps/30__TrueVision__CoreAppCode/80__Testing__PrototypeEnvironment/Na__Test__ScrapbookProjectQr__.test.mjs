@@ -33,6 +33,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - The code's colour: both forms' code boxes go through the real shape
+//   painter (imports stubbed) and the real QR painter, and must come out in
+//   the QR system's PortalDarkColour, hsl(0, 0%, 35%), on the screen and in
+//   the PDF - with a Symbol module older than the key falling back to black.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Written with the Project Portal block.
 //
@@ -342,6 +348,80 @@ import { tmpdir } from 'node:os';
     check('each tile has a name and a description, and neither presets a size: 20 mm is the standard',
         offered.every((element) => !!element.Element__Name && !!element.Element__Description && element.Element__Params.SizeMm === undefined));
     check('the type is named for the sheet\'s group tag and the panel', elements.Elements__TypeNames.ProjectQr === 'Project Portal');
+
+    // THE CODE'S COLOUR | Grey, not black, in both forms (Adam, 21-Sep-2026)
+    // ------------------------------------------------------------
+    // "Instead of them being absolute black, make them softer ... apply that
+    // to both of the versions of it." The record carries no colour - the shape
+    // painter picks one at painting time - so each form's code box goes
+    // through the REAL shape painter, its imports swapped for stubs that
+    // record what it hands the chrome, and then through the REAL QR painter,
+    // on the screen and into a PDF.
+    const QR_SYMBOL  = qrConfig['ProjectQr__Symbol__Config'];
+    const BLACK_HEX  = QR_SYMBOL['ProjectQr__Symbol__DarkColour'];
+    const PORTAL_HEX = QR_SYMBOL['ProjectQr__Symbol__PortalDarkColour'];
+    const LIGHT_HEX  = QR_SYMBOL['ProjectQr__Symbol__LightColour'];
+    const QR_DIR     = join(APP, '53__System__ProjectQrCode');
+    copyFileSync(join(QR_DIR, 'Na__ProjectQr__Encoder__.js'), join(SCRATCH, 'Na__ProjectQr__Encoder__.js'));
+    copyFileSync(join(QR_DIR, 'Na__ProjectQr__Painter__.js'), join(SCRATCH, 'Na__ProjectQr__Painter__.js'));
+    const encoder = await import(pathToFileURL(join(SCRATCH, 'Na__ProjectQr__Encoder__.js')).href);
+    const painter = await import(pathToFileURL(join(SCRATCH, 'Na__ProjectQr__Painter__.js')).href);
+
+    // The shipped shape painter with its imports swapped for stubs and nothing
+    // else touched. The pattern allows the `// <-- ...` note an import line may
+    // carry, and an import that survives fails the run: it would mean the copy
+    // ran against the real file and passed by luck.
+    const geometrySource = readFileSync(join(APP, '51__System__LayoutEditor', '15__Core__Markup', 'Na__LayoutEditor__ShapeGeometry__.js'), 'utf8')
+        .replace(/^[ \t]*import\s+(?:\{[\s\S]*?\}|[\w*\s,]+)\s+from\s+'[^']+';[ \t]*(?:\/\/[^\n]*)?$/gm, '');
+    check('every import of the shape painter was swapped for a stub', !/^\s*import\s/m.test(geometrySource));
+    const geometryStubs = [
+        'const Na__LeCfg__PtToMm          = (pt) => pt * 0.352778;',
+        'const Na__LeDash__PatternMm      = () => [];',
+        'const Na__LeChrome__PushPolyline = () => {};',
+        'const Na__LeChrome__PushQr       = (list, x, y, sizeMm, symbol, darkColour, lightColour) => {',   // <-- The chrome's own, line for line
+        '    if (!symbol || !Array.isArray(symbol.Runs) || !(sizeMm > 0)) return;',
+        "    list.push({ Kind : 'qr', X : x, Y : y, SizeMm : sizeMm, Symbol : symbol, DarkColour : darkColour || null, LightColour : lightColour || null });",
+        '};',
+        'const Na__ProjectQr__GetSymbol   = () => globalThis.__NaTestQr.symbol;',
+        'const Na__ProjectQr__GetSetup    = () => globalThis.__NaTestQr.setup();',
+        'const Na__ProjectQr__CheckPrint  = () => ({ ok : true });',
+        'const Na__LeImgDraw__Push        = () => false;'
+    ].join('\n');
+    writeFileSync(join(SCRATCH, 'Na__LayoutEditor__ShapeGeometry__.js'), geometryStubs + '\n' + geometrySource, 'utf8');
+    const geometry = await import(pathToFileURL(join(SCRATCH, 'Na__LayoutEditor__ShapeGeometry__.js')).href);
+
+    // What the QR system's GetSetup answers - Na__Test__ProjectQr__ proves the
+    // real one hands out these three from the file and from its fallbacks.
+    globalThis.__NaTestQr = {
+        symbol : encoder.Na__QrEnc__Encode('https://www.noble-architecture.com/q/?PS01'),
+        setup  : () => ({ symbol : { darkColour : BLACK_HEX, portalDarkColour : PORTAL_HEX, lightColour : LIGHT_HEX } })
+    };
+    const paintedCode = (built) => {
+        const list = [];
+        geometry.Na__LeShapeGeo__Push(list, shapes(built)[0]);
+        return list.find((primitive) => primitive.Kind === 'qr') || null;
+    };
+    const compactCode = paintedCode(build({}, NAMED));
+    const fullCode    = paintedCode(build({ Form : 'full' }, NAMED));
+    check('both forms paint their code in the Portal grey, ' + PORTAL_HEX + ', not the ' + BLACK_HEX + ' the title block keeps',
+        !!compactCode && !!fullCode && compactCode.DarkColour === PORTAL_HEX && fullCode.DarkColour === PORTAL_HEX &&
+        compactCode.LightColour === LIGHT_HEX && PORTAL_HEX !== BLACK_HEX, [ compactCode && compactCode.DarkColour, fullCode && fullCode.DarkColour ]);
+
+    const onScreen = painter.Na__QrPaint__SvgGroup(compactCode.Symbol, compactCode.X, compactCode.Y, compactCode.SizeMm, compactCode.DarkColour, compactCode.LightColour);
+    check('on the screen, the one path of dark modules is filled ' + PORTAL_HEX + ' over a ' + LIGHT_HEX + ' square',
+        (onScreen.match(/<path [^>]*fill="([^"]+)"/) || [])[1] === PORTAL_HEX && (onScreen.match(/<rect [^>]*fill="([^"]+)"/) || [])[1] === LIGHT_HEX, onScreen.slice(0, 160));
+    const pdfFills = [];
+    painter.Na__QrPaint__DrawPdf({ setFillColor : (r, g, b) => pdfFills.push([ r, g, b ]), rect : () => {}, fill : () => {} },
+        fullCode.Symbol, fullCode.X, fullCode.Y, fullCode.SizeMm, fullCode.DarkColour, fullCode.LightColour);
+    const rgbOf = (hex) => [ 1, 3, 5 ].map((at) => parseInt(hex.substring(at, at + 2), 16));
+    check('in the PDF, the modules are filled ' + rgbOf(PORTAL_HEX).join(', ') + ' - the same grey - over a white square',
+        JSON.stringify(pdfFills) === JSON.stringify([ rgbOf(LIGHT_HEX), rgbOf(PORTAL_HEX) ]), pdfFills);
+
+    globalThis.__NaTestQr.setup = () => ({ symbol : { darkColour : BLACK_HEX, lightColour : LIGHT_HEX } });   // <-- A Symbol module from before the key, as a warm cache may hold
+    const staleCode = paintedCode(build({}, NAMED));
+    check('a Symbol module older than the key paints the code black, never nothing',
+        !!staleCode && staleCode.DarkColour === BLACK_HEX, staleCode && staleCode.DarkColour);
+    delete globalThis.__NaTestQr;
 
     rmSync(SCRATCH, { recursive : true, force : true });
     console.log(failures === 0 ? '\n  PASS - every check passed.' : '\n  FAIL - ' + failures + ' check(s) failed.');

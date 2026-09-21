@@ -40,6 +40,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.16.0
+// - HitTest passes straight through a REFERENCE layer (Layer__Selectable
+//   false, the Layers panel's Ref): nothing on it answers a click, the
+//   eyedropper's included, and a click on a reference line finds whatever
+//   lies beneath it. It is still painted, printed and highlighted as ever.
+//
 // 21-Sep-2026 - Version 1.15.0
 // - THE LAYERS LIST NOW STACKS THE MARKUP. BuildSheetPrimitives used to paint
 //   by kind across the whole sheet - every vector, then every piece of text,
@@ -200,6 +206,7 @@
         Na__LeModel__GetLayers,
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
+        Na__LeModel__IsLayerSelectable,
         Na__LeModel__CreateAnnotation,
         Na__LeModel__CreateDimension
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
@@ -876,7 +883,9 @@
     // finds. Inside a layer the kinds keep the priority they always had
     // (leaders, dimensions, text, vectors) and later items of a kind win, as
     // they draw on top. Locked and hidden layers are skipped; includeLocked
-    // lets the eyedropper READ a locked item.
+    // lets the eyedropper READ a locked item. A REFERENCE layer is skipped
+    // always - the eyedropper's reading too - since nothing on it can be
+    // picked: the click falls through to what lies beneath.
     // ------------------------------------------------------------
     function Na__LeMarkup__HitTest(sheet, pointMm, toleranceMm, includeLocked) {
         if (!sheet) return null;
@@ -884,6 +893,7 @@
         const layers = Na__LePaint__MarkupFrontToBack(sheet);                   // <-- Shown layers only; null is the unknown-layer group, which is never locked
         for (let n = 0; n < layers.length; n++) {
             const layerId = layers[n];
+            if (layerId !== null && !Na__LeModel__IsLayerSelectable(sheet, layerId)) continue;   // <-- A reference layer: seen, never picked
             if (layerId !== null && includeLocked !== true && Na__LeModel__IsLayerLocked(sheet, layerId)) continue;
             const hit = Na__LeMarkup__HitLayer(sheet, Na__LeMarkup__OnLayer(sheet, layerId), pointMm, tol);
             if (hit) return hit;

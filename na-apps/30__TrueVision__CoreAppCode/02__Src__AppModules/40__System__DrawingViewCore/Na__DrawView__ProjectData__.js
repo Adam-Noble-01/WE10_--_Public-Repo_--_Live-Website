@@ -64,6 +64,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - Save steps: Na__DrawData__RegisterSaveStep. A feature whose records point
+//   at FILES - the pictures placed on Layout Editor sheets - registers a step
+//   that every save runs: before (put the files in place on R2 and on disk),
+//   payload (point the copy about to be written at them) and after (once the
+//   drawings have landed, adopt the pointers and tidy what nothing uses).
+//   Every save runs them because every save writes the whole drawings block:
+//   a register renumber moves a drawing's pictures as surely as Save Sheets.
+//   Their notes ride on report.steps; without a report, a failure is shown.
+//
 // 20-Sep-2026 - Version 1.3.0
 // - Payload guard: Na__DrawData__RegisterPayloadGuard. The copy a save is about
 //   to write is handed to the draft guard first, so a floor plan or elevation
@@ -225,6 +235,25 @@
     // @delegate: ./Na__DrawView__DraftGuard__.js
     // ------------------------------------------------------------
     let Na__DrawData__PayloadGuard = null;           // <-- (payloadCopy) => void
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Save Steps (files that must be in place before the drawings point at them)
+    // ------------------------------------------------------------
+    // A drawing that points at a FILE - a picture placed on a sheet - must not
+    // reach R2 before the file does, whoever is saving: Save Sheets, a register
+    // renumber, a rename. So a feature that owns such files registers a step,
+    // and EVERY save runs it, in three phases:
+    //   before(ctx)   put the files where the drawings are about to point
+    //   payload(ctx)  edit ctx.block - the copy about to be written - to point
+    //                 at them (the live records are left alone until it lands)
+    //   after(ctx)    once R2 and the local copy have the drawings: adopt the
+    //                 new pointers in the live records and tidy what nothing
+    //                 points at any more
+    // A step that throws costs its own work and a note, never the save.
+    // @delegate: ../51__System__LayoutEditor/54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Publish__.js
+    // ------------------------------------------------------------
+    const Na__DrawData__SaveSteps = [];              // <-- [{ id, before, payload, after }]
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -555,6 +584,20 @@
             return false;
         }
 
+        // SAVE STEPS | Files the drawings point at go first (see SaveSteps).
+        // Their notes ride on the report for a caller that says where the save
+        // landed; any other caller is shown the ones that went wrong.
+        const stepNotes   = [];
+        const stepContext = {
+            report   : report || null,
+            state    : {},
+            block    : null,
+            local    : null,
+            note     : (message, isError) => { if (message) stepNotes.push({ message : String(message), error : isError === true }); }
+        };
+        if (report && typeof report === 'object') report.steps = stepNotes;
+        await Na__DrawData__RunSaveSteps('before', stepContext);
+
         const sceneConfig    = Na__PresentationMode__ProjectJson__GetActiveConfig();
         const wasMigration   = Boolean(Na__DrawData__MigratedFrom);
         const payload        = {};
@@ -582,6 +625,8 @@
             if (registerKeys && registerKeys.cloud) Object.assign(payload, registerKeys.cloud);
             const cloudKeys = JSON.parse(JSON.stringify(payload));
             Na__DrawData__ApplyPayloadGuard(cloudKeys);                              // <-- A drawing still being edited goes out as it was last updated
+            stepContext.block = cloudKeys[Na__DrawData__BLOCK_KEY] || null;
+            await Na__DrawData__RunSaveSteps('payload', stepContext);                // <-- The copy about to be written points at the files the before phase put in place
             const localKeys = JSON.parse(JSON.stringify(cloudKeys));                 // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
             // DELETION | Explicit local-first mode; a local failure never reaches R2.
             let firstLocal = null;
@@ -619,6 +664,12 @@
             if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Drawings saved to R2; the local copy was not written:', local.error);
             if (report && typeof report === 'object') report.local = local;
             else if (!local.ok && !local.skipped) toast(`Drawings saved to R2, but the local copy was not written: ${local.error}`, true);
+            stepContext.local = local;
+            await Na__DrawData__RunSaveSteps('after', stepContext);                  // <-- R2 has the drawings: the steps adopt their pointers and tidy up
+            if (!(report && typeof report === 'object')) {
+                const failed = stepNotes.filter((entry) => entry.error).map((entry) => entry.message);
+                if (failed.length) toast(failed.join(' '), true);
+            }
             return true;
 
         } catch (error) {
@@ -654,6 +705,37 @@
     // ------------------------------------------------------------
     function Na__DrawData__RegisterPayloadGuard(guard) {
         Na__DrawData__PayloadGuard = (typeof guard === 'function') ? guard : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register a Save Step (one per id; a second registration replaces the first)
+    // ------------------------------------------------------------
+    // step: { id, before(ctx), payload(ctx), after(ctx) } - any may be left
+    // out, any may be async. See the SaveSteps state above for the phases.
+    // ------------------------------------------------------------
+    function Na__DrawData__RegisterSaveStep(step) {
+        if (!step || typeof step !== 'object' || typeof step.id !== 'string' || !step.id) return false;
+        const index = Na__DrawData__SaveSteps.findIndex((entry) => entry.id === step.id);
+        if (index !== -1) Na__DrawData__SaveSteps.splice(index, 1);
+        Na__DrawData__SaveSteps.push(step);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Run One Phase of Every Save Step, in Registration Order
+    // ------------------------------------------------------------
+    async function Na__DrawData__RunSaveSteps(phase, context) {
+        for (const step of Na__DrawData__SaveSteps.slice()) {
+            if (typeof step[phase] !== 'function') continue;
+            try {
+                await step[phase](context);
+            } catch (stepError) {
+                console.warn(`[TrueVision3D] Save step "${step.id}" failed in its ${phase} phase; the drawings save goes on.`, stepError);
+                context.note(`${step.id}: ${(stepError && stepError.message) || 'failed'}.`, true);
+            }
+        }
     }
     // ------------------------------------------------------------
 
@@ -713,6 +795,7 @@
         Na__DrawView__ProjectData__Initialize,
         Na__DrawData__RegisterSectionBlockProvider,
         Na__DrawData__RegisterPayloadGuard,
+        Na__DrawData__RegisterSaveStep,
         Na__DrawData__GetBlock,
         Na__DrawData__Load,
         Na__DrawData__GetProjectCode,

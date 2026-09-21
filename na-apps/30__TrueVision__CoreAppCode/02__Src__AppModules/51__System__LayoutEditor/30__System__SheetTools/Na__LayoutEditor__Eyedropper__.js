@@ -116,6 +116,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.1
+// - A picture (Sheet Images) is neither a source nor a target: Record answers
+//   null for a shape carrying Shape__Image, so Copy properties, Paste
+//   properties and the dropper all pass it by.
+//
 // 17-Sep-2026 - Version 1.8.0
 // - MANY ITEMS AT ONCE. ApplyMany writes one style bag onto a whole selection,
 //   one undo step per kind, skipping locked items rather than refusing the lot.
@@ -393,7 +398,10 @@
         if (!sheet || !id) return null;
         if (kind === 'annotation') return (sheet.Sheet__Annotations || []).find((a) => a.Annotation__Id === id) || null;
         if (kind === 'dimension')  return (sheet.Sheet__Dimensions  || []).find((d) => d.Dimension__Id  === id) || null;
-        if (kind === 'shape')      return (sheet.Sheet__Shapes      || []).find((s) => s.Shape__Id      === id) || null;
+        if (kind === 'shape') {
+            const shape = (sheet.Sheet__Shapes || []).find((s) => s.Shape__Id === id) || null;
+            return (shape && !shape.Shape__Image) ? shape : null;               // <-- A picture has no edge, fill or hatch to give or take: neither a source nor a target
+        }
         if (kind === 'leader')     return (sheet.Sheet__Leaders     || []).find((l) => l.Leader__Id     === id) || null;
         if (kind === 'viewport')   return Na__LeModel__GetViewportById(sheet, id);
         return null;

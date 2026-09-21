@@ -862,3 +862,64 @@ nothing about it to choose.
 | The phone glyph is "a bit too ambiguous" - it should read as a modern smartphone (v2.108.0) | A slim 2.4 x 4.6 mm handset with a filled Dynamic Island pill at the top, in place of a squat box with a bar across its foot. Still two records in the same slots |
 | "Make the standard one that's inserted when you drag it in ... the 20 mm option" (v2.109.0) | `ProjectQr__SizeMm` 20, which overrides row 14.9's 30. A block already on a sheet keeps its stored size |
 | "The body text should be 2.2, and 'Use your phone or tablet camera' 1.5 mm" (v2.109.0) | `BodySizeMm` 2.2 (was 3.1), `BulletSizeMm` 2.2 (was 2.7), `CaptionSizeMm` 1.5 (was 2.1). Reading "body text" as the paragraph AND the bullets, because the compact form has no paragraph and 2.7 mm bullets over a 2.2 mm paragraph would read upside down. Gaps re-set against a rendering at 20 mm: caption 2.8, heading 6.2, bullets 5.0 and 3.6 apart, paragraph 4.6 and 3.4 apart. `BodyWidthMm` left at 95 |
+| "Instead of them being absolute black, make them softer. use hsl(0, 0%, 35%) ... apply that to both of the versions of it" (v2.120.0) | The code of BOTH forms is `#595959`: the Project QR config's new `ProjectQr__Symbol__PortalDarkColour`, which `Na__LeShapeGeo__PushQr` hands the chrome for any vector's `Shape__Qr`. Chosen at painting time, not stored on the record, so blocks already on sheets turn grey with no re-pick; `Shape__Qr` stays `{ Qr__MarginMm }`. The title block's code keeps `DarkColour` black (0.30 mm module against the Portal's 0.52 mm and up; see `PortalDarkColourNote`) |
+
+## 15. The underline runs five millimetres past the words (21-Sep-2026, v2.122.0)
+---------------------------------------------------------
+
+Adam, with three marked-up screenshots of RB05's front elevation title: *"Add a new rule that the line that's
+generated should always be a set distance from the end of the text box that makes the title... In the case of long
+titles like this, make sure this line always goes at least 5 mm past, if possible. And that's 5 mm in real
+dimensions. On this page, it's 500 because, obviously, it's 1:100... Because it looks kind of weird being short.
+Note there are a few of these titles."*
+
+### 15.1 Two faults behind one short line
+
+- **The line was drawn to an estimate.** Until jsPDF and the Open Sans cuts load, `Na__LeChrome__MeasureTextMm`
+  answers `characters x size x 0.52`, ten per cent short on capitals. RB05's front title measured 92.82 on the
+  estimate and 103.47 for real (the painted SVG agrees to the thousandth); it was underlined 93.2.
+- **It was rebuilt when nothing had changed.** `FactsPatch` compared a viewport's RAW facts with the element's
+  NORMALISED ones. RB05's elevation names carry two spaces round the dash, so every refresh rebuilt the title - and
+  the first refresh of a session runs about 100 ms after the tab opens, long before the metrics.
+
+### 15.2 The rule, and the one thing that may shorten it
+
+- `UnderlinePastTextMm` 5, paper millimetres: the line ends 5 mm past the words - `TextOffsetXMm` plus the measured
+  width - at every scale. The set length stays the least it is.
+- A bar stood to the RIGHT is the only thing that shortens the run (`UnderlineBarGapMm` 5 clear of its zero end,
+  where its numerals cross the underline's level), and never to less than the words. That is the reading given to
+  "if possible" - **Adam to confirm**. A bar below, or none, never shortens it.
+
+### 15.3 Refit - and why only the underline's length is asked about
+
+- The rule changes records already on sheets, and the underline's length IS a record. `Na__LeParam__Refit` rebuilds
+  an element whose type says it no longer fits; `Na__LeParamLink__Refresh` runs it after reconciling, on 'active',
+  'loaded', an identity change, and once when the panel sees the metrics land.
+- A whole-geometry comparison was the obvious test and the wrong one: a group can be opened (double-click) and its
+  members edited by hand, and a refit on every visit would quietly undo that. The title answers about the length of
+  its underline and nothing else.
+- Nothing is refit until `metricsReady()`: fitted to the estimate, a good line would be cut back.
+
+### 15.4 Traps
+
+- **A text's bounding box is not where its words end.** Chrome's `getBBox()` of the painted title is 0.49 mm wider
+  than its advance. By the bbox the gap read 4.53 mm; by `getExtentOfChar(n - 1)` - where the last letter really
+  ends - 5.02. Measure against the advance.
+- **Compare facts as they would be stored.** Anything read from a viewport and written into parameters is normalised
+  on the way in; comparing it raw rebuilds forever.
+- **Each sheet takes one step, once.** The first open after this release rebuilds its titles, one undo step, and the
+  sheet shows unsaved changes. Saved, it never happens again.
+
+### 15.5 Audit of the brief and of every mark on the three screenshots
+
+| The brief, or the mark | Where it is |
+|---|---|
+| "A new rule that the line... should always be a set distance from the end of the text box that makes the title" | `DrawingTitle__UnderlinePastTextMm`, measured from the end of the words |
+| "At least 5 mm past" | 5, and the set length is still a minimum, so a short title's line runs further |
+| "If possible" | A bar stood to the right may shorten the run, never below the words (15.2) - Adam to confirm |
+| "5 mm in real dimensions... it's 500 because... 1:100" | Paper millimetres: 5 on the sheet at every scale, 500 mm of building at 1:100 |
+| "However you calculated all of the dimensions, just make it offshoot by that amount" | The same measure the title already used, now waited for before it is trusted (15.3) |
+| "A few of these titles" | Every Drawing Title - three tiles, one type. RB05's D02, D03 and D05 titles are refit on first open |
+| Image 1: orange stroke past the end of FASCADE | The line now runs past the last letter; it stopped under the S |
+| Image 2: dashed arrow on from the line's end | The same, and the grips (socket, stretch arrow) move with the line |
+| Image 3: a 5mm dimension from the words' end | D02's Dim_001, x 148 -> 153; the line now ends at 153.29, 5.02 past the letters |

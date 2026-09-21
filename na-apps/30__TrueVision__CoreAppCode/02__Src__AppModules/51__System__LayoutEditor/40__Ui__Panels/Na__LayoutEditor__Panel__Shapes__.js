@@ -60,6 +60,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.2
+// - Pictures (Sheet Images) are left out of what this panel reads and edits:
+//   a picture has no edge, fill or hatch, and its settings are the Images
+//   panel's.
+//
 // 21-Sep-2026 - Version 1.8.1
 // - Edges off with SEVERAL vectors selected takes the edges off and nothing
 //   else. It used to write a fill as well, so that no shape was left with
@@ -168,7 +173,7 @@
         const selection = Na__LeModel__GetSelection();
         if (!sheet || !selection || selection.kind !== 'shape') return null;
         const item = sheet.Sheet__Shapes.find((s) => s.Shape__Id === selection.id) || null;
-        return item ? { sheet : sheet, item : item } : null;
+        return (item && !item.Shape__Image) ? { sheet : sheet, item : item } : null;   // <-- A picture is the Images panel's: it has no edge or fill to set here
     }
     // ------------------------------------------------------------
 
@@ -183,9 +188,10 @@
     // ------------------------------------------------------------
     function Na__LePanelShapes__Many() {
         const sheet = Na__LeModel__GetActiveSheet();
-        const items = Na__LePanels__SelectedOfKind(sheet, 'shape');
+        const shapes = sheet ? (sheet.Sheet__Shapes || []) : [];
+        const items  = Na__LePanels__SelectedOfKind(sheet, 'shape').filter((entry) => { const s = shapes.find((x) => x.Shape__Id === entry.id); return !!s && !s.Shape__Image; });   // <-- Pictures in the selection are not vectors to restyle
         if (!items.length) return null;
-        const item = (sheet.Sheet__Shapes || []).find((s) => s.Shape__Id === items[0].id) || null;
+        const item = shapes.find((s) => s.Shape__Id === items[0].id) || null;
         return item ? { sheet : sheet, item : item, count : items.length } : null;
     }
     function Na__LePanelShapes__Reading() { return Na__LePanelShapes__Selected() || Na__LePanelShapes__Many(); }

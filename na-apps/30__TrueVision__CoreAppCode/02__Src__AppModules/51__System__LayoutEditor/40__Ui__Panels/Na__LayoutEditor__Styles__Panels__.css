@@ -645,6 +645,24 @@
     background                         : #f6e7e7;
 }
 
+/* THE REF BUTTON - a reference layer, Blender's Selectable switch - reads
+   Ref either way, so it is only as wide as that word. A reference layer's
+   button is only just blue, the lock's faint red in another colour: enough
+   to pick out the rows the pointer passes through, and no more. */
+.na-le-btn--ref {
+    min-width                          : 32px;
+}
+
+.na-le-btn--ref.is-reference {
+    border-color                       : #c3d8ea;
+    background                         : #f0f6fb;
+    color                              : #1f5f8b;
+}
+
+.na-le-btn--ref.is-reference:hover:not(:disabled) {
+    background                         : #e3eef8;
+}
+
 /* THE GRIP - six small squares, the usual sign for "hold here and drag".
    Faint until its row is under the pointer; the grab cursor does the rest. */
 .na-le-layer__grip {
@@ -759,12 +777,39 @@ body.na-le-sorting * {
     accent-color                       : #1a7fc4;
 }
 
+/* THE TYPABLE FIGURE BESIDE A SLIDER. The slider previews fast but lands
+   nowhere exact; this is where an exact value is locked in. Spin buttons are
+   dropped - the box is too narrow for them, and the slider already covers
+   quick dragging - so typing plus Enter or Tab (both blur it) is the way in. */
+.na-le-input--rangebox {
+    flex                               : 0 0 38px;
+    width                              : 38px;
+    padding                            : 2px 4px;
+    text-align                         : right;
+    font-variant-numeric               : tabular-nums;
+    -moz-appearance                    : textfield;
+}
+
+.na-le-input--rangebox::-webkit-outer-spin-button,
+.na-le-input--rangebox::-webkit-inner-spin-button {
+    -webkit-appearance                 : none;
+    margin                             : 0;
+}
+
 .na-le-grad-readout {
     flex                               : 0 0 34px;
     color                              : #555;
     font-size                          : 0.72rem;
     font-variant-numeric               : tabular-nums;
     text-align                         : right;
+}
+
+/* THE UNIT LEFT AFTER A SLIDER ROW GAINED ITS OWN FIGURE BOX. Only the suffix
+   ("%") is left to show here, so it sits close and left-aligned rather than
+   padded out to the old reading's width. */
+.na-le-range-suffix {
+    flex                               : 0 0 14px;
+    text-align                         : left;
 }
 
 .na-le-grad-angle {

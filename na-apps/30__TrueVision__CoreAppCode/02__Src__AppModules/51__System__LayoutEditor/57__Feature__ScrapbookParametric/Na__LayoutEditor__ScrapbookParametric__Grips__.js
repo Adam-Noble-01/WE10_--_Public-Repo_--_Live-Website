@@ -59,6 +59,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - A slide asks the snapping module for object snaps only ({ grid : false }).
+//   Snap now falls back to the drawing grid while Grid Snap is on (F7), and a
+//   grid point would count as an exact snap here - so a scale bar's free slide
+//   would have moved in paper millimetres instead of its own 50 mm steps. A
+//   corner of the drawing still takes it exactly.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - The lookup menu asks the TYPE what else it offers (definition.choices),
 //   so an element with no scale and no split - the Project Portal block, whose
@@ -336,7 +343,7 @@
     // moved yet, and half a division's error there would be invisible.
     // ------------------------------------------------------------
     function Na__LeParamGrips__SnapSlide(sheet, groupId, point, exclude) {
-        const hit = Na__LeOsnap__Snap(sheet, point, exclude || null, Na__LeOsnap__TONE_VERTEX);
+        const hit = Na__LeOsnap__Snap(sheet, point, exclude || null, Na__LeOsnap__TONE_VERTEX, { grid : false });   // <-- A corner, never the drawing grid: a free slide keeps the element's own steps
         if (!hit || !hit.snapped) { Na__LeParamGrips__HideGuide(); return { x : point.x, exact : false }; }
         const handles = Na__LeParam__HandlesOf(sheet, groupId);
         Na__LeParamGrips__ShowGuide(hit, (handles && handles.slide) ? handles.slide.y : point.y);

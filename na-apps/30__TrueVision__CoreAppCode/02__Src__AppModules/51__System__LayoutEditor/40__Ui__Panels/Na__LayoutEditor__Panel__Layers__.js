@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LePanelLayers
 // MODULE     : Layout Editor - Panel Layers
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : The left panel: layer rows with eye, lock, name, type, order, add, delete and a type filter
+// PURPOSE    : The left panel: layer rows with eye, lock, reference switch, name, type, order, add, delete and a type filter
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
@@ -24,6 +24,12 @@
 // - THE LOCK BUTTON NAMES WHAT A CLICK WILL DO: "Lock" on an open layer,
 //   "Unlock" on a locked one. A locked layer's button carries a faint red -
 //   enough to spot the locked rows at a glance, and no more.
+// - THE REF BUTTON MAKES A REFERENCE LAYER, Blender's Selectable switch: the
+//   layer is drawn and printed as ever, but nothing on it can be clicked,
+//   boxed, hovered or snapped to - the pointer passes straight through to
+//   whatever lies beneath. A lock is the other half: it stops an edit and
+//   still offers its points to snap to. The button reads Ref either way and
+//   carries a faint blue while the layer is one, as the lock carries red.
 //
 // INTEGRATION:
 // - Registered into the panel host by the mode controller.
@@ -40,6 +46,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - A third switch beside On and Lock, Ref, for Adam's "non-selectable layer
+//   ... so you can see it, but nothing tries to snap or bind to it. Blender
+//   has a system like this, so copy that": Blender's Selectable restriction,
+//   with its snapping's Exclude Non-Selectable always on. It writes the layer
+//   record's Selectable (Na__LeModel__UpdateLayer selectable), and a layer
+//   switched to reference lets go of anything of its that was selected.
+// - The note under the list says what Ref does.
+//
+// 21-Sep-2026 - Version 1.1.1
+// - The Images layer type (pictures, 54__Feature__SheetImages) reads "Images"
+//   in the type select and the filter.
+//
 // 13-Sep-2026 - Version 1.1.0
 // - A grip replaces the Up and Down buttons and the whole-row HTML drag and
 //   drop: press it, drag up or down, release. Arrow keys on a focused grip
@@ -92,7 +111,7 @@
     // MODULE CONSTANTS | Section Id and Type Labels
     // ------------------------------------------------------------
     const Na__LePanelLayers__ID = 'layers';
-    const Na__LePanelLayers__TYPE_LABELS = { viewport : 'Viewports', annotation : 'Annotations', dimension : 'Dimensions', vector : 'Vectors', area : 'Floor Areas', mixed : 'General' };   // <-- 'area' holds the measured rooms (59__Feature__FloorAreas)
+    const Na__LePanelLayers__TYPE_LABELS = { viewport : 'Viewports', annotation : 'Annotations', dimension : 'Dimensions', vector : 'Vectors', area : 'Floor Areas', image : 'Images', mixed : 'General' };   // <-- 'area' holds the measured rooms (59__Feature__FloorAreas), 'image' the pictures (54__Feature__SheetImages)
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Grip
@@ -152,6 +171,14 @@
         lock.title = locked ? 'Locked - click to unlock' : 'Lock this layer';
         lock.setAttribute('aria-pressed', String(locked));
 
+        // THE REFERENCE SWITCH | Blender's Selectable: shown, never picked
+        const reference = layer.Layer__Selectable === false;                       // <-- The same test the model picks by
+        const refer = Na__LePanels__Button(Na__LeCfg__GetLabel('LayerReference', 'Ref'), 'layer-ref', 'na-le-btn--icon na-le-btn--ref' + (reference ? ' is-reference' : ''), layer.Layer__Id);
+        refer.title = reference
+            ? Na__LeCfg__GetLabel('LayerReferenceOnTitle', 'Reference layer: shown and printed, but nothing on it can be selected or snapped to - click to make it selectable again')
+            : Na__LeCfg__GetLabel('LayerReferenceTitle', 'Make this a reference layer: shown and printed, but nothing on it can be selected or snapped to');
+        refer.setAttribute('aria-pressed', String(reference));
+
         const name = document.createElement('span');
         name.className   = 'na-le-layer__name';
         name.textContent = layer.Layer__Name;
@@ -171,11 +198,12 @@
         grip.setAttribute('aria-label', 'Drag to reorder, or use the arrow keys');
         grip.setAttribute('data-na-control', 'layer-grip');
         grip.setAttribute('data-na-role', layer.Layer__Id);
-        [ eye, lock, grip ].forEach((b) => { b.disabled = !editable; });
+        [ eye, lock, refer, grip ].forEach((b) => { b.disabled = !editable; });
         if (editable) grip.addEventListener('pointerdown', (e) => Na__LePanelLayers__DragStart(e, grip, layer.Layer__Id));
 
         row.appendChild(eye);
         row.appendChild(lock);
+        row.appendChild(refer);
         row.appendChild(name);
         row.appendChild(type);
         row.appendChild(grip);
@@ -353,7 +381,7 @@
             foot.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('DeleteLayer', 'Delete selected type'), 'layer-delete', 'na-le-btn--danger'));
             body.appendChild(foot);
         }
-        body.appendChild(Na__LePanels__Note(Na__LeCfg__GetLabel('LayersNote', 'Top of the list draws frontmost. Types are tags for filtering; any layer can hold anything.')));
+        body.appendChild(Na__LePanels__Note(Na__LeCfg__GetLabel('LayersNote', 'Top of the list draws frontmost. Types are tags for filtering; any layer can hold anything. Ref makes a reference layer: shown and printed, but nothing on it can be selected or snapped to.')));
     }
     // ------------------------------------------------------------
 
@@ -409,6 +437,7 @@
         });
         Na__LePanels__OnControl('click', 'layer-eye',  (e, el, id) => { const s = Na__LeModel__GetActiveSheet(); const l = s && s.Sheet__Layers.find((x) => x.Layer__Id === id); if (l) Na__LeModel__UpdateLayer(s, id, { visible : l.Layer__Visible === false }); });
         Na__LePanels__OnControl('click', 'layer-lock', (e, el, id) => { const s = Na__LeModel__GetActiveSheet(); const l = s && s.Sheet__Layers.find((x) => x.Layer__Id === id); if (l) Na__LeModel__UpdateLayer(s, id, { locked : !l.Layer__Locked }); });
+        Na__LePanels__OnControl('click', 'layer-ref',  (e, el, id) => { const s = Na__LeModel__GetActiveSheet(); const l = s && s.Sheet__Layers.find((x) => x.Layer__Id === id); if (l) Na__LeModel__UpdateLayer(s, id, { selectable : l.Layer__Selectable === false }); });
         Na__LePanels__OnControl('keydown', 'layer-grip', (e, el, id) => {
             const step = e.key === 'ArrowUp' ? -1 : (e.key === 'ArrowDown' ? 1 : 0);
             if (!step) return;

@@ -39,6 +39,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0
+// - A Shape__Qr code is painted in the QR system's portalDarkColour
+//   (#595959, hsl(0, 0%, 35%)) instead of its black: the Project Portal
+//   block's code, both forms, softer on the page (Adam). The title block's
+//   code is not a vector's and stays black.
+//
+// 21-Sep-2026 - Version 1.7.0
+// - Shape__Image: a shape carrying the block is a PICTURE and is pushed as one
+//   'picture' primitive (Na__LayoutEditor__SheetImages__Paint__) - shadow,
+//   the kept part of the stored file, frame - instead of as a polyline. It is
+//   hit anywhere inside its box, as a QR box is.
+//
 // 21-Sep-2026 - Version 1.6.0
 // - Shape__Qr: a shape carrying the block is drawn as it always was, and the
 //   PROJECT'S OWN QR SYMBOL is then painted inside its box, Qr__MarginMm in
@@ -94,6 +106,8 @@
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
     import { Na__ProjectQr__GetSymbol, Na__ProjectQr__GetSetup, Na__ProjectQr__CheckPrint } from '../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js';
     // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js
+    import { Na__LeImgDraw__Push } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Paint__.js';
+    // @delegate: ../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Paint__.js
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -218,7 +232,7 @@
         // outline even with the wash turned off, because what it names is the
         // floor, not the line round it - and a room that could only be caught
         // by its edge would be a room nobody could click on a busy plan.
-        return (!!shape.Shape__FillColour || !!shape.Shape__Gradient || !!shape.Shape__Hatch || !!shape.Shape__Qr || !!shape.Shape__Area) && Na__LeShapeGeo__Contains(shape, point);   // <-- A QR code paints its whole box, so it is picked up anywhere on it
+        return (!!shape.Shape__FillColour || !!shape.Shape__Gradient || !!shape.Shape__Hatch || !!shape.Shape__Qr || !!shape.Shape__Area || !!shape.Shape__Image) && Na__LeShapeGeo__Contains(shape, point);   // <-- A QR code or a picture paints its whole box, so it is picked up anywhere on it
     }
     // ------------------------------------------------------------
 
@@ -301,6 +315,14 @@
     // The printed size goes to the QR system's own check, so a box drawn too
     // small for a phone to read - or one whose margin has been squeezed -
     // says so on the console, once, exactly as the title block's cell does.
+    //
+    // SOFTER THAN THE TITLE BLOCK'S CODE. A code a vector carries is the
+    // Project Portal block's, and it is painted in the QR system's
+    // portalDarkColour (#595959) rather than the black every document's own
+    // code keeps - Adam, 21-Sep-2026: "so that they don't look so stark on the
+    // page". Chosen here at painting time, so a block already on a sheet
+    // changes with the config and has nothing to rebuild. A Symbol module
+    // older than the key answers undefined, and the code is painted black.
     // ------------------------------------------------------------
     function Na__LeShapeGeo__PushQr(list, shape) {
         const block = shape.Shape__Qr;
@@ -313,7 +335,8 @@
         if (!(sizeMm > 0)) return false;
         Na__ProjectQr__CheckPrint(symbol, sizeMm, margin, Na__LeShapeGeo__QR_WHERE);
         const colours = Na__ProjectQr__GetSetup().symbol;
-        Na__LeChrome__PushQr(list, box.X + ((box.WidthMm - sizeMm) / 2), box.Y + ((box.HeightMm - sizeMm) / 2), sizeMm, symbol, colours.darkColour, colours.lightColour);
+        Na__LeChrome__PushQr(list, box.X + ((box.WidthMm - sizeMm) / 2), box.Y + ((box.HeightMm - sizeMm) / 2), sizeMm, symbol,
+            colours.portalDarkColour || colours.darkColour, colours.lightColour);
         return true;
     }
     // ------------------------------------------------------------
@@ -322,6 +345,10 @@
     // FUNCTION | Push the Shape as One Polyline Primitive (edges, fill, gradient, or a mix)
     // ------------------------------------------------------------
     function Na__LeShapeGeo__Push(list, shape) {
+        // A PICTURE IS PAINTED AS A PICTURE: its shadow, the kept part of the
+        // stored file and its frame, as one 'picture' primitive. The record
+        // keeps no edge, fill or hatch of its own for anything below to draw.
+        if (shape && shape.Shape__Image && typeof shape.Shape__Image === 'object') return Na__LeImgDraw__Push(list, shape);
         const pts = Na__LeShapeGeo__Points(shape);
         if (pts.length < 2) return false;
         const closed   = shape.Shape__Closed === true && pts.length > 2;

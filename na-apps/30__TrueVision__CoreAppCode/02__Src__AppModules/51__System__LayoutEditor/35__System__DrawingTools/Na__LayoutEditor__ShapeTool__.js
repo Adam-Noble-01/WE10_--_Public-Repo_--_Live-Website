@@ -12,6 +12,8 @@
 // DESCRIPTION:
 // - Click to add a point (it snaps to the linework; Shift holds the new
 //   edge to the nearer axis, and an arrow key locks it to one outright).
+//   Ortho mode (F8) holds the axis with nothing held down, and Shift then
+//   frees it for as long as it is held - AutoCAD's rule, ortho XOR Shift.
 //   The shape draws as it grows, with a rubber band from the last point
 //   to the cursor.
 // - Click the first point again to close a polygon. Enter, a double-click
@@ -51,6 +53,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0
+// - Ortho mode (F8, Na__LayoutEditor__OrthoMode__): SnapOrConstrain holds
+//   the axis when Na__LeOrtho__Resolve(shift) says so - Ortho XOR Shift -
+//   where it used to ask Shift alone. With Ortho off nothing changes; with it
+//   on the next vertex is held horizontal or vertical from the last one, the
+//   snap still measuring along the axis, and a held Shift frees the cursor.
+//   The Area tool's corners, drawn through here, follow.
+//
 // 21-Sep-2026 - Version 1.7.0
 // - The Area tool draws through this one (59__Feature__FloorAreas): two more
 //   defaults ride through to CreateShape - `area`, the Shape__Area block that
@@ -124,6 +134,7 @@
     import { Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
     import { Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeAxis__Get, Na__LeAxis__Clear, Na__LeAxis__Apply, Na__LeAxis__Hold, Na__LeAxis__Constrain } from '../30__System__SheetTools/Na__LayoutEditor__AxisLock__.js';
+    import { Na__LeOrtho__Resolve } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__State__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -169,10 +180,11 @@
     function Na__LeShape__SnapOrConstrain(sheet, last, point, shift) {
         const snap = Na__LeOsnap__Snap(sheet, point, Na__LeShape__OwnExclusion());
         const at   = snap.snapped ? { x : snap.x, y : snap.y } : point;
+        const hold = Na__LeOrtho__Resolve(shift);                                 // <-- Ortho (F8) holds the axis as Shift does; Shift held while Ortho is on frees it
         if (last && Na__LeAxis__Get()) return Na__LeAxis__Apply(last, at);        // <-- Arrow key lock: the axis is named outright
-        if (last && shift)             return Na__LeAxis__Hold(last, point, at);  // <-- Shift: the cursor names the axis, the snap measures along it
+        if (last && hold)              return Na__LeAxis__Hold(last, point, at);  // <-- Shift or Ortho: the cursor names the axis, the snap measures along it
         if (snap.snapped) return at;
-        return Na__LeAxis__Constrain(last, point, shift);
+        return Na__LeAxis__Constrain(last, point, hold);
     }
     // ------------------------------------------------------------
 

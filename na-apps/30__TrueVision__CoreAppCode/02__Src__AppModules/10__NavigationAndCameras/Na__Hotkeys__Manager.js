@@ -14,7 +14,7 @@
 // DESCRIPTION:
 // - Registers a single window keydown listener for all global hotkeys. Keys
 //   and actions are both driven entirely from the config JSON
-//   (Na__AppConfig__Hotkeys.json) — no key values are hardcoded here.
+//   (Na__Hotkeys__3dModelTab__.json) — no key values are hardcoded here.
 // - Config schema: an ARRAY of binding objects under
 //   Na__TrueVision__HotkeysDictionary, each naming a key, its modifiers, the
 //   action string to dispatch, and a description. This is the same schema
@@ -34,7 +34,7 @@
 // - Call Na__Hotkeys__ApplyUiLabels(config) once after scene init to update
 //   static DOM, then again via callback after user instructions content loads.
 //
-// @delegate: ./02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json
+// @delegate: ./02__Src__AppModules/02__AppData/Na__Hotkeys__3dModelTab__.json
 //
 // -----------------------------------------------------------------------------
 //

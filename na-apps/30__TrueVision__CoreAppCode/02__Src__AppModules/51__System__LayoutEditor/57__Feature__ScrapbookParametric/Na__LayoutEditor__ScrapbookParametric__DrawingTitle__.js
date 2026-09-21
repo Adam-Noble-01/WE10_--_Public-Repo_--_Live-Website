@@ -48,11 +48,26 @@
 //   BACKWARDS: dragging it towards the title lengthens the bar and pulls
 //   BarOffsetMm back by the same amount, so the far end does not move.
 //   A bar placed below is untouched by any of it.
-// - THE UNDERLINE IS AT LEAST ITS SET LENGTH AND GROWS TO FIT. Sixty
-//   millimetres underlines "EXISTING EAST ELEVATION" with room to spare and
-//   would stop short of "PROPOSED FIRST FLOOR PLAN"; given a way to measure
-//   text (the engine passes one in the browser) it reaches the end of a
-//   longer title. With none - under Node - it is its set length.
+// - THE UNDERLINE IS AT LEAST ITS SET LENGTH, AND ALWAYS RUNS FIVE
+//   MILLIMETRES PAST THE WORDS. Sixty millimetres underlines "EXISTING
+//   EAST ELEVATION" with room to spare and would stop short of "PROPOSED
+//   SOUTH EAST ELEVATION - HOUSE FRONT FASCADE"; given a way to measure text
+//   (the engine passes one in the browser) the line runs UnderlinePastTextMm
+//   beyond the end of the words - 5 mm on the paper at every scale, which is
+//   500 mm of building at 1:100. A line that stops flush with its last
+//   letter, or short of it, reads as a mistake. With no measure - under
+//   Node - it is its set length.
+// - A BAR STOOD TO THE RIGHT IS THE ONE THING THAT CAN SHORTEN THAT RUN. The
+//   five millimetres give way before the line would reach within
+//   UnderlineBarGapMm of the bar's zero end, where its numerals hang across
+//   the underline's level - but the line never stops short of the words.
+// - THE LINE IS ONLY AS RIGHT AS THE MEASURE WAS WHEN IT WAS DRAWN. Before
+//   the paper's own text metrics have loaded the measure is an average-width
+//   estimate, ten per cent short on a line of capitals. Misfits says whether
+//   a title's underline, as it stands, still ends where the rule puts it, so
+//   the engine can rebuild one that was drawn to an estimate or before the
+//   rule - the one thing about a title drawn from a measurement, and the only
+//   thing asked about, so an edit made by hand inside the group is kept.
 // - Imports only the two pure modules it is made of, so it runs under Node.
 //
 // INTEGRATION:
@@ -66,13 +81,28 @@
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.0.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
-// - Ahead of it   : 1.1.0 (ViewLevel) and 1.2.0 (the bar to the right) are
-//                   TrueVision only. ValeVision holds 1.0.0, its floor plans
-//                   have no storey field, and its bar is always below.
+// - Ahead of it   : 1.1.0 (ViewLevel), 1.2.0 (the bar to the right) and
+//                   1.3.0 (five millimetres past the words) are TrueVision
+//                   only. ValeVision holds 1.0.0, its floor plans have no
+//                   storey field, and its bar is always below.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - The underline always runs UnderlinePastTextMm (5 mm on the paper) past
+//   the end of the words, where it used to stop a hair past them - Adam,
+//   over RB05's long elevation titles: "make sure this line always goes at
+//   least 5 mm past... it looks kind of weird being short". The words end at
+//   TextOffsetXMm plus their measured width; the set length is still the
+//   least the line is. A bar stood to the right shortens the run rather than
+//   be run under - never to less than the words themselves (UnderlineBarGapMm).
+// - Misfits, and the type's refit: whether a title's underline as it stands
+//   still ends where the rule says, for the engine's refit of titles drawn to
+//   the chrome's estimate before the paper's text metrics had loaded. That
+//   is how RB05's front elevation came to be underlined 93.2 mm under words
+//   103.5 mm long. Only the underline's length is asked about.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - BarPlacement 'right' and BarOffsetMm: the scale bar stood away along the
 //   title's own line, its foot on the title's baseline, held by its FAR end.
@@ -134,6 +164,7 @@
     const Na__LeParamTitle__FALLBACK = Object.freeze({
         TextSizeMm : 3.5, TextWeight : 600, TextColour : '#172b3a', TextOffsetXMm : -0.171, TextBaselineAboveUnderlineMm : 1.631,
         UnderlineMm : 60, UnderlineMinMm : 10, UnderlineMaxMm : 400, UnderlineStepMm : 5, UnderlineFitExtraMm : 0.342,
+        UnderlinePastTextMm : 5, UnderlineBarGapMm : 5,
         UnderlineColour : '#172b3a', UnderlineStrokePt : 0.4, ScaleBarBelowUnderlineMm : 6.318, SocketAboveUnderlineMm : 4.2,
         ScaleBarAboveUnderlineMm : 3.631, BarOffsetMm : 150, BarOffsetMinMm : 0, BarOffsetMaxMm : 1200, BarOffsetStepMm : 50
     });
@@ -149,6 +180,7 @@
     const Na__LeParamTitle__PLACE_RIGHT = 'right';
     const Na__LeParamTitle__PLACES      = Object.freeze([ Na__LeParamTitle__PLACE_BELOW, Na__LeParamTitle__PLACE_RIGHT ]);
     const Na__LeParamTitle__OFFSET_DP   = 1000;                              // <-- An offset is kept to a thousandth, so a rebuild writes the same number
+    const Na__LeParamTitle__FIT_SLACK_MM = 0.01;                             // <-- An underline within this of its length fits: far under the tenth it is drawn to, far over a moved element's rounding
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -259,19 +291,52 @@
 // REGION | Geometry
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | How Long the Underline Is Drawn
+    // HELPER FUNCTION | How Wide the Title's Words Are on the Paper, or Null
     // ------------------------------------------------------------
-    // Its set length, or as far as the text reaches when that is further and
-    // there is a way to measure it. tools.measureTextMm(text, sizeMm, weight).
+    // tools.measureTextMm(text, sizeMm, weight), asked at the title's own
+    // size and weight. Null when there is no way to measure - under Node, or
+    // with GrowsToFit off - and when the measure throws or answers nonsense.
     // ------------------------------------------------------------
-    function Na__LeParamTitle__UnderlineLength(config, whole, text, tools) {
+    function Na__LeParamTitle__TextWidth(config, text, tools) {
         const measure = (tools && typeof tools.measureTextMm === 'function' && Na__LeParamTitle__Flag(config, 'UnderlineGrowsToFit', true)) ? tools.measureTextMm : null;
-        if (!measure) return whole.UnderlineMm;
+        if (!measure) return null;
         let width = 0;
         try { width = Number(measure(text, Na__LeParamTitle__Number(config, 'TextSizeMm'), Na__LeParamTitle__Number(config, 'TextWeight'))); } catch (error) { width = 0; }
-        if (!Number.isFinite(width) || width <= 0) return whole.UnderlineMm;
-        const reach = Math.ceil((width + Na__LeParamTitle__Number(config, 'UnderlineFitExtraMm')) * 10) / 10;   // <-- To a tenth, so a rebuild writes the same number
-        return Math.max(whole.UnderlineMm, reach);
+        return (Number.isFinite(width) && width > 0) ? width : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | How Long the Underline Is Drawn
+    // ------------------------------------------------------------
+    // Its set length at least, and ALWAYS UnderlinePastTextMm past the end of
+    // the words when there is a way to measure them. The words end where the
+    // text is set - TextOffsetXMm, a hair left of the origin - plus their
+    // width, and the run past them is paper millimetres at every scale.
+    //
+    // WITH ITS BAR STOOD TO THE RIGHT the run gives way before the line would
+    // come within UnderlineBarGapMm of the bar's zero end, because the bar's
+    // numerals hang across the underline's level there. It gives way no
+    // further than the words themselves: their width plus FitExtraMm, which is
+    // the length the line was drawn to before the rule. A bar below, or none,
+    // is never in the way.
+    //
+    // Rounded UP to a tenth - after settling floating point dust at the
+    // thousandth, so a length that lands on a tenth stays on it - and so a
+    // rebuild writes the same number.
+    // ------------------------------------------------------------
+    function Na__LeParamTitle__UnderlineLength(config, whole, text, tools) {
+        const width = Na__LeParamTitle__TextWidth(config, text, tools);
+        if (width === null) return whole.UnderlineMm;
+        const wordsEnd = Na__LeParamTitle__Number(config, 'TextOffsetXMm') + width;
+        let   reach    = wordsEnd + Math.max(0, Na__LeParamTitle__Number(config, 'UnderlinePastTextMm'));
+        if (whole.ShowScaleBar && whole.BarPlacement === Na__LeParamTitle__PLACE_RIGHT) {
+            const clear = whole.BarOffsetMm - Math.max(0, Na__LeParamTitle__Number(config, 'UnderlineBarGapMm'));
+            const least = width + Na__LeParamTitle__Number(config, 'UnderlineFitExtraMm');
+            reach = Math.min(reach, Math.max(least, clear));
+        }
+        const tenths = Math.ceil(Math.round(reach * 10 * 1000) / 1000);          // <-- To a tenth, rounded up
+        return Math.max(whole.UnderlineMm, tenths / 10);
     }
     // ------------------------------------------------------------
 
@@ -432,6 +497,34 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Has a Title's Underline Stopped Fitting Its Words
+    // ------------------------------------------------------------
+    // records is { shapes, texts }: the title's own records as they stand on
+    // the sheet, in slot order, so the underline is shapes[0]. True when its
+    // length is not the length a build would draw now - because it was drawn
+    // to the chrome's estimate before the paper's text metrics had loaded, or
+    // before the five millimetre rule. ONLY THE UNDERLINE'S LENGTH IS ASKED
+    // ABOUT: it is the one thing a title draws from a measurement, so it is
+    // the one thing that can be wrong because the measure was. Anything else
+    // that differs was done by hand inside the group, and is not this
+    // question's business. False whenever the words cannot be measured, so a
+    // missing measure never shortens a line that was drawn with one; false
+    // for an underline that is not a single run, which a hand edit made.
+    // ------------------------------------------------------------
+    function Na__LeParamTitle__Misfits(config, barConfig, params, words, tools, records) {
+        const line   = (records && Array.isArray(records.shapes)) ? records.shapes[0] : null;
+        const points = (line && Array.isArray(line.Shape__Points)) ? line.Shape__Points : null;
+        if (!points || points.length !== 2 || !Array.isArray(points[0]) || !Array.isArray(points[1])) return false;
+        const whole = Na__LeParamTitle__Normalise(config, barConfig, params);
+        const text  = Na__LeParamTitle__TitleText(config, barConfig, whole, words).text;
+        if (Na__LeParamTitle__TextWidth(config, text, tools) === null) return false;
+        const drawn = Math.hypot(points[1][0] - points[0][0], points[1][1] - points[0][1]);
+        if (!Number.isFinite(drawn)) return false;
+        return Math.abs(drawn - Na__LeParamTitle__UnderlineLength(config, whole, text, tools)) > Na__LeParamTitle__FIT_SLACK_MM;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -445,7 +538,8 @@
     // ScaleBar block and getWords() the viewport identity module's words, each
     // read fresh on every call. facts names the parameters the link module
     // fills from the viewport the title is tied to; hasBar says whether the
-    // panel's scale bar settings apply to an element of this type.
+    // panel's scale bar settings apply to an element of this type; refit is
+    // the engine's question of whether the underline still fits its words.
     // ------------------------------------------------------------
     function Na__LeParamTitle__CreateType(getConfig, getBarConfig, getWords) {
         const config = () => ((typeof getConfig === 'function' ? getConfig() : null) || {});
@@ -462,6 +556,7 @@
             stretchTo : (params, xMm)        => Na__LeParamTitle__StretchTo(config(), bar(), params, xMm),
             slideTo   : (params, xMm, exact) => Na__LeParamTitle__SlideTo(config(), bar(), params, xMm, exact),
             describe  : (params)             => Na__LeParamTitle__Describe(config(), bar(), params),
+            refit     : (params, tools, records) => Na__LeParamTitle__Misfits(config(), bar(), params, words(), tools, records),
             hasBar    : (params)             => Na__LeParamTitle__Normalise(config(), bar(), params).ShowScaleBar === true,
             titleText : (params)             => Na__LeParamTitle__TitleText(config(), bar(), params, words()),
             subdivisionChoices : (params)    => Na__LeParamBar__SubdivisionChoices(bar(), Na__LeParamTitle__Normalise(config(), bar(), params))
@@ -492,6 +587,7 @@
         Na__LeParamTitle__StretchTo,
         Na__LeParamTitle__SlideTo,
         Na__LeParamTitle__Describe,
+        Na__LeParamTitle__Misfits,
         Na__LeParamTitle__CreateType
     };
     // ------------------------------------------------------------

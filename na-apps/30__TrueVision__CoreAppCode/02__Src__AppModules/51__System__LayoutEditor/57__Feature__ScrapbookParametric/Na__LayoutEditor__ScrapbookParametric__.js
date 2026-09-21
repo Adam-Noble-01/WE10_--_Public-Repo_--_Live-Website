@@ -35,9 +35,15 @@
 // - UNGROUP IS EXPLODE. The vectors and text stay; the block goes with the
 //   group record.
 // - A TYPE STAYS PURE BY BEING HANDED WHAT IT CANNOT REACH. build and handles
-//   are given a tools object - today one thing, a way to measure text on the
-//   paper - which the panel sets from the editor's own chrome. A type that
-//   ignores it, or runs under Node where there is none, draws all the same.
+//   are given a tools object - a way to measure text on the paper, and
+//   whether that measure is yet the paper's own - which the panel sets from
+//   the editor's own chrome. A type that ignores it, or runs under Node where
+//   there is none, draws all the same.
+// - A MEASURE CAN BE WRONG WHEN IT IS TAKEN. Until jsPDF and the Open Sans
+//   cuts have loaded the chrome answers an average-width estimate, and an
+//   element built then keeps it in its records. Refit asks each element whose
+//   type can tell (definition.refit) whether it still fits, and rebuilds the
+//   ones that do not - only once the tools say the measure is the real one.
 // - AN ELEMENT IS A PRESET OF A TYPE. The library lists elements; two may be
 //   one type with different Element__Params, as the Drawing Title is offered
 //   with its scale bar and without.
@@ -57,11 +63,21 @@
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, adapted: one drawing
 //                   type there. The four hooks it needed were ported with it.
-// - Ahead of it   : 1.3.0 (the slide grip point) is TrueVision only.
+// - Ahead of it   : 1.3.0 (the slide grip point), 1.4.0 (the Portal's hooks)
+//                   and 1.5.0 (Refit) are TrueVision only.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - Refit, and a type's optional refit(params, tools, records): the elements
+//   on a sheet whose records no longer fit what their words measure now are
+//   rebuilt where they stand, silently, for the caller to announce. Asked
+//   only once tools.metricsReady() says the measure is the paper's own - a
+//   fit to the estimate would undo a good one. For the Drawing Title, whose
+//   underline now runs five millimetres past its words and was drawn short on
+//   RB05 by a rebuild that ran before the metrics had loaded.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - For the Project Portal element. ShapePatch carries Shape__Qr, so a
 //   regenerated element can resize its QR code in the record it already has.
@@ -149,7 +165,7 @@
     let   Na__LeParam__Status      = Na__LeParam__STATUS_LOADING;
     let   Na__LeParam__LoadPromise = null;
     const Na__LeParam__Types       = new Map();     // <-- type name -> definition
-    let   Na__LeParam__Tools       = Object.freeze({});   // <-- What a type's build and handles are handed: { measureTextMm(text, sizeMm, weight) }
+    let   Na__LeParam__Tools       = Object.freeze({});   // <-- What a type's build and handles are handed: { measureTextMm(text, sizeMm, weight), metricsReady(), projectName() }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -244,6 +260,13 @@
     //                                 viewport: it is dropped with no link, the
     //                                 follower leaves it alone and the panel
     //                                 shows it no link row (optional, default on)
+    //     refit(params, tools, records)
+    //                                 true when an element's records, as they
+    //                                 stand, no longer fit what its words
+    //                                 measure now: records is { shapes, texts },
+    //                                 its members' records in slot order,
+    //                                 moved to its origin. Asked by Refit only
+    //                                 (optional - a type that measures text)
     // }
     // ------------------------------------------------------------
     function Na__LeParam__RegisterType(definition) {
@@ -276,6 +299,8 @@
     // FUNCTION | Set What a Type's Build and Handles Are Handed
     // ------------------------------------------------------------
     // tools: { measureTextMm(text, sizeMm, weight) -> paper millimetres,
+    //          metricsReady() -> true once that measure is the paper's own
+    //                            rather than an estimate,
     //          projectName() -> what the project on screen is called }.
     // A type is pure - it imports no DOM and no editor module - so whatever
     // it needs from the editor arrives here. The panel sets it once. Each
@@ -746,6 +771,68 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | An Element's Own Records, Moved to Its Origin, Slot for Slot
+    // ------------------------------------------------------------
+    // { shapes, texts } in member order, what a type's refit is shown. A
+    // member whose record has gone keeps its slot as null, so every slot
+    // after it still means what it means to the type.
+    // ------------------------------------------------------------
+    function Na__LeParam__RecordsAt(sheet, group, anchor) {
+        const held = Na__LeParam__Members(group);
+        return {
+            shapes : held.shapes.map((member) => {
+                const record = Na__LeModel__GetShapeById(sheet, member.id);
+                if (!record) return null;
+                const points = Array.isArray(record.Shape__Points) ? record.Shape__Points : [];
+                return Object.assign({}, record, { Shape__Points : points.map((p) => (Array.isArray(p) ? [ p[0] - anchor.x, p[1] - anchor.y ] : p)) });
+            }),
+            texts  : held.texts.map((member) => {
+                const record = Na__LeModel__GetAnnotationById(sheet, member.id);
+                if (!record) return null;
+                return Object.assign({}, record, { Annotation__PosXMm : record.Annotation__PosXMm - anchor.x, Annotation__PosYMm : record.Annotation__PosYMm - anchor.y });
+            })
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Rebuild the Elements on a Sheet Whose Measured Words No Longer Fit (silent)
+    // ------------------------------------------------------------
+    // A type that draws from a measurement of its words - the Drawing Title,
+    // whose underline runs five millimetres past them - was drawn with
+    // whatever the measure answered at the time. Before jsPDF and the Open
+    // Sans cuts have loaded that is the chrome's average-width estimate, and a
+    // sheet's first refresh of a session runs before they land, so a title
+    // rebuilt then keeps the estimate in its records until something rebuilds
+    // it again. Each element whose type offers refit is asked whether it
+    // still fits; the ones that do not are rebuilt where they stand, as a
+    // change of parameters would rebuild them. Silent throughout: the caller
+    // announces, once, for all of them.
+    //
+    // NOTHING IS ASKED until tools.metricsReady() answers true. A fit to the
+    // estimate would undo a good fit, and an element with no answer at all
+    // is left exactly as it is. Returns the ids of the groups it rebuilt.
+    // ------------------------------------------------------------
+    function Na__LeParam__Refit(sheet) {
+        const rebuilt = [];
+        const ready   = Na__LeParam__Tools.metricsReady;
+        if (!sheet || typeof ready !== 'function' || ready() !== true) return rebuilt;
+        Na__LeParam__ListOnSheet(sheet).forEach((group) => {
+            const block      = Na__LeParam__GetBlock(group);
+            const definition = block ? Na__LeParam__GetType(block.Parametric__Type) : null;
+            if (!definition || typeof definition.refit !== 'function') return;
+            const anchor = Na__LeParam__AnchorOf(sheet, group.Group__Id);
+            if (!anchor) return;
+            let misfits = false;
+            try { misfits = definition.refit(Na__LeParam__GetParams(sheet, group.Group__Id), Na__LeParam__Tools, Na__LeParam__RecordsAt(sheet, group, anchor)) === true; }
+            catch (error) { misfits = false; }                                   // <-- A type that cannot answer leaves its element as it is
+            if (misfits && Na__LeParam__Regenerate(sheet, group.Group__Id, {}, { silent : true })) rebuilt.push(group.Group__Id);
+        });
+        return rebuilt;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -786,7 +873,8 @@
         Na__LeParam__Insert,
         Na__LeParam__Announce,
         Na__LeParam__Regenerate,
-        Na__LeParam__ResetToStandard
+        Na__LeParam__ResetToStandard,
+        Na__LeParam__Refit
     };
     // ------------------------------------------------------------
 

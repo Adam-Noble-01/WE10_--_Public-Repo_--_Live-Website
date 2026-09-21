@@ -21,7 +21,9 @@
 //                 Annotations [], Dimensions [], Shapes [], Groups [],
 //                 Lineweights {ViewportPt, DimensionPt},
 //                 DrawingType (only ever 'siteplan'; no key is an architectural drawing)
-//     Layer       Layer__Id, Name, Type, Visible, Locked, Order
+//     Layer       Layer__Id, Name, Type, Visible, Locked, Order,
+//                 Selectable (only ever false: a reference layer, drawn and
+//                 printed but never clicked, boxed or snapped to)
 //     Viewport    Viewport__Id, LayerId, Name, Kind ('2d' | '3d'), SceneId,
 //                 DrawingId, FrameMm {X, Y, WidthMm, HeightMm},
 //                 ScaleDenominator, PanMm {X, Y}, ImageMm {WidthMm, HeightMm},
@@ -119,6 +121,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.30.0
+// - Re-exports the Layers unit's IsLayerSelectable (a reference layer, the
+//   layer record's Selectable switch), ItemLayerId and MoveToLayer (the
+//   right-click menu's Layer flyout, one undo step).
+//
+// 21-Sep-2026 - Version 1.29.0
+// - Save passes on what the drawings save's steps report (report.steps) - the
+//   pictures pushed to R2 and re-filed under a new document id - into the one
+//   Save Sheets toast, red when any of it failed.
+//
 // 21-Sep-2026 - Version 1.28.0
 // - Re-exports the Shapes unit's ShapeLayerType and ShapeLayerId, and the new
 //   Area Groups unit (Na__LayoutEditor__SheetModel__AreaGroups__): a sheet's
@@ -419,7 +431,10 @@
         Na__LeModel__UpdateLayer,
         Na__LeModel__ReorderLayer,
         Na__LeModel__IsLayerVisible,
-        Na__LeModel__IsLayerLocked
+        Na__LeModel__IsLayerLocked,
+        Na__LeModel__IsLayerSelectable,
+        Na__LeModel__ItemLayerId,
+        Na__LeModel__MoveToLayer
     } from './Na__LayoutEditor__SheetModel__Layers__.js';
     import { Na__LeModel__CanArrange, Na__LeModel__Arrange } from './Na__LayoutEditor__SheetModel__DrawOrder__.js';
     import {
@@ -650,6 +665,9 @@
             else if (local.skipped) showToast(Na__LeCfg__GetLabel('SavedMessage', 'Sheets saved to R2.'), false);
             else                    showToast(Na__LeCfg__FormatLabel('SavedLocalFailedMessage', 'Sheets saved to R2, but the local copy was not written: {error}.', { error : local.error }), true);
         }
+        // WHAT THE SAVE STEPS DID - the pictures pushed to R2 and re-filed under
+        // a new document id - joins the same toast, red if any of it failed.
+        if (typeof showToast === 'function' && Array.isArray(report.steps)) report.steps.forEach((entry) => showToast(entry.message, entry.error));
         return saved;
     }
     // ------------------------------------------------------------
@@ -736,6 +754,9 @@
         Na__LeModel__ReorderLayer,
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
+        Na__LeModel__IsLayerSelectable,
+        Na__LeModel__ItemLayerId,
+        Na__LeModel__MoveToLayer,
         Na__LeModel__CanArrange,
         Na__LeModel__Arrange,
         Na__LeModel__GetViewports,

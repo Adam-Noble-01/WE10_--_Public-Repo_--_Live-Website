@@ -23,6 +23,11 @@
 //   or releasing it redraws at once. Without it, two points at different
 //   heights - the eaves of one wall and the foot of the next - could only be
 //   given a sloping dimension.
+// - ORTHO MODE (F8) IS A LATCHED SHIFT. With it on, every new dimension is
+//   ortho with nothing held - AutoCAD's DIMLINEAR - and holding Shift gives
+//   an aligned one instead, AutoCAD's Shift override (the rule is Ortho XOR
+//   Shift, Na__LayoutEditor__OrthoMode__State__). The two measured points
+//   are picked exactly as before: neither Shift nor Ortho bends the span.
 // - INFERENCE. While the line moves, a parallel dimension nearby pulls it
 //   onto its own line, so a run of dimensions lines up - an ortho one with
 //   any other dimension running the same way. The same happens when the
@@ -65,6 +70,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.10.0
+// - The inference onto a parallel dimension's line leaves out a dimension on
+//   a REFERENCE layer (the Layers panel's Ref), as it leaves out a hidden
+//   one: nothing snaps or lines up to a reference layer. The measured points
+//   already come through Na__LeOsnap__Snap, which offers nothing there.
+//
+// 21-Sep-2026 - Version 1.9.0
+// - OffsetFor reads the cursor off the drawing grid while Grid Snap is on
+//   (F7, Na__LayoutEditor__DrawingGrid__), so the third click and the line's
+//   offset drag put a level or plumb dimension line on a grid line; the
+//   inference onto a parallel dimension's line still wins. The two measured
+//   points reach the grid through Na__LeOsnap__Snap.
+//
+// 21-Sep-2026 - Version 1.8.0
+// - Ortho mode (F8, Na__LayoutEditor__OrthoMode__): OrientationFor and Span
+//   ask Na__LeOrtho__Resolve(shift) - Ortho XOR Shift - where they asked Shift
+//   alone, so with Ortho on a new dimension is horizontal or vertical from its
+//   first frame and a held Shift makes it aligned. Every caller (the clicks,
+//   the move, Shift's redraw and a typed offset) follows without a change.
+//
 // 14-Sep-2026 - Version 1.7.0
 // - BeginTextEdit opens the field with the value's handing: left or right
 //   justified once the text has been dragged off the line, centred on it.
@@ -125,6 +150,7 @@
         Na__LeModel__KIND_2D,
         Na__LeModel__GetActiveSheet,
         Na__LeModel__IsLayerVisible,
+        Na__LeModel__IsLayerSelectable,
         Na__LeModel__CreateDimension,
         Na__LeModel__UpdateDimension,
         Na__LeModel__DeleteDimension,
@@ -136,8 +162,10 @@
     import { Na__LeDimGeo__ALIGNED, Na__LeDimGeo__Frame, Na__LeDimGeo__OrthoToward } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeChrome__MeasureTextMm } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeOsnap__TONE_DIMENSION, Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeGrid__SnapPoint } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- Grid Snap (F7): a leaf, the nearest grid point
     import { Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeAxis__Get, Na__LeAxis__Clear, Na__LeAxis__Apply } from '../30__System__SheetTools/Na__LayoutEditor__AxisLock__.js';
+    import { Na__LeOrtho__Resolve } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__State__.js';
     import { Na__LeText__OpenField } from './Na__LayoutEditor__TextTool__.js';
     // ------------------------------------------------------------
 
@@ -179,7 +207,9 @@
     // still measures to the vertex under the cursor. Shift has no say here:
     // it makes the finished dimension ortho instead, and an ortho dimension
     // measures one axis whatever the span, so bending the span to an axis
-    // would only move the end off the point that was picked.
+    // would only move the end off the point that was picked. Ortho mode
+    // (F8) has no say here either, for the same reason: it makes the
+    // dimension ortho exactly as Shift does.
     // ------------------------------------------------------------
     function Na__LeDim__SnapOrLock(sheet, start, point) {
         const snap = Na__LeOsnap__Snap(sheet, point, null, Na__LeOsnap__TONE_DIMENSION);
@@ -189,10 +219,14 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | The Orientation the Line Asks For: Ortho While Shift Is Held, Aligned Otherwise
+    // HELPER FUNCTION | The Orientation the Line Asks For: Ortho While Shift Is Held (or Ortho Mode Is On), Aligned Otherwise
+    // ------------------------------------------------------------
+    // Ortho mode (F8) is a latched Shift here too: on, the line is horizontal
+    // or vertical with nothing held, and a held Shift gives an aligned one -
+    // AutoCAD's rule, Ortho XOR Shift (Na__LayoutEditor__OrthoMode__State__).
     // ------------------------------------------------------------
     function Na__LeDim__OrientationFor(dim, pointMm, shift) {
-        if (!shift) return Na__LeDimGeo__ALIGNED;
+        if (!Na__LeOrtho__Resolve(shift)) return Na__LeDimGeo__ALIGNED;
         return Na__LeDimGeo__OrthoToward(
             { x : dim.Dimension__StartXMm, y : dim.Dimension__StartYMm },
             { x : dim.Dimension__EndXMm,   y : dim.Dimension__EndYMm },
@@ -209,6 +243,10 @@
     // Returns { offsetMm, inferred (the other line's offset or null), foot (where the marker sits) }.
     // ------------------------------------------------------------
     function Na__LeDim__OffsetFor(sheet, dim, pointMm) {
+        // GRID SNAP (F7): the line goes through the grid point nearest the
+        // cursor, so a level or plumb dimension line lands on a grid line. A
+        // parallel dimension's line in reach still wins, below.
+        pointMm = Na__LeGrid__SnapPoint(pointMm);
         const sx = dim.Dimension__StartXMm, sy = dim.Dimension__StartYMm;
         const frame = Na__LeDimGeo__Frame({ x : sx, y : sy }, { x : dim.Dimension__EndXMm, y : dim.Dimension__EndYMm }, dim.Dimension__Orientation);
         if (!frame) return { offsetMm : dim.Dimension__OffsetMm, inferred : null, foot : { x : pointMm.x, y : pointMm.y } };
@@ -220,6 +258,7 @@
         let inferred = null, bestGap = radiusMm;
         sheet.Sheet__Dimensions.forEach((other) => {
             if (other.Dimension__Id === dim.Dimension__Id || !Na__LeModel__IsLayerVisible(sheet, other.Dimension__LayerId)) return;
+            if (!Na__LeModel__IsLayerSelectable(sheet, other.Dimension__LayerId)) return;   // <-- Nor one on a reference layer: nothing lines up to it
             const sk = Na__LeMarkup__DimensionSkeleton(other);
             if (!sk || Math.abs((sk.dirX * dirX) + (sk.dirY * dirY)) < Na__LeDim__PARALLEL_DOT) return;
             const d   = ((sk.DS.x - sx) * perpX) + ((sk.DS.y - sy) * perpY);   // <-- Where its line sits, measured from our start
@@ -276,7 +315,7 @@
             colour : d.colour, terminator : d.terminator, tickLengthMm : d.tickLengthMm, precision : d.precision, unitsSuffix : d.unitsSuffix,
             atScale : d.atScale !== false,                                    // <-- Measure at scale: the drawing's real size, unless the panel says paper
             startExtensionMm : d.startExtensionMm, endExtensionMm : d.endExtensionMm, extensionsLinked : d.extensionsLinked,   // <-- Fixed length extension lines; the model keeps only what differs from the full line
-            orientation : shift ? Na__LeDimGeo__OrthoToward(p.startMm, end, end, null, Na__LeCfg__GetSelectionSetup().dragThresholdMm) : Na__LeDimGeo__ALIGNED,   // <-- Shift already down: ortho from the first frame
+            orientation : Na__LeOrtho__Resolve(shift) ? Na__LeDimGeo__OrthoToward(p.startMm, end, end, null, Na__LeCfg__GetSelectionSetup().dragThresholdMm) : Na__LeDimGeo__ALIGNED,   // <-- Shift already down, or Ortho on: ortho from the first frame
             silent : true
         });
         Na__LeAxis__Clear();

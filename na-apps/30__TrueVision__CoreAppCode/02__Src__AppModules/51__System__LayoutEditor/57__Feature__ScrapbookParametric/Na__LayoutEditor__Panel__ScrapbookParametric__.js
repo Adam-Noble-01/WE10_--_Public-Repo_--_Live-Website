@@ -44,14 +44,21 @@
 // PORT NOTE:
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
-// - Ahead of it   : 1.3.0 (the storey hint) and 1.4.0 (where a title's bar
-//                   sits) are TrueVision only. ValeVision holds 1.2.0, its
-//                   floor plans have no storey field and its bar is always
-//                   below.
+// - Ahead of it   : 1.3.0 (the storey hint), 1.4.0 (where a title's bar
+//                   sits) and 1.5.0 (the refit once the text metrics land)
+//                   are TrueVision only. ValeVision holds 1.2.0, its floor
+//                   plans have no storey field and its bar is always below.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - The tools say whether the text measure is yet the paper's own
+//   (metricsReady), and the wiring waits for jsPDF and the Open Sans cuts,
+//   then books a refresh of the sheet on screen - which now refits any title
+//   whose underline was drawn to the chrome's estimate before they loaded.
+//   A load that fails is asked for again the next time a sheet comes up.
+//
 // 20-Sep-2026 - Version 1.4.0
 // - Where a title's scale bar sits, and how far along it stands when it sits
 //   to the right: two more of a title's own controls, the second shown only
@@ -164,10 +171,13 @@
         Na__LeViewText__SOURCE_LEVEL
     } from '../20__System__Viewports/Na__LayoutEditor__ViewportTitleText__.js';
     import { Na__LeChrome__MeasureTextMm } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LePdf__EnsureJsPdf } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';   // <-- The library the chrome measures text with
+    import { Na__LePdfFonts__EnsureLoaded } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';   // <-- And the Open Sans cuts it measures them in
     import {
         Na__LeParamLink__KIND_VIEWPORT,
         Na__LeParamLink__KIND_SHEET,
         Na__LeParamLink__Attach,
+        Na__LeParamLink__BookRefresh,
         Na__LeParamLink__Candidates,
         Na__LeParamLink__ViewportName,
         Na__LeParamLink__DescribeById,
@@ -205,6 +215,8 @@
     // ------------------------------------------------------------
     let Na__LePanelParam__Signature = null;     // <-- What the tiles were last built for, so a refresh per model change rebuilds nothing
     let Na__LePanelParam__Wired     = false;
+    let Na__LePanelParam__MetricsReady = false; // <-- jsPDF and the Open Sans cuts are in: the chrome's text measure is the paper's own
+    let Na__LePanelParam__MetricsAsked = false; // <-- They have been asked for and not failed
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -281,6 +293,35 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Wait for the Paper's Own Text Metrics, Then Refit the Sheet on Screen
+    // ------------------------------------------------------------
+    // The chrome measures text through jsPDF and the Open Sans cuts, and
+    // until both are in it answers an average-width estimate - ten per cent
+    // short on a line of capitals. The mode controller asks for them on the
+    // first drawing tab of a session, but the sheet's first refresh runs
+    // straight away, so a title rebuilt by it is drawn to the estimate. The
+    // moment they land the sheet on screen is refreshed, which refits any
+    // such title; every sheet after it is refit as it comes up.
+    //
+    // OPEN SANS THAT FAILS TO LOAD LEAVES THE FLAG DOWN. The measure then
+    // falls back to Helvetica, which is not the type on screen, and fitting
+    // to it would fight the next machine that has the font. A load that
+    // throws is asked for again when the next sheet comes up.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__AwaitMetrics() {
+        if (Na__LePanelParam__MetricsReady || Na__LePanelParam__MetricsAsked) return;
+        Na__LePanelParam__MetricsAsked = true;
+        Na__LePdf__EnsureJsPdf()
+            .then(() => Na__LePdfFonts__EnsureLoaded())
+            .then((loaded) => {
+                Na__LePanelParam__MetricsReady = loaded === true;
+                if (Na__LePanelParam__MetricsReady) Na__LeParamLink__BookRefresh();   // <-- Editable sheets only, after the present announcement: the link module's own rules
+            })
+            .catch(() => { Na__LePanelParam__MetricsAsked = false; });            // <-- Estimates meanwhile, and nothing refit to them
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Register the Types, Start the Follower, Hand Over the Grips (once)
     // ------------------------------------------------------------
     // A type is registered with a reader for its config block rather than the
@@ -301,8 +342,10 @@
         Na__LeParam__RegisterType(Na__LeParamArea__CreateType(() => Na__LeParam__Block('AreaSchedule'), Na__LePanelParam__AreaMenuWords));   // <-- The area schedule; its numbers are filled in by 59__Feature__FloorAreas
         Na__LeParam__SetTools({                                               // <-- A type is pure; whatever it cannot reach is handed over here
             measureTextMm : (value, sizeMm, weight) => Na__LeChrome__MeasureTextMm(value, sizeMm, weight),   // <-- The chrome's own measurer, so a line breaks where it breaks on paper
+            metricsReady  : () => Na__LePanelParam__MetricsReady,             // <-- Until true that measurer answers an estimate, and nothing is refit to it
             projectName   : Na__LePanelParam__ProjectName                     // <-- Called on every build, so renaming the project rewrites the blocks that letter it
         });
+        Na__LePanelParam__AwaitMetrics();
         void Na__LeViewId__Ready();
         Na__LeParamLink__Attach();
         Na__LeParamGrips__Attach();
@@ -799,6 +842,7 @@
         const reason = (event && event.detail) ? event.detail.reason : '';
         if (Na__LePanelParam__LIBRARY_SHOWS.indexOf(reason) !== -1) Na__LePanelParam__SyncLibrary();
         if (Na__LePanelParam__PROPS_SHOWS.indexOf(reason) !== -1) Na__LePanelParam__SyncProps();
+        if (reason === 'active' || reason === 'loaded') Na__LePanelParam__AwaitMetrics();   // <-- Only does anything after a load that threw
     }
     // ------------------------------------------------------------
 

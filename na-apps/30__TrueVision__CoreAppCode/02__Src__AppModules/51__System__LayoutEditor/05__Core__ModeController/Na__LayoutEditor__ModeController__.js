@@ -47,6 +47,45 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.26.0
+// - SHEET IMAGES (54__Feature__SheetImages). Na__LeImg__Ready joins the
+//   first-open wait and Na__LeImg__Initialize runs after the model: the
+//   picture source for everyone, and in the editor the save step that files
+//   pictures under their drawing's document id, the corner grips and the
+//   file drop. AttachSheetInput / DetachSheetInput take the drop with the
+//   rest of the sheet's input (leaving a sheet keeps a crop in progress).
+//   The Images panel registers after Vectors, SectionForKind opens it for a
+//   selection of pictures, and a shape change refreshes it.
+//
+// 21-Sep-2026 - Version 1.25.0
+// - THE DRAWING TABS' KEYBOARD IS STARTED AFRESH EVERY TIME A DRAWING IS
+//   OPENED FROM ANOTHER TAB (RestartSheetKeys), as Adam asked: from the 3D
+//   Model tab, the Project Specification, the Drawing Register or the
+//   Statements. Every listener comes off and goes back on - a key held, a
+//   value half typed and a tool half used go with them, and Select is up -
+//   the drawing tabs' key file is read again (Na__LeCfg__ReloadKeyMap: the
+//   map in force stays until it lands, and a failed read keeps it), and the
+//   stage is given the keyboard (Na__LePc__TakeKeyboard), so a field left with
+//   the focus on the tab just closed cannot keep the sheet's keys. One
+//   drawing to another keeps its keyboard as it is.
+//
+// 21-Sep-2026 - Version 1.24.0
+// - The drawing grid (Na__LayoutEditor__DrawingGrid__, SketchUp LayOut's
+//   grid): the Drawing Grid section registers straight after Sheet on the
+//   Document Preferences tab, and the grid is attached and detached with the
+//   sheet tools, so it is drawn on a drawing tab and never for a viewer.
+//
+// 21-Sep-2026 - Version 1.23.0
+// - PAGE UP AND PAGE DOWN TURN THE DRAWINGS. StepSheet answers the PC
+//   controls' STEP_SHEET_EVENT by entering the drawing before or after this
+//   one, in tab order, exactly as clicking that tab does. Drawings only; the
+//   ends stop.
+// - WALK AND FLY ARE LEFT WHEN THE EDITOR OPENS. Enter asks SuspendThreeD for
+//   the whole exit (returnToOrbit), where the old "conversion" only relit the
+//   toolbar: opening a drawing tab while walking left Walk running through the
+//   editor and after it, under a toolbar that read Orbit.
+// - Ctrl+S's comment: the Drawing Register now answers the key itself.
+//
 // 21-Sep-2026 - Version 1.22.0
 // - THREE TOOL SETS, THREE KEYBOARDS. The app's key scope
 //   (Na__AppUtils__KeyScope__) follows this module: KeyScope reads which
@@ -204,13 +243,14 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Navigation, Tools, Panels, Toolbar, Snapshots
     // ------------------------------------------------------------
-    import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel, Na__LeCfg__GetPanelSetup, Na__LeCfg__MatchKeyBinding } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__SetAppConfig, Na__LeCfg__Ready, Na__LeCfg__IsEnabled, Na__LeCfg__IsReadOnlyOnWeb, Na__LeCfg__GetLabel, Na__LeCfg__GetPanelSetup, Na__LeCfg__MatchKeyBinding, Na__LeCfg__ReloadKeyMap } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeVeil__FirstOpen, Na__LeVeil__ReturnTo3d, Na__LeVeil__Dismiss3d } from './Na__LayoutEditor__LoadingVeil__.js';
     import { Na__LeEdge__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__EdgeStyles__.js';
     import { Na__LePanelPatterns__Register } from '../36__System__HatchPatternTools/Na__LayoutEditor__Panel__Patterns__.js';
     import { Na__LePanelArea__Register } from '../59__Feature__FloorAreas/Na__LayoutEditor__Panel__FloorAreas__.js';
     import { Na__LeArea__Ready, Na__LeArea__Is } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__.js';
     import { Na__LeAreaTable__Attach } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Table__.js';
+    import { Na__LeImg__Ready, Na__LeImg__Initialize, Na__LeImg__Is, Na__LeImg__AttachInput, Na__LeImg__DetachInput } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__.js';
     // @delegate: ../59__Feature__FloorAreas/
     import { Na__LeHatch__Ready } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeComposite__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
@@ -234,7 +274,7 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Mount, Na__LeSurface__SetSheet, Na__LeSurface__Refresh, Na__LeSurface__SetZoom, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeNav__Fit } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
-    import { Na__LePc__Attach, Na__LePc__Detach } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__Pc__.js';
+    import { Na__LePc__STEP_SHEET_EVENT, Na__LePc__Attach, Na__LePc__Detach, Na__LePc__TakeKeyboard } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__Pc__.js';
     import { Na__LeTouch__Attach, Na__LeTouch__Detach } from '../10__Core__SheetSurface/Na__LayoutEditor__Controls__TouchScreen__.js';
     import { Na__LeTools__DEFAULTS_EVENT, Na__LeTools__Attach, Na__LeTools__Detach } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LePanels__Mount, Na__LePanels__Refresh, Na__LePanels__FocusSection, Na__LePanels__RegisterTab } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
@@ -242,6 +282,8 @@
     import { Na__LeDrop__CHANGED_EVENT } from '../30__System__SheetTools/Na__LayoutEditor__Eyedropper__.js';
     import { Na__LePanelLayers__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Layers__.js';
     import { Na__LePanelSheet__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Sheet__.js';
+    import { Na__LePanelGrid__Register } from '../27__System__DrawingGrid/Na__LayoutEditor__Panel__DrawingGrid__.js';
+    import { Na__LeGrid__Attach, Na__LeGrid__Detach } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js';
     import { Na__LePanelScrap__Register, Na__LePanelScrap__RegisterTab } from '../55__Feature__Scrapbook/Na__LayoutEditor__Panel__Scrapbook__.js';
     import { Na__LePanelScrapCustom__Register } from '../56__Feature__ScrapbookCustom/Na__LayoutEditor__Panel__ScrapbookCustom__.js';
     import { Na__LePanelParam__RegisterLibrary, Na__LePanelParam__RegisterProperties } from '../57__Feature__ScrapbookParametric/Na__LayoutEditor__Panel__ScrapbookParametric__.js';
@@ -251,6 +293,7 @@
     import { Na__LePanelLeaders__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Leaders__.js';
     import { Na__LePanelDims__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Dimensions__.js';
     import { Na__LePanelShapes__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Shapes__.js';
+    import { Na__LePanelImages__Register } from '../54__Feature__SheetImages/Na__LayoutEditor__Panel__SheetImages__.js';
     import { Na__LePanelStyles__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Styles__.js';
     import { Na__LePanelSpComp__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__SitePlanComposites__.js';
     import { Na__LeSpComp__Ready } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
@@ -435,6 +478,7 @@
         // now "what is on the paper" against "what the selection's properties
         // are", instead of layers on one side and everything else on the other.
         Na__LePanelSheet__Register();
+        Na__LePanelGrid__Register();                                           // <-- Drawing Grid: under Sheet, LayOut's Document Setup > Grid (F6 shows it, F7 snaps to it)
         Na__LePanelMargin__Register();                                         // <-- The sheet's notes margin, beside its other sheet settings
         Na__LePanelLayers__Register();
         Na__LePanelStyles__Register();
@@ -451,6 +495,7 @@
         Na__LePanelLeaders__Register();
         Na__LePanelDims__Register();
         Na__LePanelShapes__Register();
+        Na__LePanelImages__Register();                                         // <-- Images: the selected picture's file, folder, print resolution, width and frame
         // THE SCRAPBOOK TAB | Three libraries, one way of dropping
         Na__LePanelScrap__Register();                                          // <-- Standard: ready-made items from the config; shown only on a sheet that has some
         Na__LePanelParam__RegisterLibrary();                                   // <-- Parametric: dynamic elements - the scale bar - that keep answering to their parameters
@@ -476,14 +521,45 @@
         Na__LePc__Attach();                                                    // <-- Mouse, wheel and keyboard, before the tools
         Na__LeTouch__Attach();                                                 // <-- Touch, before the tools
         Na__LeTools__Attach({ editable : Na__LeMode__IsEditable() });
+        Na__LeGrid__Attach();                                                  // <-- The drawing grid is drawn with the tools, and never for a viewer
         Na__LeMarginGrip__Attach({ editable : Na__LeMode__IsEditable() });
+        Na__LeImg__AttachInput();                                              // <-- Picture files dropped on the stage land on the sheet
     }
     function Na__LeMode__DetachSheetInput() {
         if (Na__LeVw__IsViewerMode()) return;
+        Na__LeImg__DetachInput();                                              // <-- A crop in progress is kept, and drops stop
         Na__LeMarginGrip__Detach();
+        Na__LeGrid__Detach();
         Na__LeTools__Detach();
         Na__LeTouch__Detach();
         Na__LePc__Detach();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Drawing Tab Opened From Another Tab: Its Keyboard Started Afresh
+    // ------------------------------------------------------------
+    // ADAM'S RULE (21-Sep-2026): the drawing tabs' hotkeys are set up again
+    // every time a drawing is opened from the 3D Model tab or from a document
+    // tab - the Project Specification, the Drawing Register, the Statements -
+    // so nothing the other tab left behind follows the user back onto the
+    // sheet: a key held, a value half typed, a field holding the focus, a key
+    // file that failed to read. In order:
+    //   1. every listener off - held keys, half-typed values, a tool half used
+    //      and a pan in flight go with them;
+    //   2. the drawing tabs' key file read again - the bindings in force stay
+    //      until it lands, and a read that fails keeps them;
+    //   3. every listener back on, Select up - the resting state;
+    //   4. the keyboard given to the sheet: whatever the last tab left the
+    //      focus in gives it up to the stage, so the first key is the sheet's.
+    // One drawing tab to another keeps its keyboard as it is.
+    // ------------------------------------------------------------
+    function Na__LeMode__RestartSheetKeys() {
+        if (Na__LeVw__IsViewerMode()) return;                                  // <-- A viewer binds its own reading keys when a document is shown
+        Na__LeMode__DetachSheetInput();
+        void Na__LeCfg__ReloadKeyMap();
+        Na__LeMode__AttachSheetInput();
+        Na__LePc__TakeKeyboard();
     }
     // ------------------------------------------------------------
 
@@ -561,7 +637,7 @@
             Na__LeStmtPage__Hide();
             if (!Na__LeVw__IsViewerMode()) Na__LeSpecEd__Hide();                 // <-- Back from the specification: the sheet was kept underneath
             Na__LeMode__View = Na__LeMode__VIEW_SHEET;                           // <-- In the viewer, ShowDrawing puts the specification away below
-            Na__LeMode__AttachSheetInput();
+            Na__LeMode__RestartSheetKeys();                                      // <-- Back from a document tab: the drawing tabs' keyboard started afresh
         }
         if (!Na__LeMode__Active) {
             if (Na__FloorPlanMode__IsEngaged())  Na__FloorPlanMode__ExitPlan(null);          // <-- The editor starts from the 3D view
@@ -574,9 +650,9 @@
             Na__LeMode__Active = true;
             Na__LeVw__SetActive(true);                                       // <-- The viewer's body class: the stylesheet only then reshapes the shell
             Na__RenderLoop__Pause(Na__LeMode__RENDER_HOLD);                  // <-- Engine idle: the sheet owns the screen; snapshots render offscreen on demand
-            Na__DrawView__Transitions__SuspendThreeD();                     // <-- Orbit and distance culling let go, as in a drawing
+            Na__DrawView__Transitions__SuspendThreeD({ returnToOrbit : true });   // <-- Walk or Fly left for Orbit, the whole exit; orbit and distance culling let go, as in a drawing
             Na__LeSnap__ResetFingerprints();                                // <-- One model walk per session, not per refresh
-            Na__LeMode__AttachSheetInput();                                // <-- Pointer, keys, tools and the margin grip
+            Na__LeMode__RestartSheetKeys();                                // <-- Pointer, keys, tools and the margin grip, started afresh from the 3D Model tab
         }
         const specLoad    = Na__LeSpec__EnsureLoaded();                    // <-- The specification is read when the drawing editor first opens, never before
         const metricsLoad = Na__LeMode__PreloadMetrics();
@@ -655,6 +731,28 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Page Up / Page Down: the Drawing Before or After This One
+    // ------------------------------------------------------------
+    // Asked by the PC controls (Na__LePc__STEP_SHEET_EVENT). In tab order, and
+    // through Enter, so it is exactly the tab beside this one being clicked:
+    // the undo baseline, the panels, the fit and the tab strip all follow.
+    // Only a drawing turns to a drawing - the first and the last are ends,
+    // not a loop, and the documents after the drawings are never reached this
+    // way. The web viewer's reading keys ask the same question.
+    // ------------------------------------------------------------
+    function Na__LeMode__StepSheet(direction) {
+        if (!Na__LeMode__Active || Na__LeMode__View !== Na__LeMode__VIEW_SHEET) return false;
+        const sheets  = Na__LeModel__GetSheets();
+        const current = Na__LeModel__GetActiveSheet();
+        const at      = current ? sheets.findIndex((sheet) => sheet.Sheet__Id === current.Sheet__Id) : -1;
+        const next    = at === -1 ? null : sheets[at + (direction < 0 ? -1 : 1)];
+        if (!next) return false;                                                // <-- Already at an end
+        Na__LeText__Commit();                                                   // <-- Typing on the paper is kept, as a tab click keeps it by blurring the field
+        return Na__LeMode__Enter(next.Sheet__Id);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Ctrl+S Saves, From Anywhere in the Editor
     // ------------------------------------------------------------
     // WHY THIS IS NOT WITH THE OTHER EDIT CHORDS. Ctrl+Z, Ctrl+C and the rest
@@ -681,8 +779,9 @@
     // A DOCUMENT WITH A SAVE OF ITS OWN GETS THE KEY FIRST. The documents'
     // keyboard (Na__LayoutEditor__DocumentKeys__) listens on the window in the
     // capture phase, ahead of this, so on the Statements tab Ctrl+S writes the
-    // statement and never arrives here. The specification and the register
-    // have no save of their own, so the key comes on to this one.
+    // statement, and on the Drawing Register it saves the revision notes to R2
+    // and the project file; neither key arrives here. The specification has
+    // no save of its own, so its key comes on to this one, which syncs it.
     // ------------------------------------------------------------
     function Na__LeMode__OnSaveKey(event) {
         if (!Na__LeMode__Active || !Na__LeMode__IsEditable()) return;            // <-- Read-only sessions keep the browser's key
@@ -861,7 +960,10 @@
         // group, what it measures - is in Floor Areas, so that is what opens.
         // The Vectors panel is still there for its edge and its hatch, one
         // fold away, because a room IS a vector.
-        if (kind === 'shape')      return Na__LeMode__AllAreas(items) ? 'floor-areas' : 'shapes';
+        // A PICTURE IS A VECTOR TOO, and its panel is Images: its file, the
+        // folder its drawing's number files it in, and its print resolution
+        // are what is wanted the moment one is selected.
+        if (kind === 'shape')      return Na__LeMode__AllAreas(items) ? 'floor-areas' : (Na__LeMode__AllImages(items) ? 'images' : 'shapes');
         if (kind === 'leader')     return 'leaders';
         // A VIEWPORT FOLDS THE GROUP. Its own section is not one of them, and
         // leaving the markup sections as they were - the choice made in
@@ -879,6 +981,12 @@
         if (!sheet || viewports.length !== 1) return false;                     // <-- Patterns edits one viewport's layers at a time
         const viewport = Na__LeModel__GetViewportById(sheet, viewports[0].id);
         return !!viewport && Na__LeModel__IsSitePlanViewport(viewport);
+    }
+    function Na__LeMode__AllImages(items) {
+        const sheet  = Na__LeModel__GetActiveSheet();
+        const shapes = (Array.isArray(items) ? items : []).filter((item) => item && item.kind === 'shape');
+        if (!sheet || !shapes.length) return false;
+        return shapes.every((item) => Na__LeImg__Is(Na__LeModel__GetShapeById(sheet, item.id)));
     }
     function Na__LeMode__AllAreas(items) {
         const sheet = Na__LeModel__GetActiveSheet();
@@ -933,6 +1041,7 @@
         else if (reason === 'active') { if (active) Na__LeSurface__SetSheet(active); }
         Na__LePanels__Refresh(Na__LeMode__PanelFor(reason));
         if (reason === 'leader' || reason === 'leaders') Na__LePanels__Refresh('margin');   // <-- A link made or lost changes what the notes margin lists
+        if (reason === 'shape' || reason === 'shapes') Na__LePanels__Refresh('images');     // <-- A picture is a shape: its width, frame and resolution follow it
     }
     // ------------------------------------------------------------
 
@@ -974,7 +1083,7 @@
         // AND THE DRAWING VIEW CONFIG, because every viewport bake renders through
         // the drawing presets and they read their setup from it. index.html starts
         // the fetch; this is the same promise, so it is waited for, never repeated.
-        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__LeHatch__Ready(), Na__LeSpComp__Ready(), Na__LeArea__Ready(), Na__LeDocKeys__Ready(), Na__DrawCfg__Load() ]).then(() => {
+        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__LeHatch__Ready(), Na__LeSpComp__Ready(), Na__LeArea__Ready(), Na__LeDocKeys__Ready(), Na__LeImg__Ready(), Na__DrawCfg__Load() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
             Na__LeVw__Initialize({ editable : Na__LeMode__IsEditable(), showToast : context.showToast || null });   // <-- Asked before anything is built: the shell it gets depends on the answer
             Na__LeModel__Initialize();
@@ -989,6 +1098,7 @@
             Na__LeSource__Initialize();                                      // <-- How many design phases stay loaded off-scene
             Na__LeViewId__Initialize();                                      // <-- Unnamed elevation viewports are named from their model and the project's north
             Na__LeAreaTable__Attach();                                       // <-- Area schedules follow the rooms they report, inside the same undo step
+            Na__LeImg__Initialize({ editable : Na__LeMode__IsEditable(), showToast : context.showToast || null });   // <-- Pictures: the source for everyone; the save step, grips and drop for the editor
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeMode__OnSheetsChanged);
             Na__LeDocKeys__Initialize();                                     // <-- The documents' own keyboard: on the window in the capture phase, so it hears a key before anything else
             document.addEventListener('keydown', Na__LeMode__OnSaveKey, true);   // <-- Ctrl+S on the sheet, the specification and the register alike; capture, so it is answered before the browser is told
@@ -998,6 +1108,7 @@
                 if (event.detail && event.detail.hasSource) Na__LeMode__FocusPanelFor(event.detail.kind);
             });
             window.addEventListener(Na__LePanelViewport__EDIT_EVENT, Na__LeMode__OnRequestDrawing);
+            window.addEventListener(Na__LePc__STEP_SHEET_EVENT, (event) => { Na__LeMode__StepSheet(event.detail ? event.detail.direction : 1); });   // <-- Page Up / Page Down on a drawing
             // THE SPECIFICATION CHANGED: bubble codes and notes margins redraw, and
             // the two panels that describe them. Covered by the specification's
             // own page, the sheet catches up when a sheet tab is chosen again.

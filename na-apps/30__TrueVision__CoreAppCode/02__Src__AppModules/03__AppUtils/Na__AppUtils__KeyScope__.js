@@ -13,14 +13,20 @@
 // - THREE TOOL SETS, THREE KEYBOARDS, ONE LIVE AT A TIME.
 //     model     The 3D Model tab. R resets the view, B, T and Y pick Orbit,
 //               Walk and Fly, 1-9 and Page Up / Page Down go to presentation
-//               scenes (Na__Hotkeys__Manager, Na__AppConfig__Hotkeys.json).
+//               scenes (Na__Hotkeys__Manager, Na__Hotkeys__3dModelTab__.json).
 //     sheet     A drawing tab. Bare letters pick the drawing tools - V, M, T,
-//               R, L, D, E, A, B - and K is Draft mode
-//               (Na__LayoutEditor__SheetTools__Keyboard__,
-//               Na__LayoutEditor__KeyMappings__.json).
+//               R, L, D, E, A, B - K is Draft mode, and Page Up / Page Down
+//               turn the drawings (Na__LayoutEditor__SheetTools__Keyboard__,
+//               Na__LayoutEditor__Controls__Pc__,
+//               Na__Hotkeys__DrawingTabs__.json).
 //     document  The Project Specification, the Drawing Register and the
 //               Statements. A bare letter is a letter; the documents' own keys
-//               are chords (Na__LayoutEditor__DocumentKeys__).
+//               are chords (Na__LayoutEditor__DocumentKeys__,
+//               Na__Hotkeys__DocumentTabs__.json).
+// - ONE HOTKEY FILE PER KIND OF TAB, each named for it: Na__Hotkeys__3dModelTab__
+//   (02__AppData), Na__Hotkeys__DrawingTabs__ (51__System__LayoutEditor/
+//   03__Core__Config) and Na__Hotkeys__DocumentTabs__ (51__System__LayoutEditor/
+//   31__System__DocumentKeys). A key belongs in the file of the tab it works on.
 // - WHY THIS EXISTS. The 3D Model tab's keys were listened for on the window
 //   for the whole session and asked nothing about which tab was up, so they
 //   went on answering under the drawings and the documents. R typed into a
@@ -51,6 +57,9 @@
 //   Na__LayoutEditor__DocumentKeys__ only in the document scope. The sheet's
 //   own keyboard is attached only while a drawing tab is up, so it keeps to
 //   the sheet scope already.
+// - The drawing tabs' keys (Na__LayoutEditor__SheetTools__Keyboard__ and
+//   Na__LayoutEditor__Controls__Pc__) ask ControlKeepsKey before they stand
+//   down for a focused control.
 //
 // -----------------------------------------------------------------------------
 //
@@ -62,6 +71,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - ControlKeepsKey: which keys a focused control uses itself. A tick box, a
+//   list or a button keeps the focus after it is clicked, and the drawing
+//   tabs' keyboard stood down for ANY focused control - so after ticking a box
+//   or picking from a list, M, V, Escape and Delete went nowhere until
+//   something else was clicked, and a list took the letter for itself (M chose
+//   "Medium" in the Raster list). Only the keys a control really uses stay
+//   with it now.
+// - The three hotkey files it names are renamed for the tab each serves:
+//   Na__Hotkeys__3dModelTab__.json, Na__Hotkeys__DrawingTabs__.json and
+//   Na__Hotkeys__DocumentTabs__.json.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the three scopes, the reader the scope follows,
 //   the questions and the typing test.
@@ -144,6 +165,54 @@
     }
     // ------------------------------------------------------------
 
+
+    // MODULE CONSTANTS | The Keys a Focused Control Uses Itself
+    // ------------------------------------------------------------
+    const Na__KeyScope__PRESS_KEYS    = Object.freeze([ ' ', 'Enter' ]);                                 // <-- Tick it, choose it, press it
+    const Na__KeyScope__STEP_KEYS     = Object.freeze([ 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown' ]);   // <-- Step through a list, a slider or a figure
+    const Na__KeyScope__NUMBER_KEYS   = Object.freeze([ 'Backspace', 'Delete', 'Escape' ]);            // <-- Editing a figure being typed
+    const Na__KeyScope__NUMBER_CHARS  = '0123456789.,-+eE';                                              // <-- What a number box can hold
+    const Na__KeyScope__NO_TEXT_TYPES = Object.freeze([ 'checkbox', 'radio', 'range', 'color', 'button', 'submit', 'reset', 'file', 'image', 'number' ]);
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Does a Focused Control Use This Key Itself
+    // ------------------------------------------------------------
+    // A TICK BOX, A LIST OR A BUTTON KEEPS THE FOCUS AFTER IT IS CLICKED, and a
+    // keyboard that stood down for any focused control stood down for every
+    // bare key: after ticking a box or picking from a list, M, V, Escape and
+    // Delete all went nowhere until something else was clicked - and a list
+    // took the letter for itself, so M chose "Medium" in the Raster list. A
+    // control needs only a handful of keys, and only those stay with it:
+    //   a text box, a text area, anything contenteditable   every key
+    //   a number box   its figures (0-9 . , - + e), the arrows, Home, End,
+    //                  Page Up / Page Down, Backspace, Delete, Escape, Space
+    //                  and Enter
+    //   a list, a radio button, a slider   the arrows, Home, End, Page Up,
+    //                  Page Down, Space and Enter
+    //   a tick box, a button, a colour or file picker, a link   Space, Enter
+    // Every other key - a tool letter, Escape off a list, an F key - is the
+    // live keyboard's to answer. With nothing focused, nothing is kept.
+    // Chords are not asked about here: each keyboard decides its own.
+    // ------------------------------------------------------------
+    function Na__KeyScope__ControlKeepsKey(element, key) {
+        if (!element || typeof key !== 'string') return false;
+        if (element.isContentEditable === true) return true;
+        const tag   = String(element.tagName || '').toUpperCase();
+        const press = Na__KeyScope__PRESS_KEYS.indexOf(key) !== -1;
+        const step  = Na__KeyScope__STEP_KEYS.indexOf(key) !== -1;
+        if (tag === 'TEXTAREA') return true;
+        if (tag === 'SELECT')   return press || step;
+        if (tag === 'BUTTON' || tag === 'A' || tag === 'SUMMARY') return press;
+        if (tag !== 'INPUT')    return false;                                   // <-- The stage, the page, a panel: nothing to keep
+        const type = String(element.type || 'text').toLowerCase();
+        if (type === 'number') return press || step || Na__KeyScope__NUMBER_KEYS.indexOf(key) !== -1 || (key.length === 1 && Na__KeyScope__NUMBER_CHARS.indexOf(key) !== -1);
+        if (type === 'radio' || type === 'range') return press || step;
+        if (Na__KeyScope__NO_TEXT_TYPES.indexOf(type) !== -1) return press;    // <-- A tick box, a colour or a file picker, the button kinds
+        return true;                                                            // <-- Every other input takes typed text
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -160,7 +229,8 @@
         Na__KeyScope__Follow,
         Na__KeyScope__Get,
         Na__KeyScope__Is,
-        Na__KeyScope__IsTypingTarget
+        Na__KeyScope__IsTypingTarget,
+        Na__KeyScope__ControlKeepsKey
     };
     // ------------------------------------------------------------
 

@@ -45,6 +45,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.11.0
+// - A 'picture' primitive: a picture placed on the sheet (Sheet Images). Both
+//   painters hand it to Na__LayoutEditor__SheetImages__Painter__, the way a QR
+//   symbol goes to the QR painter. Not an 'image' on purpose, for the same
+//   reason the QR is not: the exporter sends a classic sheet's chrome images
+//   UNDER the viewports, and a picture belongs on its layer in the stack.
+//   // @delegate: ../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Painter__.js
+//
 // 21-Sep-2026 - Version 1.10.0
 // - BuildViewportFrame: one viewport's frame line and caption on their own.
 //   The surface and the PDF now stack every viewport where the Layers list
@@ -152,6 +160,7 @@
     import { Na__LeHatch__Get, Na__LeHatch__SvgPaint, Na__LeHatch__DrawPdf } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LePdfFonts__Install, Na__LePdfFonts__SetFont } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';
     import { Na__QrPaint__SvgGroup, Na__QrPaint__DrawPdf } from '../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js';   // <-- A leaf: a symbol and numbers in, markup or drawing calls out
+    import { Na__LeImgPaint__KIND, Na__LeImgPaint__Svg, Na__LeImgPaint__DrawPdf } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Painter__.js';   // <-- A leaf too: a picture primitive in, markup or drawing calls out
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -681,6 +690,9 @@
             // module a hair out, adding up across the symbol.
             return Na__QrPaint__SvgGroup(primitive.Symbol, R(primitive.X), R(primitive.Y), primitive.SizeMm, primitive.DarkColour, primitive.LightColour);
         }
+        if (primitive.Kind === Na__LeImgPaint__KIND) {
+            return Na__LeImgPaint__Svg(primitive);                              // <-- A picture on the sheet: shadow, the kept part, frame
+        }
         if (primitive.Kind === Na__LeChrome__KIND_GROUP) {
             const inner = primitive.Children.map((child) => Na__LeChrome__ToSvg(child, style, clipCounter)).join('');
             if (!primitive.ClipRect) return '<g>' + inner + '</g>';
@@ -848,6 +860,10 @@
         }
         if (primitive.Kind === Na__LeChrome__KIND_QR) {
             Na__QrPaint__DrawPdf(doc, primitive.Symbol, primitive.X, primitive.Y, primitive.SizeMm, primitive.DarkColour, primitive.LightColour);
+            return;
+        }
+        if (primitive.Kind === Na__LeImgPaint__KIND) {
+            Na__LeImgPaint__DrawPdf(doc, primitive);                            // <-- The print copy the exporter prepared before the page was drawn
             return;
         }
         if (primitive.Kind === Na__LeChrome__KIND_GROUP) {

@@ -44,8 +44,19 @@
 //   corrected by typing the right one rather than undone, the way a landed
 //   rectangle's size can still be retyped. The run ends when the tool changes
 //   or when anything else touches the shape.
+// - SO DOES EVERY OTHER MOVE, AND A MOUSE-MADE ONE TOO (RememberRetype, run by
+//   FinishDrag): a whole-object move and a frame move (MoveRetype, read by
+//   GetMoveRetype and GetViewportRetype, landed again by TypeMoveLength and
+//   TypeViewportLength), a vertex, a dimension end and a dimension line.
 // - SetSuppressed hands the pointer to a navigation gesture: a drag in flight
 //   is finished and a half-done placement abandoned.
+// - ORTHO MODE (F8) HOLDS EVERY DRAG A HELD SHIFT HOLDS, and a held Shift then
+//   frees it: ApplyDrag asks Na__LeOrtho__Resolve wherever it asked Shift for
+//   the nearer axis (Na__LayoutEditor__OrthoMode__State__).
+// - GRID SNAP (F7) MOVES A DRAG IN WHOLE GRID STEPS by the point it was
+//   picked up from, before any axis holds it (GridDragDelta, for the drags
+//   with no snap of their own; a vertex, an end or a tip snaps to the grid
+//   through Na__LeOsnap__Snap).
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ listens on the stage with OnMove and OnUp
@@ -65,6 +76,80 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.13.0
+// - SKETCHUP'S COPY ARRAYS (Na__LayoutEditor__SheetTools__CopyDrag__).
+//   TypeMoveArray takes 3x or /3 for a Ctrl-drag copy that is still on offer:
+//   the copies are built silently, the record told where everything landed and
+//   what the selection will be BEFORE anything is announced, then announced
+//   once - one undo step, and the copy stays on offer. CanMoveArray tells the
+//   Measurements box when x, * and / may begin a value. A count typed while
+//   the copy is still on the pointer lands it where it is first, as a typed
+//   length does, then arrays it.
+// - RetypeMove lands through LandExact (its two landings, lifted out and shared
+//   with the array) and, with an array, spaces its copies out again from the
+//   new distance before the one announce. LandExact's group landing leaves out
+//   ApplyDrag's refresh of the box, which found the move half landed mid-commit.
+// - The record's landed signature takes in the array's copies (RecordLanded):
+//   moving, deleting or undoing one of them ends the run.
+//
+// 21-Sep-2026 - Version 1.12.0
+// - THE MEASUREMENTS BOX READS A WHOLE-OBJECT MOVE LIVE. ApplyDrag refreshed
+//   the box for a vertex, a dimension end, a viewport frame and a selection
+//   moved as one, never for a vector, a note, a leader or a dimension moved
+//   whole - so it woke on the press and sat on its first reading, or on the
+//   one an arrow key or Shift last forced, for the rest of the drag (proved on
+//   PS01: locked at 1,000 mm while the vector went on to 2,250). OnMove now
+//   refreshes it after every step of such a drag.
+// - A PRESS IS NOT YET A DRAG. GetMoveDrag, GetVertexDrag and GetViewportDrag
+//   fell back to the last pointer point before anything had moved, which can
+//   be anywhere - the box read 14,618.5 mm at a press. The fallback now waits
+//   for the drag threshold.
+// - THE LAST MOVE STAYS ON OFFER TO A TYPED VALUE - SketchUp's rule. When a
+//   drag lets go, RememberRetype keeps what it moved: a whole-object move or a
+//   frame move in the new MoveRetype record, a vertex, a dimension end or a
+//   dimension line in the records a typed value already wrote. So a value
+//   typed after the mouse lets go lands the thing exactly that far along the
+//   line it went, and every value after a typed one lands it again from where
+//   it STARTED (1000, then 1200, is 1200) - TypeMoveLength and
+//   TypeViewportLength take a value with no drag in hand (RetypeMove), as
+//   TypeVertexLength always has. MoveRetypable ends the run when anything else
+//   happens: another selection, another move, another tool, Escape, an undo or
+//   any other change to what was moved. GetMoveRetype and GetViewportRetype
+//   read it for the box. Every value is exact - no snap, grid, Shift or Ortho.
+//
+// 21-Sep-2026 - Version 1.11.0
+// - CTRL-DRAG CARRIES A COPY (Na__LayoutEditor__SheetTools__CopyDrag__, SketchUp
+//   LayOut's gesture). The moment a press crosses the drag threshold, OnMove
+//   runs SyncCopyDrag: when the press held Ctrl, or Ctrl has gone down since,
+//   the original goes back where it started, a clone is made in its place and
+//   the drag is pointed at the clone. ApplyDrag is untouched and carries the
+//   copy exactly as it carries a move - lock, Shift, Ortho, the grid, the snap,
+//   a viewport's carry by a point and a typed length included - and the
+//   release announces it once, as one undo step. A press that never crosses
+//   the threshold makes no copy.
+//
+// 21-Sep-2026 - Version 1.10.0
+// - The drawing grid (Na__LayoutEditor__DrawingGrid__): ApplyDrag hands the
+//   drag to Na__LeTools__GridDragDelta before anything else. While Grid Snap
+//   is on (F7), a text item, a leader moved whole or by its head, a dimension
+//   moved whole, a viewport frame moved plain or by a crop handle, and a
+//   vector moved under an arrow-key lock travel so the point they were picked
+//   up from lands on the nearest grid point - LayOut's rule. The lock, Shift
+//   and Ortho then hold it to their axis, so a held move still moves in whole
+//   grid steps along it. A typed length is exact and never touched; with Grid
+//   Snap off the delta comes back untouched.
+//
+// 21-Sep-2026 - Version 1.9.0
+// - Ortho mode (F8, Na__LayoutEditor__OrthoMode__): ApplyDrag works out
+//   `ortho` once - Na__LeOrtho__Resolve(shift), Ortho XOR Shift, and nothing
+//   for a typed (exact) length - and every line that asked Shift to hold the
+//   nearer axis asks that instead: a whole-object or group move, a plain or
+//   carried viewport frame, a vertex, a vector's grab snap, a dimension end.
+//   Shift itself still reaches DragPatch (a viewport handle) and the text
+//   rotate grip, where it means something else. With Ortho off every drag is
+//   exactly as it was; with it on each is held as a held Shift held it, and a
+//   held Shift frees it.
+//
 // 21-Sep-2026 - Version 1.8.0
 // - OnMove does nothing while a pan is in flight (the stage carries
 //   na-le-stage--panning) and no drag is under way: a pan carries the paper
@@ -162,7 +247,7 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Handles, Grips, Tools, Viewports, Snapping, Viewport Snap Move, Selection
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetDimensionSetup, Na__LeCfg__GetSelectionSetup, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetDimensionSetup, Na__LeCfg__GetSelectionSetup, Na__LeCfg__FormatLabel, Na__LeCfg__GetMeasureSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeModel__GetActiveSheet,
         Na__LeModel__GetViewportById,
@@ -195,7 +280,10 @@
     import { Na__LeVp2d__SetInteracting } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__SetInteracting } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
     import { Na__LeOsnap__TONE_DIMENSION, Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
+    import { Na__LeTools__GridDragDelta } from './Na__LayoutEditor__SheetTools__GridDrag__.js';   // <-- Grid Snap (F7): a drag with no snap of its own moves in whole grid steps
+    import { Na__LeTools__SyncCopyDrag, Na__LeTools__BuildCopyArray, Na__LeTools__FollowCopyArray, Na__LeTools__CopyArraySelection } from './Na__LayoutEditor__SheetTools__CopyDrag__.js';   // <-- Ctrl-drag: the copy is made once a press becomes a drag, and arrayed once it lands (3x, /3)
     import { Na__LeAxis__Get, Na__LeAxis__Apply, Na__LeAxis__Hold, Na__LeAxis__Clear } from './Na__LayoutEditor__AxisLock__.js';
+    import { Na__LeOrtho__Resolve } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__State__.js';
     import { Na__LeVpMove__Hover, Na__LeVpMove__Solve, Na__LeVpMove__Finish } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeGroup__ResolveItems } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import {
@@ -237,6 +325,8 @@
         Na__LeTools__WriteVertexRetype,
         Na__LeTools__DimEndRetype,
         Na__LeTools__WriteDimEndRetype,
+        Na__LeTools__MoveRetype,
+        Na__LeTools__WriteMoveRetype,
         Na__LeTools__WritePressTravelled
     } from './Na__LayoutEditor__SheetTools__State__.js';
     import { Na__LeTools__Tool, Na__LeTools__CancelPlacement, Na__LeTools__PickUpMove } from './Na__LayoutEditor__SheetTools__ToolState__.js';
@@ -303,8 +393,17 @@
             Na__LeVp2d__SetInteracting(true);
             Na__LeVp3d__SetInteracting(true);
             document.body.classList.add('na-le-dragging');
+            Na__LeTools__SyncCopyDrag(sheet, drag);                          // <-- Ctrl on the press (or since): the copy is made now that it really moves, and the drag carries it instead
         }
         Na__LeTools__ApplyDrag(sheet, drag, dMm, event.shiftKey);
+        // A WHOLE-OBJECT MOVE READS LIVE. ApplyDrag refreshes the Measurements
+        // box for a vertex, a dimension end, a viewport frame and a selection
+        // moved as one, but never did for a vector, a note, a leader or a
+        // dimension moved whole: the box woke on the press and then sat on its
+        // first reading - or on the one an arrow key or Shift last forced -
+        // for the rest of the drag. One refresh here, after every move of
+        // every such drag, whatever branch carried it.
+        if (Na__LeTools__IsMoveDrag(drag)) Na__LeMeasure__Refresh();
     }
     // ------------------------------------------------------------
 
@@ -362,7 +461,22 @@
     // ------------------------------------------------------------
     function Na__LeTools__ApplyDrag(sheet, drag, dMm, shift, exact) {
         if (drag.kind === 'door') return;                                    // <-- A press on a door of a locked plan moves nothing
+        // GRID SNAP (F7) FIRST, THEN ANY AXIS. A drag with no snap of its own -
+        // a text item, a leader moved whole or by its head, a dimension moved
+        // whole, a viewport frame moved plain or cropped, a vector held to an
+        // axis by an arrow key - is carried by the point it was picked up from,
+        // and that point lands on the grid (Na__LayoutEditor__SheetTools__
+        // GridDrag__, LayOut's rule). A lock, Shift or Ortho below then holds the
+        // grid step to its axis. A typed length is exact and never touched.
+        if (!exact) dMm = Na__LeTools__GridDragDelta(sheet, drag, dMm);
         const cursor = { x : drag.startMm.x + dMm.x, y : drag.startMm.y + dMm.y };
+        // ORTHO MODE (F8) IS A LATCHED SHIFT. ortho is what every line below
+        // that means "hold the nearer axis" asks: Ortho XOR Shift, AutoCAD's rule
+        // with its Shift override (Na__LayoutEditor__OrthoMode__State__). shift
+        // stays the key itself for the two places it means something else - a
+        // viewport handle (DragPatch) and the text rotate grip. A typed length is
+        // exact, so it holds nothing.
+        const ortho  = !exact && Na__LeOrtho__Resolve(shift);
 
         // THE DISTANCE A WHOLE-OBJECT MOVE TRAVELS. An arrow key naming the axis
         // beats Shift's guess, exactly as it does for a vertex, and `exact` is a
@@ -385,14 +499,14 @@
             : null;
         const d = exact ? dMm
                 : (held ? held
-                : (shift ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? { x : dMm.x, y : 0 } : { x : 0, y : dMm.y }) : dMm));
+                : (ortho ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? { x : dMm.x, y : 0 } : { x : 0, y : dMm.y }) : dMm));
         if (Na__LeTools__IsMoveDrag(drag)) {
             drag.appliedMm = { x : d.x, y : d.y };
             if (!exact && axis) Na__LeGrips__ShowBand(drag.startMm, { x : drag.startMm.x + d.x, y : drag.startMm.y + d.y }, axis);   // <-- The band's colour is the lock, so it reads without Shift being held
             else if (!exact) Na__LeGrips__HideBand();
         }
         if (drag.kind === 'group') {
-            const lock = axis || (shift ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? 'x' : 'y') : null);
+            const lock = axis || (ortho ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? 'x' : 'y') : null);
             const move = exact ? d : Na__LeTools__SnapGroupTranslation(sheet, drag, d, lock);
             drag.appliedMm = { x : move.x, y : move.y };
             if (!exact && axis) Na__LeGrips__ShowBand(drag.startMm, { x : drag.startMm.x + move.x, y : drag.startMm.y + move.y }, axis);
@@ -408,7 +522,7 @@
             // A PLAIN BORDER MOVE READS THE CONSTRAINED DELTA, so the arrow lock
             // and Shift reach it; a handle and a body pan keep the raw one,
             // because Shift means something else to each of them inside DragPatch.
-            const carried = drag.baseMm ? Na__LeVpMove__Solve(sheet, drag, cursor, shift) : null;
+            const carried = drag.baseMm ? Na__LeVpMove__Solve(sheet, drag, cursor, ortho) : null;
             const moveBy  = carried ? { x : carried.x - drag.baseMm.x, y : carried.y - drag.baseMm.y }
                           : (Na__LeTools__IsViewportMoveDrag(drag) ? d : dMm);
             const patch = Na__LeHandles__DragPatch(viewport, drag.hit, drag.start, moveBy, { shift : shift });
@@ -454,9 +568,9 @@
                 const axis  = Na__LeAxis__Get();
                 const aim   = { x : p0[0] + dMm.x, y : p0[1] + dMm.y };      // <-- The free cursor: it only chooses WHICH axis Shift holds
                 const raw   = snap.snapped ? { x : snap.x, y : snap.y } : { x : p0[0] + (axis ? dMm : d).x, y : p0[1] + (axis ? dMm : d).y };
-                const held  = axis ? Na__LeAxis__Apply(p0, raw) : (shift ? Na__LeAxis__Hold(p0, aim, raw) : raw);
+                const held  = axis ? Na__LeAxis__Apply(p0, raw) : (ortho ? Na__LeAxis__Hold(p0, aim, raw) : raw);
                 const moved = [ held.x, held.y ];
-                if (axis || shift) Na__LeGrips__ShowBand(p0, moved, axis);   // <-- Coloured by the locked axis; Shift's band is the plain one, because its axis can still change
+                if (axis || ortho) Na__LeGrips__ShowBand(p0, moved, axis);   // <-- Coloured by the locked axis; Shift's band is the plain one, because its axis can still change
                 else Na__LeGrips__HideBand();
                 // SEVERAL PICKED POINTS TRAVEL TOGETHER. The point under the
                 // pointer is the one that snaps and the one the lock is read
@@ -478,7 +592,7 @@
                 // would pull the shape off the distance that was asked for.
                 const t = (exact || (Na__LeAxis__Get() && drag.appliedMm))
                     ? { x : d.x, y : d.y }
-                    : Na__LeTools__SnapShapeTranslation(sheet, drag, dMm, shift);   // <-- Any vertex, or the grab, onto the linework; Shift still holds the axis
+                    : Na__LeTools__SnapShapeTranslation(sheet, drag, dMm, ortho);   // <-- Any vertex, or the grab, onto the linework; Shift still holds the axis
                 if (!exact && !Na__LeAxis__Get()) drag.appliedMm = { x : t.x, y : t.y };   // <-- The snap moved it further than the cursor did: read THAT back
                 points  = Na__LeShapeGeo__Translated(drag.start, t.x, t.y);
             }
@@ -517,8 +631,8 @@
             const axis  = Na__LeAxis__Get();
             const aim   = { x : p0[0] + dMm.x, y : p0[1] + dMm.y };
             const raw   = snap.snapped ? { x : snap.x, y : snap.y } : { x : p0[0] + (axis ? dMm : d).x, y : p0[1] + (axis ? dMm : d).y };
-            const held  = axis ? Na__LeAxis__Apply(p0, raw) : (shift ? Na__LeAxis__Hold(p0, aim, raw) : raw);
-            if (axis || shift) Na__LeGrips__ShowBand(p0, [ held.x, held.y ], axis);
+            const held  = axis ? Na__LeAxis__Apply(p0, raw) : (ortho ? Na__LeAxis__Hold(p0, aim, raw) : raw);
+            if (axis || ortho) Na__LeGrips__ShowBand(p0, [ held.x, held.y ], axis);
             else Na__LeGrips__HideBand();
             const px = held.x;
             const py = held.y;
@@ -707,9 +821,10 @@
         if (pointerId !== null && pointerId !== undefined && Na__LeTools__Stage) {
             try { Na__LeTools__Stage.releasePointerCapture(pointerId); } catch (e) { /* already released */ }
         }
+        Na__LeTools__RememberRetype(drag);                                   // <-- What this drag moved stays on offer to a typed value until something else is done (SketchUp's rule)
         Na__LeTools__WriteDrag(null);
         document.body.classList.remove('na-le-dragging');
-        Na__LeMeasure__Refresh();                                            // <-- A finished vertex drag puts the Measurements box back to rest
+        Na__LeMeasure__Refresh();                                            // <-- The box goes on reading what was just moved, for a retype, or back to rest
         if (drag.moved) Na__LeTools__WritePressTravelled(true);              // <-- The double click the browser may still report for this press is not one
         if (!drag.moved) {
             if (drag.inserted) {                                             // <-- Shift-click on an edge: the vertex is in, even if it did not drag
@@ -758,7 +873,7 @@
         const fromPt = { x : from[0], y : from[1] };
         const livePt = live ? { x : live[0], y : live[1] } : null;
         const run    = livePt ? Math.hypot(livePt.x - fromPt.x, livePt.y - fromPt.y) : 0;
-        const cursor = Na__LeTools__LastPointMm;
+        const cursor = drag.moved ? Na__LeTools__LastPointMm : null;         // <-- Only once the press is a drag: before that the last pointer point can be anywhere (a touch, a hover elsewhere)
         const aim    = (run >= Na__LeTools__TYPED_MIN_MM) ? livePt : (cursor || livePt);
         const to     = (aim && Na__LeAxis__Get()) ? Na__LeAxis__Apply(fromPt, aim) : aim;   // <-- A locked drag reads along its axis, cursor fallback included
         return { from : fromPt, to : to };
@@ -880,6 +995,7 @@
         if (!from) return { ok : false, reason : 'none' };
         Na__LeTools__WriteVertexAlong(sheet, drag.id, drag.index, drag.start, from, { x : dx / run, y : dy / run }, lengthMm, false, drag.indices);
         drag.moved = true;
+        drag.typed = true;                                                   // <-- Its retype record is the one WriteVertexAlong just wrote: FinishDrag leaves it be
         Na__LeTools__FinishDrag(drag.pointerId, false);                      // <-- Announce once; the pointer no longer owns the vertex
         return { ok : true };
     }
@@ -1039,6 +1155,7 @@
         if (!live) return { ok : true, retyped : true };
         const drag = Na__LeTools__Drag;
         drag.moved = true;
+        drag.typed = true;                                                   // <-- WriteDimEnd has written its retype record already
         Na__LeTools__FinishDrag(drag.pointerId, false);
         return { ok : true };
     }
@@ -1129,6 +1246,7 @@
         if (!live) return { ok : true, retyped : true };
         const drag = Na__LeTools__Drag;
         drag.moved = true;
+        drag.typed = true;                                                   // <-- WriteDimOffset has written its retype record already
         Na__LeTools__FinishDrag(drag.pointerId, false);
         return { ok : true };
     }
@@ -1196,7 +1314,7 @@
         const from    = { x : drag.startMm.x, y : drag.startMm.y };
         const applied = drag.appliedMm;
         const run     = applied ? Math.hypot(applied.x, applied.y) : 0;
-        const cursor  = Na__LeTools__LastPointMm;
+        const cursor  = drag.moved ? Na__LeTools__LastPointMm : null;        // <-- Only once the press is a drag: the box read the distance to wherever the pointer last hovered, 14,618.5 mm once, at the press
         const to      = (run >= Na__LeTools__TYPED_MIN_MM)
             ? { x : from.x + applied.x, y : from.y + applied.y }
             : (cursor ? { x : cursor.x, y : cursor.y } : from);
@@ -1208,15 +1326,27 @@
     // FUNCTION | Move the Whole Object a Typed Distance Along the Move
     // ------------------------------------------------------------
     // lengthMm is PAPER millimetres; a negative one runs back the other way.
-    // The landing is exact - no snap, no Shift, no rounding to the cursor -
-    // because the typed value IS the answer. The drag is then finished so a
-    // still-down pointer cannot pull the object back. Returns { ok : true } or
-    // { ok : false, reason } - 'none' with no move in flight, 'length' for no
-    // length, 'direction' when the move has no run to aim along yet.
+    // The landing is exact - no snap, no grid, no Shift, no Ortho, no rounding
+    // to the cursor - because the typed value IS the answer. The drag is then
+    // finished so a still-down pointer cannot pull the object back.
+    //
+    // AND EVERY VALUE AFTER IT, the way SketchUp takes one: with no drag in
+    // hand, the move that has just landed - by a typed value or by the mouse -
+    // is landed again that far along the same line, measured from where it
+    // started, for as long as MoveRetypable says it is still the last thing
+    // done. Returns { ok : true } ({ ok : true, retyped : true } for a value
+    // after the first) or { ok : false, reason } - 'none' with no move in
+    // flight or on offer, 'length' for no length, 'direction' when the move
+    // has no run to aim along yet.
     // ------------------------------------------------------------
     function Na__LeTools__TypeMoveLength(lengthMm) {
         const drag = Na__LeTools__Drag;
-        if (!Na__LeTools__IsMoveDrag(drag)) return { ok : false, reason : 'none' };
+        if (!Na__LeTools__IsMoveDrag(drag)) {
+            const record = Na__LeTools__MoveRetypable(Na__LeModel__GetActiveSheet());   // <-- No drag: the move that just landed may still be retyped
+            if (!record || record.drag.kind === 'viewport') return { ok : false, reason : 'none' };
+            if (!Number.isFinite(lengthMm) || Math.abs(lengthMm) < Na__LeTools__TYPED_MIN_MM) return { ok : false, reason : 'length' };
+            return Na__LeTools__RetypeMove(record, lengthMm);
+        }
         if (!Number.isFinite(lengthMm) || Math.abs(lengthMm) < Na__LeTools__TYPED_MIN_MM) return { ok : false, reason : 'length' };
         const reading = Na__LeTools__GetMoveDrag();
         if (!reading || !reading.to) return { ok : false, reason : 'direction' };
@@ -1228,6 +1358,8 @@
         if (!sheet) return { ok : false, reason : 'none' };
         Na__LeTools__ApplyDrag(sheet, drag, { x : (dx / run) * lengthMm, y : (dy / run) * lengthMm }, false, true);
         drag.moved = true;
+        drag.retypeDir      = { x : dx / run, y : dy / run };                // <-- The line a value typed next runs along, and the value it replaces (RememberRetype)
+        drag.retypeLengthMm = lengthMm;
         Na__LeTools__FinishDrag(drag.pointerId, false);                      // <-- Announce once; the pointer no longer owns the object
         return { ok : true };
     }
@@ -1244,6 +1376,368 @@
         if (!sheet || !point) return true;                                   // <-- The lock is taken; there is simply nowhere to redraw it from yet
         Na__LeTools__ApplyDrag(sheet, drag, { x : point.x - drag.startMm.x, y : point.y - drag.startMm.y }, Na__LeTools__ShiftHeld);
         Na__LeMeasure__Refresh();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Items a Finished Move Carried
+    // ------------------------------------------------------------
+    function Na__LeTools__RetypeItems(drag) {
+        if (!drag) return [];
+        if (drag.kind === 'group') return (drag.group || []).map((entry) => ({ kind : entry.kind, id : entry.id }));
+        return [ { kind : drag.kind, id : drag.id } ];
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Where a Move Left Everything It Carried, as One Comparable String
+    // ------------------------------------------------------------
+    // The geometry alone - a vector's points, a note's place and its leader's
+    // end, a leader's tip and head, a dimension's points and line, a frame's
+    // rectangle - so a colour or a weight changed since leaves the move on
+    // offer, and anything that moves, reshapes, deletes or undoes it ends it.
+    // Null when one of the items has gone.
+    // ------------------------------------------------------------
+    function Na__LeTools__RetypeLanded(sheet, drag) {
+        if (!sheet || !drag) return null;
+        const out   = [];
+        const whole = Na__LeTools__RetypeItems(drag).every((item) => {
+            const r = Na__LeTools__Record(sheet, item);
+            if (!r) return false;
+            if (item.kind === 'shape')           out.push(Na__LeShapeGeo__Points(r));
+            else if (item.kind === 'annotation') out.push([ r.Annotation__PosXMm, r.Annotation__PosYMm, r.Annotation__LeaderXMm, r.Annotation__LeaderYMm ]);
+            else if (item.kind === 'leader')     out.push([ r.Leader__TipXMm, r.Leader__TipYMm, r.Leader__AnchorXMm, r.Leader__AnchorYMm ]);
+            else if (item.kind === 'dimension')  out.push([ r.Dimension__StartXMm, r.Dimension__StartYMm, r.Dimension__EndXMm, r.Dimension__EndYMm, r.Dimension__OffsetMm ]);
+            else { const f = r.Viewport__FrameMm || {}; out.push([ f.X, f.Y, f.WidthMm, f.HeightMm ]); }
+            return true;
+        });
+        return whole ? JSON.stringify(out) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Selection, as One Comparable String
+    // ------------------------------------------------------------
+    function Na__LeTools__SelectionKey() {
+        return Na__LeTools__KeyOf(Na__LeModel__GetSelectionItems());
+    }
+    function Na__LeTools__KeyOf(items) {
+        return Array.from(new Set((items || []).map((item) => item.kind + ':' + item.id))).sort().join('|');   // <-- Each once, as SetSelectionItems keeps them
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Retype Record for a Whole-Object Move or a Frame Move That Has Just Landed
+    // ------------------------------------------------------------
+    // The drag itself goes in the record: its start is the ORIGINAL of
+    // everything it carried, so every value typed after it is measured from
+    // there, never from where the value before it left things. The line and
+    // the distance are the typed ones when a value finished the drag
+    // (retypeDir, retypeLengthMm, a minus sign included), else how far the
+    // move really went - appliedMm, which is what landed after the snap, the
+    // grid, a lock, Shift or Ortho had their say, or a frame's own travel.
+    // Null for a move that went nowhere: there is no line to type along.
+    // ------------------------------------------------------------
+    function Na__LeTools__MoveRecord(sheet, drag) {
+        let fromMm, travel;
+        if (drag.kind === 'viewport') {
+            const live = Na__LeModel__GetViewportById(sheet, drag.id);
+            const rect = live && live.Viewport__FrameMm;
+            if (!rect || !drag.start || !drag.start.rect) return null;
+            fromMm = { x : drag.start.rect.X, y : drag.start.rect.Y };      // <-- The frame's corner, as the drag's own reading measures it
+            travel = { x : rect.X - fromMm.x, y : rect.Y - fromMm.y };
+        } else {
+            if (!drag.startMm) return null;
+            fromMm = { x : drag.startMm.x, y : drag.startMm.y };
+            travel = drag.appliedMm ? { x : drag.appliedMm.x, y : drag.appliedMm.y } : { x : 0, y : 0 };
+        }
+        let dir = drag.retypeDir || null;
+        let lengthMm = drag.retypeLengthMm;
+        if (!dir) {
+            const run = Math.hypot(travel.x, travel.y);
+            if (!(run >= Na__LeTools__TYPED_MIN_MM)) return null;
+            dir = { x : travel.x / run, y : travel.y / run };
+            lengthMm = run;
+        }
+        return { drag : drag, sheetId : sheet.Sheet__Id, fromMm : fromMm, dir : { x : dir.x, y : dir.y }, lengthMm : lengthMm,
+                 selection : Na__LeTools__SelectionKey(), landed : Na__LeTools__RetypeLanded(sheet, drag) };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Retype Record for a Vertex Let Go by the Mouse
+    // ------------------------------------------------------------
+    // The same record a typed length writes (WriteVertexAlong): the vertex,
+    // where it started, the line it went along, the run of picked points it
+    // carried and where they all began. Null when the vertex ended where it
+    // started.
+    // ------------------------------------------------------------
+    function Na__LeTools__VertexRecord(sheet, drag) {
+        const shape = Na__LeModel__GetShapeById(sheet, drag.id);
+        const from  = Array.isArray(drag.start) ? drag.start[drag.index] : null;
+        if (!shape || !from) return null;
+        const points = Na__LeShapeGeo__Points(shape);
+        const live   = points[drag.index];
+        if (!live) return null;
+        const run = Math.hypot(live[0] - from[0], live[1] - from[1]);
+        if (!(run >= Na__LeTools__TYPED_MIN_MM)) return null;
+        return { id : drag.id, index : drag.index, from : [ from[0], from[1] ], dir : { x : (live[0] - from[0]) / run, y : (live[1] - from[1]) / run },
+                 indices : (Array.isArray(drag.indices) && drag.indices.length ? drag.indices : [ drag.index ]).slice(),
+                 origin : drag.start.map((p) => [ p[0], p[1] ]), points : points.map((p) => [ p[0], p[1] ]) };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Retype Record for a Dimension End or Line Let Go by the Mouse
+    // ------------------------------------------------------------
+    // The same record WriteDimEnd and WriteDimOffset write for a typed value.
+    // ------------------------------------------------------------
+    function Na__LeTools__DimEndRecord(sheet, drag) {
+        const dim = Na__LeTools__DimById(sheet, drag.id);
+        if (!dim || !drag.start) return null;
+        const landed = { sx : dim.Dimension__StartXMm, sy : dim.Dimension__StartYMm, ex : dim.Dimension__EndXMm, ey : dim.Dimension__EndYMm, offset : dim.Dimension__OffsetMm || 0 };
+        if (drag.mode === 'offset') {
+            return { id : dim.Dimension__Id, mode : 'offset', orientation : dim.Dimension__Orientation,
+                     fixed : { x : landed.sx, y : landed.sy }, point : { x : landed.ex, y : landed.ey }, landed : landed };
+        }
+        const st    = drag.start;
+        const fixed = drag.mode === 'start' ? { x : st.ex, y : st.ey } : { x : st.sx, y : st.sy };
+        const point = drag.mode === 'start' ? { x : landed.sx, y : landed.sy } : { x : landed.ex, y : landed.ey };
+        return { id : dim.Dimension__Id, mode : drag.mode, orientation : dim.Dimension__Orientation, fixed : fixed, point : point, landed : landed };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep What a Finished Drag Moved On Offer to a Typed Value
+    // ------------------------------------------------------------
+    // SKETCHUP'S RULE: the last thing moved stays live in the Measurements box
+    // until something else is done. Type a value and press Enter and it lands
+    // again that far along the line it went, measured from where it started;
+    // type another and it goes there instead - 1 m was not right, try 1.2 -
+    // as often as it takes. Selecting something else, moving something else,
+    // another tool, Escape, an undo or any other change to it starts afresh.
+    //
+    // Run by FinishDrag for every drag that moved, the mouse's and a typed
+    // value's alike, while the drag is still in hand. One record at a time:
+    // whichever kind this drag was writes its own and the others go.
+    //   A WHOLE-OBJECT MOVE OR A FRAME MOVE - MoveRetype (MoveRecord).
+    //   A VERTEX, A DIMENSION END, A DIMENSION LINE - their own records, the
+    //     ones a typed value has always written, so a drag let go by the mouse
+    //     is corrected by typing just as one finished by a value was. A drag a
+    //     value finished (drag.typed) has written its record already.
+    //   ANYTHING ELSE that moved - a crop, a pan of the drawing, a turn, a
+    //     leader's tip or head - ends them all: it is the last thing done now.
+    // ------------------------------------------------------------
+    function Na__LeTools__RememberRetype(drag) {
+        if (!drag || !drag.moved) return;                                    // <-- A click moved nothing, so nothing is forgotten either
+        const sheet  = Na__LeModel__GetActiveSheet();
+        const move   = Na__LeTools__IsMoveDrag(drag) || Na__LeTools__IsViewportMoveDrag(drag);
+        const vertex = drag.kind === 'shape' && drag.mode === 'vertex';
+        const end    = drag.kind === 'dimension' && (drag.mode === 'start' || drag.mode === 'end' || drag.mode === 'offset');
+        Na__LeTools__WriteMoveRetype((move && sheet) ? Na__LeTools__MoveRecord(sheet, drag) : null);
+        if (!vertex) Na__LeTools__WriteVertexRetype(null);
+        else if (!drag.typed) Na__LeTools__WriteVertexRetype(sheet ? Na__LeTools__VertexRecord(sheet, drag) : null);
+        if (!end) Na__LeTools__WriteDimEndRetype(null);
+        else if (!drag.typed) Na__LeTools__WriteDimEndRetype(sheet ? Na__LeTools__DimEndRecord(sheet, drag) : null);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Last Move, While Another Typed Value May Still Land It Again
+    // ------------------------------------------------------------
+    // Only while nothing is being dragged, on the sheet it was made on, with
+    // the same selection it left, and with everything it carried exactly
+    // where it landed. The moment one of those stops being true the move is
+    // no longer the last thing done, and the record quietly lapses.
+    // ------------------------------------------------------------
+    function Na__LeTools__MoveRetypable(sheet) {
+        const record = Na__LeTools__MoveRetype;
+        if (!record || !sheet || Na__LeTools__Drag || record.sheetId !== sheet.Sheet__Id) return null;
+        if (record.selection !== Na__LeTools__SelectionKey()) return null;
+        const landed = Na__LeTools__RecordLanded(sheet, record);
+        return (landed !== null && landed === record.landed) ? record : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Where a Retype Record's Move Left Everything, an Array's Copies Included
+    // ------------------------------------------------------------
+    // With no array this is RetypeLanded of the move itself. A copy's array
+    // (Na__LayoutEditor__SheetTools__CopyDrag__) adds each of its copies, so
+    // moving, reshaping or deleting one of them - or an undo that takes them
+    // away - ends the run as a change to the copy itself does.
+    // ------------------------------------------------------------
+    function Na__LeTools__RecordLanded(sheet, record) {
+        const first = Na__LeTools__RetypeLanded(sheet, record.drag);
+        if (first === null || !record.array) return first;
+        const rest = record.array.extras.map((extra) => Na__LeTools__RetypeLanded(sheet, extra.drag));
+        return rest.indexOf(null) !== -1 ? null : first + '|' + rest.join('|');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Retype Record Read Like a Live Drag
+    // ------------------------------------------------------------
+    function Na__LeTools__RetypeReading(record) {
+        const from = record.fromMm;
+        return { from : { x : from.x, y : from.y }, to : { x : from.x + (record.dir.x * record.lengthMm), y : from.y + (record.dir.y * record.lengthMm) } };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Retypable Whole-Object Move, for the Measurements Box
+    // ------------------------------------------------------------
+    // Reads { from, to } exactly as GetMoveDrag does while the drag is held,
+    // so the box keeps its reading and its scale when the button comes up
+    // and stays awake for a value. Null once the move is no longer the last
+    // thing done.
+    // ------------------------------------------------------------
+    function Na__LeTools__GetMoveRetype() {
+        const record = Na__LeTools__MoveRetypable(Na__LeModel__GetActiveSheet());
+        return (record && record.drag.kind !== 'viewport') ? Na__LeTools__RetypeReading(record) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Retypable Frame Move, for the Measurements Box
+    // ------------------------------------------------------------
+    function Na__LeTools__GetViewportRetype() {
+        const record = Na__LeTools__MoveRetypable(Na__LeModel__GetActiveSheet());
+        return (record && record.drag.kind === 'viewport') ? Na__LeTools__RetypeReading(record) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is This a Ctrl-Drag Copy Still on the Pointer
+    // ------------------------------------------------------------
+    function Na__LeTools__IsLiveCopy(drag) {
+        return !!(drag && drag.copied && drag.moved === true && (Na__LeTools__IsMoveDrag(drag) || Na__LeTools__IsViewportMoveDrag(drag)));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is a Copy on Offer to Be Arrayed (SketchUp's 3x and /3)
+    // ------------------------------------------------------------
+    // True while a Ctrl-drag copy is on the pointer, or has landed - let go by
+    // the mouse or by a typed value - and is still the last thing done, so the
+    // Measurements box lets x, * and / begin a value.
+    // ------------------------------------------------------------
+    function Na__LeTools__CanMoveArray() {
+        const drag = Na__LeTools__Drag;
+        if (drag) return Na__LeTools__IsLiveCopy(drag);
+        const record = Na__LeTools__MoveRetypable(Na__LeModel__GetActiveSheet());
+        return !!(record && record.drag && record.drag.copied);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Array the Copy That Has Just Landed: SketchUp's Move Tool Multiplier and Divider
+    // ------------------------------------------------------------
+    // mode 'times' (3x, *3): copies at the copy's distance, twice it and three
+    // times it, the copy itself the first of them. mode 'divide' (/3): copies
+    // dividing that distance into three equal parts, the copy itself the last.
+    // The distance is the copy's own, as typed or as dragged - a minus sign
+    // included - so a length typed after keeps the count and moves them all
+    // (RetypeMove), and a count typed after replaces the one before. The
+    // copies are made silently and announced once: one undo step, and the
+    // move stays on offer, for another count or another length. Returns
+    // { ok : true, count, mode, lengthMm } or { ok : false, reason } - 'none'
+    // with no move on offer, 'copy' when the last move was not a copy,
+    // 'count' for a count that is not a whole number of at least one, 'many'
+    // (with max) past the configured ArrayMaxCount.
+    // ------------------------------------------------------------
+    function Na__LeTools__TypeMoveArray(mode, count) {
+        const live = Na__LeTools__Drag;
+        if (Na__LeTools__IsLiveCopy(live) && Number.isInteger(count) && count >= 1 && count <= Na__LeCfg__GetMeasureSetup().arrayMaxCount) {
+            Na__LeTools__FinishDrag(live.pointerId, false);                  // <-- A copy still on the pointer lands where it is first, as a typed length lands it; the pointer no longer owns it
+        }
+        const sheet  = Na__LeModel__GetActiveSheet();
+        const record = Na__LeTools__MoveRetypable(sheet);
+        if (!record) return { ok : false, reason : 'none' };
+        if (!record.drag.copied) return { ok : false, reason : 'copy' };
+        if (!Number.isInteger(count) || count < 1) return { ok : false, reason : 'count' };
+        const max = Na__LeCfg__GetMeasureSetup().arrayMaxCount;
+        if (count > max) return { ok : false, reason : 'many', max : max };
+        if (!Na__LeTools__BuildCopyArray(sheet, record, { mode : mode, count : count }, Na__LeTools__LandExact)) return { ok : false, reason : 'none' };
+        // EVERY ANNOUNCE REFRESHES THE BOX, AND THE BOX ASKS WHETHER THE MOVE
+        // IS STILL ON OFFER. So the record learns where everything landed and
+        // what the selection is about to be BEFORE either is announced - a
+        // change of selection announces itself - or the box would find a
+        // stale record half way, go idle and drop the focus.
+        const pick = Na__LeTools__CopyArraySelection(record);
+        record.landed    = Na__LeTools__RecordLanded(sheet, record);
+        record.selection = Na__LeTools__KeyOf(pick);
+        Na__LeModel__SetSelectionItems(pick);
+        record.selection = Na__LeTools__SelectionKey();
+        Na__LeTools__AnnounceMove(sheet, record.drag);                       // <-- One announce, one undo step, however many copies went in or came out
+        record.selection = Na__LeTools__SelectionKey();
+        record.landed    = Na__LeTools__RecordLanded(sheet, record);
+        return { ok : true, count : count, mode : mode, lengthMm : record.lengthMm };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Announce a Move Once, the Way the Release Does
+    // ------------------------------------------------------------
+    function Na__LeTools__AnnounceMove(sheet, drag) {
+        if (drag.kind === 'group')           { Na__LeSelSet__Commit(sheet, drag.group); return; }   // <-- Once per kind: one undo step for the lot
+        if (drag.kind === 'viewport')        Na__LeModel__UpdateViewport(sheet, drag.id, {}, false);
+        else if (drag.kind === 'annotation') Na__LeModel__UpdateAnnotation(sheet, drag.id, {}, false);
+        else if (drag.kind === 'shape')      Na__LeModel__UpdateShape(sheet, drag.id, {}, false);
+        else if (drag.kind === 'leader')     Na__LeModel__UpdateLeader(sheet, drag.id, {}, false);
+        else                                 Na__LeModel__UpdateDimension(sheet, drag.id, {}, false);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Land the Last Move Again, a Typed Distance Along Its Line
+    // ------------------------------------------------------------
+    // lengthMm is PAPER millimetres, measured from where the move STARTED, so
+    // 1000 then 1200 ends 1200 from the start, not 2200. Exact: no snap, no
+    // grid, no Shift, no Ortho - a typed value is absolute whatever is
+    // switched on. Each correction is an undo step of its own, as a retyped
+    // vertex's is, and the record follows it so the next value can replace it.
+    // ------------------------------------------------------------
+    function Na__LeTools__RetypeMove(record, lengthMm) {
+        const sheet = Na__LeModel__GetActiveSheet();
+        const drag  = record.drag;
+        if (!sheet) return { ok : false, reason : 'none' };
+        const delta = { x : record.dir.x * lengthMm, y : record.dir.y * lengthMm };
+        if (!Na__LeTools__LandExact(sheet, drag, delta)) return { ok : false, reason : 'none' };
+        record.lengthMm = lengthMm;
+        if (record.array) Na__LeTools__FollowCopyArray(sheet, record, Na__LeTools__LandExact);   // <-- A copy's array spaces itself out again from the new distance, in the same undo step
+        record.landed   = Na__LeTools__RecordLanded(sheet, record);         // <-- Before the announce, so the box's refresh on it still finds the move on offer
+        Na__LeTools__AnnounceMove(sheet, drag);
+        record.landed   = Na__LeTools__RecordLanded(sheet, record);         // <-- And after it, should an announce hook have settled anything
+        return { ok : true, retyped : true };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Land What a Move Carries Exactly a Distance From Where It Started (silent)
+    // ------------------------------------------------------------
+    // The landing every typed value uses: no snap, no grid, no Shift, no
+    // Ortho. A frame through its own patch (a frame carried by a point would
+    // otherwise go through the snap move's solver); everything else through
+    // ApplyDrag's exact path, every item from its own start. Returns false
+    // when a frame could not be patched.
+    // ------------------------------------------------------------
+    function Na__LeTools__LandExact(sheet, drag, delta) {
+        if (drag.kind === 'group') {                                         // <-- ApplyDrag's exact group branch, less its refresh of the box: a typed value is mid-commit, and the box would find the move half landed
+            drag.appliedMm = { x : delta.x, y : delta.y };
+            Na__LeSelSet__Apply(sheet, drag.group, delta.x, delta.y);
+            return true;
+        }
+        if (drag.kind === 'viewport') {
+            const viewport = Na__LeModel__GetViewportById(sheet, drag.id);
+            const patch    = viewport ? Na__LeHandles__DragPatch(viewport, drag.hit, drag.start, delta, { shift : false }) : null;
+            if (!patch) return false;
+            Na__LeModel__UpdateViewport(sheet, drag.id, patch, true);
+            Na__LeSurface__Refresh('frames');
+            return true;
+        }
+        Na__LeTools__ApplyDrag(sheet, drag, delta, false, true);            // <-- exact: every item from its own start, nothing may massage the value
         return true;
     }
     // ------------------------------------------------------------
@@ -1296,7 +1790,7 @@
         const rect   = live && live.Viewport__FrameMm;
         const livePt = rect ? { x : rect.X, y : rect.Y } : null;
         const run    = livePt ? Math.hypot(livePt.x - from.x, livePt.y - from.y) : 0;
-        const cursor = Na__LeTools__LastPointMm;
+        const cursor = drag.moved ? Na__LeTools__LastPointMm : null;         // <-- Only once the press is a drag, as for a vertex
         const aim    = (run >= Na__LeTools__TYPED_MIN_MM) ? livePt : (cursor && drag.startMm
             ? { x : from.x + (cursor.x - drag.startMm.x), y : from.y + (cursor.y - drag.startMm.y) }
             : livePt);
@@ -1317,7 +1811,12 @@
     // ------------------------------------------------------------
     function Na__LeTools__TypeViewportLength(lengthMm) {
         const drag = Na__LeTools__Drag;
-        if (!Na__LeTools__IsViewportMoveDrag(drag)) return { ok : false, reason : 'none' };
+        if (!Na__LeTools__IsViewportMoveDrag(drag)) {
+            const record = Na__LeTools__MoveRetypable(Na__LeModel__GetActiveSheet());   // <-- No drag: the frame that just landed may still be retyped, as a move is
+            if (!record || record.drag.kind !== 'viewport') return { ok : false, reason : 'none' };
+            if (!Number.isFinite(lengthMm) || Math.abs(lengthMm) < Na__LeTools__TYPED_MIN_MM) return { ok : false, reason : 'length' };
+            return Na__LeTools__RetypeMove(record, lengthMm);
+        }
         if (!Number.isFinite(lengthMm) || Math.abs(lengthMm) < Na__LeTools__TYPED_MIN_MM) return { ok : false, reason : 'length' };
         const reading = Na__LeTools__GetViewportDrag();
         if (!reading || !reading.to) return { ok : false, reason : 'direction' };
@@ -1334,6 +1833,8 @@
         Na__LeModel__UpdateViewport(sheet, drag.id, patch, true);
         Na__LeSurface__Refresh('frames');
         drag.moved = true;
+        drag.retypeDir      = { x : dx / run, y : dy / run };                // <-- A value typed next runs the same way (RememberRetype)
+        drag.retypeLengthMm = lengthMm;
         Na__LeTools__FinishDrag(drag.pointerId, false);                      // <-- Announce once; the pointer no longer owns the frame
         return { ok : true };
     }
@@ -1377,6 +1878,7 @@
         Na__LeTools__OnUp,
         Na__LeTools__IsMoveDrag,
         Na__LeTools__GetMoveDrag,
+        Na__LeTools__GetMoveRetype,
         Na__LeTools__TypeMoveLength,
         Na__LeTools__RerunMoveDrag,
         Na__LeTools__LeaveScope,
@@ -1397,7 +1899,10 @@
         Na__LeTools__IsViewportMoveDrag,
         Na__LeTools__RerunViewportDrag,
         Na__LeTools__GetViewportDrag,
+        Na__LeTools__GetViewportRetype,
         Na__LeTools__TypeViewportLength,
+        Na__LeTools__CanMoveArray,
+        Na__LeTools__TypeMoveArray,
         Na__LeTools__SetSuppressed
     };
     // ------------------------------------------------------------

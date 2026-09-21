@@ -76,6 +76,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - Retarget: a Ctrl-drag copy made or dropped in the middle of a carry
+//   (Na__LayoutEditor__SheetTools__CopyDrag__) moves the multiply across to
+//   the frame that is now being carried, and the carry engages on it afresh.
+//
+// 21-Sep-2026 - Version 1.3.0
+// - Solve's last step uses the drawing grid while Grid Snap is on (F7,
+//   Na__LayoutEditor__DrawingGrid__): with no snap and no tracking line in
+//   reach, the carried point lands on the nearest grid point. A snap point
+//   (the title block's corners among them) and a tracking line still win,
+//   and a held axis keeps its line.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - THE ARROW-KEY LOCK REACHES A CARRIED VIEWPORT. Solve had its own private
 //   `lock`, set only by Shift, and its own duplicate axis names; it now reads
@@ -128,6 +140,7 @@
         Na__LeOsnap__HideMarker
     } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
     import { Na__LeAxis__AXIS_X, Na__LeAxis__AXIS_Y, Na__LeAxis__Get } from '../30__System__SheetTools/Na__LayoutEditor__AxisLock__.js';
+    import { Na__LeGrid__SnapPoint } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- Grid Snap (F7): a leaf, the nearest grid point
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -493,13 +506,40 @@
             });
         }
 
-        // 3. CURSOR | With whichever axes tracking caught
+        // 3. CURSOR | With whichever axes tracking caught - and, while Grid
+        // Snap is on (F7), the drawing grid for the rest: the point the
+        // viewport is carried by lands on a grid point, a held axis keeps its
+        // line, and a tracking line still wins on its own axis.
         // ------------------------------------
-        const at = { x : plumbWith ? plumbWith.x : wanted.x, y : levelWith ? levelWith.y : wanted.y };
+        const grid = Na__LeGrid__SnapPoint(wanted);
+        const at = { x : plumbWith ? plumbWith.x : (lock === Na__LeVpMove__AXIS_Y ? wanted.x : grid.x),
+                     y : levelWith ? levelWith.y : (lock === Na__LeVpMove__AXIS_X ? wanted.y : grid.y) };
         Na__LeVpMove__ShowGuide(Na__LeVpMove__AXIS_X, levelWith || (lock === Na__LeVpMove__AXIS_X ? base : null), at);
         Na__LeVpMove__ShowGuide(Na__LeVpMove__AXIS_Y, plumbWith || (lock === Na__LeVpMove__AXIS_Y ? base : null), at);
         Na__LeVpMove__ShowBase(at);
         return at;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Carry Now Moves a Different Frame (a Ctrl-drag copy made or dropped)
+    // ------------------------------------------------------------
+    // Ctrl pressed half way through a carry clones the viewport and carries
+    // the clone instead, and pressed again carries the original once more
+    // (Na__LayoutEditor__SheetTools__CopyDrag__), both by repointing the same
+    // drag record. The frame that stopped moving loses the multiply, and the
+    // carry engages again on the one that moves now - which also drops the
+    // tracking points taken on it, as they would be at the start of any carry.
+    // Does nothing before the carry has engaged: its first Solve engages
+    // whatever the drag points at by then. Returns true when it moved across.
+    // ------------------------------------------------------------
+    function Na__LeVpMove__Retarget(drag, fromViewportId) {
+        if (!drag || Na__LeVpMove__Active !== drag) return false;
+        const was = Na__LeVpMove__Frame(fromViewportId);
+        if (was) was.classList.remove(Na__LeVpMove__CARRIED_CLASS);
+        Na__LeVpMove__Active = null;
+        Na__LeVpMove__Engage(drag);
+        return true;
     }
     // ------------------------------------------------------------
 
@@ -569,6 +609,7 @@
         Na__LeVpMove__GrabAt,
         Na__LeVpMove__Hover,
         Na__LeVpMove__Solve,
+        Na__LeVpMove__Retarget,
         Na__LeVpMove__Finish,
         Na__LeVpMove__Clear,
         Na__LeVpMove__Refresh,

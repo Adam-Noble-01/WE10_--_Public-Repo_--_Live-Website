@@ -29,6 +29,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - CTRL+S SAVES THE REVISION NOTES. The tab registers Doc__Save with the
+//   documents' keyboard (31__System__DocumentKeys), which hears it first; the
+//   key used to reach the editor's own save, which saved the sheets and synced
+//   the specification and left the notes being typed unsaved. It does what
+//   Save to R2 does, whose hover text now names the key, and says so instead
+//   of writing when the notes already match R2.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - A STATUS column in the Edit table: a box on every row offering "Not set"
 //   and the title block config's statuses, saved through the same confirmed
@@ -76,6 +84,13 @@
     import { Na__LeRegPreview__Render, Na__LeRegPreview__Clear } from './Na__LayoutEditor__Register__Preview__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | The Documents' Own Keyboard
+    // ------------------------------------------------------------
+    // @delegate: ../31__System__DocumentKeys/Na__LayoutEditor__DocumentKeys__.js
+    // ------------------------------------------------------------
+    import { Na__LeDocKeys__Register, Na__LeDocKeys__KeyLabel } from '../31__System__DocumentKeys/Na__LayoutEditor__DocumentKeys__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -102,6 +117,11 @@
     // column added here is a column to add there.
     // ------------------------------------------------------------
     const Na__LeRegEd__HEADINGS   = Object.freeze([ '', 'DWG No.', 'PHASE', 'DOCUMENT CODE', 'DOCUMENT NAME', 'SCALE', 'SIZE', 'REVISION', 'STATUS', '' ]);
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | This Tab's Name to the Documents' Keyboard
+    // ------------------------------------------------------------
+    const Na__LeRegEd__DOC_KEYS_ID = 'register';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -502,16 +522,19 @@
             const save = Na__LeRegEd__El('details', 'na-le-register__save');
             save.appendChild(Na__LeRegEd__El('summary', '', 'Save / Load notes'));
             const actions = Na__LeRegEd__El('div');
+            const saveKey = Na__LeDocKeys__KeyLabel('Doc__Save');
             [
-                ['Save Locally', () => Na__LeReg__Save(false)],
-                ['Save to R2',   () => Na__LeReg__Save(true)],
-                ['Load Local',   () => Na__LeReg__Load(false)],
-                ['Load R2',      () => Na__LeReg__Load(true)]
-            ].forEach(([label, action]) => {
-                actions.appendChild(Na__LeRegEd__Button(label, async () => {
+                ['Save Locally', () => Na__LeReg__Save(false), ''],
+                ['Save to R2',   () => Na__LeReg__Save(true),  saveKey ? 'Write the revision notes to R2 and the project file (' + saveKey + ')' : ''],
+                ['Load Local',   () => Na__LeReg__Load(false), ''],
+                ['Load R2',      () => Na__LeReg__Load(true),  '']
+            ].forEach(([label, action, title]) => {
+                const button = Na__LeRegEd__Button(label, async () => {
                     await action();
                     Na__LeRegEd__Render();
-                }));
+                });
+                if (title) button.title = title;
+                actions.appendChild(button);
             });
             save.appendChild(actions);
             bar.appendChild(save);
@@ -564,6 +587,41 @@
                 Na__LeRegEd__Render();
             }
         });
+
+        // THE TAB'S OWN CTRL+S, through the documents' keyboard. Registered
+        // only where this session may author: a reader has nothing to save.
+        if (options.editable) {
+            Na__LeDocKeys__Register(Na__LeRegEd__DOC_KEYS_ID, {
+                isShowing : () => !!Na__LeRegEd__Root && !Na__LeRegEd__Root.hidden,
+                actions   : { Doc__Save : () => Na__LeRegEd__SaveKey() }
+            });
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Ctrl+S: Save the Revision Notes, as Save to R2 Does
+    // ------------------------------------------------------------
+    // WHAT IS UNSAVED ON THIS TAB IS THE NOTES. A drawing's name, phase,
+    // revision and status are written the moment their confirmation is
+    // accepted; the revision notes are only kept in this browser until they
+    // are saved. So the key saves them - to R2 and the project file, because
+    // that is what this tab counts as saved: its status line says "not synced
+    // to R2" until they are there, and the sheets' own Ctrl+S goes to R2 too.
+    //
+    // NOTHING TO SAVE IS SAID, NOT WRITTEN. The save stamps the register's
+    // updated time and reads R2 first, so a habitual Ctrl+S on notes that
+    // already match R2 changes nothing and says so. The page is not rebuilt
+    // either - the status line follows the save's own announcement - so a
+    // note being typed keeps its caret.
+    // ------------------------------------------------------------
+    function Na__LeRegEd__SaveKey() {
+        if (!Na__LeReg__IsDirty()) {
+            Na__LeRegEd__Options.showToast('Nothing to save: the revision notes already match R2.', false);
+            return true;
+        }
+        void Na__LeReg__Save(true);                                              // <-- Its own toasts, and its own question if R2 changed since this session read it
+        return true;
     }
     // ------------------------------------------------------------
 

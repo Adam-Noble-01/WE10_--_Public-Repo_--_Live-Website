@@ -6,6 +6,57 @@
 
 # -----------------------------------------------------------------------------
 
+## Project Vision - Version 0.4.2 - 21-Sep-2026
+
+### Fixed - A push is a sync: R2 now loses the GLBs the project folders lost
+
+#### Why
+- The R2 sync only ever uploaded. A GLB that left the local folders - a tag removed, a file
+  renamed (`RB05__Storey__...` became `Storey__...`), a scheme deleted or archived - stayed in
+  the bucket for good. RB05's `Scheme-01` held 131 GLBs on R2 on 20-Sep-2026 (the clean re-export
+  on 21-Sep has 54), and old models were drawing in TrueVision.
+
+#### R2 sync (`CloudflareR2__ModelSync__Main__.py`)
+- Every GLB under a project's `30__TrueVision__AppContent/` on R2 that the sync would not upload
+  is now deleted: `collect_stale_glb_operations` lists the prefix and subtracts the local set.
+  That covers a design phase, a site plan store, and anything under a `00__Archive` (never synced).
+- The preview lists them under "On R2 only - no longer in the local folders", and the summary
+  counts them ("Stale GLBs to delete"). A dry run deletes nothing.
+- They go **last, and only after every upload succeeded** (`[HELD]` otherwise). Until the new
+  `TrueVision__ProjectData__.json` has landed, the live copy may still point at them.
+- Kept, with a `[KEPT]` warning: any GLB the project data being uploaded still points at, so a
+  sync run without a fresh build cannot pull a model out from under the app.
+- Never mirrored: a project with no local GLBs at all. That reads as a missing checkout, not an
+  instruction to empty the bucket; the count is reported and `--purge` named instead.
+- Only `.glb` keys, only under the project's TrueVision folder. JSON, drawing notes, manifests
+  and PlanVision content are never deleted.
+- New output line, read by the GLB Builder: `Stale GLB cleanup: N removed from R2, M failed.`
+  `Upload complete! ...` is still printed, even for 0 uploads.
+
+### Fixed - "[Errno 22] Invalid argument" aborting the build
+
+#### Why
+- The build died on `open(path, 'w')` twice: 20-Sep 23:26 on EB03's DAS HTML, 21-Sep 09:45 on the
+  master project index. Both files existed and neither path was wrong.
+- The cause is a `git diff` running at the same moment. It memory-maps every modified file it
+  compares, and Windows will not truncate a mapped file (`ERROR_USER_MAPPED_FILE`, 1224), which
+  Python reports as Errno 22. The Claude app, editors and other sessions run `git diff` all the
+  time, and every file the build rewrites is a modified tracked file. Reproduced: a writer racing
+  `git diff` failed 555 times in 8 s.
+
+#### New: `ProjectVision__FileWriter__.py`
+- `write_json_file` / `write_text_file` / `write_bytes_file` write a temp file beside the target
+  and rename it over the target. Windows allows the rename while the old file is mapped: the same
+  race gave 0 failures in 5,919 writes. A crash mid-write can no longer leave a half-written file.
+- A reader holding the file open (rather than mapped) can refuse the rename for a moment, so it
+  is retried for about 3 s before the error stands.
+- Output is byte-identical to the old writers.
+- Used by every writer in the build script, by the DAS builder, and by the sync's local mirror of
+  the project data.
+
+
+# -----------------------------------------------------------------------------
+
 ## Project Vision - Version 0.4.1 - 20-Sep-2026
 
 ### Added - The build writes the index that every drawing's QR code resolves through

@@ -35,6 +35,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - GetMeasureSetup answers arrayMaxCount (Measurements ArrayMaxCount, 200):
+//   the most copies one typed array count may make (SketchUp's 3x and /3).
+//
+// 21-Sep-2026 - Version 1.2.0
+// - GetSnappingSetup answers sheetChrome (Snapping SheetChrome, on unless
+//   the config says false): the sheet border, the title block and the notes
+//   margin offer their corners, ends and midpoints as snap points.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - GetEditScopeSetup answers autoMoveOnSelect and autoMoveKinds (the kinds a
 //   Select press picks the Move tool up for), and GetSelectionSetup answers
@@ -211,7 +220,8 @@
             unitsSuffix : typeof units === 'string' ? units : ' mm',
             pairJoin    : typeof join === 'string' ? join : ' x ',
             hintMs      : Math.max(500, Na__LeCfg__Num('Measurements', 'HintMs', 2800)),
-            edgeGapPx   : Math.max(0, Na__LeCfg__Num('Measurements', 'EdgeGapPx', 10))
+            edgeGapPx   : Math.max(0, Na__LeCfg__Num('Measurements', 'EdgeGapPx', 10)),
+            arrayMaxCount : Math.max(1, Math.round(Na__LeCfg__Num('Measurements', 'ArrayMaxCount', 200)))   // <-- The most copies one typed array count (3x, /3) may make
         };
     }
     // ------------------------------------------------------------
@@ -317,6 +327,7 @@
             midpoints    : Na__LeCfg__Val('Snapping', 'Midpoints', true) !== false,
             hiddenLines  : Na__LeCfg__Val('Snapping', 'HiddenLines', false) === true,
             sheetObjects : Na__LeCfg__Val('Snapping', 'SheetObjects', true) !== false,
+            sheetChrome  : Na__LeCfg__Val('Snapping', 'SheetChrome', true) !== false,   // <-- The border's, title block's and notes margin's corners, ends and midpoints
             markerSizePx : Na__LeCfg__Num('Snapping', 'MarkerSizePx', 10),
 
             // VIEWPORT CARRY (Na__LayoutEditor__ViewportSnapMove__): press on a

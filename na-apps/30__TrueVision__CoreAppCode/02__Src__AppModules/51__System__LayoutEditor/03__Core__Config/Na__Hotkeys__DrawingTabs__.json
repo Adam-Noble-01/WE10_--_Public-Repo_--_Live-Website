@@ -1,5 +1,5 @@
 {
-    "LayoutEditor__KeyMappings__Description": "Every mouse, wheel, keyboard and touch binding the Layout Editor listens for. Nothing in the control modules is hard-coded to a button or a key, so this file is the single place a binding changes. It is shaped to be handed to a user personalisation screen later: each binding carries an Id, a human Label and an Enabled flag, so a saved user override can be merged over the top of this file without the control code changing at all.",
+    "LayoutEditor__KeyMappings__Description": "The drawing tabs' hotkeys: every mouse, wheel, keyboard and touch binding the Layout Editor listens for on a drawing tab. One of the app's three hotkey files, one per kind of tab - the 3D Model tab's (Na__Hotkeys__3dModelTab__.json, 02__AppData), the drawing tabs' (Na__Hotkeys__DrawingTabs__.json, 51__System__LayoutEditor/03__Core__Config) and the document tabs' - the Project Specification, the Drawing Register and the Statements - (Na__Hotkeys__DocumentTabs__.json, 51__System__LayoutEditor/31__System__DocumentKeys) - of which only the one for the tab on screen is live (Na__AppUtils__KeyScope__). The built-in fallback in Na__LayoutEditor__ConfigState__KeyMap__.js must resolve every key the same way as this file (Na__Test__DrawingTabKeys__ checks it): add a binding to both or neither. Nothing in the control modules is hard-coded to a button or a key, so this file is the single place a binding changes. It is shaped to be handed to a user personalisation screen later: each binding carries an Id, a human Label and an Enabled flag, so a saved user override can be merged over the top of this file without the control code changing at all.",
     "LayoutEditor__KeyMappings__SchemaVersion": 1,
     "LayoutEditor__KeyMappings__Notes": [
         "Buttons are named Left, Middle and Right (mouse button 0, 1 and 2).",
@@ -105,7 +105,7 @@
         ]
     },
     "LayoutEditor__KeyboardBindings__Config": {
-        "LayoutEditor__KeyboardBindings__Description": "Keys read while the editor is on screen. The navigation keys are shipped off so the bare arrow keys keep nudging the selection, which is the behaviour the editor already had. Switch them on here and the PC controls module picks them up with no code change. While the Draw or Dimension tool is placing a point the arrows lock the drawing axis instead of nudging, as in SketchUp LayOut; they go back to nudging the moment the point lands.",
+        "LayoutEditor__KeyboardBindings__Description": "Keys read while a drawing tab is on screen - the document tabs have their own key map (31__System__DocumentKeys). The zoom and pan keys are shipped off so the bare arrow keys keep nudging the selection, which is the behaviour the editor already had; Page Up and Page Down ship on and turn the drawings. Switch any of them on here and the PC controls module picks them up with no code change. While the Draw or Dimension tool is placing a point the arrows lock the drawing axis instead of nudging, as in SketchUp LayOut; they go back to nudging the moment the point lands.",
         "LayoutEditor__KeyboardBindings__IgnoreWhenTyping": true,
         "LayoutEditor__KeyboardBindings__CoarseStepModifier": "Shift",
         "LayoutEditor__KeyboardBindings__NudgeStepMm": 1,
@@ -215,6 +215,30 @@
                 "ModifierMatch": "Exact"
             },
             {
+                "Id": "Nav__PreviousSheet",
+                "Label": "Open the drawing before this one (Page Up)",
+                "Action": "Nav__PreviousSheet",
+                "Enabled": true,
+                "Keys": [
+                    "PageUp"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "Turns the drawings the way the tabs sit, as clicking the tab to the left does - the whole sheet change, zoom to fit included. The first drawing is an end, not a loop: the key is taken there and nothing happens, so the stage never scrolls on it. A held key turns one drawing, not a run of them, because each drawing renders when it opens. The PC controls module answers it, so the web viewer's reading keys have it too. The 3D Model tab keeps Page Up for its presentation scenes and a document tab leaves it to scroll the document."
+            },
+            {
+                "Id": "Nav__NextSheet",
+                "Label": "Open the drawing after this one (Page Down)",
+                "Action": "Nav__NextSheet",
+                "Enabled": true,
+                "Keys": [
+                    "PageDown"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "As Nav__PreviousSheet, towards the last drawing. The documents after the drawings - the Project Specification, the Drawing Register and the Statements - are never reached this way: their tabs are clicked."
+            },
+            {
                 "Id": "Edit__Cancel",
                 "Label": "Stop: abandon any placement, close any open container, clear the selection and go back to the Select tool",
                 "Action": "Edit__Cancel",
@@ -249,6 +273,33 @@
                 "ModifierMatch": "Exact"
             },
             {
+                "Id": "Ortho__Toggle",
+                "Label": "Toggle Ortho mode: new lines, dimensions and moves held horizontal or vertical (AutoCAD F8)",
+                "Action": "Ortho__Toggle",
+                "Enabled": true,
+                "Keys": [
+                    "F8"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "AutoCAD's own key for Ortho (ORTHOMODE). While it is on, a point picked from a point before it lands on the horizontal or the vertical through that point, whichever the cursor is further along: the Draw tool's next vertex (and the Area tool's corners), a new dimension's line (horizontal or vertical, as a held Shift made it), a dragged vertex or dimension end, and anything moved whole. Holding Shift frees the cursor while Ortho is on and holds the axis while it is off - AutoCAD's Shift override. The arrow key axis lock still wins, a snap measures along the held axis, and the first point of anything is free. Rectangles, the text rotate grip and viewport corners keep their own Shift. The Ortho button on the toolbar is lit while it is on, the choice is remembered in this browser, and F8 again switches it off."
+            },
+            {
+                "Id": "Ortho__ToggleCtrlL",
+                "Label": "Toggle Ortho mode (AutoCAD Ctrl+L)",
+                "Action": "Ortho__Toggle",
+                "Enabled": false,
+                "Keys": [
+                    "l",
+                    "L"
+                ],
+                "Modifiers": [
+                    "Ctrl"
+                ],
+                "ModifierMatch": "Exact",
+                "Note": "AutoCAD's second key for Ortho. Shipped off: in a browser Ctrl+L is the address bar, and a page cannot always keep it. Switch it on to try it; a plain L stays the Draw tool either way, because Exact modifiers keep the two apart."
+            },
+            {
                 "Id": "View__DraftToggle",
                 "Label": "Toggle Draft mode: only the viewports' vector linework, every line a hairline (SketchUp LayOut's K)",
                 "Action": "View__DraftToggle",
@@ -260,6 +311,30 @@
                 "Modifiers": [],
                 "ModifierMatch": "Exact",
                 "Note": "LayOut's own key for its Draft Mode. Every line on the paper draws one device pixel wide in its own colour, with no dashes and no fills; base images, depth fog and 3D pictures are neither drawn nor rendered. A view, not a tool: the tool, the selection and a point half placed are left alone, so it can be pressed mid-drawing. K again switches it off. Exact modifiers leave Ctrl+K to the browser."
+            },
+            {
+                "Id": "View__GridToggle",
+                "Label": "Show or hide the drawing grid (SketchUp LayOut's View > Show Grid)",
+                "Action": "View__GridToggle",
+                "Enabled": true,
+                "Keys": [
+                    "F6"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "F6 is the key Adam's own LayOut has Show Grid on (layout.private.json, 21-Sep-2026); LayOut ships it with no key. The grid is set up in Document Preferences > Drawing Grid and is never printed. A view, not a tool: the tool, the selection and a point half placed are left alone. The browser's own F6 (move focus to the address bar) is kept from it while a sheet is open."
+            },
+            {
+                "Id": "Snap__GridToggle",
+                "Label": "Grid snap on or off: every point placed or dragged lands on the drawing grid (SketchUp LayOut's Arrange > Grid Snap)",
+                "Action": "Snap__GridToggle",
+                "Enabled": true,
+                "Keys": [
+                    "F7"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "F7 is the key Adam's own LayOut has Grid Snap on. Separate from Show Grid, as in LayOut: the grid can be snapped to while it is hidden. Object snap (F3) still wins near a corner or a midpoint. The browser's own F7 (caret browsing) is kept from it while a sheet is open."
             },
             {
                 "Id": "Edit__Save",
@@ -274,7 +349,7 @@
                     "Ctrl"
                 ],
                 "ModifierMatch": "Exact",
-                "Note": "Exactly what the Save Sheets button does, from anywhere in the editor - the sheet, the specification or the register - because unlike the other Edit chords it is answered by the mode controller rather than by the sheet's own keys. Typing on the paper is committed first, and a panel field with focus is blurred so the value being typed into it commits too: those fields report on 'change', which a keyboard shortcut does not fire by itself, and the Save button only ever got away with it because clicking anything blurs. Taken from the browser while the editor is open, where Ctrl+S would otherwise offer to save the page as a file. An editable session only: a read-only viewer keeps the browser's own Ctrl+S."
+                "Note": "Exactly what the Save Sheets button does, on a drawing tab and on the Project Specification - there the specification's sync is the part that matters - because unlike the other Edit chords it is answered by the mode controller rather than by the sheet's own keys. A document with a save of its own answers Ctrl+S first, through the documents' key map (31__System__DocumentKeys), and the key never arrives here: the Statements tab writes the statement, and the Drawing Register saves its revision notes to R2 and the project file. Typing on the paper is committed first, and a panel field with focus is blurred so the value being typed into it commits too: those fields report on 'change', which a keyboard shortcut does not fire by itself, and the Save button only ever got away with it because clicking anything blurs. Taken from the browser while the editor is open, where Ctrl+S would otherwise offer to save the page as a file. An editable session only: a read-only viewer keeps the browser's own Ctrl+S."
             },
             {
                 "Id": "Edit__Undo",
@@ -627,9 +702,10 @@
         "LayoutEditor__TouchBindings__PinchStartSlopPx": 8
     },
     "LayoutEditor__MeasurementsBox__Config": {
-        "LayoutEditor__MeasurementsBox__Description": "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, or while a vertex or a viewport is being dragged, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it.",
+        "LayoutEditor__MeasurementsBox__Description": "Typing into the Measurements box at the bottom right of the sheet, as in SketchUp: while the Draw, Rectangle or Dimension tool is up, or while a vertex or a viewport is being dragged, a value typed anywhere over the editor goes into the box and Enter uses it, with no click into the box first. StartCharacters begin a value; letters are left to the tool keys until a value is begun. TypingCharacters are what a begun value may go on to hold: the digits, the point, the thousands comma, a sign, a space, the units (m, cm, mm) and the x, * or ; between a rectangle's width and height. A key outside them still reaches the sheet, and a tool key puts the value away. CommitKeys use the value, ClearKeys drop it and EraseKeys take its last character back - each only while something is typed, so Enter still finishes a shape and Escape still backs out while the box is empty. A text field, a select and any chord (Ctrl, Alt or Meta held) keep their keys. A click into the box types into it directly, which is also how a touch screen reaches it. ArrayCharacters may also begin or continue a value, but only while a copy is on offer to be arrayed (a Ctrl-drag copy that has just landed): SketchUp's 3x, x3, *3 or 3* for copies at one, two and three times the copy's distance, and /3 or 3/ for copies dividing it into three. The rest of the time x is a plain key.",
         "LayoutEditor__MeasurementsBox__StartCharacters": "0123456789.,-",
         "LayoutEditor__MeasurementsBox__TypingCharacters": "0123456789.,-+ xX*;mMcC",
+        "LayoutEditor__MeasurementsBox__ArrayCharacters": "xX*/",
         "LayoutEditor__MeasurementsBox__CommitKeys": [
             "Enter"
         ],
@@ -642,8 +718,9 @@
         ]
     },
     "LayoutEditor__SelectionBindings__Config": {
-        "LayoutEditor__SelectionBindings__Description": "What a modifier held on a Select tool press does to the selection - for a click on an item and for a box dragged from bare paper alike - as SketchUp holds them. With none held the click or the box replaces the selection. The list is tested in order with Exact matching, so the two-modifier binding sits first. BoxAnywhereModifier is set aside before the list is tested: while it is held a drag draws a box even from on top of something that could be moved, which is the way in on a sheet with no bare paper left to start from, and Shift or Ctrl still combine with it. A box dragged to the right is a window (only what it wholly encloses); dragged to the left it is a crossing (anything it touches as well).",
+        "LayoutEditor__SelectionBindings__Description": "What a modifier held on a Select tool press does to the selection - for a click on an item and for a box dragged from bare paper alike - as SketchUp holds them. With none held the click or the box replaces the selection. The list is tested in order with Exact matching, so the two-modifier binding sits first. BoxAnywhereModifier is set aside before the list is tested: while it is held a drag draws a box even from on top of something that could be moved, which is the way in on a sheet with no bare paper left to start from, and Shift or Ctrl still combine with it. A box dragged to the right is a window (only what it wholly encloses); dragged to the left it is a crossing (anything it touches as well). CopyDragModifier is SketchUp LayOut's copy by drag: held on the press of a move, or pressed during one, the move carries a copy and leaves the original where it was, and pressed again it is a move again - a tap is enough, so it can be let go of to reach the arrow keys or type a length. It is not set aside like BoxAnywhereModifier: Ctrl still adds an unselected item at the press, and the drag then copies the whole selection. A viewport or a dimension copies only where it would move, under the Move tool. Leave it empty to switch copying by drag off.",
         "LayoutEditor__SelectionBindings__BoxAnywhereModifier": "Alt",
+        "LayoutEditor__SelectionBindings__CopyDragModifier": "Ctrl",
         "LayoutEditor__SelectionBindings__List": [
             {
                 "Id": "Select__Remove",
@@ -743,6 +820,16 @@
                 "Group": "Navigation"
             },
             {
+                "Action": "Nav__PreviousSheet",
+                "Label": "The drawing before this one",
+                "Group": "Navigation"
+            },
+            {
+                "Action": "Nav__NextSheet",
+                "Label": "The drawing after this one",
+                "Group": "Navigation"
+            },
+            {
                 "Action": "Edit__Cancel",
                 "Label": "Cancel or clear selection",
                 "Group": "Editing"
@@ -833,8 +920,23 @@
                 "Group": "Tools"
             },
             {
+                "Action": "Ortho__Toggle",
+                "Label": "Toggle Ortho mode",
+                "Group": "Tools"
+            },
+            {
                 "Action": "View__DraftToggle",
                 "Label": "Toggle Draft mode",
+                "Group": "Tools"
+            },
+            {
+                "Action": "View__GridToggle",
+                "Label": "Show or hide the drawing grid",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Snap__GridToggle",
+                "Label": "Toggle grid snap",
                 "Group": "Tools"
             },
             {

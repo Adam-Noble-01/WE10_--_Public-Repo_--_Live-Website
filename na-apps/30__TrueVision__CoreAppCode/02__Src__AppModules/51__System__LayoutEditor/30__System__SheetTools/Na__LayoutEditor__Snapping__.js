@@ -29,6 +29,20 @@
 //   and a vector being moved; orange for dimensions - the Dimension tool, its
 //   grips and its line inference; purple for viewports - carrying one by a
 //   point. Callers pass the tone; with none it is blue.
+// - THE SHEET'S OWN PAPER SNAPS TOO: the border's corners and side
+//   midpoints, the title block strip's corners, every cell divider's ends and
+//   middle, and the notes margin's divider where it meets the border and the
+//   title block - read off the chrome primitives the screen and the PDF are
+//   drawn from (ChromePoints).
+// - AND THE DRAWING GRID IS THE FALLBACK. With Grid Snap on (F7,
+//   Na__LayoutEditor__DrawingGrid__), a point no object snap reaches goes to
+//   the nearest grid point, and a small ring marks it. Object snaps always
+//   come first.
+// - WHAT A LAYER OFFERS. A hidden layer offers nothing, and neither does a
+//   REFERENCE layer (the Layers panel's Ref, Blender's Selectable switch
+//   with its "Exclude Non-Selectable" always on): shown, but nothing snaps,
+//   tracks or lines up to it. A LOCKED layer still offers every point: a lock
+//   stops an edit, not an alignment.
 //
 // INTEGRATION:
 // - The sheet tools call Snap while placing or dragging dimension endpoints;
@@ -51,6 +65,32 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - A REFERENCE layer offers no snap point (Offers): not its vectors'
+//   corners and midpoints, not its dimensions' measured points, not its
+//   viewports' linework - and so nothing to carry a viewport by, track from or
+//   acquire either. Adam: "nothing will be able to snap to it ... so you can
+//   see it, but nothing tries to snap or bind to it." A locked layer still
+//   offers everything, as it always did; the two switches are the two halves.
+//
+// 21-Sep-2026 - Version 1.4.0
+// - Adam, over a marked-up D11: the title block's points should be
+//   "inferencible and snappable", to start construction lines from.
+//   FindOnSheet offers the sheet's own paper (Snapping SheetChrome, on by
+//   default): every stroked rectangle and line of the chrome primitives -
+//   the border, the title block strip, the logo, cell and QR dividers -
+//   gives its corners or ends and its midpoints, and the notes margin gives
+//   its divider's two ends and middle. Kept per chrome build (ChromePoints),
+//   so a pointer move reads a list. The classic scanned title block has no
+//   lines, and offers nothing.
+// - The drawing grid (Na__LayoutEditor__DrawingGrid__, SketchUp LayOut's
+//   grid): FindGrid is the nearest grid point while Grid Snap is on (F7),
+//   and Snap falls back to it when no object snap is in reach - so every tool
+//   and grip that snaps through Snap draws on the grid, Object Snap off or
+//   on. Find stays object-only. Snap takes options { grid : false } for a
+//   caller that keeps steps of its own (a parametric slide). KIND_GRID, and
+//   a small ring marker for it (the stylesheet's na-le-osnap--grid).
+//
 // 13-Sep-2026 - Version 1.3.0
 // - Marker tones: Snap and ShowMarker take the tool that is snapping
 //   (TONE_VERTEX, TONE_DIMENSION, TONE_VIEWPORT) and add it to the marker's
@@ -82,10 +122,12 @@
     // MODULE IMPORTS | Config, Model, Surface and the 2D Viewport Sources
     // ------------------------------------------------------------
     import { Na__LeCfg__GetSnappingSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__IsLayerVisible } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__IsLayerVisible, Na__LeModel__IsLayerSelectable } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom, Na__LeSurface__GetSheet, Na__LeSurface__GetLayout, Na__LeSurface__GetSheetChrome } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeVp2d__GetSnapSource } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeShapeGeo__Points } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeLayout__MarginRect } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
+    import { Na__LeGrid__IsSnapping, Na__LeGrid__Nearest } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- A leaf: the grid's settings and its nearest point
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -99,6 +141,7 @@
     // ------------------------------------------------------------
     const Na__LeOsnap__KIND_END      = 'end';
     const Na__LeOsnap__KIND_MID      = 'mid';
+    const Na__LeOsnap__KIND_GRID     = 'grid';                               // <-- A point of the drawing grid (Grid Snap, F7): only ever the fallback
     const Na__LeOsnap__CHANGED_EVENT = 'na-layouteditor-snap-changed';
     const Na__LeOsnap__STORE_KEY     = 'na-layouteditor-osnap';
     const Na__LeOsnap__CELL_MM       = 4;                                    // <-- Grid cell in paper millimetres
@@ -117,6 +160,7 @@
     // MODULE VARIABLES | Per-Viewport Indexes, Marker, State
     // ------------------------------------------------------------
     const Na__LeOsnap__Indexes = new Map();   // <-- viewportId -> { key, grid : Map<cellKey, number[]> }
+    let   Na__LeOsnap__Chrome  = { primitives : null, marginKey : '', points : [] };   // <-- The sheet paper's snap points, worked out once per chrome build
     let   Na__LeOsnap__Enabled = null;
     let   Na__LeOsnap__Marker  = null;
     // ------------------------------------------------------------
@@ -230,8 +274,94 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | The Sheet's Own Paper: Border, Title Block and Notes Margin
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Every Corner, End and Midpoint the Sheet's Own Lines Offer
+    // ------------------------------------------------------------
+    // THE TITLE BLOCK IS WHERE CONSTRUCTION LINES START. Adam, over a marked-up
+    // D11: the corners of the border, the ends of the notes margin's divider
+    // and the corners of the title block strip should be "inferencible and
+    // snappable", so a line can be set out from them. They were drawn and
+    // could not be picked, because the only candidates were the viewports'
+    // linework and the sheet's own markup.
+    //
+    // READ OFF WHAT IS DRAWN, NOT WORKED OUT AGAIN. The chrome primitives are
+    // the very list the screen and the PDF paint the border and title block
+    // from, so every stroked rectangle gives its four corners and the middle
+    // of each side, and every line - each cell divider, the logo's, the QR
+    // cell's - its two ends and its middle. A cell that grows to fit a long
+    // drawing title moves its divider, and the snap point moves with it. Text,
+    // pictures and the QR symbol give nothing. The notes margin's divider is
+    // drawn with the markup rather than the chrome, so its rectangle is asked
+    // of the layout: its two ends are where it meets the border and the title
+    // block. Returns a flat [x, y, kind (0 end, 1 mid), ...] list.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__ChromeFrom(primitives, margin) {
+        const out  = [];
+        const seen = new Set();
+        const push = (x, y, kind) => {
+            if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+            const id = kind + ':' + Math.round(x * 100) + ':' + Math.round(y * 100);
+            if (seen.has(id)) return;                                            // <-- The strip's foot is the border's foot: one point, not two
+            seen.add(id);
+            out.push(x, y, kind);
+        };
+        const side = (x1, y1, x2, y2) => { push(x1, y1, 0); push(x2, y2, 0); push((x1 + x2) / 2, (y1 + y2) / 2, 1); };
+        (primitives || []).forEach((p) => {
+            if (!p) return;
+            if (p.Kind === 'rect' && p.StrokeColour && p.StrokeMm > 0) {        // <-- A drawn outline; a paper-coloured fill alone is not a line
+                const x0 = p.X, y0 = p.Y, x1 = p.X + p.WidthMm, y1 = p.Y + p.HeightMm;
+                side(x0, y0, x1, y0); side(x1, y0, x1, y1); side(x1, y1, x0, y1); side(x0, y1, x0, y0);
+            } else if (p.Kind === 'line') {
+                side(p.X1, p.Y1, p.X2, p.Y2);
+            }
+        });
+        if (margin) side(margin.X, margin.Y, margin.X, margin.Y + margin.HeightMm);
+        return out;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Sheet Paper's Snap Points, for the Sheet on Screen
+    // ------------------------------------------------------------
+    // Worked out once per chrome build (the surface keeps the primitives until
+    // the chrome changes) and once per notes margin width, so a pointer move
+    // only reads a list. A sheet that is not the one on screen has no chrome
+    // built, and offers nothing.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__ChromePoints(sheet) {
+        const onScreen = Na__LeSurface__GetSheet();
+        if (!sheet || !onScreen || onScreen.Sheet__Id !== sheet.Sheet__Id) return [];
+        const primitives = Na__LeSurface__GetSheetChrome();
+        const layout     = Na__LeSurface__GetLayout();
+        const margin     = layout ? Na__LeLayout__MarginRect(sheet, layout.Content, layout.TitleBlock) : null;
+        const marginKey  = margin ? [ margin.X, margin.Y, margin.WidthMm, margin.HeightMm ].join('|') : '';
+        const cache      = Na__LeOsnap__Chrome;
+        if (cache.primitives === primitives && cache.marginKey === marginKey) return cache.points;
+        Na__LeOsnap__Chrome = { primitives : primitives, marginKey : marginKey, points : Na__LeOsnap__ChromeFrom(primitives, margin) };
+        return Na__LeOsnap__Chrome.points;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Search
 // -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Does a Layer Offer Snap Points
+    // ------------------------------------------------------------
+    // Not a hidden one, and not a REFERENCE one - shown, but out of the
+    // pointer's reach and the snaps' alike. A LOCKED layer still offers every
+    // point it has: a lock stops an edit, not an alignment.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__Offers(sheet, layerId) {
+        return Na__LeModel__IsLayerVisible(sheet, layerId) && Na__LeModel__IsLayerSelectable(sheet, layerId);
+    }
+    // ------------------------------------------------------------
+
 
     // HELPER FUNCTION | The Nearest Snap Point on the Sheet's Own Vectors and Dimensions
     // ------------------------------------------------------------
@@ -259,7 +389,7 @@
     // ------------------------------------------------------------
     function Na__LeOsnap__FindOnSheet(sheet, pointMm, radiusMm, exclude) {
         const setup = Na__LeCfg__GetSnappingSetup();
-        if (!setup.sheetObjects || (!setup.endpoints && !setup.midpoints)) return null;
+        if ((!setup.sheetObjects && !setup.sheetChrome) || (!setup.endpoints && !setup.midpoints)) return null;
 
         const px = pointMm.x, py = pointMm.y;
         let best = null;
@@ -282,11 +412,11 @@
         // VECTORS | Every vertex, and the midpoint of every edge
         // ------------------------------------
         const exclusions = Array.isArray(exclude) ? exclude : (exclude ? [ exclude ] : []);
-        const shapes    = sheet.Sheet__Shapes || [];
+        const shapes    = setup.sheetObjects ? (sheet.Sheet__Shapes || []) : [];
         for (let s = 0; s < shapes.length; s++) {
             const shape = shapes[s];
             const skipShape = exclusions.find((item) => item.kind === 'shape' && item.id === shape.Shape__Id);
-            if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId)) continue;        // <-- A hidden layer offers nothing; a LOCKED one still does
+            if (!Na__LeOsnap__Offers(sheet, shape.Shape__LayerId)) continue;              // <-- A hidden or a reference layer offers nothing; a LOCKED one still does
             const own = !!skipShape && skipShape.id === shape.Shape__Id;
             if (own && !Number.isInteger(skipShape.index)) continue;
             const moving = own ? skipShape.index : -1;
@@ -311,15 +441,29 @@
         // DIMENSIONS | The two points each one measures, so dimensions chain
         // ------------------------------------
         if (setup.endpoints) {
-            const dims    = sheet.Sheet__Dimensions || [];
+            const dims    = setup.sheetObjects ? (sheet.Sheet__Dimensions || []) : [];
             for (let k = 0; k < dims.length; k++) {
                 const dim = dims[k];
                 const skipDim = exclusions.find((item) => item.kind === 'dimension' && item.id === dim.Dimension__Id);
-                if (!Na__LeModel__IsLayerVisible(sheet, dim.Dimension__LayerId)) continue;
+                if (!Na__LeOsnap__Offers(sheet, dim.Dimension__LayerId)) continue;
                 const own = !!skipDim && skipDim.id === dim.Dimension__Id;
                 if (own && !skipDim.index) continue;
                 if (!(own && skipDim.index === 'start')) offer(dim.Dimension__StartXMm, dim.Dimension__StartYMm, Na__LeOsnap__KIND_END, 'dimension', dim.Dimension__Id);
                 if (!(own && skipDim.index === 'end'))   offer(dim.Dimension__EndXMm,   dim.Dimension__EndYMm,   Na__LeOsnap__KIND_END, 'dimension', dim.Dimension__Id);
+            }
+        }
+
+
+        // THE PAPER ITSELF | The border's, the title block's and the notes
+        // margin's corners, ends and midpoints. Nothing drags them, so nothing
+        // is ever excluded, and no layer hides them.
+        // ------------------------------------
+        if (setup.sheetChrome) {
+            const chrome = Na__LeOsnap__ChromePoints(sheet);
+            for (let k = 0; k + 2 < chrome.length; k += 3) {
+                const mid = chrome[k + 2] === 1;
+                if (mid ? !setup.midpoints : !setup.endpoints) continue;
+                offer(chrome[k], chrome[k + 1], mid ? Na__LeOsnap__KIND_MID : Na__LeOsnap__KIND_END, 'chrome', null);
             }
         }
         return best;
@@ -377,7 +521,7 @@
         const exclusions = Array.isArray(exclude) ? exclude : (exclude ? [ exclude ] : []);
         const carried  = new Set(exclusions.filter((item) => item.kind === 'viewport').map((item) => item.id));
         const ordered  = sheet.Sheet__Viewports
-            .filter((v) => v.Viewport__Kind === Na__LeModel__KIND_2D && !carried.has(v.Viewport__Id) && Na__LeModel__IsLayerVisible(sheet, v.Viewport__LayerId))
+            .filter((v) => v.Viewport__Kind === Na__LeModel__KIND_2D && !carried.has(v.Viewport__Id) && Na__LeOsnap__Offers(sheet, v.Viewport__LayerId))
             .map((v, i) => ({ v : v, rank : layers.indexOf(v.Viewport__LayerId), i : i }))
             .sort((a, b) => (a.rank - b.rank) || (b.i - a.i));
         let best = null;
@@ -401,9 +545,26 @@
     function Na__LeOsnap__FindOnViewport(sheet, viewportId, pointMm) {
         if (!sheet || !pointMm || !Na__LeOsnap__IsEnabled()) return null;
         const viewport = sheet.Sheet__Viewports.find((v) => v.Viewport__Id === viewportId) || null;
-        if (!viewport || viewport.Viewport__Kind !== Na__LeModel__KIND_2D || !Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId)) return null;
+        if (!viewport || viewport.Viewport__Kind !== Na__LeModel__KIND_2D || !Na__LeOsnap__Offers(sheet, viewport.Viewport__LayerId)) return null;
         const radiusMm = Na__LeCfg__GetSnappingSetup().radiusPx / (Na__LeSurface__GetPixelsPerMm() * Na__LeSurface__GetZoom());
         return Na__LeOsnap__SearchViewport(viewport, pointMm, radiusMm, null);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Drawing Grid's Point Nearest a Point, While Grid Snap Is On (F7), or Null
+    // ------------------------------------------------------------
+    // Always the NEAREST grid point, at any distance - a grid snap is the
+    // point moving in whole steps, not a pick radius - and never while Grid
+    // Snap is off. It is never looked for first: every caller asks the
+    // object snaps before it (Snap below), so a corner, a midpoint or a title
+    // block point inside the snap radius always wins over the grid.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__FindGrid(pointMm) {
+        if (!pointMm || !Na__LeGrid__IsSnapping()) return null;
+        const at = Na__LeGrid__Nearest(pointMm);
+        const d  = Math.hypot(at.x - pointMm.x, at.y - pointMm.y);
+        return { x : at.x, y : at.y, kind : Na__LeOsnap__KIND_GRID, viewportId : null, source : 'grid', sourceId : null, distanceMm : d, score : d };
     }
     // ------------------------------------------------------------
 
@@ -414,9 +575,19 @@
     // back untouched and the marker goes away. tone is the tool snapping -
     // TONE_DIMENSION, TONE_VIEWPORT, or TONE_VERTEX when left out - and only
     // colours the marker.
+    //
+    // THE GRID IS THE FALLBACK. With Grid Snap on (F7), a point no object snap
+    // reaches lands on the nearest grid point (kind 'grid', snapped true), so
+    // every tool and grip that snaps through here - Draw, Rectangle, Floor
+    // Area, Dimension, Leader, a vertex, a dimension end, a leader tip - draws
+    // on the grid with nothing of its own changed, and a held axis (an arrow
+    // key, Shift, Ortho) still takes the grid point's coordinate along it. It
+    // works with Object Snap (F3) off, as LayOut's does. options.grid false
+    // asks for the object snaps alone: a parametric slide keeps its own steps.
     // ------------------------------------------------------------
-    function Na__LeOsnap__Snap(sheet, pointMm, exclude, tone) {
-        const hit = Na__LeOsnap__Find(sheet, pointMm, exclude);
+    function Na__LeOsnap__Snap(sheet, pointMm, exclude, tone, options) {
+        const hit = Na__LeOsnap__Find(sheet, pointMm, exclude)
+                 || ((options && options.grid === false) ? null : Na__LeOsnap__FindGrid(pointMm));
         if (!hit) { Na__LeOsnap__HideMarker(); return { x : pointMm.x, y : pointMm.y, snapped : false, kind : null }; }
         Na__LeOsnap__ShowMarker(hit, tone);
         return { x : hit.x, y : hit.y, snapped : true, kind : hit.kind };
@@ -479,6 +650,7 @@
     export {
         Na__LeOsnap__KIND_END,
         Na__LeOsnap__KIND_MID,
+        Na__LeOsnap__KIND_GRID,
         Na__LeOsnap__TONE_VERTEX,
         Na__LeOsnap__TONE_DIMENSION,
         Na__LeOsnap__TONE_VIEWPORT,
@@ -489,6 +661,8 @@
         Na__LeOsnap__Clear,
         Na__LeOsnap__Find,
         Na__LeOsnap__FindOnViewport,
+        Na__LeOsnap__FindGrid,
+        Na__LeOsnap__ChromePoints,
         Na__LeOsnap__Snap,
         Na__LeOsnap__ShowMarker,
         Na__LeOsnap__HideMarker

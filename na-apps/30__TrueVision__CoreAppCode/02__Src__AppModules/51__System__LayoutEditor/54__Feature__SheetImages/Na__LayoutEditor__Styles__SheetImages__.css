@@ -1,0 +1,236 @@
+/* ================================================================= */
+/* TRUEVISION3D - LAYOUT EDITOR - SHEET IMAGES - STYLES              */
+/* ================================================================= */
+/*                                                                   */
+/* FILE       : Na__LayoutEditor__Styles__SheetImages__.css          */
+/* PURPOSE    : The drop look, a picture's corner grips, the crop    */
+/*              overlay and the Images panel                         */
+/* CREATED    : 21-Sep-2026                                          */
+/*                                                                   */
+/* LOADED BY THE STYLESHEET INDEX (Na__CoreUi__Styles__Index__.css), */
+/* not injected by the feature: a stylesheet a module adds with a    */
+/* <link> of its own can be served stale off localhost for a         */
+/* release after it changed.                                         */
+/*                                                                   */
+/* The picture itself is painted into the sheet's markup SVG         */
+/* (Na__LayoutEditor__SheetImages__Painter__) and needs no rule      */
+/* here; Draft mode's "no raster pictures" hides it with every       */
+/* other <image> in the markup.                                      */
+/*                                                                   */
+/* DEVELOPMENT LOG:                                                  */
+/* 21-Sep-2026 - Version 1.1.0                                       */
+/* - .na-le-img-panel__soft--info: the panel's note in the plain     */
+/*   text colour when it says what the next save will do, not a      */
+/*   warning.                                                        */
+/*                                                                   */
+/* 21-Sep-2026 - Version 1.0.0                                       */
+/* - Initial implementation.                                         */
+/*                                                                   */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Draft Mode                                             */
+/* ----------------------------------------------------------------- */
+
+/* DRAFT MODE (K) SHOWS NO RASTER AND NO FILLS, so a picture is its     */
+/* outline there. Its soft shadow is cast by a white box under the      */
+/* picture; Draft would outline that box and blur the outline, so the   */
+/* box goes altogether.                                                 */
+
+body.na-le-draft .na-le-paper__markup [data-na-picture] rect[filter] {
+    display                            : none !important;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Dropping Files Onto the Sheet                          */
+/* ----------------------------------------------------------------- */
+
+/* WHILE PICTURE FILES ARE DRAGGED OVER THE STAGE it says so: a dashed  */
+/* blue edge and one line of words, so a drop never lands by surprise.  */
+
+.na-le-stage.na-le-stage--image-drop {
+    outline                            : 2px dashed #1a7fc4;
+    outline-offset                     : -6px;
+}
+
+.na-le-stage.na-le-stage--image-drop::after {
+    content                            : 'Drop to place on this sheet';
+    position                           : absolute;
+    left                               : 50%;
+    top                                : 16px;
+    transform                          : translateX(-50%);
+    z-index                            : 20;
+    padding                            : 6px 12px;
+    border-radius                      : 6px;
+    background                         : rgba(23, 43, 58, 0.92);
+    color                              : #ffffff;
+    font-size                          : 0.8rem;
+    pointer-events                     : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Corner Grips                                           */
+/* ----------------------------------------------------------------- */
+
+/* A PICTURE'S CORNER GRIPS TAKE THEIR OWN PRESSES, unlike every other  */
+/* grip, which the sheet tools find by position: the handles layer lets */
+/* presses through, so these four opt back in. Each carries its resize  */
+/* cursor inline; while one is dragged the whole page wears it.         */
+
+.na-le-grip.na-le-grip--img-corner {
+    pointer-events                     : auto;
+    background                         : #ffffff;
+    border-color                       : #1a7fc4;
+    border-radius                      : 1px;
+    touch-action                       : none;
+}
+
+.na-le-grip.na-le-grip--img-corner:hover {
+    background                         : #1a7fc4;
+}
+
+body.na-le-img-scaling,
+body.na-le-img-scaling * {
+    cursor                             : var(--na-le-img-scale-cursor, nwse-resize) !important;
+    user-select                        : none !important;
+}
+
+/* WHILE A CROP IS OPEN the corner grips are out of the way: the crop's */
+/* own eight handles are the ones that mean something.                  */
+
+.na-le-stage--image-cropping .na-le-grip--img-corner {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Crop                                               */
+/* ----------------------------------------------------------------- */
+
+/* THE OVERLAY LIES IN THE PAPER, so it pans and zooms with the sheet.  */
+/* Its grips, outline and bar are sized by 1 / zoom inline, to keep     */
+/* their size on screen. The Statement Writer's crop, on the paper.     */
+
+.na-le-img-crop {
+    position                           : absolute;
+    left                               : 0;
+    top                                : 0;
+    width                              : 100%;
+    height                             : 100%;
+    z-index                            : 8;
+    pointer-events                     : none;
+    user-select                        : none;
+}
+
+.na-le-img-crop__picture {
+    position                           : absolute;
+    display                            : block;
+    max-width                          : none;
+    pointer-events                     : none;
+    user-select                        : none;
+}
+
+/* WHAT IS BEING TRIMMED AWAY IS DIMMED, not hidden: a crop is judged   */
+/* against what it is losing. The dim is a ring round the kept part, so */
+/* the kept part itself is untouched.                                   */
+
+.na-le-img-crop__kept {
+    position                           : absolute;
+    box-sizing                         : border-box;
+    box-shadow                         : 0 0 0 99999px rgba(23, 43, 58, 0.55);
+    outline                            : 1px solid rgba(255, 255, 255, 0.95);
+    cursor                             : move;
+    pointer-events                     : auto;
+    touch-action                       : none;
+}
+
+/* A THIRDS GRID, because a picture is cropped against its composition. */
+
+.na-le-img-crop__kept::before {
+    content                            : '';
+    position                           : absolute;
+    inset                              : 0;
+    background-image                   : linear-gradient(to right,  rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+                                          linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+    background-size                    : 33.333% 33.333%;
+    background-position                : 33.333% 33.333%;
+    background-repeat                  : repeat;
+    pointer-events                     : none;
+}
+
+.na-le-img-crop__grip {
+    position                           : absolute;
+    z-index                            : 2;
+    box-sizing                         : border-box;
+    border                             : 1px solid #ffffff;
+    border-radius                      : 2px;
+    background                         : #1a7fc4;
+    box-shadow                         : 0 1px 3px rgba(23, 43, 58, 0.45);
+    pointer-events                     : auto;
+    touch-action                       : none;
+}
+
+/* THE BAR SITS UNDER THE PICTURE rather than over it: a crop is judged */
+/* by looking at the picture, and a panel across it is in the way.     */
+
+.na-le-img-crop__bar {
+    position                           : absolute;
+    z-index                            : 3;
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+    padding                            : 6px 8px;
+    border-radius                      : 6px;
+    background                         : rgba(23, 43, 58, 0.94);
+    box-shadow                         : 0 4px 18px rgba(0, 0, 0, 0.3);
+    transform-origin                   : top center;
+    white-space                        : nowrap;
+    pointer-events                     : auto;
+    cursor                             : default;
+}
+
+.na-le-img-crop__size {
+    color                              : #ffffff;
+    font-size                          : 0.74rem;
+    font-variant-numeric               : tabular-nums;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Images Panel                                       */
+/* ----------------------------------------------------------------- */
+
+.na-le-img-panel__value {
+    min-width                          : 0;
+    overflow-wrap                      : anywhere;
+    font-size                          : 0.78rem;
+    font-variant-numeric               : tabular-nums;
+}
+
+.na-le-img-panel__soft {
+    color                              : #b45309;
+}
+
+.na-le-img-panel__soft--info {
+    color                              : inherit;                              /* <-- Not a warning: what the next save will do */
+    opacity                            : 0.75;
+}
+
+.na-le-img-panel__actions {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    gap                                : 6px;
+}
+
+/* endregion ------------------------------------------------------- */

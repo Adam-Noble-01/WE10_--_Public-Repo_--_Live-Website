@@ -27,6 +27,11 @@
 //   (Na__LayoutEditor__PlanDoors__) and lists the design phases it can draw
 //   (Na__LayoutEditor__ModelSource__). A read-only session gets Zoom to fit
 //   alone.
+// - THE LAYER ROW (Na__LayoutEditor__LayerMenu__) has a section of its own,
+//   between two rules, directly under the Delete row of every item's menu
+//   and of a multi-selection's: its flyout lists the drawing layers, dots the
+//   one the item is on, and moves it to another. Not inside an open vector
+//   or dimension, whose menus are about their points and nothing else.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ listens on the stage with OnContextMenu.
@@ -45,6 +50,23 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - THE LAYER ROW. Adam, over a right-clicked construction line: "a drawing
+//   layer pops out ... it lists the drawing layers, and then you can click to
+//   move it onto one of the others, or it will show you which one it's on
+//   currently", in a section of its own. Every item's menu - text, a group
+//   (a parametric element is one), a dimension, a leader, a vector, a
+//   measured room, a picture, a viewport - and a multi-selection's gets the
+//   Layer row under its Delete row, between the rules either side, from
+//   Na__LayoutEditor__LayerMenu__. The menus inside an open vector or
+//   dimension do not: they are about points.
+//
+// 21-Sep-2026 - Version 1.2.0
+// - A picture (Sheet Images) gets its own rows - the picture's name and print
+//   resolution, Show frame, Crop picture, Reset crop, Replace picture - then
+//   arrange, Delete picture and the clipboard. None of a vector's entries:
+//   no Edit vector points, no Close shape, no floor area, no style to match.
+//
 // 17-Sep-2026 - Version 1.1.0
 // - THE MENU BELONGS TO THE OPEN CONTAINER. Inside a vector it is about its
 //   points - insert one where the click landed, delete the picked ones, close
@@ -108,6 +130,7 @@
     import { Na__LeDoors__MenuItems } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeOsnap__Toggle, Na__LeOsnap__IsEnabled } from './Na__LayoutEditor__Snapping__.js';
     import { Na__LeClip__MenuItems } from './Na__LayoutEditor__ItemClipboard__.js';
+    import { Na__LeLayerMenu__MenuItems } from './Na__LayoutEditor__LayerMenu__.js';   // <-- The Layer row and its flyout, under every Delete row
     import { Na__LeGroup__Group, Na__LeGroup__Ungroup, Na__LeGroup__CanGroup, Na__LeGroup__CanUngroup, Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     // @delegate: ../15__Core__Markup/Na__LayoutEditor__Groups__.js
     // @delegate: ./Na__LayoutEditor__ItemClipboard__.js
@@ -144,6 +167,7 @@
     import { Na__LeTools__Tool } from './Na__LayoutEditor__SheetTools__ToolState__.js';   // <-- The active tool has one writer and lives beside it, not in the State unit
     import { Na__LeAreaTool__IsDrawing, Na__LeAreaTool__Finish } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';   // <-- A right click ends a room, closed
     import { Na__LeAreaMenu__ItemsFor } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Menu__.js';   // <-- What a measured room offers above the vector entries
+    import { Na__LeImgMenu__ItemsFor } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Menu__.js';   // <-- What a picture offers instead of them
     // @delegate: ../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Menu__.js
     import { Na__LeTools__SyncPaletteFrom } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record, Na__LeTools__ShapeInsertHit } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
@@ -209,6 +233,13 @@
             { label : label('Undo', 'Undo'), disabled : !Na__LeHist__CanUndo(), onSelect : () => Na__LeHist__Undo() },
             { label : label('Redo', 'Redo'), disabled : !Na__LeHist__CanRedo(), onSelect : () => Na__LeHist__Redo() }
         ];
+
+        // THE LAYER ROW | A section of its own under the Delete row: the
+        // flyout of drawing layers, the one the items are on dotted, and a
+        // click to move them. It brings the rule that closes its section; the
+        // Delete row's own rule opens it.
+        // ------------------------------------
+        const layerOf = (list) => Na__LeLayerMenu__MenuItems(sheet, list);
         if (!Na__LeTools__Editable) return [ { label : label('MenuZoomFit', 'Zoom to fit'), onSelect : () => Na__LeNav__Fit() } ];
         // SEVERAL SELECTED | A right click on one of them is about all of them
         const selected = Na__LeModel__GetSelectionItems();
@@ -222,7 +253,7 @@
                 { label : Na__LeCfg__FormatLabel('MenuDeleteSelection', 'Delete {count} selected items', { count : selected.length }), danger : true,
                   onSelect : () => { void Na__LeTools__DeleteSelection(); } },
                 { separator : true }
-            ]).concat(history);
+            ], layerOf(selected)).concat(history);                               // <-- Every selected item onto one layer, a group's members with it
         }
         if (!found && Na__LeScope__IsLeafOpen()) {
             return [
@@ -251,7 +282,7 @@
             return [ { label : label('MenuEditText', 'Edit text'), onSelect : () => Na__LeText__BeginEdit(found.id) } ].concat(turn, [
                      { separator : true } ]).concat(arrange('annotation', found.id), [
                      { separator : true }, remove('MenuDeleteText', 'Delete text'), { separator : true } ])
-                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
+                     .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }
         if (found.kind === 'group') {
             // A GROUP HAS A STYLE ONLY WHERE ITS MEMBERS AGREE ON A KIND. Copy
@@ -267,7 +298,7 @@
             return [ { label : label('MenuEnterGroup', 'Edit inside group'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'group', id : found.id }); } },
                      { label : label('MenuUngroup', 'Ungroup'), disabled : !Na__LeGroup__CanUngroup(sheet), onSelect : () => { Na__LeGroup__Ungroup(sheet); } },
                      remove('MenuDeleteGroup', 'Delete group'), { separator : true } ]
-                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), copy, styleMany([ found ]), history);
+                     .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), copy, styleMany([ found ]), history);
         }
         if (found.kind === 'dimension') {
             const dim   = Na__LeTools__Record(sheet, found);
@@ -297,13 +328,13 @@
                 { label : label('MenuEditDimText', 'Edit dimension value'), onSelect : () => Na__LeDim__BeginTextEdit(found.id) }
             ].concat(reset, [{ separator : true }], arrange('dimension', found.id), [
                      { separator : true }, remove('MenuDeleteDimension', 'Delete dimension'), { separator : true } ])
-                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
+                     .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }
         if (found.kind === 'leader') {
             return [ { label : label('MenuEditLeaderText', 'Edit leader text'), onSelect : () => Na__LeLeader__BeginEdit(found.id) },
                      { separator : true } ].concat(arrange('leader', found.id), [
                      { separator : true }, remove('MenuDeleteLeader', 'Delete leader'), { separator : true } ])
-                     .concat(Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
+                     .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }
         if (found.kind === 'shape') {
             const shape  = Na__LeTools__Record(sheet, found);
@@ -343,6 +374,19 @@
             // closed vector that could BECOME a room - gets its own one-line
             // offer from the same place.
             // ------------------------------------
+            // A PICTURE OFFERS ITS OWN ROWS (Sheet Images) - its frame, its
+            // crop, replacing it - and none of a vector's: it has no points to
+            // edit, no edge to close, no floor to measure and no style to
+            // match. Asked for the same way the room's are, so this module
+            // never learns what a picture is.
+            // ------------------------------------
+            const picture = Na__LeImgMenu__ItemsFor(sheet, shape);
+            if (picture) {
+                return picture.concat(arrange('shape', found.id), [
+                         { separator : true }, remove('MenuDeleteImage', 'Delete picture'), { separator : true } ])
+                         .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, shape, pointMm)).concat(history);
+            }
+
             const area = Na__LeAreaMenu__ItemsFor(sheet, shape, pointMm);
             return area.concat([
                      { label : label('MenuEnterVector', 'Edit vector points'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'shape', id : found.id }); } },
@@ -350,7 +394,7 @@
                        onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
                      { separator : true } ]).concat(arrange('shape', found.id), [
                      { separator : true }, remove('MenuDeleteShape', 'Delete shape'), { separator : true } ])
-                     .concat(Na__LeClip__MenuItems(sheet, shape || found, pointMm), style(found.kind, found.id)).concat(history);
+                     .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, shape || found, pointMm), style(found.kind, found.id)).concat(history);
         }
 
         const viewport = Na__LeModel__GetViewportById(sheet, found.id);
@@ -380,7 +424,7 @@
             { label : label('MenuForceRenderSheet', 'Re-render every viewport on this sheet'), disabled : Na__LeForce__IsRunning(),
               onSelect : () => { void Na__LeForce__Sheet(sheet); } },
             { separator : true }, del, { separator : true }
-        ]).concat(history);
+        ]).concat(layerOf([ found ]), history);                                  // <-- A viewport's own lock holds its framing, not its layer; a locked LAYER greys the flyout
     }
     // ------------------------------------------------------------
 

@@ -6,16 +6,19 @@
 // NAMESPACE  : Na__LeModel
 // MODULE     : Layout Editor - Sheet Model - Layers
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : A sheet's layers: find, add, remove, change and restack them, and say whether an item's layer shows or is locked
+// PURPOSE    : A sheet's layers: find, add, remove, change and restack them, move items between them, and say whether an item's layer shows, is locked or can be picked
 // CREATED    : 15-Sep-2026
 //
 // DESCRIPTION:
 // - A sheet's layers in paint order, one layer by id, and the default layer
 //   new items of a type land on.
 // - Add a layer on top, remove one (its items move to the default layer of
-//   their type), change a name, type, visibility or lock, and move a layer
-//   in the stack.
-// - IsLayerVisible and IsLayerLocked answer for any item's layer.
+//   their type), change a name, type, visibility, lock or reach, and move a
+//   layer in the stack.
+// - IsLayerVisible, IsLayerLocked and IsLayerSelectable answer for any item's
+//   layer, and ItemLayerId reads the layer one item sits on.
+// - MoveToLayer puts items on another layer - the right-click menu's Layer
+//   flyout - in one pass and one undo step.
 //
 // INTEGRATION:
 // - Imports only Na__LayoutEditor__SheetModel__State__ among the units, so
@@ -32,10 +35,31 @@
 // - Parity        : verbatim (moved code)
 // - Divergences   : header only; the moved code matches the ValeVision3D unit.
 // - Back-port     : n/a (this IS the back-port)
+// - Ahead         : 1.3.0 (reference layers, MoveToLayer) authored here first,
+//                   21-Sep-2026; the ValeVision port waits for Adam's sign-off
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - REFERENCE LAYERS, Blender's Selectable switch. IsLayerSelectable answers
+//   false for a layer whose Layer__Selectable is false, and UpdateLayer takes
+//   selectable, storing only false. A reference layer is drawn and printed as
+//   ever, but no click, box, hover or snap finds anything on it.
+// - Switching a layer to reference, or hiding it, takes whatever the pointer
+//   can no longer reach out of the selection (DropUnpickable) before the one
+//   announcement - as Blender deselects what it hides - so a Delete or an
+//   arrow key can never act on something that cannot be seen or clicked.
+// - MoveToLayer, for the right-click menu's Layer flyout
+//   (Na__LayoutEditor__LayerMenu__): any mix of viewports, text, dimensions,
+//   vectors and leaders onto one layer, a locked layer refusing in both
+//   directions, announced once as 'layers' - one undo step. ItemLayerId reads
+//   the layer one item sits on, from LAYER_KEYS, one row per kind.
+//
+// 21-Sep-2026 - Version 1.2.1
+// - DeleteLayer re-homes a picture (Shape__Image) to another Images layer, or
+//   to the Vectors layer when there is none.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - The layer list's order is now the paint order of everything on the sheet,
 //   so the comments that had it backwards are put right: GetLayers is the
@@ -75,7 +99,34 @@
 
     // MODULE IMPORTS | Sheet Model State
     // ------------------------------------------------------------
-    import { Na__LeModel__LAYER_TYPES, Na__LeModel__Touch } from './Na__LayoutEditor__SheetModel__State__.js';
+    import {
+        Na__LeModel__LAYER_TYPES,
+        Na__LeModel__ActiveSheetId,
+        Na__LeModel__SelectionItems,
+        Na__LeModel__Touch,
+        Na__LeModel__AssignSelectionItems
+    } from './Na__LayoutEditor__SheetModel__State__.js';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Constants
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | Where Each Kind of Item Keeps Its Layer
+    // ------------------------------------------------------------
+    // One row per kind that sits on a layer. A group is not here: it has no
+    // layer of its own, its members each carrying theirs.
+    // ------------------------------------------------------------
+    const Na__LeModel__LAYER_KEYS = Object.freeze({
+        viewport   : Object.freeze({ list : 'Sheet__Viewports',   idKey : 'Viewport__Id',   layerKey : 'Viewport__LayerId' }),
+        annotation : Object.freeze({ list : 'Sheet__Annotations', idKey : 'Annotation__Id', layerKey : 'Annotation__LayerId' }),
+        dimension  : Object.freeze({ list : 'Sheet__Dimensions',  idKey : 'Dimension__Id',  layerKey : 'Dimension__LayerId' }),
+        shape      : Object.freeze({ list : 'Sheet__Shapes',      idKey : 'Shape__Id',      layerKey : 'Shape__LayerId' }),
+        leader     : Object.freeze({ list : 'Sheet__Leaders',     idKey : 'Leader__Id',     layerKey : 'Leader__LayerId' })
+    });
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -177,8 +228,9 @@
         // goes to the Floor Areas layer and a plain vector to the Vectors one.
         (sheet.Sheet__Shapes || []).forEach((s) => {
             if (s.Shape__LayerId !== layerId) return;
-            const area = s.Shape__Area && typeof s.Shape__Area === 'object';
-            s.Shape__LayerId = Na__LeModel__DefaultLayerId(sheet, area ? 'area' : 'vector');
+            const area  = s.Shape__Area && typeof s.Shape__Area === 'object';
+            const image = s.Shape__Image && typeof s.Shape__Image === 'object';
+            s.Shape__LayerId = Na__LeModel__DefaultLayerId(sheet, image ? 'image' : (area ? 'area' : 'vector'));   // <-- A picture to another Images layer, or to Vectors
         });
         (sheet.Sheet__Leaders || []).forEach((l) => { if (l.Leader__LayerId === layerId) l.Leader__LayerId = Na__LeModel__DefaultLayerId(sheet, 'annotation'); });
         Na__LeModel__Touch('layers', sheet.Sheet__Id, layerId);
@@ -187,7 +239,13 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Change a Layer's Name, Type, Visibility or Lock
+    // FUNCTION | Change a Layer's Name, Type, Visibility, Lock or Reach
+    // ------------------------------------------------------------
+    // selectable false makes it a reference layer (Layer__Selectable, stored
+    // only as false); true takes the key off again. A layer switched to
+    // reference, or hidden, takes what the pointer can no longer reach out of
+    // the selection BEFORE the one announcement, so the history's step and
+    // every redraw already see the tidied selection.
     // ------------------------------------------------------------
     function Na__LeModel__UpdateLayer(sheet, layerId, patch) {
         const layer = Na__LeModel__GetLayerById(sheet, layerId);
@@ -196,6 +254,11 @@
         if (Na__LeModel__LAYER_TYPES.indexOf(patch.type) !== -1) layer.Layer__Type = patch.type;
         if (typeof patch.visible === 'boolean') layer.Layer__Visible = patch.visible;
         if (typeof patch.locked  === 'boolean') layer.Layer__Locked  = patch.locked;
+        if (typeof patch.selectable === 'boolean') {
+            if (patch.selectable) delete layer.Layer__Selectable;                // <-- Selectable is every layer's default: no key
+            else layer.Layer__Selectable = false;
+        }
+        if (patch.visible === false || patch.selectable === false) Na__LeModel__DropUnpickable(sheet);
         Na__LeModel__Touch('layers', sheet.Sheet__Id, layerId);
         return true;
     }
@@ -230,6 +293,120 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Can the Pointer Reach an Item's Layer? (false for a reference layer)
+    // ------------------------------------------------------------
+    // Blender's Selectable switch, with its snapping option "Exclude
+    // Non-Selectable" always on. A REFERENCE layer is drawn and printed as
+    // ever, but no click, box, hover, snap or inference finds anything on it:
+    // the pointer passes straight through to whatever lies beneath. That is
+    // the difference from a lock, which stops an edit and still offers its
+    // points to snap to. A layer the sheet does not have reads as selectable,
+    // as it reads as shown.
+    // ------------------------------------------------------------
+    function Na__LeModel__IsLayerSelectable(sheet, layerId) {
+        const layer = Na__LeModel__GetLayerById(sheet, layerId);
+        return !layer || layer.Layer__Selectable !== false;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Public API - Items and Their Layers
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Record Behind an Item, With the Row That Says Where Its Layer Is
+    // ------------------------------------------------------------
+    function Na__LeModel__LayeredRecord(sheet, item) {
+        const row    = (sheet && item) ? Na__LeModel__LAYER_KEYS[item.kind] : null;
+        const record = (row && Array.isArray(sheet[row.list])) ? Na__LeRec__Find(sheet[row.list], row.idKey, item.id) : null;
+        return record ? { row : row, record : record } : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Layer One Item Sits On (null for a group, which has none, or an item that is gone)
+    // ------------------------------------------------------------
+    function Na__LeModel__ItemLayerId(sheet, item) {
+        const found = Na__LeModel__LayeredRecord(sheet, item);
+        return found ? (found.record[found.row.layerKey] || null) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Take Out of the Selection Whatever the Pointer Can No Longer Reach
+    // ------------------------------------------------------------
+    // An item on a hidden or a reference layer cannot be clicked or boxed, so
+    // it must not stay selected either: a Delete or an arrow key would still
+    // reach it, out of sight or out of reach. A group stays while any member
+    // is within reach, as a click on that member would still find it. Only
+    // ever the sheet being worked on: the selection belongs to it, and an id
+    // on another sheet names another record. Silent, as DeleteItems' trim of
+    // the selection is - the change that caused it announces. Returns true
+    // when the selection changed.
+    // ------------------------------------------------------------
+    function Na__LeModel__DropUnpickable(sheet) {
+        if (!sheet || sheet.Sheet__Id !== Na__LeModel__ActiveSheetId || !Na__LeModel__SelectionItems.length) return false;
+        const groups = Array.isArray(sheet.Sheet__Groups) ? sheet.Sheet__Groups : [];
+        const reach  = (item, seen) => {
+            if (!item) return false;
+            if (item.kind !== 'group') {
+                const layerId = Na__LeModel__ItemLayerId(sheet, item);
+                return layerId === null || (Na__LeModel__IsLayerVisible(sheet, layerId) && Na__LeModel__IsLayerSelectable(sheet, layerId));   // <-- Gone, or not a layered kind: not this trim's business
+            }
+            if (seen.has(item.id)) return false;
+            seen.add(item.id);
+            const group = Na__LeRec__Find(groups, 'Group__Id', item.id);
+            return !!group && (group.Group__Members || []).some((member) => reach(member, seen));
+        };
+        const kept = Na__LeModel__SelectionItems.filter((item) => reach(item, new Set()));
+        if (kept.length === Na__LeModel__SelectionItems.length) return false;
+        Na__LeModel__AssignSelectionItems(kept);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put Items on Another Layer (one undo step)
+    // ------------------------------------------------------------
+    // items: [{ kind, id }] of viewports, text, dimensions, vectors and
+    // leaders. A group has no layer of its own, so the caller opens it up to
+    // its members first (Na__LeGroup__Expand); a group record in the list is
+    // passed over. An item on a LOCKED layer stays where it is, and a locked
+    // layer takes nothing: a lock means nothing on that layer changes, the
+    // rule a move and a delete already keep.
+    //
+    // ONE ANNOUNCEMENT, AS 'layers'. An item changing layer changes its place
+    // in the paint order, which is the whole sheet's business: the surface
+    // restacks everything, as it does for a layer dragged in the list, and the
+    // history takes one step however many items moved. Each item keeps its
+    // place in its own collection, so items moved together keep their order
+    // among themselves.
+    //
+    // An item landing on a hidden or a reference layer leaves the selection,
+    // since it can no longer be picked. Returns how many items moved.
+    // ------------------------------------------------------------
+    function Na__LeModel__MoveToLayer(sheet, items, layerId) {
+        const target = Na__LeModel__GetLayerById(sheet, layerId);
+        if (!target || target.Layer__Locked === true || !Array.isArray(items)) return 0;
+        let moved = 0;
+        items.forEach((item) => {
+            const found = Na__LeModel__LayeredRecord(sheet, item);
+            if (!found) return;
+            const current = found.record[found.row.layerKey];
+            if (current === layerId || Na__LeModel__IsLayerLocked(sheet, current)) return;   // <-- Already there, or held where it is by a lock
+            found.record[found.row.layerKey] = layerId;
+            moved++;
+        });
+        if (!moved) return 0;
+        Na__LeModel__DropUnpickable(sheet);
+        Na__LeModel__Touch('layers', sheet.Sheet__Id, layerId);
+        return moved;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -249,7 +426,10 @@
         Na__LeModel__UpdateLayer,
         Na__LeModel__ReorderLayer,
         Na__LeModel__IsLayerVisible,
-        Na__LeModel__IsLayerLocked
+        Na__LeModel__IsLayerLocked,
+        Na__LeModel__IsLayerSelectable,
+        Na__LeModel__ItemLayerId,
+        Na__LeModel__MoveToLayer
     };
     // ------------------------------------------------------------
 

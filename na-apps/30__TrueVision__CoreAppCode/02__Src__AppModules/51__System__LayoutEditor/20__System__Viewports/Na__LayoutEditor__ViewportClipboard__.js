@@ -97,6 +97,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - LayerFor refuses a REFERENCE layer (Layer__Selectable false) as it
+//   refuses a hidden or a locked one: a pasted viewport or vector there would
+//   be out of the pointer's reach the moment it landed. TrueVision first;
+//   not yet in ValeVision.
+//
 // 18-Sep-2026 - Version 1.2.0
 // - Paste a vector always lands in place now (Na__LeClip__PasteShape passes
 //   fanOut false to LandShape), with a toast (ShapePasted) saying so.
@@ -346,14 +352,14 @@
     // HELPER FUNCTION | The Layer a Paste Keeps, or Null for the Sheet's Default of That Type
     // ------------------------------------------------------------
     // Layer ids are per sheet, so on another sheet the same id can name a
-    // layer of a different purpose - or one that is hidden or locked, where a
-    // paste would either vanish or refuse to move. type, when given, must
-    // match (a vector paste must not land on a viewport layer that happens
-    // to share an id).
+    // layer of a different purpose - or one that is hidden, locked or a
+    // reference layer, where a paste would vanish, refuse to move or be out
+    // of reach. type, when given, must match (a vector paste must not land on
+    // a viewport layer that happens to share an id).
     // ------------------------------------------------------------
     function Na__LeClip__LayerFor(sheet, layerId, type) {
         const layer = layerId ? Na__LeModel__GetLayerById(sheet, layerId) : null;
-        if (!layer || layer.Layer__Visible === false || layer.Layer__Locked === true) return null;
+        if (!layer || layer.Layer__Visible === false || layer.Layer__Locked === true || layer.Layer__Selectable === false) return null;
         if (type && layer.Layer__Type !== type) return null;
         return layer.Layer__Id;
     }

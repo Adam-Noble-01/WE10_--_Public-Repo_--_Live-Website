@@ -38,6 +38,7 @@ function fixture() {
         Na__LeSurface__GetPixelsPerMm: () => 1, Na__LeSurface__GetZoom: () => 1,
         Na__LeModel__IsLayerVisible: (_, layer) => layer !== 'hidden',
         Na__LeModel__IsLayerLocked: (_, layer) => layer === 'locked',
+        Na__LeModel__IsLayerSelectable: (_, layer) => layer !== 'reference',   // A reference layer offers no snap points (Na__Test__LayerMenu__.test.mjs)
         Na__LeModel__GetLayers: () => [{ Layer__Id: 'visible' }],
         Na__LeModel__GetViewportById: (s, id) => s.Sheet__Viewports.find(v => v.Viewport__Id === id),
         Na__LeModel__GetGroupById: (s, id) => s.Sheet__Groups.find(g => g.Group__Id === id),
@@ -52,11 +53,18 @@ function fixture() {
         Na__LeOsnap__ShowMarker: hit => { marker = hit; }, Na__LeOsnap__HideMarker: () => { marker = null; },
         Na__LeAxis__Get: () => axis,
         Na__LeAxis__Apply: (base, p) => axis === 'x' ? { x: p.x, y: base.y } : { x: base.x, y: p.y },
-        Na__LeGrips__ShowBand() {}, Na__LeGrips__HideBand() {}, Na__LeSurface__Refresh() {}, Na__LeMeasure__Refresh() {}
+        Na__LeGrips__ShowBand() {}, Na__LeGrips__HideBand() {}, Na__LeSurface__Refresh() {}, Na__LeMeasure__Refresh() {},
+        // Ortho mode (F8) off: it holds an axis exactly where Shift does.
+        Na__LeOrtho__Resolve: shift => !!shift,
+        // The drawing grid's Grid Snap (F7) off: a drag comes back as it went in, and a move no object snap
+        // reaches hides the marker and keeps its delta - what these functions did before the grid existed.
+        // Na__Test__DrawingGrid__.test.mjs proves the grid itself.
+        Na__LeTools__GridDragDelta: (s, drag, dMm) => dMm,
+        Na__LeTools__GridTranslation: (s, drag, delta) => { marker = null; return delta; }
     });
-    loadFunctions(ctx, tools + 'Snapping__.js', ['Na__LeOsnap__FindOnSheet', 'Na__LeOsnap__SearchViewport', 'Na__LeOsnap__Find', 'Na__LeOsnap__FindOnViewport']);
+    loadFunctions(ctx, tools + 'Snapping__.js', ['Na__LeOsnap__Offers', 'Na__LeOsnap__FindOnSheet', 'Na__LeOsnap__SearchViewport', 'Na__LeOsnap__Find', 'Na__LeOsnap__FindOnViewport']);
     loadFunctions(ctx, tools + 'SheetTools__HitResolution__.js', ['Na__LeTools__SnapGroupTranslation']);
-    loadFunctions(ctx, tools + 'SheetTools__PointerDrag__.js', ['Na__LeTools__IsMoveDrag', 'Na__LeTools__ApplyDrag']);
+    loadFunctions(ctx, tools + 'SheetTools__PointerDrag__.js', ['Na__LeTools__IsMoveDrag', 'Na__LeTools__IsViewportMoveDrag', 'Na__LeTools__ApplyDrag']);
     loadFunctions(ctx, '15__Core__Markup/Na__LayoutEditor__Groups__.js', ['Na__LeGroup__Descendants', 'Na__LeGroup__Expand']);
     vm.runInContext(source(tools + 'SelectionSet__.js').replace(/\bimport\s+[\s\S]*?\s+from\s+['"][^'"]+['"];?/g, '').replace(/\bexport\s*\{[^}]*\};?/g, ''), ctx);
     const capture = () => ({ kind: 'group', startMm: { x: 0, y: 0 }, group: ctx.Na__LeSelSet__Capture(sheet, ctx.Na__LeGroup__Expand(sheet, [{ kind: 'group', id: 'outer' }])) });

@@ -51,6 +51,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0
+// - RegisterShapeProvider: a feature can draw the grips of its own kind of
+//   shape, asked before the vertex grips. A picture's four corner grips
+//   (Sheet Images) arrive this way - shown whenever one picture is selected,
+//   with no vertex grips ever, since a picture's points are its box.
+//
 // 19-Sep-2026 - Version 1.8.0
 // - RegisterGroupProvider: a feature can draw grips of its own on a selected
 //   group, after the group's box. The Parametric Scrapbook's stretch and
@@ -182,6 +188,16 @@
     const Na__LeGrips__GroupProviders = [];
     // ------------------------------------------------------------
 
+    // MODULE VARIABLES | Features That Draw the Grips of a Kind of Selected Shape
+    // ------------------------------------------------------------
+    // provider(layer, sheet, selection, ppm, zoom, sizePx, shape) returns true
+    // when the shape is one of its own and it has drawn that shape's grips -
+    // a picture's four corner grips (Na__LayoutEditor__SheetImages__Handles__).
+    // Asked before the vertex grips, which a shape answered for never gets.
+    // ------------------------------------------------------------
+    const Na__LeGrips__ShapeProviders = [];
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -266,6 +282,16 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Let a Feature Draw the Grips of Its Own Kind of Shape (once per provider)
+    // ------------------------------------------------------------
+    function Na__LeGrips__RegisterShapeProvider(provider) {
+        if (typeof provider !== 'function' || Na__LeGrips__ShapeProviders.indexOf(provider) !== -1) return false;
+        Na__LeGrips__ShapeProviders.push(provider);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Draw the Grips for the Selection (nothing for a viewport or a locked layer)
     // ------------------------------------------------------------
     function Na__LeGrips__Render(layer, sheet, selection, ppm, zoom) {
@@ -307,7 +333,16 @@
             // press will take hold of". Double-click (or Enter) to get them.
             // A picked vertex is drawn solid, so a box selection of several
             // reads at a glance.
+            //
+            // A KIND OF SHAPE WITH GRIPS OF ITS OWN - a picture's four corners -
+            // answers first, open or not, and a shape it answers for gets no
+            // vertex grips at all.
             // ------------------------------------
+            const own = Na__LeGrips__ShapeProviders.length ? sheet.Sheet__Shapes.find((s) => s.Shape__Id === selection.id) : null;
+            if (own && Na__LeGrips__ShapeProviders.some((provider) => {
+                try { return provider(layer, sheet, selection, ppm, zoom, sizePx, own) === true; }
+                catch (error) { console.warn('[TrueVision3D LayoutEditor] A shape grip provider failed.', error); return false; }
+            })) return true;
             if (Na__LeScope__GetVectorId() !== selection.id) return false;
             const shape = sheet.Sheet__Shapes.find((s) => s.Shape__Id === selection.id);
             if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
@@ -545,6 +580,7 @@
     export {
         Na__LeGrips__Render,
         Na__LeGrips__RegisterGroupProvider,
+        Na__LeGrips__RegisterShapeProvider,
         Na__LeGrips__ShowBand,
         Na__LeGrips__HideBand,
         Na__LeGrips__ShowBox,

@@ -45,6 +45,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - Place puts a new text item on the drawing grid while Grid Snap is on
+//   (F7, Na__LayoutEditor__DrawingGrid__): the click lands on the nearest
+//   grid point and the text is set from there. Grid Snap off, as before.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - Rotation: WrapDeg, RotationPatch (a turn about the middle of the box),
 //   RotateStart and RotateTo (the rotate grip's drag, with Shift steps and a
@@ -82,6 +87,7 @@
         Na__LeModel__SetSelection
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeCfg__GetTextSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeGrid__SnapPoint } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- Grid Snap (F7): a leaf, the nearest grid point
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeMarkup__AnnotationBox, Na__LeMarkup__AnnotationRotationDeg, Na__LeMarkup__AnnotationCentre } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     // ------------------------------------------------------------
@@ -234,6 +240,7 @@
     // or not.
     // ------------------------------------------------------------
     function Na__LeText__Place(sheet, point, defaults) {
+        point = Na__LeGrid__SnapPoint(point);                                    // <-- Grid Snap (F7): the text goes down on the grid point nearest the click
         const d    = defaults || {};
         const deg  = Na__LeText__WrapDeg(d.rotationDeg);
         const drop = (d.sizeMm || 3) * 0.72;                                     // <-- From the press down to the first baseline, before turning

@@ -29,6 +29,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - Five millimetres past the words: the rule, on RB05's own front elevation
+//   title (103.47 mm of words, underlined 93.2 mm when it was drawn to the
+//   chrome's estimate); the same on the paper at every scale; a tenth that
+//   stays a tenth; the bar to the right that may shorten the run but never
+//   below the words; and Misfits, the refit's question - which asks about
+//   the underline's length and nothing else.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - The bar stood away to the right: where it lands (its foot on the title's
 //   baseline, its offset measured from the ORIGIN so a longer title cannot
@@ -146,14 +154,48 @@ import { tmpdir } from 'node:os';
     check('capitals off, qualifier off', texts(build(Object.assign({ Uppercase : false, PhaseMode : 'none' }, EAST)))[0].Annotation__Text === 'East Elevation');
     check('the same parameters build the same records, byte for byte', JSON.stringify(build(Object.assign({ ScaleDenominator : 100 }, EAST))) === JSON.stringify(build(Object.assign({ ScaleDenominator : 100 }, EAST))));
 
-    // THE UNDERLINE | At least its set length, and grows to fit what it underlines
-    const measure = (mm) => ({ measureTextMm : () => mm });
-    check('no way to measure text: the underline is its set length', shapes(build(EAST))[0].Shape__Points[1][0] === 60);
-    check('a title shorter than the underline leaves it alone', shapes(build(EAST, measure(48.2)))[0].Shape__Points[1][0] === 60);
-    check('a longer title is underlined to its end, plus the fit extra, rounded up to a tenth', shapes(build(EAST, measure(75)))[0].Shape__Points[1][0] === 75.4, shapes(build(EAST, measure(75)))[0].Shape__Points[1][0]);
-    check('a measure that throws, or answers nonsense, costs nothing', shapes(build(EAST, { measureTextMm : () => { throw new Error('no canvas'); } }))[0].Shape__Points[1][0] === 60 && shapes(build(EAST, measure(NaN)))[0].Shape__Points[1][0] === 60);
+    // THE UNDERLINE | At least its set length, and always five millimetres past the words
+    const measure  = (mm) => ({ measureTextMm : () => mm });
+    const lineEnd  = (built) => shapes(built)[0].Shape__Points[1][0];
+    const wordsEnd = (width) => config.DrawingTitle__TextOffsetXMm + width;  // <-- Where the words stop, from the origin: the text is set a hair left of it
+    check('the config carries the rule: 5 mm past the words, 5 mm clear of a bar to the right', config.DrawingTitle__UnderlinePastTextMm === 5 && config.DrawingTitle__UnderlineBarGapMm === 5);
+    check('no way to measure text: the underline is its set length', lineEnd(build(EAST)) === 60);
+    check('a title whose words end more than 5 mm short of the set length leaves it alone', lineEnd(build(EAST, measure(48.2))) === 60);
+    check('a longer title is underlined FIVE MILLIMETRES past the end of its words, rounded up to a tenth', lineEnd(build(EAST, measure(75))) === 79.9, lineEnd(build(EAST, measure(75))));
+    check('the set length alone is not enough when the words end within 5 mm of it', lineEnd(build(EAST, measure(57))) === 61.9, lineEnd(build(EAST, measure(57))));
+    const RB05 = { ViewKind : 'elevation', ViewPhase : 'proposed', ViewFacing : 'South East', ViewName : 'South East Elevation - House Front Fascade', BarPlacement : 'right', BarOffsetMm : 216.595, ScaleDenominator : 100 };
+    const rb05 = build(RB05, measure(103.47));
+    check('RB05\'s front elevation: its 103.47 mm of words end, and its underline runs on 5 mm past them (it was drawn 93.2 mm long)',
+        lineEnd(rb05) - wordsEnd(103.47) >= 5 && lineEnd(rb05) - wordsEnd(103.47) < 5.1 && texts(rb05)[0].Annotation__Text === 'PROPOSED SOUTH EAST ELEVATION - HOUSE FRONT FASCADE', [ lineEnd(rb05), texts(rb05)[0].Annotation__Text ]);
+    check('the five millimetres are on the PAPER: the same line at 1:100 as at 1:50', lineEnd(build(Object.assign({}, RB05, { ScaleDenominator : 50 }), measure(103.47))) === lineEnd(rb05));
+    check('a line that lands exactly on a tenth stays on it, floating point dust and all', lineEnd(build(EAST, measure(100.171))) === 105, lineEnd(build(EAST, measure(100.171))));
+    check('a measure that throws, or answers nonsense, costs nothing', lineEnd(build(EAST, { measureTextMm : () => { throw new Error('no canvas'); } })) === 60 && lineEnd(build(EAST, measure(NaN))) === 60);
     check('the measure is asked about the title as it is written, at its size and weight', (() => { let asked = null; build(EAST, { measureTextMm : (text, size, weight) => { asked = [ text, size, weight ]; return 10; } }); return JSON.stringify(asked) === JSON.stringify([ 'EXISTING EAST ELEVATION', 3.5, 600 ]); })());
     check('a set length is held inside its limits', title.Na__LeParamTitle__Normalise(config, barCfg, { UnderlineMm : 2 }).UnderlineMm === 10 && title.Na__LeParamTitle__Normalise(config, barCfg, { UnderlineMm : 9000 }).UnderlineMm === 400);
+
+    // THE ONE THING THAT MAY SHORTEN THE RUN | A bar stood to the right, near the words
+    const NEAR = Object.assign({ ScaleDenominator : 50, ShowScaleBar : true, BarPlacement : 'right', BarOffsetMm : 150 }, EAST);
+    check('a bar stood far enough to the right leaves the full five millimetres', lineEnd(build(NEAR, measure(140))) === 144.9, lineEnd(build(NEAR, measure(140))));
+    check('a bar closer than that: the line stops 5 mm short of the bar\'s zero end', lineEnd(build(NEAR, measure(143))) === 145, lineEnd(build(NEAR, measure(143))));
+    check('...but never short of the words themselves: their width plus the old fit extra', lineEnd(build(NEAR, measure(147))) === 147.4, lineEnd(build(NEAR, measure(147))));
+    check('a bar below never shortens it, whatever BarOffsetMm says', lineEnd(build(Object.assign({}, NEAR, { BarPlacement : 'below' }), measure(143))) === 147.9);
+    check('nor does a title with no bar at all', lineEnd(build(Object.assign({}, NEAR, { ShowScaleBar : false }), measure(143))) === 147.9);
+    check('the grips follow the line as drawn: the link socket, and a bare title\'s stretch arrow',
+        title.Na__LeParamTitle__Handles(config, barCfg, RB05, null, measure(103.47)).link.x === lineEnd(rb05)
+        && title.Na__LeParamTitle__Handles(config, barCfg, Object.assign({ ShowScaleBar : false }, EAST), null, measure(75)).stretch.x === 79.9);
+
+    // THE REFIT | Does a title's underline, as it stands, still end where the rule puts it
+    const standing = (points, textAt) => ({ shapes : [ { Shape__Points : points } ], texts : [ { Annotation__PosXMm : textAt === undefined ? -0.171 : textAt, Annotation__PosYMm : -1.631 } ] });
+    const misfits  = (records, tools, params) => title.Na__LeParamTitle__Misfits(config, barCfg, params || RB05, null, tools === undefined ? measure(103.47) : tools, records);
+    check('drawn to the chrome\'s estimate (RB05, 93.2 mm): it misfits', misfits(standing([ [ 0, 0 ], [ 93.2, 0 ] ])) === true);
+    check('drawn flush with its words, by the rule before this one: it misfits', misfits(standing([ [ 0, 0 ], [ 103.9, 0 ] ])) === true);
+    check('drawn by the rule: it fits', misfits(standing([ [ 0, 0 ], [ lineEnd(rb05), 0 ] ])) === false);
+    check('moved somewhere untidy on the sheet, it fits exactly as well', misfits(standing([ [ 12.3456789, 7.1 ], [ 12.3456789 + lineEnd(rb05) + 0.00004, 7.1 ] ])) === false);
+    check('no measure, or one that throws, is never a misfit - a line drawn with one is not shortened without one',
+        misfits(standing([ [ 0, 0 ], [ 93.2, 0 ] ]), null) === false && misfits(standing([ [ 0, 0 ], [ 93.2, 0 ] ]), { measureTextMm : () => { throw new Error('no canvas'); } }) === false);
+    check('only the underline is asked about: a title text moved by hand does not make it misfit', misfits(standing([ [ 0, 0 ], [ lineEnd(rb05), 0 ] ], 4.2)) === false);
+    check('an underline edited by hand into more than one run is left alone', misfits(standing([ [ 0, 0 ], [ 50, 0 ], [ 93.2, 0 ] ])) === false);
+    check('records it cannot read are left alone', misfits(null) === false && misfits({ shapes : [ null ] }) === false);
 
     // GRIPS
     const withBar = title.Na__LeParamTitle__Handles(config, barCfg, Object.assign({ ScaleDenominator : 50, ShowScaleBar : true }, EAST), null, null);
@@ -228,6 +270,8 @@ import { tmpdir } from 'node:os';
     check('the type says whether an element has a bar', type.hasBar({ ShowScaleBar : true }) === true && type.hasBar({ ShowScaleBar : false }) === false);
     check('the type says what a title reads, for the panel', type.titleText(EAST).text === 'EXISTING EAST ELEVATION' && type.titleText({ ViewKind : 'elevation' }).missing.join() === 'direction');
     check('the type builds with no tools at all, as it must under the tile', type.build(EAST).records.length > 2 && type.handles(EAST).link !== null);
+    check('the type offers the engine its refit, and it is the same question', typeof type.refit === 'function'
+        && type.refit(RB05, measure(103.47), standing([ [ 0, 0 ], [ 93.2, 0 ] ])) === true && type.refit(RB05, measure(103.47), standing([ [ 0, 0 ], [ lineEnd(rb05), 0 ] ])) === false);
     check('a missing config still draws the house title', title.Na__LeParamTitle__Build(null, null, EAST, null, null).records.length > 2 && title.Na__LeParamTitle__Build({}, {}, Object.assign({ ShowScaleBar : false }, EAST), null, null).records[1].record.Annotation__SizeMm === 3.5);
 
     rmSync(SCRATCH, { recursive : true, force : true });

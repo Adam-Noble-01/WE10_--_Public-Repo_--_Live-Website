@@ -33,6 +33,31 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.29.0
+// - Sheet Images: NormaliseShapeImage keeps Image__SourceW / Image__SourceH,
+//   the dropped original's pixels, both or neither. Absent on every picture
+//   placed before them, which is read exactly as before.
+//
+// 21-Sep-2026 - Version 1.28.0
+// - Layer__Selectable on the layer record, stored only as false: a REFERENCE
+//   layer, Blender's Selectable switch turned off. It is drawn and printed as
+//   it always was, but nothing on it can be clicked, boxed or snapped to
+//   (Na__LeModel__IsLayerSelectable). NormaliseLayer removes any other value
+//   and never adds the key, so every layer from before it - and a browser
+//   draft of one - stays exactly what it was.
+//
+// 21-Sep-2026 - Version 1.27.0
+// - SHEET IMAGES. Additive, as floor areas were:
+//   - 'image' joins LAYER_TYPES: the Images layer, made the first time a
+//     picture lands on a sheet. DefaultLayerId answers the Vectors layer for
+//     'image' on a sheet that has none, and RehomeOrphans sends a picture to
+//     Images, or to Vectors without one.
+//   - Shape__Image on the shape record, kept only when it names a file
+//     (NormaliseShapeImage). A picture is held to a box of the kept part's
+//     proportions whatever wrote its points, and carries no edge, fill,
+//     hatch, code or room of its own: the frame is the picture's, and
+//     anything else would draw over or under it.
+//
 // 21-Sep-2026 - Version 1.26.0
 // - THE LAYERS LIST IS NOW THE PAINT ORDER FOR EVERYTHING (Na__LayoutEditor__
 //   PaintOrder__), so the list a sheet carries decides what it looks like.
@@ -301,6 +326,7 @@
         Na__LeSpComp__DeckDefault
     } from '../25__System__RenderStyles/Na__LayoutEditor__SitePlanComposites__.js';
     import { Na__LeGrad__Normalise } from '../35__System__DrawingTools/Na__LayoutEditor__GradientTool__.js';   // <-- A leaf too: it reaches only the panel host, which reaches only the config
+    import { Na__LeImgGeo__NormaliseCrop, Na__LeImgGeo__Enforce } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Geometry__.js';   // <-- A leaf: a picture is held to its proportions without reaching the rest of the feature
     import { Na__LeDash__Normalise } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
@@ -319,7 +345,7 @@
     // ------------------------------------------------------------
     const Na__LeRec__KIND_2D     = '2d';
     const Na__LeRec__KIND_3D     = '3d';
-    const Na__LeRec__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'area', 'mixed' ];   // <-- 'area' is the Floor Areas layer: measured rooms, which are vectors carrying Shape__Area
+    const Na__LeRec__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'area', 'image', 'mixed' ];   // <-- 'area' is the Floor Areas layer: measured rooms, which are vectors carrying Shape__Area; 'image' the Images layer: pictures, vectors carrying Shape__Image
     const Na__LeRec__STYLE_KEYS  = [ 'baseImage', 'projectedLinework', 'profileLinework', 'glassOpaque', 'whitecard', 'hiddenLines', 'enhanceWhitecard', 'contextLayer', 'depthFog' ];
     const Na__LeRec__ID_PAD      = 3;
     const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
@@ -399,6 +425,7 @@
         if (Na__LeRec__LAYER_TYPES.indexOf(layer.Layer__Type) === -1) layer.Layer__Type = 'mixed';
         if (layer.Layer__Visible === undefined) layer.Layer__Visible = true;
         if (layer.Layer__Locked  === undefined) layer.Layer__Locked  = false;
+        if (layer.Layer__Selectable !== false) delete layer.Layer__Selectable;   // <-- A reference layer: stored only as false, so every layer from before it is byte-identical
         layer.Layer__Order = Na__LeRec__Num(layer.Layer__Order, index + 1);
         return layer;
     }
@@ -685,6 +712,60 @@
     // ---------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Tidy a Shape's Picture Block
+    // ---------------------------------------------------------------
+    // Shape__Image is what makes a vector a PICTURE (54__Feature__SheetImages):
+    //     Image__File    the stored file, named by its content hash
+    //     Image__Folder  the document folder it was last filed in; the save
+    //                    files it again under the sheet's id when they part
+    //     Image__PixelW/H  the stored file's size
+    //     Image__Crop    { L, T, R, B } the kept part, as fractions of the
+    //                    picture; absent when the whole picture shows
+    //     Image__Frame   the introduction sheets' frame and shadow, on or off
+    //     Image__Alpha   only when the picture has transparency
+    //     Image__Name    the file that was dropped, for the panel to show
+    //     Image__SourceW/H  that dropped file's own pixels, when known: the
+    //                    save stores fewer when the sheet prints it smaller
+    // A PICTURE IS A PICTURE AND NOTHING ELSE: its points are held to a box of
+    // the kept part's proportions (never stretched, whatever wrote them), and
+    // an edge, a fill, a hatch, a code or a room on the same record would all
+    // draw over or under it, so they go. Kept ONLY when the block names a
+    // file, so every shape drawn before pictures existed stays byte-identical.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseShapeImage(item) {
+        const block = item.Shape__Image;
+        if (!block || typeof block !== 'object' || Array.isArray(block) || typeof block.Image__File !== 'string' || !block.Image__File.trim()) {
+            delete item.Shape__Image;
+            return;
+        }
+        const pixelW = Math.max(1, Math.round(Number(block.Image__PixelW) || 1));
+        const pixelH = Math.max(1, Math.round(Number(block.Image__PixelH) || 1));
+        const crop   = Na__LeImgGeo__NormaliseCrop(block.Image__Crop, 0.005);      // <-- Only sanitised here; the crop screen holds its own, larger, minimum
+        const out    = {
+            Image__File   : block.Image__File.trim().slice(0, 200),
+            Image__Folder : (typeof block.Image__Folder === 'string') ? block.Image__Folder.trim().slice(0, 120) : '',
+            Image__PixelW : pixelW,
+            Image__PixelH : pixelH,
+            Image__Frame  : block.Image__Frame !== false                        // <-- On unless switched off: the introduction sheets frame every picture
+        };
+        if (crop) out.Image__Crop = crop;
+        if (block.Image__Alpha === true) out.Image__Alpha = true;
+        if (typeof block.Image__Name === 'string' && block.Image__Name.trim()) out.Image__Name = block.Image__Name.trim().slice(0, 200);
+        const sourceW = Math.round(Number(block.Image__SourceW)), sourceH = Math.round(Number(block.Image__SourceH));
+        if (sourceW > 0 && sourceH > 0) { out.Image__SourceW = sourceW; out.Image__SourceH = sourceH; }   // <-- Both or neither: the original's pixels, for the panel
+        item.Shape__Image      = out;
+        item.Shape__Closed     = true;
+        item.Shape__Stroked    = false;                                          // <-- The frame is the picture's own; a vector edge would draw over it
+        item.Shape__FillColour = null;
+        item.Shape__Gradient   = null;
+        delete item.Shape__Hatch;
+        delete item.Shape__Qr;
+        delete item.Shape__Area;
+        item.Shape__Points     = Na__LeImgGeo__Enforce(item.Shape__Points, pixelW, pixelH, crop, 1);
+    }
+    // ---------------------------------------------------------------
+
+
     // FUNCTION | Is This a Site Plan Viewport (Viewport__SitePlan)
     // ------------------------------------------------------------
     function Na__LeRec__IsSitePlanViewport(viewport) {
@@ -926,13 +1007,14 @@
         Na__LeRec__NormaliseShapeHatch(item);                                             // <-- The repeating pattern over its fill, if it has one
         Na__LeRec__NormaliseShapeQr(item);                                                // <-- The project's QR symbol inside its box, if it carries one
         Na__LeRec__NormaliseShapeArea(item);                                              // <-- What it is called and what it is filed under, if it is a measured room
+        Na__LeRec__NormaliseShapeImage(item);                                             // <-- Which stored picture it shows and how much of it, if it is a picture - after the three above, which it clears
         item.Shape__StrokeOpacity = Na__LeRec__Unit(item.Shape__StrokeOpacity, 1);
         item.Shape__Gradient = Na__LeGrad__Normalise(item.Shape__Gradient);              // <-- A fresh object or null: no two shapes ever hold the same gradient
         item.Shape__LineStyle = Na__LeDash__Normalise(item.Shape__LineStyle);            // <-- Likewise: null is a solid edge, and a record from before the toggle stays one
         item.Shape__Stroked = item.Shape__Stroked !== false;                             // <-- A record written before the flag existed drew its edges
         const filled  = item.Shape__FillColour !== null || item.Shape__Gradient !== null;   // <-- A gradient is a fill as far as visibility goes
         const canFill = filled && item.Shape__Points.length > 2;                            // <-- Two points enclose nothing, so they cannot be a fill
-        const paints  = canFill || !!item.Shape__Qr || !!item.Shape__Area;                  // <-- A QR block paints the whole box and a floor area writes its name in the middle, so neither is ever invisible
+        const paints  = canFill || !!item.Shape__Qr || !!item.Shape__Area || !!item.Shape__Image;   // <-- A QR block paints the whole box, a floor area writes its name in the middle and a picture is a picture, so none of them is ever invisible
         if (!item.Shape__Stroked && !paints) item.Shape__Stroked = true;                    // <-- Edges, fill or a code, never none of them: an invisible shape is a lost shape
         return item;
     }
@@ -1137,7 +1219,7 @@
         sheet.Sheet__Annotations.forEach((a) => home(a, 'Annotation__LayerId', 'annotation'));
         sheet.Sheet__Dimensions.forEach((d)  => home(d, 'Dimension__LayerId', 'dimension'));
         sheet.Sheet__Leaders.forEach((l)     => home(l, 'Leader__LayerId', 'annotation'));
-        sheet.Sheet__Shapes.forEach((s)      => home(s, 'Shape__LayerId', (hasAreaLayer && s.Shape__Area && typeof s.Shape__Area === 'object') ? 'area' : 'vector'));
+        sheet.Sheet__Shapes.forEach((s)      => home(s, 'Shape__LayerId', (hasAreaLayer && s.Shape__Area && typeof s.Shape__Area === 'object') ? 'area' : ((s.Shape__Image && typeof s.Shape__Image === 'object') ? 'image' : 'vector')));   // <-- A picture goes to Images, or to Vectors on a sheet that has none (DefaultLayerId)
     }
     // ------------------------------------------------------------
 
@@ -1246,6 +1328,7 @@
     function Na__LeRec__DefaultLayerId(sheet, type) {
         const layers = sheet ? sheet.Sheet__Layers : [];
         for (let i = 0; i < layers.length; i++) if (layers[i].Layer__Type === type) return layers[i].Layer__Id;
+        if (type === 'image') return Na__LeRec__DefaultLayerId(sheet, 'vector');   // <-- A sheet with no Images layer: a picture is a vector, and the top layer of the list (Text) would put it over every note
         for (let i = 0; i < layers.length; i++) if (layers[i].Layer__Type === 'mixed') return layers[i].Layer__Id;
         return layers.length ? layers[0].Layer__Id : 'Layer_001';
     }
@@ -1477,6 +1560,7 @@
         Na__LeRec__IsSitePlanViewport,
         Na__LeRec__NormaliseShape,
         Na__LeRec__NormaliseShapeArea,
+        Na__LeRec__NormaliseShapeImage,
         Na__LeRec__NormaliseAreaGroups,
         Na__LeRec__NormaliseLeader,
         Na__LeRec__NormaliseMarginNotes,

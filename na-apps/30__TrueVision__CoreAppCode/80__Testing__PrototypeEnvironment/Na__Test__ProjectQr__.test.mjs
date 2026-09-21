@@ -43,6 +43,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - Section 6, the colours: the title block's code is black and the Project
+//   Portal block's hsl(0, 0%, 35%), both held to 70 per cent symbol contrast
+//   against the light colour, and the Symbol module's built-in fallbacks held
+//   to the file by loading it once with the config and once without.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Written with the Project QR Code system.
 //
@@ -373,6 +379,69 @@ import { tmpdir } from 'node:os';
     check('PDF: the light square is painted, every run joins ONE path, and fill() paints it once',
           rects.length === ps01Sym.Runs.length + 1 && rects[0][5] === 'F' && rects.slice(1).every((c) => c[5] === null) &&
           calls.filter((c) => c[0] === 'fill').length === 1 && calls[calls.length - 1][0] === 'fill');
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | 6. The Colours a Code Is Painted In
+// -----------------------------------------------------------------------------
+
+    console.log('\n6. Black for a document\'s own code, a softer grey for the Portal block\'s');
+
+    // SYMBOL CONTRAST, ISO/IEC 15415: the light reflectance less the dark, with
+    // each colour's relative luminance standing in for what the paper and the
+    // ink send back. 70 per cent and over is grade A. A phone reads far less
+    // than that; the floor is here so that nobody softens a code by eye until
+    // it quietly stops reading.
+    const SYMBOL_CONFIG = qrConfig['ProjectQr__Symbol__Config'];
+    const luminance = (hex) => {
+        const channel = (at) => {
+            const value = parseInt(hex.substring(at, at + 2), 16) / 255;
+            return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+        };
+        return (0.2126 * channel(1)) + (0.7152 * channel(3)) + (0.0722 * channel(5));
+    };
+    const LIGHT_HEX  = SYMBOL_CONFIG['ProjectQr__Symbol__LightColour'];
+    const DARK_HEX   = SYMBOL_CONFIG['ProjectQr__Symbol__DarkColour'];
+    const PORTAL_HEX = SYMBOL_CONFIG['ProjectQr__Symbol__PortalDarkColour'];
+    const contrastOf = (hex) => luminance(LIGHT_HEX) - luminance(hex);
+    const GREY_35    = '#' + Math.round(0.35 * 255).toString(16).padStart(2, '0').repeat(3);   // <-- hsl(0, 0%, 35%): no saturation, so every channel is the lightness
+    check('a document\'s own code - the title block\'s - is still black', DARK_HEX === '#000000');
+    check('the Portal block\'s code is hsl(0, 0%, 35%), which is ' + GREY_35 + ' (Adam, 21-Sep-2026)', PORTAL_HEX === GREY_35 && GREY_35 === '#595959');
+    [ [ 'the black', DARK_HEX ], [ 'the Portal grey', PORTAL_HEX ] ].forEach(([ label, hex ]) => {
+        const valid = /^#[0-9a-fA-F]{6}$/.test(String(hex)) && /^#[0-9a-fA-F]{6}$/.test(String(LIGHT_HEX));
+        check(label + ' against the light colour is ' + (valid ? Math.round(contrastOf(hex) * 100) : '?') + ' per cent symbol contrast, over the 70 of grade A',
+              valid && contrastOf(hex) >= 0.70);
+    });
+
+    // THE BUILT-IN FALLBACKS ARE THE FILE'S. The Symbol module is loaded twice:
+    // once with the config unreadable, once with it served. A fallback that had
+    // drifted from the file would bring the black back to the Portal block on
+    // any page whose config fetch failed.
+    const qrSource   = readFileSync(join(QR_DIR, 'Na__ProjectQr__Symbol__.js'), 'utf8')
+        .replace("'./Na__ProjectQr__Encoder__.js'", "'./Encoder.mjs'")
+        .replace("'./Na__ProjectQr__ProjectLink__.js'", "'./ProjectLink.mjs'")
+        .replace("'../03__AppUtils/Na__AppUtils__ProjectLoader.js'", "'./ProjectLoader.mjs'");
+    writeFileSync(join(SCRATCH, 'Symbol.mjs'), qrSource, 'utf8');
+    const realFetch = globalThis.fetch;
+    const realWarn  = console.warn;
+    const setupWith = async (served, tag) => {
+        globalThis.fetch = async () => served ? { ok : true, status : 200, json : async () => qrConfig } : { ok : false, status : 404 };
+        console.warn = () => {};                                                // <-- The unreadable load says so on the console, which is its job, not this run's
+        const module = await import(pathToFileURL(join(SCRATCH, 'Symbol.mjs')).href + '?' + tag);
+        const landed = await module.Na__ProjectQr__Ready();
+        console.warn = realWarn;
+        return { landed : landed, symbol : module.Na__ProjectQr__GetSetup().symbol };
+    };
+    const fromFile     = await setupWith(true,  'file');
+    const fromFallback = await setupWith(false, 'fallback');
+    globalThis.fetch = realFetch;
+    check('GetSetup hands the Portal grey out as symbol.portalDarkColour, and the black as symbol.darkColour',
+          fromFile.landed === true && fromFile.symbol.portalDarkColour === PORTAL_HEX && fromFile.symbol.darkColour === DARK_HEX, fromFile.symbol);
+    check('with the config unreadable, the built-in fallbacks give the same two colours',
+          fromFallback.landed === false && fromFallback.symbol.portalDarkColour === PORTAL_HEX && fromFallback.symbol.darkColour === DARK_HEX &&
+          fromFallback.symbol.lightColour === LIGHT_HEX, fromFallback.symbol);
 
 // endregion -------------------------------------------------------------------
 

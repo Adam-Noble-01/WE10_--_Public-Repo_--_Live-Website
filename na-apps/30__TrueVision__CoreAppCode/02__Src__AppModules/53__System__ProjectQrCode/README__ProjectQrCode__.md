@@ -114,6 +114,15 @@ stays at two modules whatever size the code is drawn at; `Na__LeShapeGeo__PushQr
 the printed size to `CheckPrint` the way a cell does. One record, one filled path, no
 seams - never 217 rectangles as 217 shapes.
 
+**A vector's code is grey, not black.** `Na__LeShapeGeo__PushQr` paints it in
+`GetSetup().symbol.portalDarkColour` - the config's `PortalDarkColour`, `#595959`,
+hsl(0, 0%, 35%) - where every document's own code, the title block's included, keeps
+`darkColour` black. Adam, 21-Sep-2026: softer, "so that they don't look so stark on the
+page". The Portal block can afford it and the title block cannot: at 15 mm and up its module
+is 0.52 mm or more, against the title block's 0.30, so a mono laser's halftone dots are a far
+smaller part of each module. The colour is chosen at painting time, never stored on the
+record, so a block already on a sheet follows the config with nothing to rebuild.
+
 Rules for whoever does it:
 
 - **x, y and sizeMm are the symbol edge to edge.** Keep `quietZoneModules` of clear
@@ -137,7 +146,10 @@ like a QR code":
    original was never exercised above version 4; versions 7 up (the version information
    block, the two-group interleave) are first proved here.
 2. **OpenCV's decoder**, which nobody here wrote (`Na__Test__ProjectQr__Decode__.py`):
-   every case reads, and in every run there has never been a wrong read.
+   every case reads, and in every run there has never been a wrong read. Since
+   21-Sep-2026 every case is read in both inks the config paints a code in - the black
+   and the Portal block's `#595959` - and the grey reads in exactly as many renderings
+   as the black.
 3. **Real exported PDFs.** Title blocks were exported through the app's own chrome and
    jsPDF options on A1, A2, A3 and A4, rasterised by PyMuPDF at 200 to 600 dpi and read
    by OpenCV. Every clean render decoded to the exact address (a tight crop from 200 dpi,

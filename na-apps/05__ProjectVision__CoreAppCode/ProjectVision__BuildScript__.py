@@ -35,6 +35,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 from ProjectVision__DasBuilder__ import is_das_folder, run_das_builds
+from ProjectVision__FileWriter__ import write_json_file, write_text_file
 
 
 # =============================================================================
@@ -642,9 +643,7 @@ def write_truevision_project_data(project_path, data):
             if g['groupId'] in existing_labels:
                 g['label'] = existing_labels[g['groupId']]
 
-    with open(output_path, 'w', encoding='utf-8', newline='\n') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.write('\n')
+    write_json_file(output_path, data)
 
     print(f'  [WRITTEN] {output_path}')
 
@@ -965,9 +964,7 @@ def write_planvision_project_data(project_path, data):
 
     data = merge_planvision_existing_data(data, existing_data)
 
-    with open(output_path, 'w', encoding='utf-8', newline='\n') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.write('\n')
+    write_json_file(output_path, data)
 
     print(f'  [WRITTEN] {output_path}')
 
@@ -980,9 +977,7 @@ def write_json(path, data):
     """Write JSON data to a file with consistent formatting."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-    with open(path, 'w', encoding='utf-8', newline='\n') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-        f.write('\n')
+    write_json_file(path, data)                                        # <-- Temp + rename: a git diff mapping the file cannot block it
 
     print(f'  [WRITTEN] {path}')
 
@@ -991,8 +986,7 @@ def write_redirect_html(project_path, html_content):
     """Write the ProjectVision-WebApp.html redirect file."""
     redirect_path = os.path.join(project_path, 'ProjectVision-WebApp.html')
 
-    with open(redirect_path, 'w', encoding='utf-8', newline='\n') as f:
-        f.write(html_content)
+    write_text_file(redirect_path, html_content)
 
     print(f'  [WRITTEN] {redirect_path}')
 

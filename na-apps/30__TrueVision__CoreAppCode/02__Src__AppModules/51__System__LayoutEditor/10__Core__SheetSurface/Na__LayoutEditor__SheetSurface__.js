@@ -47,6 +47,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0 (TrueVision)
+// - GetSheetChrome: the sheet's own chrome primitives as built (the border
+//   and title block), for the snapping module, which offers their corners,
+//   ends and midpoints as snap points (Adam: "make points on the title block
+//   inferencible and snappable").
+//
 // 21-Sep-2026 - Version 1.8.0 (TrueVision)
 // - ZOOM NOW, REDRAW WHEN IT RESTS. A wheel or pinch step now opens a zoom
 //   gesture (NoteZoomGesture, called by the navigation module). Until the
@@ -598,6 +604,21 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | The Sheet's Own Chrome Primitives (the border and title block), or Null
+    // ------------------------------------------------------------
+    // The list built once per chrome change (BuildChrome) for the sheet on
+    // screen, handed out as it is - read it, never change it. Null before the
+    // first build, or when it belongs to another sheet. The snapping module
+    // takes the border's and the title block's corners, ends and midpoints
+    // from it, so a construction line can start on them.
+    // ------------------------------------------------------------
+    function Na__LeSurface__GetSheetChrome() {
+        const chrome = Na__LeSurface__Chrome, sheet = Na__LeSurface__Sheet;
+        return (chrome && sheet && chrome.sheetId === sheet.Sheet__Id) ? chrome.sheet : null;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -895,7 +916,8 @@
         Na__LeSurface__GetSheet,
         Na__LeSurface__GetLayout,
         Na__LeSurface__GetElements,
-        Na__LeSurface__GetFrameBody
+        Na__LeSurface__GetFrameBody,
+        Na__LeSurface__GetSheetChrome
     };
     // ------------------------------------------------------------
 

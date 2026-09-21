@@ -1,0 +1,28 @@
+{
+    "LayoutEditor__OrthoMode__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__OrthoMode__Config__.json",
+        "Meta__Description" : "Ortho mode: AutoCAD's Ortho (ORTHOMODE) on AutoCAD's key, F8. While it is on, a point picked from a point before it lands on the horizontal or the vertical through that point - whichever the cursor has travelled further along - so no line can be drawn at an angle. It reaches everywhere a held Shift already held the nearer axis in this editor: the Draw tool's next vertex and the Area tool's corners, a new dimension's line (made horizontal or vertical, measuring x or y, as Shift made it), a dragged vertex or dimension end, and anything moved whole. Holding Shift frees the cursor while Ortho is on and holds the axis while it is off: the rule is Ortho XOR Shift, AutoCAD's Shift temporary override. It is a way of drawing, not part of any drawing: nothing is written to a sheet, and the choice is remembered in this browser, like Snap (F3).",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Research"    : "AutoCAD 2025 help, researched 21-Sep-2026. COPIED: F8 and Ctrl+L toggle Ortho (the shortcut table: 'Ctrl+L - Toggles Ortho mode', 'F8 - Toggles ORTHOMODE'); the command line echoes <Ortho on> / <Ortho off> after the prompt; the status bar's Ortho Mode button 'constrains cursor movement to the horizontal or vertical directions', blue while on, one click toggles it. Ortho applies 'when you specify an angle or distance by means of two points' - point 1 the point before, point 2 the cursor - so the first point is free; 'the rubber-band line follows the horizontal or vertical axis, whichever is nearest the cursor'; the crosshair stays free and the point picked is the cursor projected onto that axis. Shift is the temporary override: 'holding down the Shift key toggles the current setting of Ortho mode' until it is released (TEMPOVERRIDES, initial 1; it prints no echo). A typed distance runs along the held direction (direct distance entry). Ortho reaches LINE, PLINE, MOVE, COPY, STRETCH and grips; DIMLINEAR's dimension line location is not held; RECTANG switches Ortho OFF for its own duration, because a held corner collapses the rectangle to a line. NOT COPIED, DELIBERATELY: 'Ortho is ignored when you enter coordinates or specify an object snap' - here a snap supplies only the coordinate ALONG the held axis, the rule Shift already worked to in this editor, because Adam asked that with Ortho on no line can be drawn at an angle (AutoCAD's nearest equivalent is object snap tracking, whose paths are orthogonal). AutoCAD holds leader segments (QLEADER, MLEADER); a new leader here stays free, because these leaders are curves to a note or a bubble and Shift has never meant anything there. ORTHOMODE is saved in the drawing (initial 0); here it is remembered in the browser. No polar tracking, isometric axes or snap angle exist here, so AutoCAD's Ortho / Polar exclusion and its rotated axes have nothing to act on. The Dimension tool keeps Shift's meaning - an ortho dimension, AutoCAD's DIMLINEAR - rather than bending its measured points to an axis."
+    },
+
+    "LayoutEditor__OrthoMode__Behaviour": {
+        "Behaviour__Description"                 : "How Ortho answers the keys.",
+        "Behaviour__ShiftTemporaryOverride"      : true,
+        "Behaviour__ShiftTemporaryOverrideNote"  : "True is AutoCAD's default (TEMPOVERRIDES 1): holding Shift flips Ortho for as long as it is held - off while Ortho is on, on while it is off. False is AutoCAD with its temporary overrides switched off: Shift then leaves Ortho alone and simply holds the axis, as it always has here, so with Ortho on there is no way to draw an angled line without pressing F8.",
+        "Behaviour__EchoOnSwitch"                : true,
+        "Behaviour__EchoOnSwitchNote"            : "True writes AutoCAD's command-line echo (Labels EchoOn / EchoOff) on the line above the Measurements box for a moment each time Ortho is switched, unless a value is being typed there. The toolbar button is lit either way."
+    },
+
+    "LayoutEditor__OrthoMode__Labels": {
+        "Labels__Description" : "Every word Ortho mode puts on the screen.",
+        "Labels__Toggle"      : "Ortho",
+        "Labels__ToggleTitle" : "Ortho Mode (F8): constrains cursor movement to the horizontal or vertical directions from the last point - new lines, dimensions, dragged vertices and moves. Hold Shift to draw one at an angle. F8 again switches it off.",
+        "Labels__EchoOn"      : "<Ortho on>",
+        "Labels__EchoOff"     : "<Ortho off>",
+        "Labels__ConsoleOn"   : "Ortho mode on (F8): new lines, dimensions and moves are held horizontal or vertical. Hold Shift to draw one at an angle.",
+        "Labels__ConsoleOff"  : "Ortho mode off (F8): lines are drawn at any angle. Hold Shift to hold one square."
+    }
+}

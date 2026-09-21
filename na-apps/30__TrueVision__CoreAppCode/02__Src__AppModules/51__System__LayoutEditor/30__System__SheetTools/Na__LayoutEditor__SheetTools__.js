@@ -109,6 +109,9 @@
 //     and the vector grab, insert and snap helpers.
 //   - Na__LayoutEditor__SheetTools__ContentEditing__: SetEditingViewport and
 //     RecentreViewport.
+//   - Na__LayoutEditor__SheetTools__CopyDrag__: Ctrl-drag's copy - made once
+//     a press becomes a drag, or when Ctrl goes down mid-move - carried in
+//     the original's place.
 //   - Na__LayoutEditor__SheetTools__PointerPress__: the press and the double
 //     click.
 //   - Na__LayoutEditor__SheetTools__PointerDrag__: the move, the drag, the
@@ -123,8 +126,8 @@
 // - The app imports only this file; the units are private to the sheet tools.
 // - Import direction: this file imports the units, and no unit imports it.
 //   Each unit imports only units listed before it here: State (no imports),
-//   ToolState, HitResolution, ContentEditing, PointerDrag, PointerPress,
-//   Keyboard, ContextMenu. There is no cycle.
+//   ToolState, HitResolution, ContentEditing, CopyDrag, PointerDrag,
+//   PointerPress, Keyboard, ContextMenu. There is no cycle.
 //
 // -----------------------------------------------------------------------------
 //
@@ -138,6 +141,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.35.0
+// - The Measurements box is handed canArray and typeMoveArray: SketchUp's
+//   3x and /3 after a Ctrl-drag copy (PointerDrag, CopyDrag).
+//
+// 21-Sep-2026 - Version 1.34.0
+// - The Measurements box is handed getMoveRetype and getViewportRetype: the
+//   whole-object move or frame move that has just landed, while a typed value
+//   may still land it again (SketchUp's rule, Na__LeTools__RememberRetype in
+//   the pointer drag unit).
+//
+// 21-Sep-2026 - Version 1.33.0
+// - The keydown listener also hands the key to CopyKey (the Keyboard unit):
+//   Ctrl going down during a move turns it into a copy, or back into a move
+//   (Na__LayoutEditor__SheetTools__CopyDrag__, a new unit).
+//
 // 21-Sep-2026 - Version 1.32.0
 // - The counter-scaled boxes (eyedropper, tracking crosses, selection box,
 //   group boxes) are put right when a zoom SETTLES
@@ -496,6 +514,7 @@
         Na__LeTools__OnMove,
         Na__LeTools__OnUp,
         Na__LeTools__GetMoveDrag,
+        Na__LeTools__GetMoveRetype,
         Na__LeTools__TypeMoveLength,
         Na__LeTools__GetVertexDrag,
         Na__LeTools__GetVertexRetype,
@@ -507,13 +526,17 @@
         Na__LeTools__TypeDimensionOffset,
         Na__LeTools__TypeVertexLength,
         Na__LeTools__GetViewportDrag,
+        Na__LeTools__GetViewportRetype,
         Na__LeTools__TypeViewportLength,
+        Na__LeTools__CanMoveArray,
+        Na__LeTools__TypeMoveArray,
         Na__LeTools__SetSuppressed
     } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
     import { Na__LeTools__OnDown, Na__LeTools__OnDoubleClick, Na__LeTools__SettleAutoMove } from './Na__LayoutEditor__SheetTools__PointerPress__.js';
     import {
         Na__LeTools__DeleteSelection,
         Na__LeTools__ShiftRedraw,
+        Na__LeTools__CopyKey,
         Na__LeTools__Rerun,
         Na__LeTools__OnKey
     } from './Na__LayoutEditor__SheetTools__Keyboard__.js';
@@ -577,7 +600,7 @@
             pointercancel : (e) => Na__LeTools__OnUp(e),
             dblclick      : (e) => Na__LeTools__OnDoubleClick(e),
             contextmenu   : (e) => Na__LeTools__OnContextMenu(e),
-            keydown       : (e) => { Na__LeTools__OnKey(e); if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); },   // <-- Shift turns a dimension being placed ortho: show it without waiting for the mouse
+            keydown       : (e) => { Na__LeTools__OnKey(e); if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); Na__LeTools__CopyKey(e); },   // <-- Shift turns a dimension being placed ortho: show it without waiting for the mouse; Ctrl mid-move carries a copy, or the original again
             keyup         : (e) => { if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); },
             scopedraw     : () => Na__LeSurface__Refresh('scope'),            // <-- Opening or closing a container fades the sheet and redraws its contents
             settlemove    : () => Na__LeTools__SettleAutoMove(),              // <-- A Move that came up by itself goes back down when the selection stops warranting it (Delete, an undo, a container opening or closing)
@@ -607,9 +630,13 @@
             typeDimensionOffset  : (paperMm) => Na__LeTools__TypeDimensionOffset(paperMm),
             typeVertexLength     : (paperMm) => Na__LeTools__TypeVertexLength(paperMm),
             getMoveDrag          : () => Na__LeTools__GetMoveDrag(),                 // <-- A whole object, or a whole selection, being relocated
+            getMoveRetype        : () => Na__LeTools__GetMoveRetype(),               // <-- ...or just relocated, while a typed value may still land it again
             typeMoveLength       : (paperMm) => Na__LeTools__TypeMoveLength(paperMm),
             getViewportDrag      : () => Na__LeTools__GetViewportDrag(),
-            typeViewportLength   : (paperMm) => Na__LeTools__TypeViewportLength(paperMm)
+            getViewportRetype    : () => Na__LeTools__GetViewportRetype(),           // <-- The same for a frame just moved
+            typeViewportLength   : (paperMm) => Na__LeTools__TypeViewportLength(paperMm),
+            canArray             : () => Na__LeTools__CanMoveArray(),                // <-- A Ctrl-drag copy that may be arrayed: SketchUp's 3x and /3
+            typeMoveArray        : (mode, count) => Na__LeTools__TypeMoveArray(mode, count)
         });
         Na__LeTools__SetTool(Na__LeTools__TOOL_SELECT);
         return true;

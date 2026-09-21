@@ -1,0 +1,67 @@
+/* =============================================================================
+   TRUEVISION3D - LAYOUT EDITOR - DRAWING GRID - STYLES
+   =============================================================================
+
+   FILE    : Na__LayoutEditor__Styles__DrawingGrid__.css
+   PURPOSE : Where the drawing grid's canvas sits on the paper, and the ring
+             that marks a grid snap.
+   CREATED : 21-Sep-2026
+   AUTHOR  : Adam Noble - Noble Architecture
+
+   NOTES:
+   - The grid itself is drawn by Na__LayoutEditor__DrawingGrid__ into one
+     canvas on the paper, sized to the view and to the screen's own pixels.
+     Nothing here sizes it: this file only stacks it.
+   - THE STACK ON THE PAPER, bottom to top: the paper's own white, the sheet
+     (.na-le-paper__stack, z-index 1), the open container redrawn crisp
+     (.na-le-paper__focus, 4), the selection handles and snap marker
+     (.na-le-paper__handles, 5). "Draw grid on top" puts the grid at 3, over
+     the drawings and under the handles; off, it goes to 0, on the paper and
+     under everything drawn on it - as LayOut draws it either way.
+   - Never printed: the PDF is drawn from the sheet's primitives and never
+     reads the screen, so nothing in this file can reach it.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Grid's Canvas
+   ----------------------------------------------------------------------------- */
+
+    .na-le-grid {
+        position                           : absolute;
+        left                               : 0;
+        top                                : 0;
+        pointer-events                     : none;                        /* <-- An aid to look at: every press goes through it to the sheet */
+        z-index                            : 3;                           /* <-- Draw grid on top: over the drawings, under the focus layer and the handles */
+        will-change                        : transform;                   /* <-- A layer of its own, so drawing it again never rasterises the paper again */
+    }
+
+    .na-le-grid--under {
+        z-index                            : 0;                           /* <-- Draw grid on top off: on the paper, under everything drawn on it */
+    }
+
+    .na-le-grid[hidden] {
+        display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Grid Snap Marker
+   -----------------------------------------------------------------------------
+   A small ring with a dot in it where a point will land on the grid (Grid Snap,
+   F7): smaller than an object snap's square or triangle, so the two are never
+   confused, and in the tone of the tool snapping like every other marker. Its
+   size and border are written inline by the snapping module; the scale comes
+   from the grid config (Snap MarkerScale), 0.6 until it lands.
+   ----------------------------------------------------------------------------- */
+
+    .na-le-osnap--grid {
+        border-radius                      : 50%;
+        background                         : radial-gradient(circle, rgb(var(--na-le-osnap-rgb)) 0 20%, transparent 24%);
+        transform                          : scale(var(--na-le-grid-marker-scale, 0.6));
+    }
+
+/* endregion ------------------------------------------------------------------- */

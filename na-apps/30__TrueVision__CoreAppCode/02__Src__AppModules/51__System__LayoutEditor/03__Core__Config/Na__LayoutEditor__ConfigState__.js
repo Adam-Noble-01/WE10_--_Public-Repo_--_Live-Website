@@ -51,6 +51,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.28.0
+// - Re-exports GetCopyDragModifier and IsCopyDragKey (the KeyMap unit): the key
+//   that makes a move carry a copy, SketchUp LayOut's Ctrl-drag.
+//
+// 21-Sep-2026 - Version 1.27.0
+// - Re-exports ReloadKeyMap (the KeyMap unit): the drawing tabs' key file read
+//   again whenever a drawing tab is opened from another tab.
+//
 // 19-Sep-2026 - Version 1.26.0
 // - Re-exports StatusToStore (the SheetSetup unit): what a sheet stores for a
 //   drawing status chosen in the Sheet panel or the Drawing Register.
@@ -194,7 +202,7 @@
 //   paddings. The old LogoPaddingMm and ValueOffsetBottomMm keys are gone.
 //
 // 10-Sep-2026 - Version 1.1.0
-// - Owns Na__LayoutEditor__KeyMappings__.json as well, and answers what a
+// - Owns Na__Hotkeys__DrawingTabs__.json as well, and answers what a
 //   button, a wheel turn or a key press means. The control modules and the
 //   sheet tools resolve every binding through here, so no input is written
 //   into code any more.
@@ -223,6 +231,7 @@
     // ------------------------------------------------------------
     import {
         Na__LeCfg__FetchKeyMap,
+        Na__LeCfg__ReloadKeyMap,
         Na__LeCfg__SetKeyMap,
         Na__LeCfg__GetGuards,
         Na__LeCfg__GetKeyboardSetup,
@@ -232,6 +241,8 @@
         Na__LeCfg__MatchWheelBinding,
         Na__LeCfg__MatchKeyBinding,
         Na__LeCfg__MatchSelectionModifier,
+        Na__LeCfg__GetCopyDragModifier,
+        Na__LeCfg__IsCopyDragKey,
         Na__LeCfg__IsPointerModifierBound,
         Na__LeCfg__GetActionCatalogue
     } from './Na__LayoutEditor__ConfigState__KeyMap__.js';
@@ -418,6 +429,7 @@
         Na__LeCfg__GetPdfSetup,
         Na__LeCfg__GetLabel,
         Na__LeCfg__FormatLabel,
+        Na__LeCfg__ReloadKeyMap,
         Na__LeCfg__SetKeyMap,
         Na__LeCfg__GetGuards,
         Na__LeCfg__GetKeyboardSetup,
@@ -427,6 +439,8 @@
         Na__LeCfg__MatchWheelBinding,
         Na__LeCfg__MatchKeyBinding,
         Na__LeCfg__MatchSelectionModifier,
+        Na__LeCfg__GetCopyDragModifier,
+        Na__LeCfg__IsCopyDragKey,
         Na__LeCfg__IsPointerModifierBound,
         Na__LeCfg__GetActionCatalogue
     };

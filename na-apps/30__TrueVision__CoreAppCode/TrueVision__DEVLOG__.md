@@ -2,6 +2,1179 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.123.0  -  21-Sep-2026
+### A Right Click Moves Anything to Another Drawing Layer, and a Layer Can Be Made a Reference: Seen and Printed, Never Picked or Snapped To
+
+**Overview**
+- From Adam, over RB05's Rear Elevation (D03) with eight of its red construction lines selected: "Add a right-click
+  context menu that then opens up a sub-menu, allowing you to move an element to a different drawing layer ... it
+  lists the drawing layers, and then you can click to move it onto one of the others, or it will show you which one
+  it's on currently. Add an HR and make sure it is in its own section to delineate it from the other context menu
+  collections." Construction lines come and go, so he will make a Construction Lines layer of his own and switch it.
+- His marks: LAYER beside the eight-item menu, with an arrow running to the Drawing Layers panel; and on one line's
+  menu, LAYERS written between Delete shape and Cut selection, ruled above and below, with an arrow to a flyout
+  headed Layer holding a list of rows.
+- Then: "add an extra toggle next to lock and on and off, which allows you to have a non-selectable layer. If you set
+  something onto there, the snaps won't work to it ... so you can see it, but nothing tries to snap or bind to it ...
+  Blender has a system like this, so copy that."
+- What was there already: every Update function of the model took `layerId`, and the Viewport panel had a Layer
+  select - for viewports only. Nothing else could put an item on another layer. A LOCK stopped edits (and markup
+  picks) but still offered every point to the snaps, and no switch took a layer out of the pointer's reach.
+- Found on the way, and fixed with it: a copy of anything on a user's own layer went back to its kind's layer. The
+  clipboard insisted on a layer of the item's TYPE, so a Ctrl-drag copy of a line on a General layer called
+  Construction Lines landed on Vectors - which would have undone the Layer row the first time Adam used it.
+
+**The Layer row** (`30__System__SheetTools/Na__LayoutEditor__LayerMenu__.js` 1.0.0, new;
+`Na__LayoutEditor__SheetTools__ContextMenu__.js` 1.3.0)
+- Every item's menu - text, a group (a parametric scale bar or title is one), a dimension, a leader, a vector, a
+  measured room, a picture, a viewport - and a multi-selection's gets a Layer row in a section of its own, directly
+  under the Delete row, with a rule either side. Not inside an open vector or dimension: those menus are about points.
+- The row names the layer the items sit on at its far end ("Layer   Vectors"), or "2 layers". Its flyout lists the
+  sheet's layers in the Layers panel's order, top of the list first: the layer holding everything is dotted, and a
+  selection spread over several rings every layer holding part of it.
+- A group is its members (`Na__LeGroup__Expand`), so a group moves as one. An item on a LOCKED layer stays where it
+  is, and a locked layer takes nothing: it is listed greyed, with Locked beside it. A hidden or a reference layer is
+  offered and says so (Hidden, Reference) - moving something there is how it is put away. A viewport's OWN lock holds
+  its framing, not its layer, so a locked viewport can still change layer, as the Viewport panel's select always let it.
+- A toast names the layer ("Moved 8 items to Construction Lines."), since nothing on the sheet moves, and counts any
+  item a locked layer held back.
+
+**The flyout** (`Na__LayoutEditor__ContextMenu__.js` 1.1.0, `Na__LayoutEditor__Styles__Main__Paper__.css`)
+- An item carrying `submenu` shows a chevron and opens a second card beside its row: after 120 ms of the pointer on
+  the row, at once on a click or a tap (touch has no hover), or on the right arrow. It opens to the right of the menu,
+  its first row level with the row it hangs from, and to the left where the window has no room. Pointing at another
+  row closes it after 300 ms, so a diagonal run into it across a neighbour does not lose it; reaching it calls that off.
+- Escape closes the flyout first - and that Escape goes no further, so it cannot also reach the sheet - then the menu.
+  A scroll inside either card no longer counts as the page moving.
+- `hint` puts muted words at a row's far end; `checked : 'mixed'` draws a ring where `true` draws the dot.
+
+**The model** (`Na__LayoutEditor__SheetModel__Layers__.js` 1.3.0, `Na__LayoutEditor__SheetModel__.js` 1.30.0,
+`Na__LayoutEditor__SheetRecords__.js` 1.28.0)
+- `Na__LeModel__MoveToLayer(sheet, items, layerId)`: any mix of viewports, text, dimensions, vectors and leaders, one
+  pass, announced ONCE as 'layers' - one undo step, and the surface restacks everything, as for a layer dragged in the
+  list. Each item keeps its place in its own collection. `Na__LeModel__ItemLayerId` reads one item's layer, from
+  `LAYER_KEYS`, one row per kind.
+- `Layer__Selectable` on the layer record, stored ONLY as false, so every layer from before it - and every project file
+  - is byte-identical. `Na__LeModel__IsLayerSelectable`; `UpdateLayer` takes `selectable`.
+- Whatever the pointer can no longer reach leaves the selection before the one announcement (`DropUnpickable`): items
+  moved onto a hidden or a reference layer, and the items of a layer switched to reference OR HIDDEN - Blender deselects
+  what it hides - so a Delete or an arrow key can never act on something that cannot be seen or clicked. A group stays
+  while any member is within reach. Only ever the sheet being worked on.
+
+**Reference layers: the Ref switch** (`Na__LayoutEditor__Panel__Layers__.js` 1.2.0, `Na__LayoutEditor__Styles__Panels__.css`)
+- A third button on every row, beside On and Lock: Ref. It reads Ref either way and carries a faint blue while the layer
+  is a reference layer, as the lock carries a faint red. The note under the list says what it does.
+- A reference layer is drawn, printed and exported exactly as before. What changes is the pointer's reach - Blender's
+  Selectable switch, with its snapping option Exclude Non-Selectable always on:
+  - a click, a hover or the eyedropper passes straight through it to what lies beneath (`Na__LeMarkup__HitTest`
+    1.16.0, and `Na__LeTools__Resolve` 1.6.0 for its viewports' frames and handles);
+  - a window or crossing box sweeps over it (`Na__LayoutEditor__SelectionBox__.js` 1.5.0);
+  - it offers no snap point - not a vector's corners and midpoints, not a dimension's measured points, not a
+    viewport's linework, and so nothing to carry a viewport by or track from (`Na__LayoutEditor__Snapping__.js` 1.5.0,
+    `Na__LeOsnap__Offers`);
+  - no dimension lines up to one of its dimensions (`Na__LayoutEditor__DimensionTool__.js` 1.10.0);
+  - no scale bar or title dropped nearby, or asked to Link to nearest, binds to one of its viewports
+    (`...ScrapbookParametric__ViewportLink__.js` 1.5.0) - the noodle and the panel's list can still pick one by hand;
+  - an open vector or dimension on it closes (`Na__LayoutEditor__EditScope__.js` 1.2.0), and so does one on a layer
+    that is hidden;
+  - no paste lands on it (`Na__LeClip__LayerFor`, both clipboards).
+- A LOCK is the other half, unchanged: it stops an edit and still offers every point to snap to. What a reference
+  layer's viewport measures is untouched too: a dimension or a room over it still reads its scale.
+
+**Copies keep their layer** (`Na__LayoutEditor__ItemClipboard__.js` 1.5.0, `Na__LayoutEditor__SheetModel__Shapes__.js` 1.4.0,
+`20__System__Viewports/Na__LayoutEditor__ViewportClipboard__.js` 1.3.0)
+- A copy landing on the sheet it came from - Duplicate, a Ctrl-drag copy (its arrays included), a paste - keeps its
+  original's layer whatever that layer's type (`LayerFor`'s `sameSheet`). Layer ids are per sheet, so a paste onto
+  ANOTHER sheet still needs a layer of its own type there, as before.
+- `InsertShape` keeps a layer the sheet has, as the other Insert functions always did. A parametric element rebuilding
+  its members asks for the layer the element is on, and now gets it. Its fallback for a layer the sheet lacks is now
+  written onto the record: `NormaliseShape` only fills a MISSING id, so it had been thrown away.
+
+**Config** (`Na__LayoutEditor__AppConfig__.json`): `MenuLayer`, `MenuLayerSeveral`, `MenuLayerLocked`, `MenuLayerHidden`,
+`MenuLayerReference`, `MenuLayerMovedOne`, `MenuLayerMoved`, `MenuLayerStayed`, `LayerReference`, `LayerReferenceTitle`,
+`LayerReferenceOnTitle` - every word of the row, the flyout, the toast and the button.
+
+**Service worker** (`TrueVision__Pwa__ServiceWorker__Logic__.js` 1.9.21): token 2026-09-21-13 - a new module,
+`Na__LayoutEditor__LayerMenu__`, is imported by an existing one, and the sheet model exports new names
+(`Na__LeModel__IsLayerSelectable`, `Na__LeModel__ItemLayerId`, `Na__LeModel__MoveToLayer`) that existing modules now import.
+
+**How it was proved**
+- `Na__Test__LayerMenu__.test.mjs` 1.0.0, 45 checks, every one passing, on RB05's Rear Elevation as stored with a
+  Construction Lines layer added: the record (byte-identical before, false kept, anything else dropped); the model
+  (reach, the selection trim, every kind moved at once, locks both ways, one announcement, none for nothing); the menu
+  (the row and its rule, the flyout's order, dot, rings, Hidden / Locked / Reference, a group opened up, the toasts);
+  the copies (a Ctrl-drag copy keeps a General layer, a paste from another sheet does not, none lands on a reference
+  layer, InsertShape's fallback written); and the pointer (no snap, click or box on a reference layer; a locked layer
+  still snaps). Run against the code as it was, 8 of them fail.
+- Fixtures brought up to date: `Na__Test__GroupMoveSnapping__.test.cjs` and `Na__Test__DrawingGrid__.test.mjs` (the
+  snapper's new helper and stub), and `Na__Test__CrossSheetClipboard__.test.cjs` - red since Floor Areas for want of a
+  `ShapeLayerType` stub, now 8 of 8, which also proves a paste across sheets is unchanged. Every other suite passes;
+  `Na__Verify__Exports__.mjs` passes (456 files).
+- In the app on RB05 D03, fresh modules, a fetch guard refusing every write (none was attempted):
+  - Add in the Layers panel made a General layer; renamed Construction Lines and dragged to the top.
+  - Eight red lines selected, right-clicked: Group, the clipboard, Delete 8 selected items, then Layer (Vectors) in a
+    ruled section of its own, then Undo and Redo. The flyout opened beside it on hover, its first row level with the
+    Layer row, Vectors dotted. Construction Lines: the eight moved, the ninth line left alone, one 'layers'
+    announcement, the toast "Moved 8 items to Construction Lines.", the selection kept.
+  - One line right-clicked: Delete shape, rule, Layer (Construction Lines), rule, Cut selection - Adam's mark-up.
+    Escape closed the flyout, then the menu. Duplicate put the copy on Construction Lines. One Ctrl+Z put all eight
+    back on Vectors; redo put them back.
+  - Ref: before it, a click on a line picked it, the snap offered its midpoint and a crossing took it; after it, the
+    click found the viewport beneath, no snap, the crossing swept past, and the selected line left the selection while
+    a Vectors line stayed. All nine red lines still drawn. A right click there opened the viewport's menu, its flyout
+    saying Construction Lines is a Reference. A line open for vertex editing closed when its layer went to Ref.
+  - Ten undo steps - one per action - left the sheet byte-identical to where the test began.
+- NOT tried by Adam; NOT in ValeVision.
+
+**Choices made, for Adam to confirm**
+- The button reads Ref (a word, like On and Lock; Blender draws an arrow). Every word is in the config.
+- A reference layer is out of the eyedropper's reach too: the pointer passes through it for everything.
+- Hiding a layer now takes its items out of the selection, as Blender does.
+- For Construction Lines, Add with "All layers" in the filter gives a General layer, which is what to keep: new lines
+  still land on the first layer TYPED Vectors, so a Construction Lines layer typed Vectors and dragged above Vectors
+  would start taking every new line after a reload.
+- Layer changes, the Ref switch among them, are saved with Save Sheets like every other layer change (a browser draft
+  until then), and are one undo step each.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.122.0  -  21-Sep-2026
+### A Drawing Title's Underline Runs Five Millimetres Past Its Words, and No Longer Stops Short of Them on a Sheet Opened Before the Fonts Had Loaded
+
+**Overview**
+- From Adam, with three marked-up screenshots of RB05's front elevation title, PROPOSED SOUTH EAST ELEVATION - HOUSE
+  FRONT FASCADE: "add a new rule that the line that's generated should always be a set distance from the end of the
+  text box that makes the title ... make sure this line always goes at least 5 mm past, if possible. And that's 5 mm
+  in real dimensions ... it looks kind of weird being short." And: "Note there are a few of these titles."
+- The marks: an orange stroke carrying the line on past the last letter of FASCADE (it stopped under the S); a
+  dashed arrow saying the same; and the line drawn on to a 5mm dimension he placed on the sheet itself (D02's
+  Dim_001, x 148 -> 153 mm).
+- Two faults behind one short line:
+  1. THE LINE WAS DRAWN TO AN ESTIMATE. RB05's front title was underlined 93.2 mm under words 103.47 mm long - the
+     chrome's average-width estimate exactly (51 characters x 3.5 mm x 0.52 = 92.82, plus the old fit extra). Until
+     jsPDF and the Open Sans cuts load, that estimate is all `Na__LeChrome__MeasureTextMm` has, and it runs ten per
+     cent short on a line of capitals. Once loaded the measure matches the painted SVG to the thousandth.
+  2. THE TITLE WAS REBUILT FOR NOTHING. The viewport link compared the viewport's raw facts - RB05 names its
+     elevations "South East Elevation  -  House Front Fascade", two spaces round the dash - with the title's
+     normalised, single-spaced copy. They never matched, so every refresh rebuilt the front and rear elevation
+     titles: an undo step and a dirty sheet on every visit, and on the first visit of each session - whose refresh
+     runs about 100 ms after the tab opens - a line drawn to the estimate.
+  - The rear and coach house titles had been drawn with the real metrics, and stopped 0.5 mm past their last letter:
+    the old rule, which reads as flush.
+
+**The rule** (`57__Feature__ScrapbookParametric/...ScrapbookParametric__DrawingTitle__.js` 1.3.0, config 1.4.0)
+- `DrawingTitle__UnderlinePastTextMm` 5: the underline always runs 5 mm past the end of the words - where the text
+  is set (`TextOffsetXMm`, a hair left of the origin) plus its measured width - rounded up to a tenth. PAPER
+  millimetres, like every size in the block: 5 mm on the sheet at every scale, which is 500 mm of building at 1:100.
+  The set length (60 mm) is still the least the line is.
+- "If possible" is read as the one thing that may shorten the run: a scale bar stood to the RIGHT, whose numerals
+  hang across the underline's level at its zero end. `DrawingTitle__UnderlineBarGapMm` 5: the run stops 5 mm short
+  of the bar's zero end rather than strike through them, and never short of the words themselves. A bar below, or
+  none, never shortens it. RB05's bars stand a good 100 mm clear.
+- The three Drawing Title tiles (bar below, bar to the right, bare) are one type, so the rule covers every one.
+
+**Titles already on sheets** (engine 1.5.0, viewport link 1.4.0, panel 1.5.0)
+- `Na__LeParam__Refit(sheet)`: each element whose type offers `refit` is asked whether its records still fit what its
+  words measure now; those that do not are rebuilt where they stand. The title's answer, `Na__LeParamTitle__Misfits`,
+  is about the UNDERLINE'S LENGTH ONLY - the one thing it draws from a measurement - so an edit made by hand inside
+  the group is not undone by it.
+- Asked only while `tools.metricsReady()` is true. The panel raises it when jsPDF and the Open Sans cuts have loaded -
+  not if Open Sans fails, because Helvetica's widths are not the words on screen - and then books a refresh of the
+  sheet on screen. `Na__LeParamLink__Refresh` refits after it reconciles, tied or not, in the same undo step. So each
+  sheet is brought into line the first time it is opened after this release - one step, the sheet goes unsaved -
+  and never again once saved.
+- `Na__LeParamLink__FactsPatch` compares a viewport's facts as the type would STORE them, through its own normalise,
+  which ends the rebuild on every visit.
+
+**Service worker** (`TrueVision__Pwa__ServiceWorker__Logic__.js` 1.9.20): token 2026-09-21-12 - existing modules export new
+  names (`Na__LeParam__Refit`, `Na__LeParamLink__BookRefresh`) that other existing modules now import.
+
+**How it was proved**
+- `Na__Test__ScrapbookDrawingTitle__.test.mjs` 1.3.0, 93 checks, every one passing: the rule on RB05's own title
+  (103.47 mm of words underlined 108.3, 5.001 past them); the same line at 1:50 as at 1:100; a tenth that stays a
+  tenth; a bar to the right shortening the run to 5 mm short of itself, and never below the words; the grips
+  following the line; and Misfits - the estimate misfits, the old flush fit misfits, the rule fits, a moved title
+  fits, no measure or a broken one never misfits, a title text moved by hand fits, and an underline edited into two
+  runs is left alone.
+- In the app on RB05 with fresh modules and a fetch guard refusing every write (none was even attempted):
+  - Opening D02: one undo step, 93.2 -> 108.3; undo gives 93.2 back and redo 108.3. On the painted SVG the last
+    letter's advance ends at 148.273 mm and the line at 153.293: 5.02 mm, onto Adam's own dimension (148 -> 153).
+  - D03 rear 102.5 -> 107.0 (5.09 past), D05 coach house 114.5 -> 119.0 (5.04 past).
+  - A settled sheet refreshes to nothing, and re-opening D02 announces 'active' and nothing else. Before the
+    FactsPatch fix every open of D02 rebuilt its title - to 97.7 on the estimate, then the refit.
+  - Refit with metricsReady false, or with a measure answering NaN, changes nothing; with it true it rebuilds the
+    misfit once and then finds nothing more to do.
+- The ScaleBar and ProjectQr scrapbook suites pass; `Na__Verify__Exports__.mjs` passes (455 files).
+- NOT tried by Adam; NOT in ValeVision (its Drawing Title is 1.0.0, which has neither this rule nor the rule before).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.121.0  -  21-Sep-2026
+### Sheet Pictures Are Stored at Print Size, Not Render Size: a 13.8 MB PNG Placed 196 mm Wide Is Kept as 0.86 MB
+
+**Overview**
+- Adam, on the 27 MB of PNG in RB05's picture folder: "Don't you think we should implement an image resolution
+  normalizer ... There's no reason for needing to embed a lossless PNG ... the actual production PNG files, when
+  dragged and dropped in, should be converted and then discarded." Measured first, against the pictures in his
+  own introduction PDFs, then: "this WebP you created is incredible. To say it's only 2 MB, so yes, let's use that."
+- WHAT HIS PDFs CALL ACCEPTABLE: the compressed intro PDFs he issues flatten each page into one full-colour JPEG at
+  300 dpi, q~90 (NP03) and q~94 (EB03). The originals carried far more than print needs - EB03 four JPEGs at q100,
+  7.6-12.9 MB each; NP03 four lossless CGIs, 6.1-7.1 MB each - printed at 248 to 490 dpi.
+- RB05's front CGI, 3840 x 2160, 13.76 MB of PNG (SSIM against the PNG): JPEG q100 9.58 MB (0.9988); WebP 0.99
+  3.65 MB (0.9965); JPEG q90 4:4:4, his PDFs' standard, 2.73 MB (0.9881); WebP 0.90 2.03 MB (0.9906); v2.116.0's
+  WebP 0.92 2.34 MB. Chrome's canvas encoder is within 3.5% of Pillow's slowest WebP, so the conversion stays in
+  the browser, where the PNG never leaves the machine.
+- TWO LEVERS, both taken: the format (WebP 0.90) and the resolution - the PDF export never used more than 300 dpi,
+  and that CGI sat 196.4 mm wide at 497 dpi, so nearly two thirds of its pixels never reached paper.
+
+**Nothing is written at the drop; the save cuts the picture to its print size**
+- `Na__LeImgEnc__Prepare` reads the dropped file into memory and returns it as the picture's SOURCE; Insert holds
+  the displayed WebP and that source (`Na__LeImgPub__Hold`) and writes nothing - not locally, not to R2.
+- The first save after a drop or a Replace cuts the stored picture from the original (`Na__LeImgEnc__Recut`, the
+  drop's own encoder, so the drop's own size gives back the drop's own bytes and name) at
+  `Na__LeImgGeo__StoreSize`: Storage PrintDpi (300) x PrintHeadroom (1) for the LARGEST place any drawing shows
+  it; the whole picture at the density the kept part needs, so a crop stays undoable; never above the original or
+  the 4096 px edge; in whole steps of the original's proportions (16 x 9 for a 3840 x 2160 render, rounded up a
+  step) so the box is never pulled a hair out of shape; never below 256 px. The drawings are re-pointed at the cut
+  silently, as the after phase re-points folders; an undo that brings the old name back is cut again, to the
+  same bytes. Only a cut reaches disk and R2.
+- Resized again this session: the next save cuts again, from the same original. Within 5% either way it is left
+  alone (`Na__LeImgGeo__NeedsRecut`). A picture saved in an earlier session has no original in memory and is never
+  re-encoded; enlarged past its stored size, the panel says so and Replace, with the render, restores it.
+- The save's toast: "1 picture(s) stored at 300 dpi for their size on the sheet: 0.86 MB, from 13.8 MB dropped."
+
+**The rest**
+- Storage Quality 0.90 (was 0.92), clamped to 0.99: Chrome writes a WebP of quality 1.0 LOSSLESS (10.8 MB).
+- `Image__SourceW` / `Image__SourceH` on the block (SheetRecords 1.29.0 keeps them, both or neither): Pixels reads
+  "2320 x 1305 of 3840 x 2160", and under Prints at: "Saving stores it at 300 dpi for this size." (an info note,
+  this session), "Stored for a smaller size. Replace it with the original render to print sharp at N dpi." (an
+  earlier session), or the old soft-print warning under 150 dpi.
+- Pdf JpegQuality 0.95 (was 0.90). A print-size picture already sits on the PDF's pixel grid, so the export's JPEG
+  now lands on the WebP's own pixels. Measured against a perfect 300 dpi print: 0.9879 (the full-size master at
+  0.90 gave 0.9856, a print-size one at 0.90 0.9819; Adam's compressed PDFs 0.9871) - about +0.3 MB per picture
+  in the PDF.
+- `.gitignore`: an ALLOWLIST for `05__Layout__DrawingDocs__Images` - only `<name>__<ten hex digits>` .webp, .jpg
+  and .png in a document folder are tracked; a render copied in by hand and `00__Archive` stay local.
+- PWA token 2026-09-21-11 (worker 1.9.19): new exports imported by existing modules, and
+  `Na__LeImgPub__NoteOnDisk` gone.
+- Housekeeping, 21-Sep: three stray copies of the RB05 renders (42 MB: two in `RB05_T01_D01`, one loose in
+  `30__TrueVision__AppContent`) went to the Recycle Bin, byte-identical to the originals kept (git-ignored) in
+  `10__StatementDocs/.../00__Archived`. R2 holds exactly RB05's two stored WebPs.
+
+**Verification**
+- `Na__Test__SheetImages__.test.mjs`: 90 checks (was 63) - StoreSize (16:9 steps, the larger of two places, never
+  above the original, the storage cap, a crop, the floor, awkward proportions, headroom), NeedsRecut, and the save
+  step: only the cut reaches disk and R2, re-cut on enlarging, back to the drop's own file past the render's size,
+  one file shown twice, an earlier session's picture untouched, a failed cut filing the drop, Reset. The Flask
+  suite (24) and `Na__Verify__Exports__.mjs` pass.
+- The real editor on RB05, every R2 and local write intercepted: the 13.76 MB PNG dropped in 1.2 s with nothing
+  written; at 196.4 mm the panel read 497 dpi and "Saving stores it at 300 dpi"; the save (1.0 s) cut 2320 x 1305,
+  861,440 bytes, filed on disk and R2 - the drop never sent; saved again, nothing; enlarged to 280 mm, re-cut
+  3312 x 1863 (1.47 MB); as a later session enlarged to 380 mm, no re-encode and the Replace note at 257 dpi. The
+  PDF copy: 2320 x 1305 JPEG at quality 95 read back from its tables, 1.31 MB.
+- The two pictures already on Sheet_005 (3840 px, q 0.92) are untouched; Replace, with each render, stores them
+  at print size.
+- NOT signed off by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.120.0  -  21-Sep-2026
+### The Project Portal Block's Code Is a Soft Grey, Not Black; the Title Block's Stays Black
+
+**Overview**
+- From Adam, on the parametric scrapbook's Project Portal QR codes: "instead of them being absolute black, make them
+  softer. use hsl(0, 0%, 35%) ... and apply that to both of the versions of it so that they don't look so stark on
+  the page and they still scan fine." He had retouched one to that grey in Photoshop and scanned it.
+- hsl(0, 0%, 35%) is `#595959` (89, 89, 89). Both tiles - "Project Portal QR" and "+ Description" - are one type
+  whose code box is one vector carrying `Shape__Qr`, so both take it from one place.
+
+**Where the colour is decided, and why there**
+- `Shape__Qr` is `{ Qr__MarginMm }` and nothing else, by design (the record normaliser strips anything more), and
+  nothing rebuilds a block on load. A colour written into the record would have needed a record change AND a
+  re-pick of every block already on a sheet. So the colour is chosen at PAINTING time, like the symbol itself: every
+  Portal block already placed turns grey on its next repaint, on the screen and in the PDF, with nothing to rebuild.
+- The title block's code keeps black, on purpose. `DarkColourNote` explains black: a mono laser prints a grey as a
+  halftone screen, and at the title block's 0.30 mm module the dots are a real part of each module. The Portal's
+  smallest code (15 mm) prints a 0.52 mm module and the dropped 20 mm a 0.69 mm one.
+
+**What changed**
+- `Na__ProjectQr__Config__.json`: `ProjectQr__Symbol__PortalDarkColour` `#595959`, with a note.
+- `Na__ProjectQr__Symbol__.js` 1.2.0: the fallback and `GetSetup().symbol.portalDarkColour`.
+- `Na__LayoutEditor__ShapeGeometry__.js` 1.8.0: `Na__LeShapeGeo__PushQr` hands the chrome `portalDarkColour`
+  (`|| darkColour`, so a Symbol module older than the key, as a warm cache may hold, paints black, never nothing).
+  No new export anywhere, so no service worker token bump is needed for this release.
+- `README__ProjectQrCode__.md`: a vector's code is grey, and why the title block's is not.
+
+**How it was proved**
+- `Na__Test__ProjectQr__.test.mjs` 1.1.0, section 6: the title block's code is `#000000` and the Portal's is exactly
+  hsl(0, 0%, 35%); both clear 70 per cent symbol contrast against the white (ISO/IEC 15415 grade A; the grey is 90,
+  black 100); and the Symbol module, loaded once with the config and once with it unreadable, hands out the same two
+  colours both ways. 50 passed.
+- `Na__Test__ScrapbookProjectQr__.test.mjs` 1.1.0: both forms' code boxes go through the REAL shape painter (imports
+  stubbed) and the real QR painter. Both paint `#595959`: the SVG path is filled `#595959` over a `#ffffff` square,
+  and jsPDF gets `setFillColor(89, 89, 89)` after the white. With the Symbol stub from before the key, the code paints
+  black. A copy with the painter line reverted in memory fails exactly those three checks.
+- `Na__Test__ProjectQr__Decode__.py` now reads every case in every ink the config paints (colours read from the
+  config): 21 cases x 2 inks, the grey reads in exactly as many renderings as the black, and there are no wrong reads.
+- A one-off halftone simulation (600 dpi, 106 lpi clustered-dot screen, then a camera model) has the grey reading as
+  well as black at normal scanning distance (4-6 camera pixels a module). It falls behind only when the camera is
+  close enough to resolve the toner dots. Any screened grey did about the same (#333333 to #666666), so only solid
+  black avoids it. At the title block's size the grey fell to 5 reads in 28 against black's 26, which confirms that
+  code should stay black. Not a phone and not paper: print one Portal block on the office laser and scan it before
+  the first pack goes out.
+- `Na__Verify__Exports__.mjs` passes.
+
+**Checked in the app** (RB05 West Farm, a clean no-cache origin, every write refused by a fetch/XHR guard)
+- D01 Project Introduction carries the compact block Adam placed at 15 mm; its record is still only
+  `{ Qr__MarginMm : 1.05 }` and nothing rebuilt it. Opened, its code's path is filled `#595959` (module 0.517 mm)
+  and the title block's code on the same sheet `#000000` (0.303 mm).
+- Through the app's own jsPDF and `Na__LeChrome__DrawToPdf`, the content stream is the white square (`1. g`, one
+  `re`, `f`), then `0.35 g` over 216 runs and ONE `f`: the same grey in the PDF.
+- A render of the sheet at 9.5 px/mm read back by OpenCV: both codes decode to `.../q/?RB05`, the Portal's darkest
+  module pixel 89, the title block's 0. No write was attempted and no draft was left.
+- NOT tried by Adam; NOT in ValeVision (the Portal block itself is not ported yet).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.119.0  -  21-Sep-2026
+### Copy Arrays, SketchUp's Way: Drag a Copy, Type 1000 and Enter, Then 3x - or /3 to Divide the Distance
+
+**Overview**
+- Adam, after signing off Ctrl-drag copy (v2.117.0): "make it so you can use it for arrays or subdivisions like
+  Sketchup, so if you drag a duplicate using that method, and then type 1000 Enter then *3 enter it arrays three
+  copies. Equally ... with a / divides the copies by the value ... copy Sketchup identically." SketchUp's Move tool
+  takes, after a copy, a multiplier (3x, *3) for copies at the copy's distance, twice it and three times it, and a
+  divider (/3) for copies splitting that distance into three - and either may come before or after a typed distance.
+- CTRL-DRAG A COPY, LET GO, THEN TYPE - no click into the box. `1000` Enter puts the copy exactly 1,000 mm along the
+  drag (v2.118.0's retype); `*3` Enter (or `3x`, `x3`, `3*`, x in either case) makes three copies in a row, the copy
+  itself the first, at 1,000, 2,000 and 3,000 mm; `/3` Enter (or `3/`) makes three dividing the 1,000, at 333.3,
+  666.7 and 1,000, the copy itself the last. Type another count and it replaces the one before; type another length
+  and the array spaces itself out again from it (a /3 stretches, a 3x re-spaces), a minus sign running the whole
+  array back the other way. The count may come first: a copy let go at 1,277.4 mm and `*3` gives 1,277.4 apart.
+- EVERYTHING A COPY CAN BE, AN ARRAY CAN BE: text, a vector (a picture included), a leader, a dimension, several
+  items at once, a group (every array copy a fresh group of fresh members), and a viewport frame under the Move tool.
+  The array runs along the copy's own line - an arrow-key lock, Shift, Ortho or a snap included - because it is the
+  line the move went, and every array copy is cloned from the ORIGINALS and landed by the same exact landing a typed
+  length uses, so it lands exactly as the copy did. Inside an open group the array copies join the group.
+- As the count is typed the line above the box says what it will make ("= 3 copies in a row, 1,000 mm apart"), and
+  once made what it made ("3 copies, 1,000 mm apart. Type another count, or a length to space them."). A copy's box
+  has its own tooltip. x, * and / only begin a value while a copy is on offer - the rest of the time x stays a plain
+  key. A plain move refuses a count ("Only a copy can be arrayed ..."), as do 0x, 2.5x and /0, and a count over
+  Measurements ArrayMaxCount (200) - so 3000x by mistake cannot fill a sheet with viewports.
+- A count typed while the copy is still on the pointer lands it where it is first, as a typed length does, then
+  arrays it.
+- Each typed count or length is one undo step, the way each retype already is (v2.118.0); undo takes the array away
+  and ends the run. The array's copies are part of what "still the last thing done" checks: moving, deleting or
+  undoing one of them ends it.
+
+**The array** (`30__System__SheetTools/Na__LayoutEditor__SheetTools__CopyDrag__.js` 1.1.0)
+- BuildCopyArray: any array the copy already had goes (a new count replaces), then for each further copy the
+  originals are cloned where they stand (CloneAim, shared with the copy itself), a drag record is aimed at the clone
+  and the landing handed in puts it 2..N times (3x) or 1/N..(N-1)/N (/3) of the copy's signed distance along its line.
+  FollowCopyArray re-lands them all after a new distance. CopyArraySelection says what stays selected: the copy.
+  Silent throughout; the pointer drag selects and announces.
+
+**The count and the landing** (`..._PointerDrag__.js` 1.13.0, `..._SheetTools__.js` 1.35.0)
+- TypeMoveArray takes the count for a copy still on offer (MoveRetypable): builds silently, tells the retype record
+  where everything landed and what the selection will be BEFORE anything is announced - every announce, a selection
+  change's included, refreshes the box, which must still find the copy on offer - then announces once. CanMoveArray
+  tells the box when x, * and / may begin a value.
+- RetypeMove lands through LandExact (its two landings lifted out and shared with the array) and re-spaces an
+  array before its one announce. LandExact's group landing skips ApplyDrag's refresh of the box, which found a
+  retyped group half landed mid-commit and flashed the box idle. RecordLanded folds the array's copies into the
+  record's landed signature.
+
+**The box** (`Na__LayoutEditor__Measurements__.js` 1.8.0, `15__Core__Markup/Na__LayoutEditor__MeasureParse__.js`
+1.1.0)
+- Na__LeMParse__Array reads 3x, x3, *3, 3*, /3 and 3/ (spaces allowed), refusing 0, decimals and anything else, which
+  is left for the length reader. CommitMove and CommitViewport try it first; ArrayReads shows the count as typed.
+
+**Config** (`Na__Hotkeys__DrawingTabs__.json` + `..._ConfigState__KeyMap__.js` 1.7.0: MeasurementsBox ArrayCharacters
+"xX*/", file and fallback alike; `Na__LayoutEditor__AppConfig__.json` + `..._ConfigState__ToolSetup__.js` 1.3.0:
+Measurements ArrayMaxCount 200 and nine labels, MeasureCopyTitle, MeasureCopyAgain, MeasureArrayReadsTimes/Divide,
+MeasureArrayDoneTimes/Divide, MeasureArrayNeedsCopy, MeasureArrayBadCount, MeasureArrayTooMany)
+
+**Service worker** (`TrueVision__Pwa__ServiceWorker__Logic__.js` 1.9.18): token 2026-09-21-10 - existing modules
+export new names (Na__LeTools__BuildCopyArray, FollowCopyArray, CopyArraySelection, CanMoveArray, TypeMoveArray,
+Na__LeMParse__Array and its constants) that other existing modules now import.
+
+**Tested**
+- `Na__Test__CopyDrag__.test.cjs` 1.1.0, 18 tests (8 new): the parser's spellings and refusals; 3x from the
+  originals with nothing announced; a count replacing a count, /4, a new distance stretching them, 1x; a minus
+  sign; a vector down a vertical line; a leader whole; several items with a group and a locked member; an open
+  group; a plain move refused. MoveRetype (the retype's 41 checks, run through the new LandExact), DrawingTabKeys
+  (ArrayCharacters in file and fallback), GroupMoveSnapping, OrthoMode and DrawingGrid pass; Na__Verify__Exports__
+  passes.
+- In the pane on a scratch copy of PS01 D01 (1:50), every write refused and none attempted, real key events through
+  the box: Ctrl-drag, `1000` Enter (20 mm), `*3` Enter - copies at exactly 20, 40, 60 mm, the box live, one undo
+  step each; then `/3` (6.667, 13.333, 20), `3000` (20, 40, 60), `x2` (60, 120), `4*` (60 ... 240), `-500` (-10 ...
+  -40); an undo ended the run and a `*` typed then went nowhere. A count straight after a Shift-held vertical copy
+  arrayed down it at the dragged spacing; x, * and / after a plain move typed nothing and `3x` was refused with its
+  reason; `/0` and `*500` refused, the copy still on offer after; two texts copied together arrayed as pairs along
+  their snapped line; a viewport frame under Move, `12500` then `2x`, gave unlocked frames at 250 and 500 mm, drawn;
+  `*3` typed mid-drag landed and arrayed the copy, the still-held mouse moving nothing after. Every flow undone back
+  to a byte-identical sheet.
+
+**Checked against SketchUp** (help, the 2025/2026 quick reference cards, SketchUp Community threads)
+- Matches: 5x/5*/x5/*5 and /5/5/; 5x is five copies with the placed copy the first, /5 four more between with the
+  placed copy the last; distance and count in either order; a distance after an external array re-spaces it; a new
+  count replaces the array, never adds to it; the array follows the copy's own line, axis locks included; the whole
+  selection arrays as one set; a count needs an Enter and no click into the box; no combined entry (100*2 is refused).
+  LayOut's own cards list exactly this for its Select tool: Ctrl-drag to copy, then a number and X, or a number and
+  /, then Enter.
+- Differs, on purpose or open:
+  - UNDO: SketchUp's Edit menu reads "Undo Array", and a user's operation log shows it undoing the copy and
+    recommitting one Array operation on each retype, so retypes seem not to stack; here each typed value is its own
+    step (v2.118.0's rule). Raised with Adam.
+  - A count typed before the copy is placed is an error in SketchUp; here, mid-drag, it lands the copy and arrays it.
+  - SketchUp showed /2 in its box after a divide (2014); here the box keeps the distance and the line above it says
+    what the array made.
+  - Not in any source, built the natural way: 3x then /3 switches kinds; a new distance after /3 stretches the span.
+
+**Not changed / open**
+- Adam has not tried it. Not in ValeVision (nor is Ctrl-drag copy yet).
+- Rotate arrays (polar) are not built - TrueVision has no rotate-copy.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.118.0  -  21-Sep-2026
+### The Measurements Box Froze the Moment a Move Began, and a Move Could Not Be Corrected: It Now Reads Every Step, and Takes a Value Again the Way SketchUp Does
+
+**Overview**
+- Adam: "the VCB doesn't seem to reflect real-time measurement information now, even when not in those modes ...
+  When moving something around, the VCB does not report, say, moving a vector around the canvas along an inferred
+  lock. You can lock the inference with Shift and with the arrow keys, but the VCB doesn't seem to keep up or report
+  the correct info." And, like SketchUp and LayOut: once a move is committed, "if you then type a different value
+  and hit Enter a second time, it will update to the new value ... it'll always go back and move the last thing that
+  you were working with by that value if you keep typing and entering new values. The second you select a new thing
+  and then try and move something else, that cycle restarts again." And: "the VCB value should always override the
+  grid snap ... Once you hit and type a value, that should be absolute."
+- Reproduced on a scratch copy of PS01's Floor Plans with every write blocked. Three faults, and a missing feature:
+  1. A WHOLE-OBJECT MOVE NEVER REFRESHED THE BOX. ApplyDrag refreshed it for a vertex, a dimension end, a viewport
+     frame and a selection moved as one - never for a vector, a note, a leader or a dimension moved whole. The box
+     woke on the press, then sat on its first reading, or on the one an arrow key or Shift last forced: a vector
+     dragged 20 mm, ArrowRight showed 1,000 mm (1:50), and it stayed at 1,000 while the vector went on to 1,500 and
+     2,250. Ortho and the grid did not cause it - it had been missing since the move reading arrived (17-Sep) - but
+     since Select picks Move up by itself (19-Sep) nearly every drag is one of these, which is why it felt new.
+  2. A VECTOR MOVED ALONG A HELD AXIS LEFT IT AT THE FIRST SNAP. SnapShapeTranslation took a snap outright, so with
+     Shift held - or, since v2.113.0, Ortho on - the vector jumped off its axis whenever a corner came within reach
+     of the linework (36 of 40 steps of one PS01 drag sat 2.9 mm off the line), and the box, when it did read, read
+     a distance that was not along the lock.
+  3. At a press the box read the distance to wherever the pointer had last hovered: 14,618.5 mm once.
+  - A whole-object move had no retype at all: after Enter the box went grey, a corrected value was ignored, and its
+    Enter then fell through to the sheet and stepped inside the vector.
+- Checked and NOT broken by the new systems: the Draw, Rectangle and Dimension readouts with Ortho, Grid Snap and
+  the arrow lock (live and right), and every typed length with Grid Snap on (exact).
+
+**The live readout** (`Na__LayoutEditor__SheetTools__PointerDrag__.js` 1.12.0)
+- OnMove refreshes the box after every step of a whole-object move (IsMoveDrag), whichever branch of ApplyDrag
+  carried it - an arrow lock, Shift, Ortho, a snap or the grid included.
+- GetMoveDrag, GetVertexDrag and GetViewportDrag fall back to the pointer only once the press has become a drag.
+
+**The held axis through a snap** (`Na__LayoutEditor__SheetTools__HitResolution__.js` 1.5.0)
+- SnapShapeTranslation: while Shift or Ortho holds the axis, a snap supplies only the coordinate ALONG it - the rule
+  a vertex, a dimension end and a selection moved as one already kept - and the marker sits where the carried point
+  lands on the line; the grid fallback is handed the same axis. Free, the snap still wins outright.
+
+**The last move stays on offer - SketchUp's rule** (PointerDrag 1.12.0, `Na__LayoutEditor__SheetTools__State__.js`
+1.5.0, `Na__LayoutEditor__SheetTools__ToolState__.js` 1.3.0, `Na__LayoutEditor__SheetTools__.js` 1.34.0,
+`Na__LayoutEditor__Measurements__.js` 1.7.0)
+- When a drag lets go - by the mouse or by a typed value - RememberRetype keeps what it moved. A whole-object move (a
+  vector, a note, a leader, a dimension, a selection moved as one, and a Ctrl-drag copy, whose drag carries the copy)
+  and a viewport frame move go in the new MoveRetype record: the drag itself, whose start is the original of
+  everything it carried, the line, the distance, the selection and where it all landed. A vertex, a dimension end
+  and a dimension line let go by the mouse now get the records a typed value always wrote for them.
+- The box goes on reading the move after the button comes up (getMoveRetype, getViewportRetype). Type a length and
+  press Enter and it lands again exactly that far along the same line, measured from where it STARTED - 1000, then
+  1200, then 1150 - with no Escape and no undo in between. The first typed value says "Type another length to move it
+  again." A minus sign runs back the other way. TypeMoveLength and TypeViewportLength take a value with no drag in
+  hand (RetypeMove), as TypeVertexLength always has.
+- The run ends when something else becomes the last thing done: another selection, another move, another tool,
+  Escape, an undo, any change to where something it moved sits, another sheet (MoveRetypable asks every time). A
+  click that moves nothing, a colour change or a zoom leave it. A redo back to the same state brings it back.
+- Each correction is an undo step of its own, as a retyped vertex's is.
+- Every typed value is absolute: RetypeMove lands through ApplyDrag's exact path (a frame through DragPatch), so no
+  snap, grid, Shift or Ortho touches it - with Grid Snap on, 1234 at 1:50 landed 24.68 mm, not 25.
+- The box refreshes on every model change, so a new selection or an undo puts a finished move's reading away at
+  once; its tooltip is worked out on every refresh (it only changed when the box woke or rested) and a move has one
+  of its own.
+- `Na__LayoutEditor__AppConfig__.json`: labels MeasureMoveTitle, MeasureMoveAgain and MeasureNoMoveDirection;
+  MeasureIdleTitle, MeasureViewportTitle and the box's description say what it now does.
+
+**Tests**
+- NEW `80__Testing__PrototypeEnvironment/Na__Test__MoveRetype__.test.mjs`, 41 checks, all passing: the real pointer
+  drag and hit resolution units with their imports stubbed - the refresh on every step of four kinds of move, the
+  press that is not yet a drag, the held axis through a snap (across, down, free, and the grid fallback), and the
+  retype for a vector, a note, a selection, a frame, a vertex and a dimension end, with its lapses. Against HEAD's
+  two drag files the 5 readout checks and 4 of the 5 held-axis checks fail, and the retype does not exist.
+- OrthoMode, DrawingGrid, DrawingTabKeys, SheetPagingWalkExit, DocumentKeys, LayerStack, FloorAreas, SheetImages
+  and GroupMoveSnapping pass; Na__Verify__Exports__ passes. Na__Test__CrossSheetClipboard__ still fails 5 of 8 on
+  Na__LeModel__ShapeLayerType, as it has since v2.104.0.
+
+**Checked in the app** (PS01, a scratch copy of D01 - Floor Plans, every R2 and API write blocked by a fetch/XHR
+guard - none was attempted; the copy was removed and the browser draft cleared)
+- A vector dragged 6, 12, 20 mm read 313.2, 626.4, 1,044 mm as it went; ArrowRight 1,000; then 1,500 and 2,250; the
+  box stayed awake at 2,250 after the release. Typed after the release: 3000 - exactly 60 mm from the start - then
+  1200 (24), 1.2m (24), -500 (10 back), 2,500 (50). Five undos walked back through them to the start.
+- The mouse held: 1000 then 1500 landed exactly along the drag; the pointer wandering after moved nothing; 800 after
+  the release landed it again.
+- Shift held, and Ortho on: 0 of 40 steps off the axis (36 before), the reading equal to the real travel at every
+  step; Ortho with Shift held, and nothing held, still free.
+- A viewport frame (Move tool) read 608.3 mm live, then 1500 - 30 mm - and 600 - 12 mm - its size unchanged. Two
+  shapes moved together along ArrowUp; 2000 and 750 landed both again. A note and a leader: 1000 (20 mm), 300 (6).
+  A vertex let go at 500 mm, then 250 (5 mm) and 1000 (20). A dimension end: spans of 4000 then 3500, the other end
+  fixed. A Ctrl-drag copy: 500 landed the copy 10 mm from where the original started, the original untouched.
+- Real key presses from the browser pane: 1-5-0-0 went into the box and Enter landed the shape exactly 30 mm on,
+  without stepping inside it.
+- Clicking another item, the Draw tool (L) and Escape each ended the run; a digit typed then went nowhere.
+
+**Also**
+- Service worker token: -09 (v2.117.0's) covers this release if the two ship together - existing modules export
+  new names (Na__LeTools__GetMoveRetype, Na__LeTools__GetViewportRetype, Na__LeTools__MoveRetype,
+  Na__LeTools__WriteMoveRetype) that other existing modules now import. If this ever ships without v2.117.0, bump
+  again for it then.
+- Built alongside Ctrl-drag copy (v2.117.0) in the same files, by agreement with that session.
+
+**Open**
+- Adam has not tried it. Not in ValeVision.
+- An arrow-key nudge (nothing held) is not retypable; SketchUp has no nudge to copy.
+- A typed dimension line offset takes its SIDE from the grid-snapped cursor (unchanged): within half a grid step of
+  the measured points it could land on the other side. The distance itself is exact.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.117.0  -  21-Sep-2026
+### Ctrl-Drag Copies, as in SketchUp LayOut: Duplicate and Move Are One Gesture, and Every Lock a Move Takes, a Copy Takes Too
+
+**Overview**
+- Adam: "If you hold down Control, select, and drag, it will copy it, rather than you having to press Copy and
+  Paste. It's basically like a Duplicate and Move in one command ... This feature needs to respect all of the
+  different inferencing types: inference to arrow lock and inference to shift lock ... Sketchup's drawing software
+  layout should mirror how layout works." Researched before any code: LayOut's Select tool - hold Ctrl (Option on
+  a Mac) and the move makes a copy, the original staying put; LayOut 2025's Move tool toggles Copy with Ctrl during
+  a move. Adam chose: no copy unless the pointer actually moves, and Ctrl may also be pressed mid-drag.
+- HOLD CTRL ON THE PRESS OF A MOVE and the drag carries a copy, leaving the original where it was - text, a
+  vector (a picture included), a leader, a dimension, several items, a group, or a viewport frame. PRESS CTRL DURING
+  A MOVE and it becomes a copy from there: the original goes back to where it started and the copy follows the
+  pointer. Press Ctrl again and it is a move again. A tap is enough - letting go keeps the copy, so the hand can go
+  to the arrow keys or type a length. The cursor shows the copy (the system's arrow with a plus) while it is one.
+- EVERYTHING A MOVE HONOURS, A COPY HONOURS, because the copy is carried by the very same drag: the arrow-key axis
+  lock (which now also takes with Ctrl still held), Shift, Ortho (F8), Grid Snap (F7), the object snap, a viewport
+  carried by a point of its linework with its tracking lines, and a typed length in the Measurements box.
+- ONE UNDO STEP, and no copy until it moves. The copy is made only once the press crosses the drag threshold - and
+  a press that starts as a copy is a pick first (PickDragPx), so a Ctrl+click still just adds to the selection and
+  a wobbly one never leaves an invisible copy on the original.
+- THE MOVE TOOL'S CATCH IS UNTOUCHED: a viewport or a dimension copies under Move (M) exactly as it moves under
+  Move; with Select up a Ctrl-drag of a viewport does nothing, and a locked viewport neither moves nor copies.
+  Nothing copies while a vector or a dimension is open. Inside an open group, a copy joins that group.
+
+**The copy** (`30__System__SheetTools/Na__LayoutEditor__SheetTools__CopyDrag__.js` 1.0.0, new unit)
+- SyncCopyDrag (run by the pointer drag as the press becomes a drag) and ToggleCopyDrag (the key): the original is
+  put back where it started, cloned in place, and the drag record is pointed at the clone - drag.id, or a fresh
+  capture of the clones for several items. Its start, grab point and handle stay the original's because the clone
+  sits exactly there, so ApplyDrag is untouched and carries a copy exactly as it carries a move. The copy is
+  selected. Called off, the copy is deleted silently and the drag carries the original again. The unit imports
+  none of the pointer or key units (the import order in Na__LayoutEditor__SheetTools__.js names it).
+
+**The clone** (`Na__LayoutEditor__ItemClipboard__.js` 1.4.0)
+- CloneInPlace: the records Duplicate (Ctrl+D) makes - fresh ids, a group's members and a dimension's viewport
+  remapped, a viewport unlocked, a picture sharing its stored file - landing exactly on the originals and announcing
+  nothing. Copy's snapshot loop became Entries, shared by the two.
+
+**The press, the drag and the keys** (`..._PointerPress__` 1.4.0, `..._PointerDrag__` 1.11.0,
+`..._Keyboard__` 1.11.0, `Na__LayoutEditor__SheetTools__.js` 1.33.0)
+- The press marks a whole-object or frame move copyable, and a copy when the copy key is held; it keeps the roots a
+  copy clones. Ctrl still adds an unselected item at the press, as LayOut's does - the drag then copies the lot.
+- OnMove runs SyncCopyDrag as the press crosses the threshold, before the first ApplyDrag.
+- CopyKey: the key going down mid-move flips copy and move and redraws the drag at once (RedrawHeld). A held key
+  repeats and counts once.
+- An arrow with Ctrl still held is still the axis lock: Ctrl+Right matched no binding, so the lock failed while
+  Ctrl was down. Mid-move only the four axis actions are looked up again without the copy key.
+
+**The carried frame** (`20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js` 1.4.0)
+- Retarget: Ctrl mid-carry moves the multiply across to whichever frame is carried now, and the carry engages on it
+  afresh. The copy's frame is drawn at once (RefreshNow) so the carry can mark it.
+
+**The key** (`Na__Hotkeys__DrawingTabs__.json`, `Na__LayoutEditor__ConfigState__KeyMap__.js` 1.6.0,
+`Na__LayoutEditor__ConfigState__.js` 1.28.0)
+- SelectionBindings CopyDragModifier "Ctrl", beside BoxAnywhereModifier, and in the built-in fallback too.
+  MatchSelectionModifier reports it as `copy` WITHOUT setting it aside; GetCopyDragModifier and IsCopyDragKey
+  answer the rest. An empty value switches copying by drag off.
+
+**Service worker** (`TrueVision__Pwa__ServiceWorker__Logic__.js` 1.9.17): token 2026-09-21-09 - a new module is
+imported by existing ones, and existing modules export new names that others import.
+
+**Tested**
+- `80__Testing__PrototypeEnvironment/Na__Test__CopyDrag__.test.cjs`, 10 tests on the shipped units in one vm (the
+  model's own DeleteItems/PruneGroups): a copy at the threshold, silently; the rotate grip never copies; Ctrl on,
+  off and on mid-move with nothing left behind; under the threshold the key only marks the drag; a vector, a leader,
+  a dimension and a viewport frame home and cloned exactly; several items with a group and a locked member; a copy
+  inside an open group joining it and leaving it again; the key map's copy modifier, shipped and fallback, and off.
+- In the pane on a scratch copy of PS01 D01 with every write refused (guard log empty all session), real pointer
+  events through the app: text copied +30.11 mm with the original unmoved and the copy selected - one history step,
+  undo byte-identical; a Ctrl+click with a 3 px wobble made nothing; a vector's move turned into a copy and back and
+  into a copy again (key-up and a repeated keydown changed nothing); Ctrl+ArrowRight locked X mid-copy; Shift held
+  the nearer axis; a typed 50 landed the copy at exactly 50.000 mm; two selected texts copied together; a group
+  copied with new members; a member copied inside the open group joined it; a viewport under Move copied, unlocked,
+  carried by its linework point with the multiply on the copy and moving across on each Ctrl; under Select, and
+  locked, a viewport copied nothing. Every copy was one undo step. No console errors.
+- Na__Test__DrawingTabKeys__ and Na__Test__GroupMoveSnapping__ pass. Na__Test__CrossSheetClipboard__ already
+  failed at HEAD (its fixture never stubbed Na__LeModel__ShapeLayerType, used since Floor Areas); with that stub
+  added it passes 8/8 on this tree, so Copy and Paste are unchanged by Entries.
+
+**Not changed**
+- Escape during a drag still does not abandon it - a move, and now a copy, commits on release as before (SketchUp's
+  Escape abandons a move). LayOut's Stamp mode and arrays (typing 3x after a copy) are not built. NOT tried by Adam
+  with a real mouse, NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.116.0  -  21-Sep-2026
+### Sheet Images: a Picture on a Drawing Is Filed Under That Drawing's Number, Wherever the Number Goes
+
+**Overview**
+- Adam: the Layout Editor "needs to act also as a compositing tool, so you can embed your own pictures, such as
+  these CGIs" - the project introduction sheets (EB03, NP03), framed as the Statement Writer frames a figure. Drag
+  pictures onto the sheet; stored in `30__TrueVision__AppContent/05__Layout__DrawingDocs__Images/<drawing id>/`,
+  made on demand the first time a picture lands (never by the build script); "if the drawing number is changed,
+  it also updates this folder and then resyncs to R2. Otherwise, it will break"; the viewer reads R2 through a new
+  URL constructor with GitHub Pages only as the absolute fallback; the save pushes to R2. Right click: frame on
+  and off, crop. Select picks Move up; corner grips only, never stretched; snapping both ways.
+- A PICTURE IS A VECTOR SHAPE CARRYING `Shape__Image`, the decision Floor Areas made for rooms: selecting,
+  moving, snapping, copying, stacking, locking, hiding, grouping, printing and undoing all came for free. Its four
+  points are the corners of the part that shows; the block names the stored file, the kept part (`Image__Crop`,
+  fractions of the picture) and the frame switch. It lives on a new layer type, `image` ("Images"), made directly
+  over the drawings and under the markup.
+- THE FILE NAME IS THE CONTENT. A dropped picture is stored as WebP (q 0.92, long edge at most 4096; a WebP or
+  JPEG already inside the limits is kept byte for byte), named after the dropped file with the first ten hex
+  digits of its SHA-256 on the end: `RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__f305e28510.webp`,
+  13.4 MB of PNG stored as 2.3 MB. So a name never means two pictures, a picture dropped twice is stored once, and
+  a copy found in ANY folder is known to be the right one - which is what makes the filing robust.
+- THE DRAWING NUMBER DECIDES THE FOLDER, AND EVERY SAVE FILES IT. The folder is the sheet's document id as the
+  title block prints it (`Na__LeRec__DocumentId`: project, phase, number - or a typed id, made safe). A renumber,
+  a phase change, a register move, a typed id and a sheet made or deleted in the tab strip all change it, and none
+  of them had to learn pictures exist: filing is a SAVE STEP that every drawings save runs - Save Sheets, and
+  every register edit, which saves the moment it is confirmed. Three phases, so the live site is never shown a
+  drawing pointing at a picture that is not there: BEFORE (each picture copied into its drawing's folder on disk,
+  and onto R2 - inside the bucket when R2 has it anywhere, uploaded otherwise), PAYLOAD (the copy about to be
+  written points at the new folders, only where R2 confirmed them), AFTER (R2 has the drawings: the live records
+  follow, R2 copies nothing points at come off, and the local ones move into `00__Archive` - never deleted; only
+  files this feature stored are ever touched, so Adam's source PNGs in the same folder stay where he put them).
+  The register rolls the numbers back if R2 fails; since the live records only follow AFTER a landed save, a
+  failed save leaves every picture pointing at a folder that still holds it, and the next save finishes the job.
+- WHERE THE BYTES COME FROM (`Na__LayoutEditor__SheetImages__Source__`): the web viewer tries R2 through the CDN,
+  then the site's own copy, then GitHub Pages; the editor on localhost tries the repository copy first (a drop
+  writes it before any save pushes it). A picture is looked for in every folder the drawings name for it, so the
+  moment between a renumber and its save never shows a hole. Each picture is fetched once and held as a blob.
+
+**The feature** (`51__System__LayoutEditor/54__Feature__SheetImages/`, all new)
+- Setup, Geometry and Painter are leaves (no imports): the config; the box, crop, corner-scale and name
+  arithmetic; the `picture` primitive painted as SVG (the kept part cut by a nested `<svg>` viewBox, no clip ids)
+  and into jsPDF. Paint builds the primitive (called by the shape painter); Source, Encode (the stored WebP, the
+  hash, the PDF print copies and shadow), Store (the local server routes), Publish (the save step), Insert (drop,
+  the Image button, Replace), Handles (corner grips), Crop, Menu, Pdf (print copies before a page is drawn), the
+  Images panel, the core, the config JSON and the stylesheet (loaded by the stylesheet index, not injected).
+- THE FRAME (Adam, after seeing it: "the border feels too heavy ... use a nicer-looking drop shadow"): a 1.5 pt
+  rule in the title block bronze `#555041`, centred on the picture's edge as EB03's is, over a SOFT shadow - a
+  Gaussian blur (sigma 1.6 mm, dropped 0.9 mm, near-black at 30%). The screen draws it with an SVG
+  `feDropShadow`; the PDF with the same blur pre-rendered as a transparent PNG (canvas shadowBlur = 2 sigma), so
+  the two match. A picture with transparency casts no shadow. Draft mode (K) hides the picture and the shadow and
+  keeps the outline.
+- CORNERS ONLY, NEVER STRETCHED: four grips on a selected picture (no side grips, no vertex grips ever). A corner
+  scales about the opposite corner along the diagonal; it snaps in the sheet's snap system with the picture left
+  out (other pictures' corners, linework, the drawing grid while F7 is on) - a box of fixed proportions lines up
+  the edge that leaves the corner nearest the pointer. The grips take their own presses, the parametric stretch
+  grips' pattern, so the sheet tools' drag pipeline was not touched. The record normaliser holds a picture to
+  its proportions whatever wrote its points.
+- THE CROP: double-click (or the menu, or the panel). The whole picture laid over the sheet at its own scale,
+  dimmed round the kept part, with the Statement Writer's eight handles and thirds grid; the handles snap; a drag
+  inside slides the picture under a frame that stays put. The picture never moves or scales while cropping - the
+  crop takes paper away. Enter/Done keeps it as one undo step, Esc/Cancel leaves it; a press elsewhere on the
+  sheet keeps it and does nothing else (a near miss of a handle once dragged the picture 21 mm with Move up).
+- RIGHT CLICK: the picture's name and print resolution, Show frame, Crop picture, Reset crop, Replace picture,
+  then arrange, Delete picture and the clipboard. No vector entries - no points to edit, no floor to measure.
+- THE IMAGES PANEL (Properties, opened by selecting a picture): file, the folder it is filed in, pixels, the dpi
+  it prints at (a warning below 150), width (the height follows), frame, Crop / Reset crop / Replace, and a place
+  button. Selecting a picture picks Move up, exactly as a vector does (it IS one).
+- THE PDF: every picture cut to its kept part and resampled to 300 dpi at its printed size (never above its own
+  pixels), JPEG, or PNG with transparency; each printed where its layer puts it, with its rule and shadow.
+
+**Shared files** (additive; each file's own log says what)
+- `Na__LayoutEditor__SheetRecords__` 1.27.0 (`image` layer type, NormaliseShapeImage, rehoming), Shapes 1.3.0,
+  Layers 1.2.1, SheetModel 1.29.0 (the save steps' notes join the Save Sheets toast), ShapeGeometry 1.7.0 (a
+  picture pushes one `picture` primitive, and is hit anywhere inside), SheetChrome 1.11.0 (the `picture` kind,
+  handed to the painter both ways), Grips 1.9.0 (RegisterShapeProvider), PointerPress 1.3.0 (double-click crops),
+  EditScope 1.1.1 (a picture cannot be entered), SheetTools ContextMenu 1.2.0, Eyedropper 1.8.1 (a picture is
+  neither source nor target), Panel Shapes 1.8.2 and Panel Layers 1.1.1, Toolbar 1.18.0 (the Image button), Mode
+  Controller 1.26.0, PdfExporter 1.8.0, `Na__DrawView__ProjectData__` 1.4.0 (RegisterSaveStep: before, payload,
+  after), `Na__CloudflareIntegration__ApiClient__` 1.5.0 (sheet image location, list, upload, copy, delete),
+  AppConfig (`images` joins the accordion), the stylesheet index.
+
+**The local server and the Worker**
+- New blueprint `na-apps/ProjectVision__TrueVisionSheetImages__Api__.py`: `upload` (raw bytes; folders made on
+  demand; refuses bytes that do not hash to their name, a type that does not match its extension, and every
+  escape), `reconcile` (file every picture where its drawing wants it, copied from wherever it is found, the
+  archive last; with `archive`, move what nothing uses into `00__Archive`), `list`. Registered in the local
+  server. Adam's 8090 server was restarted (with his consent) to load the routes.
+- Worker 1.1.0: `PUT /r2/upload` (raw bytes, content type, immutable cache header) and `POST /r2/copy` (inside
+  the bucket); `/r2/write` keeps an optional cacheControl. NOT DEPLOYED: until `wrangler deploy`, the client
+  detects the old Worker once and sends pictures through `/r2/write` (base64) - slower, never broken. That is
+  how Adam's first picture reached R2.
+- Service worker 1.9.15: token -08, and a fifth bucket, `tv-images-vN`, cache-first and capped at 160 - a stored
+  picture's name carries its hash, so a cached copy can never be stale.
+
+**Verified**
+- Adam's own run on 8090 (old server, old Worker): the drop stored the WebP, the 405 was reported with a restart
+  hint, the picture was held in memory, and the autosave pushed it to R2 through the fallback: the CDN serves
+  `RB05_T01_D01/...f305e28510.webp` (200, image/webp, 2,341,472 bytes) and the project data places it on Project
+  Introduction on an Images layer over the drawings. After the restart his next save filed the same bytes into
+  the repository folder; his source PNGs were left alone.
+- The pane, read-only viewer on a non-localhost origin: the picture drawn from R2 (no repository copy existed
+  yet) with the 1.5 pt rule and the soft shadow.
+- The pane, editor, with every R2 and disk write intercepted: a real click selects and picks Move up, four
+  corner grips and no others; a real corner drag keeps exactly 16:9 with the top left fixed, one undo step; the
+  menu rows; frame off and on; a real double-click opens the crop; the handles crop without moving the picture
+  (whole-picture box identical), one undo step, redo; the slide; a press away keeps the crop and nothing else; a
+  dropped 14 MB PNG stored as WebP in 1.2 s, centred on the drop, selected with Move up, on the Images layer;
+  Save Sheets pushes the new picture to R2 BEFORE the drawings, then archives; a renumber D01 to D07 files both
+  pictures under D07 (one copied inside R2, one uploaded) before the drawings, then takes the D01 copy off;
+  Draft mode; the PDF (checked with PyMuPDF: 300 dpi JPEGs on the exact boxes, the cropped one cut to its kept
+  part, a shadow PNG with alpha round each, a 0.529 mm rule).
+- Tests: new `Na__Test__SheetImages__.test.mjs` (60 checks: geometry, the painter, the record, and the save step
+  through a first save, a renumber, a swap, a failed push, a failed drawings write, a picture on two sheets, a
+  deletion and an undone deletion restored from the archive) and `Na__Test__SheetImagesApi__.test.py` (24
+  checks). Na__Verify__Exports__ passes.
+
+**Not done / to know**
+- Deploy the Worker (`80__CloudflareIntegration/CloudflareWorker/deploy.bat`) when convenient.
+- A picture saved into a Custom Scrapbook item, or pasted into ANOTHER project, points at a file of the project
+  it came from, so it shows as "Picture not found" there. Within a project it is fine.
+- The ProjectVision R2 sync does not carry the images folder, and does not need to: pictures only enter through
+  the editor, whose saves push them.
+- Anything in `05__Layout__DrawingDocs__Images` that is committed goes to GitHub Pages (the 1 GB limit): the
+  stored WebPs are small and are the Pages fallback; source PNGs kept in the same folder (27 MB for RB05's two)
+  would go too.
+- Not yet in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.115.0  -  21-Sep-2026
+### M Was Never Stuck: Every Click on the Paper Left the Keyboard in Whatever Panel Control Had It Last
+
+**Overview**
+- Adam: "The M hotkey keeps getting stuck ... I hit M, but the move tool doesn't engage. I physically go into the
+  menu and press M." Selecting something did not always bring Move up either, going to the document tabs or the
+  3D Model tab and back seemed to make it worse, the drawing tabs' hotkeys should be set up again whenever a
+  drawing is opened from one of those, and the hotkeys should be three config files, clearly named for the tab
+  each one serves. "It might be multiple things."
+- It was the focus. The sheet tools take every press on the paper from the browser (preventDefault on
+  pointerdown), and in Chrome that also stops the press moving the focus. So a tick box, a list or a number box
+  used in a panel - or the Raster list on the toolbar - kept the keyboard through any number of clicks on the
+  paper, and the drawing tabs' keyboard stood down for EVERY bare key while any control had it: M, V, Escape,
+  Delete and the arrows all went nowhere. A focused list went further and took the letter itself - M switched the
+  Raster list to Medium and re-rendered every viewport. Clicking a toolbar button was the only way out, because a
+  button takes the focus: exactly Adam's "go into the menu and press M".
+- Proved in the pane on RB05 with trusted input and every write blocked: Raster focused, a real click on the
+  paper, a real M. Before: the focus stayed on the list, the tool stayed Select, Raster went Low to Medium. After:
+  the stage has the focus, M picks Move, Raster stays Low.
+- The auto Move was never broken - a real click on RB05's room schedule brings it up - but with the keys dead,
+  Escape and V could not put a placing tool down, so the next click placed rather than picked. (Move still only
+  comes up by itself for text, vectors, leaders and groups; viewports and dimensions wait for M, by design.)
+- Coming back from the 3D Model tab, the Specification, the Register or the Statements was not the cause on its
+  own: Chrome blurs a field on a hidden page, and every round trip tried left the keys working. The drawing tabs'
+  keyboard is now started afresh on every such return all the same, as asked.
+
+**A press on the stage takes the keyboard** (`Na__LayoutEditor__Controls__Pc__.js` 1.4.0)
+- TakeKeyboard, in the capture phase of every press on the stage, before any tool: the stage takes the focus as
+  the browser would have given it, so the panel control blurs - committing what was typed into it - before the
+  press acts on the sheet. A real control pressed on the stage keeps its own focus, and text being typed on the
+  paper is left to the tool that opened it. The stage has no focus ring (`outline : none`).
+
+**A focused control keeps only the keys it uses** (`Na__AppUtils__KeyScope__.js` 1.1.0,
+`Na__LayoutEditor__SheetTools__Keyboard__.js` 1.10.0)
+- Na__KeyScope__ControlKeepsKey: a text box, a text area and a page being written keep every key; a number box its
+  figures, the arrows and the keys that edit them; a list, a radio button or a slider the arrows, Home, End, the
+  page keys, Space and Enter; a tick box or a button Space and Enter. Any other bound key is the sheet's, taken
+  from the control together with the focus (TakeKeyFromControl), so a list never sees it and the next key is the
+  sheet's too. The chords reach the sheet from any control, as before. Page Up / Page Down turn the drawings from
+  a ticked box and stay a list's.
+- Enter in a one-line panel field, once the field has had it, gives the keys back to the sheet (EnterLeavesField)
+  and so commits the field. It kept the focus after Enter, so M straight after naming a room in Floor Areas would
+  have been typed onto the end of the name. Text areas, text on the paper and an input method's composing Enter
+  are left alone.
+
+**The drawing tabs' keyboard is started afresh** (`Na__LayoutEditor__ModeController__.js` 1.25.0)
+- RestartSheetKeys, whenever a drawing is opened from the 3D Model tab or a document tab: every listener off (a
+  held key, a half-typed value and a tool half used go with them), the drawing tabs' key file read again, every
+  listener back on with Select up, and the stage given the keyboard - whatever the last tab left the focus in lets
+  go. One drawing to another keeps its keyboard as it is. Verified: back from the Specification with one of its
+  fields focused, and from the Register with a list focused - the stage has the keys, Select is up, the key file
+  was re-read once, and M picks Move.
+
+**The fallback had no Move key** (`Na__LayoutEditor__ConfigState__KeyMap__.js` 1.5.0,
+`Na__LayoutEditor__ConfigState__.js` 1.27.0)
+- The built-in key map had drifted from the file since 17-Sep: no Tool__Move (M), no Tool__SelectSpace, no
+  Edit__Save, and the space bar still cleared the selection (Edit__Deselect, which the file ships off). Whenever
+  the key file failed to load - offline for a moment, or caught half written by an editor - M did nothing for the
+  whole session. Brought level, and the test below now fails if fallback and file resolve any key differently.
+- ReloadKeyMap reads the key file again: the bindings in force stay until it lands, a read that fails keeps them,
+  and a key map handed in (SetKeyMap) is never replaced. The restart above asks for it.
+
+**Three hotkey files, one per kind of tab, named for it**
+- `02__AppData/Na__Hotkeys__3dModelTab__.json` (was Na__AppConfig__Hotkeys.json) - the 3D Model tab.
+- `51__System__LayoutEditor/03__Core__Config/Na__Hotkeys__DrawingTabs__.json` (was Na__LayoutEditor__KeyMappings__.json)
+  - the drawing tabs: keys, mouse, wheel, touch.
+- `51__System__LayoutEditor/31__System__DocumentKeys/Na__Hotkeys__DocumentTabs__.json` (was
+  Na__LayoutEditor__DocumentKeys__Config__.json) - the Project Specification, the Drawing Register and the Statements.
+- Contents unchanged apart from each description, which now says which tab it serves and names the other two. The
+  loaders (`Na__AppConfig__Loader.js`, the key map unit, `Na__LayoutEditor__DocumentKeys__.js` 1.1.0), the service
+  worker's precache list, the comments that name them and the six tests that read them all follow. Checked in the
+  pane: all three load (200), the drawing tabs' map is the file's (its 49-action catalogue), the documents' three
+  bindings are the file's, and the 3D toolbar's "Reset view ... (R)" tooltip comes from the 3D file.
+- Plan annotation editing keeps its few keys in its own config (Na__PlanAnnotations__AppConfig__.json); they are
+  3D Model tab keys, not yet moved into the 3D file.
+
+**Tests**
+- New `80__Testing__PrototypeEnvironment/Na__Test__DrawingTabKeys__.test.mjs` (53 checks): fallback against file
+  over 426 key presses plus every other block; the re-read rules; ControlKeepsKey; the real keyboard unit with a
+  tick box, a list, a number box, a text box and a page focused; Enter leaving a panel field; the real PC controls
+  taking the focus on a press and on a drawing tab opening.
+- `Na__Test__SheetPagingWalkExit__` gains a check (Page Down from a ticked box) and the key scope stub the PC
+  controls now need. OrthoMode, DrawingGrid, DocumentKeys and SheetPagingWalkExit pass; Na__Verify__Exports__
+  passes. Na__Test__CrossSheetClipboard__ still fails 5 of 8 with Na__LeModel__ShapeLayerType missing from its fake
+  model - unrelated, and true since v2.104.0; its keyboard check passes.
+
+**Also**
+- Service worker token: -08 (v2.116.0's) covers this release; see the worker's log 1.9.16.
+- Built alongside Ortho (v2.113.0), the Drawing Grid (v2.114.0) and Sheet Images (v2.116.0), which share the key
+  map, the keyboard unit and the mode controller: their rows and hunks are kept, and their tests were repointed
+  at the renamed files.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.114.0  -  21-Sep-2026
+### The Drawing Grid: SketchUp LayOut's Grid, Shown on F6 and Snapped To on F7 - and the Title Block Is Something to Snap To
+
+**Overview**
+- From Adam, over a marked-up D11 with six circles on it - the border's two top corners, the two ends of the notes
+  margin's divider, and the two top corners of the title block strip: "Make points on the title block like this:
+  inferencible and snappable, because it's kind of handy for drawing construction lines to use those as a start
+  point." And a grid: F6, "1 mm dots covering the whole drawing", grid snapping "that can be toggled on and off",
+  a "Drawing Grid" sub-menu in the sheet menu to set it up - dots or lines, a 10 mm major and 1 mm minor grid, both
+  adjustable - never rendered in a final document, every item using it when it is drawn or moved ("the point you
+  select and drag from will then snap to the nearest point"), and "exactly the same as how SketchUp did it with
+  LayOut".
+- The border, the title block and the notes margin now offer their corners, ends and midpoints as object snaps.
+  The grid is LayOut's, setting for setting, in a new Drawing Grid section right under Sheet on the Document
+  Preferences tab: F6 shows it, F7 snaps to it, and the toolbar has a Grid and a Grid Snap button, lit while on.
+
+**What LayOut does, and what was copied** (LayOut 2026's own strings, help.sketchup.com, the SketchUp forum, and
+Adam's own LayOut keymap and A2 template on this PC)
+- Document Setup > Grid: Show Grid; Grid Type, Lines or Points; Major Grid with Spacing and Color; Minor Grid with
+  Subdivisions and Color; options Print Grid, Clip grid to page margins, Draw grid on top. All copied, in that order,
+  EXCEPT Print Grid: this grid is never printed. LayOut draws its major lines solid and its minor lines dotted, and
+  its major points bigger than its minor ones; so does this.
+- Show Grid (View menu) and Grid Snap (Arrange menu) are two separate switches. LayOut ships them with no keys;
+  Adam's own LayOut has Show Grid on F6 and Grid Snap on F7 (layout.private.json, key codes 117 and 118), so those
+  are the keys here. (His F8 there is Object Snap; here F3 is, and F8 became Ortho in v2.113.0.)
+- Grid snap has no pick radius - LayOutModel.dll's Grid::SnapX / SnapY / SnapPoint take none - so a point goes to
+  the NEAREST grid point at any distance, each axis rounded on its own.
+- Since LayOut 2024 a moved entity is inferenced by the point it was picked up from: pressed near a corner, a
+  midpoint or a filled shape's centre, that point; anywhere else, the point pressed. That point lands on the grid.
+- The defaults are Adam's A2 template's (Na__StandardDrawing__IsoA2.layout: 10 mm major, 10 subdivisions, #969696
+  over #d6d5c9, drawn on top, not clipped); the type is Points, as he asked. Hidden and not snapping until F6 / F7.
+- Not documented anywhere, so decided here: an object snap in reach wins over the grid (LayOut users switch Object
+  Snap off to reach the grid, which says the same); Grid Snap works with the grid hidden; the snap step is the minor
+  spacing while Minor Grid is ticked, the major one when it is not; on screen the minor grid is left out while its
+  points would stand closer than 6 px (a 1 mm grid at a whole-sheet view is a grey haze), and the snap never changes
+  with the zoom.
+
+**The title block snaps** (`Na__LayoutEditor__Snapping__.js` 1.4.0, `Na__LayoutEditor__SheetSurface__.js` 1.9.0)
+- FindOnSheet offers the sheet's own paper as a third source beside the sheet's vectors and dimensions: every
+  stroked rectangle and line of the chrome primitives - the border, the title block strip, the logo, cell and QR
+  dividers - gives its corners or ends and its midpoints, read off the very list the screen and the PDF are drawn
+  from, so a cell that grows to fit a long title moves its divider's snap points with it (they are exact, 88.2 mm and
+  all). The notes margin, drawn with the markup rather than the chrome, gives its divider's two ends and middle from
+  the layout. Worked out once per chrome build (ChromePoints). The classic scanned title block has no lines to offer.
+- `Snapping SheetChrome` (AppConfig, on) switches it; GetSnappingSetup answers `sheetChrome`
+  (`Na__LayoutEditor__ConfigState__ToolSetup__.js` 1.2.0). SheetSurface exports GetSheetChrome for it.
+
+**The grid** (new folder `27__System__DrawingGrid`)
+- `Na__LayoutEditor__DrawingGrid__State__.js` - a leaf: the settings, their limits, this browser's overrides
+  (localStorage `na-layouteditor-drawing-grid`), Show and Snap, the snap step and the nearest grid point, cleaned of
+  floating-point dust. A leaf because the snapping module reads it on every pointer move.
+- `Na__LayoutEditor__DrawingGrid__.js` - the controller: F6 / F7 (echoed "<Grid on>", "<Grid snap on>" above the
+  Measurements box, as Ortho echoes), the panel's changes and Reset, and the overlay. ONE canvas on the paper, sized
+  to the part of the paper in view plus 160 px, in paper pixels divided by the zoom, so after the paper's own scale
+  one canvas pixel is one device pixel: every point is crisp and the same size at any zoom. Only the points in view
+  are drawn, a row at a time from a strip drawn once. It is drawn again when a zoom settles, when a pan or a zoom-out
+  step leaves part of the view uncovered, and when the window, the paper or a setting changes; during a zoom gesture
+  it scales with the paper, as the handles do. Attached with the sheet tools, so never drawn for a web viewer.
+- `Na__LayoutEditor__Panel__DrawingGrid__.js` - Document Preferences > Drawing Grid: Show grid (F6), Grid snap
+  (F7), Grid type, Major grid (Show, Spacing mm, Colour), Minor grid (Show, Subdivisions, Colour, and a line saying
+  "Minor spacing 1 mm. Points snap every 1 mm."), Options (Clip grid to page margins, Draw grid on top), a screen-only
+  note and Reset grid. Every change is drawn at once and never an undo step.
+- `Na__LayoutEditor__DrawingGrid__Config__.json` (defaults, limits, display sizes, every word, and the research)
+  and `Na__LayoutEditor__Styles__DrawingGrid__.css` (the canvas over the drawings at z-index 3, under them at 0, and
+  the grid snap marker: a small ring with a dot, in the tone of the tool snapping).
+
+**Every item uses it**
+- `Na__LeOsnap__Snap` falls back to the grid when no object snap is in reach (`FindGrid`; `Find` stays object-only),
+  so the Draw, Rectangle and Floor Area tools, both dimension ends, a leader's tip, a dragged vertex, a dimension's
+  grips - and the sheet images session's image corners - all draw on the grid with nothing of their own changed, and
+  a held axis still takes the grid point's coordinate along it. A parametric slide asks for objects alone
+  (`{ grid : false }`, `ScrapbookParametric__Grips__` 1.4.0), so a scale bar keeps its own 50 mm steps.
+- Text goes down on the grid (`TextTool__` 1.4.0); a dimension's line through the grid point nearest the cursor, on
+  the third click and when its offset is dragged (`DimensionTool__` 1.9.0, the parallel-line inference still wins); a
+  leader's head as it is drawn out and where it lands (`LeaderTool__` 1.2.0).
+- Moves go by LayOut's rule - `Na__LayoutEditor__SheetTools__GridDrag__.js` (new): GridGrabPoint is the point a drag
+  is carried by; GridDragDelta, run first in ApplyDrag (`PointerDrag__` 1.10.0), moves a text item, a leader whole or
+  by its head, a dimension whole, a viewport frame moved plain or by a crop handle, and a vector under an arrow-key
+  lock in whole grid steps by that point; GridTranslation is the fallback when a vector or a selection set finds no
+  object snap (`HitResolution__` 1.4.0); a viewport carried by a point of its linework lands that point on the grid
+  (`ViewportSnapMove__` 1.3.0). Grid first, then any arrow lock, Shift or Ortho - a choice made here, not a
+  documented rule - so a held move still moves in whole grid steps along its axis.
+- F6 and F7: `View__GridToggle` and `Snap__GridToggle` in the drawing tabs' key file (now
+  `Na__Hotkeys__DrawingTabs__.json`), its catalogue and the built-in fallback (`ConfigState__KeyMap__` 1.4.0), the
+  sheet chords (so they work after a panel box takes the focus) and the keyboard (`SheetTools__Keyboard__` 1.9.0: a
+  view, not a tool; F7 re-aims a band or a drag in flight at once). The browser's own F6 and F7 are kept from it.
+- Toolbar 1.16.0 (Grid and Grid Snap after Draft, plain buttons like their neighbours); mode controller 1.24.0
+  (the section registers after Sheet; the grid attaches and detaches with the sheet tools).
+
+**Never printed.** The PDF is drawn from the sheet's primitives and never reads the screen; the canvas is not a
+primitive, nothing is written to a sheet, and the viewer never attaches the grid.
+
+**Tests**
+- NEW `80__Testing__PrototypeEnvironment/Na__Test__DrawingGrid__.test.mjs`, 57 checks, all passing: the real state
+  module (defaults, limits, nearest point, snap step, overrides, Reset), the real snapping module stubbed at its
+  imports (grid only as the fallback, object snap first, Object Snap off, `{ grid : false }`, the title block's
+  corners, the notes margin's ends, an off-grid cell divider, a fill-only rectangle and text offering nothing), the
+  real grid drag unit (the carried point by kind, the grid step, a held axis kept) and the real key map with the
+  shipped file and the fallback (F6, F7).
+- `Na__Test__GroupMoveSnapping__.test.cjs` REPAIRED, 6 of 6: it had failed since v2.98.0 (ApplyDrag calls
+  IsViewportMoveDrag, which it never loaded), and now also stubs Ortho and the grid off. The export verifier passes;
+  the Ortho, DrawingTabKeys, SheetPagingWalkExit, DocumentKeys, LayerStack, TitleBlockCells, scrapbook and Floor
+  Areas suites pass. `Na__Test__CrossSheetClipboard__` still fails 5 of 8 on `Na__LeModel__ShapeLayerType`, exactly
+  as it did before this work.
+
+**Checked in the app** (RB05 D11, A2 with a notes margin, on a no-cache static server; every R2 write refused by a
+fetch/XHR guard - none was attempted)
+- F6 as a trusted key press: the grid drawn, the Grid button lit, the panel box ticked. Pixels read back at zoom 6:
+  ink on every 1 mm point, the major colour on the 10 mm points, nothing between them; 1.5 canvas pixels per CSS
+  pixel at a device pixel ratio of 1.5.
+- F7: hovering the Draw tool marks the grid point (12, 351) for a cursor at (12.3, 350.6); the title block's corner
+  (5, 405), a cell divider's top (88.2, 405) and the notes margin divider's two ends (499, 5) and (499, 405) snap as
+  endpoints.
+- Three off-grid clicks drew (100, 301), (151, 300), (150, 331); moved by its corner the line went (7, 4) and stayed
+  on the grid; a text item carried by its anchor went from (200, 253.16) to (210, 258); a dimension measured 20 to 51
+  mm with its line exactly 10 mm off; a leader's tip (70, 361) and head (91, 350). Where the elevation's linework was
+  in reach, the dimension's start and the leader's tip took the linework instead - object snap first.
+- The panel: Lines, 2 subdivisions (5 mm, the line updated), Clip grid to page margins, Draw grid on top off
+  (z-index 0) - each drawn at once. Zoom gestures, the settle and pans left no part of the view uncovered; a redraw
+  took 0.15 ms zoomed out and 0.41 ms at the densest (minor points 6.2 px apart, a 1575 x 1548 canvas). An A3 sheet
+  redrew for its paper; the 3D Model tab hid the grid and D11 brought it back. The test objects were deleted and the
+  browser draft removed.
+
+**Also**
+- Service worker token 2026-09-21-06: new modules imported by existing ones (the snapping module, the sheet tools,
+  the tools, the toolbar and the mode controller), and v2.113.0's -05 may ship in a different push.
+
+**Open**
+- Adam has not tried it. Not in ValeVision.
+- The grid's settings are remembered per browser, like the Snap toggle; LayOut keeps them in the document. Say if
+  they should travel with the project instead.
+- The arrow-key nudge still steps 1 mm (10 mm with Shift) whatever the grid - the same as the default grid.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.113.0  -  21-Sep-2026
+### Ortho Mode on F8, as in AutoCAD: a Held Shift, Latched - and Shift Then Frees It
+
+**Overview**
+- From Adam: "add a new module for ortho drawing mode and a new hotkey for F8 in the drawing layout editor. We need to
+  copy exactly AutoCAD's ortho drawing method... you cannot draw any non-orthographic lines... it should also apply
+  for dimensioning, effectively doing the same thing as holding Shift does currently."
+- While Ortho is on, a point picked from a point before it lands on the horizontal or the vertical through that
+  point - whichever the cursor has travelled further along - so no line can be drawn at an angle. F8 switches it,
+  the new Ortho button on the toolbar is lit while it is on, and every switch is echoed "<Ortho on>" / "<Ortho off>"
+  on the line above the Measurements box, as AutoCAD writes it on its command line.
+
+**What AutoCAD does, and what was copied** (AutoCAD 2025 help, researched from Autodesk's own pages)
+- F8 toggles Ortho and so does Ctrl+L (the shortcut table: "Ctrl+L - Toggles Ortho mode", "F8 - Toggles
+  ORTHOMODE"); the command line echoes <Ortho on> / <Ortho off> after the prompt; the status bar's Ortho Mode
+  button "constrains cursor movement to the horizontal or vertical directions", blue while on, one click toggles.
+  Copied: F8, the echo, the lit button and its words. Ctrl+L is in the key map as a binding that ships OFF,
+  because in a browser Ctrl+L is the address bar.
+- Ortho applies "when you specify an angle or distance by means of two points" - the point before and the cursor -
+  so the first point of anything is free, and "the rubber-band line follows the horizontal or vertical axis,
+  whichever is nearest the cursor". The crosshair stays free; the point picked is the cursor projected onto that
+  axis. Copied exactly.
+- Shift is Ortho's temporary override: "holding down the Shift key toggles the current setting of Ortho mode" until
+  it is released (TEMPOVERRIDES, initial 1), and it echoes nothing. Copied exactly - and it is why nothing changes
+  with Ortho off: holding Shift already held the axis here. The rule is Ortho XOR Shift.
+  `Behaviour__ShiftTemporaryOverride` false in the config is AutoCAD with TEMPOVERRIDES 0: Shift then only holds.
+- A typed distance runs along the held direction (direct distance entry): the Measurements box already typed along
+  the band, so it follows.
+- AutoCAD's Ortho reaches LINE, PLINE, MOVE, COPY, STRETCH and grips - copied (next section). DIMLINEAR's dimension
+  line location is not held - nor is it here. RECTANG switches Ortho OFF for its own duration, because a held
+  corner would collapse the rectangle to a line - so the Rectangle tool is left alone.
+- DELIBERATE DIFFERENCES. (1) "Ortho is ignored when you enter coordinates or specify an object snap": here a snap
+  supplies only the coordinate ALONG the held axis - the rule Shift already worked to in this editor - because
+  Adam's brief is that with Ortho on no line can be drawn at an angle (AutoCAD's nearest equivalent is object snap
+  tracking, whose paths are orthogonal). (2) AutoCAD holds leader segments (QLEADER, MLEADER); a NEW leader here
+  stays free, because these leaders are curves to a note or a bubble - a leader already placed does move square
+  when dragged, as Shift moved it. (3) ORTHOMODE is saved in the drawing; here it is remembered in this browser,
+  like Snap (F3), so nothing is written to a sheet, the browser draft or R2.
+- Nothing here has AutoCAD's polar tracking, isometric snap or rotated snap angle, so its Ortho / Polar exclusion
+  and rotated axes have nothing to act on.
+
+**Where it reaches - everywhere a held Shift meant "hold the nearer axis"**
+- The Draw tool's next vertex, and so the Area tool's corners drawn with it (`Na__LayoutEditor__ShapeTool__.js` 1.8.0).
+- The Dimension tool (`Na__LayoutEditor__DimensionTool__.js` 1.8.0): with Ortho on every new dimension is
+  horizontal or vertical from its first frame - dragged above or below its points it measures x, beside them y,
+  exactly as a held Shift made it (AutoCAD's DIMLINEAR) - and holding Shift gives an aligned one. Its two measured
+  points are never bent to an axis, by Shift or by Ortho, because an ortho dimension measures one axis whatever its
+  span; bending the span would only move its extension lines off the points picked.
+- Every drag Shift held (`Na__LayoutEditor__SheetTools__PointerDrag__.js` 1.9.0): a vertex of a vector, a measured
+  end of a dimension, and anything moved whole - text, a vector, a dimension, a leader, a group, a multi-item
+  selection, a viewport frame (plain or carried by a point). AutoCAD's MOVE, COPY, STRETCH and grips obey Ortho
+  the same way.
+- Left alone, because Shift means something else there: Rectangle (Shift squares it; a rectangle is square to the
+  paper already), the text rotate grip (Shift steps it), a viewport corner (Shift scales a 3D picture), Shift-click
+  on an edge (inserts a vertex), and placing a new leader, where Shift has never meant anything.
+- The arrow key axis lock still beats Ortho, as it beats Shift; a length typed for a move is exact.
+
+**How it is built**
+- NEW folder `51__System__LayoutEditor/32__System__OrthoMode/`:
+  - `Na__LayoutEditor__OrthoMode__State__.js` (leaf, no imports): the flag (read from localStorage
+    `na-layouteditor-ortho` on first ask), the Shift override switch and `Na__LeOrtho__Resolve(shiftKey)` - the one
+    rule every tool asks. A leaf because the tools read it on every pointer move and the controller talks to the
+    Measurements box, which imports those tools.
+  - `Na__LayoutEditor__OrthoMode__.js` (controller): Set / Toggle, remembering, the echo, the console line,
+    `Na__LeOrtho__CHANGED_EVENT`, and every word from the config.
+  - `Na__LayoutEditor__OrthoMode__Config__.json`: the AutoCAD research, the two behaviour settings and the labels.
+- Each tool asks `Na__LeOrtho__Resolve(shift)` where it asked `shift` alone, so every branch below it is unchanged:
+  ShapeTool's `SnapOrConstrain`; DimensionTool's `OrientationFor` and `Span`; ApplyDrag works out `ortho` once
+  (nothing for an exact, typed length) and hands it to every nearer-axis line, `Na__LeVpMove__Solve` and
+  `Na__LeTools__SnapShapeTranslation` included, while the raw `shift` still reaches DragPatch and `RotateTo`.
+- Key map: `Ortho__Toggle` on F8 (Exact) plus the off `Ortho__ToggleCtrlL`, in the bindings, the catalogue and the
+  built-in fallback (`Na__LayoutEditor__ConfigState__KeyMap__.js` 1.3.0).
+- `Na__LayoutEditor__SheetTools__Keyboard__.js` 1.8.0: the F8 case (a held key counts once; the tool, the
+  selection and a point half placed are left alone) and `RedrawHeld`, which re-aims what is in flight at once when
+  F8 or Shift changes - a drag that has really moved, else the Draw / Area band or the Dimension tool's span or
+  line. `ShiftRedraw` runs it, so a held Shift now re-aims the Draw band and a drag as well as the dimension line.
+- `Na__LayoutEditor__SheetTools__State__.js` 1.4.0: F8 (and the grid session's F6 / F7) join SHEET_CHORDS, so a
+  function key still reaches the sheet after a panel's select, checkbox or number box kept the focus.
+- `Na__LayoutEditor__Measurements__.js` 1.6.0: `Na__LeMeasure__Say(text)`, a timed line above the box, never over a
+  value being typed - the echo (the grid session echoes <Grid on> through it too).
+- `Na__LayoutEditor__Toolbar__.js` 1.15.0: the Ortho button after the other drafting toggles, the same plain button
+  as Snap, Notes and Draft, lit while Ortho is on; it re-syncs on `Na__LeOrtho__CHANGED_EVENT`.
+
+**Adam's LayOut keys**
+- Found by the grid session in Adam's own LayOut 2026 keymap: F8 there is Arrange > Object Snap (F6 Show Grid, F7
+  Grid Snap). This editor's object snap is on AutoCAD's F3, and Adam asked for AutoCAD's F8 for Ortho, so F8 is
+  Ortho here.
+
+**Also**
+- Two peer sessions were in the same files at the same time (the drawing grid, F6 / F7, and images on sheets); the
+  shared hunks were split by message and each landed as an anchored edit that fails rather than overwrites.
+- Service worker token 2026-09-21-05: the new Ortho controller imports a new Measurements export
+  (`Na__LeMeasure__Say`). HEAD and origin/main carry -03; -04 is v2.112.0's own uncommitted bump, and this work may
+  ship in a different push, so it takes its own. One push carrying both needs only -05.
+
+**Tests**
+- NEW `80__Testing__PrototypeEnvironment/Na__Test__OrthoMode__.test.mjs`, 55 checks, all passing: the rule's truth
+  table (Shift override on and off, the remembered flag); the controller (remembered, announced, echoed once per
+  real change); the Draw tool (held across / down, Shift frees it, a snap off the axis gives its x on the axis's y,
+  an arrow lock wins, the click lands the held point, a typed length runs along it); the Dimension tool (ortho
+  from its first frame, horizontal below / vertical beside, aligned with Shift, the span never bent); ApplyDrag
+  (vertex, text move, typed exact move, dimension end, whole vector, group, carried viewport; a viewport handle and
+  the rotate grip still hear the raw key); and the keyboard with the shipped key map (F8 once per press, not on
+  repeat, from a checkbox but never a text box, not with Ctrl, from the fallback too; Ctrl+L ships off; F8 and Shift
+  re-aim the band or a real drag, never a press under the drag threshold). Against HEAD's four tool modules, the 27
+  Ortho checks fail and every Ortho-off check passes - nothing changes with Ortho off. The export verifier passes.
+
+**Checked in the app** (PS01 D04 on a no-cache static server; every write refused by a fetch/XHR guard)
+- A trusted F8: the key taken, Ortho on, the button lit, "<Ortho on>" above the Measurements box, remembered.
+- Draw: cursor at (160, 108) from a vertex at (100, 100) - the band ends at (160, 100); at (104, 170) - (100, 170);
+  with Shift - (160, 108). F8 pressed mid-line with the mouse still re-aimed the band at once, both ways. The click
+  at (160, 108) placed (160, 100).
+- Dimension from (100, 100) to (160, 130): horizontal from its first frame, horizontal dragged below, vertical
+  beside, aligned with Shift; its points stayed exactly where picked; it read 30,000 mm (the x distance at 1:500).
+- The toolbar button switched it off ("<Ortho off>"). Both test objects were abandoned with Escape; the sheets came
+  back byte-identical and nothing was written. NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.112.0  -  21-Sep-2026
+### Page Down Turns the Drawing, Ctrl+S Saves the Register, and Opening a Drawing Really Leaves Walk
+
+**Overview**
+- The three things v2.110.0 left for Adam, which he answered "fix these": Page Up / Page Down on a drawing tab,
+  the Drawing Register's Ctrl+S, and Walk mode surviving into the Layout Editor (found by the peer session that
+  confirmed the key scopes). A fourth fault turned up in the same exit path and is fixed with it.
+
+**Page Up / Page Down turn the drawings**
+- Until v2.110.0 the 3D Model tab's keys swallowed them under every tab; since then they scrolled the stage.
+  Now, on a drawing tab, Page Down opens the drawing after this one and Page Up the one before, in tab order,
+  exactly as clicking that tab does (undo baseline, panels, fit, tab strip). The first and the last drawing are
+  ends, not a loop - the key is still taken there, so the stage never scrolls - and the documents after the
+  drawings are never reached this way. A held key turns one drawing, because each one renders when it opens.
+  On every tab the pair now means "the previous / next thing this tab shows": scenes on the 3D tab (unchanged),
+  drawings on a drawing, and the page itself on a document.
+- Key map: `Nav__PreviousSheet` (PageUp) and `Nav__NextSheet` (PageDown), shipped on, in the bindings, the
+  catalogue and the built-in fallback (`Na__LayoutEditor__ConfigState__KeyMap__.js` 1.2.0).
+- `Na__LayoutEditor__Controls__Pc__.js` 1.3.0 answers them by dispatching `Na__LePc__STEP_SHEET_EVENT`; the mode
+  controller (1.23.0) answers that with `Na__LeMode__StepSheet`, through Enter. An event, because the mode
+  controller imports the PC controls. The web viewer attaches the same PC controls, so a reader pages too.
+- Not claimed as LayOut's default: its Previous Page / Next Page commands exist, but Trimble's documentation
+  names no keys for them.
+
+**The Drawing Register answers Ctrl+S itself**
+- It reached the editor's save - sheets saved, specification synced - which left the revision notes being typed
+  unsaved. `Na__LayoutEditor__Register__Editor__.js` 1.2.0 registers `Doc__Save` with the documents' keyboard
+  (31__System__DocumentKeys), which hears it first: it does what Save to R2 does (R2, then the project file),
+  because that is what this tab calls saved - its status line reads "not synced to R2" until then, and the
+  sheets' own Ctrl+S goes to R2 as well. The notes are the one thing on that tab not saved the moment it is
+  confirmed. With nothing to save it says so and writes nothing (a save stamps the register's updated time).
+  The page is not rebuilt, so a note being typed keeps its caret. Save to R2's hover text names the key.
+- The Project Specification still has no save of its own: its Ctrl+S goes on to the editor's save, which syncs it.
+
+**Opening a drawing really leaves Walk and Fly**
+- `Na__DrawView__Transitions__SuspendThreeD`'s "safe mode conversion" was `Na__NavToolbar__SetActiveMode('orbit')`,
+  which only repaints the toolbar and announces an event nothing listens for. Opening a drawing tab while walking
+  left Walk running through the editor and after it, under a toolbar that read Orbit - so B did nothing and T
+  switched Walk OFF - and the return to the 3D view flew the orbit camera while the walk camera was in charge.
+- `Na__DrawView__Transitions__.js` 1.1.0: `ReturnToOrbit` is the whole exit (`Na__UiFeature__ToggleWalkMode` /
+  `ToggleFlyMode` with the toolbar as their callback - the calls the Orbit button makes), and SuspendThreeD runs it
+  only when asked (`{ returnToOrbit : true }`). The Layout Editor asks. The snapshot renderer, which suspends
+  around every viewport picture - on the 3D tab too - does not, so a render no longer relights the toolbar under
+  somebody walking.
+- `Na__DrawView__Transitions__Initialize` is still called by nobody: the controls and camera stay null, the
+  controls are never disabled there and `FlyTo` lands at once. Left alone on purpose - wiring it would wake
+  flights in every plan and elevation entry that have not run since the port.
+
+**And the render loop idles again after a walk**
+- Entering Walk asks the render loop for continuous frames (`'walk-mode'`; Fly `'fly-mode'`) and nothing ever
+  released it, so after one walk the 3D view drew every frame for the rest of the session, idle or not.
+  `Na__UiFeature__WalkModeControls.js` / `FlyModeControls.js` 1.0.1 stop it on the way out.
+
+**Also**
+- Service worker token 2026-09-21-04: the PC controls export a new name the mode controller now imports, and
+  -03 is deployed (HEAD and origin/main).
+- Key map notes brought up to date: `Edit__Save` no longer claims to save the sheets "from anywhere", and the
+  keyboard block no longer says every navigation key ships off.
+
+**Tests**
+- NEW `80__Testing__PrototypeEnvironment/Na__Test__SheetPagingWalkExit__.test.mjs`, 17 checks, all passing: the
+  real key map module with the shipped JSON under the real PC controls (Page Down / Up ask for the next /
+  previous drawing and take the key, a held key asks once, a text box or a list keeps it, Ctrl is not the
+  binding, the fallback pages too); the transitions (the editor's suspend leaves Walk and Fly and lights Orbit,
+  a picture's suspend keeps Walk and the toolbar); and a Walk and a Fly round trip leaving no render reason
+  behind. Against HEAD's six modules, 11 fail. `Na__Test__DocumentKeys__.test.mjs` still passes; the export
+  verifier passes (433 files).
+
+**Checked in the app** (RB05 on a no-cache static server; every write refused by a fetch/XHR guard)
+- Walk: idle, the loop asked for 0 frames in 2 s; a trusted T walked (119 frames in 2 s, toolbar Walk); opening
+  D01 left Walk (off, toolbar Orbit, scope sheet); back on the 3D tab the veil lifted and the loop was idle
+  again - 0 frames in 2 s.
+- Paging, trusted keys: Page Down D01 > D02 > D03 and stopped at D03; Page Up back to D01 and stopped there;
+  every press taken; nothing written.
+- Register: Ctrl+S with nothing changed said "Nothing to save" and wrote nothing; with a test note added, its one
+  write attempt carried that note in the register block of the project file (the guard refused it); the note
+  was removed afterwards and its browser draft deleted. The Statements tab's Ctrl+S still wrote the statement.
+- RB05 on disk untouched. NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.111.0  -  21-Sep-2026
 ### Zoom Now, Redraw When It Rests: a Wheel Notch Was Rebuilding Things That Had Nothing to Do With the Zoom
 

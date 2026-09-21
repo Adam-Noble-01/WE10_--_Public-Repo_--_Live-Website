@@ -1,0 +1,89 @@
+{
+    "LayoutEditor__DrawingGrid__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__DrawingGrid__Config__.json",
+        "Meta__Description" : "The drawing grid: SketchUp LayOut's grid (Document Setup > Grid, View > Show Grid, Arrange > Grid Snap) on the Layout Editor's paper. A major grid cut into minor subdivisions, drawn as points or lines, that every point placed or dragged can snap to. A drawing aid only: it is drawn on the screen and never printed, exported or saved into a sheet.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Research"    : "LayOut 2026's Grid panel (text in LayOut.exe; help.sketchup.com Document Setup and Arranging pages): Show Grid; Grid Type Lines / Points; Major Grid with Spacing and Color; Minor Grid with Subdivisions and Color; Options Print Grid, Clip grid to page margins, Draw grid on top. In Lines the major grid is solid and the minor grid dotted. Grid snap rounds each axis to the nearest step with no radius (LayOutModel.dll: Grid::SnapX, SnapY, SnapPoint, GetSnapSpacing). Since LayOut 2024 a moved entity is inferenced by the point it was picked up from - a corner, a midpoint, or a filled shape's centre when the press is near one, else the point pressed - and that point snaps. Adam's own LayOut keymap puts Show Grid on F6 and Grid Snap on F7, and his A2 template (Na__StandardDrawing__IsoA2.layout) has 10 mm major, 10 subdivisions, #969696 over #d6d5c9, drawn on top, not clipped."
+    },
+
+    "LayoutEditor__DrawingGrid__Defaults": {
+        "Defaults__Description"    : "What the grid is until this browser changes it in Document Preferences > Drawing Grid. Every change made there is remembered per browser, over these; Reset puts these back.",
+        "Defaults__Show"           : false,
+        "Defaults__Snap"           : false,
+        "Defaults__Type"           : "points",
+        "Defaults__TypeNote"       : "points (a dot at every grid point, heavier on the major grid) or lines (solid major lines, dotted minor lines, as LayOut draws them).",
+        "Defaults__ShowMajor"      : true,
+        "Defaults__MajorSpacingMm" : 10,
+        "Defaults__MajorColour"    : "#969696",
+        "Defaults__ShowMinor"      : true,
+        "Defaults__MinorDivisions" : 10,
+        "Defaults__MinorColour"    : "#d6d5c9",
+        "Defaults__ClipToMargins"  : false,
+        "Defaults__OnTop"          : true,
+        "Defaults__OnTopNote"      : "LayOut's Draw grid on top. On, the grid is drawn over the drawings, so construction lines can be set out against it anywhere; off, it is drawn on the paper under them and shows only where the paper is bare."
+    },
+
+    "LayoutEditor__DrawingGrid__Limits": {
+        "Limits__Description"  : "What the panel's boxes accept. A spacing out of range is pulled into it.",
+        "Limits__MajorMinMm"   : 1,
+        "Limits__MajorMaxMm"   : 200,
+        "Limits__DivisionsMin" : 1,
+        "Limits__DivisionsMax" : 50,
+        "Limits__MinorMinMm"   : 0.25
+    },
+
+    "LayoutEditor__DrawingGrid__Display": {
+        "Display__Description"        : "How the grid is drawn on the screen. Every size is in SCREEN pixels, so a point is the same size at any zoom, and the grid is drawn at the screen's own resolution, crisp at every zoom.",
+        "Display__MinMinorSpacingPx"  : 6,
+        "Display__MinMinorSpacingNote": "The minor grid is left out while its points would stand closer than this on screen, as they do zoomed out: a 1 mm grid at a whole-sheet view is a grey haze, not a grid. It comes back as the sheet is zoomed in. The snap is unchanged either way.",
+        "Display__MinMajorSpacingPx"  : 6,
+        "Display__MajorPointPx"       : 2.5,
+        "Display__MinorPointPx"       : 1.5,
+        "Display__PointNote"          : "The width of a point, major and minor. LayOut draws its major points half as big again as its minor ones.",
+        "Display__MajorLinePx"        : 1,
+        "Display__MinorLinePx"        : 1,
+        "Display__MinorLineDashPx"    : [ 1, 2 ],
+        "Display__MinorLineDashNote"  : "LayOut draws the minor grid lines dotted: this many pixels on, then off.",
+        "Display__OverdrawPx"         : 160,
+        "Display__OverdrawNote"       : "The grid is drawn for this much of the paper beyond each edge of the view as well, so a pan does not have to draw it again until it has travelled this far."
+    },
+
+    "LayoutEditor__DrawingGrid__Snap": {
+        "Snap__Description"   : "How points meet the grid. OBJECT SNAP WINS: a corner, a midpoint or a title block point inside the snap radius is taken first, exactly as before, and the grid answers everywhere else. A moved item goes by the point it was picked up from - a corner, a midpoint or a filled shape's centre when the press lands near one, otherwise the point pressed - and that point lands on the grid, as in LayOut 2024 onwards.",
+        "Snap__MarkerScale"   : 0.6,
+        "Snap__MarkerNote"    : "A grid snap is marked by a small ring where the point will land, this size of the object snap marker, in the snapping tool's colour."
+    },
+
+    "LayoutEditor__DrawingGrid__Labels": {
+        "Labels__Description"       : "Every word the drawing grid puts on the screen.",
+        "Labels__SectionTitle"      : "Drawing Grid",
+        "Labels__ShowGrid"          : "Show grid (F6)",
+        "Labels__GridSnap"          : "Grid snap (F7)",
+        "Labels__GridType"          : "Grid type",
+        "Labels__TypePoints"        : "Points (dots)",
+        "Labels__TypeLines"         : "Lines",
+        "Labels__MajorGrid"         : "Major grid",
+        "Labels__LevelShow"         : "Show",
+        "Labels__MajorSpacing"      : "Spacing mm",
+        "Labels__MajorColour"       : "Colour",
+        "Labels__MinorGrid"         : "Minor grid",
+        "Labels__MinorDivisions"    : "Subdivisions",
+        "Labels__MinorColour"       : "Colour",
+        "Labels__MinorReadout"      : "Minor spacing {spacing} mm. Points snap every {step} mm.",
+        "Labels__Options"           : "Options",
+        "Labels__ClipToMargins"     : "Clip grid to page margins",
+        "Labels__OnTop"             : "Draw grid on top",
+        "Labels__Reset"             : "Reset grid",
+        "Labels__ScreenOnly"        : "Screen only: the grid is never printed or exported, and nothing here is saved into a sheet. These settings are remembered in this browser.",
+        "Labels__ToolbarGrid"       : "Grid",
+        "Labels__ToolbarGridTitle"  : "Show grid (F6): points every millimetre across the whole sheet, heavier every 10 mm. Set it up under Document Preferences > Drawing Grid. Never printed.",
+        "Labels__ToolbarSnap"       : "Grid Snap",
+        "Labels__ToolbarSnapTitle"  : "Grid snap (F7): every point placed or dragged lands on the nearest grid point. Object snap (F3) still wins near a corner or a midpoint. Works with the grid shown or hidden.",
+        "Labels__SayShowOn"         : "<Grid on>",
+        "Labels__SayShowOff"        : "<Grid off>",
+        "Labels__SaySnapOn"         : "<Grid snap on>",
+        "Labels__SaySnapOff"        : "<Grid snap off>"
+    }
+}

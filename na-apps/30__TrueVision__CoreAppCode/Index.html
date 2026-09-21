@@ -977,7 +977,7 @@
     const Na__Config__FlyMode = (Na__Config__NavmodeSettings && Na__Config__NavmodeSettings.Navmode__FlyMode)
         ? Na__Config__NavmodeSettings.Navmode__FlyMode
         : {};                                                                     // <-- Fly mode config (MM + scalars)
-    // @delegate: ./02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json
+    // @delegate: ./02__Src__AppModules/02__AppData/Na__Hotkeys__3dModelTab__.json
     const Na__Config__Hotkeys = await Na__AppConfig__LoadHotkeysConfig();          // <-- Hotkeys config (SSOT for key bindings)
     const Na__Config__MaterialsSystem = Na__AppConfig__Data.MaterialsSystem__Config || {};  // <-- Materials system config
     const Na__Config__StoreyVisibility = Na__AppConfig__Data.StoreyVisibility || {};       // <-- Storey visibility config
@@ -1252,7 +1252,7 @@
         }
     });
 
-    // HOTKEYS | Central manager — keys and actions driven from Na__AppConfig__Hotkeys.json
+    // HOTKEYS | Central manager — keys and actions driven from Na__Hotkeys__3dModelTab__.json
     // @delegate: ./02__Src__AppModules/10__NavigationAndCameras/Na__Hotkeys__Manager.js
     // ------------------------------------------------------------
     // Number keys 1-9 jump to that position in the currently visible scene

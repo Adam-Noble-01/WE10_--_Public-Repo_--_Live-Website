@@ -134,3 +134,21 @@ na-project-portal/**/10__StatementDocs/**
 !na-project-portal/**/10__StatementDocs/**/*.md
 !na-project-portal/**/10__StatementDocs/**/*.html
 !na-project-portal/**/10__StatementDocs/**/*.json
+
+# SHEET PICTURES (TrueVision Layout Editor, 54__Feature__SheetImages). The save
+# files each picture a drawing shows into 05__Layout__DrawingDocs__Images/
+# <document id>/ as a WebP cut to its print size, named <name>__<first ten hex
+# digits of its SHA-256>.webp (or .jpg / .png), and the repository copy is the
+# Pages fallback for the CDN. Nothing else there belongs in the repository: a
+# render copied into the folder by hand is 10-20 MB of PNG (21-Sep-2026: 42 MB
+# of them were), and 00__Archive holds pictures no drawing uses any more - the
+# local safety net for an undo, never served. So, as for the statements, an
+# ALLOWLIST, by the shape of the stored names: everything under the folder is
+# excluded, the document folders are re-included so git can look inside them,
+# the archive is excluded again, and only the stored pictures come back.
+na-project-portal/**/05__Layout__DrawingDocs__Images/**
+!na-project-portal/**/05__Layout__DrawingDocs__Images/*/
+na-project-portal/**/05__Layout__DrawingDocs__Images/00__Archive/
+!na-project-portal/**/05__Layout__DrawingDocs__Images/*/*__[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].webp
+!na-project-portal/**/05__Layout__DrawingDocs__Images/*/*__[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].jpg
+!na-project-portal/**/05__Layout__DrawingDocs__Images/*/*__[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].png

@@ -1,5 +1,5 @@
 {
-    "Na__Hotkeys__Description" : "Global hotkeys for TrueVision3D. Single source of truth for all hotkey bindings, read by Na__Hotkeys__Manager.js. Changes here automatically propagate to the hotkey dispatcher, toolbar tooltips, navigation help panel, and user instructions overlay.",
+    "Na__Hotkeys__Description" : "The 3D Model tab's hotkeys, and nothing else. One of the app's three hotkey files, one per kind of tab - the 3D Model tab's (Na__Hotkeys__3dModelTab__.json, 02__AppData), the drawing tabs' (Na__Hotkeys__DrawingTabs__.json, 51__System__LayoutEditor/03__Core__Config) and the document tabs' - the Project Specification, the Drawing Register and the Statements - (Na__Hotkeys__DocumentTabs__.json, 51__System__LayoutEditor/31__System__DocumentKeys) - of which only the one for the tab on screen is live (Na__AppUtils__KeyScope__). Read by Na__Hotkeys__Manager.js; a change here reaches the hotkey dispatcher, the toolbar tooltips, the navigation help panel and the user instructions overlay.",
 
     "Na__TrueVision__HotkeysDictionary" : [
 

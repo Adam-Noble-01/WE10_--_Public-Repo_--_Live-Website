@@ -21,10 +21,17 @@
 // - POST   /r2/write  - Write file to R2 (JSON object or base64 binary)
 // - POST   /r2/list   - List files in R2 by prefix
 // - POST   /r2/delete - Delete file from R2
+// - PUT    /r2/upload - Write raw bytes to a key (?key=&cacheControl=), Layout Editor sheet pictures
+// - POST   /r2/copy   - Copy one key to another inside the bucket
 //
 // -----
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - /r2/upload and /r2/copy for the pictures placed on Layout Editor sheets
+//   (see CloudflareHandler__R2__.js). Deploy with deploy.bat / wrangler deploy;
+//   the app falls back to /r2/write until the new routes are live.
+//
 // 21-Jun-2026 - Version 1.0.0
 // - Initial release. Modelled on na-projectadmin-api worker; R2 endpoints only.
 //

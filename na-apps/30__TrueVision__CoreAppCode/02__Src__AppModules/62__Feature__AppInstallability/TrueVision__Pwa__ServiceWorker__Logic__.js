@@ -34,6 +34,102 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.21
+// - Token bumped (2026-09-21-13) for the Layer flyout and reference layers
+//   (v2.123.0): a new module, Na__LayoutEditor__LayerMenu__, is imported
+//   by an existing one (the sheet tools' context menu), and the sheet model
+//   exports new names (Na__LeModel__IsLayerSelectable, Na__LeModel__ItemLayerId,
+//   Na__LeModel__MoveToLayer) that other existing modules now import. 2026-09-21-12
+//   may ship in a different push, so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.20
+// - Token bumped (2026-09-21-12) for the drawing title's five millimetres (v2.122.0):
+//   existing modules export new names (Na__LeParam__Refit,
+//   Na__LeParamLink__BookRefresh) that other existing modules now import. 2026-09-21-11
+//   may ship in a different push, so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.19
+// - Token bumped (2026-09-21-11) for Sheet Images print-size storage
+//   (v2.121.0): existing modules export new names (Na__LeImgGeo__StoreSize,
+//   Na__LeImgGeo__NeedsRecut, Na__LeImgEnc__Recut, Na__LeImgPub__HasSource)
+//   that other existing modules now import, and Na__LeImgPub__NoteOnDisk,
+//   which the old Insert module imports, is gone. -10 is copy arrays' and may
+//   ship in a different push, so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.18
+// - Token bumped (2026-09-21-10) for copy arrays (v2.119.0): existing modules
+//   export new names (Na__LeTools__BuildCopyArray, Na__LeTools__FollowCopyArray,
+//   Na__LeTools__CopyArraySelection, Na__LeTools__CanMoveArray,
+//   Na__LeTools__TypeMoveArray, Na__LeMParse__Array, Na__LeMParse__ARRAY_DIVIDE,
+//   Na__LeMParse__REASON_COUNT) that other existing modules now import. -09 is
+//   Ctrl-drag copy's (v2.117.0, v2.118.0 riding on it) and may ship in a
+//   different push, so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.17
+// - Token bumped (2026-09-21-09) for Ctrl-drag copy (v2.117.0). A new module,
+//   Na__LayoutEditor__SheetTools__CopyDrag__, is imported by existing ones (the
+//   pointer drag and keyboard units), and existing modules export new names
+//   (Na__LeClip__CloneInPlace, Na__LeVpMove__Retarget,
+//   Na__LeCfg__GetCopyDragModifier, Na__LeCfg__IsCopyDragKey,
+//   Na__LeTools__CopyKey) that other existing modules now import - a warm cache
+//   holding the old ones would fail to link. -08 is Sheet Images' (v2.116.0) and
+//   may ship in a different push, so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.16
+// - The Move tool fix and the three hotkey files (v2.115.0) ride on -08, the
+//   token above: -07 was claimed for them and never written, because Sheet
+//   Images bumped first and a push carrying both needs only the newer token.
+//   v2.115.0 adds no module; existing modules export new names
+//   (Na__LePc__TakeKeyboard, Na__LeCfg__ReloadKeyMap,
+//   Na__KeyScope__ControlKeepsKey) that other existing modules now import. If
+//   v2.115.0 ever ships in a push without v2.116.0, bump again for it then.
+// - The precache list names the 3D Model tab's hotkey file by its new name,
+//   Na__Hotkeys__3dModelTab__.json (it was Na__AppConfig__Hotkeys.json).
+//
+// 21-Sep-2026 - Version 1.9.15
+// - Token bumped (2026-09-21-08) for Sheet Images (v2.116.0): a new feature
+//   folder, 54__Feature__SheetImages, is imported by existing modules (the
+//   sheet records, the shape model, the shape painter, the sheet chrome, the
+//   grips, the pointer press, the context menu, the PDF exporter, the toolbar
+//   and the mode controller), and existing modules export new names
+//   (Na__LeGrips__RegisterShapeProvider, Na__DrawData__RegisterSaveStep, the
+//   Na__CfApi__ sheet image helpers, Na__LeRec__NormaliseShapeImage). -07 is
+//   the Move tool fix's (v2.115.0); this takes one of its own.
+// - A fifth bucket, tv-images-vN, for the pictures placed on sheets
+//   (…/05__Layout__DrawingDocs__Images/<document id>/<file>), cache-first and
+//   LRU capped at 160. A stored picture's name ends in its content hash, so a
+//   cached copy can never be stale - unlike Scene_00N.webp, which is why
+//   those are data. Tested before the shell-asset pattern, whose bucket has
+//   no cap and would otherwise have taken every CGI a viewer ever opened.
+//
+// 21-Sep-2026 - Version 1.9.14
+// - Token bumped (2026-09-21-06) for the drawing grid (v2.114.0). New modules -
+//   27__System__DrawingGrid (state, controller, panel) and
+//   Na__LayoutEditor__SheetTools__GridDrag__ - are imported by existing ones (the
+//   snapping module, the pointer drag and hit resolution units, the Text,
+//   Dimension and Leader tools, the viewport snap move, the keyboard, the
+//   toolbar and the mode controller), and the sheet surface exports a new name,
+//   Na__LeSurface__GetSheetChrome. -05 is v2.113.0's own uncommitted bump and may
+//   ship in a different push, so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.13
+// - Token bumped (2026-09-21-05) for Ortho mode on F8 (v2.113.0). A new module,
+//   32__System__OrthoMode/Na__LayoutEditor__OrthoMode__, imports a new name -
+//   Na__LeMeasure__Say - from the Measurements box, an existing module. Checked
+//   against HEAD: origin/main and HEAD both carry 2026-09-21-03, and -04 is
+//   v2.112.0's own uncommitted bump; this work may ship in a different push, so
+//   it takes a bump of its own (the 1.9.10 precedent). One push carrying both
+//   needs only this token.
+//
+// 21-Sep-2026 - Version 1.9.12
+// - Token bumped (2026-09-21-04) for Page Up / Page Down on drawings, the
+//   Register's Ctrl+S and the Walk exit (v2.112.0). The PC controls export a
+//   new name - Na__LePc__STEP_SHEET_EVENT - and the mode controller, an
+//   existing module, now imports it. Checked against HEAD: origin/main and
+//   HEAD both carry 2026-09-21-03, i.e. -03 is DEPLOYED, so a warm cache holds
+//   the old PC controls and the new mode controller would fail to link - a
+//   blank editor - until the second visit.
+//
 // 21-Sep-2026 - Version 1.9.11
 // - Token bumped (2026-09-21-03) for the zoom settle (Layout Editor: zoom now,
 //   redraw when it rests). The sheet surface exports two new names -
@@ -295,13 +391,15 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-21-03';                                                                   // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-21-13';                                                                   // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
     const PWA_SW_CACHE_NAME_VENDOR          = `tv-vendor-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Third-party ES module cache id
-    const PWA_SW_CACHE_PREFIXES_OWNED       = ['tv-shell-', 'tv-data-', 'tv-models-', 'tv-vendor-'];                                 // <-- Owned prefixes, used for cleanup
+    const PWA_SW_CACHE_NAME_IMAGES          = `tv-images-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Layout Editor sheet pictures cache id
+    const PWA_SW_CACHE_PREFIXES_OWNED       = ['tv-shell-', 'tv-data-', 'tv-models-', 'tv-vendor-', 'tv-images-'];                   // <-- Owned prefixes, used for cleanup
     const PWA_SW_MODELS_MAX_ENTRIES         = 80;                                                                                    // <-- LRU cap on the model bucket
+    const PWA_SW_IMAGES_MAX_ENTRIES         = 160;                                                                                   // <-- LRU cap on the sheet pictures bucket
     const PWA_SW_MODELS_NETWORK_TIMEOUT_MS  = 4000;                                                                                  // <-- Slow-network grace before serving cache
     // ------------------------------------------------------------
 
@@ -314,6 +412,7 @@
     const PWA_SW_PATTERN_HTML               = /\.html?(\?.*)?$/i;                                                                   // <-- HTML documents
     const PWA_SW_PATTERN_SHELL_ASSET        = /\.(css|js|mjs|webmanifest|ico|png|jpe?g|svg|webp|woff2?)(\?.*)?$/i;                   // <-- App shell assets
     const PWA_SW_PATTERN_SCENE_THUMBNAIL    = /\/PresentationMode\/Thumbnails\/[^/]+\.webp(\?.*)?$/i;                                // <-- Per-project scene thumbnails (mutable, fixed filenames)
+    const PWA_SW_PATTERN_SHEET_IMAGE        = /\/05__Layout__DrawingDocs__Images\/[^/]+\/[^/]+\.(webp|jpe?g|png)(\?.*)?$/i;          // <-- Pictures placed on sheets (immutable: the name carries the content hash)
     // ------------------------------------------------------------
 
 
@@ -355,7 +454,7 @@
         'Index.html',
         '03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css',
         '02__Src__AppModules/02__AppData/Na__AppConfig__Main.json',
-        '02__Src__AppModules/02__AppData/Na__AppConfig__Hotkeys.json',
+        '02__Src__AppModules/02__AppData/Na__Hotkeys__3dModelTab__.json',
         '02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__Manifest__Fallback__.webmanifest',
 
         // THE TWO STATEMENT STYLESHEETS ARE HERE FOR A REASON, and it is not
@@ -444,6 +543,13 @@
         // only pick the new one up on a second reload. Treat them as data.
         if (PWA_SW_PATTERN_SCENE_THUMBNAIL.test(requestUrl)) return 'data';                                                         // <-- Regenerated thumbnails must never go stale
 
+        // Sheet pictures are also tested BEFORE the shell-asset pattern, for
+        // the opposite reason: a stored picture's name ends in its content
+        // hash, so a name never means two pictures and a cached copy can never
+        // be stale. They get a capped bucket of their own - a CGI is a few MB,
+        // and the shell bucket has no cap.
+        if (PWA_SW_PATTERN_SHEET_IMAGE.test(requestUrl)) return 'sheet-image';                                                      // <-- Content-hashed: download once
+
         if (PWA_SW_PATTERN_DATA_JSON.test(requestUrl)) return 'data';                                                               // <-- Project data or app config
         if (PWA_SW_PATTERN_HTML.test(requestUrl)) return 'html';                                                                    // <-- HTML document
         if (PWA_SW_PATTERN_SHELL_ASSET.test(requestUrl)) return 'shell';                                                            // <-- App shell asset
@@ -489,6 +595,31 @@
             const networkResponse = await fetch(request);                                                                           // <-- Network fetch
             if (networkResponse && networkResponse.ok) {
                 cacheInstance.put(request, networkResponse.clone()).catch(() => {});                                                // <-- Persist a clone, best-effort
+            }
+            return networkResponse;                                                                                                 // <-- Return the live response
+        } catch (error) {
+            return Response.error();                                                                                                // <-- Fail closed when offline and uncached
+        }
+    }
+    // ---------------------------------------------------------------
+
+
+    // FUNCTION | Cache First, Capped
+    // ------------------------------------------------------------
+    // Cache first for content that can never change under its name, with the
+    // bucket trimmed back to its cap after each new entry lands.
+    // ------------------------------------------------------------
+    async function TrueVision__Pwa__ServiceWorker__Logic__CacheFirstCapped(request, cacheName, maxEntries) {
+        const cacheInstance     = await caches.open(cacheName);                                                                     // <-- Open the named cache
+        const cachedResponse    = await cacheInstance.match(request);                                                               // <-- Look up the cached entry
+        if (cachedResponse) return cachedResponse;                                                                                  // <-- Cache hit, return immediately
+
+        try {
+            const networkResponse = await fetch(request);                                                                           // <-- Network fetch
+            if (networkResponse && networkResponse.ok) {
+                cacheInstance.put(request, networkResponse.clone())
+                    .then(() => TrueVision__Pwa__ServiceWorker__Logic__TrimCacheLru(cacheName, maxEntries))                         // <-- Keep the bucket under its cap
+                    .catch(() => {});                                                                                               // <-- Best-effort
             }
             return networkResponse;                                                                                                 // <-- Return the live response
         } catch (error) {
@@ -629,7 +760,8 @@
                     PWA_SW_CACHE_NAME_SHELL,
                     PWA_SW_CACHE_NAME_DATA,
                     PWA_SW_CACHE_NAME_MODELS,
-                    PWA_SW_CACHE_NAME_VENDOR
+                    PWA_SW_CACHE_NAME_VENDOR,
+                    PWA_SW_CACHE_NAME_IMAGES
                 ];
 
                 const allCacheNames = await caches.keys();                                                                          // <-- Enumerate every cache
@@ -662,6 +794,13 @@
         if (classification === 'model') {
             fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__NetworkFirstWithGrace(                                    // <-- Fresh when fast, cached when slow
                 request, PWA_SW_CACHE_NAME_MODELS, PWA_SW_MODELS_NETWORK_TIMEOUT_MS, PWA_SW_MODELS_MAX_ENTRIES
+            ));
+            return;
+        }
+
+        if (classification === 'sheet-image') {
+            fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__CacheFirstCapped(                                         // <-- Content-hashed: download once, keep the bucket capped
+                request, PWA_SW_CACHE_NAME_IMAGES, PWA_SW_IMAGES_MAX_ENTRIES
             ));
             return;
         }

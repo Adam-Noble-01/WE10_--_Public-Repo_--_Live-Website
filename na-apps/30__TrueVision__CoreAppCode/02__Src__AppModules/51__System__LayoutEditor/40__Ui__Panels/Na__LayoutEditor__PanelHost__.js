@@ -692,12 +692,16 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | A Labelled Slider With Its Reading (0 to 100 unless told otherwise)
+    // FUNCTION | A Labelled Slider, Its Typable Value and Its Reading
     // ------------------------------------------------------------
     // A div rather than the label row: a label hands a click on its caption to
     // its first control, and for a slider that click would jump the value.
-    // The reading after the slider is filled by ShowSlider, and by the panel's
-    // own input handler while the slider moves.
+    // The slider is quick to drag but too coarse to land on an exact figure,
+    // so a number box sits beside it sharing the same control name - typing
+    // in it or dragging the slider fire the same handler, because the panel's
+    // delegation keys on data-na-control alone, not on which element it is on.
+    // Both are kept live by ShowSlider, and by the panel's own input handler
+    // while either one moves.
     // ------------------------------------------------------------
     function Na__LePanels__SliderRow(labelText, controlName, attributes) {
         const row = document.createElement('div');
@@ -705,13 +709,19 @@
         const caption = document.createElement('span');
         caption.className   = 'na-le-row__label';
         caption.textContent = labelText;
-        const slider = Na__LePanels__Input('range', controlName, Object.assign({ min : 0, max : 100, step : 1 }, attributes || {}));
+        const merged = Object.assign({ min : 0, max : 100, step : 1 }, attributes || {});
+        const slider = Na__LePanels__Input('range', controlName, merged);
         slider.classList.add('na-le-input--range');
+        const valueBox = Na__LePanels__Input('number', controlName, { min : merged.min, max : merged.max, step : merged.step });
+        valueBox.classList.add('na-le-input--rangebox');
+        valueBox.addEventListener('focus', () => valueBox.select());
+        valueBox.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); valueBox.blur(); } });
         const reading = document.createElement('span');
-        reading.className = 'na-le-grad-readout';                                 // <-- The gradient rows' reading, so every slider reads alike
+        reading.className = 'na-le-grad-readout na-le-range-suffix';              // <-- The gradient rows' reading class, so every readout matches; the extra class is only the suffix now the figure lives in the box
         reading.setAttribute('data-na-reading', controlName);
         row.appendChild(caption);
         row.appendChild(slider);
+        row.appendChild(valueBox);
         row.appendChild(reading);
         return row;
     }
@@ -720,14 +730,19 @@
 
     // FUNCTION | Show a Value on a Slider Row
     // ------------------------------------------------------------
-    // A slider that has the focus is left where the pointer holds it, so a
-    // refresh mid-drag never pulls it back; its reading still follows.
+    // A control that has the focus is left where it is - the pointer mid-drag,
+    // or a figure mid-type - so a refresh never pulls either back; the reading
+    // still follows. readingText is the slider's old full reading ("50%"); the
+    // number now carries the figure, so only what follows it (the unit) is
+    // left for the suffix span.
     // ------------------------------------------------------------
     function Na__LePanels__ShowSlider(body, controlName, value, readingText) {
-        const slider  = body.querySelector('[data-na-control="' + controlName + '"]');
-        const reading = body.querySelector('[data-na-reading="' + controlName + '"]');
-        if (slider && document.activeElement !== slider) slider.value = String(value);
-        if (reading) reading.textContent = readingText;
+        const slider   = body.querySelector('.na-le-input--range[data-na-control="' + controlName + '"]');
+        const valueBox = body.querySelector('.na-le-input--rangebox[data-na-control="' + controlName + '"]');
+        const reading  = body.querySelector('[data-na-reading="' + controlName + '"]');
+        if (slider   && document.activeElement !== slider)   slider.value   = String(value);
+        if (valueBox && document.activeElement !== valueBox) valueBox.value = String(value);
+        if (reading) reading.textContent = String(readingText).slice(String(value).length);
     }
     // ------------------------------------------------------------
 

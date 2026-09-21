@@ -73,6 +73,12 @@
 //   before the drop announces itself, by the same before-announce route, so
 //   the drop and the re-link are one undo step. Linking after the drop had
 //   returned made two: the history had already taken the drop by then.
+// - AND WORDS THAT WERE MEASURED WRONG. Refresh also asks the engine to refit
+//   whatever draws from a measurement of its words (Na__LeParam__Refit), tied
+//   or not: a title rebuilt before the paper's text metrics had loaded was
+//   drawn to the chrome's estimate, and a sheet's first refresh of a session
+//   runs before they land. The panel books one more refresh the moment they
+//   do (BookRefresh). One announcement carries both kinds of change.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__Panel__ScrapbookParametric__ calls Attach once, drops
@@ -94,6 +100,27 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - Nearest leaves out a viewport on a REFERENCE layer (the Layers panel's
+//   Ref), so a scale bar or a title dropped beside one, or asked to Link to
+//   nearest, never binds to it: Adam wants nothing to "snap or bind to" a
+//   reference layer. The panel's list still offers it, and the noodle can
+//   still be dragged onto it - a link chosen by hand is the user's.
+//
+// 21-Sep-2026 - Version 1.4.0
+// - Refresh refits as well as reconciles. Once the active sheet's linked
+//   elements are in line with their viewports, the engine rebuilds any
+//   element whose measured words no longer fit (Na__LeParam__Refit) - linked
+//   or not, since an untied title has an underline too - and the one
+//   announcement carries both. BookRefresh is exported, so the panel can book
+//   a refresh the moment the paper's text metrics land.
+// - FactsPatch compares a viewport's facts as the type would STORE them, run
+//   through its own normalise. Raw, a name with two spaces round its dash -
+//   all of RB05's elevations - never matched the element's single-spaced
+//   copy, so every refresh rebuilt those titles for nothing: an undo step
+//   and a dirty sheet on every visit, and a line drawn to the estimate on
+//   the first visit of every session.
+//
 // 20-Sep-2026 - Version 1.3.0
 // - FactsOf answers ViewLevel as well: the storey of the floor plan a viewport
 //   draws, '' for anything else. It follows its viewport as the other facts
@@ -143,6 +170,7 @@
         Na__LeModel__GetGroupById,
         Na__LeModel__GetViewportById,
         Na__LeModel__IsLayerVisible,
+        Na__LeModel__IsLayerSelectable,
         Na__LeModel__MarkDirty
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeDrawScale__SheetDenominator, Na__LeDrawScale__Label } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
@@ -163,7 +191,8 @@
         Na__LeParam__Insert,
         Na__LeParam__Announce,
         Na__LeParam__Regenerate,
-        Na__LeParam__ResetToStandard
+        Na__LeParam__ResetToStandard,
+        Na__LeParam__Refit
     } from './Na__LayoutEditor__ScrapbookParametric__.js';
     // ------------------------------------------------------------
 
@@ -245,7 +274,9 @@
     // FUNCTION | The Linkable Viewport Nearest a Paper Point, or Null
     // ------------------------------------------------------------
     // Shown viewports only: nobody means to link to a drawing they cannot
-    // see. maxDistanceMm defaults to the config's; pass Infinity to take the
+    // see - nor to one on a reference layer, which nothing binds to. The
+    // panel's list and the noodle can still pick either by hand.
+    // maxDistanceMm defaults to the config's; pass Infinity to take the
     // nearest however far it is, which is what Link to nearest does.
     // ------------------------------------------------------------
     function Na__LeParamLink__Nearest(sheet, pointMm, maxDistanceMm) {
@@ -253,7 +284,7 @@
         const reach = (maxDistanceMm === undefined) ? Na__LeParamLink__Setup().maxDistance : maxDistanceMm;
         let best = null, bestGap = Infinity;
         Na__LeParamLink__Candidates(sheet).forEach((viewport) => {
-            if (!Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId)) return;
+            if (!Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId) || !Na__LeModel__IsLayerSelectable(sheet, viewport.Viewport__LayerId)) return;
             const gap = Na__LeParamLink__DistanceTo(viewport, pointMm);
             if (gap <= reach && gap < bestGap) { best = viewport; bestGap = gap; }
         });
@@ -309,13 +340,23 @@
 
     // HELPER FUNCTION | The Facts of an Element That No Longer Match Its Viewport ({} when all do)
     // ------------------------------------------------------------
+    // COMPARED AS THE TYPE WOULD STORE THEM. The element's own parameters are
+    // normalised - one line, trimmed, single spaces - and a viewport's facts
+    // are not: RB05 names its elevations "South East Elevation  -  House
+    // Front Fascade", two spaces either side of the dash. Compared raw, the
+    // two never matched, so every refresh rebuilt the title for nothing - and
+    // the first of a session runs before the paper's text metrics have
+    // loaded, which is how its underline came to be drawn to an estimate.
+    // ------------------------------------------------------------
     function Na__LeParamLink__FactsPatch(sheet, groupId, viewport) {
         const block = Na__LeParam__GetBlockById(sheet, groupId);
         if (!block || !viewport) return {};
-        const wanted = Na__LeParamLink__FactsForType(block.Parametric__Type, viewport);
-        const held   = Na__LeParam__GetParams(sheet, groupId) || {};
-        const patch  = {};
-        Object.keys(wanted).forEach((key) => { if (wanted[key] !== held[key]) patch[key] = wanted[key]; });
+        const wanted     = Na__LeParamLink__FactsForType(block.Parametric__Type, viewport);
+        const held       = Na__LeParam__GetParams(sheet, groupId) || {};
+        const definition = Na__LeParam__GetType(block.Parametric__Type);
+        const settled    = (definition && typeof definition.normalise === 'function') ? definition.normalise(Object.assign({}, held, wanted)) : wanted;   // <-- What a rebuild with them would store
+        const patch      = {};
+        Object.keys(wanted).forEach((key) => { if (settled[key] !== held[key]) patch[key] = wanted[key]; });
         return patch;
     }
     // ------------------------------------------------------------
@@ -646,12 +687,17 @@
     // the design phases arriving, an elevation's bearing edited. There is no
     // announcement to run ahead of, so this makes its own, through the last
     // element it rebuilt. Returns how many elements changed.
+    // AND FOR WORDS MEASURED WRONG: the engine's Refit rebuilds, in the same
+    // step, any element on the sheet - tied or not - whose records no longer
+    // fit what its words measure now. It does nothing until the paper's own
+    // text metrics have loaded.
     // ------------------------------------------------------------
     function Na__LeParamLink__Refresh(sheet) {
         if (!sheet || Na__LeParamLink__Following) return 0;
         Na__LeParamLink__Following = true;                                      // <-- Held through the announcement too, so the hook does not reconcile what has just been reconciled
         try {
             const changed = Na__LeParamLink__Reconcile(sheet, Na__LeParamLink__Setup().followScale);
+            Na__LeParam__Refit(sheet).forEach((groupId) => { if (changed.indexOf(groupId) === -1) changed.push(groupId); });   // <-- Words drawn to an estimate, or before the rule: the same step
             if (!changed.length) return 0;
             Na__LeModel__MarkDirty();
             Na__LeSurface__Refresh('markup');
@@ -672,6 +718,8 @@
     // Never from inside the event that asked for it: a refresh announces, and
     // an announcement inside an announcement reaches later listeners out of
     // order. Editable sheets only - a reader's copy says what was saved.
+    // Exported for the panel, which books one when the paper's text metrics
+    // land, so the sheet on screen is refit without waiting to be re-opened.
     // ------------------------------------------------------------
     function Na__LeParamLink__BookRefresh() {
         if (Na__LeParamLink__Refreshing) return;
@@ -729,6 +777,7 @@
         Na__LeParamLink__ViewportName,
         Na__LeParamLink__FactsOf,
         Na__LeParamLink__Refresh,
+        Na__LeParamLink__BookRefresh,
         Na__LeParamLink__KIND_VIEWPORT,
         Na__LeParamLink__KIND_SHEET,
         Na__LeParamLink__KIND_NONE,

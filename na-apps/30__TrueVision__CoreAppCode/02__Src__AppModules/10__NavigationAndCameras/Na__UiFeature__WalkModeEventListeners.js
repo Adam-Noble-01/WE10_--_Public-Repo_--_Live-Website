@@ -15,7 +15,7 @@
 //   walk mode toggle function (used in test environments).
 // - Na__UiFeature__InitializeWalkModeHotkey is retained as a no-op for
 //   backwards compatibility. Walk mode hotkeys are now managed centrally by
-//   Na__Hotkeys__Manager.js, driven from Na__AppConfig__Hotkeys.json.
+//   Na__Hotkeys__Manager.js, driven from Na__Hotkeys__3dModelTab__.json.
 //
 // @delegate: ./Na__Hotkeys__Manager.js
 //
@@ -28,7 +28,7 @@
 // DEVELOPMENT LOG:
 // 22-Jun-2026 - Version 1.1.0
 // - Na__UiFeature__InitializeWalkModeHotkey deprecated (no-op). Walk hotkeys
-//   superseded by Na__Hotkeys__Manager.js + Na__AppConfig__Hotkeys.json.
+//   superseded by Na__Hotkeys__Manager.js + Na__Hotkeys__3dModelTab__.json.
 //
 // 24-Feb-2026 - Version 1.0.0
 // - Extracted walk mode hotkey listener from index.html (lines 521-529) and

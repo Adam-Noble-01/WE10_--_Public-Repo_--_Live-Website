@@ -1,0 +1,95 @@
+{
+    "UserScrapbookItem__Meta": {
+        "Meta__Description": "A Custom Scrapbook item for the TrueVision 3D Layout Editor: a selection saved from a sheet. Entries are sheet records in paper millimetres, y down, from an origin at the top left of the item; Roots is what a drop selects. Written by the app through the ProjectVision local server; see Na__LayoutEditor__ScrapbookCustom__.js.",
+        "Meta__Version": "1.0.0",
+        "Meta__Created": "21-Sept-2026",
+        "Meta__Author": "Adam Noble - Noble Architecture",
+        "Meta__FileName": "UserScrapbookItem__Test__20260921-122253.json"
+    },
+    "UserScrapbookItem__Id": "UserScrapbookItem__Test__20260921-122253",
+    "UserScrapbookItem__Name": "Test",
+    "UserScrapbookItem__Category": "01__ScrapbookItems__General",
+    "UserScrapbookItem__CreatedIso": "2026-09-21T11:22:53.847Z",
+    "UserScrapbookItem__UpdatedIso": "2026-09-21T11:22:53.847Z",
+    "UserScrapbookItem__SourceProject": "RB05",
+    "UserScrapbookItem__SourceSheet": "Rear Elevation",
+    "UserScrapbookItem__SizeMm": {
+        "WidthMm": 68.4399,
+        "HeightMm": 21
+    },
+    "UserScrapbookItem__Roots": [
+        {
+            "kind": "group",
+            "id": "Group_002"
+        }
+    ],
+    "UserScrapbookItem__Entries": [
+        {
+            "kind": "group",
+            "id": "Group_002",
+            "record": {
+                "Group__Members": [
+                    {
+                        "kind": "shape",
+                        "id": "Shape_037"
+                    },
+                    {
+                        "kind": "annotation",
+                        "id": "Text_013"
+                    }
+                ],
+                "Group__Id": "Group_002"
+            }
+        },
+        {
+            "kind": "shape",
+            "id": "Shape_037",
+            "record": {
+                "Shape__Id": "Shape_037",
+                "Shape__Points": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        20,
+                        0
+                    ],
+                    [
+                        20,
+                        21
+                    ],
+                    [
+                        0,
+                        21
+                    ]
+                ],
+                "Shape__Closed": true,
+                "Shape__StrokeColour": "#f50000",
+                "Shape__StrokePt": 1,
+                "Shape__FillColour": null,
+                "Shape__Stroked": true,
+                "Shape__FillOpacity": 1,
+                "Shape__StrokeOpacity": 1,
+                "Shape__Gradient": null,
+                "Shape__LineStyle": null
+            }
+        },
+        {
+            "kind": "annotation",
+            "id": "Text_013",
+            "record": {
+                "Annotation__Id": "Text_013",
+                "Annotation__Text": "Construction Lines",
+                "Annotation__PosXMm": 25,
+                "Annotation__PosYMm": 11.8549,
+                "Annotation__SizeMm": 5,
+                "Annotation__FontWeight": 400,
+                "Annotation__Colour": "#172b3a",
+                "Annotation__Align": "left",
+                "Annotation__LeaderXMm": null,
+                "Annotation__LeaderYMm": null
+            }
+        }
+    ]
+}
