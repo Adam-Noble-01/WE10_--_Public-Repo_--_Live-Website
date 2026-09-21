@@ -39,6 +39,16 @@
     display                            : none;
 }
 
+/* ZOOM NOW, REDRAW WHEN IT RESTS. While a wheel or pinch zoom is under way   */
+/* (Na__LeSurface__NoteZoomGesture) the paper is held as one composited layer, */
+/* so a zoom step scales the picture already drawn instead of rasterising     */
+/* every line, fill and picture on the sheet again. The class comes off when   */
+/* the zoom settles and the sheet is drawn once, crisp, at its new zoom.       */
+/* LayoutEditor__Navigation__HoldPaperWhileZooming false never puts it on.     */
+.na-le-paper--zooming {
+    will-change                        : transform;
+}
+
 .na-le-paper__stack,
 .na-le-paper__viewports,
 .na-le-paper__chrome,

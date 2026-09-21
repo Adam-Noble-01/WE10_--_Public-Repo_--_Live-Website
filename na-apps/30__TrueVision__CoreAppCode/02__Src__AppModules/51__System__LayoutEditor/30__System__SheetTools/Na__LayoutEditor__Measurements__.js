@@ -63,6 +63,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.1
+// - The box is placed when a zoom settles (Na__LeSurface__ZOOM_SETTLED_EVENT)
+//   rather than on every zoom step: its offsetWidth and clientWidth reads force
+//   a layout, and a wheel paid for one per notch.
+//
 // 17-Sep-2026 - Version 1.5.0
 // - THE BOX READS A WHOLE-OBJECT MOVE, and takes a typed distance for it. A
 //   vector, a note, a dimension, a leader or a whole multi-item selection held
@@ -107,7 +112,7 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetMeasureSetup, Na__LeCfg__GetMeasureKeys, Na__LeCfg__GetDimensionSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__GetActiveSheet } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeSurface__ZOOM_EVENT } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeSurface__ZOOM_SETTLED_EVENT } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeDrawScale__DenominatorAt, Na__LeDrawScale__DimensionAtScale, Na__LeDrawScale__DimensionDenominator, Na__LeDrawScale__Label } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
     import { Na__LeMParse__REASON_UNIT, Na__LeMParse__Length, Na__LeMParse__Pair, Na__LeMParse__Format } from '../15__Core__Markup/Na__LayoutEditor__MeasureParse__.js';
     // ------------------------------------------------------------
@@ -907,7 +912,7 @@
         Na__LeMeasure__Handlers = { key : (event) => Na__LeMeasure__OnKey(event), place : () => Na__LeMeasure__Place() };
         window.addEventListener('keydown', Na__LeMeasure__Handlers.key, true);   // <-- Capture: a value being typed is the box's before any binding sees the key
         window.addEventListener('resize', Na__LeMeasure__Handlers.place);
-        window.addEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeMeasure__Handlers.place);
+        window.addEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeMeasure__Handlers.place);   // <-- Once a zoom has rested: its reads force a layout, and every wheel step paid for one
         Na__LeMeasure__Root.hidden = !Na__LeMeasure__Editable;
         Na__LeMeasure__Place();
         Na__LeMeasure__Refresh();
@@ -922,7 +927,7 @@
         if (Na__LeMeasure__Handlers) {
             window.removeEventListener('keydown', Na__LeMeasure__Handlers.key, true);
             window.removeEventListener('resize', Na__LeMeasure__Handlers.place);
-            window.removeEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeMeasure__Handlers.place);
+            window.removeEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeMeasure__Handlers.place);
         }
         Na__LeMeasure__Handlers = null;
         Na__LeMeasure__Context  = null;

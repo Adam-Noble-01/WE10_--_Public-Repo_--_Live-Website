@@ -854,3 +854,11 @@ back to empty ever since. Worth a look on its own.)*
 Open, deliberately: the block is offered on every drawing type, including site plans; the bullets
 are one list shared by both forms; and there is no control for the code itself, because there is
 nothing about it to choose.
+
+### 14.10 Changes after Adam used it (21-Sep-2026)
+
+| Adam | What changed |
+|---|---|
+| The phone glyph is "a bit too ambiguous" - it should read as a modern smartphone (v2.108.0) | A slim 2.4 x 4.6 mm handset with a filled Dynamic Island pill at the top, in place of a squat box with a bar across its foot. Still two records in the same slots |
+| "Make the standard one that's inserted when you drag it in ... the 20 mm option" (v2.109.0) | `ProjectQr__SizeMm` 20, which overrides row 14.9's 30. A block already on a sheet keeps its stored size |
+| "The body text should be 2.2, and 'Use your phone or tablet camera' 1.5 mm" (v2.109.0) | `BodySizeMm` 2.2 (was 3.1), `BulletSizeMm` 2.2 (was 2.7), `CaptionSizeMm` 1.5 (was 2.1). Reading "body text" as the paragraph AND the bullets, because the compact form has no paragraph and 2.7 mm bullets over a 2.2 mm paragraph would read upside down. Gaps re-set against a rendering at 20 mm: caption 2.8, heading 6.2, bullets 5.0 and 3.6 apart, paragraph 4.6 and 3.4 apart. `BodyWidthMm` left at 95 |

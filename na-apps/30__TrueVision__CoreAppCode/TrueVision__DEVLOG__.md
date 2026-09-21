@@ -2,6 +2,66 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.109.0  -  21-Sep-2026
+### The Big Sheets Give the Small Title Block Cells Air, the Rev Cell Says "Revision A", and the Portal Block Drops at 20 mm
+
+**Overview**
+- From Adam, on RB05 West Farm's A2 ground floor plan: on A2 and A1 give the site address and each box on the right
+  "20% more space", the drawing title excepted; make the Rev cell say "Revision A" on every sheet ("it looks a bit
+  silly with just a letter in"); and drop the Project Portal block at 20 mm with its body text at 2.2 mm and the
+  "Use your phone or tablet camera" caption at 1.5.
+
+**Title block: a fifth more on A2 and A1**
+- New `LayoutEditor__TitleBlock__RowWidthFactorByPaper` `{ "A2": 1.2, "A1": 1.2 }`. Every row but the Flex one (the
+  Drawing Title) is that much wider on those papers: Client, Site Address, Document ID, Rev, Scale, Date, Drawn By and
+  Status. The logo cell and the QR cell are not rows and do not move - the QR cell's width is measured to set its
+  note in two even lines.
+- `Na__LeTitleCells__Widen` (Cells 1.2.0) does it, and the fifth is on WHAT THE CELL PRINTS AT, not its base. RB05's
+  address had already grown its 70 mm cell to 84 to fit its text, and a fifth on 70 is 84 again - the first cut of
+  this gave the one cell Adam pointed at no air at all. Caught by rendering RB05's real fields, not by the fixture
+  (PS01's address fits its base). Now 100.8.
+- THE EXTRA IS PAID ONLY OUT OF THE TITLE'S SPARE ROOM, so it never cuts the title: the cells take the fifth while the
+  strip still has room once every cell has the wider of its base and its text. Where it cannot afford the whole of it
+  every cell gets the same smaller share, down to none - A2 portrait, whose strip is A3 landscape's, draws exactly
+  what it drew before.
+- RB05 D02 on A2 landscape: Client 36 -> 43.2, Site Address 84 -> 100.8, Document ID 24 -> 28.8, Rev / Scale / Date /
+  Drawn By 28 -> 33.6, Status 30 -> 36; the Drawing Title 202 -> 144.8 for "TEMP_Plans". A3, A4 and A2 portrait are
+  unchanged.
+
+**Title block: "Revision A"**
+- A row can carry `ValuePrefix`; the Revision row's is "Revision", so the cell prints "Revision A". PRINTED, never
+  stored: the sheet still holds "A", so the Sheet panel, the Drawing Register's REV column and the PDF name's
+  `{revision}` token (RevA) are all as they were. A value already opening with a word the prefix begins with
+  ("Rev B", "Revision B") keeps only its letter. The label above it still reads REV.
+- A PREFIX NEVER COSTS ANOTHER CELL ITS TEXT. On A4 portrait, where the strip is too narrow for every value whole,
+  "Revision A" took the other values from losing 13 percent of their cells to 17 (found by the Cells test's A4
+  portrait check). There the strip is solved again with bare values and the cell prints "A". A2, A3 and A4
+  landscape all print "Revision A".
+- Modern title block only. The Classic style prints into a scanned block's own Rev box and is untouched.
+
+**Project Portal block**
+- `ProjectQr__SizeMm` 30 -> 20: what a tile drops. A block already on a sheet keeps its stored size.
+- Body text 2.2 mm - the full form's paragraph (was 3.1) AND both forms' bullets (was 2.7), since the compact form has
+  no paragraph; the caption 1.5 (was 2.1). Every gap is baseline to baseline, so they were re-set against a rendering
+  of both forms at 20 mm to keep the air between lines about what it was: CaptionGap 3.6 -> 2.8, HeadingGap 6.4 ->
+  6.2, BulletsGap 5.6 -> 5.0, BulletPitch 4.4 -> 3.6, BodyGap 5.4 -> 4.6, BodyPitch 4.8 -> 3.4. The paragraph's
+  width stays 95 mm (the stretch arrow sets it).
+- A block already placed picks up the new type on its next rebuild (pick its size from the triangle, even the same).
+
+**Tests**
+- `Na__Test__TitleBlockCells__.test.mjs`: 12 new checks - a fifth on A2 and A1, 84 -> 100.8 for a grown address, a
+  200 mm title keeps every millimetre while the fifth shrinks evenly, A2 portrait unchanged, factor 1 a no-op.
+- `Na__Test__ScrapbookProjectQr__.test.mjs`: the default is 20 mm (22.8 mm box) and every check that built at the
+  default now measures against it rather than a hard-coded 30; a check pins 2.2 / 2.2 / 1.5.
+- Both pass; `Na__Verify__Exports__.mjs` passes.
+
+**Checked in the app**
+- The strip built by `Na__LeChrome__Build` from the served modules on 8867, with RB05 D02's fields, on A2, A1, A3
+  and A2 portrait, cell widths read back off the drawn dividers and the A2 strip rasterised before and after. The
+  portal block painted through `Na__LeShapeGeo__Push` + `Na__LeChrome__ToSvgMarkup` at 20 mm, both forms. Nothing
+  entered the editor. NOT tried by Adam; NOT in ValeVision (VV has the cells solver at v1.1.0 and no portal block).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.108.0  -  21-Sep-2026
 ### The Scan Me Button's Handset Now Looks Like the Phone in Somebody's Pocket
 

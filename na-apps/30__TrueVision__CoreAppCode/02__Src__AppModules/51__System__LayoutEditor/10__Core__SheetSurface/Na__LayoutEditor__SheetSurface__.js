@@ -47,6 +47,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0 (TrueVision)
+// - ZOOM NOW, REDRAW WHEN IT RESTS. A wheel or pinch step now opens a zoom
+//   gesture (NoteZoomGesture, called by the navigation module). Until the
+//   zoom has rested for ZoomSettleMs only the paper's scale changes: the
+//   handles are not rebuilt per step, and the paper carries
+//   na-le-paper--zooming, which holds it as one composited layer so a step
+//   scales the picture already drawn instead of rasterising the sheet again.
+//   Then SettleZoom takes the hold off, counter-scales the handles and
+//   announces ZOOM_SETTLED_EVENT, in one task, so the sheet is drawn once,
+//   crisp. A single zoom (Fit, 100%, a resize) settles at once. The listeners
+//   that used to run on every step - the notes margin grip, the Measurements
+//   box, the sheet tools' counter-scaled boxes, Draft mode's hairlines - now
+//   listen for the settle; ZOOM_EVENT is left to what must track the zoom
+//   live (the toolbar's readout).
+//
 // 21-Sep-2026 - Version 1.7.0 (TrueVision)
 // - THE LAYERS LIST IS THE STACK. Every viewport used to sit in one box at
 //   z-index 1 under one chrome SVG and one markup SVG, so the list only ever
@@ -128,7 +143,7 @@
 
     // MODULE IMPORTS | Layout, Model, Chrome, Markup, Viewports and Handles
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetEditScopeSetup, Na__LeCfg__GetViewportCacheSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetEditScopeSetup, Na__LeCfg__GetViewportCacheSetup, Na__LeCfg__GetNavigationSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import {
         Na__LeModel__KIND_3D,
@@ -169,7 +184,9 @@
 
     // MODULE CONSTANTS | Class Names and Events
     // ------------------------------------------------------------
-    const Na__LeSurface__ZOOM_EVENT   = 'na-layouteditor-zoom-changed';
+    const Na__LeSurface__ZOOM_EVENT   = 'na-layouteditor-zoom-changed';     // <-- Every step, as it happens: only what must track the zoom live listens here
+    const Na__LeSurface__ZOOM_SETTLED_EVENT = 'na-layouteditor-zoom-settled';   // <-- The zoom has come to rest: once per wheel or pinch gesture, at once for a single zoom
+    const Na__LeSurface__CLASS_ZOOMING = 'na-le-paper--zooming';          // <-- A gesture is under way: the paper is held as one composited layer
     const Na__LeSurface__CLASS_ROOM   = 'na-le-room';
     const Na__LeSurface__CLASS_SCALER = 'na-le-scaler';
     const Na__LeSurface__CLASS_PAPER  = 'na-le-paper';
@@ -204,6 +221,8 @@
     let Na__LeSurface__OnAsset   = null;
     let Na__LeSurface__Pending   = null;    // <-- Reasons waiting for the next animation frame
     let Na__LeSurface__Frame     = 0;       // <-- The requestAnimationFrame handle holding them
+    let Na__LeSurface__ZoomGesture = false; // <-- A wheel or pinch zoom is under way and has not yet rested
+    let Na__LeSurface__ZoomTimer   = 0;     // <-- The timer that settles it
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Viewport Cache (sheets kept rendered while another is shown)
@@ -259,6 +278,8 @@
     // ------------------------------------------------------------
     function Na__LeSurface__Unmount() {
         Na__LeSurface__CancelPending();                                          // <-- A booked rebuild must not land on a torn-down paper
+        if (Na__LeSurface__ZoomTimer) window.clearTimeout(Na__LeSurface__ZoomTimer);   // <-- Nor a zoom settling on a paper that has gone
+        Na__LeSurface__ZoomTimer = 0; Na__LeSurface__ZoomGesture = false;
         if (Na__LeSurface__OnAsset) window.removeEventListener(Na__LeChrome__ASSET_EVENT, Na__LeSurface__OnAsset);
         Na__LeSurface__OnAsset = null;
         if (Na__LeSurface__Sheet) Na__LeSurface__ReleaseFrames();
@@ -468,21 +489,74 @@
         Na__LeSurface__Room.style.height   = (heightPx + (stageH * 2)) + 'px';
         Na__LeSurface__Scaler.style.left   = stageW + 'px';
         Na__LeSurface__Scaler.style.top    = stageH + 'px';
-        if (Na__LeSurface__Handles) Na__LeSurface__RefreshSelection();          // <-- Handles are counter-scaled
+        // Handles are counter-scaled - but not step by step while a gesture is
+        // under way. Rebuilt on every wheel notch, a selected viewport's
+        // outline (as big as the viewport) was torn down and put back each
+        // time, and the browser drew everything under it again with it: the
+        // whole viewport's linework, per notch. They scale with the paper for
+        // the length of the gesture and are put right once, when it settles.
+        if (Na__LeSurface__Handles && !Na__LeSurface__ZoomGesture) Na__LeSurface__RefreshSelection();
     }
     // ------------------------------------------------------------
 
 
     // FUNCTION | Set the Zoom (the navigation module keeps the cursor point fixed)
     // ------------------------------------------------------------
+    // ZOOM_EVENT goes out on every step. A single zoom (Fit, 100%, a resize)
+    // has nothing to wait for, so it settles at once; a wheel or pinch step
+    // (NoteZoomGesture) settles when the gesture rests.
+    // ------------------------------------------------------------
     function Na__LeSurface__SetZoom(zoom) {
         if (!Number.isFinite(zoom) || zoom <= 0) return Na__LeSurface__Zoom;
         Na__LeSurface__Zoom = zoom;
         Na__LeSurface__ApplyZoom();
         window.dispatchEvent(new CustomEvent(Na__LeSurface__ZOOM_EVENT, { detail : { zoom : zoom } }));
+        if (!Na__LeSurface__ZoomGesture) window.dispatchEvent(new CustomEvent(Na__LeSurface__ZOOM_SETTLED_EVENT, { detail : { zoom : zoom } }));
         return Na__LeSurface__Zoom;
     }
     function Na__LeSurface__GetZoom() { return Na__LeSurface__Zoom; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Wheel or Pinch Step: Zoom Now, Redraw When It Rests
+    // ------------------------------------------------------------
+    // Called by the navigation module just before the step's SetZoom. It opens
+    // (or extends) a gesture: until ZoomSettleMs pass with no further step,
+    // only the paper's scale changes - the handles are not rebuilt, the
+    // listeners of ZOOM_SETTLED_EVENT wait, and (HoldPaperWhileZooming) the
+    // paper is held as ONE composited layer, so each step scales the picture
+    // already drawn instead of rasterising every line, fill, hatch and picture
+    // on the sheet again. The browser draws it crisp once, when it settles.
+    // Measured on RB05's ground floor plan: 76-110 ms a step without the hold,
+    // 17-20 ms with it (TrueVision__PLAN__DraftMode__.md, section 9).
+    // ------------------------------------------------------------
+    function Na__LeSurface__NoteZoomGesture() {
+        if (!Na__LeSurface__Paper) return;
+        const setup = Na__LeCfg__GetNavigationSetup();
+        Na__LeSurface__ZoomGesture = true;
+        Na__LeSurface__Paper.classList.toggle(Na__LeSurface__CLASS_ZOOMING, setup.holdPaperWhileZooming !== false);
+        if (Na__LeSurface__ZoomTimer) window.clearTimeout(Na__LeSurface__ZoomTimer);
+        Na__LeSurface__ZoomTimer = window.setTimeout(Na__LeSurface__SettleZoom, setup.zoomSettleMs);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Zoom Has Rested: Everything That Waited, Together
+    // ------------------------------------------------------------
+    // The hold comes off, the handles are counter-scaled again and
+    // ZOOM_SETTLED_EVENT goes out - all in one task, so the browser lays out
+    // and rasterises the sheet ONCE, at its new zoom, with whatever the
+    // listeners change (Draft mode's hairline width among them).
+    // ------------------------------------------------------------
+    function Na__LeSurface__SettleZoom() {
+        if (Na__LeSurface__ZoomTimer) window.clearTimeout(Na__LeSurface__ZoomTimer);
+        Na__LeSurface__ZoomTimer = 0;
+        if (!Na__LeSurface__ZoomGesture) return;
+        Na__LeSurface__ZoomGesture = false;
+        if (Na__LeSurface__Paper) Na__LeSurface__Paper.classList.remove(Na__LeSurface__CLASS_ZOOMING);
+        if (Na__LeSurface__Handles) Na__LeSurface__RefreshSelection();
+        window.dispatchEvent(new CustomEvent(Na__LeSurface__ZOOM_SETTLED_EVENT, { detail : { zoom : Na__LeSurface__Zoom } }));
+    }
     // ------------------------------------------------------------
 
 
@@ -804,6 +878,8 @@
     // ------------------------------------------------------------
     export {
         Na__LeSurface__ZOOM_EVENT,
+        Na__LeSurface__ZOOM_SETTLED_EVENT,
+        Na__LeSurface__NoteZoomGesture,
         Na__LeSurface__Mount,
         Na__LeSurface__Unmount,
         Na__LeSurface__SetSheet,

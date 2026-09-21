@@ -60,6 +60,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - On A2 and A1 every cell but the Drawing Title is a fifth wider
+//   (TitleBlock RowWidthFactorByPaper, applied by Cells.Widen out of the
+//   title's spare room only). Adam: "20% more space" for the address and
+//   each box on the right.
+// - A row's ValuePrefix is printed in front of its value: the Rev cell reads
+//   "Revision A" on every sheet. Printed only; the sheet still stores "A".
+//   On a strip too narrow for every value whole (A4 portrait) the prefix is
+//   dropped rather than let it cut the date or the scale further.
+//
 // 20-Sep-2026 - Version 1.4.0
 // - Each cell's floor - its label with its padding - goes to the solver with
 //   its need, for Cells 1.1.0: on a strip too narrow even for the text, the
@@ -120,7 +130,7 @@
         Na__LeChrome__BaselineFromTop,
         Na__LeChrome__BaselineCentred
     } from './Na__LayoutEditor__SheetChrome__.js';
-    import { Na__LeTitleCells__Cell, Na__LeTitleCells__Solve } from './Na__LayoutEditor__TitleBlock__Cells__.js';   // <-- A leaf: numbers in, numbers out
+    import { Na__LeTitleCells__Cell, Na__LeTitleCells__Widen, Na__LeTitleCells__Solve } from './Na__LayoutEditor__TitleBlock__Cells__.js';   // <-- A leaf: numbers in, numbers out
     import { Na__LeTitleQr__Solve, Na__LeTitleQr__Build } from './Na__LayoutEditor__TitleBlock__QrCell__.js';      // <-- The right-hand end cell: the project's QR code and its note
     // ------------------------------------------------------------
 
@@ -172,6 +182,25 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Value With Its Row's Prefix Printed in Front of It
+    // ------------------------------------------------------------
+    // The Rev cell's "Revision A": the sheet still stores "A", and only the
+    // strip says the word. A value already opening with the prefix, or with
+    // a word the prefix begins with - "Rev B", "Revision B", "rev. B" - has
+    // that word taken off first, so the cell can never read "Revision Rev B".
+    // Nothing to print, no prefix: an empty cell stays empty.
+    // ------------------------------------------------------------
+    function Na__LeTitleModern__Prefixed(value, prefix) {
+        const text = String(value || '').trim();
+        const word = String(prefix || '').trim();
+        if (!text || !word) return text;
+        const lead = /^([A-Za-z]{3,})\.?\s+(.+)$/.exec(text);                   // <-- An opening word of three letters or more, then the rest
+        const rest = (lead && word.toLowerCase().indexOf(lead[1].toLowerCase()) === 0) ? lead[2] : text;
+        return word + ' ' + rest;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | One Cell's Label and Value, and the Room They Ask For
     // ------------------------------------------------------------
     // needMm is the wider of the two with the cell's padding either side: what
@@ -179,10 +208,11 @@
     // label alone with its padding: the least the solver may cut a Flex cell to
     // on paper too narrow for the strip, so a cell always says what it is.
     // Measured with the same face, size, weight and tracking the text is then
-    // drawn in.
+    // drawn in. bare leaves a row's ValuePrefix off (see Build).
     // ------------------------------------------------------------
-    function Na__LeTitleModern__MeasureCell(row, fields, setup, style) {
-        const value = fields[row.Key] !== undefined && fields[row.Key] !== null ? String(fields[row.Key]) : '';
+    function Na__LeTitleModern__MeasureCell(row, fields, setup, style, bare) {
+        const raw   = fields[row.Key] !== undefined && fields[row.Key] !== null ? String(fields[row.Key]) : '';
+        const value = bare ? raw : Na__LeTitleModern__Prefixed(raw, row.ValuePrefix);
         let   label = String(row.Label || row.Key || '');
         if (style.titleLabelUppercase) label = label.toUpperCase();
 
@@ -197,6 +227,20 @@
             needMm  : Math.max(labelMm, valueMm) + (setup.fieldPaddingHMm * 2),
             floorMm : labelMm + (setup.fieldPaddingHMm * 2)
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | How Much Wider the Fixed Cells Are on This Paper
+    // ------------------------------------------------------------
+    // Read by the paper's key (A2, A1), whichever way round it is: the solver
+    // decides how much of it a portrait strip can actually afford. 1 for a
+    // paper the config does not list, or a layout with no page.
+    // ------------------------------------------------------------
+    function Na__LeTitleModern__PaperFactor(setup, page) {
+        const table  = (setup && setup.rowWidthFactorByPaper && typeof setup.rowWidthFactorByPaper === 'object') ? setup.rowWidthFactorByPaper : {};
+        const factor = (page && page.SizeKey) ? Number(table[page.SizeKey]) : NaN;
+        return (Number.isFinite(factor) && factor > 1) ? factor : 1;
     }
     // ------------------------------------------------------------
 
@@ -247,8 +291,25 @@
         const qrCell = Na__LeTitleQr__Solve(band, setup, logo.Cell.WidthMm, style);
         const stripX = logo.Cell.X + logo.Cell.WidthMm;
         const stripW = Math.max(0, band.WidthMm - logo.Cell.WidthMm - (qrCell ? qrCell.Cell.WidthMm : 0));
-        const cells  = setup.rows.map((row) => Na__LeTitleModern__MeasureCell(row, fields, setup, style));
-        const widths = Na__LeTitleCells__Solve(stripW, cells.map((cell) => Na__LeTitleCells__Cell(cell.row, cell.needMm, cell.floorMm)));
+        // THE BIG SHEETS GIVE THE FIXED CELLS MORE AIR: a fifth more on A2 and
+        // A1, out of the Drawing Title's spare room only (Cells.Widen), so the
+        // title never loses a character to it.
+        //
+        // A PREFIX IS A NICETY AND NEVER COSTS ANOTHER CELL ITS TEXT. Where the
+        // strip is too narrow for every value whole (A4 portrait), "Revision A"
+        // would make the date and the scale lose more of theirs, so the strip is
+        // solved again with the bare values and the cell prints "A".
+        const factor = Na__LeTitleModern__PaperFactor(setup, layout.Page);
+        const solve  = (bare) => {
+            const measured = setup.rows.map((row) => Na__LeTitleModern__MeasureCell(row, fields, setup, style, bare));
+            const solved   = Na__LeTitleCells__Solve(stripW, Na__LeTitleCells__Widen(stripW, measured.map((cell) => Na__LeTitleCells__Cell(cell.row, cell.needMm, cell.floorMm)), factor));
+            const cutsText = measured.some((cell, i) => !(cell.row.Flex > 0) && solved[i] + Na__LeTitleModern__FIT_TOLERANCE_MM < cell.needMm);
+            return { cells : measured, widths : solved, cutsText : cutsText };
+        };
+        let solved = solve(false);
+        if (solved.cutsText && setup.rows.some((row) => !!row.ValuePrefix)) solved = solve(true);
+        const cells  = solved.cells;
+        const widths = solved.widths;
 
         let cursor = stripX;
         cells.forEach((cell, index) => {

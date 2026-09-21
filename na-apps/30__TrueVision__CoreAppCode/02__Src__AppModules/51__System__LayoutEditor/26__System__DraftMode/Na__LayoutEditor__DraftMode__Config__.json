@@ -18,13 +18,7 @@
         "Lines__FillOnlyInkNote"  : "A shape that had ONLY a fill - a leader's dot, a bubble's wash, a room's colour with its outline switched off, a dimension's text mask - has no line of its own to keep, so with fills gone it would vanish. It is outlined in this ink instead, so it is still there to see and to aim at."
     },
 
-    "LayoutEditor__DraftMode__Navigation": {
-        "Navigation__Description"        : "LayOut's Pan and Zoom Redraw Delay, for the one thing a browser redraws on every zoom step: the whole sheet, rasterised again at the new scale.",
-        "Navigation__HoldWhileZooming"   : true,
-        "Navigation__HoldNote"           : "While a zoom gesture is under way the paper is held as one composited layer, so each wheel step scales pixels already drawn instead of rasterising the sheet again. The crisp hairlines are drawn once, when the wheel has rested for RedrawDelayMs. False rasterises every step, as the sheet does outside Draft.",
-        "Navigation__RedrawDelayMs"      : 300,
-        "Navigation__RedrawDelayNote"    : "How long the wheel must rest before the held picture is redrawn crisp. LayOut's default is 0.3 s and its range 0.1 s to 3 s; the same bounds are enforced here."
-    },
+    "LayoutEditor__DraftMode__NavigationNote": "The zoom hold and its redraw delay are not Draft's any more: since 21-Sep-2026 every sheet zooms now and redraws when the zoom rests, Draft or not. They live in Na__LayoutEditor__AppConfig__.json, LayoutEditor__Navigation__Config (ZoomSettleMs, HoldPaperWhileZooming). Draft re-solves its hairline width when a zoom settles.",
 
     "LayoutEditor__DraftMode__Labels": {
         "Labels__Description"  : "Every word Draft mode puts on the screen.",

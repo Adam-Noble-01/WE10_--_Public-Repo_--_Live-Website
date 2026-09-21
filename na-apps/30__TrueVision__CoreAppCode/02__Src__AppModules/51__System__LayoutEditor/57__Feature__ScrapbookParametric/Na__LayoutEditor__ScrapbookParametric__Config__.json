@@ -10,7 +10,7 @@
         "Meta__HouseTitle"  : "The drawing title was measured on 19-Sep-2026 from the six elevation titles and two plan titles Adam lettered by hand on PS02 D22 and D21. All eight agree: capitals, qualifier first (EXISTING EAST ELEVATION), Open Sans 600 at 3.5 mm in #172b3a, ranged left; an underline 0.4 pt thick and exactly 60 mm long, 1.631 mm under the baseline and 0.171 mm in from the text's left; and the scale bar 6.318 mm under the underline, sharing its left end. He groups title, underline and bar as one object.",
         "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between. THE FILL WAS LIGHTENED ON 20-Sep-2026 to #858585 - a fifth of the way from the measured #666666 to white - because Adam found the checker too heavy on the page. Nothing else about the bar moved, and the test fixtures carry the new value.",
         "Meta__BarRight"    : "A SCALE BAR PLACED TO THE RIGHT was measured on 20-Sep-2026 from the arrangement Adam laid out by hand over PS01's proposed south east elevation: the title and its underline exactly where they always are, and the bar standing away along the same line with its FOOT on the title's baseline - 3.631 mm (1.631 + the bar's own 2) above the underline - so the two read as one band across the foot of the drawing. Its far end is meant to land under a corner of the building above it, which is why that end is the one that is dragged and the near end is the one that lengthens.",
-        "Meta__Portal"      : "THE PROJECT PORTAL BLOCK (21-Sep-2026) is drawn from two mock-ups Adam made: a narrow column - code, Scan Me button, heading, bullets - and a wider one that stands that column beside a heading and a paragraph. Its code is NEVER encoded here: the box is one vector carrying a Shape__Qr block, and the shape painter fills it with whatever symbol the Project QR Code system answers for the project on screen, which is the same symbol the title block prints. So a block dragged onto a sheet carries THIS project's code, and one copied into another project carries that one's. The size of the code is the parameter (30 mm as shipped, the rest of the list on the lookup grip); everything round it is set in paper millimetres and does not scale with it, because type on a drawing is house sizes or it is wrong."
+        "Meta__Portal"      : "THE PROJECT PORTAL BLOCK (21-Sep-2026) is drawn from two mock-ups Adam made: a narrow column - code, Scan Me button, heading, bullets - and a wider one that stands that column beside a heading and a paragraph. Its code is NEVER encoded here: the box is one vector carrying a Shape__Qr block, and the shape painter fills it with whatever symbol the Project QR Code system answers for the project on screen, which is the same symbol the title block prints. So a block dragged onto a sheet carries THIS project's code, and one copied into another project carries that one's. The size of the code is the parameter (20 mm as shipped, the rest of the list on the lookup grip); everything round it is set in paper millimetres and does not scale with it, because type on a drawing is house sizes or it is wrong."
     },
 
     "LayoutEditor__ScrapbookParametric__Elements": {
@@ -50,7 +50,7 @@
                 "Element__Id"          : "ProjectPortalCompact",
                 "Element__Type"        : "ProjectQr",
                 "Element__Name"        : "Project Portal QR",
-                "Element__Description" : "The project's own QR code, big enough to see across a table, with a Scan Me button and the few lines that make somebody want to point a phone at it. The code is this project's and fills itself in. Click the triangle for another size - 30 mm as dropped - or for the version with the full description beside it.",
+                "Element__Description" : "The project's own QR code, big enough to see across a table, with a Scan Me button and the few lines that make somebody want to point a phone at it. The code is this project's and fills itself in. Click the triangle for another size - 20 mm as dropped - or for the version with the full description beside it.",
                 "Element__Params"      : { "Form" : "compact" }
             },
             {
@@ -168,11 +168,11 @@
     "LayoutEditor__ScrapbookParametric__ProjectQr": {
         "ProjectQr__Description"        : "Element three: the Project Portal block (Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js). See Meta__Portal for where it came from. The origin is the top left corner of the code's box; the button, the caption, the heading and the bullets run down from it, and the full form's heading and paragraph stand to its right. The SYMBOL is not here and is not in the record: the box carries a Shape__Qr block and the shape painter asks the Project QR Code system (02__Src__AppModules/53__System__ProjectQrCode/) for the project's own code every time the sheet is drawn.",
 
-        "ProjectQr__SizeMm"             : 30,
+        "ProjectQr__SizeMm"             : 20,
         "ProjectQr__SizeChoicesMm"      : [ 15, 20, 25, 30 ],
         "ProjectQr__SizeMinMm"          : 15,
         "ProjectQr__SizeMaxMm"          : 120,
-        "ProjectQr__SizeNote"           : "The symbol edge to edge, in paper millimetres, and the ONLY thing that makes this block bigger or smaller. 30 mm is what a code has to be to be noticed on a drawing rather than looked for: three and a half times the 8.8 mm the title block prints. The list is what the lookup grip's triangle and the panel offer, and it runs 15 to 30 - the sizes that sit on a drawing beside other things. 40 and 50 were dropped because at that size the code stops being a detail on a sheet and starts being the sheet, and the type round it, which is house sizes and does NOT grow with the code, reads as an afterthought against it. Every size here is far above what a phone needs - a 29 module symbol at 15 mm is a 0.52 mm module against the 0.28 mm floor - so the limits are about the page, not the camera, and the shape painter reports the printed size to the QR system's own check either way. A block already set to a size that has left the list keeps it: only the menu changed, and Normalise still holds anything between SizeMinMm and SizeMaxMm.",
+        "ProjectQr__SizeNote"           : "The symbol edge to edge, in paper millimetres, and the ONLY thing that makes this block bigger or smaller. 20 mm is what a block dropped from the Scrapbook starts at - Adam, 21-Sep-2026 - more than twice the 8.8 mm the title block prints, and still a detail on the sheet rather than the sheet. It was 30 until then; a block already placed keeps the size it was given. The list is what the lookup grip's triangle and the panel offer, and it runs 15 to 30 - the sizes that sit on a drawing beside other things. 40 and 50 were dropped because at that size the code stops being a detail on a sheet and starts being the sheet, and the type round it, which is house sizes and does NOT grow with the code, reads as an afterthought against it. Every size here is far above what a phone needs - a 29 module symbol at 15 mm is a 0.52 mm module against the 0.28 mm floor - so the limits are about the page, not the camera, and the shape painter reports the printed size to the QR system's own check either way. A block already set to a size that has left the list keeps it: only the menu changed, and Normalise still holds anything between SizeMinMm and SizeMaxMm.",
 
         "ProjectQr__MarginFraction"     : 0.07,
         "ProjectQr__MarginFractionNote" : "The clear paper inside the box, as a fraction of the code rather than a count of millimetres - which is what keeps the quiet zone at the same number of MODULES whatever size the code is drawn at. 0.07 of a 29 module symbol is 2.03 modules, the two the QR system asks for, and a longer address (a bigger symbol, more modules) only ever gives it more. The box's own rule sits at the edge of that margin and counts as not clear, which is why the rule is where the margin ends and not inside it.",
@@ -196,15 +196,15 @@
         "ProjectQr__ButtonIconNote"     : "The handset is a MODERN SMARTPHONE, drawn the way the phone in somebody's pocket looks: a slim body about half as wide as it is tall, well-rounded corners, and the Dynamic Island pill filled in across the top of the screen. The first glyph was a squat rounded box with a bar across its foot, which Adam found too ambiguous to read as a phone (21-Sep-2026) - at this size it could have been a door, a battery or a tablet. The pill is what says 'phone' at 4.6 mm; its size and place are fractions of the width, set in the module.",
         "ProjectQr__ButtonNote"         : "The Scan Me button: a stadium the width of the code's box, with a handset and the words centred in it as one pair. It is not a control and nothing happens when it is clicked - it is the thing that tells somebody who has never met a QR code that the square above it is for pointing a phone at, which is the whole reason this block exists rather than the title block's code being left to do the work.",
 
-        "ProjectQr__GapsNote"           : "EVERY GAP BELOW IS BASELINE TO BASELINE, not a space between two lines - which is the only way to set type that stays even when one line is a heading and the next is a caption. A gap therefore has to carry three things: the descender of the line above, the air wanted between them, and the CAP HEIGHT of the line below (0.72 of its size in Open Sans). A 4.6 mm gap under a 3.5 mm heading leaves 1.3 mm of air; the same 4.6 under the 5.4 mm title leaves none at all, which is what had the project name sitting on the title's descenders. The numbers here were re-set on 21-Sep-2026 against a rendering of both forms at 30 mm, and the title has a gap of its own for exactly that reason.",
+        "ProjectQr__GapsNote"           : "EVERY GAP BELOW IS BASELINE TO BASELINE, not a space between two lines - which is the only way to set type that stays even when one line is a heading and the next is a caption. A gap therefore has to carry three things: the descender of the line above, the air wanted between them, and the CAP HEIGHT of the line below (0.72 of its size in Open Sans). A 4.6 mm gap under a 3.5 mm heading leaves 1.3 mm of air; the same 4.6 under the 5.4 mm title leaves none at all, which is what had the project name sitting on the title's descenders. The numbers here were re-set on 21-Sep-2026 against a rendering of both forms at 30 mm, and the title has a gap of its own for exactly that reason. They were set again the same day for the smaller type Adam asked for with the 20 mm default - body text (the paragraph AND the bullets) 2.2 mm, the caption 1.5 - keeping the air between lines roughly what it was: bullets 3.6 apart (1.5 mm of air), paragraph lines 3.4 (1.3 mm).",
 
-        "ProjectQr__CaptionGapMm"       : 3.6,
-        "ProjectQr__CaptionSizeMm"      : 2.1,
+        "ProjectQr__CaptionGapMm"       : 2.8,
+        "ProjectQr__CaptionSizeMm"      : 1.5,
         "ProjectQr__CaptionWeight"      : 400,
         "ProjectQr__CaptionColour"      : "#5f6b74",
-        "ProjectQr__CaptionNote"        : "Measured from the FOOT OF THE BUTTON, not from a baseline, because the button is a shape and has no baseline to measure from. 3.6 leaves 2.1 mm of paper between the button's rule and the caption's capitals. The caption is ranged LEFT on the column's own edge like everything under it: centred on the code box it overhung that edge at every size where the wording was wider than the box - which is every size below 25 mm - and an element whose left edge moves with its code size cannot be lined up with anything on a sheet.",
+        "ProjectQr__CaptionNote"        : "Measured from the FOOT OF THE BUTTON, not from a baseline, because the button is a shape and has no baseline to measure from. 2.8 leaves 1.7 mm of paper between the button's rule and the caption's capitals, now the caption is 1.5 mm (Adam, 21-Sep-2026; it was 2.1 under a 3.6 gap). The caption is ranged LEFT on the column's own edge like everything under it: centred on the code box it overhung that edge at every size where the wording was wider than the box - which is every size below 25 mm - and an element whose left edge moves with its code size cannot be lined up with anything on a sheet.",
 
-        "ProjectQr__HeadingGapMm"       : 6.4,
+        "ProjectQr__HeadingGapMm"       : 6.2,
         "ProjectQr__HeadingSizeMm"      : 3.5,
         "ProjectQr__HeadingWeight"      : 600,
         "ProjectQr__HeadingColour"      : "#172b3a",
@@ -215,11 +215,11 @@
         "ProjectQr__NameColour"         : "#5f6b74",
         "ProjectQr__NameNote"           : "The project's name, under whichever heading leads the block: the compact form's own, and the full form's larger one. It is read live from the project on screen, so renaming the project rewrites every block in the pack; a name typed into the panel wins and stops it following, and clearing that box puts it back. It is lettered ONCE - the full form's left-hand column leaves it out, because the heading beside it is already carrying it and saying it twice reads as a mistake.",
 
-        "ProjectQr__BulletsGapMm"       : 5.6,
-        "ProjectQr__BulletSizeMm"       : 2.7,
+        "ProjectQr__BulletsGapMm"       : 5.0,
+        "ProjectQr__BulletSizeMm"       : 2.2,
         "ProjectQr__BulletWeight"       : 400,
         "ProjectQr__BulletColour"       : "#5f6b74",
-        "ProjectQr__BulletPitchMm"      : 4.4,
+        "ProjectQr__BulletPitchMm"      : 3.6,
         "ProjectQr__BulletMark"         : "·   ",
 
         "ProjectQr__ColumnGapMm"        : 11,
@@ -229,11 +229,11 @@
         "ProjectQr__TitleBaselineMm"    : 4.6,
         "ProjectQr__TitleNameGapMm"     : 5.8,
         "ProjectQr__TitleNameGapNote"   : "The full form's title is 5.4 mm where the compact form's heading is 3.5, so the drop to the project name underneath cannot be the same number in both. This is the title's own: 5.8 baseline to baseline leaves 1.9 mm between the title's descenders and the name's capitals. NameGapMm stays what the compact heading wants. One number under two different sizes of type is the fault this key exists to undo.",
-        "ProjectQr__BodyGapMm"          : 5.4,
-        "ProjectQr__BodySizeMm"         : 3.1,
+        "ProjectQr__BodyGapMm"          : 4.6,
+        "ProjectQr__BodySizeMm"         : 2.2,
         "ProjectQr__BodyWeight"         : 400,
         "ProjectQr__BodyColour"         : "#5f6b74",
-        "ProjectQr__BodyPitchMm"        : 4.8,
+        "ProjectQr__BodyPitchMm"        : 3.4,
         "ProjectQr__BodyWidthMm"        : 95,
         "ProjectQr__BodyWidthMinMm"     : 45,
         "ProjectQr__BodyWidthMaxMm"     : 260,

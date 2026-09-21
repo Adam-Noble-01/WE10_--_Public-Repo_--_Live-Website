@@ -36,6 +36,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - GetNavigationSetup reads the zoom settle: zoomSettleMs (100-3000, 350 when
+//   unset) and holdPaperWhileZooming (true unless the config says false), for
+//   the sheet surface's "zoom now, redraw when it rests".
+//
 // 21-Sep-2026 - Version 1.1.1
 // - GetPanelSetup's fallback fold group names Floor Areas and Patterns too, as
 //   the config's AccordionSections now does, so a config that fails to load
@@ -262,7 +267,9 @@
             zoomMin       : Na__LeCfg__Num('Navigation', 'ZoomMin', 0.15),
             zoomMax       : Na__LeCfg__Num('Navigation', 'ZoomMax', 8),
             zoomWheelStep : Na__LeCfg__Num('Navigation', 'ZoomWheelStep', 0.0016),
-            fitPaddingPx  : Na__LeCfg__Num('Navigation', 'FitPaddingPx', 32)
+            fitPaddingPx  : Na__LeCfg__Num('Navigation', 'FitPaddingPx', 32),
+            zoomSettleMs  : Math.min(3000, Math.max(100, Na__LeCfg__Num('Navigation', 'ZoomSettleMs', 350))),   // <-- How long a zoom must rest before what follows it runs (LayOut's range)
+            holdPaperWhileZooming : Na__LeCfg__Val('Navigation', 'HoldPaperWhileZooming', true) !== false       // <-- The paper held as one layer until the zoom settles
         };
     }
     // ------------------------------------------------------------

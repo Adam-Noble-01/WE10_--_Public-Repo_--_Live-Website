@@ -26,7 +26,7 @@
 //   screen - so a block dragged in shows this project's code, a block copied
 //   to another project shows that one's, and this module, which must stay
 //   pure, never encodes anything. One record, not one per module.
-// - THE CODE'S SIZE IS THE PARAMETER. 30 mm as shipped, and the lookup grip
+// - THE CODE'S SIZE IS THE PARAMETER. 20 mm as shipped, and the lookup grip
 //   offers the rest of the list. Everything drawn round the code is set in
 //   paper millimetres and does NOT scale with it: type on a drawing is house
 //   sizes or it is wrong, and a 20 mm code with 1.8 mm bullets under it would
@@ -62,6 +62,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - A block dropped from the Scrapbook is 20 mm, not 30 (Adam, 21-Sep-2026),
+//   and its type is smaller to suit: the body text - the full form's
+//   paragraph and both forms' bullets - 2.2 mm (was 3.1 and 2.7), the
+//   "Use your phone or tablet camera" caption 1.5 (was 2.1). The gaps and
+//   pitches round them were re-set against a rendering at 20 mm so the air
+//   between lines stays about what it was. A block already placed keeps its
+//   size; its type follows on its next rebuild.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - The handset in the Scan Me button is a modern smartphone: a slimmer,
 //   taller body (4.6 mm, was 4.0) with rounder corners and a filled Dynamic
@@ -114,7 +123,7 @@
     // draws the shipped block rather than nothing.
     // ------------------------------------------------------------
     const Na__LeParamQr__FALLBACK = Object.freeze({
-        SizeMm              : 30,
+        SizeMm              : 20,
         SizeMinMm           : 15,
         SizeMaxMm           : 120,
         MarginFraction      : 0.07,
@@ -134,12 +143,12 @@
         ButtonIconGapMm     : 2.0,
         ButtonIconStrokePt  : 0.6,
 
-        CaptionGapMm        : 3.6,
-        CaptionSizeMm       : 2.1,
+        CaptionGapMm        : 2.8,
+        CaptionSizeMm       : 1.5,
         CaptionWeight       : 400,
         CaptionColour       : '#5f6b74',
 
-        HeadingGapMm        : 6.4,
+        HeadingGapMm        : 6.2,
         HeadingSizeMm       : 3.5,
         HeadingWeight       : 600,
         HeadingColour       : '#172b3a',
@@ -149,11 +158,11 @@
         NameWeight          : 400,
         NameColour          : '#5f6b74',
 
-        BulletsGapMm        : 5.6,
-        BulletSizeMm        : 2.7,
+        BulletsGapMm        : 5.0,
+        BulletSizeMm        : 2.2,
         BulletWeight        : 400,
         BulletColour        : '#5f6b74',
-        BulletPitchMm       : 4.4,
+        BulletPitchMm       : 3.6,
         BulletMark          : '·   ',
 
         ColumnGapMm         : 11,
@@ -162,11 +171,11 @@
         TitleColour         : '#172b3a',
         TitleBaselineMm     : 4.6,
         TitleNameGapMm      : 5.8,
-        BodyGapMm           : 5.4,
-        BodySizeMm          : 3.1,
+        BodyGapMm           : 4.6,
+        BodySizeMm          : 2.2,
         BodyWeight          : 400,
         BodyColour          : '#5f6b74',
-        BodyPitchMm         : 4.8,
+        BodyPitchMm         : 3.4,
         BodyWidthMm         : 95,
         BodyWidthMinMm      : 45,
         BodyWidthMaxMm      : 260,

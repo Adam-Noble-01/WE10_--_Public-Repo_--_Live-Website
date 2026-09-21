@@ -138,6 +138,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.32.0
+// - The counter-scaled boxes (eyedropper, tracking crosses, selection box,
+//   group boxes) are put right when a zoom SETTLES
+//   (Na__LeSurface__ZOOM_SETTLED_EVENT), not on every zoom step, and their
+//   group repaint is booked once a frame (DropperDraw) instead of once per
+//   announcement - a burst of announcements used to queue that many repaints
+//   of the same frame.
+//
 // 19-Sep-2026 - Version 1.31.0
 // - SELECT PICKS THE MOVE TOOL UP BY ITSELF for what is usually moved next:
 //   text, a vector, a leader by its bubble, note or curve, and a group
@@ -425,7 +433,7 @@
     // ------------------------------------------------------------
     import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectionItems } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import {
-        Na__LeSurface__ZOOM_EVENT,
+        Na__LeSurface__ZOOM_SETTLED_EVENT,
         Na__LeSurface__GetElements,
         Na__LeSurface__GetPixelsPerMm,
         Na__LeSurface__GetZoom,
@@ -522,6 +530,7 @@
     // MODULE VARIABLES | The Listeners While Attached (the shared state is in Na__LayoutEditor__SheetTools__State__)
     // ------------------------------------------------------------
     let Na__LeTools__Handlers   = null;
+    let Na__LeTools__GroupFrame = 0;         // <-- The group boxes' repaint, booked once however many announcements ask for it in a frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -530,6 +539,28 @@
 // -----------------------------------------------------------------------------
 // REGION | Attach and Detach
 // -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Put the Counter-Scaled Boxes Right: After a Model Change or a Settled Zoom
+    // ------------------------------------------------------------
+    // The eyedropper's boxes, the tracking crosses and a selection box are
+    // counter-scaled like the grips, and groups paint after the surface clears
+    // the layer, on the next frame. That frame is booked ONCE: this used to
+    // queue a fresh one per announcement, so a burst of them repainted the
+    // group boxes that many times over in the same frame. It no longer runs on
+    // every zoom step either - the zoom's settle is the one that counts.
+    // ------------------------------------------------------------
+    function Na__LeTools__DropperDraw() {
+        const sheet = Na__LeModel__GetActiveSheet();
+        Na__LeScope__Prune(sheet); Na__LeDrop__Refresh(sheet); Na__LeVpMove__Refresh(sheet); Na__LeSelBox__Refresh(sheet);
+        if (Na__LeTools__GroupFrame) return;
+        Na__LeTools__GroupFrame = requestAnimationFrame(() => {
+            Na__LeTools__GroupFrame = 0;
+            const els  = Na__LeSurface__GetElements();
+            const shown = Na__LeModel__GetActiveSheet();
+            if (els && els.handles && shown) Na__LeGroup__Render(els.handles, shown, Na__LeModel__GetSelectionItems(), Na__LeSurface__GetPixelsPerMm(), Na__LeSurface__GetZoom());
+        });
+    }
+    // ------------------------------------------------------------
 
     // FUNCTION | Listen on the Stage and the Keyboard
     // ------------------------------------------------------------
@@ -550,12 +581,12 @@
             keyup         : (e) => { if (e.key === 'Shift') Na__LeTools__ShiftRedraw(!!e.shiftKey); },
             scopedraw     : () => Na__LeSurface__Refresh('scope'),            // <-- Opening or closing a container fades the sheet and redraws its contents
             settlemove    : () => Na__LeTools__SettleAutoMove(),              // <-- A Move that came up by itself goes back down when the selection stops warranting it (Delete, an undo, a container opening or closing)
-            dropperdraw   : () => { const sheet = Na__LeModel__GetActiveSheet(); Na__LeScope__Prune(sheet); Na__LeDrop__Refresh(sheet); Na__LeVpMove__Refresh(sheet); Na__LeSelBox__Refresh(sheet); requestAnimationFrame(() => { const els = Na__LeSurface__GetElements(); if (els && els.handles && sheet) Na__LeGroup__Render(els.handles, sheet, Na__LeModel__GetSelectionItems(), Na__LeSurface__GetPixelsPerMm(), Na__LeSurface__GetZoom()); }); }   // <-- The eyedropper's boxes, the tracking crosses and a selection box are counter-scaled, like the grips; groups paint after the surface clears the layer
+            dropperdraw   : () => Na__LeTools__DropperDraw()                  // <-- The counter-scaled boxes, once a frame; a zoom counts when it settles
         };
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'dblclick', 'contextmenu' ].forEach((name) => Na__LeTools__Stage.addEventListener(name, Na__LeTools__Handlers[name]));
         window.addEventListener('keydown', Na__LeTools__Handlers.keydown);
         window.addEventListener('keyup', Na__LeTools__Handlers.keyup);
-        [ Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeTools__Handlers.dropperdraw));
+        [ Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeTools__Handlers.dropperdraw));
         window.addEventListener(Na__LeScope__CHANGED_EVENT, Na__LeTools__Handlers.scopedraw);
         [ Na__LeModel__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeTools__Handlers.settlemove));
         Na__LeMeasure__Attach({                                              // <-- The Measurements box reads the tools through these, and never imports them back
@@ -600,7 +631,8 @@
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'dblclick', 'contextmenu' ].forEach((name) => Na__LeTools__Stage.removeEventListener(name, Na__LeTools__Handlers[name]));
         window.removeEventListener('keydown', Na__LeTools__Handlers.keydown);
         window.removeEventListener('keyup', Na__LeTools__Handlers.keyup);
-        [ Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeTools__Handlers.dropperdraw));
+        [ Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeTools__Handlers.dropperdraw));
+        if (Na__LeTools__GroupFrame) { cancelAnimationFrame(Na__LeTools__GroupFrame); Na__LeTools__GroupFrame = 0; }   // <-- No group repaint booked for a stage that is going
         window.removeEventListener(Na__LeScope__CHANGED_EVENT, Na__LeTools__Handlers.scopedraw);
         [ Na__LeModel__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeTools__Handlers.settlemove));
         Na__LeTools__Stage.style.cursor = '';

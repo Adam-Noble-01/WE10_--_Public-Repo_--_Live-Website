@@ -67,7 +67,7 @@ import { tmpdir } from 'node:os';
         SiteAddress : 67.01,     // 255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD
         Title       : 91.61,     // Permitted Development Compliance - Existing Conditions & Design Proposal Elevations
         DocumentId  : 17.61,     // PS01_T01_D02
-        Revision    : 5.78,      // B - the label REV is wider than the value
+        Revision    : 5.78,      // B - the label REV is wider than the value. "Revision B" (14.24) since 21-Sep-2026 on paper with room; on a strip too narrow for every value (A4) the builder drops the word and asks for this again
         Scale       : 17.02,     // 1:50 @ ISO A2
         Date        : 15.28,     // 19 Sep 2026
         DrawnBy     : 11.46,     // A. Noble
@@ -168,6 +168,45 @@ import { tmpdir } from 'node:os';
     check('every cell has some width', a4p.widths.every((mm) => mm > 0));
     check('the title is down to its label before anything else is scaled', near(a4p.byKey.Title / FLOORS.Title, a4p.byKey.Date / NEEDS.Date, 1e-6) && a4p.byKey.Title < FLOORS.Title, 'title ' + a4p.byKey.Title.toFixed(2) + ' of a ' + FLOORS.Title + ' floor');
     check('so every other value loses an eighth of its cell, where it used to lose a third', a4p.byKey.Date / NEEDS.Date > 0.85, (100 * (1 - a4p.byKey.Date / NEEDS.Date)).toFixed(1) + ' percent');
+
+    console.log('A2 AND A1 GIVE THE FIXED CELLS A FIFTH MORE (21-Sep-2026)');
+    // Adam: on A2 and A1, "20% more space" for the address and each box on the
+    // right, the drawing title excepted. These strips have the QR cell off the
+    // end, as the app draws them: A2 544 - 56, A1 791 - 56, A2 portrait 370 - 56.
+    const WIDE    = { A1 : 735, A2 : 488, A2P : 314 };
+    const FACTORS = config['LayoutEditor__TitleBlock__RowWidthFactorByPaper'] || {};
+    function solveWide(stripMm, factor, needs) {
+        const asked  = Object.assign({}, NEEDS, needs || {});
+        const given  = ROWS.map((row) => cells.Na__LeTitleCells__Cell(row, asked[row.Key], FLOORS[row.Key]));
+        const before = JSON.stringify(given);
+        const wider  = cells.Na__LeTitleCells__Widen(stripMm, given, factor);
+        const widths = cells.Na__LeTitleCells__Solve(stripMm, wider);
+        const byKey  = {};
+        ROWS.forEach((row, index) => { byKey[row.Key] = widths[index]; });
+        return { widths : widths, byKey : byKey, asked : asked, total : widths.reduce((sum, mm) => sum + mm, 0), untouched : JSON.stringify(given) === before };
+    }
+    check('the config asks a fifth more on A2 and A1, and on nothing smaller', FACTORS.A2 === 1.2 && FACTORS.A1 === 1.2 && !FACTORS.A3 && !FACTORS.A4, JSON.stringify(FACTORS));
+    const wideA2 = solveWide(WIDE.A2, FACTORS.A2);
+    check('A2: every fixed cell is a fifth wider', fixed.every((row) => near(wideA2.byKey[row.Key], row.WidthMm * 1.2)), fixed.map((row) => row.Key + ' ' + wideA2.byKey[row.Key].toFixed(1)).join(', '));
+    check('A2: the Site Address is 84 mm', near(wideA2.byKey.SiteAddress, 84), wideA2.byKey.SiteAddress.toFixed(2));
+    check('A2: the Drawing Title has the rest, 161.6 mm, and nothing is cut', near(wideA2.byKey.Title, WIDE.A2 - 326.4) && cutOff(wideA2).length === 0, wideA2.byKey.Title.toFixed(2) + ' mm');
+    check('A2: the strip is filled exactly', near(wideA2.total, WIDE.A2));
+    check('Widen leaves the cells it is handed alone', wideA2.untouched);
+    // RB05's address is 84 mm of text in a 70 mm base: it had already grown to
+    // fit, and 70 x 1.2 is 84 again - so a fifth on the BASE gave the one cell
+    // Adam pointed at no air at all. The fifth is on what the cell prints at.
+    const rb05 = solveWide(WIDE.A2, FACTORS.A2, { SiteAddress : 84 });
+    check('RB05: an address that had grown to 84 mm to fit gets a fifth on top of that, 100.8 mm', near(rb05.byKey.SiteAddress, 100.8) && cutOff(rb05).length === 0, rb05.byKey.SiteAddress.toFixed(2) + ' mm');
+    const wideA1 = solveWide(WIDE.A1, FACTORS.A1);
+    check('A1: every fixed cell is a fifth wider too', fixed.every((row) => near(wideA1.byKey[row.Key], row.WidthMm * 1.2)));
+    const longOnA2 = solveWide(WIDE.A2, 1.2, { Title : 200 });
+    const fraction = (longOnA2.byKey.Client / 36) - 1;
+    check('a 200 mm title keeps every millimetre: the fifth shrinks instead', near(longOnA2.byKey.Title, 200) && cutOff(longOnA2).length === 0, longOnA2.byKey.Title.toFixed(2) + ' mm');
+    check('and every fixed cell gets the SAME share of its fifth', fraction > 0 && fraction < 0.2 && fixed.every((row) => near(longOnA2.byKey[row.Key], row.WidthMm * (1 + fraction))), (fraction * 100).toFixed(1) + ' percent');
+    const portrait = solveWide(WIDE.A2P, 1.2);
+    const plain    = solve(WIDE.A2P);
+    check('A2 portrait cannot afford it, and draws exactly the strip it drew before', portrait.widths.every((mm, index) => near(mm, plain.widths[index])));
+    check('a factor of 1 changes nothing', solveWide(WIDE.A2, 1).widths.every((mm, index) => near(mm, solve(WIDE.A2).widths[index])));
 
     console.log('A CALLER THAT GIVES NO FLOOR');
     const noFloor = cells.Na__LeTitleCells__Solve(192, ROWS.map((row) => cells.Na__LeTitleCells__Cell(row, NEEDS[row.Key])));

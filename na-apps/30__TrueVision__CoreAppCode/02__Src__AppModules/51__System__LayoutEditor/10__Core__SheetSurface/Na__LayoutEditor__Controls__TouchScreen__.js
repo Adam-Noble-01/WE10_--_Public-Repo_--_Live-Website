@@ -48,6 +48,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - A pinch step is a zoom gesture step (ZoomAbout's gesture argument): the
+//   sheet surface holds the paper and everything that follows the zoom until
+//   the pinch rests, as it does for the wheel.
+//
 // 10-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__Navigation__, whose pinch was the only touch
 //   gesture the editor had and which left no way to pan with a finger.
@@ -229,7 +234,7 @@
             const span = Na__LeTouch__Span();
             if (!span) return;
             if (setup.pinchZoom && Na__LeTouch__Pinch.distance > setup.pinchStartSlopPx) {
-                Na__LeNav__ZoomAbout(Na__LeTouch__Pinch.zoom * (span.distance / Na__LeTouch__Pinch.distance), span.midX, span.midY);
+                Na__LeNav__ZoomAbout(Na__LeTouch__Pinch.zoom * (span.distance / Na__LeTouch__Pinch.distance), span.midX, span.midY, true);   // <-- A gesture step: what follows the zoom waits until the pinch rests
             }
             if (setup.twoFingerPan) {
                 Na__LeNav__PanBy(Na__LeTouch__Pinch.midX - span.midX, Na__LeTouch__Pinch.midY - span.midY);

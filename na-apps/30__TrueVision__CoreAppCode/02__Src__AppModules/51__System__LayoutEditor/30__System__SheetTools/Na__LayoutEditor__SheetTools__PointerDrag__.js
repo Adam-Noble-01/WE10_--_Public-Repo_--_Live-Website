@@ -65,6 +65,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0
+// - OnMove does nothing while a pan is in flight (the stage carries
+//   na-le-stage--panning) and no drag is under way: a pan carries the paper
+//   with the pointer, so the hover, the snapped rubber band and the hit test
+//   were being worked out again on every move for a point that never changed.
+//
 // 20-Sep-2026 - Version 1.7.0
 // - A VIEWPORT FRAME TAKES THE ARROW-KEY AXIS LOCK, which it never had.
 //   IsMoveDrag deliberately excludes a viewport - it has its own reading and
@@ -257,6 +263,14 @@
     // HELPER FUNCTION | Pointer Move: Placement Preview, Drag, or Hover Cursor
     // ------------------------------------------------------------
     function Na__LeTools__OnMove(event) {
+        // A PAN MOVES THE PAPER WITH THE POINTER, so the paper point under it
+        // never changes and a tool's hover or rubber band has nothing new to
+        // show. They used to be worked out again on every move all the same -
+        // a hit test with Select, a snapped rubber band with Draw or Floor Area
+        // (5 ms a move, 41 ms at worst, on RB05) - for the length of the pan.
+        // The PC controls mark the stage while a pan is in flight
+        // (Na__LePc__PANNING_CLASS); a drag already under way still runs.
+        if (!Na__LeTools__Drag && Na__LeTools__Stage && Na__LeTools__Stage.classList.contains('na-le-stage--panning')) return;
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         if (!sheet || !point) return;

@@ -34,6 +34,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.11
+// - Token bumped (2026-09-21-03) for the zoom settle (Layout Editor: zoom now,
+//   redraw when it rests). The sheet surface exports two new names -
+//   Na__LeSurface__ZOOM_SETTLED_EVENT and Na__LeSurface__NoteZoomGesture - and
+//   five existing modules now import them (Navigation, SheetTools,
+//   Measurements, MarginGrip and DraftMode). Checked against HEAD: origin/main and HEAD both
+//   carry 2026-09-21-02, i.e. -02 is DEPLOYED, so a warm cache holds the old
+//   sheet surface and a new importer would fail to link until the second visit.
+//
 // 21-Sep-2026 - Version 1.9.10
 // - Token bumped (2026-09-21-02) for the storey band on plans (v2.105.0).
 //   A new module, 50__System__ProjectedLinework/Na__ProjectedLinework__Storeys__,
@@ -286,7 +295,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-21-02';                                                                   // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-21-03';                                                                   // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

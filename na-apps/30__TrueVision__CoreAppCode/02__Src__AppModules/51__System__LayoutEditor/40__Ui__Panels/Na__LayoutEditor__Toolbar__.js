@@ -29,6 +29,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.14.0
+// - A zoom step updates the zoom readout and nothing else (SyncZoom). The full
+//   Sync used to run on every wheel notch, and it reads the active sheet four
+//   times over, each read normalising every sheet in the set - about 2.4 ms a
+//   notch on RB05 for one number.
+//
 // 21-Sep-2026 - Version 1.13.0
 // - Draft: a toggle after Notes switches Draft mode (K,
 //   Na__LayoutEditor__DraftMode__) and is lit while it is on. Its words come
@@ -141,6 +147,7 @@
     let Na__LeToolbar__Editable  = false;
     let Na__LeToolbar__ShowToast = null;
     let Na__LeToolbar__Listeners = null;
+    let Na__LeToolbar__ZoomListener = null;   // <-- The readout alone, on every zoom step
     let Na__LeToolbar__Busy      = false;
     // ------------------------------------------------------------
 
@@ -223,8 +230,7 @@
             scope.title       = text;
             scope.classList.toggle('na-le-toolbar__hint--scope', !!open);
         }
-        const zoom = Na__LeToolbar__Root.querySelector('[data-na-toolbar="zoom"]');
-        if (zoom) zoom.textContent = Math.round(Na__LeSurface__GetZoom() * 100) + '%';
+        Na__LeToolbar__SyncZoom();
         const sheet = Na__LeModel__GetActiveSheet();
         const name  = Na__LeToolbar__Root.querySelector('.na-le-toolbar__name');
         if (name) name.textContent = sheet ? Na__LeModel__GetTabLabel(sheet) : '';   // <-- What the tab reads: the register's short code, then the short name
@@ -239,6 +245,23 @@
         if (save) { save.classList.toggle('na-le-toolbar__btn--attention', Na__LeModel__IsDirty() || Na__LeSpec__IsDirty()); save.disabled = Na__LeToolbar__Busy; }
         const pdf = Na__LeToolbar__Root.querySelector('[data-na-toolbar="pdf"]');
         if (pdf) pdf.disabled = Na__LeToolbar__Busy || !sheet;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Reflect the Zoom Alone (every zoom step)
+    // ------------------------------------------------------------
+    // THE FULL SYNC USED TO RUN ON EVERY WHEEL NOTCH, for the one number that
+    // changes with the zoom - and it asks the model for the active sheet four
+    // times (undo, redo, the name, the notes margin), each of which normalises
+    // every sheet of the set: about 2.4 ms a notch on RB05, more on a busier
+    // set. A zoom step now updates the readout and nothing else.
+    // ------------------------------------------------------------
+    function Na__LeToolbar__SyncZoom() {
+        if (!Na__LeToolbar__Root) return;
+        const zoom = Na__LeToolbar__Root.querySelector('[data-na-toolbar="zoom"]');
+        const text = Math.round(Na__LeSurface__GetZoom() * 100) + '%';
+        if (zoom && zoom.textContent !== text) zoom.textContent = text;
     }
     // ------------------------------------------------------------
 
@@ -392,7 +415,9 @@
         container.appendChild(root);
         Na__LeToolbar__Root = root;
         Na__LeToolbar__Listeners = () => Na__LeToolbar__Sync();
-        [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
+        Na__LeToolbar__ZoomListener = () => Na__LeToolbar__SyncZoom();
+        [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
+        window.addEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeToolbar__ZoomListener);   // <-- The readout tracks the wheel live; nothing else on the toolbar changes with the zoom
         Na__LeToolbar__Sync();
         return true;
     }
@@ -403,10 +428,11 @@
     // ------------------------------------------------------------
     function Na__LeToolbar__Unmount() {
         if (Na__LeToolbar__Listeners) {
-            [ Na__LeTools__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
+            [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
         }
+        if (Na__LeToolbar__ZoomListener) window.removeEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeToolbar__ZoomListener);
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
-        Na__LeToolbar__Root = Na__LeToolbar__Listeners = null;
+        Na__LeToolbar__Root = Na__LeToolbar__Listeners = Na__LeToolbar__ZoomListener = null;
     }
     // ------------------------------------------------------------
 

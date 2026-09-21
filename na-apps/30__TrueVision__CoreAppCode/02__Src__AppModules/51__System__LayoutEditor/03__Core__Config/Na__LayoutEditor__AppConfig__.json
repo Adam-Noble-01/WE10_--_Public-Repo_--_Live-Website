@@ -80,12 +80,15 @@
             { "Key": "SiteAddress",   "Label": "Site Address",  "WidthMm": 70 },
             { "Key": "Title",         "Label": "Drawing Title", "WidthMm": 60, "Flex": 1 },
             { "Key": "DocumentId",    "Label": "Document ID",   "WidthMm": 24 },
-            { "Key": "Revision",      "Label": "Rev",           "WidthMm": 28 },
+            { "Key": "Revision",      "Label": "Rev",           "WidthMm": 28, "ValuePrefix": "Revision" },
             { "Key": "Scale",         "Label": "Scale",         "WidthMm": 28 },
             { "Key": "Date",          "Label": "Date",          "WidthMm": 28 },
             { "Key": "DrawnBy",       "Label": "Drawn By",      "WidthMm": 28 },
             { "Key": "Status",        "Label": "Status",        "WidthMm": 30 }
         ],
+        "LayoutEditor__TitleBlock__ValuePrefixNote": "A row's ValuePrefix is printed in front of its value, with a space, whenever there is a value to print. It is how the Rev cell reads 'Revision A' rather than a lone letter - Adam, 21-Sep-2026: 'it looks a bit silly with just a letter in'. It is PRINTED, never stored: the sheet still holds 'A', so the Drawing Register's column, the Sheet panel's box and the PDF file name's {revision} token (RevA) are all unchanged. A value that already starts with the prefix or a word it begins with ('Rev B', 'Revision B') keeps only the letter, so it can never print 'Revision Rev B'. An empty value prints nothing, prefix included. A prefix never costs another cell its text: on a strip too narrow for every value whole (A4 portrait) the builder solves it again with the bare values, and the cell prints 'A'.",
+        "LayoutEditor__TitleBlock__RowWidthFactorByPaperNote": "Every row EXCEPT the Flex ones (the Drawing Title) is this much wider on the paper named - Adam, 21-Sep-2026: on A2 and A1 give the site address and each box on the right '20% more space', the drawing title excepted. Paper sizes not listed use the rows as they are. THE FIFTH IS ON WHAT THE CELL PRINTS AT, not on its WidthMm: RB05's address, 'West Beacon Farm, Deans Lane, Woodhouse Eaves, Leicestershire, LE12 8TE', had already grown its 70 mm cell to 84 to fit, and a fifth on the 70 would have been 84 again - no air at all for the one cell Adam pointed at; it is 100.8 now. THE EXTRA IS PAID ONLY OUT OF THE DRAWING TITLE'S SPARE ROOM, never out of its text: the cells take their fifth only while the strip still has room once every cell - the title included - has the wider of its WidthMm and its text; where it cannot afford all of it (A2 portrait, whose strip is A3 landscape's) every cell gets the same smaller share, down to none. On A2 landscape the fields are left 488 mm between the logo and the QR cell: 272 mm of fixed rows become 326.4, and the title keeps 161.6 of its 216. The logo cell and the QR cell are not rows and do not grow - the QR cell's width is measured to set its note in two even lines. The arithmetic is Na__LeTitleCells__Widen.",
+        "LayoutEditor__TitleBlock__RowWidthFactorByPaper": { "A2": 1.2, "A1": 1.2 },
         "LayoutEditor__TitleBlock__StatusesNote": "What a drawing is issued for: the last cell of the strip, chosen from the Status box in the Sheet panel or on the drawing's row in the Drawing Register. Held per sheet (Sheet__Fields__Status), because a pack is rarely all one thing - one sheet is superseded while the rest go to tender. Listed in the order a job moves through them, which is the order both boxes offer. Add, remove or reword entries here and both boxes follow; a sheet carrying a status that has since left this list keeps it and still shows it. The Status cell is 30 mm, so an entry wider than 'FOR BUILDING CONTROL' borrows room from the Drawing Title - 'FOR BUILDING REGULATIONS' measures 33.1.",
         "LayoutEditor__TitleBlock__Statuses": [
             "PRELIMINARY",
@@ -277,7 +280,11 @@
         "LayoutEditor__Navigation__ZoomMin": 0.15,
         "LayoutEditor__Navigation__ZoomMax": 8,
         "LayoutEditor__Navigation__ZoomWheelStep": 0.0016,
-        "LayoutEditor__Navigation__FitPaddingPx": 32
+        "LayoutEditor__Navigation__FitPaddingPx": 32,
+        "LayoutEditor__Navigation__ZoomSettleNote": "ZOOM NOW, REDRAW WHEN IT RESTS - Adam, 21-Sep-2026: 'there should be a debounce, so it waits a little bit after you stop zooming before it tries to redraw'. A wheel or pinch zoom only changes the paper's scale while it is under way; ZoomSettleMs after the last step the zoom 'settles' once, and everything that follows the zoom happens then, together: the selection handles and grips are counter-scaled again, the notes margin grip, group boxes, eyedropper boxes and the Measurements box are placed, Draft mode's hairlines are re-solved - and the sheet is drawn again, crisp, at its new zoom. Wheel steps are also gathered into one per animation frame. A single zoom (Fit, 100%, a resize) settles at once. 100 to 3000; LayOut's own Pan and Zoom Redraw Delay defaults to 300.",
+        "LayoutEditor__Navigation__ZoomSettleMs": 350,
+        "LayoutEditor__Navigation__HoldPaperWhileZoomingNote": "While a zoom gesture is under way the paper is held as one composited layer (will-change: transform), so each step scales the picture already drawn instead of rasterising every line, fill, hatch and picture on the sheet again; it is drawn crisp once, when the zoom settles. Measured on RB05's ground floor plan in headless Chrome: 76-110 ms a zoom step without it, 17-20 ms (50-60 frames a second) with it, zooming in and out alike. The sheet is soft while the wheel turns and sharp a moment after. False rasterises every step, as before.",
+        "LayoutEditor__Navigation__HoldPaperWhileZooming": true
     },
 
     "LayoutEditor__WebViewer__Config": {

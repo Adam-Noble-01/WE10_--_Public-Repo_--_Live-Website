@@ -180,12 +180,11 @@
      step; in Draft a hairline edge marks the sheet instead.
    - The stage is hinted as a composited scroller, so a pan moves pixels
      already drawn rather than painting them again.
-   - WHILE A ZOOM GESTURE IS UNDER WAY (na-le-draft--moving, put on by the
-     module on the first step and taken off RedrawDelayMs after the last) the
-     paper is held as one composited layer: each step scales the picture
-     already drawn instead of rasterising the whole sheet again. When the
-     wheel rests the hold comes off and the sheet is drawn once, crisp, at
-     its new zoom - LayOut's Pan and Zoom Redraw Delay.
+   - The zoom hold is NOT here: since the zoom settle (21-Sep-2026) every sheet, Draft or not, is
+     held as one composited layer while a wheel or pinch zoom is under way and
+     drawn crisp once when it settles (.na-le-paper--zooming, in
+     Na__LayoutEditor__Styles__Main__Paper__.css). Draft re-solves its hairline
+     width at that settle.
    ----------------------------------------------------------------------------- */
 
     body.na-le-draft .na-le-paper {
@@ -195,10 +194,6 @@
 
     body.na-le-draft .na-le-stage {
         will-change                        : scroll-position;
-    }
-
-    body.na-le-draft.na-le-draft--moving .na-le-paper {
-        will-change                        : transform;
     }
 
 /* endregion ------------------------------------------------------------------- */

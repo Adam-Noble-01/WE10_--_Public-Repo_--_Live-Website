@@ -24,10 +24,14 @@
 //   questions. Save, which writes the file. Publish, which is the moment a
 //   statement becomes something a client can open. And the PDF, in two
 //   qualities.
-// - TWO KEYS, HELD BY THIS FILE because they belong to the tab rather than to
-//   the surface: Ctrl + / shows the raw markdown, Ctrl + . puts the page into
-//   Lucida Console. Both are remembered in this browser, so the way somebody
-//   likes to write is the way it opens next time.
+// - THREE KEYS, ANSWERED BY THIS FILE because they belong to the tab rather
+//   than to the surface: Ctrl + S saves the statement, Ctrl + / shows the raw
+//   markdown, Ctrl + . puts the page into Lucida Console. The last two are
+//   remembered in this browser, so the way somebody likes to write is the way
+//   it opens next time. They are bound in the documents' own key map and
+//   reach this file through the documents' keyboard
+//   (Na__LayoutEditor__DocumentKeys__), which hears a key before anything
+//   else in the app - so a letter typed here is a letter, never a tool.
 // - A LONG JOB SAYS WHERE IT IS. Publishing sends dozens of megabytes and the
 //   PDF rasterises several metres of page; both take long enough that silence
 //   would read as a hang, so both report into a small progress bar.
@@ -49,6 +53,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - The tab's keys go through the documents' keyboard
+//   (Na__LayoutEditor__DocumentKeys__) instead of a window listener of their
+//   own: Save, the raw markdown and the Lucida Console page are registered
+//   with it as Doc__Save, Doc__ToggleSource and Doc__ToggleMono.
+// - CTRL + S SAVES THE STATEMENT. It reached the editor's own save, which
+//   saved the sheets and synced the specification and left the statement
+//   being written marked Unsaved. It now does what the Save button does, and
+//   the button's hover text names the key.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -80,6 +94,13 @@
     import { Na__LeStmtPublish__Run, Na__LeStmtPublish__Title } from '../07__Export__Publish/Na__LayoutEditor__Statement__Publish__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | The Documents' Own Keyboard
+    // ------------------------------------------------------------
+    // @delegate: ../../31__System__DocumentKeys/Na__LayoutEditor__DocumentKeys__.js
+    // ------------------------------------------------------------
+    import { Na__LeDocKeys__Register, Na__LeDocKeys__KeyLabel } from '../../31__System__DocumentKeys/Na__LayoutEditor__DocumentKeys__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -92,6 +113,11 @@
     const Na__LeStmtPage__VIEW_KEY = 'Na__TrueVision__StatementView__';
     const Na__LeStmtPage__MONO_KEY = 'Na__TrueVision__StatementMono__';
     const Na__LeStmtPage__LAST_KEY = 'Na__TrueVision__StatementLast__';
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | This Tab's Name to the Documents' Keyboard
+    // ------------------------------------------------------------
+    const Na__LeStmtPage__DOC_KEYS_ID = 'statements';
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Page and Its Parts
@@ -221,9 +247,12 @@
         bar.appendChild(Na__LeStmtPage__Status);
 
         if (Na__LeStmtPage__Editable) {
-            bar.appendChild(Na__LeStmtPage__Button('Save', 'na-le-btn--small', async () => {
+            const save = Na__LeStmtPage__Button('Save', 'na-le-btn--small', async () => {
                 await Na__LeStmt__SaveLocal({});
-            }));
+            });
+            const saveKey = Na__LeDocKeys__KeyLabel('Doc__Save');
+            save.title = 'Write the statement to its file in the project folder' + (saveKey ? ' (' + saveKey + ')' : '');
+            bar.appendChild(save);
             bar.appendChild(Na__LeStmtPage__Button('Publish', 'na-le-btn--small na-le-btn--primary', () => Na__LeStmtPage__Publish()));
         }
 
@@ -556,35 +585,63 @@
 
         window.addEventListener(Na__LeStmt__CHANGED_EVENT, () => Na__LeStmtPage__Refresh());
         window.addEventListener('resize', () => { if (Na__LeStmtPage__Shown) Na__LeStmtPage__Fit(); });
-        window.addEventListener('keydown', Na__LeStmtPage__Keys, true);
+
+        // THE TAB'S OWN KEYS, through the documents' keyboard. Registered only
+        // where this session may author: a reader has nothing to save and no
+        // surface to switch, so the keys stay the browser's.
+        if (Na__LeStmtPage__Editable) {
+            Na__LeDocKeys__Register(Na__LeStmtPage__DOC_KEYS_ID, {
+                isShowing : () => Na__LeStmtPage__Shown,
+                actions   : {
+                    Doc__Save         : () => Na__LeStmtPage__SaveKey(),
+                    Doc__ToggleSource : () => Na__LeStmtPage__SourceKey(),
+                    Doc__ToggleMono   : () => Na__LeStmtPage__MonoKey()
+                }
+            });
+        }
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | The Tab's Own Keys
+    // FUNCTION | Ctrl + S: Save the Statement, as the Button Does
     // ------------------------------------------------------------
-    // Ctrl + /   the raw markdown, or back to the page
-    // Ctrl + .   the page in Lucida Console, or back
-    // Both are ignored unless this tab is showing and it can be edited, so
-    // they never take a key away from the drawing editor underneath.
+    // A click on Save moves the focus onto the button, and that blur is what
+    // commits a field still being typed into - a raw HTML block open for
+    // editing, a statement's new title. A key moves nothing, so the same
+    // commit is made here first. The page and the raw markdown view are left
+    // alone: every keystroke in them has already reached the data, and the
+    // caret stays exactly where the writer left it.
     // ------------------------------------------------------------
-    function Na__LeStmtPage__Keys(event) {
-        if (!Na__LeStmtPage__Shown || !Na__LeStmtPage__Editable) return;
-        if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+    function Na__LeStmtPage__SaveKey() {
+        const focused = document.activeElement;
+        const commits = !!focused && Na__LeStmtPage__Root.contains(focused)
+            && (focused.tagName === 'INPUT' || focused.tagName === 'TEXTAREA')
+            && !focused.classList.contains('na-le-stmt__source');
+        if (commits) focused.blur();
+        void Na__LeStmt__SaveLocal({});
+        return true;
+    }
+    // ------------------------------------------------------------
 
-        if (event.key === '/' || event.key === '?') {
-            event.preventDefault();
-            event.stopPropagation();
-            if (Na__LeStmtPage__View !== 'edit') Na__LeStmtPage__SetView('edit');
-            Na__LeStmtEd__SetSourceView(!Na__LeStmtEd__IsSourceView());
-            return;
-        }
-        if (event.key === '.' || event.key === '>') {
-            event.preventDefault();
-            event.stopPropagation();
-            Na__LeStmtEd__SetMono(!Na__LeStmtEd__IsMono());
-            Na__LeStmtPage__Remember(Na__LeStmtPage__MONO_KEY, Na__LeStmtEd__IsMono());
-        }
+
+    // FUNCTION | Ctrl + /: the Raw Markdown, or Back to the Page
+    // ------------------------------------------------------------
+    // From Read it opens Edit first: the markdown is the page being written.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__SourceKey() {
+        if (Na__LeStmtPage__View !== 'edit') Na__LeStmtPage__SetView('edit');
+        Na__LeStmtEd__SetSourceView(!Na__LeStmtEd__IsSourceView());
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Ctrl + .: the Page in Lucida Console, or Back
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__MonoKey() {
+        Na__LeStmtEd__SetMono(!Na__LeStmtEd__IsMono());
+        Na__LeStmtPage__Remember(Na__LeStmtPage__MONO_KEY, Na__LeStmtEd__IsMono());
+        return true;
     }
     // ------------------------------------------------------------
 

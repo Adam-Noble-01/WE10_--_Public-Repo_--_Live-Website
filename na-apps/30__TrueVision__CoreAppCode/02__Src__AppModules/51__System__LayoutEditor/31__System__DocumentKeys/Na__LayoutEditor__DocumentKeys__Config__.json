@@ -1,0 +1,72 @@
+{
+    "LayoutEditor__DocumentKeys__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__DocumentKeys__Config__.json",
+        "Meta__Description" : "The document tabs' own keyboard: the Project Specification, the Drawing Register and the Statements. A drawing tab is a canvas, where a bare letter picks a tool; a document tab is somewhere to write, where a bare letter is a letter. So the documents have a key map of their own, separate from the drawing tools' (Na__LayoutEditor__KeyMappings__.json) and from the 3D Model tab's (Na__AppConfig__Hotkeys.json), and it is heard before any other key in the app while a document tab is up.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture"
+    },
+
+    "LayoutEditor__DocumentKeys__Scopes": {
+        "Scopes__Description" : "The app has three keyboards and exactly one of them is live at a time (Na__AppUtils__KeyScope__). Which one is answered by the Layout Editor's mode controller from the tab on screen, afresh on every key. Nothing here needs setting: this block says how the three fit together.",
+        "Scopes__Model"       : "The 3D Model tab: R resets the view, B, T and Y pick Orbit, Walk and Fly, 1-9 and Page Up / Page Down go to presentation scenes. Silent on every other tab.",
+        "Scopes__Sheet"       : "A drawing tab: the drawing tools' bare-letter keys (V, M, T, R, L, D, E, A, B, K) and their chords. Attached only while a drawing tab is up.",
+        "Scopes__Document"    : "The Project Specification, the Drawing Register and the Statements: the bindings below, heard first, and every other key left to the field or the page it was typed into."
+    },
+
+    "LayoutEditor__DocumentKeys__Setup": {
+        "Setup__Description"    : "How the bindings below are read.",
+        "Setup__MetaIsCtrl"     : true,
+        "Setup__MetaIsCtrlNote" : "True counts a Mac's Command key as Ctrl, so Command+S saves as Ctrl+S does. The Statements tab's keys always behaved this way; the drawing tools' key map does not.",
+        "Setup__TypingNote"     : "A binding that would type a character - a bare letter, digit or symbol held with no Ctrl, Alt or Meta - is never acted on while the focus is in something that takes text, whatever this file says. Taking typed letters away from the page is the fault this keyboard was built to end.",
+        "Setup__RepeatNote"     : "Every document action is one-shot. A held key is taken, so the browser does not act on the repeat either, and the action runs once."
+    },
+
+    "LayoutEditor__DocumentKeys__Bindings": {
+        "Bindings__Description" : "Each binding names a key, the modifiers held with it and an action. The document on screen answers the action if it has an answer; if it has none, the key goes on exactly as it would have. ModifierMatch is Exact (the named modifiers and no others), ShiftOptional (Exact, with Shift forgiven - for a key whose Shift partner is listed beside it, as / and ?) or Any.",
+        "Bindings__List" : [
+            {
+                "Id"            : "Doc__Save",
+                "Label"         : "Save the document on screen (Ctrl+S)",
+                "Action"        : "Doc__Save",
+                "Enabled"       : true,
+                "Keys"          : [ "s", "S" ],
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "Exact",
+                "Documents"     : "Statements: writes the open statement to its markdown file, as the tab's Save button does, committing a raw HTML block or a title still being edited first. The Project Specification and the Drawing Register have no answer of their own, so on those tabs the key goes on to the editor's save: the sheets saved and the specification synced, as before."
+            },
+            {
+                "Id"            : "Doc__ToggleSource",
+                "Label"         : "Show the raw markdown, or the page again (Ctrl+/)",
+                "Action"        : "Doc__ToggleSource",
+                "Enabled"       : true,
+                "Keys"          : [ "/", "?" ],
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "ShiftOptional",
+                "Documents"     : "Statements: the same document seen as markdown in a plain field the width of the paper, and back. From Read it opens Edit first."
+            },
+            {
+                "Id"            : "Doc__ToggleMono",
+                "Label"         : "Put the page into Lucida Console, or back (Ctrl+.)",
+                "Action"        : "Doc__ToggleMono",
+                "Enabled"       : true,
+                "Keys"          : [ ".", ">" ],
+                "Modifiers"     : [ "Ctrl" ],
+                "ModifierMatch" : "ShiftOptional",
+                "Documents"     : "Statements: only the typeface changes, and the choice is remembered in this browser."
+            }
+        ]
+    },
+
+    "LayoutEditor__DocumentKeys__PageKeys": {
+        "PageKeys__Description" : "Keys that belong to one control on a page rather than to the whole document, and so are answered by that control and not bound here. Listed so everything a document tab does with the keyboard can be read in one place.",
+        "PageKeys__List" : [
+            "Statements, the page: Enter after a heading starts body text and after --- draws a rule; Tab types a tab rather than leaving the page.",
+            "Statements, a picture being cropped: Enter applies the crop, Escape abandons it.",
+            "Statements, a raw HTML block open for editing: Escape closes it.",
+            "Statements, Manage: Enter creates a statement from the title typed, or keeps a new title; Escape abandons a rename.",
+            "Project Specification: Enter commits a one-line field (a note's title moves on to its text); Escape clears the filter; Alt+Up and Alt+Down move a note; Ctrl+Z and Ctrl+Y outside a text field undo and redo the tab's own steps, in Edit.",
+            "Drawing Register: Enter confirms and syncs a cell; Escape puts it back; Alt+Up and Alt+Down on a row's grip move the drawing and renumber the pack."
+        ]
+    }
+}

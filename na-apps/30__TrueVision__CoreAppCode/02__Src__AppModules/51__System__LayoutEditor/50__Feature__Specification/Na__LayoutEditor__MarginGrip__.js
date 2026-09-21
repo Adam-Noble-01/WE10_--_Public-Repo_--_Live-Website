@@ -34,6 +34,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - The grip is placed when a zoom settles (Na__LeSurface__ZOOM_SETTLED_EVENT),
+//   not on every frame of one. Render re-plans the whole notes margin - every
+//   note wrapped and measured through jsPDF - and nothing in that plan depends
+//   on the zoom; only the grip's width and the badge's scale do, and they can
+//   wait for the wheel to rest like the handles do.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - The grip stays up under a Move tool that came up by itself
 //   (Na__LeTools__IsMoveAuto), as it does under Select. Picking a note now
@@ -54,7 +61,7 @@
     import { Na__LeCfg__GetMarginNotesSetup, Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__UpdateMarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import {
-        Na__LeSurface__ZOOM_EVENT,
+        Na__LeSurface__ZOOM_SETTLED_EVENT,
         Na__LeSurface__GetElements,
         Na__LeSurface__GetPixelsPerMm,
         Na__LeSurface__GetZoom,
@@ -76,7 +83,7 @@
 
     // MODULE CONSTANTS | What Moves the Grip, and the Drag Slop
     // ------------------------------------------------------------
-    const Na__LeMarginGrip__EVENTS  = [ Na__LeModel__CHANGED_EVENT, Na__LeSurface__ZOOM_EVENT, Na__LeTools__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, 'resize' ];
+    const Na__LeMarginGrip__EVENTS  = [ Na__LeModel__CHANGED_EVENT, Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeTools__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, 'resize' ];   // <-- A zoom counts when it SETTLES: Render re-plans the whole margin, and it used to on every frame of a wheel
     const Na__LeMarginGrip__SLOP_PX = 2;     // <-- A press that moves less than this changes nothing
     // ------------------------------------------------------------
 

@@ -51,6 +51,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - Wheel zoom is gathered into one zoom per animation frame (FlushWheelZoom):
+//   the steps are multiplied and applied once about the latest pointer
+//   position, and preventDefault still runs on every event. Each flush is a
+//   gesture step (ZoomAbout's gesture argument), so the sheet surface holds
+//   everything that follows the zoom until the wheel rests. Detach drops any
+//   steps still waiting for their frame.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - The wheel is offered to Na__LeVpZoom__OnWheel first: over a 3D viewport
 //   whose content is being edited it zooms that picture, and the sheet's own
@@ -110,6 +118,7 @@
     let Na__LePc__Handlers   = null;
     let Na__LePc__Pan        = null;                                             // <-- { pointerId, lastX, lastY, claimsLeft }
     let Na__LePc__SpaceHeld  = false;
+    let Na__LePc__WheelZoom  = null;                                             // <-- { factor, x, y, frame }: wheel steps gathered for the next animation frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -209,14 +218,37 @@
         const delta = event.deltaY * lines;
 
         if (action === 'Nav__ZoomAtCursor') {
-            event.preventDefault();
+            event.preventDefault();                                                           // <-- Always now, or the page scrolls under the sheet
             const setup  = Na__LeCfg__GetNavigationSetup();
             const factor = Math.exp(-delta * setup.zoomWheelStep);
-            Na__LeNav__ZoomAbout(Na__LeSurface__GetZoom() * factor, event.clientX, event.clientY);
+            // ONE ZOOM A FRAME, HOWEVER MANY WHEEL EVENTS. A precision touchpad
+            // or a free-spinning wheel reports several steps between two frames,
+            // and each used to run the whole zoom - layout reads, the scaler and
+            // every zoom listener - for a picture the screen never showed. The
+            // steps are multiplied together and applied once, about the latest
+            // pointer position, as the web viewer already does with its pans.
+            if (!Na__LePc__WheelZoom) Na__LePc__WheelZoom = { factor : 1, x : event.clientX, y : event.clientY, frame : window.requestAnimationFrame(Na__LePc__FlushWheelZoom) };
+            Na__LePc__WheelZoom.factor *= factor;
+            Na__LePc__WheelZoom.x = event.clientX;
+            Na__LePc__WheelZoom.y = event.clientY;
             return;
         }
         if (action === 'Nav__ScrollVertical')   { event.preventDefault(); Na__LeNav__PanBy(0, delta); return; }
         if (action === 'Nav__ScrollHorizontal') { event.preventDefault(); Na__LeNav__PanBy(delta, 0); return; }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Apply the Wheel Steps Gathered This Frame as One Zoom
+    // ------------------------------------------------------------
+    // A gesture step (ZoomAbout's fourth argument): the sheet surface holds
+    // everything that follows the zoom until the wheel has rested.
+    // ------------------------------------------------------------
+    function Na__LePc__FlushWheelZoom() {
+        const pending = Na__LePc__WheelZoom;
+        Na__LePc__WheelZoom = null;
+        if (!pending || !Na__LePc__Stage) return;
+        Na__LeNav__ZoomAbout(Na__LeSurface__GetZoom() * pending.factor, pending.x, pending.y, true);
     }
     // ------------------------------------------------------------
 
@@ -365,6 +397,7 @@
     // ------------------------------------------------------------
     function Na__LePc__Detach() {
         if (!Na__LePc__Stage || !Na__LePc__Handlers) return;
+        if (Na__LePc__WheelZoom) { window.cancelAnimationFrame(Na__LePc__WheelZoom.frame); Na__LePc__WheelZoom = null; }   // <-- Steps gathered for a stage that is going
         if (Na__LePc__Pan && Na__LePc__Pan.claimsLeft) Na__LeTools__SetSuppressed(false);
         Na__LePc__Stage.removeEventListener('wheel', Na__LePc__Handlers.wheel);
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'contextmenu' ].forEach((name) => {

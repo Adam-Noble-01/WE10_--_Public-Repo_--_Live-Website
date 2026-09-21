@@ -103,8 +103,8 @@ import { tmpdir } from 'node:os';
 
     // THE QUIET ZONE | The whole reason the margin is a fraction and not a size
     const sizes = portal.Na__LeParamQr__SizeChoices(config);
-    check('the size list is the config\'s, in order, and 30 mm is the default',
-        sizes.join() === '15,20,25,30' && portal.Na__LeParamQr__Standard(config).SizeMm === 30, sizes);
+    check('the size list is the config\'s, in order, and 20 mm is the default a tile drops (Adam, 21-Sep-2026)',
+        sizes.join() === '15,20,25,30' && portal.Na__LeParamQr__Standard(config).SizeMm === 20, sizes);
     const zones = sizes.map((sizeMm) => {
         const metrics = portal.Na__LeParamQr__Metrics(config, portal.Na__LeParamQr__Normalise(config, { SizeMm : sizeMm }));
         return { sizeMm : sizeMm, modules : metrics.marginMm / (sizeMm / MODULES), moduleMm : sizeMm / MODULES, boxMm : metrics.boxMm };
@@ -123,6 +123,18 @@ import { tmpdir } from 'node:os';
     check('the standard 30 mm size is one of the sizes offered', !!standard, sizes);
     check('at 30 mm the box is 34.2 mm and the margin 2.1 mm - three and a half times the code the title block prints',
         near(standard.boxMm, 34.2, 1e-6) && near(standard.boxMm - 30, 2.1 * 2, 1e-6), standard);
+    // THE DROPPED SIZE is what a block with no size of its own is built at -
+    // every check below that builds with {} is at this size, not at 30.
+    const dropped = zones.find((zone) => zone.sizeMm === portal.Na__LeParamQr__Standard(config).SizeMm);
+    check('a block dropped from the Scrapbook is 20 mm, one of the sizes offered', !!dropped && dropped.sizeMm === 20 && near(dropped.boxMm, 22.8, 1e-6), dropped);
+    check('the body text is 2.2 mm - the paragraph and the bullets - and the caption 1.5 (Adam, 21-Sep-2026)',
+        (() => {
+            const size = (built, pattern) => texts(built).filter((record) => pattern.test(record.Annotation__Text)).map((record) => record.Annotation__SizeMm);
+            const made = build({ Form : 'full' }, { projectName : () => 'PS01 - Musters Road' });
+            const both = build({}, { projectName : () => 'PS01 - Musters Road' });
+            return size(both, /^Use your phone/).join() === '1.5' && size(both, /^·/).every((mm) => mm === 2.2) && size(both, /^·/).length === 4 &&
+                   size(made, /^Point your phone/).join() === '2.2';
+        })());
     check('the list runs to 30 mm and no further: past that the code stops being a detail on the sheet',
         Math.max.apply(null, sizes) === 30 && Math.min.apply(null, sizes) === 15, sizes);
 
@@ -149,11 +161,11 @@ import { tmpdir } from 'node:os';
         /phone/i.test(config.ProjectQr__CaptionText) && /tablet/i.test(config.ProjectQr__CaptionText) && /camera/i.test(config.ProjectQr__CaptionText), config.ProjectQr__CaptionText);
     check('every vector comes before every text, so the engine\'s slots never move',
         compact.records.map((entry) => entry.kind[0]).join('') === 'ssssaaaaaaaa', compact.records.map((entry) => entry.kind[0]).join(''));
-    check('the button is a stadium the width of the code\'s box at the standard size',
-        near(Math.max.apply(null, shapes(compact)[1].Shape__Points.map((p) => p[0])), standard.boxMm, 1e-6) &&
+    check('the button is a stadium the width of the code\'s box at the dropped size',
+        near(Math.max.apply(null, shapes(compact)[1].Shape__Points.map((p) => p[0])), dropped.boxMm, 1e-6) &&
         near(Math.min.apply(null, shapes(compact)[1].Shape__Points.map((p) => p[0])), 0, 1e-6));
     check('the button stands clear below the code, never over it',
-        Math.min.apply(null, shapes(compact)[1].Shape__Points.map((p) => p[1])) >= standard.boxMm);
+        Math.min.apply(null, shapes(compact)[1].Shape__Points.map((p) => p[1])) >= dropped.boxMm);
 
     // THE SMALLEST CODE IS NARROWER THAN THE BUTTON'S OWN LABEL, and the
     // button has to grow rather than wear its words out of both ends. The
@@ -178,7 +190,7 @@ import { tmpdir } from 'node:os';
     check('nothing is lettered above the origin: the code box is the top of the block',
         texts(compact).every((record) => record.Annotation__PosYMm > 0));
     check('the block is at least as wide as its code, and the box at least as tall',
-        compact.sizeMm.WidthMm >= standard.boxMm && compact.sizeMm.HeightMm > standard.boxMm, compact.sizeMm);
+        compact.sizeMm.WidthMm >= dropped.boxMm && compact.sizeMm.HeightMm > dropped.boxMm, compact.sizeMm);
 
     // THE TYPE IS SET, NOT JUST PLACED (21-Sep-2026)
     // ------------------------------------------------------------
@@ -231,7 +243,7 @@ import { tmpdir } from 'node:os';
         airBetweenLines(full).length === 0, airBetweenLines(full));
     check('the title, the project name and the paragraph share one left edge of their own',
         (() => {
-            const atX = standard.boxMm + config.ProjectQr__ColumnGapMm;
+            const atX = dropped.boxMm + config.ProjectQr__ColumnGapMm;
             const right = texts(full).filter((record) => record.Annotation__PosXMm > 0.001 && record.Annotation__Text !== config.ProjectQr__ButtonText);
             return right.length >= 3 && right.every((record) => near(record.Annotation__PosXMm, atX, 1e-6));
         })(), texts(full).map((record) => [ record.Annotation__Text.slice(0, 16), record.Annotation__PosXMm ]));
@@ -279,7 +291,7 @@ import { tmpdir } from 'node:os';
     // PARAMETERS MADE WHOLE
     const junk = portal.Na__LeParamQr__Normalise(config, { SizeMm : 'big', Form : 'sideways', BodyWidthMm : null, ProjectName : 42 });
     check('junk parameters fall back to the config\'s standard',
-        junk.SizeMm === 30 && junk.Form === 'compact' && junk.BodyWidthMm === 95 && junk.ProjectName === '', junk);
+        junk.SizeMm === 20 && junk.Form === 'compact' && junk.BodyWidthMm === 95 && junk.ProjectName === '', junk);
     check('a size is held inside its limits',
         portal.Na__LeParamQr__Normalise(config, { SizeMm : 2 }).SizeMm === config.ProjectQr__SizeMinMm &&
         portal.Na__LeParamQr__Normalise(config, { SizeMm : 9999 }).SizeMm === config.ProjectQr__SizeMaxMm);
@@ -295,10 +307,10 @@ import { tmpdir } from 'node:os';
     check('neither form has a link socket: this block reads the project, not a drawing',
         compactGrips.link === null && fullGrips.link === null);
     check('the lookup triangle stands off the code box\'s top right corner in both forms',
-        near(compactGrips.lookup.x, standard.boxMm, 1e-6) && compactGrips.lookup.y === 0 && fullGrips.lookup.x === compactGrips.lookup.x);
+        near(compactGrips.lookup.x, dropped.boxMm, 1e-6) && compactGrips.lookup.y === 0 && fullGrips.lookup.x === compactGrips.lookup.x);
     check('the compact form has nothing to stretch; the full form\'s arrow is at the end of its paragraph',
-        compactGrips.stretch === null && near(fullGrips.stretch.x, standard.boxMm + config.ProjectQr__ColumnGapMm + 95, 1e-6), fullGrips.stretch);
-    const dragged = portal.Na__LeParamQr__StretchTo(config, { Form : 'full' }, standard.boxMm + config.ProjectQr__ColumnGapMm + 122);
+        compactGrips.stretch === null && near(fullGrips.stretch.x, dropped.boxMm + config.ProjectQr__ColumnGapMm + 95, 1e-6), fullGrips.stretch);
+    const dragged = portal.Na__LeParamQr__StretchTo(config, { Form : 'full' }, dropped.boxMm + config.ProjectQr__ColumnGapMm + 122);
     check('a stretch sets the width in 5 mm steps and keeps the form', dragged.BodyWidthMm === 120 && dragged.Form === 'full', dragged);
     check('a stretch on the compact form changes nothing', portal.Na__LeParamQr__StretchTo(config, {}, 400).BodyWidthMm === 95);
     const menu = portal.Na__LeParamQr__Choices(config, { SizeMm : 25 }, null);
@@ -321,13 +333,13 @@ import { tmpdir } from 'node:os';
         type.build({}).records.length > 2 && type.build({}).records[0].record.Shape__Qr !== undefined);
     check('a missing config still draws the shipped block',
         portal.Na__LeParamQr__Build(null, {}, NAMED).records.length === compact.records.length &&
-        portal.Na__LeParamQr__Build({}, {}, NAMED).records[0].record.Shape__Qr.Qr__MarginMm === 2.1);
+        portal.Na__LeParamQr__Build({}, {}, NAMED).records[0].record.Shape__Qr.Qr__MarginMm === 1.4);   // <-- 0.07 of the 20 mm fallback
 
     // THE TWO TILES | What the scrapbook offers
     const offered = elements.Elements__List.filter((element) => element.Element__Type === 'ProjectQr');
     check('the scrapbook offers both forms as tiles, each preset to one of them',
         offered.length === 2 && offered[0].Element__Params.Form === 'compact' && offered[1].Element__Params.Form === 'full', offered.map((element) => element.Element__Id));
-    check('each tile has a name and a description, and neither presets a size: 30 mm is the standard',
+    check('each tile has a name and a description, and neither presets a size: 20 mm is the standard',
         offered.every((element) => !!element.Element__Name && !!element.Element__Description && element.Element__Params.SizeMm === undefined));
     check('the type is named for the sheet\'s group tag and the panel', elements.Elements__TypeNames.ProjectQr === 'Project Portal');
 

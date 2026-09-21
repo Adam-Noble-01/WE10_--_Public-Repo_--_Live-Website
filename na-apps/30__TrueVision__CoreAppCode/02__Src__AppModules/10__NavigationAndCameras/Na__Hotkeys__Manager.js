@@ -22,7 +22,10 @@
 //   original view-mode switches) can be added by editing the JSON alone.
 // - Supersedes the individual Na__UiFeature__InitializeWalkModeHotkey and
 //   Na__UiFeature__InitializeFlyModeHotkey functions which are now no-ops.
-// - Guards against misfires in input fields.
+// - Guards against misfires in input fields - contenteditable included, since
+//   v2.1.0 - and acts only while the 3D Model tab has the keyboard
+//   (Na__AppUtils__KeyScope__). A drawing tab and a document tab each have a
+//   keyboard of their own.
 // - Na__Hotkeys__ApplyUiLabels reads the same config and propagates key labels
 //   to all user-facing surfaces: toolbar button title attributes, the static
 //   navigation help panel rows ([data-na-hotkey-row], Index.html), and the
@@ -53,7 +56,35 @@
 //   [data-na-hotkey-row] / [data-na-hotkey-item] surfaces still work exactly as
 //   before, just keyed by the new action strings.
 //
+// 21-Sep-2026 - Version 2.1.0
+// - THE 3D MODEL TAB'S KEYS ARE THE 3D MODEL TAB'S. The listener sat on the
+//   window for the whole session and never asked which tab was up, so R, B, T,
+//   Y, 1-9 and Page Up / Page Down went on answering under the Layout Editor:
+//   R typed into a statement reset a camera nobody could see and never reached
+//   the page, T on a drawing picked the Text tool AND put the hidden model into
+//   Walk mode, and the digits flew it between presentation scenes. It now acts
+//   only in the model key scope (Na__AppUtils__KeyScope__), which follows the
+//   Layout Editor's mode controller: the 3D Model tab, and nowhere else.
+// - The typing guard missed contenteditable, so a key was taken from any
+//   editable region: the statement page on the Statements tab, and a plan
+//   annotation label being edited on the 3D Model tab itself. It now uses
+//   Na__KeyScope__IsTypingTarget, the same test with that case added.
+//
 // =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// REGION | Module Imports
+// -----------------------------------------------------------------------------
+
+    // MODULE IMPORTS | Which Keyboard Is Live, and Whether the Focus Takes Typing
+    // ------------------------------------------------------------
+    // @delegate: ../03__AppUtils/Na__AppUtils__KeyScope__.js
+    // ------------------------------------------------------------
+    import { Na__KeyScope__MODEL, Na__KeyScope__Is, Na__KeyScope__IsTypingTarget } from '../03__AppUtils/Na__AppUtils__KeyScope__.js';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
 
 
 // -----------------------------------------------------------------------------
@@ -92,9 +123,11 @@
 
     // HELPER FUNCTION | Check if Focus is on an Interactive Input Element
     // ------------------------------------------------------------
+    // A text box, a text area, a list - or anything contenteditable, which the
+    // old tag test missed, so a key was taken from any editable region.
+    // ------------------------------------------------------------
     function Na__Hotkeys__IsInputFocused() {
-        const tag = document.activeElement && document.activeElement.tagName.toLowerCase(); // <-- Get focused element tag
-        return tag === 'input' || tag === 'textarea' || tag === 'select';                    // <-- True if typing context is active
+        return Na__KeyScope__IsTypingTarget(document.activeElement);          // <-- True if typing context is active
     }
     // ------------------------------------------------------------
 
@@ -131,6 +164,7 @@
     // HELPER FUNCTION | Handle Window Keydown Event
     // ------------------------------------------------------------
     function Na__Hotkeys__HandleKeyDown(event) {
+        if (!Na__KeyScope__Is(Na__KeyScope__MODEL)) return;                  // <-- A drawing or a document tab has the keyboard: its keys are its own
         if (Na__Hotkeys__IsInputFocused()) return;                           // <-- Skip when typing in input fields
 
         for (const binding of Na__Hotkeys__Bindings) {

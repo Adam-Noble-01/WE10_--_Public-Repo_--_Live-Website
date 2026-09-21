@@ -41,6 +41,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - ZoomAbout takes a fourth argument, gesture: true for a wheel or pinch step,
+//   which tells the sheet surface to hold what follows the zoom until the
+//   gesture rests (Na__LeSurface__NoteZoomGesture). Fit and ZoomTo are single
+//   zooms and settle at once, as before.
+//
 // 10-Sep-2026 - Version 1.1.0
 // - Gesture handling lifted out into Na__LayoutEditor__Controls__Pc__ and
 //   Na__LayoutEditor__Controls__TouchScreen__, so the bindings could move into
@@ -66,7 +72,8 @@
         Na__LeSurface__GetZoom,
         Na__LeSurface__GetPixelsPerMm,
         Na__LeSurface__GetLayout,
-        Na__LeSurface__GetElements
+        Na__LeSurface__GetElements,
+        Na__LeSurface__NoteZoomGesture
     } from './Na__LayoutEditor__SheetSurface__.js';
     // ------------------------------------------------------------
 
@@ -88,12 +95,17 @@
 
     // FUNCTION | Zoom So the Paper Point Under a Client Position Stays Put
     // ------------------------------------------------------------
-    function Na__LeNav__ZoomAbout(newZoom, clientX, clientY) {
+    function Na__LeNav__ZoomAbout(newZoom, clientX, clientY, gesture) {
         const els = Na__LeSurface__GetElements();
         if (!els.stage || !els.paper) return;
         const before = Na__LeSurface__GetZoom();
         const after  = Na__LeNav__Clamp(newZoom);
         if (after === before) return;
+        // A WHEEL OR PINCH STEP IS PART OF A GESTURE: zoom now, and let
+        // everything that follows the zoom wait until it rests (the sheet
+        // surface's NoteZoomGesture). Noted only once the clamp has let the
+        // step through, so a wheel turned against the limit settles nothing.
+        if (gesture === true) Na__LeSurface__NoteZoomGesture();
         const stageRect = els.stage.getBoundingClientRect();
         const paperRect = els.paper.getBoundingClientRect();
         const ppm       = Na__LeSurface__GetPixelsPerMm();

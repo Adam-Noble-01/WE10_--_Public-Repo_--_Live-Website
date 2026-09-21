@@ -24,10 +24,11 @@
 //   paper again at every zoom step: every line at its full width with round
 //   caps, every dash, every hatch, gradient and fill, every picture resampled.
 //   Draft leaves it only hairlines to draw, which is the cheapest stroke there
-//   is, and while a zoom gesture is under way it holds the paper as one
-//   composited layer so each step scales pixels already drawn (LayOut's Pan
-//   and Zoom Redraw Delay); the crisp hairlines are drawn once, when the wheel
-//   rests.
+//   is. While a zoom gesture is under way the SHEET SURFACE holds the paper as
+//   one composited layer, for every sheet (LayOut's Pan and Zoom Redraw Delay,
+//   Na__LeSurface__NoteZoomGesture), and announces ZOOM_SETTLED_EVENT when it
+//   rests; Draft re-solves its hairline width then, so the crisp lines are
+//   drawn once, in the same redraw.
 // - THE WHOLE LOOK IS ONE STYLESHEET (Na__LayoutEditor__Styles__DraftMode__.css)
 //   keyed on a class on the body. Strokes and fills on the paper are SVG
 //   presentation attributes, which any author rule overrides, so switching
@@ -40,6 +41,7 @@
 //   non-scaling-stroke does not undo, so the width is written here as
 //   HairlineDevicePx / (zoom x devicePixelRatio). Proved in headless Chrome:
 //   exactly one device pixel of ink at every zoom and display scaling tried.
+//   The width is re-solved when a zoom SETTLES, never per step.
 // - A SESSION VIEW, NOTHING SAVED. Draft never writes a sheet, a viewport
 //   record, the browser draft or localStorage. It is off on every load and
 //   stays as it was set across sheets and across leaving the editor.
@@ -64,6 +66,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - Adam: it still felt as if the vectors were redrawn on every wheel notch.
+//   Draft's own zoom hold is gone: the sheet surface now holds the paper and
+//   defers everything that follows a zoom until it settles, for every sheet,
+//   Draft or not (Na__LeSurface__NoteZoomGesture, ZoomSettleMs in the Layout
+//   Editor's navigation config). Draft listens for ZOOM_SETTLED_EVENT and
+//   re-solves the hairline width then, and only then. The config's Navigation
+//   block went with it.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: Set and Toggle, the body classes, the hairline
 //   width per zoom and device pixel ratio, the zoom hold, the frame refresh,
@@ -79,7 +90,7 @@
     // MODULE IMPORTS | The Flag, and the Sheet Surface It Refreshes
     // ------------------------------------------------------------
     import { Na__LeDraft__CHANGED_EVENT, Na__LeDraft__IsOn, Na__LeDraft__AssignOn } from './Na__LayoutEditor__DraftMode__State__.js';
-    import { Na__LeSurface__ZOOM_EVENT, Na__LeSurface__GetZoom, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeSurface__GetZoom, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -94,18 +105,14 @@
     const Na__LeDraft__ConfigUrl    = new URL('./Na__LayoutEditor__DraftMode__Config__.json', import.meta.url);
     const Na__LeDraft__PREFIX       = 'LayoutEditor__DraftMode__';
     const Na__LeDraft__BODY_CLASS   = 'na-le-draft';            // <-- Draft is on
-    const Na__LeDraft__MOVING_CLASS = 'na-le-draft--moving';    // <-- A zoom gesture is under way: the paper is held as one composited layer
     const Na__LeDraft__CRISP_CLASS  = 'na-le-draft--crisp';     // <-- Lines__Smooth false: aliased hairlines
-    const Na__LeDraft__DELAY_MIN_MS = 100;                      // <-- LayOut's range for its redraw delay
-    const Na__LeDraft__DELAY_MAX_MS = 3000;
     const Na__LeDraft__PROPERTIES   = [ '--na-le-draft-hairline', '--na-le-draft-inv-zoom', '--na-le-draft-fill-ink', '--na-le-draft-raster-note', '--na-le-draft-3d-note' ];
     // ------------------------------------------------------------
 
-    // MODULE VARIABLES | The Config, the Settle Timer, the Zoom Listener
+    // MODULE VARIABLES | The Config and the Settle Listener
     // ------------------------------------------------------------
     let Na__LeDraft__Config      = null;
     let Na__LeDraft__Loading     = null;
-    let Na__LeDraft__SettleTimer = null;
     let Na__LeDraft__Listening   = false;
     // ------------------------------------------------------------
 
@@ -196,7 +203,6 @@
         root.classList.toggle(Na__LeDraft__BODY_CLASS, on);
         root.classList.toggle(Na__LeDraft__CRISP_CLASS, on && Na__LeDraft__Value('Lines', 'Lines__Smooth', true) === false);
         if (!on) {
-            root.classList.remove(Na__LeDraft__MOVING_CLASS);
             Na__LeDraft__PROPERTIES.forEach((name) => root.style.removeProperty(name));
             return;
         }
@@ -211,64 +217,36 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | The Zoom Hold (LayOut's Pan and Zoom Redraw Delay)
+// REGION | The Hairlines Follow the Zoom When It Settles
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | How Long the Wheel Must Rest, Clamped to LayOut's Range
+    // HELPER FUNCTION | A Zoom Has Settled: Re-Solve the Hairline for It
     // ------------------------------------------------------------
-    function Na__LeDraft__DelayMs() {
-        const ms = Na__LeDraft__Value('Navigation', 'Navigation__RedrawDelayMs', 300);
-        return Math.min(Na__LeDraft__DELAY_MAX_MS, Math.max(Na__LeDraft__DELAY_MIN_MS, ms));
-    }
+    // NOT ON EVERY STEP. The sheet surface holds the paper as one composited
+    // layer while a wheel or pinch zoom is under way (for every sheet, Draft or
+    // not) and announces ZOOM_SETTLED_EVENT when it rests, after taking the
+    // hold off in the same task. A new width is a paint change on every line,
+    // and one made inside the held layer would make the browser rasterise it
+    // again mid-gesture - the one thing the hold is there to stop - so the
+    // lines scale with the picture for the length of the gesture and come back
+    // to one device pixel with the settle, in the same single redraw. A single
+    // zoom (Fit, 100%, a resize) settles at once.
     // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | The Zoom Has Rested: Draw the Hairlines Crisp at It
-    // ------------------------------------------------------------
-    // The width and the release of the held layer happen in the same task, so
-    // the browser rasterises the paper ONCE, at the new zoom, with the new
-    // width - not once for each.
-    // ------------------------------------------------------------
-    function Na__LeDraft__Settle() {
-        Na__LeDraft__SettleTimer = null;
-        if (!document.body) return;
-        if (Na__LeDraft__IsOn()) Na__LeDraft__ApplyWidths(Na__LeSurface__GetZoom());
-        document.body.classList.remove(Na__LeDraft__MOVING_CLASS);
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | A Zoom Step While Draft Is On
-    // ------------------------------------------------------------
-    // WITH THE HOLD (the default) the width is NOT re-solved per step. A new
-    // width is a paint change on every line, and a paint change inside the
-    // held layer would make the browser rasterise it again - the one thing the
-    // hold is there to stop. The lines scale with the picture for the length
-    // of the gesture and come back to one pixel when it rests.
-    // WITHOUT IT every step rasterises anyway, so the width follows every step.
-    // ------------------------------------------------------------
-    function Na__LeDraft__OnZoom(event) {
+    function Na__LeDraft__OnSettled(event) {
         if (!Na__LeDraft__IsOn() || !document.body) return;
         const zoom = (event && event.detail && Number.isFinite(event.detail.zoom)) ? event.detail.zoom : Na__LeSurface__GetZoom();
-        if (Na__LeDraft__Value('Navigation', 'Navigation__HoldWhileZooming', true) === false) {
-            Na__LeDraft__ApplyWidths(zoom);
-            return;
-        }
-        document.body.classList.add(Na__LeDraft__MOVING_CLASS);
-        if (Na__LeDraft__SettleTimer) window.clearTimeout(Na__LeDraft__SettleTimer);
-        Na__LeDraft__SettleTimer = window.setTimeout(Na__LeDraft__Settle, Na__LeDraft__DelayMs());
+        Na__LeDraft__ApplyWidths(zoom);
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Listen for Zoom Steps Only While Draft Is On
+    // HELPER FUNCTION | Listen for Settled Zooms Only While Draft Is On
     // ------------------------------------------------------------
     function Na__LeDraft__Listen(on) {
         if (on === Na__LeDraft__Listening) return;
         Na__LeDraft__Listening = on;
-        if (on) { window.addEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeDraft__OnZoom); return; }
-        window.removeEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeDraft__OnZoom);
-        if (Na__LeDraft__SettleTimer) { window.clearTimeout(Na__LeDraft__SettleTimer); Na__LeDraft__SettleTimer = null; }
+        if (on) window.addEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeDraft__OnSettled);
+        else    window.removeEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeDraft__OnSettled);
     }
     // ------------------------------------------------------------
 

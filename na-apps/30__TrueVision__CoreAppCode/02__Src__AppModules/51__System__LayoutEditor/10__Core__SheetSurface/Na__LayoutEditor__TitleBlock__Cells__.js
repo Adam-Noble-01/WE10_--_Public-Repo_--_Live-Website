@@ -50,6 +50,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - Widen: every cell but the Flex ones made wider by a factor, which is how
+//   A2 and A1 give the small cells more air (Adam, 21-Sep-2026: "20% more
+//   space" for the address and each box on the right, the drawing title
+//   excepted). THE EXTRA IS PAID ONLY OUT OF THE ROOM THE FLEX CELLS HAVE
+//   SPARE past their own text, so it can never cut the drawing title: where
+//   the paper cannot afford the whole of it (A2 portrait) each cell gets the
+//   same smaller share of it, down to none.
+//
 // 20-Sep-2026 - Version 1.1.0
 // - FIXED. On a strip too narrow even for its cells' text, the Flex cells are
 //   cut first, down to a floor (the cell's label), and the lot is scaled only
@@ -124,6 +133,42 @@
             need  : Na__LeTitleCells__Positive(needMm, 0),
             floor : Na__LeTitleCells__Positive(floorMm, 0)
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Widen Every Cell but the Flex Ones, Out of the Room the Paper Has Spare
+    // ------------------------------------------------------------
+    // cells as Cell makes them; factor 1.2 asks for a fifth more on every
+    // fixed cell. Returns new cells for Solve, the inputs untouched.
+    //
+    // A FIFTH MORE THAN THE CELL HAS, NOT THAN ITS BASE. A cell whose text
+    // has already grown it past its base - RB05's site address runs to 84 mm
+    // of a 70 mm base - is widened from what it prints at, or the one cell
+    // that most needed the air would get none (70 x 1.2 is 84 again).
+    //
+    // The extra comes out of what the strip has left once EVERY cell has the
+    // wider of its base and its text - the Flex cells' included - so the
+    // drawing title keeps every character it had and at least its own base.
+    // When that room is less than the extra asked for, every fixed cell gets
+    // the same fraction of its extra, so the cells keep their proportions to
+    // one another. A factor of 1 or less, or no room, changes nothing.
+    // ------------------------------------------------------------
+    function Na__LeTitleCells__Widen(stripWidthMm, cells, factor) {
+        const list   = Array.isArray(cells) ? cells : [];
+        const copy   = list.map((cell) => Object.assign({}, cell));
+        const scale  = Na__LeTitleCells__Positive(factor, 1);
+        const strip  = Na__LeTitleCells__Positive(stripWidthMm, 0);
+        if (scale <= 1 || strip === 0 || copy.length === 0) return copy;
+
+        const holds    = copy.map((cell) => Math.max(cell.base, cell.need));  // <-- What each cell prints at before the extra: its base, or its text where that is wider
+        const extra    = copy.map((cell, i) => (cell.flex > 0) ? 0 : holds[i] * (scale - 1));
+        const extraSum = Na__LeTitleCells__Sum(extra);
+        const room     = Math.max(0, strip - Na__LeTitleCells__Sum(holds));
+        const share    = (extraSum > 0) ? Math.min(1, room / extraSum) : 0;
+        if (share <= 0) return copy;                                          // <-- Nothing to spare: the strip is solved exactly as it always was
+        copy.forEach((cell, i) => { if (!(cell.flex > 0)) cell.base = holds[i] + (extra[i] * share); });
+        return copy;
     }
     // ------------------------------------------------------------
 
@@ -226,6 +271,7 @@
     // ------------------------------------------------------------
     export {
         Na__LeTitleCells__Cell,
+        Na__LeTitleCells__Widen,
         Na__LeTitleCells__Solve
     };
     // ------------------------------------------------------------

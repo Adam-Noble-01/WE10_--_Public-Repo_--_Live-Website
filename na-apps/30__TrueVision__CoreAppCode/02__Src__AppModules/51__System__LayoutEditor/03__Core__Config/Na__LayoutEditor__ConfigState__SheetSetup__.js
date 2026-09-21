@@ -44,6 +44,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0
+// - GetTitleBlockSetup reads RowWidthFactorByPaper (TitleBlock): how much wider
+//   the fixed title block cells are on each paper - a fifth on A2 and A1. The
+//   Revision row's fallback carries its ValuePrefix, so a stale config still
+//   prints "Revision A".
+//
 // 20-Sep-2026 - Version 1.7.0
 // - DefaultStyles answers depthFog (DepthFog in the config, true): a viewport
 //   shows its drawing's own depth fog unless told otherwise.
@@ -122,9 +128,10 @@
                        A2 : { Label : 'A2', WidthMm : 594, HeightMm : 420 }, A1 : { Label : 'A1', WidthMm : 841, HeightMm : 594 } },
         rows       : [ { Key : 'Client', Label : 'Client', WidthMm : 36 }, { Key : 'SiteAddress', Label : 'Site Address', WidthMm : 70 },   // <-- Paper millimetres now, not shares of the strip
                        { Key : 'Title', Label : 'Drawing Title', WidthMm : 60, Flex : 1 }, { Key : 'DocumentId', Label : 'Document ID', WidthMm : 24 },   // <-- The title takes what the paper has left; the id is the whole identifier, PS01_T02_D01
-                       { Key : 'Revision', Label : 'Rev', WidthMm : 28 }, { Key : 'Scale', Label : 'Scale', WidthMm : 28 },   // <-- The four small cells are one module, sized for the widest thing any of them says
+                       { Key : 'Revision', Label : 'Rev', WidthMm : 28, ValuePrefix : 'Revision' }, { Key : 'Scale', Label : 'Scale', WidthMm : 28 },   // <-- The four small cells are one module, sized for the widest thing any of them says; Rev prints "Revision A"
                        { Key : 'Date', Label : 'Date', WidthMm : 28 }, { Key : 'DrawnBy', Label : 'Drawn By', WidthMm : 28 },
                        { Key : 'Status', Label : 'Status', WidthMm : 30 } ],                                                 // <-- Last on the right: what the drawing is issued for
+        rowWidthFactorByPaper : { A2 : 1.2, A1 : 1.2 },                         // <-- The fixed cells are a fifth wider on the big sheets
         statuses   : [ 'PRELIMINARY', 'FOR INFORMATION', 'FOR COMMENT', 'FOR COORDINATION', 'FOR APPROVAL', 'FOR PLANNING',
                        'FOR BUILDING CONTROL', 'FOR PRICING', 'FOR TENDER', 'FOR CONSTRUCTION', 'AS BUILT', 'SUPERSEDED' ],
         scales     : [ 20, 50, 100 ],
@@ -216,6 +223,7 @@
         const rows    = Na__LeCfg__Val('TitleBlock', 'Rows', null);
         const scans   = Na__LeCfg__Val('TitleBlock', 'ClassicScanAssets', null);
         const anchors = Na__LeCfg__Val('TitleBlock', 'ClassicFieldAnchors', null);
+        const factors = Na__LeCfg__Val('TitleBlock', 'RowWidthFactorByPaper', null);
         return {
             defaultStyle        : Na__LeCfg__Val('TitleBlock', 'DefaultStyle', 'modern'),
             heightMm            : Na__LeCfg__Num('TitleBlock', 'HeightMm', 10),          // <-- Lantern Designer's strip. The QR cell's code is as tall as the strip allows: do not lower it without reading HeightMmNote
@@ -236,6 +244,7 @@
             statuses            : Na__LeCfg__TitleBlockStatuses(Na__LeCfg__Val('TitleBlock', 'Statuses', null)),   // <-- What the Sheet panel's and the Drawing Register's Status boxes offer
             statusDefault       : String(Na__LeCfg__Val('TitleBlock', 'StatusDefault', '') || '').trim(),          // <-- What a sheet prints until one is chosen; shipped empty, so no drawing claims a status nobody gave it
             rows                : Array.isArray(rows) ? rows : Na__LeCfg__FALLBACKS.rows,
+            rowWidthFactorByPaper : (factors && typeof factors === 'object') ? factors : Na__LeCfg__FALLBACKS.rowWidthFactorByPaper,   // <-- Paper key to factor; the fixed rows are that much wider on that paper, out of the title's spare room only
             classicScanAssets   : (scans && typeof scans === 'object') ? scans : {},
             classicFieldAnchors : (anchors && typeof anchors === 'object') ? anchors : {},
 

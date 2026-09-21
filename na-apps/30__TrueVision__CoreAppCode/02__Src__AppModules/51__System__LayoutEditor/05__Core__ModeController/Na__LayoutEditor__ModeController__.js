@@ -47,6 +47,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.22.0
+// - THREE TOOL SETS, THREE KEYBOARDS. The app's key scope
+//   (Na__AppUtils__KeyScope__) follows this module: KeyScope reads which
+//   keyboard belongs to what is on screen - the 3D Model tab's keys with the
+//   editor closed, the drawing tools' on a drawing tab, the documents' own on
+//   the Project Specification, the Drawing Register and the Statements - and
+//   it is handed over once, at initialisation, and asked on every key, so no
+//   path in or out can leave a stale answer behind. The 3D hotkeys had been
+//   answering under every tab - R typed into a statement reset a hidden
+//   camera and never reached the page - and now keep to their own.
+// - The documents' keyboard (31__System__DocumentKeys) is waited on with the
+//   other configs and started here. It hears a key before anything else in
+//   the app, so on the Statements tab Ctrl+S saves the statement - it was
+//   saving the sheets - and on the other two tabs it still reaches the save
+//   below.
+//
 // 21-Sep-2026 - Version 1.21.0
 // - FLOOR AREAS AND PATTERNS FOLD WITH THE REST. Selecting a viewport used to
 //   leave the fold group as it was (v2.57.0, "deliberate for now"), so Floor
@@ -275,6 +291,15 @@
     import { Na__DevGate__IsAuthoringEnabled } from '../../03__AppUtils/Na__AppUtils__DevGate__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Which Keyboard Is Live, and the Documents' Own
+    // ------------------------------------------------------------
+    // @delegate: ../../03__AppUtils/Na__AppUtils__KeyScope__.js
+    // @delegate: ../31__System__DocumentKeys/Na__LayoutEditor__DocumentKeys__.js
+    // ------------------------------------------------------------
+    import { Na__KeyScope__MODEL, Na__KeyScope__SHEET, Na__KeyScope__DOCUMENT, Na__KeyScope__Follow } from '../../03__AppUtils/Na__AppUtils__KeyScope__.js';
+    import { Na__LeDocKeys__Ready, Na__LeDocKeys__Initialize } from '../31__System__DocumentKeys/Na__LayoutEditor__DocumentKeys__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | The Web Viewer (what a session that cannot author gets instead)
     // ------------------------------------------------------------
     // ONE-WAY, DELIBERATELY. The viewer never imports this module: the three
@@ -486,6 +511,22 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Which Keyboard Belongs to What Is on Screen
+    // ------------------------------------------------------------
+    // Handed to Na__AppUtils__KeyScope__ once and asked on every key, so it
+    // is read from the state rather than set by each way in and out: no path
+    // - a tab, a usage chip, a sheet deleted from under the editor, a tab
+    // that fails half way through opening - can leave the wrong keyboard
+    // live. A drawing tab is the drawing tools'; the specification, the
+    // register and the statements are the documents'.
+    // ------------------------------------------------------------
+    function Na__LeMode__KeyScope() {
+        if (!Na__LeMode__Active) return Na__KeyScope__MODEL;
+        return Na__LeMode__View === Na__LeMode__VIEW_SHEET ? Na__KeyScope__SHEET : Na__KeyScope__DOCUMENT;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Announce
     // ------------------------------------------------------------
     function Na__LeMode__Dispatch() {
@@ -636,6 +677,12 @@
     // save is a no-op, because the alternative is the browser offering to save
     // the page as a file over the top of a drawing. A read-only viewer keeps
     // its own Ctrl+S: there is nothing there to save.
+    //
+    // A DOCUMENT WITH A SAVE OF ITS OWN GETS THE KEY FIRST. The documents'
+    // keyboard (Na__LayoutEditor__DocumentKeys__) listens on the window in the
+    // capture phase, ahead of this, so on the Statements tab Ctrl+S writes the
+    // statement and never arrives here. The specification and the register
+    // have no save of their own, so the key comes on to this one.
     // ------------------------------------------------------------
     function Na__LeMode__OnSaveKey(event) {
         if (!Na__LeMode__Active || !Na__LeMode__IsEditable()) return;            // <-- Read-only sessions keep the browser's key
@@ -916,6 +963,7 @@
     function Na__LeMode__Initialize(context) {
         if (!context) return Promise.resolve(false);
         Na__LeMode__Context = context;
+        Na__KeyScope__Follow(Na__LeMode__KeyScope);                              // <-- Which keyboard is live is this module's to answer, asked afresh on every key
         Na__LeCfg__SetAppConfig(context.appConfig || null);
         // THE EDGE STYLE AND COMPOSITE CONFIGS LOAD WITH THE EDITOR'S OWN. The
         // record normaliser prunes a stored edge style that matches its default,
@@ -926,7 +974,7 @@
         // AND THE DRAWING VIEW CONFIG, because every viewport bake renders through
         // the drawing presets and they read their setup from it. index.html starts
         // the fetch; this is the same promise, so it is waited for, never repeated.
-        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__LeHatch__Ready(), Na__LeSpComp__Ready(), Na__LeArea__Ready(), Na__DrawCfg__Load() ]).then(() => {
+        Na__LeMode__ReadyOnce = Promise.all([ Na__LeCfg__Ready(), Na__LeEdge__Ready(), Na__LeComposite__Ready(), Na__LeGrad__Ready(), Na__LeDash__Ready(), Na__LeHatch__Ready(), Na__LeSpComp__Ready(), Na__LeArea__Ready(), Na__LeDocKeys__Ready(), Na__DrawCfg__Load() ]).then(() => {
             if (!Na__LeCfg__IsEnabled()) return false;
             Na__LeVw__Initialize({ editable : Na__LeMode__IsEditable(), showToast : context.showToast || null });   // <-- Asked before anything is built: the shell it gets depends on the answer
             Na__LeModel__Initialize();
@@ -942,6 +990,7 @@
             Na__LeViewId__Initialize();                                      // <-- Unnamed elevation viewports are named from their model and the project's north
             Na__LeAreaTable__Attach();                                       // <-- Area schedules follow the rooms they report, inside the same undo step
             window.addEventListener(Na__LeModel__CHANGED_EVENT, Na__LeMode__OnSheetsChanged);
+            Na__LeDocKeys__Initialize();                                     // <-- The documents' own keyboard: on the window in the capture phase, so it hears a key before anything else
             document.addEventListener('keydown', Na__LeMode__OnSaveKey, true);   // <-- Ctrl+S on the sheet, the specification and the register alike; capture, so it is answered before the browser is told
 
             window.addEventListener(Na__LeTools__DEFAULTS_EVENT, (event) => { if (Na__LeMode__Active) Na__LePanels__Refresh(Na__LeMode__PanelFor(event.detail && event.detail.kind)); });   // <-- A palette sync: the panel showing the new-object settings redraws
