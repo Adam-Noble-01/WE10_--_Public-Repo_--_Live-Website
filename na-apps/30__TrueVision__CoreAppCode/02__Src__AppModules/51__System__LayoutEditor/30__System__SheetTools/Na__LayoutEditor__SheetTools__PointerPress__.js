@@ -57,6 +57,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - A press with a vector tool up (37__System__VectorTools: Circle, Arc, Trim,
+//   Extend, Join, Split, Offset, Fillet, Chamfer) goes to their adapter, the
+//   pointer captured as it is for a rectangle. One branch for all nine.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - CTRL-DRAG COPIES (Na__LayoutEditor__SheetTools__CopyDrag__). A press that
 //   starts a whole-object move or a frame move marks the drag copyable, and
@@ -150,12 +155,13 @@
     import { Na__LeDim__Click, Na__LeDim__BeginTextEdit } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Click, Na__LeShape__Finish, Na__LeShape__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Press } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
+    import { Na__LeVec__IsTool, Na__LeVec__Press } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools' one door: whichever of the nine is up
     import { Na__LeAreaTool__Press, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';   // <-- The Area tool: the two above, drawing a measured room
     import { Na__LeMeasure__Refresh, Na__LeMeasure__Clear } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__Press, Na__LeLeader__IsPlacing, Na__LeLeader__BeginEdit } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeDrop__Click, Na__LeDrop__Hover, Na__LeDrop__MODE_PALETTE, Na__LeDrop__GetMode } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeDoors__ToggleSoon, Na__LeDoors__CancelPending } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
-    import { Na__LeVpMove__GrabAt } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeVpMove__GrabAt } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import {
         Na__LeScope__IsActive,
@@ -454,6 +460,20 @@
                 Na__LeRect__Press(sheet, point, event.shiftKey, Na__LeTools__GetShapeDefaults(), event.pointerId);
                 Na__LeMeasure__Refresh();
                 try { Na__LeTools__Stage.setPointerCapture(event.pointerId); } catch (e) { /* capture refused */ }
+                return;
+            }
+
+            // A VECTOR TOOL | Circle, Arc, Trim, Extend, Join, Split, Offset,
+            // Fillet or Chamfer (37__System__VectorTools): the adapter knows
+            // which unit answers. The pointer is captured because a circle and
+            // a fence can both be dragged out past the stage's edge. The press
+            // is always the sheet's, whether or not it landed on anything.
+            // ------------------------------------
+            if (Na__LeVec__IsTool(Na__LeTools__Tool)) {
+                Na__LeVec__Press(Na__LeTools__Tool, sheet, point, { shift : event.shiftKey, ctrl : event.ctrlKey, alt : event.altKey, pointerId : event.pointerId, pressed : true }, Na__LeTools__GetShapeDefaults());
+                Na__LeMeasure__Refresh();
+                try { Na__LeTools__Stage.setPointerCapture(event.pointerId); } catch (e) { /* capture refused */ }
+                event.preventDefault();
                 return;
             }
 

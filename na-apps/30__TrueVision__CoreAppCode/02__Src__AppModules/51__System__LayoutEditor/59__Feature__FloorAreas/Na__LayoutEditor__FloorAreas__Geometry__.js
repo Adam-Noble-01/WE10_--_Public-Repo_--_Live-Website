@@ -18,13 +18,16 @@
 //   the scale: a square metre of floor at 1:50 is 400 square millimetres of
 //   paper, and the square is the whole reason a scale set wrongly is not a
 //   small error but a factor of four.
-// - THE LABEL SITS AT THE VISUAL CENTRE, not the centroid. An L-shaped room's
-//   centroid can fall in the garden; the visual centre is the middle of the
-//   largest circle that fits inside the room (the pole of inaccessibility),
-//   which is where a person would write the name by hand. A convex outline -
-//   every rectangle, which is most rooms - is answered by its centroid
-//   directly, because for a convex shape the two agree and the centroid is
-//   exact and costs nothing.
+// - THE LABEL SITS IN THE MIDDLE OF THE ROOM'S BOX (LabelHome), the standard
+//   Adam asked for - unless that point is not inside the room, as with an L
+//   or a U, when it takes the VISUAL CENTRE instead. The visual centre is the
+//   middle of the largest circle that fits inside the room (the pole of
+//   inaccessibility), never the centroid: an L-shaped room's centroid can
+//   fall in the garden. A convex outline - every rectangle, which is most
+//   rooms - is answered by its centroid directly, because for a convex shape
+//   the two agree and the centroid is exact and costs nothing. The visual
+//   centre also decides which drawing a room is measured against and how
+//   large its label may be set, wherever the label itself sits.
 // - A SELF-CROSSING OUTLINE IS REPORTED, NOT SILENTLY MEASURED. A figure of
 //   eight has two lobes of opposite winding and the shoelace subtracts one
 //   from the other, so it would answer a number that looks plausible and is
@@ -44,6 +47,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - LabelHome: where a label sits before it is dragged - the middle of the
+//   room's bounding box ('box', the standard), or the visual centre when that
+//   middle falls outside the room, or for every room under 'visual'. Adam
+//   asked for the box: a room with a bay or a recess had its label pulled
+//   towards its fattest part rather than sitting in the middle.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the shoelace, the perimeter, the crossing test,
 //   the visual centre and the two formatters.
@@ -62,7 +72,9 @@
     const Na__LeAreaGeo__UNIT_M2        = 'm2';
     const Na__LeAreaGeo__UNIT_FT2       = 'ft2';
     const Na__LeAreaGeo__UNIT_BOTH      = 'both';
-    const Na__LeAreaGeo__CENTRE_STEP_MM = 0.5;                  // <-- The finest the visual centre is ever searched, on the paper: half a millimetre is finer than any label needs
+    const Na__LeAreaGeo__PLACE_BOX      = 'box';                // <-- A label's home: the middle of the room's bounding box (the standard)
+    const Na__LeAreaGeo__PLACE_VISUAL   = 'visual';             // <-- ...or the middle of the largest circle that fits inside it
+    const Na__LeAreaGeo__CENTRE_STEP_MM = 0.5;                 // <-- The finest the visual centre is ever searched, on the paper: half a millimetre is finer than any label needs
     const Na__LeAreaGeo__CENTRE_RATIO   = 60;                   // <-- ...and on a large room it is coarsened to a sixtieth of its short side, which no eye can see and the search feels
     const Na__LeAreaGeo__CENTRE_CELLS   = 1400;                 // <-- A ceiling on the search, so a pathological outline cannot hang a repaint
     const Na__LeAreaGeo__CACHE_MAX      = 240;                  // <-- Visual centres remembered between repaints; a drag only ever invalidates its own
@@ -352,9 +364,9 @@
 
     // FUNCTION | The Visual Centre: the Middle of the Largest Circle That Fits
     // ------------------------------------------------------------
-    // Answers { x, y, clearMm } - where the name goes, and the radius of the
-    // circle that fits there, which is how the label knows whether the words
-    // will fit inside the room or have to be set smaller.
+    // Answers { x, y, clearMm } - the fattest point of the room, and the
+    // radius of the circle that fits there, which is how the label knows
+    // whether the words will fit inside the room or have to be set smaller.
     // ------------------------------------------------------------
     // The pole of inaccessibility, searched by quartering the box and keeping
     // the quarters that could still hold something better than the best found
@@ -411,6 +423,42 @@
         if (Na__LeAreaGeo__CentreCache.size >= Na__LeAreaGeo__CACHE_MAX) Na__LeAreaGeo__CentreCache.clear();
         Na__LeAreaGeo__CentreCache.set(key, answer);
         return { x : answer.x, y : answer.y, clearMm : answer.clearMm };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a Room's Label Sits Before Anyone Moves It
+    // ------------------------------------------------------------
+    // Answers { x, y, placement : 'box' | 'visual' }. The label is dragged
+    // from here and snaps back to here, and a dragged label's stored offset
+    // is measured from here.
+    //
+    // THE MIDDLE OF THE ROOM'S BOX IS THE STANDARD (Adam, 21-Sep-2026: "by
+    // default, centering it on the centre of the bounding box, which should
+    // be the standard behaviour"). On a room with a bay, a chimney breast or
+    // a door recess it reads as the middle of the room, where the visual
+    // centre is pulled towards whichever part of the room happens to be
+    // fattest - RB05's Area 2 had its label sitting well above the middle.
+    //
+    // UNLESS THE MIDDLE OF THE BOX IS NOT IN THE ROOM. An L or a U has the
+    // middle of its box in the bite out of it, so a label put there would be
+    // written in the garden or across the room next door. Such a room takes
+    // its visual centre instead, which is always inside it. 'visual' uses the
+    // visual centre for every room.
+    //
+    // visual, when given, is the visual centre already worked out, so a
+    // caller that has one does not pay for it twice.
+    // ------------------------------------------------------------
+    function Na__LeAreaGeo__LabelHome(points, placement, visual) {
+        const pts = Na__LeAreaGeo__Points(points);
+        if (placement !== Na__LeAreaGeo__PLACE_VISUAL && pts.length >= 3) {
+            const box = Na__LeAreaGeo__Bounds(pts);
+            const x   = box.X + (box.WidthMm / 2);
+            const y   = box.Y + (box.HeightMm / 2);
+            if (Na__LeAreaGeo__Contains(pts, x, y)) return { x : x, y : y, placement : Na__LeAreaGeo__PLACE_BOX };
+        }
+        const centre = (visual && Number.isFinite(visual.x) && Number.isFinite(visual.y)) ? visual : Na__LeAreaGeo__VisualCentre(pts);
+        return { x : centre.x, y : centre.y, placement : Na__LeAreaGeo__PLACE_VISUAL };
     }
     // ------------------------------------------------------------
 
@@ -495,6 +543,8 @@
         Na__LeAreaGeo__UNIT_M2,
         Na__LeAreaGeo__UNIT_FT2,
         Na__LeAreaGeo__UNIT_BOTH,
+        Na__LeAreaGeo__PLACE_BOX,
+        Na__LeAreaGeo__PLACE_VISUAL,
         Na__LeAreaGeo__Points,
         Na__LeAreaGeo__Encloses,
         Na__LeAreaGeo__Bounds,
@@ -507,6 +557,7 @@
         Na__LeAreaGeo__Contains,
         Na__LeAreaGeo__Centroid,
         Na__LeAreaGeo__VisualCentre,
+        Na__LeAreaGeo__LabelHome,
         Na__LeAreaGeo__FormatArea,
         Na__LeAreaGeo__FormatLength
     };

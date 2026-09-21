@@ -33,6 +33,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.31.0
+// - Shape__Curve: the one-word hint the Circle and Arc tools leave on what they
+//   draw (37__System__VectorTools) - { Curve__Kind : circle | arc }, no centre
+//   and no radius, which are read back from the points. NormaliseShape keeps it
+//   only when it names a kind, so every older shape saves exactly as it did.
+//
+// 21-Sep-2026 - Version 1.30.0
+// - A hatch's own line weight and line colour. NormaliseShapeHatch keeps
+//   Hatch__StrokePt (printed points, above 0) beside the Hatch__Colour it
+//   already kept, and NormaliseSitePlanHatches keeps both for a site plan
+//   layer. Stored only once set: absent means the pattern's standard, so every
+//   hatch saved before them is read, and saved again, exactly as it was.
+//
 // 21-Sep-2026 - Version 1.29.0
 // - Sheet Images: NormaliseShapeImage keeps Image__SourceW / Image__SourceH,
 //   the dropped original's pixels, both or neither. Absent on every picture
@@ -532,6 +545,8 @@
                 if (Number.isFinite(entry.Hatch__Scale))         out.Hatch__Scale       = entry.Hatch__Scale;
                 if (Number.isFinite(entry.Hatch__RotationDeg))   out.Hatch__RotationDeg = entry.Hatch__RotationDeg;
                 if (entry.Hatch__Filled === false)               out.Hatch__Filled      = false;   // <-- Only the OFF case is stored; on is the default
+                if (Number.isFinite(entry.Hatch__StrokePt) && entry.Hatch__StrokePt > 0)       out.Hatch__StrokePt = entry.Hatch__StrokePt;   // <-- This layer's own line weight (pt); absent = the pattern's standard
+                if (/^#[0-9a-fA-F]{6}$/.test(String(entry.Hatch__Colour || '')))              out.Hatch__Colour   = entry.Hatch__Colour;     // <-- And its own line colour; absent = the pattern's standard
                 if (Object.keys(out).length) kept[categoryKey] = out;
             });
         }
@@ -576,7 +591,10 @@
 
     // HELPER FUNCTION | Tidy a Shape's Hatch
     // ---------------------------------------------------------------
-    // Shape__Hatch is { Hatch__PatternKey, Hatch__Scale, Hatch__RotationDeg },
+    // Shape__Hatch is { Hatch__PatternKey, Hatch__Scale, Hatch__RotationDeg,
+    // Hatch__StrokePt, Hatch__Colour } - the last two only once somebody has set
+    // this hatch's own line weight (printed points) or line colour; absent means
+    // the pattern's standard, so a hatch saved before they existed is unchanged -
     // and it is kept ONLY when a pattern is actually named. A shape with the
     // hatch switched off has no key at all, so every shape drawn before hatches
     // existed - and every shape whose hatch is off - stays byte-identical on
@@ -597,6 +615,7 @@
         if (Number.isFinite(block.Hatch__Scale)       && block.Hatch__Scale > 0) out.Hatch__Scale       = block.Hatch__Scale;
         if (Number.isFinite(block.Hatch__RotationDeg))                           out.Hatch__RotationDeg = block.Hatch__RotationDeg;
         if (typeof block.Hatch__Colour === 'string' && block.Hatch__Colour)      out.Hatch__Colour      = block.Hatch__Colour;
+        if (Number.isFinite(block.Hatch__StrokePt)    && block.Hatch__StrokePt > 0) out.Hatch__StrokePt  = block.Hatch__StrokePt;
         item.Shape__Hatch = out;
     }
     // ---------------------------------------------------------------
@@ -682,6 +701,28 @@
         if (kept.length) sheet.Sheet__AreaGroups = kept;
         else delete sheet.Sheet__AreaGroups;
         return kept;
+    }
+    // ---------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Tidy a Shape's Curve Hint
+    // ---------------------------------------------------------------
+    // Shape__Curve is { Curve__Kind : 'circle' | 'arc' } and NOTHING ELSE: one
+    // word the Circle and Arc tools (37__System__VectorTools) leave on what
+    // they draw. It changes nothing about how the shape is painted, hit, moved
+    // or printed - a circle is a closed run of points like any other - and it
+    // holds no centre and no radius, because a move or a paste would leave
+    // those behind. It only says the points are worth READING as a curve
+    // (Na__LeVecCurve__Describe does that, from the points, and answers null
+    // once they no longer lie on one). Kept ONLY when it names a kind, the
+    // rule Shape__Hatch and Shape__Qr follow, so every shape drawn before it
+    // existed stays byte-identical on save.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseShapeCurve(item) {
+        const block = item.Shape__Curve;
+        const kind  = (block && typeof block === 'object' && !Array.isArray(block)) ? block.Curve__Kind : null;
+        if (kind !== 'circle' && kind !== 'arc') { delete item.Shape__Curve; return; }
+        item.Shape__Curve = { Curve__Kind : kind };
     }
     // ---------------------------------------------------------------
 
@@ -1006,6 +1047,7 @@
         item.Shape__FillOpacity   = Na__LeRec__Unit(item.Shape__FillOpacity, 1);         // <-- A record from before opacity was solid
         Na__LeRec__NormaliseShapeHatch(item);                                             // <-- The repeating pattern over its fill, if it has one
         Na__LeRec__NormaliseShapeQr(item);                                                // <-- The project's QR symbol inside its box, if it carries one
+        Na__LeRec__NormaliseShapeCurve(item);                                             // <-- The Circle and Arc tools' one-word hint, if it carries one
         Na__LeRec__NormaliseShapeArea(item);                                              // <-- What it is called and what it is filed under, if it is a measured room
         Na__LeRec__NormaliseShapeImage(item);                                             // <-- Which stored picture it shows and how much of it, if it is a picture - after the three above, which it clears
         item.Shape__StrokeOpacity = Na__LeRec__Unit(item.Shape__StrokeOpacity, 1);

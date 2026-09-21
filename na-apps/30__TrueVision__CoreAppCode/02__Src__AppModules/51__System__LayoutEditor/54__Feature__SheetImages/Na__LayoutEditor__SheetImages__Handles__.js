@@ -22,7 +22,7 @@
 //   put its corner on any point at all, so it lines up the edge nearer the
 //   point instead - which is what aligning one picture with another needs.
 //   Other things snap to a picture's corners and edge middles for free: its
-//   points ARE its corners (Na__LeOsnap__FindOnSheet).
+///   points ARE its corners (the Object Snap folder's sheet sources).
 // - THE GRIPS TAKE THEIR OWN PRESSES, the way the parametric scrapbook's
 //   stretch grips do: a press on one never reaches the sheet tools, and the
 //   drag runs on window listeners until the button comes up. One undo step
@@ -51,7 +51,7 @@
     import { Na__LeGrips__RegisterShapeProvider } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeModel__GetSheetById, Na__LeModel__GetShapeById, Na__LeModel__UpdateShape, Na__LeModel__IsLayerLocked } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeMenu__Close } from '../30__System__SheetTools/Na__LayoutEditor__ContextMenu__.js';
     import { Na__LeImgGeo__Rect, Na__LeImgGeo__Corner, Na__LeImgGeo__CornerScale, Na__LeImgGeo__RectPoints } from './Na__LayoutEditor__SheetImages__Geometry__.js';
     import { Na__LeImgCfg__Placement } from './Na__LayoutEditor__SheetImages__Setup__.js';

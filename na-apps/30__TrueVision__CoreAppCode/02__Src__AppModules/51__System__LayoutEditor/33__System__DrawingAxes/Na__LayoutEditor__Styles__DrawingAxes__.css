@@ -1,0 +1,87 @@
+/* =============================================================================
+   TRUEVISION3D - LAYOUT EDITOR - DRAWING AXES OVERLAY - STYLES
+   =============================================================================
+
+   FILE    : Na__LayoutEditor__Styles__DrawingAxes__.css
+   PURPOSE : Where the drawing axes sit on the paper, and how the two lines are
+             drawn: SketchUp's red and green axes, carried by the cursor (F9).
+   CREATED : 21-Sep-2026
+   AUTHOR  : Adam Noble - Noble Architecture
+
+   NOTES:
+   - The lines are placed by Na__LayoutEditor__DrawingAxes__, only ever with a
+     transform: a translate to where they cross and a scale to their width in
+     device pixels. Each is 1 px along its short side here and 100% of the
+     sheet along its long side, so the sheet's own size is their length and a
+     new paper size needs nothing from the script.
+   - THE STACK ON THE PAPER, bottom to top: the paper's own white, the sheet
+     (.na-le-paper__stack, z-index 1), the drawing grid on top (3), the open
+     container redrawn crisp (.na-le-paper__focus, 4), then the axes and the
+     selection handles and snap marker, both at 5 - the axes go in first, so
+     the marker and the grips are drawn over them.
+   - Each line is a compositor layer of its own (will-change), so moving it
+     never repaints the sheet beneath it.
+   - The colours and the opacity are custom properties the script sets on the
+     layer from the config; the values here are only the fallbacks.
+   - Never printed: the PDF is drawn from the sheet's primitives and never reads
+     the screen, and a printed page hides the layer outright.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Layer on the Paper
+   ----------------------------------------------------------------------------- */
+
+    .na-le-axes {
+        position                           : absolute;
+        left                               : 0;
+        top                                : 0;
+        width                              : 100%;                        /* <-- The sheet's own size: the lines' length comes from here */
+        height                             : 100%;
+        z-index                            : 5;                           /* <-- The handles' depth, in before them: over the drawings, under the snap marker and the grips */
+        pointer-events                     : none;                        /* <-- An aid to look at: every press goes through it to the sheet */
+        overflow                           : visible;
+    }
+
+    .na-le-axes[hidden],
+    .na-le-axes__line[hidden] {
+        display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Two Lines
+   ----------------------------------------------------------------------------- */
+
+    .na-le-axes__line {
+        position                           : absolute;
+        left                               : 0;
+        top                                : 0;
+        transform-origin                   : 0 0;                         /* <-- The script's scale stretches the line from its own top left corner */
+        will-change                        : transform;                   /* <-- A layer of its own: following the cursor never repaints the sheet */
+        opacity                            : var(--na-le-axes-opacity, 1);
+        pointer-events                     : none;
+    }
+
+    .na-le-axes__line--horizontal {
+        width                              : 100%;                        /* <-- Edge to edge across the sheet */
+        height                             : 1px;                         /* <-- Scaled to whole device pixels by the script */
+        background                         : var(--na-le-axes-horizontal, #ff0000);   /* <-- SketchUp's red axis */
+    }
+
+    .na-le-axes__line--vertical {
+        width                              : 1px;
+        height                             : 100%;                        /* <-- Edge to edge down the sheet */
+        background                         : var(--na-le-axes-vertical, #00a000);     /* <-- SketchUp's green axis, darkened to read on white paper */
+    }
+
+    @media print {
+        .na-le-axes {
+            display                        : none !important;
+        }
+    }
+
+/* endregion ------------------------------------------------------------------- */

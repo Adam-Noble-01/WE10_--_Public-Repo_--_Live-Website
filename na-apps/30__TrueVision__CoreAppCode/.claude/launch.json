@@ -525,6 +525,81 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8958
+    },
+    {
+      "name": "tv-toolbartrim",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8932",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8932
+    },
+    {
+      "name": "tv-arealabel",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8964",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8964
+    },
+    {
+      "name": "tv-colourpalette",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "9013",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_colourpalette/out"
+      ],
+      "port": 9013
+    },
+    {
+      "name": "tv-cabinfill",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8747",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8747
+    },
+    {
+      "name": "tv-objectsnap",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8953",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_objectsnap_out"
+      ],
+      "port": 8953
+    },
+    {
+      "name": "tv-vectortools",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8726",
+        "--directory",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8726
+    },
+    {
+      "name": "tv-drawingaxes",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8831",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_drawingaxes_out"
+      ],
+      "port": 8831
     }
   ]
 }

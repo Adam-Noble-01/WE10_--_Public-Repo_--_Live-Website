@@ -53,6 +53,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.10.0
+// - A line started while a GROUP is open for editing joins that group from its
+//   first point (Na__LeVec__AdoptIntoOpenGroup, 37__System__VectorTools), as in
+//   LayOut: the sheet tools now leave a group open for the tools that draw a
+//   plain vector. Out on the sheet nothing changes.
+//
+// 21-Sep-2026 - Version 1.9.0
+// - Snaps through the Object Snap folder (28__System__ObjectSnap, __Search__),
+//   where all the editor's snapping now lives. SnapOrConstrain hands the snap
+//   the vertex the new edge is drawn FROM (options.from), which is what lets
+//   the Perpendicular mode find where that edge would meet another line square
+//   on; the first point of a shape has nothing to be square to, and gets none.
+//
 // 21-Sep-2026 - Version 1.8.0
 // - Ortho mode (F8, Na__LayoutEditor__OrthoMode__): SnapOrConstrain holds
 //   the axis when Na__LeOrtho__Resolve(shift) says so - Ortho XOR Shift -
@@ -131,10 +144,11 @@
         Na__LeModel__SetSelection
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__KIND_END, Na__LeOsnap__TARGET_SHAPE, Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeAxis__Get, Na__LeAxis__Clear, Na__LeAxis__Apply, Na__LeAxis__Hold, Na__LeAxis__Constrain } from '../30__System__SheetTools/Na__LayoutEditor__AxisLock__.js';
     import { Na__LeOrtho__Resolve } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__State__.js';
+    import { Na__LeVec__AdoptIntoOpenGroup } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- A line drawn inside a group that is open for editing joins it
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -178,7 +192,7 @@
     // along it.
     // ------------------------------------------------------------
     function Na__LeShape__SnapOrConstrain(sheet, last, point, shift) {
-        const snap = Na__LeOsnap__Snap(sheet, point, Na__LeShape__OwnExclusion());
+        const snap = Na__LeOsnap__Snap(sheet, point, Na__LeShape__OwnExclusion(), last ? { from : { x : last[0], y : last[1] } } : null);   // <-- from: what a Perpendicular snap is square to - the vertex this edge is drawn from
         const at   = snap.snapped ? { x : snap.x, y : snap.y } : point;
         const hold = Na__LeOrtho__Resolve(shift);                                 // <-- Ortho (F8) holds the axis as Shift does; Shift held while Ortho is on frees it
         if (last && Na__LeAxis__Get()) return Na__LeAxis__Apply(last, at);        // <-- Arrow key lock: the axis is named outright
@@ -283,6 +297,13 @@
                 layerId : d.layerId || null                                      // <-- ...and lands on the Floor Areas layer rather than the Vectors one
             });
             if (!item) return false;
+            // INSIDE A GROUP THAT IS OPEN FOR EDITING THE LINE JOINS IT AT ONCE,
+            // from its first point, as LayOut's does - not when it is finished,
+            // or it would be drawn faded with the rest of the sheet until then.
+            // Silent, like the draft itself; an abandoned draft is deleted and
+            // the group is pruned of it. Does nothing out on the sheet, for a
+            // measured room, or with the config's DrawInsideOpenGroup off.
+            Na__LeVec__AdoptIntoOpenGroup(sheet, item.Shape__Id);
             Na__LeShape__Draft  = { id : item.Shape__Id, points : [ pt ], stroked : d.stroked !== false, aim : null, area : !!(d.area && typeof d.area === 'object') };   // <-- Drawn with edges, finished as the default asks
             Na__LeShape__Undone = [];
             Na__LeAxis__Clear();                                             // <-- The point landed: the lock is spent
@@ -305,7 +326,7 @@
         const p    = Na__LeShape__SnapOrConstrain(sheet, last, pointMm, shift);
         if (Na__LeShape__NearFirst(p)) {
             draft.aim = { x : draft.points[0][0], y : draft.points[0][1] };  // <-- A length typed now runs towards the first point
-            Na__LeOsnap__ShowMarker({ x : draft.points[0][0], y : draft.points[0][1], kind : 'end' });   // <-- Closing is on offer
+            Na__LeOsnap__ShowMarker({ x : draft.points[0][0], y : draft.points[0][1], kind : Na__LeOsnap__KIND_END, target : Na__LeOsnap__TARGET_SHAPE });   // <-- Closing is on offer: the vector's own first corner, so a vector's blue
             Na__LeGrips__ShowBand(last, draft.points[0], null);
             return true;
         }

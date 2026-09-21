@@ -51,6 +51,25 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.13.0
+// - F9 (View__AxesToggle) shows or hides the Drawing Axes Overlay
+//   (Na__LayoutEditor__DrawingAxes__): a view, like F6, so the tool, the
+//   selection and a point half placed are left alone, the browser's own use
+//   of the key is kept from it, and a held key only counts once.
+//
+// 21-Sep-2026 - Version 1.12.0
+// - THE VECTOR TOOLS' KEYS (37__System__VectorTools). The switch's default asks
+//   their adapter which tool an action picks up, so C, Shift+A, T, Shift+T, J,
+//   U, F, Shift+F and Shift+C are rows in the key file and one branch here.
+// - The key map is told the SITUATION the key was pressed in
+//   ({ InContainer }), so a binding may name When it applies: T is Trim while a
+//   group or a vector is open and the Text tool out on the sheet.
+// - Ctrl+Z with a vector tool half way through something steps THAT back (an
+//   arc's last point; a circle, a fence or a held line let go) and Ctrl+Y is
+//   swallowed, as for a rubber rectangle. An arrow locks the axis of an arc's
+//   chord or radius and never nudges under a tool with something in hand. F8
+//   and Shift re-aim a vector tool's preview at once (RedrawHeld, Rerun).
+//
 // 21-Sep-2026 - Version 1.11.0
 // - CopyKey: the copy key (Ctrl, the key map's CopyDragModifier) going down
 //   during a whole-object or frame move turns it into a copy - the original
@@ -186,17 +205,19 @@
     import { Na__LeDim__Move, Na__LeDim__IsPlacing, Na__LeDim__IsSpanning } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Move, Na__LeShape__Finish, Na__LeShape__IsDrawing, Na__LeShape__UndoVertex, Na__LeShape__RedoVertex } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Move, Na__LeRect__Cancel, Na__LeRect__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
+    import { Na__LeVec__IsTool, Na__LeVec__IsDrawing, Na__LeVec__Move, Na__LeVec__ToolForAction, Na__LeVec__StepBack, Na__LeVec__TakesAxis, Na__LeVec__SwallowsArrows } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools' one door
     import { Na__LeAreaTool__Rerun, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';
     import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__IsPlacing } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeLeadGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeDrop__Clear, Na__LeDrop__HasSource } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeAxis__AXIS_X, Na__LeAxis__AXIS_Y, Na__LeAxis__Toggle } from './Na__LayoutEditor__AxisLock__.js';
-    import { Na__LeOsnap__Toggle } from './Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Toggle } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__.js';   // <-- F3: object snap's own folder now (the controller - the switch and its echo)
     import { Na__LeOrtho__Toggle } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__.js';
     import { Na__LeDraft__Toggle } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
     import { Na__LeGrid__ToggleShow, Na__LeGrid__ToggleSnap } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js';
-    import { Na__LeVpMove__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeAxes__Toggle } from '../33__System__DrawingAxes/Na__LayoutEditor__DrawingAxes__.js';   // <-- F9: the Drawing Axes Overlay
+    import { Na__LeVpMove__Clear } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeClip__RunKeyAction } from './Na__LayoutEditor__ItemClipboard__.js';
     import { Na__LeGroup__Expand, Na__LeGroup__Group, Na__LeGroup__Ungroup } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     // @delegate: ../15__Core__Markup/Na__LayoutEditor__Groups__.js
@@ -243,7 +264,8 @@
         Na__LeTools__CancelPlacement,
         Na__LeTools__SetTool,
         Na__LeTools__ArmEyedropper,
-        Na__LeTools__ArmPalette
+        Na__LeTools__ArmPalette,
+        Na__LeTools__GetShapeDefaults
     } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import { Na__LeTools__RefreshShapeInsert, Na__LeTools__Record, Na__LeTools__IsViewportLocked } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
     import { Na__LeTools__IsVertexDrag, Na__LeTools__RerunVertexDrag, Na__LeTools__IsDimEndDrag, Na__LeTools__RerunDimEndDrag, Na__LeTools__IsMoveDrag, Na__LeTools__RerunMoveDrag, Na__LeTools__IsViewportMoveDrag, Na__LeTools__RerunViewportDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
@@ -362,6 +384,13 @@
         if (Na__LeTools__IsMoveDrag())   { Na__LeAxis__Toggle(axis); Na__LeTools__RerunMoveDrag();   return true; }   // <-- A whole object held by the Move tool locks to an axis the same way
         if (Na__LeTools__IsDimEndDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunDimEndDrag(); return true; }   // <-- A measured point holds an axis the same way a vertex does
         if (Na__LeTools__IsViewportMoveDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunViewportDrag(); return true; }   // <-- And so does a viewport frame, carried by a point or moved plain
+        if (Na__LeVec__TakesAxis(Na__LeTools__Tool)) {                       // <-- An arc's chord, or its radius from the centre: a straight run, locked as a line's is
+            Na__LeAxis__Toggle(axis);
+            const at = Na__LeTools__LastPointMm, on = Na__LeModel__GetActiveSheet();
+            if (on && at) { Na__LeVec__Move(Na__LeTools__Tool, on, at, { shift : shift }, Na__LeTools__GetShapeDefaults()); Na__LeMeasure__Refresh(); }
+            return true;
+        }
+        if (Na__LeVec__SwallowsArrows(Na__LeTools__Tool)) return true;       // <-- A vector tool with something in hand: no axis to lock, and no nudging the old selection from under it
         if (Na__LeRect__IsDrawing() || Na__LeLeader__IsPlacing()) return true;   // <-- Nothing to lock, and nudging the old selection mid-placement would surprise
         const drawing  = Na__LeShape__IsDrawing();
         const spanning = Na__LeDim__IsSpanning();                            // <-- Only the span phase: the offset phase has no axis to lock
@@ -405,6 +434,7 @@
         const tool = Na__LeTools__Tool;
         if ((tool === Na__LeTools__TOOL_DRAW || tool === Na__LeTools__TOOL_AREA) && Na__LeShape__IsDrawing()) Na__LeShape__Move(sheet, point, Na__LeTools__ShiftHeld);
         else if (tool === Na__LeTools__TOOL_DIMENSION && Na__LeDim__IsPlacing()) Na__LeDim__Move(sheet, point, Na__LeTools__ShiftHeld);
+        else if (Na__LeVec__IsTool(tool)) Na__LeVec__Move(tool, sheet, point, { shift : Na__LeTools__ShiftHeld }, Na__LeTools__GetShapeDefaults());   // <-- Shift swaps Trim and Extend, and holds an arc's chord: shown at once, not on the next move
         else return false;
         Na__LeMeasure__Refresh();
         return true;
@@ -486,6 +516,7 @@
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      Na__LeShape__Move(sheet, point, Na__LeTools__ShiftHeld);
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_DIMENSION) Na__LeDim__Move(sheet, point, Na__LeTools__ShiftHeld);
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_RECT)      Na__LeRect__Move(sheet, point, Na__LeTools__ShiftHeld, false);
+        else if (Na__LeVec__IsTool(Na__LeTools__Tool))              Na__LeVec__Move(Na__LeTools__Tool, sheet, point, { shift : Na__LeTools__ShiftHeld }, Na__LeTools__GetShapeDefaults());
         else return false;
         return true;
     }
@@ -568,7 +599,7 @@
         // are left alone here: the PC controls module owns those. An arrow with
         // the copy key still held mid-move is the axis lock all the same.
         const held  = { Ctrl : !!event.ctrlKey, Shift : !!event.shiftKey, Alt : !!event.altKey, Meta : !!event.metaKey, Space : false };
-        const match = Na__LeCfg__MatchKeyBinding(event.key, held) || Na__LeTools__MatchUnderCopy(event.key, held);
+        const match = Na__LeCfg__MatchKeyBinding(event.key, held, { InContainer : Na__LeScope__IsActive() }) || Na__LeTools__MatchUnderCopy(event.key, held);   // <-- The situation goes with the key: a binding may name When it applies (T is Trim inside a container, Text outside)
         if (!match || !match.action) return;
         // A SELECT, A CHECKBOX OR A NUMBER BOX HAS NO UNDO OR PASTE OF ITS OWN,
         // so a Ctrl chord always belongs to the sheet. Without this, Ctrl+Z
@@ -733,14 +764,28 @@
                 Na__LeGrid__ToggleSnap();
                 Na__LeTools__RedrawHeld();
                 return;
+            // THE DRAWING AXES ARE A VIEW, NOT A TOOL. F9, the key after
+            // Ortho's, shows or hides SketchUp's red and green axes carried by
+            // the cursor out to the edges of the sheet: the tool, the selection
+            // and a point half placed are left alone, so it can be pressed in
+            // the middle of a line. The browser's own use of the key (Edge's
+            // Immersive Reader) is kept from it. A held key only counts once.
+            // ------------------------------------
+            case 'View__AxesToggle':
+                event.preventDefault();
+                if (event.repeat) return;
+                Na__LeAxes__Toggle();
+                return;
             case 'Edit__Undo':
                 if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__UndoVertex(sheet); Na__LeMeasure__Refresh(); return; }
                 if (Na__LeRect__IsDrawing()) { event.preventDefault(); Na__LeRect__Cancel(); Na__LeMeasure__Refresh(); return; }   // <-- A rubber box is not a record yet: undo it the way Escape does
+                if (Na__LeVec__StepBack(Na__LeTools__Tool)) { event.preventDefault(); Na__LeMeasure__Refresh(); return; }   // <-- An arc gives its last point back; a circle, a fence or a held line is let go of. Nothing in hand: the sheet's history steps, below
                 if (Na__LeTools__Editable) { event.preventDefault(); Na__LeHist__Undo(); }
                 return;
             case 'Edit__Redo':
                 if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__RedoVertex(sheet); Na__LeMeasure__Refresh(); return; }
                 if (Na__LeRect__IsDrawing()) { event.preventDefault(); return; }   // <-- Nothing to redo on a rubber box; do not step the sheet either
+                if (Na__LeVec__IsDrawing(Na__LeTools__Tool)) { event.preventDefault(); return; }   // <-- Nor with a circle, an arc or a fence half drawn. A line Join or Offset is only HOLDING does not stop a redo
                 if (Na__LeTools__Editable) { event.preventDefault(); Na__LeHist__Redo(); }
                 return;
             case 'Edit__Copy':
@@ -749,7 +794,20 @@
             case 'Edit__Duplicate':  if (Na__LeTools__Editable) { event.preventDefault(); Na__LeClip__RunKeyAction(match.action, true); } return;   // <-- Never the bookmark dialog while a sheet is open
             case 'Edit__Group':      if (Na__LeTools__Editable && sheet && Na__LeGroup__Group(sheet)) event.preventDefault(); return;
             case 'Edit__Ungroup':    if (Na__LeTools__Editable && sheet && Na__LeGroup__Ungroup(sheet)) event.preventDefault(); return;
-            default: return;
+            // THE VECTOR TOOLS' KEYS (37__System__VectorTools) - Tool__Circle,
+            // Tool__Arc, Tool__Trim, Tool__Extend, Tool__Join, Tool__Split,
+            // Tool__Offset, Tool__Fillet, Tool__Chamfer. Their adapter names the
+            // tool for the action, so a tenth tool is a row in the key file and
+            // nothing here. A held key counts once: picking Join up again would
+            // let go of the line it is holding.
+            // ------------------------------------
+            default: {
+                const vectorTool = Na__LeVec__ToolForAction(match.action);
+                if (!vectorTool) return;
+                event.preventDefault();
+                if (!event.repeat) Na__LeTools__SetTool(vectorTool);
+                return;
+            }
         }
     }
     // ------------------------------------------------------------

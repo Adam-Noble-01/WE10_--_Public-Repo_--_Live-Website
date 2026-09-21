@@ -1,0 +1,65 @@
+{
+    "HatchPattern__InsulationQuilt__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__InsulationQuilt__.json",
+        "Meta__Description"   : "Quilt insulation in section - the looping batt line every drawing uses for mineral wool, running across the tile and joining the next. One run of loops to a tile, with clear paper above and below it.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__WhySeams"      : "The run crosses the left and right seams at the TOP of a loop, where it is travelling dead level, so it meets the seam square on and the join cannot show. It keeps 2 mm clear of the top and bottom edges. Na__LeHatch__SeamCopies paints what the next tile pushes across.",
+        "Meta__Fitting"       : "A run is 8 mm deep in a 12 mm tile. To fill a 100 mm quilt at 1:20 (5 mm on paper) set Pattern scale to about 0.6; at 1:50 (2 mm) about 0.25."
+    },
+
+    "HatchPattern__InsulationQuilt__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__InsulationQuilt",
+        "Identity__Label"       : "Insulation (Quilt)",
+        "Identity__Group"       : "Insulation",
+        "Identity__Keywords"    : ["insulation", "quilt", "batt", "mineral wool", "rockwool", "glass wool", "loft", "section"],
+        "Identity__Note"        : "Mineral wool and other soft insulation. Turn it with Pattern deg to run along a rafter or up a stud wall."
+    },
+
+    "HatchPattern__InsulationQuilt__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 6.0,
+        "Tile__HeightMm"    : 12.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "One full loop down and up again. Narrow and tall, because the loops are."
+    },
+
+    "HatchPattern__InsulationQuilt__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__InsulationQuilt__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "Loops": {
+            "Glyph__Label"    : "One loop down, one up",
+            "Glyph__WidthMm"  : 6,
+            "Glyph__HeightMm" : 8,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,2 C0.8667,2 1.2,2.8889 1.3556,4.0741 C1.5111,5.2593 1.4889,6.7407 1.6444,7.9259 C1.8,9.1111 2.1333,10 3,10 C3.8667,10 4.2,9.1111 4.3556,7.9259 C4.5111,6.7407 4.4889,5.2593 4.6444,4.0741 C4.8,2.8889 5.1333,2 6,2",
+            "Glyph__Note"     : "Drawn as two cubic curves - M0,2 C2.6,2 0.4,10 3,10 S3.4,2 6,2 - whose control points overshoot, which is what fattens each loop into the batt shape instead of a sine wave; level at both ends and at the middle. WRITTEN as six, each of the two cut in three, because the PDF flattens every cubic to twelve chords: two cubics made a loop of visibly straight sides on paper, six do not. The screen draws the same curve either way."
+        }
+    },
+
+    "HatchPattern__InsulationQuilt__Placements": [
+        { "Place__Glyph": "Loops", "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "The whole tile is one glyph at the origin" }
+    ],
+
+    "HatchPattern__InsulationQuilt__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

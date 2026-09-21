@@ -105,7 +105,7 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Refresh, Na__LeSurface__RefreshNow } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeGroup__Expand, Na__LeGroup__ParentOf } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
-    import { Na__LeVpMove__Retarget } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeVpMove__Retarget } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeClip__CloneInPlace } from './Na__LayoutEditor__ItemClipboard__.js';
     import { Na__LeSelSet__Capture, Na__LeSelSet__Apply } from './Na__LayoutEditor__SelectionSet__.js';
     import { Na__LeScope__GetGroupId } from './Na__LayoutEditor__EditScope__.js';

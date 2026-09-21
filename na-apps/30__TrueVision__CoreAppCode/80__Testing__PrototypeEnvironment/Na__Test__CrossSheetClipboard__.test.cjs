@@ -41,6 +41,14 @@ function fixture() {
         Na__LeModel__IsLayerLocked: (_, id) => id === 'locked',
         Na__LeModel__ShapeLayerType: record => (record && record.Shape__Area) ? 'area' : 'vector',   // Missing since Floor Areas: every shape paste threw here
         Na__LeModel__DefaultLayerId: (_, type) => type,
+        // Layers across sheets (ItemClipboard 1.6.0): these sheets keep no layer list, so a copy brings none and every
+        // paste keeps the id-and-type rule tested here. Na__Test__LayerMenu__ drives the layers a paste brings.
+        Na__LeModel__GetLayers: s => (s && Array.isArray(s.Sheet__Layers)) ? s.Sheet__Layers : [],
+        Na__LeModel__GetLayerByName: () => null,
+        Na__LeModel__LayerIndexLike: () => 0,
+        Na__LeModel__CreateLayer: () => null,
+        Na__LeModel__UpdateLayer: () => true,
+        Na__LeModel__IsItemPickable: () => true,
         Na__LeModel__AssignDirty() {},
         Na__LeModel__Touch: (_, id) => notifications.push(plain(id === from.Sheet__Id ? from : to)),
         Na__LeRec__NextId: () => 'new-' + (++serial),
@@ -200,7 +208,7 @@ test('configured and fallback Ctrl+X/C/V bindings route to clipboard and text in
         const binding = bindings.find(b => b.Action === 'Edit__' + action);
         assert.ok(binding.Keys.includes(key)); assert.deepEqual(binding.Modifiers, ['Ctrl']);
     }
-    const ctx = vm.createContext({});
+    const ctx = vm.createContext({ Na__LeVec__TOOLS: [] });   // <-- The state unit's one import, stripped with the rest: the vector tools' names (37__System__VectorTools), which its TOOLS list takes in
     vm.runInContext(strip(read('30__System__SheetTools/Na__LayoutEditor__SheetTools__State__.js')), ctx);
     let routed = null, prevented = false;
     Object.assign(ctx, {
@@ -208,6 +216,7 @@ test('configured and fallback Ctrl+X/C/V bindings route to clipboard and text in
         Na__LeTools__IsTextEntry: target => target.tagName === 'TEXTAREA',
         Na__LeCfg__MatchKeyBinding: () => ({ action: 'Edit__Cut' }),
         Na__LeModel__GetActiveSheet: () => ({}),
+        Na__LeScope__IsActive: () => false,                                  // <-- OnKey tells the key map whether a container is open (a binding may name When it applies)
         Na__LeClip__RunKeyAction: action => { routed = action; return true; }
     });
     loadFunctions(ctx, '30__System__SheetTools/Na__LayoutEditor__SheetTools__Keyboard__.js', ['Na__LeTools__OnKey']);

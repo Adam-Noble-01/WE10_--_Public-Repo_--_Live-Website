@@ -29,7 +29,13 @@
     },
 
     "LayoutEditor__FloorAreas__Label": {
-        "Label__Description"      : "The name and the figure written in the middle of a room. Not a text record - it is painted from the shape every time the sheet is drawn, which is what makes it follow a vertex as the vertex is dragged rather than a moment later. It sits at the room's VISUAL centre (the middle of the largest circle that fits inside it), so an L-shaped room is labelled inside the L.",
+        "Label__Description"      : "The name and the figure written in the middle of a room. Not a text record - it is painted from the shape every time the sheet is drawn, which is what makes it follow a vertex as the vertex is dragged rather than a moment later. Where it sits is set by Placement; in the room's edit mode (double-click it, or Enter) a dashed box round the words can be dragged to move them, and the room remembers how far they were moved (Area__LabelDXMm / Area__LabelDYMm) - so they travel with the room when it is moved.",
+        "Label__Placement"        : "box",
+        "Label__PlacementNote"    : "Where a label sits until it is dragged. 'box' (the standard): the middle of the room's bounding box - except where that middle is not inside the room at all (an L or a U), which takes the visual centre instead rather than labelling the garden. 'visual': the middle of the largest circle that fits inside the room, for every room. Either way, Centre its label (the room's right-click menu, or the panel) puts a dragged label back here.",
+        "Label__HomeSnapPx"       : 8,
+        "Label__HomeSnapPxNote"   : "A label dragged back to within this many pixels of its home, on screen, snaps onto it and forgets that it was ever moved - the easy way back without the menu.",
+        "Label__GripPaddingPx"    : 4,
+        "Label__GripPaddingPxNote": "How far, on screen, the draggable box stands out round the words in edit mode, so a small label is still easy to take hold of.",
         "Label__Mode"             : "both",
         "Label__ModeNote"         : "What a new area shows: 'both' (the name over the figure), 'name', 'value' or 'none'. Each area can be switched afterwards.",
         "Label__NameSizeMm"       : 2.4,
@@ -141,6 +147,7 @@
         "Labels__MenuScaleAuto"     : "Measure at the drawing's scale ({scale})",
         "Labels__MenuScaleFixed"    : "Measure at {scale}",
         "Labels__MenuCentreLabel"   : "Centre its label",
+        "Labels__LabelGripTitle"    : "Drag to move the label. Drag it back to the middle, or press Centre the label, to put it back.",
         "Labels__MenuOutline"       : "Show its outline",
         "Labels__MenuConvert"       : "Make it a plain vector",
         "Labels__ToastMeasured"     : "{name}: {area}.",

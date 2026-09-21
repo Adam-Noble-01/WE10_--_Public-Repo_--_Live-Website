@@ -70,6 +70,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.11.0
+// - Snaps through the Object Snap folder (28__System__ObjectSnap, __Search__).
+//   The marker's colour no longer says "the Dimension tool is snapping" (the
+//   orange tone is gone): it says what the point belongs to, so a measured
+//   point picked off the drawing is marked purple and one picked off a vector
+//   blue. The inferred line keeps a marker of its own - a dashed circle, in
+//   the dimensions' red, because it lines up with another DIMENSION.
+// - SnapOrLock hands the snap the span's first point (options.from), so the
+//   Perpendicular mode can find where the span would meet a line square on:
+//   the way to measure from a corner straight across to a wall.
+//
 // 21-Sep-2026 - Version 1.10.0
 // - The inference onto a parallel dimension's line leaves out a dimension on
 //   a REFERENCE layer (the Layers panel's Ref), as it leaves out a hidden
@@ -161,7 +172,7 @@
     import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionValueMm, Na__LeMarkup__FormatDimension, Na__LeMarkup__DimensionTextLayout } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeDimGeo__ALIGNED, Na__LeDimGeo__Frame, Na__LeDimGeo__OrthoToward } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeChrome__MeasureTextMm } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
-    import { Na__LeOsnap__TONE_DIMENSION, Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__TARGET_DIMENSION, Na__LeOsnap__Snap, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeGrid__SnapPoint } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- Grid Snap (F7): a leaf, the nearest grid point
     import { Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeAxis__Get, Na__LeAxis__Clear, Na__LeAxis__Apply } from '../30__System__SheetTools/Na__LayoutEditor__AxisLock__.js';
@@ -179,7 +190,7 @@
     // MODULE CONSTANTS | Inference
     // ------------------------------------------------------------
     const Na__LeDim__PARALLEL_DOT = 0.9995;        // <-- Two dimensions are parallel when their directions agree this closely
-    const Na__LeDim__INFER_KIND   = 'infer';       // <-- Marker style for an inferred line
+    const Na__LeDim__INFER_KIND   = 'infer';       // <-- Marker style for an inferred line: the object snap's KIND_INFER, a dashed circle (written out, so nothing imported is read while this module loads)
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | Typed Distances
@@ -212,7 +223,7 @@
     // dimension ortho exactly as Shift does.
     // ------------------------------------------------------------
     function Na__LeDim__SnapOrLock(sheet, start, point) {
-        const snap = Na__LeOsnap__Snap(sheet, point, null, Na__LeOsnap__TONE_DIMENSION);
+        const snap = Na__LeOsnap__Snap(sheet, point, null, start ? { from : start } : null);   // <-- from: a Perpendicular snap is square to the span's first point, so a corner can be measured square on to a wall
         const at   = snap.snapped ? { x : snap.x, y : snap.y } : { x : point.x, y : point.y };
         return Na__LeAxis__Get() ? Na__LeAxis__Apply(start, at) : at;
     }
@@ -292,7 +303,7 @@
     // FUNCTION | Show the Inference Marker, or Hide It
     // ------------------------------------------------------------
     function Na__LeDim__ShowInference(result) {
-        if (result && result.inferred !== null) Na__LeOsnap__ShowMarker({ x : result.foot.x, y : result.foot.y, kind : Na__LeDim__INFER_KIND }, Na__LeOsnap__TONE_DIMENSION);
+        if (result && result.inferred !== null) Na__LeOsnap__ShowMarker({ x : result.foot.x, y : result.foot.y, kind : Na__LeDim__INFER_KIND, target : Na__LeOsnap__TARGET_DIMENSION });   // <-- It lines up with another DIMENSION's line: the dimensions' colour
         else Na__LeOsnap__HideMarker();
     }
     // ------------------------------------------------------------
@@ -343,7 +354,7 @@
     function Na__LeDim__Click(sheet, pointMm, shift, defaults) {
         const p = Na__LeDim__Placement;
         if (!p) {
-            const first = Na__LeOsnap__Snap(sheet, pointMm, null, Na__LeOsnap__TONE_DIMENSION);
+            const first = Na__LeOsnap__Snap(sheet, pointMm, null);
             Na__LeDim__Placement = { phase : 1, startMm : { x : first.x, y : first.y }, endMm : null, id : null, aim : null, cursor : null };
             Na__LeAxis__Clear();                                              // <-- The point landed: the lock is spent
             Na__LeGrips__ShowBand(Na__LeDim__Placement.startMm, Na__LeDim__Placement.startMm, null);
@@ -368,7 +379,7 @@
     // ------------------------------------------------------------
     function Na__LeDim__Move(sheet, pointMm, shift) {
         const p = Na__LeDim__Placement;
-        if (!p) { Na__LeOsnap__Snap(sheet, pointMm, null, Na__LeOsnap__TONE_DIMENSION); return false; }   // <-- Marker before the first click
+        if (!p) { Na__LeOsnap__Snap(sheet, pointMm, null); return false; }   // <-- Marker before the first click
         if (p.phase === 1) {
             const end = Na__LeDim__SnapOrLock(sheet, p.startMm, pointMm);
             p.aim = { x : end.x, y : end.y };                                 // <-- Where the band ends is the way a typed length runs

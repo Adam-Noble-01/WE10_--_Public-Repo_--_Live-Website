@@ -708,10 +708,10 @@
     // whether the last click bounced and why.
     //
     // The text is COMPOSED ONCE per state change and stored, never computed on
-    // read. The toolbar re-syncs on a zoom, an undo and every model change, so
-    // a hint that cleared itself when it was read would vanish the instant the
-    // user nudged the wheel - and the refusal, the one line actually worth
-    // reading, is exactly the one that would be lost.
+    // read. The toolbar re-syncs on every model change and every tool, snap
+    // and scope change, so a hint that cleared itself when it was read would
+    // vanish at the next thing the user did - and the refusal, the one line
+    // actually worth reading, is exactly the one that would be lost.
     // ------------------------------------------------------------
     function Na__LeDrop__Compose(refusal) {
         if (Na__LeDrop__Mode === Na__LeDrop__MODE_PALETTE) {

@@ -6,13 +6,16 @@
 // NAMESPACE  : Na__LeToolbar
 // MODULE     : Layout Editor - Toolbar
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : The strip above the stage: tools, zoom, save and Download PDF
+// PURPOSE    : The strip above the stage: tools, raster, save and Download PDF
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
 // - Tool buttons (Select, Text, Dimension) and Save exist only when the
-//   session can edit; Zoom to Fit, the zoom readout and Download PDF are
-//   for everyone, so a web viewer can read a sheet and take the PDF away.
+//   session can edit; the Raster list and Download PDF are for everyone, so
+//   a web viewer can read a sheet and take the PDF away.
+// - Undo, Redo, Zoom to Fit and the zoom readout have no buttons here: they
+//   are keys (Ctrl+Z, Ctrl+Y, and the key map's zoom bindings), and Zoom to
+//   fit is on the right-click menu as well.
 //
 // INTEGRATION:
 // - Mounted by the mode controller into the centre column.
@@ -29,6 +32,47 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.22.0
+// - Axes: a toggle after Ortho switches the Drawing Axes Overlay (F9,
+//   Na__LayoutEditor__DrawingAxes__) - SketchUp's red and green axes carried
+//   by the cursor out to the edges of the sheet - in the same plain button as
+//   Grid and Ortho, lit while it is on. Adam had its words shortened from the
+//   feature's full name, which made it the widest button on the strip; the
+//   full name opens its hover text. Both come from the axes config and are
+//   re-read on every sync; the toolbar re-syncs on Na__LeAxes__CHANGED_EVENT,
+//   listened for on a line of its own.
+//
+// 21-Sep-2026 - Version 1.21.0
+// - Circle and Arc buttons, straight after Rectangle (37__System__VectorTools).
+//   They draw, so they sit with the tools that draw; Trim, Extend, Join, Split,
+//   Offset, Fillet and Chamfer are in the Vector Tools panel, on their keys and
+//   on a vector's right-click menu, and take no room here.
+//
+// 21-Sep-2026 - Version 1.20.0
+// - The Snap button grew an ARROW: AutoCAD's status bar button, which toggles
+//   object snap on a click (F3) and drops the running snap modes from the
+//   arrow beside it. The arrow opens the snap options menu
+//   (Na__LayoutEditor__ObjectSnap__Menu__): Endpoint, Midpoint, Intersection,
+//   Perpendicular, Centre and Nearest, each with a picture of what it finds,
+//   and the kinds of object they are found on, each with its marker colour.
+//   The two are one joined control (na-le-toolbar__split), so the strip gives
+//   up an arrow's width. The button's words now come from the object snap
+//   config and are re-read on every sync, like Ortho's and the grid's.
+// - Object snap moved to its own folder (28__System__ObjectSnap); the imports
+//   follow.
+//
+// 21-Sep-2026 - Version 1.19.0
+// - Undo, Redo, Fit and the zoom readout (the button that zoomed to 100%)
+//   are gone, with the two separators that fenced them, to make room on a
+//   strip that is tight for tools. Adam never used them. The keys stay:
+//   Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z, and the key map's Nav__ZoomFit and
+//   Nav__ZoomActualSize; Zoom to fit is on the right-click menu too.
+// - Nothing left on the strip reads the undo depth or the zoom, so the
+//   toolbar no longer listens for Na__LeHist__CHANGED_EVENT or
+//   Na__LeSurface__ZOOM_EVENT, and SyncZoom is gone. An undo still re-syncs
+//   it, through the model change the undo announces - one full sync per
+//   edit where there were two.
+//
 // 21-Sep-2026 - Version 1.18.0
 // - Image: a button after the tool buttons that asks for picture files and
 //   places them on the sheet (Na__LayoutEditor__SheetImages__Insert__), the
@@ -128,7 +172,7 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Config, Model, Tools, Navigation, Surface, PDF
+    // MODULE IMPORTS | Config, Model, Tools, PDF
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet, Na__LeModel__GetTabLabel, Na__LeModel__IsDirty, Na__LeModel__Save } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
@@ -149,17 +193,18 @@
         Na__LeTools__ArmEyedropper,
         Na__LeTools__ArmPalette
     } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
+    import { Na__LeVec__TOOL_CIRCLE, Na__LeVec__TOOL_ARC } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__State__.js';   // <-- The two vector tools that DRAW sit beside Draw and Rectangle; the seven that edit live in the Vector Tools panel
+    import { Na__LeVecCfg__Label } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__Setup__.js';
     import { Na__LeDrop__CHANGED_EVENT, Na__LeDrop__GetHint } from '../30__System__SheetTools/Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeScope__CHANGED_EVENT, Na__LeScope__Get, Na__LeScope__GetVectorId, Na__LeScope__GetDimensionId } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
-    import { Na__LeNav__Fit, Na__LeNav__ZoomTo } from '../10__Core__SheetSurface/Na__LayoutEditor__Navigation__.js';
-    import { Na__LeOsnap__CHANGED_EVENT, Na__LeOsnap__IsEnabled, Na__LeOsnap__Toggle } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__CHANGED_EVENT, Na__LeOsnap__IsEnabled, Na__LeOsnap__Toggle, Na__LeOsnap__Label } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__.js';
+    import { Na__LeOsnap__ToggleMenu, Na__LeOsnap__CloseMenu } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Menu__.js';   // <-- The snap options dropdown, on the arrow beside the Snap button
     import { Na__LeOrtho__CHANGED_EVENT, Na__LeOrtho__IsOn, Na__LeOrtho__Toggle, Na__LeOrtho__Label } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__.js';
-    import { Na__LeHist__CHANGED_EVENT, Na__LeHist__CanUndo, Na__LeHist__CanRedo, Na__LeHist__Undo, Na__LeHist__Redo } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
-    import { Na__LeSurface__ZOOM_EVENT, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LePdf__ExportSheet } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';
     import { Na__LeRaster__LEVELS, Na__LeRaster__CHANGED_EVENT, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeDraft__CHANGED_EVENT, Na__LeDraft__IsOn, Na__LeDraft__Toggle, Na__LeDraft__Label } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
     import { Na__LeGrid__CHANGED_EVENT, Na__LeGrid__IsShowing, Na__LeGrid__IsSnapping, Na__LeGrid__ToggleShow, Na__LeGrid__ToggleSnap, Na__LeGrid__Label } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js';
+    import { Na__LeAxes__CHANGED_EVENT, Na__LeAxes__IsOn, Na__LeAxes__Toggle, Na__LeAxes__Label } from '../33__System__DrawingAxes/Na__LayoutEditor__DrawingAxes__.js';
     import { Na__LeImgIns__Pick } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Insert__.js';   // <-- The Image button: pictures onto the sheet
     import { Na__LeImgCfg__Label } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Setup__.js';
     // ------------------------------------------------------------
@@ -177,7 +222,6 @@
     let Na__LeToolbar__Editable  = false;
     let Na__LeToolbar__ShowToast = null;
     let Na__LeToolbar__Listeners = null;
-    let Na__LeToolbar__ZoomListener = null;   // <-- The readout alone, on every zoom step
     let Na__LeToolbar__Busy      = false;
     // ------------------------------------------------------------
 
@@ -208,7 +252,7 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Reflect Tool, Zoom, Sheet Name and Dirty State
+    // HELPER FUNCTION | Reflect Tool, Sheet Name and Dirty State
     // ------------------------------------------------------------
     function Na__LeToolbar__Sync() {
         if (!Na__LeToolbar__Root) return;
@@ -219,7 +263,21 @@
             button.setAttribute('aria-pressed', String(active));
         });
         const snap = Na__LeToolbar__Root.querySelector('[data-na-toolbar="snap"]');
-        if (snap) { snap.classList.toggle('na-le-toolbar__btn--active', Na__LeOsnap__IsEnabled()); snap.setAttribute('aria-pressed', String(Na__LeOsnap__IsEnabled())); }
+        if (snap) {
+            snap.classList.toggle('na-le-toolbar__btn--active', Na__LeOsnap__IsEnabled());
+            snap.setAttribute('aria-pressed', String(Na__LeOsnap__IsEnabled()));
+            // Re-read for the same reason as Ortho's and Draft's words below:
+            // the object snap config can land after the toolbar is built.
+            const snapText  = Na__LeOsnap__Label('Toggle', Na__LeCfg__GetLabel('SnapToggle', 'Snap'));
+            const snapTitle = Na__LeOsnap__Label('ToggleTitle', 'Object snap (F3): new points, dragged points and moved items land on the corners, middles, crossings and perpendiculars of the drawing and of everything drawn on the sheet. The arrow beside it chooses which.');
+            if (snap.textContent !== snapText) snap.textContent = snapText;
+            if (snap.title !== snapTitle) snap.title = snapTitle;
+        }
+        const snapMenu = Na__LeToolbar__Root.querySelector('[data-na-toolbar="snap-menu"]');
+        if (snapMenu) {
+            const menuTitle = Na__LeOsnap__Label('MenuButtonTitle', 'Snap options: which kinds of point are found, and which kinds of object they are found on');
+            if (snapMenu.title !== menuTitle) { snapMenu.title = menuTitle; snapMenu.setAttribute('aria-label', menuTitle); }
+        }
         const ortho = Na__LeToolbar__Root.querySelector('[data-na-toolbar="ortho"]');
         if (ortho) {
             ortho.classList.toggle('na-le-toolbar__btn--active', Na__LeOrtho__IsOn());
@@ -238,7 +296,7 @@
             draft.setAttribute('aria-pressed', String(Na__LeDraft__IsOn()));
             // THE WORDS ARE RE-READ because the draft config may land after the
             // toolbar is built - and written only when they differ, because this
-            // sync runs on every zoom step.
+            // sync runs often.
             const text  = Na__LeDraft__Label('Toggle', 'Draft');
             const title = Na__LeDraft__Label('ToggleTitle', 'Draft mode (K): only the vector linework, every line a hairline, no fills and no raster pictures.');
             if (draft.textContent !== text) draft.textContent = text;
@@ -258,10 +316,18 @@
             if (button.textContent !== words) button.textContent = words;
             if (button.title !== title) button.title = title;
         });
-        const undo = Na__LeToolbar__Root.querySelector('[data-na-toolbar="undo"]');
-        if (undo) undo.disabled = !Na__LeHist__CanUndo();
-        const redo = Na__LeToolbar__Root.querySelector('[data-na-toolbar="redo"]');
-        if (redo) redo.disabled = !Na__LeHist__CanRedo();
+        // DRAWING AXES OVERLAY | Lit while on; the words re-read, because the
+        // axes config can land after the toolbar is built, and written only
+        // when they differ.
+        const axes = Na__LeToolbar__Root.querySelector('[data-na-toolbar="axes"]');
+        if (axes) {
+            axes.classList.toggle('na-le-toolbar__btn--active', Na__LeAxes__IsOn());
+            axes.setAttribute('aria-pressed', String(Na__LeAxes__IsOn()));
+            const axesText  = Na__LeAxes__Label('Toggle', 'Axes');
+            const axesTitle = Na__LeAxes__Label('ToggleTitle', axes.title);
+            if (axes.textContent !== axesText) axes.textContent = axesText;
+            if (axes.title !== axesTitle) axes.title = axesTitle;
+        }
         const raster = Na__LeToolbar__Root.querySelector('[data-na-toolbar="raster"]');
         if (raster && raster.value !== Na__LeRaster__Get()) raster.value = Na__LeRaster__Get();
         const hint = Na__LeToolbar__Root.querySelector('[data-na-toolbar="dropper-hint"]');
@@ -286,7 +352,6 @@
             scope.title       = text;
             scope.classList.toggle('na-le-toolbar__hint--scope', !!open);
         }
-        Na__LeToolbar__SyncZoom();
         const sheet = Na__LeModel__GetActiveSheet();
         const name  = Na__LeToolbar__Root.querySelector('.na-le-toolbar__name');
         if (name) name.textContent = sheet ? Na__LeModel__GetTabLabel(sheet) : '';   // <-- What the tab reads: the register's short code, then the short name
@@ -294,23 +359,6 @@
         if (save) { save.classList.toggle('na-le-toolbar__btn--attention', Na__LeModel__IsDirty() || Na__LeSpec__IsDirty()); save.disabled = Na__LeToolbar__Busy; }
         const pdf = Na__LeToolbar__Root.querySelector('[data-na-toolbar="pdf"]');
         if (pdf) pdf.disabled = Na__LeToolbar__Busy || !sheet;
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | Reflect the Zoom Alone (every zoom step)
-    // ------------------------------------------------------------
-    // THE FULL SYNC USED TO RUN ON EVERY WHEEL NOTCH, for the one number that
-    // changes with the zoom - and it asks the model for the active sheet four
-    // times (undo, redo, the name, the notes margin), each of which normalises
-    // every sheet of the set: about 2.4 ms a notch on RB05, more on a busier
-    // set. A zoom step now updates the readout and nothing else.
-    // ------------------------------------------------------------
-    function Na__LeToolbar__SyncZoom() {
-        if (!Na__LeToolbar__Root) return;
-        const zoom = Na__LeToolbar__Root.querySelector('[data-na-toolbar="zoom"]');
-        const text = Math.round(Na__LeSurface__GetZoom() * 100) + '%';
-        if (zoom && zoom.textContent !== text) zoom.textContent = text;
     }
     // ------------------------------------------------------------
 
@@ -379,6 +427,8 @@
               [ Na__LeTools__TOOL_DIMENSION, Na__LeCfg__GetLabel('ToolDimension', 'Dimension'), Na__LeCfg__GetLabel('ToolDimensionTitle', 'Place a dimension in three clicks (D): start, end, then where the line sits. Hold Shift while placing the line for a horizontal or vertical dimension.') ],
               [ Na__LeTools__TOOL_DRAW, Na__LeCfg__GetLabel('ToolDraw', 'Draw'), 'Draw lines and polygons: click points, click the first point to close, Enter to finish (L)' ],
               [ Na__LeTools__TOOL_RECT, Na__LeCfg__GetLabel('ToolRectangle', 'Rectangle'), Na__LeCfg__GetLabel('ToolRectangleTitle', 'Draw a rectangle (R): click one corner then the opposite corner, or drag from one to the other. Shift keeps it square, Esc abandons it.') ],
+              [ Na__LeVec__TOOL_CIRCLE, Na__LeVecCfg__Label('ToolCircle', 'Circle'), Na__LeVecCfg__Label('ToolCircleTitle', 'Circle (C): click the centre, then the radius - or drag from one to the other. Type a radius (1500), a diameter (3000d) or a number of sides (6s) and press Enter; typed straight after it lands, it resizes that circle.') ],
+              [ Na__LeVec__TOOL_ARC, Na__LeVecCfg__Label('ToolArc', 'Arc'), Na__LeVecCfg__Label('ToolArcTitle', 'Arc (Shift+A): as set in the Vector Tools panel - 2 Point draws start, end, then the bulge. Type the bulge, or a radius (750r), and press Enter.') ],
               [ Na__LeTools__TOOL_AREA, Na__LeCfg__GetLabel('ToolFloorArea', 'Floor Area'), Na__LeCfg__GetLabel('ToolFloorAreaTitle', 'Measure a room (A): draw round it and click the first corner again to close - or switch to rectangles in the Floor Areas panel. It lands on the Floor Areas layer, named and coloured, with its area written in the middle of it.') ],
               [ Na__LeTools__TOOL_EYEDROP, Na__LeCfg__GetLabel('ToolEyedropper', 'Eyedropper'), Na__LeCfg__GetLabel('ToolEyedropperTitle', 'Match properties (B): click the object to copy FROM, then each object to copy ONTO. Alt+click picks a new source, Esc finishes.') ] ].forEach((entry) => {
                 // The eyedropper arms through its own call so the button behaves
@@ -397,7 +447,22 @@
             // the same without the button.
             // ------------------------------------
             root.appendChild(Na__LeToolbar__Button(Na__LeImgCfg__Label('ToolImage', 'Image'), 'image', Na__LeImgCfg__Label('ToolImageTitle', 'Place a picture (CGI, photograph) on this sheet. You can also drag picture files straight onto the sheet.'), () => Na__LeImgIns__Pick()));
-            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('SnapToggle', 'Snap'), 'snap', Na__LeCfg__GetLabel('SnapToggleTitle', 'Snap to endpoints and midpoints of the linework and the sheet\'s own vectors and dimensions (F3)'), () => Na__LeOsnap__Toggle()));
+            // SNAP, AND ITS ARROW | AutoCAD's status bar button: a click switches
+            // object snap (F3), the arrow beside it drops the snap options - the
+            // running modes, each with a picture of what it finds, and the kinds
+            // of object they are found on, each with the colour its snaps are
+            // marked in (28__System__ObjectSnap). Two buttons joined into one, so
+            // the strip gives up an arrow's width and no more.
+            // ------------------------------------
+            const snapSplit = document.createElement('span');
+            snapSplit.className = 'na-le-toolbar__split';
+            snapSplit.appendChild(Na__LeToolbar__Button(Na__LeOsnap__Label('Toggle', Na__LeCfg__GetLabel('SnapToggle', 'Snap')), 'snap', Na__LeOsnap__Label('ToggleTitle', 'Object snap (F3)'), () => Na__LeOsnap__Toggle()));
+            const snapCaret = Na__LeToolbar__Button('', 'snap-menu', Na__LeOsnap__Label('MenuButtonTitle', 'Snap options'), () => Na__LeOsnap__ToggleMenu(snapCaret));
+            snapCaret.classList.add('na-le-toolbar__btn--caret');
+            snapCaret.setAttribute('aria-haspopup', 'menu');
+            snapCaret.setAttribute('aria-expanded', 'false');
+            snapSplit.appendChild(snapCaret);
+            root.appendChild(snapSplit);
             // DRAFT | K, as in LayOut: a view of the sheet, not a setting of it,
             // so it sits with the other toggles and is lit while it is on.
             // ------------------------------------
@@ -411,6 +476,13 @@
             // like AutoCAD's Ortho Mode button on its status bar.
             // ------------------------------------
             root.appendChild(Na__LeToolbar__Button(Na__LeOrtho__Label('Toggle', 'Ortho'), 'ortho', Na__LeOrtho__Label('ToggleTitle', 'Ortho Mode (F8): restricts the cursor to horizontal and vertical from the last point. Hold Shift to draw one at an angle.'), () => Na__LeOrtho__Toggle()));
+            // AXES | F9, the key after Ortho's: the Drawing Axes Overlay,
+            // SketchUp's red and green axes carried by the cursor out to the
+            // edges of the sheet, lit while it is on, like the grid and Ortho
+            // beside it. One short word on the strip; the full name opens its
+            // hover text.
+            // ------------------------------------
+            root.appendChild(Na__LeToolbar__Button(Na__LeAxes__Label('Toggle', 'Axes'), 'axes', Na__LeAxes__Label('ToggleTitle', 'Drawing Axes Overlay (F9): a red horizontal and a green vertical line through the cursor, run out to the edges of the sheet, as SketchUp draws its red and green axes. Never printed.'), () => Na__LeAxes__Toggle()));
 
             // EYEDROPPER HINT | What the dropper is holding and what to do next.
             // It lives beside the tool buttons because that is where the eye
@@ -431,16 +503,8 @@
             scopeHint.setAttribute('data-na-toolbar', 'scope-hint');
             scopeHint.hidden = true;
             root.appendChild(scopeHint);
-
-            root.appendChild(Na__LeToolbar__Gap());
-            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('Undo', 'Undo'), 'undo', 'Undo the last change to this sheet (Ctrl+Z)', () => Na__LeHist__Undo()));
-            root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('Redo', 'Redo'), 'redo', 'Redo the change just undone (Ctrl+Y)', () => Na__LeHist__Redo()));
             root.appendChild(Na__LeToolbar__Gap());
         }
-
-        root.appendChild(Na__LeToolbar__Button(Na__LeCfg__GetLabel('ZoomFit', 'Fit'), 'fit', 'Zoom to fit the sheet', () => Na__LeNav__Fit()));
-        root.appendChild(Na__LeToolbar__Button('100%', 'zoom', 'Zoom to 100 percent (one paper millimetre per screen unit)', () => Na__LeNav__ZoomTo(1)));
-        root.appendChild(Na__LeToolbar__Gap());
 
         // RASTER | The working resolution of the viewport pictures; the PDF ignores it
         const rasterLabel = document.createElement('span');
@@ -475,10 +539,9 @@
         container.appendChild(root);
         Na__LeToolbar__Root = root;
         Na__LeToolbar__Listeners = () => Na__LeToolbar__Sync();
-        Na__LeToolbar__ZoomListener = () => Na__LeToolbar__SyncZoom();
-        [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
-        window.addEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeToolbar__ZoomListener);   // <-- The readout tracks the wheel live; nothing else on the toolbar changes with the zoom
+        [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
         window.addEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);     // <-- F8 lights the Ortho button, whoever switched it
+        window.addEventListener(Na__LeAxes__CHANGED_EVENT, Na__LeToolbar__Listeners);      // <-- F9 lights the Axes button, whoever switched it
         Na__LeToolbar__Sync();
         return true;
     }
@@ -488,13 +551,14 @@
     // FUNCTION | Remove the Toolbar
     // ------------------------------------------------------------
     function Na__LeToolbar__Unmount() {
+        Na__LeOsnap__CloseMenu();                                                // <-- The snap options hang off a button that is about to go
         if (Na__LeToolbar__Listeners) {
-            [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeHist__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
+            [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.removeEventListener(name, Na__LeToolbar__Listeners));
         }
-        if (Na__LeToolbar__ZoomListener) window.removeEventListener(Na__LeSurface__ZOOM_EVENT, Na__LeToolbar__ZoomListener);
         if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);
+        if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeAxes__CHANGED_EVENT, Na__LeToolbar__Listeners);
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
-        Na__LeToolbar__Root = Na__LeToolbar__Listeners = Na__LeToolbar__ZoomListener = null;
+        Na__LeToolbar__Root = Na__LeToolbar__Listeners = null;
     }
     // ------------------------------------------------------------
 

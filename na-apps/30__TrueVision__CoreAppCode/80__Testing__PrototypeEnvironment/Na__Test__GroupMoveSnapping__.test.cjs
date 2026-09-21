@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '../02__Src__AppModules/51__System__LayoutEditor');
 const source = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const tools = '30__System__SheetTools/Na__LayoutEditor__';
+const { Na__TestEnv__ObjectSnapBundle } = require('./Na__TestEnv__ObjectSnapBundle__.cjs');   // <-- The Object Snap folder's units as one source, imports taken out
 
 // Execute production functions with only the browser/rendering boundary stubbed.
 function loadFunctions(ctx, file, names) {
@@ -31,10 +32,17 @@ function fixture() {
     };
     const setup = { sheetObjects: true, endpoints: true, midpoints: true, radiusPx: 1 };
     let enabled = true, axis = null, marker = null;
-    const indexes = new Map();
+    const sources = new Map();   // viewportId -> what Na__LeVp2d__GetSnapSource hands the real linework index
     const ctx = vm.createContext({
         Na__LeCfg__GetSnappingSetup: () => setup,
-        Na__LeOsnap__IsEnabled: () => enabled,
+        // The real switches (the State unit) read this browser's remembered choice: F3 off is '0'.
+        window: { localStorage: { getItem: key => (key === 'na-layouteditor-osnap' ? (enabled ? '1' : '0') : null), setItem() {} } },
+        Na__LeSurface__GetSheet: () => null, Na__LeSurface__GetLayout: () => null, Na__LeSurface__GetSheetChrome: () => [],
+        Na__LeLayout__MarginRect: () => null,
+        Na__LeMarkup__AnnotationCorners: () => null,
+        Na__LeVecCurve__KIND_CIRCLE: 'circle', Na__LeVecCurve__Describe: () => null,
+        Na__LeVp2d__GetSnapSource: id => sources.get(id) || null,
+        Na__LeGrid__IsSnapping: () => false, Na__LeGrid__Nearest: p => p,
         Na__LeSurface__GetPixelsPerMm: () => 1, Na__LeSurface__GetZoom: () => 1,
         Na__LeModel__IsLayerVisible: (_, layer) => layer !== 'hidden',
         Na__LeModel__IsLayerLocked: (_, layer) => layer === 'locked',
@@ -47,9 +55,7 @@ function fixture() {
         Na__LeModel__UpdateViewport: (s, id, patch) => { Object.assign(s.Sheet__Viewports.find(v => v.Viewport__Id === id).Viewport__FrameMm, patch.rect); return true; },
         Na__LeShapeGeo__Points: s => s.Shape__Points,
         Na__LeShapeGeo__Translated: (points, dx, dy) => points.map(p => [p[0] + dx, p[1] + dy]),
-        Na__LeOsnap__KIND_END: 'end', Na__LeOsnap__KIND_MID: 'mid', Na__LeOsnap__MID_PENALTY: 1.25,
-        Na__LeOsnap__CELL_MM: 4, Na__LeModel__KIND_2D: '2d',
-        Na__LeOsnap__IndexFor: id => indexes.get(id),
+        Na__LeModel__KIND_2D: '2d',
         Na__LeOsnap__ShowMarker: hit => { marker = hit; }, Na__LeOsnap__HideMarker: () => { marker = null; },
         Na__LeAxis__Get: () => axis,
         Na__LeAxis__Apply: (base, p) => axis === 'x' ? { x: p.x, y: base.y } : { x: base.x, y: p.y },
@@ -59,11 +65,13 @@ function fixture() {
         // The drawing grid's Grid Snap (F7) off: a drag comes back as it went in, and a move no object snap
         // reaches hides the marker and keeps its delta - what these functions did before the grid existed.
         // Na__Test__DrawingGrid__.test.mjs proves the grid itself.
-        Na__LeTools__GridDragDelta: (s, drag, dMm) => dMm,
-        Na__LeTools__GridTranslation: (s, drag, delta) => { marker = null; return delta; }
+        Na__LeOsnap__GridDragDelta: (s, drag, dMm) => dMm,
+        Na__LeOsnap__GridTranslation: (s, drag, delta) => { marker = null; return delta; }
     });
-    loadFunctions(ctx, tools + 'Snapping__.js', ['Na__LeOsnap__Offers', 'Na__LeOsnap__FindOnSheet', 'Na__LeOsnap__SearchViewport', 'Na__LeOsnap__Find', 'Na__LeOsnap__FindOnViewport']);
-    loadFunctions(ctx, tools + 'SheetTools__HitResolution__.js', ['Na__LeTools__SnapGroupTranslation']);
+    // THE REAL SNAPPING, WHOLE: the switches, the maths, the linework index, the sheet's sources, the search and
+    // the whole-object moves, from 28__System__ObjectSnap. Only the marker (it needs a document) and the grid
+    // moves (stubbed above, Grid Snap off) are left out.
+    vm.runInContext(Na__TestEnv__ObjectSnapBundle(path.resolve(__dirname, '../02__Src__AppModules'), ['State', 'Geometry', 'Index', 'Sources', 'Search', 'Moves']).source, ctx);
     loadFunctions(ctx, tools + 'SheetTools__PointerDrag__.js', ['Na__LeTools__IsMoveDrag', 'Na__LeTools__IsViewportMoveDrag', 'Na__LeTools__ApplyDrag']);
     loadFunctions(ctx, '15__Core__Markup/Na__LayoutEditor__Groups__.js', ['Na__LeGroup__Descendants', 'Na__LeGroup__Expand']);
     vm.runInContext(source(tools + 'SelectionSet__.js').replace(/\bimport\s+[\s\S]*?\s+from\s+['"][^'"]+['"];?/g, '').replace(/\bexport\s*\{[^}]*\};?/g, ''), ctx);
@@ -71,7 +79,8 @@ function fixture() {
     const move = (drag, x, y, shift = false, exact = false) => ctx.Na__LeTools__ApplyDrag(sheet, drag, { x, y }, shift, exact);
     const viewport = (id, x, y) => {
         sheet.Sheet__Viewports.push({ Viewport__Id: id, Viewport__Kind: '2d', Viewport__LayerId: 'visible', Viewport__FrameMm: { X: 0, Y: 0, WidthMm: 500, HeightMm: 500 } });
-        indexes.set(id, { grid: new Map([[Math.floor(x / 4) + ':' + Math.floor(y / 4), [x, y, 0]]]) });
+        // One short line of linework ending on the point: the real index files its end from the painted segments.
+        sources.set(id, { key: id, window: { Frame: { X: 0, Y: 0, WidthMm: 500, HeightMm: 500 }, ToPaper: (px, py) => ({ x: px, y: py }) }, classes: { visible: [x, y, x + 50, y + 50] } });
     };
     return { sheet, shape, ctx, capture, move, viewport, setAxis: v => { axis = v; }, disable: () => { enabled = false; }, marker: () => marker };
 }

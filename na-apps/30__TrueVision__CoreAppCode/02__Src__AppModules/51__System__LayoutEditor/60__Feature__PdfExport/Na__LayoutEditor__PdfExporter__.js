@@ -323,7 +323,8 @@
                         pattern     : entry.pattern,
                         scale       : entry.scale,
                         rotationDeg : entry.rotationDeg,
-                        colour      : entry.colour
+                        colour      : entry.colour,
+                        strokePt    : entry.strokePt                              // <-- The layer's own typed line weight, or null for the pattern's standard
                     });
                 } finally { Na__LePdf__EndClip(doc, framed); }
             });

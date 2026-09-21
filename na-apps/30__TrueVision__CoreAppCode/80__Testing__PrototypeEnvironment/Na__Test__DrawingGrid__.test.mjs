@@ -45,6 +45,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
+import bundle from './Na__TestEnv__ObjectSnapBundle__.cjs';   // <-- The Object Snap folder's units as one source, imports taken out
 
 
 // -----------------------------------------------------------------------------
@@ -81,6 +82,16 @@ import { tmpdir } from 'node:os';
         if (!passed) console.log('        got  ' + JSON.stringify(got) + '\n        want ' + JSON.stringify(want));
     }
     const r3 = (p) => p ? { x : Math.round(p.x * 1000) / 1000, y : Math.round(p.y * 1000) / 1000 } : p;
+
+    // The snapping is a folder of units that import each other, so they are
+    // loaded joined (Na__TestEnv__ObjectSnapBundle__): what is left to stub is
+    // everything OUTSIDE the folder, as it was when the snapping was one file.
+    async function loadObjectSnap(units, stubs, tag) {
+        const built = bundle.Na__TestEnv__ObjectSnapBundle(SRC, units);
+        const tmp   = join(tmpdir(), 'Na__Test__DrawingGrid__' + tag + '__.mjs');
+        writeFileSync(tmp, stubs + '\n' + built.source + '\nexport { ' + built.names.join(', ') + ' };\n', 'utf8');
+        return import(pathToFileURL(tmp).href + '?v=' + Math.random().toString(36).slice(2));
+    }
 
 // endregion -------------------------------------------------------------------
 
@@ -130,7 +141,7 @@ console.log('TrueVision3D - the drawing grid and the title block snap points');
 // REGION | The Snap
 // -----------------------------------------------------------------------------
 
-    console.log('\n  The snap: objects first, the grid everywhere else (the real snapping module)');
+    console.log('\n  The snap: objects first, the grid everywhere else (the real Object Snap units)');
     const snapStubs = [
         'const G = globalThis.__Grid;',
         'const Na__LeGrid__IsSnapping = (...a) => G.Na__LeGrid__IsSnapping(...a), Na__LeGrid__Nearest = (...a) => G.Na__LeGrid__Nearest(...a);',
@@ -143,9 +154,12 @@ console.log('TrueVision3D - the drawing grid and the title block snap points');
         'const Na__LeSurface__GetSheet = () => S.sheet, Na__LeSurface__GetLayout = () => S.layout, Na__LeSurface__GetSheetChrome = () => S.chrome;',
         'const Na__LeLayout__MarginRect = () => S.margin;',
         'const Na__LeVp2d__GetSnapSource = () => null;',
-        'const Na__LeShapeGeo__Points = (s) => s.Shape__Points;'
+        'const Na__LeShapeGeo__Points = (s) => s.Shape__Points;',
+        'const Na__LeMarkup__AnnotationCorners = () => null;',                                   // <-- No text on this sheet
+        "const Na__LeVecCurve__KIND_CIRCLE = 'circle', Na__LeVecCurve__Describe = () => null;",   // <-- Nor circles: Na__Test__ObjectSnap__ proves those
+        'const Na__LeOsnap__ShowMarker = (hit) => { S.marker = hit; }, Na__LeOsnap__HideMarker = () => { S.marker = null; };'   // <-- The marker needs a document: what it is asked to show is kept instead
     ].join('\n');
-    const Osnap = await load(LE + '30__System__SheetTools/Na__LayoutEditor__Snapping__.js', snapStubs, 'Snapping');
+    const Osnap = await loadObjectSnap([ 'State', 'Geometry', 'Index', 'Sources', 'Search' ], snapStubs, 'ObjectSnap');
     const S = globalThis.__Snap;
     // Radius 10 px at 1 px per mm is 10 mm. A sheet with one vector: a line from (20.3, 30.7) to (60.3, 30.7).
     const sheet = { Sheet__Id : 'Sheet_001', Sheet__Shapes : [ { Shape__Id : 'Shape_1', Shape__Points : [ [ 20.3, 30.7 ], [ 60.3, 30.7 ] ], Shape__LayerId : 'Layer_V' } ],
@@ -153,15 +167,16 @@ console.log('TrueVision3D - the drawing grid and the title block snap points');
     S.sheet = sheet; S.layout = { Content : { X : 5, Y : 5, WidthMm : 584, HeightMm : 410 }, TitleBlock : { X : 5, Y : 399, WidthMm : 584, HeightMm : 16 } };
     Grid.Na__LeGrid__Assign({ Snap : false });
     window.localStorage.setItem('na-layouteditor-osnap', '1');
-    check('Grid Snap off, nothing near: the point is its own', Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }), { x : 100.4, y : 200.6, snapped : false, kind : null });
+    check('Grid Snap off, nothing near: the point is its own', Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }), { x : 100.4, y : 200.6, snapped : false, kind : null, target : null });
     Grid.Na__LeGrid__Assign({ Snap : true });
-    check('Grid Snap on, nothing near: the nearest grid point', Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }), { x : 100, y : 201, snapped : true, kind : 'grid' });
-    check('Grid Snap on, a vector\'s end within reach: the END wins over the grid', Osnap.Na__LeOsnap__Snap(sheet, { x : 22, y : 31 }), { x : 20.3, y : 30.7, snapped : true, kind : 'end' });
-    check('...and its midpoint', Osnap.Na__LeOsnap__Snap(sheet, { x : 40.1, y : 31.9 }), { x : 40.3, y : 30.7, snapped : true, kind : 'mid' });
-    check('{ grid : false } asks for the objects alone', Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }, null, 'vertex', { grid : false }), { x : 100.4, y : 200.6, snapped : false, kind : null });
-    Osnap.Na__LeOsnap__SetEnabled(false);
+    check('Grid Snap on, nothing near: the nearest grid point', Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }), { x : 100, y : 201, snapped : true, kind : 'grid', target : 'grid' });
+    check('Grid Snap on, a vector\'s end within reach: the END wins over the grid', Osnap.Na__LeOsnap__Snap(sheet, { x : 22, y : 31 }), { x : 20.3, y : 30.7, snapped : true, kind : 'end', target : 'shape' });
+    check('...and its midpoint', Osnap.Na__LeOsnap__Snap(sheet, { x : 40.1, y : 31.9 }), { x : 40.3, y : 30.7, snapped : true, kind : 'mid', target : 'shape' });
+    check('{ grid : false } asks for the objects alone', Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }, null, { grid : false }), { x : 100.4, y : 200.6, snapped : false, kind : null, target : null });
+    check('...and a caller still written for the old tone argument is answered the same', Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }, null, 'vertex', { grid : false }), { x : 100.4, y : 200.6, snapped : false, kind : null, target : null });
+    Osnap.Na__LeOsnap__AssignEnabled(false);
     check('Object Snap off (F3): the grid still snaps, and the vector\'s end no longer does', [ Osnap.Na__LeOsnap__Snap(sheet, { x : 100.4, y : 200.6 }).kind, r3(Osnap.Na__LeOsnap__Snap(sheet, { x : 22, y : 31 })) ], [ 'grid', { x : 22, y : 31 } ]);
-    Osnap.Na__LeOsnap__SetEnabled(true);
+    Osnap.Na__LeOsnap__AssignEnabled(true);
     check('Find itself stays object-only', Osnap.Na__LeOsnap__Find(sheet, { x : 100.4, y : 200.6 }), null);
 
     console.log('\n  The sheet\'s own paper snaps: border, title block, notes margin');
@@ -190,9 +205,9 @@ console.log('TrueVision3D - the drawing grid and the title block snap points');
     check('the strip\'s foot is the border\'s foot: one point, not two', (() => { let n = 0; for (let k = 0; k + 2 < pts.length; k += 3) if (pts[k] === 5 && pts[k + 1] === 415 && pts[k + 2] === 0) n++; return n; })(), 1);
     check('a fill-only rectangle, a text run and a QR symbol offer nothing', [ has(300, 300, 0), has(100, 405, 0), has(571, 400, 0) ], [ false, false, false ]);
     check('kept per chrome build: the same list, not worked out again', Osnap.Na__LeOsnap__ChromePoints(sheet) === pts, true);
-    check('a line drawn from the title block\'s top-left corner starts exactly on it', Osnap.Na__LeOsnap__Snap(sheet, { x : 6.2, y : 398.1 }), { x : 5, y : 399, snapped : true, kind : 'end' });
-    check('the notes margin\'s top end, over the grid point beside it', Osnap.Na__LeOsnap__Snap(sheet, { x : 500.2, y : 5.4 }), { x : 499, y : 5, snapped : true, kind : 'end' });
-    check('an off-grid cell divider still snaps exactly (97.37 mm)', Osnap.Na__LeOsnap__Snap(sheet, { x : 97.9, y : 399.4 }), { x : 97.37, y : 399, snapped : true, kind : 'end' });
+    check('a line drawn from the title block\'s top-left corner starts exactly on it', Osnap.Na__LeOsnap__Snap(sheet, { x : 6.2, y : 398.1 }), { x : 5, y : 399, snapped : true, kind : 'end', target : 'paper' });
+    check('the notes margin\'s top end, over the grid point beside it', Osnap.Na__LeOsnap__Snap(sheet, { x : 500.2, y : 5.4 }), { x : 499, y : 5, snapped : true, kind : 'end', target : 'paper' });
+    check('an off-grid cell divider still snaps exactly (97.37 mm)', Osnap.Na__LeOsnap__Snap(sheet, { x : 97.9, y : 399.4 }), { x : 97.37, y : 399, snapped : true, kind : 'end', target : 'paper' });
     S.setup.sheetChrome = false;
     check('SheetChrome false offers none of it', Osnap.Na__LeOsnap__Snap(sheet, { x : 97.9, y : 399.4 }).kind, 'grid');
     S.setup.sheetChrome = true;
@@ -207,7 +222,7 @@ console.log('TrueVision3D - the drawing grid and the title block snap points');
 // REGION | The Move
 // -----------------------------------------------------------------------------
 
-    console.log('\n  A move lands the point it was picked up from on the grid (the real grid drag unit)');
+    console.log('\n  A move lands the point it was picked up from on the grid (the real grid moves unit)');
     globalThis.__Osnap = Osnap;
     const dragStubs = [
         'const G = globalThis.__Grid, O = globalThis.__Osnap, S = globalThis.__Snap;',
@@ -221,46 +236,46 @@ console.log('TrueVision3D - the drawing grid and the title block snap points');
         'const Na__LeOsnap__ShowMarker = (hit) => { S.marker = hit; }, Na__LeOsnap__HideMarker = () => { S.marker = null; };',
         'const Na__LeAxis__Get = () => S.axis || null;'
     ].join('\n');
-    const Drag = await load(LE + '30__System__SheetTools/Na__LayoutEditor__SheetTools__GridDrag__.js', dragStubs, 'GridDrag');
+    const Drag = await load(LE + '28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__GridMoves__.js', dragStubs, 'GridMoves');
     const text = (press) => ({ kind : 'annotation', id : 'Annotation_1', start : { x : 40.3, y : 50.7 }, startMm : press });
-    check('text pressed near its anchor is carried by the anchor', Drag.Na__LeTools__GridGrabPoint(sheet, text({ x : 42, y : 52 })), { x : 40.3, y : 50.7 });
-    check('...pressed away from it, by the point pressed', Drag.Na__LeTools__GridGrabPoint(sheet, text({ x : 70.2, y : 50.1 })), { x : 70.2, y : 50.1 });
-    check('the anchor lands on the grid: a 5.4 mm drag right becomes 5.7', r3(Drag.Na__LeTools__GridDragDelta(sheet, text({ x : 42, y : 52 }), { x : 5.4, y : 0.1 })), { x : 5.7, y : 0.3 });
-    Osnap.Na__LeOsnap__SetEnabled(false);
-    check('Object Snap off: no inference, the point pressed is carried', Drag.Na__LeTools__GridGrabPoint(sheet, text({ x : 42, y : 52 })), { x : 42, y : 52 });
-    Osnap.Na__LeOsnap__SetEnabled(true);
+    check('text pressed near its anchor is carried by the anchor', Drag.Na__LeOsnap__GridGrabPoint(sheet, text({ x : 42, y : 52 })), { x : 40.3, y : 50.7 });
+    check('...pressed away from it, by the point pressed', Drag.Na__LeOsnap__GridGrabPoint(sheet, text({ x : 70.2, y : 50.1 })), { x : 70.2, y : 50.1 });
+    check('the anchor lands on the grid: a 5.4 mm drag right becomes 5.7', r3(Drag.Na__LeOsnap__GridDragDelta(sheet, text({ x : 42, y : 52 }), { x : 5.4, y : 0.1 })), { x : 5.7, y : 0.3 });
+    Osnap.Na__LeOsnap__AssignEnabled(false);
+    check('Object Snap off: no inference, the point pressed is carried', Drag.Na__LeOsnap__GridGrabPoint(sheet, text({ x : 42, y : 52 })), { x : 42, y : 52 });
+    Osnap.Na__LeOsnap__AssignEnabled(true);
     const rect = { kind : 'shape', id : 'Shape_R', mode : 'whole', start : [ [ 10, 10 ], [ 30, 10 ], [ 30, 20 ], [ 10, 20 ] ], startMm : { x : 19.6, y : 10.4 } };
     sheet.Sheet__Shapes.push({ Shape__Id : 'Shape_R', Shape__Points : rect.start, Shape__Closed : true, Shape__FillColour : '#ff0000' });
-    check('a vector pressed near an edge midpoint is carried by the midpoint', Drag.Na__LeTools__GridGrabPoint(sheet, rect), { x : 20, y : 10 });
+    check('a vector pressed near an edge midpoint is carried by the midpoint', Drag.Na__LeOsnap__GridGrabPoint(sheet, rect), { x : 20, y : 10 });
     const filled = { kind : 'shape', id : 'Shape_R', mode : 'whole', start : rect.start, startMm : { x : 20.5, y : 15.4 } };
-    check('a FILLED vector pressed near its middle is carried by its centre', Drag.Na__LeTools__GridGrabPoint(sheet, filled), { x : 20, y : 15 });
-    check('a whole vector drag is left to its own snap unless an arrow holds it', Drag.Na__LeTools__GridDragDelta(sheet, rect, { x : 1.3, y : 0.2 }), { x : 1.3, y : 0.2 });
+    check('a FILLED vector pressed near its middle is carried by its centre', Drag.Na__LeOsnap__GridGrabPoint(sheet, filled), { x : 20, y : 15 });
+    check('a whole vector drag is left to its own snap unless an arrow holds it', Drag.Na__LeOsnap__GridDragDelta(sheet, rect, { x : 1.3, y : 0.2 }), { x : 1.3, y : 0.2 });
     S.axis = 'x';
     const locked = { kind : 'shape', id : 'Shape_R', mode : 'whole', start : rect.start, startMm : { x : 10.2, y : 10.1 } };
-    check('...held by an arrow key, it steps the grid instead (the corner lands on it)', r3(Drag.Na__LeTools__GridDragDelta(sheet, locked, { x : 3.4, y : 0 })), { x : 3, y : 0 });
+    check('...held by an arrow key, it steps the grid instead (the corner lands on it)', r3(Drag.Na__LeOsnap__GridDragDelta(sheet, locked, { x : 3.4, y : 0 })), { x : 3, y : 0 });
     S.axis = null;
     check('a vertex, a tip and a dimension end snap elsewhere: untouched here',
-        [ Drag.Na__LeTools__GridDragDelta(sheet, { kind : 'shape', mode : 'vertex', startMm : { x : 0, y : 0 } }, { x : 1.3, y : 0 }),
-          Drag.Na__LeTools__GridDragDelta(sheet, { kind : 'leader', mode : 'tip', startMm : { x : 0, y : 0 } }, { x : 1.3, y : 0 }),
-          Drag.Na__LeTools__GridDragDelta(sheet, { kind : 'dimension', mode : 'end', startMm : { x : 0, y : 0 } }, { x : 1.3, y : 0 }) ],
+        [ Drag.Na__LeOsnap__GridDragDelta(sheet, { kind : 'shape', mode : 'vertex', startMm : { x : 0, y : 0 } }, { x : 1.3, y : 0 }),
+          Drag.Na__LeOsnap__GridDragDelta(sheet, { kind : 'leader', mode : 'tip', startMm : { x : 0, y : 0 } }, { x : 1.3, y : 0 }),
+          Drag.Na__LeOsnap__GridDragDelta(sheet, { kind : 'dimension', mode : 'end', startMm : { x : 0, y : 0 } }, { x : 1.3, y : 0 }) ],
         [ { x : 1.3, y : 0 }, { x : 1.3, y : 0 }, { x : 1.3, y : 0 } ]);
     const handle = { kind : 'viewport', id : 'Viewport_1', hit : { mode : 'handle', key : 'r' }, start : { rect : { X : 20.4, Y : 30, WidthMm : 100.3, HeightMm : 50 } }, startMm : { x : 121, y : 55 } };
-    check('a crop handle is carried by itself: the right edge lands on 125 mm', r3(Drag.Na__LeTools__GridDragDelta(sheet, handle, { x : 4.5, y : 0.2 })), { x : 4.3, y : 0 });
+    check('a crop handle is carried by itself: the right edge lands on 125 mm', r3(Drag.Na__LeOsnap__GridDragDelta(sheet, handle, { x : 4.5, y : 0.2 })), { x : 4.3, y : 0 });
     const plain = { kind : 'viewport', id : 'Viewport_1', hit : { mode : 'border' }, start : { rect : { X : 20.4, Y : 30.3, WidthMm : 100, HeightMm : 50 } }, startMm : { x : 21, y : 31 } };
-    check('a frame moved plain is carried by its corner when pressed near it', r3(Drag.Na__LeTools__GridDragDelta(sheet, plain, { x : 10, y : 10 })), { x : 9.6, y : 9.7 });
+    check('a frame moved plain is carried by its corner when pressed near it', r3(Drag.Na__LeOsnap__GridDragDelta(sheet, plain, { x : 10, y : 10 })), { x : 9.6, y : 9.7 });
     const carried = { kind : 'viewport', id : 'Viewport_1', hit : { mode : 'border' }, baseMm : { x : 1, y : 1 }, start : { rect : { X : 0, Y : 0, WidthMm : 10, HeightMm : 10 } }, startMm : { x : 1, y : 1 } };
-    check('a frame carried by a point of its linework is left to its own solver', Drag.Na__LeTools__GridDragDelta(sheet, carried, { x : 1.3, y : 0 }), { x : 1.3, y : 0 });
+    check('a frame carried by a point of its linework is left to its own solver', Drag.Na__LeOsnap__GridDragDelta(sheet, carried, { x : 1.3, y : 0 }), { x : 1.3, y : 0 });
     // An off-grid set: its corner (10.3, 10.3) is the point it is picked up by,
     // 4.4 mm to the right puts it at 14.7, and the grid takes it on to 15 - the
     // move is 4.7, and the axis it is held to (x) keeps its y exactly.
     const offGrid = [ [ 10.3, 10.3 ], [ 30.3, 10.3 ], [ 30.3, 20.3 ], [ 10.3, 20.3 ] ];
     const group = { kind : 'group', startMm : { x : 11, y : 9.5 }, group : [ { kind : 'shape', id : 'Shape_R', start : { points : offGrid } } ] };
     check('a set with no object snap in reach: its corner lands on the grid, the held axis kept',
-        [ r3(Drag.Na__LeTools__GridTranslation(sheet, group, { x : 4.4, y : 0 }, 'x')), r3(S.marker) ], [ { x : 4.7, y : 0 }, { x : 15, y : 10.3 } ]);
+        [ r3(Drag.Na__LeOsnap__GridTranslation(sheet, group, { x : 4.4, y : 0 }, 'x')), r3(S.marker) ], [ { x : 4.7, y : 0 }, { x : 15, y : 10.3 } ]);
     const loose = { kind : 'group', startMm : { x : 50.4, y : 50.6 }, group : [ { kind : 'shape', id : 'Shape_R', start : { points : offGrid } } ] };
-    check('...pressed far from any of its points, by the point pressed', r3(Drag.Na__LeTools__GridTranslation(sheet, loose, { x : 4.4, y : 2.2 }, null)), { x : 4.6, y : 2.4 });
+    check('...pressed far from any of its points, by the point pressed', r3(Drag.Na__LeOsnap__GridTranslation(sheet, loose, { x : 4.4, y : 2.2 }, null)), { x : 4.6, y : 2.4 });
     Grid.Na__LeGrid__Assign({ Snap : false });
-    check('with Grid Snap off every move is exactly as it was', [ Drag.Na__LeTools__GridDragDelta(sheet, text({ x : 42, y : 52 }), { x : 5.4, y : 0.1 }), Drag.Na__LeTools__GridTranslation(sheet, group, { x : 4.4, y : 0 }, 'x') ],
+    check('with Grid Snap off every move is exactly as it was', [ Drag.Na__LeOsnap__GridDragDelta(sheet, text({ x : 42, y : 52 }), { x : 5.4, y : 0.1 }), Drag.Na__LeOsnap__GridTranslation(sheet, group, { x : 4.4, y : 0 }, 'x') ],
         [ { x : 5.4, y : 0.1 }, { x : 4.4, y : 0 } ]);
 
 // endregion -------------------------------------------------------------------

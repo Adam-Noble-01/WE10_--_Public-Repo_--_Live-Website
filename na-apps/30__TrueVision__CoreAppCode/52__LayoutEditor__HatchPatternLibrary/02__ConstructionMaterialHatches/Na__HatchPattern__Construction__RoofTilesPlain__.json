@@ -1,0 +1,65 @@
+{
+    "HatchPattern__RoofTilesPlain__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__RoofTilesPlain__.json",
+        "Meta__Description"   : "Plain roof tiles for elevations - 165 mm tiles at a 100 mm gauge, each course half a tile along from the one below.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__RealSize"      : "Drawn at 1:50: a 165 mm tile at 100 mm gauge is 3.3 x 2 mm on paper. SET PATTERN SCALE TO 50 / THE DRAWING SCALE for true courses: 0.5 at 1:100, 1 at 1:50. On an elevation a roof slope is foreshortened, so a slightly smaller scale than the true one reads better.",
+        "Meta__WhySeams"      : "Course lines run edge to edge, 1 mm in from the top and bottom edges; the joints of the course that wraps the seam are two halves meeting on it, square on. No line comes within 0.8 mm of a side edge."
+    },
+
+    "HatchPattern__RoofTilesPlain__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__RoofTilesPlain",
+        "Identity__Label"       : "Roof Tiles (Plain Tile)",
+        "Identity__Group"       : "Elevation",
+        "Identity__Keywords"    : ["roof", "tile", "tiles", "plain tile", "clay", "slate", "tile hanging", "elevation"],
+        "Identity__Note"        : "Plain tiles on a roof slope or tile hanging on a wall, in ELEVATION. Widen it with Pattern scale for slates."
+    },
+
+    "HatchPattern__RoofTilesPlain__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 6.6,
+        "Tile__HeightMm"    : 4.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Two tiles wide by two courses high."
+    },
+
+    "HatchPattern__RoofTilesPlain__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__RoofTilesPlain__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "Courses": {
+            "Glyph__Label"    : "Two courses",
+            "Glyph__WidthMm"  : 6.6,
+            "Glyph__HeightMm" : 4,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,1 L6.6,1 M0,3 L6.6,3 M0.825,1 L0.825,3 M4.125,1 L4.125,3 M2.475,3 L2.475,4 M2.475,0 L2.475,1 M5.775,3 L5.775,4 M5.775,0 L5.775,1",
+            "Glyph__Note"     : "Two course lines, then the joints; the second course straddles the seam, so each of its joints is two pieces."
+        }
+    },
+
+    "HatchPattern__RoofTilesPlain__Placements": [
+        { "Place__Glyph": "Courses", "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "The whole tile is one glyph at the origin" }
+    ],
+
+    "HatchPattern__RoofTilesPlain__Bounds": {
+        "Bounds__Description"     : "Scale 1 is real size at 1:50. 0.10 is 1:500 and 10 is 1:5.",
+        "Bounds__MinScale"        : 0.10,
+        "Bounds__MaxScale"        : 10.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

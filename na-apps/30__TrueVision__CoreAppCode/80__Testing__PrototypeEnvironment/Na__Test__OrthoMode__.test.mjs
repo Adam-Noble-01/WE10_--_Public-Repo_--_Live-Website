@@ -214,7 +214,7 @@ import { tmpdir } from 'node:os';
         // The drawing grid (F6 / F7, 27__System__DrawingGrid) is OFF in this test:
         // its snap hands every point and every drag delta back untouched.
         Na__LeGrid__SnapPoint        : (p) => p,
-        Na__LeTools__GridDragDelta   : (sheet, drag, dMm) => dMm
+        Na__LeOsnap__GridDragDelta   : (sheet, drag, dMm) => dMm
     };
     let snapTarget = null;                                                   // <-- { x, y, radius } a snap point the cursor can land near
     const snapStub = (sheet, p) => (snapTarget && Math.hypot(p.x - snapTarget.x, p.y - snapTarget.y) <= snapTarget.radius)
@@ -339,8 +339,8 @@ import { tmpdir } from 'node:os';
         Na__LeModel__UpdateViewport    : (sheet, id, patch) => { writes.push({ kind : 'viewport', patch }); return true; },
         Na__LeModel__GetViewportById   : () => ({ Viewport__Id : 'V1' }),
         Na__LeShapeGeo__Translated     : (points, dx, dy) => points.map((p) => [ p[0] + dx, p[1] + dy ]),
-        Na__LeTools__SnapShapeTranslation : (sheet, drag, dMm, shift) => { heard.snapShape.push(shift); return dMm; },
-        Na__LeTools__SnapGroupTranslation : (sheet, drag, d, lock) => { heard.groupLock.push(lock); return d; },
+        Na__LeOsnap__ShapeTranslation     : (sheet, drag, dMm, shift) => { heard.snapShape.push(shift); return dMm; },
+        Na__LeOsnap__GroupTranslation     : (sheet, drag, d, lock) => { heard.groupLock.push(lock); return d; },
         Na__LeTools__Record            : () => ({}),
         Na__LeVpMove__Solve            : (sheet, drag, cursor, shift) => { heard.solve.push(shift); return null; },
         Na__LeHandles__DragPatch       : (viewport, hit, start, moveBy, opts) => { heard.patch.push(opts.shift); return null; },

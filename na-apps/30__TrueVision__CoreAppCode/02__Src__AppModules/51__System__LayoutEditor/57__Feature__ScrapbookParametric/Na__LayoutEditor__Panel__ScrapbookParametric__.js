@@ -38,6 +38,7 @@
 // // @delegate: ./Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js
 // // @delegate: ./Na__LayoutEditor__ScrapbookParametric__Grips__.js
 // // @delegate: ./Na__LayoutEditor__ScrapbookParametric__LinkNoodle__.js
+// // @delegate: ./Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js
 //
 // -----------------------------------------------------------------------------
 //
@@ -45,13 +46,28 @@
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, verbatim
 // - Ahead of it   : 1.3.0 (the storey hint), 1.4.0 (where a title's bar
-//                   sits) and 1.5.0 (the refit once the text metrics land)
-//                   are TrueVision only. ValeVision holds 1.2.0, its floor
+//                   sits), 1.5.0 (the refit once the text metrics land) and
+//                   1.6.0 (the cabinet infill) are TrueVision only. ValeVision holds 1.2.0, its floor
 //                   plans have no storey field and its bar is always below.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0
+// - A tile whose type is held by a base point - the cabinet infill's bottom
+//   left corner - hangs from that point while it is dragged in, snaps it to
+//   the drawing (the tile drag's hold and snap), and lands with it on the
+//   drop (the engine's Insert at 'base'), not centred there.
+//
+// 21-Sep-2026 - Version 1.6.0
+// - The Cabinet Infill: registered with the others, and a block of its own
+//   in the settings - what it reads, the listed words and words of one's
+//   own, which way they run, the fill underneath and its colour, the size
+//   on the paper and on the drawing, the text size. The tools hand a type
+//   the Text setup's line spacing. An element may give its size in real
+//   millimetres (Element__RealSizeMm): a tile dropped on a drawing is then
+//   sized at that drawing's scale.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - The tools say whether the text measure is yet the paper's own
 //   (metricsReady), and the wiring waits for jsPDF and the Open Sans cuts,
@@ -132,7 +148,10 @@
         Na__LeParam__GetBlockById,
         Na__LeParam__GetParams,
         Na__LeParam__IsLocked,
+        Na__LeParam__AnchorOf,
         Na__LeParam__BuildSet,
+        Na__LeParam__BasePoint,
+        Na__LeParam__Insert,
         Na__LeParam__Regenerate,
         Na__LeParam__ResetToStandard
     } from './Na__LayoutEditor__ScrapbookParametric__.js';
@@ -156,6 +175,13 @@
         Na__LeParamQr__NAME_MISSING,
         Na__LeParamQr__CreateType
     } from './Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js';
+    import {
+        Na__LeParamInfill__TYPE,
+        Na__LeParamInfill__RUN_AUTO,
+        Na__LeParamInfill__RUN_ACROSS,
+        Na__LeParamInfill__RUN_UP,
+        Na__LeParamInfill__CreateType
+    } from './Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js';
     import { Na__QrLink__CurrentProject } from '../../53__System__ProjectQrCode/Na__ProjectQr__ProjectLink__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__CfApi__GetLoadedProjectData } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
@@ -171,6 +197,7 @@
         Na__LeViewText__SOURCE_LEVEL
     } from '../20__System__Viewports/Na__LayoutEditor__ViewportTitleText__.js';
     import { Na__LeChrome__MeasureTextMm } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LeCfg__GetTextSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';   // <-- The line height sheet text is drawn at, which a broken label's box is built to
     import { Na__LePdf__EnsureJsPdf } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';   // <-- The library the chrome measures text with
     import { Na__LePdfFonts__EnsureLoaded } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';   // <-- And the Open Sans cuts it measures them in
     import {
@@ -179,6 +206,7 @@
         Na__LeParamLink__Attach,
         Na__LeParamLink__BookRefresh,
         Na__LeParamLink__Candidates,
+        Na__LeParamLink__Nearest,
         Na__LeParamLink__ViewportName,
         Na__LeParamLink__DescribeById,
         Na__LeParamLink__SetLink,
@@ -207,6 +235,7 @@
     const Na__LePanelParam__TITLE_CONTROLS = Object.freeze([ 'param-title-text', 'param-title-phase', 'param-title-upper', 'param-title-underline', 'param-title-bar', 'param-title-bar-place', 'param-title-bar-offset' ]);
     const Na__LePanelParam__QR_CONTROLS    = Object.freeze([ 'param-qr-size', 'param-qr-form', 'param-qr-width', 'param-qr-project' ]);
     const Na__LePanelParam__AREA_CONTROLS  = Object.freeze([ 'param-area-form', 'param-area-group', 'param-area-width', 'param-area-text', 'param-area-units', 'param-area-decimals', 'param-area-headings', 'param-area-total', 'param-area-swatch', 'param-area-title' ]);
+    const Na__LePanelParam__INFILL_CONTROLS = Object.freeze([ 'param-infill-label', 'param-infill-text', 'param-infill-run', 'param-infill-fill', 'param-infill-fill-colour', 'param-infill-width', 'param-infill-height', 'param-infill-size' ]);
     const Na__LePanelParam__LIBRARY_SHOWS = Object.freeze([ 'active', 'loaded', 'sheet-created', 'sheet-deleted', 'sheet-updated' ]);   // <-- What can alter which sheet, or which drawing type, is up
     const Na__LePanelParam__PROPS_SHOWS   = Object.freeze([ 'selection', 'active', 'loaded', 'sheet-deleted', 'sheet-updated', 'groups', 'shape', 'shapes', 'annotation', 'annotations', 'viewport', 'viewports', 'layers' ]);   // <-- What can alter the selected element, its link or its lock
     // ------------------------------------------------------------
@@ -293,6 +322,23 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Cabinet Infill's Menu Words, as the Config Words Them
+    // ------------------------------------------------------------
+    // The listed words are the config's own list and need no wording; these
+    // are the fill and the three ways the words can run.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__InfillMenuWords() {
+        const L = Na__LeParam__Label;
+        return {
+            fill   : L('MenuInfillFill', 'White fill underneath'),
+            auto   : L('MenuInfillAuto', 'Words along the longer side'),
+            across : L('MenuInfillAcross', 'Words across'),
+            up     : L('MenuInfillUp', 'Words up the sheet')
+        };
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Wait for the Paper's Own Text Metrics, Then Refit the Sheet on Screen
     // ------------------------------------------------------------
     // The chrome measures text through jsPDF and the Open Sans cuts, and
@@ -340,10 +386,12 @@
         Na__LeParam__RegisterType(Na__LeParamTitle__CreateType(() => Na__LeParam__Block('DrawingTitle'), () => Na__LeParam__Block('ScaleBar'), Na__LeViewId__Words));
         Na__LeParam__RegisterType(Na__LeParamQr__CreateType(() => Na__LeParam__Block('ProjectQr'), Na__LePanelParam__QrMenuWords));
         Na__LeParam__RegisterType(Na__LeParamArea__CreateType(() => Na__LeParam__Block('AreaSchedule'), Na__LePanelParam__AreaMenuWords));   // <-- The area schedule; its numbers are filled in by 59__Feature__FloorAreas
+        Na__LeParam__RegisterType(Na__LeParamInfill__CreateType(() => Na__LeParam__Block('CabinetInfill'), Na__LePanelParam__InfillMenuWords));   // <-- The cabinet infill: a cross and a boxed name over a cupboard
         Na__LeParam__SetTools({                                               // <-- A type is pure; whatever it cannot reach is handed over here
             measureTextMm : (value, sizeMm, weight) => Na__LeChrome__MeasureTextMm(value, sizeMm, weight),   // <-- The chrome's own measurer, so a line breaks where it breaks on paper
             metricsReady  : () => Na__LePanelParam__MetricsReady,             // <-- Until true that measurer answers an estimate, and nothing is refit to it
-            projectName   : Na__LePanelParam__ProjectName                     // <-- Called on every build, so renaming the project rewrites the blocks that letter it
+            projectName   : Na__LePanelParam__ProjectName,                    // <-- Called on every build, so renaming the project rewrites the blocks that letter it
+            lineSpacing   : () => Na__LeCfg__GetTextSetup().lineSpacing       // <-- How far apart the editor draws a text record's lines, which a label broken over lines is boxed to
         });
         Na__LePanelParam__AwaitMetrics();
         void Na__LeViewId__Ready();
@@ -361,17 +409,48 @@
 // REGION | The Library Section
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | An Element's Preset, Sized for the Drawing It Is Dropped On
+    // ------------------------------------------------------------
+    // An element may give its size on the ground - Element__RealSizeMm, width
+    // and height in real millimetres - for a type whose own size is a paper
+    // WidthMm and HeightMm: the cabinet infill. Dropped INSIDE a scaled
+    // drawing it is drawn at that drawing's scale, so a 1800 x 600 unit is
+    // 36 x 12 mm on a 1:50 plan and 18 x 6 on a 1:100 one; dropped anywhere
+    // else it keeps the paper size its preset and its type give it. Inside,
+    // not nearest: a cupboard is drawn over its plan, not beside it. The
+    // drawing is found by the link module, the one that knows what a
+    // viewport is; nothing is tied to it.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__DropParams(element, sheet, centreMm) {
+        const params = Na__LeParam__ElementParams(element);
+        const real   = element ? element.Element__RealSizeMm : null;
+        if (!Array.isArray(real) || real.length !== 2 || !real.every((mm) => typeof mm === 'number' && Number.isFinite(mm) && mm > 0)) return params;
+        const drawing = Na__LeParamLink__Nearest(sheet, centreMm, 0);
+        if (!drawing) return params;
+        return Object.assign(params, { WidthMm : real[0] / drawing.Viewport__ScaleDenominator, HeightMm : real[1] / drawing.Viewport__ScaleDenominator });
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | An Element as the Tile Drag's Spec
     // ------------------------------------------------------------
     // The tile and the ghost draw the element at its type's default scale,
     // with its preview parameters. The drop is the link module's: it reads
     // the scale, and the facts a title is written from, off the nearest
     // viewport, over the element's own preset parameters.
+    //
+    // A TYPE HELD BY A BASE POINT IS DROPPED BY IT. The cabinet infill hangs
+    // from its bottom left corner while it is dragged in (hold), that corner
+    // snaps to the drawing (snap), and the engine puts it on the drop point
+    // rather than centring the infill there - the way a CAD block is
+    // inserted. Such a type is never tied to a drawing, so the link module
+    // has nothing to add and the engine is asked directly.
     // ------------------------------------------------------------
     function Na__LePanelParam__Spec(element, editable) {
         const name = Na__LeParam__ElementName(element);
         const hint = (typeof element.Element__Description === 'string' && element.Element__Description !== '') ? element.Element__Description : '';
         const drag = Na__LeParam__Label('ItemTitle', '{name}: drag onto the sheet, or double-click to place it in the middle of the view.', { name : name });
+        const held = Na__LeParam__BasePoint(element.Element__Type, Na__LeParam__ElementPreviewParams(element));   // <-- Null for every type held by its middle
         return {
             id       : 'parametric:' + Na__LeParam__ElementId(element),
             name     : name,
@@ -379,7 +458,11 @@
             editable : editable,
             modifier : 'na-le-scrap__item--param',
             buildSet : () => Na__LeParam__BuildSet(element.Element__Type, Na__LeParam__ElementPreviewParams(element), null),
-            place    : (sheet, centreMm) => Na__LeParamLink__InsertLinked(sheet, element.Element__Type, centreMm, Na__LeParam__ElementParams(element))
+            hold     : held ? () => held : null,                          // <-- The ghost is built at (0, 0), so the base point from the origin is the point of the set
+            snap     : !!held,
+            place    : held
+                ? (sheet, pointMm)  => Na__LeParam__Insert(sheet, element.Element__Type, pointMm, Na__LePanelParam__DropParams(element, sheet, pointMm), null, { at : 'base' })
+                : (sheet, centreMm) => Na__LeParamLink__InsertLinked(sheet, element.Element__Type, centreMm, Na__LePanelParam__DropParams(element, sheet, centreMm))
         };
     }
     // ------------------------------------------------------------
@@ -570,6 +653,34 @@
         schedule.appendChild(Na__LePanels__Row(L('PropsAreaSwatch', 'Colour chips'), Na__LePanels__Input('checkbox', 'param-area-swatch'), 'na-le-row--toggle'));
         body.appendChild(schedule);
 
+        // THE CABINET INFILL'S OWN | Shown for an infill and for nothing else.
+        // The words first - they are why it is there - then which way they run,
+        // the fill under it, its size and the size of its words.
+        const infill = document.createElement('div');
+        infill.setAttribute('data-na-param', 'infill-block');
+        const infillReads = Na__LePanels__Note('');
+        infillReads.setAttribute('data-na-param', 'infill-reads');
+        infillReads.classList.add('na-le-param__reads');
+        infill.appendChild(infillReads);
+        infill.appendChild(Na__LePanels__Row(L('PropsInfillLabel', 'Label'), Na__LePanels__Select('param-infill-label', [], null)));
+        infill.appendChild(Na__LePanels__Row(L('PropsInfillText', 'Own words'), Na__LePanels__Input('text', 'param-infill-text', { maxlength : 80 })));
+        const infillWhy = Na__LePanels__Note('');
+        infillWhy.setAttribute('data-na-param', 'infill-why');
+        infill.appendChild(infillWhy);
+        infill.appendChild(Na__LePanels__Row(L('PropsInfillRun', 'Words run'), Na__LePanels__Select('param-infill-run', [], null)));
+        infill.appendChild(Na__LePanels__Row(L('PropsInfillFill', 'White fill underneath'), Na__LePanels__Input('checkbox', 'param-infill-fill'), 'na-le-row--toggle'));
+        const infillColour = Na__LePanels__Row(L('PropsInfillFillColour', 'Fill colour'), Na__LePanels__Input('color', 'param-infill-fill-colour'));
+        infillColour.setAttribute('data-na-param', 'infill-fill-colour');
+        infill.appendChild(infillColour);
+        infill.appendChild(Na__LePanels__Row(L('PropsInfillWidth', 'Width (mm)'), Na__LePanels__Input('number', 'param-infill-width', { min : 2, max : 800, step : 0.1 })));
+        infill.appendChild(Na__LePanels__Row(L('PropsInfillHeight', 'Height (mm)'), Na__LePanels__Input('number', 'param-infill-height', { min : 2, max : 800, step : 0.1 })));
+        const infillSize = Na__LePanels__Note('');
+        infillSize.setAttribute('data-na-param', 'infill-size-note');
+        infill.appendChild(infillSize);
+        infill.appendChild(Na__LePanels__Row(L('PropsInfillTextSize', 'Text size (mm)'), Na__LePanels__Input('number', 'param-infill-size', { min : 0.8, max : 12, step : 0.1 })));
+        infill.appendChild(Na__LePanels__Note(L('PropsInfillKept', 'Anything restyled inside the group - a colour, a line weight, the dashes - is kept when it is rebuilt.')));
+        body.appendChild(infill);
+
         const foot = Na__LePanels__Note('');
         foot.setAttribute('data-na-param', 'foot');
         body.appendChild(foot);
@@ -603,16 +714,19 @@
         const isTitle  = picked.type.type === Na__LeParamTitle__TYPE;
         const isPortal = picked.type.type === Na__LeParamQr__TYPE;
         const isArea   = picked.type.type === Na__LeParamArea__TYPE;
+        const isInfill = picked.type.type === Na__LeParamInfill__TYPE;
         const hasBar   = (typeof picked.type.hasBar === 'function') ? picked.type.hasBar(params) : true;   // <-- A type that does not say is a bar
         const linkable = Na__LeParam__IsLinkable(picked.type.type);
         part('title-block').hidden = !isTitle;
         part('bar-block').hidden   = !hasBar;
         part('qr-block').hidden    = !isPortal;
         part('area-block').hidden  = !isArea;
+        part('infill-block').hidden = !isInfill;
         part('link-row').hidden    = !linkable;                                 // <-- An element that is never tied to a drawing is shown no cable to tie
         if (isTitle)  Na__LePanelParam__RefreshTitle(body, picked, usable);
         if (isPortal) Na__LePanelParam__RefreshPortal(body, picked, usable);
         if (isArea)   Na__LePanelParam__RefreshSchedule(body, picked, usable);
+        if (isInfill) Na__LePanelParam__RefreshInfill(body, picked, usable);
 
         // A TYPE WITH NO SCALE HAS NOTHING BELOW THIS LINE TO REFLECT, and the
         // rows are hidden anyway. Filled in regardless, an undefined scale
@@ -826,6 +940,85 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Colour as a Colour Box Can Show It (#rrggbb)
+    // ------------------------------------------------------------
+    // A member recoloured by hand may carry a short or an alpha form; the box
+    // takes six digits or nothing.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__Hex(value, fallback) {
+        const text = String(value || '').trim().toLowerCase();
+        if (/^#[0-9a-f]{6}$/.test(text)) return text;
+        if (/^#[0-9a-f]{8}$/.test(text)) return text.slice(0, 7);
+        if (/^#[0-9a-f]{3}$/.test(text)) return '#' + text[1] + text[1] + text[2] + text[2] + text[3] + text[3];
+        return fallback;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Reflect a Selected Cabinet Infill
+    // ------------------------------------------------------------
+    // What it reads; the listed words, and - while typed words are in force -
+    // the one sentence that says so and how to go back; which way the words
+    // run; the fill and its colour; the size on the paper and, when it lies
+    // on a drawing, on the ground at that drawing's scale; the text size.
+    // Every value comes through the engine, which reads the members, so a fill
+    // recoloured inside the group shows here as the colour it is.
+    // ------------------------------------------------------------
+    function Na__LePanelParam__RefreshInfill(body, picked, usable) {
+        const L      = Na__LeParam__Label;
+        const params = picked.params;
+        const el     = (name) => body.querySelector('[data-na-control="' + name + '"]');
+        const part   = (name) => body.querySelector('[data-na-param="' + name + '"]');
+        const told   = (typeof picked.type.labelOf === 'function') ? picked.type.labelOf(params) : { text : params.Label, typed : false };
+        const style  = (typeof picked.type.styleOf === 'function') ? picked.type.styleOf(params) : {};
+        const block  = Na__LeParam__Block('CabinetInfill');
+
+        part('infill-reads').textContent = L('PropsInfillReads', 'Reads: {text}', { text : told.text });
+        const presets = (typeof picked.type.presets === 'function') ? picked.type.presets() : [];
+        if (presets.indexOf(params.Label) === -1) presets.push(params.Label);   // <-- Words from an older list, or written into the file, that this list leaves out
+        Na__LePanels__FillSelect(el('param-infill-label'), presets.map((label) => ({ value : label, label : label })), params.Label);
+        const typed = el('param-infill-text');
+        typed.placeholder = params.Label;                                      // <-- An empty box shows the listed word it gives way to
+        if (document.activeElement !== typed) typed.value = params.LabelText;
+        part('infill-why').textContent = told.typed ? L('PropsInfillTyped', 'Typed by hand, so the list no longer sets it. Clear the box, or pick from the list, to go back.') : '';
+        part('infill-why').hidden      = !told.typed;
+
+        Na__LePanels__FillSelect(el('param-infill-run'), [
+            { value : Na__LeParamInfill__RUN_AUTO,   label : L('PropsInfillRunAuto', 'Along the longer side') },
+            { value : Na__LeParamInfill__RUN_ACROSS, label : L('PropsInfillRunAcross', 'Across the sheet') },
+            { value : Na__LeParamInfill__RUN_UP,     label : L('PropsInfillRunUp', 'Up the sheet') }
+        ], params.Orientation);
+
+        el('param-infill-fill').checked   = params.Fill === true;
+        part('infill-fill-colour').hidden = params.Fill !== true;               // <-- No fill, no colour to give it
+        const colour = el('param-infill-fill-colour');
+        if (document.activeElement !== colour) colour.value = Na__LePanelParam__Hex(style.fillColour, '#ffffff');
+
+        [ [ 'param-infill-width', params.WidthMm ], [ 'param-infill-height', params.HeightMm ] ].forEach((pair) => {
+            const input = el(pair[0]);
+            if (Number.isFinite(block.CabinetInfill__SizeMinMm))  input.min  = String(block.CabinetInfill__SizeMinMm);
+            if (Number.isFinite(block.CabinetInfill__SizeMaxMm))  input.max  = String(block.CabinetInfill__SizeMaxMm);
+            if (Number.isFinite(block.CabinetInfill__SizeStepMm)) input.step = String(block.CabinetInfill__SizeStepMm);
+            if (document.activeElement !== input) input.value = String(pair[1]);
+        });
+        const anchor  = Na__LeParam__AnchorOf(picked.sheet, picked.groupId);
+        const drawing = anchor ? Na__LeParamLink__Nearest(picked.sheet, { x : anchor.x + (params.WidthMm / 2), y : anchor.y + (params.HeightMm / 2) }, 0) : null;   // <-- The drawing it lies on, if any
+        const d       = drawing ? drawing.Viewport__ScaleDenominator : null;
+        part('infill-size-note').textContent = d
+            ? L('PropsInfillOnDrawing', '{width} x {height} mm on the drawing at {scale}. Drag the hollow grip at its bottom left corner onto a corner of the cabinet, then any other corner onto the one opposite - both snap to the drawing.',
+                { width : Math.round(params.WidthMm * d), height : Math.round(params.HeightMm * d), scale : Na__LeDrawScale__Label(d) })
+            : L('PropsInfillOffDrawing', 'Paper millimetres. Drag the hollow grip at its bottom left corner onto a corner of the cabinet, then any other corner onto the one opposite - both snap to the drawing.');
+
+        const size = el('param-infill-size');
+        if (Number.isFinite(block.CabinetInfill__TextSizeMinMm)) size.min = String(block.CabinetInfill__TextSizeMinMm);
+        if (Number.isFinite(block.CabinetInfill__TextSizeMaxMm)) size.max = String(block.CabinetInfill__TextSizeMaxMm);
+        if (document.activeElement !== size) size.value = String(params.TextSizeMm);
+
+        Na__LePanelParam__INFILL_CONTROLS.forEach((name) => { el(name).disabled = !usable; });
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Show the Settings Only While One Parametric Element Is Selected
     // ------------------------------------------------------------
     function Na__LePanelParam__SyncProps() {
@@ -898,6 +1091,14 @@
         on('change', 'param-area-headings', guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowGroups : el.checked })));
         on('change', 'param-area-total',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowTotal : el.checked })));
         on('change', 'param-area-swatch',   guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { ShowSwatch : el.checked })));
+        on('change', 'param-infill-label',       guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Label : el.value, LabelText : '' })));   // <-- A word picked from the list is the answer: it clears any typed over it
+        on('change', 'param-infill-text',        guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { LabelText : el.value })));
+        on('change', 'param-infill-run',         guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Orientation : el.value })));
+        on('change', 'param-infill-fill',        guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Fill : el.checked })));
+        on('change', 'param-infill-fill-colour', guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { FillColour : el.value })));
+        on('change', 'param-infill-width',       guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { WidthMm : mm }); }));
+        on('change', 'param-infill-height',      guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { HeightMm : mm }); }));
+        on('change', 'param-infill-size',        guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TextSizeMm : mm }); }));
         const entry = Na__LePanels__RegisterSection('right', {
             id : Na__LePanelParam__PROPS_ID, title : Na__LeParam__Label('PropsTitle', 'Parametric Element'),
             build : Na__LePanelParam__BuildProps, refresh : Na__LePanelParam__RefreshProps

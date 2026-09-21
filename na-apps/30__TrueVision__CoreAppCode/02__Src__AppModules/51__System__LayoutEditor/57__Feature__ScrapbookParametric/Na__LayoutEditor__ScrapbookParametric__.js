@@ -44,6 +44,17 @@
 //   element built then keeps it in its records. Refit asks each element whose
 //   type can tell (definition.refit) whether it still fits, and rebuilds the
 //   ones that do not - only once the tools say the measure is the real one.
+// - WHAT IS RESTYLED BY HAND CAN BE KEPT. A type that offers adopt is shown
+//   its members as they stand whenever its parameters are read, and answers
+//   with what they now say about it - a colour given to a member inside the
+//   group, words typed over its label. So the panel shows the element as it
+//   is, and a rebuild - a grip dragged, a setting changed - keeps the hand
+//   edit instead of drawing over it. The cabinet infill is the first.
+// - A TYPE MAY BE HELD BY A BASE POINT. One that answers base(params) - the
+//   cabinet infill, held by its bottom left corner like a CAD block - is
+//   dropped with that point where the pointer let go (Insert, at 'base'),
+//   and a grip there moves it. Its corner grips move its ORIGIN as well as
+//   its size, which Regenerate does by being handed the origin to build at.
 // - AN ELEMENT IS A PRESET OF A TYPE. The library lists elements; two may be
 //   one type with different Element__Params, as the Drawing Title is offered
 //   with its scale bar and without.
@@ -63,12 +74,32 @@
 // - Authored in   : TrueVision3D first (19-Sep-2026)
 // - ValeVision    : 1.2.0 ported 20-Sep-2026 as ValeVision3D v2.68.0, adapted: one drawing
 //                   type there. The four hooks it needed were ported with it.
-// - Ahead of it   : 1.3.0 (the slide grip point), 1.4.0 (the Portal's hooks)
-//                   and 1.5.0 (Refit) are TrueVision only.
+// - Ahead of it   : 1.3.0 (the slide grip point), 1.4.0 (the Portal's hooks),
+//                   1.5.0 (Refit), 1.6.0 (adopt) and 1.7.0 (the base point)
+//                   are TrueVision only.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0
+// - The base point, for the Cabinet Infill after Adam used it ("make the
+//   insertion point ... the bottom left, like a proper XY"). A type may
+//   answer base(params): BasePoint reads it, Insert with { at : 'base' } puts
+//   that point where the drop landed rather than centring the element there,
+//   and HandlesOf passes a type's base grip and its named corner grips
+//   through with the rest. Regenerate takes options.origin, the paper point
+//   to build at: a corner dragged with the opposite one held moves the
+//   element's origin, and a base grip moves nothing else.
+//
+// 21-Sep-2026 - Version 1.6.0
+// - A type's optional adopt(params, records): what its members, as they
+//   stand, now say about its parameters - a colour or a dash given to one
+//   inside the group, words typed over a label. GetParams lays it over the
+//   stored parameters, so every reader sees the element as it is, and
+//   Regenerate lays it under the patch, so a rebuild keeps a hand edit and
+//   an explicit choice still wins over it. Nothing is written by asking.
+//   For the Cabinet Infill, whose fill Adam means to recolour by hand.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - Refit, and a type's optional refit(params, tools, records): the elements
 //   on a sheet whose records no longer fit what their words measure now are
@@ -242,9 +273,11 @@
     //     build(params, tools)        { records : [{ kind, record }] } from an
     //                                 origin of (0, 0), the first record a
     //                                 vector whose first point IS (0, 0)
-    //     handles(params)             { stretch, lookup, slide, link } as
-    //                                 { x, y, away } from the origin; any of
-    //                                 them null for a type that has no such grip
+    //     handles(params)             { stretch, lookup, slide, link, base } as
+    //                                 { x, y, away } from the origin, and
+    //                                 corners, a list of { name, x, y, away };
+    //                                 any of them null for a type that has no
+    //                                 such grip
     //     stretchTo(params, xMm, yMm) the parameters a stretch grip at that point gives
     //     slideTo(params, xMm, exact) the parameters a slide grip at that point
     //                                 gives; exact says the point was snapped
@@ -267,6 +300,25 @@
     //                                 its members' records in slot order,
     //                                 moved to its origin. Asked by Refit only
     //                                 (optional - a type that measures text)
+    //     base(params, tools)         the point the element is held by, from
+    //                                 its origin: dropped there, moved by a
+    //                                 grip there (optional - the cabinet
+    //                                 infill's bottom left corner)
+    //     cornerTo(params, name, xMm, yMm, exact)
+    //                                 { params, shift } a named corner grip
+    //                                 dragged to that point gives, both read
+    //                                 from the origin the drag began at;
+    //                                 shift is the new origin from the old -
+    //                                 the corner opposite stays where it was
+    //                                 (optional - a type whose handles give
+    //                                 corners)
+    //     adopt(params, records)      a patch of what the members, as they
+    //                                 stand, say about the parameters: a
+    //                                 style given to one by hand inside the
+    //                                 group. records as refit's. Laid over the
+    //                                 stored parameters by GetParams and under
+    //                                 the patch by Regenerate; an undefined
+    //                                 value takes its key off (optional)
     // }
     // ------------------------------------------------------------
     function Na__LeParam__RegisterType(definition) {
@@ -401,8 +453,34 @@
         const block = Na__LeParam__GetBlockById(sheet, groupId);
         if (!block) return null;
         const definition = Na__LeParam__GetType(block.Parametric__Type);
-        const stored     = (block.Parametric__Params && typeof block.Parametric__Params === 'object') ? block.Parametric__Params : {};
+        const stored     = Na__LeParam__Adopted(sheet, groupId, definition, (block.Parametric__Params && typeof block.Parametric__Params === 'object') ? block.Parametric__Params : {});
         return (typeof definition.normalise === 'function') ? definition.normalise(stored) : Object.assign({}, stored);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Stored Parameters, With What the Members Now Say Laid Over Them
+    // ------------------------------------------------------------
+    // The type's adopt, for a type that has one; the stored parameters as
+    // they are for every other, and whenever the members cannot be read. A
+    // type that throws adopts nothing. Returns a new object: the block on the
+    // group is never touched by asking.
+    //
+    // WHY EVERY READ AND NOT ONLY A REBUILD. The grips take the parameters
+    // when a drag begins and hand back WHOLE parameter sets from then on, so
+    // a hand edit read only at rebuild time would be overwritten by the
+    // stale copy the drag was carrying - and Escape would put that copy back.
+    // Read here, the drag starts from the element as it is.
+    // ------------------------------------------------------------
+    function Na__LeParam__Adopted(sheet, groupId, definition, stored) {
+        if (!definition || typeof definition.adopt !== 'function') return stored;
+        const group  = sheet ? Na__LeModel__GetGroupById(sheet, groupId) : null;
+        const anchor = group ? Na__LeParam__AnchorOf(sheet, groupId) : null;
+        if (!anchor) return stored;
+        let patch = null;
+        try { patch = definition.adopt(Object.assign({}, stored), Na__LeParam__RecordsAt(sheet, group, anchor)); }
+        catch (error) { patch = null; }                                    // <-- A type that cannot answer keeps what is stored
+        return (patch && typeof patch === 'object') ? Object.assign({}, stored, patch) : stored;
     }
     // ------------------------------------------------------------
 
@@ -505,9 +583,10 @@
 
     // FUNCTION | Where an Element's Grips Are on the Paper
     // ------------------------------------------------------------
-    // { anchor, stretch, lookup, slide, link, params, type } in paper
-    // millimetres - every point the type gives, by the name it gives it;
-    // null for a plain group, or a type that has no grips.
+    // { anchor, stretch, lookup, slide, link, base, corners, params, type } in
+    // paper millimetres - every point the type gives, by the name it gives it,
+    // corners as a list of named points; null for a plain group, or a type
+    // that has no grips.
     // ------------------------------------------------------------
     function Na__LeParam__HandlesOf(sheet, groupId) {
         const block  = Na__LeParam__GetBlockById(sheet, groupId);
@@ -519,7 +598,11 @@
         const handles = definition.handles(params, Na__LeParam__Tools);
         if (!handles) return null;
         const place = (point) => (point ? { x : anchor.x + point.x, y : anchor.y + point.y, away : Array.isArray(point.away) ? point.away : [ 0, 0 ] } : null);   // <-- away: the way the grip stands clear of its point
-        return { anchor : anchor, stretch : place(handles.stretch), lookup : place(handles.lookup), slide : place(handles.slide), link : place(handles.link), params : params, type : block.Parametric__Type };
+        const corners = (Array.isArray(handles.corners) ? handles.corners : [])
+            .filter((corner) => !!corner && typeof corner.name === 'string' && Number.isFinite(corner.x) && Number.isFinite(corner.y))
+            .map((corner) => Object.assign(place(corner), { name : corner.name }));   // <-- Named, because the type is asked about a corner by its name
+        return { anchor : anchor, stretch : place(handles.stretch), lookup : place(handles.lookup), slide : place(handles.slide), link : place(handles.link),
+                 base : place(handles.base), corners : corners, params : params, type : block.Parametric__Type };
     }
     // ------------------------------------------------------------
 
@@ -561,6 +644,35 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Preset Made Whole: the Type's Defaults, the Preset Over Them, Normalised
+    // ------------------------------------------------------------
+    // What an element dropped from that preset will hold, before a drop has
+    // given it anything of its own.
+    // ------------------------------------------------------------
+    function Na__LeParam__WholeParams(definition, params) {
+        const standard = (typeof definition.defaults === 'function') ? definition.defaults(params ? params.ScaleDenominator : undefined) : {};
+        const merged   = Object.assign({}, standard, params || {});
+        return (typeof definition.normalise === 'function') ? definition.normalise(merged) : merged;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Point an Element Is Held By, From Its Origin (null for a type without one)
+    // ------------------------------------------------------------
+    // The type's base(params) for a preset made whole - the cabinet infill's
+    // bottom left corner. The scrapbook's tile drag hangs the ghost from it and
+    // Insert puts it where the drop landed. A type without one is held by its
+    // middle, as every element was.
+    // ------------------------------------------------------------
+    function Na__LeParam__BasePoint(type, params) {
+        const definition = Na__LeParam__GetType(type);
+        if (!definition || typeof definition.base !== 'function') return null;
+        const point = definition.base(Na__LeParam__WholeParams(definition, params), Na__LeParam__Tools);
+        return (point && Number.isFinite(point.x) && Number.isFinite(point.y)) ? { x : point.x, y : point.y } : null;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Build an Element Into the Item Clipboard's Set Shape
     // ------------------------------------------------------------
     // { kind : 'set', itemId, roots, entries, origin, size }: every vector and
@@ -574,9 +686,7 @@
     function Na__LeParam__BuildSet(type, params, link, originMm) {
         const definition = Na__LeParam__GetType(type);
         if (!definition) return null;
-        const base   = (typeof definition.defaults === 'function') ? definition.defaults(params ? params.ScaleDenominator : undefined) : {};
-        const merged = Object.assign({}, base, params || {});
-        const whole  = (typeof definition.normalise === 'function') ? definition.normalise(merged) : merged;
+        const whole  = Na__LeParam__WholeParams(definition, params);
         const leaves = Na__LeParam__BuildLeaves(definition, whole, originMm || null);
         if (leaves.length < 2) return null;
         let   serial = 0;
@@ -602,7 +712,9 @@
     // ------------------------------------------------------------
     // One undo step, kept on the paper the way a paste is. The element is
     // selected, so its grips are up at once; the selected roots are
-    // returned, or null.
+    // returned, or null. options.at 'base' puts the type's base point on the
+    // paper point instead of the element's middle - how a CAD block is
+    // inserted, and how the cabinet infill lands on a cupboard's corner.
     //
     // BUILT WHERE IT LANDS, NOT BUILT AND THEN MOVED. A set InsertSet moves has
     // an arbitrary offset added to every coordinate, which leaves each a few
@@ -613,11 +725,15 @@
     // origin at its tidy final place, and handed over with nothing to add.
     // Only a drop the paper's edge pushes back in is still moved.
     // ------------------------------------------------------------
-    function Na__LeParam__Insert(sheet, type, centreMm, params, link) {
+    function Na__LeParam__Insert(sheet, type, centreMm, params, link, options) {
         if (!sheet || !centreMm || !Number.isFinite(centreMm.x) || !Number.isFinite(centreMm.y)) return null;
         const measured = Na__LeParam__BuildSet(type, params, link, null);
         if (!measured) return null;
-        const origin = {
+        const held   = (options && options.at === 'base') ? Na__LeParam__BasePoint(type, params) : null;   // <-- A type held by a base point lands with THAT point on the drop
+        const origin = held ? {
+            x : Na__LeParam__Round(centreMm.x - held.x),
+            y : Na__LeParam__Round(centreMm.y - held.y)
+        } : {
             x : Na__LeParam__Round(centreMm.x - (measured.size.WidthMm  / 2) - measured.origin.x),
             y : Na__LeParam__Round(centreMm.y - (measured.size.HeightMm / 2) - measured.origin.y)
         };
@@ -692,6 +808,9 @@
     //             inside an announcement already (a viewport's scale change)
     //     link    undefined leaves the link alone, null removes it, an
     //             object replaces it
+    //     origin  the paper point to build at, { x, y }, in place of where
+    //             the element stands: a corner grip that moves the origin, a
+    //             base grip, and Escape putting either back
     // THE MEMBER LIST IS REWRITTEN BEFORE THE LEFT-OVERS ARE DELETED. The
     // model prunes any group left with fewer than two live members, so
     // deleting first would take the group, and its block, with them.
@@ -702,10 +821,11 @@
         const block = Na__LeParam__GetBlock(group);
         if (!block) return null;
         const definition = Na__LeParam__GetType(block.Parametric__Type);
-        const anchor     = Na__LeParam__AnchorOf(sheet, groupId);
-        if (!anchor) return null;
-        const opts   = options || {};
-        const stored = (block.Parametric__Params && typeof block.Parametric__Params === 'object') ? block.Parametric__Params : {};
+        const opts       = options || {};
+        const standing   = Na__LeParam__AnchorOf(sheet, groupId);
+        if (!standing) return null;
+        const anchor     = (opts.origin && Number.isFinite(opts.origin.x) && Number.isFinite(opts.origin.y)) ? { x : opts.origin.x, y : opts.origin.y } : standing;   // <-- Built somewhere else only when asked
+        const stored = Na__LeParam__Adopted(sheet, groupId, definition, (block.Parametric__Params && typeof block.Parametric__Params === 'object') ? block.Parametric__Params : {});   // <-- A hand edit under the patch: kept unless the patch says otherwise
         const merged = Object.assign({}, stored, patch || {});
         const params = (typeof definition.normalise === 'function') ? definition.normalise(merged) : merged;
         const leaves = Na__LeParam__BuildLeaves(definition, params, anchor);
@@ -774,9 +894,9 @@
 
     // HELPER FUNCTION | An Element's Own Records, Moved to Its Origin, Slot for Slot
     // ------------------------------------------------------------
-    // { shapes, texts } in member order, what a type's refit is shown. A
-    // member whose record has gone keeps its slot as null, so every slot
-    // after it still means what it means to the type.
+    // { shapes, texts } in member order, what a type's refit and adopt are
+    // shown. A member whose record has gone keeps its slot as null, so every
+    // slot after it still means what it means to the type.
     // ------------------------------------------------------------
     function Na__LeParam__RecordsAt(sheet, group, anchor) {
         const held = Na__LeParam__Members(group);
@@ -869,6 +989,7 @@
         Na__LeParam__AnchorOf,
         Na__LeParam__IsLocked,
         Na__LeParam__HandlesOf,
+        Na__LeParam__BasePoint,
         Na__LeParam__BuildSet,
         Na__LeParam__Insert,
         Na__LeParam__Announce,

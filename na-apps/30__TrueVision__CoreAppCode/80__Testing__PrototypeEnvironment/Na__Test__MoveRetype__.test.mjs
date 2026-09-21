@@ -203,11 +203,11 @@ import { tmpdir } from 'node:os';
         Na__LeDimGeo__SpanMm            : (a, b) => Math.hypot(b.x - a.x, b.y - a.y),
         Na__LeMeasure__Refresh          : () => { seen.refresh++; },
         Na__LeOsnap__Snap               : (sheet, p) => ({ snapped : false, x : p.x, y : p.y }),
-        Na__LeTools__GridDragDelta      : (sheet, drag, dMm) => { seen.grid++; return gridStep ? { x : Math.round(dMm.x / gridStep) * gridStep, y : Math.round(dMm.y / gridStep) * gridStep } : dMm; },
+        Na__LeOsnap__GridDragDelta      : (sheet, drag, dMm) => { seen.grid++; return gridStep ? { x : Math.round(dMm.x / gridStep) * gridStep, y : Math.round(dMm.y / gridStep) * gridStep } : dMm; },
         Na__LeAxis__Get : Axis.Na__LeAxis__Get, Na__LeAxis__Apply : Axis.Na__LeAxis__Apply, Na__LeAxis__Hold : Axis.Na__LeAxis__Hold, Na__LeAxis__Clear : Axis.Na__LeAxis__Clear,
         Na__LeOrtho__Resolve            : (shift) => shift === true,         // <-- Ortho off: Shift alone holds the axis
-        Na__LeTools__SnapShapeTranslation : (sheet, drag, dMm) => dMm,       // <-- No object snap in reach
-        Na__LeTools__SnapGroupTranslation : (sheet, drag, d) => d,
+        Na__LeOsnap__ShapeTranslation     : (sheet, drag, dMm) => dMm,       // <-- No object snap in reach
+        Na__LeOsnap__GroupTranslation     : (sheet, drag, d) => d,
         Na__LeTools__Record             : record,
         Na__LeSelSet__Apply             : (sheet, group, dx, dy) => { group.forEach((e) => {
             const r = record(sheet, e);
@@ -268,21 +268,21 @@ import { tmpdir } from 'node:os';
     console.log('\n  A vector moved whole along a held axis stays on it through a snap');
     const markers = [], gridLocks = [];
     let snapAt = null;                                                       // <-- { x, y } the one snap point on the sheet, 2 mm reach
-    const Hit = await load('51__System__LayoutEditor/30__System__SheetTools/Na__LayoutEditor__SheetTools__HitResolution__.js', {
+    const Hit = await load('51__System__LayoutEditor/28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Moves__.js', {   // <-- Where SnapShapeTranslation lives now, as Na__LeOsnap__ShapeTranslation
         Na__LeOsnap__Find          : (sheet, p) => { if (!snapAt) return null; const d = Math.hypot(p.x - snapAt.x, p.y - snapAt.y); return d <= 2 ? { x : snapAt.x, y : snapAt.y, kind : 'end', score : d } : null; },
         Na__LeOsnap__ShowMarker    : (m) => { markers.push({ x : r3(m.x), y : r3(m.y) }); },
-        Na__LeTools__GridTranslation : (sheet, drag, delta, lock) => { gridLocks.push(lock); return delta; }
+        Na__LeOsnap__GridTranslation : (sheet, drag, delta, lock) => { gridLocks.push(lock); return delta; }
     });
     const vector = { kind : 'shape', id : 'S9', start : [ [ 0, 0 ], [ 10, 0 ] ], baseMm : null };
     snapAt = { x : 20.3, y : 1.2 };
-    check('Shift held across: the snap gives x, y stays on the axis (it went 1.2 mm off)', pt(Hit.Na__LeTools__SnapShapeTranslation(SHEET, vector, { x : 10.5, y : 0.8 }, true)), { x : 10.3, y : 0 });
+    check('Shift held across: the snap gives x, y stays on the axis (it went 1.2 mm off)', pt(Hit.Na__LeOsnap__ShapeTranslation(SHEET, vector, { x : 10.5, y : 0.8 }, true)), { x : 10.3, y : 0 });
     check('...and the ring sits where the corner lands on the line',                     markers[markers.length - 1], { x : 20.3, y : 0 });
-    check('free (no Shift, no Ortho): the snap still wins outright',                      pt(Hit.Na__LeTools__SnapShapeTranslation(SHEET, vector, { x : 10.5, y : 0.8 }, false)), { x : 10.3, y : 1.2 });
+    check('free (no Shift, no Ortho): the snap still wins outright',                      pt(Hit.Na__LeOsnap__ShapeTranslation(SHEET, vector, { x : 10.5, y : 0.8 }, false)), { x : 10.3, y : 1.2 });
     snapAt = { x : 11.1, y : 9.4 };
-    check('Shift held down the paper: the snap gives y, x stays',                         pt(Hit.Na__LeTools__SnapShapeTranslation(SHEET, vector, { x : 0.6, y : 9 }, true)), { x : 0, y : 9.4 });
+    check('Shift held down the paper: the snap gives y, x stays',                         pt(Hit.Na__LeOsnap__ShapeTranslation(SHEET, vector, { x : 0.6, y : 9 }, true)), { x : 0, y : 9.4 });
     snapAt = null;
-    Hit.Na__LeTools__SnapShapeTranslation(SHEET, vector, { x : 30, y : 0.8 }, true);
-    Hit.Na__LeTools__SnapShapeTranslation(SHEET, vector, { x : 30, y : 0.8 }, false);
+    Hit.Na__LeOsnap__ShapeTranslation(SHEET, vector, { x : 30, y : 0.8 }, true);
+    Hit.Na__LeOsnap__ShapeTranslation(SHEET, vector, { x : 30, y : 0.8 }, false);
     check('no snap in reach: the grid is handed the held axis, or none',                  gridLocks, [ 'x', null ]);
 
 // endregion -------------------------------------------------------------------

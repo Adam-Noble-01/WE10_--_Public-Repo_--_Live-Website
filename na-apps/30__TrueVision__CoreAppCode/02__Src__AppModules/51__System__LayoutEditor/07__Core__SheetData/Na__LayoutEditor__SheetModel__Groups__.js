@@ -38,6 +38,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - AddGroupMember: one more member into a group that already exists, for the
+//   vector tools (37__System__VectorTools) - what is drawn inside an open group
+//   joins it, and a piece cut from a member stays a member. An item already in
+//   a group is left where it is. Takes the same optional silent flag.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - DeleteItems takes an optional silent flag: the records go and the sheet is
 //   marked dirty, with no announcement. Every existing caller passes nothing
@@ -118,6 +124,31 @@
         if (index === -1) return false;
         sheet.Sheet__Groups.splice(index, 1);
         Na__LeModel__Unselect(groupId);
+        if (silent) { Na__LeModel__AssignDirty(true); return true; }
+        Na__LeModel__Touch('groups', sheet.Sheet__Id, groupId);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put One More Member Into a Group That Already Exists
+    // ------------------------------------------------------------
+    // member: { kind, id } of a vector, a text item or a group. What a group
+    // open for editing needs when something is drawn INSIDE it, and what a
+    // trim needs when the line it cut in two was a member: the new piece
+    // belongs where the old one did. A member already in ANY group is left
+    // where it is - an item has one parent - and answers false. silent marks
+    // the sheet dirty and leaves the announcement to the caller.
+    // ------------------------------------------------------------
+    function Na__LeModel__AddGroupMember(sheet, groupId, member, silent) {
+        const group = Na__LeModel__GetGroupById(sheet, groupId);
+        if (!group || !member || typeof member.kind !== 'string' || typeof member.id !== 'string' || !member.id) return false;
+        if (member.kind === 'group' && member.id === groupId) return false;
+        const taken = Na__LeModel__GetGroups(sheet).some((g) => (g.Group__Members || []).some((m) => m.kind === member.kind && m.id === member.id));
+        if (taken) return false;
+        if (!Array.isArray(group.Group__Members)) group.Group__Members = [];
+        group.Group__Members.push({ kind : member.kind, id : member.id });
+        Na__LeRec__NormaliseGroup(group);
         if (silent) { Na__LeModel__AssignDirty(true); return true; }
         Na__LeModel__Touch('groups', sheet.Sheet__Id, groupId);
         return true;
@@ -230,6 +261,7 @@
         Na__LeModel__GetGroups,
         Na__LeModel__GetGroupById,
         Na__LeModel__InsertGroup,
+        Na__LeModel__AddGroupMember,
         Na__LeModel__DeleteGroup,
         Na__LeModel__PruneGroups,
         Na__LeModel__DeleteItems

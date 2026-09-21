@@ -1,0 +1,74 @@
+{
+    "HatchPattern__Blockwork__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__Blockwork__.json",
+        "Meta__Description"   : "Blockwork in section or on plan - diagonals at 45 degrees both ways, making a field of diamonds. Opener than the brickwork hatch so the two read apart where a cavity wall puts them side by side.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__Spacing"       : "Three lines each way to a 12 mm tile, so 2.83 mm between lines measured square to them (12 / 3 / root 2) - a third wider than brickwork's 2.12 mm.",
+        "Meta__WhySeams"      : "The lines run to the tile's edges and meet their continuation in the next tile exactly. No line passes through a tile CORNER and none runs along an edge: a corner is shared by four tiles and an edge by two, and ink there would need drawing by all of them. Na__LeHatch__SeamCopies paints what a neighbouring tile pushes across a seam, so a line keeps its full width where it crosses, at any line weight."
+    },
+
+    "HatchPattern__Blockwork__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__Blockwork",
+        "Identity__Label"       : "Blockwork (Criss-Cross)",
+        "Identity__Group"       : "Masonry",
+        "Identity__Keywords"    : ["block", "blockwork", "masonry", "wall", "section", "cross", "crisscross", "crosshatch"],
+        "Identity__Note"        : "The standard section hatch for blockwork: brickwork's diagonals crossed by the same diagonals the other way."
+    },
+
+    "HatchPattern__Blockwork__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 12.0,
+        "Tile__HeightMm"    : 12.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Square, so both sets of diagonals close on themselves."
+    },
+
+    "HatchPattern__Blockwork__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__Blockwork__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "Rising": {
+            "Glyph__Label"    : "Rising diagonals",
+            "Glyph__WidthMm"  : 12,
+            "Glyph__HeightMm" : 12,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,2 L2,0 M0,6 L6,0 M0,10 L10,0 M2,12 L12,2 M6,12 L12,6 M10,12 L12,10",
+            "Glyph__Note"     : "Six pieces of three endless lines, x + y = 2, 6 and 10."
+        },
+        "Falling": {
+            "Glyph__Label"    : "Falling diagonals",
+            "Glyph__WidthMm"  : 12,
+            "Glyph__HeightMm" : 12,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M9,0 L12,3 M5,0 L12,7 M1,0 L12,11 M0,3 L9,12 M0,7 L5,12 M0,11 L1,12",
+            "Glyph__Note"     : "Six pieces of three endless lines, x - y = 1, 5 and 9 - one millimetre out of step with the rising set, so the two never cross ON a tile edge."
+        }
+    },
+
+    "HatchPattern__Blockwork__Placements": [
+        { "Place__Glyph": "Rising",  "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "One glyph at the origin" },
+        { "Place__Glyph": "Falling", "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "The other, over it" }
+    ],
+
+    "HatchPattern__Blockwork__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

@@ -1,0 +1,64 @@
+/* ================================================================= */
+/* TRUEVISION3D - LAYOUT EDITOR - VECTOR TOOLS STYLES                 */
+/* ================================================================= */
+/*                                                                   */
+/* FILE       : Na__LayoutEditor__Styles__VectorTools__.css          */
+/* MODULE     : Layout Editor - Vector Tools                         */
+/* AUTHOR     : Adam Noble - Noble Architecture                      */
+/* PURPOSE    : The Vector Tools section of the Properties column:   */
+/*              its rows of tool buttons and the line that says what */
+/*              the tool that is up wants next                       */
+/* CREATED    : 21-Sep-2026                                          */
+/*                                                                   */
+/* NOTES:                                                            */
+/* - Everything else the section uses is the panels' own: rows,      */
+/*   inputs, the subhead note and the lit button                     */
+/*   (Na__LayoutEditor__Styles__Panels__.css). The preview the tools */
+/*   draw on the sheet is an SVG whose colours and weights are set   */
+/*   inline from the config, so there is nothing of it here.         */
+/*                                                                   */
+/* ================================================================= */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Tool Buttons                                           */
+/* ----------------------------------------------------------------- */
+
+/* A ROW THAT WRAPS. Four or seven words will not always fit the column  */
+/* at the width somebody has dragged it to, so the buttons wrap onto a   */
+/* second line rather than squeezing or running off the edge.           */
+
+.na-le-vectools__row {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    gap                                : 4px;
+    margin-bottom                      : 6px;
+}
+
+.na-le-vectools__btn {
+    flex                               : 1 1 auto;
+    padding                            : 4px 8px;
+    font-size                          : 0.74rem;
+    white-space                        : nowrap;
+}
+
+/* endregion */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  What the Tool Wants Next                               */
+/* ----------------------------------------------------------------- */
+
+/* One line, in the colour of the rubber band, under the buttons. It    */
+/* reserves no height while no vector tool is up.                       */
+
+.na-le-vectools__hint {
+    margin                             : 2px 0 8px;
+    padding                            : 4px 8px;
+    border-left                        : 3px solid #336699;
+    background                         : #eef3f8;
+    color                              : #1f3a56;
+    font-size                          : 0.74rem;
+}
+
+/* endregion */

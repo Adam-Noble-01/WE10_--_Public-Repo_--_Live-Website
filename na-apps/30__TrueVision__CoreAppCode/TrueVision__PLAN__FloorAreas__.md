@@ -95,8 +95,10 @@ Shape__Area : {
     Area__ScaleDenominator  50          (only when FIXED; absent = automatic)
     Area__Label             'both' | 'name' | 'value' | 'none'    (absent = both)
     Area__TextSizeMm        2.4         (absent = the config's)
-    Area__LabelDXMm/DYMm    paper offset of the label from the area's visual centre
-                            (absent = centred; both dropped when a drag lands back home)
+    Area__LabelDXMm/DYMm    paper offset of the label from its home - the middle of the
+                            room's box, or its visual centre for an L or a U - written by a
+                            drag in the room's edit mode (absent = at home; both dropped
+                            when a drag lands back home, or on Centre the label)
 }
 ```
 
@@ -152,8 +154,13 @@ with nothing to migrate and nothing that can go stale.
     `Na__LeDrawScale__ViewportAt`: hiding the Viewports layer must never change a reported area.
 - **A self-crossing outline** is reported as a fault in the panel and on the label rather than
   silently returning the shoelace's cancelled-out nonsense.
-- **The label sits at the visual centre** - the pole of inaccessibility, not the centroid, so an
-  L-shaped room labels itself inside the L rather than in the garden.
+- **The label sits in the middle of the room's box** (Adam, after first use) - unless that middle is
+  not inside the room at all (an L, a U), when it takes the **visual centre**: the pole of
+  inaccessibility, not the centroid, so an L-shaped room labels itself inside the L rather than in
+  the garden. `Label__Placement : "visual"` puts every room on the visual centre. The visual centre
+  also picks the drawing a room is measured against and sizes the label's shrink to fit, wherever
+  the label sits. (Until the label drag, the label sat at the visual centre for every room - which
+  on a room with a bay and a chimney breast floats up and sideways, off the middle.)
 
 ---------------------------------------------------------
 ## 5. The five moving parts
@@ -166,6 +173,14 @@ screen, the PDF, the web viewer and the scrapbook preview through the one painte
 serves all four. It is **computed at paint time from the live points**, which is what makes it
 follow a vertex drag as the vertex moves - a model listener could not, because a drag is silent
 until it is let go.
+
+**Dragging it** (`Na__LayoutEditor__FloorAreas__LabelGrip__.js`). In the room's edit mode (double
+click, or Enter) a dashed box stands round the label, drawn by a shape grip provider - the idiom a
+picture's corner grips use - so it takes its own presses and no sheet tools file changed. A drag
+writes `Area__LabelDXMm/DYMm` silently and announces once on release (one undo step); Escape puts it
+back; Shift or Ortho holds the axis; within `Label__HomeSnapPx` of home it snaps home. A press inside
+the box within reach of a corner, an Alt press and a Shift press on an edge are handed on to the
+sheet tools untouched, and only Select and Move drag the label.
 
 ### 5.2 The tool
 
@@ -293,6 +308,9 @@ preview, and in the drag ghost, and what it shows is exactly what is stored.
 | A Floor Areas layer a sheet makes for itself goes straight **over** the frontmost drawing (v2.106.0) | A plan's Base Image is an opaque picture: a room under it would vanish, which reads as a fault. Dragging the layer below Viewports gives the tint UNDER a vector-only plan's lines, which is how RB05 D02 is set up |
 | Selecting a viewport folds the whole fold group; the **Viewport** section itself stays outside the group (v2.106.0) | Adam asked for Floor Areas and Patterns to be open only when active. Whether the Viewport section should fold when markup is selected is the next question, not answered here |
 | The Layers panel's **Add** still adds at the bottom of the list, which is now the back of the stack (v2.106.0) | Unchanged on purpose; a layer made BY the app (Floor Areas, Vectors) goes over the drawings instead |
+| A label's home is the middle of the room's **box**, and the visual centre only where that middle falls outside the room | Adam asked for the box as the standard. The fallback is this build's own addition: without it an L or a U would label the garden or the room next door, and every one would need dragging |
+| A label drags only in the room's **edit mode**, not whenever the room is selected | Adam asked for edit mode. Selected, a press on a room picks up Move and carries the whole room; a label that answered there would make every room awkward to move |
+| **Centre its label** is not on the right-click menu while the room is open | That menu is the points menu, which the Vector Tools work is rebuilding. In edit mode the label is re-centred by dragging it back (it snaps home) or by the panel's Centre the label |
 
 ---------------------------------------------------------
 ## 10. Ledger
@@ -314,3 +332,4 @@ preview, and in the drag ghost, and what it shows is exactly what is stored.
 | 21-Sep-2026 | **(1) was not a floor-area fault.** The Layers list had never been the paint order for anything but viewports against each other (D31, "top of the list draws frontmost", half built): the screen put every frame in one box under every SVG, the markup painter went kind by kind and never read the list, the PDF printed all viewports then all markup then all chrome, and frames were opaque white. Fixed at the root as **v2.106.0**: `Na__LayoutEditor__PaintOrder__` is the one back-to-front plan, and the screen (frames and SVG slots interleaved in `div.na-le-paper__stack`), the PDF and the web viewer paint from it; hit tests ask front to back; frames are clear. Old sheets are restacked once on load (`Sheet__LayerStack : 2`) so nothing they showed ends up under a picture - PS01's 3D Images and Site Plan and all three stored RB05 sheets moved, PS01's Floor Plans and Elevations (already in order by Adam's hand) did not, and a Floor Areas layer under a drawing is never moved. The rule first missed RB05 TEMP__Plans as stored - one viewport over three EMPTY layers, so nothing was buried yet - and was widened to count what an empty layer is for; found in the app, not by the test, which now carries that case. |
 | 21-Sep-2026 | **(2)** Outline switches in the panel (selected, several, New areas) and **Show its outline** on the room's menu, all writing the vector's own `Shape__Stroked` (`Na__LeArea__Restyle` is the one-step write for the menu). On the way: Vectors > Edges with several shapes selected wrote ONE fill colour to all of them - a floor's coloured rooms came out one blue - now fixed. **(3)** Patterns joins the fold group; a viewport folds the group, and a single site plan viewport opens Patterns. The v2.57.0 "Still open" note about viewports leaving the folds alone is closed by this. |
 | 21-Sep-2026 | Proved in the app on PS01 and RB05 behind the write guard (zero writes attempted): a room drawn over a plan and then moved under it flips the browser's own `elementsFromPoint` order at the room, and moves in the PDF's page operators from after the viewport's clip to before it. The test page was reloaded once by a service-worker update (another session had changed the worker's script), which took the guard with it; the worker was unregistered for the test origin after that, and nothing had been edited in the gap. |
+| 21-Sep-2026 | **v2.125.0 - the label, from Adam's second note.** He asked for the label to start in the middle of the room's bounding box and to be draggable in edit mode, saving where it was put. It had been at the visual centre, which on RB05's Formal Lounge (a bay, a chimney breast, a recess) floated 5.79 mm up and right of the middle. Home is now the box middle, falling back to the visual centre only where that middle is outside the room (`Na__LeAreaGeo__LabelHome`, 11 new Node checks). The drag is `Na__LayoutEditor__FloorAreas__LabelGrip__`, a shape grip provider that takes its own presses, so no sheet tools file changed while two other sessions were working in them. Proved in the app on RB05 D10 with trusted mouse drags: one undo step per drag, the snap home dropping both keys, Escape, a corner winning over the words, Shift holding the axis, the label travelling with the room; zero writes attempted and the sheet byte-identical afterwards. NOT tried by Adam. |

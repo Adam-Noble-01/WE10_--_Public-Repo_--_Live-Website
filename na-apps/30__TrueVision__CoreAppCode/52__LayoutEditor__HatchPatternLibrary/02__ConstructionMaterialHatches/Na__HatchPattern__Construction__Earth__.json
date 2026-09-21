@@ -1,0 +1,76 @@
+{
+    "HatchPattern__Earth__Meta": {
+        "Meta__FileName"         : "Na__HatchPattern__Construction__Earth__.json",
+        "Meta__Description"      : "Earth in section - clusters of three short diagonal strokes, each cluster turned the other way from its neighbours. The long-standing drawing-board convention for ground.",
+        "Meta__Version"          : "1.0.0",
+        "Meta__Created"          : "21-Sep-2026",
+        "Meta__Author"           : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits"    : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__WhyInsideTheTile" : "Every mark sits wholly inside the tile, so nothing crosses a seam at all: a browser clips a <pattern> at its tile edge and the PDF stamper does not.",
+        "Meta__WhyNotScattered"  : "Ground is the one fill drawn as an ORDERED mark: the alternating clusters are the convention, and scattering them would make it read as rubble. The clusters are set on a staggered grid, off the tile's centre lines, so the repeat does not show as a plaid."
+    },
+
+    "HatchPattern__Earth__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__Earth",
+        "Identity__Label"       : "Earth / Subsoil",
+        "Identity__Group"       : "Concrete & Fill",
+        "Identity__Keywords"    : ["earth", "soil", "subsoil", "ground", "made ground", "section"],
+        "Identity__Note"        : "Undisturbed ground below and beside a foundation."
+    },
+
+    "HatchPattern__Earth__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 16.0,
+        "Tile__HeightMm"    : 16.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Four clusters: rising and falling, then falling and rising on the row below."
+    },
+
+    "HatchPattern__Earth__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.35 pt (0.1235 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.1235,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__Earth__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "Rising": {
+            "Glyph__Label"    : "Three strokes, rising",
+            "Glyph__WidthMm"  : 4.4,
+            "Glyph__HeightMm" : 2.4,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-2.2,0.2 L-0.2,-1.8 M-1.2,1.2 L1.2,-1.2 M0.2,1.8 L2.2,-0.2",
+            "Glyph__Note"     : "A long stroke between two shorter ones, 1.4 mm apart."
+        },
+        "Falling": {
+            "Glyph__Label"    : "Three strokes, falling",
+            "Glyph__WidthMm"  : 4.4,
+            "Glyph__HeightMm" : 2.4,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-2.2,-0.2 L-0.2,1.8 M-1.2,-1.2 L1.2,1.2 M0.2,-1.8 L2.2,0.2",
+            "Glyph__Note"     : "The same cluster, mirrored."
+        }
+    },
+
+    "HatchPattern__Earth__Placements": [
+        { "Place__Glyph": "Rising",  "Place__XMm": 3.6,  "Place__YMm": 4.2,  "Place__Note": "Upper left" },
+        { "Place__Glyph": "Falling", "Place__XMm": 11.8, "Place__YMm": 3.4,  "Place__Note": "Upper right, lifted 0.8 mm so the row is not a ruled line" },
+        { "Place__Glyph": "Falling", "Place__XMm": 4.4,  "Place__YMm": 12,   "Place__Note": "Lower left, turned the other way from the one above it" },
+        { "Place__Glyph": "Rising",  "Place__XMm": 12.4, "Place__YMm": 12.6, "Place__Note": "Lower right" }
+    ],
+
+    "HatchPattern__Earth__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

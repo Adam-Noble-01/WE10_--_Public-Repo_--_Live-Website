@@ -48,6 +48,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0
+// - SHEET_CHORDS takes View__AxesToggle (F9, the Drawing Axes Overlay): a
+//   function key types nothing, so a panel's select, checkbox or number box
+//   left holding the focus no longer swallows it, as for F6, F7 and F8.
+//
+// 21-Sep-2026 - Version 1.6.0
+// - TOOLS takes in the vector tools' names (Na__LeVec__TOOLS, from
+//   37__System__VectorTools' state leaf): Circle, Arc, Trim, Extend, Join, Split,
+//   Offset, Fillet and Chamfer. They are named there and nowhere else. Which of
+//   them keep an open container open is the vector tools' own rule
+//   (Na__LeVec__KeepsContainer); PICK_TOOLS is still just Select and Move.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - MoveRetype: the last whole-object move (a vector, a note, a leader, a
 //   dimension or a selection moved as one) or viewport frame move, kept so a
@@ -94,6 +106,18 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Module Imports
+// -----------------------------------------------------------------------------
+
+    // MODULE IMPORTS | The Vector Tools' Names (a leaf: it imports nothing back)
+    // ------------------------------------------------------------
+    import { Na__LeVec__TOOLS } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__State__.js';
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Constants and State
 // -----------------------------------------------------------------------------
 
@@ -108,12 +132,13 @@
     const Na__LeTools__TOOL_EYEDROP   = 'eyedropper';
     const Na__LeTools__TOOL_LEADER    = 'leader';
     const Na__LeTools__TOOL_AREA      = 'area';     // <-- A: draws a measured room through the Draw or Rectangle tool (59__Feature__FloorAreas)
-    const Na__LeTools__TOOLS          = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__TOOL_TEXT, Na__LeTools__TOOL_DIMENSION, Na__LeTools__TOOL_DRAW, Na__LeTools__TOOL_RECT, Na__LeTools__TOOL_EYEDROP, Na__LeTools__TOOL_LEADER, Na__LeTools__TOOL_AREA ];
+    const Na__LeTools__TOOLS          = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__TOOL_TEXT, Na__LeTools__TOOL_DIMENSION, Na__LeTools__TOOL_DRAW, Na__LeTools__TOOL_RECT, Na__LeTools__TOOL_EYEDROP, Na__LeTools__TOOL_LEADER, Na__LeTools__TOOL_AREA ]
+        .concat(Na__LeVec__TOOLS);   // <-- Circle, Arc, Trim, Extend, Join, Split, Offset, Fillet and Chamfer (37__System__VectorTools): named there, so a tenth is added in one place
     const Na__LeTools__PICK_TOOLS     = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE ];   // <-- The two that work on what is already on the sheet: they keep an open container, the rest close it
     const Na__LeTools__CHANGED_EVENT  = 'na-layouteditor-tool-changed';
     const Na__LeTools__DEFAULTS_EVENT = 'na-layouteditor-defaults-changed';   // <-- The settings for new objects changed from outside their panel (a palette sync)
     const Na__LeTools__MENU_SLOP_PX   = 4;      // <-- A right button that travelled further than this panned, so no menu
-    const Na__LeTools__SHEET_CHORDS   = [ 'Edit__Undo', 'Edit__Redo', 'Edit__Cut', 'Edit__Copy', 'Edit__Paste', 'Edit__Duplicate', 'Edit__Group', 'Edit__Ungroup', 'Ortho__Toggle', 'View__GridToggle', 'Snap__GridToggle' ];   // <-- Still the sheet's from a focused select, checkbox or number box (F8, F6 and F7 type nothing, so they are the sheet's too)
+    const Na__LeTools__SHEET_CHORDS   = [ 'Edit__Undo', 'Edit__Redo', 'Edit__Cut', 'Edit__Copy', 'Edit__Paste', 'Edit__Duplicate', 'Edit__Group', 'Edit__Ungroup', 'Ortho__Toggle', 'View__GridToggle', 'Snap__GridToggle', 'View__AxesToggle' ];   // <-- Still the sheet's from a focused select, checkbox or number box (F8, F6, F7 and F9 type nothing, so they are the sheet's too)
     const Na__LeTools__NON_TEXT_INPUTS = [ 'checkbox', 'radio', 'range', 'color', 'button', 'submit', 'reset', 'file', 'image', 'number' ];
     const Na__LeTools__TYPED_MIN_MM    = 1e-4;   // <-- Shorter than this (paper mm) is no length and no direction, as the Draw tool uses
     const Na__LeTools__SAME_MM         = 1e-9;   // <-- Points this close still count as untouched, as the Rectangle tool's retype check uses

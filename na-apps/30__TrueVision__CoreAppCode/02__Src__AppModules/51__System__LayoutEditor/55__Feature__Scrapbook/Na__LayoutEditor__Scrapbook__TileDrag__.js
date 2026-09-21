@@ -13,18 +13,24 @@
 // - The Standard, the Custom and the Parametric scrapbooks all offer tiles
 //   that are dragged onto the paper the same way. This module is that way,
 //   written once: a library hands it a spec and gets a tile back.
-// - A spec is { id, name, title, editable, buildSet, place, modifier, caption }.
-//   buildSet() answers the item in the item clipboard's set shape - entries,
-//   roots, origin and size - which is what the preview and the ghost are
-//   drawn from. place(sheet, centreMm) puts it on the sheet, centred on a
-//   paper point, and answers what it selected, or null. caption(element,
-//   tile) is optional: a library whose tiles say more than a name fills the
-//   caption itself.
+// - A spec is { id, name, title, editable, buildSet, place, modifier, caption,
+//   hold, snap }. buildSet() answers the item in the item clipboard's set
+//   shape - entries, roots, origin and size - which is what the preview and
+//   the ghost are drawn from. place(sheet, pointMm) puts it on the sheet at a
+//   paper point - centred on it, unless the spec says otherwise - and answers
+//   what it selected, or null. caption(element, tile) is optional: a library
+//   whose tiles say more than a name fills the caption itself.
+// - hold(set) is optional: the point of the set the pointer holds, in the
+//   set's own millimetres, which place is then handed. Without it the
+//   pointer holds the middle. The cabinet infill is held by its bottom left
+//   corner, the way a CAD block hangs from its insertion point. snap true
+//   snaps that point to the drawing while it is dragged - the object snap's
+//   marker shows where - and the drop lands on the point snapped to.
 // - Press on a tile and drag: the item follows the pointer at the size it
 //   will land at, the sheet's own zoom - faint away from the sheet, clear
-//   over it. Let go over the sheet and it lands centred under the pointer
-//   with the Select tool up. Escape, or letting go anywhere else, drops
-//   nothing.
+//   over it. Let go over the sheet and it lands where it hangs under the
+//   pointer with the Select tool up. Escape, or letting go anywhere else,
+//   drops nothing.
 // - Double-click a tile, or press Enter or Space on it, to place the item in
 //   the middle of the view instead.
 //
@@ -43,6 +49,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - spec.hold and spec.snap, for the cabinet infill (Adam: "make the
+//   insertion point ... the bottom left, like a proper XY"). The ghost hangs
+//   from the point hold names, and with snap that point follows the object
+//   snap - the corners of the drawing, then the grid while Grid Snap is on -
+//   so an item can be dropped exactly on a corner. No new export; a spec
+//   without either drags exactly as before.
+//
 // 20-Sep-2026 - Version 1.1.0
 // - spec.caption: a library may fill a tile's caption itself. Written for the
 //   Specification Scrapbook (58__Feature__ScrapbookSpecification), whose rows
@@ -67,10 +81,12 @@
     import { Na__LeModel__GetActiveSheet } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import {
         Na__LeSurface__ClientToPaperMm,
+        Na__LeSurface__PaperMmToClient,
         Na__LeSurface__GetElements,
         Na__LeSurface__GetPixelsPerMm,
         Na__LeSurface__GetZoom
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';   // <-- For a spec that snaps the point it is held by
     import { Na__LeTools__TOOL_SELECT, Na__LeTools__SetTool } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LeScrap__PreviewSvg } from './Na__LayoutEditor__Scrapbook__.js';
     import { Na__LePanels__IsEditable } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
@@ -95,7 +111,7 @@
 
     // MODULE VARIABLES | The Drag and the Last Click
     // ------------------------------------------------------------
-    let Na__LeScrapDrag__Drag      = null;      // <-- { pointerId, spec, tile, startX, startY, set, preview, ghost, over }
+    let Na__LeScrapDrag__Drag      = null;      // <-- { pointerId, spec, tile, startX, startY, set, preview, ghost, over, held }
     let Na__LeScrapDrag__LastClick = null;      // <-- { id, time } of a press that ended without a drag
     // ------------------------------------------------------------
 
@@ -126,8 +142,10 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Place an Item Centred on a Paper Point
+    // FUNCTION | Place an Item at a Paper Point
     // ------------------------------------------------------------
+    // Centred on it, or - for a spec with hold - with the point it is held by
+    // on it; the spec's place decides which.
     // The Select tool comes up first, so a tool part way through placing lets
     // go and the new item can be dragged at once. The stage takes the focus,
     // so Delete, the arrow keys and Ctrl+Z act on the item straight away.
@@ -180,21 +198,61 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Point of the Set the Pointer Holds, in the Set's Own Millimetres
+    // ------------------------------------------------------------
+    // spec.hold's answer when it gives one - the cabinet infill's bottom left
+    // corner - else the middle of the set, as every item was held.
+    // ------------------------------------------------------------
+    function Na__LeScrapDrag__HeldPoint(spec, set) {
+        if (spec && typeof spec.hold === 'function') {
+            try {
+                const point = spec.hold(set);
+                if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) return { x : point.x, y : point.y };
+            } catch (error) { /* held by the middle instead */ }
+        }
+        return { x : set.origin.x + (set.size.WidthMm / 2), y : set.origin.y + (set.size.HeightMm / 2) };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Where the Held Point Goes on the Paper: the Pointer, or What It Snaps To
+    // ------------------------------------------------------------
+    // { clientX, clientY, paper }. For a spec that snaps, the object snap's own
+    // search - the corners of the drawing, the sheet's vectors, then the grid
+    // while Grid Snap is on - which puts up its own marker; for any other, and
+    // off the sheet, the pointer as it is.
+    // ------------------------------------------------------------
+    function Na__LeScrapDrag__DropPoint(spec, clientX, clientY, over) {
+        const paper = Na__LeSurface__ClientToPaperMm(clientX, clientY);
+        const sheet = Na__LeModel__GetActiveSheet();
+        if (!spec || spec.snap !== true || !over || !sheet || !paper) {
+            if (spec && spec.snap === true) Na__LeOsnap__HideMarker();
+            return { clientX : clientX, clientY : clientY, paper : paper };
+        }
+        const hit = Na__LeOsnap__Snap(sheet, paper, null);
+        if (!hit || !hit.snapped) return { clientX : clientX, clientY : clientY, paper : paper };
+        const at = Na__LeSurface__PaperMmToClient(hit.x, hit.y);
+        return { clientX : at.x, clientY : at.y, paper : { x : hit.x, y : hit.y } };
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Keep the Ghost Under the Pointer, at the Sheet's Zoom
     // ------------------------------------------------------------
-    // The item's centre sits on the pointer, where it will land. The preview
-    // has a little room round the item, so its corner is offset by that room.
+    // The point the item is held by sits on the pointer - or on what the
+    // pointer snapped to - where it will land. The preview has a little room
+    // round the item, so its corner is offset by that room.
     // ------------------------------------------------------------
     function Na__LeScrapDrag__MoveGhost(drag, clientX, clientY) {
         const pxPerMm = Na__LeSurface__GetPixelsPerMm() * Na__LeSurface__GetZoom();
         const preview = drag.preview;
-        const centreX = drag.set.origin.x + (drag.set.size.WidthMm  / 2);
-        const centreY = drag.set.origin.y + (drag.set.size.HeightMm / 2);
+        const held    = drag.held || (drag.held = Na__LeScrapDrag__HeldPoint(drag.spec, drag.set));
+        const over    = Na__LeScrapDrag__IsOverSheet(clientX, clientY);
+        const at      = Na__LeScrapDrag__DropPoint(drag.spec, clientX, clientY, over);
         const style   = drag.ghost.style;
         style.width     = (preview.widthMm  * pxPerMm) + 'px';
         style.height    = (preview.heightMm * pxPerMm) + 'px';
-        style.transform = 'translate(' + (clientX - ((centreX - preview.leftMm) * pxPerMm)) + 'px, ' + (clientY - ((centreY - preview.topMm) * pxPerMm)) + 'px)';
-        const over = Na__LeScrapDrag__IsOverSheet(clientX, clientY);
+        style.transform = 'translate(' + (at.clientX - ((held.x - preview.leftMm) * pxPerMm)) + 'px, ' + (at.clientY - ((held.y - preview.topMm) * pxPerMm)) + 'px)';
         if (over === drag.over) return;
         drag.over = over;
         drag.ghost.classList.toggle('is-over', over);
@@ -214,6 +272,7 @@
         window.removeEventListener('keydown',       Na__LeScrapDrag__OnKeyDown, true);
         document.body.classList.remove(Na__LeScrapDrag__BODY_CLASS, Na__LeScrapDrag__OVER_CLASS);
         if (!drag) return;
+        if (drag.spec && drag.spec.snap === true) Na__LeOsnap__HideMarker();   // <-- The snap's marker is left up by the last move
         try { if (drag.tile.hasPointerCapture(drag.pointerId)) drag.tile.releasePointerCapture(drag.pointerId); } catch (error) { /* already released */ }
         if (drag.ghost && drag.ghost.parentNode) drag.ghost.parentNode.removeChild(drag.ghost);
     }
@@ -265,10 +324,12 @@
         if (!drag || event.pointerId !== drag.pointerId) return;
         const dragged = !!drag.ghost;
         const spec    = drag.spec;
+        const over    = dragged && Na__LeScrapDrag__IsOverSheet(event.clientX, event.clientY);
+        const landing = over ? Na__LeScrapDrag__DropPoint(spec, event.clientX, event.clientY, true).paper : null;   // <-- Snapped where the spec snaps, BEFORE the drag ends and takes the marker down
         Na__LeScrapDrag__EndDrag();
         if (dragged) {
             Na__LeScrapDrag__LastClick = null;
-            if (Na__LeScrapDrag__IsOverSheet(event.clientX, event.clientY)) Na__LeScrapDrag__Place(spec, Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY));
+            if (landing) Na__LeScrapDrag__Place(spec, landing);
             return;
         }
         const last = Na__LeScrapDrag__LastClick;

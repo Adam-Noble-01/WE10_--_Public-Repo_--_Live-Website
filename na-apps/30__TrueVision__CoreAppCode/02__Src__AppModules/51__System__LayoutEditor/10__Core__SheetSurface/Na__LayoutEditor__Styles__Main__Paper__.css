@@ -360,48 +360,13 @@
 
 
 /* ----------------------------------------------------------------- */
-/* REGION  |  Snap Marker and Linework Progress                      */
+/* REGION  |  Linework Progress and the Hover Tooltip                */
 /* ----------------------------------------------------------------- */
 
-/* Square for an endpoint, triangle for a midpoint (the AutoCAD glyphs);
-   size and border are written inline, counter-scaled by the zoom.
-   THE COLOUR SAYS WHICH TOOL IS SNAPPING, the glyph what it found: blue
-   for vertices (the Draw and Rectangle tools, vertex grips), orange for
-   dimensions (the Dimension tool, its grips, its line inference), purple
-   for viewports (carrying one by a point). Each tone is one RGB triple,
-   so the border, the tint and the midpoint fill all follow it. */
-.na-le-osnap {
-    --na-le-osnap-rgb                  : 37, 99, 235;
-    position                           : absolute;
-    box-sizing                         : border-box;
-    border                             : 1.5px solid rgb(var(--na-le-osnap-rgb));
-    background                         : rgba(var(--na-le-osnap-rgb), 0.12);
-    pointer-events                     : none;
-    z-index                            : 6;
-}
-
-.na-le-osnap--vertex {
-    --na-le-osnap-rgb                  : 37, 99, 235;
-}
-
-.na-le-osnap--dimension {
-    --na-le-osnap-rgb                  : 234, 88, 12;
-}
-
-.na-le-osnap--viewport {
-    --na-le-osnap-rgb                  : 147, 51, 234;
-}
-
-.na-le-osnap[hidden] {
-    display                            : none;
-}
-
-.na-le-osnap--mid {
-    border-radius                      : 0;
-    clip-path                          : polygon(50% 0, 100% 100%, 0 100%);
-    background                         : rgba(var(--na-le-osnap-rgb), 0.55);
-    border                             : none;
-}
+/* THE SNAP MARKER'S RULES HAVE MOVED, with the rest of the snapping, to
+   28__System__ObjectSnap/Na__LayoutEditor__Styles__ObjectSnap__.css. Its
+   colour used to say which TOOL was snapping; it now says what was snapped
+   TO, and its shapes are SVG glyphs rather than a bordered box. */
 
 .na-le-frame__progress {
     position                           : absolute;
@@ -685,25 +650,59 @@
 /* every grip shape: a vector's square vertices and a dimension's measured */
 /* points, dimension line and value alike, so the two read the same way.   */
 
+/* A POINT GRIP SAYS WHERE ITS POINT STANDS (Na__LeGrips__StateOf): a       */
+/* vector's vertices and a dimension's two measured points. GREEN is on    */
+/* the drawing - solid on a corner, a middle or a crossing of a viewport's */
+/* linework, a ring on one of its lines at no particular place. BLUE is on */
+/* nothing. So a run of corners can be checked at a glance for the one     */
+/* that only LOOKS as if it is on the wall. Solid, with a white edge and a */
+/* hair of shadow round it, so each reads over black linework and over     */
+/* white paper alike. The grips are laid out at their real size and scaled */
+/* back by a transform (Na__LeGrips__CounterScale), so these one-pixel     */
+/* edges are one pixel at any zoom.                                        */
+
+.na-le-grip--free,
+.na-le-grip--bound,
+.na-le-grip--online {
+    border-color                       : #ffffff;
+    box-shadow                         : 0 0 0 1px rgba(23, 43, 58, 0.45);
+}
+
+.na-le-grip--free {
+    background                         : #2563eb;
+}
+
+.na-le-grip--bound {
+    background                         : #16a34a;
+}
+
+.na-le-grip--online {
+    background                         : #ffffff;
+    border                             : 2px solid #16a34a;
+}
+
 .na-le-grip--picked {
     background                         : #e01b24;
     border-color                       : #ffffff;
+    box-shadow                         : 0 0 0 1px rgba(23, 43, 58, 0.45);
+}
+
+/* IN HAND AND ON THE DRAWING: red, with the green as its edge, so a point */
+/* dragged onto a corner says so before it is let go of.                   */
+
+.na-le-grip--picked.na-le-grip--bound,
+.na-le-grip--picked.na-le-grip--online {
+    border                             : 2px solid #16a34a;
 }
 
 /* A Shift-click on a vector's edge inserts a vertex here. The diamond is  */
-/* the same size as a vertex grip, rotated, so it reads as "a new corner". */
+/* the same size as a vertex grip, turned 45 degrees (inline, with its     */
+/* counter-scale), so it reads as "a new corner".                          */
 
 .na-le-grip--insert {
     background                         : #336699;
     border-color                       : #ffffff;
-    transform                          : rotate(45deg);
     z-index                            : 6;
-}
-
-.na-le-osnap--infer {
-    border-radius                      : 50%;
-    border-style                       : solid;
-    background                         : transparent;
 }
 
 /* EYEDROPPER | Two boxes on the handles layer: the violet one is the object

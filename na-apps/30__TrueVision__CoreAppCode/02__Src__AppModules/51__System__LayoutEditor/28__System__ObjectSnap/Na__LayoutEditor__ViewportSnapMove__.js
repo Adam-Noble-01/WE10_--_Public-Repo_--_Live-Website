@@ -51,20 +51,23 @@
 // - Grabbed: a snap point of the viewport under the cursor - its projected
 //   linework, so Projected Linework has to be on for that viewport. A raster-
 //   only or a 3D viewport has no points and moves the plain way.
-// - Snapped to: everything Na__LayoutEditor__Snapping__ offers EXCEPT the
-//   viewport being carried, whose points travel with the cursor.
+// - Snapped to: everything the object snap offers (Na__LayoutEditor__
+//   ObjectSnap__Search__) EXCEPT the viewport being carried, whose points
+//   travel with the cursor.
 // - Acquired for tracking: linework points only, and never the carried
 //   viewport's own - they move with it, so they cannot be a reference. A
 //   tracking point whose viewport is later moved, re-cropped or deleted no
 //   longer marks anything and is dropped.
 //
 // INTEGRATION:
+// - This file lives with the rest of the editor's snapping, in
+//   28__System__ObjectSnap; it was in 20__System__Viewports until 21-Sep-2026.
 // - Na__LayoutEditor__SheetTools__ owns the pointer. It decides which viewport
 //   under the cursor may be carried (not locked, not a handle, not in content
 //   editing), calls Hover on a move, GrabAt on a press, Solve on every drag
 //   move, Finish when a drag ends and Clear when the tool is put down.
-// - Na__LayoutEditor__Snapping__ owns the search and the marker; this module
-//   adds the carry, the tracking and the guides on top.
+// - Na__LayoutEditor__ObjectSnap__Search__ owns the search and the marker;
+//   this module adds the carry, the tracking and the guides on top.
 //
 // -----------------------------------------------------------------------------
 //
@@ -76,6 +79,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - MOVED into 28__System__ObjectSnap with the rest of the editor's snapping
+//   (it was 20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js);
+//   the namespace and every export are unchanged.
+// - The snap marker is no longer toned purple because A VIEWPORT IS BEING
+//   CARRIED: its colour now says what the carried point has FOUND - purple on
+//   another drawing's linework, blue on a vector, red on a dimension - like
+//   every other snap. Hovering a viewport's own linework is still purple,
+//   because that IS a viewport's point. The carried frame's outline, the ring
+//   and the tracking crosses keep the viewport purple: they are the carry's.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - Retarget: a Ctrl-drag copy made or dropped in the middle of a carry
 //   (Na__LayoutEditor__SheetTools__CopyDrag__) moves the multiply across to
@@ -132,13 +146,12 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import {
-        Na__LeOsnap__TONE_VIEWPORT,
         Na__LeOsnap__IsEnabled,
         Na__LeOsnap__Find,
         Na__LeOsnap__FindOnViewport,
         Na__LeOsnap__ShowMarker,
         Na__LeOsnap__HideMarker
-    } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    } from './Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeAxis__AXIS_X, Na__LeAxis__AXIS_Y, Na__LeAxis__Get } from '../30__System__SheetTools/Na__LayoutEditor__AxisLock__.js';
     import { Na__LeGrid__SnapPoint } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- Grid Snap (F7): a leaf, the nearest grid point
     // ------------------------------------------------------------
@@ -402,7 +415,7 @@
         const hit = viewport ? Na__LeVpMove__GrabAt(sheet, viewport, pointMm) : null;
         Na__LeVpMove__Watch(sheet, hit);
         if (hit) {
-            Na__LeOsnap__ShowMarker(hit, Na__LeOsnap__TONE_VIEWPORT);
+            Na__LeOsnap__ShowMarker(hit);                                        // <-- A point of the viewport's own linework: the viewports' purple
             Na__LeVpMove__Hovering = true;
             return hit;
         }
@@ -484,7 +497,7 @@
         Na__LeVpMove__Watch(sheet, hit);
         if (hit) {
             const at = { x : lock === Na__LeVpMove__AXIS_Y ? wanted.x : hit.x, y : lock === Na__LeVpMove__AXIS_X ? wanted.y : hit.y };
-            Na__LeOsnap__ShowMarker(hit, Na__LeOsnap__TONE_VIEWPORT);
+            Na__LeOsnap__ShowMarker(hit);                                        // <-- Coloured by what the carried point has FOUND: another drawing's purple, a vector's blue
             Na__LeVpMove__ShowGuide(Na__LeVpMove__AXIS_X, lock === Na__LeVpMove__AXIS_X ? base : (lock === Na__LeVpMove__AXIS_Y ? hit : null), at);
             Na__LeVpMove__ShowGuide(Na__LeVpMove__AXIS_Y, lock === Na__LeVpMove__AXIS_Y ? base : (lock === Na__LeVpMove__AXIS_X ? hit : null), at);
             if (lock) Na__LeVpMove__ShowBase(at); else Na__LeVpMove__HideBase();   // <-- Unheld, the snap marker already sits on the point

@@ -24,6 +24,15 @@
  *                 guide) is TrueVision only.
  *
  * DEVELOPMENT LOG:
+ * 21-Sep-2026 - Version 1.3.0
+ * - The cabinet infill's base grip (a hollow square with the move cursor)
+ *   and its corner grips (filled squares, leaning cursors), in place of the
+ *   one corner grip of 1.2.0.
+ *
+ * 21-Sep-2026 - Version 1.2.0
+ * - The corner grip of the cabinet infill: a plain square, the one grip that
+ *   is dragged both ways, and a diagonal cursor while it is held.
+ *
  * 20-Sep-2026 - Version 1.1.0
  * - The slide grip's double arrow, the reversed stretch arrow and the dashed
  *   guide a snapped slide draws from the vertex it found down to the element.
@@ -69,6 +78,36 @@
 
 .na-le-grip--param-stretch.is-reversed {
     transform                          : scaleX(-1);
+}
+
+/* CORNERS | The cabinet infill's corners are squares ON the corners, each
+   dragged both ways with the corner opposite held, so they look like what
+   they are - corner handles - in the parametric blue. The cursor leans the
+   way the corner pulls. */
+
+.na-le-grip--param-corner {
+    cursor                             : nwse-resize;
+}
+
+.na-le-grip--param-corner.is-tr,
+.na-le-grip--param-corner.is-bl {
+    cursor                             : nesw-resize;
+}
+
+/* BASE | The point the element is held by - the cabinet infill's bottom left
+   corner, where it was inserted. HOLLOW, so it is never taken for a corner
+   handle: it moves the element, it does not reshape it. */
+
+.na-le-grip--param-base {
+    box-sizing                         : border-box;
+    background                         : #ffffff;
+    border                             : 3px solid #12a5dc;
+    cursor                             : move;
+}
+
+.na-le-grip--param-base:hover {
+    background                         : #ffffff;
+    border-color                       : #e01b24;
 }
 
 /* SLIDE | A double arrow: this end is not pulled, it is PUT - carried along
@@ -122,6 +161,21 @@ body.na-le-param-stretching * {
     cursor                             : ew-resize !important;
     user-select                        : none;
     -webkit-user-select                : none;
+}
+
+body.na-le-param-stretching.na-le-param-stretching-corner,
+body.na-le-param-stretching.na-le-param-stretching-corner * {
+    cursor                             : nwse-resize !important;         /* <-- A top left or bottom right corner is held: both ways, not along */
+}
+
+body.na-le-param-stretching.na-le-param-stretching-rising,
+body.na-le-param-stretching.na-le-param-stretching-rising * {
+    cursor                             : nesw-resize !important;         /* <-- A top right corner */
+}
+
+body.na-le-param-stretching.na-le-param-stretching-move,
+body.na-le-param-stretching.na-le-param-stretching-move * {
+    cursor                             : move !important;                /* <-- The base point: the whole element comes with it */
 }
 
 /* endregion ------------------------------------------------------- */

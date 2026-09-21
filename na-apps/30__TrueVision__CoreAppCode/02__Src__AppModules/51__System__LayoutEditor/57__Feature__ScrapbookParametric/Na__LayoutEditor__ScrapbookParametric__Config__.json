@@ -2,7 +2,7 @@
     "LayoutEditor__ScrapbookParametric__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
         "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
-        "Meta__Version"     : "1.4.0",
+        "Meta__Version"     : "1.5.0",
         "Meta__Created"     : "19-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
@@ -10,12 +10,13 @@
         "Meta__HouseTitle"  : "The drawing title was measured on 19-Sep-2026 from the six elevation titles and two plan titles Adam lettered by hand on PS02 D22 and D21. All eight agree: capitals, qualifier first (EXISTING EAST ELEVATION), Open Sans 600 at 3.5 mm in #172b3a, ranged left; an underline 0.4 pt thick and exactly 60 mm long, 1.631 mm under the baseline and 0.171 mm in from the text's left; and the scale bar 6.318 mm under the underline, sharing its left end. He groups title, underline and bar as one object.",
         "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between. THE FILL WAS LIGHTENED ON 20-Sep-2026 to #858585 - a fifth of the way from the measured #666666 to white - because Adam found the checker too heavy on the page. Nothing else about the bar moved, and the test fixtures carry the new value.",
         "Meta__BarRight"    : "A SCALE BAR PLACED TO THE RIGHT was measured on 20-Sep-2026 from the arrangement Adam laid out by hand over PS01's proposed south east elevation: the title and its underline exactly where they always are, and the bar standing away along the same line with its FOOT on the title's baseline - 3.631 mm (1.631 + the bar's own 2) above the underline - so the two read as one band across the foot of the drawing. Its far end is meant to land under a corner of the building above it, which is why that end is the one that is dragged and the near end is the one that lengthens.",
-        "Meta__Portal"      : "THE PROJECT PORTAL BLOCK (21-Sep-2026) is drawn from two mock-ups Adam made: a narrow column - code, Scan Me button, heading, bullets - and a wider one that stands that column beside a heading and a paragraph. Its code is NEVER encoded here: the box is one vector carrying a Shape__Qr block, and the shape painter fills it with whatever symbol the Project QR Code system answers for the project on screen, which is the same symbol the title block prints. So a block dragged onto a sheet carries THIS project's code, and one copied into another project carries that one's. The size of the code is the parameter (20 mm as shipped, the rest of the list on the lookup grip); everything round it is set in paper millimetres and does not scale with it, because type on a drawing is house sizes or it is wrong."
+        "Meta__Portal"      : "THE PROJECT PORTAL BLOCK (21-Sep-2026) is drawn from two mock-ups Adam made: a narrow column - code, Scan Me button, heading, bullets - and a wider one that stands that column beside a heading and a paragraph. Its code is NEVER encoded here: the box is one vector carrying a Shape__Qr block, and the shape painter fills it with whatever symbol the Project QR Code system answers for the project on screen, which is the same symbol the title block prints. So a block dragged onto a sheet carries THIS project's code, and one copied into another project carries that one's. The size of the code is the parameter (20 mm as shipped, the rest of the list on the lookup grip); everything round it is set in paper millimetres and does not scale with it, because type on a drawing is house sizes or it is wrong.",
+        "Meta__Infill"      : "THE CABINET INFILL (21-Sep-2026) was measured from the vector PDF of NP03 D07 Rev C (First Floor Plans, 31-Mar-2026) and the LayOut Core Scrapbook Adam drew it from - five Storage infills and a Shelving one on that sheet, all alike: a cross corner to corner of the cupboard, #333333 at 0.15 pt, dashed 0.9 pt on 0.9 pt; the name in Open Sans Regular 6 pt #333333, centred in a #fcfcfc box under the same dashed rule; the box 2 pt (0.706 mm) clear of the words at each end and 3.034 mm deep, the baseline 0.856 mm below its middle. An infill taller than it is wide has its words turned to read UP the sheet. Its size is paper millimetres, never tied to a drawing: dropped on one, a tile is sized at that drawing's scale from Element__RealSizeMm."
     },
 
     "LayoutEditor__ScrapbookParametric__Elements": {
         "Elements__Description" : "The tiles the Parametric Scrapbook section shows, in this order. An element is a PRESET of a type: Element__Type names a registered element module, Element__Id is the element's own (two elements may share a type; without one it is the type), Element__Params are laid onto every element dropped from it, and Element__PreviewParams are added for the tile and the drag ghost only - a title's tile reads EXISTING EAST ELEVATION where a real drop reads its own viewport. Element__DrawingTypes lists the drawing types an element is offered on ('siteplan', 'architectural'); an element without the key is offered on every sheet. Elements__TypeNames is what each type is called on the sheet's group tag and in the panel.",
-        "Elements__TypeNames"   : { "ScaleBar" : "Scale Bar", "DrawingTitle" : "Drawing Title", "ProjectQr" : "Project Portal", "AreaSchedule" : "Area Schedule" },
+        "Elements__TypeNames"   : { "ScaleBar" : "Scale Bar", "DrawingTitle" : "Drawing Title", "ProjectQr" : "Project Portal", "AreaSchedule" : "Area Schedule", "CabinetInfill" : "Cabinet Infill" },
         "Elements__List"        : [
             {
                 "Element__Id"            : "DrawingTitleWithBar",
@@ -75,6 +76,15 @@
                 "Element__Description"   : "One row per group - Ground Floor, First Floor, Garage - with its total and the whole sheet's total. The summary a planning statement quotes. The groups are made in the Floor Areas panel by filing each room under one.",
                 "Element__Params"        : { "Form" : "groups" },
                 "Element__PreviewParams" : { "Data" : { "Areas" : [], "Groups" : [ { "Name" : "Ground Floor", "AreaM2" : 42.55, "Count" : 2, "Colour" : "#bcd9ee" }, { "Name" : "First Floor", "AreaM2" : 15.2, "Count" : 1, "Colour" : "#c6e0c6" } ], "TotalM2" : 57.75 } }
+            },
+            {
+                "Element__Id"            : "CabinetInfill",
+                "Element__Type"          : "CabinetInfill",
+                "Element__Name"          : "Cabinet Infill",
+                "Element__Description"   : "The dashed cross and boxed name that say what a cupboard is: Storage as dropped, and Services, Full Height Storage, Wardrobes, Pantry Unit or Shelving from its triangle - or words of your own in its settings. It is dropped by its bottom left corner, which snaps onto a corner of the cabinet; then drag any other corner onto the one opposite. The white fill underneath is off, so the cabinet's own lines show through; switch it on to blank them out.",
+                "Element__DrawingTypes"  : [ "architectural" ],
+                "Element__RealSizeMm"    : [ 1800, 600 ],
+                "Element__RealSizeNote"  : "Width and height in real millimetres, drawn at the scale of the drawing the tile is dropped on: 36 x 12 mm on a 1:50 plan, 18 x 6 on a 1:100 one. Dropped anywhere else it is the block's own WidthMm x HeightMm."
             }
         ]
     },
@@ -320,6 +330,50 @@
         "AreaSchedule__UnitsNote"        : "British planning drawings are in square metres, so that is what leads: 'both' writes 18.45 m² (199 ft²), for a client or an agent who thinks in feet. These are the SCHEDULE'S own settings - the label written in the middle of each room has its own, in the Floor Areas config - so a table can quote feet while the plan stays metric."
     },
 
+    "LayoutEditor__ScrapbookParametric__CabinetInfill": {
+        "CabinetInfill__Description"            : "Element five: the cabinet infill (Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js) - the dashed cross and boxed name that say what a cupboard on a plan is. See Meta__Infill for where every figure below was measured. It is held by its bottom left corner - the tile hangs from it, the drop snaps it, and a hollow grip there moves it - and each of the other three corners is a grip that moves its corner with the one opposite held, snapping to the drawing's corners. (Inside, the origin is still the top left corner; paper y runs down.) Paper millimetres throughout, and never tied to a drawing.",
+
+        "CabinetInfill__WidthMm"                : 36,
+        "CabinetInfill__HeightMm"               : 12,
+        "CabinetInfill__SizeMinMm"              : 2,
+        "CabinetInfill__SizeMaxMm"              : 800,
+        "CabinetInfill__SizeStepMm"             : 0.1,
+        "CabinetInfill__SizeNote"               : "Paper millimetres. WidthMm x HeightMm is what a tile is dropped at anywhere but on a scaled drawing, where the element's Element__RealSizeMm is used at that drawing's scale instead. A corner dragged free steps both sides by SizeStepMm from the corner held; a corner snapped to a vertex of the drawing is kept exactly.",
+
+        "CabinetInfill__Label"                  : "Storage",
+        "CabinetInfill__Labels"                 : [ "Storage", "Services", "Full Height Storage", "Wardrobes", "Pantry Unit", "Shelving" ],
+        "CabinetInfill__LabelsNote"             : "The words the triangle and the panel offer, in this order, and Label is what a dropped infill says. Adam's five from his brief, and Shelving, which his own screenshot of the house infill labels. Anything else is typed in the panel's Own words box, which wins over the list until it is cleared. An infill keeps the words it was given if this list changes.",
+
+        "CabinetInfill__TextSizeMm"             : 2.1167,
+        "CabinetInfill__TextSizeMinMm"          : 0.8,
+        "CabinetInfill__TextSizeMaxMm"          : 12,
+        "CabinetInfill__TextWeight"             : 400,
+        "CabinetInfill__TextColour"             : "#333333",
+        "CabinetInfill__TextNote"               : "6 pt is 2.1167 mm: LayOut's size, kept to four places so the box a tile draws is the one on NP03 to the thousandth (8.978 mm round Storage, 3.034 deep).",
+
+        "CabinetInfill__LineColour"             : "#333333",
+        "CabinetInfill__LinePt"                 : 0.15,
+        "CabinetInfill__DashMm"                 : 0.32,
+        "CabinetInfill__GapMm"                  : 0.32,
+        "CabinetInfill__LineNote"               : "The cross, and the rule round the box: 0.9 pt dash, 0.9 pt gap in the PDF, which is 0.3175 mm - the line style record keeps two decimals. A thin dashed dark grey is what reads as a light mid-grey dotted line on the paper; a paler colour at this weight all but disappears.",
+
+        "CabinetInfill__BoxFillColour"          : "#fcfcfc",
+        "CabinetInfill__BoxLineColour"          : "#333333",
+        "CabinetInfill__BoxLinePt"              : 0.15,
+        "CabinetInfill__BoxPadEm"               : 0.3333,
+        "CabinetInfill__BoxHeightEm"            : 1.4334,
+        "CabinetInfill__BaselineBelowCentreEm"  : 0.4044,
+        "CabinetInfill__BoxNote"                : "LayOut's text box, hugging its words: PadEm clear of them at each end (2 pt at 6 pt), HeightEm deep for one line (3.034 mm at 6 pt) and one line height deeper for each line after, the first baseline BaselineBelowCentreEm below the middle of a one-line box (0.856 mm at 6 pt). All three are fractions of the text size, so a bigger label gets a bigger box. The fill is so near white that it reads as paper; it is what stops the cross running through the words.",
+
+        "CabinetInfill__LabelClearMm"           : 1,
+        "CabinetInfill__MaxLines"               : 3,
+        "CabinetInfill__LineSpacing"            : 1.2,
+        "CabinetInfill__FitNote"                : "The words run along the infill's longer side unless told otherwise, and break at their spaces over as many as MaxLines lines - as evenly as they will go - when they would come within LabelClearMm of either end of the cabinet. LineSpacing is used only when the editor cannot say its own (the Text setup's LineSpacing, which the label is drawn at).",
+
+        "CabinetInfill__FillColour"             : "#ffffff",
+        "CabinetInfill__FillNote"               : "The fill underneath is OFF as dropped: the cross and the label alone, so the cabinet the model draws shows through. Switched on, a rectangle of this colour, with no rule, lies under the cross and blanks out whatever is under the infill. It is an ordinary vector - open the group and give it any colour to match a background, and the element keeps that colour through every rebuild after, as it keeps anything else restyled by hand."
+    },
+
     "LayoutEditor__ScrapbookParametric__ViewportLink": {
         "ViewportLink__Description"       : "The link between a parametric element and a viewport (Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js). AutoLinkOnInsert links a dropped element to the nearest 2D viewport, measured from the drop point to the viewport's frame; MaxLinkDistanceMm is how far away that viewport may be. A scale bar sits under a drawing's title, which sits under the drawing, so the frame is usually 10 to 30 mm above it. FollowScale regenerates a linked element when its viewport's scale changes, inside the same undo step.",
         "ViewportLink__AutoLinkOnInsert"  : true,
@@ -444,6 +498,29 @@
         "Labels__MenuQrCompact"      : "Code and list",
         "Labels__MenuQrFull"         : "With the full description",
         "Labels__GripStretchWords"   : "Drag to set how wide the words are set",
+        "Labels__GripLookupOptions"  : "Options",
+        "Labels__GripCorner"         : "Drag this corner - the corner opposite stays put. It snaps to the drawing's corners",
+        "Labels__GripBase"           : "Drag to move it by this corner - it snaps to the drawing's corners",
+        "Labels__PropsInfillReads"   : "Reads: {text}",
+        "Labels__PropsInfillLabel"   : "Label",
+        "Labels__PropsInfillText"    : "Own words",
+        "Labels__PropsInfillTyped"   : "Typed by hand, so the list no longer sets it. Clear the box, or pick from the list, to go back.",
+        "Labels__PropsInfillRun"     : "Words run",
+        "Labels__PropsInfillRunAuto" : "Along the longer side",
+        "Labels__PropsInfillRunAcross" : "Across the sheet",
+        "Labels__PropsInfillRunUp"   : "Up the sheet",
+        "Labels__PropsInfillFill"    : "White fill underneath",
+        "Labels__PropsInfillFillColour" : "Fill colour",
+        "Labels__PropsInfillWidth"   : "Width (mm)",
+        "Labels__PropsInfillHeight"  : "Height (mm)",
+        "Labels__PropsInfillTextSize" : "Text size (mm)",
+        "Labels__PropsInfillOnDrawing" : "{width} x {height} mm on the drawing at {scale}. Drag the hollow grip at its bottom left corner onto a corner of the cabinet, then any other corner onto the one opposite - both snap to the drawing.",
+        "Labels__PropsInfillOffDrawing" : "Paper millimetres. Drag the hollow grip at its bottom left corner onto a corner of the cabinet, then any other corner onto the one opposite - both snap to the drawing.",
+        "Labels__PropsInfillKept"    : "Anything restyled inside the group - a colour, a line weight, the dashes - is kept when it is rebuilt.",
+        "Labels__MenuInfillFill"     : "White fill underneath",
+        "Labels__MenuInfillAuto"     : "Words along the longer side",
+        "Labels__MenuInfillAcross"   : "Words across",
+        "Labels__MenuInfillUp"       : "Words up the sheet",
 
         "Labels__MenuFromViewport" : "From viewport ({scale})",
         "Labels__MenuFromNearest"  : "Link to nearest viewport",

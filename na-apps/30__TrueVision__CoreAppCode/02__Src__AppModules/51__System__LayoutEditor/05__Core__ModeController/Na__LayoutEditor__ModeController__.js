@@ -47,6 +47,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.28.0
+// - The Drawing Axes Overlay (Na__LayoutEditor__DrawingAxes__, F9) is
+//   attached and detached with the sheet input, straight after the drawing
+//   grid, so it follows the pointer on a drawing tab and never for a viewer.
+//
+// 21-Sep-2026 - Version 1.27.0
+// - Registers the Vector Tools panel (37__System__VectorTools) in the right
+//   column straight after Vectors, where Adam marked it, and runs
+//   Na__LeVec__Initialize once beside the history's: what is drawn inside a
+//   group open for editing joins that group.
+//
 // 21-Sep-2026 - Version 1.26.0
 // - SHEET IMAGES (54__Feature__SheetImages). Na__LeImg__Ready joins the
 //   first-open wait and Na__LeImg__Initialize runs after the model: the
@@ -284,6 +295,7 @@
     import { Na__LePanelSheet__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Sheet__.js';
     import { Na__LePanelGrid__Register } from '../27__System__DrawingGrid/Na__LayoutEditor__Panel__DrawingGrid__.js';
     import { Na__LeGrid__Attach, Na__LeGrid__Detach } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js';
+    import { Na__LeAxes__Attach, Na__LeAxes__Detach } from '../33__System__DrawingAxes/Na__LayoutEditor__DrawingAxes__.js';
     import { Na__LePanelScrap__Register, Na__LePanelScrap__RegisterTab } from '../55__Feature__Scrapbook/Na__LayoutEditor__Panel__Scrapbook__.js';
     import { Na__LePanelScrapCustom__Register } from '../56__Feature__ScrapbookCustom/Na__LayoutEditor__Panel__ScrapbookCustom__.js';
     import { Na__LePanelParam__RegisterLibrary, Na__LePanelParam__RegisterProperties } from '../57__Feature__ScrapbookParametric/Na__LayoutEditor__Panel__ScrapbookParametric__.js';
@@ -293,6 +305,8 @@
     import { Na__LePanelLeaders__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Leaders__.js';
     import { Na__LePanelDims__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Dimensions__.js';
     import { Na__LePanelShapes__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Shapes__.js';
+    import { Na__LePanelVec__Register } from '../37__System__VectorTools/Na__LayoutEditor__Panel__VectorTools__.js';
+    import { Na__LeVec__Initialize } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';
     import { Na__LePanelImages__Register } from '../54__Feature__SheetImages/Na__LayoutEditor__Panel__SheetImages__.js';
     import { Na__LePanelStyles__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__Styles__.js';
     import { Na__LePanelSpComp__Register } from '../40__Ui__Panels/Na__LayoutEditor__Panel__SitePlanComposites__.js';
@@ -301,7 +315,7 @@
     import { Na__LeToolbar__Mount, Na__LeToolbar__Save } from '../40__Ui__Panels/Na__LayoutEditor__Toolbar__.js';
     import { Na__LeMeasure__Mount } from '../30__System__SheetTools/Na__LayoutEditor__Measurements__.js';
     import { Na__LeSnap__Initialize, Na__LeSnap__ResetFingerprints } from '../25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js';
-    import { Na__LeOsnap__Clear } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Clear } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeHist__Initialize, Na__LeHist__Track } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
     import { Na__LeAuto__Initialize } from '../07__Core__SheetData/Na__LayoutEditor__AutoSave__.js';
     import { Na__LeRaster__CHANGED_EVENT } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
@@ -495,6 +509,7 @@
         Na__LePanelLeaders__Register();
         Na__LePanelDims__Register();
         Na__LePanelShapes__Register();
+        Na__LePanelVec__Register();                                            // <-- Vector Tools: straight under Vectors, where Adam drew it - Line, Rectangle, Circle, Arc, Trim, Extend, Join, Split, Offset, Fillet, Chamfer and the settings of whichever is up
         Na__LePanelImages__Register();                                         // <-- Images: the selected picture's file, folder, print resolution, width and frame
         // THE SCRAPBOOK TAB | Three libraries, one way of dropping
         Na__LePanelScrap__Register();                                          // <-- Standard: ready-made items from the config; shown only on a sheet that has some
@@ -522,6 +537,7 @@
         Na__LeTouch__Attach();                                                 // <-- Touch, before the tools
         Na__LeTools__Attach({ editable : Na__LeMode__IsEditable() });
         Na__LeGrid__Attach();                                                  // <-- The drawing grid is drawn with the tools, and never for a viewer
+        Na__LeAxes__Attach();                                                  // <-- The drawing axes (F9) follow the pointer with the tools, and never for a viewer
         Na__LeMarginGrip__Attach({ editable : Na__LeMode__IsEditable() });
         Na__LeImg__AttachInput();                                              // <-- Picture files dropped on the stage land on the sheet
     }
@@ -530,6 +546,7 @@
         Na__LeImg__DetachInput();                                              // <-- A crop in progress is kept, and drops stop
         Na__LeMarginGrip__Detach();
         Na__LeGrid__Detach();
+        Na__LeAxes__Detach();
         Na__LeTools__Detach();
         Na__LeTouch__Detach();
         Na__LePc__Detach();
@@ -1088,6 +1105,7 @@
             Na__LeVw__Initialize({ editable : Na__LeMode__IsEditable(), showToast : context.showToast || null });   // <-- Asked before anything is built: the shell it gets depends on the answer
             Na__LeModel__Initialize();
             Na__LeHist__Initialize();                                        // <-- Undo and redo listen to the model from the start
+            Na__LeVec__Initialize();                                         // <-- What is drawn inside a group that is open for editing joins that group, just before the change is announced, so the history's one step holds both
             Na__LeAuto__Initialize({ showToast : context.showToast || null, editable : Na__LeMode__IsEditable() });   // <-- Browser draft and structural auto save
             const registerOptions = { editable : Na__LeMode__IsEditable(), showToast : context.showToast || null };
             Na__LeReg__Initialize(registerOptions);

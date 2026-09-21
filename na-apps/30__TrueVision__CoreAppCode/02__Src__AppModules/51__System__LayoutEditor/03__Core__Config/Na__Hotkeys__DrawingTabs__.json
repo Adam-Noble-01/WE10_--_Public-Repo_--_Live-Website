@@ -6,6 +6,7 @@
         "Modifiers are named Ctrl, Shift, Alt, Meta and Space. Space is the held space bar, tracked by the PC controls module.",
         "ModifierMatch Exact means the listed modifiers must be the only ones held. ModifierMatch Any ignores modifiers entirely. ModifierMatch CoarseOptional means Exact, except that the coarse step modifier is allowed on top.",
         "Bindings are tested in list order and the first enabled match wins, so put the more specific binding above the general one.",
+        "When names the one situation a keyboard binding applies in; left out, it always applies. InContainer is the only one so far: a group, a vector or a dimension is open for editing (double-click, or Enter). It is what lets T be the Trim tool inside a container and the Text tool everywhere else. A caller that does not say what situation it is in never matches a When binding.",
         "RequiresEmptyStage true limits a binding to a press that lands on the grey stage rather than on the paper.",
         "Zoom limits and the wheel step live in Na__LayoutEditor__AppConfig__.json under LayoutEditor__Navigation__Config. This file owns which input triggers an action, that file owns how far and how fast it travels."
     ],
@@ -337,6 +338,18 @@
                 "Note": "F7 is the key Adam's own LayOut has Grid Snap on. Separate from Show Grid, as in LayOut: the grid can be snapped to while it is hidden. Object snap (F3) still wins near a corner or a midpoint. The browser's own F7 (caret browsing) is kept from it while a sheet is open."
             },
             {
+                "Id": "View__AxesToggle",
+                "Label": "Show or hide the Drawing Axes Overlay: a red horizontal and a green vertical line through the cursor, out to the edges of the sheet (SketchUp's red and green axes)",
+                "Action": "View__AxesToggle",
+                "Enabled": true,
+                "Keys": [
+                    "F9"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "The next free function key after F6 Show Grid, F7 Grid Snap and F8 Ortho; Adam asked for it by name (Drawing Axes Overlay, 21-Sep-2026), and nothing else in the app binds it. The two lines cross at the snap marker while one is showing, else at the cursor, run the full width and height of the sheet and are never printed (33__System__DrawingAxes). A view, not a tool: the tool, the selection and a point half placed are left alone, so it can be pressed mid-line. The toolbar's Axes button is lit while it is on, the choice is remembered in this browser, and F9 again switches it off. Chrome gives F9 no job of its own; Edge opens Immersive Reader with it on reading pages, and the key is taken from the browser while a drawing is open, as F6 and F7 are."
+            },
+            {
                 "Id": "Edit__Save",
                 "Label": "Save the sheets and sync the specification (Ctrl+S)",
                 "Action": "Edit__Save",
@@ -554,6 +567,32 @@
                 "Note": "Draws a measured room on the Floor Areas layer: point by point like the Draw tool, or corner to corner when the Floor Areas panel is set to rectangles. It is finished CLOSED however it is finished - clicking the first corner again, Enter, a double click or a right click - because an open room encloses nothing. Exact modifiers leave Ctrl+A to the browser."
             },
             {
+                "Id": "Tool__Circle",
+                "Label": "Circle tool: a circle, or a polygon of any number of sides, centre then radius",
+                "Action": "Tool__Circle",
+                "Enabled": true,
+                "Keys": [
+                    "c",
+                    "C"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "C, LayOut's and SketchUp's own key. Type a radius, 3000d for a diameter or 6s for six sides. Exact modifiers leave Ctrl+C to the clipboard."
+            },
+            {
+                "Id": "Tool__Arc",
+                "Label": "Arc tool: an arc in three clicks, any of LayOut's four ways",
+                "Action": "Tool__Arc",
+                "Enabled": true,
+                "Keys": [
+                    "a",
+                    "A"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "Note": "Shift+A: A is the Floor Area tool here (it is the arc in LayOut and SketchUp). Which of the four arcs it draws - 2 Point, Centre, 3 Point or Pie - is set in the Vector Tools panel and remembered."
+            },
+            {
                 "Id": "Tool__Leader",
                 "Label": "Leader tool: a note or a specification bubble on a curved leader",
                 "Action": "Tool__Leader",
@@ -634,6 +673,98 @@
                 "Modifiers": [],
                 "ModifierMatch": "Exact",
                 "Note": "With Select up a press on a viewport or a dimension picks it and a drag does nothing, so a drawing is never nudged out of place by a stray drag. Press M and the cursor becomes the four-way arrow everywhere: now a drag moves whatever is under it, and the tool stays up until another is picked. For text, vectors, a leader's bubble and groups Select picks Move up by itself (LayoutEditor__EditScope__AutoMoveOnSelect) and puts it down again on the next press elsewhere, so M is only needed for a viewport or a dimension. Grips, crop handles and the points of an open vector are still dragged by Select, because those edit an object rather than relocating it."
+            },
+            {
+                "Id": "Tool__Trim",
+                "Label": "Trim tool: remove a piece of a line back to what crosses it (while editing inside a group or a vector)",
+                "Action": "Tool__Trim",
+                "Enabled": true,
+                "Keys": [
+                    "t",
+                    "T"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "When": "InContainer",
+                "Note": "T IS THE TEXT TOOL ON THE SHEET, as it is in LayOut, so Trim takes T only while a container is open (When InContainer) - where the Text tool could not be used anyway, because a placing tool closes the container. Listed ABOVE Tool__Text so it is tested first. Out on the sheet Trim is reached from the Vector Tools panel, from a vector's right-click menu, or by holding Shift with Extend (Shift+T) up, which trims for as long as it is held - AutoCAD's swap. LayOut 2026's own key for Trim is Shift+T. To make T trim everywhere, take the When line off this row and move Tool__Text to another key."
+            },
+            {
+                "Id": "Tool__Extend",
+                "Label": "Extend tool: run the end of a line on to the next line in its way",
+                "Action": "Tool__Extend",
+                "Enabled": true,
+                "Keys": [
+                    "t",
+                    "T"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "Note": "Shift+T, as Adam asked: Extend beside Trim on the one key. Hold Shift WHILE extending to trim instead - so out on the sheet, where T is Text, Shift+T then a held Shift is the way to trim. LayOut 2026's own key for Extend is Shift+E."
+            },
+            {
+                "Id": "Tool__Join",
+                "Label": "Join tool: make one vector of lines whose ends meet",
+                "Action": "Tool__Join",
+                "Enabled": true,
+                "Keys": [
+                    "j",
+                    "J"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "J, as Adam asked, and his own key for Join in LayOut. With several vectors selected it joins everything that meets end to end at once."
+            },
+            {
+                "Id": "Tool__Split",
+                "Label": "Split tool: cut a line in two where it is clicked",
+                "Action": "Tool__Split",
+                "Enabled": true,
+                "Keys": [
+                    "u",
+                    "U"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "U is Adam's own key for Split in LayOut (layout.private.json, 21-Sep-2026); LayOut ships it with none. At a crossing one click cuts both lines."
+            },
+            {
+                "Id": "Tool__Offset",
+                "Label": "Offset tool: a parallel copy of a line or a shape",
+                "Action": "Tool__Offset",
+                "Enabled": true,
+                "Keys": [
+                    "f",
+                    "F"
+                ],
+                "Modifiers": [],
+                "ModifierMatch": "Exact",
+                "Note": "F is Adam's own key for Offset in LayOut. Nav__ZoomFit above also names F and ships switched OFF: switched on it would be tested first and take the key, so give one of them another key before enabling it."
+            },
+            {
+                "Id": "Tool__Fillet",
+                "Label": "Fillet tool: round a corner to a radius",
+                "Action": "Tool__Fillet",
+                "Enabled": true,
+                "Keys": [
+                    "f",
+                    "F"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "Note": "Shift+F, LayOut 2026's own key. Click a corner, or one line then another. Type the radius; 0 makes two lines simply meet."
+            },
+            {
+                "Id": "Tool__Chamfer",
+                "Label": "Chamfer tool: cut a corner off a distance back",
+                "Action": "Tool__Chamfer",
+                "Enabled": true,
+                "Keys": [
+                    "c",
+                    "C"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "Note": "Shift+C, LayOut 2026's own key. One distance, cut back equally along both edges, as LayOut's."
             },
             {
                 "Id": "Tool__Text",
@@ -900,6 +1031,51 @@
                 "Group": "Tools"
             },
             {
+                "Action": "Tool__Circle",
+                "Label": "Circle tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Arc",
+                "Label": "Arc tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Trim",
+                "Label": "Trim tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Extend",
+                "Label": "Extend tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Join",
+                "Label": "Join tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Split",
+                "Label": "Split tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Offset",
+                "Label": "Offset tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Fillet",
+                "Label": "Fillet tool",
+                "Group": "Tools"
+            },
+            {
+                "Action": "Tool__Chamfer",
+                "Label": "Chamfer tool",
+                "Group": "Tools"
+            },
+            {
                 "Action": "Tool__Leader",
                 "Label": "Leader tool",
                 "Group": "Tools"
@@ -937,6 +1113,11 @@
             {
                 "Action": "Snap__GridToggle",
                 "Label": "Toggle grid snap",
+                "Group": "Tools"
+            },
+            {
+                "Action": "View__AxesToggle",
+                "Label": "Show or hide the drawing axes",
                 "Group": "Tools"
             },
             {

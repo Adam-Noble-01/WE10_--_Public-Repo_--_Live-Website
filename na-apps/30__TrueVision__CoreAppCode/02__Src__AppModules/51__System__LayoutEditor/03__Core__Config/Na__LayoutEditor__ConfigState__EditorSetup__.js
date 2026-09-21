@@ -36,6 +36,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - GetNavigationSetup reads AuthoringZoomMax (64 when unset, never below
+//   ZoomMax) as authoringZoomMax: how far a session that may author zooms
+//   in. ZoomMax stays the ceiling for the web viewer and any read-only
+//   session.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - GetNavigationSetup reads the zoom settle: zoomSettleMs (100-3000, 350 when
 //   unset) and holdPaperWhileZooming (true unless the config says false), for
@@ -262,10 +268,18 @@
 
     // FUNCTION | Get the Navigation Setup
     // ------------------------------------------------------------
+    // Two ceilings on the zoom. zoomMax is a reader's: the web document
+    // viewer's, and any session's that may not author. authoringZoomMax is how
+    // close a session that may author gets (localhost, or a device unlocked
+    // for authoring), and is never less than a reader's. The navigation module
+    // picks between them through the authoring gate.
+    // ------------------------------------------------------------
     function Na__LeCfg__GetNavigationSetup() {
+        const zoomMax = Na__LeCfg__Num('Navigation', 'ZoomMax', 8);
         return {
             zoomMin       : Na__LeCfg__Num('Navigation', 'ZoomMin', 0.15),
-            zoomMax       : Na__LeCfg__Num('Navigation', 'ZoomMax', 8),
+            zoomMax       : zoomMax,
+            authoringZoomMax : Math.max(zoomMax, Na__LeCfg__Num('Navigation', 'AuthoringZoomMax', 64)),   // <-- An author works closer in than a reader ever needs to
             zoomWheelStep : Na__LeCfg__Num('Navigation', 'ZoomWheelStep', 0.0016),
             fitPaddingPx  : Na__LeCfg__Num('Navigation', 'FitPaddingPx', 32),
             zoomSettleMs  : Math.min(3000, Math.max(100, Na__LeCfg__Num('Navigation', 'ZoomSettleMs', 350))),   // <-- How long a zoom must rest before what follows it runs (LayOut's range)

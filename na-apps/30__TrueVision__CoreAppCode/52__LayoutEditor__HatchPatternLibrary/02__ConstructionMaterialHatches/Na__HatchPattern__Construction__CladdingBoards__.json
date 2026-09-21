@@ -1,0 +1,65 @@
+{
+    "HatchPattern__CladdingBoards__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__CladdingBoards__.json",
+        "Meta__Description"   : "Timber or composite board cladding for elevations - the board joints as evenly spaced parallel lines, 150 mm boards, vertical. Turned a quarter turn it is horizontal weatherboarding.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__RealSize"      : "Drawn at 1:50: a 150 mm board is 3 mm on paper. SET PATTERN SCALE TO 50 / THE DRAWING SCALE for true boards: 0.5 at 1:100, 1 at 1:50. For another board width multiply by width / 150.",
+        "Meta__WhySeams"      : "Each joint runs from the top edge to the bottom edge, square on, and none comes within 1.5 mm of a side edge."
+    },
+
+    "HatchPattern__CladdingBoards__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__CladdingBoards",
+        "Identity__Label"       : "Cladding Boards",
+        "Identity__Group"       : "Elevation",
+        "Identity__Keywords"    : ["cladding", "boards", "boarding", "timber", "weatherboard", "featheredge", "larch", "cedar", "elevation", "vertical", "horizontal"],
+        "Identity__Note"        : "Board cladding in ELEVATION. Vertical as drawn; set Pattern deg to 90 for horizontal boarding."
+    },
+
+    "HatchPattern__CladdingBoards__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 12.0,
+        "Tile__HeightMm"    : 12.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Four boards wide. Square, so it turns a quarter turn without changing."
+    },
+
+    "HatchPattern__CladdingBoards__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__CladdingBoards__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "Joints": {
+            "Glyph__Label"    : "Four board joints",
+            "Glyph__WidthMm"  : 12,
+            "Glyph__HeightMm" : 12,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M1.5,0 L1.5,12 M4.5,0 L4.5,12 M7.5,0 L7.5,12 M10.5,0 L10.5,12",
+            "Glyph__Note"     : "Four vertical lines, 3 mm apart."
+        }
+    },
+
+    "HatchPattern__CladdingBoards__Placements": [
+        { "Place__Glyph": "Joints", "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "The whole tile is one glyph at the origin" }
+    ],
+
+    "HatchPattern__CladdingBoards__Bounds": {
+        "Bounds__Description"     : "Scale 1 is real size at 1:50. 0.10 is 1:500 and 10 is 1:5.",
+        "Bounds__MinScale"        : 0.10,
+        "Bounds__MaxScale"        : 10.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

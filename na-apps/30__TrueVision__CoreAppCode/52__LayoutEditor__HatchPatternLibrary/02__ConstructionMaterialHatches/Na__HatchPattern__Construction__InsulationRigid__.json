@@ -1,0 +1,64 @@
+{
+    "HatchPattern__InsulationRigid__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__InsulationRigid__.json",
+        "Meta__Description"   : "Rigid board insulation in section - a sharp zig-zag, run after run. Straight where the quilt is looped, so a board and a batt read apart in the same build-up.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__WhySeams"      : "Each run crosses the left and right seams half way down a stroke, never at a point of the zig-zag, and keeps 1 mm clear of the top and bottom edges. Na__LeHatch__SeamCopies paints what the next tile pushes across."
+    },
+
+    "HatchPattern__InsulationRigid__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__InsulationRigid",
+        "Identity__Label"       : "Insulation (Rigid Board)",
+        "Identity__Group"       : "Insulation",
+        "Identity__Keywords"    : ["insulation", "rigid", "board", "pir", "pur", "eps", "xps", "celotex", "kingspan", "section"],
+        "Identity__Note"        : "PIR, EPS and other rigid boards, which must not be mistaken for quilt on a section."
+    },
+
+    "HatchPattern__InsulationRigid__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 4.0,
+        "Tile__HeightMm"    : 6.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "One full zig-zag: down, up."
+    },
+
+    "HatchPattern__InsulationRigid__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__InsulationRigid__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "ZigZag": {
+            "Glyph__Label"    : "One zig-zag",
+            "Glyph__WidthMm"  : 4,
+            "Glyph__HeightMm" : 4,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,3 L1,1 L3,5 L4,3",
+            "Glyph__Note"     : "Points at (1,1) and (3,5); it leaves the tile at the same height it came in."
+        }
+    },
+
+    "HatchPattern__InsulationRigid__Placements": [
+        { "Place__Glyph": "ZigZag", "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "The whole tile is one glyph at the origin" }
+    ],
+
+    "HatchPattern__InsulationRigid__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

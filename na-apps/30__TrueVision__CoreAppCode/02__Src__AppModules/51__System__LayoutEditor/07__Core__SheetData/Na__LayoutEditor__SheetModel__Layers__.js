@@ -19,6 +19,11 @@
 //   layer, and ItemLayerId reads the layer one item sits on.
 // - MoveToLayer puts items on another layer - the right-click menu's Layer
 //   flyout - in one pass and one undo step.
+// - GetLayerByName finds a layer by what the user calls it, and
+//   LayerIndexLike says where a layer from another sheet's list goes to sit
+//   in the same place in this one: a paste across sheets brings its layers.
+//   CreateLayer and UpdateLayer can be silent, for a caller that announces
+//   once for everything it did.
 //
 // INTEGRATION:
 // - Imports only Na__LayoutEditor__SheetModel__State__ among the units, so
@@ -35,12 +40,25 @@
 // - Parity        : verbatim (moved code)
 // - Divergences   : header only; the moved code matches the ValeVision3D unit.
 // - Back-port     : n/a (this IS the back-port)
-// - Ahead         : 1.3.0 (reference layers, MoveToLayer) authored here first,
-//                   21-Sep-2026; the ValeVision port waits for Adam's sign-off
+// - Ahead         : 1.3.0 (reference layers, MoveToLayer) and 1.4.0 (layers by
+//                   name, silent writes) authored here first, 21-Sep-2026; the
+//                   ValeVision port waits for Adam's sign-off
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - For a paste across sheets that brings its layers
+//   (Na__LayoutEditor__ItemClipboard__): GetLayerByName, matched on the name
+//   as the user reads it - case, and runs of spaces, ignored; LayerIndexLike,
+//   the place a layer from another sheet's list takes in this one - directly
+//   over the nearest layer that sat under it there, else directly under the
+//   nearest that sat over it, else the same place in the list; and silent
+//   CreateLayer (opts.silent) and UpdateLayer (silent), so the layer a paste
+//   makes or switches back on rides in the paste's one undo step.
+// - IsItemPickable: DropUnpickable's test for one item, exported - a paste
+//   leaves out of the selection what lands out of reach.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - REFERENCE LAYERS, Blender's Selectable switch. IsLayerSelectable answers
 //   false for a layer whose Layer__Selectable is false, and UpdateLayer takes
@@ -104,7 +122,8 @@
         Na__LeModel__ActiveSheetId,
         Na__LeModel__SelectionItems,
         Na__LeModel__Touch,
-        Na__LeModel__AssignSelectionItems
+        Na__LeModel__AssignSelectionItems,
+        Na__LeModel__AssignDirty
     } from './Na__LayoutEditor__SheetModel__State__.js';
     // ------------------------------------------------------------
 
@@ -181,12 +200,56 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Layer Name as the Eye Reads It (case and runs of spaces ignored)
+    // ------------------------------------------------------------
+    function Na__LeModel__LayerNameKey(name) {
+        return (typeof name === 'string') ? name.trim().replace(/\s+/g, ' ').toLowerCase() : '';
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | One Layer by Name, the Top of the List First (null when the sheet has none)
+    // ------------------------------------------------------------
+    // Layer ids are per sheet - Layer_006 is Construction Lines on one sheet
+    // and Images on the next - so what a layer IS from one sheet to another is
+    // its name. "Construction Lines" and "construction  lines" are one layer.
+    // ------------------------------------------------------------
+    function Na__LeModel__GetLayerByName(sheet, name) {
+        const wanted = Na__LeModel__LayerNameKey(name);
+        if (!sheet || !wanted) return null;
+        return Na__LeModel__GetLayers(sheet).find((layer) => Na__LeModel__LayerNameKey(layer.Layer__Name) === wanted) || null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a Layer From Another Sheet's List Goes to Sit in the Same Place in This One
+    // ------------------------------------------------------------
+    // names: that sheet's layers by name, top of the list first; at: where the
+    // layer sat in them. Answered by NEIGHBOURS, not by counting, because the
+    // two lists need not hold the same layers: directly over the nearest layer
+    // that sat under it there and this sheet also has; failing that, directly
+    // under the nearest one that sat over it; failing both, the same place in
+    // the list, as near as this one allows. A list index for CreateLayer.
+    // ------------------------------------------------------------
+    function Na__LeModel__LayerIndexLike(sheet, names, at) {
+        const list  = Na__LeModel__GetLayers(sheet);
+        const where = (name) => list.findIndex((layer) => Na__LeModel__LayerNameKey(layer.Layer__Name) === Na__LeModel__LayerNameKey(name));
+        const from  = Array.isArray(names) ? names : [];
+        for (let i = at + 1; i < from.length; i++) { const k = where(from[i]); if (k !== -1) return k; }        // <-- Over what it sat over
+        for (let i = at - 1; i >= 0; i--)          { const k = where(from[i]); if (k !== -1) return k + 1; }    // <-- Else under what it sat under
+        return Math.max(0, Math.min(Number.isInteger(at) ? at : list.length, list.length));
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Add a Layer
     // ------------------------------------------------------------
     // At the bottom of the list - the back of the stack - unless opts.index
     // names a place in it (0 is the top, the front): the layer goes there and
     // the ones from there down move one place back. This read "on top" until
-    // 21-Sep-2026, which the bottom of the list never was.
+    // 21-Sep-2026, which the bottom of the list never was. opts.silent marks
+    // the sheet changed and announces nothing: the caller announces once for
+    // everything it did (a paste that brings its layer with it).
     // ------------------------------------------------------------
     function Na__LeModel__CreateLayer(sheet, options) {
         if (!sheet) return null;
@@ -204,6 +267,7 @@
             list.forEach((l, k) => { l.Layer__Order = k + 1; });
             sheet.Sheet__Layers.sort((a, b) => a.Layer__Order - b.Layer__Order);  // <-- The array in list order too, so the first layer of a type is the frontmost one
         }
+        if (opts.silent === true) { Na__LeModel__AssignDirty(true); return layer; }   // <-- The caller announces, once, for everything it did
         Na__LeModel__Touch('layers', sheet.Sheet__Id, layer.Layer__Id);
         return layer;
     }
@@ -245,9 +309,11 @@
     // only as false); true takes the key off again. A layer switched to
     // reference, or hidden, takes what the pointer can no longer reach out of
     // the selection BEFORE the one announcement, so the history's step and
-    // every redraw already see the tidied selection.
+    // every redraw already see the tidied selection. silent marks the sheet
+    // changed and announces nothing, for a caller that announces once for
+    // everything it did (a paste switching its layer back on).
     // ------------------------------------------------------------
-    function Na__LeModel__UpdateLayer(sheet, layerId, patch) {
+    function Na__LeModel__UpdateLayer(sheet, layerId, patch, silent) {
         const layer = Na__LeModel__GetLayerById(sheet, layerId);
         if (!layer || !patch) return false;
         if (typeof patch.name === 'string' && patch.name.trim()) layer.Layer__Name = patch.name.trim();
@@ -259,6 +325,7 @@
             else layer.Layer__Selectable = false;
         }
         if (patch.visible === false || patch.selectable === false) Na__LeModel__DropUnpickable(sheet);
+        if (silent === true) { Na__LeModel__AssignDirty(true); return true; }   // <-- The caller announces, once, for everything it did
         Na__LeModel__Touch('layers', sheet.Sheet__Id, layerId);
         return true;
     }
@@ -336,32 +403,41 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Could the Pointer Pick This Item Out? (its layer shown, and not a reference layer)
+    // ------------------------------------------------------------
+    // A group can be picked while any member can, as a click on that member
+    // still finds it. An item that sits on no layer, or no longer exists,
+    // answers true: nothing about a layer holds it back. seen is the walk's
+    // own guard against a group that names itself.
+    // ------------------------------------------------------------
+    function Na__LeModel__IsItemPickable(sheet, item, seen) {
+        if (!sheet || !item) return false;
+        if (item.kind !== 'group') {
+            const layerId = Na__LeModel__ItemLayerId(sheet, item);
+            return layerId === null || (Na__LeModel__IsLayerVisible(sheet, layerId) && Na__LeModel__IsLayerSelectable(sheet, layerId));
+        }
+        const walked = seen || new Set();
+        if (walked.has(item.id)) return false;
+        walked.add(item.id);
+        const group = Na__LeRec__Find(Array.isArray(sheet.Sheet__Groups) ? sheet.Sheet__Groups : [], 'Group__Id', item.id);
+        return !!group && (group.Group__Members || []).some((member) => Na__LeModel__IsItemPickable(sheet, member, walked));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Take Out of the Selection Whatever the Pointer Can No Longer Reach
     // ------------------------------------------------------------
     // An item on a hidden or a reference layer cannot be clicked or boxed, so
     // it must not stay selected either: a Delete or an arrow key would still
     // reach it, out of sight or out of reach. A group stays while any member
-    // is within reach, as a click on that member would still find it. Only
-    // ever the sheet being worked on: the selection belongs to it, and an id
-    // on another sheet names another record. Silent, as DeleteItems' trim of
-    // the selection is - the change that caused it announces. Returns true
-    // when the selection changed.
+    // is within reach (IsItemPickable). Only ever the sheet being worked on:
+    // the selection belongs to it, and an id on another sheet names another
+    // record. Silent, as DeleteItems' trim of the selection is - the change
+    // that caused it announces. Returns true when the selection changed.
     // ------------------------------------------------------------
     function Na__LeModel__DropUnpickable(sheet) {
         if (!sheet || sheet.Sheet__Id !== Na__LeModel__ActiveSheetId || !Na__LeModel__SelectionItems.length) return false;
-        const groups = Array.isArray(sheet.Sheet__Groups) ? sheet.Sheet__Groups : [];
-        const reach  = (item, seen) => {
-            if (!item) return false;
-            if (item.kind !== 'group') {
-                const layerId = Na__LeModel__ItemLayerId(sheet, item);
-                return layerId === null || (Na__LeModel__IsLayerVisible(sheet, layerId) && Na__LeModel__IsLayerSelectable(sheet, layerId));   // <-- Gone, or not a layered kind: not this trim's business
-            }
-            if (seen.has(item.id)) return false;
-            seen.add(item.id);
-            const group = Na__LeRec__Find(groups, 'Group__Id', item.id);
-            return !!group && (group.Group__Members || []).some((member) => reach(member, seen));
-        };
-        const kept = Na__LeModel__SelectionItems.filter((item) => reach(item, new Set()));
+        const kept = Na__LeModel__SelectionItems.filter((item) => Na__LeModel__IsItemPickable(sheet, item));
         if (kept.length === Na__LeModel__SelectionItems.length) return false;
         Na__LeModel__AssignSelectionItems(kept);
         return true;
@@ -419,7 +495,9 @@
     export {
         Na__LeModel__GetLayers,
         Na__LeModel__LayerIndexAboveDrawings,
+        Na__LeModel__LayerIndexLike,
         Na__LeModel__GetLayerById,
+        Na__LeModel__GetLayerByName,
         Na__LeModel__DefaultLayerId,
         Na__LeModel__CreateLayer,
         Na__LeModel__DeleteLayer,
@@ -428,6 +506,7 @@
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
         Na__LeModel__IsLayerSelectable,
+        Na__LeModel__IsItemPickable,
         Na__LeModel__ItemLayerId,
         Na__LeModel__MoveToLayer
     };

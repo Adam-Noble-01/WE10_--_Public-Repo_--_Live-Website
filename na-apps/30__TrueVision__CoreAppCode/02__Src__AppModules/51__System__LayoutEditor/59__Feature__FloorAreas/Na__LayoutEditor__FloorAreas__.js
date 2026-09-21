@@ -44,6 +44,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - Measure answers `home`, where the label sits until it is dragged: the
+//   middle of the room's bounding box (Label__Placement 'box', the standard
+//   Adam asked for), or the visual centre when that middle falls outside the
+//   room. `labelAt` is home plus the dragged offset, which was measured from
+//   the visual centre before - no room had a stored offset yet, since nothing
+//   could drag a label until this release. `centre` stays the visual centre,
+//   and still decides the drawing a room is measured against.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - Adam: "Add a toggle to switch off the bounding line... it'd be nice to be
 //   able to turn it off and see only the fill." A room's outline is the
@@ -91,6 +100,8 @@
         Na__LeAreaGeo__PerimeterM,
         Na__LeAreaGeo__SelfCrossing,
         Na__LeAreaGeo__VisualCentre,
+        Na__LeAreaGeo__PLACE_BOX,
+        Na__LeAreaGeo__LabelHome,
         Na__LeAreaGeo__FormatArea,
         Na__LeAreaGeo__FormatLength
     } from './Na__LayoutEditor__FloorAreas__Geometry__.js';
@@ -235,7 +246,7 @@
         const stored = block ? Number(block.Area__TextSizeMm) : NaN;
         return (Number.isFinite(stored) && stored > 0) ? stored : Na__LeArea__Value('Label', 'Label__NameSizeMm', 2.4);
     }
-    function Na__LeArea__LabelOffsetOf(shape) {
+    function Na__LeArea__LabelOffsetOf(shape) {                              // <-- Paper mm from the label's home (Measure's `home`), where a drag left it; 0, 0 when it has never been dragged
         const block = Na__LeArea__Of(shape);
         const dx    = block ? Number(block.Area__LabelDXMm) : NaN;
         const dy    = block ? Number(block.Area__LabelDYMm) : NaN;
@@ -420,13 +431,24 @@
     // FUNCTION | Everything Known About One Room
     // ------------------------------------------------------------
     // { encloses, crossing, m2, perimeterM, denominator, source, viewport,
-    //   centre, labelAt }. A crossed outline answers crossing : true and a
-    //   zero area - a figure of eight's shoelace subtracts one lobe from the
-    //   other, so any number it gave would be a lie with a decimal point.
+    //   centre, home, labelAt }. A crossed outline answers crossing : true
+    //   and a zero area - a figure of eight's shoelace subtracts one lobe from
+    //   the other, so any number it gave would be a lie with a decimal point.
+    //
+    // THREE POINTS, EACH FOR ITS OWN JOB:
+    //   centre    the visual centre, always inside the room: the drawing a
+    //             room is measured against is the one under THIS point, and
+    //             the label's shrink to fit measures the circle round it
+    //   home      where the label sits until it is dragged - the middle of
+    //             the room's box, or the visual centre when that middle is
+    //             outside the room (Na__LeAreaGeo__LabelHome)
+    //   labelAt   home plus the offset a drag stored, which is where the
+    //             label is actually painted
     // ------------------------------------------------------------
     function Na__LeArea__Measure(sheet, shape) {
         const points   = Na__LeAreaGeo__Points(shape ? shape.Shape__Points : []);
         const centre   = Na__LeAreaGeo__VisualCentre(points);
+        const home     = Na__LeAreaGeo__LabelHome(points, Na__LeArea__Value('Label', 'Label__Placement', Na__LeAreaGeo__PLACE_BOX), centre);
         const scale    = Na__LeArea__ScaleOf(sheet, shape, centre);
         const encloses = Na__LeAreaGeo__Encloses(points);
         const crossing = encloses && Na__LeAreaGeo__SelfCrossing(points);
@@ -440,7 +462,8 @@
             source      : scale.source,
             viewport    : scale.viewport,
             centre      : centre,
-            labelAt     : { x : centre.x + offset.dx, y : centre.y + offset.dy }
+            home        : home,
+            labelAt     : { x : home.x + offset.dx, y : home.y + offset.dy }
         };
     }
     // ------------------------------------------------------------

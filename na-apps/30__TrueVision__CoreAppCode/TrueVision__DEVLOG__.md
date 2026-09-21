@@ -2,6 +2,1079 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.135.0  -  21-Sep-2026
+### An Author Zooms In to 6400%; the Web Viewer Still Stops at 800%
+
+**Overview**
+- From Adam, over a screenshot of RB05 D10 at the editor's closest zoom (800%: the Library label and one wall corner
+  filling the stage): "Update the drawing layout editor so I can zoom in more. This is the closest I can zoom, which
+  isn't close enough, specifically on the local host version where I'm going to be editing. The viewers don't need to
+  zoom in this far. It would be a pain [...] for the live web one to have to keep rendering really huge zooms, so make
+  an exception for the local host version and allow it to zoom in further, as I can't get close enough into things."
+
+**Why it stopped at 800%**
+- One number, `LayoutEditor__Navigation__ZoomMax` 8, which `Na__LeNav__Clamp` applied to every zoom: the wheel, a pinch,
+  the zoom keys, Fit, the right-click menu and the web viewer's own buttons. The editor and the web viewer share the
+  navigation module, so raising that number alone would have raised it for every reader as well.
+
+**What changed**
+- "The local host version" is read the way the rest of the editor reads it: through the authoring gate
+  (`Na__AppUtils__DevGate__`). It is open on localhost and on a device unlocked with `?authoring=on`, and shut on the
+  live web and under `?authoring=off` - so the read-only build previewed on localhost gets the reader's ceiling too.
+- Config (`Na__LayoutEditor__AppConfig__.json`, Navigation block): `AuthoringZoomMax` 64, with a note.
+  `ZoomMax` 8 is now the reader's ceiling, unchanged.
+- `Na__LayoutEditor__ConfigState__EditorSetup__.js` 1.3.0: `GetNavigationSetup` answers `authoringZoomMax`: 64 when the
+  key is missing, and never below `ZoomMax`.
+- `Na__LayoutEditor__Navigation__.js` 1.3.0: `Clamp` stops at `authoringZoomMax` where the gate is open and at `zoomMax`
+  everywhere else. A setup with no authoring ceiling (a navigation module newer than the config unit it runs beside)
+  falls back to the reader's 8, never to no ceiling at all. The floor (0.15) is the same for both.
+- What 64 means: zoom 1 puts 3.2 screen pixels on a paper millimetre, so 800% was 25.6 px to the millimetre and 6400%
+  is 205. A 20 mm frame member drawn at 1:100 goes from 5 px across to 41.
+- Lines keep their printed weight as the sheet grows, as they do in LayOut, so at the deepest zooms a wall reads as
+  thick bars. Draft mode (K) draws every line one device pixel wide at any zoom, and is the way to see fine detail
+  apart.
+- Nothing that follows the zoom needed a change. The grid and the axes draw only what is in view; handles, grips, snap
+  and pick radii are screen pixels divided by the zoom; the settle is the same.
+- No new export anywhere (`Na__DevGate__IsAuthoringEnabled` is an old one, already imported across the editor), so no
+  service worker token bump; it stands at `2026-09-21-18`.
+
+**How it was proved**
+- `Na__Test__AuthoringZoomMax__.test.mjs`, new, 12 checks:
+  - The real config readers on the SHIPPED config and the real editor setup unit: 8 and 64 as shipped; 64 with the key
+    missing; 8 with the key set below `ZoomMax`; 128 honoured as written.
+  - The real navigation module with its imports stubbed: an author passes 8 and stops at 64, and a wheel step at 64
+    settles nothing; a reader stops at 8, by `ZoomTo` and by a wheel step; the floor is 0.15 for both; the half-updated
+    setup falls back to 8.
+  - MUTATION CHECKED on scratch copies, the shipped files untouched: the clamp ignoring the gate, the clamp always
+    taking the author's ceiling, the finite guard removed, the ceiling allowed below `ZoomMax`, and a default of 8 each
+    fail at least one check. Unmutated, every check passes.
+- `Na__Test__DrawingTabKeys__` (53 checks) and `Na__Test__SheetPagingWalkExit__` (18) pass. `Na__Verify__Exports__.mjs`
+  passes (485 files).
+- In the app on RB05 D10, with fresh modules from a no-store server and a fetch guard refusing every write (none was
+  attempted):
+  - On `127.0.0.1` (authoring open, the editor), 40 wheel steps in over the Library's bottom left corner went 0.41,
+    ..., 7.23, 8.48, 9.95, ..., 57.8, 64, and then held at 64, with one settle at the end. At 6400% the sheet drew
+    crisp: the Library's fill, and its outline at its printed weight with the corner rounded.
+  - On `zoomtest.localhost` (not localhost, so authoring shut: the web document viewer on the live R2 data), the same
+    steps stopped at exactly 8, and `ZoomTo(100)` stayed at 8.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.134.0  -  21-Sep-2026
+### The Cabinet Infill Is Held by Its Bottom Left Corner, Fitted by Any Other, and Its Options Arrow Sits Beside Its Words
+
+**Overview**
+- From Adam, after trying v2.128.0, with two screenshots of it on a plan:
+  - "Make the insertion point on it so it's accessed at the bottom left, like a proper XY, because that makes sense
+    to people. It inserts on the bottom left at the moment, with the base point on the bottom right, so it doesn't
+    really make sense."
+  - "You should be able to drag all three of the other corners because currently there's only one drag corner ...
+    You can't drag it into position. Really think about this one because that last block is impossible to use."
+  - "Put the actual arrow for all of the options, the dropdown arrow, next to the text, not in one of the corners, as
+    it's currently unusable." His second screenshot draws that triangle just to the right of the Storage box.
+- The fault was the model, not a detail. The infill had one grip, on the corner opposite its origin, so it could only
+  be sized from one side, and it could only be placed by dragging its body. The options triangle sat on a corner of
+  the cabinet, among the drawing's own lines.
+
+**How it works now**
+- THE BASE POINT IS THE BOTTOM LEFT CORNER - x along and y up, as a CAD block is inserted.
+  - Dragging the tile in, the ghost hangs from that corner, and the corner SNAPS to the drawing while it is carried:
+    the object snap's marker shows where. On the drop the corner lands exactly there, so the infill can be dropped
+    straight onto a cupboard's corner.
+  - A double-click puts that corner in the middle of the view.
+  - Selected, the corner carries a hollow square with the move cursor. Drag it and the whole infill follows, the
+    corner snapping.
+- THE OTHER THREE CORNERS ARE GRIPS: filled squares with leaning cursors. Each moves its own corner while the corner
+  opposite stays put, so a cupboard is fitted from whichever side is easiest. Every one of them snaps, and a free drag
+  steps 0.1 mm from the corner held. So: drop the base on one corner of the cupboard, drag the opposite grip onto the
+  other.
+- THE OPTIONS ARROW stands just off the right of the label's box, level with its middle, beside the words, whichever
+  way they run. Its tooltip reads Options.
+
+**Code**
+- Engine (`Na__LayoutEditor__ScrapbookParametric__.js` 1.7.0):
+  - A type may answer `base(params)`. `Na__LeParam__BasePoint` reads it (a new export, used by the panel).
+  - `Insert(..., { at : 'base' })` puts that point on the drop instead of centring the element there.
+  - `HandlesOf` passes a type's `base` grip and its named `corners` through.
+  - `Regenerate` takes `options.origin`, the paper point to build at, which is how a corner that moves the top or the
+    left edge, and a base grip, move the element.
+- Type (`...CabinetInfill__.js` 1.1.0):
+  - `base` is (0, height) from the origin, which is still the TOP left corner inside, because paper y runs down.
+  - `cornerTo(params, 'tl' | 'tr' | 'br', x, y, exact)` answers `{ params, shift }`, worked from the drag's start, with
+    the corner opposite held (clamped at the least size without letting it creep).
+  - The handles are base, three corners, and the lookup beside the label.
+  - `stretchTo` and `stretchCorner` are gone.
+- Grips (`...Grips__.js` 1.6.0):
+  - A base grip, which moves; and corner grips, each named. Both snap through the object snap with the element's own
+    vectors left out.
+  - Every step is worked from the parameters AND the origin the drag began with, and rebuilt at the origin it gives.
+    Escape puts both back.
+  - The base grip's ring is set in screen pixels divided by the zoom, as the link socket's is. In CSS pixels, inside
+    the zoomed handles layer, it filled the whole square at zoom 5.
+- Tile drag (`55__Feature__Scrapbook/...TileDrag__.js` 1.2.0, shared by every scrapbook):
+  - `spec.hold(set)` is the point the pointer holds (default: the middle, as before).
+  - `spec.snap` snaps that point through the object snap while the tile is dragged and at the drop. It imports
+    `Na__LeOsnap__Snap` and `HideMarker` from `28__System__ObjectSnap/...Search__.js`.
+  - A spec with neither drags exactly as before.
+- Panel 1.7.0: a type with a base point gets `hold`, `snap`, and a `place` that inserts at the base. Stylesheet 1.3.0:
+  the hollow base square, the filled corners, and the move and diagonal cursors. Config: `Labels__GripBase`, the
+  corner's words, and the tile's and the panel's how-to sentences.
+
+**Service worker**: no bump of its own. `Na__LeParam__BasePoint` is a new export that the panel imports, but the token
+on disk (2026-09-21-18) is already past the last committed one (-13), so it evicts every cache when this deploys.
+
+**How it was proved**
+- `Na__Test__ScrapbookCabinetInfill__.test.mjs` 1.1.0: 70 checks, all passing.
+  - The base point, the three named corners, and the options arrow beside the box, across and upright.
+  - For each corner the held corner stays put to the thousandth: top right holds the base, top left the bottom
+    right. A snapped corner is kept exactly, and a free one steps 0.1 mm.
+  - A corner dragged past the one held stops at the least size with the held corner unmoved.
+  - The ScaleBar, DrawingTitle, ProjectQr and AreaSchedule suites still pass, and `Na__Verify__Exports__.mjs` passes.
+- In the app, on a scratch copy of PS01 D01 with the hand-drawn crosses taken out and a fetch guard refusing every
+  write (none was attempted):
+  - A real drag of the tile, let go 0.23 mm off the Dressing Room wardrobe's bottom left corner, landed the infill's
+    bottom left exactly on the corner: 36 x 12 mm (1800 x 600 at 1:50).
+  - In a synthetic drag the ghost's bottom left sat on the snapped corner (0.004 px), not on the pointer, with the
+    object snap's marker up. The marker was down after the drop.
+  - Top right onto the wardrobe's far corner: the base held exactly. Top left onto a vertex: the bottom right held
+    exactly. Bottom right dragged free: stepped to 19.6 x 92.3, with the top left held.
+  - The base moved the whole infill onto a vertex with its size unchanged. Escape in mid-drag left the sheet
+    byte-identical.
+  - Four drags were four undo steps, and undo x4 / redo x4 came back byte for byte.
+  - The grips are drawn as intended: the hollow base with its ring at every zoom, the filled corners, and the triangle
+    12 px off the label box's middle. The real sheets came back byte-identical.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.133.0  -  21-Sep-2026
+### The Browser's Colour Mixer Opened a Screen Away From the Field; It Now Sits on Top of the Palette, and Special Is the Green
+
+**Overview**
+- From Adam, over a screenshot of RB05 D10 with a floor area's Colour field clicked: the palette beside the field as built
+  (v2.126.0), the browser's own colour mixer in the BOTTOM LEFT CORNER of the window, an arrow from it marked MOVE, and a
+  box drawn on top of the palette. "The custom colour mixer is miles away. You need to move it so it's above our main
+  one. Also, the special colour is like a black, but I meant for it to be a green. It's effectively the 150 RGB
+  equivalent of the other two that have 150 values, but the green, because the others are red and blue, aren't they?"
+- His marks, as requirements: (1) the mixer must be by the field, not across the window; (2) the box - the mixer goes
+  directly ABOVE the palette, left edges together; (3) the Dimensions row is red, blue and green, no black.
+
+**Why the mixer was in the corner**
+- A page cannot say where the browser draws its colour mixer. It is hung under the box of the input it was opened from,
+  and the palette opens it from an invisible proxy input so that box can be chosen.
+- The browser takes the proxy's box AS LAST LAID OUT, and `showPicker` does not lay the page out first. v2.126.0 appended
+  the proxy, then measured the field - which laid the proxy out where an unplaced fixed box falls, the end of the page -
+  THEN gave it its left and top, and asked for the mixer in the same breath. So the mixer hung from the end of the page:
+  x 0, flipped up off the window's foot. That is the corner in the screenshot, to the pixel.
+- It passed every check in v2.126.0 because the in-app stand-in for `showPicker` measured the proxy, and measuring is the
+  cure. The DEVLOG said then that the mixer had been asked for but never seen; this is what not seeing it cost.
+
+**What changed**
+- Picker 1.1.0. The proxy is made with its box already set, so it is never laid out anywhere else, and it is measured
+  once more straight before `showPicker` (`getBoundingClientRect`, the reading thrown away) so the layout is current.
+- The mixer sits ON TOP of the palette, as drawn. `Na__ColourPicker__Place` now works out ONE STACK - mixer, 4 px, palette -
+  and only where the stack goes varies:
+  - above the field, its foot 6 px over it and right edges together, wherever there is that much window above;
+  - else beside the field - to its left, as the panels are down the window's right, else to its right - foot level with
+    the field's and kept inside the window;
+  - the order never changes. The proxy is a one pixel strip along the stack's TOP: hung from there, the mixer fills the
+    room kept for it and ends just over the palette.
+- The mixer's size cannot be asked for, so it is config (palette config 1.1.0, Manager 1.1.0):
+  `Display__NativePickerWidthPx` 232, `Display__NativePickerHeightPx` 250 (measured off Adam's screenshot, Chrome and
+  Edge), `Display__NativePickerGapPx` 4. They replace `Display__NativePickerRoomPx`, the room once kept under the field.
+- The mixer is a window of the browser's and does not zoom with the page, so the room is divided by the page zoom
+  (`Display__NativePickerFollowsZoom`). No API gives the zoom; `Na__ColourPicker__PageZoom` reads it off the top window's
+  outer and inner widths and only believes it when it lands within 2 % of one of the browser's own zoom steps AND leaves
+  the pixel ratio at a scale a display is really set to. Anything else reads as 100 %.
+- Dimensions: Special is `rgb(0,150,0)` `#009600`. Existing is `rgb(0,0,150)` `#000096`, which v2.126.0 had given to
+  Special; Proposed stays `rgb(150,0,0)`. THIS IS A READING OF ADAM'S WORDS, NOT A CERTAINTY: he named Special as the
+  green and "the others" as red and blue, so Existing took the blue. The first brief wrote Existing as `rgb(0,0,0)`; if
+  Existing was meant to be the green and Special to stay blue, it is two hex values in the config to swap.
+- No new import anywhere, so no service worker token bump (it stands at `2026-09-21-18`).
+
+**How it was proved**
+- `Na__Test__ColourPalette__.test.mjs`: 55 checks (36 before). New: the stack above the field, beside it on either side,
+  in a window too narrow for either, and never outside the window for fifteen field positions; the mixer switched off;
+  the page zoom in seven cases; and the click itself against a stand-in page that records the ORDER of events - the
+  proxy's four box styles before it is appended, and a measure after the last change to it and straight before
+  `showPicker`. MUTATION CHECKED: with the measuring line taken out of the shipped file the order check fails
+  (`got ["showPicker","append",...]`); the file was put back byte for byte (same SHA-256) and passes.
+- `Na__Verify__Exports__.mjs` passes (485 files).
+- In the app on PS01 (no-store server, a fetch guard refusing every write - none attempted - on a scratch copy of D01),
+  with a stand-in for `showPicker` that this time does NOT measure, and real clicks (trusted events):
+  - Edge colour, 531 px down a 860 px window: `above`. At the click the proxy was measured, then `showPicker` was called
+    with its box already `970, 125, 277 x 1`. The mixer hangs from y 126 and spans 126 to 376; the palette is 380 to 525
+    (4 px under it, left edges equal), 6 px over the field. Everything inside the window.
+  - The Drawing Grid's colour in the LEFT panel, 289 px down: `beside`, 6 px to the field's RIGHT; mixer 8 to 258, palette
+    262 to 407, not over the field.
+  - The Dimensions row read back from the page: Proposed `rgb(150, 0, 0)`, Existing `rgb(0, 0, 150)`, Special
+    `rgb(0, 150, 0)`.
+  - FOUND THERE: the test pane emulates a 1400 px page in a 1024 px window, which read as 75 % zoom and left an 87 px gap
+    between the mixer's room and the palette. The step tolerance went from 4 % to 2 %, and that case is now a test. A
+    wrong zoom-OUT can only ever leave a gap, never put the mixer over the palette.
+  - The sheets byte-identical to their snapshot afterwards, the browser draft removed.
+- STILL NOT SEEN: the browser's mixer itself, which a headless pane cannot show. What is proved is the cause (the corner
+  is exactly where a stale layout puts it), the cure's order, and the box the mixer is hung from. Whether 250 is its true
+  height on Adam's screen - so that it ends 4 px over the palette rather than lapping it or floating clear - is his to
+  see; it is one number in the config.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.132.0  -  21-Sep-2026
+### Tag the Face and It Fills: Hard Standing and Paving in Two Greys, and a Wash That No Longer Needs Edges of Its Own
+
+**Overview**
+- Adam, 21-Sep, with a screenshot of RB05's tag list: "I reloaded the SSOT in SketchUp, and there
+  aren't any grassland layers for me to tag things with. We need a tag specifically for hard standing
+  and paved driveways ... that I can use to assign two types of very light grey fill, so I can mark
+  paths properly on the models, too, and paving areas. Make sure these are added in both the SSOT and
+  then on the site plans for rendering the faces."
+- **The grass tags were not missing from the SSOT** - they were never CREATED in the model. Tags come
+  only from Create Standardised Tags From Index; reloading the SSOT or the plugin creates nothing.
+  Both grass tags were in Adam's 15:25 save of RB05 0.3.1, the newest entries in its tag table
+  (checked in the .skp) - and gone from his 15:30 re-save and the new Existing 0.3.2, together with
+  every other tag that had nothing on it. **SketchUp's Purge Unused deletes empty tags**: create the
+  tags, tag the faces, then purge - or re-run the tag creation after a purge.
+
+**Two fill tags, two very light greys** (Tags SSOT 2.7.0, Materials SSOT 1.7.0)
+- `74__SitePlan__ExternalWorks__HardStandingAndDriveways` in MAT806, now `rgb(228,228,228)` - a
+  neutral grey, the darker, reading as tarmac. `74__SitePlan__ExternalWorks__PathsAndPaving` in the
+  new MAT807 `rgb(240,238,233)` - lighter and a touch warm, reading as stone beside the drive rather
+  than as the same surface a shade paler. Picked from three pairs rendered at true size beside grass;
+  a 5 per cent paving grey read as white.
+- Read as TWO tags, one grey each: in this pipeline a fill colour belongs to the TAG, so one tag
+  cannot carry two washes without the exporter reading face materials, which it does not.
+- Site Paths moved onto the paving grey; Site Access and Hard Surfaces keep the drive grey. Both new
+  tags draw any edges they carry exactly like Site Paths, so a traced drive merges into its line.
+
+**A fill tag's faces now export with no edges of their own** (finding F6, the face-only half of P8)
+- Selecting a drive's FACE and giving it a fill tag - leaving its edges on the lines that already
+  draw them - is the natural gesture. It collected rings and no segments, and three separate gates
+  each threw the layer away without a word: the SketchUp export skipped it, the build script skipped
+  a manifest record with no linework file, and the store dropped any layer without a linework URL.
+- All three moved together. Site Plan Export 1.4.0 writes the fill GLB alone and a record with
+  `Layer__LineworkFile: null`; the build script accepts it (a NAMED linework file that is missing is
+  still a fault); `Na__SpStore__Layer` keeps it and `LoadLayer` skips the linework fetch, takes its
+  bounds from the fill, and REJECTS if that fill fails - it is the whole layer - instead of caching an
+  empty one.
+
+**Proved, not read**
+- Build script: 7 checks against a temp store folder (normal, faces-only, named-but-missing, neither,
+  and the no-manifest fallback). Store: 32 checks, 5 new. Both CALIBRATED - against HEAD the
+  faces-only layer is dropped and the checks fail.
+- `Na__Test__SitePlanComposites__`: 98 passing, with the two tags, both greys, their edge style and
+  both exclusion lists asserted against the SSOT in the Plugins repository.
+- **In the app on RB05:** a faces-only record injected into the manifest response in the browser
+  only - no file touched - painted its wash from the woodland's real fill GLB, with no linework
+  behind it. The old store would have dropped it. Nothing sent; no draft left.
+- The Ruby parses through SketchUp's own interpreter. **It has not been run in SketchUp.**
+
+**Files**
+- `02__Src__AppModules/52__System__SitePlanData/Na__SitePlan__Store__.js` (1.2.0)
+- `80__Testing__PrototypeEnvironment/Na__Test__SitePlanStore__.test.mjs`, `Na__Test__SitePlanComposites__.test.mjs`
+- `../05__ProjectVision__CoreAppCode/ProjectVision__BuildScript__.py` (the two site plan gates)
+- `TrueVision__PLAN__SitePlanComposites__.md` - SC26 revised, SC27-SC29, section 11c, ledger P6f / P8a
+- Plugins: `Na__TrueVision__GlbBuilder__SitePlanExport__.rb` (1.4.0), Tags SSOT 2.7.0, Materials SSOT
+  1.7.0, GLB Builder DevLog 2.10.3
+
+**No service worker token bump**: no new export, no new import - a warm cache cannot be left holding
+half a graph. **NOT YET TRIED BY ADAM.** Not in ValeVision - it has no site plan system.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.131.0  -  21-Sep-2026
+### The Drawing Axes Overlay (F9): SketchUp's Red and Green Axes, Carried by the Cursor Out to the Edges of the Sheet, Crossing Where a Click Would Land
+
+**Overview**
+- From Adam, over a SketchUp screenshot (Top view, Line tool) with the green axis above the cursor circled, the red
+  axis to its right circled, and an arrow to the green endpoint inference where the two cross: "Add a new feature with
+  a button called 'Drawing Axes Overlay' and just call and add it to the next F key we can use. Is F9 possible for use?
+  It will make this axis appear and move with the mouse and radiate out to the ends of the sheet."
+- F9 was free on all three keyboards in the app (drawing tabs, 3D Model tab, document tabs), and it follows F6 Show
+  Grid, F7 Grid Snap and F8 Ortho. It is now `View__AxesToggle`.
+- A red horizontal line and a green vertical line cross at the point under the cursor and run the full width and height
+  of the sheet, so what lines up with that point can be seen across the whole sheet before anything is clicked.
+
+**Where they cross: the snap marker, else the cursor**
+- The arrow in Adam's screenshot points at SketchUp's inference dot, where its cursor has jumped. So while a snap marker
+  is on show the axes cross AT the marker, exactly where a click would place a point: an endpoint, a midpoint, a grid
+  point (F7), a point held on an axis by Shift, Ortho or an arrow key. With no marker they cross at the cursor itself.
+- The marker's position comes from `Na__LeOsnap__GetMarkerPoint` (`28__System__ObjectSnap/..._Marker__.js`), which the
+  Object Snap session added for this at our request. The axes listen for the pointer on window in the bubble phase, so
+  the sheet tools (on the stage) have already moved the marker for the same move by the time it is read.
+- A pan never uses the marker. The tools stop working out snaps while the paper is dragged, so a marker then is left
+  over from before the pan.
+- `Behaviour__FollowSnapMarker` false in the config makes it the cursor always, like AutoCAD's crosshair.
+
+**Where they run, and how they are drawn**
+- Paper edge to paper edge. Each line shows while its own line crosses the sheet: with the cursor out on the grey desk
+  beside the sheet, the horizontal line still runs across it at the cursor's height.
+- They live on the paper in paper millimetres, so a pan carries them with the sheet, and a wheel zoom (which keeps the
+  point under the cursor still) keeps them on the cursor.
+- Each line is 1 px along its short side, stretched to its width by the same transform that places it. The width is
+  taken back out of the paper's `scale(zoom)` and the near edge is put on a device pixel boundary, so each line is solid
+  ink in whole device pixels at any zoom (1 screen px, rounded to device pixels: 2 at a 1.5 pixel ratio). This is the
+  same rule the drawing grid draws to.
+- DRAWN BY THE COMPOSITOR. Each line is a layer of its own (`will-change: transform`) and is only ever moved by a
+  transform, so following the cursor never makes the browser paint the sheet under it again.
+- Stacked at the handles' depth, just before them: over the drawings and an open container, under the snap marker and
+  the grips. Never printed: the PDF never reads the screen, and a printed page hides the layer.
+- Shown only while the pointer is over the sheet's stage (or carrying something across it). Hidden over a panel, the
+  toolbar, the Measurements box or a menu. Not shown for a finger, which has no hover; a pen hovers, so it does show them.
+
+**Switching**
+- F9, or the new toolbar button **Axes** (after Ortho, same plain button, lit while on; its hover text opens with the
+  full name, Drawing Axes Overlay). A view, not a tool: the tool, the selection and a point half placed are left alone,
+  so it can be pressed mid-line. A held F9 counts once. F9 is in SHEET_CHORDS, so a focused panel select or checkbox
+  cannot swallow it.
+- The button first carried the full name: 141 px, the widest on the strip, which already ran off the end of a 1600 px
+  window. Adam had it shortened to "Axes" the same day (`Labels__Toggle`).
+- The key is taken from the browser while a drawing is open (preventDefault), as F6 and F7 are. Chrome gives F9 no job
+  of its own; Edge uses it for Immersive Reader on reading pages.
+- Echoed `<Drawing axes on>` / `<Drawing axes off>` above the Measurements box, like F6, F7 and F8. Remembered in this
+  browser (`na-layouteditor-drawing-axes`), never in a sheet, the draft or R2.
+
+**Files**
+- New folder `51__System__LayoutEditor/33__System__DrawingAxes/`: the controller `Na__LayoutEditor__DrawingAxes__.js`
+  (Set, Toggle, the overlay, Attach / Detach), `__Config__.json` (colours, width, opacity, the two behaviour switches,
+  every label, and the research note), and `Na__LayoutEditor__Styles__DrawingAxes__.css` (imported by
+  `Na__CoreUi__Styles__Index__.css` after Object Snap's).
+- Small anchored hunks in shared files:
+  - `Na__Hotkeys__DrawingTabs__.json`: the F9 row and its actions-catalogue row.
+  - `ConfigState__KeyMap__.js` 1.9.0: the same row in the built-in fallback.
+  - `SheetTools__State__.js` 1.7.0: SHEET_CHORDS.
+  - `SheetTools__Keyboard__.js` 1.13.0: the F9 case.
+  - `Toolbar__.js` 1.22.0: the button, its sync and its listener.
+  - `ModeController__.js` 1.28.0: Attach and Detach with the sheet input, after the grid.
+- No service worker token of its own. Every name the new module imports is already exported by the deployed copies,
+  checked against HEAD with origin/main == HEAD. The one exception is the marker getter, and that file has never been
+  deployed. The importers reach the module at a new URL, which no warm cache holds.
+
+**Verification**
+- `Na__Test__DrawingAxes__.test.mjs` (new, 50 checks against the real module and the real key map, sheet keyboard and
+  SHEET_CHORDS):
+  - the switch, its echo and the remembered flag;
+  - the crossing at the cursor, at the marker, and never at the marker mid-pan;
+  - each edge on a device pixel with whole-pixel ink, centred on the point, at zoom 1 / 2.37 / 0.5 / 4 and pixel ratio
+    1 / 1.5 / 1.25 / 2;
+  - each line shown only while it crosses the sheet, and hidden over a panel, off the stage, for a finger and after
+    Detach;
+  - the layer left in place when the grid's canvas sits between it and the handles (not re-inserted every move);
+  - a scroll under a still cursor moving the crossing by exactly the scrolled distance;
+  - the config switches;
+  - F9 in the shipped map and the fallback, Ctrl+F9 and Shift+F9 unbound, F6 / F7 / F8 unchanged, a held F9 and a text
+    box's F9 ignored, a checkbox's taken.
+- `Na__Verify__Exports__.mjs` (486 files) passes. The DrawingTabKeys, DrawingGrid, OrthoMode, SheetPagingWalkExit,
+  CopyDrag and CrossSheetClipboard suites all pass on the patched files.
+- In the app on PS01 D01 (A2, localhost, a fetch guard refusing every write; none was attempted):
+  - a TRUSTED F9 switched it on (key taken, button lit, flag stored);
+  - a real mouse over the plan put both lines edge to edge across the paper, 2 device px each at a 1.5 pixel ratio,
+    edges on whole device pixels, centred on the cursor to the device pixel;
+  - at zooms 0.8, 1.37 and 2.9 the lines stayed 2 px, pixel-aligned and paper-wide;
+  - with the Draw tool, hovering about 1.5 mm off a wall corner of the plan, the axes crossed exactly on the purple endpoint
+    marker (284.079, 147.440), not at the cursor, with the marker drawn over them; at the border corner the same
+    happened at (5, 5);
+  - they hid over the left panel;
+  - a real click on the button switched them off, and F9 pressed with the focus still on the button switched them back on;
+  - cost: about 6 microseconds to place, and a whole pointer move with the Select tool took 3.4 ms with the axes on
+    against 3.0 ms off.
+- NOT tried by Adam; NOT in ValeVision.
+
+**Choices made, for Adam to confirm**
+- The axes cross at the snap marker when one shows (SketchUp's rule, from the arrow in the screenshot), rather than
+  always at the raw cursor. This is one config switch.
+- Paper edges, not the whole view. With the cursor off the sheet, only the line that still crosses the sheet is drawn.
+- SketchUp's red for the horizontal line (#ff0000). Its green (#00ff00) is darkened to #00a000, because a one-pixel pure
+  green line on white paper is close to invisible. Both are in the config.
+- Solid on both sides of the crossing. SketchUp dots its negative axes, but these are "from here" in every direction.
+- Remembered per browser, like Ortho and the grid.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.130.0  -  21-Sep-2026
+### The Vector Editor Could Draw a Line and a Rectangle and Move Their Points; It Can Now Trim, Extend, Join, Split, Offset, Fillet and Chamfer Them - Inside the Group or the Vector Being Edited - and Draw Circles and Arcs
+
+**Overview**
+- From Adam, over a screenshot of the Properties column with an orange box drawn round the space under the
+  Vectors settings: "We need to give the vector editor a big upgrade. It's very basic at the moment. When going
+  inside the vector group ... it fades everything else to show you that you're editing. This is good, but now we
+  need to add some more tools that are available when you're in this mode. We need to add: Trim, Extend, Join.
+  Trim should be T. Extend should be Shift-T. Join should be J. Check the hotkey for the 2D layout mappings
+  already, and let me know if there are any conflicts ... Research online how SketchUp's Layout Software trim,
+  extend, and join work ... Add in any other useful tools that a high-end vector illustration editor would have
+  ... the more CAD-adjacent tools ... add a circle drawing tool. And an arc drawing tool. Take your time and map
+  everything out first. The project is highly modular."
+- What was there already: Draw and Rectangle, and a container to step into - but every tool except Select and
+  Move CLOSED the container the moment it was picked up, so nothing could be done inside a group but move its
+  pieces, and nothing inside a vector but move its points. The right-click menu's own comment said where the cut,
+  extend, trim and join tools would sit "when they arrive".
+- THE KEY CLASH HE ASKED ABOUT: **T is already the Text tool** (as it is in LayOut, and in his own LayOut keymap,
+  where Trim is Shift+T). Shift+T and J were free. So T is Trim WHILE A CONTAINER IS OPEN - where the Text tool
+  could never be used, because a placing tool closes the container - and still Text out on the sheet. A key
+  binding may now say when it applies (`"When": "InContainer"`). Out on the sheet Trim is on the panel, on a
+  vector's right-click menu, or Shift held with Extend up. Making T trim everywhere is a two-line change to the
+  key file; it is his call. Full table, and every other key chosen, in `TrueVision__PLAN__VectorTools__.md`.
+
+**What LayOut does, and what was copied** (researched 21-Sep-2026; sources in the new config's `Meta__Research`)
+- LayOut 2026 added Trim, Extend, Fillet and Chamfer, and they work as AutoCAD's QUICK mode does: no "pick the
+  cutting edge first" - hover the piece, see what will happen, click; or click bare paper, draw a FENCE across
+  several lines and click again. Join: click one piece then the next, the result keeps the FIRST one's style,
+  ends must meet; on a selection it joins everything at once. Split cuts where clicked, and at a crossing cuts
+  both lines. Offset: click, preview, click, or type how far. Circle: centre, radius, a typed radius, `d` for a
+  diameter, `6s` for sides (its Polygon tool is the same gesture, so it is one tool here). Arc: four tools -
+  2 Point, centre, 3 Point, Pie. And its drawing tools work INSIDE an open group and draw into it.
+- From AutoCAD: Shift swaps Trim and Extend while held. NOT copied: its quick trim deletes a line nothing crosses;
+  here nothing happens and a line of words says why. Beyond both, as options that ship OFF: Trim and Extend can
+  stop at the DRAWING'S OWN LINEWORK under the sheet; Join can bridge ends that do not meet. A fillet or chamfer
+  of 0 makes two lines simply meet.
+
+**What changed**
+- NEW FOLDER `51__System__LayoutEditor/37__System__VectorTools/` (fifteen files; the map is in the plan doc).
+  - EVERYTHING THE TOOLS MAKE IS AN ORDINARY VECTOR, the Rectangle tool's rule. A circle is a closed run of
+    `Shape__Points` and an arc an open one, as SketchUp's are, given as many edges as its radius ON PAPER needs
+    for the flats to stand within 0.01 mm of the true curve (a 15 mm circle 88, a 100 mm one 224); the painters
+    already round every joint. So select, move, copy, fill, hatch, dash, the eyedropper, a floor area made from
+    one, the PDF and the web viewer work on the result with nothing to learn.
+  - ONE WORD ON THE RECORD: `Shape__Curve : { Curve__Kind : 'circle' | 'arc' }` and no centre or radius, which
+    a move or a paste would leave behind. `Na__LeVecCurve__Describe` reads them back FROM THE POINTS and answers
+    null once they stop lying on one circle - and still reads an arc a trim has cut short.
+  - ONE ADAPTER, SIX DISPATCH SITES (the Floor Area tool's lesson): press, move, release, right click, keys and
+    typed values each ask `Na__LayoutEditor__VectorTools__.js` with the tool that is up. It never imports the
+    sheet tools back. Three of the units are PURE maths - Geometry, Curves, Offset - and run under Node as shipped.
+  - Previews are one SVG in the handles layer, paper millimetres, screen-pixel weights: red goes, blue arrives,
+    heavy blue is what Join / Offset / Fillet is holding, purple is a fence. Never saved, printed or published.
+- THE CONTAINER RULE (`SheetTools__ToolState__` 1.4.0): the seven edit tools never close an open container; a
+  tool that draws a plain vector - Draw, Rectangle, Circle, Arc - keeps a GROUP open and what it draws JOINS THAT
+  GROUP, as in LayOut (`Behaviour__DrawInsideOpenGroup`), the Draw tool's line from its first point
+  (`ShapeTool__` 1.10.0) so it is not drawn faded. Every other placing tool closes the container as before.
+  Membership is added just before the change is announced, so ONE Ctrl+Z takes the shape and its place in the group.
+- WHAT MAY BE EDITED follows the container: loose vectors on the sheet, a group's own inside it, the one vector
+  inside a vector. WHAT CUTS is every vector that can be seen, grouped or locked or not. Pictures, QR boxes and
+  measured rooms are refused with a reason.
+- ONE GESTURE, ONE UNDO STEP: every write silent, then one `Na__LeModel__AnnounceShapes`. The first piece keeps
+  the record - id, style, group, place in the paint order - and the rest go straight after it.
+- The sheet model, all additive: `SheetModel__Shapes__` 1.5.0 (`InsertShape`'s `afterId`, `opts.curve`,
+  `patch.curve`, `AnnounceShapes`), `SheetModel__Groups__` 1.2.0 (`AddGroupMember`), `SheetModel__` re-exports,
+  `SheetRecords__` (`NormaliseShapeCurve`, kept only when it names a kind, so older shapes save byte-identical).
+- KEYS: nine rows in `Na__Hotkeys__DrawingTabs__.json` and the same nine in the fallback
+  (`ConfigState__KeyMap__` 1.8.0, whose `MatchKeyBinding` takes an optional `context`): Trim T (in a container),
+  Extend Shift+T, Join J, Split U and Offset F (Adam's own LayOut keys), Fillet Shift+F and Chamfer Shift+C
+  (LayOut 2026's), Circle C, Arc Shift+A (A is Floor Area here). `SheetTools__Keyboard__` 1.12.0: the switch's
+  default asks the adapter which tool an action picks up; Ctrl+Z gives an arc's last point back or abandons a
+  circle or a fence half drawn, and is NOT held up by a line a tool is merely holding; an arrow locks the axis of
+  an arc's chord.
+- TYPED SIZES (`Measurements__` 1.9.0, through the sheet tools' context, no tool imported): radius, `3000d`,
+  `6s` (`0s` is Auto again), bulge, `750r`, an angle in degrees, an offset, a fillet radius, a chamfer distance -
+  at the drawing's scale. Offset / Fillet / Chamfer sizes are kept AS TYPED and remembered, so 150 is 150 mm on a
+  1:50 detail and a 1:100 plan alike. A size typed straight after a circle lands resizes that circle.
+- UI: a **Vector Tools** section straight under Vectors, where Adam drew his box - Line, Rectangle, Circle, Arc /
+  Trim, Extend, Join, Split, Offset, Fillet, Chamfer, the one that is up lit, one line saying what it wants
+  next, and only that tool's settings; a selected circle or arc shows its Radius and Sides and can be resized
+  there. Circle and Arc buttons on the toolbar after Rectangle (`Toolbar__` 1.21.0). A plain vector's right-click
+  menu has one row, Vector tools, whose flyout picks a tool up or splits the vector where it was clicked.
+- Object Snap (v2.129.0) reads `Na__LeVecCurve__Describe` for its Centre snap, and the Circle and Arc tools hand
+  it the point they draw FROM - so Perpendicular from a circle's centre lands the circle TANGENT to a line.
+  **`28__System__ObjectSnap` statically imports `37__System__VectorTools/...Curves__.js`: the two folders must
+  go into the same commit.**
+- Service worker token 2026-09-21-18 (the editor's modules import a folder a warm cache has never seen), and the
+  panel's stylesheet joins the precache list so the token governs it.
+
+**How it was proved**
+- `Na__Test__VectorTools__.test.mjs`, new: 138 of 138 - the three pure modules as shipped (crossings, a T, a
+  line looped over itself, trims of lines and of a closed rectangle, extend past a line already touched, split,
+  join in all four arrangements, the weld, circles to a hundredth of a millimetre, arcs both ways round, a trimmed
+  arc still an arc, offsets with a swallowed slot, corners) and every key through the shipped file AND the
+  fallback, with and without a container open. `Na__Verify__Exports__.mjs` passes; all 35 suites pass
+  (`Na__Test__CrossSheetClipboard__` given two stubs for the two new reads).
+- In the app on PS01 D01, fresh modules, a fetch guard refusing every write (its log stayed empty), test shapes
+  off the paper and all deleted afterwards, the browser draft and the settings key removed: every tool driven by
+  pointer and key events on the stage, then the Circle button, two clicks on the paper and `750` + Enter again
+  with REAL clicks and trusted keys. The full list of what was seen is in the plan doc, section 7 - including
+  T staying Text on the sheet and becoming Trim inside a group that then stays open, a cut-off piece landing in
+  the same group straight after the line it came from, a three-line fence undone by one Ctrl+Z, and a line and a
+  circle drawn inside a group becoming members of it.
+- NOT built (plan doc, section 8): grips for a curve, extending an arc along its own curve, a full clean-up of
+  an offset that folds over itself, Bezier handles, freehand, ellipse, eraser, rotate / scale / mirror / align.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.129.0  -  21-Sep-2026
+### A Picked Vertex Was White on White Paper Once Zoomed In; a Grip Now Says Whether Its Point Is on the Drawing; and Object Snap Gets Its Own Folder, Six AutoCAD Modes and a Marker Coloured by What It Found
+
+**Overview**
+- From Adam, over a crop of a vector open for editing at high zoom, with a corner circled where two lines stop short of
+  each other and nothing is drawn: "Fix the vector mode selections. You see here the vectors are white. They should be
+  red when they are in the selection, so it's impossible to see what you're trying to select and edit."
+- "Instead of blue, if they are snapped to a line work element, make them green, but they're blue if they're not ... This
+  will help me validate which ones are definitely in the right corners and places."
+- "Add a button at the top that opens up a dropdown with some snap options. Put little illustrations on each, with SVGs
+  showing AutoCAD-style snap options": corner points ("like what we've got now, which work well and are square"),
+  perpendicular ("if a line I'm drawing hits another line at a perpendicular point, then it will snap"), midpoint ("a
+  triangle"), "any other useful snaps you think of".
+- "Create an actual object snap folder, subfolder, or module folder in my style, move all of the snapping logic there, and
+  call it back into all of the tools ... it's really critically important you map out the entire project's codebase."
+- "The different snap points should be coloured differently as well. If snapping to a viewport ... purple ... other
+  vector-based objects ... blue. For text, orange, and for dimensions, red ... the colour will tell you what object it's
+  matching with."
+
+**The map, before any edit**
+- ONE file held the search and the marker (`30__System__SheetTools/Na__LayoutEditor__Snapping__.js`, endpoints and
+  midpoints only), but the snapping was in FOUR places: the whole-vector and whole-selection snaps lived in the sheet
+  tools' hit resolution, the grid moves in a unit of their own, and a carried viewport's snapping in the viewports
+  folder. Fourteen modules called in: Draw, Rectangle, Dimension, Leader, the drag, the hit resolution, the grid drag,
+  the viewport carry, the picture handles and crop, the parametric grips, the toolbar, the keyboard, the right-click
+  menu and the mode controller - and five test suites loaded the one file by path.
+- The marker's colour meant WHICH TOOL WAS SNAPPING (blue Draw, orange Dimension, purple a carried viewport). Adam asked
+  for the opposite: what was snapped TO.
+- Text could not be snapped to at all, and nothing knew about a LINE: every candidate was a point filed on a grid, so
+  perpendicular, intersection and nearest had nothing to ask.
+- Nine other sessions were live in the repo. The split was agreed by message before any shared file was touched: the
+  Vector Tools session (trim, extend, circles and arcs), the cabinet infill, Floor Area labels, the layer clipboard, the
+  colour palette and the drawing axes each said which files were theirs, and every shared-file edit here was an anchored
+  all-or-nothing patch re-read at the moment of writing.
+
+**The bug: a picked vertex was white (`Na__LayoutEditor__Grips__.js` 1.10.0)**
+- Proved in headless Chrome before anything was changed (a page with the grips' own rules at zoom 1, 2, 4, 8 and 16 on a
+  150% display). The grips were written at `size / zoom` with a border of `1 / zoom`, inside the paper's `scale(zoom)`.
+  Chrome will not lay out a border thinner than one DEVICE pixel, and it applies that floor BEFORE the paper's scale. At
+  8x the 0.125 px border became 0.67 px, which the zoom made 5 px on each side of a 9 px grip: the border swallowed the
+  grip. A plain grip read as a solid blue disc - which is why Adam calls them blue - and a PICKED one, whose border is
+  white, as a solid WHITE disc on white paper. The circled corner in his crop is exactly that: a 16 px white disc over
+  the two line ends.
+- A comment in the file shows this was chased once before (a `Math.max(1, 1 / zoom)` clamp was taken out on 17-Sep); the
+  browser's own floor was still there underneath it.
+- Every grip drawn by this module - Add, the rotate grip's stem, the Shift-click insert diamond - is now laid out at its
+  REAL size in whole pixels and scaled back by `transform: scale(1 / zoom)` (`Na__LeGrips__CounterScale`). A transform
+  has no such floor. Measured in the app on PS01 at 8x: every plain grip 9.0 x 9.0 px, every picked one 13.0 x 13.0 px,
+  red in the middle.
+
+**A grip says whether its point is on the drawing**
+- `Na__LeGrips__StateOf` asks the object snap's new `Na__LeOsnap__OnLinework` for each vertex of the open vector (and
+  for a dimension's two measured points): solid GREEN on an end, a middle or a crossing of a viewport's linework, a
+  green RING on one of its lines at no particular place, solid BLUE on nothing. RED is still the point in hand, and a
+  picked point that is on the drawing wears a green edge - so a vertex dragged onto a corner says so before it is let go.
+- It is a reading of where the point IS (within a hundredth of a millimetre), not a memory of how it got there: nothing
+  ties a vertex to the drawing, so a viewport moved afterwards turns its vertices blue again, which is the truth.
+- On PS01's floor plan as stored: of 300 vertices, 106 are on a point of the drawing, 9 on a line only and 185 on
+  nothing; `Shape_046` has 11 of its 14 corners on the walls, one on a line and two on nothing - the two a glance now
+  finds. All 300 were checked in 2.4 ms.
+
+**The Object Snap folder (new, `51__System__LayoutEditor/28__System__ObjectSnap/`)**
+- `__State__` (a leaf: the F3 switch, the six modes, the five targets, remembered per browser; F3 keeps its old storage
+  key), `__Geometry__` (a leaf: perpendicular foot, nearest point, crossing, centre of area, the grid walk),
+  `__Glyphs__` (a leaf: the marker's shapes and the menu's pictures, one table for both), `__Index__` (a viewport's
+  linework on a 4 mm grid - its POINTS and now its LINES, clipped to the frame), `__Sources__` (what the sheet's own
+  vectors, text, dimensions and paper offer), `__Search__` (Find, Snap, OnLinework, SegmentsInBox: WHAT A TOOL IMPORTS),
+  `__Marker__`, `__Moves__` (were the hit resolution's SnapShapeTranslation and SnapGroupTranslation), `__GridMoves__`
+  (was `SheetTools__GridDrag__`), `__Menu__`, the controller `Na__LayoutEditor__ObjectSnap__.js` (F3, its echo, the
+  config, every label), `__Config__.json`, its stylesheet, and `Na__LayoutEditor__ViewportSnapMove__.js`, relocated
+  from `20__System__Viewports` with its namespace and exports unchanged.
+- A tool imports `__Search__`, not the controller: the controller talks to the Measurements box, which imports the
+  tools that snap, so a tool importing it would close a cycle. Same leaf-and-controller shape as Ortho and the grid.
+- `30__System__SheetTools/Na__LayoutEditor__Snapping__.js` and `SheetTools__GridDrag__.js` are GONE. The first was kept
+  for an hour as a re-export and nothing else, because the Vector Tools session's five tools in flight still imported
+  Snap, ShowMarker and HideMarker from it; it was deleted the moment that session had repointed them, with a grep for
+  importers and `Na__Verify__Exports__.mjs` (485 files) run on either side of the delete.
+- Every caller was repointed, and the three with a point to be square FROM hand it in (`options.from`): Draw's last
+  vertex, the Dimension tool's first point, a dragged vertex's two neighbours (`Na__LeTools__VertexNeighbours`) and a
+  dragged dimension end's other end.
+
+**The snap modes, AutoCAD's, each switched in the menu**
+- Endpoint (a square), Midpoint (a triangle), Intersection (a cross), Perpendicular (a boxed right angle), Centre (a
+  circle) and Nearest (an hourglass). Nearest ships OFF, as AutoCAD advises, and even switched on it is only taken when
+  no other mode has a point in reach.
+- Intersection finds two lines of the drawing that share no endpoint, two vectors, and a vector crossing the drawing.
+  Two lines that meet END TO END do not cross: without that rule it found every vertex round a circle, and went on
+  finding corners with Endpoint switched off (both caught by the new suite, not by eye).
+- Perpendicular needs a point to be square from, so the first point of a line gets none. Proved in the app: a line
+  started at (310.85, 59.64) and hovered over a wall landed at (310.85, 71.64) - the same x to the last digit.
+- TEXT IS A SNAP SOURCE NOW: the four corners of its box, the middle of each side and its middle, turned with it.
+- A closed vector offers its centre of area. A circle or an arc from the Vector Tools offers its centre and quadrant
+  points rather than a vertex every few millimetres (their `Na__LeVecCurve__Describe`, asked only of a vector that
+  carries `Shape__Curve`).
+
+**The marker: shape is the kind, colour is what it belongs to**
+- Purple a viewport's linework, blue a vector, orange text, red a dimension (and its inferred line), slate the sheet's
+  own paper and the drawing grid. One RGB triple per target in the stylesheet, read by the marker and by the menu's
+  swatches, so the menu is the legend. The `tone` argument of Snap and ShowMarker is gone; a caller still passing one is
+  answered as if it had not.
+- SVG glyphs over a white casing, laid out at 18 px and counter-scaled by a transform, for the same reason as the grips.
+- THE DRAWING OUTRANKS A VECTOR'S COPY OF IT. Where a vector's point and a point of the drawing are the same place
+  (within 0.05 mm) the drawing's is taken: the new point lands on the wall's corner itself, and the marker is purple. So
+  a BLUE marker over a drawing reliably means "the vector's point, where the drawing has none". This replaces "on a tie
+  the sheet's own markup is taken", which was written when the colour meant the tool.
+- An optional name beside the marker ("Endpoint - Viewport", AutoCAD's AutoSnap tooltip), off until switched on in the
+  menu.
+
+**The Snap button's arrow (`Na__LayoutEditor__Toolbar__.js` 1.20.0)**
+- AutoCAD's status bar button: a click toggles object snap (F3), the arrow beside it drops the list. Two joined buttons,
+  so the strip - which Adam has just cleared for tools - gives up 20 px. The menu has the F3 switch, the six modes each
+  with a small drawing of what it finds, the five kinds of object each with its colour, and the name switch. It stays
+  open while rows are clicked, never takes the keyboard's focus (F3 works under it), and Escape closes it and nothing
+  else. F3 now echoes `<Osnap on>` / `<Osnap off>` above the Measurements box, as Ortho and the grid do.
+
+**Verification**
+- `Na__Test__ObjectSnap__.test.mjs` (new, 81 checks against the folder's real units): the maths, the switches, every
+  mode and every target on a sheet with linework, vectors, text and a dimension, what is left out of a search, the grid
+  fallback, OnLinework and the glyphs. It found two real faults before the app was opened (above) and a third: a
+  crossing WORKED OUT at 499.00000000000006 was beating an endpoint WRITTEN DOWN at 499, so an intersection now sits a
+  hair behind an endpoint (1.05).
+- `Na__TestEnv__ObjectSnapBundle__.cjs` (new): the folder's units joined with their imports taken out, so a suite runs
+  the real snapping against stubs of everything OUTSIDE the folder. `Na__Test__DrawingGrid__`, `Na__Test__LayerMenu__`,
+  `Na__Test__GroupMoveSnapping__`, `Na__Test__OrthoMode__` and `Na__Test__MoveRetype__` were moved onto it or onto the
+  new names; all pass. `Na__Verify__Exports__.mjs` resolves every name in the folder.
+- In the app on PS01 (localhost, fresh origin, a fetch guard refusing every write - none was attempted): every module of
+  the folder links in the browser with no cycle error; each target's marker resolves to its own colour at 18 px at 8x;
+  the menu opens under its arrow inside the window, its rows switch and are remembered, F3 dims it, Escape closes only
+  it. A REAL DRAG of a free vertex to within 0.06 mm of a wall corner landed on it bit for bit, the marker a purple
+  square, the grip red with a green edge while still held, OnLinework 'point' after, and one undo put the vector back
+  byte-identical. The index took about 10 ms per viewport to build (some 4,000 lines each).
+- NOT tried by Adam; NOT in ValeVision.
+
+**Choices made, for Adam to confirm**
+- Green is "on a corner, a middle or a crossing of the DRAWING"; a green ring is "on one of its lines only"; vectors,
+  text and dimensions do not make a vertex green. Picked stays red, with a green edge when it is also on the drawing.
+- The drawing outranks a vector's copy of it (0.05 mm), so a blue marker over a plan means the drawing has no point there.
+- Nearest ships off. Centre is a closed vector's centre of AREA (an L-shaped room's is inside the L, not the middle of
+  its box).
+- The dropdown is an arrow on the existing Snap button rather than another button on the strip.
+- Snap modes and targets are remembered per BROWSER, like Ortho and the grid - not per project.
+
+**Not done, and worth knowing**
+- The viewport crop handles (`Na__LayoutEditor__ViewportHandles__.js`) and a picture's corner grips
+  (`Na__LayoutEditor__SheetImages__Handles__.js`) size themselves the old way and swell into solid blobs past about 5x
+  for the same reason the vertex grips did. They are never white, so nothing disappears, and they were left alone.
+- The `LayoutEditor__Labels__SnapToggleTitle` string in the app config is no longer read (the button's words are in the
+  new folder's config).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.128.0  -  21-Sep-2026
+### A Cabinet Infill for the Scrapbook: Adam's Dashed Cross and Boxed Name, Measured Off His LayOut Plans and Drawn to Fit the Cupboard It Is Dragged Over
+
+**Overview**
+- From Adam, with two plan crops (a store room's Storage and Shelving units; a wardrobe in Bedroom 1): "Add a new
+  dynamic scrapbook element to be able to draw these styles of cabinet infills that say "Storage" by default and have
+  a dotted mid-grey, fairly thin, lightweight, dashed corner-to-corner line like these, but then with a filled text
+  box centred." A fill underneath - off by default, white when switched on, "because it's all vector-based inside, I
+  can go in and change the colour if needed" - and text options: Storage, Services, Full Height Storage, Wardrobes,
+  Pantry Unit.
+- Both crops are LayOut output, not TrueVision. The wardrobe is NP03 Ashness Close's First Floor Plans (page 91617 of
+  its planning pack), and the store room uses the same infills from the LayOut Core Scrapbook. No TrueVision sheet,
+  in the repo or on R2, holds a Storage label.
+
+**The house infill, measured** (the vector PDF of NP03 D07 Rev C, 31-Mar-2026, read with PyMuPDF: five Storage
+infills and a Shelving one, all alike)
+- The cross: #333333, 0.15 pt, dashed 0.9 pt on 0.9 pt.
+- The words: Open Sans Regular 6 pt (2.1167 mm), #333333, centred. An upright infill's words read UP the sheet.
+- Their box: #fcfcfc under the same dashed rule, 0.706 mm (2 pt) clear of the words at each end and 3.034 mm deep -
+  8.978 x 3.034 round Storage - with the baseline 0.856 mm below its middle.
+- "Mid-grey" is how that dark grey READS at 0.15 pt: the diagonals in Adam's own crop are pixels of #5e5e5e to #6b6b6b.
+  A paler colour at that weight all but disappears. The colour is one value, `CabinetInfill__LineColour`; the
+  crosses Adam has hand-drawn on PS01's plans in TrueVision are #999999 at 0.2 pt, if that is the look he prefers.
+
+**The element** (`57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js`
+1.0.0, NEW and pure; config 1.5.0: a CabinetInfill block, one tile, `Meta__Infill`)
+- One tile, Cabinet Infill, offered on architectural sheets. Dropped INSIDE a scaled drawing it is 1800 x 600 mm on
+  the ground at that drawing's scale - 36 x 12 mm at 1:50, 18 x 6 at 1:100 (`Element__RealSizeMm`, read by the
+  panel). Dropped anywhere else it is 36 x 12 mm.
+- Paper millimetres, and never tied to a drawing (`linkable : false`: no socket, no noodle, no scale). The origin is
+  the infill's top left corner.
+- THE CORNER IS THE GRIP. A blue square ON the far corner drags both sides at once and snaps like the Draw tool
+  does: object snaps first, then the grid while F7 is on, with the element's own vectors left out. A snapped corner
+  is kept exactly; a free one steps 0.1 mm. Moving the whole element already snaps whichever of its corners comes
+  near a snap point, so fitting one is: drag it onto the cupboard's near corner, then its grip onto the far one.
+- The words: the six listed - Adam's five, and Shelving, which his own screenshot labels - on the lookup triangle
+  and in the panel, and Own words in the panel, which win until the box is cleared. They run along the longer side
+  (or across, or up, by choice). When they would come within 1 mm of the cabinet's ends they break at their spaces
+  over up to three lines, as evenly as they will: "Pantry / Unit" in a 600 mm square unit at 1:50, "Full Height /
+  Storage", never "Full / Height Storage". A single word is never cut.
+- White fill underneath: off as dropped, when there is no fill record at all, so the cabinet the model draws shows
+  through. On, a white rectangle with no rule lies under everything and blanks it out. The panel shows a colour box
+  beside it.
+- The records are [fill], line, line, box, words. The fill comes first so it paints underneath, and the origin is
+  the first point of vector one either way. Switching the fill on moves the vectors up a slot and adds one at the
+  end, so the paper order stays fill, cross, box.
+- Refit: a box drawn to the chrome's estimate, before the fonts load, is rebuilt to the real words by the sheet's
+  next refresh. It is the same mechanism as the drawing title's underline.
+
+**What is restyled by hand is kept** (`Na__LayoutEditor__ScrapbookParametric__.js` 1.6.0: a type's optional
+`adopt(params, records)`)
+- A type may say what its members, as they stand, now say about its parameters. The infill reads back the fill's
+  colour and opacity, the cross's colour, weight and dash, the box's fill, rule and dash, the words' colour, weight
+  and size, and words typed over the label inside the group. It never reads the geometry: a rebuild puts the cross
+  back corner to corner and the words back in the middle.
+- Adopted at EVERY read (`GetParams`), not only at a rebuild. The grips take the parameters when a drag begins and
+  hand back whole parameter sets from then on, so a hand edit read only at rebuild time would be drawn over by the
+  stale copy the drag carried, and Escape would put that copy back. `Regenerate` lays it under the patch, so an
+  explicit choice still wins.
+- A style equal to the house one is not stored, so the block stays seven keys long until somebody changes a colour,
+  and the element follows the config for everything nobody has changed.
+
+**Around it**
+- Panel (`Na__LayoutEditor__Panel__ScrapbookParametric__.js` 1.6.0): the infill's own block, which shows what it
+  reads, Label, Own words (with the one sentence while they are in force), Words run, White fill underneath and its
+  colour, Width and Height in mm, and a line saying "625 x 4480 mm on the drawing at 1:50" when it lies on one,
+  then Text size. The tools now hand a type the Text setup's `lineSpacing`, which is what a broken label's box is
+  built to.
+- Grips (`...ScrapbookParametric__Grips__.js` 1.5.0, after the object snap moved into `28__System__ObjectSnap`): the
+  corner grip described above. The lookup triangle of an element with no scale (the infill, the Portal block, the
+  area schedule) is titled Options, not "Scale and options".
+- Stylesheet (`...Styles__ScrapbookParametric__.css` 1.2.0): the corner square and its diagonal cursor while held.
+
+**Service worker**: no bump of its own. No new import names an export that a warm cache lacks, and the new module
+has never been cached. The token on disk, 2026-09-21-16 (bumped by v2.125.0 to v2.127.0), covers this release when
+they deploy together.
+
+**How it was proved**
+- `80__Testing__PrototypeEnvironment/Na__Test__ScrapbookCabinetInfill__.test.mjs` 1.0.0: 64 checks, all passing.
+  - It runs with Open Sans Regular's own advance widths (read from the TTF the PDFs embed), so the box round
+    Storage is compared with NP03's 8.978 x 3.034 mm to the thousandth, and Shelving's with 9.631.
+  - It checks the order with the fill on and off, the upright words and their baseline, the balanced break, the
+    lean parameters, the corner stepping and snapping, the menu, and adopt: a fill, a line and a box restyled by
+    hand are kept through a rebuild while a bent line goes back, and a deleted member misreads nothing. It checks
+    refit in both directions.
+  - The ScaleBar, DrawingTitle, ProjectQr and AreaSchedule suites still pass, and `Na__Verify__Exports__.mjs`
+    passes (483 files).
+- In the app, on a scratch copy of PS01 D01 Floor Plans (two 1:50 plans), with a fetch guard that refused every
+  write. None was attempted all session.
+  - The tile drops a 36 x 12 infill inside the 1:50 plan, and an 18 x 6 one inside a plan set to 1:100.
+  - Dragged by its label, the infill's corner snapped exactly onto the corner of the Dressing Room wardrobe.
+  - The corner grip, let go 2 px off the far corner, snapped onto it: 12.5 x 89.6 mm (625 x 4480). The ids were
+    unchanged, it was one undo step, and the words turned upright by themselves.
+  - Label, Own words, Words run, fill, fill colour and text size all worked from the panel, and the triangle's menu
+    worked too.
+  - Undo x5 and then redo x5 came back byte for byte, and Escape in mid-drag left the sheet byte-identical.
+  - A fill recoloured by hand (#e8e0d0) and a line made #999999 and solid were kept by the next rebuild, and the
+    panel's colour box showed #e8e0d0. A box recoloured by hand was kept through a corner drag.
+  - A box redrawn to the estimate was refit by `Na__LeParamLink__Refresh`.
+  - `Na__LePdf__BuildDocument` drew nine 0.907 pt dash patterns - the infills' crosses and boxes - and the upright
+    labels at 90 degrees.
+  - The real sheets came back byte-identical, and the draft was cleared.
+- NOT tried by Adam; NOT in ValeVision (it needs the engine's adopt hook and the grips' corner snap with it).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.127.0  -  21-Sep-2026
+### A Paste on Another Sheet Brings Its Layer: Found by Name, or Made Where It Sat in the List, in the Same Undo Step
+
+**Overview**
+- From Adam, after the Layer flyout (v2.123.0) worked: "there's no persistence when you copy layers between different
+  pages. If you cut and paste or copy and paste between two different pages, it should automatically create that layer
+  in the same position in the hierarchy on the page you're pasting it to."
+- His real case, on RB05 as stored: Rear Elevation (D03) has a layer of his own, Guides (General), at the top of its
+  list, holding the eight red construction lines; West Elevation (D04) has no such layer. A copy of the lines pasted on
+  D04 went to Vectors.
+- Why: layer ids are PER SHEET. Guides is Layer_006 on D03, and Layer_006 is the Images layer on Project Introduction.
+  A paste onto another sheet could only trust an id when the layer it named there had the item's own type, so
+  anything on a layer the user made - typed General - fell back to its kind's layer.
+
+**The paste** (`30__System__SheetTools/Na__LayoutEditor__ItemClipboard__.js` 1.6.0)
+- A copy (Ctrl+C, the menu's Copy, and a cut) keeps its sheet's layer list with it - each layer's id, name and type,
+  top of the list first (`sourceLayers`).
+- A paste on ANOTHER sheet puts each item on the layer of the same NAME there (`Na__LeClip__Landing`), case and runs of
+  spaces ignored. A sheet without that layer gets one, with the source's name and type, in the same place in the list:
+  directly over the layer it sat over on the sheet it came from, else directly under the one it sat under, else the
+  same place in the list (`Na__LeModel__LayerIndexLike`). Guides, top of D03's list, goes to the top of D04's.
+- It is made silently and rides in the paste's ONE undo step: one Ctrl+Z takes the pasted items and the layer away
+  together. A 'layers' announcement afterwards redraws the Layers list and the paint order.
+- A layer of the same name found HIDDEN is switched on, since a paste that vanished would read as one that failed.
+  One found LOCKED takes nothing, as a locked layer takes nothing from the Layer flyout: its items go to their kind's
+  layer (unless that is the locked layer itself, where they were going anyway). One that is a REFERENCE layer takes
+  them, as the layer they came from did, and they are left out of the selection, since the pointer cannot reach them.
+- The toast says what happened to the layers: "Pasted 8 items in the same place. Added the Guides layer to this sheet,
+  in the same place in the list." - or that a layer was switched on, is locked, or is a reference layer. A second paste
+  finds the layer the first one made and says nothing more.
+- Unchanged: a paste back on the sheet it came from, a Duplicate and a Ctrl-drag copy keep the original's layer by id
+  (v2.123.0), and a Scrapbook item, which brings no layers, keeps the rule by type.
+
+**The model** (`Na__LayoutEditor__SheetModel__Layers__.js` 1.4.0, `Na__LayoutEditor__SheetModel__.js` 1.31.0)
+- `Na__LeModel__GetLayerByName` - what a layer IS from one sheet to another is its name.
+- `Na__LeModel__LayerIndexLike(sheet, names, at)` - where a layer from another sheet's list goes in this one, answered
+  by its neighbours rather than by counting, because the two lists need not hold the same layers.
+- `CreateLayer` takes `opts.silent` and `UpdateLayer` takes `silent`: the sheet is marked changed and nothing is
+  announced, for a caller that announces once for everything it did.
+- `Na__LeModel__IsItemPickable` - DropUnpickable's test for one item, exported: its layer shown and not a reference
+  layer; a group while any member is.
+
+**Config** (`Na__LayoutEditor__AppConfig__.json`): `PasteLayerMadeOne`, `PasteLayerMade`, `PasteLayerShownOne`,
+`PasteLayerShown`, `PasteLayerLockedOne`, `PasteLayerLocked`, `PasteLayerReferenceOne`, `PasteLayerReference` - one
+layer and several, for each thing the toast can say.
+
+**Service worker** (`TrueVision__Pwa__ServiceWorker__Logic__.js` 1.9.24): token 2026-09-21-16 - the clipboard imports new
+names from the sheet model (`Na__LeModel__GetLayerByName`, `Na__LeModel__LayerIndexLike`, `Na__LeModel__IsItemPickable`).
+
+**How it was proved**
+- `Na__Test__LayerMenu__.test.mjs` 1.1.0, 75 checks, every one passing. The new ones run the clipboard through the REAL
+  Layers unit, on RB05's sheets as stored: West Elevation (no Guides, Viewports above Floor Areas) and Project
+  Introduction (where Layer_006 is Images). Covered: GetLayerByName; LayerIndexLike over, under, neither, and Guides at
+  the top; silent CreateLayer and UpdateLayer; IsItemPickable; a paste making the layer in its place with the lines and
+  a note on it and the drawing's own line on Vectors by name; one undo step (every announcement sees the same finished
+  sheet); the toast; a second paste reusing the layer; a CUT; hidden, locked (and a locked kind's own layer), reference;
+  a paste back home unchanged; two layers made in their places. Run against the code as it was, 14 of them fail.
+- `Na__Test__CrossSheetClipboard__.test.cjs` fixture given the new model names (its sheets keep no layer list, so it
+  still proves the paste by id and type is unchanged). Every suite passes - the 32 `.mjs` files and the `.cjs` ones,
+  32 of 32 - and `Na__Verify__Exports__.mjs` passes (485 files).
+- In the app on RB05, fresh modules, a fetch guard refusing every write (none was attempted): on D03 the eight Guides
+  lines selected and a real Ctrl+C ("Copied 8 items."); on D04 a real Ctrl+V made Guides at the TOP of the list - as on
+  D03 - with all eight on it, selected, the Layers panel listing Guides first, and the toast naming it. One Ctrl+Z put
+  D04 back byte-identical, layer and all; Ctrl+Y brought both back; a second Ctrl+V put eight more on the same Guides
+  layer with a plain toast. Two undos left D04 byte-identical to where the test began, and D03 was never touched.
+- NOT tried by Adam; NOT in ValeVision.
+
+**Choices made, for Adam to confirm**
+- A layer is the same layer on another sheet when it has the same NAME, whatever its id, type or capitals.
+- A layer made by a paste starts as the Add button makes one: shown, unlocked, selectable. It does not copy the source
+  layer's switches.
+- A hidden layer of the same name is switched on by a paste; a locked one is refused (its items go to their kind's
+  layer, and the toast says so); a reference one takes them, seen but not picked.
+- The layer rides in the paste's undo step and is saved with Save Sheets like every other layer change.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.126.0  -  21-Sep-2026
+### A Colour Palette Opens Above Every Colour Field; a Hatch Gets Its Own Line Weight and Colour; and the Construction Materials Pack Is Drawn
+
+**Overview**
+- From Adam: "Colors Pallete - currently, I have to manually set every RGB, hexadecimal, etc. With that menu that pops up
+  to allow me to pick colours, have a palette that appears above it with two rows of sensible-sized palettes that I can
+  click. Clicking it immediately copies that colour, but this should apply to all of the different fields ... We need a
+  proper colour palette manager and to create a new JSON config for that colour palette manager, so we can save
+  standardised colours into there. To start with, save all of the grey tones that are in my SSOT for my edge colours ...
+  Make the colour palette feature its own subfolder because it is a feature, and then it can be reused in everything ...
+  For each of these colours, we will give a menu name and a technical name, and the menu name and group." The second
+  group is the dimension colours: Proposed `rgb(150,0,0)`, Existing `rgb(0,0,0)`, Special `rgb(0,0,150)`.
+- And: "add some more materials to the construction materials patterns ... a 45° cross-hatch for brickwork, a blockwork
+  crisscross, and other construction-related ones ... A line thickness control for the pattern. A line colour for the
+  pattern, so that the vectors that are generated in the pattern get a colour and a line thickness ... Pull the standard
+  ones in for when you first load that, but then have controls to be able to modify it."
+- "The project is highly modular, so make sure you map it all out before touching anything." The map, before any edit:
+  - EVERY colour field in the Layout Editor's panels is made by one function, `Na__LePanels__Input('color', ...)` (fifteen
+    call sites in eight files, plus rows built at run time). One more is made by hand: the 3D tab's Plan Annotations
+    dimension colour. The Model Layers edge colour is a list of named SSOT colours, not a colour field.
+  - A vector already carried a hatch (`Shape__Hatch`) and the record layer already KEPT a `Hatch__Colour` that no control
+    ever wrote. A pattern's weight was its file's `Defaults__StrokeMm` and nothing else.
+  - `02__ConstructionMaterialHatches` existed, empty, and was deliberately unlisted.
+- The image the brief refers to ("See my image") did not reach this session, so the pack below is the British drawing
+  conventions rather than a copy of it. Anything it showed that is missing is one JSON file to add.
+
+**What changed - the Colour Palette (new, `02__Src__AppModules/54__Feature__ColourPalette/`)**
+- A top-level feature folder, not part of the Layout Editor, so the 3D tab uses it too. Five files:
+  `Na__ColourPalette__Config__.json` (the colours), `...__Manager__.js` (reads them; a leaf, it imports nothing),
+  `...__Picker__.js` (the palette element), `Na__ColourPalette__.js` (the one door in: everything outside the folder
+  imports from it) and `...__Styles__.css`. `README__ColourPalette__.md` says how to add a colour, a group or a palette.
+- The config nests PALETTES > GROUPS > COLOURS, each keyed by its technical name (`ColourPalette__{Group}__{Colour}`), each
+  colour carrying `Colour__MenuName`, `Colour__TechnicalName`, `Colour__MenuGroup`, `Colour__Hex` and `Colour__Rgb`.
+  - `ColourPalette__Monochrome`: the ten greys of the Edge Materials SSOT's `MTE100__GreyscaleSeries__` (v2.1.0), black to
+    white, each with its `Colour__SsotKey`.
+  - `ColourPalette__Dimensions`: Proposed `#960000`, Existing `#000000`, Special `#000096`.
+  - Spelt `ColourPalette`, not the brief's `ColourPallette`: a technical name is what other configs will refer to, so it
+    takes the dictionary spelling once, now.
+  - With two or more palettes a menu appears at the head of the palette and the choice is remembered in the browser.
+- One click on a colour field opens the browser's own colour menu, as before, AND the palette directly above the field:
+  one captioned row of 22 px swatches per group, and a readout (menu name, hex, technical name) of the swatch under the
+  pointer or of the field's current colour. A swatch click puts the colour in the field and closes both.
+  - The field is not changed. A pick writes `input.value` and dispatches the same bubbling `input` then `change` the
+    browser's menu sends, so every panel hears it through the handlers it already has. No panel was edited for it.
+  - The browser hangs its menu from the field's own box and flips it ABOVE the field when there is no room below -
+    over the palette. So the field's click is cancelled and the menu is opened (`showPicker`) from an invisible proxy
+    laid exactly over the field, or moved up just far enough to leave the menu its room; the proxy's events are relayed.
+  - It stands aside (the browser's menu alone, as before) until the config has loaded, when switched off, and on a
+    disabled field, so the read-only web viewer is untouched.
+- Wiring: `Na__LePanels__Input` attaches every colour input it makes (PanelHost 1.6.0) - seventeen fields counted in the
+  running editor. `Na__PlanAnnotations__Toolbar__` 1.1.0 attaches the dimension colour. The stylesheet is an `@import` in
+  the style index, never injected on first use.
+- `Na__ColourPalette__Hex('ColourPalette__Dimensions__Proposed', '#960000')` gives code a standard colour by name.
+
+**What changed - a hatch's own line weight and colour**
+- `Hatch__StrokePt` (printed points, the unit every other weight is typed in) and `Hatch__Colour`, on a vector's
+  `Shape__Hatch` and on a site plan layer's per-viewport hatch. Both are absent until set, and absent means the pattern's
+  standard, so every hatch saved before today reads, paints and saves as it did.
+  - A pattern's own `Defaults__StrokeMm` is a tile length and GROWS with the pattern scale, as it always has. A typed
+    weight is a paper weight and does NOT: 0.50 pt is 0.50 pt at scale 0.25 and at scale 4.
+  - HatchPatterns 1.3.0: `PatternDef`, `SvgPaint` and `DrawPdf` take `strokePt`; `Effective` and `Token` carry both (so a
+    site plan frame repaints the moment either is set); `ClampStrokePt`, `CleanColour`, `StandardStrokePt` and
+    `StandardColour` are new. SheetRecords 1.30.0 keeps both; SheetChrome 1.12.0, the site plan painter and the PDF
+    exporter pass them through.
+- Vectors panel 1.9.0: Pattern line pt and Pattern colour under Pattern deg, and a Standard line and colour button that
+  shows once either is set. Patterns panel 1.1.0: Line pt, Line colour and the same button for the chosen layer. The boxes
+  show what the hatch is DRAWN with - the standard until a value is set. An emptied weight box goes back to the standard.
+  Choosing another pattern clears both, so each pattern starts from its own standards. Twelve labels added to the config.
+- TWO BEHAVIOURS CHANGE, both on purpose:
+  - A pattern with an ink of its own now keeps it on a VECTOR, as it always has on the site plan: order is the hatch's
+    own colour, then the pattern's ink, then the shape's edge colour. Until today Grassland hatched onto a drawn shape
+    took the shape's edge colour. Only the two grass patterns carry an ink.
+  - The pack order is now the folder order, Construction Materials first, so ticking a vector's Hatch with nothing chosen
+    picks Brickwork rather than Mixed Woodland.
+
+**What changed - the screen now draws what crosses a tile seam**
+- A browser clips a `<pattern>` at its tile edge; the PDF stamper clips nothing. Every glyph so far had to sit inside its
+  tile or carry a hand-placed knit copy. A LINE hatch cannot - brickwork's diagonals cross every seam - and a line
+  clipped square where it meets a seam at 45° loses a sliver off one edge there, more the heavier it is drawn.
+- `Na__LeHatch__SeamCopies`: `PatternDef` also draws each neighbouring tile's marks wherever their ink (the centreline box
+  grown by half the line weight) reaches into this tile. A mark inside its tile gets nothing, and a knit copy placed by
+  hand is not made twice, so Mixed Woodland, Grassland and Rough Grassland are written byte for byte as they were.
+- PONDS & LAKES CHANGES, and rightly: its two lowest ripples touch the tile's BOTTOM seam, which nobody had knitted, so
+  the screen has always shaved half a line width off those troughs where the PDF printed them whole. They gain four copies.
+
+**What changed - the Construction Materials pack (`52__LayoutEditor__HatchPatternLibrary/02__ConstructionMaterialHatches/`)**
+- Fourteen patterns, strokes only, `inherit` for colour (a vector's edge colour until one is picked), 0.25 pt as standard
+  for line hatches, 0.35 pt for marks and 0.70 pt for the stipple. The library index lists the pack (1.1.0).
+  - Masonry: Brickwork (45° Hatch), Blockwork (Criss-Cross).
+  - Concrete & Fill: Concrete, Hardcore, Earth / Subsoil, Screed & Render (Stipple).
+  - Insulation: Insulation (Quilt), Insulation (Rigid Board).
+  - Timber & Metal: Timber (Grain), Steel & Metal (Paired Diagonals).
+  - Elevation: Brick Coursing, Block Coursing (both stretcher bond), Roof Tiles (Plain Tile), Cladding Boards. These are
+    real sizes at 1:50 - SET PATTERN SCALE TO 50 / THE DRAWING SCALE (0.5 at 1:100); a hatch is paper-sized and does not
+    follow a viewport's scale by itself. Their bounds run 0.10 to 10.
+- Every number is fixed in its file. The scatters (concrete, hardcore, stipple) are blue noise scored on a torus. The rules
+  for a line that crosses a seam are in the pack index: end exactly on the edge, never through a corner or along an edge.
+- A pack may name the ink its library tiles are drawn in (`Pack__SwatchInk`, Soft Black here); the site plan pack names
+  none and keeps its green.
+- Two faults found on the way, by rendering at print size through the shipped module:
+  - The first timber grain left its tile heading slightly up and entered the next heading slightly down - a kink at every
+    seam. Its curves' end control points now share the height of the ends. The test refuses the old curve by name.
+  - The quilt's loops were two cubics, which the PDF's twelve-chords-per-cubic flattener turned into visibly straight
+    sides. Written as six, each of the two cut in three; the screen draws the same curve either way.
+
+**How it was proved**
+- `Na__Test__ColourPalette__.test.mjs` (new): 36 checks. The config against the Edge Materials SSOT FILE itself, key for
+  key and value for value; every name three-stage, unique and under its own group; every hex against its rgb; the
+  palette's placing in the three cases (room below, near the foot, near the top); and the wiring - a source file that
+  makes an `<input type="color">` without `Na__ColourPalette__Attach` fails by name (confirmed able to fail).
+- `Na__Test__HatchLineControls__.test.mjs` (new): 47 checks. The weight on the SVG and on a PDF's `setLineWidth` at three
+  scales and at 1:500; the colour order on a vector; seam copies (none inside a tile, none over a hand knit, more at a
+  heavier weight); the record layer; and every construction pattern against the seam rules, including that every line
+  ending on a seam meets its continuation on the opposite edge travelling the same way - read from the path's control
+  points, because a smooth curve that peaks on a seam has a first chord that is not level.
+- `Na__Test__SitePlanComposites__.test.mjs`: 96 checks (91 as before, 5 new) through the shipped site plan painter - a
+  layer's colour beating both the layer's line colour and a pattern's own ink, and 0.60 pt at 1:500 and at half scale.
+- `Na__Verify__Exports__.mjs` passes (485 files, with the Vector Tools and Object Snap work in progress on disk).
+- All fourteen patterns rendered at true print size in headless Chrome, with a x7.5 close-up over a tile corner at 1.50 pt:
+  no nick at any seam.
+- In the app on PS01, fresh modules from a no-store server, a fetch guard refusing every write (none was attempted), on
+  scratch copies of D01 and D04:
+  - A REAL click (trusted events) on Edge colour opened the palette above the field - Monochrome 10, Dimensions 3, 22 px
+    swatches - and asked the browser for its menu from the proxy. Low in the panel the pair moved up 90 px to keep the
+    menu its room; higher up the proxy sat exactly over the field, 6 px under the palette.
+  - A real click on Mid Grey: the field, the record and the hatch's ink on the sheet all read `#999999`, the palette
+    closed, the selection held. A real click on Proposed in the hatch's own field stored `Hatch__Colour #960000`.
+  - FOUND AND FIXED IN THE APP: after a pick the field kept the focus, and a panel never overwrites the focused control -
+    so an undo straight after put the drawing back and left the box showing the undone colour. The field now lets go of
+    the focus after a pick, as it does when the browser's menu is clicked away. Re-run with real clicks: pick, undo and
+    redo each left the box and the record agreeing.
+  - Pattern line pt 0.5 painted 0.17639 mm at scale 1 and again at scale 2. Standard cleared both in ONE undo step, which
+    undo brought back. Changing the pattern to Concrete cleared both and the box read that pattern's 0.70 pt at scale 2.
+  - All seventeen colour fields in the running editor opened the palette, one of them built at run time.
+  - The Patterns panel stored, and Standard cleared, a layer's own weight and colour. NOT SEEN PAINTED THERE: PS01's site
+    plan export carries no filled areas, so no hatch paints on it at all. That path is the five new painter checks above.
+  - Both scratch sheets gone, the sheets byte-identical to their snapshot, the browser draft removed.
+- Service worker token bumped to `2026-09-21-15`: existing modules import new names from the hatch module, and the panel
+  host imports a new module, so a warm cache would fail to link.
+- NOT tried by Adam; NOT in ValeVision. The browser's own colour menu was asked for but never SEEN - a headless pane
+  cannot show it - so how the two sit together on a real screen is the first thing to look at.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.125.0  -  21-Sep-2026
+### A Room's Label Starts in the Middle of Its Box, and in Edit Mode It Can Be Dragged to Wherever It Reads Best
+
+**Overview**
+- From Adam, over a screenshot of an RB05 room open in edit mode (Area 2, 32.69 m² - Formal Lounge in the repository
+  copy of D10 - Ground Floor Plan), the label circled and an arrow dragging it away: "On areas, make it so that when
+  you're in the edit mode for them, you can click to drag the text box. It's quite rightly centering it in the middle of
+  the shape, I think. Check that it, by default, is centering it on the centre of the bounding box, which should be the
+  standard behaviour. If you need to nudge it for awkward-shaped rooms, etc., you should just be able to grab it and
+  move it, and then it should save that position."
+- It was NOT centred on the bounding box. The label sat at the room's visual centre, the middle of the largest circle
+  that fits inside it. On a room with a bay, a chimney breast and a recess that point floats: the chimney breast and the
+  right wall pin it across, nothing pins it up and down, and it settled 5.79 mm of paper up and to the right of the
+  middle - where the screenshot shows it. Traced from the screenshot, the visual centre comes out at x = 690 px, exactly
+  where the label was painted.
+
+**What changed**
+- A label's home is the middle of the room's bounding box (`Label__Placement : "box"`, the new standard).
+  - Where that middle is not inside the room at all - an L, a U - the label takes the visual centre instead, so it is
+    never written in the garden or across the room next door. This fallback is the build's own addition, not Adam's
+    words. `"visual"` puts every room back on the visual centre.
+  - `Na__LeAreaGeo__LabelHome` (Geometry 1.1.0) is the rule, pure and tested in Node. `Na__LeArea__Measure` (Floor Areas
+    1.2.0) answers `home`, and `labelAt` is home plus any dragged offset.
+  - The visual centre keeps its other two jobs: it picks the drawing a room is measured against, and it sizes the
+    label's shrink to fit - the ROOM's circle, so moving the label never changes its size (Paint 1.1.0).
+  - On RB05 D10 two of the seven rooms move: Formal Lounge by 5.79 mm and Executive Study by 3.96 mm. The five
+    rectangles do not, because for a rectangle the two points are the same.
+- In edit mode the label drags. New module `Na__LayoutEditor__FloorAreas__LabelGrip__.js`:
+  - Double-click a room (or Enter) and a dashed box stands round its name and figure, arriving with the corner grips.
+    Press inside it and drag. Outside edit mode nothing has changed: a press on the label selects the room, and Move
+    moves the room and its label together.
+  - It saves as the offset the record already had room for, `Area__LabelDXMm` / `Area__LabelDYMm`, paper millimetres
+    from home. So the label travels with the room, follows a corner dragged later, and reaches the PDF and the web
+    viewer through the same painter as the screen.
+  - One undo step per drag. Escape, or a cancelled pointer, puts it back. Shift or Ortho (F8) holds the axis.
+  - Dropped within 8 px of home (`Label__HomeSnapPx`) it snaps home and both keys are dropped. The panel's Centre the
+    label does the same, and so does Centre its label on the room's right-click menu outside edit mode.
+  - A corner beats the words. A press inside the box within reach of a corner goes to the corner, and so do an Alt press
+    (a box inside the room) and a Shift press on an edge (insert a corner). Only Select and Move drag the label.
+  - The box takes its own presses, as a picture's corner grips do (a shape grip provider), so no sheet tools file
+    changed. The Floor Areas panel's registration attaches it (Panel 1.2.0), and its styles are in the Floor Areas
+    stylesheet.
+- Config: `Label__Placement`, `Label__HomeSnapPx`, `Label__GripPaddingPx` and `Labels__LabelGripTitle`.
+- Service worker token bumped to `2026-09-21-14`: the Floor Areas module imports new names from its Geometry module, and the
+  panel imports a new module, so a warm cache would fail to link.
+- Left alone on purpose: in edit mode the right-click menu is the points menu, which the Vector Tools work is rebuilding,
+  so Centre its label was not added there.
+
+**How it was proved**
+- `Na__Test__FloorAreas__.test.mjs`: 11 new checks, all passing. Among them are Adam's room traced from the screenshot
+  (its box middle, and its visual centre more than 3 mm away), an L and a U falling back to points inside themselves,
+  and `visual` placement.
+- `Na__Verify__Exports__.mjs` passes (473 files).
+- In the app on RB05 D10, with fresh modules from a no-store server and a fetch guard refusing every write (none was
+  attempted):
+  - Formal Lounge's painted label sits at the middle of its box (x 143.435 mm, the block centred on y 167.65 mm).
+  - Selected, it shows no box. Opened, it shows the box and its 18 corner grips. `elementFromPoint` on the label finds
+    the box, and the cursor is `move`.
+  - A real mouse drag (trusted events) stored 13.94 / 20.43 mm, matching the pointer's travel, as ONE `shape` change.
+    Undo took it off and redo put it back. A real drag back, released 4.9 px from home, snapped home with both keys
+    gone.
+  - Escape mid-drag restored the label with no announcement. With the box parked over corner 3, a press there started
+    the sheet tools' vertex drag instead. Shift held the axis (16.83, 0). Moving the room by (12, -7) moved the label by
+    (12, -7). With the label switched off, or the layer locked, there was no box.
+  - After six undos the sheet was byte-identical to its snapshot, and the browser draft was removed.
+- NOT tried by Adam; NOT in ValeVision (Floor Areas goes across whole, once signed off).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.124.0  -  21-Sep-2026
+### Undo, Redo, Fit and the Zoom Readout Leave the Drawing Toolbar; Their Keys Stay
+
+**Overview**
+- From Adam, over a crop of the Layout Editor toolbar (Undo, Redo, Fit, 162%): "Remove these and clean up the code
+  for them. Keep the hotkeys, but these are useless. I never use them, and I'm going to need the space to add a new
+  feature."
+
+**What changed**
+- `Na__LayoutEditor__Toolbar__.js` 1.19.0: the Undo, Redo, Fit and zoom readout buttons are gone, with the two
+  separators that fenced them. The strip is 245 px shorter, measured in the app with the same classes and words.
+  - Nothing left on it reads the undo depth or the zoom, so it no longer listens for `Na__LeHist__CHANGED_EVENT` or
+    `Na__LeSurface__ZOOM_EVENT`. `SyncZoom`, its listener and the imports from History, Navigation and SheetSurface
+    are gone with them.
+  - An undo still re-syncs the toolbar, through the model change it announces (`Na__LeModel__AnnounceRestore`). An
+    edit now costs one full toolbar sync where it cost two.
+- Comments brought up to date in `Na__LayoutEditor__Navigation__.js` (who calls Fit and ZoomTo) and
+  `Na__LayoutEditor__Eyedropper__.js` (what re-syncs the toolbar). No behaviour change in either.
+- Kept as they were:
+  - Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z.
+  - The right-click menu's Zoom to fit, Undo and Redo.
+  - The key map's `Nav__ZoomFit` (F) and `Nav__ZoomActualSize` (1), which still ship switched off.
+  - The web viewer's own Fit button.
+  - The `Undo` and `Redo` labels, which the right-click menu and the specification bar still read.
+- No new import anywhere, so no service worker token bump.
+
+**How it was proved**
+- `Na__Verify__Exports__.mjs` passes (456 files).
+- In the app on PS01 D01, with fresh modules from a no-store server and a fetch guard refusing every write (none was
+  attempted):
+  - The toolbar reads name | Select ... Ortho | Raster | Save Sheets, Download PDF. There is no Undo, Redo, Fit or
+    zoom button, and no doubled separator.
+  - An arrow-key nudge of Text_004, then Ctrl+Z, Ctrl+Y and Ctrl+Z on the stage: undone, redone and undone again. The
+    sheet ended byte-identical to where it began, and the toolbar synced once per step.
+  - A right click on bare paper at 250% offered Zoom to fit, Undo and Redo. Zoom to fit went back to the fitted 51%.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.123.0  -  21-Sep-2026
 ### A Right Click Moves Anything to Another Drawing Layer, and a Layer Can Be Made a Reference: Seen and Printed, Never Picked or Snapped To
 

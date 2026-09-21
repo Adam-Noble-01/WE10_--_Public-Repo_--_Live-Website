@@ -1,0 +1,65 @@
+{
+    "HatchPattern__BrickCoursing__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__BrickCoursing__.json",
+        "Meta__Description"   : "Brick coursing for elevations - stretcher bond at the co-ordinating size, 225 x 75 mm, each course half a brick along from the one below.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__RealSize"      : "Drawn at 1:50: a 225 x 75 mm brick is 4.5 x 1.5 mm on paper. SET PATTERN SCALE TO 50 / THE DRAWING SCALE for true courses: 0.5 at 1:100, 1 at 1:50, 2.5 at 1:20. A hatch is paper-sized and does not follow a viewport's scale by itself.",
+        "Meta__WhySeams"      : "Bed joints run edge to edge and sit 0.75 mm in from the top and bottom edges, never on them; the perpends of the course that wraps the seam are drawn as two halves meeting on it, square on. No line comes within 1.1 mm of a side edge."
+    },
+
+    "HatchPattern__BrickCoursing__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__BrickCoursing",
+        "Identity__Label"       : "Brick Coursing (Stretcher Bond)",
+        "Identity__Group"       : "Elevation",
+        "Identity__Keywords"    : ["brick", "coursing", "courses", "stretcher", "bond", "elevation", "facing"],
+        "Identity__Note"        : "Facing brickwork on an ELEVATION. For brickwork cut in section or on plan use Brickwork (45 degree Hatch)."
+    },
+
+    "HatchPattern__BrickCoursing__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 9.0,
+        "Tile__HeightMm"    : 6.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Two bricks wide by four courses high - the smallest cell that repeats a stretcher bond, doubled so the PDF stamps a quarter as many tiles."
+    },
+
+    "HatchPattern__BrickCoursing__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__BrickCoursing__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "Courses": {
+            "Glyph__Label"    : "Four courses",
+            "Glyph__WidthMm"  : 9,
+            "Glyph__HeightMm" : 6,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,0.75 L9,0.75 M0,2.25 L9,2.25 M0,3.75 L9,3.75 M0,5.25 L9,5.25 M1.125,0.75 L1.125,2.25 M5.625,0.75 L5.625,2.25 M3.375,2.25 L3.375,3.75 M7.875,2.25 L7.875,3.75 M1.125,3.75 L1.125,5.25 M5.625,3.75 L5.625,5.25 M3.375,5.25 L3.375,6 M3.375,0 L3.375,0.75 M7.875,5.25 L7.875,6 M7.875,0 L7.875,0.75",
+            "Glyph__Note"     : "Four bed joints, then the perpends course by course; the last course straddles the seam, so each of its perpends is two pieces."
+        }
+    },
+
+    "HatchPattern__BrickCoursing__Placements": [
+        { "Place__Glyph": "Courses", "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "The whole tile is one glyph at the origin" }
+    ],
+
+    "HatchPattern__BrickCoursing__Bounds": {
+        "Bounds__Description"     : "Scale 1 is real size at 1:50. 0.10 is 1:500 and 10 is 1:5.",
+        "Bounds__MinScale"        : 0.10,
+        "Bounds__MaxScale"        : 10.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

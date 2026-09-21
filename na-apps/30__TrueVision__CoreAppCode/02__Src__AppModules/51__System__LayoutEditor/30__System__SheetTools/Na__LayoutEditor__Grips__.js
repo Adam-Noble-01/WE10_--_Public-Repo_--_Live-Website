@@ -26,7 +26,12 @@
 //   text about the middle of its box (Na__LayoutEditor__TextTool__); the
 //   grip stands the same distance off the outline on screen at any zoom.
 // - Grips are counter-scaled so they stay the same size on screen at any
-//   zoom, like the viewport handles.
+//   zoom: laid out at their real size and scaled back by a transform, never
+//   given a fractional size or border (see CounterScale for why).
+// - A POINT GRIP'S COLOUR IS A CHECK. Red is a point in hand; green is a
+//   point that sits on the drawing - a corner, a middle or a crossing of a
+//   viewport's linework (a ring when it is only on one of its lines); blue
+//   is a point on nothing.
 // - The rubber band is one dashed line in the handles layer, shared by the
 //   dimension and the shape tools. It takes the locked axis's colour
 //   while an arrow key holds the edge to an axis.
@@ -51,6 +56,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.10.0
+// - A PICKED VERTEX WAS WHITE ON WHITE PAPER ONCE ZOOMED IN, and a plain one a
+//   solid blue disc. The grips were given a size and a border divided by the
+//   zoom, and Chrome floors a border at one device pixel BEFORE the paper's
+//   scale is applied - so from about 5x in the border swallowed the grip, and
+//   a picked grip's border is white. Every grip drawn here (Add, the rotate
+//   grip's stem, the insert diamond) is now laid out at its real size and
+//   scaled back by a transform (CounterScale), which has no such floor: the
+//   same square, the same one-pixel edge, red in the middle, at any zoom.
+// - A POINT GRIP SAYS WHETHER ITS POINT IS ON THE DRAWING (StateOf, asking
+//   the object snap's OnLinework): solid GREEN on a corner, a middle or a
+//   crossing of a viewport's linework, a green RING on one of its lines,
+//   solid BLUE on nothing - so a run of vertices can be checked at a glance
+//   for the one that only looks as if it is on the wall's corner. RED is still
+//   the point in hand, and a picked point on the drawing wears a green edge.
+//   A vector's vertices and a dimension's two measured points read this way;
+//   every other grip is unchanged.
+//
 // 21-Sep-2026 - Version 1.9.0
 // - RegisterShapeProvider: a feature can draw the grips of its own kind of
 //   shape, asked before the vertex grips. A picture's four corner grips
@@ -126,6 +149,7 @@
     import { Na__LeLeadGeo__Hit } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeGroup__Render } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeScope__GetVectorId, Na__LeScope__GetDimensionId, Na__LeScope__HasVertex, Na__LeScope__VertexCount, Na__LeScope__HasGrip } from './Na__LayoutEditor__EditScope__.js';
+    import { Na__LeOsnap__OnLinework } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';   // <-- Is this point ON the drawing: what a vertex grip's colour says
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -205,10 +229,34 @@
 // REGION | Rendering
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | The Transform That Keeps a Grip Its Own Size at Any Zoom
+    // ------------------------------------------------------------
+    // A GRIP IS LAID OUT AT ITS REAL SIZE AND SCALED BACK, NEVER GIVEN A
+    // FRACTIONAL SIZE. Everything in the handles layer sits inside the paper's
+    // scale(zoom). The grips used to be written at size / zoom with a border
+    // of 1 / zoom, and Chrome will not lay out a border thinner than one DEVICE
+    // pixel - a floor it applies BEFORE the paper's scale. Zoomed in to 8x on a
+    // 150% display the 0.125 px border became 0.67 px, which the zoom then
+    // made 5 px on each side of a 9 px grip: the border swallowed the grip
+    // whole. A plain grip read as a solid blue disc and a PICKED one - white
+    // border, red middle - as a solid WHITE disc, invisible on white paper,
+    // exactly where the picking is done (Adam, 21-Sep-2026: "the vectors are
+    // white ... it's impossible to see what you're trying to select"). A
+    // transform has no such floor: the element keeps whole-pixel sizes and a
+    // one-pixel border, and scale(1 / zoom) cancels the paper's zoom exactly.
+    // turnDeg turns the grip about its middle as well (the insert diamond).
+    // ------------------------------------------------------------
+    function Na__LeGrips__CounterScale(zoom, turnDeg) {
+        return 'translate(-50%, -50%) scale(' + (1 / (zoom > 0 ? zoom : 1)) + ')' + (turnDeg ? ' rotate(' + turnDeg + 'deg)' : '');
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | An Edge Width That Is This Many Pixels On Screen
     // ------------------------------------------------------------
-    // Everything in the handles layer sits inside the paper's scale(zoom), so a
-    // width written here is multiplied by the zoom before it is seen: one screen
+    // For what is still sized in paper pixels - the rubber box. Everything in
+    // the handles layer sits inside the paper's scale(zoom), so a width
+    // written here is multiplied by the zoom before it is seen: one screen
     // pixel is 1 / zoom.
     //
     // THIS USED TO READ Math.max(1, 1 / zoom), WHICH PUT THE FLOOR IN THE WRONG
@@ -229,18 +277,48 @@
     // A PICKED GRIP IS DRAWN LARGER as well as red. It marks the points the next
     // drag will carry, so it has to be findable at a glance among the plain ones
     // and big enough to read at any zoom; GripSizePickedPx sets how much larger.
+    //
+    // state is what a POINT grip says about where it stands (StateOf below):
+    // 'bound', 'online' or 'free'. Left out, the grip is the plain white one -
+    // a rotate grip, a leader's, a dimension line's - which has no such thing
+    // to say. The size arrives already divided by the zoom, as the providers'
+    // does, and is put back: the element is its real size, scaled down.
     // ------------------------------------------------------------
-    function Na__LeGrips__Add(layer, xMm, yMm, ppm, sizePx, zoom, modifier, picked) {
+    function Na__LeGrips__Add(layer, xMm, yMm, ppm, sizePx, zoom, modifier, picked, state) {
         const grip = document.createElement('div');
         const setup = Na__LeCfg__GetSelectionSetup();
-        const size  = picked ? (sizePx * (setup.gripSizePickedPx / setup.gripSizePx)) : sizePx;
-        grip.className = 'na-le-grip' + (modifier ? ' na-le-grip--' + modifier : '') + (picked ? ' na-le-grip--picked' : '');
-        grip.style.left   = ((xMm * ppm) - (size / 2)) + 'px';
-        grip.style.top    = ((yMm * ppm) - (size / 2)) + 'px';
-        grip.style.width  = size + 'px';
-        grip.style.height = size + 'px';
-        grip.style.borderWidth = Na__LeGrips__EdgePx(1, zoom) + 'px';
+        const scale = zoom > 0 ? zoom : 1;
+        const size  = Math.round((picked ? (sizePx * (setup.gripSizePickedPx / setup.gripSizePx)) : sizePx) * scale);   // <-- Whole pixels on screen
+        grip.className = 'na-le-grip' + (modifier ? ' na-le-grip--' + modifier : '') + (state ? ' na-le-grip--' + state : '') + (picked ? ' na-le-grip--picked' : '');
+        grip.style.left      = (xMm * ppm) + 'px';
+        grip.style.top       = (yMm * ppm) + 'px';
+        grip.style.width     = size + 'px';
+        grip.style.height    = size + 'px';
+        grip.style.transform = Na__LeGrips__CounterScale(scale, 0);
         layer.appendChild(grip);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What a Point Grip Says About Where Its Point Stands
+    // ------------------------------------------------------------
+    // GREEN IS ON THE DRAWING, BLUE IS NOT. A vertex snapped to the corner of
+    // a wall sits on it to the last digit; one placed by eye sits a fraction
+    // of a millimetre off and looks exactly the same - until the area is
+    // measured, or the drawing is printed at a bigger scale. So each point
+    // grip is asked of the object snap (Na__LeOsnap__OnLinework):
+    //   'bound'   solid green   on a corner, a middle or a crossing of a
+    //                           viewport's linework: a place a snap finds
+    //   'online'  a green ring  on one of its lines, at no particular place
+    //   'free'    solid blue    on nothing
+    // It is a reading of where the point IS, not a memory of how it got
+    // there, so a viewport moved afterwards turns its vertices blue again -
+    // which is the truth. A picked grip stays red and wears a green edge.
+    // ------------------------------------------------------------
+    function Na__LeGrips__StateOf(sheet, xMm, yMm) {
+        let on = null;
+        try { on = Na__LeOsnap__OnLinework(sheet, { x : xMm, y : yMm }); } catch (error) { on = null; }   // <-- A grip must always draw, whatever the index makes of a half-loaded viewport
+        return on === 'point' ? 'bound' : (on === 'line' ? 'online' : 'free');
     }
     // ------------------------------------------------------------
 
@@ -252,11 +330,11 @@
     function Na__LeGrips__AddStem(layer, from, to, ppm, zoom) {
         const stem = document.createElement('div');
         stem.className = 'na-le-grip na-le-grip--stem';
-        stem.style.left           = (from.x * ppm) + 'px';
-        stem.style.top            = (from.y * ppm) + 'px';
-        stem.style.width          = (Math.hypot(to.x - from.x, to.y - from.y) * ppm) + 'px';
-        stem.style.borderTopWidth = Na__LeGrips__EdgePx(1, zoom) + 'px';
-        stem.style.transform      = 'rotate(' + (Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI)) + 'deg)';
+        const scale = zoom > 0 ? zoom : 1;
+        stem.style.left      = (from.x * ppm) + 'px';
+        stem.style.top       = (from.y * ppm) + 'px';
+        stem.style.width     = (Math.hypot(to.x - from.x, to.y - from.y) * ppm * scale) + 'px';   // <-- Its length on SCREEN: the transform below scales it, and its one-pixel line, back down
+        stem.style.transform = 'rotate(' + (Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI)) + 'deg) scale(' + (1 / scale) + ')';
         layer.appendChild(stem);
     }
     // ------------------------------------------------------------
@@ -309,8 +387,8 @@
             if (!dim || Na__LeModel__IsLayerLocked(sheet, dim.Dimension__LayerId)) return false;
             const sk = Na__LeMarkup__DimensionSkeleton(dim);
             if (!sk) return false;
-            Na__LeGrips__Add(layer, sk.S.x, sk.S.y, ppm, sizePx, zoom, null, Na__LeScope__HasGrip('start'));
-            Na__LeGrips__Add(layer, sk.E.x, sk.E.y, ppm, sizePx, zoom, null, Na__LeScope__HasGrip('end'));
+            Na__LeGrips__Add(layer, sk.S.x, sk.S.y, ppm, sizePx, zoom, null, Na__LeScope__HasGrip('start'), Na__LeGrips__StateOf(sheet, sk.S.x, sk.S.y));   // <-- Green when the point it measures FROM is on the drawing
+            Na__LeGrips__Add(layer, sk.E.x, sk.E.y, ppm, sizePx, zoom, null, Na__LeScope__HasGrip('end'), Na__LeGrips__StateOf(sheet, sk.E.x, sk.E.y));
             // THE LINE HAS A GRIP AT EACH END AS WELL AS THE MIDDLE. All three
             // slide the line: they change the OFFSET, carrying the line and the
             // value across to a new position while the two measured points stay
@@ -348,7 +426,7 @@
             if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
             const anyPicked = Na__LeScope__VertexCount() > 0;
             Na__LeShapeGeo__Points(shape).forEach((p, index) => {
-                Na__LeGrips__Add(layer, p[0], p[1], ppm, sizePx, zoom, null, anyPicked && Na__LeScope__HasVertex(index));
+                Na__LeGrips__Add(layer, p[0], p[1], ppm, sizePx, zoom, null, anyPicked && Na__LeScope__HasVertex(index), Na__LeGrips__StateOf(sheet, p[0], p[1]));   // <-- Red picked, green on the drawing, blue free
             });
             return true;
         }
@@ -467,12 +545,12 @@
         if (Na__LeGrips__Insert.parentNode !== layer) layer.appendChild(Na__LeGrips__Insert);
         const ppm    = Na__LeSurface__GetPixelsPerMm();
         const zoom   = Na__LeSurface__GetZoom();
-        const sizePx = Na__LeCfg__GetSelectionSetup().gripSizePx / zoom;
-        Na__LeGrips__Insert.style.left        = ((xMm * ppm) - (sizePx / 2)) + 'px';
-        Na__LeGrips__Insert.style.top         = ((yMm * ppm) - (sizePx / 2)) + 'px';
-        Na__LeGrips__Insert.style.width       = sizePx + 'px';
-        Na__LeGrips__Insert.style.height      = sizePx + 'px';
-        Na__LeGrips__Insert.style.borderWidth = Na__LeGrips__EdgePx(1, zoom) + 'px';
+        const sizePx = Na__LeCfg__GetSelectionSetup().gripSizePx;
+        Na__LeGrips__Insert.style.left      = (xMm * ppm) + 'px';
+        Na__LeGrips__Insert.style.top       = (yMm * ppm) + 'px';
+        Na__LeGrips__Insert.style.width     = sizePx + 'px';
+        Na__LeGrips__Insert.style.height    = sizePx + 'px';
+        Na__LeGrips__Insert.style.transform = Na__LeGrips__CounterScale(zoom, 45);   // <-- Its real size scaled back, and turned: a diamond
         Na__LeGrips__Insert.hidden = false;
         return true;
     }

@@ -8,6 +8,8 @@ Section 12 (20-Sep-2026, v2.91.0) is a fourth library, the Specification Scrapbo
 Specification tab in the LEFT column - built and tested by Claude, not yet tried by Adam.
 Section 13 (20-Sep-2026, v2.96.0) is the drawing title with its scale bar stood away TO THE RIGHT,
 held by its far end - built and tested by Claude, not yet tried by Adam, not in ValeVision.
+Section 16 (21-Sep-2026, v2.128.0) is the cabinet infill - the dashed cross and boxed name from Adam's LayOut
+plans, fitted by a snapping corner grip - built and tested by Claude, not yet tried by Adam, not in ValeVision.
 
 Adam's brief (19-Sep-2026): "I need a way to be able to save and insert common elements, but we
 need two versions in the main drawings: a custom scrapbook, and a parametric element scrapbook.
@@ -94,6 +96,7 @@ the same again in ValeVision.
         Na__LayoutEditor__ScrapbookParametric__ScaleBar__.js   Na__LeParamBar    element one: parameters in, records out
         Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js  Na__LeParamLink  THE LINK TO THE VIEWPORT SYSTEM
         Na__LayoutEditor__ScrapbookParametric__DrawingTitle__.js Na__LeParamTitle the drawing title: title, underline, optional bar, written from its viewport's facts
+        Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js Na__LeParamInfill the cabinet infill: a dashed cross and a boxed name over a cupboard (section 16)
         Na__LayoutEditor__ScrapbookParametric__Grips__.js      Na__LeParamGrips  the stretch grip, the slide grip (section 13) and the lookup grip
         Na__LayoutEditor__ScrapbookParametric__LinkNoodle__.js Na__LeParamNoodle the noodle to what an element is tied to, and the socket that re-ties it
         Na__LayoutEditor__ScrapbookParametric__Config__.json
@@ -367,6 +370,8 @@ first so it is theirs by default. The left column is back to the sheet and its l
 | 20-Sep-2026 | A FOURTH LIBRARY, v2.91.0: the Specification Scrapbook, and tabs for the LEFT column (section 12). Adam asked for a concise specification beside the sheet, then in the same message for the codes as bubbles to drag on. Built in `58__Feature__ScrapbookSpecification`; the shared host gained one field (`spec.caption`) and the panel host one (`spec.hint`), no new export. In-app on scratch copies of PS01 D01 and RB05 D01, fetch guarded: tabs, list, drop (bubble centre on the drop point to 0.0000 mm), undo AND redo byte for byte and ONE step, the tail rule in five places, Escape, double-click, Enter, filter, full notes, the look following the Leaders panel, the list following a rename, a renumber and a delete, the empty specification. Real sheets byte-identical; no write attempted. NOT yet tried by Adam; NOT in ValeVision. |
 | 20-Sep-2026 | A FIFTH TILE, v2.96.0: the drawing title with its scale bar stood away TO THE RIGHT (section 13), asked for over a marked-up PS01 elevation, plus the checker fill lightened from the measured #666666 to #858585 on every parametric bar. Built as two parameters on the existing Drawing Title - `BarPlacement` and `BarOffsetMm` - so any title can be switched either way and the new tile is only a preset of it. Node: the drawing title test grew from 45 checks to 73, including the one that matters - divisions driven 3 to 9 to 11 to 3 to 7 with the FAR END asserted unmoved each time. In-app on PS01 D02 (`Sheet_001`, six real 1:50 elevation viewports), fetch guarded: drop and auto-link, the four grips where they belong, a slide stepping in 50 mm, a slide landing exactly on a snapped vertex with its dashed guide, the reversed stretch holding the far end through every step, Escape byte-identical, and the panel's two new controls. Zero write attempts all session; the local draft was cleared afterwards. NOT yet tried by Adam; NOT in ValeVision. |
 | 20-Sep-2026 | FOUND BY TESTING THE SLIDE IN THE APP, not by the Node tests: the slide grip sits ON the bar's own far corner, so `Na__LeOsnap__Find` returned that corner at distance 0 and the bar locked onto itself and would not move. Proved directly - the same point searched with and without the exclusion returns its own `Shape__195` at 0.0000 mm, or a neighbour's vertex 2.8358 mm away. The snapping module already took the exclusions a selection move passes; the grips module now passes the element's own vectors. |
+| 21-Sep-2026 | A SIXTH ELEMENT, v2.128.0: the Cabinet Infill (section 16), from two LayOut crops Adam marked up. Measured from the vector PDF of NP03 D07 Rev C. The engine gained `adopt` (a hand-restyled member survives rebuilds, read at every GetParams) and the grips a snapping corner (`stretchCorner`). Node: 64 checks, the box round Storage equal to NP03's to the thousandth. In the app on a scratch copy of PS01 D01, fetch guarded, nothing written: dropped at 1:50 and 1:100, moved onto the Dressing Room wardrobe's corner and its grip snapped onto the far one (625 x 4480), every panel control, the menu, undo x5 / redo x5 byte for byte, Escape, a hand-recoloured fill kept, refit, and the PDF's 0.907 pt dashes. NOT yet tried by Adam; NOT in ValeVision. |
+| 21-Sep-2026 | THE INFILL REWORKED, v2.134.0, after Adam found the single corner grip "impossible to use" (16.6): a bottom left BASE point the tile hangs from, snaps and lands by, and a hollow grip there that moves it; corner grips on the other three, each holding the one opposite; the options arrow beside the label. Engine 1.7.0 (`base`, `BasePoint`, `Insert` at 'base', `Regenerate` origin), grips 1.6.0, TileDrag 1.2.0 (`hold`, `snap`). Node 70 checks. In the app, fetch guarded, nothing written: a real tile drag landed the base exactly on the wardrobe's corner, each corner held its opposite exactly, the base moved it, Escape and undo/redo byte for byte. NOT yet tried by Adam; NOT in ValeVision. |
 | 19-Sep-2026 | NOT YET DONE: Adam's own test in his browser through the real 8090 server, which must be RESTARTED first to load the scrapbook routes. |
 
 ---------------------------------------------------------
@@ -923,3 +928,122 @@ Note there are a few of these titles."*
 | Image 1: orange stroke past the end of FASCADE | The line now runs past the last letter; it stopped under the S |
 | Image 2: dashed arrow on from the line's end | The same, and the grips (socket, stretch arrow) move with the line |
 | Image 3: a 5mm dimension from the words' end | D02's Dim_001, x 148 -> 153; the line now ends at 153.29, 5.02 past the letters |
+
+## 16. The Cabinet Infill (21-Sep-2026, v2.128.0)
+---------------------------------------------------------
+
+Adam, with two plan crops - a store room's Storage and Shelving units, and a wardrobe in Bedroom 1: *"Add a new
+dynamic scrapbook element to be able to draw these styles of cabinet infills that say "Storage" by default and have a
+dotted mid-grey, fairly thin, lightweight, dashed corner-to-corner line like these, but then with a filled text box
+centred."* A fill underneath, off by default and white when on - *"because it's all vector-based inside, I can go in
+and change the colour if needed"* - and the words Storage, Services, Full Height Storage, Wardrobes, Pantry Unit.
+
+### 16.1 Where the look came from
+
+Both crops are LayOut, not TrueVision: the wardrobe is NP03 Ashness Close's First Floor Plans (page 91617 of its pack,
+where "Master Bedroom" is), and the store room uses the same infills from the LayOut Core Scrapbook
+(`D:/30__Weblib__3dAssets/SketchUp__SourceFiles/60__Layout__LayoutStandards/Na__CoreScrapbook/`). No TrueVision sheet,
+in the repo or on R2, holds a Storage label. Measured from the vector PDF of NP03 D07 Rev C with PyMuPDF - five Storage
+infills and a Shelving one, all alike:
+
+| Part | Value |
+|---|---|
+| The cross | #333333, 0.15 pt, dashed 0.9 pt on 0.9 pt (0.32 mm in the record) |
+| The words | Open Sans Regular 6 pt (2.1167 mm), #333333, centred; upright infills read UP the sheet (rotation -90) |
+| Their box | #fcfcfc under the same rule; 0.706 mm (2 pt) clear of the words each end; 3.034 mm deep; baseline 0.856 mm below its middle |
+
+"Mid-grey" is how that dark grey reads at 0.15 pt: the crop's diagonals are pixels of #5e5e5e to #6b6b6b, and a paler
+colour at that weight all but disappears. **Adam to confirm.** The crosses he has hand-drawn in TrueVision on PS01's
+plans (Sheet_002 Shape_039-044) are #999999 at 0.2 pt, dashed 2.5/1.5 at scale 0.5 - one value
+(`CabinetInfill__LineColour`) if that is the look he prefers.
+
+### 16.2 The decisions
+
+1. **Paper millimetres, never tied to a drawing** (`linkable : false`). A cupboard is drawn over its plan the way a
+   dimension is; a change of the plan's scale moves the cupboard on the paper, so nothing an infill could follow would
+   keep it on its cupboard. A tile dropped INSIDE a scaled drawing is SIZED at its scale from `Element__RealSizeMm`
+   (1800 x 600 mm: 36 x 12 at 1:50, 18 x 6 at 1:100) - the panel's `DropParams`, through the link module's `Nearest`
+   with a reach of 0. That is all the scale ever does to it.
+2. **The corner is the grip, and it sits ON the corner.** *(SUPERSEDED by 16.6: a bottom left base point and three
+   corner grips replaced this single corner, and `stretchCorner` is gone.)* `definition.stretchCorner` makes the grips module draw the
+   stretch grip as a square on the far corner and snap its drag through the object snap (object snaps, then the grid
+   while F7 is on; own vectors excluded). On the corner rather than stood off it, because the stretch reads the
+   pointer as the new corner: an offset grip would jump the corner by its offset on the first move. Moving the whole
+   element snaps any of its corners already (the object snap's group move), so fitting is two drags.
+3. **The fill is a record only while it is on**, and it is vector one - painted first, under everything, with its
+   first point at the origin. Switching it on shifts the vectors up a slot and adds one at the end; slots keep their
+   records' places in the sheet, so the paper order stays fill, cross, box.
+4. **What is restyled by hand is kept (engine 1.6.0, `adopt`).** Read at EVERY `GetParams`, not only at a rebuild:
+   the grips hand back whole parameter sets from the copy they took when the drag began, so a hand edit read only at
+   rebuild time would be drawn over by that copy - and Escape would put it back. `Regenerate` lays it under the patch.
+   A style equal to the house one is not stored, so a block is seven keys until somebody recolours something.
+5. **The words are one record**, broken by the type at spaces over up to three lines, as evenly as they will go, when
+   they would come within `LabelClearMm` of the cabinet's ends; the line spacing is the Text setup's, handed over as a
+   tool (`lineSpacing`), because that is how far apart the editor draws a record's lines.
+
+### 16.3 Traps
+
+- **`Na__LeModel__DeleteItems` with a group item deletes the group RECORD and leaves its members** - an ungroup. A test
+  that means to take an element away must pass its members too.
+- **A synthetic Escape dispatched ON window reaches the sheet tools' window listener before the grips' drag listener**
+  (fact 5: listeners on the target fire in the order they were added), so a test's Escape clears the selection as
+  well as cancelling the drag. A real key press travels through window's capture phase first and the grips keep it.
+- **A stretch patch is a WHOLE parameter set.** Any hook that means to change what a rebuild keeps has to act where the
+  parameters are read, not only where they are written - see 16.2 (4).
+- **Adam's crosses on PS01 are sheet vectors.** A test that fits an infill over one must take the hand-drawn one out of
+  the snap's way (on a scratch sheet), or the corner snaps to the old cross's ends.
+
+### 16.4 Audit of the brief and of every mark on the two screenshots
+
+| The brief, or the mark | Where it is |
+|---|---|
+| "A new dynamic scrapbook element" | One tile, Cabinet Infill; type `CabinetInfill` in its own module |
+| "Cabinet infills that say Storage by default" | `CabinetInfill__Label` Storage as dropped |
+| "A dotted mid-grey, fairly thin, lightweight, dashed corner-to-corner line like these" | #333333 0.15 pt, dashed 0.9 on 0.9 pt, measured from the PDF the crops came from (16.1); exactly corner to corner, the corner grip snapping - the colour is Adam's to confirm |
+| "Then with a filled text box centred" | The #fcfcfc box hugging the words, centred; the cross stops at it |
+| "Whether there is a fill underneath ... off by default ... a white fill" | White fill underneath: off; on, a #ffffff rectangle with no rule under everything |
+| "I can go in and change the colour if needed to make it match any background" | adopt: a colour given to the fill inside the group is kept by every rebuild; the panel also has a colour box |
+| "Some different text options: Storage, Services, Full Height Storage, Wardrobes, Pantry Unit" | The list on the triangle and the panel, in his order, plus Shelving; Own words for anything else |
+| Image 1, orange arrow at the dashed diagonals | The cross; the crop's own dashes measure 0.33 on 0.30 mm, the PDF's 0.3175 on 0.3175 |
+| Image 1, orange arrow up at the Shelving unit | A wide infill reads across; Shelving is in the list |
+| Image 2, orange arrow at the wardrobe | An upright infill reads up the sheet; fitted in the app to PS01's Dressing Room wardrobe |
+
+### 16.5 Open, deliberately
+
+- No outline: the cabinet's outline is the drawing's. With the fill on and the corners snapped to the carcass's centre
+  lines, the fill covers the inner half of those lines' weight - offered, not built.
+- Square to the sheet only; a cupboard on a wall off the square takes hand-drawn lines.
+- One cross per infill; EB03 draws a run of three bays with one label each.
+- NOT tried by Adam; NOT in ValeVision (it needs the engine's adopt and the grips' corner snap with it).
+
+### 16.6 After Adam used it (21-Sep-2026, v2.134.0)
+
+*"Make the insertion point on it so it's accessed at the bottom left, like a proper XY ... You should be able to drag
+all three of the other corners ... You can't drag it into position. Really think about this one because that last
+block is impossible to use ... Put the actual arrow for all of the options ... next to the text, not in one of the
+corners."*
+
+The single corner grip was the wrong model: one corner could be pulled, from one side only, and placing the block
+meant knowing that its body could be dragged. Replaced by the CAD block's own:
+
+| Adam | What changed |
+|---|---|
+| "The insertion point ... the bottom left, like a proper XY" | A type's `base(params)`: the infill's bottom left corner. The tile hangs from it while dragged in (TileDrag `spec.hold`), it snaps to the drawing on the way (`spec.snap`, the object snap's marker up), and the drop puts it exactly there (`Insert` with `{ at : 'base' }`). Selected, a hollow square on it moves the whole infill, snapping |
+| "Drag all three of the other corners" | Corner grips `tl`, `tr`, `br` - filled squares, leaning cursors - each moving its corner with the corner OPPOSITE held (`cornerTo`), snapping, stepping 0.1 mm when free. A corner that moves the top or the left edge moves the element's origin, which `Regenerate` builds at when handed `options.origin` |
+| "You can't drag it into position" | Drop the base on one corner of the cupboard, drag the opposite grip onto the other: two gestures, both snapped |
+| His orange triangle beside the Storage box | The options arrow stands 12 px off the right of the label's box, level with its middle, whichever way the words run; titled Options |
+
+**Why the origin stayed at the top left.** The engine reads an element's origin from the first point of its first
+vector and every existing member is laid out from it. Making the bottom left the ORIGIN would have moved every infill
+already on a sheet by its height on its next rebuild. The base point is what the user holds; the origin is where the
+geometry is measured from; they need not be the same point, and `base` says how far apart they are.
+
+**Traps found**
+- **A CSS border inside the zoomed handles layer is scaled by the zoom.** The base grip's 3 px ring filled the whole
+  13 px square at zoom 5 (border-box width 2.6 px, border 3 px). Set inline in screen pixels divided by the zoom, as
+  the link socket's has always been (`BaseRingPx`).
+- **Two corners can be the "same" corner to the eye.** PS01's wardrobe has vertices 0.2-0.4 mm apart at each corner
+  (the carcass and the door leaves). The snap takes the nearest to the pointer; a test that asserts one particular
+  vertex will see it take the next one. Assert against what `Na__LeOsnap__Find` answers at the release point.
+- **The pane's screenshot frame changed mid-session** (1280 x 960 scaled into 800 x 600, then 1:1 at the same size),
+  so coordinate drags went wrong; the grip drags were driven by synthetic pointer events on the grips themselves.

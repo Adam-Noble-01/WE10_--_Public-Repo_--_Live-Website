@@ -1,0 +1,39 @@
+{
+    "HatchPack__ConstructionMaterialHatches__Meta": {
+        "Meta__FileName"    : "HatchPack__Index__.json",
+        "Meta__Description" : "The construction materials pack: the section hatches a building drawing needs - masonry, concrete and fill, insulation, timber and metal - and the elevation textures that go with them. One entry per pattern file in this folder.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyAnIndex"  : "Neither the live website nor the Flask dev server lists a directory, so a folder cannot be discovered by looking in it. This index IS the pack, and a pattern file that is not listed here does not exist as far as the editor is concerned.",
+        "Meta__HowUsed"     : "On a VECTOR: draw a closed shape over the wall, slab or roof, tick Hatch at the foot of the Vectors panel and choose the pattern. Pattern scale, Pattern deg, Pattern line pt and Pattern colour are all there; the line weight and colour start at the pattern's own standard.",
+        "Meta__HowToAddOne" : "Copy any file in this folder, change its three-stage names, its Identity__Key and its geometry, and add a row below. No code changes. RULES FOR A LINE THAT CROSSES A SEAM: end it exactly on the tile edge; never run a line through a tile corner or along an edge; cross an edge square on where you can. A mark that does not cross a seam must sit wholly inside the tile. Strokes only - the PDF never fills a glyph. 80__Testing__PrototypeEnvironment/Na__Test__HatchLineControls__.test.mjs checks every pattern in this pack against these rules."
+    },
+
+    "HatchPack__ConstructionMaterialHatches__Pack": {
+        "Pack__Description"   : "How this pack shows in the pattern lists.",
+        "Pack__Key"           : "ConstructionMaterialHatches",
+        "Pack__Label"         : "Construction Materials",
+        "Pack__Note"          : "Section hatches and elevation textures for building drawings, to the British drawing conventions.",
+        "Pack__SwatchInk"     : "#333333",
+        "Pack__SwatchInkNote" : "The ink this pack's tiles are drawn in in the Patterns panel - Soft Black, the projected linework default. Only for the tiles: on a drawing these patterns take the colour of whatever carries them."
+    },
+
+    "HatchPack__ConstructionMaterialHatches__Patterns": [
+        { "Pattern__Key": "ConstructionHatch__Brickwork",       "Pattern__Label": "Brickwork (45° Hatch)",            "Pattern__Group": "Masonry",         "Pattern__File": "Na__HatchPattern__Construction__Brickwork__.json",       "Pattern__Note": "The standard section hatch for brickwork: single diagonals at 45 degrees. Blockwork is the same hatch crossed." },
+        { "Pattern__Key": "ConstructionHatch__Blockwork",       "Pattern__Label": "Blockwork (Criss-Cross)",          "Pattern__Group": "Masonry",         "Pattern__File": "Na__HatchPattern__Construction__Blockwork__.json",       "Pattern__Note": "The standard section hatch for blockwork: brickwork's diagonals crossed by the same diagonals the other way." },
+        { "Pattern__Key": "ConstructionHatch__Concrete",        "Pattern__Label": "Concrete",                         "Pattern__Group": "Concrete & Fill", "Pattern__File": "Na__HatchPattern__Construction__Concrete__.json",        "Pattern__Note": "The standard section hatch for in-situ concrete: aggregate triangles in a stipple of fines." },
+        { "Pattern__Key": "ConstructionHatch__Hardcore",        "Pattern__Label": "Hardcore",                         "Pattern__Group": "Concrete & Fill", "Pattern__File": "Na__HatchPattern__Construction__Hardcore__.json",        "Pattern__Note": "Compacted hardcore and granular sub-base under a slab." },
+        { "Pattern__Key": "ConstructionHatch__Earth",           "Pattern__Label": "Earth / Subsoil",                  "Pattern__Group": "Concrete & Fill", "Pattern__File": "Na__HatchPattern__Construction__Earth__.json",           "Pattern__Note": "Undisturbed ground below and beside a foundation." },
+        { "Pattern__Key": "ConstructionHatch__ScreedAndRender", "Pattern__Label": "Screed & Render (Stipple)",        "Pattern__Group": "Concrete & Fill", "Pattern__File": "Na__HatchPattern__Construction__ScreedAndRender__.json", "Pattern__Note": "Sand and cement work: screeds, renders, plaster, mortar beds, sand blinding." },
+        { "Pattern__Key": "ConstructionHatch__InsulationQuilt", "Pattern__Label": "Insulation (Quilt)",               "Pattern__Group": "Insulation",      "Pattern__File": "Na__HatchPattern__Construction__InsulationQuilt__.json", "Pattern__Note": "Mineral wool and other soft insulation. Turn it with Pattern deg to run along a rafter or up a stud wall." },
+        { "Pattern__Key": "ConstructionHatch__InsulationRigid", "Pattern__Label": "Insulation (Rigid Board)",         "Pattern__Group": "Insulation",      "Pattern__File": "Na__HatchPattern__Construction__InsulationRigid__.json", "Pattern__Note": "PIR, EPS and other rigid boards, which must not be mistaken for quilt on a section." },
+        { "Pattern__Key": "ConstructionHatch__TimberGrain",     "Pattern__Label": "Timber (Grain)",                   "Pattern__Group": "Timber & Metal",  "Pattern__File": "Na__HatchPattern__Construction__TimberGrain__.json",     "Pattern__Note": "Timber shown along its length. Turn it with Pattern deg to run with the member." },
+        { "Pattern__Key": "ConstructionHatch__Metal",           "Pattern__Label": "Steel & Metal (Paired Diagonals)", "Pattern__Group": "Timber & Metal",  "Pattern__File": "Na__HatchPattern__Construction__Metal__.json",           "Pattern__Note": "Steel and other metals cut in section, where the section is big enough to hatch rather than fill solid." },
+        { "Pattern__Key": "ConstructionHatch__BrickCoursing",   "Pattern__Label": "Brick Coursing (Stretcher Bond)",  "Pattern__Group": "Elevation",       "Pattern__File": "Na__HatchPattern__Construction__BrickCoursing__.json",   "Pattern__Note": "Facing brickwork on an ELEVATION. For brickwork cut in section or on plan use Brickwork (45 degree Hatch)." },
+        { "Pattern__Key": "ConstructionHatch__BlockCoursing",   "Pattern__Label": "Block Coursing (Stretcher Bond)",  "Pattern__Group": "Elevation",       "Pattern__File": "Na__HatchPattern__Construction__BlockCoursing__.json",   "Pattern__Note": "Fair-faced blockwork on an ELEVATION. For blockwork cut in section or on plan use Blockwork (Criss-Cross)." },
+        { "Pattern__Key": "ConstructionHatch__RoofTilesPlain",  "Pattern__Label": "Roof Tiles (Plain Tile)",          "Pattern__Group": "Elevation",       "Pattern__File": "Na__HatchPattern__Construction__RoofTilesPlain__.json",  "Pattern__Note": "Plain tiles on a roof slope or tile hanging on a wall, in ELEVATION. Widen it with Pattern scale for slates." },
+        { "Pattern__Key": "ConstructionHatch__CladdingBoards",  "Pattern__Label": "Cladding Boards",                  "Pattern__Group": "Elevation",       "Pattern__File": "Na__HatchPattern__Construction__CladdingBoards__.json",  "Pattern__Note": "Board cladding in ELEVATION. Vertical as drawn; set Pattern deg to 90 for horizontal boarding." }
+    ]
+}

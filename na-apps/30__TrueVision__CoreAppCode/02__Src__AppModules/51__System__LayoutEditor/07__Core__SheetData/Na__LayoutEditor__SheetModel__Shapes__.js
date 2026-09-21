@@ -35,6 +35,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - For the vector tools (37__System__VectorTools). InsertShape takes afterId:
+//   the new record goes straight after that shape instead of last, so a piece
+//   cut from a line keeps the line's place in the paint order. CreateShape takes
+//   opts.curve and UpdateShape patch.curve - the Circle and Arc tools' one-word
+//   Shape__Curve hint, replaced whole, null clearing it. AnnounceShapes says
+//   once what a run of silent shape edits did, as AnnounceAreas does for areas.
+//   Every existing caller passes none of them and behaves as it did.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - InsertShape keeps a layer the sheet has, whatever its type, as the other
 //   Insert functions always did. It used to insist on a layer of the shape's
@@ -172,7 +181,7 @@
     // from ANOTHER sheet, where the same id may name another layer, is vetted
     // by the clipboard before it gets here (Na__LeClip__LayerFor).
     // ------------------------------------------------------------
-    function Na__LeModel__InsertShape(sheet, record, silent) {
+    function Na__LeModel__InsertShape(sheet, record, silent, afterId) {
         if (!sheet || !record || typeof record !== 'object') return null;
         const item = JSON.parse(JSON.stringify(record));
         item.Shape__Id = Na__LeRec__NextId(sheet.Sheet__Shapes, 'Shape_', 'Shape__Id');
@@ -180,7 +189,13 @@
         if (!Na__LeModel__GetLayerById(sheet, layerId)) layerId = Na__LeModel__ShapeLayerId(sheet, Na__LeModel__ShapeLayerType(item));   // <-- A measured room to Floor Areas, a picture to Images, a vector to Vectors
         item.Shape__LayerId = layerId;                                           // <-- Written here: the normaliser only fills a layer id that is MISSING, not one naming a layer this sheet lacks
         Na__LeRec__NormaliseShape(item, layerId);
-        sheet.Sheet__Shapes.push(item);
+        // afterId PUTS IT STRAIGHT AFTER ANOTHER SHAPE rather than last, so a piece
+        // cut from a line (Trim, Split) or a copy made beside one (Offset) keeps
+        // that line's place in the paint order instead of jumping in front of
+        // everything on its layer. An id the sheet does not have appends, as ever.
+        const afterIndex = afterId ? sheet.Sheet__Shapes.findIndex((sh) => sh.Shape__Id === afterId) : -1;
+        if (afterIndex === -1) sheet.Sheet__Shapes.push(item);
+        else sheet.Sheet__Shapes.splice(afterIndex + 1, 0, item);
         if (silent) { Na__LeModel__AssignDirty(true); return item; }
         Na__LeModel__Touch('shapes', sheet.Sheet__Id, item.Shape__Id);
         return item;
@@ -219,6 +234,7 @@
             Shape__Gradient     : (opts.gradient && typeof opts.gradient === 'object') ? opts.gradient : null,   // <-- The normaliser copies it, so the caller's object is never shared
             Shape__LineStyle    : (opts.dash && typeof opts.dash === 'object') ? opts.dash : null,
             Shape__Area         : area,                                         // <-- The normaliser drops it unless it is an object, and holds a room closed
+            Shape__Curve        : (opts.curve && typeof opts.curve === 'object') ? opts.curve : null,   // <-- The Circle and Arc tools' one-word hint; the normaliser drops it unless it names a kind
             Shape__Image        : image ? Object.assign({}, image) : null       // <-- The normaliser drops it unless it names a file, and holds the picture to its proportions
         }, layerId);
         sheet.Sheet__Shapes.push(item);
@@ -269,6 +285,9 @@
             if (patch.image.Image__Crop === null) delete item.Shape__Image.Image__Crop;   // <-- null is "the whole picture again"
         }
         if (Number.isFinite(patch.strokeOpacity)) item.Shape__StrokeOpacity = patch.strokeOpacity;
+        // REPLACED, like the QR block: the hint is one word. `null` makes it a
+        // plain polyline again as far as anything that reads the hint goes.
+        if (patch.curve !== undefined) item.Shape__Curve = (patch.curve && typeof patch.curve === 'object') ? Object.assign({}, patch.curve) : null;
         if (typeof patch.layerId === 'string') item.Shape__LayerId = patch.layerId;
         Na__LeRec__NormaliseShape(item, item.Shape__LayerId);
         if (silent) { Na__LeModel__AssignDirty(true); return true; }
@@ -283,6 +302,22 @@
         Na__LeModel__Unselect(itemId);
         Na__LeModel__PruneGroups(sheet);
         Na__LeModel__Touch('shapes', sheet.Sheet__Id, itemId);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Announce Everything a Run of Silent Shape Edits Did (one undo step)
+    // ------------------------------------------------------------
+    // The vector tools (37__System__VectorTools) change several records for
+    // one gesture - a trim leaves two pieces, a join swallows a line, a fence
+    // trims six - each write silent, and then say so ONCE here, so the history
+    // takes one step and one Ctrl+Z puts it all back. The floor areas'
+    // AnnounceAreas is the same idea for theirs.
+    // ------------------------------------------------------------
+    function Na__LeModel__AnnounceShapes(sheet, itemId) {
+        if (!sheet) return false;
+        Na__LeModel__Touch('shapes', sheet.Sheet__Id, itemId || null);
         return true;
     }
     // ------------------------------------------------------------
@@ -303,7 +338,8 @@
         Na__LeModel__CreateShape,
         Na__LeModel__InsertShape,
         Na__LeModel__UpdateShape,
-        Na__LeModel__DeleteShape
+        Na__LeModel__DeleteShape,
+        Na__LeModel__AnnounceShapes
     };
     // ------------------------------------------------------------
 

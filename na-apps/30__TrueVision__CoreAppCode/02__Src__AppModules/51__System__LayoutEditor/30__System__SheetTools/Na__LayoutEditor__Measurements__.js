@@ -72,6 +72,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0
+// - A VECTOR TOOL READS AND TYPES THROUGH THE CONTEXT (37__System__VectorTools:
+//   Circle, Arc, Offset, Fillet, Chamfer). getVectorReading gives the box its
+//   label, its figure - a radius, a bulge, a distance at the Vectors panel's
+//   scale, or an angle shown as it comes - its hover title and the letters a
+//   begun value may hold (6s sides, 3000d a diameter, 750r a radius);
+//   typeVectorValue is handed the typed TEXT, because only the tool knows what
+//   it means. The box learns no tool's name and imports none, as ever.
+//
 // 21-Sep-2026 - Version 1.8.0
 // - SKETCHUP'S COPY ARRAYS. While a Ctrl-drag copy is on offer (canArray) -
 //   landed and still the last thing done - x, *, and / may begin a value
@@ -368,11 +377,25 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | What a Vector Tool Wants the Box to Read, or Null
+    // ------------------------------------------------------------
+    // Circle, Arc, Offset, Fillet and Chamfer (37__System__VectorTools) each
+    // take a typed size of their own - a radius, a bulge, an angle, a distance.
+    // The sheet tools' context answers for whichever is up:
+    // { label, title, anchor, valueMm, text, extras, angle } or null. The box
+    // never learns which tool it is, and never imports one.
+    // ------------------------------------------------------------
+    function Na__LeMeasure__VectorReading(ctx) {
+        return (ctx && typeof ctx.getVectorReading === 'function') ? (ctx.getVectorReading() || null) : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Should the Box Take Keys and Show a Reading
     // ------------------------------------------------------------
     function Na__LeMeasure__IsListening(ctx) {
         if (!ctx || !ctx.isEditable()) return false;
-        return !!(Na__LeMeasure__IsMeasuringTool(ctx.getTool()) || Na__LeMeasure__Vertex(ctx) || Na__LeMeasure__DimEnd(ctx) || Na__LeMeasure__DimOffset(ctx) || Na__LeMeasure__ViewportDrag(ctx) || Na__LeMeasure__MoveDrag(ctx));
+        return !!(Na__LeMeasure__IsMeasuringTool(ctx.getTool()) || Na__LeMeasure__Vertex(ctx) || Na__LeMeasure__DimEnd(ctx) || Na__LeMeasure__DimOffset(ctx) || Na__LeMeasure__ViewportDrag(ctx) || Na__LeMeasure__MoveDrag(ctx) || Na__LeMeasure__VectorReading(ctx));
     }
     // ------------------------------------------------------------
 
@@ -504,6 +527,19 @@
                      runMm : run * denominator, copy : Na__LeMeasure__CanArray(ctx) };   // <-- A copy may be arrayed: the run is what 3x and /3 work from
         }
 
+        // A VECTOR TOOL | Its own reading, in its own words: a radius, a bulge,
+        // a distance at the Vectors panel's scale, read where the tool says its
+        // anchor is - or an angle, which has no scale and is shown as it comes.
+        const vector = Na__LeMeasure__VectorReading(ctx);
+        if (vector) {
+            const atScale     = ctx.getShapeDefaults().atScale !== false;
+            const from        = vector.anchor || ctx.getPointMm();
+            const denominator = (atScale && from) ? Na__LeDrawScale__DenominatorAt(sheet, from) : 1;
+            const value       = (typeof vector.text === 'string') ? vector.text : (Number.isFinite(vector.valueMm) ? Na__LeMeasure__FormatMm(vector.valueMm * denominator) : '');
+            return { active : true, kind : Na__LeMeasure__KIND_LENGTH, label : vector.label || Na__LeMeasure__L('MeasureLength', 'Length'), value : value, atScale : atScale, denominator : denominator,
+                     vector : true, vectorTitle : vector.title || '', vectorExtras : vector.extras || '', vectorAngle : vector.angle === true };
+        }
+
         if (!Na__LeMeasure__IsMeasuringTool(tool)) {
             return { active : false, kind : null, label : Na__LeMeasure__L('MeasureIdle', 'Measurements'), value : '', atScale : true, denominator : null };
         }
@@ -552,6 +588,7 @@
     // ------------------------------------------------------------
     function Na__LeMeasure__TitleFor(reading) {
         if (!reading.active)   return Na__LeMeasure__L('MeasureIdleTitle', 'Pick the Draw (L), Rectangle (R) or Dimension (D) tool to type sizes here, or move something and type how far.');
+        if (reading.vector && reading.vectorTitle) return reading.vectorTitle;   // <-- A vector tool says in its own words what may be typed
         if (reading.copy)      return Na__LeMeasure__L('MeasureCopyTitle', 'A copy, as in SketchUp: type how far and press Enter to put it exactly that far along the line, then 3x (or *3) for three copies in a row that far apart, or /3 to divide that distance into three. Type another count or another length to change them, in either order.');
         if (reading.viewport)  return Na__LeMeasure__L('MeasureViewportTitle', 'Drag the viewport the way to go, type a length and press Enter - 2500, 2,500 or 2.5m. A number with no unit is millimetres at the viewport\'s scale. Type another length to move it again.');
         if (reading.move)      return Na__LeMeasure__L('MeasureMoveTitle', 'Move it the way to go - or press an arrow key to hold it to an axis - then type how far and press Enter: 2500, 2,500 or 2.5m, exactly, whatever snaps or grid. Type another length to move it again from where it started.');
@@ -682,7 +719,7 @@
         Na__LeMeasure__Root.classList.toggle('na-le-vcb--typing', !!text.trim());
         if (!text.trim()) { Na__LeMeasure__HideHint(); return; }
         const reading = Na__LeMeasure__Reading();
-        const reads   = reading.active ? (Na__LeMeasure__ArrayReads(reading, text) || Na__LeMeasure__Reads(reading.kind, text)) : null;
+        const reads   = (reading.active && !reading.vectorAngle) ? (Na__LeMeasure__ArrayReads(reading, text) || Na__LeMeasure__Reads(reading.kind, text)) : null;   // <-- An angle is not a length: nothing to read back in millimetres
         if (reads) Na__LeMeasure__ShowHint(reads, false, false);
         else Na__LeMeasure__HideHint();
     }
@@ -734,7 +771,8 @@
         if (keys.clear.indexOf(key) !== -1)  { if (!typed) return; take(); Na__LeMeasure__Clear(); return; }            // <-- Nothing typed: Escape backs out as ever
         if (keys.erase.indexOf(key) !== -1)  { if (!typed) return; take(); input.value = typed.slice(0, -1); Na__LeMeasure__Typed(); return; }
         if (typeof key !== 'string' || key.length !== 1) return;
-        const allowed = (typed ? keys.typing : keys.start) + (Na__LeMeasure__CanArray(ctx) ? keys.array : '');   // <-- x, * and / only while a copy may be arrayed (3x, *3, /3)
+        const vector  = typed ? Na__LeMeasure__VectorReading(ctx) : null;                  // <-- Only once a value is begun: with nothing typed, D is still the Dimension tool and R the Rectangle
+        const allowed = (typed ? keys.typing : keys.start) + (Na__LeMeasure__CanArray(ctx) ? keys.array : '') + ((vector && typeof vector.extras === 'string') ? vector.extras : '');   // <-- x, * and / only while a copy may be arrayed (3x, *3, /3); s, d and r only for a vector tool that reads them (6s, 3000d, 750r)
         if (allowed.indexOf(key) === -1) return;                                       // <-- A letter with nothing typed is still a tool key
         take();
         input.value = typed + key;
@@ -957,6 +995,7 @@
         else if (Na__LeMeasure__DimOffset(ctx))           outcome = Na__LeMeasure__CommitDimOffset(sheet, text, ctx);
         else if (Na__LeMeasure__ViewportDrag(ctx))        outcome = Na__LeMeasure__CommitViewport(sheet, text, ctx);
         else if (Na__LeMeasure__MoveDrag(ctx))            outcome = Na__LeMeasure__CommitMove(sheet, text, ctx);
+        else if (Na__LeMeasure__VectorReading(ctx))       outcome = (typeof ctx.typeVectorValue === 'function') ? ctx.typeVectorValue(text) : Na__LeMeasure__Fail('MeasureBadLength', 'Not a length. Type 2500, 2,500 or 2.5m.');   // <-- As TEXT: only the tool knows whether 90 is millimetres or degrees, and that 6s is a count
         else if (tool === Na__LeMeasure__TOOL_DRAW)     { outcome = Na__LeMeasure__CommitDraw(sheet, text, ctx);      Na__LeMeasure__Settle(ctx, sheet); }
         else if (tool === Na__LeMeasure__TOOL_RECT)     { outcome = Na__LeMeasure__CommitRectangle(sheet, text, ctx); Na__LeMeasure__Settle(ctx, sheet); }
         else if (tool === Na__LeMeasure__TOOL_DIMENSION)  outcome = Na__LeMeasure__CommitDimension(sheet, text, ctx);

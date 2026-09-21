@@ -22,12 +22,17 @@
 //   nothing more than moving the stage's scroll position.
 // - Fit computes the zoom that shows the whole paper inside the stage with a
 //   padding, then centres it.
+// - How close the sheet may come depends on who is looking: a session that
+//   may author (Na__AppUtils__DevGate__) zooms in to AuthoringZoomMax, a
+//   reader to ZoomMax (both in the Navigation block of the config).
 //
 // INTEGRATION:
 // - Na__LayoutEditor__Controls__Pc__ and Na__LayoutEditor__Controls__TouchScreen__
 //   drive every function here from user input.
 // - Na__LayoutEditor__ModeController__ calls Fit once the stage has a size.
-// - Na__LayoutEditor__Toolbar__ calls Fit and ZoomTo from its buttons.
+// - Na__LayoutEditor__SheetTools__ContextMenu__ calls Fit from its Zoom to fit
+//   item, and Na__LayoutEditor__WebViewer__Drawings__ calls Fit and ZoomTo from
+//   the web viewer's own buttons. The editor's toolbar has no zoom buttons.
 //
 // -----------------------------------------------------------------------------
 //
@@ -41,6 +46,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - The zoom ceiling follows the authoring gate. Adam: "I can't get close
+//   enough into things... make an exception for the local host version";
+//   the viewers do not need it, and the live web should not have to keep
+//   drawing huge zooms. Clamp now stops at AuthoringZoomMax (64, 6400%)
+//   where the session may author and at ZoomMax (8, 800%) everywhere else.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - ZoomAbout takes a fourth argument, gesture: true for a wheel or pinch step,
 //   which tells the sheet surface to hold what follows the zoom until the
@@ -64,9 +76,10 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Config and Surface
+    // MODULE IMPORTS | Config, the Authoring Gate and Surface
     // ------------------------------------------------------------
     import { Na__LeCfg__GetNavigationSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__DevGate__IsAuthoringEnabled } from '../../03__AppUtils/Na__AppUtils__DevGate__.js';
     import {
         Na__LeSurface__SetZoom,
         Na__LeSurface__GetZoom,
@@ -86,9 +99,18 @@
 
     // HELPER FUNCTION | Clamp a Zoom to the Configured Range
     // ------------------------------------------------------------
+    // THE CEILING DEPENDS ON WHO IS LOOKING. A session that may author
+    // (localhost, or a device unlocked for authoring) zooms in as far as
+    // AuthoringZoomMax, to work on a wall junction or a window frame. The web
+    // viewer and any other read-only session stop at ZoomMax: as close as a
+    // reader needs, and a phone is never asked to draw a sheet at an enormous
+    // scale. A setup without the authoring ceiling (a config unit older than
+    // this module) falls back to the reader's, never to no ceiling at all.
+    // ------------------------------------------------------------
     function Na__LeNav__Clamp(zoom) {
         const setup = Na__LeCfg__GetNavigationSetup();
-        return Math.min(setup.zoomMax, Math.max(setup.zoomMin, zoom));
+        const max   = (Na__DevGate__IsAuthoringEnabled() && Number.isFinite(setup.authoringZoomMax)) ? setup.authoringZoomMax : setup.zoomMax;
+        return Math.min(max, Math.max(setup.zoomMin, zoom));
     }
     // ------------------------------------------------------------
 

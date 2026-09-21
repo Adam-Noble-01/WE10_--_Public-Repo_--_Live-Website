@@ -1,0 +1,79 @@
+{
+    "LayoutEditor__ObjectSnap__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__ObjectSnap__Config__.json",
+        "Meta__Description" : "Object snap in the Layout Editor: AutoCAD's running object snaps (OSNAP) on AutoCAD's key, F3. Six running modes, each switched in the snap menu that drops from the Snap button's arrow: Endpoint, Midpoint, Intersection, Perpendicular, Centre and Nearest. The marker's SHAPE is the mode that found the point (AutoCAD's glyphs); its COLOUR is what the point belongs to - purple for a viewport's linework, blue for a vector, orange for text, red for a dimension, slate for the sheet's own paper and the drawing grid. The same check that finds a snap also colours the grips of a vector being edited: green for a vertex that sits on the drawing, blue for one that does not, red for one that is picked. The snap radius, the marker's size and the viewport carry stay in Na__LayoutEditor__AppConfig__.json (LayoutEditor__Snapping__Config), where they have always been. Every switch here is a way of drawing, not part of any drawing: nothing is written to a sheet, and each choice is remembered in this browser, like Ortho (F8) and the grid.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Research"    : "AutoCAD's object snaps (OSNAP, the Drafting Settings dialog's Object Snap tab, AutoSnap), written 21-Sep-2026 from AutoCAD's long-standing documented behaviour - NOT re-read online for this release, so check the help before leaning on a detail. COPIED: F3 toggles running object snaps and the command line echoes <Osnap on> / <Osnap off>; the status bar button toggles them on a click and its arrow drops the list of running modes, each with its glyph beside it, ticked while running - which is the split Snap button here. The AutoSnap marker's glyphs: Endpoint a square, Midpoint a triangle, Intersection a cross, Perpendicular a right angle with its corner boxed, Center a circle, Nearest an hourglass; the AutoSnap tooltip names the mode beside the marker (here 'Name the snap beside the marker', off by default). Perpendicular needs a point to be perpendicular FROM - in AutoCAD the last point picked - so it finds nothing for the first point of a line; the same here (the caller hands the point in). Nearest answers anywhere along any object, which is why AutoCAD's own guidance is to leave it off as a running snap: here it ships off, and even when it is on it is only taken when no other mode finds a point in reach. NOT COPIED, DELIBERATELY: AutoCAD's marker is one colour (the AutoSnap marker colour) whatever it finds; here the colour says what KIND OF OBJECT the point belongs to, at Adam's request, so a corner of the drawing and a corner of a line drawn over it can be told apart before the click. AutoCAD picks among running snaps by what lies in the aperture box and lets Tab cycle them; here the nearest wins, weighted so an endpoint beats a midpoint at a near tie (weights in the Search unit), and there is no Tab cycle. Extension, Parallel, Tangent, Quadrant, Node, Insertion and Apparent Intersection are not offered: the vectors here are straight runs (the Vector Tools' circles and arcs offer their quadrant points and centre through Endpoint and Centre), and extension and parallel need AutoCAD's acquired-point tracking, which here exists only for a carried viewport. Geometric Center is folded into Centre: a closed vector's centre is its centre of area."
+    },
+
+    "LayoutEditor__ObjectSnap__Behaviour": {
+        "Behaviour__Description"            : "How object snap answers its switches.",
+        "Behaviour__EchoOnSwitch"           : true,
+        "Behaviour__EchoOnSwitchNote"       : "True writes AutoCAD's command-line echo (Labels EchoOn / EchoOff) on the line above the Measurements box for a moment each time F3 or the Snap button switches object snap, unless a value is being typed there. The button is lit either way.",
+        "Behaviour__NameTheSnapByDefault"   : false,
+        "Behaviour__NameTheSnapByDefaultNote" : "False leaves the marker as a shape and a colour alone. True names it as well ('Endpoint - Viewport') until it is switched off in the snap menu; either way the browser remembers the last choice."
+    },
+
+    "LayoutEditor__ObjectSnap__Modes": {
+        "Modes__Description"      : "The running snap modes and whether each starts switched on. A browser that has switched one keeps its own choice. Nearest starts off: it answers everywhere along every line.",
+        "Modes__end__DefaultOn"   : true,
+        "Modes__mid__DefaultOn"   : true,
+        "Modes__int__DefaultOn"   : true,
+        "Modes__perp__DefaultOn"  : true,
+        "Modes__cen__DefaultOn"   : true,
+        "Modes__near__DefaultOn"  : false
+    },
+
+    "LayoutEditor__ObjectSnap__Targets": {
+        "Targets__Description"          : "The kinds of object a point may snap to, and whether each starts switched on. The colour of each is in Na__LayoutEditor__Styles__ObjectSnap__.css (na-le-osnap--to-<target>), which both the marker and the menu's swatches read.",
+        "Targets__viewport__DefaultOn"  : true,
+        "Targets__shape__DefaultOn"     : true,
+        "Targets__text__DefaultOn"      : true,
+        "Targets__dimension__DefaultOn" : true,
+        "Targets__paper__DefaultOn"     : true
+    },
+
+    "LayoutEditor__ObjectSnap__Labels": {
+        "Labels__Description"       : "Every word object snap puts on the screen.",
+        "Labels__Toggle"            : "Snap",
+        "Labels__ToggleTitle"       : "Object snap (F3): new points, dragged points and moved items land on the corners, middles, crossings and perpendiculars of the drawing and of everything drawn on the sheet. The arrow beside it chooses which.",
+        "Labels__MenuButtonTitle"   : "Snap options: which kinds of point are found, and which kinds of object they are found on",
+        "Labels__MenuMaster"        : "Object snap",
+        "Labels__MenuMasterHint"    : "F3",
+        "Labels__MenuModesHeading"  : "Snap to these points",
+        "Labels__MenuTargetsHeading": "On these objects",
+        "Labels__MenuNaming"        : "Name the snap beside the marker",
+        "Labels__MenuOffNote"       : "Object snap is off (F3). These choices are kept for when it is on.",
+        "Labels__EchoOn"            : "<Osnap on>",
+        "Labels__EchoOff"           : "<Osnap off>",
+        "Labels__ConsoleOn"         : "Object snap on (F3).",
+        "Labels__ConsoleOff"        : "Object snap off (F3): points land where the cursor is, or on the grid while Grid Snap is on.",
+        "Labels__Mode__end"         : "Endpoint",
+        "Labels__Mode__end__Hint"   : "Corners, and the ends of lines",
+        "Labels__Mode__mid"         : "Midpoint",
+        "Labels__Mode__mid__Hint"   : "The middle of a line or an edge",
+        "Labels__Mode__int"         : "Intersection",
+        "Labels__Mode__int__Hint"   : "Where two lines cross",
+        "Labels__Mode__perp"        : "Perpendicular",
+        "Labels__Mode__perp__Hint"  : "Where the line being drawn meets another square on",
+        "Labels__Mode__cen"         : "Centre",
+        "Labels__Mode__cen__Hint"   : "The middle of a closed vector, a circle or a text box",
+        "Labels__Mode__near"        : "Nearest",
+        "Labels__Mode__near__Hint"  : "Anywhere along a line, when nothing else is in reach",
+        "Labels__Mode__grid"        : "Grid",
+        "Labels__Mode__infer"       : "In line",
+        "Labels__Target__viewport"        : "Viewport linework",
+        "Labels__Target__viewport__Hint"  : "Purple",
+        "Labels__Target__shape"           : "Vectors",
+        "Labels__Target__shape__Hint"     : "Blue",
+        "Labels__Target__text"            : "Text",
+        "Labels__Target__text__Hint"      : "Orange",
+        "Labels__Target__dimension"       : "Dimensions",
+        "Labels__Target__dimension__Hint" : "Red",
+        "Labels__Target__paper"           : "Sheet border and title block",
+        "Labels__Target__paper__Hint"     : "Slate",
+        "Labels__Target__grid"            : "Grid"
+    }
+}

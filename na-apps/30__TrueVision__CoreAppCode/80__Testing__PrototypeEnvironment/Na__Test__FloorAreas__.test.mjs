@@ -120,6 +120,33 @@ import { tmpdir } from 'node:os';
     check('...and the visual centre falls inside it', geo.Na__LeAreaGeo__Contains(u, uCentre.x, uCentre.y) === true, uCentre);
     check('a run with no area is still given a point to label', Number.isFinite(geo.Na__LeAreaGeo__VisualCentre([ [ 0, 0 ], [ 10, 0 ] ]).x));
 
+    // -- WHERE THE LABEL SITS BEFORE IT IS DRAGGED --------------------------
+    // Adam, 21-Sep-2026: "by default, centering it on the centre of the
+    // bounding box, which should be the standard behaviour".
+    const home = geo.Na__LeAreaGeo__LabelHome(room, 'box');
+    check('a rectangle\'s label sits in the middle of its box (60, 40)', near(home.x, 60) && near(home.y, 40) && home.placement === 'box', home);
+    // RB05's Area 2 as Adam's screenshot drew it (a tenth of a pixel to the
+    // millimetre): a window bay out of the top wall, a chimney breast into
+    // the left wall, a jog in the right wall and a recess out of the bottom.
+    // Its box runs 0-70.8 across and 0-88.4 down, so the middle of the box is
+    // (35.4, 44.2); its label was painted up and to the right of that.
+    const recessed = [ [ 0, 3.3 ], [ 17.4, 3.3 ], [ 17.4, 0 ], [ 50.9, 0 ], [ 50.9, 3.3 ], [ 70.8, 3.3 ], [ 70.8, 54.8 ], [ 68.6, 54.8 ], [ 68.6, 83 ],
+                       [ 49.6, 83 ], [ 49.6, 88.4 ], [ 19.1, 88.4 ], [ 19.1, 83 ], [ 0, 83 ], [ 0, 56.4 ], [ 5.3, 56.4 ], [ 5.3, 28.9 ], [ 0, 28.9 ] ];
+    const recessedHome   = geo.Na__LeAreaGeo__LabelHome(recessed, 'box');
+    const recessedVisual = geo.Na__LeAreaGeo__VisualCentre(recessed);
+    check('a room with a bay and recesses is labelled in the middle of its box, (35.4, 44.2)', near(recessedHome.x, 35.4) && near(recessedHome.y, 44.2) && recessedHome.placement === 'box', recessedHome);
+    check('...which is NOT where its visual centre is - the fault Adam saw', Math.hypot(recessedVisual.x - recessedHome.x, recessedVisual.y - recessedHome.y) > 3, { visual : recessedVisual, home : recessedHome });
+    const ellHome = geo.Na__LeAreaGeo__LabelHome(ell, 'box');
+    check('an L has the middle of its box (50, 50) in the bite out of it...', geo.Na__LeAreaGeo__Contains(ell, 50, 50) === false);
+    check('...so its label falls back to the visual centre, inside the L', ellHome.placement === 'visual' && geo.Na__LeAreaGeo__Contains(ell, ellHome.x, ellHome.y) === true, ellHome);
+    const uHome = geo.Na__LeAreaGeo__LabelHome(u, 'box');
+    check('a U does the same: never labelled in the gap between its legs', uHome.placement === 'visual' && geo.Na__LeAreaGeo__Contains(u, uHome.x, uHome.y) === true, uHome);
+    const visualHome = geo.Na__LeAreaGeo__LabelHome(recessed, 'visual');
+    check('\'visual\' puts every room\'s label at its visual centre', visualHome.placement === 'visual' && near(visualHome.x, recessedVisual.x) && near(visualHome.y, recessedVisual.y), visualHome);
+    check('a visual centre handed in is used rather than worked out again', geo.Na__LeAreaGeo__LabelHome(ell, 'box', { x : 1, y : 2 }).x === 1);
+    check('an unknown placement reads as the box', geo.Na__LeAreaGeo__LabelHome(room, 'nonsense').placement === 'box');
+    check('a run that encloses nothing is still given a home', Number.isFinite(geo.Na__LeAreaGeo__LabelHome([ [ 0, 0 ], [ 10, 0 ] ], 'box').x));
+
     // -- HOW THE FIGURES ARE WRITTEN ----------------------------------------
     check('two decimals and a square metre sign', geo.Na__LeAreaGeo__FormatArea(18.4499, { decimals : 2 }) === '18.45 m²', geo.Na__LeAreaGeo__FormatArea(18.4499, { decimals : 2 }));
     check('square feet convert at 10.7639 to the square metre', geo.Na__LeAreaGeo__FormatArea(15, { units : 'ft2', decimals : 2 }) === '161 ft²', geo.Na__LeAreaGeo__FormatArea(15, { units : 'ft2' }));

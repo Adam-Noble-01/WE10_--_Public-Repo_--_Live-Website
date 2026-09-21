@@ -45,6 +45,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.12.0
+// - A hatch's own line weight and line colour. HatchDef hands the hatch
+//   module the record's Hatch__StrokePt, and resolves the colour as: this
+//   hatch's own, else the PATTERN'S own ink, else the shape's edge colour. The
+//   middle step is new for a vector - until now only a site plan layer honoured
+//   a pattern's ink, so grass hatched onto a drawn shape took the shape's edge
+//   colour while the same grass on the site plan beside it was green. Both
+//   painters read HatchDef, so the sheet and the PDF change together.
+//
 // 21-Sep-2026 - Version 1.11.0
 // - A 'picture' primitive: a picture placed on the sheet (Sheet Images). Both
 //   painters hand it to Na__LayoutEditor__SheetImages__Painter__, the way a QR
@@ -332,6 +341,13 @@
     // Sheet markup is measured in PAPER millimetres, so no denominator: a tile
     // millimetre is a paper millimetre and the pattern prints at the size it was
     // drawn at, whatever the sheet's viewports are scaled to.
+    //
+    // THE LINE COLOUR, in the order a person would expect it: the colour set on
+    // THIS hatch, else the pattern's own ink (grass is green whatever carries
+    // it - the rule the site plan has always painted by), else the colour of the
+    // shape's edges. THE LINE WEIGHT is this hatch's own typed points, or
+    // nothing, which the hatch module reads as the pattern's standard. The SVG
+    // and the PDF both paint from this one answer, so they cannot disagree.
     // ------------------------------------------------------------
     function Na__LeChrome__HatchDef(primitive) {
         const hatch = primitive.Hatch;
@@ -342,7 +358,8 @@
             pattern     : pattern,
             scale       : hatch.Hatch__Scale,
             rotationDeg : hatch.Hatch__RotationDeg,
-            colour      : hatch.Hatch__Colour || primitive.HatchInk || primitive.StrokeColour
+            colour      : hatch.Hatch__Colour || pattern.Pattern__Ink || primitive.HatchInk || primitive.StrokeColour,
+            strokePt    : hatch.Hatch__StrokePt
         };
     }
     function Na__LeChrome__HatchPaint(primitive) {

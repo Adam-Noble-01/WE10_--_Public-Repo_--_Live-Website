@@ -121,6 +121,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.32.0
+// - Re-exports the Shapes unit's AnnounceShapes and the Groups unit's
+//   AddGroupMember, for the vector tools (37__System__VectorTools).
+//   InsertShape's afterId and the curve option come through unchanged.
+//
+// 21-Sep-2026 - Version 1.31.0
+// - Re-exports the Layers unit's GetLayerByName, LayerIndexLike and
+//   IsItemPickable, for a paste across sheets that brings its layers
+//   (Na__LayoutEditor__ItemClipboard__). CreateLayer's opts.silent and
+//   UpdateLayer's silent come through unchanged.
+//
 // 21-Sep-2026 - Version 1.30.0
 // - Re-exports the Layers unit's IsLayerSelectable (a reference layer, the
 //   layer record's Selectable switch), ItemLayerId and MoveToLayer (the
@@ -424,7 +435,9 @@
     import {
         Na__LeModel__GetLayers,
         Na__LeModel__LayerIndexAboveDrawings,
+        Na__LeModel__LayerIndexLike,
         Na__LeModel__GetLayerById,
+        Na__LeModel__GetLayerByName,
         Na__LeModel__DefaultLayerId,
         Na__LeModel__CreateLayer,
         Na__LeModel__DeleteLayer,
@@ -433,6 +446,7 @@
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
         Na__LeModel__IsLayerSelectable,
+        Na__LeModel__IsItemPickable,
         Na__LeModel__ItemLayerId,
         Na__LeModel__MoveToLayer
     } from './Na__LayoutEditor__SheetModel__Layers__.js';
@@ -472,7 +486,8 @@
         Na__LeModel__CreateShape,
         Na__LeModel__InsertShape,
         Na__LeModel__UpdateShape,
-        Na__LeModel__DeleteShape
+        Na__LeModel__DeleteShape,
+        Na__LeModel__AnnounceShapes
     } from './Na__LayoutEditor__SheetModel__Shapes__.js';
     import {
         Na__LeModel__AREAS_REASON,
@@ -497,6 +512,7 @@
         Na__LeModel__GetGroups,
         Na__LeModel__GetGroupById,
         Na__LeModel__InsertGroup,
+        Na__LeModel__AddGroupMember,
         Na__LeModel__DeleteGroup,
         Na__LeModel__DeleteItems
     } from './Na__LayoutEditor__SheetModel__Groups__.js';
@@ -746,7 +762,9 @@
         Na__LeModel__UpdateMarginNotes,
         Na__LeModel__GetLayers,
         Na__LeModel__LayerIndexAboveDrawings,
+        Na__LeModel__LayerIndexLike,
         Na__LeModel__GetLayerById,
+        Na__LeModel__GetLayerByName,
         Na__LeModel__DefaultLayerId,
         Na__LeModel__CreateLayer,
         Na__LeModel__DeleteLayer,
@@ -755,6 +773,7 @@
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
         Na__LeModel__IsLayerSelectable,
+        Na__LeModel__IsItemPickable,
         Na__LeModel__ItemLayerId,
         Na__LeModel__MoveToLayer,
         Na__LeModel__CanArrange,
@@ -785,6 +804,7 @@
         Na__LeModel__InsertShape,
         Na__LeModel__UpdateShape,
         Na__LeModel__DeleteShape,
+        Na__LeModel__AnnounceShapes,
         Na__LeModel__AREAS_REASON,
         Na__LeModel__AreaGroupKey,
         Na__LeModel__GetAreaGroups,
@@ -803,6 +823,7 @@
         Na__LeModel__GetGroups,
         Na__LeModel__GetGroupById,
         Na__LeModel__InsertGroup,
+        Na__LeModel__AddGroupMember,
         Na__LeModel__DeleteGroup,
         Na__LeModel__SetSelection,
         Na__LeModel__GetSelection,

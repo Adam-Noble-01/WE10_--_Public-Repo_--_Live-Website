@@ -1,0 +1,102 @@
+{
+    "HatchPattern__Hardcore__Meta": {
+        "Meta__FileName"         : "Na__HatchPattern__Construction__Hardcore__.json",
+        "Meta__Description"      : "Hardcore in section - angular broken stones, loosely packed, with a few small pieces between them. Much coarser than the concrete above it, which is the point: the slab and what it sits on must read apart.",
+        "Meta__Version"          : "1.0.0",
+        "Meta__Created"          : "21-Sep-2026",
+        "Meta__Author"           : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits"    : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__WhyScatter"       : "The positions are a blue-noise scatter, generated ONCE and written in below as fixed numbers, so screen and paper can never disagree. It was scored on a torus - the gap across a tile seam counts like any other gap - and against the regularities that survive a repeat: two marks sharing a column (an endless vertical line once the tile repeats) or a row. A lattice was never an option: it lays visible stripes across a wall.",
+        "Meta__WhyInsideTheTile" : "Every mark sits wholly inside the tile, so nothing crosses a seam at all: a browser clips a <pattern> at its tile edge and the PDF stamper does not."
+    },
+
+    "HatchPattern__Hardcore__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__Hardcore",
+        "Identity__Label"       : "Hardcore",
+        "Identity__Group"       : "Concrete & Fill",
+        "Identity__Keywords"    : ["hardcore", "fill", "sub-base", "subbase", "type 1", "mot", "stone", "rubble", "section"],
+        "Identity__Note"        : "Compacted hardcore and granular sub-base under a slab."
+    },
+
+    "HatchPattern__Hardcore__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 24.0,
+        "Tile__HeightMm"    : 20.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Eight stones and six small pieces. Not square, so the repeat does not line up on the diagonal."
+    },
+
+    "HatchPattern__Hardcore__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.35 pt (0.1235 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.1235,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__Hardcore__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "StoneA": {
+            "Glyph__Label"    : "Stone, five sided",
+            "Glyph__WidthMm"  : 3.6,
+            "Glyph__HeightMm" : 3,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-1.8,0.2 L-0.7,-1.5 L1.2,-1.2 L1.8,0.4 L0.2,1.5 Z",
+            "Glyph__Note"     : "Angular, never rounded: hardcore is broken, not dug."
+        },
+        "StoneB": {
+            "Glyph__Label"    : "Stone, four sided",
+            "Glyph__WidthMm"  : 3.2,
+            "Glyph__HeightMm" : 2.8,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-1.6,-0.6 L0.4,-1.4 L1.6,0.3 L-0.5,1.4 Z",
+            "Glyph__Note"     : "A leaning quadrilateral."
+        },
+        "StoneC": {
+            "Glyph__Label"    : "Stone, long",
+            "Glyph__WidthMm"  : 3.8,
+            "Glyph__HeightMm" : 2.2,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-1.9,0.3 L-0.9,-1.0 L1.4,-1.1 L1.9,0.1 L0.6,1.1 L-1.1,1.0 Z",
+            "Glyph__Note"     : "Six sided and flatter, lying down."
+        },
+        "Pebble": {
+            "Glyph__Label"    : "Small piece",
+            "Glyph__WidthMm"  : 1.4,
+            "Glyph__HeightMm" : 1.2,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-0.7,0.1 L-0.1,-0.6 L0.7,-0.2 L0.3,0.6 Z",
+            "Glyph__Note"     : "Fills the gaps between the stones, as the fines do on site."
+        }
+    },
+
+    "HatchPattern__Hardcore__Placements": [
+        { "Place__Glyph": "Pebble", "Place__XMm": 15,   "Place__YMm": 1.2,  "Place__Note": "Small piece" },
+        { "Place__Glyph": "StoneB", "Place__XMm": 21,   "Place__YMm": 2.6,  "Place__Note": "Stone" },
+        { "Place__Glyph": "StoneA", "Place__XMm": 10.8, "Place__YMm": 3.3,  "Place__Note": "Stone" },
+        { "Place__Glyph": "StoneC", "Place__XMm": 3,    "Place__YMm": 4.3,  "Place__Note": "Stone" },
+        { "Place__Glyph": "StoneB", "Place__XMm": 16.2, "Place__YMm": 7.8,  "Place__Note": "Stone" },
+        { "Place__Glyph": "Pebble", "Place__XMm": 1.3,  "Place__YMm": 8.6,  "Place__Note": "Small piece" },
+        { "Place__Glyph": "StoneB", "Place__XMm": 8.6,  "Place__YMm": 8.6,  "Place__Note": "Stone" },
+        { "Place__Glyph": "Pebble", "Place__XMm": 21.6, "Place__YMm": 9.7,  "Place__Note": "Small piece" },
+        { "Place__Glyph": "Pebble", "Place__XMm": 16.8, "Place__YMm": 12.3, "Place__Note": "Small piece" },
+        { "Place__Glyph": "StoneA", "Place__XMm": 4.6,  "Place__YMm": 14.4, "Place__Note": "Stone" },
+        { "Place__Glyph": "StoneC", "Place__XMm": 12,   "Place__YMm": 15.4, "Place__Note": "Stone" },
+        { "Place__Glyph": "StoneA", "Place__XMm": 19.2, "Place__YMm": 16.9, "Place__Note": "Stone" },
+        { "Place__Glyph": "Pebble", "Place__XMm": 7.6,  "Place__YMm": 18.6, "Place__Note": "Small piece" },
+        { "Place__Glyph": "Pebble", "Place__XMm": 2.4,  "Place__YMm": 18.9, "Place__Note": "Small piece" }
+    ],
+
+    "HatchPattern__Hardcore__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

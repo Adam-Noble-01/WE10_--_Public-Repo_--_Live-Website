@@ -1,0 +1,196 @@
+{
+    "ColourPalette__Meta": {
+        "Meta__FileName"          : "Na__ColourPalette__Config__.json",
+        "Meta__Description"       : "The Colour Palette Manager's standard colours. Every colour field in TrueVision - a vector's edge, fill and hatch, a text, a dimension, a leader, a floor area, a gradient stop, the drawing grid, the 3D tab's plan dimensions - opens this palette beside the field with the browser's own colour mixer directly above it, and one click on a swatch puts that colour in the field. Nothing here is code: a colour, a group or a whole palette is added by editing this file.",
+        "Meta__Version"           : "1.1.0",
+        "Meta__Created"           : "21-Sep-2026",
+        "Meta__Author"            : "Adam Noble - Noble Architecture",
+
+        "Meta__Structure"         : "Three levels, each keyed by its TECHNICAL NAME: a PALETTE (one is on show at a time; the menu at the head of the palette switches between them once there are two) holds GROUPS (one row of swatches each, captioned with the group's menu name) and a group holds COLOURS (one swatch each, left to right in the order written here).",
+        "Meta__NamingConvention"  : "Technical names are three-stage, like every other key in this codebase: ColourPalette__{Group}__{Colour} for a colour, ColourPalette__{Group} for a group, ColourPalette__{Palette} for a palette. A technical name is what code and other configs may refer to, so it must be unique across the WHOLE file and should never be renamed once used; the menu name is only what a person reads and can change freely.",
+        "Meta__ColourValues"      : "Colour__Hex is the value that is used. Colour__Rgb is written beside it because a drawing office thinks in both; the loader warns on the console when the two disagree and keeps the hex. A colour may be written with Colour__Rgb alone (three whole numbers 0-255) and the hex is worked out from it.",
+        "Meta__HowToAddAColour"   : "Copy a colour block inside the group it belongs to, give it a new technical name as its key AND as Colour__TechnicalName, a menu name, and a hex. It shows on the next load; no code changes.",
+        "Meta__HowToAddAGroup"    : "Copy a group block inside Palette__Groups. A group is one row in the palette, so a group of more than about twelve colours wraps onto a second line.",
+        "Meta__HowToAddAPalette"  : "Copy a palette block inside ColourPalette__Palettes. With two or more palettes a menu appears at the head of the palette to switch between them, and the choice is remembered in this browser. Display__DefaultPaletteKey names the one a new browser starts on.",
+        "Meta__SsotSource"        : "The Monochrome group is the MTE100__GreyscaleSeries__ of Na__DataLib__CoreIndex__EdgeMaterials__.json (v2.1.0, read 21-Sep-2026) - the edge linework greys already in use in SketchUp - so a line coloured here matches the model it was drawn from. Colour__SsotKey is the thread back to the SSOT entry; if a grey changes there it must be changed here.",
+        "Meta__SsotPath"          : "%AppData%/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/"
+    },
+
+    "ColourPalette__Display": {
+        "Display__Description"            : "How the palette shows. Sizes are screen pixels.",
+        "Display__Enabled"                : true,
+        "Display__EnabledNote"            : "False switches the whole feature off: every colour field opens the browser's own colour menu and nothing else, exactly as before the palette existed.",
+        "Display__DefaultPaletteKey"      : "ColourPalette__Standard",
+        "Display__SwatchSizePx"           : 22,
+        "Display__SwatchGapPx"            : 4,
+        "Display__SwatchesPerRow"         : 12,
+        "Display__SwatchesPerRowNote"     : "A group longer than this wraps onto another line of the same row. Twelve 22 px swatches make the palette about as wide as the browser's own colour mixer, which sits on top of it.",
+        "Display__ShowGroupNames"         : true,
+        "Display__ShowReadout"            : true,
+        "Display__ShowReadoutNote"        : "The line at the foot of the palette: the menu name, hex and technical name of the swatch under the pointer, or of the field's current colour when it is one of the palette's.",
+        "Display__OpenNativePicker"       : true,
+        "Display__OpenNativePickerNote"   : "True (the behaviour asked for): one click on a colour field opens this palette AND the browser's own colour mixer directly above it, so a standard colour is one more click and a custom colour is mixed as it always was. False opens the palette alone; a second click on the field then opens the browser's mixer.",
+
+        "Display__NativePickerWidthPx"       : 232,
+        "Display__NativePickerHeightPx"      : 250,
+        "Display__NativePickerSizeNote"      : "THE SIZE OF THE BROWSER'S OWN COLOUR MIXER, which this page cannot ask for and cannot change: Chrome and Edge draw it 232 x 250 (measured off Adam's screen, 21-Sep-2026). The room for it is kept ABOVE the palette, and the mixer is hung from the top of that room so it ends just over the palette. If a browser update makes the mixer taller it will lap over the palette's title - raise the height here; if shorter it will float clear of the palette - lower it.",
+        "Display__NativePickerGapPx"         : 4,
+        "Display__NativePickerFollowsZoom"   : true,
+        "Display__NativePickerFollowsZoomNote" : "The mixer is a window of the browser's and does not grow or shrink with the page zoom (Ctrl + and Ctrl -), while this palette does. True works the page zoom out and keeps the room to suit; it is only trusted when the window's width and the screen's pixel ratio agree on it, and reads as 100 % otherwise."
+    },
+
+    "ColourPalette__Labels": {
+        "Labels__Description"   : "Every word the palette puts on the screen.",
+        "Labels__Title"         : "Colour Palette",
+        "Labels__PaletteMenu"   : "Palette",
+        "Labels__Current"       : "Current",
+        "Labels__NotInPalette"  : "custom colour",
+        "Labels__SwatchTitle"   : "{menuName}  {hex}  -  {technicalName}"
+    },
+
+    "ColourPalette__Palettes": {
+
+        "ColourPalette__Standard": {
+            "Palette__MenuName"      : "Noble Architecture Standard",
+            "Palette__TechnicalName" : "ColourPalette__Standard",
+            "Palette__Description"   : "The everyday drawing colours: the edge linework greys and the dimension colours.",
+
+            "Palette__Groups": {
+
+                "ColourPalette__Monochrome": {
+                    "Group__MenuName"      : "Monochrome",
+                    "Group__TechnicalName" : "ColourPalette__Monochrome",
+                    "Group__Description"   : "The ten edge linework greys of the Edge Materials SSOT, black to white. Dark to light is also the order they read as depth on a drawing.",
+
+                    "Group__Colours": {
+                        "ColourPalette__Monochrome__AbsoluteBlack": {
+                            "Colour__MenuName"      : "Absolute Black",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__AbsoluteBlack",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#000000",
+                            "Colour__Rgb"           : [0, 0, 0],
+                            "Colour__SsotKey"       : "MTE101__LineColour__AbsoluteBlack",
+                            "Colour__Note"          : "Full ink weight linework"
+                        },
+                        "ColourPalette__Monochrome__SoftBlack": {
+                            "Colour__MenuName"      : "Soft Black",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__SoftBlack",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#333333",
+                            "Colour__Rgb"           : [51, 51, 51],
+                            "Colour__SsotKey"       : "MTE102__LineColour__SoftBlack__L20",
+                            "Colour__Note"          : "Lightness 20"
+                        },
+                        "ColourPalette__Monochrome__DarkGrey": {
+                            "Colour__MenuName"      : "Dark Grey",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__DarkGrey",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#666666",
+                            "Colour__Rgb"           : [102, 102, 102],
+                            "Colour__SsotKey"       : "MTE103__LineColour__DarkGrey__L40",
+                            "Colour__Note"          : "Lightness 40"
+                        },
+                        "ColourPalette__Monochrome__MediumDarkGrey": {
+                            "Colour__MenuName"      : "Medium Dark Grey",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__MediumDarkGrey",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#737373",
+                            "Colour__Rgb"           : [115, 115, 115],
+                            "Colour__SsotKey"       : "MTE103__LineColour__MediumDarkGrey__L50",
+                            "Colour__Note"          : "Lightness 45 (the SSOT key says L50; its value is 45)"
+                        },
+                        "ColourPalette__Monochrome__MidGrey": {
+                            "Colour__MenuName"      : "Mid Grey",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__MidGrey",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#999999",
+                            "Colour__Rgb"           : [153, 153, 153],
+                            "Colour__SsotKey"       : "MTE104__LineColour__MidGrey__L60",
+                            "Colour__Note"          : "Lightness 60"
+                        },
+                        "ColourPalette__Monochrome__LightMidGrey": {
+                            "Colour__MenuName"      : "Light Mid Grey",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__LightMidGrey",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#B4B4B4",
+                            "Colour__Rgb"           : [180, 180, 180],
+                            "Colour__SsotKey"       : "MTE105__LineColour__LightMidGrey__L70",
+                            "Colour__Note"          : "Lightness 70"
+                        },
+                        "ColourPalette__Monochrome__NearWhiteGrey": {
+                            "Colour__MenuName"      : "Near White Grey",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__NearWhiteGrey",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#CCCCCC",
+                            "Colour__Rgb"           : [204, 204, 204],
+                            "Colour__SsotKey"       : "MTE106__LineColour__NearWhiteGrey__L80",
+                            "Colour__Note"          : "Lightness 80"
+                        },
+                        "ColourPalette__Monochrome__LightGrey": {
+                            "Colour__MenuName"      : "Light Grey",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__LightGrey",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#D9D9D9",
+                            "Colour__Rgb"           : [217, 217, 217],
+                            "Colour__SsotKey"       : "MTE107__LineColour__LightGrey__L85",
+                            "Colour__Note"          : "Lightness 85"
+                        },
+                        "ColourPalette__Monochrome__VeryLightGrey": {
+                            "Colour__MenuName"      : "Very Light Grey",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__VeryLightGrey",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#F2F2F2",
+                            "Colour__Rgb"           : [242, 242, 242],
+                            "Colour__SsotKey"       : "MTE108__LineColour__VeryLightGrey__L95",
+                            "Colour__Note"          : "Lightness 95"
+                        },
+                        "ColourPalette__Monochrome__White": {
+                            "Colour__MenuName"      : "White",
+                            "Colour__TechnicalName" : "ColourPalette__Monochrome__White",
+                            "Colour__MenuGroup"     : "Monochrome",
+                            "Colour__Hex"           : "#FFFFFF",
+                            "Colour__Rgb"           : [255, 255, 255],
+                            "Colour__SsotKey"       : "MTE109__LineColour__White",
+                            "Colour__Note"          : "Pure white"
+                        }
+                    }
+                },
+
+                "ColourPalette__Dimensions": {
+                    "Group__MenuName"      : "Dimensions",
+                    "Group__TechnicalName" : "ColourPalette__Dimensions",
+                    "Group__Description"   : "The standard dimension colours: what is proposed, what exists, and anything that needs picking out. Red, blue and green, each at 150 of 255 so the three read as one family: dark enough to print as a firm line, never so bright that a dimension shouts over the drawing.",
+
+                    "Group__Colours": {
+                        "ColourPalette__Dimensions__Proposed": {
+                            "Colour__MenuName"      : "Proposed",
+                            "Colour__TechnicalName" : "ColourPalette__Dimensions__Proposed",
+                            "Colour__MenuGroup"     : "Dimensions",
+                            "Colour__Hex"           : "#960000",
+                            "Colour__Rgb"           : [150, 0, 0],
+                            "Colour__Note"          : "Dimensions of proposed work - rgb(150,0,0)"
+                        },
+                        "ColourPalette__Dimensions__Existing": {
+                            "Colour__MenuName"      : "Existing",
+                            "Colour__TechnicalName" : "ColourPalette__Dimensions__Existing",
+                            "Colour__MenuGroup"     : "Dimensions",
+                            "Colour__Hex"           : "#000096",
+                            "Colour__Rgb"           : [0, 0, 150],
+                            "Colour__Note"          : "Dimensions of the existing building - rgb(0,0,150). The first brief wrote rgb(0,0,0), which put a black in a row meant to be red, blue and green; corrected 21-Sep-2026. Black is one row up, in Monochrome."
+                        },
+                        "ColourPalette__Dimensions__Special": {
+                            "Colour__MenuName"      : "Special",
+                            "Colour__TechnicalName" : "ColourPalette__Dimensions__Special",
+                            "Colour__MenuGroup"     : "Dimensions",
+                            "Colour__Hex"           : "#009600",
+                            "Colour__Rgb"           : [0, 150, 0],
+                            "Colour__Note"          : "Dimensions that need picking out - rgb(0,150,0), the green of the three (Adam, 21-Sep-2026: 'I meant for it to be a green ... the others are red and blue')."
+                        }
+                    }
+                }
+
+            }
+        }
+
+    }
+}

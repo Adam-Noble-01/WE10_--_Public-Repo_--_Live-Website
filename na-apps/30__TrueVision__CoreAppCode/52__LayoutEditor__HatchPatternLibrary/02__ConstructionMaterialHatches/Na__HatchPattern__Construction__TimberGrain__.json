@@ -1,0 +1,84 @@
+{
+    "HatchPattern__TimberGrain__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__TimberGrain__.json",
+        "Meta__Description"   : "Timber grain - long, gently waving lines, unevenly spaced, running across the tile and joining the next. For a joist, a rafter or a plate drawn along its length.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__WhySeams"      : "Every line crosses the left and right seams travelling dead level, and none comes within 1.4 mm of the top or bottom edge. Na__LeHatch__SeamCopies paints what the next tile pushes across.",
+        "Meta__WhyUneven"     : "Four lines at uneven heights with different waves. Evenly spaced identical waves read as corrugated sheet, not as wood."
+    },
+
+    "HatchPattern__TimberGrain__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__TimberGrain",
+        "Identity__Label"       : "Timber (Grain)",
+        "Identity__Group"       : "Timber & Metal",
+        "Identity__Keywords"    : ["timber", "wood", "grain", "joist", "rafter", "stud", "softwood", "section"],
+        "Identity__Note"        : "Timber shown along its length. Turn it with Pattern deg to run with the member."
+    },
+
+    "HatchPattern__TimberGrain__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 24.0,
+        "Tile__HeightMm"    : 10.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Long and shallow: grain runs a long way before it repeats."
+    },
+
+    "HatchPattern__TimberGrain__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__TimberGrain__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "GrainA": {
+            "Glyph__Label"    : "Grain, one slow wave",
+            "Glyph__WidthMm"  : 24,
+            "Glyph__HeightMm" : 1.2,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,0 C5,0 7,-0.9 12,-0.3 S19,0 24,0",
+            "Glyph__Note"     : "The first and last control points share the height of the ends, so the line leaves one tile and enters the next dead level: no kink at the seam."
+        },
+        "GrainB": {
+            "Glyph__Label"    : "Grain, the other way",
+            "Glyph__WidthMm"  : 24,
+            "Glyph__HeightMm" : 1,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,0 C4,0 6,0.7 11,0.15 S19,0 24,0",
+            "Glyph__Note"     : "Level at both ends, by the same rule."
+        },
+        "GrainC": {
+            "Glyph__Label"    : "Grain, nearly straight",
+            "Glyph__WidthMm"  : 24,
+            "Glyph__HeightMm" : 0.5,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,0 C7,0 9,0.45 12,0.45 S17,0 24,0",
+            "Glyph__Note"     : "Level at both ends and at its middle."
+        }
+    },
+
+    "HatchPattern__TimberGrain__Placements": [
+        { "Place__Glyph": "GrainA", "Place__XMm": 0, "Place__YMm": 1.9, "Place__Note": "Top line" },
+        { "Place__Glyph": "GrainC", "Place__XMm": 0, "Place__YMm": 4,   "Place__Note": "Close under it" },
+        { "Place__Glyph": "GrainB", "Place__XMm": 0, "Place__YMm": 6.6, "Place__Note": "A wider gap, then the busiest line" },
+        { "Place__Glyph": "GrainC", "Place__XMm": 0, "Place__YMm": 8.5, "Place__Note": "Bottom line, 1.5 mm clear of the edge" }
+    ],
+
+    "HatchPattern__TimberGrain__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

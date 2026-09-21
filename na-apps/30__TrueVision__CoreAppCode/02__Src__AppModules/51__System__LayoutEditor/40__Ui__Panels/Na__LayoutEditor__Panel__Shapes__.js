@@ -60,6 +60,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0
+// - The hatch block gains Pattern line pt and Pattern colour, under Pattern
+//   deg, and a Standard button that shows once either is set. The boxes show
+//   what the hatch is drawn with: the pattern's standard (its own stroke at
+//   the scale in use; its own ink, else the shape's edge colour) until a value
+//   is set, which is then stored on the shape as Hatch__StrokePt (printed
+//   points, not scaled with the pattern) and Hatch__Colour. Choosing another
+//   pattern clears both, so each pattern starts from its own standards. The
+//   colour box opens the Colour Palette like every other colour field.
+//
 // 21-Sep-2026 - Version 1.8.2
 // - Pictures (Sheet Images) are left out of what this panel reads and edits:
 //   a picture has no edge, fill or hatch, and its settings are the Images
@@ -128,7 +138,7 @@
     // MODULE IMPORTS | Config, Model, Tools, Surface, Gradient Tool and Panel Host
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetLineweightSetup, Na__LeCfg__GetShapeSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeHatch__Get, Na__LeHatch__GetPacks, Na__LeHatch__ClampScale, Na__LeHatch__ClampRotation } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
+    import { Na__LeHatch__Get, Na__LeHatch__GetPacks, Na__LeHatch__ClampScale, Na__LeHatch__ClampRotation, Na__LeHatch__ClampStrokePt, Na__LeHatch__CleanColour, Na__LeHatch__StandardStrokePt, Na__LeHatch__StandardColour } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeModel__GetActiveSheet, Na__LeModel__GetSelection, Na__LeModel__GetSelectionItems, Na__LeModel__UpdateShape } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeTools__GetShapeDefaults, Na__LeTools__SetShapeDefaults } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
@@ -147,6 +157,7 @@
         Na__LePanels__Input,
         Na__LePanels__Select,
         Na__LePanels__FillSelect,
+        Na__LePanels__Button,
         Na__LePanels__Note,
         Na__LePanels__SliderRow,
         Na__LePanels__ShowSlider
@@ -263,6 +274,30 @@
         const hatchRotRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeHatchRotation', 'Pattern deg'), hatchRot);
         hatchRotRow.setAttribute('data-na-block', 'shape-hatch-rotation-row');
         body.appendChild(hatchRotRow);
+        // THE HATCH'S OWN LINE WEIGHT AND LINE COLOUR. Adam: 'A line thickness
+        // control for the pattern. A line colour for the pattern ... Pull the
+        // standard ones in for when you first load that, but then have controls
+        // to be able to modify it.' Both boxes always show what the hatch is
+        // DRAWN with - the pattern's standard until one is set, the set value
+        // after - and Standard, which only shows once one is set, puts both
+        // back. The weight is printed points, like Edge pt above it.
+        const hatchPt = Na__LePanels__Input('number', 'shape-hatch-pt', { min : lw.minPt, max : lw.maxPt, step : lw.stepPt });
+        hatchPt.title = Na__LeCfg__GetLabel('ShapeHatchPtTitle', "The printed weight of the pattern's lines, in points. It starts at the pattern's standard, which grows with the pattern scale; a weight typed here stays as typed at any scale. Empty the box to go back to the standard.");
+        const hatchPtRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeHatchPt', 'Pattern line pt'), hatchPt);
+        hatchPtRow.setAttribute('data-na-block', 'shape-hatch-pt-row');
+        body.appendChild(hatchPtRow);
+        const hatchColour = Na__LePanels__Input('color', 'shape-hatch-colour');
+        hatchColour.title = Na__LeCfg__GetLabel('ShapeHatchColourTitle', "The colour of the pattern's lines. It starts at the pattern's standard: its own ink if it has one, else this shape's edge colour.");
+        const hatchColourRow = Na__LePanels__Row(Na__LeCfg__GetLabel('ShapeHatchColour', 'Pattern colour'), hatchColour);
+        hatchColourRow.setAttribute('data-na-block', 'shape-hatch-colour-row');
+        body.appendChild(hatchColourRow);
+        const hatchStandard = document.createElement('div');
+        hatchStandard.className = 'na-le-bar';
+        hatchStandard.setAttribute('data-na-block', 'shape-hatch-standard-row');
+        const hatchStandardBtn = Na__LePanels__Button(Na__LeCfg__GetLabel('ShapeHatchStandard', 'Standard line and colour'), 'shape-hatch-standard');
+        hatchStandardBtn.title = Na__LeCfg__GetLabel('ShapeHatchStandardTitle', "Put the pattern's line weight and colour back to its standard.");
+        hatchStandard.appendChild(hatchStandardBtn);
+        body.appendChild(hatchStandard);
         const hatchNote = Na__LePanels__Note('');
         hatchNote.setAttribute('data-na-block', 'shape-hatch-note');
         body.appendChild(hatchNote);
@@ -370,7 +405,7 @@
         const hatchOn    = hatchState.on && canFill;
         el('shape-hatch-on').checked = hatchOn;
         el('shape-hatch-on').parentNode.hidden = !canFill;
-        [ 'shape-hatch-pattern-row', 'shape-hatch-scale-row', 'shape-hatch-rotation-row' ]
+        [ 'shape-hatch-pattern-row', 'shape-hatch-scale-row', 'shape-hatch-rotation-row', 'shape-hatch-pt-row', 'shape-hatch-colour-row', 'shape-hatch-standard-row' ]
             .forEach((block) => { const row = body.querySelector('[data-na-block="' + block + '"]'); if (row) row.hidden = !hatchOn; });
 
         const hatchNote = body.querySelector('[data-na-block="shape-hatch-note"]');
@@ -390,6 +425,17 @@
             Na__LePanels__FillSelect(el('shape-hatch-pattern'), options, hatchState.hatch.Hatch__PatternKey || '');
             set('shape-hatch-scale',    Number.isFinite(hatchState.hatch.Hatch__Scale) ? hatchState.hatch.Hatch__Scale : 1);
             set('shape-hatch-rotation', Number.isFinite(hatchState.hatch.Hatch__RotationDeg) ? hatchState.hatch.Hatch__RotationDeg : 0);
+            // WHAT THE HATCH IS DRAWN WITH: its own weight and colour once set,
+            // the pattern's standard until then - the standard weight quoted at
+            // the scale in use, the standard colour against THIS shape's edges.
+            const hatchPattern  = Na__LeHatch__Get(hatchState.hatch.Hatch__PatternKey);
+            const ownPt         = Na__LeHatch__ClampStrokePt(hatchState.hatch.Hatch__StrokePt);
+            const ownColour     = Na__LeHatch__CleanColour(hatchState.hatch.Hatch__Colour);
+            const standardPt    = Na__LeHatch__StandardStrokePt(hatchPattern, hatchState.hatch.Hatch__Scale);
+            set('shape-hatch-pt',     ownPt !== null ? ownPt : (standardPt !== null ? standardPt : ''));
+            set('shape-hatch-colour', hex(ownColour || Na__LeHatch__StandardColour(hatchPattern, values.strokeColour), '#172b3a'));
+            const standardRow = body.querySelector('[data-na-block="shape-hatch-standard-row"]');
+            if (standardRow) standardRow.hidden = (ownPt === null && !ownColour);   // <-- Nothing set, nothing to put back
         }
         el('shape-stroked').parentNode.hidden = !canFill;
         el('shape-filled').parentNode.hidden  = !canFill;
@@ -517,9 +563,29 @@
             if (!key) { Na__LePanels__Refresh(Na__LePanelShapes__ID); return; }   // <-- An empty library: nothing to switch on
             Na__LePanelShapes__ApplyHatch({ Hatch__PatternKey : key });
         });
+        // ANOTHER PATTERN BRINGS ITS OWN STANDARDS IN. A line weight set for brick
+        // diagonals is the wrong weight for a concrete stipple, so choosing a
+        // pattern clears the weight and colour set on the last one ('Pull the
+        // standard ones in for when you first load that'). Scale and rotation
+        // stay: they are how the hatch sits on THIS shape, not how it is drawn.
         Na__LePanels__OnControl('change', 'shape-hatch-pattern', (e, el) => {
             if (!el.value) { Na__LePanelShapes__Apply({ hatch : null }, { hatchOn : false }); return; }
-            Na__LePanelShapes__ApplyHatch({ Hatch__PatternKey : el.value });
+            Na__LePanelShapes__ApplyHatch({ Hatch__PatternKey : el.value, Hatch__StrokePt : null, Hatch__Colour : null });
+        });
+        // THE HATCH'S OWN LINE WEIGHT AND COLOUR. An emptied weight box clamps to
+        // null, which the record layer drops - so it goes back to the standard
+        // rather than to a weight of nothing. A typed weight is held to the
+        // editor's lineweight range, the one Edge pt works in.
+        Na__LePanels__OnControl('change', 'shape-hatch-pt', (e, el) => {
+            const lw = Na__LeCfg__GetLineweightSetup();
+            const pt = Na__LeHatch__ClampStrokePt(el.value);
+            Na__LePanelShapes__ApplyHatch({ Hatch__StrokePt : pt === null ? null : Math.min(lw.maxPt, Math.max(lw.minPt, pt)) });
+        });
+        Na__LePanels__OnControl('change', 'shape-hatch-colour', (e, el) => {
+            Na__LePanelShapes__ApplyHatch({ Hatch__Colour : Na__LeHatch__CleanColour(el.value) });
+        });
+        Na__LePanels__OnControl('click', 'shape-hatch-standard', () => {
+            Na__LePanelShapes__ApplyHatch({ Hatch__StrokePt : null, Hatch__Colour : null });
         });
         Na__LePanels__OnControl('change', 'shape-hatch-scale', (e, el) => {
             const pattern = Na__LeHatch__Get(Na__LePanelShapes__Hatch().hatch.Hatch__PatternKey);
@@ -531,6 +597,7 @@
         const hatchCommit = (event, el) => { if (event.key === 'Enter') { event.preventDefault(); el.blur(); } };
         Na__LePanels__OnControl('keydown', 'shape-hatch-scale',    hatchCommit);
         Na__LePanels__OnControl('keydown', 'shape-hatch-rotation', hatchCommit);
+        Na__LePanels__OnControl('keydown', 'shape-hatch-pt',       hatchCommit);
 
         // DRAW AT SCALE | A setting of the drawing tools, so it goes to the defaults
         // even with a shape selected, and the Measurements box reads it at once

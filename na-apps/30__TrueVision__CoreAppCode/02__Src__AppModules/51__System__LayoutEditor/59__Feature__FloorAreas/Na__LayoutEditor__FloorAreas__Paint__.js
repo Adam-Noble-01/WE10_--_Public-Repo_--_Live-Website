@@ -21,14 +21,21 @@
 //   (Na__LayoutEditor__MarkupBridge__, in the shapes pass), so the screen, the
 //   PDF, the read-only web viewer and the scrapbook's tile previews all show
 //   the same label with no second code path to keep in step.
-// - IT SITS AT THE ROOM'S VISUAL CENTRE - the middle of the largest circle
-//   that fits inside it - so an L-shaped room is labelled inside the L. Where
-//   the words are wider than that circle they are set smaller rather than
-//   allowed to run across the room next door.
+// - IT SITS IN THE MIDDLE OF THE ROOM'S BOX, the standard Adam asked for,
+//   unless that middle is not inside the room (an L, a U), when it sits at
+//   the room's visual centre instead - the middle of the largest circle that
+//   fits inside it - so an L-shaped room is still labelled inside the L. A
+//   label DRAGGED somewhere else (the room's edit mode,
+//   Na__LayoutEditor__FloorAreas__LabelGrip__) sits that far from there.
+// - Where the words are wider than the room's largest circle they are set
+//   smaller rather than allowed to run across the room next door. It is the
+//   ROOM's circle, not the circle round wherever the label happens to be, so
+//   dragging the label about never changes its size.
 //
 // INTEGRATION:
 // - Called by Na__LayoutEditor__MarkupBridge__ for every shape carrying
 //   Shape__Area, straight after the shape itself is pushed.
+// - LabelBox is the box the label grip draws and takes presses in.
 //
 // -----------------------------------------------------------------------------
 //
@@ -39,6 +46,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - The label is centred on Measure's labelAt, which now starts from the
+//   middle of the room's box rather than its visual centre (see the Floor
+//   Areas module, 1.2.0). The shrink to fit still measures the room's own
+//   largest circle, so where the label sits never changes how big it is.
+// - LabelBox has its first caller: the label grip, which drags the label in
+//   the room's edit mode.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the two lines, the shrink to fit and the box.
 //
@@ -129,7 +144,9 @@
         if (!lines.length) return null;
 
         // SET SMALLER TO FIT | Measured against the circle that fits in the
-        // room, which is what the visual centre already worked out.
+        // room, which is what the visual centre already worked out - the
+        // room's circle, wherever the label sits, so a label dragged towards
+        // a wall keeps its size.
         let scale = 1;
         if (Na__LeArea__Value('Label', 'Label__ShrinkToFit', true) && measured.centre.clearMm > 0) {
             const room = measured.centre.clearMm * 2 * Na__LeAreaPaint__FIT_MARGIN;

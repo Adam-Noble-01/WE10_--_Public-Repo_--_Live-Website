@@ -53,6 +53,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - THE VECTOR TOOLS (37__System__VectorTools). CancelPlacement abandons
+//   whatever any of them has half done. ApplyTool asks Na__LeVec__KeepsContainer
+//   before closing an open container: the seven that EDIT never close it, and
+//   a tool that draws a plain vector (Draw, Rectangle, Circle, Arc) keeps a
+//   GROUP open and draws into it, as LayOut does - every other placing tool
+//   closes it as before. It tells the adapter of every tool picked up (Arm),
+//   and Circle and Arc count as the vector tool that drew last.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - CancelPlacement also ends the last move's retype (MoveRetype): a new
 //   tool, Escape or a pan that takes the left button starts a new cycle, as
@@ -103,11 +112,13 @@
     import { Na__LeDash__Defaults, Na__LeDash__Create } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
     import { Na__LeRect__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
+    import { Na__LeVec__Cancel, Na__LeVec__Arm, Na__LeVec__KeepsContainer, Na__LeVec__IsDrawTool } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- Circle, Arc, Trim, Extend, Join, Split, Offset, Fillet, Chamfer: one door for all nine
+    // @delegate: ../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js
     import { Na__LeMeasure__Refresh, Na__LeMeasure__Clear } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeDrop__Clear, Na__LeDrop__Pick, Na__LeDrop__MODE_ITEM, Na__LeDrop__MODE_PALETTE, Na__LeDrop__SetMode, Na__LeDrop__GetMode, Na__LeDrop__SyncPalette } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeAxis__Clear } from './Na__LayoutEditor__AxisLock__.js';
-    import { Na__LeVpMove__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeVpMove__Clear } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeSelBox__Cancel } from './Na__LayoutEditor__SelectionBox__.js';
     import { Na__LeScope__Clear, Na__LeScope__IsActive } from './Na__LayoutEditor__EditScope__.js';
     import { Na__LeGrips__MOVE_CURSOR } from './Na__LayoutEditor__Grips__.js';
@@ -220,6 +231,7 @@
         Na__LeDim__Cancel(sheet);
         Na__LeShape__Cancel(sheet);
         Na__LeRect__Cancel();
+        Na__LeVec__Cancel();                                                 // <-- A circle or an arc half drawn, a fence, a line Join or Offset is holding, and the preview of any of them
         Na__LeLeader__Cancel(sheet);
         Na__LeDrop__Clear();
         Na__LeAxis__Clear();
@@ -258,11 +270,18 @@
         const next = Na__LeTools__TOOLS.indexOf(tool) === -1 ? Na__LeTools__TOOL_SELECT : tool;
         if (!Na__LeTools__Editable && next !== Na__LeTools__TOOL_SELECT) return Na__LeTools__Tool;
         Na__LeTools__CancelPlacement();
-        if (Na__LeTools__PICK_TOOLS.indexOf(next) === -1 && Na__LeScope__IsActive()) Na__LeScope__Clear();
+        // THE VECTOR TOOLS WORK INSIDE A CONTAINER (Na__LeVec__KeepsContainer).
+        // Trim, Extend, Join, Split, Offset, Fillet and Chamfer edit what is
+        // already there, as Select and Move do, so they never close it; and a
+        // tool that draws a plain vector - Draw, Rectangle, Circle, Arc - keeps
+        // a GROUP open and draws into it, as LayOut does. Every other placing
+        // tool still closes whatever is open, exactly as before.
+        if (Na__LeTools__PICK_TOOLS.indexOf(next) === -1 && !Na__LeVec__KeepsContainer(next) && Na__LeScope__IsActive()) Na__LeScope__Clear();
         Na__LeTools__Tool       = next;
         Na__LeTools__MoveIsAuto = auto === true && next === Na__LeTools__TOOL_MOVE;
-        if (next === Na__LeTools__TOOL_DRAW || next === Na__LeTools__TOOL_RECT) Na__LeTools__LastVectorTool = next;
+        if (next === Na__LeTools__TOOL_DRAW || next === Na__LeTools__TOOL_RECT || Na__LeVec__IsDrawTool(next)) Na__LeTools__LastVectorTool = next;   // <-- Circle and Arc draw vectors too: a palette sync hands back to whichever drew last
         if (Na__LeTools__Stage) Na__LeTools__Stage.style.cursor = Na__LeTools__ToolCursor(next);
+        Na__LeVec__Arm(next, Na__LeModel__GetActiveSheet());                 // <-- Told of EVERY tool, so it knows which is up; a vector tool says what it wants, and Join joins a selection there and then
         Na__LeMeasure__Refresh();                                            // <-- The Measurements box reads for the new tool, or rests
         window.dispatchEvent(new CustomEvent(Na__LeTools__CHANGED_EVENT, { detail : { tool : next, auto : Na__LeTools__MoveIsAuto } }));
         return next;

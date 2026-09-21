@@ -34,6 +34,46 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.26
+// - Token bumped (2026-09-21-18) for the vector tools (v2.130.0): the editor's sheet tools, its mode
+//   controller, its toolbar and the Draw tool now import 51__System__LayoutEditor/37__System__VectorTools,
+//   a folder no warm cache holds, and the key map's MatchKeyBinding gained an argument the
+//   keyboard now passes. A stale module beside a fresh one would stop the editor loading.
+// - Na__LayoutEditor__Styles__VectorTools__.css joins the shell precache list: the Vector Tools
+//   panel injects it on first use, and a lazily injected sheet the token does not govern can
+//   paint the previous release (the Statement stylesheets' lesson).
+//
+// 21-Sep-2026 - Version 1.9.25
+// - Token bumped (2026-09-21-17) for the Object Snap folder (v2.129.0): the editor's snapping
+//   moved to 51__System__LayoutEditor/28__System__ObjectSnap, so fourteen modules a warm
+//   cache already holds now import files it does not (Na__LayoutEditor__ObjectSnap__Search__,
+//   __Moves__, __GridMoves__, the controller, the menu), and
+//   Na__LayoutEditor__SheetTools__GridDrag__ and the old ViewportSnapMove path are gone. A
+//   stale module beside a fresh one would stop the editor loading.
+//
+// 21-Sep-2026 - Version 1.9.24
+// - Token bumped (2026-09-21-16) for a paste across sheets bringing its layer
+//   (v2.127.0): the item clipboard imports new names from the sheet
+//   model (Na__LeModel__GetLayerByName, Na__LeModel__LayerIndexLike,
+//   Na__LeModel__IsItemPickable). 2026-09-21-15 may ship in a different push,
+//   so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.23
+// - Token bumped (2026-09-21-15) for the Colour Palette and the hatch line
+//   controls (v2.126.0): the panel host and the Plan Annotations toolbar import
+//   a new module (54__Feature__ColourPalette/Na__ColourPalette__), and the
+//   Vectors and Patterns panels import new names from the hatch module
+//   (Na__LeHatch__ClampStrokePt, Na__LeHatch__CleanColour,
+//   Na__LeHatch__StandardStrokePt, Na__LeHatch__StandardColour). 2026-09-21-14
+//   may ship in a different push, so this takes one of its own.
+//
+// 21-Sep-2026 - Version 1.9.22
+// - Token bumped (2026-09-21-14) for the floor area label (v2.125.0): the Floor
+//   Areas module imports new names from its Geometry module
+//   (Na__LeAreaGeo__LabelHome, Na__LeAreaGeo__PLACE_BOX), and the Floor Areas
+//   panel imports a new module (Na__LayoutEditor__FloorAreas__LabelGrip__).
+//   2026-09-21-13 is already deployed, so this takes one of its own.
+//
 // 21-Sep-2026 - Version 1.9.21
 // - Token bumped (2026-09-21-13) for the Layer flyout and reference layers
 //   (v2.123.0): a new module, Na__LayoutEditor__LayerMenu__, is imported
@@ -391,7 +431,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-21-13';                                                                   // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-21-18';                                                                   // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -469,7 +509,10 @@
         // a second reload put it right. Precached, the version token governs
         // them like everything else, and a bump evicts them outright.
         '02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__.css',
-        '02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css'
+        '02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css',
+        // The Vector Tools panel injects its own sheet on first use, for the same
+        // reason: precached, the token governs it.
+        '02__Src__AppModules/51__System__LayoutEditor/37__System__VectorTools/Na__LayoutEditor__Styles__VectorTools__.css'
     ];
     // ------------------------------------------------------------
 

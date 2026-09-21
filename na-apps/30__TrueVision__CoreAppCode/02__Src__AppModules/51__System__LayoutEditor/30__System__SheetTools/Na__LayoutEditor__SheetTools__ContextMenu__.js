@@ -50,6 +50,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - THE VECTOR TOOLS (37__System__VectorTools). A right click while one has
+//   something half done abandons it, as it does a rectangle. A plain vector's
+//   menu - out on the sheet and inside the open vector, where this file always
+//   said the cut, extend, trim and join tools would sit - carries one row,
+//   Vector tools, whose flyout picks Trim, Extend, Join, Split, Offset, Fillet
+//   or Chamfer up, or splits the vector where it was clicked. The rows come
+//   from the vector tools' adapter, as the room's and the picture's do.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - THE LAYER ROW. Adam, over a right-clicked construction line: "a drawing
 //   layer pops out ... it lists the drawing layers, and then you can click to
@@ -128,7 +137,7 @@
              Na__LeDrop__PaintMany, Na__LeDrop__PaintableIn, Na__LeDrop__HasSource, Na__LeDrop__StyleKeys } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__MenuItems } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
-    import { Na__LeOsnap__Toggle, Na__LeOsnap__IsEnabled } from './Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Toggle, Na__LeOsnap__IsEnabled } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__.js';
     import { Na__LeClip__MenuItems } from './Na__LayoutEditor__ItemClipboard__.js';
     import { Na__LeLayerMenu__MenuItems } from './Na__LayoutEditor__LayerMenu__.js';   // <-- The Layer row and its flyout, under every Delete row
     import { Na__LeGroup__Group, Na__LeGroup__Ungroup, Na__LeGroup__CanGroup, Na__LeGroup__CanUngroup, Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
@@ -169,7 +178,9 @@
     import { Na__LeAreaMenu__ItemsFor } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Menu__.js';   // <-- What a measured room offers above the vector entries
     import { Na__LeImgMenu__ItemsFor } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Menu__.js';   // <-- What a picture offers instead of them
     // @delegate: ../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Menu__.js
-    import { Na__LeTools__SyncPaletteFrom } from './Na__LayoutEditor__SheetTools__ToolState__.js';
+    import { Na__LeTools__SyncPaletteFrom, Na__LeTools__SetTool } from './Na__LayoutEditor__SheetTools__ToolState__.js';
+    import { Na__LeVec__RightClick, Na__LeVec__MenuItems } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools: a right click abandons what one has half done, and a vector's menu offers them
+    // @delegate: ../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js
     import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record, Na__LeTools__ShapeInsertHit } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
     import { Na__LeTools__SetEditingViewport, Na__LeTools__RecentreViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
 
@@ -339,6 +350,11 @@
         if (found.kind === 'shape') {
             const shape  = Na__LeTools__Record(sheet, found);
             const closed = !!shape && shape.Shape__Closed === true;
+            // THE VECTOR TOOLS' ROW (37__System__VectorTools): Trim, Extend, Join,
+            // Split, Offset, Fillet and Chamfer in one flyout, asked for rather
+            // than written here, as the room's rows and the picture's are. Empty
+            // for anything that is not a plain vector.
+            const vectorTools = Na__LeVec__MenuItems(sheet, shape, pointMm, Na__LeTools__Tool, (tool) => Na__LeTools__SetTool(tool));
 
             // INSIDE THE VECTOR the menu is about its points and nothing else:
             // add one where the click landed, take the picked ones out, or step
@@ -363,7 +379,7 @@
                       onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
                     { label : label('MenuCloseScope', 'Close and step back out'), onSelect : () => { Na__LeScope__Clear(); Na__LeModel__SetSelection(null); } },
                     { separator : true }
-                ].concat(history);
+                ].concat(vectorTools, history);                                  // <-- The tools that belong to this container, as the note above promised
             }
 
             // WHAT A MEASURED ROOM OFFERS comes first, and is asked for rather
@@ -394,7 +410,7 @@
                        onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
                      { separator : true } ]).concat(arrange('shape', found.id), [
                      { separator : true }, remove('MenuDeleteShape', 'Delete shape'), { separator : true } ])
-                     .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, shape || found, pointMm), style(found.kind, found.id)).concat(history);
+                     .concat(layerOf([ found ]), vectorTools, Na__LeClip__MenuItems(sheet, shape || found, pointMm), style(found.kind, found.id)).concat(history);
         }
 
         const viewport = Na__LeModel__GetViewportById(sheet, found.id);
@@ -449,6 +465,7 @@
         if (Na__LeShape__IsDrawing()) { Na__LeShape__Finish(sheet, false); return; }   // <-- As in CAD, a right click ends the line
         if (Na__LeDim__IsPlacing())   { Na__LeDim__Cancel(sheet); return; }
         if (Na__LeRect__IsDrawing())  { Na__LeRect__Cancel(); return; }        // <-- A rectangle has no half worth keeping
+        if (Na__LeVec__RightClick(Na__LeTools__Tool)) return;                  // <-- Nor has a circle, an arc or a fence; and a line a vector tool is holding is let go. With nothing in hand the menu opens as ever
         if (Na__LeLeader__IsPlacing()) { Na__LeLeader__Cancel(sheet); return; }   // <-- Nor has a leader with no head
         if (Na__LeText__IsEditing()) Na__LeText__Commit();
         const found = Na__LeTools__Resolve(sheet, point);

@@ -31,6 +31,10 @@
 // // @delegate: ./Na__LayoutEditor__FloorAreas__.js
 // // @delegate: ./Na__LayoutEditor__FloorAreas__Tool__.js
 // // @delegate: ./Na__LayoutEditor__FloorAreas__Table__.js
+// // @delegate: ./Na__LayoutEditor__FloorAreas__LabelGrip__.js
+// - Registration also attaches the label grip (Na__LeAreaGrip__Attach): the
+//   panel's registration is the one place the feature boots once, and the
+//   grip's styles live in the stylesheet it links.
 //
 // -----------------------------------------------------------------------------
 //
@@ -41,6 +45,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - Register attaches the label grip, so an open room's label can be dragged
+//   (Na__LayoutEditor__FloorAreas__LabelGrip__). Centre the label, already
+//   here, is how it goes back.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - Outline: a switch for the line round a room, in the selected block, the
 //   several-rooms block (half-set shows as indeterminate; a click sets them
@@ -135,6 +144,7 @@
     } from './Na__LayoutEditor__FloorAreas__.js';
     import { Na__LeAreaTool__PLACED_EVENT, Na__LeAreaTool__IsRectangle, Na__LeAreaTool__SetRectangle } from './Na__LayoutEditor__FloorAreas__Tool__.js';
     import { Na__LeAreaTable__FORM_AREAS, Na__LeAreaTable__FORM_GROUPS, Na__LeAreaTable__Insert } from './Na__LayoutEditor__FloorAreas__Table__.js';
+    import { Na__LeAreaGrip__Attach } from './Na__LayoutEditor__FloorAreas__LabelGrip__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -716,6 +726,7 @@
         link.rel  = 'stylesheet';
         link.href = new URL('./Na__LayoutEditor__Styles__FloorAreas__.css', import.meta.url).href;
         document.head.appendChild(link);
+        Na__LeAreaGrip__Attach();                                                // <-- An open room's label drags from a dashed box round it (its styles are in the sheet above)
 
         const on    = Na__LePanels__OnControl;
         const sheet = () => Na__LeModel__GetActiveSheet();

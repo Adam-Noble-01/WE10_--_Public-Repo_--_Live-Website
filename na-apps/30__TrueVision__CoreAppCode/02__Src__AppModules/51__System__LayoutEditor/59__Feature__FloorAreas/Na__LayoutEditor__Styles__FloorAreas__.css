@@ -4,7 +4,8 @@
 
    FILE    : Na__LayoutEditor__Styles__FloorAreas__.css
    PURPOSE : The Floor Areas panel's own list - the index of every room on the
-             sheet, under its group, with its subtotal and the sheet's total.
+             sheet, under its group, with its subtotal and the sheet's total -
+             and the dashed box an open room's label is dragged by.
    CREATED : 21-Sep-2026
    AUTHOR  : Adam Noble - Noble Architecture
 
@@ -12,7 +13,8 @@
    - Linked at runtime by Na__LayoutEditor__Panel__FloorAreas__, as the
      Patterns panel links its own. Everything else the panel uses - rows,
      notes, buttons, sliders, colour boxes - is the shared panel stylesheet's,
-     so only the index is here.
+     so only the index is here, with the label grip, which is drawn on the
+     paper's handles layer (Na__LayoutEditor__FloorAreas__LabelGrip__).
    - Literal colours, as Na__LayoutEditor__Styles__Panels__.css uses: the
      custom properties the Patterns sheet reaches for are not defined anywhere,
      so only its fallbacks have ever applied.
@@ -182,6 +184,44 @@
         background                         : #eef2f5;
         color                              : #172b3a;
         font-size                          : 0.74rem;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Label Grip
+   ----------------------------------------------------------------------------- */
+
+    /* AN OPEN ROOM'S LABEL: a dashed box round the words, in the vertex grips'
+       blue, arriving with them when the room is opened for editing. It takes
+       its own presses - the handles layer lets presses through, so it opts
+       back in, as a picture's corner grips do. Clear, so the words read
+       straight through it; its edge is one screen pixel, set inline against
+       the zoom. Under the vertex grips (5), which are drawn over it. */
+    .na-le-grip.na-le-grip--area-label {
+        background                         : transparent;
+        border-style                       : dashed;
+        border-color                       : #336699;
+        border-radius                      : 2px;
+        pointer-events                     : auto;
+        cursor                             : move;
+        touch-action                       : none;
+        z-index                            : 4;
+    }
+
+    /* Over it, and while it is held: solid, with a faint wash, so it is plain
+       that the words are what the press will carry. */
+    .na-le-grip.na-le-grip--area-label:hover,
+    .na-le-grip.na-le-grip--area-label.is-dragging {
+        background                         : rgba(51, 102, 153, 0.08);
+        border-style                       : solid;
+    }
+
+    body.na-le-area-label-dragging,
+    body.na-le-area-label-dragging * {
+        cursor                             : move !important;
+        user-select                        : none !important;
     }
 
 /* endregion ------------------------------------------------------------------- */

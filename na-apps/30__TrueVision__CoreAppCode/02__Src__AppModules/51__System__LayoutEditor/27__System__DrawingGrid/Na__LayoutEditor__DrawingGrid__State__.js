@@ -41,8 +41,8 @@
 // INTEGRATION:
 // - Na__LayoutEditor__DrawingGrid__ (the controller) is the only caller of
 //   AssignDefaults, Assign and Reset, and announces CHANGED_EVENT after them.
-// - Na__LayoutEditor__Snapping__ reads IsSnapping and Nearest for the grid
-//   snap; Na__LayoutEditor__SheetTools__GridDrag__, the Text tool, the
+// - Na__LayoutEditor__ObjectSnap__Search__ reads IsSnapping and Nearest for the grid
+//   snap; Na__LayoutEditor__ObjectSnap__GridMoves__, the Text tool, the
 //   Dimension tool's line offset and the Leader tool's head read them too.
 //
 // -----------------------------------------------------------------------------

@@ -27,6 +27,17 @@
 //              the type says (50 mm for a bar). Same undo step, same Escape.
 //     Lookup   click the triangle for a menu: the scales, From viewport,
 //              Split first division, Show units and Reset length.
+//     Base     the hollow square on the point a type is held by - the
+//              cabinet infill's bottom left corner, its insertion point.
+//              Drag it and the whole element follows, that corner on the
+//              pointer, and it SNAPS the way the Draw tool does: to the
+//              corners of the drawing it lies over, then the sheet's
+//              vectors, then the grid while Grid Snap is on.
+//     Corners  a filled square on each of a type's other corners. Drag one
+//              and THAT corner goes to the pointer while the corner opposite
+//              stays where it is - so the element's origin may move with
+//              it - snapping the same way. Same undo step, same Escape as
+//              every grip here.
 // - THE GRIPS OWN THEIR OWN PRESS. They are elements in the handles layer
 //   that take pointer events and stop them there. The stage hears presses in
 //   the bubble phase, so the sheet tools never see one that landed on a grip
@@ -59,6 +70,28 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - The base grip and the corner grips, for the cabinet infill after Adam
+//   found one corner grip "impossible to use". A type's handles may give a
+//   base point (a move grip) and named corners (each moving its corner with
+//   the opposite one held). Both snap through the object snap with the
+//   element's own vectors left out, and both rebuild at an ORIGIN they work
+//   out themselves - from where the drag began, never piled on the last
+//   step - which Escape puts back with the parameters. The stretchCorner
+//   flag of 1.5.0 is gone with the single corner it described.
+//
+// 21-Sep-2026 - Version 1.5.0
+// - The corner grip, for the cabinet infill: a type whose definition says
+//   stretchCorner has its stretch grip drawn as a square on the corner and
+//   its drag snapped through the object snap - object snaps first, then the
+//   grid while it is on - with the element's own vectors left out, as a
+//   slide leaves them out. The type is handed the snapped point and whether
+//   it WAS snapped, so a corner put on a drawing's corner is kept exactly and
+//   a free one steps. The pointer keeps a diagonal cursor while it is held.
+// - The lookup triangle of an element with no scale - the infill, the Project
+//   Portal block, the area schedule - is titled Options, not Scale and
+//   options.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - A slide asks the snapping module for object snaps only ({ grid : false }).
 //   Snap now falls back to the drawing grid while Grid Snap is on (F7), and a
@@ -106,7 +139,7 @@
     import { Na__LeModel__GetSheetById, Na__LeModel__GetGroupById } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeDrawScale__Label } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
     import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__Refresh, Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeOsnap__TONE_VERTEX, Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeGroup__RegisterLabeller } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeGrips__RegisterGroupProvider } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeMenu__Open, Na__LeMenu__Close } from '../30__System__SheetTools/Na__LayoutEditor__ContextMenu__.js';
@@ -151,13 +184,20 @@
     const Na__LeParamGrips__CLASS_STRETCH = 'na-le-grip na-le-grip--param na-le-grip--param-stretch';
     const Na__LeParamGrips__CLASS_SLIDE   = 'na-le-grip na-le-grip--param na-le-grip--param-slide';
     const Na__LeParamGrips__CLASS_LOOKUP  = 'na-le-grip na-le-grip--param na-le-grip--param-lookup';
+    const Na__LeParamGrips__CLASS_BASE    = 'na-le-grip na-le-grip--param na-le-grip--param-base';
+    const Na__LeParamGrips__CLASS_CORNER  = 'na-le-grip na-le-grip--param na-le-grip--param-corner';
     const Na__LeParamGrips__CLASS_GUIDE   = 'na-le-grip na-le-param-guide';   // <-- na-le-grip so whatever clears the grips clears it
     const Na__LeParamGrips__CLASS_TAG     = 'na-le-group-label--param';
     const Na__LeParamGrips__BODY_CLASS    = 'na-le-param-stretching';
+    const Na__LeParamGrips__BODY_CORNER   = 'na-le-param-stretching-corner';  // <-- As well, while a top left or bottom right corner is held: a falling diagonal
+    const Na__LeParamGrips__BODY_RISING   = 'na-le-param-stretching-rising';  // <-- ...a top right corner: a rising diagonal
+    const Na__LeParamGrips__BODY_MOVE     = 'na-le-param-stretching-move';    // <-- ...the base point: the move cursor
     const Na__LeParamGrips__MODE_STRETCH  = 'stretch';
     const Na__LeParamGrips__MODE_SLIDE    = 'slide';
+    const Na__LeParamGrips__MODE_MOVE     = 'move';
+    const Na__LeParamGrips__MODE_CORNER   = 'corner';
     const Na__LeParamGrips__SWALLOWED     = Object.freeze([ 'pointerup', 'click', 'dblclick', 'contextmenu' ]);   // <-- Kept from the stage as well as the press
-    const Na__LeParamGrips__FALLBACK      = Object.freeze({ StretchSizePx : 13, LookupSizePx : 13, SlideSizePx : 13, StretchOffsetPx : 12, LookupOffsetPx : 12, SlideOffsetPx : 12, SnapGuidePx : 1.25, ClickSlopPx : 4 });
+    const Na__LeParamGrips__FALLBACK      = Object.freeze({ StretchSizePx : 13, LookupSizePx : 13, SlideSizePx : 13, StretchOffsetPx : 12, LookupOffsetPx : 12, SlideOffsetPx : 12, SnapGuidePx : 1.25, ClickSlopPx : 4, BaseRingPx : 3 });
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Drag in Hand, and the Guide It Draws
@@ -279,14 +319,14 @@
         window.removeEventListener('pointerup',     Na__LeParamGrips__OnStretchUp, true);
         window.removeEventListener('pointercancel', Na__LeParamGrips__OnStretchCancel, true);
         window.removeEventListener('keydown',       Na__LeParamGrips__OnStretchKey, true);
-        document.body.classList.remove(Na__LeParamGrips__BODY_CLASS);
+        document.body.classList.remove(Na__LeParamGrips__BODY_CLASS, Na__LeParamGrips__BODY_CORNER, Na__LeParamGrips__BODY_RISING, Na__LeParamGrips__BODY_MOVE);
         Na__LeParamGrips__HideGuide();
         Na__LeOsnap__HideMarker();                                            // <-- A slide leaves the snapping module's marker up; nothing else takes it down
         if (!drag || !drag.changed) return;
         const sheet = Na__LeModel__GetSheetById(drag.sheetId);
         if (!sheet) return;
         if (keep) { Na__LeParam__Announce(sheet, drag.groupId); return; }
-        Na__LeParam__Regenerate(sheet, drag.groupId, drag.start, { silent : true });
+        Na__LeParam__Regenerate(sheet, drag.groupId, drag.start, { silent : true, origin : drag.startOrigin });   // <-- Where it stood as well as what it was: a base or corner grip moves the origin
         Na__LeParamGrips__Repaint();
     }
     // ------------------------------------------------------------
@@ -310,20 +350,41 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Take Hold of an Arrow
+    // HELPER FUNCTION | What One Step of a Drag Is Known By: Its Parameters and Where It Stands
     // ------------------------------------------------------------
-    // mode says which of the two was taken. Everything from here on - the
-    // window listeners, the live rebuild, the one undo step, Escape - is the
-    // same for both, so only the question put to the type is ever branched on.
+    // Rounded as a built coordinate is, so a pointer that wanders inside one
+    // step rebuilds nothing.
     // ------------------------------------------------------------
-    function Na__LeParamGrips__OnStretchDown(event, sheet, groupId, mode) {
+    function Na__LeParamGrips__StepKey(params, origin) {
+        const round = (value) => Math.round(value * 10000) / 10000;
+        return JSON.stringify([ params, origin ? [ round(origin.x), round(origin.y) ] : null ]);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Take Hold of a Grip That Drags
+    // ------------------------------------------------------------
+    // mode says which was taken - a stretch, a slide, a base (move) or a
+    // corner, whose name comes with it. Everything from here on - the window
+    // listeners, the live rebuild, the one undo step, Escape - is the same for
+    // all of them, so only the question put to the type is ever branched on.
+    // The parameters AND the origin are taken now: a base or a corner grip
+    // works every step out from where the drag began.
+    // ------------------------------------------------------------
+    function Na__LeParamGrips__OnStretchDown(event, sheet, groupId, mode, corner) {
         if (Na__LeParamGrips__Drag) return;
-        const start = Na__LeParam__GetParams(sheet, groupId);
-        if (!start) return;
+        const start  = Na__LeParam__GetParams(sheet, groupId);
+        const origin = Na__LeParam__AnchorOf(sheet, groupId);
+        if (!start || !origin) return;
         Na__LeMenu__Close();
-        Na__LeParamGrips__Drag = { pointerId : event.pointerId, sheetId : sheet.Sheet__Id, groupId : groupId, mode : mode || Na__LeParamGrips__MODE_STRETCH, start : start, steps : JSON.stringify(start), changed : false,
+        const taken = mode || Na__LeParamGrips__MODE_STRETCH;
+        const key   = Na__LeParamGrips__StepKey(start, origin);
+        Na__LeParamGrips__Drag = { pointerId : event.pointerId, sheetId : sheet.Sheet__Id, groupId : groupId, mode : taken, corner : corner || null,
+                                   start : start, startOrigin : { x : origin.x, y : origin.y }, startKey : key, steps : key, changed : false,
                                    exclude : Na__LeParamGrips__OwnVectors(sheet, groupId) };
         document.body.classList.add(Na__LeParamGrips__BODY_CLASS);
+        if (taken === Na__LeParamGrips__MODE_MOVE)   document.body.classList.add(Na__LeParamGrips__BODY_MOVE);
+        if (taken === Na__LeParamGrips__MODE_CORNER) document.body.classList.add(corner === 'tr' || corner === 'bl' ? Na__LeParamGrips__BODY_RISING : Na__LeParamGrips__BODY_CORNER);
         window.addEventListener('pointermove',   Na__LeParamGrips__OnStretchMove, true);
         window.addEventListener('pointerup',     Na__LeParamGrips__OnStretchUp, true);
         window.addEventListener('pointercancel', Na__LeParamGrips__OnStretchCancel, true);
@@ -334,16 +395,17 @@
 
     // HELPER FUNCTION | What a Slide's Pointer Point Really Is: the Nearest Vertex, or Itself
     // ------------------------------------------------------------
-    // The snapping module's own search, in the vertex tone, so a slide looks
-    // for a corner exactly where the Draw tool would and marks it the same
-    // blue - the projected linework of the drawing above first, the sheet's
-    // own vectors after it, and the element's own left out (see OwnVectors).
+    // The object snap's own search (28__System__ObjectSnap), so a slide looks
+    // for a corner exactly where the Draw tool would and marks it the same way
+    // - its shape the kind of point, its colour what the point belongs to -
+    // the projected linework of the drawing above first, the sheet's own
+    // vectors after it, and the element's own left out (see OwnVectors).
     // It draws its own marker; the dashed guide down to the element is this
     // module's, and is drawn against the grip's own y - the element has not
     // moved yet, and half a division's error there would be invisible.
     // ------------------------------------------------------------
     function Na__LeParamGrips__SnapSlide(sheet, groupId, point, exclude) {
-        const hit = Na__LeOsnap__Snap(sheet, point, exclude || null, Na__LeOsnap__TONE_VERTEX, { grid : false });   // <-- A corner, never the drawing grid: a free slide keeps the element's own steps
+        const hit = Na__LeOsnap__Snap(sheet, point, exclude || null, { grid : false });   // <-- A corner, never the drawing grid: a free slide keeps the element's own steps
         if (!hit || !hit.snapped) { Na__LeParamGrips__HideGuide(); return { x : point.x, exact : false }; }
         const handles = Na__LeParam__HandlesOf(sheet, groupId);
         Na__LeParamGrips__ShowGuide(hit, (handles && handles.slide) ? handles.slide.y : point.y);
@@ -352,12 +414,64 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Move: Rebuild Only When the Pointer Crosses Into Another Step
+    // HELPER FUNCTION | Where a Base or Corner Grip's Pointer Point Really Is: What It Snaps To, or Itself
     // ------------------------------------------------------------
-    // The pointer is read against the element's origin, which neither a
-    // stretch nor a slide ever moves. The offset the arrow stands off the end
-    // is ignored on purpose: the element's end follows the pointer, and the
-    // arrow rides just ahead.
+    // For the grips that ARE a point of the element - the cabinet infill's base
+    // point and its corners. The object snap's own search, with nothing held
+    // back: the corners of the drawing it lies over first, the sheet's own
+    // vectors after them, and the drawing grid while Grid Snap is on - so a
+    // corner can be put exactly on the corner of the cupboard it names. The
+    // element's own vectors are left out, or the point would find itself and
+    // never move (see OwnVectors). The marker is the snap's own; no guide is
+    // drawn, because the point goes where the pointer is.
+    // ------------------------------------------------------------
+    function Na__LeParamGrips__SnapCorner(sheet, point, exclude) {
+        const hit = Na__LeOsnap__Snap(sheet, point, exclude || null);
+        return (hit && hit.snapped) ? { x : hit.x, y : hit.y, exact : true } : { x : point.x, y : point.y, exact : false };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | What the Pointer Makes of the Element: { params, origin }, or Null
+    // ------------------------------------------------------------
+    // A stretch and a slide read the pointer against the element's origin,
+    // which neither ever moves; the offset an arrow stands off its end is
+    // ignored on purpose - the end follows the pointer, the arrow rides just
+    // ahead. A BASE grip puts the type's base point on the (snapped) pointer
+    // and moves nothing else. A CORNER grip asks the type what its corner at
+    // the (snapped) pointer gives, from the parameters and the origin the drag
+    // began with, and builds at the origin the answer shifts to. Null for a
+    // type that cannot answer the grip in hand.
+    // ------------------------------------------------------------
+    function Na__LeParamGrips__NextStep(drag, sheet, type, anchor, point) {
+        if (drag.mode === Na__LeParamGrips__MODE_MOVE) {
+            if (typeof type.base !== 'function') return null;
+            const at   = Na__LeParamGrips__SnapCorner(sheet, point, drag.exclude);
+            const held = type.base(drag.start);
+            return held ? { params : drag.start, origin : { x : at.x - held.x, y : at.y - held.y } } : null;
+        }
+        if (drag.mode === Na__LeParamGrips__MODE_CORNER) {
+            if (typeof type.cornerTo !== 'function') return null;
+            const at   = Na__LeParamGrips__SnapCorner(sheet, point, drag.exclude);
+            const from = drag.startOrigin;
+            const next = type.cornerTo(drag.start, drag.corner, at.x - from.x, at.y - from.y, at.exact);
+            if (!next || !next.params) return null;
+            const shift = next.shift || { x : 0, y : 0 };
+            return { params : next.params, origin : { x : from.x + shift.x, y : from.y + shift.y } };
+        }
+        const params = Na__LeParam__GetParams(sheet, drag.groupId);
+        if (drag.mode === Na__LeParamGrips__MODE_SLIDE) {
+            if (typeof type.slideTo !== 'function') return null;
+            const at = Na__LeParamGrips__SnapSlide(sheet, drag.groupId, point, drag.exclude);
+            return { params : type.slideTo(params, at.x - anchor.x, at.exact), origin : anchor };
+        }
+        if (typeof type.stretchTo !== 'function') return null;
+        return { params : type.stretchTo(params, point.x - anchor.x, point.y - anchor.y), origin : anchor };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Move: Rebuild Only When the Pointer Crosses Into Another Step
     // ------------------------------------------------------------
     function Na__LeParamGrips__OnStretchMove(event) {
         const drag = Na__LeParamGrips__Drag;
@@ -369,18 +483,14 @@
         const anchor = block ? Na__LeParam__AnchorOf(sheet, drag.groupId) : null;
         const point  = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         const type   = block ? Na__LeParam__GetType(block.Parametric__Type) : null;
-        const sliding = drag.mode === Na__LeParamGrips__MODE_SLIDE;
         if (!anchor || !point || !type) return;
-        if (sliding ? typeof type.slideTo !== 'function' : typeof type.stretchTo !== 'function') return;
-        const params = Na__LeParam__GetParams(sheet, drag.groupId);
-        const next   = sliding
-            ? (() => { const at = Na__LeParamGrips__SnapSlide(sheet, drag.groupId, point, drag.exclude); return type.slideTo(params, at.x - anchor.x, at.exact); })()
-            : type.stretchTo(params, point.x - anchor.x, point.y - anchor.y);
-        const key  = JSON.stringify(next);
+        const step = Na__LeParamGrips__NextStep(drag, sheet, type, anchor, point);
+        if (!step) return;
+        const key = Na__LeParamGrips__StepKey(step.params, step.origin);
         if (key === drag.steps) return;
         drag.steps   = key;
-        drag.changed = key !== JSON.stringify(drag.start);
-        if (Na__LeParam__Regenerate(sheet, drag.groupId, next, { silent : true })) Na__LeParamGrips__Repaint();
+        drag.changed = key !== drag.startKey;
+        if (Na__LeParam__Regenerate(sheet, drag.groupId, step.params, { silent : true, origin : step.origin })) Na__LeParamGrips__Repaint();
     }
     function Na__LeParamGrips__OnStretchUp(event) {
         if (!Na__LeParamGrips__Drag || event.pointerId !== Na__LeParamGrips__Drag.pointerId) return;
@@ -541,6 +651,21 @@
         const scale   = zoom > 0 ? zoom : 1;
         const groupId = selection.id;
         const clear   = (point, offsetPx) => ({ x : (point.x * ppm) + (point.away[0] * offsetPx / scale), y : (point.y * ppm) + (point.away[1] * offsetPx / scale) });   // <-- A point of the unzoomed paper, stood off the way the type says
+        // THE BASE AND THE CORNERS | Squares on the points themselves: the base
+        // point hollow, because it moves the element rather than reshaping it
+        (Array.isArray(handles.corners) ? handles.corners : []).forEach((corner) => {
+            const at = clear(corner, 0);
+            Na__LeParamGrips__Add(layer, Na__LeParamGrips__CLASS_CORNER + ' is-' + corner.name, at.x, at.y,
+                Na__LeParamGrips__Px('StretchSizePx') / scale, Na__LeParam__Label('GripCorner', 'Drag this corner - the corner opposite stays put. It snaps to the drawing\'s corners'),
+                (event) => Na__LeParamGrips__OnStretchDown(event, sheet, groupId, Na__LeParamGrips__MODE_CORNER, corner.name));
+        });
+        if (handles.base) {
+            const at   = clear(handles.base, 0);
+            const grip = Na__LeParamGrips__Add(layer, Na__LeParamGrips__CLASS_BASE, at.x, at.y,
+                Na__LeParamGrips__Px('StretchSizePx') / scale, Na__LeParam__Label('GripBase', 'Drag to move it by this corner - it snaps to the drawing\'s corners'),
+                (event) => Na__LeParamGrips__OnStretchDown(event, sheet, groupId, Na__LeParamGrips__MODE_MOVE));
+            grip.style.borderWidth = (Na__LeParamGrips__Px('BaseRingPx') / scale) + 'px';   // <-- The ring the same few pixels at any zoom, as the link socket's is: the layer is scaled
+        }
         if (handles.stretch) {
             const at    = clear(handles.stretch, Na__LeParamGrips__Px('StretchOffsetPx'));
             const back  = handles.stretch.away[0] < 0 && !!handles.slide;     // <-- An arrow pointing back at the title: the reversed stretch of a bar stood to the right
@@ -561,7 +686,8 @@
         if (handles.lookup) {
             const at = clear(handles.lookup, Na__LeParamGrips__Px('LookupOffsetPx'));
             Na__LeParamGrips__Add(layer, Na__LeParamGrips__CLASS_LOOKUP, at.x, at.y,
-                Na__LeParamGrips__Px('LookupSizePx') / scale, Na__LeParam__Label('GripLookup', 'Scale and options'),
+                Na__LeParamGrips__Px('LookupSizePx') / scale,
+                (handles.params && handles.params.ScaleDenominator !== undefined) ? Na__LeParam__Label('GripLookup', 'Scale and options') : Na__LeParam__Label('GripLookupOptions', 'Options'),   // <-- An element with no scale is offered no scale
                 (event) => Na__LeParamGrips__OnLookupDown(event, sheet, groupId));
         }
         return true;

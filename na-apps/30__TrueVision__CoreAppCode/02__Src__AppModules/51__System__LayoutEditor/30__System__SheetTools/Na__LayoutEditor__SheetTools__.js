@@ -141,6 +141,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.36.0
+// - The Measurements box's context gains getVectorReading and typeVectorValue:
+//   what it reads and types for a vector tool (37__System__VectorTools), asked
+//   of their adapter with the tool that is up. The vector tools are handed the
+//   box's one-line Say as their speaker, so none of them imports the box.
+//
 // 21-Sep-2026 - Version 1.35.0
 // - The Measurements box is handed canArray and typeMoveArray: SketchUp's
 //   3x and /3 after a Ctrl-drag copy (PointerDrag, CopyDrag).
@@ -458,9 +464,11 @@
         Na__LeSurface__Refresh
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeText__BeginEdit, Na__LeText__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
-    import { Na__LeMeasure__Attach, Na__LeMeasure__Detach } from './Na__LayoutEditor__Measurements__.js';
+    import { Na__LeMeasure__Attach, Na__LeMeasure__Detach, Na__LeMeasure__Say } from './Na__LayoutEditor__Measurements__.js';
+    import { Na__LeVec__Reading, Na__LeVec__TypeValue } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- What the Measurements box reads and types for a vector tool
+    import { Na__LeVec__SetSpeaker } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__State__.js';
     import { Na__LeDrop__Refresh } from './Na__LayoutEditor__Eyedropper__.js';
-    import { Na__LeVpMove__Refresh } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeVpMove__Refresh } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeGroup__Render } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeSelBox__Refresh } from './Na__LayoutEditor__SelectionBox__.js';
     import { Na__LeScope__CHANGED_EVENT, Na__LeScope__Clear, Na__LeScope__Prune } from './Na__LayoutEditor__EditScope__.js';
@@ -636,8 +644,11 @@
             getViewportRetype    : () => Na__LeTools__GetViewportRetype(),           // <-- The same for a frame just moved
             typeViewportLength   : (paperMm) => Na__LeTools__TypeViewportLength(paperMm),
             canArray             : () => Na__LeTools__CanMoveArray(),                // <-- A Ctrl-drag copy that may be arrayed: SketchUp's 3x and /3
-            typeMoveArray        : (mode, count) => Na__LeTools__TypeMoveArray(mode, count)
+            typeMoveArray        : (mode, count) => Na__LeTools__TypeMoveArray(mode, count),
+            getVectorReading     : () => Na__LeVec__Reading(Na__LeTools__Tool, Na__LeModel__GetActiveSheet(), Na__LeTools__LastPointMm, Na__LeTools__GetShapeDefaults()),   // <-- A circle's radius, an arc's bulge or angle, an offset, a fillet, a chamfer: null for every other tool
+            typeVectorValue      : (text) => Na__LeVec__TypeValue(Na__LeTools__Tool, Na__LeModel__GetActiveSheet(), text, Na__LeTools__GetShapeDefaults(), Na__LeTools__LastPointMm)
         });
+        Na__LeVec__SetSpeaker((text) => Na__LeMeasure__Say(text));           // <-- The vector tools say a line above the Measurements box ("Nothing crosses that line") without importing it
         Na__LeTools__SetTool(Na__LeTools__TOOL_SELECT);
         return true;
     }

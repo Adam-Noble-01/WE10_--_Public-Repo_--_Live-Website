@@ -34,6 +34,39 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - A USE OF A PATTERN MAY SET ITS OWN LINE WEIGHT AND LINE COLOUR. Adam:
+//   "A line thickness control for the pattern. A line colour for the pattern,
+//   so that the vectors that are generated in the pattern get a colour and a
+//   line thickness ... You basically take that same geometry that generates
+//   them, but then give more control. Pull the standard ones in for when you
+//   first load that, but then have controls to be able to modify it."
+//   Hatch__StrokePt is a printed weight in POINTS, the unit every other weight
+//   in the editor is typed in, and unlike the pattern's own Defaults__StrokeMm
+//   it does NOT grow with the pattern scale: a typed weight is the weight that
+//   prints. Hatch__Colour is a hex. Both are absent until somebody sets them,
+//   and absent means the pattern's standard - so every hatch saved before this
+//   paints exactly as it did. PatternDef, SvgPaint and DrawPdf take strokePt;
+//   Effective and Token carry both for a site plan layer; StandardStrokePt and
+//   StandardColour say what "standard" is, for a panel to show.
+// - THE SCREEN NOW DRAWS WHAT CROSSES A TILE SEAM. A browser clips a <pattern>
+//   at its tile edge and the PDF stamper does not, which is why every glyph so
+//   far had to sit wholly inside its tile or carry a hand-placed knit copy. A
+//   LINE hatch cannot: brickwork's diagonals cross every seam, and a line
+//   clipped square at a seam it meets at 45 degrees loses a sliver of its edge
+//   there, more the heavier it is drawn. PatternDef therefore also draws each
+//   neighbouring tile's marks wherever their ink reaches into this tile, so
+//   the two halves of anything on a seam are both painted - what the PDF has
+//   always done by not clipping. A mark whose ink stays inside its tile gets
+//   no copy, and a knit copy placed by hand is not made twice, so Mixed
+//   Woodland, Grassland and Rough Grassland are written byte for byte as they
+//   were. PONDS & LAKES IS THE ONE THAT CHANGES, and rightly: its two lowest
+//   ripples touch the tile's BOTTOM seam, which nobody had knitted, so the
+//   screen has always shaved half a line width off those two troughs where the
+//   PDF printed them whole. They now get their four copies from the tiles above.
+// - A pack may name the ink its library tiles are drawn in (Pack__SwatchInk),
+//   because the green that suits a woodland makes a poor brick wall.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - A pattern may carry its OWN INK. Defaults__StrokeColour written as a hex is
 //   parsed into Pattern__Ink; 'inherit' (every pattern before this) parses to
@@ -71,6 +104,18 @@
     const Na__LeHatch__FIELD     = 'Viewport__SitePlanHatches';                 // <-- Per-viewport pattern overrides
     const Na__LeHatch__CAT_FIELD = 'Hatches__Categories';
     const Na__LeHatch__INHERIT   = 'inherit';                                   // <-- Take the layer's own line colour
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | A Use's Own Line Weight, in Printed Points
+    // ------------------------------------------------------------
+    // Held here rather than read from the editor's config so this module stays
+    // a leaf: the record layer imports it, and the config imports nothing of
+    // the hatches'. The bounds are only what a RECORD may hold - a panel offers
+    // the editor's own lineweight range, which sits inside them.
+    // ------------------------------------------------------------
+    const Na__LeHatch__PT_TO_MM      = 25.4 / 72;
+    const Na__LeHatch__MIN_STROKE_PT = 0.01;
+    const Na__LeHatch__MAX_STROKE_PT = 20;
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Session State
@@ -218,7 +263,12 @@
                     const listed  = packDoc ? Na__LeHatch__Block(packDoc, '__Patterns') : null;
                     if (!Array.isArray(listed) || !listed.length) continue;      // <-- An empty or index-less pack costs nothing
 
-                    const pack = { Pack__Key : entry.Pack__Key, Pack__Label : entry.Pack__Label || entry.Pack__Key, Pack__Patterns : [] };
+                    // THE INK A PACK'S LIBRARY TILES ARE DRAWN IN, from the pack's own
+                    // index. Only for the panel's tiles, and only for a pattern with
+                    // no ink of its own; a pack that names none keeps the woodland green.
+                    const about     = Na__LeHatch__Block(packDoc, '__Pack') || {};
+                    const swatchInk = /^#[0-9a-fA-F]{6}$/.test(String(about.Pack__SwatchInk || '')) ? about.Pack__SwatchInk : null;
+                    const pack = { Pack__Key : entry.Pack__Key, Pack__Label : entry.Pack__Label || entry.Pack__Key, Pack__SwatchInk : swatchInk, Pack__Patterns : [] };
                     for (const row of listed) {
                         if (!row || typeof row.Pattern__File !== 'string') continue;
                         const doc = await Na__LeHatch__FetchJson(Na__LeHatch__Url(entry.Pack__Folder, row.Pattern__File));
@@ -276,6 +326,59 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | A Use's Own Line Weight: Points to Keep, or null for "the Pattern's Standard"
+    // ------------------------------------------------------------
+    // null is a real answer, not a failure: it is what an emptied box, a record
+    // from before the control existed and a reset all mean. Anything that is
+    // not a positive number is null, so a typo can never store a weight of 0
+    // and make a hatch vanish.
+    // ------------------------------------------------------------
+    function Na__LeHatch__ClampStrokePt(value) {
+        if (value === null || value === undefined || value === '') return null;
+        const num = Number(value);
+        if (!Number.isFinite(num) || num <= 0) return null;
+        return Math.min(Na__LeHatch__MAX_STROKE_PT, Math.max(Na__LeHatch__MIN_STROKE_PT, Math.round(num * 100) / 100));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Use's Own Line Colour: a Hex to Keep, or null for "the Pattern's Standard"
+    // ------------------------------------------------------------
+    function Na__LeHatch__CleanColour(value) {
+        return /^#[0-9a-fA-F]{6}$/.test(String(value || '')) ? String(value) : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Weight a Pattern Draws at When Nobody Has Set One, in Points
+    // ------------------------------------------------------------
+    // What a panel shows in the line weight box until a weight is typed. The
+    // pattern's own Defaults__StrokeMm GROWS WITH THE PATTERN SCALE - a tile
+    // drawn twice the size has lines twice as heavy, as it always has - so the
+    // standard is quoted at the scale in use. A typed weight does not grow:
+    // that is the point of typing one.
+    // ------------------------------------------------------------
+    function Na__LeHatch__StandardStrokePt(pattern, scale) {
+        if (!pattern) return null;
+        const mm = pattern.Pattern__StrokeMm * Na__LeHatch__ClampScale(pattern, scale);
+        return Math.round((mm / Na__LeHatch__PT_TO_MM) * 100) / 100;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Colour a Pattern Draws in When Nobody Has Set One
+    // ------------------------------------------------------------
+    // The pattern's own ink when its file names one (grass is green whatever
+    // it is drawn on), else the colour of whatever carries it: a vector's edge
+    // colour, a site plan layer's line colour. ONE RULE FOR BOTH, so a pattern
+    // reads the same on a drawn shape as on the site plan beside it.
+    // ------------------------------------------------------------
+    function Na__LeHatch__StandardColour(pattern, carrierColour) {
+        return (pattern && pattern.Pattern__Ink) || carrierColour || '#000000';
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | A Viewport's Per-Category Pattern Settings
     // ------------------------------------------------------------
     // Returns { Hatch__PatternKey, Hatch__Scale, Hatch__RotationDeg } with the
@@ -305,7 +408,12 @@
             // the two compose: a hatch over bare paper is an ordinary drafting
             // look, and folding both into one dropdown would make it unreachable.
             // Absent means ON, so no saved viewport changes.
-            Hatch__Filled     : (stored && stored.Hatch__Filled === false) ? false : true
+            Hatch__Filled     : (stored && stored.Hatch__Filled === false) ? false : true,
+            // THIS LAYER'S OWN LINE WEIGHT AND LINE COLOUR ON THIS VIEWPORT, or
+            // null for the pattern's standard - which is what every viewport
+            // saved before the two controls existed reads as.
+            Hatch__StrokePt   : Na__LeHatch__ClampStrokePt(stored ? stored.Hatch__StrokePt : null),
+            Hatch__Colour     : Na__LeHatch__CleanColour(stored ? stored.Hatch__Colour : null)
         };
     }
     // ------------------------------------------------------------
@@ -338,7 +446,9 @@
             return key + '=' + (entry.Hatch__PatternKey === undefined ? '' : entry.Hatch__PatternKey)
                  + ',' + (Number.isFinite(entry.Hatch__Scale)       ? entry.Hatch__Scale       : '')
                  + ',' + (Number.isFinite(entry.Hatch__RotationDeg) ? entry.Hatch__RotationDeg : '')
-                 + ',' + (entry.Hatch__Filled === false ? '0' : '1');
+                 + ',' + (entry.Hatch__Filled === false ? '0' : '1')
+                 + ',' + (Number.isFinite(entry.Hatch__StrokePt) ? entry.Hatch__StrokePt : '')   // <-- A typed line weight and a picked colour change the picture too
+                 + ',' + (typeof entry.Hatch__Colour === 'string' ? entry.Hatch__Colour : '');
         }).join('|');
     }
     // ------------------------------------------------------------
@@ -375,6 +485,12 @@
     // `id` must be unique across the whole sheet: two site plan viewports on one
     // sheet would otherwise share one definition and the second would take the
     // first's transform.
+    //
+    // options.strokePt is this USE's own line weight in printed points, or
+    // nothing for the pattern's standard. The standard (Pattern__StrokeMm) is a
+    // tile length and so grows with the scale, as it always has; a typed weight
+    // is a PAPER length and must not, so it is divided by the scale here and
+    // the group's scaling then puts it back to exactly what was typed.
     // ------------------------------------------------------------
     function Na__LeHatch__PatternDef(id, pattern, options) {
         if (!pattern) return '';
@@ -387,14 +503,23 @@
 
         const tileW = pattern.Pattern__TileWidthMm  * unit;
         const tileH = pattern.Pattern__TileHeightMm * unit;
-        const stroke = pattern.Pattern__StrokeMm * unit;
+        const ownPt  = Na__LeHatch__ClampStrokePt(opts.strokePt);
+        const stroke = (ownPt === null) ? pattern.Pattern__StrokeMm * unit : ownPt * Na__LeHatch__PT_TO_MM * D;
 
-        const body = pattern.Pattern__Marks.map((mark) => {
+        // A tile's own mark is written exactly as its file places it. A copy is
+        // that place moved by whole tiles, tidied to a ten-thousandth so 10.4 - 11
+        // is written -0.6 and not the -0.5999999999999996 the arithmetic gives.
+        const moved = (at, tiles, size) => (tiles === 0 ? at : Math.round((at + (tiles * size)) * 10000) / 10000);
+        const path = (mark, dx, dy) => {
             const fill = (mark.Mark__Glyph.Glyph__Fill === Na__LeHatch__INHERIT) ? colour : mark.Mark__Glyph.Glyph__Fill;
             return `<path d="${Na__LeHatch__Esc(mark.Mark__Glyph.Glyph__Path)}"`
-                 + ` transform="translate(${mark.Mark__XMm} ${mark.Mark__YMm})"`
+                 + ` transform="translate(${moved(mark.Mark__XMm, dx, pattern.Pattern__TileWidthMm)} ${moved(mark.Mark__YMm, dy, pattern.Pattern__TileHeightMm)})"`
                  + ` fill="${Na__LeHatch__Esc(fill)}"/>`;
-        }).join('');
+        };
+        // THE TILE'S OWN MARKS, THEN WHAT THE NEIGHBOURING TILES PUSH INTO IT.
+        // See SeamCopies: nothing is added for a mark that stays inside its tile.
+        const body = pattern.Pattern__Marks.map((mark) => path(mark, 0, 0)).join('')
+                   + Na__LeHatch__SeamCopies(pattern, stroke / unit).map((copy) => path(copy.mark, copy.dx, copy.dy)).join('');
 
         // The glyph paths are authored in TILE millimetres, so the group is
         // scaled by `unit` rather than every number being multiplied by hand.
@@ -407,6 +532,82 @@
              + ` stroke="${Na__LeHatch__Esc(colour)}" stroke-width="${stroke / unit}"`
              + ` stroke-linecap="round" stroke-linejoin="round"`
              + ` opacity="${pattern.Pattern__Opacity}">${body}</g></pattern>`;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Each Mark's Centreline Box in Tile Millimetres (cached on the pattern)
+    // ------------------------------------------------------------
+    // null for a mark whose glyph cannot be flattened; it simply gets no seam
+    // copy, which is what it got before seam copies existed.
+    // ------------------------------------------------------------
+    function Na__LeHatch__MarkBoxes(pattern) {
+        if (pattern.Pattern__BoxCache) return pattern.Pattern__BoxCache;
+        pattern.Pattern__BoxCache = pattern.Pattern__Marks.map((mark) => {
+            const flat = Na__LeHatch__FlattenPath(mark.Mark__Glyph.Glyph__Path);
+            if (!flat || flat.length === 0) return null;
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            flat.forEach((line) => line.points.forEach((point) => {
+                if (point[0] < minX) minX = point[0]; if (point[0] > maxX) maxX = point[0];
+                if (point[1] < minY) minY = point[1]; if (point[1] > maxY) maxY = point[1];
+            }));
+            if (!Number.isFinite(minX) || !Number.isFinite(minY)) return null;
+            return { minX : minX + mark.Mark__XMm, maxX : maxX + mark.Mark__XMm, minY : minY + mark.Mark__YMm, maxY : maxY + mark.Mark__YMm };
+        });
+        return pattern.Pattern__BoxCache;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Neighbouring Tiles' Marks That Reach Into This Tile
+    // ------------------------------------------------------------
+    // WHY. A browser clips a <pattern>'s content at the tile edge; the PDF
+    // stamper clips nothing. So whatever crosses a seam is whole on paper and
+    // cut on screen - unless the tile ALSO draws the part of its neighbours'
+    // marks that lands inside it, which is all this works out. For a line
+    // meeting a seam at an angle that is a sliver along one edge of the line at
+    // every crossing, growing with the line's weight; for a line through a
+    // tile's corner it is a bite out of both sides.
+    //
+    // Returns [{ mark, dx, dy }]: draw `mark` again, moved dx tiles across and
+    // dy tiles down. A mark is copied from a neighbour only when its ink - the
+    // centreline box grown by half the line weight, for the round caps and
+    // joins - overlaps this tile from there. A mark whose ink is wholly inside
+    // its own tile overlaps from nowhere and gets nothing added, so a pattern
+    // that never touched a seam is written byte for byte as it was.
+    //
+    // A COPY SOMEBODY ALREADY PLACED BY HAND IS NOT MADE AGAIN. The woodland's
+    // conifer and the pond's ripple each carry a knit copy one tile away, from
+    // before this existed. Drawing a second one exactly over it would change
+    // nothing but the anti-aliasing - the doubled edge pixels read a touch
+    // bolder than every other mark in the field - so it is skipped.
+    //
+    // strokeTileMm is the line weight in TILE millimetres, because a typed
+    // weight changes how far a line's ink reaches.
+    // ------------------------------------------------------------
+    function Na__LeHatch__SeamCopies(pattern, strokeTileMm) {
+        const W = pattern.Pattern__TileWidthMm, H = pattern.Pattern__TileHeightMm;
+        const reach = (Number.isFinite(strokeTileMm) && strokeTileMm > 0 ? strokeTileMm / 2 : 0) + 0.01;
+        const boxes = Na__LeHatch__MarkBoxes(pattern);
+        const placedByHand = (mark, x, y) => pattern.Pattern__Marks.some((other) => other !== mark
+            && other.Mark__Glyph === mark.Mark__Glyph
+            && Math.abs(other.Mark__XMm - x) < 1e-6 && Math.abs(other.Mark__YMm - y) < 1e-6);
+        const copies = [];
+        pattern.Pattern__Marks.forEach((mark, index) => {
+            const box = boxes[index];
+            if (!box) return;
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const overlapsX = (box.maxX + reach + (dx * W)) > 0 && (box.minX - reach + (dx * W)) < W;
+                    const overlapsY = (box.maxY + reach + (dy * H)) > 0 && (box.minY - reach + (dy * H)) < H;
+                    if (!overlapsX || !overlapsY) continue;
+                    if (placedByHand(mark, mark.Mark__XMm + (dx * W), mark.Mark__YMm + (dy * H))) continue;
+                    copies.push({ mark : mark, dx : dx, dy : dy });
+                }
+            }
+        });
+        return copies;
     }
     // ------------------------------------------------------------
 
@@ -556,11 +757,12 @@
     // The counterpart of the gradient tool's SVG paint, and used the same way:
     // the caller writes `defs` into its markup and fills a path with `fill`.
     //
-    // options: { pattern, scale, rotationDeg, colour, denominator }. Omit the
-    // denominator for paper-millimetre space - the sheet's own markup layer -
-    // where a tile millimetre IS a paper millimetre. A site plan viewport draws
-    // in DRAWING millimetres and passes its scale denominator, so a tile keeps
-    // its paper size at every scale.
+    // options: { pattern, scale, rotationDeg, colour, strokePt, denominator }.
+    // Omit the denominator for paper-millimetre space - the sheet's own markup
+    // layer - where a tile millimetre IS a paper millimetre. A site plan
+    // viewport draws in DRAWING millimetres and passes its scale denominator,
+    // so a tile keeps its paper size at every scale. strokePt is the use's own
+    // line weight in printed points; leave it out for the pattern's standard.
     // ------------------------------------------------------------
     function Na__LeHatch__SvgPaint(options) {
         const opts = options || {};
@@ -570,7 +772,8 @@
             denominator : Number.isFinite(opts.denominator) ? opts.denominator : 1,
             scale       : opts.scale,
             rotationDeg : opts.rotationDeg,
-            colour      : opts.colour
+            colour      : opts.colour,
+            strokePt    : opts.strokePt
         });
         return def ? { defs : '<defs>' + def + '</defs>', fill : 'url(#' + id + ')' } : null;
     }
@@ -587,7 +790,9 @@
     //
     // `points` are [x, y] pairs in the PDF's own paper millimetres. options are
     // SvgPaint's, without denominator: the caller converts to paper first, so a
-    // tile millimetre is a paper millimetre here by construction.
+    // tile millimetre is a paper millimetre here by construction. strokePt and
+    // colour are the use's own, exactly as SvgPaint takes them, so a hatch
+    // prints at the weight and in the colour it shows.
     //
     // Returns false and leaves the area bare if it cannot clip - an unclipped
     // hatch would flood the sheet - or if the area needs more tiles than the cap.
@@ -640,8 +845,12 @@
                 return false;
             }
 
+            // A TYPED WEIGHT IS A PAPER WEIGHT and is set as it stands; the
+            // pattern's standard is a tile length and grows with the scale -
+            // the same two cases, in the same order, as PatternDef's.
+            const ownPt = Na__LeHatch__ClampStrokePt(opts.strokePt);
             doc.setDrawColor(rgb[0], rgb[1], rgb[2]);
-            doc.setLineWidth(tile.strokeMm * step);
+            doc.setLineWidth(ownPt === null ? tile.strokeMm * step : ownPt * Na__LeHatch__PT_TO_MM);
             doc.setLineCap('round');
             doc.setLineJoin('round');
             try { doc.setLineDashPattern([], 0); } catch (e) { /* older build */ }
@@ -708,6 +917,10 @@
         Na__LeHatch__Get,
         Na__LeHatch__ClampScale,
         Na__LeHatch__ClampRotation,
+        Na__LeHatch__ClampStrokePt,
+        Na__LeHatch__CleanColour,
+        Na__LeHatch__StandardStrokePt,
+        Na__LeHatch__StandardColour,
         Na__LeHatch__Effective,
         Na__LeHatch__Token,
         Na__LeHatch__PatternDef,

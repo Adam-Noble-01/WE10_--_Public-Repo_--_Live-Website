@@ -31,6 +31,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - The dimension colour swatch is handed to the Colour Palette
+//   (54__Feature__ColourPalette): the standard colours open above the
+//   browser's colour menu, and a pick arrives as the `input` it already hears.
+//
 // 31-Aug-2026 - Version 1.0.0
 // - Initial implementation for the Floor Plan Builder.
 //
@@ -102,6 +107,11 @@
         Na__DrawFocus__CAP_DELETE,
         Na__DrawFocus__ShouldHandle
     } from '../40__System__DrawingViewCore/Na__DrawView__MarkupFocus__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Colour Palette (the standard colours above the dimension colour's own menu)
+    // ------------------------------------------------------------
+    import { Na__ColourPalette__Attach } from '../54__Feature__ColourPalette/Na__ColourPalette__.js';
     // ------------------------------------------------------------
 
 
@@ -240,6 +250,7 @@
         input.addEventListener('input', () => {
             Na__PlanAnnoBar__ApplyDimStyle({ color: input.value });
         });
+        Na__ColourPalette__Attach(input);                                       // <-- The standard dimension colours, one click away; a pick arrives as the `input` above
         return input;
     }
     // ------------------------------------------------------------

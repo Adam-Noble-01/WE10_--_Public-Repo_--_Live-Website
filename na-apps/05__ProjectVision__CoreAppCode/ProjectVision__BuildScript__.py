@@ -486,8 +486,15 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
                 continue
             linework = entry.get('Layer__LineworkFile')
             fill = entry.get('Layer__FillFile')
-            if linework not in present:
+            # A FILL LAYER MAY HAVE NO LINEWORK. Since Site Plan Export 1.4.0 a fill
+            # tag whose faces carry no edges of their own writes its fill GLB alone
+            # and the manifest names no linework file (Layer__LineworkFile null). A
+            # linework file that IS named and is missing is still a fault.
+            if linework is not None and linework not in present:
                 print(f'  [WARNING] {project_folder}: the site plan manifest lists {linework}, which is not in {store_folder}')
+                continue
+            if linework is None and fill not in present:
+                print(f'  [WARNING] {project_folder}: the site plan manifest lists {entry.get("Layer__CategoryKey")} with no linework and no fill file in {store_folder}')
                 continue
             layers.append({
                 'Layer__CategoryKey'     : entry.get('Layer__CategoryKey'),
@@ -497,7 +504,7 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
                 'Layer__DrawOrder'       : entry.get('Layer__DrawOrder'),
                 'Layer__ZIndexLine'      : entry.get('Layer__ZIndexLine'),
                 'Layer__ZIndexFill'      : entry.get('Layer__ZIndexFill'),
-                'Layer__LineworkUrl'     : f'{base_url}/{linework}',
+                'Layer__LineworkUrl'     : f'{base_url}/{linework}' if linework is not None else None,
                 'Layer__FillUrl'         : f'{base_url}/{fill}' if fill in present else None,
                 'Layer__Style'           : entry.get('Layer__Style'),
                 'Layer__VisibleAtScales' : entry.get('Layer__VisibleAtScales'),
@@ -514,9 +521,7 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
             slot = by_key.setdefault(match.group(1), {})
             slot['fill' if match.group(2).lower() == 'fillmodel' else 'linework'] = filename
         for category_key in sorted(by_key):
-            files = by_key[category_key]
-            if 'linework' not in files:
-                continue
+            files = by_key[category_key]                               # <-- A fill GLB alone is a faces-only fill layer
             label = re.sub(r'([a-z])([A-Z])', r'\1 \2', category_key.replace('TrueVision__SitePlan__', ''))
             layers.append({
                 'Layer__CategoryKey'     : category_key,
@@ -526,7 +531,7 @@ def discover_truevision_siteplan_store(project_path, year_folder_name, project_f
                 'Layer__DrawOrder'       : None,
                 'Layer__ZIndexLine'      : None,
                 'Layer__ZIndexFill'      : None,
-                'Layer__LineworkUrl'     : f"{base_url}/{files['linework']}",
+                'Layer__LineworkUrl'     : f"{base_url}/{files['linework']}" if 'linework' in files else None,
                 'Layer__FillUrl'         : f"{base_url}/{files['fill']}" if 'fill' in files else None,
                 'Layer__Style'           : None,
                 'Layer__VisibleAtScales' : None,

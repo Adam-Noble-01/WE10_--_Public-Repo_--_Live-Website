@@ -58,7 +58,7 @@
         Na__LeSurface__GetZoom,
         Na__LeSurface__ClientToPaperMm
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeMenu__Close } from '../30__System__SheetTools/Na__LayoutEditor__ContextMenu__.js';
     import { Na__LeImgGeo__Rect, Na__LeImgGeo__WholeRect, Na__LeImgGeo__NormaliseCrop, Na__LeImgGeo__CropOf, Na__LeImgGeo__RectPoints, Na__LeImgGeo__PrintDpi } from './Na__LayoutEditor__SheetImages__Geometry__.js';
     import { Na__LeImgCfg__Crop, Na__LeImgCfg__Label } from './Na__LayoutEditor__SheetImages__Setup__.js';

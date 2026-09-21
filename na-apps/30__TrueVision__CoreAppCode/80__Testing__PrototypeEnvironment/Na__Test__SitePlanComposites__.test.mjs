@@ -373,17 +373,31 @@ check('EVERY site plan tag that names a hatch names one the library has',
 check('EVERY site plan tag that names a face material names one the Materials SSOT has, as rgb()',
   Object.values(sp).filter((t) => t && t.SitePlan__FillMaterialId).filter((t) => !rgbOf(t.SitePlan__FillMaterialId)).map((t) => t.Tag__SketchUpName), [])
 
-const HARD = ['73__SitePlan__SiteFeature__Access', '73__SitePlan__SiteFeature__Paths', '74__SitePlan__ExternalWorks__HardSurfaces']
-check('the drive, the paths and the hard standing all wash in the one very light grey, opaque, at fill Z 2',
+// TWO HARD STANDING GREYS (21-Sep-2026). Adam: "We need a tag specifically for hard
+// standing and paved driveways ... two types of very light grey fill, so I can mark
+// paths properly on the models, too, and paving areas." Drives are the neutral grey,
+// paths and paving the warm one - on the two new FILL tags and on the older tags that
+// can hold the same surfaces.
+const DRIVE_TAGS  = ['74__SitePlan__ExternalWorks__HardStandingAndDriveways', '73__SitePlan__SiteFeature__Access', '74__SitePlan__ExternalWorks__HardSurfaces']
+const PAVING_TAGS = ['74__SitePlan__ExternalWorks__PathsAndPaving', '73__SitePlan__SiteFeature__Paths']
+const HARD = DRIVE_TAGS.concat(PAVING_TAGS)
+check('Hard Standing and Driveways, and Paths and Paving, are site plan tags with stems of their own',
+  [sp[DRIVE_TAGS[0]] && sp[DRIVE_TAGS[0]].SitePlan__ExportFileNameStem, sp[PAVING_TAGS[0]] && sp[PAVING_TAGS[0]].SitePlan__ExportFileNameStem],
+  ['TrueVision__SitePlan__HardStandingAndDriveways', 'TrueVision__SitePlan__PathsAndPaving'])
+check('drives, access and hard surfaces wash in the drive grey; paths and paving in the paving grey - opaque, fill Z 2',
   HARD.map((k) => [sp[k].SitePlan__ExportFills, sp[k].SitePlan__FillMaterialId, sp[k].SitePlan__FillOpacity, sp[k].SitePlan__ZIndexFill]),
-  HARD.map(() => [true, 'MAT806__SitePlan__HardStandingGrey', 1, 2]))
-check('and that grey is very light and neutral', rgbOf('MAT806__SitePlan__HardStandingGrey'), 'rgb(235,235,235)')
-check('no hatch on hard standing - a plain wash', HARD.map((k) => sp[k].SitePlan__FillHatchId), [null, null, null])
+  DRIVE_TAGS.map(() => [true, 'MAT806__SitePlan__HardStandingGrey', 1, 2]).concat(PAVING_TAGS.map(() => [true, 'MAT807__SitePlan__PavingGrey', 1, 2])))
+check('the two greys are very light, the drive neutral and darker, the paving warm and lighter',
+  [rgbOf('MAT806__SitePlan__HardStandingGrey'), rgbOf('MAT807__SitePlan__PavingGrey')], ['rgb(228,228,228)', 'rgb(240,238,233)'])
+check('no hatch on hard standing - plain washes', HARD.map((k) => sp[k].SitePlan__FillHatchId), HARD.map(() => null))
+const pathsLine = lineOf(sp['73__SitePlan__SiteFeature__Paths'])
+check('the two fill tags\' own edges (when they have any) draw EXACTLY like Site Paths, so a traced drive merges into its line',
+  [lineOf(sp[DRIVE_TAGS[0]]), lineOf(sp[PAVING_TAGS[0]])], [pathsLine, pathsLine])
 
 const EX = tags.ExportExclusions
 check('the new tags are in BOTH exclusion lists (the model export never writes them; Edge Paint leaves their edges alone)',
-  [GRASS_TAG, ROUGH_TAG].map((t) => [EX.FullyExcludedTagNames.includes(t.Tag__SketchUpName), EX.AdvancedSwapOffTagNames.includes(t.Tag__SketchUpName)]),
-  [[true, true], [true, true]])
+  [GRASS_TAG, ROUGH_TAG, sp[DRIVE_TAGS[0]], sp[PAVING_TAGS[0]]].map((t) => [EX.FullyExcludedTagNames.includes(t.Tag__SketchUpName), EX.AdvancedSwapOffTagNames.includes(t.Tag__SketchUpName)]),
+  [[true, true], [true, true], [true, true], [true, true]])
 const stems = Object.values(sp).filter((t) => t && t.SitePlan__ExportFileNameStem).map((t) => t.SitePlan__ExportFileNameStem)
 check('no two site plan tags share a stem (a shared stem would overwrite one GLB with the other)', stems.length, new Set(stems).size)
 check('every site plan weight in points matches its millimetres',
@@ -608,6 +622,35 @@ check('an INHERITING pattern put on the grey grass layer takes the layer\'s grey
 const svgGrassLocation = paint(freshState(), variant('vpGrassLoc', { Viewport__ScaleDenominator : 1250 }))
 check('a location plan paints no grass wash - the proposal is its only fill',
   [/fill="#E5F2D6"/.test(svgGrassLocation), /fill="#E7EBD9"/.test(svgGrassLocation), /fill="#FF0000"/.test(svgGrassLocation)], [false, false, true])
+
+// ---- a LAYER'S OWN line weight and colour, through the shipped painter (21-Sep-2026) --
+// Adam: "A line thickness control for the pattern. A line colour for the pattern."
+// The Patterns panel stores them per layer on the viewport; the painter must paint
+// them, and a viewport that stores neither must paint exactly as it did.
+const paperStroke = (svg, id) => {
+  const m = new RegExp('<pattern id="' + id + '"[^>]*><g transform="scale\\(([^)]+)\\)"[^>]*stroke-width="([^"]+)"').exec(svg)
+  return m ? (parseFloat(m[1]) * parseFloat(m[2])) / 500 : null               // <-- Drawing millimetres at 1:500, back to paper
+}
+const closeTo = (a, b) => a !== null && Math.abs(a - b) < 1e-9
+const svgOwn = paint(freshState(), variant('vpOwn', { [HF] : { [HC] : { wood : { Hatch__StrokePt : 0.6, Hatch__Colour : '#737373' }, grass : { Hatch__Colour : '#960000' } } } }))
+check('a colour set on a layer\'s hatch beats the layer\'s line colour (wood) AND the pattern\'s own ink (grass)',
+  [patternInk(svgOwn, 'na-le-hatch-vpOwn-2'), patternInk(svgOwn, 'na-le-hatch-vpOwn-0'), patternInk(svgOwn, 'na-le-hatch-vpOwn-1')], ['#737373', '#960000', '#43A047'])
+check('a typed 0.60 pt paints at 0.60 pt of PAPER at 1:500, and the layers beside it keep the pattern\'s standard 0.18 mm',
+  [closeTo(paperStroke(svgOwn, 'na-le-hatch-vpOwn-2'), 0.6 * 25.4 / 72), closeTo(paperStroke(svgOwn, 'na-le-hatch-vpOwn-0'), 0.18), closeTo(paperStroke(svgOwn, 'na-le-hatch-vpOwn-1'), 0.18)], [true, true, true])
+const svgOwnHalf = paint(freshState(), variant('vpOwnHalf', { [HF] : { [HC] : { wood : { Hatch__Scale : 0.5, Hatch__StrokePt : 0.6 } } } }))
+check('and it stays 0.60 pt when the pattern is drawn at half scale - a typed weight does not shrink with the tile',
+  [closeTo(paperStroke(svgOwnHalf, 'na-le-hatch-vpOwnHalf-2'), 0.6 * 25.4 / 72), /<pattern id="na-le-hatch-vpOwnHalf-2"[^>]*width="4500"/.test(svgOwnHalf)], [true, true])
+const sOwn = freshState()
+paint(sOwn, variant('vpOwnKey', {}))
+const keyPlain = sOwn.lineworkKey
+paint(sOwn, variant('vpOwnKey', { [HF] : { [HC] : { wood : { Hatch__StrokePt : 0.6 } } } }))
+const keyWeighted = sOwn.lineworkKey
+paint(sOwn, variant('vpOwnKey', { [HF] : { [HC] : { wood : { Hatch__StrokePt : 0.6, Hatch__Colour : '#737373' } } } }))
+check('each of the two moves the paint key, so the frame repaints the moment one is set',
+  [keyPlain === keyWeighted, keyWeighted === sOwn.lineworkKey], [false, false])
+const svgOwnLocation = paint(freshState(), variant('vpOwnLoc', { Viewport__ScaleDenominator : 1250, Viewport__SitePlan : { SitePlan__PlanType : 'block' },
+  [HF] : { [HC] : { wood : { Hatch__Colour : '#1E88E5' } } } }))
+check('a set colour is still an ink like any other: it paints where the patterns paint', /stroke="#1E88E5"/.test(svgOwnLocation), true)
 
 
 

@@ -1,0 +1,66 @@
+{
+    "HatchPattern__Brickwork__Meta": {
+        "Meta__FileName"      : "Na__HatchPattern__Construction__Brickwork__.json",
+        "Meta__Description"   : "Brickwork in section or on plan - evenly spaced diagonal lines at 45 degrees, rising to the right. The British convention, and the one a planning officer reads without a key.",
+        "Meta__Version"       : "1.0.0",
+        "Meta__Created"       : "21-Sep-2026",
+        "Meta__Author"        : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits" : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__Spacing"       : "Four lines to a 12 mm tile, so 2.12 mm between lines measured square to them (12 / 4 / root 2). Close enough to read as a tone at 1:50, open enough not to fill in at 1:100.",
+        "Meta__WhySeams"      : "The lines run to the tile's edges and meet their continuation in the next tile exactly. No line passes through a tile CORNER and none runs along an edge: a corner is shared by four tiles and an edge by two, and ink there would need drawing by all of them. Na__LeHatch__SeamCopies paints what a neighbouring tile pushes across a seam, so a line keeps its full width where it crosses, at any line weight.",
+        "Meta__OtherWay"      : "For diagonals falling to the right instead, set Pattern deg to 90."
+    },
+
+    "HatchPattern__Brickwork__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__Brickwork",
+        "Identity__Label"       : "Brickwork (45° Hatch)",
+        "Identity__Group"       : "Masonry",
+        "Identity__Keywords"    : ["brick", "brickwork", "masonry", "wall", "section", "diagonal", "45"],
+        "Identity__Note"        : "The standard section hatch for brickwork: single diagonals at 45 degrees. Blockwork is the same hatch crossed."
+    },
+
+    "HatchPattern__Brickwork__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 12.0,
+        "Tile__HeightMm"    : 12.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Square, so the diagonals close on themselves: a line leaving the top edge re-enters at the same place on the bottom."
+    },
+
+    "HatchPattern__Brickwork__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.25 pt (0.0882 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.0882,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__Brickwork__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "Diagonals": {
+            "Glyph__Label"    : "Rising diagonals",
+            "Glyph__WidthMm"  : 12,
+            "Glyph__HeightMm" : 12,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M0,1.5 L1.5,0 M0,4.5 L4.5,0 M0,7.5 L7.5,0 M0,10.5 L10.5,0 M1.5,12 L12,1.5 M4.5,12 L12,4.5 M7.5,12 L12,7.5 M10.5,12 L12,10.5",
+            "Glyph__Note"     : "Eight pieces of four endless lines, x + y = 1.5, 4.5, 7.5 and 10.5 (and the same again one tile on). The nearest any comes to a corner is 1.06 mm."
+        }
+    },
+
+    "HatchPattern__Brickwork__Placements": [
+        { "Place__Glyph": "Diagonals", "Place__XMm": 0, "Place__YMm": 0, "Place__Note": "The whole tile is one glyph at the origin" }
+    ],
+
+    "HatchPattern__Brickwork__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

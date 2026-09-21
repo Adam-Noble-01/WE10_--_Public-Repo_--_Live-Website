@@ -76,6 +76,27 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.15.0
+// - A move and a release with a vector tool up (37__System__VectorTools) go to
+//   their adapter: the move draws the tool's preview and says which cursor the
+//   stage carries, and the release lands a circle or a fence that was dragged
+//   out (VectorUp). One branch each for all nine tools; ApplyDrag is untouched.
+//
+// 21-Sep-2026 - Version 1.14.0
+// - ALL THE SNAPPING IS IN ITS OWN FOLDER NOW (28__System__ObjectSnap), and
+//   ApplyDrag calls into it: Na__LeOsnap__Snap from its Search unit, the
+//   whole-vector and whole-selection snaps from its Moves unit
+//   (Na__LeOsnap__ShapeTranslation and GroupTranslation, which were this
+//   folder's SnapShapeTranslation and SnapGroupTranslation) and the grid step
+//   from its GridMoves unit (Na__LeOsnap__GridDragDelta). The code they run is
+//   the code that was here.
+// - The marker's colour is no longer this module's to choose: the dimension
+//   end's orange tone is gone, and the marker says what the point belongs to.
+// - A PERPENDICULAR NEEDS A POINT TO BE SQUARE FROM. A dragged vertex hands the
+//   snap the vertices either side of it (VertexNeighbours) and a dragged
+//   dimension end its other end, so the new Perpendicular mode can put an edge,
+//   or a measured span, square on to a line of the drawing.
+//
 // 21-Sep-2026 - Version 1.13.0
 // - SKETCHUP'S COPY ARRAYS (Na__LayoutEditor__SheetTools__CopyDrag__).
 //   TypeMoveArray takes 3x or /3 for a Ctrl-drag copy that is still on offer:
@@ -279,12 +300,13 @@
     import { Na__LeDrop__Hover } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeVp2d__SetInteracting } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__SetInteracting } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
-    import { Na__LeOsnap__TONE_DIMENSION, Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
-    import { Na__LeTools__GridDragDelta } from './Na__LayoutEditor__SheetTools__GridDrag__.js';   // <-- Grid Snap (F7): a drag with no snap of its own moves in whole grid steps
+    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
+    import { Na__LeOsnap__ShapeTranslation, Na__LeOsnap__GroupTranslation } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Moves__.js';   // <-- A vector, or a selection, moved whole: whichever of its points comes nearest a snap lands on it
+    import { Na__LeOsnap__GridDragDelta } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__GridMoves__.js';   // <-- Grid Snap (F7): a drag with no snap of its own moves in whole grid steps
     import { Na__LeTools__SyncCopyDrag, Na__LeTools__BuildCopyArray, Na__LeTools__FollowCopyArray, Na__LeTools__CopyArraySelection } from './Na__LayoutEditor__SheetTools__CopyDrag__.js';   // <-- Ctrl-drag: the copy is made once a press becomes a drag, and arrayed once it lands (3x, /3)
     import { Na__LeAxis__Get, Na__LeAxis__Apply, Na__LeAxis__Hold, Na__LeAxis__Clear } from './Na__LayoutEditor__AxisLock__.js';
     import { Na__LeOrtho__Resolve } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__State__.js';
-    import { Na__LeVpMove__Hover, Na__LeVpMove__Solve, Na__LeVpMove__Finish } from '../20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeVpMove__Hover, Na__LeVpMove__Solve, Na__LeVpMove__Finish } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeGroup__ResolveItems } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import {
         Na__LeScope__KIND_VERTEX,
@@ -329,12 +351,11 @@
         Na__LeTools__WriteMoveRetype,
         Na__LeTools__WritePressTravelled
     } from './Na__LayoutEditor__SheetTools__State__.js';
-    import { Na__LeTools__Tool, Na__LeTools__CancelPlacement, Na__LeTools__PickUpMove } from './Na__LayoutEditor__SheetTools__ToolState__.js';
+    import { Na__LeTools__Tool, Na__LeTools__CancelPlacement, Na__LeTools__PickUpMove, Na__LeTools__GetShapeDefaults } from './Na__LayoutEditor__SheetTools__ToolState__.js';
+    import { Na__LeVec__IsTool, Na__LeVec__Move, Na__LeVec__Release } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools' one door
     import {
         Na__LeTools__SelectionPicksUpMove,
         Na__LeTools__RefreshShapeInsert,
-        Na__LeTools__SnapShapeTranslation,
-        Na__LeTools__SnapGroupTranslation,
         Na__LeTools__Resolve,
         Na__LeTools__Record,
         Na__LeTools__RawHit,
@@ -375,6 +396,12 @@
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      { Na__LeShape__Move(sheet, point, event.shiftKey); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_RECT)      { Na__LeRect__Move(sheet, point, event.shiftKey, (event.buttons & 1) === 1 || event.pointerType === 'touch'); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_AREA)      { Na__LeAreaTool__Move(sheet, point, event.shiftKey, (event.buttons & 1) === 1 || event.pointerType === 'touch'); Na__LeMeasure__Refresh(); return; }   // <-- Whichever of the two is drawing the room
+            if (Na__LeTools__Editable && Na__LeVec__IsTool(Na__LeTools__Tool)) {   // <-- A vector tool: its preview follows the pointer, and it says which cursor to carry (not-allowed over what it cannot edit)
+                const carry = Na__LeVec__Move(Na__LeTools__Tool, sheet, point, { shift : event.shiftKey, pointerId : event.pointerId, pressed : (event.buttons & 1) === 1 || event.pointerType === 'touch' }, Na__LeTools__GetShapeDefaults());
+                if (carry && Na__LeTools__Stage) Na__LeTools__Stage.style.cursor = carry;
+                Na__LeMeasure__Refresh();
+                return;
+            }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_LEADER)    { Na__LeLeader__Move(sheet, point, (event.buttons & 1) === 1 || event.pointerType === 'touch'); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_EYEDROP)   { Na__LeTools__Stage.style.cursor = Na__LeDrop__Hover(sheet, Na__LeTools__Resolve(sheet, point, true, true, true)); return; }
             if (Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) return;   // <-- Move hovers too: its cursor sharpens on a grip like Select's
@@ -457,6 +484,32 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Vertices Either Side of the One Being Dragged
+    // ------------------------------------------------------------
+    // WHAT A PERPENDICULAR SNAP IS SQUARE TO. A vertex is the end of the edge
+    // that arrives from the vertex before it and of the one that leaves for the
+    // vertex after it, so while it is dragged either edge may be the one being
+    // squared up to a line. Read from where the vector stood at the press: the
+    // neighbours of ONE dragged vertex never move. A run of picked vertices
+    // carries its neighbours with it, so it offers none - and an open line's
+    // end has a neighbour on one side only.
+    // ------------------------------------------------------------
+    function Na__LeTools__VertexNeighbours(sheet, drag) {
+        const pts = Array.isArray(drag.start) ? drag.start : [];
+        const n   = pts.length;
+        if (n < 2 || !Number.isInteger(drag.index) || (Array.isArray(drag.indices) && drag.indices.length > 1)) return [];
+        const shape  = Na__LeModel__GetShapeById(sheet, drag.id);
+        const closed = !!shape && shape.Shape__Closed === true && n > 2;
+        const out = [];
+        [ drag.index - 1, drag.index + 1 ].forEach((i) => {
+            const at = closed ? ((i % n) + n) % n : i;
+            if (at >= 0 && at < n && at !== drag.index && pts[at]) out.push({ x : pts[at][0], y : pts[at][1] });
+        });
+        return out;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Apply a Drag Delta Through the Model (silent)
     // ------------------------------------------------------------
     function Na__LeTools__ApplyDrag(sheet, drag, dMm, shift, exact) {
@@ -468,7 +521,7 @@
         // and that point lands on the grid (Na__LayoutEditor__SheetTools__
         // GridDrag__, LayOut's rule). A lock, Shift or Ortho below then holds the
         // grid step to its axis. A typed length is exact and never touched.
-        if (!exact) dMm = Na__LeTools__GridDragDelta(sheet, drag, dMm);
+        if (!exact) dMm = Na__LeOsnap__GridDragDelta(sheet, drag, dMm);
         const cursor = { x : drag.startMm.x + dMm.x, y : drag.startMm.y + dMm.y };
         // ORTHO MODE (F8) IS A LATCHED SHIFT. ortho is what every line below
         // that means "hold the nearer axis" asks: Ortho XOR Shift, AutoCAD's rule
@@ -507,7 +560,7 @@
         }
         if (drag.kind === 'group') {
             const lock = axis || (ortho ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? 'x' : 'y') : null);
-            const move = exact ? d : Na__LeTools__SnapGroupTranslation(sheet, drag, d, lock);
+            const move = exact ? d : Na__LeOsnap__GroupTranslation(sheet, drag, d, lock);
             drag.appliedMm = { x : move.x, y : move.y };
             if (!exact && axis) Na__LeGrips__ShowBand(drag.startMm, { x : drag.startMm.x + move.x, y : drag.startMm.y + move.y }, axis);
             Na__LeSelSet__Apply(sheet, drag.group, move.x, move.y);
@@ -550,8 +603,8 @@
         if (drag.kind === 'shape') {
             let points;
             if (drag.mode === 'vertex') {
-                const snap  = Na__LeOsnap__Snap(sheet, cursor, { kind : 'shape', id : drag.id, index : drag.index });   // <-- A vertex jumps to a corner or a midpoint, never its own
                 const p0    = drag.start[drag.index];
+                const snap  = Na__LeOsnap__Snap(sheet, cursor, { kind : 'shape', id : drag.id, index : drag.index }, { from : Na__LeTools__VertexNeighbours(sheet, drag) });   // <-- A vertex jumps to a corner, a midpoint or a crossing, never its own; square to a line FROM either neighbour (Perpendicular)
                 // A CONSTRAINT A STRAY SNAP CAN CANCEL IS NOT A CONSTRAINT. Both
                 // an arrow lock and a held Shift keep their axis through a snap;
                 // the snapped point still supplies the coordinate ALONG that axis,
@@ -592,7 +645,7 @@
                 // would pull the shape off the distance that was asked for.
                 const t = (exact || (Na__LeAxis__Get() && drag.appliedMm))
                     ? { x : d.x, y : d.y }
-                    : Na__LeTools__SnapShapeTranslation(sheet, drag, dMm, ortho);   // <-- Any vertex, or the grab, onto the linework; Shift still holds the axis
+                    : Na__LeOsnap__ShapeTranslation(sheet, drag, dMm, ortho);   // <-- Any vertex, or the grab, onto the linework; Shift still holds the axis
                 if (!exact && !Na__LeAxis__Get()) drag.appliedMm = { x : t.x, y : t.y };   // <-- The snap moved it further than the cursor did: read THAT back
                 points  = Na__LeShapeGeo__Translated(drag.start, t.x, t.y);
             }
@@ -621,7 +674,7 @@
         const s = drag.start;
         let patch = null;
         if (drag.mode === 'start' || drag.mode === 'end') {
-            const snap = Na__LeOsnap__Snap(sheet, cursor, { kind : 'dimension', id : drag.id, index : drag.mode }, Na__LeOsnap__TONE_DIMENSION);   // <-- The grip jumps to a corner or a midpoint, never its own
+            const snap = Na__LeOsnap__Snap(sheet, cursor, { kind : 'dimension', id : drag.id, index : drag.mode }, { from : drag.mode === 'start' ? { x : s.ex, y : s.ey } : { x : s.sx, y : s.sy } });   // <-- The grip jumps to a corner or a midpoint, never its own; square to a line FROM the dimension's other end (Perpendicular)
             // A MEASURED POINT CONSTRAINS LIKE A VERTEX. Same arrow keys, same
             // Shift, same rule that a snap supplies the coordinate along the
             // held axis rather than cancelling it - a dimension end is dragged
@@ -675,6 +728,7 @@
         if (Na__LeSelBox__IsActive()) Na__LeTools__BoxUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_RECT) Na__LeTools__RectangleUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_AREA) Na__LeTools__AreaUp(event);
+        if (Na__LeTools__Editable && Na__LeVec__IsTool(Na__LeTools__Tool)) Na__LeTools__VectorUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_LEADER) Na__LeTools__LeaderUp(event);
         const drag = Na__LeTools__Drag;
         if (!drag || event.pointerId !== drag.pointerId) return;
@@ -695,6 +749,22 @@
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         if (sheet && point) Na__LeRect__Release(sheet, point, event.shiftKey, event.pointerId);
         Na__LeMeasure__Refresh();                                            // <-- A rectangle dragged out has landed: the box reads it
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Button Comes Up With a Vector Tool Up
+    // ------------------------------------------------------------
+    // A circle dragged out from its centre and a fence dragged across several
+    // lines both land where the button lets go; everything else a vector tool
+    // does lands on a press, and the adapter simply answers false. A cancelled
+    // pointer abandons what was being dragged out.
+    // ------------------------------------------------------------
+    function Na__LeTools__VectorUp(event) {
+        const sheet = Na__LeModel__GetActiveSheet();
+        const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
+        Na__LeVec__Release(Na__LeTools__Tool, sheet, point, { shift : event.shiftKey, pointerId : event.pointerId, cancelled : event.type === 'pointercancel' }, Na__LeTools__GetShapeDefaults());
+        Na__LeMeasure__Refresh();
     }
     // ------------------------------------------------------------
 

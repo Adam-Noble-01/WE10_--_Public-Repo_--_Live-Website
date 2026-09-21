@@ -1,0 +1,205 @@
+/* ================================================================= */
+/* REGION  |  TrueVision3D - Colour Palette Styles                    */
+/* ================================================================= */
+/*
+   FILE    : Na__ColourPalette__Styles__.css
+   MODULE  : Colour Palette (54__Feature__ColourPalette)
+   AUTHOR  : Adam Noble - Noble Architecture
+   PURPOSE : The palette of standard colours that opens above a colour field
+   CREATED : 21-Sep-2026
+
+   NOTES:
+   - Imported by 03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css, so
+     it is governed by the service worker's precache and version token like
+     every other sheet. It is NOT injected on first use: a lazily injected
+     sheet paints the previous release on the first load after an edit.
+   - Literal colours, as Na__LayoutEditor__Styles__Panels__.css uses, because
+     the palette sits over the editor's white panels and must match them.
+   - The element is fixed to the WINDOW and lives on document.body, outside
+     every panel, so no panel's overflow can clip it. 1300 puts it over the
+     Layout Editor's right-click menu (1200, 1201).
+   - The swatch size, the gap and the column count come from the config, as
+     custom properties the picker sets on the element.
+   - No transitions: the palette has to be there the moment the field is
+     clicked, and an animation that reduced-motion removes is one nobody sees.
+*/
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Palette Element                                     */
+/* ----------------------------------------------------------------- */
+
+.na-colour-palette {
+    --na-colour-palette-swatch         : 22px;
+    --na-colour-palette-gap            : 4px;
+    --na-colour-palette-columns        : 10;
+
+    position                           : fixed;
+    z-index                            : 1300;
+    box-sizing                         : border-box;
+    padding                            : 8px 10px 7px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 6px;
+    background                         : #ffffff;
+    box-shadow                         : 0 6px 22px rgba(23, 43, 58, 0.22);
+    color                              : #172b3a;
+    font-family                        : inherit;
+    font-size                          : 12px;
+    line-height                        : 1.25;
+    user-select                        : none;
+}
+
+.na-colour-palette[hidden] {
+    display                            : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Head: the Palette's Name, or the Menu Once There Are Two */
+/* ----------------------------------------------------------------- */
+
+.na-colour-palette__head {
+    display                            : flex;
+    align-items                        : center;
+    margin-bottom                      : 6px;
+}
+
+.na-colour-palette__title {
+    font-size                          : 11.5px;
+    font-weight                        : 600;
+    color                              : #172b3a;
+    white-space                        : nowrap;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+}
+
+.na-colour-palette__menu {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    padding                            : 2px 4px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background                         : #ffffff;
+    color                              : #172b3a;
+    font-size                          : 11.5px;
+    font-family                        : inherit;
+    font-weight                        : 600;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Rows: One Group of Swatches Each                        */
+/* ----------------------------------------------------------------- */
+
+.na-colour-palette__row + .na-colour-palette__row {
+    margin-top                         : 7px;
+}
+
+.na-colour-palette__group {
+    margin-bottom                      : 3px;
+    font-size                          : 9.5px;
+    font-weight                        : 600;
+    letter-spacing                     : 0.05em;
+    text-transform                     : uppercase;
+    color                              : #6c757d;
+}
+
+.na-colour-palette__swatches {
+    display                            : grid;
+    grid-template-columns              : repeat(var(--na-colour-palette-columns), var(--na-colour-palette-swatch));
+    gap                                : var(--na-colour-palette-gap);
+}
+
+/* THE EDGE IS PART OF THE SWATCH. White, and the two palest greys, are the
+   panel's own colour: without a rule round them they are holes in the row. */
+.na-colour-palette__swatch {
+    box-sizing                         : border-box;
+    width                              : var(--na-colour-palette-swatch);
+    height                             : var(--na-colour-palette-swatch);
+    padding                            : 0;
+    border                             : 1px solid rgba(23, 43, 58, 0.30);
+    border-radius                      : 3px;
+    cursor                             : pointer;
+    appearance                         : none;
+}
+
+.na-colour-palette__swatch:hover,
+.na-colour-palette__swatch:focus-visible {
+    outline                            : 2px solid #172b3a;
+    outline-offset                     : 1px;
+}
+
+/* THE FIELD'S OWN COLOUR. Said with a ring in the editor's blue, clear of the
+   swatch so it reads on black and on white alike. */
+.na-colour-palette__swatch.is-current {
+    outline                            : 2px solid #1a7fc4;
+    outline-offset                     : 1px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Readout: What Is Under the Pointer, Else the Field's Colour */
+/* ----------------------------------------------------------------- */
+
+.na-colour-palette__readout {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 6px;
+    margin-top                         : 8px;
+    padding-top                        : 6px;
+    border-top                         : 1px solid rgba(23, 43, 58, 0.10);
+    font-size                          : 10.5px;
+    white-space                        : nowrap;
+}
+
+.na-colour-palette__chip {
+    flex                               : 0 0 12px;
+    width                              : 12px;
+    height                             : 12px;
+    border                             : 1px solid rgba(23, 43, 58, 0.30);
+    border-radius                      : 2px;
+}
+
+.na-colour-palette__name {
+    flex                               : 0 0 auto;
+    font-weight                        : 600;
+    white-space                        : pre;
+}
+
+.na-colour-palette__code {
+    flex                               : 1 1 0;
+    min-width                          : 0;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    color                              : #6c757d;
+    text-align                         : right;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Proxy the Browser's Colour Menu Hangs From           */
+/* ----------------------------------------------------------------- */
+
+/* A one pixel strip the picker lays along the TOP of the stack (the mixer's
+   room, then the palette): the browser hangs its mixer under the box it was
+   opened from, so that is how the mixer comes to sit on top of the palette.
+   Never seen or pressed - a press goes straight through it. */
+.na-colour-palette__proxy {
+    position                           : fixed;
+    z-index                            : 1299;
+    margin                             : 0;
+    padding                            : 0;
+    border                             : 0;
+    opacity                            : 0;
+    pointer-events                     : none;
+}
+
+/* endregion ------------------------------------------------------- */

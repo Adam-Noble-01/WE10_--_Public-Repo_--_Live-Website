@@ -1,0 +1,347 @@
+/* =============================================================================
+   TRUEVISION3D - LAYOUT EDITOR - OBJECT SNAP - STYLES
+   =============================================================================
+
+   FILE    : Na__LayoutEditor__Styles__ObjectSnap__.css
+   PURPOSE : The snap marker on the paper (its colour says what was snapped
+             to), the Snap button's arrow on the toolbar, and the snap options
+             menu that drops from it.
+   CREATED : 21-Sep-2026
+   AUTHOR  : Adam Noble - Noble Architecture
+
+   NOTES:
+   - THE COLOUR IS THE TARGET. Each kind of object a point can snap to has ONE
+     RGB triple here (na-le-osnap--to-<target>), and everything reads it: the
+     marker's ink and tint, and the swatch beside that object's row in the
+     menu, which is why the menu doubles as the legend.
+         viewport   purple   the projected linework inside a viewport
+         shape      blue     a vector drawn on the sheet
+         text       orange   a text item's box
+         dimension  red      a dimension's measured points, and its inferred line
+         paper      slate    the border, the title block, the notes margin
+         grid       slate    a point of the drawing grid (Grid Snap, F7)
+   - THE SHAPE IS THE KIND, and is drawn by Na__LayoutEditor__ObjectSnap__
+     Glyphs__ as SVG; nothing here draws a glyph. The marker's size and its
+     counter-scale are written inline by Na__LayoutEditor__ObjectSnap__Marker__
+     (a transform, so a zoom can never thicken it).
+   - The marker rules moved here from Na__LayoutEditor__Styles__Main__Paper__
+     .css and the grid ring's from Na__LayoutEditor__Styles__DrawingGrid__.css,
+     where the colour used to say which TOOL was snapping.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Marker on the Paper
+   ----------------------------------------------------------------------------- */
+
+    .na-le-osnap {
+        --na-le-osnap-rgb                  : 37, 99, 235;                 /* <-- A marker that names no target is drawn as a vector's */
+        position                           : absolute;
+        box-sizing                         : border-box;
+        color                              : rgb(var(--na-le-osnap-rgb));
+        pointer-events                     : none;
+        z-index                            : 6;
+    }
+
+    /* WHAT WAS SNAPPED TO: ONE COLOUR PER TARGET. These come AFTER the rule    */
+    /* above on purpose: they are one class each, as it is, so whichever is     */
+    /* written later wins, and written first they lost to its default - every  */
+    /* marker came out a vector's blue. One class each, not two, because the   */
+    /* menu's swatches wear them with no marker class beside them.             */
+    .na-le-osnap--to-viewport  { --na-le-osnap-rgb : 147, 51, 234; }
+    .na-le-osnap--to-shape     { --na-le-osnap-rgb : 37, 99, 235; }
+    .na-le-osnap--to-text      { --na-le-osnap-rgb : 234, 88, 12; }
+    .na-le-osnap--to-dimension { --na-le-osnap-rgb : 220, 38, 38; }
+    .na-le-osnap--to-paper     { --na-le-osnap-rgb : 71, 85, 105; }
+    .na-le-osnap--to-grid      { --na-le-osnap-rgb : 71, 85, 105; }
+
+    .na-le-osnap[hidden] {
+        display                            : none;
+    }
+
+    .na-le-osnap__glyph {
+        position                           : absolute;
+        inset                              : 0;
+        display                            : block;
+    }
+
+    .na-le-osnap__glyph svg {
+        display                            : block;
+        overflow                           : visible;
+    }
+
+    /* THE TINT inside a closed glyph - the square, the triangle, the circle,  */
+    /* the hourglass. An open one (the cross, the right angle) has no inside,  */
+    /* and filling its path would paint a wedge between its arms.              */
+    .na-le-osnap__tint {
+        fill                               : none;
+    }
+
+    .na-le-osnap--end .na-le-osnap__tint,
+    .na-le-osnap--mid .na-le-osnap__tint,
+    .na-le-osnap--cen .na-le-osnap__tint,
+    .na-le-osnap--near .na-le-osnap__tint,
+    .na-le-osnap-menu__swatch .na-le-osnap__tint {
+        fill                               : currentColor;
+        fill-opacity                       : 0.18;
+    }
+
+    /* THE GRID'S RING is smaller than an object snap's glyph, so the two are  */
+    /* never confused: the drawing grid's own config says by how much          */
+    /* (Snap MarkerScale, which its controller writes on the body).            */
+    .na-le-osnap--grid .na-le-osnap__glyph {
+        transform                          : scale(var(--na-le-grid-marker-scale, 0.6));
+    }
+
+    /* THE NAME beside it, when the menu asks for one: AutoCAD's AutoSnap      */
+    /* tooltip. It rides inside the marker, so it is counter-scaled with it.   */
+    .na-le-osnap__name {
+        position                           : absolute;
+        left                               : 100%;
+        top                                : 100%;
+        margin                             : 2px 0 0 2px;
+        padding                            : 1px 6px;
+        border-radius                      : 3px;
+        background                         : rgba(23, 43, 58, 0.9);
+        color                              : #ffffff;
+        font-family                        : 'Open Sans', Helvetica, Arial, sans-serif;
+        font-size                          : 11px;
+        line-height                        : 1.35;
+        white-space                        : nowrap;
+    }
+
+    .na-le-osnap__name[hidden] {
+        display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Snap Button and Its Arrow
+   -----------------------------------------------------------------------------
+   AutoCAD's status bar button: a click switches object snap (F3), the arrow
+   beside it drops the list of running modes. Two toolbar buttons joined into
+   one, so it costs the strip an arrow's width and no more.
+   ----------------------------------------------------------------------------- */
+
+    .na-le-toolbar__split {
+        display                            : inline-flex;
+        align-items                        : stretch;
+        flex                               : 0 0 auto;
+    }
+
+    .na-le-toolbar__split > .na-le-toolbar__btn:first-child {
+        border-top-right-radius            : 0;
+        border-bottom-right-radius         : 0;
+    }
+
+    .na-le-toolbar__btn--caret {
+        position                           : relative;
+        margin-left                        : -1px;                        /* <-- One shared edge, not two */
+        padding                            : 4px 0;
+        width                              : 20px;
+        border-top-left-radius             : 0;
+        border-bottom-left-radius          : 0;
+    }
+
+    .na-le-toolbar__btn--caret::before {
+        content                            : "";
+        position                           : absolute;
+        left                               : 50%;
+        top                                : 50%;
+        width                              : 5px;
+        height                             : 5px;
+        border-right                       : 1.5px solid currentColor;
+        border-bottom                      : 1.5px solid currentColor;
+        transform                          : translate(-50%, -70%) rotate(45deg);
+    }
+
+    .na-le-toolbar__btn--open,
+    .na-le-toolbar__btn--open:hover:not(:disabled) {
+        background                         : #e3eaf1;
+    }
+
+    .na-le-toolbar__split > .na-le-toolbar__btn--active + .na-le-toolbar__btn--caret {
+        border-color                       : #1a7fc4;
+        color                              : #1a7fc4;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Snap Options Menu
+   ----------------------------------------------------------------------------- */
+
+    .na-le-osnap-menu {
+        position                           : fixed;
+        z-index                            : 1200;                        /* <-- Above the header and the panels, with the right-click menu */
+        width                              : 318px;
+        max-width                          : calc(100vw - 8px);
+        padding                            : 4px 0 6px;
+        overflow-y                         : auto;
+        border                             : 1px solid rgba(23, 43, 58, 0.18);
+        border-radius                      : 6px;
+        background                         : #ffffff;
+        box-shadow                         : 0 8px 24px rgba(0, 0, 0, 0.18);
+        color                              : #172b3a;
+        font-family                        : 'Open Sans', Helvetica, Arial, sans-serif;
+        font-size                          : 0.78rem;
+        user-select                        : none;
+    }
+
+    .na-le-osnap-menu__heading {
+        margin                             : 6px 0 2px;
+        padding                            : 5px 12px 2px;
+        border-top                         : 1px solid rgba(23, 43, 58, 0.12);
+        color                              : #6c757d;
+        font-size                          : 0.68rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.04em;
+        text-transform                     : uppercase;
+    }
+
+    .na-le-osnap-menu__rule {
+        height                             : 1px;
+        margin                             : 6px 0 4px;
+        background                         : rgba(23, 43, 58, 0.12);
+    }
+
+    .na-le-osnap-menu__row {
+        display                            : flex;
+        align-items                        : center;
+        gap                                : 8px;
+        width                              : 100%;
+        padding                            : 3px 12px 3px 8px;
+        border                             : 0;
+        background                         : transparent;
+        color                              : inherit;
+        font                               : inherit;
+        text-align                         : left;
+        cursor                             : pointer;
+    }
+
+    .na-le-osnap-menu__row:hover,
+    .na-le-osnap-menu__row:focus-visible {
+        background                         : #eef2f6;
+        outline                            : none;
+    }
+
+    .na-le-osnap-menu__row--master {
+        padding-top                        : 6px;
+        padding-bottom                     : 6px;
+        font-weight                        : 600;
+    }
+
+    .na-le-osnap-menu__row--plain {
+        padding-top                        : 5px;
+        padding-bottom                     : 5px;
+    }
+
+    /* THE TICK | An empty box while off, the house blue with a white tick on. */
+    .na-le-osnap-menu__tick {
+        position                           : relative;
+        flex                               : 0 0 14px;
+        width                              : 14px;
+        height                             : 14px;
+        box-sizing                         : border-box;
+        border                             : 1px solid #9aa5ad;
+        border-radius                      : 3px;
+        background                         : #ffffff;
+    }
+
+    .na-le-osnap-menu__row--on .na-le-osnap-menu__tick {
+        border-color                       : #1a7fc4;
+        background                         : #1a7fc4;
+    }
+
+    .na-le-osnap-menu__row--on .na-le-osnap-menu__tick::after {
+        content                            : "";
+        position                           : absolute;
+        left                               : 4px;
+        top                                : 1px;
+        width                              : 3px;
+        height                             : 7px;
+        border-right                       : 1.6px solid #ffffff;
+        border-bottom                      : 1.6px solid #ffffff;
+        transform                          : rotate(45deg);
+    }
+
+    /* THE PICTURE | Grey lines, and the mode's own glyph in ink where it      */
+    /* would find its point. A mode's glyph has no colour of its own in the    */
+    /* menu, because on the paper its colour is whatever it was found ON.      */
+    .na-le-osnap-menu__picture {
+        flex                               : 0 0 44px;
+        display                            : flex;
+        align-items                        : center;
+        justify-content                    : center;
+        height                             : 28px;
+        color                              : #172b3a;
+    }
+
+    .na-le-osnap-menu__picture svg {
+        display                            : block;
+        overflow                           : visible;
+    }
+
+    .na-le-osnap-menu__lines {
+        stroke                             : #9aa5ad;
+    }
+
+    .na-le-osnap-menu__swatch {
+        display                            : block;
+        width                              : 20px;
+        height                             : 20px;
+        color                              : rgb(var(--na-le-osnap-rgb));
+    }
+
+    .na-le-osnap-menu__row--target .na-le-osnap-menu__picture {
+        height                             : 24px;
+    }
+
+    .na-le-osnap-menu__words {
+        display                            : flex;
+        flex-direction                     : column;
+        min-width                          : 0;
+        line-height                        : 1.25;
+    }
+
+    .na-le-osnap-menu__row--master .na-le-osnap-menu__words,
+    .na-le-osnap-menu__row--target .na-le-osnap-menu__words {
+        flex                               : 1 1 auto;
+        flex-direction                     : row;
+        align-items                        : baseline;
+        justify-content                    : space-between;
+        gap                                : 12px;
+    }
+
+    .na-le-osnap-menu__hint {
+        color                              : #8a96a0;
+        font-size                          : 0.92em;
+        font-weight                        : 400;
+    }
+
+    /* OBJECT SNAP IS OFF | The choices are kept, and shown as kept: dimmed,   */
+    /* still switchable, with a line saying why nothing is snapping.           */
+    .na-le-osnap-menu--off .na-le-osnap-menu__row:not(.na-le-osnap-menu__row--master),
+    .na-le-osnap-menu--off .na-le-osnap-menu__heading {
+        opacity                            : 0.5;
+    }
+
+    .na-le-osnap-menu__note {
+        margin                             : 6px 12px 2px;
+        padding                            : 5px 8px;
+        border-radius                      : 4px;
+        background                         : #fff6e3;
+        color                              : #7a5a12;
+        font-size                          : 0.92em;
+        line-height                        : 1.35;
+    }
+
+    .na-le-osnap-menu__note[hidden] {
+        display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */

@@ -19,11 +19,21 @@
 // - THE MENU (Na__LayoutEditor__LayerMenu__). The Layer row and its rule, the
 //   flyout in list order, the dot and the rings, what each layer says about
 //   itself, a group opened up, and the toast.
+// - LAYERS BY NAME (the model, 1.4.0). GetLayerByName ignores case and runs of
+//   spaces; LayerIndexLike puts a layer from another sheet's list over what it
+//   sat over there, else under what it sat under; CreateLayer and UpdateLayer
+//   can be silent; IsItemPickable answers for one item, a group included.
 // - THE COPIES (Na__LayoutEditor__ItemClipboard__ and InsertShape). A Ctrl-drag
-//   copy on its own sheet keeps a user's own General layer; a paste onto
-//   ANOTHER sheet still needs a layer of its type; nothing lands on a
-//   reference layer; InsertShape keeps a layer the sheet has, and a dead id
-//   falls back by kind.
+//   copy on its own sheet keeps a user's own General layer; a set that brings
+//   no layers (a Scrapbook item) still needs a layer of its type on another
+//   sheet; nothing lands on a reference layer; InsertShape keeps a layer the
+//   sheet has, and a dead id falls back by kind.
+// - ACROSS SHEETS (ItemClipboard 1.6.0), through the real Layers unit. A copy
+//   or a cut pasted on another sheet lands on the layer of the same name there,
+//   made in the same place in the list when missing - one undo step, a toast
+//   naming it; a second paste reuses it; a hidden one is switched on, a locked
+//   one refused, a reference one taken but left out of the selection; a paste
+//   back on its own sheet keeps the rule by id.
 // - THE POINTER. The snapper offers nothing on a reference layer and still
 //   offers a locked one's points; the markup hit test and the selection box
 //   pass straight through a reference layer.
@@ -41,6 +51,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - Layers across sheets: the model's layers by name, and a paste on another
+//   sheet bringing its layer, driven through the real Layers unit (exposed
+//   to the clipboard's stubs as globalThis.Na__Test__M).
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Written with the Layer flyout and reference layers.
 //
@@ -154,26 +169,32 @@ import { tmpdir } from 'node:os';
 // REGION | The Model: Reach, the Selection Trim and MoveToLayer
 // -----------------------------------------------------------------------------
 
+    globalThis.Na__Test__R = R;                                                 // <-- The real layer normaliser, for the layers CreateLayer makes
     const M = await load('51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetModel__Layers__.js', `
         const Na__LeRec__NextId = (list, prefix) => prefix + String(list.length + 1).padStart(3, '0');
         const Na__LeRec__Find = (list, key, id) => (list || []).find((r) => r && r[key] === id) || null;
-        const Na__LeRec__NormaliseLayer = (l) => l;
+        const Na__LeRec__NormaliseLayer = (l, index) => globalThis.Na__Test__R.Na__LeRec__NormaliseLayer(l, index);
         const Na__LeRec__DefaultLayerId = (sheet, type) => { const l = sheet.Sheet__Layers.find((x) => x.Layer__Type === type); return l ? l.Layer__Id : sheet.Sheet__Layers[0].Layer__Id; };
         const Na__LeModel__LAYER_TYPES = [ 'viewport', 'annotation', 'dimension', 'vector', 'area', 'image', 'mixed' ];
         let   Na__LeModel__ActiveSheetId  = 'Sheet_004';
         let   Na__LeModel__SelectionItems = [];
+        let   Na__Test__Dirty = 0;
         const Na__Test__Said = [];
         const Na__LeModel__Touch = (reason) => { Na__Test__Said.push(reason); };
         const Na__LeModel__AssignSelectionItems = (items) => { Na__LeModel__SelectionItems = items; };
+        const Na__LeModel__AssignDirty = () => { Na__Test__Dirty++; };
         export const Na__Test__Hooks = {
             said      : Na__Test__Said,
+            dirty     : () => Na__Test__Dirty,
             select    : (items) => { Na__LeModel__SelectionItems = items; },
             selection : () => Na__LeModel__SelectionItems.map((item) => item.kind + ':' + item.id),
             active    : (id) => { Na__LeModel__ActiveSheetId = id; }
         };
     `, 'Model');
+    globalThis.Na__Test__M = M;                                                 // <-- The clipboard below finds and makes its layers through the real unit
     const H = M.Na__Test__Hooks;
     const heard = () => H.said.splice(0, H.said.length);
+    const names = (sheet) => M.Na__LeModel__GetLayers(sheet).map((l) => l.Layer__Name);
 
     // REACH
     let s = rear();
@@ -254,6 +275,72 @@ import { tmpdir } from 'node:os';
     check('and one put on a REFERENCE layer leaves it too - it can no longer be picked',
         H.selection(), [ 'shape:Shape_001' ]);
     heard();
+
+    // ISITEMPICKABLE
+    s = rear();
+    s.Sheet__Shapes.forEach((x) => { if (x.Shape__Id !== 'Shape_001') x.Shape__LayerId = 'Layer_006'; });
+    find(s, 'Layer_006').Layer__Selectable = false;
+    const pickable = (key) => M.Na__LeModel__IsItemPickable(s, { kind : key.split(':')[0], id : key.split(':')[1] });
+    check('IsItemPickable: a line on a reference layer no, the drawing\'s line yes, a group while any member can be picked, an item that is gone yes',
+        [ 'shape:Shape_032', 'shape:Shape_001', 'group:Group_002', 'group:Group_001', 'shape:Shape_999' ].map(pickable), [ false, true, false, true, true ]);
+    find(s, 'Layer_006').Layer__Selectable = true;
+    find(s, 'Layer_006').Layer__Visible    = false;
+    check('and a line on a hidden layer no',
+        pickable('shape:Shape_032'), false);
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | The Model: Layers by Name, and Where One From Another Sheet Goes
+// -----------------------------------------------------------------------------
+
+    // RB05's West Elevation as it is stored: no Guides, and Viewports ABOVE Floor Areas
+    const west = () => ({
+        Sheet__Id : 'Sheet_003',
+        Sheet__Layers : [
+            layer('Layer_002', 'Text', 'annotation', 1),
+            layer('Layer_003', 'Dimensions', 'dimension', 2),
+            layer('Layer_004', 'Vectors', 'vector', 3),
+            layer('Layer_001', 'Viewports', 'viewport', 4),
+            layer('Layer_005', 'Floor Areas', 'area', 5)
+        ],
+        Sheet__Viewports : [], Sheet__Annotations : [], Sheet__Dimensions : [], Sheet__Shapes : [], Sheet__Leaders : [], Sheet__Groups : []
+    });
+
+    s = rear();
+    check('GetLayerByName: the name as the eye reads it - case and runs of spaces ignored',
+        M.Na__LeModel__GetLayerByName(s, ' construction  LINES ').Layer__Id, 'Layer_006');
+    check('and null for a name the sheet lacks, or for no name at all',
+        [ M.Na__LeModel__GetLayerByName(s, 'Guides'), M.Na__LeModel__GetLayerByName(s, '   '), M.Na__LeModel__GetLayerByName(s, null) ], [ null, null, null ]);
+
+    s = west();
+    check('LayerIndexLike: directly over the nearest layer it sat over there - Construction Lines goes over Dimensions',
+        M.Na__LeModel__LayerIndexLike(s, names(rear()), 1), 1);
+    check('Adam\'s Guides, the top of Rear Elevation\'s list, goes to the top of this one',
+        M.Na__LeModel__LayerIndexLike(s, [ 'Guides', 'Text', 'Dimensions', 'Vectors', 'Floor Areas', 'Viewports' ], 0), 0);
+    check('with nothing it sat over to be found here, directly under the nearest it sat under',
+        M.Na__LeModel__LayerIndexLike(s, [ 'Text', 'Setting Out', 'Hatching' ], 1), 1);
+    check('matched by name as GetLayerByName matches - the other sheet may spell it with other capitals',
+        M.Na__LeModel__LayerIndexLike(s, [ 'Setting Out', 'VIEWPORTS' ], 0), 3);
+    check('with neither, the same place in the list, as near as this one allows',
+        [ M.Na__LeModel__LayerIndexLike(s, [ 'A', 'B', 'C' ], 1), M.Na__LeModel__LayerIndexLike(s, [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' ], 8) ], [ 1, 5 ]);
+
+    s = west();
+    heard();
+    const dirtyBefore = H.dirty();
+    const madeLayer = M.Na__LeModel__CreateLayer(s, { name : 'Construction Lines', type : 'mixed', index : 1, silent : true });
+    check('CreateLayer silent: made at the index given, with its name and type, the sheet marked changed and nothing announced',
+        [ names(s), madeLayer.Layer__Id, madeLayer.Layer__Type, madeLayer.Layer__Visible, H.dirty() - dirtyBefore, heard() ],
+        [ [ 'Text', 'Construction Lines', 'Dimensions', 'Vectors', 'Viewports', 'Floor Areas' ], 'Layer_006', 'mixed', true, 1, [] ]);
+    check('and the array itself in list order, so the first layer of a type is still the frontmost',
+        s.Sheet__Layers.map((l) => l.Layer__Order), [ 1, 2, 3, 4, 5, 6 ]);
+    M.Na__LeModel__UpdateLayer(s, madeLayer.Layer__Id, { visible : false }, true);
+    check('UpdateLayer silent: changed and marked, not announced',
+        [ madeLayer.Layer__Visible, H.dirty() - dirtyBefore, heard() ], [ false, 2, [] ]);
+    M.Na__LeModel__CreateLayer(s, { name : 'Hatching', type : 'mixed' });
+    check('and without silent, CreateLayer announces as ever - at the bottom of the list when no index is given',
+        [ names(s).pop(), heard() ], [ 'Hatching', [ 'layers' ] ]);
 
 // endregion -------------------------------------------------------------------
 
@@ -360,43 +447,58 @@ import { tmpdir } from 'node:os';
         const Na__LeCfg__GetLabel = (k, f) => f;
         ${FORMAT}
         const Na__Test__Landed = [];
+        const Na__Test__Toasts = [];
+        const Na__Test__States = [];
+        let   Na__Test__Selected = [];
+        let   Na__Test__Serial   = 0;
+        const Na__Test__Announce = (sheet) => { Na__Test__States.push(JSON.stringify(sheet)); return true; };   // <-- What the history would snapshot at each announcement
+        const Na__Test__Lists = { shape : [ 'Sheet__Shapes', 'Shape__Id' ], annotation : [ 'Sheet__Annotations', 'Annotation__Id' ] };
+        // THE REAL LAYERS UNIT (loaded above as M): the layers a paste finds, makes and switches on are the model's own
+        const { Na__LeModel__GetLayers, Na__LeModel__GetLayerById, Na__LeModel__GetLayerByName, Na__LeModel__LayerIndexLike,
+                Na__LeModel__DefaultLayerId, Na__LeModel__CreateLayer, Na__LeModel__IsItemPickable } = globalThis.Na__Test__M;
+        const Na__LeModel__UpdateLayer = (sheet, id, patch, silent) => { const done = globalThis.Na__Test__M.Na__LeModel__UpdateLayer(sheet, id, patch, silent); if (silent !== true) Na__Test__Announce(sheet); return done; };
         const Na__LeModel__GetActiveSheet = () => null;
         const Na__LeModel__GetSelectionItems = () => [];
-        const Na__LeModel__SetSelection = () => null;
-        const Na__LeModel__SetSelectionItems = () => [];
+        const Na__LeModel__SetSelection = (item) => { Na__Test__Selected = item ? [ item ] : []; return item; };
+        const Na__LeModel__SetSelectionItems = (items) => { Na__Test__Selected = items.slice(); return items; };
         const Na__LeModel__GetShapeById = (sheet, id) => sheet.Sheet__Shapes.find((x) => x.Shape__Id === id) || null;
         const Na__LeModel__GetAnnotationById = (sheet, id) => sheet.Sheet__Annotations.find((x) => x.Annotation__Id === id) || null;
         const Na__LeModel__GetGroupById = () => null;
         const Na__LeModel__GetLeaderById = () => null;
-        const Na__LeModel__GetLayerById = (sheet, id) => sheet.Sheet__Layers.find((l) => l.Layer__Id === id) || null;
         const Na__LeModel__GetViewportById = () => null;
         const Na__LeModel__IsLayerLocked = () => false;
-        const Na__LeModel__DeleteItems = () => 0;
+        const Na__LeModel__DeleteItems = (sheet, items) => items.filter((item) => { const k = Na__Test__Lists[item.kind]; const i = k ? sheet[k[0]].findIndex((r) => r[k[1]] === item.id) : -1; if (i !== -1) sheet[k[0]].splice(i, 1); return i !== -1; }).length;
         const Na__LeModel__InsertViewport = () => null;
         const Na__LeModel__InsertDimension = () => null;
-        const Na__LeModel__UpdateViewport = () => true;
-        const Na__LeModel__UpdateDimension = () => true;
-        const Na__LeModel__InsertShape = (sheet, record) => { Na__Test__Landed.push(record.Shape__LayerId); return { Shape__Id : 'Shape_9' + Na__Test__Landed.length }; };
+        const Na__LeModel__UpdateViewport = (sheet) => Na__Test__Announce(sheet);
+        const Na__LeModel__UpdateDimension = (sheet) => Na__Test__Announce(sheet);
+        const Na__LeModel__InsertShape = (sheet, record) => { Na__Test__Landed.push(record.Shape__LayerId); const item = Object.assign({}, record, { Shape__Id : 'Shape_9' + String(++Na__Test__Serial).padStart(2, '0') }); sheet.Sheet__Shapes.push(item); return item; };
         const Na__LeModel__ShapeLayerType = (record) => (record && record.Shape__Area) ? 'area' : 'vector';
-        const Na__LeModel__InsertAnnotation = (sheet, record) => { Na__Test__Landed.push(record.Annotation__LayerId); return { Annotation__Id : 'Text_9' + Na__Test__Landed.length }; };
+        const Na__LeModel__InsertAnnotation = (sheet, record) => { Na__Test__Landed.push(record.Annotation__LayerId); const item = Object.assign({}, record, { Annotation__Id : 'Text_9' + String(++Na__Test__Serial).padStart(2, '0') }); sheet.Sheet__Annotations.push(item); return item; };
         const Na__LeModel__InsertGroup = () => null;
         const Na__LeModel__InsertLeader = () => null;
-        const Na__LeModel__UpdateShape = () => true;
-        const Na__LeModel__UpdateAnnotation = () => true;
-        const Na__LeModel__UpdateLeader = () => true;
+        const Na__LeModel__UpdateShape = (sheet) => Na__Test__Announce(sheet);
+        const Na__LeModel__UpdateAnnotation = (sheet) => Na__Test__Announce(sheet);
+        const Na__LeModel__UpdateLeader = (sheet) => Na__Test__Announce(sheet);
         const Na__LeLayout__Solve = () => ({ Page : { WidthMm : 594, HeightMm : 420 } });
         const Na__LeDrawScale__DimensionAtScale = () => true;
         const Na__LeShapeGeo__Points = (s) => s.Shape__Points || [];
         const Na__LeShapeGeo__Translated = (points) => points;
         const Na__LeGroup__Expand = (sheet, items) => items;
         const Na__LeGroup__ItemsBounds = () => ({ X : 0, Y : 0, WidthMm : 1, HeightMm : 1 });
-        const Na__LePanels__GetContext = () => null;
+        const Na__LePanels__GetContext = () => ({ showToast : (message) => Na__Test__Toasts.push(message) });
         const Na__LeClip__CopyViewport = () => false, Na__LeClip__PasteViewport = () => false, Na__LeClip__DuplicateViewport = () => false, Na__LeClip__HasViewport = () => false;
         const Na__LeClip__CopyShape = () => false, Na__LeClip__PasteShape = () => false, Na__LeClip__DuplicateShape = () => false, Na__LeClip__HasShape = () => false;
         const Na__LeClip__RunViewportKeyAction = () => false;
         export const Na__Test__Landed__ = Na__Test__Landed;
+        export const Na__Test__Clip__ = {
+            toasts   : Na__Test__Toasts,
+            states   : Na__Test__States,
+            selected : () => Na__Test__Selected.map((item) => item.kind)
+        };
     `, 'Clipboard');
     const landed = C.Na__Test__Landed__;
+    const clip   = C.Na__Test__Clip__;
     s = rear();
     shape(s, 'Shape_032').Shape__LayerId = 'Layer_006';
     s.Sheet__Annotations[0].Annotation__LayerId = 'Layer_006';
@@ -405,13 +507,122 @@ import { tmpdir } from 'node:os';
         landed.splice(0, landed.length), [ 'Layer_006', 'Layer_006' ]);
     C.Na__LeClip__InsertSet(s, { roots : [ { kind : 'shape', id : 'Shape_032' } ], entries : [ { kind : 'shape', id : 'Shape_032', record : JSON.parse(JSON.stringify(shape(s, 'Shape_032'))) } ],
                                  origin : { x : 0, y : 0 }, size : { WidthMm : 1, HeightMm : 1 }, sourceSheetId : 'Sheet_009' }, null, false);
-    check('a paste from ANOTHER sheet still needs a layer of its own type there: the same id may name another layer',
+    check('a set from ANOTHER sheet that brings no layers - a Scrapbook item - still needs a layer of its own type there: the same id may name another layer',
         landed.splice(0, landed.length), [ null ]);
     find(s, 'Layer_006').Layer__Type       = 'vector';                        // <-- Typed like the line, so only the reference rule can turn the copy away
     find(s, 'Layer_006').Layer__Selectable = false;
     C.Na__LeClip__CloneInPlace(s, [ { kind : 'shape', id : 'Shape_032' } ]);
     check('and no copy lands on a reference layer, as none lands on a hidden or a locked one: it would be out of reach',
         landed.splice(0, landed.length), [ null ]);
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | The Copies Across Sheets: the Layer Comes Too
+// -----------------------------------------------------------------------------
+
+    // RB05's Project Introduction, where Layer_006 is the IMAGES layer: the id the
+    // construction lines carry names another layer here entirely
+    const intro = (extra) => ({
+        Sheet__Id : 'Sheet_005',
+        Sheet__Layers : [
+            layer('Layer_002', 'Text', 'annotation', 1),
+            layer('Layer_003', 'Dimensions', 'dimension', 2),
+            layer('Layer_004', 'Vectors', 'vector', 3),
+            layer('Layer_005', 'Floor Areas', 'area', 4),
+            layer('Layer_006', 'Images', 'image', 5),
+            layer('Layer_001', 'Viewports', 'viewport', 6)
+        ].concat(extra || []),
+        Sheet__Viewports : [], Sheet__Annotations : [], Sheet__Dimensions : [], Sheet__Shapes : [], Sheet__Leaders : [], Sheet__Groups : []
+    });
+    // Rear Elevation with two construction lines and a note moved onto Construction Lines, beside a line of the drawing on Vectors
+    const source = () => {
+        const x = rear();
+        shape(x, 'Shape_032').Shape__LayerId = 'Layer_006';
+        shape(x, 'Shape_033').Shape__LayerId = 'Layer_006';
+        x.Sheet__Annotations[0].Annotation__LayerId = 'Layer_006';
+        return x;
+    };
+    const picked = [ { kind : 'shape', id : 'Shape_032' }, { kind : 'shape', id : 'Shape_033' }, { kind : 'annotation', id : 'Text_001' }, { kind : 'shape', id : 'Shape_001' } ];
+    const pasteOnto = (to, from) => {                                           // <-- Ctrl+C on Rear Elevation, Ctrl+V on another sheet
+        C.Na__LeClip__CopyItems(from || source(), picked, true);
+        landed.splice(0, landed.length); clip.states.splice(0, clip.states.length); clip.toasts.splice(0, clip.toasts.length); heard();
+        const pasted = C.Na__LeClip__PasteSet(to, null);
+        return { pasted : pasted ? pasted.length : 0, landed : landed.slice(), states : clip.states.length, same : new Set(clip.states).size === 1, said : heard(), toast : clip.toasts.pop() };
+    };
+
+    let to  = intro();
+    let got = pasteOnto(to);
+    check('a paste on a sheet WITHOUT the layer makes it, and every item from it lands on it - the lines and the note alike; the drawing\'s line goes to Vectors by name',
+        got.landed, [ 'Layer_007', 'Layer_007', 'Layer_007', 'Layer_004' ]);
+    check('the layer is made with the name and type it has there, in the same place in the list - over Dimensions, as on Rear Elevation',
+        [ names(to), (find(to, 'Layer_007') || {}).Layer__Name, (find(to, 'Layer_007') || {}).Layer__Type ],
+        [ [ 'Text', 'Construction Lines', 'Dimensions', 'Vectors', 'Floor Areas', 'Images', 'Viewports' ], 'Construction Lines', 'mixed' ]);
+    check('the Images layer that shares the source layer\'s id takes nothing',
+        to.Sheet__Shapes.filter((x) => x.Shape__LayerId === 'Layer_006').length, 0);
+    check('ONE UNDO STEP: the layer is made silently, and every announcement - the vector\'s, then layers\' to redraw the list - sees the same finished sheet',
+        [ got.states, got.same, got.said ], [ 2, true, [ 'layers' ] ]);
+    check('everything pasted is selected, and the toast names the layer made',
+        [ clip.selected().length, got.toast ], [ 4, 'Pasted 4 items in the same place. Added the Construction Lines layer to this sheet, in the same place in the list.' ]);
+
+    got = pasteOnto(to);
+    check('a second paste finds the layer the first one made: nothing made, no layers announcement, a plain toast',
+        [ got.landed, names(to).length, got.said, got.toast ], [ [ 'Layer_007', 'Layer_007', 'Layer_007', 'Layer_004' ], 7, [], 'Pasted 4 items in the same place.' ]);
+
+    to  = west();
+    got = pasteOnto(to, (() => { const x = source(); find(x, 'Layer_006').Layer__Name = 'Guides'; find(x, 'Layer_006').Layer__Order = 0; x.Sheet__Layers.sort((a, b) => a.Layer__Order - b.Layer__Order).forEach((l, k) => { l.Layer__Order = k + 1; }); return x; })());
+    check('Adam\'s Guides, at the top of Rear Elevation\'s list, is made at the top of West Elevation\'s',
+        [ names(to), got.landed.slice(0, 3) ], [ [ 'Guides', 'Text', 'Dimensions', 'Vectors', 'Viewports', 'Floor Areas' ], [ 'Layer_006', 'Layer_006', 'Layer_006' ] ]);
+
+    const cutFrom = source();
+    const cutTo   = intro();
+    C.Na__LeClip__CutItems(cutFrom, picked.slice(0, 2));
+    landed.splice(0, landed.length);
+    C.Na__LeClip__PasteSet(cutTo, null);
+    check('a CUT brings its layer too: the lines leave Rear Elevation and land on a Construction Lines layer made on the other sheet',
+        [ cutFrom.Sheet__Shapes.map((x) => x.Shape__Id), landed, names(cutTo)[1] ], [ [ 'Shape_034', 'Shape_001' ], [ 'Layer_007', 'Layer_007' ], 'Construction Lines' ]);
+
+    to  = intro([ layer('Layer_007', 'construction lines', 'vector', 7, { Layer__Visible : false }) ]);
+    got = pasteOnto(to);
+    check('a layer of the same name found HIDDEN is switched on, and takes the items whatever its type or capitals - still one step',
+        [ got.landed, find(to, 'Layer_007').Layer__Visible, names(to).length, got.same, got.said ], [ [ 'Layer_007', 'Layer_007', 'Layer_007', 'Layer_004' ], true, 7, true, [ 'layers' ] ]);
+    check('and the toast says it was switched on',
+        got.toast, 'Pasted 4 items in the same place. Switched on the construction lines layer, which was hidden.');
+
+    to  = intro([ layer('Layer_007', 'Construction Lines', 'mixed', 7, { Layer__Locked : true }) ]);
+    got = pasteOnto(to);
+    check('a layer of the same name found LOCKED takes nothing, as a locked layer takes nothing from the flyout: its items go to their kind\'s layer',
+        [ got.landed, got.said ], [ [ null, null, null, 'Layer_004' ], [] ]);
+    check('and the toast says why',
+        got.toast, 'Pasted 4 items in the same place. The Construction Lines layer is locked on this sheet, so what came from it went to its usual layer.');
+
+    to = intro();
+    find(to, 'Layer_004').Layer__Locked = true;
+    got = pasteOnto(to);
+    check('a locked layer that is the item\'s own kind\'s layer keeps it - it was going there anyway - and says nothing about it',
+        [ got.landed[3], /locked/.test(got.toast) ], [ 'Layer_004', false ]);
+
+    to  = intro([ layer('Layer_007', 'Construction Lines', 'mixed', 7, { Layer__Selectable : false }) ]);
+    got = pasteOnto(to);
+    check('a layer of the same name that is a REFERENCE layer takes its items, as the source layer did - and they are left out of the selection',
+        [ got.landed, got.pasted, clip.selected() ], [ [ 'Layer_007', 'Layer_007', 'Layer_007', 'Layer_004' ], 4, [ 'shape' ] ]);
+    check('and the toast says they can be seen, not picked',
+        got.toast, 'Pasted 4 items in the same place. The Construction Lines layer is a reference layer on this sheet: what landed on it can be seen, not picked.');
+
+    const home = source();
+    got = pasteOnto(home, home);
+    check('a paste back on the sheet it came from keeps 1.5.0\'s rule: the original\'s layer by id, and nothing made',
+        [ got.landed, names(home).length, got.said ], [ [ 'Layer_006', 'Layer_006', 'Layer_006', 'Layer_004' ], 6, [] ]);
+
+    to = intro([ layer('Layer_007', 'Setting Out', 'mixed', 7), layer('Layer_008', 'Hatching', 'mixed', 8) ]);
+    const two = source();
+    two.Sheet__Layers.push(layer('Layer_007', 'Setting Out', 'mixed', 7), layer('Layer_008', 'Notes', 'annotation', 8));
+    shape(two, 'Shape_001').Shape__LayerId = 'Layer_008';
+    got = pasteOnto(to, two);
+    check('two layers missing: each made in its place, and the toast names both',
+        [ names(to), got.toast ], [ [ 'Text', 'Construction Lines', 'Dimensions', 'Vectors', 'Floor Areas', 'Images', 'Viewports', 'Setting Out', 'Notes', 'Hatching' ],
+          'Pasted 4 items in the same place. Added 2 layers to this sheet, in the same places in the list: Construction Lines, Notes.' ]);
 
 // endregion -------------------------------------------------------------------
 
@@ -429,7 +640,16 @@ import { tmpdir } from 'node:os';
         const Na__LeModel__IsLayerSelectable = (sheet, id) => { const l = sheet.Sheet__Layers.find((x) => x.Layer__Id === id); return !l || l.Layer__Selectable !== false; };
         const Na__LeShapeGeo__Points = (s) => s.Shape__Points || [];
     `;
-    const O = await load('51__System__LayoutEditor/30__System__SheetTools/Na__LayoutEditor__Snapping__.js', REACH + `
+    // The snapping is a folder of units now (28__System__ObjectSnap), loaded joined
+    // with their imports taken out (Na__TestEnv__ObjectSnapBundle__): everything
+    // OUTSIDE the folder is stubbed below, as it was when the snapping was one file.
+    const loadObjectSnap = async (units, stubs, tag) => {
+        const built = (await import('./Na__TestEnv__ObjectSnapBundle__.cjs')).default.Na__TestEnv__ObjectSnapBundle(SRC, units);
+        const tmp   = join(tmpdir(), 'Na__Test__LayerMenu__' + tag + '__.mjs');
+        writeFileSync(tmp, stubs + '\n' + built.source + '\nexport { ' + built.names.join(', ') + ' };\n', 'utf8');
+        return import(pathToFileURL(tmp).href + '?v=' + Math.random().toString(36).slice(2));
+    };
+    const O = await loadObjectSnap([ 'State', 'Geometry', 'Index', 'Sources', 'Search' ], REACH + `
         const Na__LeCfg__GetSnappingSetup = () => ({ enabled : true, radiusPx : 10, endpoints : true, midpoints : true, hiddenLines : false, sheetObjects : true, sheetChrome : false, markerSizePx : 10 });
         const Na__LeSurface__GetElements = () => ({ handles : null });
         const Na__LeSurface__GetPixelsPerMm = () => 1;
@@ -442,7 +662,10 @@ import { tmpdir } from 'node:os';
         const Na__LeGrid__Nearest = (p) => p;
         const Na__Test__Source = { key : 'k', window : { Frame : { X : 300, Y : 0, WidthMm : 200, HeightMm : 200 }, ToPaper : (x, y) => ({ x : x, y : y }) }, classes : { visible : [ 400, 100, 450, 100 ] } };
         const Na__LeVp2d__GetSnapSource = (id) => id === 'Viewport_001' ? Na__Test__Source : null;
-    `, 'Snapping');
+        const Na__LeMarkup__AnnotationCorners = () => null;                                        // <-- This sheet's one note has no words to measure
+        const Na__LeVecCurve__KIND_CIRCLE = 'circle', Na__LeVecCurve__Describe = () => null;
+        const Na__LeOsnap__ShowMarker = () => {}, Na__LeOsnap__HideMarker = () => {};             // <-- The marker needs a document; nothing here looks at it
+    `, 'ObjectSnap');
     const snapSheet = () => {
         const x = rear();
         x.Sheet__Shapes = [ { Shape__Id : 'Shape_032', Shape__LayerId : 'Layer_006', Shape__Points : [ [ 100, 50 ], [ 100, 250 ] ] },

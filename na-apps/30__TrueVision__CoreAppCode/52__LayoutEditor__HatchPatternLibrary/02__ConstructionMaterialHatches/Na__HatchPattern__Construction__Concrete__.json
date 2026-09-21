@@ -1,0 +1,114 @@
+{
+    "HatchPattern__Concrete__Meta": {
+        "Meta__FileName"          : "Na__HatchPattern__Construction__Concrete__.json",
+        "Meta__Description"       : "Concrete in section - small open triangles for the aggregate, scattered through a stipple of dots for the fines. Slabs, foundations, padstones, lintels.",
+        "Meta__Version"           : "1.0.0",
+        "Meta__Created"           : "21-Sep-2026",
+        "Meta__Author"            : "Adam Noble - Noble Architecture",
+
+        "Meta__WhyPaperUnits"     : "Every length here is PAPER millimetres, like the dash patterns in Na__LayoutEditor__EdgeStyles__Config__.json, so the hatch measures the same on the sheet at 1:20 and at 1:100. Pattern scale adjusts from there.",
+        "Meta__WhyScatter"        : "The positions are a blue-noise scatter, generated ONCE and written in below as fixed numbers, so screen and paper can never disagree. It was scored on a torus - the gap across a tile seam counts like any other gap - and against the regularities that survive a repeat: two marks sharing a column (an endless vertical line once the tile repeats) or a row. A lattice was never an option: it lays visible stripes across a wall.",
+        "Meta__WhyInsideTheTile"  : "Every mark sits wholly inside the tile, so nothing crosses a seam at all: a browser clips a <pattern> at its tile edge and the PDF stamper does not.",
+        "Meta__WhyThreeTriangles" : "Three triangles, each a different shape at a different turn, so no two neighbours match and the field does not read as a wallpaper of one stamp."
+    },
+
+    "HatchPattern__Concrete__Identity": {
+        "Identity__Description" : "How this pattern is named, found and grouped in the pattern lists.",
+        "Identity__Key"         : "ConstructionHatch__Concrete",
+        "Identity__Label"       : "Concrete",
+        "Identity__Group"       : "Concrete & Fill",
+        "Identity__Keywords"    : ["concrete", "in situ", "insitu", "slab", "foundation", "footing", "aggregate", "section"],
+        "Identity__Note"        : "The standard section hatch for in-situ concrete: aggregate triangles in a stipple of fines."
+    },
+
+    "HatchPattern__Concrete__Tile": {
+        "Tile__Description" : "The repeating cell, in paper millimetres.",
+        "Tile__WidthMm"     : 20.0,
+        "Tile__HeightMm"    : 20.0,
+        "Tile__RowOffsetMm" : 0.0,
+        "Tile__Note"        : "Seven triangles and eighteen dots: about one mark to every 16 square millimetres."
+    },
+
+    "HatchPattern__Concrete__Defaults": {
+        "Defaults__Description"  : "What the pattern draws with until a use sets its own. The stroke is 0.35 pt (0.1235 mm) at scale 1 and grows with the pattern scale; a line weight typed in the panel does not. 'inherit' takes the colour of whatever carries the hatch - a vector's edge colour - until a pattern colour is picked.",
+        "Defaults__Scale"        : 1.00,
+        "Defaults__RotationDeg"  : 0,
+        "Defaults__StrokeMm"     : 0.1235,
+        "Defaults__StrokeColour" : "inherit",
+        "Defaults__FillColour"   : "none",
+        "Defaults__Opacity"      : 1.00
+    },
+
+    "HatchPattern__Concrete__Glyphs": {
+        "Glyphs__Description" : "Drawn about the glyph's own origin, y pointing DOWN, in tile millimetres. Strokes only: the PDF stamps a tile as lines and never fills one.",
+
+        "TriangleA": {
+            "Glyph__Label"    : "Aggregate, upright",
+            "Glyph__WidthMm"  : 1.8,
+            "Glyph__HeightMm" : 1.5,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-0.9,0.6 L0.9,0.7 L0.1,-0.8 Z",
+            "Glyph__Note"     : "A scalene triangle, point up."
+        },
+        "TriangleB": {
+            "Glyph__Label"    : "Aggregate, leaning",
+            "Glyph__WidthMm"  : 1.7,
+            "Glyph__HeightMm" : 1.6,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-0.8,-0.5 L0.9,-0.1 L-0.3,0.9 Z",
+            "Glyph__Note"     : "Turned about a third of a turn from the first."
+        },
+        "TriangleC": {
+            "Glyph__Label"    : "Aggregate, small",
+            "Glyph__WidthMm"  : 1.3,
+            "Glyph__HeightMm" : 1.2,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-0.6,0.5 L0.7,0.2 L-0.1,-0.7 Z",
+            "Glyph__Note"     : "Smaller, so the aggregate reads as graded."
+        },
+        "Dot": {
+            "Glyph__Label"    : "Fines",
+            "Glyph__WidthMm"  : 0.1,
+            "Glyph__HeightMm" : 0,
+            "Glyph__Fill"     : "none",
+            "Glyph__Path"     : "M-0.05,0 L0.05,0",
+            "Glyph__Note"     : "A tenth of a millimetre of line: with round caps it prints as a dot the width of the line weight. A true zero-length line is left out by some PDF viewers."
+        }
+    },
+
+    "HatchPattern__Concrete__Placements": [
+        { "Place__Glyph": "Dot",       "Place__XMm": 4.8,  "Place__YMm": 1.2,  "Place__Note": "Fines" },
+        { "Place__Glyph": "TriangleB", "Place__XMm": 16.6, "Place__YMm": 1.4,  "Place__Note": "Aggregate" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 0.5,  "Place__YMm": 1.5,  "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 12.4, "Place__YMm": 1.7,  "Place__Note": "Fines" },
+        { "Place__Glyph": "TriangleC", "Place__XMm": 8.3,  "Place__YMm": 3.2,  "Place__Note": "Aggregate" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 13.6, "Place__YMm": 4,    "Place__Note": "Fines" },
+        { "Place__Glyph": "TriangleC", "Place__XMm": 2.1,  "Place__YMm": 5,    "Place__Note": "Aggregate" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 5.8,  "Place__YMm": 5.7,  "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 16.5, "Place__YMm": 5.9,  "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 12.9, "Place__YMm": 6.8,  "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 9,    "Place__YMm": 7.8,  "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 1,    "Place__YMm": 8.8,  "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 3.9,  "Place__YMm": 8.8,  "Place__Note": "Fines" },
+        { "Place__Glyph": "TriangleA", "Place__XMm": 17.1, "Place__YMm": 10.1, "Place__Note": "Aggregate" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 11.1, "Place__YMm": 10.9, "Place__Note": "Fines" },
+        { "Place__Glyph": "TriangleA", "Place__XMm": 7.4,  "Place__YMm": 11.8, "Place__Note": "Aggregate" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 1.5,  "Place__YMm": 12.8, "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 18.9, "Place__YMm": 13.4, "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 14.3, "Place__YMm": 14.1, "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 5.4,  "Place__YMm": 15.6, "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 18.2, "Place__YMm": 16.4, "Place__Note": "Fines" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 14.9, "Place__YMm": 17,   "Place__Note": "Fines" },
+        { "Place__Glyph": "TriangleB", "Place__XMm": 10.7, "Place__YMm": 17.2, "Place__Note": "Aggregate" },
+        { "Place__Glyph": "TriangleB", "Place__XMm": 2.5,  "Place__YMm": 18.1, "Place__Note": "Aggregate" },
+        { "Place__Glyph": "Dot",       "Place__XMm": 6.6,  "Place__YMm": 18.2, "Place__Note": "Fines" }
+    ],
+
+    "HatchPattern__Concrete__Bounds": {
+        "Bounds__Description"     : "How far a use may scale and turn this pattern before it stops reading as the material.",
+        "Bounds__MinScale"        : 0.25,
+        "Bounds__MaxScale"        : 4.00,
+        "Bounds__StepScale"       : 0.05,
+        "Bounds__RotationStepDeg" : 15
+    }
+}

@@ -22,6 +22,9 @@
 // - Ctrl+X cuts unlocked roots; Ctrl+C/V share one selection clipboard for
 //   vectors, text, leaders, dimensions, viewports and nested groups.
 //   Clipboard coordinates stay unchanged even outside the page boundary.
+// - A paste on ANOTHER sheet brings its layers: each item lands on the
+//   layer of the same name there, and a sheet without that layer gets one,
+//   in the same place in the list (Na__LeClip__Landing).
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__ asks RunKeyAction and MenuItems from here.
@@ -38,10 +41,30 @@
 // - ValeVision    : ported 14-Sep-2026 as ValeVision3D v2.38.0 (verbatim, header only)
 // - Divergences   : 1.1.0 InsertSet, TrueVision first (14-Sep-2026, for the Scrapbook); not yet in ValeVision.
 //                   1.2.0 Leaders and paste-in-place, TrueVision first (18-Sep-2026); not yet in ValeVision.
+//                   1.5.0 and 1.6.0 Copies keep their layers, on the sheet and across sheets, TrueVision
+//                   first (21-Sep-2026); not yet in ValeVision.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - A PASTE ON ANOTHER SHEET BRINGS ITS LAYERS. Each item lands on the layer
+//   of the same NAME there: layer ids are per sheet - Layer_006 is Guides on
+//   one sheet and Images on the next - but a name is what the user made. A
+//   sheet without that layer gets one, with the source's name and type, in
+//   the same place in the list: directly over the layer it sat over on the
+//   sheet it came from (Na__LeModel__LayerIndexLike). A copy keeps its
+//   sheet's layer list for this (sourceLayers). Copy and cut alike, and the
+//   layer made rides in the paste's one undo step.
+// - A layer found hidden is switched on: a paste that vanished would read as
+//   one that failed. A LOCKED layer takes nothing, as a locked layer takes
+//   nothing from the Layer flyout - its items go to their kind's layer. A
+//   REFERENCE layer takes them, as the layer they came from did, and they
+//   are left out of the selection. The toast names every layer made,
+//   switched on, locked or reference.
+// - A paste on the sheet it came from, a Duplicate and a Ctrl-drag copy keep
+//   1.5.0's rule, and so does a Scrapbook item, which brings no layers.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - A COPY LANDING ON THE SHEET IT CAME FROM KEEPS ITS ORIGINAL'S LAYER,
 //   whatever that layer's type (LayerFor's sameSheet). A line moved onto a
@@ -102,7 +125,14 @@
         Na__LeModel__GetAnnotationById,
         Na__LeModel__GetGroupById,
         Na__LeModel__GetLeaderById,
+        Na__LeModel__GetLayers,
         Na__LeModel__GetLayerById,
+        Na__LeModel__GetLayerByName,
+        Na__LeModel__LayerIndexLike,
+        Na__LeModel__DefaultLayerId,
+        Na__LeModel__CreateLayer,
+        Na__LeModel__UpdateLayer,
+        Na__LeModel__IsItemPickable,
         Na__LeModel__GetViewportById,
         Na__LeModel__IsLayerLocked,
         Na__LeModel__DeleteItems,
@@ -154,7 +184,7 @@
     // list rather than through Na__LeGroup__IsKind.
     const Na__LeClip__COPYABLE_KINDS = Object.freeze([ 'shape', 'annotation', 'group', 'leader', 'dimension', 'viewport' ]);
 
-    let Na__LeClip__HeldSet = null;   // <-- { kind:'set', roots, entries, origin, sourceSheetId }
+    let Na__LeClip__HeldSet = null;   // <-- { kind:'set', roots, entries, origin, size, sourceSheetId, sourceLayers }
 
 // endregion -------------------------------------------------------------------
 
@@ -188,6 +218,117 @@
         if (type && layer.Layer__Type !== type && sameSheet !== true) return null;
         return layer.Layer__Id;
     }
+
+    // HELPER FUNCTION | A Sheet's Layers as a Copy Keeps Them (the top of the list first)
+    // ------------------------------------------------------------
+    // Each layer's id, name and type: enough to find the same layer on
+    // another sheet by its name, or to make it there in the same place in the
+    // list (Na__LeClip__Landing).
+    // ------------------------------------------------------------
+    function Na__LeClip__LayerList(sheet) {
+        return Na__LeModel__GetLayers(sheet).map((layer) => ({ Layer__Id : layer.Layer__Id, Layer__Name : layer.Layer__Name, Layer__Type : layer.Layer__Type }));
+    }
+    // ------------------------------------------------------------
+
+    // HELPER FUNCTION | How One Insert Chooses Its Layers
+    // ------------------------------------------------------------
+    // same: landing on the sheet the set came from. layers: that sheet's layer
+    // list, when the set brought one - a copy does, a Scrapbook item does not.
+    // found: each source layer settled once per insert, so forty lines on one
+    // layer make one layer and one note. report: the layers made, switched
+    // on, found locked and found reference, for the toast.
+    // ------------------------------------------------------------
+    function Na__LeClip__Route(sheet, sourceSheetId, sourceLayers) {
+        return {
+            same   : sourceSheetId === sheet.Sheet__Id,
+            layers : Array.isArray(sourceLayers) && sourceLayers.length ? sourceLayers : null,
+            found  : new Map(),
+            report : { made : [], shown : [], locked : [], reference : [] }
+        };
+    }
+    // ------------------------------------------------------------
+
+    function Na__LeClip__Note(list, layer) {
+        if (!list.some((noted) => noted.Layer__Id === layer.Layer__Id)) list.push(layer);
+    }
+
+    // HELPER FUNCTION | This Sheet's Layer of the Same Name as a Source Layer, Made if It Has None
+    // ------------------------------------------------------------
+    // Made with the source layer's name and type, in the same place in the
+    // list (Na__LeModel__LayerIndexLike), silently: the insert announces once
+    // for everything. null for a layer the source list does not name, or one
+    // with no name to go by.
+    // ------------------------------------------------------------
+    function Na__LeClip__SameLayer(sheet, layerId, route) {
+        if (route.found.has(layerId)) return route.found.get(layerId);
+        const at   = route.layers.findIndex((layer) => layer.Layer__Id === layerId);
+        const from = at === -1 ? null : route.layers[at];
+        let layer  = null;
+        if (from && typeof from.Layer__Name === 'string' && from.Layer__Name.trim()) {
+            layer = Na__LeModel__GetLayerByName(sheet, from.Layer__Name);
+            if (!layer) {
+                const index = Na__LeModel__LayerIndexLike(sheet, route.layers.map((source) => source.Layer__Name), at);
+                layer = Na__LeModel__CreateLayer(sheet, { name : from.Layer__Name, type : from.Layer__Type, index : index, silent : true });
+                if (layer) route.report.made.push(layer);
+            }
+        }
+        route.found.set(layerId, layer);
+        return layer;
+    }
+    // ------------------------------------------------------------
+
+    // HELPER FUNCTION | The Layer a Copy Lands On (null for its kind's layer)
+    // ------------------------------------------------------------
+    // On the sheet it came from, or for a set that brought no layers (a
+    // Scrapbook item), LayerFor, as ever. From ANOTHER sheet, the layer of the
+    // same name here (Na__LeClip__SameLayer) - layer ids are per sheet, and a
+    // name is what the user made:
+    // - found hidden, it is switched on, since a paste that vanished would
+    //   read as one that failed;
+    // - found LOCKED, it takes nothing, as a locked layer takes nothing from
+    //   the Layer flyout, and the copy goes to its kind's layer - unless that
+    //   is this very layer, where it was going anyway;
+    // - found REFERENCE, it takes the copy as the source layer did. The copy
+    //   is seen, and left out of the selection (Na__LeClip__InsertSet).
+    // type is the kind's layer type, null for a viewport.
+    // ------------------------------------------------------------
+    function Na__LeClip__Landing(sheet, layerId, type, route) {
+        if (route.same || !route.layers) return Na__LeClip__LayerFor(sheet, layerId, type, route.same);
+        const layer = Na__LeClip__SameLayer(sheet, layerId, route);
+        if (!layer) return Na__LeClip__LayerFor(sheet, layerId, type, false);
+        if (layer.Layer__Locked === true) {
+            if (Na__LeModel__DefaultLayerId(sheet, type || 'viewport') === layer.Layer__Id) return layer.Layer__Id;
+            Na__LeClip__Note(route.report.locked, layer);
+            return null;
+        }
+        if (layer.Layer__Visible === false) {
+            Na__LeModel__UpdateLayer(sheet, layer.Layer__Id, { visible : true }, true);
+            Na__LeClip__Note(route.report.shown, layer);
+        }
+        if (layer.Layer__Selectable === false) Na__LeClip__Note(route.report.reference, layer);
+        return layer.Layer__Id;
+    }
+    // ------------------------------------------------------------
+
+    // HELPER FUNCTION | What a Paste Did to This Sheet's Layers, in Words for Its Toast
+    // ------------------------------------------------------------
+    function Na__LeClip__LayerNotes(report) {
+        const notes = [];
+        const say   = (list, key, fallbackOne, fallbackMany) => {
+            if (!Array.isArray(list) || !list.length) return;
+            const names = list.map((layer) => layer.Layer__Name);
+            notes.push(names.length === 1
+                ? Na__LeCfg__FormatLabel(key + 'One', fallbackOne, { layer : names[0] })
+                : Na__LeCfg__FormatLabel(key, fallbackMany, { count : names.length, layers : names.join(', ') }));
+        };
+        if (!report) return notes;
+        say(report.made,      'PasteLayerMade',      'Added the {layer} layer to this sheet, in the same place in the list.', 'Added {count} layers to this sheet, in the same places in the list: {layers}.');
+        say(report.shown,     'PasteLayerShown',     'Switched on the {layer} layer, which was hidden.', 'Switched on {count} hidden layers: {layers}.');
+        say(report.locked,    'PasteLayerLocked',    'The {layer} layer is locked on this sheet, so what came from it went to its usual layer.', '{count} layers are locked on this sheet ({layers}), so what came from them went to their usual layers.');
+        say(report.reference, 'PasteLayerReference', 'The {layer} layer is a reference layer on this sheet: what landed on it can be seen, not picked.', '{count} layers are reference layers on this sheet ({layers}): what landed on them can be seen, not picked.');
+        return notes;
+    }
+    // ------------------------------------------------------------
 
     function Na__LeClip__HasSet() {
         return !!Na__LeClip__HeldSet && Na__LeClip__HeldSet.kind === Na__LeClip__KIND_SET && (Na__LeClip__HeldSet.entries || []).length > 0;
@@ -360,15 +501,21 @@
             entries       : entries,
             origin        : { x : box.X, y : box.Y },
             size          : { WidthMm : box.WidthMm, HeightMm : box.HeightMm },
-            sourceSheetId : sheet.Sheet__Id
+            sourceSheetId : sheet.Sheet__Id,
+            sourceLayers  : Na__LeClip__LayerList(sheet)                        // <-- So a paste on another sheet can find, or make, the same layers there
         };
         if (quiet !== true) Na__LeClip__Toast(Na__LeClip__ToastFor(roots));
         return true;
     }
 
-    function Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, lastKey, sourceSheetId) {
+    // HELPER FUNCTION | Put a Set's Leaves In, Silently Unless lastKey Names One
+    // ------------------------------------------------------------
+    // route (Na__LeClip__Route) says how each one's layer is chosen: on the
+    // sheet it came from, every copy keeps its original's layer; on another,
+    // the layer of the same name, made if missing (Na__LeClip__Landing).
+    // ------------------------------------------------------------
+    function Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, lastKey, route) {
         let last = null;
-        const same = sourceSheetId === sheet.Sheet__Id;                          // <-- Landing where it came from: every copy keeps its original's layer
         // Insert viewports first, so dimensions can point to their new ids.
         const ordered = entries.filter((entry) => entry.kind === 'viewport').concat(entries.filter((entry) => entry.kind !== 'viewport'));
         ordered.forEach((entry) => {
@@ -376,7 +523,7 @@
                 const record = Na__LeClip__Clone(entry.record);
                 record.Viewport__FrameMm.X += dx;
                 record.Viewport__FrameMm.Y += dy;
-                record.Viewport__LayerId = Na__LeClip__LayerFor(sheet, record.Viewport__LayerId, null, same);
+                record.Viewport__LayerId = Na__LeClip__Landing(sheet, record.Viewport__LayerId, null, route);
                 record.Viewport__Locked = false;
                 if (!Na__LeCfg__GetClipboardSetup().copySnapshot) record.Viewport__SnapshotAsset = null;
                 const key = 'viewport:' + entry.id;
@@ -387,10 +534,10 @@
                 const record = Na__LeClip__Clone(entry.record);
                 record.Dimension__StartXMm += dx; record.Dimension__EndXMm += dx;
                 record.Dimension__StartYMm += dy; record.Dimension__EndYMm += dy;
-                record.Dimension__LayerId = Na__LeClip__LayerFor(sheet, record.Dimension__LayerId, 'dimension', same);
+                record.Dimension__LayerId = Na__LeClip__Landing(sheet, record.Dimension__LayerId, 'dimension', route);
                 const host = record.Dimension__ViewportId;
                 record.Dimension__ViewportId = ids.get('viewport:' + host)
-                    || (sourceSheetId === sheet.Sheet__Id && Na__LeModel__GetViewportById(sheet, host) ? host : null);
+                    || (route.same && Na__LeModel__GetViewportById(sheet, host) ? host : null);
                 const key = 'dimension:' + entry.id;
                 const pasted = Na__LeModel__InsertDimension(sheet, record, lastKey == null || key !== lastKey);
                 if (pasted) { ids.set(key, pasted.Dimension__Id); last = { kind : 'dimension', id : pasted.Dimension__Id }; }
@@ -398,7 +545,7 @@
             if (entry.kind === 'shape') {
                 const record = Na__LeClip__Clone(entry.record);
                 record.Shape__Points  = Na__LeShapeGeo__Translated(Na__LeShapeGeo__Points(record), dx, dy);
-                record.Shape__LayerId = Na__LeClip__LayerFor(sheet, record.Shape__LayerId, Na__LeModel__ShapeLayerType(record), same);   // <-- From another sheet, a measured room wants the Floor Areas layer, not the Vectors one
+                record.Shape__LayerId = Na__LeClip__Landing(sheet, record.Shape__LayerId, Na__LeModel__ShapeLayerType(record), route);   // <-- Without a layer to follow, a measured room wants the Floor Areas layer, not the Vectors one
                 const key    = 'shape:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
                 const pasted = Na__LeModel__InsertShape(sheet, record, silent);
@@ -406,7 +553,7 @@
             }
             if (entry.kind === 'annotation') {
                 const record = Na__LeClip__ShiftAnnotation(Na__LeClip__Clone(entry.record), dx, dy);
-                record.Annotation__LayerId = Na__LeClip__LayerFor(sheet, record.Annotation__LayerId, 'annotation', same);
+                record.Annotation__LayerId = Na__LeClip__Landing(sheet, record.Annotation__LayerId, 'annotation', route);
                 const key    = 'annotation:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
                 const pasted = Na__LeModel__InsertAnnotation(sheet, record, silent);
@@ -414,7 +561,7 @@
             }
             if (entry.kind === 'leader') {
                 const record = Na__LeClip__ShiftLeader(Na__LeClip__Clone(entry.record), dx, dy);
-                record.Leader__LayerId = Na__LeClip__LayerFor(sheet, record.Leader__LayerId, 'annotation', same);
+                record.Leader__LayerId = Na__LeClip__Landing(sheet, record.Leader__LayerId, 'annotation', route);
                 const key    = 'leader:' + entry.id;
                 const silent = lastKey == null || key !== lastKey;
                 const pasted = Na__LeModel__InsertLeader(sheet, record, silent);
@@ -458,8 +605,16 @@
     // wants that (it is silent, so the step is the only sign it worked);
     // an ordinary paste does not (it always lands in place and says so with
     // a toast instead). The new roots are selected and returned.
+    //
+    // A set that brought its sheet's layers (sourceLayers - a copy does)
+    // lands on the same layers by name on another sheet, any missing made in
+    // the same place in the list, within the same undo step
+    // (Na__LeClip__Landing). What lands on a reference layer is returned but
+    // not selected, since the pointer cannot reach it. report, when given, is
+    // filled with the layers made, switched on, found locked and found
+    // reference: { made, shown, locked, reference }.
     // ------------------------------------------------------------
-    function Na__LeClip__InsertSet(sheet, set, atMm, fanOut) {
+    function Na__LeClip__InsertSet(sheet, set, atMm, fanOut, report) {
         if (!sheet || !set || !Array.isArray(set.entries) || set.entries.length === 0) return null;
         const origin  = set.origin || { x : 0, y : 0 };
         const start   = atMm || { x : origin.x, y : origin.y };
@@ -468,7 +623,8 @@
         const dy      = spot.Y - origin.y;
         const ids     = new Map();
         const entries = set.entries;
-        const leaf    = Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, null, set.sourceSheetId);   // <-- All silent until one announce below, so groups land in the same undo step
+        const route   = Na__LeClip__Route(sheet, set.sourceSheetId, set.sourceLayers);
+        const leaf    = Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, null, route);   // <-- All silent until one announce below, so groups - and any layer the paste brings - land in the same undo step
         Na__LeClip__InsertGroups(sheet, entries, ids, null);
         if (leaf && leaf.kind === 'shape')           Na__LeModel__UpdateShape(sheet, leaf.id, {}, false);
         else if (leaf && leaf.kind === 'annotation') Na__LeModel__UpdateAnnotation(sheet, leaf.id, {}, false);
@@ -479,26 +635,35 @@
         // record is already inserted, so this observes the same history state.
         const viewportId = entries.filter((entry) => entry.kind === 'viewport').map((entry) => ids.get('viewport:' + entry.id)).find(Boolean);
         if (viewportId && leaf && leaf.kind !== 'viewport') Na__LeModel__UpdateViewport(sheet, viewportId, {}, false);
-        const selected = (set.roots || []).map((root) => {
+        // A LAYER MADE OR SWITCHED ON is news to the Layers list and to the
+        // paint order, which a vector's or a text's announcement never
+        // redraws: 'layers' redraws both. Still the same history state.
+        const restacked = route.report.made.concat(route.report.shown);
+        if (restacked.length) Na__LeModel__UpdateLayer(sheet, restacked[0].Layer__Id, {}, false);
+        if (report && typeof report === 'object') Object.assign(report, route.report);
+        const landed = (set.roots || []).map((root) => {
             const id = ids.get(root.kind + ':' + root.id);
             return id ? { kind : root.kind, id : id } : null;
         }).filter(Boolean);
+        const selected = landed.filter((item) => Na__LeModel__IsItemPickable(sheet, item));   // <-- What landed on a reference layer is seen, not picked
         if (selected.length === 1) Na__LeModel__SetSelection(selected[0]);
-        else if (selected.length > 1) Na__LeModel__SetSelectionItems(selected);
-        return selected.length ? selected : null;
+        else if (selected.length > 1 || landed.length) Na__LeModel__SetSelectionItems(selected);
+        return landed.length ? landed : null;
     }
 
     // FUNCTION | Paste the Held Set (Ctrl+V or the menu) - Always In Place
     // ------------------------------------------------------------
     // No fan-out: a paste lands on top of the copy it came from (or at atMm,
     // when the menu gave an explicit spot), on this sheet or any other. A
-    // toast says so, since landing exactly in place is otherwise invisible.
+    // toast says so, since landing exactly in place is otherwise invisible,
+    // and names any layer the paste made, switched on, or could not use.
     // ------------------------------------------------------------
     function Na__LeClip__PasteSet(sheet, atMm) {
         if (!sheet || !Na__LeClip__HasSet()) return null;
         const roots  = Na__LeClip__HeldSet.roots || [];
-        const pasted = Na__LeClip__InsertSet(sheet, Na__LeClip__HeldSet, atMm, false);
-        if (pasted) Na__LeClip__Toast(Na__LeClip__PastedToastFor(roots));
+        const report = {};
+        const pasted = Na__LeClip__InsertSet(sheet, Na__LeClip__HeldSet, atMm, false, report);
+        if (pasted) Na__LeClip__Toast([ Na__LeClip__PastedToastFor(roots) ].concat(Na__LeClip__LayerNotes(report)).join(' '));
         return pasted;
     }
     // ------------------------------------------------------------
@@ -536,7 +701,7 @@
         const entries = Na__LeClip__Entries(sheet, Na__LeGroup__Expand(sheet, roots));
         if (!entries.length) return null;
         const ids = new Map();
-        Na__LeClip__InsertLeaves(sheet, entries, ids, 0, 0, null, sheet.Sheet__Id);   // <-- No last key: every record goes in silently
+        Na__LeClip__InsertLeaves(sheet, entries, ids, 0, 0, null, Na__LeClip__Route(sheet, sheet.Sheet__Id, null));   // <-- No last key: every record goes in silently, each on its original's layer
         Na__LeClip__InsertGroups(sheet, entries, ids, null);
         const made = (item) => { const id = ids.get(item.kind + ':' + item.id); return id ? { kind : item.kind, id : id } : null; };
         const all  = entries.map(made).filter(Boolean);

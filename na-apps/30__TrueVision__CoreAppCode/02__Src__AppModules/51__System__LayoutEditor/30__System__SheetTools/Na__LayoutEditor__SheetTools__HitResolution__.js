@@ -30,8 +30,9 @@
 // - The vector helpers: the outline point a whole-shape drag is carried by
 //   (ShapeGrabPoint), where a Shift-click would insert a vertex
 //   (ShapeInsertHit) and the diamond that shows it while Shift is held
-//   (RefreshShapeInsert), and the snap that moves a whole shape by its
-//   nearest vertex or its grab point (SnapShapeTranslation).
+//   (RefreshShapeInsert). The snap that moves a whole shape, or a whole
+//   selection, by whichever of its points comes nearest is the Object Snap
+//   folder's now (28__System__ObjectSnap, __Moves__).
 //
 // INTEGRATION:
 // - Called by the pointer, content editing, keyboard and context menu units.
@@ -51,6 +52,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0
+// - SnapShapeTranslation and SnapGroupTranslation have LEFT: all the editor's
+//   snapping now lives in 28__System__ObjectSnap, and they are its
+//   Na__LeOsnap__ShapeTranslation and Na__LeOsnap__GroupTranslation (__Moves__),
+//   code unchanged. What is left here is about what is UNDER the pointer. The
+//   insert-vertex diamond still asks the snap where its point would land, from
+//   the folder's Search unit.
+//
 // 21-Sep-2026 - Version 1.6.0
 // - Resolve looks straight through a viewport on a REFERENCE layer (the
 //   Layers panel's Ref): its frame is not there to the pointer at all, its
@@ -155,8 +164,7 @@
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt, Na__LeShapeGeo__ClosestOnEdge } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__ClickToggles, Na__LeDoors__At } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
-    import { Na__LeOsnap__Find, Na__LeOsnap__FindOnViewport, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__Snapping__.js';
-    import { Na__LeTools__GridTranslation } from './Na__LayoutEditor__SheetTools__GridDrag__.js';   // <-- No object snap in reach: the drawing grid (F7) carries the move
+    import { Na__LeOsnap__Find, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import {
         Na__LeScope__IsActive,
         Na__LeScope__IsLeafOpen,
@@ -416,82 +424,6 @@
     }
     // ------------------------------------------------------------
 
-
-    // HELPER FUNCTION | Translate a Whole Shape So a Vertex or the Grab Point Snaps
-    // ------------------------------------------------------------
-    // Every vertex and the press's grab point are offered at the axis-locked
-    // delta; the nearest snap wins, and the translation puts THAT point on it.
-    // The shape being moved is excluded, so a corner never snaps to itself.
-    //
-    // A HELD AXIS STAYS HELD THROUGH A SNAP. shift is what holds the nearer
-    // axis - a held Shift, or Ortho (F8) - and while it holds one the snap
-    // supplies only the coordinate ALONG that axis: the corner lines up with
-    // what it snapped to and the move stays on its line, the rule a vertex, a
-    // dimension end and a selection moved as one already keep. The snap used
-    // to win outright, so a vector moved "along the inferred lock" jumped off
-    // it the moment a corner came within reach of the linework, and the
-    // Measurements box then read a distance that was not along the lock.
-    // ------------------------------------------------------------
-    function Na__LeTools__SnapShapeTranslation(sheet, drag, dMm, shift) {
-        const lock = shift ? (Math.abs(dMm.x) >= Math.abs(dMm.y) ? 'x' : 'y') : null;   // <-- The axis the move is held TO: 'x' runs across the paper, 'y' down it
-        const axis = lock === 'x' ? { x : dMm.x, y : 0 } : (lock === 'y' ? { x : 0, y : dMm.y } : dMm);
-        const exclude = { kind : 'shape', id : drag.id };
-        let best = null;
-        const offer = (ox, oy) => {
-            const hit = Na__LeOsnap__Find(sheet, { x : ox + axis.x, y : oy + axis.y }, exclude);
-            if (hit && (!best || hit.score < best.score)) best = { hit : hit, ox : ox, oy : oy };
-        };
-        if (drag.baseMm) offer(drag.baseMm.x, drag.baseMm.y);
-        (drag.start || []).forEach((p) => offer(p[0], p[1]));
-        if (!best) return Na__LeTools__GridTranslation(sheet, drag, axis, lock);   // <-- No object snap: Grid Snap (F7) puts the grab point on the grid, else the move as it was
-        const move = {
-            x : lock === 'y' ? axis.x : best.hit.x - best.ox,                  // <-- Held down the paper: x stays where the lock put it
-            y : lock === 'x' ? axis.y : best.hit.y - best.oy                   // <-- Held across it: y does
-        };
-        Na__LeOsnap__ShowMarker(lock ? { ...best.hit, x : best.ox + move.x, y : best.oy + move.y } : best.hit);   // <-- Held: the ring sits where the snapped point lands on the line
-        return move;
-    }
-    // ------------------------------------------------------------
-
-
-    // FUNCTION | Snap a Selection by Its Movable Descendants' Original Points
-    // ------------------------------------------------------------
-    // Capture supplies flattened, unlocked members even for nested groups.
-    // Keep the source points at their original positions throughout the drag;
-    // all moving members are excluded from targets, including other viewports.
-    function Na__LeTools__SnapGroupTranslation(sheet, drag, delta, lock) {
-        if (!drag.snapPoints) {
-            drag.snapPoints = [];
-            const add = (x, y) => { if (Number.isFinite(x) && Number.isFinite(y)) drag.snapPoints.push({ x, y }); };
-            (drag.group || []).forEach((entry) => {
-                const start = entry.start;
-                if (entry.kind === 'shape') start.points.forEach((p) => add(p[0], p[1]));
-                else if (entry.kind === 'dimension') { add(start.sx, start.sy); add(start.ex, start.ey); }
-                else if (entry.kind === 'viewport') {
-                    const grab = Na__LeOsnap__FindOnViewport(sheet, entry.id, drag.startMm);
-                    if (grab) add(grab.x, grab.y);
-                } else {
-                    add(start.x, start.y);
-                    if (start.tipFollows) add(start.tipX, start.tipY);
-                }
-            });
-            if (drag.group.length) add(drag.startMm.x, drag.startMm.y);
-        }
-        let best = null;
-        drag.snapPoints.forEach((point) => {
-            const hit = Na__LeOsnap__Find(sheet, { x : point.x + delta.x, y : point.y + delta.y }, drag.group);
-            if (hit && (!best || hit.score < best.hit.score)) best = { hit, point };
-        });
-        if (!best) return Na__LeTools__GridTranslation(sheet, drag, delta, lock);   // <-- No object snap: Grid Snap (F7) puts the grab point on the grid, else the move as it was
-        const result = {
-            x : lock === 'y' ? delta.x : best.hit.x - best.point.x,
-            y : lock === 'x' ? delta.y : best.hit.y - best.point.y
-        };
-        Na__LeOsnap__ShowMarker({ ...best.hit, x : best.point.x + result.x, y : best.point.y + result.y });
-        return result;
-    }
-    // ------------------------------------------------------------
-
 // endregion -------------------------------------------------------------------
 
 
@@ -744,8 +676,6 @@
         Na__LeTools__DimensionGrabFor,
         Na__LeTools__ShapeInsertHit,
         Na__LeTools__RefreshShapeInsert,
-        Na__LeTools__SnapShapeTranslation,
-        Na__LeTools__SnapGroupTranslation,
         Na__LeTools__Resolve,
         Na__LeTools__RawHit,
         Na__LeTools__Record,

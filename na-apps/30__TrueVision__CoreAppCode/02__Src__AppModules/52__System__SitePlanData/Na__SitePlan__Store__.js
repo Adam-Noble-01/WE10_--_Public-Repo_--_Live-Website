@@ -55,6 +55,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - A FILL LAYER MAY HAVE NO LINEWORK. Since Site Plan Export 1.4.0 a fill tag
+//   whose faces carried no edges of their own ships its fill GLB alone, so Adam can
+//   wash a drive or a patio by tagging just its FACE. Na__SpStore__Layer used to
+//   drop any layer without a linework URL, and LoadLayer always fetched linework
+//   first - so the wash vanished twice over. A faces-only layer now loads with no
+//   segments and its rings, takes its bounds from the fill, and REJECTS if that
+//   fill fails (it is the whole layer) instead of caching an empty one.
+//
 // 20-Sep-2026 - Version 1.1.0
 // - TWO STORES PER PROJECT, Existing and Proposed. Every piece of session state
 //   that was a single value is now keyed by store id, and every reader takes an
@@ -375,7 +384,12 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | One Layer From the Project Data Key or the Manifest (null when it has no linework)
+    // HELPER FUNCTION | One Layer From the Project Data Key or the Manifest (null when it has neither linework nor a fill)
+    // ------------------------------------------------------------
+    // A FILL LAYER MAY HAVE NO LINEWORK. Since Site Plan Export 1.4.0 a fill tag
+    // whose faces carried no edges of their own ships its fill GLB alone - the
+    // natural way to wash an area is to tag just its FACE. Dropping such a layer
+    // here, as this did, dropped the wash with it.
     // ------------------------------------------------------------
     function Na__SpStore__Layer(raw, source, folderUrl, storeId) {
         if (!raw || typeof raw !== 'object' || typeof raw.Layer__CategoryKey !== 'string' || !raw.Layer__CategoryKey) return null;
@@ -402,7 +416,7 @@
             Layer__SegmentCount    : Number.isFinite(raw.Layer__SegmentCount) ? raw.Layer__SegmentCount : null,
             Layer__BoundsMm        : Na__SpStore__Bounds(raw.Layer__BoundsMm)
         };
-        return layer.Layer__LineworkUrl ? layer : null;
+        return (layer.Layer__LineworkUrl || layer.Layer__FillUrl) ? layer : null;
     }
     // ------------------------------------------------------------
 
@@ -593,14 +607,23 @@
 
             const generation = Na__SpStore__Generation;
             const promise = (async () => {
-                const lineBytes = await Na__SpStore__FetchFirst(Na__SpStore__Candidates(Na__SpStore__Versioned(layer.Layer__LineworkUrl, exportedIso)), false);
-                const lines     = Na__SpGlb__ParseLinework(lineBytes);
+                // A FACES-ONLY FILL LAYER has no linework to fetch: its fill is the
+                // whole layer, so a fill that fails to load rejects exactly as a
+                // linework failure does, rather than leaving an empty layer cached.
+                const facesOnly = !layer.Layer__LineworkUrl;
+                const lines = facesOnly
+                    ? { segments : new Float64Array(0), segmentCount : 0, boundsMm : null }
+                    : Na__SpGlb__ParseLinework(await Na__SpStore__FetchFirst(Na__SpStore__Candidates(Na__SpStore__Versioned(layer.Layer__LineworkUrl, exportedIso)), false));
                 let rings = [];
+                let fillBoundsMm = null;
                 if (layer.Layer__FillUrl) {
                     try {
                         const fillBytes = await Na__SpStore__FetchFirst(Na__SpStore__Candidates(Na__SpStore__Versioned(layer.Layer__FillUrl, exportedIso)), false);
-                        rings = Na__SpGlb__ParseFill(fillBytes).rings;
+                        const fill = Na__SpGlb__ParseFill(fillBytes);
+                        rings = fill.rings;
+                        fillBoundsMm = fill.boundsMm || null;
                     } catch (error) {
+                        if (facesOnly) throw error;
                         console.warn(`[TrueVision3D] Site plan fill for ${categoryKey} did not load; its lines still draw.`, error);
                     }
                 }
@@ -611,7 +634,7 @@
                     segments     : lines.segments,
                     segmentCount : lines.segmentCount,
                     rings        : rings,
-                    boundsMm     : lines.boundsMm
+                    boundsMm     : lines.boundsMm || fillBoundsMm
                 };
                 if (generation === Na__SpStore__Generation) {
                     Na__SpStore__LayerData.set(categoryKey, data);

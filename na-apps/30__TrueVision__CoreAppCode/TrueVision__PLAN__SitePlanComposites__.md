@@ -270,7 +270,10 @@ Reference sheets: `OS_Symbol__Examples__.png`, `OS_Symbol__Examples__Woodland&Wa
 | SC23 | **A hatch pattern may carry its OWN ink.** `Defaults__StrokeColour` written as a hex wins over the layer's line colour; `'inherit'` (every pattern before Grassland) keeps taking it. Needed because the grass tags draw their edges in the OS base map grey - see SC24 - and an inherited ink would paint grey grass. The field was already in the format and parsed; only the painter ignored it | DECIDED (21-Sep-2026) |
 | SC24 | **Grassland and Rough Grassland draw their edges exactly like `OsMapping__General`** (dark grey L40, 0.5 pt, line Z 1), not in the woodland green. A field is traced over OS linework that is already on the drawing, so the two merge into one band (finding F2) and tracing a field adds nothing to the linework. Green outlines round every field would bury the OS structure. One SSOT field to change if Adam wants them green | DECIDED / `INTERPRETED` (21-Sep-2026) |
 | SC25 | **Fill Z 1 is grass.** Every other wash - hard standing 2, woodland 3, water 4, buildings 5, proposal 8 - paints over it, so one big grass face under the whole site is a legitimate way to work | DECIDED (21-Sep-2026) |
-| SC26 | The light grey hard standing wash goes on **three** tags, not one: `SiteFeature__Access` (the SSOT's drive), `SiteFeature__Paths` (**where RB05 actually draws its drives** - 497 segments) and `ExternalWorks__HardSurfaces` (the hard standing tag). Adam asked for "whatever tag we have set up for driveways", and in his own model that is Paths | DECIDED (21-Sep-2026) |
+| SC26 | ~~The light grey hard standing wash goes on three tags: Access, Paths and HardSurfaces~~ **REVISED 21-Sep-2026 (afternoon), see SC28.** Adam then asked for dedicated tags and two greys. Paths moved to the paving grey; Access and HardSurfaces keep the drive grey. (Original reason, still true: RB05 draws its drives on Site Paths - 497 segments) | REVISED |
+| SC27 | **A fill tag's faces export even when none of their edges are on that tag** (finding F6, the face-only half of P8). Tagging just the FACE of an area other lines already draw is the natural gesture; it used to write nothing at all, silently. The layer now ships its fill GLB alone, the manifest names no linework file, and the build script and store accept it. The rest of P8 (the "Export Polygon Faces" toggle, manifest v2, the prefix header) is NOT part of this | DECIDED (21-Sep-2026) |
+| SC28 | **Two dedicated hard standing FILL tags with two very light greys.** Adam: "a tag specifically for hard standing and paved driveways ... two types of very light grey fill, so I can mark paths properly on the models, too, and paving areas". `74__SitePlan__ExternalWorks__HardStandingAndDriveways` in MAT806 `rgb(228,228,228)` (neutral, the darker - tarmac) and `74__SitePlan__ExternalWorks__PathsAndPaving` in the new MAT807 `rgb(240,238,233)` (warm, the lighter - stone). Read as TWO tags, one grey each: the fill colour is a property of the TAG in this pipeline, so one tag cannot carry two washes without reading face materials, which the exporter does not. Chosen from three candidate pairs rendered at true size beside grass; a 5 per cent paving grey read as white | DECIDED / `INTERPRETED` (21-Sep-2026) |
+| SC29 | The two fill tags draw any edges they carry **exactly like Site Paths** (mid grey L60, 0.75 pt, line Z 2) - RB05's drive lines - so a traced drive merges into its line (F2), and a face tagged alone has no edges to draw at all (SC27) | DECIDED (21-Sep-2026) |
 
 ---
 
@@ -879,26 +882,38 @@ made = lib['Na__DataLib__CoreIndex__Materials']['MAT800__SitePlanFillSeries__'].
 puts "Site plan fill materials ready: #{made.join(', ')}"
 ```
 
-3. Draw each field as a **closed face whose EDGES ARE ON THE SAME TAG**. Painting the face is for
-   the model's own sake; the drawing's colour comes from the SSOT.
+3. **Select the FACE and give it the fill tag.** Since Site Plan Export 1.4.0 that is enough: the
+   face's edges may stay on whatever lines already draw them (SC27). Painting the face is for the
+   model's own sake; the drawing's colour comes from the SSOT. (A group tagged with the fill tag,
+   holding a copy of the boundary and its face, works too - its edges then draw like the tag's line.)
 4. Export Site Plan Data, then reload TrueVision.
 
-> **The trap that will bite first (finding F6, still true - P8 is not built).** A layer with faces
-> but **no edges of its own exports nothing at all**, silently. Tracing a field by reusing the OS
-> map's edges and tagging only the face gives a Grassland layer with rings and no segments, and
-> `Na__SitePlan__Write` skips it ("faces but no visible edges... the layer is skipped"). Copy the
-> boundary onto the grass tag, or draw it there. The same applies to a drive on Site Paths.
+> **Tags come only from Create Standardised Tags From Index** (Extensions > Na__TrueVision3D, or
+> the action card in the GLB Builder dialog). Reloading the SSOT or the plugin creates nothing.
+> Adam hit this on 21-Sep-2026: RB05 0.3.1 showed no grass tags after a reload. Both were in his
+> 15:25 save of that file (the newest entries in its tag table, checked in the .skp itself) - and
+> gone again from his 15:30 re-save and from the new `Existing__0.3.2`, together with EVERY other
+> tag that had nothing on it: exactly the 16 site plan tags carrying geometry survived.
+> **SketchUp's Purge Unused deletes empty tags**, the standard ones included. Create the tags, tag
+> the faces, THEN purge - or re-run the tag creation after a purge.
+
+> ~~The trap that will bite first (finding F6): a layer with faces but no edges of its own exports
+> nothing at all.~~ **FIXED for fill tags, 21-Sep-2026 (SC27)** - but only once the plugin update is
+> in SketchUp. Before it, a face tagged alone still vanished silently.
 
 **Why the grass edges are grey, not green:** SC24. A traced field edge lands on top of the OS line it
 was traced from, and both resolve to the same colour, weight and Z, so they merge into one band and
 the drawing does not change. The tufts stay green because the pattern carries its own ink (SC23).
 
-**Three numbers Adam may want to move**, each a single SSOT edit: the grass wash `rgb(229,242,214)`,
-the rough wash `rgb(231,235,217)` and the hard standing grey `rgb(235,235,235)` (about 8 per cent -
-light enough to read as paving, dark enough to survive a laser printer).
+**Hard standing and paving (SC28, SC29):** `74__SitePlan__ExternalWorks__HardStandingAndDriveways`
+washes in the drive grey, `74__SitePlan__ExternalWorks__PathsAndPaving` in the paving grey. Site
+Access and Hard Surfaces also carry the drive grey; Site Paths carries the paving grey.
 
-**Not yet decided by Adam:** whether Site Paths should wash grey at all (it is where RB05's drives
-are, so it does for now - SC26), and whether the tufts should be a darker green than the woodland's
+**Four numbers Adam may want to move**, each a single SSOT edit: the grass wash `rgb(229,242,214)`,
+the rough wash `rgb(231,235,217)`, the drive grey `rgb(228,228,228)` (about 11 per cent) and the
+paving grey `rgb(240,238,233)` (about 6 per cent, warm).
+
+**Not yet decided by Adam:** whether the tufts should be a darker green than the woodland's
 `#43A047`.
 
 ---
@@ -935,6 +950,8 @@ Update this every session. `-` not started, `~` in progress, `x` done **and prov
 | P6c | Per-layer "do not fill", and 1:5000 | x | v2.90.0 | 20-Sep-2026. `Hatch__Filled` (stored only when false, and in the hatch token so it repaints) as a Fill checkbox in the Patterns panel - a separate control from the pattern list, because a hatch over bare paper is a real look. 1:5000 on the site plan scale list and in the SSOT |
 | P6d | **Land cover materials: Grassland, Rough Grassland and the hard standing grey** | x | Tags 2.6.0, Materials 1.6.0, HatchPatterns 1.2.0 | 21-Sep-2026, section 11c. Two patterns (28 x 26 mm, 10 tufts; 32 x 30 mm, 9 tufts in two shapes), drawn against the OS sheet and rendered at true print size before anything was written. Positions are a **blue-noise scatter scored on a torus** against the three regularities that survive a repeat - shared columns, shared rows, three in line: the first attempt was a skewed lattice and laid diagonal stripes across a field. Two new tags, edges styled as `OsMapping__General` so a traced field merges into the OS line (SC24), fill Z 1 (SC25); MAT804/805/806; the grey wash on Access, Paths and HardSurfaces (SC26). **A pattern may now carry its own ink** (SC23) - one hunk in `SitePlanBuild`, which is what the screen AND the PDF both read. 24 new checks; the two that matter were calibrated against the old code and old data and fail there. **Nothing can paint until Adam tags faces in SketchUp and exports** |
 | P6e | Mixed Woodland: the conifer that was cut at the tile seam | x | MixedWoodland 1.0.1 | 21-Sep-2026, found while writing the seam guard. The conifer at x 17.4 on an 18 mm tile reached 0.55 mm past the right edge; a browser clips a `<pattern>` at its tile edge and the PDF stamper does not, so **every wood on screen had that conifer's three right-hand arms cut off** while the PDF printed them whole. Fixed with a knit copy one tile to the left, the way Ponds & Lakes already did it. The new test checks every glyph of every pattern |
-| P8 | Exporter: Export Polygon Faces, prefix header fix, manifest v2 | - | - | - |
+| P6f | **Hard standing: two dedicated fill tags, two very light greys** | ~ | Tags 2.7.0, Materials 1.7.0 | 21-Sep-2026, SC28/SC29. `HardStandingAndDriveways` (MAT806, now `rgb(228,228,228)`) and `PathsAndPaving` (new MAT807 `rgb(240,238,233)`); Site Paths moved onto the paving grey. Greys chosen from three pairs rendered at true size beside grass. SSOT checks in `Na__Test__SitePlanComposites__` (98 passing). **`~` until Adam runs Create Standardised Tags From Index and exports faces on them** |
+| P8a | **Face-only fill layers (finding F6)** - the face-only half of P8 | ~ | SitePlanExport 1.4.0, Store 1.2.0, build script | 21-Sep-2026, SC27. Three gates moved together: `Na__SitePlan__Write` writes a fill GLB alone and a manifest record with `Layer__LineworkFile: null`; the build script accepts it (a NAMED missing linework file is still a fault); `Na__SpStore__Layer` keeps it and `LoadLayer` skips the linework fetch, takes bounds from the fill, and REJECTS if that fill fails. Proven: build script 7 checks, store 32 (5 new), each calibrated against HEAD where it fails; and **in the app on RB05**, a faces-only record injected into the manifest response (browser only, no file touched) painted its wash from the woodland's real fill GLB with no linework behind it. The Ruby is syntax-checked through SketchUp's interpreter only - **`~` until Adam exports a face-only fill in SketchUp** |
+| P8 | Exporter: Export Polygon Faces toggle, prefix header fix, manifest v2 (the face-only gate is P8a) | - | - | - |
 | P9 | Two stores, Existing and Proposed | x | v2.88.x | 20-Sep-2026. Proven on RB05: the Export tab writes to `SitePlan__DrawingData__Existing` with one click and the viewport panel reads "Existing (14)". P9a-P9d above are the parts |
 | P10 | Adam's sign-off, then offer the ValeVision port | - | - | - |

@@ -275,12 +275,16 @@
             // else ('inherit') takes the layer's line colour, as it always has.
             // Decided HERE so the screen and the PDF, which both paint this list,
             // cannot disagree - and greyed like any other ink on a location plan.
-            const ink = hatch.Hatch__Pattern.Pattern__Ink || data.layer.Layer__Style.LineHex;
+            // A COLOUR SET ON THIS LAYER'S HATCH, ON THIS VIEWPORT, BEATS BOTH
+            // (the Patterns panel's Line colour), and its typed line weight
+            // travels beside it; null leaves the pattern's standard weight.
+            const ink = hatch.Hatch__Colour || hatch.Hatch__Pattern.Pattern__Ink || data.layer.Layer__Style.LineHex;
             list.push({
                 categoryKey : data.categoryKey,
                 pattern     : hatch.Hatch__Pattern,
                 scale       : hatch.Hatch__Scale,
                 rotationDeg : hatch.Hatch__RotationDeg,
+                strokePt    : hatch.Hatch__StrokePt,
                 colour      : siteRules.Grey.has(data.categoryKey) && siteRules.Greyscale
                     ? siteRules.Greyscale(ink)
                     : ink,
@@ -364,7 +368,8 @@
                 denominator : D,
                 scale       : entry.scale,
                 rotationDeg : entry.rotationDeg,
-                colour      : entry.colour
+                colour      : entry.colour,
+                strokePt    : entry.strokePt
             });
             body += '<path d="' + d + '" fill="url(#' + id + ')" fill-rule="evenodd" stroke="none"/>';
         });

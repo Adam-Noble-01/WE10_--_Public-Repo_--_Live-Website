@@ -1,0 +1,43 @@
+{
+    "LayoutEditor__DrawingAxes__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__DrawingAxes__Config__.json",
+        "Meta__Description" : "The Drawing Axes Overlay (F9): SketchUp's red and green axes, carried by the cursor. A red horizontal line and a green vertical line cross at the point under the cursor and run out to the edges of the sheet, so what lines up with that point - across the whole sheet, in either direction - can be seen at a glance before anything is clicked. While a snap marker is showing they cross at the marker, where a click would land, as SketchUp's axes cross at its inference point. A view, not a tool: nothing is written to a sheet, it is never printed, and the choice is remembered in this browser.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "21-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Research"    : "Adam's brief, 21-Sep-2026: a button called 'Drawing Axes Overlay' on the next free F key, making SketchUp's axis 'appear and move with the mouse and radiate out to the ends of the sheet', with a SketchUp screenshot (Top view, Line tool) marking the green vertical axis above the cursor, the red horizontal axis to its right, and an arrow to the green endpoint inference where the two cross. F9 was free on every keyboard in the app (drawing tabs, 3D Model tab, document tabs) and follows F6 Show Grid, F7 Grid Snap and F8 Ortho. SketchUp draws its axes from the model origin in red (X) and green (Y), solid on the positive side and dotted on the negative; these follow the cursor instead, so both sides are solid - every direction is equally 'from here'. The nearest AutoCAD equivalent is the crosshair cursor at CURSORSIZE 100 (full screen) with Options > Display > Colors 'Tint for X, Y, Z' on, which tints the X crosshair red and the Y crosshair green; AutoCAD's crosshair follows the raw cursor unless Snap Mode (F9 in AutoCAD) holds it to the snap grid. Here it follows the snap marker whenever one is showing - an object snap, a grid snap (F7) or a point held on an axis - which is SketchUp's rule: its cursor jumps to the inference point. SketchUp's own red and green are pure #FF0000 and #00FF00; the green is darkened here because a one-pixel #00FF00 line on white paper is close to invisible (contrast 1.4:1), and the axes are drawn on paper, not on SketchUp's grey sky."
+    },
+
+    "LayoutEditor__DrawingAxes__Behaviour": {
+        "Behaviour__Description"              : "Where the axes cross, when they show and what a switch says.",
+        "Behaviour__FollowSnapMarker"         : true,
+        "Behaviour__FollowSnapMarkerNote"     : "True crosses the axes at the snap marker whenever one is on show - an endpoint, a midpoint, a grid point (F7), a point held on an axis by Shift, Ortho or an arrow key - so they pass exactly through the point a click would place, as SketchUp's axes cross at its inference point. False crosses them at the cursor itself, always, as AutoCAD's crosshair does with its snap mode off.",
+        "Behaviour__ShowForTouch"             : false,
+        "Behaviour__ShowForTouchNote"         : "False keeps the axes off for a finger: a touch has no hover, so they would only ever appear under the finger in the middle of a drag. A mouse and a pen (which hovers) always show them.",
+        "Behaviour__EchoOnSwitch"             : true,
+        "Behaviour__EchoOnSwitchNote"         : "True writes Labels EchoOn / EchoOff on the line above the Measurements box for a moment each time the axes are switched, as F6, F7 and F8 do, unless a value is being typed there. The toolbar button is lit either way."
+    },
+
+    "LayoutEditor__DrawingAxes__Display": {
+        "Display__Description"                : "How the two lines look. They run the full width and height of the sheet (the paper's edges), are always drawn whole device pixels wide on whole device pixels, whatever the zoom, and sit over the drawings and under the snap marker and the selection handles.",
+        "Display__HorizontalColour"           : "#ff0000",
+        "Display__HorizontalColourNote"       : "The line along the sheet's width - SketchUp's red axis (X).",
+        "Display__VerticalColour"             : "#00a000",
+        "Display__VerticalColourNote"         : "The line along the sheet's height - SketchUp's green axis (Y), darkened from its #00ff00 so it reads on white paper.",
+        "Display__LineWidthPx"                : 1,
+        "Display__LineWidthPxNote"            : "Screen pixels at any zoom (0.5 to 4), rounded to whole device pixels so each line is solid ink, never two half-tones.",
+        "Display__Opacity"                    : 1,
+        "Display__OpacityNote"                : "0.1 to 1. SketchUp draws its axes solid."
+    },
+
+    "LayoutEditor__DrawingAxes__Labels": {
+        "Labels__Description" : "Every word the Drawing Axes Overlay puts on the screen.",
+        "Labels__Toggle"      : "Axes",
+        "Labels__ToggleNote"  : "The button's word. Adam had it shortened from the feature's full name on 21-Sep-2026: 'Drawing Axes Overlay' was the widest button on a toolbar that already runs off the end of a narrow window. The full name opens the button's hover text (ToggleTitle).",
+        "Labels__ToggleTitle" : "Drawing Axes Overlay (F9): a red horizontal and a green vertical line through the cursor, run out to the edges of the sheet, as SketchUp draws its red and green axes - to see at a glance what lines up with the point under the cursor. While a snap marker is showing they cross at it, where a click would land. Never printed. F9 again switches it off.",
+        "Labels__EchoOn"      : "<Drawing axes on>",
+        "Labels__EchoOff"     : "<Drawing axes off>",
+        "Labels__ConsoleOn"   : "Drawing Axes Overlay on (F9): a red horizontal and a green vertical line follow the cursor to the edges of the sheet.",
+        "Labels__ConsoleOff"  : "Drawing Axes Overlay off (F9)."
+    }
+}

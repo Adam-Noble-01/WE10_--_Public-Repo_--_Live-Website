@@ -108,7 +108,7 @@
     import { Na__LeCfg__GetSelectionSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__CreateShape, Na__LeModel__UpdateShape, Na__LeModel__SetSelection, Na__LeModel__GetSelection } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../30__System__SheetTools/Na__LayoutEditor__Snapping__.js';
+    import { Na__LeOsnap__Snap, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeGrips__ShowBox, Na__LeGrips__HideBox } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     // ------------------------------------------------------------
 

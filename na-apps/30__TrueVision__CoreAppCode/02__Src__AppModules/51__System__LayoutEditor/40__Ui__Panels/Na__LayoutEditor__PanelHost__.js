@@ -42,6 +42,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - Every colour input made by Na__LePanels__Input is handed to the Colour
+//   Palette (54__Feature__ColourPalette), so every colour field in every
+//   panel - text, dimensions, vectors, hatches, leaders, gradient stops, floor
+//   areas, the drawing grid - opens the standard colours above the browser's
+//   colour menu with no code in the panel itself. The field is unchanged: a
+//   palette pick arrives as the same `input` then `change` the browser's menu
+//   sends, so the delegated handlers hear it as they hear a custom colour.
+//
 // 20-Sep-2026 - Version 1.5.0
 // - A tab has hover text: spec.hint, else its title. The LEFT column gained
 //   tabs of its own the same day (Document Preferences and Specification), and
@@ -97,6 +106,11 @@
     import { Na__LeModel__GetSelectionItems } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeDrop__ApplyMany } from '../30__System__SheetTools/Na__LayoutEditor__Eyedropper__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Colour Palette (a leaf feature: it imports nothing of the editor's)
+    // ------------------------------------------------------------
+    import { Na__ColourPalette__Attach } from '../../54__Feature__ColourPalette/Na__ColourPalette__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -646,6 +660,10 @@
 
     // FUNCTION | Inputs, Selects and Buttons Carrying a Control Name
     // ------------------------------------------------------------
+    // A COLOUR INPUT GETS THE COLOUR PALETTE HERE, once, for every panel: the
+    // standard colours open above the browser's colour menu, and a swatch click
+    // reaches the panel as the `input` and `change` it already listens for.
+    // ------------------------------------------------------------
     function Na__LePanels__Input(type, controlName, attributes) {
         const input = document.createElement('input');
         input.type      = type;
@@ -653,6 +671,7 @@
         input.setAttribute('data-na-control', controlName);
         Object.keys(attributes || {}).forEach((key) => { input[key] = attributes[key]; });
         if (!Na__LePanels__Editable) input.disabled = true;
+        if (type === 'color') Na__ColourPalette__Attach(input);
         return input;
     }
     function Na__LePanels__Select(controlName, options, value) {

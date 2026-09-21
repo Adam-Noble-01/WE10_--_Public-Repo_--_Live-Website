@@ -36,6 +36,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0
+// - View__AxesToggle on F9 in the built-in fallback, the same binding as the
+//   new row in the shipped key map: the Drawing Axes Overlay
+//   (33__System__DrawingAxes), SketchUp's red and green axes carried by the
+//   cursor out to the edges of the sheet.
+//
+// 21-Sep-2026 - Version 1.8.0
+// - MatchKeyBinding takes an optional context, and a binding may carry a When
+//   ("InContainer"): it matches only while the context says so. T is Trim while
+//   a container is open and Text elsewhere. No context, no When match, so every
+//   other caller is unchanged.
+// - The fallback carries the vector tools' keys (37__System__VectorTools),
+//   mirroring the new rows in the shipped JSON: Trim T (in a container), Extend
+//   Shift+T, Join J, Split U, Offset F, Fillet Shift+F, Chamfer Shift+C, Circle
+//   C and Arc Shift+A.
+//
 // 21-Sep-2026 - Version 1.7.0
 // - GetMeasureKeys reads MeasurementsBox ArrayCharacters (x X * /, in the
 //   shipped JSON and the fallback alike): what may begin or continue a value
@@ -141,6 +157,13 @@
                      { Id : 'Edit__NudgeDown',   Action : 'Edit__NudgeDown',   Enabled : true, Keys : [ 'ArrowDown' ],            Modifiers : [], ModifierMatch : 'CoarseOptional' },
                      { Id : 'Tool__Select',      Action : 'Tool__Select',      Enabled : true, Keys : [ 'v', 'V' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Move',        Action : 'Tool__Move',        Enabled : true, Keys : [ 'm', 'M' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Trim',        Action : 'Tool__Trim',        Enabled : true, Keys : [ 't', 'T' ],               Modifiers : [], ModifierMatch : 'Exact', When : 'InContainer' },
+                     { Id : 'Tool__Extend',      Action : 'Tool__Extend',      Enabled : true, Keys : [ 't', 'T' ],               Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Join',        Action : 'Tool__Join',        Enabled : true, Keys : [ 'j', 'J' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Split',       Action : 'Tool__Split',       Enabled : true, Keys : [ 'u', 'U' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Offset',      Action : 'Tool__Offset',      Enabled : true, Keys : [ 'f', 'F' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Fillet',      Action : 'Tool__Fillet',      Enabled : true, Keys : [ 'f', 'F' ],               Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Chamfer',     Action : 'Tool__Chamfer',     Enabled : true, Keys : [ 'c', 'C' ],               Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Text',        Action : 'Tool__Text',        Enabled : true, Keys : [ 't', 'T' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Dimension',   Action : 'Tool__Dimension',   Enabled : true, Keys : [ 'd', 'D' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Snap__Toggle',      Action : 'Snap__Toggle',      Enabled : true, Keys : [ 'F3' ],                   Modifiers : [], ModifierMatch : 'Exact' },
@@ -148,6 +171,7 @@
                      { Id : 'View__DraftToggle', Action : 'View__DraftToggle', Enabled : true, Keys : [ 'k', 'K' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'View__GridToggle',  Action : 'View__GridToggle',  Enabled : true, Keys : [ 'F6' ],                   Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Snap__GridToggle',  Action : 'Snap__GridToggle',  Enabled : true, Keys : [ 'F7' ],                   Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'View__AxesToggle',  Action : 'View__AxesToggle',  Enabled : true, Keys : [ 'F9' ],                   Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Save',        Action : 'Edit__Save',        Enabled : true, Keys : [ 's', 'S' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Undo',        Action : 'Edit__Undo',        Enabled : true, Keys : [ 'z', 'Z' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
                      { Id : 'Edit__Redo',        Action : 'Edit__Redo',        Enabled : true, Keys : [ 'y', 'Y' ],               Modifiers : [ 'Ctrl' ], ModifierMatch : 'Exact' },
@@ -156,6 +180,8 @@
                      { Id : 'Edit__Finish',      Action : 'Edit__Finish',      Enabled : true, Keys : [ 'Enter' ],                Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Draw',        Action : 'Tool__Draw',        Enabled : true, Keys : [ 'l', 'L' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Rectangle',   Action : 'Tool__Rectangle',   Enabled : true, Keys : [ 'r', 'R' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Circle',      Action : 'Tool__Circle',      Enabled : true, Keys : [ 'c', 'C' ],               Modifiers : [], ModifierMatch : 'Exact' },
+                     { Id : 'Tool__Arc',         Action : 'Tool__Arc',         Enabled : true, Keys : [ 'a', 'A' ],               Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Leader',      Action : 'Tool__Leader',      Enabled : true, Keys : [ 'e', 'E' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__FloorArea',   Action : 'Tool__FloorArea',   Enabled : true, Keys : [ 'a', 'A' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__EyedropperPalette', Action : 'Tool__EyedropperPalette', Enabled : true, Keys : [ 'b', 'B' ], Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
@@ -411,7 +437,16 @@
     // ------------------------------------------------------------
     // Returns { id, action, coarse } so a caller can size its own step from the
     // coarse modifier without having to know which modifier that is.
-    function Na__LeCfg__MatchKeyBinding(key, held) {
+    //
+    // A BINDING MAY NAME WHEN IT APPLIES ("When": "InContainer"). context is
+    // { InContainer : bool, ... } - what the caller knows about the situation
+    // the key was pressed in - and a binding with a When is only a match while
+    // context says that situation is so. It is how one key means two things
+    // without either module knowing about the other: T is the Trim tool while
+    // a group or a vector is open for editing and the Text tool out on the
+    // sheet. A caller that passes no context never matches a When binding, so
+    // every reader from before contexts existed resolves every key as it did.
+    function Na__LeCfg__MatchKeyBinding(key, held, context) {
         if (typeof key !== 'string' || !key) return null;
         const list   = Na__LeCfg__KeyList('KeyboardBindings', Na__LeCfg__KEYMAP_FALLBACK.keyboard);
         const coarse = !!(held && held[Na__LeCfg__GetKeyboardSetup().coarseStepModifier]);
@@ -420,6 +455,7 @@
             if (!binding || binding.Enabled === false) continue;
             if (!Array.isArray(binding.Keys) || binding.Keys.indexOf(key) === -1) continue;
             if (!Na__LeCfg__ModifiersSatisfy(binding, held || {})) continue;
+            if (typeof binding.When === 'string' && binding.When && !(context && context[binding.When] === true)) continue;   // <-- Not the situation this binding is for
             return { id : binding.Id || null, action : binding.Action || null, coarse : coarse };
         }
         return null;

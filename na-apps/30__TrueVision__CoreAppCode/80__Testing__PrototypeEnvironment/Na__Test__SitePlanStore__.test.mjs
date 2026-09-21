@@ -55,8 +55,8 @@ src = `
     const Na__AppUtils__IsRunningOnLocalhost    = () => false;   // <-- no local manifest fetch in Node
     const Na__AppUtils__GetProjectFolderFromUrl = () => 'RB05__WestFarm';
     const Na__AppUtils__GetYearFromUrl          = () => '26';
-    const Na__SpGlb__ParseLinework              = () => ({ segments : new Float32Array(0), segmentCount : 0, boundsMm : null });
-    const Na__SpGlb__ParseFill                  = () => ({ rings : [] });
+    const Na__SpGlb__ParseLinework              = (b) => (globalThis.__PARSE_LINE || (() => ({ segments : new Float32Array(0), segmentCount : 0, boundsMm : null })))(b);
+    const Na__SpGlb__ParseFill                  = (b) => (globalThis.__PARSE_FILL || (() => ({ rings : [] })))(b);
 ` + src
 fs.writeFileSync(TMP, src, 'utf8')
 
@@ -210,6 +210,54 @@ check('the style keeps the new fields (F8: this rebuild is a closed list)',
   Object.keys(S.Na__SpStore__GetLayers('proposed')[0].Layer__Style).sort(),
   [ 'FillColourId', 'FillHex', 'FillMaterialId', 'FillOpacity', 'HatchPatternId',
     'LineColourId', 'LineDashScale', 'LineHex', 'LineType', 'LineWeightMm', 'LineWeightPt' ])
+
+// ---- A FILL LAYER WITH NO LINEWORK (21-Sep-2026, Site Plan Export 1.4.0) -------
+// Adam tags just the FACE of a drive or a patio with a fill tag; its edges stay on
+// the lines they belong to. The export then ships that layer's fill GLB alone.
+// The store used to drop any layer without a linework URL, and to fetch linework
+// before anything else - so the wash vanished twice over, with no error.
+const HS  = 'TrueVision__SitePlan__HardStandingAndDriveways'
+const OSM = 'TrueVision__SitePlan__OsMapping'
+const fillOnly = { Layer__CategoryKey : HS, Layer__Label : 'Hard Standing and Driveways', Layer__DrawOrder : 32,
+  Layer__LineworkUrl : null, Layer__FillUrl : 'https://cdn.noble-architecture.com/x/' + HS + '__FillModel__.glb',
+  Layer__Style : { LineHex : '#999999', FillHex : '#E4E4E4', FillOpacity : 1 } }
+const neither  = { Layer__CategoryKey : 'TrueVision__SitePlan__Nothing', Layer__LineworkUrl : null, Layer__FillUrl : null }
+globalThis.__PROJECT_DATA = { SitePlan__DataStore : {
+  SitePlan__FolderName : 'SitePlan__DrawingData', SitePlan__ExportedIso : '2026-09-21T15:00:00Z',
+  SitePlan__Layers : [ layer(OSM), fillOnly, neither ]
+} }
+await S.Na__SpStore__Reload()
+check('a layer with a fill and NO linework is kept; a layer with neither is still dropped',
+  S.Na__SpStore__GetLayers('proposed').map(l => l.Layer__CategoryKey).sort(), [ HS, OSM ])
+
+// Serve every URL; count what gets fetched and parsed.
+const fetched = []
+let lineParses = 0
+globalThis.fetch = async (url) => { fetched.push(String(url)); return { ok : true, status : 200, arrayBuffer : async () => new ArrayBuffer(8) } }
+globalThis.__PARSE_LINE = () => { lineParses++; return { segments : new Float64Array([0, 0, 1, 1]), segmentCount : 1, boundsMm : { MinX : 0, MinY : 0, MaxX : 1, MaxY : 1 } } }
+globalThis.__PARSE_FILL = () => ({ rings : [ { face : 0, outer : true, points : new Float64Array([0, 0, 10, 0, 10, 10]) } ], boundsMm : { MinX : 0, MinY : 0, MaxX : 10, MaxY : 10 } })
+
+const hsData = await S.Na__SpStore__LoadLayer(HS)
+check('the faces-only layer LOADS: no segments, its rings, bounds taken from the fill',
+  [ hsData.segmentCount, hsData.segments.length, hsData.rings.length, hsData.boundsMm && hsData.boundsMm.MaxX ], [ 0, 0, 1, 10 ])
+check('and it never asked for, or parsed, a linework file',
+  [ lineParses, fetched.some(u => u.indexOf('LineworkModel') !== -1), fetched.every(u => u.indexOf('FillModel') !== -1) ], [ 0, false, true ])
+const osmData = await S.Na__SpStore__LoadLayer(OSM)
+check('a normal layer still fetches and parses its linework', [ osmData.segmentCount, lineParses ], [ 1, 1 ])
+
+// Its fill IS the layer, so a fill that fails must reject - not cache an empty layer.
+globalThis.__PROJECT_DATA = { SitePlan__DataStore : {
+  SitePlan__FolderName : 'SitePlan__DrawingData', SitePlan__ExportedIso : '2026-09-21T16:00:00Z',
+  SitePlan__Layers : [ fillOnly ]
+} }
+await S.Na__SpStore__Reload()
+globalThis.fetch = async () => ({ ok : false, status : 404 })
+const failed = await S.Na__SpStore__LoadLayer(HS).then(() => 'resolved', () => 'rejected')
+check('a faces-only layer whose fill fails to load REJECTS (retried next time), where a lined layer would draw on',
+  [ failed, S.Na__SpStore__GetLayerData(HS) ], [ 'rejected', null ])
+globalThis.fetch = async () => { throw new Error('no network in this harness') }
+delete globalThis.__PARSE_LINE
+delete globalThis.__PARSE_FILL
 
 console.log(`\n${pass} passed, ${fail} failed`)
 process.exit(fail ? 1 : 0)
