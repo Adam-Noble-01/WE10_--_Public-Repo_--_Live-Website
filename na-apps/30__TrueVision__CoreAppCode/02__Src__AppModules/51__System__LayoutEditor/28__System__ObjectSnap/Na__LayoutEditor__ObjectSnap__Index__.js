@@ -49,6 +49,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - A turned viewport's linework (Viewport__RotationDeg) is clipped to the
+//   frame in the level frame and turned onto the paper before it is filed, so
+//   every snap on a turned drawing lands on the line as it is painted.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Moved here from the Snapping module, and the segments filed beside the
 //   points. Both kinds of point are always filed: the running modes filter
@@ -137,18 +142,27 @@
     // absolute paper millimetres. Points outside the frame are dropped, a
     // point shared by several segments is stored once, and each segment is
     // clipped to the frame and filed under every square it passes through.
+    //
+    // A TURNED VIEWPORT (Viewport__RotationDeg) is clipped where the frame is
+    // a rectangle - in the level frame (ToFrame) - and only what survives is
+    // turned onto the paper (FrameToPaper), so its points and lines are filed
+    // where the turned drawing is actually painted. A level one comes out
+    // exactly as before: both steps are the identity then.
     // ------------------------------------------------------------
     function Na__LeOsnap__Build(source) {
         const setup  = Na__LeCfg__GetSnappingSetup();
         const points = new Map(), cells = new Map(), segs = [];
         const seen   = new Set();
         const frame  = source.window.Frame;
+        const level  = source.window.ToFrame      || source.window.ToPaper;       // <-- The level frame, where the clip is a rectangle
+        const onto   = source.window.FrameToPaper || ((x, y) => ({ x : x, y : y }));
         const pad    = Na__LeOsnap__FRAME_PAD_MM;
         const minX = frame.X - pad, maxX = frame.X + frame.WidthMm + pad;
         const minY = frame.Y - pad, maxY = frame.Y + frame.HeightMm + pad;
 
-        const pushPoint = (x, y, kind) => {
-            if (x < minX || x > maxX || y < minY || y > maxY) return;
+        const pushPoint = (lx, ly, kind) => {
+            if (lx < minX || lx > maxX || ly < minY || ly > maxY) return;
+            const at = onto(lx, ly), x = at.x, y = at.y;
             const id = kind + ':' + Math.round(x * 100) + ':' + Math.round(y * 100);
             if (seen.has(id)) return;
             seen.add(id);
@@ -158,8 +172,10 @@
             bucket.push(x, y, kind);
         };
         const pushSegment = (ax, ay, bx, by) => {
-            const cut = Na__LeOsnap__ClipToRect(ax, ay, bx, by, minX, minY, maxX, maxY);
-            if (!cut || Math.hypot(cut[2] - cut[0], cut[3] - cut[1]) < 1e-6) return;   // <-- Hidden by the frame, or clipped to nothing
+            const clip = Na__LeOsnap__ClipToRect(ax, ay, bx, by, minX, minY, maxX, maxY);
+            if (!clip || Math.hypot(clip[2] - clip[0], clip[3] - clip[1]) < 1e-6) return;   // <-- Hidden by the frame, or clipped to nothing
+            const p = onto(clip[0], clip[1]), q = onto(clip[2], clip[3]);
+            const cut = [ p.x, p.y, q.x, q.y ];
             const number = segs.length / 4;
             segs.push(cut[0], cut[1], cut[2], cut[3]);
             Na__LeOsnapGeo__CellsOfSegment(cut[0], cut[1], cut[2], cut[3], Na__LeOsnap__CELL_MM, (column, row) => {
@@ -175,8 +191,8 @@
             const segments = source.classes ? source.classes[name] : null;
             if (!segments || segments.length < 4) return;
             for (let i = 0; i + 3 < segments.length; i += 4) {
-                const a = source.window.ToPaper(segments[i], segments[i + 1]);
-                const b = source.window.ToPaper(segments[i + 2], segments[i + 3]);
+                const a = level(segments[i], segments[i + 1]);
+                const b = level(segments[i + 2], segments[i + 3]);
                 pushPoint(a.x, a.y, Na__LeOsnap__POINT_END);
                 pushPoint(b.x, b.y, Na__LeOsnap__POINT_END);
                 pushPoint((a.x + b.x) / 2, (a.y + b.y) / 2, Na__LeOsnap__POINT_MID);

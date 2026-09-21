@@ -600,6 +600,50 @@
         "D:/_ClaudeScratch/tv_drawingaxes_out"
       ],
       "port": 8831
+    },
+    {
+      "name": "tv-snapmarker",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "9047",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_snapmarker_out"
+      ],
+      "port": 9047
+    },
+    {
+      "name": "tv-perfaudit",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "8987",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_perfaudit_out"
+      ],
+      "port": 8987
+    },
+    {
+      "name": "tv-vprotate",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "9061",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_vprotate_out"
+      ],
+      "port": 9061
+    },
+    {
+      "name": "tv-dimroundup",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "9073",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_dimroundup_out"
+      ],
+      "port": 9073
     }
   ]
 }

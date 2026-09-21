@@ -50,6 +50,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - A viewport's menu offers Rotate 90 degrees clockwise and anticlockwise, and
+//   Reset rotation on a turned one (Viewport__RotationDeg), each one undo step
+//   and greyed out while the viewport or its layer is locked.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - THE VECTOR TOOLS (37__System__VectorTools). A right click while one has
 //   something half done abandons it, as it does a rectangle. A plain vector's
@@ -148,6 +153,7 @@
     import { Na__LeHist__CanUndo, Na__LeHist__CanRedo, Na__LeHist__Undo, Na__LeHist__Redo } from '../07__Core__SheetData/Na__LayoutEditor__History__.js';
     import { Na__LeMenu__Open } from './Na__LayoutEditor__ContextMenu__.js';
     import { Na__LeForce__IsRunning, Na__LeForce__Viewport, Na__LeForce__Sheet } from '../20__System__Viewports/Na__LayoutEditor__ForceRender__.js';
+    import { Na__LeVpRot__Deg, Na__LeVpRot__WrapDeg } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the viewport's turn
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Edit Scope, the Container the Menu Belongs To
@@ -421,10 +427,20 @@
         const del         = remove('MenuDeleteViewport', 'Delete viewport');
         del.disabled = locked;
         const doors = Na__LeDoors__MenuItems(sheet, viewport, viewport.Viewport__Kind === Na__LeModel__KIND_2D ? Na__LeVp2d__Describe(viewport) : null, pointMm, Na__LeTools__Tolerance());   // <-- A plan's door under the click leads the menu, locked or not
+        // TURN | A quarter turn either way about the middle of the frame, and
+        // Reset rotation only on a turned viewport, as Reset rotation is only on
+        // turned text. One undo step each; a lock holds the turn.
+        const turned = Na__LeVpRot__Deg(viewport);
+        const turnBy = (by) => () => Na__LeModel__UpdateViewport(sheet, found.id, { rotationDeg : Na__LeVpRot__WrapDeg(Na__LeVpRot__Deg(viewport) + by) }, false);
+        const turns  = [
+            { label : label('MenuRotateViewportRight', 'Rotate 90\u00b0 clockwise'), disabled : locked, onSelect : turnBy(90) },
+            { label : label('MenuRotateViewportLeft', 'Rotate 90\u00b0 anticlockwise'), disabled : locked, onSelect : turnBy(-90) }
+        ].concat(turned !== 0 ? [ { label : label('MenuResetViewportRotation', 'Reset rotation'), disabled : locked, onSelect : () => Na__LeModel__UpdateViewport(sheet, found.id, { rotationDeg : 0 }, false) } ] : []);
         return [
             ...doors,
             { label : editing ? label('MenuFinishView', 'Finish editing content') : label('MenuEditView', 'Edit viewport content'), disabled : locked, onSelect : () => Na__LeTools__SetEditingViewport(editing ? null : found.id) },
             { label : label('MenuCentre', 'Recentre content'), disabled : locked, onSelect : () => Na__LeTools__RecentreViewport(sheet, found.id) },
+            ...turns,
             { label : viewport.Viewport__Locked === true ? label('MenuUnlock', 'Unlock viewport') : label('MenuLock', 'Lock viewport'), disabled : layerLocked, checked : viewport.Viewport__Locked === true,
               onSelect : () => Na__LeModel__UpdateViewport(sheet, found.id, { locked : viewport.Viewport__Locked !== true }) },
             { separator : true }

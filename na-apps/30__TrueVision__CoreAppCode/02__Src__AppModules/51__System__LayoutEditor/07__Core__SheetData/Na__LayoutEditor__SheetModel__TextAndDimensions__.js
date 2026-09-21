@@ -31,12 +31,17 @@
 // PORT NOTE:
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
-// - Divergences   : header; CreateDimension and UpdateDimension carry Measure at scale (atScale) and the fixed length extension lines (startExtensionMm, endExtensionMm, extensionsLinked), which the ValeVision3D unit does not.
+// - Divergences   : header; CreateDimension and UpdateDimension carry Measure at scale (atScale), the fixed length extension lines (startExtensionMm, endExtensionMm, extensionsLinked) and Round up to 5 mm (roundUp), which the ValeVision3D unit does not.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - CreateDimension takes roundUp and UpdateDimension the roundUp patch key:
+//   Dimension__RoundUp, the Dimensions panel's Round up to 5 mm. Off is no
+//   key, so a new dimension with it off saves as one from before it did.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SheetModel__.js; the code moved verbatim.
 //
@@ -207,6 +212,7 @@
             Dimension__LayerId      : opts.layerId
         };
         if (typeof opts.atScale === 'boolean') record.Dimension__AtScale = opts.atScale;   // <-- Measure at scale; left out, no key, and the record reads as one from before it
+        if (opts.roundUp === true) record.Dimension__RoundUp = true;                       // <-- Round up to 5 mm; off is no key
         const item = Na__LeRec__NormaliseDimension(record, Na__LeModel__DefaultLayerId(sheet, 'dimension'));
         sheet.Sheet__Dimensions.push(item);
         if (opts.silent) Na__LeModel__AssignDirty(true); else Na__LeModel__Touch('dimensions', sheet.Sheet__Id, item.Dimension__Id);   // <-- The dimension tool announces once, on the third click
@@ -246,6 +252,7 @@
         if (typeof patch.unitsSuffix === 'string') item.Dimension__UnitsSuffix = patch.unitsSuffix;
         if (typeof patch.orientation === 'string') item.Dimension__Orientation = patch.orientation;
         if (typeof patch.atScale === 'boolean') item.Dimension__AtScale = patch.atScale;               // <-- Measure at scale, from the Dimensions panel
+        if (typeof patch.roundUp === 'boolean') item.Dimension__RoundUp = patch.roundUp;               // <-- Round up to 5 mm; the normaliser keeps only true
         if (patch.startExtensionMm !== undefined) item.Dimension__StartExtensionMm = patch.startExtensionMm;   // <-- null, or anything but a length, is the full line
         if (patch.endExtensionMm !== undefined)   item.Dimension__EndExtensionMm   = patch.endExtensionMm;
         if (typeof patch.extensionsLinked === 'boolean') item.Dimension__ExtensionsLinked = patch.extensionsLinked;   // <-- The normaliser keeps only false

@@ -60,6 +60,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.2
+// - A tie to a turned viewport (Viewport__RotationDeg) lands on the upright box
+//   round its frame as it stands.
+//
 // 21-Sep-2026 - Version 1.2.1
 // - ScaleCell reads the title block's labels from EVERY .na-le-paper__chrome
 //   SVG. The sheet surface now stacks the paper in the Layers list's order and
@@ -125,6 +129,7 @@
         Na__LeParamLink__SetLink,
         Na__LeParamLink__SetSheetLink
     } from './Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js';
+    import { Na__LeVpRot__Bounds } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the box round a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -309,7 +314,7 @@
         const none = { kind : Na__LeParamLink__KIND_NONE, viewport : null, box : null };
         if (!sheet || !pointMm) return none;
         const viewport = Na__LeDrawScale__ViewportAt(sheet, pointMm);
-        if (viewport) return { kind : Na__LeParamLink__KIND_VIEWPORT, viewport : viewport, box : viewport.Viewport__FrameMm };
+        if (viewport) return { kind : Na__LeParamLink__KIND_VIEWPORT, viewport : viewport, box : Na__LeVpRot__Bounds(viewport) };   // <-- The box round the frame as it stands
         const layout = Na__LeSurface__GetLayout();
         const band   = layout ? layout.TitleBlock : null;
         if (band && pointMm.x >= band.X && pointMm.x <= band.X + band.WidthMm && pointMm.y >= band.Y && pointMm.y <= band.Y + band.HeightMm) {
@@ -371,7 +376,7 @@
     // ------------------------------------------------------------
     function Na__LeParamNoodle__LandingFor(tied, socket) {
         if (tied.kind === Na__LeParamLink__KIND_VIEWPORT && tied.viewport) {
-            const box = tied.viewport.Viewport__FrameMm;
+            const box = Na__LeVpRot__Bounds(tied.viewport);                     // <-- The box round the frame as it stands, turned or not
             return { box : box, land : Na__LeParamNoodle__LandOn(box, socket) };
         }
         if (tied.kind === Na__LeParamLink__KIND_SHEET) {

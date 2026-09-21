@@ -20,6 +20,10 @@
 //   readouts are editable numbers in paper and drawing millimetres; the
 //   markup mode switch, Import From Scene and Edit In Drawing implement
 //   D34 (editing of scene markup happens in the drawing itself).
+// - Rotation deg: the whole viewport turned about the middle of its frame,
+//   degrees clockwise (Viewport__RotationDeg), typed to a decimal place, a
+//   quarter turn either way (-90, +90) or back to Level. The rotate grip over
+//   the selected frame does the same by hand. Greyed out while locked.
 // - Zoom % (3D viewports only): how large the picture is drawn in its frame,
 //   typed to a decimal place and applied about the middle of the frame; Reset
 //   puts it back to 100 percent, centred. The wheel does the same about the
@@ -48,6 +52,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0 (TrueVision)
+// - Rotation deg under Frame mm: a number box for the viewport's turn (to a
+//   decimal place, wrapped into -180 to 180, one undo step), -90 and +90 for a
+//   quarter turn either way, and Level. Greyed out when the viewport or its
+//   layer is locked.
+//
 // 14-Sep-2026 - Version 1.7.0
 // - Zoom % on 3D viewports: a number box for the picture's zoom (to a decimal
 //   place, one undo step, about the middle of the frame) and Reset (100 percent,
@@ -116,6 +126,7 @@
         Na__LeModel__IsLayerLocked
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeVpZoom__Get, Na__LeVpZoom__Percent, Na__LeVpZoom__PatchAbout, Na__LeVpZoom__PatchReset } from '../20__System__Viewports/Na__LayoutEditor__Viewport3dZoom__.js';
+    import { Na__LeVpRot__Deg, Na__LeVpRot__WrapDeg } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the viewport's turn
     import {
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
@@ -465,6 +476,30 @@
         });
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('FrameLabel', 'Frame mm'), frame));
 
+        // ROTATION | Degrees clockwise about the middle of the frame, the whole
+        // viewport turning - frame, drawing or picture, frame line and caption.
+        // Typed to a decimal place, or a quarter turn either way, or back to
+        // level. The rotate grip over the frame does the same by hand, Shift
+        // holding quarter turns.
+        const turn = document.createElement('div');
+        turn.className = 'na-le-grid4';
+        turn.setAttribute('data-na-block', 'rotation');
+        const turnInput = Na__LePanels__Input('number', 'vp-rotation', { step : 'any', min : -180, max : 180 });   // <-- Any decimal typed; the arrows still step by one
+        turnInput.title = Na__LeCfg__GetLabel('ViewportRotationTitle', 'Degrees clockwise the whole viewport is turned about the middle of its frame, -180 to 180. Or drag the round grip above the selected frame; hold Shift for quarter turns.');
+        turn.appendChild(turnInput);
+        if (editable) {
+            const left  = Na__LePanels__Button(Na__LeCfg__GetLabel('ViewportRotateLeft', '-90\u00b0'), 'vp-rotate-by', 'na-le-btn--small', '-90');
+            const right = Na__LePanels__Button(Na__LeCfg__GetLabel('ViewportRotateRight', '+90\u00b0'), 'vp-rotate-by', 'na-le-btn--small', '90');
+            const level = Na__LePanels__Button(Na__LeCfg__GetLabel('ViewportRotateReset', 'Level'), 'vp-rotate-reset', 'na-le-btn--small');
+            left.title  = Na__LeCfg__GetLabel('ViewportRotateLeftTitle', 'Turn a quarter turn anticlockwise.');
+            right.title = Na__LeCfg__GetLabel('ViewportRotateRightTitle', 'Turn a quarter turn clockwise.');
+            level.title = Na__LeCfg__GetLabel('ViewportRotateResetTitle', 'Back to level (0 degrees).');
+            turn.appendChild(left);
+            turn.appendChild(right);
+            turn.appendChild(level);
+        }
+        edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ViewportRotationLabel', 'Rotation deg'), turn));
+
         const pan = document.createElement('div');
         pan.className = 'na-le-grid4';
         pan.setAttribute('data-na-block', 'pan');
@@ -633,6 +668,16 @@
         editBlock.querySelectorAll('[data-na-control="vp-frame"]').forEach((input) => {
             if (document.activeElement !== input) input.value = String(Math.round(viewport.Viewport__FrameMm[input.getAttribute('data-na-role')] * 10) / 10);
         });
+        const turnBlock = editBlock.querySelector('[data-na-block="rotation"]');
+        if (turnBlock) {
+            const turnLocked = viewport.Viewport__Locked === true || Na__LeModel__IsLayerLocked(sheet, viewport.Viewport__LayerId);   // <-- A lock holds the turn as it holds the frame
+            const turnInput  = turnBlock.querySelector('[data-na-control="vp-rotation"]');
+            if (turnInput) {
+                if (document.activeElement !== turnInput) turnInput.value = String(Math.round(Na__LeVpRot__Deg(viewport) * 10) / 10);   // <-- A tenth of a degree is as fine as the box needs to read
+                turnInput.disabled = !Na__LePanels__IsEditable() || turnLocked;
+            }
+            turnBlock.querySelectorAll('[data-na-control="vp-rotate-by"], [data-na-control="vp-rotate-reset"]').forEach((b) => { b.disabled = !Na__LePanels__IsEditable() || turnLocked; });
+        }
         editBlock.querySelector('[data-na-block="pan"]').parentNode.hidden = !is2d;
         editBlock.querySelectorAll('[data-na-control="vp-pan"]').forEach((input) => {
             if (document.activeElement !== input) input.value = String(Math.round(viewport.Viewport__PanMm[input.getAttribute('data-na-role')]));
@@ -748,6 +793,22 @@
         Na__LePanels__OnControl('change', 'vp-frame', (e, el, key) => {
             const c = Na__LePanelViewport__Current(); const v = parseFloat(el.value);
             if (c && Number.isFinite(v)) { const rect = {}; rect[key] = v; Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { rect : rect }); }
+        });
+        Na__LePanels__OnControl('change', 'vp-rotation', (e, el) => {
+            const c = Na__LePanelViewport__Current(); const v = parseFloat(el.value);
+            if (!c) return;
+            if (!Number.isFinite(v)) { el.value = String(Math.round(Na__LeVpRot__Deg(c.viewport) * 10) / 10); return; }   // <-- Not an angle: the box shows the turn the viewport has
+            const to = Na__LeVpRot__WrapDeg(v);
+            if (to !== Na__LeVpRot__Deg(c.viewport)) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { rotationDeg : to });   // <-- About the middle of the frame; one undo step
+            el.value = String(Math.round(Na__LeVpRot__Deg(c.viewport) * 10) / 10);   // <-- 270 reads back as -90: the angle wrapped
+        });
+        Na__LePanels__OnControl('click', 'vp-rotate-by', (e, el, role) => {
+            const c = Na__LePanelViewport__Current(); const by = parseFloat(role);
+            if (c && Number.isFinite(by)) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { rotationDeg : Na__LeVpRot__WrapDeg(Na__LeVpRot__Deg(c.viewport) + by) });
+        });
+        Na__LePanels__OnControl('click', 'vp-rotate-reset', () => {
+            const c = Na__LePanelViewport__Current();
+            if (c && Na__LeVpRot__Deg(c.viewport) !== 0) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { rotationDeg : 0 });
         });
         Na__LePanels__OnControl('change', 'vp-pan', (e, el, key) => {
             const c = Na__LePanelViewport__Current(); const v = parseFloat(el.value);

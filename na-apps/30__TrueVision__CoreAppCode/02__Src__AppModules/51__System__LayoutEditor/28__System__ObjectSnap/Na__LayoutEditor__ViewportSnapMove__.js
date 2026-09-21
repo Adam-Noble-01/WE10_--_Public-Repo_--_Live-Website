@@ -79,6 +79,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - Signature carries the viewport's turn (Viewport__RotationDeg), so a
+//   tracking point taken before a turn is dropped as stale. The points
+//   themselves come from the snap index, which files a turned drawing turned.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - MOVED into 28__System__ObjectSnap with the rest of the editor's snapping
 //   (it was 20__System__Viewports/Na__LayoutEditor__ViewportSnapMove__.js);
@@ -206,7 +211,7 @@
     // ------------------------------------------------------------
     function Na__LeVpMove__Signature(viewport) {
         const frame = viewport.Viewport__FrameMm, pan = viewport.Viewport__PanMm;
-        return [ frame.X, frame.Y, frame.WidthMm, frame.HeightMm, pan.X, pan.Y, viewport.Viewport__ScaleDenominator ].join('|');
+        return [ frame.X, frame.Y, frame.WidthMm, frame.HeightMm, pan.X, pan.Y, viewport.Viewport__ScaleDenominator, viewport.Viewport__RotationDeg || 0 ].join('|');   // <-- A turn moves every point of the drawing on the paper
     }
     // ------------------------------------------------------------
 

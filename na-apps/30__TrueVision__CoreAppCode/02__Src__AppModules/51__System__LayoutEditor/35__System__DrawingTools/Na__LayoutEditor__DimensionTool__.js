@@ -70,6 +70,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.12.0
+// - A new dimension carries the Round up to 5 mm setting (Dimension__RoundUp)
+//   when the Dimensions panel has it on for new dimensions.
+//
 // 21-Sep-2026 - Version 1.11.0
 // - Snaps through the Object Snap folder (28__System__ObjectSnap, __Search__).
 //   The marker's colour no longer says "the Dimension tool is snapping" (the
@@ -325,6 +329,7 @@
             viewportId : host ? host.Viewport__Id : null, offsetMm : d.offsetMm, textSizeMm : d.textSizeMm,
             colour : d.colour, terminator : d.terminator, tickLengthMm : d.tickLengthMm, precision : d.precision, unitsSuffix : d.unitsSuffix,
             atScale : d.atScale !== false,                                    // <-- Measure at scale: the drawing's real size, unless the panel says paper
+            roundUp : d.roundUp === true,                                     // <-- Round up to 5 mm: only when the panel says so
             startExtensionMm : d.startExtensionMm, endExtensionMm : d.endExtensionMm, extensionsLinked : d.extensionsLinked,   // <-- Fixed length extension lines; the model keeps only what differs from the full line
             orientation : Na__LeOrtho__Resolve(shift) ? Na__LeDimGeo__OrthoToward(p.startMm, end, end, null, Na__LeCfg__GetSelectionSetup().dragThresholdMm) : Na__LeDimGeo__ALIGNED,   // <-- Shift already down, or Ortho on: ortho from the first frame
             silent : true
@@ -348,7 +353,7 @@
 
     // FUNCTION | A Click With the Dimension Tool
     // ------------------------------------------------------------
-    // defaults: { offsetMm, textSizeMm, colour, terminator, tickLengthMm, precision, unitsSuffix, atScale,
+    // defaults: { offsetMm, textSizeMm, colour, terminator, tickLengthMm, precision, unitsSuffix, atScale, roundUp,
     //             startExtensionMm, endExtensionMm, extensionsLinked }
     // ------------------------------------------------------------
     function Na__LeDim__Click(sheet, pointMm, shift, defaults) {

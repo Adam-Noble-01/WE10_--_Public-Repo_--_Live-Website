@@ -44,6 +44,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.1
+// - HostViewport finds the viewport under a room by the frame as it stands,
+//   turned (Viewport__RotationDeg) or not. A turn is rigid, so no area changes.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - Measure answers `home`, where the label sits until it is dragged: the
 //   middle of the room's bounding box (Label__Placement 'box', the standard
@@ -105,6 +109,7 @@
         Na__LeAreaGeo__FormatArea,
         Na__LeAreaGeo__FormatLength
     } from './Na__LayoutEditor__FloorAreas__Geometry__.js';
+    import { Na__LeVpRot__Contains } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: inside a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -385,11 +390,7 @@
             .map((viewport, index) => ({ viewport : viewport, rank : order.indexOf(viewport.Viewport__LayerId), index : index }))
             .filter((entry) => Na__LeArea__IsScaled(entry.viewport))
             .sort((a, b) => (a.rank - b.rank) || (b.index - a.index))
-            .find((entry) => {
-                const frame = entry.viewport.Viewport__FrameMm;
-                return !!frame && pointMm.x >= frame.X && pointMm.x <= frame.X + frame.WidthMm
-                                && pointMm.y >= frame.Y && pointMm.y <= frame.Y + frame.HeightMm;
-            });
+            .find((entry) => !!entry.viewport.Viewport__FrameMm && Na__LeVpRot__Contains(entry.viewport, pointMm, 0));   // <-- The frame as it stands, turned or not; a turn changes no area
         return found ? found.viewport : null;
     }
     // ------------------------------------------------------------

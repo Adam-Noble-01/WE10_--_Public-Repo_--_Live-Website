@@ -869,7 +869,10 @@ the site plan because there are huge gaps in it."*
 
 **The recipe, per area, in SketchUp:**
 
-1. Run the Tag Manager once so the two new tags exist (they are filed in the **Site Plan** folder).
+1. Run **Create Standardised Tags From Index** (GLB Builder 2.10.3+). New site plan tags land BESIDE the
+   model's other site plan tags (top level in RB05), and the same run creates all seven MAT800 fill
+   materials. One-shot for a model open right now, no plugin reload: in the Ruby Console,
+   `load 'D:/_ClaudeScratch/na_siteplan_tags.rb'` (the four fill tags + the materials).
 2. Paste this in the Ruby Console once per model to create the six fill materials from the SSOT:
 
 ```ruby

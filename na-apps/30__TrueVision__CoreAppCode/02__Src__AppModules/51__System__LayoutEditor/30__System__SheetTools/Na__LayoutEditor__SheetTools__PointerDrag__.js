@@ -76,6 +76,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.16.0
+// - A viewport drag on its rotate grip turns the viewport about the middle of
+//   its frame (Na__LeHandles__RotateTo), Shift holding quarter turns; it
+//   announces once on release, one undo step, like every other drag. It has
+//   no dead zone (DragStartMm): nothing opens on a double click there.
+//
 // 21-Sep-2026 - Version 1.15.0
 // - A move and a release with a vector tool up (37__System__VectorTools) go to
 //   their adapter: the move draws the tool's preview and says which cursor the
@@ -284,7 +290,7 @@
         Na__LeModel__GetSelectionItems
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__GetZoom, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeHandles__DragPatch } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
+    import { Na__LeHandles__DragPatch, Na__LeHandles__RotateTo } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeGrips__HideInsert, Na__LeGrips__ShowBand, Na__LeGrips__HideBand } from './Na__LayoutEditor__Grips__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeLeadGeo__IsBroken, Na__LeLeadGeo__Lines } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
@@ -458,7 +464,7 @@
         const plain = setup.dragThresholdMm / Na__LeSurface__GetZoom();
         if (!drag || drag.pick !== true) return plain;
         const opens = Na__LeTools__IsMoveDrag(drag)
-            || (drag.kind === 'viewport' && !!drag.hit && drag.hit.mode !== 'handle')
+            || (drag.kind === 'viewport' && !!drag.hit && drag.hit.mode !== 'handle' && drag.hit.mode !== 'rotate')
             || drag.kind === 'leader'
             || (drag.kind === 'dimension' && drag.mode === 'text');
         if (!opens) return plain;
@@ -570,6 +576,19 @@
         if (drag.kind === 'viewport') {
             const viewport = Na__LeModel__GetViewportById(sheet, drag.id);
             if (!viewport) return;
+            // TURNED BY ITS ROTATE GRIP | About the middle of its frame, by as
+            // much as the pointer has swung round that middle since the press.
+            // Shift is the key itself here, as on the text rotate grip: it holds
+            // the turn to quarter turns (Viewport RotateStepDeg), not to an axis.
+            // Nothing inside the frame is rendered again - the frame element is
+            // turned on the paper - so this is as cheap as a move.
+            if (drag.hit && drag.hit.mode === 'rotate') {
+                const turn = Na__LeHandles__RotateTo(drag.rotate, cursor, shift);
+                if (!turn) return;
+                Na__LeModel__UpdateViewport(sheet, drag.id, turn, true);
+                Na__LeSurface__Refresh('frames');
+                return;
+            }
             // CARRIED BY A POINT | The snap move says where the grabbed point
             // goes; the frame moves by however far that is from where it began.
             // A PLAIN BORDER MOVE READS THE CONSTRAINED DELTA, so the arrow lock

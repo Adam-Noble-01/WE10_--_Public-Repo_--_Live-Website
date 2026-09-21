@@ -59,6 +59,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.0.1
+// - TailFor measures the distance to a viewport's frame as it stands, turned
+//   (Viewport__RotationDeg) or not.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation: the config, Groups, BuildSet, TailFor, Insert and
 //   UsageOnSheet.
@@ -80,6 +84,7 @@
     import { Na__LeTools__GetLeaderDefaults } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__.js';
     import { Na__LeSpec__IsLoaded, Na__LeSpec__GetGroups, Na__LeSpec__GetNoteEntry } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     import { Na__LeSpecLink__IsBubble, Na__LeSpecLink__NoteIdOf } from '../50__Feature__Specification/Na__LayoutEditor__SpecLinks__.js';
+    import { Na__LeVpRot__DistanceTo, Na__LeVpRot__Centre } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: distance to a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -380,10 +385,9 @@
         Na__LeModel__GetViewports(sheet).forEach((viewport) => {
             const f = viewport ? viewport.Viewport__FrameMm : null;
             if (!f || !Number.isFinite(f.X) || !Number.isFinite(f.Y) || !(f.WidthMm > 0) || !(f.HeightMm > 0)) return;
-            const dx   = Math.max(f.X - centreMm.x, 0, centreMm.x - (f.X + f.WidthMm));
-            const dy   = Math.max(f.Y - centreMm.y, 0, centreMm.y - (f.Y + f.HeightMm));
-            const away = Math.hypot(dx, dy);                                    // <-- 0 inside the frame
-            if (!best || away < best.away) best = { away : away, x : f.X + (f.WidthMm / 2), y : f.Y + (f.HeightMm / 2) };
+            const away   = Na__LeVpRot__DistanceTo(viewport, centreMm);          // <-- 0 inside the frame, turned or not
+            const middle = Na__LeVpRot__Centre(viewport);                        // <-- A turn is about the middle, so the middle never moves
+            if (!best || away < best.away) best = { away : away, x : middle.x, y : middle.y };
         });
         if (!best) {
             const page = Na__LeLayout__Solve(sheet).Page;

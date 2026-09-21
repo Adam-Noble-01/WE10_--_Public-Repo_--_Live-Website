@@ -45,6 +45,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.13.0
+// - A TURNED GROUP. PushGroup takes an optional turn { deg, x, y } and the
+//   group carries RotateDeg, RotateX and RotateY; the SVG painter wraps it
+//   (clip and all) in one rotate transform and the PDF painter in one matrix
+//   (Na__LeVpRot__PdfTurn), restored in a finally. A group without a turn is
+//   written exactly as before.
+// - BuildFrame: a turned viewport (Viewport__RotationDeg) builds its frame
+//   line and caption level, into one group turned about the middle of the
+//   frame, so they turn with the drawing on the sheet and in the PDF.
+//
 // 21-Sep-2026 - Version 1.12.0
 // - A hatch's own line weight and line colour. HatchDef hands the hatch
 //   module the record's Hatch__StrokePt, and resolves the colour as: this
@@ -170,6 +180,7 @@
     import { Na__LePdfFonts__Install, Na__LePdfFonts__SetFont } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';
     import { Na__QrPaint__SvgGroup, Na__QrPaint__DrawPdf } from '../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js';   // <-- A leaf: a symbol and numbers in, markup or drawing calls out
     import { Na__LeImgPaint__KIND, Na__LeImgPaint__Svg, Na__LeImgPaint__DrawPdf } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Painter__.js';   // <-- A leaf too: a picture primitive in, markup or drawing calls out
+    import { Na__LeVpRot__Deg, Na__LeVpRot__Centre, Na__LeVpRot__WrapDeg, Na__LeVpRot__PdfTurn } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned viewport's frame and caption turn with it
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -422,10 +433,19 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Push a Group of Children Clipped to a Rectangle
+    // FUNCTION | Push a Group of Children Clipped to a Rectangle, and Optionally Turned
     // ------------------------------------------------------------
-    function Na__LeChrome__PushGroup(list, clipRect, children) {
-        list.push({ Kind : Na__LeChrome__KIND_GROUP, ClipRect : clipRect || null, Children : children || [] });
+    // turn is optional: { deg, x, y } turns the whole group - its clip
+    // included - deg clockwise about the paper point x, y. Both painters turn
+    // it as one (an SVG transform, a PDF matrix), so the children are built as
+    // if level. A group with no turn, and every group built before turns
+    // existed, carries no RotateDeg and paints exactly as it did.
+    // ------------------------------------------------------------
+    function Na__LeChrome__PushGroup(list, clipRect, children, turn) {
+        const group = { Kind : Na__LeChrome__KIND_GROUP, ClipRect : clipRect || null, Children : children || [] };
+        const deg   = turn ? Na__LeVpRot__WrapDeg(turn.deg) : 0;
+        if (deg && Number.isFinite(turn.x) && Number.isFinite(turn.y)) { group.RotateDeg = deg; group.RotateX = turn.x; group.RotateY = turn.y; }
+        list.push(group);
     }
     // ------------------------------------------------------------
 
@@ -506,6 +526,19 @@
         // nothing to hang on; the view is titled by hand instead. Leaving both out
         // of this list leaves them off the screen and off the PDF alike.
         if (viewport.Viewport__ShowFrame === false) return;
+        // A TURNED VIEWPORT (Viewport__RotationDeg) TURNS ITS FRAME LINE AND ITS
+        // CAPTION WITH IT, about the middle of the frame: they are built level,
+        // exactly as below, into one group that both painters turn as a whole.
+        // The caption is an inset label in the frame's corner, so it belongs to
+        // the frame and reads along the drawing it names.
+        const deg = Na__LeVpRot__Deg(viewport);
+        if (deg) {
+            const level  = [];
+            const middle = Na__LeVpRot__Centre(viewport);
+            Na__LeChrome__BuildFrame(level, sheet, Object.assign({}, viewport, { Viewport__RotationDeg : 0 }), style);
+            if (level.length) Na__LeChrome__PushGroup(list, null, level, { deg : deg, x : middle.x, y : middle.y });
+            return;
+        }
         const frame  = viewport.Viewport__FrameMm;
         const source = Na__LeModel__ResolveViewportSource(viewport);
         Na__LeChrome__PushRect(list, frame.X, frame.Y, frame.WidthMm, frame.HeightMm, style.frameLineColour, style.frameStrokeMm, null);
@@ -712,11 +745,18 @@
         }
         if (primitive.Kind === Na__LeChrome__KIND_GROUP) {
             const inner = primitive.Children.map((child) => Na__LeChrome__ToSvg(child, style, clipCounter)).join('');
-            if (!primitive.ClipRect) return '<g>' + inner + '</g>';
-            const id = 'naLeClip' + (clipCounter.n++);
-            const c  = primitive.ClipRect;
-            return '<clipPath id="' + id + '"><rect x="' + R(c.X) + '" y="' + R(c.Y) + '" width="' + R(c.WidthMm) + '" height="' + R(c.HeightMm) + '"/></clipPath>' +
-                   '<g clip-path="url(#' + id + ')">' + inner + '</g>';
+            let body;
+            if (!primitive.ClipRect) body = '<g>' + inner + '</g>';
+            else {
+                const id = 'naLeClip' + (clipCounter.n++);
+                const c  = primitive.ClipRect;
+                body = '<clipPath id="' + id + '"><rect x="' + R(c.X) + '" y="' + R(c.Y) + '" width="' + R(c.WidthMm) + '" height="' + R(c.HeightMm) + '"/></clipPath>' +
+                       '<g clip-path="url(#' + id + ')">' + inner + '</g>';
+            }
+            // A TURNED GROUP wraps the whole of that - clip included - in one
+            // outer transform, so the clip turns with what it clips.
+            if (!primitive.RotateDeg) return body;
+            return '<g transform="rotate(' + R(primitive.RotateDeg) + ' ' + R(primitive.RotateX) + ' ' + R(primitive.RotateY) + ')">' + body + '</g>';
         }
         return '';
     }
@@ -884,19 +924,29 @@
             return;
         }
         if (primitive.Kind === Na__LeChrome__KIND_GROUP) {
-            let clipped = false;
-            if (primitive.ClipRect && typeof doc.saveGraphicsState === 'function' && typeof doc.clip === 'function') {
-                try {
-                    doc.saveGraphicsState();
-                    const c = primitive.ClipRect;
-                    doc.rect(c.X, c.Y, c.WidthMm, c.HeightMm, null);
-                    doc.clip();
-                    doc.discardPath();
-                    clipped = true;
-                } catch (clipError) { clipped = false; }
+            // A TURNED GROUP opens a graphics state with its turn in it (one
+            // matrix about its point) and draws its children level inside; the
+            // clip, laid down inside that state, turns with them. Closed in a
+            // finally, so a child that throws cannot leave the rest of the page
+            // turned.
+            const turned = primitive.RotateDeg ? Na__LeVpRot__PdfTurn(doc, primitive.RotateX, primitive.RotateY, primitive.RotateDeg) : false;
+            try {
+                let clipped = false;
+                if (primitive.ClipRect && typeof doc.saveGraphicsState === 'function' && typeof doc.clip === 'function') {
+                    try {
+                        doc.saveGraphicsState();
+                        const c = primitive.ClipRect;
+                        doc.rect(c.X, c.Y, c.WidthMm, c.HeightMm, null);
+                        doc.clip();
+                        doc.discardPath();
+                        clipped = true;
+                    } catch (clipError) { clipped = false; }
+                }
+                primitive.Children.forEach((child) => Na__LeChrome__ToPdf(doc, child, style));
+                if (clipped) { try { doc.restoreGraphicsState(); } catch (e) { /* nothing to restore */ } }
+            } finally {
+                if (turned) { try { doc.restoreGraphicsState(); } catch (e) { /* nothing to restore */ } }
             }
-            primitive.Children.forEach((child) => Na__LeChrome__ToPdf(doc, child, style));
-            if (clipped) { try { doc.restoreGraphicsState(); } catch (e) { /* nothing to restore */ } }
         }
     }
     // ------------------------------------------------------------

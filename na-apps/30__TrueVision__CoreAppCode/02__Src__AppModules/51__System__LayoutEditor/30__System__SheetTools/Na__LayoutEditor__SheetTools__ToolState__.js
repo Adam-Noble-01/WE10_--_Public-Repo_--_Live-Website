@@ -53,6 +53,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0
+// - The settings for new dimensions carry roundUp (Round up to 5 mm), filled
+//   from the config's DefaultRoundUp: off.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - THE VECTOR TOOLS (37__System__VectorTools). CancelPlacement abandons
 //   whatever any of them has half done. ApplyTool asks Na__LeVec__KeepsContainer
@@ -188,6 +192,7 @@
             const s = Na__LeCfg__GetDimensionSetup();
             Na__LeTools__DimDefaults = { textSizeMm : s.defaultTextSizeMm, colour : s.defaultColour, terminator : s.defaultTerminator, tickLengthMm : s.tickLengthMm, offsetMm : s.defaultOffsetMm, precision : s.defaultPrecision, unitsSuffix : s.defaultUnits,
                                          atScale : s.defaultAtScale,     // <-- Measure at scale: the Dimensions panel's first control
+                                         roundUp : s.defaultRoundUp,     // <-- Round up to 5 mm: off unless the config says otherwise
                                          startExtensionMm : s.defaultExtensionMm, endExtensionMm : s.defaultExtensionMm, extensionsLinked : true };   // <-- Fixed length extension lines, linked; null is the full line
         }
         return Na__LeTools__DimDefaults;

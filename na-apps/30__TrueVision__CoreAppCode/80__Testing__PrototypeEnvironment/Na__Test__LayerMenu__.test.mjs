@@ -649,7 +649,12 @@ import { tmpdir } from 'node:os';
         writeFileSync(tmp, stubs + '\n' + built.source + '\nexport { ' + built.names.join(', ') + ' };\n', 'utf8');
         return import(pathToFileURL(tmp).href + '?v=' + Math.random().toString(36).slice(2));
     };
+    // The viewport rotation leaf, as it ships (no imports): the search reads a frame's box through it.
+    const vpRotTmp = join(tmpdir(), 'Na__Test__LayerMenu__ViewportRotation__.mjs');
+    writeFileSync(vpRotTmp, readFileSync(resolve(SRC, '51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js'), 'utf8'), 'utf8');
+    globalThis.__VpRot = await import(pathToFileURL(vpRotTmp).href + '?v=' + Math.random().toString(36).slice(2));
     const O = await loadObjectSnap([ 'State', 'Geometry', 'Index', 'Sources', 'Search' ], REACH + `
+        const Na__LeVpRot__Bounds = (...a) => globalThis.__VpRot.Na__LeVpRot__Bounds(...a);
         const Na__LeCfg__GetSnappingSetup = () => ({ enabled : true, radiusPx : 10, endpoints : true, midpoints : true, hiddenLines : false, sheetObjects : true, sheetChrome : false, markerSizePx : 10 });
         const Na__LeSurface__GetElements = () => ({ handles : null });
         const Na__LeSurface__GetPixelsPerMm = () => 1;

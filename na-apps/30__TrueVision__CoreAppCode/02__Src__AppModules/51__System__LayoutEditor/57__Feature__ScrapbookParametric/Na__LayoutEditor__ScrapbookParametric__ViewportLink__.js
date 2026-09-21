@@ -100,6 +100,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.1
+// - DistanceTo measures to the frame as it stands, turned
+//   (Viewport__RotationDeg) or not.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - Nearest leaves out a viewport on a REFERENCE layer (the Layers panel's
 //   Ref), so a scale bar or a title dropped beside one, or asked to Link to
@@ -178,6 +182,7 @@
     import { Na__LeGroup__Bounds } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LePanels__IsEditable, Na__LePanels__Refresh } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     import { Na__LeViewId__CHANGED_EVENT, Na__LeViewId__Describe } from '../20__System__Viewports/Na__LayoutEditor__ViewportIdentity__.js';
+    import { Na__LeVpRot__DistanceTo } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: distance to a turned frame
     import {
         Na__LeParam__FIELD,
         Na__LeParam__Block,
@@ -263,10 +268,7 @@
     // HELPER FUNCTION | How Far a Paper Point Is From a Viewport's Frame (zero inside it)
     // ------------------------------------------------------------
     function Na__LeParamLink__DistanceTo(viewport, pointMm) {
-        const frame = viewport.Viewport__FrameMm || {};
-        const dx = Math.max(frame.X - pointMm.x, 0, pointMm.x - (frame.X + frame.WidthMm));
-        const dy = Math.max(frame.Y - pointMm.y, 0, pointMm.y - (frame.Y + frame.HeightMm));
-        return Math.hypot(dx, dy);
+        return Na__LeVpRot__DistanceTo(viewport, pointMm);                       // <-- The frame as it stands, turned or not
     }
     // ------------------------------------------------------------
 

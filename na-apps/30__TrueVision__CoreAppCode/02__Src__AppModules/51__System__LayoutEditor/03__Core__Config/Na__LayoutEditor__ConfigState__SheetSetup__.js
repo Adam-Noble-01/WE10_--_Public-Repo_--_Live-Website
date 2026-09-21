@@ -327,7 +327,10 @@
             imageZoomMin         : Math.min(1, Math.max(0.01, Na__LeCfg__Num('Viewport', 'ImageZoomMin', 0.25))),   // <-- A 3D picture's zoom limits: never past 100 percent the wrong way
             imageZoomMax         : Math.max(1, Na__LeCfg__Num('Viewport', 'ImageZoomMax', 10)),
             imageZoomFineFactor  : Math.max(0.01, Na__LeCfg__Num('Viewport', 'ImageZoomFineFactor', 0.2)),
-            imageZoomCommitMs    : Math.max(0, Na__LeCfg__Num('Viewport', 'ImageZoomCommitMs', 350))
+            imageZoomCommitMs    : Math.max(0, Na__LeCfg__Num('Viewport', 'ImageZoomCommitMs', 350)),
+            rotateStepDeg        : Math.min(180, Math.max(0, Na__LeCfg__Num('Viewport', 'RotateStepDeg', 90))),       // <-- Shift holds a rotate drag to these steps; 0 turns them off
+            rotateDetentDeg      : Math.min(10, Math.max(0, Na__LeCfg__Num('Viewport', 'RotateDetentDeg', 2))),       // <-- Without Shift a turn settles on a right angle within this; 0 turns the detent off
+            rotateGripOffsetPx   : Math.max(8, Na__LeCfg__Num('Viewport', 'RotateGripOffsetPx', 22))                  // <-- Screen pixels from the frame's top edge to its rotate grip
         };
     }
     // ------------------------------------------------------------
@@ -381,6 +384,23 @@
                 medium : level('medium',  8, 4096,  4),
                 high   : level('high',   12, 6144, 16)
             }
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Vector Quality: the Level a Browser Starts On, and How Long Medium Waits Before Letting Go
+    // ------------------------------------------------------------
+    // Na__LayoutEditor__VectorQuality__. releaseAfterMs is the quiet, with
+    // nothing on the sheet redrawn, after which Medium lets the drawing go and
+    // it is drawn clean again. Too short and it lets go between two moves of
+    // a slow hand; never under a fifth of a second.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetVectorQualitySetup() {
+        const wait = Na__LeCfg__Val('VectorQuality', 'ReleaseAfterMs', 1200);
+        return {
+            defaultLevel   : Na__LeCfg__Val('VectorQuality', 'DefaultLevel', 'medium'),
+            releaseAfterMs : (Number.isFinite(wait) && wait >= 200) ? wait : 1200
         };
     }
     // ------------------------------------------------------------
@@ -534,6 +554,7 @@
         Na__LeCfg__GetScaleSetup,
         Na__LeCfg__GetViewportSetup,
         Na__LeCfg__GetRasterSetup,
+        Na__LeCfg__GetVectorQualitySetup,
         Na__LeCfg__GetViewportCacheSetup,
         Na__LeCfg__PtToMm,
         Na__LeCfg__GetPlanDoorsSetup,

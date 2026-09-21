@@ -20,6 +20,8 @@
 //   the drawings block, and Unselect drops a deleted item from the selection.
 //   Dispatch and Touch pass an optional restore through to the event detail
 //   (an undo or redo from AnnounceRestore; null on every other change).
+// - Dispatch also moves the Revision on, a count of announcements. The Sheets
+//   unit reads it to know whether what it last normalised is still good.
 // - The state is exported as live bindings to read. An imported let cannot
 //   be assigned, so the units that write it call AssignActiveSheetId,
 //   AssignSelectionItems and AssignDirty: each does that one assignment and
@@ -38,12 +40,20 @@
 // PORT NOTE:
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
-// - Divergences   : header and folder numbers; DRAWING_ARCHITECTURAL and DRAWING_SITEPLAN are TrueVision only, Dispatch and Touch carry the restore detail (TrueVision's AnnounceRestore), and RegisterBeforeAnnounce is TrueVision first (19-Sep-2026).
+// - Divergences   : header and folder numbers; DRAWING_ARCHITECTURAL and DRAWING_SITEPLAN are TrueVision only, Dispatch and Touch carry the restore detail (TrueVision's AnnounceRestore), RegisterBeforeAnnounce is TrueVision first (19-Sep-2026), and so is Revision (21-Sep-2026).
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - Revision: a count that goes up with every announcement (Dispatch), read
+//   live by the Sheets unit. GetSheets keeps what it has normalised until the
+//   count moves, where it used to normalise every sheet of the pack on every
+//   read - 1.3 ms a read on RB05's fifteen sheets, and a pointer move with the
+//   Dimension tool up made eight of them. TrueVision first; not yet in
+//   ValeVision.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - RegisterBeforeAnnounce: a feature can bring what it derives from a sheet
 //   up to date, silently, BEFORE a change is announced, so the one
@@ -108,6 +118,7 @@
     let Na__LeModel__ActiveSheetId  = null;
     let Na__LeModel__SelectionItems = [];      // <-- [{ kind : 'viewport' | 'annotation' | 'dimension' | 'shape' | 'leader', id }], in the order chosen
     let Na__LeModel__Dirty         = false;
+    let Na__LeModel__Revision      = 0;        // <-- Goes up with every announcement: what GetSheets has normalised stays good until it moves
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | What Runs Before a Change Is Announced
@@ -127,8 +138,13 @@
     // ------------------------------------------------------------
     // restore is null except when undo or redo put a snapshot back:
     // { direction : 'undo' | 'redo', stepReason } - see AnnounceRestore.
+    //
+    // THE REVISION MOVES FIRST, before any listener runs: the first of them
+    // to read the sheets (GetSheets) gets them normalised afresh, and every
+    // read after that, until the next announcement, gets them as they are.
     // ------------------------------------------------------------
     function Na__LeModel__Dispatch(reason, sheetId, itemId, restore) {
+        Na__LeModel__Revision += 1;
         window.dispatchEvent(new CustomEvent(Na__LeModel__CHANGED_EVENT, {
             detail : { reason : reason || 'change', sheetId : sheetId || Na__LeModel__ActiveSheetId, itemId : itemId || null, restore : restore || null }
         }));
@@ -241,6 +257,7 @@
         Na__LeModel__ActiveSheetId,
         Na__LeModel__SelectionItems,
         Na__LeModel__Dirty,
+        Na__LeModel__Revision,
         Na__LeModel__Dispatch,
         Na__LeModel__RegisterBeforeAnnounce,
         Na__LeModel__Touch,

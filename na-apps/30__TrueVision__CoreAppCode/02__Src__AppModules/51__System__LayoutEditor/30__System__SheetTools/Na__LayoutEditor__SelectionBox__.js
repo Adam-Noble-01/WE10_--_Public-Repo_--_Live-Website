@@ -63,6 +63,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - A turned viewport (Viewport__RotationDeg) is its turned outline, so a
+//   window takes it only when it holds all four turned corners and a crossing
+//   takes it when it meets one of its turned edges.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - Nothing on a REFERENCE layer (Layer__Selectable false) is a candidate,
 //   inside an open container or out of one: a box sweeps over a reference
@@ -123,6 +128,7 @@
     import { Na__LeShapeGeo__Points } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeLeadGeo__TYPE_BUBBLE, Na__LeLeadGeo__Layout, Na__LeLeadGeo__Circle, Na__LeLeadGeo__HasText } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeScope__BoxCandidates } from './Na__LayoutEditor__EditScope__.js';
+    import { Na__LeVpRot__Corners } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned frame's four corners
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -290,7 +296,9 @@
     // ------------------------------------------------------------
     function Na__LeSelBox__ViewportParts(sheet, viewport) {
         const r = viewport.Viewport__FrameMm;
-        return r ? [ Na__LeSelBox__RectPart(r.X, r.Y, r.WidthMm, r.HeightMm, false) ] : [];
+        if (!r) return [];
+        if (!viewport.Viewport__RotationDeg) return [ Na__LeSelBox__RectPart(r.X, r.Y, r.WidthMm, r.HeightMm, false) ];
+        return [ { points : Na__LeVpRot__Corners(viewport).map((p) => [ p.x, p.y ]), closed : true, area : false } ];   // <-- A turned frame is its turned outline
     }
     // ------------------------------------------------------------
 

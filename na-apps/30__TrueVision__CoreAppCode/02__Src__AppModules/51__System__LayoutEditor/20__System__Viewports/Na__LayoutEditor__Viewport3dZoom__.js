@@ -59,6 +59,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0 (TrueVision)
+// - OnWheel reads the cursor turned back into the frame's own axes, so the
+//   picture of a turned viewport (Viewport__RotationDeg) zooms about the point
+//   under the cursor.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - First cut. The wheel zooms an edited 3D viewport's picture about the
 //   cursor, Shift in fine steps, one undo step per run of notches. PatchAbout,
@@ -84,6 +89,7 @@
         Na__LeModel__IsLayerLocked
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetEditingViewport, Na__LeSurface__ClientToPaperMm, Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeVpRot__ToFrame } from './Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the cursor turned back into a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -259,7 +265,8 @@
         const viewport = sheet ? Na__LeModel__GetViewportById(sheet, viewportId) : null;
         if (!viewport || viewport.Viewport__Kind !== Na__LeModel__KIND_3D) return false;   // <-- A 2D viewport's size on the paper is its scale
         if (viewport.Viewport__Locked === true || Na__LeModel__IsLayerLocked(sheet, viewport.Viewport__LayerId)) return false;
-        const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
+        const paper = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
+        const point = paper ? Na__LeVpRot__ToFrame(viewport, paper.x, paper.y) : null;   // <-- In the frame's own axes: a turned picture zooms about the point under the cursor
         const frame = viewport.Viewport__FrameMm;
         if (!point || point.x < frame.X || point.x > frame.X + frame.WidthMm || point.y < frame.Y || point.y > frame.Y + frame.HeightMm) return false;
         event.preventDefault();                                                  // <-- Over the frame the wheel is the picture's, even at a limit

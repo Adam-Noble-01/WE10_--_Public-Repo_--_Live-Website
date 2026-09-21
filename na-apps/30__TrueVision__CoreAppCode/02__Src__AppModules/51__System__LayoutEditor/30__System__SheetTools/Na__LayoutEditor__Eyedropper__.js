@@ -116,6 +116,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0
+// - A dimension's Round up to 5 mm (Dimension__RoundUp) is a style trait: the
+//   dropper and Paste properties copy it with the decimals and the units, and
+//   the Dimensions panel's switch reaches every selected dimension. A source
+//   without the field copies as off.
+//
+// 21-Sep-2026 - Version 1.8.2
+// - A viewport's box is the box round its frame as it stands, turned
+//   (Viewport__RotationDeg) or not.
+//
 // 21-Sep-2026 - Version 1.8.1
 // - A picture (Sheet Images) is neither a source nor a target: Record answers
 //   null for a shape carrying Shape__Image, so Copy properties, Paste
@@ -208,6 +218,7 @@
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeMarkup__AnnotationBounds, Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__LeaderBounds } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeShapeGeo__Bounds } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeVpRot__Bounds } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the box round a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -287,7 +298,8 @@
                 { patch : 'offsetMm',    field : 'Dimension__OffsetMm', optional : 'copyOffset' },
                 { patch : 'startExtensionMm', field : 'Dimension__StartExtensionMm', nullable : true, absent : null },   // <-- null, or no field at all, is the full line: a real value to copy
                 { patch : 'endExtensionMm',   field : 'Dimension__EndExtensionMm',   nullable : true, absent : null },
-                { patch : 'extensionsLinked', field : 'Dimension__ExtensionsLinked', absent : true }                      // <-- Stored only as false
+                { patch : 'extensionsLinked', field : 'Dimension__ExtensionsLinked', absent : true },                     // <-- Stored only as false
+                { patch : 'roundUp',          field : 'Dimension__RoundUp',          absent : false }                     // <-- Stored only as true: a missing field is an unrounded figure, a real value to copy
             ]
         },
         shape : {
@@ -626,7 +638,7 @@
         if (kind === 'annotation') return Na__LeMarkup__AnnotationBounds(record);
         if (kind === 'shape')      return Na__LeShapeGeo__Bounds(record);
         if (kind === 'leader')     return Na__LeMarkup__LeaderBounds(record);
-        if (kind === 'viewport')   return record.Viewport__FrameMm || null;                 // <-- Ready for the viewport expansion
+        if (kind === 'viewport')   return record.Viewport__FrameMm ? Na__LeVpRot__Bounds(record) : null;   // <-- Ready for the viewport expansion; the box round the frame as it stands
         if (kind !== 'dimension')  return null;
 
         const skeleton = Na__LeMarkup__DimensionSkeleton(record);

@@ -40,6 +40,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.18.0
+// - ROUND UP TO 5 MM. FormatDimension prints a dimension carrying
+//   Dimension__RoundUp at its figure raised to the next Dimensions
+//   RoundUpStepMm (Na__LayoutEditor__DimensionRounding__), with the
+//   RoundUpMarker (an asterisk) straight after the figure when the rounding
+//   moved it. A figure already on the step, an override, and every record
+//   without the key print exactly as before. Being the one place the text is
+//   made, the sheet, the PDF, the selection box and the inline editor follow.
+//
+// 21-Sep-2026 - Version 1.17.0
+// - ImportFromScene on a turned viewport (Viewport__RotationDeg): its window's
+//   ToPaper carries the turn, so dimensions land on the turned drawing; each
+//   text item is placed in the level frame, turned onto the paper and given
+//   the viewport's turn, so it reads along the drawing.
+//
 // 21-Sep-2026 - Version 1.16.0
 // - HitTest passes straight through a REFERENCE layer (Layer__Selectable
 //   false, the Layers panel's Ref): nothing on it answers a click, the
@@ -196,6 +211,7 @@
         Na__LeDimGeo__HitText,
         Na__LeDimGeo__SpanMm
     } from './Na__LayoutEditor__DimensionGeometry__.js';
+    import { Na__LeDimRound__Up } from './Na__LayoutEditor__DimensionRounding__.js';   // <-- Round up to 5 mm: the figure raised to the next step, and whether it moved
     import { Na__LeShapeGeo__Push, Na__LeShapeGeo__Bounds, Na__LeShapeGeo__Hit } from './Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeAreaPaint__Push } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Paint__.js';   // <-- A measured room writes its name and its figure in the middle of itself
     // @delegate: ../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Paint__.js
@@ -334,10 +350,16 @@
         Na__PlanAnno__ReadAll(records.annotations).forEach((record) => {
             const f = Na__PlanAnno__Read(record);
             if (!f || !f.text) return;
-            const p      = win.ToPaper(f.posXMm, sign * f.posZMm);
             const fontMm = f.sizeMm / D;
-            if (Na__LeModel__CreateAnnotation(sheet, p.x, p.y + (fontMm * Na__LeMarkup__CAP_HEIGHT / 2), {
-                text : f.text, sizeMm : fontMm, fontWeight : f.fontWeight, colour : f.color, align : 'center', layerId : layerId
+            // Placed in the level frame, then turned with a turned viewport
+            // (Viewport__RotationDeg): the text turns about its anchor by the
+            // viewport's own turn, so it reads along the drawing it labels.
+            const q      = win.ToFrame ? win.ToFrame(f.posXMm, sign * f.posZMm) : win.ToPaper(f.posXMm, sign * f.posZMm);
+            const p      = win.FrameToPaper ? win.FrameToPaper(q.x, q.y + (fontMm * Na__LeMarkup__CAP_HEIGHT / 2)) : { x : q.x, y : q.y + (fontMm * Na__LeMarkup__CAP_HEIGHT / 2) };
+            const turn   = win.RotationDeg || 0;
+            if (Na__LeModel__CreateAnnotation(sheet, p.x, p.y, {
+                text : f.text, sizeMm : fontMm, fontWeight : f.fontWeight, colour : f.color, align : 'center', layerId : layerId,
+                rotationDeg : turn ? turn : undefined
             })) count++;
         });
 
@@ -537,14 +559,21 @@
 
     // FUNCTION | The Text a Sheet Dimension Shows
     // ------------------------------------------------------------
+    // ROUND UP. A dimension carrying Dimension__RoundUp prints its figure
+    // raised to the next RoundUpStepMm (Na__LayoutEditor__DimensionRounding__),
+    // with the RoundUpMarker straight after the figure - 6,415* or 8,325* mm -
+    // but only when rounding actually moved it: a figure already on the step
+    // is exact and unmarked. An override is printed as typed, never rounded.
+    // ------------------------------------------------------------
     function Na__LeMarkup__FormatDimension(dim, valueMm) {
         if (typeof dim.Dimension__OverrideText === 'string' && dim.Dimension__OverrideText.trim()) return dim.Dimension__OverrideText.trim();
         const setup     = Na__LeCfg__GetDimensionSetup();
         const precision = Math.max(0, Math.min(3, Math.round(dim.Dimension__Precision)));
-        const fixed     = Math.abs(valueMm).toFixed(precision);
+        const round     = dim.Dimension__RoundUp === true ? Na__LeDimRound__Up(valueMm, precision, setup.roundUpStepMm) : null;
+        const fixed     = (round ? round.valueMm : Math.abs(valueMm)).toFixed(precision);
         const parts     = fixed.split('.');
         if (setup.thousandsSep) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, setup.thousandsSep);
-        return parts.join('.') + (dim.Dimension__UnitsSuffix || '');
+        return parts.join('.') + ((round && round.rounded) ? setup.roundUpMarker : '') + (dim.Dimension__UnitsSuffix || '');
     }
     // ------------------------------------------------------------
 

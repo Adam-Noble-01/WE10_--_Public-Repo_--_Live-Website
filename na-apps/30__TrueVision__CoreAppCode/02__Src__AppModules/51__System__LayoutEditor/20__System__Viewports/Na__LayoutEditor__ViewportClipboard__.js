@@ -97,6 +97,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0 (TrueVision)
+// - A copy keeps its turn (Viewport__RotationDeg rides in the record), and a
+//   turned viewport pasted at a click puts the top left of the box round its
+//   turned frame at the click, where a level one puts its corner.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - LayerFor refuses a REFERENCE layer (Layer__Selectable false) as it
 //   refuses a hidden or a locked one: a pasted viewport or vector there would
@@ -147,6 +152,7 @@
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Bounds, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LePanels__GetContext } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
+    import { Na__LeVpRot__Bounds } from './Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the box round a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -374,7 +380,12 @@
     function Na__LeClip__Land(sheet, source, atMm) {
         const record = Na__LeClip__Clone(source);
         const frame  = record.Viewport__FrameMm || {};
-        const spot   = Na__LeClip__Place(sheet, frame, atMm || { x : frame.X, y : frame.Y }, !atMm);
+        // A TURNED VIEWPORT (Viewport__RotationDeg) pasted at a click puts the
+        // corner you SEE there - the top left of the box round the turned frame
+        // - not the level corner, which the turn has carried somewhere else.
+        const box    = (atMm && record.Viewport__RotationDeg && record.Viewport__FrameMm) ? Na__LeVpRot__Bounds(record) : null;
+        const ask    = box ? { x : atMm.x + (frame.X - box.X), y : atMm.y + (frame.Y - box.Y) } : atMm;
+        const spot   = Na__LeClip__Place(sheet, frame, ask || { x : frame.X, y : frame.Y }, !atMm);
         record.Viewport__FrameMm = Object.assign({}, frame, spot);
         record.Viewport__Name    = Na__LeClip__UniqueName(sheet, source);
         record.Viewport__LayerId = Na__LeClip__LayerFor(sheet, source.Viewport__LayerId);

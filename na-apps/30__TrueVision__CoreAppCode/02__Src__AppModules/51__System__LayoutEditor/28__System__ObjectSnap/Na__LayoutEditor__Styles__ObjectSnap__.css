@@ -21,9 +21,9 @@
          paper      slate    the border, the title block, the notes margin
          grid       slate    a point of the drawing grid (Grid Snap, F7)
    - THE SHAPE IS THE KIND, and is drawn by Na__LayoutEditor__ObjectSnap__
-     Glyphs__ as SVG; nothing here draws a glyph. The marker's size and its
-     counter-scale are written inline by Na__LayoutEditor__ObjectSnap__Marker__
-     (a transform, so a zoom can never thicken it).
+     Glyphs__ as SVG; nothing here draws a glyph. The marker's size, its place
+     and its counter-scale are written inline by Na__LayoutEditor__ObjectSnap__
+     Marker__ (one transform, so a zoom can neither thicken it nor shift it).
    - The marker rules moved here from Na__LayoutEditor__Styles__Main__Paper__
      .css and the grid ring's from Na__LayoutEditor__Styles__DrawingGrid__.css,
      where the colour used to say which TOOL was snapping.
@@ -35,6 +35,12 @@
    REGION | The Marker on the Paper
    ----------------------------------------------------------------------------- */
 
+    /* WHERE IT SITS IS NOT HERE. The marker is carried to its point by its      */
+    /* transform, measured from the layer's corner: left 0, top 0 and the origin */
+    /* are written inline by the Marker module with the transform that needs     */
+    /* them, so this sheet and that file can never disagree about it. (left and  */
+    /* top cannot place it: they are rounded to a whole device pixel BEFORE the  */
+    /* paper's scale(zoom), which multiplies the difference - 9 pixels at 32x.)  */
     .na-le-osnap {
         --na-le-osnap-rgb                  : 37, 99, 235;                 /* <-- A marker that names no target is drawn as a vector's */
         position                           : absolute;

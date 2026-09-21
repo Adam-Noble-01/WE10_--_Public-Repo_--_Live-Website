@@ -44,6 +44,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0 (TrueVision)
+// - Rotation: UpdateViewport takes rotationDeg and CreateViewport the option of
+//   the same name (Viewport__RotationDeg, degrees clockwise about the middle of
+//   the frame). The normaliser wraps it and drops it when the viewport is level.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - RegisterViewportNamer: one function may offer a name for a viewport
 //   nobody has named, ahead of its drawing's own. The viewport identity
@@ -100,6 +105,11 @@
         Na__LeModel__AssignDirty
     } from './Na__LayoutEditor__SheetModel__State__.js';
     import { Na__LeModel__GetLayerById, Na__LeModel__DefaultLayerId } from './Na__LayoutEditor__SheetModel__Layers__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Viewport Rotation (a leaf: the record key)
+    // ------------------------------------------------------------
+    import { Na__LeVpRot__FIELD } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -177,7 +187,8 @@
     // FUNCTION | Add a Viewport
     // ------------------------------------------------------------
     // options: { kind, sceneId, drawingId, name, rect, scaleDenominator, modelSourceId,
-    //           sitePlan (an object: a site plan viewport), modelLayers (categories switched off) }
+    //           sitePlan (an object: a site plan viewport), modelLayers (categories switched off),
+    //           rotationDeg (degrees clockwise about the middle of the frame) }
     // ------------------------------------------------------------
     function Na__LeModel__CreateViewport(sheet, options) {
         if (!sheet) return null;
@@ -192,7 +203,8 @@
             Viewport__FrameMm          : opts.rect || null,
             Viewport__ScaleDenominator : opts.scaleDenominator,
             Viewport__SitePlan         : (opts.sitePlan && typeof opts.sitePlan === 'object') ? Object.assign({}, opts.sitePlan) : undefined,
-            Viewport__ModelLayers      : (opts.modelLayers && typeof opts.modelLayers === 'object') ? Object.assign({}, opts.modelLayers) : null
+            Viewport__ModelLayers      : (opts.modelLayers && typeof opts.modelLayers === 'object') ? Object.assign({}, opts.modelLayers) : null,
+            [Na__LeVpRot__FIELD]       : opts.rotationDeg                        // <-- The normaliser wraps it, and drops it when level
         }, Na__LeModel__DefaultLayerId(sheet, 'viewport'));
         sheet.Sheet__Viewports.push(viewport);
         Na__LeModel__Touch('viewports', sheet.Sheet__Id, viewport.Viewport__Id);
@@ -245,7 +257,7 @@
     // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, imageZoom, styles, modelLayers,
     //          projectedEdges, compositeWeights, markupMode, name, layerId,
     //          sceneId, drawingId, kind, showScaleLabel, showFrame, locked, snapshotAsset, modelSourceId,
-    //          closedDoors }
+    //          closedDoors, rotationDeg }
     // silent: true skips the change event (live drags announce on release).
     // ------------------------------------------------------------
     function Na__LeModel__UpdateViewport(sheet, viewportId, patch, silent) {
@@ -308,6 +320,7 @@
         if (typeof patch.locked === 'boolean') viewport.Viewport__Locked = patch.locked;
         if (patch.snapshotAsset !== undefined) viewport.Viewport__SnapshotAsset = patch.snapshotAsset;
         if (patch.modelSourceId !== undefined) viewport.Viewport__ModelSourceId = patch.modelSourceId || null;   // <-- The design phase drawn; empty is the Project Default
+        if (patch.rotationDeg !== undefined) viewport[Na__LeVpRot__FIELD] = patch.rotationDeg;   // <-- Degrees clockwise about the middle of the frame; the normaliser wraps it and drops a level one
 
         // SITE PLAN STORE | Which site plan a site plan viewport draws, Existing
         // or Proposed. Merged rather than replaced, so the block keeps whatever

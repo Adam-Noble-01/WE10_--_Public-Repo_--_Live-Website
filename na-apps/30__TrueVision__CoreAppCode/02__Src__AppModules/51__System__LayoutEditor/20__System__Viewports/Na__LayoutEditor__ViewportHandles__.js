@@ -22,6 +22,14 @@
 //     3D (D30): corners scale the image proportionally about the opposite
 //     corner, edges crop the frame while the image stays put, inside drag
 //     moves the image within the frame.
+// - Rotation (TrueVision): a round grip on a stem off the middle of the top
+//   edge turns the viewport about the middle of its frame (RotateStart,
+//   RotateTo; Shift holds Viewport RotateStepDeg steps, a quarter turn). A
+//   turned frame keeps all of the above: the outline and handles are drawn
+//   turned, a hit is tested with the point turned back into the level frame,
+//   and a crop or a pan is worked in the frame's own axes, with the edge
+//   opposite the handle kept where it is on the paper
+//   (Na__LayoutEditor__ViewportRotation__).
 //
 // INTEGRATION:
 // - The sheet surface renders; the sheet tools hit test and drag.
@@ -38,6 +46,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.5.0 (TrueVision)
+// - ROTATABLE VIEWPORTS. Render draws the outline and the eight handles on the
+//   turned frame, and a rotate grip on a stem off the middle of its top edge
+//   (RotateGrip, OnRotateGrip). RotateStart and RotateTo turn it about the
+//   middle of the frame; Shift holds the turn to Viewport RotateStepDeg (90),
+//   and without Shift it settles on a right angle within RotateDetentDeg.
+// - HitTest and Contains read the point turned back into the level frame.
+//   CaptureStart keeps the turn; DragPatch turns the pointer's travel into the
+//   frame's own axes for a crop or a pan, and puts a cropped frame's middle
+//   where the edge opposite the handle stays put (TurnedRect). A border move
+//   is still a plain paper move. CursorFor turns a handle's arrow with the frame.
+// - The outline and the handles are carried to their place by a transform
+//   (PlaceAt, the grips' own rule), not by left and top, which the browser
+//   rounds before the paper's zoom multiplies the difference.
+//
 // 14-Sep-2026 - Version 1.4.0
 // - The note over a 3D viewport whose content is being edited gives its zoom
 //   and how to change it ("Zoom 150%: scroll to zoom (Shift for fine steps),
@@ -78,6 +101,20 @@
     import { Na__LeModel__KIND_3D, Na__LeModel__GetLayers, Na__LeModel__IsLayerVisible } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Viewport Rotation (a leaf: the turned frame's geometry)
+    // ------------------------------------------------------------
+    import {
+        Na__LeVpRot__Deg,
+        Na__LeVpRot__Settle,
+        Na__LeVpRot__TurnVector,
+        Na__LeVpRot__Centre,
+        Na__LeVpRot__ToPaper,
+        Na__LeVpRot__ToFrame,
+        Na__LeVpRot__Contains,
+        Na__LeVpRot__CssRotate
+    } from './Na__LayoutEditor__ViewportRotation__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -91,6 +128,17 @@
     const Na__LeHandles__CORNERS = [ 'tl', 'tr', 'bl', 'br' ];
     const Na__LeHandles__CURSORS = { tl : 'nwse-resize', br : 'nwse-resize', tr : 'nesw-resize', bl : 'nesw-resize', tc : 'ns-resize', bc : 'ns-resize', lc : 'ew-resize', rc : 'ew-resize' };
     const Na__LeHandles__BORDER_BAND_PX = 7;
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Which Way Each Handle Faces on a Level Frame, and the Resize Cursor for a Heading
+    // ------------------------------------------------------------
+    // Degrees clockwise from pointing right, in 45 degree steps. A turned frame
+    // adds its turn and takes the cursor for the nearest eighth, so a side
+    // handle on a frame turned a quarter wears the up-and-down arrow.
+    // ------------------------------------------------------------
+    const Na__LeHandles__HEADINGS = { rc : 0, br : 45, bc : 90, bl : 135, lc : 180, tl : 225, tc : 270, tr : 315 };
+    const Na__LeHandles__RESIZE_BY_EIGHTH = [ 'ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize' ];
+    const Na__LeHandles__ROTATE_MIN_MM    = 0.25;                                // <-- Nearer the middle than this a pointer's angle means nothing, so a rotate drag holds still
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -131,11 +179,69 @@
 
     // FUNCTION | The Cursor for a Hit
     // ------------------------------------------------------------
-    function Na__LeHandles__CursorFor(hit) {
+    // viewport is optional: given a turned one, a handle's arrow turns with it.
+    // ------------------------------------------------------------
+    function Na__LeHandles__CursorFor(hit, viewport) {
         if (!hit) return '';
-        if (hit.mode === 'handle') return Na__LeHandles__CURSORS[hit.key] || 'default';
+        if (hit.mode === 'handle') {
+            const deg = Na__LeVpRot__Deg(viewport);
+            if (!deg || !(hit.key in Na__LeHandles__HEADINGS)) return Na__LeHandles__CURSORS[hit.key] || 'default';
+            const eighth = ((Math.round((Na__LeHandles__HEADINGS[hit.key] + deg) / 45) % 8) + 8) % 8;
+            return Na__LeHandles__RESIZE_BY_EIGHTH[eighth % 4];
+        }
         if (hit.mode === 'border') return 'move';
         return 'grab';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Carry an Element in the Handles Layer to a Paper Point by a Transform
+    // ------------------------------------------------------------
+    // The grips' rule (Na__LayoutEditor__Grips__ Place): left and top are
+    // rounded to a whole device pixel BEFORE the paper's scale(zoom), which
+    // multiplies the difference, so an element placed by them stands up to half
+    // a pixel times the zoom off its point. It sits at left 0, top 0 with its
+    // origin there, and the transform - read right to left - puts its MIDDLE on
+    // the origin, turns it, scales it back to screen pixels and carries it to
+    // the point. Its width and height are therefore SCREEN pixels.
+    // ------------------------------------------------------------
+    function Na__LeHandles__PlaceAt(el, xPx, yPx, zoom, turnDeg) {
+        el.style.left            = '0px';
+        el.style.top             = '0px';
+        el.style.transformOrigin = '0 0';
+        el.style.transform       = 'translate(' + xPx + 'px, ' + yPx + 'px) scale(' + (1 / (zoom > 0 ? zoom : 1)) + ')' + (turnDeg ? ' rotate(' + turnDeg + 'deg)' : '') + ' translate(-50%, -50%)';
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where the Selected Viewport's Rotate Grip Stands: { base, grip }, Paper Points
+    // ------------------------------------------------------------
+    // Straight out from the middle of the frame's top edge - the top as the
+    // frame stands level, wherever the turn has put it - Viewport
+    // RotateGripOffsetPx further on screen at any zoom. base is where the stem
+    // leaves the frame; the caption hangs off the bottom corner, so the top
+    // is clear.
+    // ------------------------------------------------------------
+    function Na__LeHandles__RotateGrip(viewport, ppm, zoom) {
+        const f     = viewport.Viewport__FrameMm;
+        const reach = Na__LeCfg__GetViewportSetup().rotateGripOffsetPx / Math.max(1e-6, ppm * zoom);
+        const midX  = f.X + (f.WidthMm / 2);
+        return { base : Na__LeVpRot__ToPaper(viewport, midX, f.Y), grip : Na__LeVpRot__ToPaper(viewport, midX, f.Y - reach) };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is a Paper Point on the Selected Viewport's Rotate Grip
+    // ------------------------------------------------------------
+    // Found at the handles' own hit radius. Whether the grip is there at all
+    // (one viewport selected, editable, unlocked, not being edited inside) is
+    // the caller's question - the same one that decides whether it is drawn.
+    // ------------------------------------------------------------
+    function Na__LeHandles__OnRotateGrip(viewport, pointMm, ppm, zoom) {
+        if (!viewport || !pointMm) return false;
+        const at     = Na__LeHandles__RotateGrip(viewport, ppm, zoom);
+        const radius = Na__LeCfg__GetViewportSetup().handleHitRadiusPx / Math.max(1e-6, ppm * zoom);
+        return Math.hypot(pointMm.x - at.grip.x, pointMm.y - at.grip.y) <= radius;
     }
     // ------------------------------------------------------------
 
@@ -148,12 +254,18 @@
 
     // HELPER FUNCTION | One Outline Element Over a Viewport's Frame
     // ------------------------------------------------------------
+    // Carried to the frame by a translate, as the frame itself is (the sheet
+    // surface's RefreshFrames), and turned with it about its middle - so the
+    // outline lies exactly on the frame at any zoom and any turn.
+    // ------------------------------------------------------------
     function Na__LeHandles__Outline(layer, viewport, ppm, zoom, className) {
         const rect    = viewport.Viewport__FrameMm;
         const outline = document.createElement('div');
         outline.className = className;
-        outline.style.left   = (rect.X * ppm) + 'px';
-        outline.style.top    = (rect.Y * ppm) + 'px';
+        outline.style.left   = '0px';
+        outline.style.top    = '0px';
+        outline.style.transformOrigin = '50% 50%';                               // <-- The middle of the frame: what a turn is about
+        outline.style.transform = 'translate(' + (rect.X * ppm) + 'px, ' + (rect.Y * ppm) + 'px)' + Na__LeVpRot__CssRotate(Na__LeVpRot__Deg(viewport));
         outline.style.width  = (rect.WidthMm  * ppm) + 'px';
         outline.style.height = (rect.HeightMm * ppm) + 'px';
         outline.style.borderWidth = Math.max(1, 1.5 / zoom) + 'px';
@@ -195,17 +307,44 @@
         outline.style.setProperty('--na-le-note-scale', String(1 / zoom));   // <-- The note reads the same at any zoom
         if (!editable || state.editing || state.locked) return;                 // <-- No handles while the content is being edited, or when locked
 
+        // THE HANDLES SIT ON THE TURNED FRAME and turn with it, each carried to
+        // its point by a transform (PlaceAt) at its size in SCREEN pixels, with
+        // a one-pixel edge - the scale inside the transform takes both back
+        // down, so they read the same at any zoom.
+        const deg    = Na__LeVpRot__Deg(viewport);
+        const screen = Math.round(sizePx * (zoom > 0 ? zoom : 1));
         Na__LeHandles__KEYS.forEach((key) => {
-            const anchor = Na__LeHandles__Anchor(rect, key);
+            const level  = Na__LeHandles__Anchor(rect, key);
+            const anchor = Na__LeVpRot__ToPaper(viewport, level.x, level.y);
             const handle = document.createElement('div');
             handle.className = 'na-le-handle na-le-handle--' + key + (Na__LeHandles__IsEnabled(viewport, key) ? '' : ' na-le-handle--disabled');
-            handle.style.left   = ((anchor.x * ppm) - (sizePx / 2)) + 'px';
-            handle.style.top    = ((anchor.y * ppm) - (sizePx / 2)) + 'px';
-            handle.style.width  = sizePx + 'px';
-            handle.style.height = sizePx + 'px';
-            handle.style.borderWidth = (1 / (zoom > 0 ? zoom : 1)) + 'px';   // <-- One screen pixel: a Math.max(1, ...) floor here is paper pixels, which fattens the edge as you zoom in
+            handle.style.width  = screen + 'px';
+            handle.style.height = screen + 'px';
+            handle.style.borderWidth = '1px';                                    // <-- One screen pixel: the transform scales the element, edge and all
+            Na__LeHandles__PlaceAt(handle, anchor.x * ppm, anchor.y * ppm, zoom, deg);
             layer.appendChild(handle);
         });
+
+        // THE ROTATE GRIP | Round, on a stem off the middle of the top edge, as
+        // a text item's is (Na__LayoutEditor__Grips__). Drag it to turn the
+        // viewport about the middle of its frame; Shift holds the turn to
+        // Viewport RotateStepDeg steps (a quarter turn).
+        const at = Na__LeHandles__RotateGrip(viewport, ppm, zoom);
+        const scale = zoom > 0 ? zoom : 1;
+        const stem  = document.createElement('div');
+        stem.className = 'na-le-grip na-le-grip--stem';
+        stem.style.left      = '0px';
+        stem.style.top       = '0px';
+        stem.style.transformOrigin = '0 0';
+        stem.style.width     = (Math.hypot(at.grip.x - at.base.x, at.grip.y - at.base.y) * ppm * scale) + 'px';   // <-- Its length on SCREEN: the transform scales it, and its one-pixel line, back down
+        stem.style.transform = 'translate(' + (at.base.x * ppm) + 'px, ' + (at.base.y * ppm) + 'px) rotate(' + (Math.atan2(at.grip.y - at.base.y, at.grip.x - at.base.x) * (180 / Math.PI)) + 'deg) scale(' + (1 / scale) + ')';
+        layer.appendChild(stem);
+        const grip = document.createElement('div');
+        grip.className = 'na-le-grip na-le-grip--rotate na-le-grip--viewport-rotate';
+        grip.style.width  = screen + 'px';
+        grip.style.height = screen + 'px';
+        Na__LeHandles__PlaceAt(grip, at.grip.x * ppm, at.grip.y * ppm, zoom, 0);
+        layer.appendChild(grip);
     }
     // ------------------------------------------------------------
 
@@ -258,12 +397,16 @@
     // ------------------------------------------------------------
     // Returns { mode : 'handle', key } | { mode : 'border' } | { mode : 'body' } | null.
     // selected: handles and the border only exist on the selected viewport.
+    // A turned frame is asked the same question with the point turned back
+    // into the level frame, where the handles and the band are where they
+    // always were; a turn is rigid, so the radius and the band are unchanged.
     // ------------------------------------------------------------
-    function Na__LeHandles__HitTest(viewport, pointMm, ppm, zoom, selected) {
+    function Na__LeHandles__HitTest(viewport, paperMm, ppm, zoom, selected) {
         const rect   = viewport.Viewport__FrameMm;
         const setup  = Na__LeCfg__GetViewportSetup();
         const radius = setup.handleHitRadiusPx / (ppm * zoom);
         const band   = Na__LeHandles__BORDER_BAND_PX / (ppm * zoom);
+        const pointMm = Na__LeVpRot__ToFrame(viewport, paperMm.x, paperMm.y);
 
         if (selected) {
             for (let i = 0; i < Na__LeHandles__KEYS.length; i++) {
@@ -288,8 +431,7 @@
     // FUNCTION | Is a Paper Point Inside a Viewport Frame
     // ------------------------------------------------------------
     function Na__LeHandles__Contains(viewport, pointMm) {
-        const rect = viewport.Viewport__FrameMm;
-        return pointMm.x >= rect.X && pointMm.x <= rect.X + rect.WidthMm && pointMm.y >= rect.Y && pointMm.y <= rect.Y + rect.HeightMm;
+        return Na__LeVpRot__Contains(viewport, pointMm, 0);                     // <-- The turned frame; the level one when it is not turned
     }
     // ------------------------------------------------------------
 
@@ -307,8 +449,31 @@
             rect   : Object.assign({}, viewport.Viewport__FrameMm),
             pan    : Object.assign({}, viewport.Viewport__PanMm),
             image  : Object.assign({}, viewport.Viewport__ImageMm),
-            offset : Object.assign({}, viewport.Viewport__ImageOffsetMm)
+            offset : Object.assign({}, viewport.Viewport__ImageOffsetMm),
+            deg    : Na__LeVpRot__Deg(viewport)                                  // <-- The turn at the press: a crop or a pan is worked in the frame's own axes
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep a Turned Frame's Fixed Edge Where It Is on the Paper
+    // ------------------------------------------------------------
+    // The crop arithmetic works in the level frame, where cropping the right
+    // edge keeps X and moves the middle right by half the change. A turned
+    // frame turns about its middle, so a middle that moved in the frame's own
+    // axes has moved along the TURNED axes on the paper. Putting the new
+    // middle there - the start's middle plus that shift turned - keeps the
+    // edge, or the corner, opposite the handle exactly where it was, and the
+    // drawing with it: every point of the frame still maps through the same
+    // turn about the start's middle. The window and picture fields are worked
+    // in the frame's own axes already and need nothing.
+    // ------------------------------------------------------------
+    function Na__LeHandles__TurnedRect(start, rect) {
+        if (!start.deg || !rect) return rect;
+        const sx = start.rect.X + (start.rect.WidthMm / 2), sy = start.rect.Y + (start.rect.HeightMm / 2);
+        const lx = (rect.X + (rect.WidthMm / 2)) - sx,      ly = (rect.Y + (rect.HeightMm / 2)) - sy;
+        const on = Na__LeVpRot__TurnVector(lx, ly, start.deg);
+        return Object.assign({}, rect, { X : sx + on.x - (rect.WidthMm / 2), Y : sy + on.y - (rect.HeightMm / 2) });
     }
     // ------------------------------------------------------------
 
@@ -409,21 +574,67 @@
         if (!hit) return null;
 
         if (hit.mode === 'border') {
-            return { rect : { X : start.rect.X + dMm.x, Y : start.rect.Y + dMm.y } };
+            return { rect : { X : start.rect.X + dMm.x, Y : start.rect.Y + dMm.y } };   // <-- A move is a move on the paper, turned or not
         }
+        // A PAN OR A CROP IS WORKED IN THE FRAME'S OWN AXES: the pointer's
+        // travel is turned back by the frame's turn first, so dragging along a
+        // turned frame's edge crops along that edge and a turned drawing slides
+        // under the hand the way the hand went.
+        const local = start.deg ? Na__LeVpRot__TurnVector(dMm.x, dMm.y, -start.deg) : dMm;
         if (hit.mode === 'body') {
-            if (is3d) return { imageOffset : { X : start.offset.X + dMm.x, Y : start.offset.Y + dMm.y } };
+            if (is3d) return { imageOffset : { X : start.offset.X + local.x, Y : start.offset.Y + local.y } };
             const denominator = viewport.Viewport__ScaleDenominator;
-            return { pan : { X : start.pan.X - (dMm.x * denominator), Y : start.pan.Y - (dMm.y * denominator) } };
+            return { pan : { X : start.pan.X - (local.x * denominator), Y : start.pan.Y - (local.y * denominator) } };
         }
         if (hit.mode === 'handle') {
             // Every handle crops or extends the frame in the axes it names; a
             // corner does both. Shift on a 3D corner scales the picture instead.
             const isCorner = Na__LeHandles__CORNERS.indexOf(hit.key) >= 0;
-            if (is3d) return (isCorner && mods.shift) ? Na__LeHandles__Corner3d(start, hit.key, dMm, minSize) : Na__LeHandles__Resize3d(start, hit.key, dMm, minSize);
-            return Na__LeHandles__Resize2d(start, hit.key, dMm, minSize, viewport.Viewport__ScaleDenominator);
+            const patch = is3d
+                ? ((isCorner && mods.shift) ? Na__LeHandles__Corner3d(start, hit.key, local, minSize) : Na__LeHandles__Resize3d(start, hit.key, local, minSize))
+                : Na__LeHandles__Resize2d(start, hit.key, local, minSize, viewport.Viewport__ScaleDenominator);
+            if (patch && patch.rect) patch.rect = Na__LeHandles__TurnedRect(start, patch.rect);
+            return patch;
         }
         return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Hold a Viewport Where a Drag on Its Rotate Grip Begins
+    // ------------------------------------------------------------
+    // The middle stays put for the whole drag, and the turn changes by as much
+    // as the pointer has swung round that middle since the press - so a press
+    // a little off the centre of the grip does not make the viewport jump.
+    // ------------------------------------------------------------
+    function Na__LeHandles__RotateStart(viewport, pointMm) {
+        if (!viewport || !pointMm) return null;
+        const middle = Na__LeVpRot__Centre(viewport);
+        return {
+            deg     : Na__LeVpRot__Deg(viewport),
+            middle  : middle,
+            grabDeg : Math.atan2(pointMm.y - middle.y, pointMm.x - middle.x) * (180 / Math.PI)
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Patch a Rotate Drag Makes at a Pointer (null too near the middle to read)
+    // ------------------------------------------------------------
+    // Shift holds the turn to Viewport RotateStepDeg steps - a quarter turn,
+    // so 0, 90, 180 and -90 - counted from level, not from where it began.
+    // Without Shift it settles on a right angle once within Viewport
+    // RotateDetentDeg of one, so level and plumb are found by feel.
+    // Returns { rotationDeg } for Na__LeModel__UpdateViewport.
+    // ------------------------------------------------------------
+    function Na__LeHandles__RotateTo(start, pointMm, shift) {
+        if (!start || !pointMm) return null;
+        const dx = pointMm.x - start.middle.x, dy = pointMm.y - start.middle.y;
+        if (Math.hypot(dx, dy) < Na__LeHandles__ROTATE_MIN_MM) return null;
+        const setup = Na__LeCfg__GetViewportSetup();
+        const raw   = start.deg + (Math.atan2(dy, dx) * (180 / Math.PI)) - start.grabDeg;
+        const tenth = Math.round(raw * 10) / 10;                                 // <-- A tenth of a degree is as fine as a hand can turn it, and what the panel reads
+        return { rotationDeg : Na__LeVpRot__Settle(tenth, shift ? setup.rotateStepDeg : 0, setup.rotateDetentDeg) };
     }
     // ------------------------------------------------------------
 
@@ -445,7 +656,11 @@
         Na__LeHandles__Contains,
         Na__LeHandles__CursorFor,
         Na__LeHandles__CaptureStart,
-        Na__LeHandles__DragPatch
+        Na__LeHandles__DragPatch,
+        Na__LeHandles__RotateGrip,
+        Na__LeHandles__OnRotateGrip,
+        Na__LeHandles__RotateStart,
+        Na__LeHandles__RotateTo
     };
     // ------------------------------------------------------------
 

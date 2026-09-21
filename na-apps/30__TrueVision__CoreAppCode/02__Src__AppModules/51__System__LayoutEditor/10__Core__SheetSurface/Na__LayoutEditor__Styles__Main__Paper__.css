@@ -126,6 +126,13 @@
 /* the PDF has ever printed. Painted white, it hid whatever a lower layer  */
 /* put under it, so a floor area moved beneath the Viewports layer vanished */
 /* instead of tinting the room under the plan's lines.                     */
+/*                                                                         */
+/* WHERE A FRAME SITS IS NOT HERE: the sheet surface's RefreshFrames keeps  */
+/* it at the paper's corner (left 0, top 0, inline) and carries it to its   */
+/* place by a translate. left and top cannot place it: they are rounded to  */
+/* a whole device pixel BEFORE the paper's scale(zoom), which multiplies    */
+/* the difference - at 32x a drawing was painted 8 pixels from its own      */
+/* corners, beside every dimension and vector snapped to it.               */
 .na-le-frame {
     position                           : absolute;
     overflow                           : hidden;
@@ -135,6 +142,40 @@
 
 .na-le-frame[hidden] {
     display                            : none;
+}
+
+/* A DRAWING HELD AS A LAYER OF ITS OWN (the toolbar's Vector control,       */
+/* Na__LayoutEditor__VectorQuality__, which sets the body class: always at   */
+/* Low, while the sheet is being redrawn at Medium, never at High).          */
+/*                                                                          */
+/* A plan's linework is tens of thousands of vector segments, sharing one    */
+/* painted layer with everything drawn over it. The markup above a drawing   */
+/* is swapped as a whole SVG the size of the page, so a dimension line       */
+/* following the cursor, a note or a vertex being dragged, made the browser  */
+/* draw every line of the plan again, every frame: 3.5 frames a second on    */
+/* RB05's ground floor plan (38,500 segments) at 8x over its densest part,   */
+/* GPU flat out. Held, what changes above the drawing costs it nothing: 60.  */
+/*                                                                          */
+/* THE PRICE IS THE LOOK, which is why it is a choice and lets go at rest.   */
+/* A held drawing is a picture the browser scales: a touch softer, fine      */
+/* parallel lines running together.                                         */
+/*                                                                          */
+/* will-change: OPACITY, NOT TRANSFORM. The transform hint tells the browser */
+/* to keep the layer at the scale it was first drawn at, so a drawing held   */
+/* at Fit and wheeled in to 8x was the Fit picture blown up (sharpness 3.5   */
+/* against 10.2 unheld, and worse the deeper the zoom) - Adam, of the first  */
+/* version: "unbelievably fast now, but it looks super shit". The opacity    */
+/* hint makes the same layer and no such promise: it is drawn again at each  */
+/* zoom (9.5 against 10.2).                                                  */
+/*                                                                          */
+/* THE FRAME, NOT THE LINEWORK INSIDE IT. .na-le-frame__linework promoted    */
+/* alone sits on a sub-pixel offset of its own, and Draft's one-pixel lines  */
+/* came out grey: 35% less ink.                                             */
+/*                                                                          */
+/* NOT IN THE WEB VIEWER: nothing is dragged over a drawing there, and a     */
+/* phone's layer budget is not a desktop's.                                 */
+body.na-le-vector-hold:not(.na-le-viewer--active) .na-le-frame--2d {
+    will-change                        : opacity;
 }
 
 .na-le-frame__body {
@@ -658,8 +699,9 @@
 /* that only LOOKS as if it is on the wall. Solid, with a white edge and a */
 /* hair of shadow round it, so each reads over black linework and over     */
 /* white paper alike. The grips are laid out at their real size and scaled */
-/* back by a transform (Na__LeGrips__CounterScale), so these one-pixel     */
-/* edges are one pixel at any zoom.                                        */
+/* back by a transform (Na__LeGrips__Place), so these one-pixel edges are  */
+/* one pixel at any zoom - and carried to their point by the same          */
+/* transform, since left and top are rounded before the zoom multiplies.   */
 
 .na-le-grip--free,
 .na-le-grip--bound,

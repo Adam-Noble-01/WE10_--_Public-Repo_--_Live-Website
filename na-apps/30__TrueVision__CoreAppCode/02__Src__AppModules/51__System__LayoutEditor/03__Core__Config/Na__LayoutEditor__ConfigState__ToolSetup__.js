@@ -35,6 +35,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - GetDimensionSetup answers defaultRoundUp (Dimensions DefaultRoundUp, off
+//   unless the config says true), roundUpStepMm (RoundUpStepMm, 5) and
+//   roundUpMarker (RoundUpMarker, '*'): the Dimensions panel's Round up to 5 mm.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - GetMeasureSetup answers arrayMaxCount (Measurements ArrayMaxCount, 200):
 //   the most copies one typed array count may make (SketchUp's 3x and /3).
@@ -127,6 +132,9 @@
             defaultUnits      : Na__LeCfg__Val('Dimensions', 'DefaultUnitsSuffix', ' mm'),
             thousandsSep      : Na__LeCfg__Val('Dimensions', 'ThousandsSeparator', ','),
             defaultAtScale    : Na__LeCfg__Val('Dimensions', 'DefaultAtScale', true) !== false,   // <-- Measure at scale: a new dimension reads the drawing's real size
+            defaultRoundUp    : Na__LeCfg__Val('Dimensions', 'DefaultRoundUp', false) === true,   // <-- Round up: OFF unless the config says true
+            roundUpStepMm     : Math.max(0, Na__LeCfg__Num('Dimensions', 'RoundUpStepMm', 5)),   // <-- The step a rounded figure is raised to; 0 rounds nothing
+            roundUpMarker     : String(Na__LeCfg__Val('Dimensions', 'RoundUpMarker', '*')),    // <-- Printed straight after a figure the rounding moved
             textLeaderMinMm   : Math.max(0, Na__LeCfg__Num('Dimensions', 'TextLeaderMinMm', 1.5)),
             textLeaderGapMm   : Math.max(0, Na__LeCfg__Num('Dimensions', 'TextLeaderGapMm', 0.4))
         };

@@ -32,6 +32,23 @@
 //   own scale is applied - so zoomed in, the border grew until it swallowed
 //   the marker and the square read as a solid blob. A transform has no such
 //   floor.
+// - PLACED BY THE SAME TRANSFORM, NEVER BY left AND top. A box's left and top
+//   are rounded to a whole device pixel BEFORE the paper's scale(zoom) is
+//   applied, and the zoom then multiplies what the rounding threw away: up to
+//   half a pixel times the zoom. Measured on RB05's ground floor plan at 32x
+//   on a 150% display, the marker was painted 9.3 device pixels to the right
+//   of the corner it had found (and the drawing 8.2 to the left of it, for
+//   the same reason: see the sheet surface's RefreshFrames) - exact at one
+//   corner, 17 pixels out at the next, worse the closer the work. Adam,
+//   21-Sep-2026: "they don't seem to align with the actual vector points".
+//   A translate is carried at full precision through the zoom, so the marker
+//   sits at left 0, top 0 and its whole position is in the transform.
+// - IT KEEPS ITS SIZE WHEN THE ZOOM CHANGES UNDER IT. The counter-scale is
+//   written for the zoom of the moment, and a wheel zoom moves no pointer, so
+//   nothing asked for the marker again: zoomed in, it stayed the size the
+//   paper had blown it up to until the mouse next moved. It is put right when
+//   the zoom settles - with the handles, and for the same reason not on
+//   every step (the paper is one held picture while the wheel turns).
 // - THE NAME, WHEN ASKED FOR. "Endpoint - Viewport" beside the marker, as
 //   AutoCAD's AutoSnap tooltip does it. Off until it is switched on in the
 //   snap menu: the words are for learning the shapes and the colours.
@@ -59,6 +76,15 @@
 //   counter-scaled by a transform so it survives any zoom, with an optional
 //   name beside it.
 //
+// 21-Sep-2026 - Version 1.1.0
+// - The marker is painted ON the point it found. It was placed by left and
+//   top, which the browser rounds to a whole device pixel before the paper's
+//   zoom multiplies the difference; its position is now part of its transform
+//   (PlaceMarker). Measured at 32x on a 150% display: 9.3 device pixels out
+//   before, 0.3 after.
+// - It is placed again when a zoom settles, so it no longer stays blown up (or
+//   shrunk) by a wheel zoom until the mouse next moves.
+//
 // =============================================================================
 
 
@@ -69,7 +95,7 @@
     // MODULE IMPORTS | Config, Surface, the Switches and the Glyphs
     // ------------------------------------------------------------
     import { Na__LeCfg__GetSnappingSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import {
         Na__LeOsnap__KIND_END,
         Na__LeOsnap__KIND_GRID,
@@ -121,11 +147,43 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Put the Marker's Middle on a Paper Point, at Its Own Size Whatever the Zoom
+    // ------------------------------------------------------------
+    // THE WHOLE POSITION IS IN THE TRANSFORM. The element sits at left 0, top 0
+    // of the handles layer, its transform origin its own top left corner (all
+    // three written inline when it is made), and is read right to left: moved back by half its size, so
+    // its MIDDLE is at the origin; scaled by 1 / zoom, which the paper's
+    // scale(zoom) cancels; then carried to the point. left and top cannot do
+    // the last step: the browser rounds them to a whole device pixel before
+    // the paper's zoom is applied, and the zoom multiplies the difference.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__PlaceMarker(xMm, yMm) {
+        const ppm  = Na__LeSurface__GetPixelsPerMm();
+        const zoom = Math.max(1e-6, Na__LeSurface__GetZoom());
+        Na__LeOsnap__Marker.style.transform = 'translate(' + (xMm * ppm) + 'px, ' + (yMm * ppm) + 'px) scale(' + (1 / zoom) + ') translate(-50%, -50%)';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Zoom Has Settled: the Marker on Show Takes Its Size Again
+    // ------------------------------------------------------------
+    // The counter-scale is written for the zoom of the moment and a wheel zoom
+    // moves no pointer, so nothing asks for the marker again. Done when the
+    // zoom rests and not on each step, as the handles are: while the wheel
+    // turns the paper is one held picture, and a change inside it is a redraw.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__OnZoomSettled() {
+        if (Na__LeOsnap__Marker && !Na__LeOsnap__Marker.hidden && Na__LeOsnap__MarkerAt) Na__LeOsnap__PlaceMarker(Na__LeOsnap__MarkerAt.x, Na__LeOsnap__MarkerAt.y);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Show the Snap Marker at a Hit
     // ------------------------------------------------------------
     // hit is { x, y, kind, target } in paper millimetres. The element is laid
-    // out at its real pixel size about the point and scaled back by 1 / zoom,
-    // so its size and its line weight are the same on screen at any zoom.
+    // out at its real pixel size and placed about the point by its transform
+    // (PlaceMarker), scaled back by 1 / zoom, so its size and its line weight
+    // are the same on screen at any zoom and its middle is on the point.
     // ------------------------------------------------------------
     function Na__LeOsnap__ShowMarker(hit) {
         const layer = Na__LeSurface__GetElements().handles;
@@ -138,23 +196,23 @@
             Na__LeOsnap__MarkerName.className  = 'na-le-osnap__name';
             Na__LeOsnap__Marker.appendChild(Na__LeOsnap__MarkerGlyph);
             Na__LeOsnap__Marker.appendChild(Na__LeOsnap__MarkerName);
+            Na__LeOsnap__Marker.style.left            = '0px';                   // <-- At the layer's corner, which is what PlaceMarker's translate is measured from.
+            Na__LeOsnap__Marker.style.top             = '0px';                   //     Written here and not left to the stylesheet: a browser holding this file beside
+            Na__LeOsnap__Marker.style.transformOrigin = '0 0';                   //     an older copy of the stylesheet (or the other way about) still places it right
+            window.addEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeOsnap__OnZoomSettled);   // <-- Once, with the one marker there ever is
         }
         if (Na__LeOsnap__Marker.parentNode !== layer) layer.appendChild(Na__LeOsnap__Marker);
         const kind   = hit.kind || Na__LeOsnap__KIND_END;
         const target = Na__LeOsnap__TargetOf(hit);
-        const ppm    = Na__LeSurface__GetPixelsPerMm();
-        const zoom   = Math.max(1e-6, Na__LeSurface__GetZoom());
         const sizePx = Na__LeCfg__GetSnappingSetup().markerSizePx;
         if (Na__LeOsnap__MarkerKind !== kind) {
             Na__LeOsnap__MarkerGlyph.innerHTML = Na__LeOsnap__GlyphSvg(kind);
             Na__LeOsnap__MarkerKind = kind;
         }
         Na__LeOsnap__Marker.className       = 'na-le-osnap na-le-osnap--' + kind + ' na-le-osnap--to-' + target;
-        Na__LeOsnap__Marker.style.left      = (hit.x * ppm) + 'px';
-        Na__LeOsnap__Marker.style.top       = (hit.y * ppm) + 'px';
         Na__LeOsnap__Marker.style.width     = sizePx + 'px';
         Na__LeOsnap__Marker.style.height    = sizePx + 'px';
-        Na__LeOsnap__Marker.style.transform = 'translate(-50%, -50%) scale(' + (1 / zoom) + ')';
+        Na__LeOsnap__PlaceMarker(hit.x, hit.y);
         const naming = Na__LeOsnap__IsNaming();
         Na__LeOsnap__MarkerName.hidden = !naming;
         if (naming) {

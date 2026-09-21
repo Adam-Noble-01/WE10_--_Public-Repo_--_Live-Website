@@ -27,7 +27,8 @@
 //   grip stands the same distance off the outline on screen at any zoom.
 // - Grips are counter-scaled so they stay the same size on screen at any
 //   zoom: laid out at their real size and scaled back by a transform, never
-//   given a fractional size or border (see CounterScale for why).
+//   given a fractional size or border - and PLACED by that same transform,
+//   never by left and top (see Place for why). The rubber band likewise.
 // - A POINT GRIP'S COLOUR IS A CHECK. Red is a point in hand; green is a
 //   point that sits on the drawing - a corner, a middle or a crossing of a
 //   viewport's linework (a ring when it is only on one of its lines); blue
@@ -56,6 +57,23 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.11.0
+// - A GRIP IS PAINTED ON ITS POINT, AND THE BAND RUNS TO THE POINT IT RUNS TO.
+//   Found from the snap marker standing beside the corner it had found (Adam:
+//   "they don't seem to align with the actual vector points"): a box's left
+//   and top are rounded to a whole device pixel BEFORE the paper's scale(zoom),
+//   and the zoom multiplies the difference - up to half a pixel times the zoom.
+//   CounterScale, which only scaled, is now Place, which carries the grip to
+//   its point in the same transform (Add and the insert diamond). Measured in
+//   the app at 32x: every vertex grip within 0.003 px of its vertex.
+// - THE RUBBER BAND IS ONE PIXEL AT ANY ZOOM, ON THE LINE. It was laid out in
+//   paper pixels, so at 32x it was a dashed bar 21 px thick hanging to one side
+//   of the line it stood for, started up to 16 px from its point and stopped
+//   short of the snap marker or ran past it. Laid out now at its length on
+//   screen and scaled back, placed and centred by its transform (PlaceBand),
+//   and laid again when a zoom settles. The stem and the rubber box are as
+//   they were.
+//
 // 21-Sep-2026 - Version 1.10.0
 // - A PICKED VERTEX WAS WHITE ON WHITE PAPER ONCE ZOOMED IN, and a plain one a
 //   solid blue disc. The grips were given a size and a border divided by the
@@ -142,7 +160,7 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetSelectionSetup, Na__LeCfg__GetTextSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__IsLayerLocked, Na__LeModel__IsLayerVisible } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    import { Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeSurface__GetElements, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeMarkup__DimensionSkeleton, Na__LeMarkup__DimensionTextLayout, Na__LeMarkup__AnnotationRotateGrip } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeDimGeo__HitText, Na__LeDimGeo__DistanceToPolyline } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
@@ -197,6 +215,7 @@
     // MODULE VARIABLES | The Rubber Band and the Rubber Box
     // ------------------------------------------------------------
     let Na__LeGrips__Band   = null;
+    let Na__LeGrips__BandAt = null;        // <-- { sx, sy, ex, ey } paper millimetres of the band on show, so a settled zoom can lay it again
     let Na__LeGrips__Box    = null;
     let Na__LeGrips__Insert = null;
     // ------------------------------------------------------------
@@ -245,9 +264,22 @@
     // transform has no such floor: the element keeps whole-pixel sizes and a
     // one-pixel border, and scale(1 / zoom) cancels the paper's zoom exactly.
     // turnDeg turns the grip about its middle as well (the insert diamond).
+    //
+    // AND IT IS PLACED BY THE SAME TRANSFORM, NEVER BY left AND top, which have
+    // a floor of their own: the browser rounds them to a whole device pixel
+    // BEFORE the paper's scale, and the zoom multiplies the difference - up to
+    // half a pixel times the zoom, so at 32x a grip stood up to 16 px from the
+    // vertex it is the handle of, and a green one ("on the drawing") beside
+    // the corner it was on. A translate goes through the zoom at full
+    // precision. So the grip sits at left 0, top 0 with its origin at that
+    // corner, and the transform reads right to left: back by half its size
+    // (its MIDDLE on the origin), turned, scaled back, carried to the point.
     // ------------------------------------------------------------
-    function Na__LeGrips__CounterScale(zoom, turnDeg) {
-        return 'translate(-50%, -50%) scale(' + (1 / (zoom > 0 ? zoom : 1)) + ')' + (turnDeg ? ' rotate(' + turnDeg + 'deg)' : '');
+    function Na__LeGrips__Place(grip, xPx, yPx, zoom, turnDeg) {
+        grip.style.left            = '0px';
+        grip.style.top             = '0px';
+        grip.style.transformOrigin = '0 0';
+        grip.style.transform       = 'translate(' + xPx + 'px, ' + yPx + 'px) scale(' + (1 / (zoom > 0 ? zoom : 1)) + ')' + (turnDeg ? ' rotate(' + turnDeg + 'deg)' : '') + ' translate(-50%, -50%)';
     }
     // ------------------------------------------------------------
 
@@ -290,11 +322,9 @@
         const scale = zoom > 0 ? zoom : 1;
         const size  = Math.round((picked ? (sizePx * (setup.gripSizePickedPx / setup.gripSizePx)) : sizePx) * scale);   // <-- Whole pixels on screen
         grip.className = 'na-le-grip' + (modifier ? ' na-le-grip--' + modifier : '') + (state ? ' na-le-grip--' + state : '') + (picked ? ' na-le-grip--picked' : '');
-        grip.style.left      = (xMm * ppm) + 'px';
-        grip.style.top       = (yMm * ppm) + 'px';
         grip.style.width     = size + 'px';
         grip.style.height    = size + 'px';
-        grip.style.transform = Na__LeGrips__CounterScale(scale, 0);
+        Na__LeGrips__Place(grip, xMm * ppm, yMm * ppm, scale, 0);
         layer.appendChild(grip);
     }
     // ------------------------------------------------------------
@@ -463,6 +493,53 @@
 // REGION | Rubber Band
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Lay the Band From One Paper Point to Another, One Pixel Wide at Any Zoom
+    // ------------------------------------------------------------
+    // THE BAND IS A GRIP'S KIND OF THING, AND IS NOW DRAWN AS ONE. It used to be
+    // a box laid out in PAPER pixels - left, top, a width, a one-pixel dashed
+    // edge - inside the paper's scale(zoom), and three things went wrong with
+    // that, all of them worse the closer the work:
+    //   * ITS EDGE GREW WITH THE ZOOM. At 32x the one-pixel line was a bar 21
+    //     pixels thick with dashes to match, and it hung to ONE SIDE of the line
+    //     it stood for (a top edge grows downwards from the box).
+    //   * ITS START WAS ROUNDED to a whole device pixel before the zoom, as any
+    //     left and top are, and the zoom multiplied the difference: up to 16
+    //     pixels off the point it starts from at 32x.
+    //   * ITS LENGTH WAS ROUNDED the same way, so its far end - the end that
+    //     runs to the snap marker - stopped short of it or ran past.
+    // So, like the grips (Place): the element is laid out at the length it has
+    // ON SCREEN, which rounds to a screen pixel and no worse, with its own
+    // one-pixel edge; it sits at left 0, top 0 with its origin there (the
+    // stylesheet's), and one transform - read right to left - lifts it by half
+    // its thickness so its MIDDLE is the line, scales it back by 1 / zoom, turns
+    // it, and carries its start to the point.
+    // ------------------------------------------------------------
+    function Na__LeGrips__PlaceBand() {
+        const band = Na__LeGrips__Band, at = Na__LeGrips__BandAt;
+        if (!band || !at) return;
+        const ppm  = Na__LeSurface__GetPixelsPerMm();
+        const zoom = Math.max(1e-6, Na__LeSurface__GetZoom());
+        const len  = Math.hypot(at.ex - at.sx, at.ey - at.sy);
+        const ang  = Math.atan2(at.ey - at.sy, at.ex - at.sx) * (180 / Math.PI);
+        band.style.left      = '0px';
+        band.style.top       = '0px';
+        band.style.width     = (len * ppm * zoom) + 'px';                        // <-- Its length on SCREEN: the transform scales it, and its one-pixel edge, back down
+        band.style.transform = 'translate(' + (at.sx * ppm) + 'px, ' + (at.sy * ppm) + 'px) rotate(' + ang + 'deg) scale(' + (1 / zoom) + ') translateY(-50%)';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Zoom Has Settled: the Band on Show Takes Its Thickness Again
+    // ------------------------------------------------------------
+    // A wheel zoom moves no pointer, so no tool stretches the band again: it
+    // would stay as thick as the zoom had made it until the mouse next moved.
+    // ------------------------------------------------------------
+    function Na__LeGrips__OnZoomSettled() {
+        if (Na__LeGrips__Band && Na__LeGrips__Band.parentNode) Na__LeGrips__PlaceBand();
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Stretch the Band Between Two Paper Points ({ x, y } or [x, y])
     // ------------------------------------------------------------
     // axis is the locked axis, if any: the band takes that axis's colour
@@ -475,16 +552,12 @@
         const ex = Array.isArray(end)   ? end[0]   : end.x,   ey = Array.isArray(end)   ? end[1]   : end.y;
         if (!Na__LeGrips__Band) {
             Na__LeGrips__Band = document.createElement('div');
+            window.addEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeGrips__OnZoomSettled);   // <-- Once, with the one band there ever is. Here and not at the top of the module: the sheet surface imports this module, so its event name is not there to read until something runs
         }
         Na__LeGrips__Band.className = 'na-le-rubber-band' + (axis ? ' na-le-rubber-band--' + axis : '');
         if (Na__LeGrips__Band.parentNode !== layer) layer.appendChild(Na__LeGrips__Band);
-        const ppm = Na__LeSurface__GetPixelsPerMm();
-        const len = Math.hypot(ex - sx, ey - sy);
-        const ang = Math.atan2(ey - sy, ex - sx) * (180 / Math.PI);
-        Na__LeGrips__Band.style.left      = (sx * ppm) + 'px';
-        Na__LeGrips__Band.style.top       = (sy * ppm) + 'px';
-        Na__LeGrips__Band.style.width     = (len * ppm) + 'px';
-        Na__LeGrips__Band.style.transform = 'rotate(' + ang + 'deg)';
+        Na__LeGrips__BandAt = { sx : sx, sy : sy, ex : ex, ey : ey };
+        Na__LeGrips__PlaceBand();
         Na__LeGrips__Band.hidden = false;
         return true;
     }
@@ -495,6 +568,7 @@
     // ------------------------------------------------------------
     function Na__LeGrips__HideBand() {
         if (Na__LeGrips__Band && Na__LeGrips__Band.parentNode) Na__LeGrips__Band.parentNode.removeChild(Na__LeGrips__Band);
+        Na__LeGrips__BandAt = null;
     }
     // ------------------------------------------------------------
 
@@ -546,11 +620,9 @@
         const ppm    = Na__LeSurface__GetPixelsPerMm();
         const zoom   = Na__LeSurface__GetZoom();
         const sizePx = Na__LeCfg__GetSelectionSetup().gripSizePx;
-        Na__LeGrips__Insert.style.left      = (xMm * ppm) + 'px';
-        Na__LeGrips__Insert.style.top       = (yMm * ppm) + 'px';
         Na__LeGrips__Insert.style.width     = sizePx + 'px';
         Na__LeGrips__Insert.style.height    = sizePx + 'px';
-        Na__LeGrips__Insert.style.transform = Na__LeGrips__CounterScale(zoom, 45);   // <-- Its real size scaled back, and turned: a diamond
+        Na__LeGrips__Place(Na__LeGrips__Insert, xMm * ppm, yMm * ppm, zoom, 45);     // <-- Its real size scaled back, and turned: a diamond
         Na__LeGrips__Insert.hidden = false;
         return true;
     }

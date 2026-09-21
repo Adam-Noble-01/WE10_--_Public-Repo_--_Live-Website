@@ -45,6 +45,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0 (TrueVision)
+// - At works on a turned plan (Viewport__RotationDeg): the click is tested
+//   against the turned frame, and the window's FromPaper undoes the turn.
+//
 // 14-Sep-2026 - Version 1.1.0
 // - Elevations and sections draw every door shut (ShutPoseFor), whatever the
 //   3D view shows: only a plan draws a door open. ShutOnElevations switches it
@@ -77,6 +81,7 @@
     // ------------------------------------------------------------
     import { Na__PlDoors__HitTest } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__DoorPose__.js';
     import { Na__PlProjector__SCALE_DIVISOR } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__Projector__.js';
+    import { Na__LeVpRot__Contains } from './Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: inside a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -186,8 +191,7 @@
     function Na__LeDoors__At(viewport, described, pointMm, toleranceMm) {
         if (!viewport || !pointMm || !described || !described.definition || !described.definition.DoorPose) return null;
         if (!described.source || !described.source.plan) return null;             // <-- An elevation or section: every door shut, none to click
-        const frame = viewport.Viewport__FrameMm;
-        if (pointMm.x < frame.X || pointMm.y < frame.Y || pointMm.x > frame.X + frame.WidthMm || pointMm.y > frame.Y + frame.HeightMm) return null;
+        if (!Na__LeVpRot__Contains(viewport, pointMm, 0)) return null;           // <-- The frame as it stands, turned or not; FromPaper below undoes the turn
         const root = Na__LeSnap__GetModelRoot(described.modelSource ? described.modelSource.renderId : null);
         if (!root) return null;                                                   // <-- Its design phase is not loaded: nothing is drawn to click
         const win     = described.window;

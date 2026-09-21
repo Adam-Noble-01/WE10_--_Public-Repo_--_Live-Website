@@ -54,6 +54,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - A turned viewport (Viewport__RotationDeg): DrawingEdges tests the frame by
+//   the box round it as it stands, crops its lines in the level frame and
+//   turns what is kept onto the paper, so Trim and Extend meet the drawing
+//   where it is painted.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -83,6 +89,7 @@
     import { Na__LeGroup__ParentOf } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeScope__Get, Na__LeScope__KIND_GROUP, Na__LeScope__KIND_VECTOR } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
     import { Na__LeVp2d__GetSnapSource } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
+    import { Na__LeVpRot__Bounds } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the upright box round a turned frame
     import { Na__LeVecGeo__Path, Na__LeVecGeo__NearestStation, Na__LeVecGeo__Cutters } from './Na__LayoutEditor__VectorTools__Geometry__.js';
     import { Na__LeVec__GetSetting } from './Na__LayoutEditor__VectorTools__State__.js';
     // ------------------------------------------------------------
@@ -215,7 +222,7 @@
         const sources = [];
         let key = [ box.minX, box.minY, box.maxX, box.maxY ].map((n) => Math.round(n * 100)).join(',');
         viewports.forEach((viewport) => {
-            const frame = viewport.Viewport__FrameMm;
+            const frame = viewport.Viewport__FrameMm ? Na__LeVpRot__Bounds(viewport) : null;   // <-- The frame as it stands, turned or not
             if (!frame || frame.X > box.maxX || frame.X + frame.WidthMm < box.minX || frame.Y > box.maxY || frame.Y + frame.HeightMm < box.minY) return;
             const source = Na__LeVp2d__GetSnapSource(viewport.Viewport__Id);
             if (!source || !source.classes || !source.window) return;
@@ -226,15 +233,18 @@
         const edges = [];
         sources.forEach((source) => {
             const frame = source.window.Frame;
+            const level = source.window.ToFrame || source.window.ToPaper;         // <-- The crop test is made where the frame is a rectangle: in the level frame
+            const onto  = source.window.FrameToPaper || ((x, y) => ({ x : x, y : y }));
             Na__LeVecAim__LINE_CLASSES.forEach((name) => {
                 const segments = source.classes[name];
                 if (!segments || segments.length < 4) return;
                 for (let i = 0; i + 3 < segments.length; i += 4) {
-                    const a = source.window.ToPaper(segments[i], segments[i + 1]);
-                    const b = source.window.ToPaper(segments[i + 2], segments[i + 3]);
+                    const la = level(segments[i], segments[i + 1]);
+                    const lb = level(segments[i + 2], segments[i + 3]);
+                    if (frame && ((la.x < frame.X && lb.x < frame.X) || (la.x > frame.X + frame.WidthMm && lb.x > frame.X + frame.WidthMm)
+                        || (la.y < frame.Y && lb.y < frame.Y) || (la.y > frame.Y + frame.HeightMm && lb.y > frame.Y + frame.HeightMm))) continue;   // <-- Cropped out of the frame: it is not on the sheet
+                    const a = onto(la.x, la.y), b = onto(lb.x, lb.y);             // <-- Then onto the paper, turned with a turned viewport
                     if ((a.x < box.minX && b.x < box.minX) || (a.x > box.maxX && b.x > box.maxX) || (a.y < box.minY && b.y < box.minY) || (a.y > box.maxY && b.y > box.maxY)) continue;
-                    if (frame && ((a.x < frame.X && b.x < frame.X) || (a.x > frame.X + frame.WidthMm && b.x > frame.X + frame.WidthMm)
-                        || (a.y < frame.Y && b.y < frame.Y) || (a.y > frame.Y + frame.HeightMm && b.y > frame.Y + frame.HeightMm))) continue;   // <-- Cropped out of the frame: it is not on the sheet
                     edges.push([ a.x, a.y, b.x, b.y ]);
                 }
             });

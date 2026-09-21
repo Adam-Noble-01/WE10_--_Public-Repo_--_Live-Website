@@ -34,6 +34,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.28
+// - Token bumped (2026-09-21-20) for rotatable viewports (v2.138.0): the sheet tools'
+//   press, drag and hit resolution units now import Na__LeHandles__RotateStart,
+//   RotateTo and OnRotateGrip, which no warm copy of ViewportHandles exports, and a
+//   dozen modules import the new Na__LayoutEditor__ViewportRotation__ leaf. A new
+//   importer beside an old exporter is a named import that is not there, and the
+//   editor would not load until the next visit. One bump past the uncommitted -19,
+//   so this release evicts on its own whichever way the two are deployed.
+//
+// 21-Sep-2026 - Version 1.9.27
+// - Token bumped (2026-09-21-19) for the Layout Editor's pointer-move and repaint fixes
+//   (v2.136.0): the sheet model's Sheets unit now imports a name its State unit did not
+//   export before (Na__LeModel__Revision). Both files sit in every warm cache, and the
+//   new Sheets beside the old State is a named import that is not there - the whole
+//   editor refuses to load. The same release adds the toolbar's Vector control:
+//   the toolbar and the sheet surface import Na__LayoutEditor__VectorQuality__, a
+//   file no warm cache holds, and the paper stylesheet carries its one rule.
+//
 // 21-Sep-2026 - Version 1.9.26
 // - Token bumped (2026-09-21-18) for the vector tools (v2.130.0): the editor's sheet tools, its mode
 //   controller, its toolbar and the Draw tool now import 51__System__LayoutEditor/37__System__VectorTools,
@@ -431,7 +449,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-21-18';                                                                   // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-21-20';                                                                  // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

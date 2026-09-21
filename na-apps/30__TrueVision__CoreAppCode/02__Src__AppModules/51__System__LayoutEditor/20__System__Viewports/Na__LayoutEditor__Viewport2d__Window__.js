@@ -45,6 +45,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0 (TrueVision)
+// - A TURNED VIEWPORT (Viewport__RotationDeg). ToPaper and FromPaper carry the
+//   frame's turn about its middle, so the snap index, the door hit test and
+//   Import From Scene find the drawing where it is on the paper. New: ToFrame
+//   (the level frame's paper point, for clipping to the frame), FrameToPaper
+//   (a level-frame point turned onto the paper) and RotationDeg. ToLocal, the
+//   layout of everything inside the frame, is unchanged: the frame element is
+//   turned as a whole, so no picture is rendered again for a turn.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__Viewport2d__.js; the code moved verbatim.
 //
@@ -61,6 +70,7 @@
     import { Na__LeSource__Resolve } from './Na__LayoutEditor__ModelSource__.js';
     import { Na__LeModelLayers__ExcludeTokens } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeDoors__PoseFor, Na__LeDoors__ShutPoseFor } from './Na__LayoutEditor__PlanDoors__.js';
+    import { Na__LeVpRot__Deg, Na__LeVpRot__TurnVector } from './Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the turn of the frame on the paper
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Projected Linework (definitions)
@@ -80,6 +90,18 @@
 
     // FUNCTION | The Model Window of a Viewport, With Its Paper Mappings
     // ------------------------------------------------------------
+    // ToLocal     drawing mm -> mm from the frame's top-left corner, in the
+    //             frame's own axes: what everything inside the frame is laid
+    //             out in, turned or not
+    // ToFrame     drawing mm -> the paper point as the frame stands LEVEL
+    // ToPaper     drawing mm -> where it is on the paper, the frame's turn
+    //             (Viewport__RotationDeg, about its middle) included
+    // FromPaper   a paper point -> drawing mm, the turn undone first
+    // FrameToPaper a level-frame paper point -> the paper, turned
+    // A level viewport's ToFrame and ToPaper are the same answer, so every
+    // reader of ToPaper and FromPaper is exactly what it was until a viewport
+    // is turned. RotationDeg rides along for anyone keying a cache on it.
+    // ------------------------------------------------------------
     function Na__LeVp2d__Window(viewport) {
         const frame = viewport.Viewport__FrameMm;
         const D     = viewport.Viewport__ScaleDenominator;
@@ -89,11 +111,21 @@
         const cy    = viewport.Viewport__PanMm.Y;
         const ox    = cx - (w / 2);
         const oy    = cy - (h / 2);
+        const deg   = Na__LeVpRot__Deg(viewport);
+        const midX  = frame.X + (frame.WidthMm / 2);
+        const midY  = frame.Y + (frame.HeightMm / 2);
+        const turn  = (px, py, by) => {
+            if (!by) return { x : px, y : py };
+            const v = Na__LeVpRot__TurnVector(px - midX, py - midY, by);
+            return { x : midX + v.x, y : midY + v.y };
+        };
         const win = {
-            CentreX : cx, CentreY : cy, WidthMm : w, HeightMm : h, OriginX : ox, OriginY : oy, Denominator : D, Frame : frame,
-            ToLocal   : (dx, dy) => ({ x : (dx - ox) / D, y : (dy - oy) / D }),
-            ToPaper   : (dx, dy) => ({ x : frame.X + ((dx - ox) / D), y : frame.Y + ((dy - oy) / D) }),
-            FromPaper : (px, py) => ({ x : ox + ((px - frame.X) * D), y : oy + ((py - frame.Y) * D) })
+            CentreX : cx, CentreY : cy, WidthMm : w, HeightMm : h, OriginX : ox, OriginY : oy, Denominator : D, Frame : frame, RotationDeg : deg,
+            ToLocal      : (dx, dy) => ({ x : (dx - ox) / D, y : (dy - oy) / D }),
+            ToFrame      : (dx, dy) => ({ x : frame.X + ((dx - ox) / D), y : frame.Y + ((dy - oy) / D) }),
+            ToPaper      : (dx, dy) => turn(frame.X + ((dx - ox) / D), frame.Y + ((dy - oy) / D), deg),
+            FromPaper    : (px, py) => { const p = turn(px, py, -deg); return { x : ox + ((p.x - frame.X) * D), y : oy + ((p.y - frame.Y) * D) }; },
+            FrameToPaper : (px, py) => turn(px, py, deg)
         };
         return win;
     }

@@ -2,6 +2,444 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.139.0  -  21-Sep-2026
+### Round Up to 5 mm: a Dimension Can Show Its Figure Raised to the Next 5 mm, With an Asterisk to Say It Was Rounded
+
+**Overview**
+- From Adam, with a screenshot of an elevation's 6,413 circled: "Add a round dimension toggle that rounds the
+  dimension up to the nearest 5 mm, then puts a small asterisk next to it. It should be toggled off by default."
+- HOW IT IS USED. The Dimensions panel has a new switch, **Round up to 5 mm**, under Units. It works like every
+  other control there: with a dimension selected it changes that dimension, with several selected it changes all of
+  them, and with nothing selected it is the setting for new dimensions. It is OFF by default.
+- WHAT IT PRINTS. On, the figure goes UP to the next multiple of 5 mm - 6,413 reads 6,415*, 6,416 reads 6,420* - and
+  an asterisk follows the figure, before any units (2,090* mm). It never rounds down, so a size on the drawing is never
+  smaller than what was measured.
+- ONLY A MOVED FIGURE IS MARKED. A figure already on a multiple of 5 (2,810, 2,475) is exact, so it stays as it is and
+  gets no asterisk. Every asterisk on a sheet therefore means "this one was rounded".
+- IT ROUNDS THE FIGURE THE DIMENSION WOULD PRINT, at its own Decimals, not the raw number. A dimension that reads
+  2,810 can really measure 2,810.0000004 after a snapped paper point is multiplied up by the scale. Rounding the raw
+  number would have printed 2,815* over a size that is exactly 2,810.
+- An override is printed as typed and never rounded. The panel's Measures line always gives the EXACT figure, and adds
+  "- shown rounded up as 2,090* mm" when rounding moved it.
+
+**The record**
+- `Dimension__RoundUp`: `true`, written only while the switch is on. A dimension with it off, and every dimension saved
+  before today, has no key and prints exactly as it did.
+- Config (`LayoutEditor__Dimensions__`): `DefaultRoundUp` false, `RoundUpStepMm` 5 (the step; 0 rounds nothing),
+  `RoundUpMarker` "*", and a `RoundUpNote`. Labels `DimRoundUp` ("Round up to {step} mm"), `DimRoundUpTitle` and
+  `DimRoundedShown`.
+
+**How the dimension system fits together (mapped for this change)**
+- ONE FORMATTER. `MarkupBridge__` `FormatDimension` makes every sheet dimension's text. The sheet (`PushDimension`),
+  the PDF (the same primitives), the selection box, the value's layout and hit box, the inline editor
+  (`DimensionTool__` `BeginTextEdit`) and the panel's Measures line all read it. So the rounding lives in that one place
+  and nothing else had to learn about it.
+- The record: `SheetRecords__` `NormaliseDimension` (the defaults, and which keys are kept); the model:
+  `SheetModel__TextAndDimensions__` `CreateDimension` and `UpdateDimension` (patch keys to record fields).
+- The settings for new dimensions: `SheetTools__ToolState__` `GetDimensionDefaults`, filled from `ConfigState__ToolSetup__`
+  `GetDimensionSetup`, which reads the `LayoutEditor__Dimensions__` block of the config. The Dimension tool
+  (`DimensionTool__` `Span`) copies them onto a new record.
+- The panel (`Panel__Dimensions__`) reads the selected dimension, or the first of several, or those settings. It writes
+  through `UpdateDimension` for one, and through the eyedropper's trait table (`Eyedropper__` `ApplyMany`, via the panel
+  host's `ApplyToSelection`) for several. Only fields in that table reach a multiple selection, which is why round up
+  is listed there as a style trait. That also makes the dropper and Paste properties copy it.
+
+**What changed**
+- NEW `15__Core__Markup/Na__LayoutEditor__DimensionRounding__.js` (a leaf, no imports): `Up(valueMm, precision, stepMm)`
+  returns the figure to print and whether rounding raised it.
+- `MarkupBridge__` 1.18.0: `FormatDimension` rounds a dimension carrying the key and appends the marker when it moved.
+- `Panel__Dimensions__` 1.6.0: the switch under Units, and the Measures line.
+- `SheetRecords__` 1.33.0 (kept only as true), `SheetModel__TextAndDimensions__` 1.1.0 (`roundUp` on Create and Update),
+  `SheetTools__ToolState__` 1.5.0 (`roundUp` in the settings for new dimensions), `DimensionTool__` 1.12.0 (a new
+  dimension carries it), `Eyedropper__` 1.9.0 (a style trait, absent = off), `ConfigState__ToolSetup__` 1.4.0.
+- No service worker bump of its own. The one new import is the new leaf, which no warm cache holds, so it is always
+  fetched fresh. The token on disk (`2026-09-21-20`, v2.138.0) has not been committed yet either.
+
+**How it was proved**
+- `Na__Test__DimensionRoundUp__.test.mjs`, NEW, 21 checks on the real leaf. Among them: 6,413 to 6,415 marked; 6,411 to
+  6,415 (up, not to the nearest); 2,810, 2,810.0000004, 2,809.9999996 and 56.2 mm x 50 all stay 2,810 unmarked; the
+  decimals decide what counts as moved (2,810.04 at 1 dp stays, 2,810.06 goes to 2,815); a step of 0 rounds nothing.
+  `Na__Verify__Exports__.mjs` passes (488 files).
+- In the app, PS01 D02 Elevations (only 2D viewports), fresh modules, and a fetch guard refusing every write. None was
+  attempted all session.
+  - The panel: the switch sits under Units and reads off. A real click on Dim_029 (2,089 mm) turned it on: the record
+    got the key, the sheet's SVG drew "2,090* mm" (rendered and checked), and the Measures line read "Measures 2,089 mm
+    (at the sheet's scale, 1:50) - shown rounded up as 2,090* mm".
+  - Several selected (Dim_029, Dim_030 2,475, Dim_031 1,275): the switch turned all three off, then all three on.
+    2,475 and 1,275 stayed unmarked.
+  - Nothing selected: the switch set the settings for new dimensions, and a dimension placed through the tool's own
+    click function (549.49 measured) printed "550* mm".
+  - The eyedropper copies it: on from Dim_029, off from a dimension with no key.
+  - PS01 put back: the test dimension deleted, the three switched off (no key left on any dimension), the settings
+    reset, and the browser draft cleared.
+
+**NOT done, and worth knowing**
+- The Measurements box still reads the exact length while a dimension is placed or dragged; only the printed figure is
+  rounded.
+- The asterisk is the plain `*` of the sheet font, which already sits small and high. It is not set in a smaller size.
+  `RoundUpMarker` in the config can change the character.
+- Scene dimensions (a plan's or elevation's own, drawn inside a viewport) are not rounded. This is for sheet dimensions.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.138.0  -  21-Sep-2026
+### Viewports Turn on the Page: a Round Grip Off the Top of the Frame Turns the Whole Viewport About Its Middle, Shift Holds Quarter Turns, and Everything That Reads the Frame - Snaps, Crops, Boxes, Doors and the PDF - Reads the Turned One
+
+**Overview**
+- From Adam: "Add the ability to rotate viewports on the page. Holding Shift while rotating should snap it to 90
+  rotation increments."
+- HOW IT IS USED. Select a viewport: a round grip now stands on a short stem off the middle of its top edge, like a
+  text item's. Drag it to turn the WHOLE viewport - frame, drawing or 3D picture, frame line and caption - about the
+  middle of its frame. Hold Shift and it lands on quarter turns counted from level: 0, 90, 180, -90. Without Shift it
+  follows the hand to a tenth of a degree and settles on a right angle once within 2 degrees of one, so level and plumb
+  are found by feel. The Viewport panel has a Rotation deg box (typed, to a decimal place) with -90, +90 and Level
+  beside it, and a viewport's right-click menu has Rotate 90 clockwise, Rotate 90 anticlockwise and, on a turned one,
+  Reset rotation. Each is one undo step. A lock (the viewport's own or its layer's) holds the turn as it holds the
+  frame.
+- NOTHING IS RENDERED AGAIN FOR A TURN. The drawing, its raster underlay, fog and a 3D picture are still laid out in
+  the frame's own millimetres; the frame element is turned on the paper as a whole. A turn costs what a move costs.
+
+**The record**
+- `Viewport__RotationDeg`: degrees CLOCKWISE on the paper (as `Annotation__RotationDeg` and CSS read), wrapped into
+  (-180, 180], written only while the viewport is turned - a level viewport, and every one saved before today, saves
+  exactly as it did. `Viewport__FrameMm` is still the frame as it stands level, and the turn is about ITS MIDDLE, so a
+  move is still a change to X and Y alone and the middle never moves as it turns.
+- Config (`LayoutEditor__Viewport__`): `RotateStepDeg` 90 (Shift's step; 0 turns it off), `RotateDetentDeg` 2,
+  `RotateGripOffsetPx` 22, and a `RotateNote`.
+
+**What changed**
+- NEW `20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js` (a leaf, no imports): the angle (`WrapDeg`,
+  `Deg`, `Settle` - Shift's steps and the detent), the two mappings every module reads a turned frame through (`ToPaper`
+  a level-frame point onto the paper, `ToFrame` a paper point back into the level frame), the turned frame's
+  `Corners`, `Bounds` (the upright box round it; the frame itself when level), `Contains` and `DistanceTo`, the CSS turn
+  (`CssRotate`) and `PdfTurn`, which writes the turn into a jsPDF page as ONE `cm` matrix inside a graphics state.
+- ON SCREEN
+  - `SheetSurface__` 1.12.0: `RefreshFrames` turns a turned frame after its translate, the origin (its middle) written
+    inline with it. A level frame's placement lines are byte-identical to v2.137.0's (its painted-on-the-point contract
+    and mutation test untouched); the turned transform is written whole, never appended to what the style reads back,
+    which Chrome rounds to six digits.
+  - `ViewportHandles__` 1.5.0: the outline and all eight handles on the turned frame, carried by a transform (the grips'
+    rule, not left and top), and the rotate grip on its stem (`RotateGrip`, `OnRotateGrip`); `RotateStart`/`RotateTo`;
+    `HitTest` and `Contains` read the point turned back into the level frame; `DragPatch` works a crop or a pan in the
+    frame's own axes and keeps the edge OPPOSITE the handle where it is on the paper (`TurnedRect`) - a move is still a
+    plain paper move; `CursorFor` turns a handle's resize arrow with the frame.
+  - `SheetChrome__` 1.13.0: a group may carry a turn (`PushGroup(..., turn)`: `RotateDeg/X/Y`), painted as one SVG
+    `rotate()` round the lot, clip included, and in the PDF as one matrix restored in a `finally`. A turned viewport's
+    frame line and caption are built level into one such group, so the caption reads along the drawing it names.
+- THE POINTER (`SheetTools__HitResolution__` 1.8.0, `PointerPress__` 1.6.0, `PointerDrag__` 1.16.0): the rotate grip is
+  looked for first, as the text grip is (it stands off the frame, over whatever lies beyond its top edge); it wears the
+  rotate cursor; a press on it is a grip, so Select keeps it and it never picks Move up; it has no pick dead zone; the
+  drag turns by the swing round the middle and announces once on release. Shift is the KEY here (Ortho does not
+  change it), as on the text grip.
+- EVERYTHING ELSE THAT READS A FRAME, now reading the turned one:
+  - `Viewport2d__Window__` 1.1.0: `ToPaper`/`FromPaper` carry and undo the turn; new `ToFrame`, `FrameToPaper`,
+    `RotationDeg`. `ToLocal` (the layout inside the frame) is unchanged. `Viewport2d__` 1.14.0: the snap source keys the
+    turn.
+  - The snap index (`ObjectSnap__Index__` 1.1.0) clips linework to the frame in the level frame, then turns it onto
+    the paper; the search (`__Search__` 1.1.0) and `VectorTools__Targets__` 1.1.0 (Trim, Extend) test the box round the
+    turned frame; grid moves (`__GridMoves__` 1.2.0) offer a turned frame's corners and middles where they are; the
+    carry-by-a-point signature (`ViewportSnapMove__` 1.6.0) keys the turn.
+  - The selection box (1.6.0: a turned frame is its turned outline), the moved set's leader tips (`SelectionSet__`
+    1.1.0), the eyedropper's box (1.8.2), plan doors (`PlanDoors__` 1.2.0), a floor area's host viewport
+    (`FloorAreas__` 1.2.1), the specification bubble's tail (1.0.1), the parametric viewport link (1.5.1) and its noodle
+    (1.2.2), the 3D wheel zoom about the cursor (`Viewport3dZoom__` 1.1.0), Import From Scene onto a turned drawing
+    (`MarkupBridge__` 1.17.0: the text gets the turn too) and a paste at the click (`ViewportClipboard__` 1.4.0: the top
+    left of the box you SEE lands there).
+  - The PDF (`PdfExporter__` 1.9.0): a turned viewport is drawn exactly as a level one inside one turned graphics state
+    - clip, underlay, VECTOR lines, fog, scene markup, 3D picture - and its frame line and caption come as the chrome's
+    turned group.
+  - The panel (`Panel__ViewportSettings__` 1.8.0) and the menu (`SheetTools__ContextMenu__` 1.5.0) as above; the record
+    (`SheetRecords__` 1.32.0) and the model (`SheetModel__Viewports__` 1.2.0: `rotationDeg` on Update and Create).
+- Service worker token `2026-09-21-20` (the sheet tools import new Handles exports, and a dozen modules the new leaf).
+
+**How it was proved**
+- `Na__Test__ViewportRotation__.test.mjs`, NEW, 52 checks: the real leaf; the shipped ViewportHandles, Window, snap
+  Index and SheetChrome units with their imports stubbed; and the vendored jsPDF itself. Among them: Shift lands 180
+  (never -180) and -90 where it should; a crop on a quarter-turned frame lengthens it along its own axis and leaves the
+  opposite edge and every drawing point exactly where they were; the PDF matrix puts level points where the turn puts
+  them (to 0.01 pt); the real jsPDF page holds balanced graphics states with the turn before the frame's rectangle, and
+  a level frame writes no `cm` at all.
+- `Na__Test__ObjectSnap__` and `Na__Test__LayerMenu__` now load the new leaf (their harnesses stub every import by
+  hand, and the search reads a frame's box through it). Every suite in `80__Testing__PrototypeEnvironment` passes, 38
+  in all, `Na__Test__PaintedOnThePoint__` (v2.137.0's placement contract and its mutations) among them.
+  `Na__Verify__Exports__.mjs` passes (487 files).
+- In the app, RB05 D02 Front Elevation (its one unlocked viewport), fresh modules, a fetch guard refusing every write
+  (none was attempted all session):
+  - The real grip by pointer events: the rotate cursor on hover; Shift held, exactly 90; let go of Shift, 95.7; frame
+    X and Y untouched.
+  - The snap index against the paint: 84 points of the drawing's linework, where the index files them against where the
+    browser paints them, at 90, 17.5 and -133 degrees: 0.004 screen px apart at worst.
+  - Hit tests: a point inside the turned corner but outside the old level rectangle hits the frame; one inside only the
+    level rectangle hits nothing.
+  - A real crop on a 30 degree frame: its handle drawn on its turned point, 30 mm pulled along the turned axis took the
+    width from 474 to 504 mm exactly, the opposite edge still to 0.01 mm; the arrow turned with it.
+  - The panel: 30, +90 (120), +90 (-150, wrapped), 270 typed (-90), Level (the key gone), one undo step each. The menu:
+    Rotate 90 anticlockwise took 30 to -60.
+  - The PDF, exported from the page at 0, 17.5 and 90 degrees and rendered with PyMuPDF: the drawing, frame line and
+    caption turned together, the raster underlay under its vector lines, the sheet's own title and scale bar level.
+  - RB05 put back byte-identical, and the browser draft cleared.
+
+**NOT done, and worth knowing**
+- The Measurements box does not read the angle while turning (the text rotate grip does not either); the panel box
+  does.
+- The panel's Frame mm X and Y are still the LEVEL frame's corner, which a turn does not move.
+- Grid Snap (F7) on a turned frame's crop handle puts the handle's paper point on the grid, but the crop only moves
+  along the frame's own axis, so on a frame turned off square the handle lands on the grid in one direction only.
+- On screen a turned raster underlay is the same picture turned by the browser, so at an odd angle it is resampled a
+  touch softer than level; the vector lines over it are exact, and the PDF is unaffected.
+- A tie to a turned viewport (the parametric noodle) lands on the upright box round it, not on its turned edge.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.137.0  -  21-Sep-2026
+### The Snap Marker Sits ON the Corner It Found: at 32x It Was Painted 17 Pixels From It, Half of That the Marker's Fault and Half the Drawing's, Because the Browser Rounds a Box's Left and Top BEFORE the Paper's Zoom Multiplies the Difference
+
+**Overview**
+- From Adam, over four screenshots of RB05's ground floor plan zoomed well in, the purple endpoint marker standing in
+  clear paper up and to the right of the wall corner it had found (in the fourth, on the line but 15 pixels along it):
+  "Fix the snapping point previews. They don't seem to align with the actual vector points. Measure how far they're
+  off by, then look at the vector snapping system in the layout editor." And then: "don't make them bigger, actually,
+  because when you zoom in and then zoom out, they get bigger. Just fix the positioning of them. It's not accurate
+  enough."
+
+**How far off, measured**
+- The snap itself was never wrong. On the corner measured (a window corner on D10, a line running down from it and one
+  to its right), the hit was the vertex to the last digit, and everything the DOM reports - the marker's box, the
+  linework's own transform - put both on the same client pixel to within 0.2 px at any zoom. The fault was in what is
+  PAINTED, which no DOM read shows.
+- So the live paper was captured out of the running app (its `outerHTML`, marker showing), rendered in headless Chrome
+  against the app's own stylesheets, and the pixels measured: the marker's ink by its centroid, the corner by the
+  centroids of the hairlines leaving it, against a vertex position worked out from the paper millimetres alone.
+  At 32x on a 150% display:
+  - the MARKER was painted 8.8 device pixels to the RIGHT of the vertex (and 1.3 down);
+  - the DRAWING's corner 8.3 to the LEFT of it (and 2.4 down);
+  - 17.1 pixels between the two. Both wrong, in opposite directions, which is why it looked so bad.
+
+**Why**
+- Everything on the paper is laid out at zoom 1 and sits inside the paper's `scale(zoom)`. A box placed by `left` and
+  `top` has them rounded to a whole DEVICE pixel before that scale is applied, and the zoom then multiplies what the
+  rounding threw away - up to half a device pixel times the zoom, a different amount for every box.
+  - The marker's `left` 497.151 px is 745.73 device px at 150%, painted at 746: +0.27, times 32 = +8.8. Measured +8.8.
+  - The drawing's frame sits at `left` 16.171 px = 24.26 device px, painted at 24: -0.26, times 32 = -8.2. Measured -8.3.
+- That is why it was exact at one corner and well out at the next (each snap point has its own fraction), why it grew
+  with the zoom, and why nothing showed at Fit. It is also why a dimension or a vector snapped to a wall corner stood
+  BESIDE the wall at high zoom: the sheet's own markup is one SVG at 0, 0 and was always exact; the drawing under it
+  was the thing displaced - by a fixed fraction per sheet (D10: -0.26, +0.08 device px, times the zoom).
+- "They get bigger" was a second thing: the marker's counter-scale is written for the zoom of the moment, and a wheel
+  zoom moves no pointer, so nothing asked for the marker again. Zoomed in from 32x to 54x it stayed 30 px across until
+  the mouse next moved.
+
+**What changed**
+- ONE RULE: on the paper, a thing is carried to its place by a TRANSFORM, never by `left` and `top`. A translate goes
+  through the zoom at full precision. The element sits at `left 0, top 0` with its origin at that corner - both written
+  INLINE with the transform that needs them, never left to a stylesheet, so a browser holding one file beside an older
+  cached copy of the other still places it right (proved: the final code measured the same against a stylesheet that
+  contradicted it).
+- `Na__LayoutEditor__ObjectSnap__Marker__.js` 1.1.0: `PlaceMarker` - `translate(point) scale(1 / zoom) translate(-50%,
+  -50%)`. It is placed again when a zoom SETTLES (not on each step: the paper is one held picture while the wheel
+  turns, as for the handles), so it no longer stays blown up or shrunk. Its size is as it was (18 px).
+- `Na__LayoutEditor__SheetSurface__.js` 1.11.0: `RefreshFrames` carries every viewport frame, 2D and 3D, to its place
+  by a translate. This is the half of the fault nobody had reported: the DRAWING is now painted where it is, so the
+  dimensions, vectors, grips and marker on it register with it at any zoom. The Vector control's hold (v2.136.0, the
+  frame as a layer of its own) was measured with it: the same.
+- `Na__LayoutEditor__Grips__.js` 1.11.0:
+  - `CounterScale`, which only scaled, is now `Place`, which carries the grip to its point in the same transform - the
+    vertex grips and the insert diamond. A green grip ("on the drawing") no longer stands beside the corner it is on.
+  - THE RUBBER BAND, which is what runs to the marker while a line is drawn, was laid out in PAPER pixels and never
+    counter-scaled: at 32x it was a dashed bar 21 px thick hanging to one side of the line it stood for, started up to
+    16 px from its point, and stopped short of the marker or ran past it. It is now laid out at its length on screen
+    and scaled back (`PlaceBand`): one pixel at any zoom, centred on the line, its ends on its two points, and laid
+    again when a zoom settles. Same dashes, same colours, same axis-lock colours.
+- The two stylesheets say nothing of where the marker or a frame sits (a note in each says why).
+- No new export anywhere (`Na__LeSurface__ZOOM_SETTLED_EVENT` is v2.111.0's), and no stylesheet rule the scripts
+  depend on, so no service worker token bump of its own; v2.136.0's `2026-09-21-19` covers a release that carries both.
+
+**NOT changed, and the same kind of fault (each up to half a pixel times the zoom, all small at the zooms they are used at)**
+- The rectangle tool's rubber box, the selection box, the eyedropper's boxes and a text item's rotate stem.
+- The viewport handles, the Sheet Images handles, the parametric scrapbook's grips, the floor area label grip and the
+  notes margin grip.
+- The carried viewport's ring, crosses and guides (`Na__LayoutEditor__ViewportSnapMove__`), which also still floor
+  their strokes at one PAPER pixel.
+- Inside a frame, the base image and the depth fog are `<img>`s placed by left and top: up to half a pixel of the
+  picture against the vectors over it, at the picture's own resolution.
+- The linework SVG's width is held to 1/64 px by the browser, so at the far edge of a drawing at 64x a line can be half
+  a CSS pixel from true. Measured on D10 at 64x, 481 px into the frame: 0.2 of a device pixel.
+
+**How it was proved**
+- Pixels, in headless Chrome, on the paper captured from the running app (RB05 D10, the same corner, Draft mode on),
+  marker against painted corner, device pixels:
+  - BEFORE, 32x at 150%: 17.1 apart.
+  - AFTER: 8x 0.15, 32x 0.14, 64x 0.30; with the drawing held as its own layer, 64x 0.27; at 100% display, 64x 0.25;
+    and the marker alone against the true vertex 0.03 to 0.08. (The harness itself read half a pixel out until its
+    wrapper was kept off half device pixels at 150% - its fault, not the app's, and worth knowing about the method.)
+- `Na__Test__PaintedOnThePoint__.test.mjs`, new, 116 checks: the shipped Marker (with the State and Glyphs units it
+  reads) and the grips' `Place`, `PlaceBand` and `ShowBand` cut from the shipped file, run against a stand-in
+  document, each transform worked through as the browser works it at 0.34x, 1x, 8x, 32x and 64x - the marker's and a
+  grip's MIDDLE on the point, the band's two ENDS along the middle of its thickness, each its own size on screen, the
+  corner and origin inline, a settling zoom re-placing what is on show and leaving alone what is not; the sheet surface
+  and both stylesheets read as text. MUTATION CHECKED, 15 of 15 caught on copies in memory.
+- `Na__Test__ObjectSnap__`, `Na__Test__DrawingAxes__`, `Na__Test__DrawingGrid__`, `Na__Test__OrthoMode__` and
+  `Na__Test__VectorQuality__` pass. `Na__Verify__Exports__.mjs` passes (486 files).
+- In the app on RB05 D10, fresh modules from a no-store server, a fetch guard refusing every write (none was attempted):
+  - A snap asked for beside the corner at 8x, 32x and 64x: the marker's middle on the vertex to 0.001 px each time
+    (it was up to 0.45 px out even by the DOM's account before, left and top being held to 1/64 px).
+  - The Draw tool at 32x, and a pointer move 4 px off the corner: the Endpoint marker, purple, its middle on the
+    vertex. A click there and a move to the next corner along the wall: the band's start 0.01 px
+    from the first point, its end 0.004 px from the marker, one device pixel thick; the Length box read 220 mm, which
+    is what that wall is. Escape, and the sheet had the shapes it started with.
+  - A wheel zoom in from 32x to 54x with the pointer still: the marker 30 px across while the wheel turned, 18 px and on
+    the vertex the moment it settled; and out to 16x: 5 px, then 18.
+  - A vector opened for editing at 32x: its four grips within 0.003 px of its four vertices.
+  - Every sheet with a viewport (elevation, site plan, location plan, floor plan): each frame's corners within 0.003 px
+    of its frame rectangle, linework painted, across sheet changes (parked frames keep their place).
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.136.0  -  21-Sep-2026
+### Dimensioning a Heavy Plan: the Pointer Move Drops From 12 ms to Half a Millisecond, and a New Vector Control (Low, Medium, High) Takes a Dimension Line Following the Cursor From 4 Frames a Second to 60 Without Costing the Drawing Its Look at Rest
+
+**Overview**
+- From Adam, dimensioning RB05's ground floor plan: "when I'm dimensioning even in draft mode on this project, it's so
+  painfully slow. It's really having to do lots of work, it feels like, just to draw a dimension and find the endpoint.
+  Is it trying to test for too many snap points at once or something, or is it still rendering the 3D pipeline in the
+  background without pausing? Are there any other obvious quick-win optimisations we can make?"
+- Neither of the two suspects. The snap search takes 0.07 ms a move (the 4 mm grid index does its job), and the 3D engine
+  is properly held while a sheet is open (`Na__RenderLoop__RenderFrame` returns before any work). Two other things were
+  wrong, both found by measuring the real app on the real sheet. The first is fixed outright. The second is a trade
+  between how clean a drawing looks and how fast the sheet is to work on, and is now Adam's to make: the toolbar's new
+  Vector control.
+
+**How it was measured**
+- The system Chrome, headless, with hardware rasterisation on this machine's RTX 3080 (checked on `chrome://gpu`),
+  driven through the DevTools protocol with genuine mouse and wheel input, on RB05 D10 (38,500 projected segments, 73
+  vectors, 70 text items, 28 to 34 dimensions - Adam was adding them as the runs went). A Chrome trace per run gives
+  the split: handler JavaScript, style, layout, paint, raster and GPU. A fetch guard refused every write; none was
+  attempted, and every run left the sheet with the dimensions it arrived with.
+- The Dimension tool's three phases: hovering for the first point, the rubber band to the second, and the dimension
+  line following the cursor to the third click.
+
+**What was wrong, 1: every read of the active sheet normalised the whole drawing pack**
+- `Na__LeModel__GetActiveSheet` is `GetSheetById`, which is `GetSheets`, which ran `Na__LeRec__NormaliseSheet` over every
+  record of every sheet - fifteen sheets on RB05 - on EVERY call: 1.3 ms a read, from 223 call sites. It grows with the
+  pack, which is why it is this project.
+- A pointer move with the Dimension tool up made eight of them: one in `Na__LeTools__OnMove`, and seven inside
+  `Na__LeMeasure__Refresh`, whose reading asks the sheet tools for a vertex, a dimension end, a dimension line, a frame
+  and a move that might be retypable, and for a vector tool's reading - each of which fetched the active sheet for
+  itself. 10.5 ms of a 16.7 ms frame, before the browser had drawn anything; the tool's own work, snap and marker
+  included, is 0.07 ms. The click that lands a dimension made sixty-odd: an 88 ms stall.
+- `Na__LayoutEditor__SheetModel__Sheets__.js` 1.2.0: a sheet is normalised ONCE PER ANNOUNCEMENT, not once per read.
+  What brings a sheet back to the normaliser: an announcement (`Na__LeModel__Revision`, new in the State unit 1.2.0,
+  moves on every `Dispatch`, before the listeners run - so an edit, an undo, a redo, a load and the register all
+  count); a sheet object not met before (a load, a restore, a duplicate); or one of its seven lists replaced or a
+  different length (a record pushed or spliced behind the model's back; an undo swaps every list). A silent edit
+  mid-gesture does not, and need not: Create, Insert and Update normalise the record they write, as they always have.
+  Nothing outside the model mutates a live sheet's lists (checked: the one direct push, in the Scrapbook, fills a
+  throwaway preview sheet).
+
+**What was wrong, 2: the drawing shared one painted layer with everything drawn over it**
+- A 2D viewport's linework is a handful of `<path>` elements of tens of thousands of segments, inside the same painted
+  layer as the markup SVGs and the handles. The markup above a drawing is swapped as a whole SVG the size of the page
+  (`Na__LeSurface__PutSlot`), so the dimension line following the cursor - and a note, a vector or a vertex being
+  dragged - invalidated the whole page every frame, and the browser drew every line of the plan again under it.
+- HOLDING the drawing - giving its frame a compositor layer of its own - means what changes above it costs the drawing
+  nothing. The Drawing Grid and the Drawing Axes were already built this way; the drawing itself never was.
+
+**The first cut was wrong, and Adam said so**
+- It held every 2D frame, always, by `will-change : transform`. Adam, running it: "It's unbelievably fast now, but it
+  looks super shit compared to before [...] it was really rendering amazingly clean and good before. It was just too
+  slow." He asked for a way to choose; first as one control driving rasters and vectors together, then, since the
+  Raster level renders every viewport picture again when it changes: "just add a second one for vector quality: low,
+  medium, high."
+- WHY IT LOOKED BAD, reproduced afterwards with his flow - the hold in place from the first paint at Fit, then real
+  wheel notches in over the dense part of D10: the transform hint tells the browser to keep the layer at the scale it
+  was first drawn at, so the drawing was the Fit picture blown up. Sharpness (mean absolute Laplacian of the stage)
+  3.5 held against 10.2 unheld at 4x, and worse the deeper the zoom. The pixel checks run before shipping it had not
+  walked that path: they took the hold after the zoom was set, or zoomed by `ZoomTo` rather than by the wheel, and
+  read identical. A check that does not do what the user does proves nothing about what the user sees.
+- A held drawing is a picture the browser scales, and even held the right way it is never quite the drawing it was. So
+  it is a choice, and at the default it lets go at rest.
+
+**The Vector control** (`Na__LayoutEditor__VectorQuality__.js`, new; the toolbar, beside Raster)
+- High: never held. Every line drawn as vectors, every time: the cleanest, and exactly what the editor was. A heavy plan
+  is slow to dimension and to drag things over.
+- Medium, the default: held ONLY WHILE THE SHEET IS BEING REDRAWN. `Na__LeSurface__Refresh` tells the module once per
+  redrawn frame (`NoteRedraw`), in the frame and before the redraw, so the hold is taken in the same paint the redraw
+  was already paying for (a redraw swaps a page-sized SVG, so it draws the whole plan again held or not).
+  `ReleaseAfterMs` (1200, the new `LayoutEditor__VectorQuality__Config` block) after the LAST redraw it lets go, and the
+  drawing is drawn once more, at rest, pixel for pixel what High shows.
+- Low: held all the time. No pause as an edit starts or ends and a smoother wheel zoom; always a touch soft.
+- Held by `will-change : opacity`, which makes the same layer without the transform hint's promise: the layer is drawn
+  again at each zoom (sharpness 9.5 against 10.2 unheld at 4x, where the transform hint gave 3.5).
+- THE FRAME, NOT THE LINEWORK INSIDE IT. `.na-le-frame__linework` promoted alone sits on a sub-pixel offset of its own,
+  and Draft's one-pixel lines came out grey and soft: 35% less ink in the same crop.
+- Not in the web viewer (the rule stands down under `body.na-le-viewer--active`): nothing is dragged over a drawing
+  there, and a phone's layer budget is not a desktop's.
+- It renders nothing again when it changes (which is why it is not part of Raster), saves nothing, and the PDF never
+  sees it. The level is this browser's, remembered like the Raster level (`Na__LayoutEditor__VectorLevel`).
+- `Na__LayoutEditor__Toolbar__.js`: the Vector label and select after Raster, kept in step by the module's change event.
+  `Na__LayoutEditor__SheetSurface__.js` 1.10.0: `NoteRedraw` per redrawn frame, `Ready` on mount.
+  `ConfigState__SheetSetup__`: `Na__LeCfg__GetVectorQualitySetup`. Labels `VectorLabel`, `VectorLow`, `VectorMedium`,
+  `VectorHigh`, `VectorTitle`.
+
+**What it bought** (RB05 D10, 8x over the densest part of the plan, 1920 x 1080 at 150%)
+- Handler JavaScript per pointer move: 12.0 ms -> 0.5 ms, in every phase, both modes, every Vector level.
+- The click that lands the dimension: 88 ms -> 12 ms. A press: 13 ms -> 1.5 ms.
+- The dimension line following the cursor, chosen through the toolbar's own select:
+
+  | Vector | Normal mode | Draft | At rest, against High |
+  |---|---|---|---|
+  | High | 3.8 fps (GPU flat out: 1,009 ms of work a second) | 40 fps | - |
+  | Medium | 56 fps, one frame of 0.16 s as the hold is taken | 60 fps | no pixel differs |
+  | Low | 60 fps | 60 fps | about 60,000 of 4.7 million pixels differ, by up to 87 of 255 |
+
+- The wheel zoom, real wheel events, normal mode, held (Low) against not: 29 -> 50 frames a second zooming in, 11 -> 17
+  out. (The transform hint gave 51 and 46, by not drawing the layer again at all - which was the fault.) A pan: 60
+  either way. The v2.111.0 zoom hold does not hold under real wheel input on a dense view; that is not changed here.
+
+**How it was proved**
+- SAME DATA, STEP BY STEP. A scripted session on the real app and the real RB05 data - a dimension made the way the
+  tool makes one (silent create, silent slides, one announcement), junk values patched in, undo and redo twice each,
+  text and a vector made and moved silently then announced, a layer made, filled, hidden and deleted with items on it,
+  a field set, the sheet duplicated, reordered and deleted, a raw vector and a raw dimension slipped into the lists
+  with NO announcement, and a whole restore from raw records - run on the two model units as committed (served from
+  `git show HEAD:`) and as they now are: the whole sheet list is byte-identical after each of the 20 steps.
+- `Na__Test__SheetsNormaliseOnce__.test.mjs`, new, 26 checks, on the shipped Sheets and State units with their imports
+  stubbed: one pass per sheet on the first read, none on the reads after (eight in a row, one sheet by id, the active
+  sheet); an announcement brings every sheet back once; a record pushed or spliced with no announcement, and a list
+  replaced by one the same length, bring back that sheet alone; the list the pass itself replaces (the groups) does
+  not; a sheet added, new objects under old ids, and a different array are normalised; `Dispatch` has moved the
+  Revision before its first listener runs. MUTATION CHECKED on copies in memory: never normalising, always
+  normalising, ignoring announcements, ignoring a list's length, ignoring a list being replaced, and noting the sheet
+  before its pass each fail at least one check.
+- THE VECTOR CONTROL, IN THE APP. On RB05 D10, each level chosen through the toolbar's select (so the control, its
+  storage and its event are what is tested), the Dimension tool run to its line phase with real mouse input, normal
+  mode and Draft: the table above. The body class was read every frame - 0% of the line phase held at High, 100% at
+  Medium and Low - and again after the quiet: let go at Medium and High, held at Low. Full 2880 x 1620 screenshots at
+  rest: Medium against High, no pixel differs at all, in either mode. The dimensions on the sheet were the same before
+  and after, and no write was attempted.
+- `Na__Test__VectorQuality__.test.mjs`, new, 33 checks, on the shipped module with its config import stubbed, a stand-in
+  body, storage and a clock turned by hand: the config default for a browser that has never chosen; Medium held from
+  a redraw, kept while redraws keep coming, let go 1200 ms after the LAST one (held at 1199, let go at 1201, no timer
+  left), and taken again; High never, a redraw included; Low from Ready and through a minute of quiet; the level
+  remembered and announced once; a Medium timer overtaken by Low or by High; a stored level that is no level. The
+  stylesheet read as text: one rule, on the body class the module sets, standing down in the web viewer, by
+  `will-change: opacity`, not the transform hint, on the frame and not the linework. MUTATION CHECKED: Medium never
+  letting go, letting go from the first redraw, High holding on a redraw, Low resting let go, a change of level
+  leaving Medium's timer running, and the level not remembered each fail at least one check.
+- All 39 suites in `80__Testing__PrototypeEnvironment` pass. `Na__Verify__Exports__.mjs` passes (486 files).
+- Service worker token `2026-09-21-19` (Logic 1.9.27): the Sheets unit imports a name the State unit did not export
+  before, both sit in every warm cache, and the toolbar and the sheet surface import a module no warm cache holds.
+
+**Looked at and left alone**
+- One SVG slot per Layers-panel layer (so a dimension moved swaps the Dimensions SVG and not the text and the vectors
+  with it): measured at 1.2 ms of the 9 ms a frame the line phase still costs the main thread. Not worth a change to
+  the stack's DOM on its own; the larger prize there is not rebuilding the layers that did not change.
+- The audit's findings, the measurements and what could come next (a dirty-layer markup refresh, the linework split
+  into tiles, a canvas or WebGL linework layer) are in `TrueVision__NOTES__LayoutEditorPerformance__.md`.
+- The first cut (always held) was tried by Adam and refused for its look. The Vector control that replaced it is NOT
+  yet confirmed by him. NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.135.0  -  21-Sep-2026
 ### An Author Zooms In to 6400%; the Web Viewer Still Stops at 800%
 

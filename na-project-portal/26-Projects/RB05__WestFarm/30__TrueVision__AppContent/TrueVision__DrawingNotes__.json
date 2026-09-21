@@ -1,372 +1,471 @@
 {
-    "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
-    "ProjectSpecification__Version": 1,
-    "ProjectSpecification__ProjectCode": "RB05",
-    "ProjectSpecification__UpdatedIso": "2026-09-20T23:05:09.596Z",
-    "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 51,
-    "ProjectSpecification__Revision": "A",
-    "ProjectSpecification__DocumentNumber": "",
-    "ProjectSpecification__Groups": [
+  "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
+  "ProjectSpecification__Version": 1,
+  "ProjectSpecification__ProjectCode": "RB05",
+  "ProjectSpecification__UpdatedIso": "2026-09-21T20:05:41.000Z",
+  "ProjectSpecification__NumberDigits": 2,
+  "ProjectSpecification__LastIdNumber": 65,
+  "ProjectSpecification__Revision": "A",
+  "ProjectSpecification__DocumentNumber": "",
+  "ProjectSpecification__Groups": [
+    {
+      "Group__Id": "SpecGroup_001",
+      "Group__Prefix": "GN",
+      "Group__Title": "General Notes",
+      "Group__IsGeneral": true,
+      "Group__Notes": [
         {
-            "Group__Id": "SpecGroup_001",
-            "Group__Prefix": "GN",
-            "Group__Title": "General Notes",
-            "Group__IsGeneral": true,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_019",
-                    "Note__Code": "GN01",
-                    "Note__Title": "Drawing Scope",
-                    "Note__Body": "Drawings describe the proposed development for planning assessment. They are not construction drawings or a complete Building Regulations specification. Obtain coordinated construction details, structural calculations and Building Control approval before relevant work starts. Refer discrepancies to Noble Architecture before proceeding.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_020",
-                    "Note__Code": "GN02",
-                    "Note__Title": "Survey And Dimensions",
-                    "Note__Body": "Site information derived from a photogrammetric aerial survey of the holding, with purchased Ordnance Survey data to the site plans. No measured building survey of the existing dwelling has been carried out. Proposed buildings are derived from Noble Architecture's three-dimensional model. Do not scale from these drawings. Verify all dimensions on site.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_021",
-                    "Note__Code": "GN03",
-                    "Note__Title": "Pre-Application Status",
-                    "Note__Body": "Issued for pre-application advice. Materials, dimensions and levels are indicative at this stage and to be fixed before a planning application. ",
-                    "Note__UpdatedIso": "2026-09-20T23:05:05.089Z"
-                }
-            ]
+          "Note__Id": "SpecNote_019",
+          "Note__Code": "GN01",
+          "Note__Title": "Drawing Scope",
+          "Note__Body": "Drawings describe the proposed development for planning assessment. They are not construction drawings or a complete Building Regulations specification. Obtain coordinated construction details, structural calculations and Building Control approval before relevant work starts. Refer discrepancies to Noble Architecture before proceeding.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
         },
         {
-            "Group__Id": "SpecGroup_002",
-            "Group__Prefix": "SN",
-            "Group__Title": "Structural Notes",
-            "Group__IsGeneral": false,
-            "Group__Notes": []
+          "Note__Id": "SpecNote_020",
+          "Note__Code": "GN02",
+          "Note__Title": "Survey And Dimensions",
+          "Note__Body": "Site information derived from a photogrammetric aerial survey of the holding, with purchased Ordnance Survey data to the site plans. No measured building survey of the existing dwelling has been carried out. Proposed buildings are derived from Noble Architecture's three-dimensional model. Do not scale from these drawings. Verify all dimensions on site.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
         },
         {
-            "Group__Id": "SpecGroup_004",
-            "Group__Prefix": "EN",
-            "Group__Title": "Building Features  -  North West Elevation  -  Main House",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_035",
-                    "Note__Code": "EN01",
-                    "Note__Title": "Entrance Composition",
-                    "Note__Body": "Central entrance: six-panel painted timber door with narrow sidelights, on cut ashlar jambs standing on plinth blocks. A deep moulded entablature with projecting cornice sits above, and a semicircular radial fanlight above that, framed by concentric moulded archivolts.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_036",
-                    "Note__Code": "EN02",
-                    "Note__Title": "Canted Bay Windows",
-                    "Note__Body": "Canted bays flank the entrance, in cut ashlar throughout, with a moulded cornice and blocking course at the head. French doors to the centre face and sashes to the splayed returns, opening onto the terrace.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_037",
-                    "Note__Code": "EN03",
-                    "Note__Title": "First Floor And Dormers",
-                    "Note__Body": "First floor painted timber sashes in moulded surrounds, with two hipped dormers above within the roof slope.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_038",
-                    "Note__Code": "EN04",
-                    "Note__Title": "Orangery Link",
-                    "Note__Body": "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_039",
-                    "Note__Code": "EN05",
-                    "Note__Title": "Kitchen Building Gable Openings",
-                    "Note__Body": "Kitchen building gable: two tall arched openings with radial fanlights in cut ashlar surrounds. Stone chimney stack against the gable.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_005",
-            "Group__Prefix": "ES",
-            "Group__Title": "Building Features  -  South East Elevation  -  Main House",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_029",
-                    "Note__Code": "ES01",
-                    "Note__Title": "Entrance Porch",
-                    "Note__Body": "Central entrance: a pair of Tuscan columns on plinth blocks carry a full entablature with a projecting moulded cornice. Beneath it a six-panel painted timber door with a semicircular radial fanlight, dressed in cut ashlar and approached over stone steps. The porch projects slightly from the wall plane.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_030",
-                    "Note__Code": "ES02",
-                    "Note__Title": "Window Hierarchy",
-                    "Note__Body": "Tripartite ground floor windows flank the entrance beneath cambered heads with moulded ashlar surrounds, and are the tallest openings on the building. First floor sashes are shorter and set in plainer surrounds.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_031",
-                    "Note__Code": "ES03",
-                    "Note__Title": "Roof And Dormers",
-                    "Note__Body": "Hipped roof with three hipped dormers lighting the second floor. Dormer cheek and roof finish to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_032",
-                    "Note__Code": "ES04",
-                    "Note__Title": "Ridge Lantern",
-                    "Note__Body": "Low hipped glazed lantern set astride the main ridge at the centre of the house. Frame material and finish to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_033",
-                    "Note__Code": "ES05",
-                    "Note__Title": "Colonnade Entrance",
-                    "Note__Body": "Single-storey colonnade entrance to the right of the main block: Tuscan columns flanking a glazed painted timber door, with flat ashlar lintels over the windows either side, beneath a flat roof with a moulded cornice. Leads through to the kitchen building and the coach house.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_034",
-                    "Note__Code": "ES06",
-                    "Note__Title": "Kitchen Building Gable",
-                    "Note__Body": "Kitchen building gable above the colonnade entrance: moulded raking cornice, with a circular opening set in cut ashlar with four projecting keyblocks. Stone chimney stack rises behind.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_007",
-            "Group__Prefix": "EE",
-            "Group__Title": "Building Features  -  North East Elevation  -  Main House",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_043",
-                    "Note__Code": "EE01",
-                    "Note__Title": "House Roof Beyond",
-                    "Note__Body": "The house is seen above the coach house range on this elevation: hipped roof with two hipped dormers and the moulded eaves cornice returning on this side.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_008",
-            "Group__Prefix": "EW",
-            "Group__Title": "Building Features  -  South West Elevation  -  Main House",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_040",
-                    "Note__Code": "EW01",
-                    "Note__Title": "Loggia Arcade",
-                    "Note__Body": "Three arched openings in a recessed bay at ground floor. Tuscan columns, with matching responds returned against the flanking walls, carry a full entablature with plain frieze and projecting cornice. French doors beneath radial fanlights to each arch. The arcade is recessed within the wall plane and does not project beyond the elevation.",
-                    "Note__UpdatedIso": "2026-09-20T22:20:03.881Z"
-                },
-                {
-                    "Note__Id": "SpecNote_041",
-                    "Note__Code": "EW02",
-                    "Note__Title": "Flanking Windows And Dormers",
-                    "Note__Body": "Larger windows flank the arcade at both levels, with three hipped dormers above within the roof slope.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_042",
-                    "Note__Code": "EW03",
-                    "Note__Title": "Kitchen Building, South West Side",
-                    "Note__Body": "Kitchen building: three pairs of painted timber French doors with moulded cornice heads, beneath a run of flush rooflights in the roof slope. Eaves sit below the eaves of the house.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_003",
-            "Group__Prefix": "FN",
-            "Group__Title": "Materials & Finishes",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_022",
-                    "Note__Code": "FN01",
-                    "Note__Title": "Walling And Dressed Stone",
-                    "Note__Body": "Coursed squared natural stone to all external walls of the house, the kitchen building and the coach house. Cut ashlar of the same stone to the plinth, quoins, window and door surrounds, cills, eaves cornice, canted bays, entrance compositions and the carriage arch. Stone type and source to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_023",
-                    "Note__Code": "FN02",
-                    "Note__Title": "Classical Order",
-                    "Note__Body": "All columns and pilasters are of the Tuscan order in cut ashlar: the entrance porch, the loggia arcade and the colonnade entrance.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_024",
-                    "Note__Code": "FN03",
-                    "Note__Title": "Roof Covering",
-                    "Note__Body": "Natural stone slate laid to diminishing courses to all pitched roofs. Stone slate type, and whether new or reclaimed, to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_025",
-                    "Note__Code": "FN04",
-                    "Note__Title": "Chimney Stacks",
-                    "Note__Body": "Natural stone chimney stacks with moulded caps to the house, the kitchen building and the coach house.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_026",
-                    "Note__Code": "FN05",
-                    "Note__Title": "Rooflights",
-                    "Note__Body": "Conservation pattern rooflights set flush within the roof plane to the kitchen building and the coach house. Product to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T22:08:17.669Z"
-                },
-                {
-                    "Note__Id": "SpecNote_027",
-                    "Note__Code": "FN06",
-                    "Note__Title": "Windows And Joinery",
-                    "Note__Body": "External joinery painted timber with slender glazing bars, to a single pattern across every building in the group. Pane configuration and paint colour to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_028",
-                    "Note__Code": "FN07",
-                    "Note__Title": "External Doors",
-                    "Note__Body": "Painted timber six-panel entrance doors with radial fanlights to the house. French doors to the loggia, the terraces and the orangery. Boarded and strapped timber doors to the coach house.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_017",
-            "Group__Prefix": "CE",
-            "Group__Title": "Building Features  -  North East Elevation  -  Coach House",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_044",
-                    "Note__Code": "CE01",
-                    "Note__Title": "Coach House Range",
-                    "Note__Body": "Long single-storey range under a continuous pitched roof, with accommodation lit from within the roof slope.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_045",
-                    "Note__Code": "CE02",
-                    "Note__Title": "Carriage Arch",
-                    "Note__Body": "Central gabled bay carries a semicircular carriage arch turned in voussoirs with a projecting keystone, on cut ashlar imposts with quoined jambs. The arch carries the pedestrian and service route through from the courtyard.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_046",
-                    "Note__Code": "CE03",
-                    "Note__Title": "Gable Oculus",
-                    "Note__Body": "Circular louvred oculus in the gable above the arch, set in a cut ashlar surround with four projecting keyblocks.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_047",
-                    "Note__Code": "CE04",
-                    "Note__Title": "Cupola",
-                    "Note__Body": "Cupola on the ridge above the gable: square base with an arched louvred opening and a moulded cornice, pyramidal roof, ball finial and weathervane. Material and finish to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T22:08:17.669Z"
-                },
-                {
-                    "Note__Id": "SpecNote_048",
-                    "Note__Code": "CE05",
-                    "Note__Title": "Range Windows",
-                    "Note__Body": "Segmentally headed two-light painted timber windows with cut ashlar cills to the range.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_018",
-            "Group__Prefix": "CW",
-            "Group__Title": "Building Features  -  South West Elevation  -  Coach House",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_049",
-                    "Note__Code": "CW01",
-                    "Note__Title": "Carriage Arch, Courtyard Face",
-                    "Note__Body": "The carriage arch returns on the courtyard face in matching voussoirs with quoined jambs. Gable oculus and cupola as CE03 and CE04.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_050",
-                    "Note__Code": "CW02",
-                    "Note__Title": "Courtyard Openings",
-                    "Note__Body": "Courtyard face: boarded and strapped painted timber doors hung either side of glazed French doors beneath a cambered head. Segmentally headed window with a cut ashlar cill to the range beyond.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                },
-                {
-                    "Note__Id": "SpecNote_051",
-                    "Note__Code": "CW03",
-                    "Note__Title": "South East Gable",
-                    "Note__Body": "South east end gable: boarded timber loft door set high in the gable, with a cut ashlar cill and quoined angles.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_010",
-            "Group__Prefix": "SE",
-            "Group__Title": "Existing Site Notes",
-            "Group__IsGeneral": false,
-            "Group__Notes": []
-        },
-        {
-            "Group__Id": "SpecGroup_009",
-            "Group__Prefix": "SP",
-            "Group__Title": "Proposed Site Notes",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_011",
-                    "Note__Code": "SP01",
-                    "Note__Title": "",
-                    "Note__Body": "",
-                    "Note__UpdatedIso": "2026-09-20T16:40:29.837Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_012",
-            "Group__Prefix": "GF",
-            "Group__Title": "Plan Notes  -  Ground Floor Plan",
-            "Group__IsGeneral": false,
-            "Group__Notes": [
-                {
-                    "Note__Id": "SpecNote_013",
-                    "Note__Code": "GF01",
-                    "Note__Title": "",
-                    "Note__Body": "",
-                    "Note__UpdatedIso": "2026-09-20T16:41:08.102Z"
-                }
-            ]
-        },
-        {
-            "Group__Id": "SpecGroup_014",
-            "Group__Prefix": "FF",
-            "Group__Title": "Plan Notes  -  First Floor Plan",
-            "Group__IsGeneral": false,
-            "Group__Notes": []
-        },
-        {
-            "Group__Id": "SpecGroup_015",
-            "Group__Prefix": "SF",
-            "Group__Title": "Plan Notes  -  Second Floor Plan",
-            "Group__IsGeneral": false,
-            "Group__Notes": []
-        },
-        {
-            "Group__Id": "SpecGroup_016",
-            "Group__Prefix": "CN",
-            "Group__Title": "",
-            "Group__IsGeneral": false,
-            "Group__Notes": []
+          "Note__Id": "SpecNote_021",
+          "Note__Code": "GN03",
+          "Note__Title": "Pre-Application Status",
+          "Note__Body": "Issued for pre-application advice. Materials, dimensions and levels are indicative at this stage and to be fixed before a planning application. ",
+          "Note__UpdatedIso": "2026-09-20T23:05:05.089Z"
         }
-    ]
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_002",
+      "Group__Prefix": "SN",
+      "Group__Title": "Structural Notes",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_059",
+          "Note__Code": "SN01",
+          "Note__Title": "Structural Design",
+          "Note__Body": "No structural design has been carried out for this scheme. Spans over the wide openings between rooms, and the structure supporting them, have had no engineering input. A structural engineer is to review the layout before it is developed further, and the plan is subject to change as a result.",
+          "Note__UpdatedIso": "2026-09-21T19:01:14.845Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_004",
+      "Group__Prefix": "EN",
+      "Group__Title": "Building Features  -  North West Elevation  -  Main House",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_035",
+          "Note__Code": "EN01",
+          "Note__Title": "Entrance Composition",
+          "Note__Body": "Central entrance: six-panel painted timber door with narrow sidelights, on cut ashlar jambs standing on plinth blocks. A deep moulded entablature with projecting cornice sits above, and a semicircular radial fanlight above that, framed by concentric moulded archivolts.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_036",
+          "Note__Code": "EN02",
+          "Note__Title": "Canted Bay Windows",
+          "Note__Body": "Canted bays flank the entrance, in cut ashlar throughout, with a moulded cornice and blocking course at the head. French doors to the centre face and sashes to the splayed returns, opening onto the terrace.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_037",
+          "Note__Code": "EN03",
+          "Note__Title": "First Floor And Dormers",
+          "Note__Body": "First floor painted timber sashes in moulded surrounds, with two hipped dormers above within the roof slope.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_038",
+          "Note__Code": "EN04",
+          "Note__Title": "Orangery Link",
+          "Note__Body": "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_039",
+          "Note__Code": "EN05",
+          "Note__Title": "Kitchen Building Gable Openings",
+          "Note__Body": "Kitchen building gable: two tall arched openings with radial fanlights in cut ashlar surrounds. Stone chimney stack against the gable.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_005",
+      "Group__Prefix": "ES",
+      "Group__Title": "Building Features  -  South East Elevation  -  Main House",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_029",
+          "Note__Code": "ES01",
+          "Note__Title": "Entrance Porch",
+          "Note__Body": "Central entrance: a pair of Tuscan columns on plinth blocks carry a full entablature with a projecting moulded cornice. Beneath it a six-panel painted timber door with a semicircular radial fanlight, dressed in cut ashlar and approached over stone steps. The porch projects slightly from the wall plane.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_030",
+          "Note__Code": "ES02",
+          "Note__Title": "Window Hierarchy",
+          "Note__Body": "Tripartite ground floor windows flank the entrance beneath cambered heads with moulded ashlar surrounds, and are the tallest openings on the building. First floor sashes are shorter and set in plainer surrounds.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_031",
+          "Note__Code": "ES03",
+          "Note__Title": "Roof And Dormers",
+          "Note__Body": "Hipped roof with three hipped dormers lighting the second floor. Dormer cheek and roof finish to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_032",
+          "Note__Code": "ES04",
+          "Note__Title": "Ridge Lantern",
+          "Note__Body": "Low hipped glazed lantern set astride the main ridge at the centre of the house. Frame material and finish to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_033",
+          "Note__Code": "ES05",
+          "Note__Title": "Colonnade Entrance",
+          "Note__Body": "Single-storey colonnade entrance to the right of the main block: Tuscan columns flanking a glazed painted timber door, with flat ashlar lintels over the windows either side, beneath a flat roof with a moulded cornice. Leads through to the kitchen building and the coach house.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_034",
+          "Note__Code": "ES06",
+          "Note__Title": "Kitchen Building Gable",
+          "Note__Body": "Kitchen building gable above the colonnade entrance: moulded raking cornice, with a circular opening set in cut ashlar with four projecting keyblocks. Stone chimney stack rises behind.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_060",
+          "Note__Code": "ES07",
+          "Note__Title": "Colonnade Balcony",
+          "Note__Body": "Balcony over the colonnade entrance, reached down steps from the master bedroom suite. Parapet set back from the face below, with planting beds to the edges in place of a balustrade. The set-back keeps the balcony reading as the colonnade roof from ground level. Refer to the three-dimensional model on the project portal.",
+          "Note__UpdatedIso": "2026-09-21T19:56:39.480Z"
+        },
+        {
+          "Note__Id": "SpecNote_061",
+          "Note__Code": "ES08",
+          "Note__Title": "Coach House External Stair",
+          "Note__Body": "Indicative external staircase to the accommodation over the coach house, shown to establish the access only. Form, construction and finish to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T19:56:39.480Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_007",
+      "Group__Prefix": "EE",
+      "Group__Title": "Building Features  -  North East Elevation  -  Main House",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_043",
+          "Note__Code": "EE01",
+          "Note__Title": "House Roof Beyond",
+          "Note__Body": "The house is seen above the coach house range on this elevation: hipped roof with two hipped dormers and the moulded eaves cornice returning on this side.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_053",
+          "Note__Code": "EE02",
+          "Note__Title": "Lean-To Store",
+          "Note__Body": "Single-storey lean-to store against the kitchen building, under a mono-pitch roof with eaves set below those of the kitchen building. Horizontal timber weatherboarding to the walls. Ancillary storage for garden furniture and pool equipment. Roof covering to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T17:49:09.324Z"
+        },
+        {
+          "Note__Id": "SpecNote_054",
+          "Note__Code": "EE03",
+          "Note__Title": "Lean-To Openings",
+          "Note__Body": "Enclosed bay fitted with a pair of vertically boarded timber doors. Adjoining bay left open to the front on timber posts with curved braces, against the stone wall of the kitchen building behind.",
+          "Note__UpdatedIso": "2026-09-21T17:49:09.324Z"
+        },
+        {
+          "Note__Id": "SpecNote_055",
+          "Note__Code": "EE04",
+          "Note__Title": "Lean-To Character",
+          "Note__Body": "Timber boarding, a low mono-pitch roof and an open bay set the store apart from the dressed stone of the house and carry the agricultural character of this end of the group. The store steps the eaves down between the kitchen building and the coach house.",
+          "Note__UpdatedIso": "2026-09-21T17:49:09.324Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_008",
+      "Group__Prefix": "EW",
+      "Group__Title": "Building Features  -  South West Elevation  -  Main House",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_040",
+          "Note__Code": "EW01",
+          "Note__Title": "Loggia Arcade",
+          "Note__Body": "Three arched openings in a recessed bay at ground floor. Tuscan columns, with matching responds returned against the flanking walls, carry a full entablature with plain frieze and projecting cornice. French doors beneath radial fanlights to each arch. The arcade is recessed within the wall plane and does not project beyond the elevation.",
+          "Note__UpdatedIso": "2026-09-20T22:20:03.881Z"
+        },
+        {
+          "Note__Id": "SpecNote_041",
+          "Note__Code": "EW02",
+          "Note__Title": "Flanking Windows And Dormers",
+          "Note__Body": "Larger windows flank the arcade at both levels, with three hipped dormers above within the roof slope.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_042",
+          "Note__Code": "EW03",
+          "Note__Title": "Kitchen Building, South West Side",
+          "Note__Body": "Kitchen building: three pairs of painted timber French doors with moulded cornice heads, beneath a run of flush rooflights in the roof slope. Eaves sit below the eaves of the house.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_003",
+      "Group__Prefix": "FN",
+      "Group__Title": "Materials & Finishes",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_022",
+          "Note__Code": "FN01",
+          "Note__Title": "Walling Stone",
+          "Note__Body": "Coursed squared natural stone walling to the external walls of the house, the kitchen building and the coach house. Rough faced and laid to courses, with the dressed elements in cut ashlar of the same stone as FN10, FN11 and FN12. Stone type and source to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T20:05:41.000Z"
+        },
+        {
+          "Note__Id": "SpecNote_023",
+          "Note__Code": "FN02",
+          "Note__Title": "Classical Order",
+          "Note__Body": "All columns and pilasters are of the Tuscan order in cut ashlar: the entrance porch, the loggia arcade and the colonnade entrance.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_024",
+          "Note__Code": "FN03",
+          "Note__Title": "Roof Covering",
+          "Note__Body": "Natural stone slate laid to diminishing courses to all pitched roofs. Stone slate type, and whether new or reclaimed, to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_025",
+          "Note__Code": "FN04",
+          "Note__Title": "Chimney Stacks",
+          "Note__Body": "Natural stone chimney stacks with moulded caps to the house, the kitchen building and the coach house.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_026",
+          "Note__Code": "FN05",
+          "Note__Title": "Rooflights",
+          "Note__Body": "Conservation pattern rooflights set flush within the roof plane to the kitchen building and the coach house. Product to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-20T22:08:17.669Z"
+        },
+        {
+          "Note__Id": "SpecNote_027",
+          "Note__Code": "FN06",
+          "Note__Title": "Windows And Joinery",
+          "Note__Body": "External joinery painted timber with slender glazing bars, to a single pattern across every building in the group. Pane configuration and paint colour to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_028",
+          "Note__Code": "FN07",
+          "Note__Title": "External Doors",
+          "Note__Body": "Painted timber six-panel entrance doors with radial fanlights to the house. French doors to the loggia, the terraces and the orangery. Boarded and strapped timber doors to the coach house.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_052",
+          "Note__Code": "FN08",
+          "Note__Title": "Oak Weatherboard Cladding",
+          "Note__Body": "Weathered oak shiplap cladding to the lean-to store, laid horizontally, with vertically boarded and strapped doors. Left untreated to silver naturally. Board profile, lap and fixings to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T20:05:41.000Z"
+        },
+        {
+          "Note__Id": "SpecNote_062",
+          "Note__Code": "FN09",
+          "Note__Title": "Classical Entablatures",
+          "Note__Body": "Full Tuscan entablature to the entrance porch, the loggia arcade and the colonnade entrance: plain architrave, unornamented frieze and projecting moulded cornice. Order as FN02. Profiles and proportions to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T19:56:39.480Z"
+        },
+        {
+          "Note__Id": "SpecNote_063",
+          "Note__Code": "FN10",
+          "Note__Title": "Ashlar Quoins",
+          "Note__Body": "Cut ashlar quoins of the same stone as the walling to every external angle of the house, the kitchen building and the coach house. Laid in alternating long and short courses. Finely dressed to contrast with the coursed walling of FN01. Coursing module and margin widths to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T20:05:41.000Z"
+        },
+        {
+          "Note__Id": "SpecNote_064",
+          "Note__Code": "FN11",
+          "Note__Title": "Ashlar Plinth",
+          "Note__Body": "Cut ashlar plinth of the same stone as the walling running continuously around the base of the house, the kitchen building and the coach house, returned at all projections and terminated against the external ground level. Height, projection and weathering detail to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T20:05:41.000Z"
+        },
+        {
+          "Note__Id": "SpecNote_065",
+          "Note__Code": "FN12",
+          "Note__Title": "Cut Ashlar Dressings",
+          "Note__Body": "Cut ashlar dressings of the same stone as the walling to the window and door surrounds, cills, eaves cornice, canted bays, the two entrance compositions and the carriage arch. Finely dressed and moulded where shown. Profiles to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-21T20:05:41.000Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_017",
+      "Group__Prefix": "CE",
+      "Group__Title": "Building Features  -  North East Elevation  -  Coach House",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_044",
+          "Note__Code": "CE01",
+          "Note__Title": "Coach House Range",
+          "Note__Body": "Long single-storey range under a continuous pitched roof, with accommodation lit from within the roof slope.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_045",
+          "Note__Code": "CE02",
+          "Note__Title": "Carriage Arch",
+          "Note__Body": "Central gabled bay carries a semicircular carriage arch turned in voussoirs with a projecting keystone, on cut ashlar imposts with quoined jambs. The arch carries the pedestrian and service route through from the courtyard.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_046",
+          "Note__Code": "CE03",
+          "Note__Title": "Gable Oculus",
+          "Note__Body": "Circular louvred oculus in the gable above the arch, set in a cut ashlar surround with four projecting keyblocks.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_047",
+          "Note__Code": "CE04",
+          "Note__Title": "Cupola",
+          "Note__Body": "Cupola on the ridge above the gable: square base with an arched louvred opening and a moulded cornice, pyramidal roof, ball finial and weathervane. Material and finish to be confirmed before a full application.",
+          "Note__UpdatedIso": "2026-09-20T22:08:17.669Z"
+        },
+        {
+          "Note__Id": "SpecNote_048",
+          "Note__Code": "CE05",
+          "Note__Title": "Range Windows",
+          "Note__Body": "Segmentally headed two-light painted timber windows with cut ashlar cills to the range.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_018",
+      "Group__Prefix": "CW",
+      "Group__Title": "Building Features  -  South West Elevation  -  Coach House",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_049",
+          "Note__Code": "CW01",
+          "Note__Title": "Carriage Arch, Courtyard Face",
+          "Note__Body": "The carriage arch returns on the courtyard face in matching voussoirs with quoined jambs. Gable oculus and cupola as CE03 and CE04.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_050",
+          "Note__Code": "CW02",
+          "Note__Title": "Courtyard Openings",
+          "Note__Body": "Courtyard face: boarded and strapped painted timber doors hung either side of glazed French doors beneath a cambered head. Segmentally headed window with a cut ashlar cill to the range beyond.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        },
+        {
+          "Note__Id": "SpecNote_051",
+          "Note__Code": "CW03",
+          "Note__Title": "South East Gable",
+          "Note__Body": "South east end gable: boarded timber loft door set high in the gable, with a cut ashlar cill and quoined angles.",
+          "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_010",
+      "Group__Prefix": "SE",
+      "Group__Title": "Existing Site Notes",
+      "Group__IsGeneral": false,
+      "Group__Notes": []
+    },
+    {
+      "Group__Id": "SpecGroup_009",
+      "Group__Prefix": "SP",
+      "Group__Title": "Proposed Site Notes",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_011",
+          "Note__Code": "SP01",
+          "Note__Title": "",
+          "Note__Body": "",
+          "Note__UpdatedIso": "2026-09-20T16:40:29.837Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_012",
+      "Group__Prefix": "GF",
+      "Group__Title": "Plan Notes  -  Ground Floor Plan",
+      "Group__IsGeneral": false,
+      "Group__Notes": [
+        {
+          "Note__Id": "SpecNote_013",
+          "Note__Code": "GF01",
+          "Note__Title": "Drawing Purpose",
+          "Note__Body": "Plan issued for spatial planning at pre-application stage. Full interior design layout drawings to follow during the pre-application enquiry. Internal arrangement may develop. The external envelope is shown on the proposed elevations.",
+          "Note__UpdatedIso": "2026-09-21T19:01:14.845Z"
+        },
+        {
+          "Note__Id": "SpecNote_056",
+          "Note__Code": "GF02",
+          "Note__Title": "Principal Staircase",
+          "Note__Body": "Principal staircase to the Grand Atrium is indicative. Its run, width, curvature and the floor area it occupies to be finalised once the flight is reset to the revised floor to ceiling heights.",
+          "Note__UpdatedIso": "2026-09-21T19:01:14.845Z"
+        },
+        {
+          "Note__Id": "SpecNote_057",
+          "Note__Code": "GF03",
+          "Note__Title": "Room Names And Areas",
+          "Note__Body": "Room names describe intended use at this stage. Floor areas are gross internal areas measured from the three-dimensional model, to be confirmed against the detailed drawings.",
+          "Note__UpdatedIso": "2026-09-21T19:01:14.845Z"
+        },
+        {
+          "Note__Id": "SpecNote_058",
+          "Note__Code": "GF04",
+          "Note__Title": "Fitted Furniture And Fittings",
+          "Note__Body": "Kitchen units, fitted furniture and sanitaryware are indicative and are not part of this enquiry.",
+          "Note__UpdatedIso": "2026-09-21T19:01:14.845Z"
+        }
+      ]
+    },
+    {
+      "Group__Id": "SpecGroup_014",
+      "Group__Prefix": "FF",
+      "Group__Title": "Plan Notes  -  First Floor Plan",
+      "Group__IsGeneral": false,
+      "Group__Notes": []
+    },
+    {
+      "Group__Id": "SpecGroup_015",
+      "Group__Prefix": "SF",
+      "Group__Title": "Plan Notes  -  Second Floor Plan",
+      "Group__IsGeneral": false,
+      "Group__Notes": []
+    },
+    {
+      "Group__Id": "SpecGroup_016",
+      "Group__Prefix": "CN",
+      "Group__Title": "",
+      "Group__IsGeneral": false,
+      "Group__Notes": []
+    }
+  ]
 }

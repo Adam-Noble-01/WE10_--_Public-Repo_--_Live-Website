@@ -47,6 +47,34 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.12.0 (TrueVision)
+// - ROTATABLE VIEWPORTS. RefreshFrames appends the viewport's turn
+//   (Viewport__RotationDeg, Na__LayoutEditor__ViewportRotation__) to the
+//   frame's translate and writes the transform origin, the middle of the
+//   frame, inline beside it. The frame and everything in it turn together;
+//   nothing inside is laid out or rendered again. The frame line and caption
+//   turn with it in the chrome (Na__LayoutEditor__SheetChrome__ 1.13.0), and the
+//   outline and handles in the handles module.
+//
+// 21-Sep-2026 - Version 1.11.0 (TrueVision)
+// - A DRAWING IS PAINTED WHERE IT IS, AT ANY ZOOM. RefreshFrames placed each
+//   viewport frame by left and top, which the browser rounds to a whole device
+//   pixel before the paper's scale(zoom) multiplies the difference: up to half
+//   a pixel times the zoom between the painted drawing and everything snapped
+//   to it (measured on RB05 at 32x, 150% display: 8.2 device pixels). A frame
+//   is now carried to its place by a translate, which goes through the zoom at
+//   full precision, from left 0, top 0 (written with it). Found from the
+//   snap marker standing beside the corner it had found - the marker had the
+//   same fault, the other way (Na__LayoutEditor__ObjectSnap__Marker__ 1.1.0).
+//
+// 21-Sep-2026 - Version 1.10.0 (TrueVision)
+// - Vector quality (Na__LayoutEditor__VectorQuality__, the toolbar's Vector
+//   control): Refresh tells it once per redrawn frame (NoteRedraw), in the
+//   frame and BEFORE the redraw, so at Medium the drawing's hold is taken in
+//   the same paint the redraw was already paying for; Mount puts the hold
+//   where the remembered level rests (Ready). The surface decides nothing
+//   about the hold itself.
+//
 // 21-Sep-2026 - Version 1.9.0 (TrueVision)
 // - GetSheetChrome: the sheet's own chrome primitives as built (the border
 //   and title block), for the snapping module, which offers their corners,
@@ -175,7 +203,9 @@
     import { Na__LeMargin__Push } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
     import { Na__LeVp2d__Fill, Na__LeVp2d__Release, Na__LeVp2d__Park, Na__LeVp2d__Restore } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__Fill, Na__LeVp3d__Release, Na__LeVp3d__Park, Na__LeVp3d__Restore } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
+    import { Na__LeVectorQ__Ready, Na__LeVectorQ__NoteRedraw } from '../20__System__Viewports/Na__LayoutEditor__VectorQuality__.js';   // <-- The toolbar's Vector level: whether, and when, a drawing is held as a layer of its own
     import { Na__LeHandles__Render, Na__LeHandles__RenderOutlines, Na__LeHandles__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
+    import { Na__LeVpRot__Deg, Na__LeVpRot__CssRotate } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned viewport's turn on the paper
     import { Na__LeGrips__Render } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
     import { Na__LeScope__Get, Na__LeScope__Contents } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
     import { Na__LeMarkup__BuildItemPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
@@ -275,6 +305,7 @@
         Na__LeSurface__Handles  = null;                                          // <-- Created after the SVG layers so it sits on top
         Na__LeSurface__OnAsset  = () => Na__LeSurface__RefreshChrome();
         window.addEventListener(Na__LeChrome__ASSET_EVENT, Na__LeSurface__OnAsset);
+        Na__LeVectorQ__Ready();                                                  // <-- Vector Low holds the drawings from the first paint; Medium and High start let go
         return true;
     }
     // ------------------------------------------------------------
@@ -440,6 +471,7 @@
             const reasons = Na__LeSurface__Pending;
             Na__LeSurface__Pending = null;
             if (!reasons || !Na__LeSurface__Sheet) return;
+            Na__LeVectorQ__NoteRedraw();                                         // <-- Vector Medium takes the drawing's hold in this same paint, and lets it go when the redraws stop
             if (reasons.has('all') || reasons.has('sheet')) { Na__LeSurface__RefreshNow(reasons.has('all') ? 'all' : 'sheet'); return; }
             reasons.forEach((name) => Na__LeSurface__RefreshNow(name));
         });
@@ -651,9 +683,38 @@
                 frame.setAttribute('data-na-viewport-id', id);
                 Na__LeSurface__El('div', 'na-le-frame__body', frame);
             }
+            // PLACED BY A TRANSFORM, NEVER BY left AND top. A frame's corner is
+            // wherever the drawing was put, a fraction of a pixel as a rule
+            // (RB05's ground floor plan: 16.171 px), and the browser rounds a
+            // box's left and top to a whole DEVICE pixel BEFORE the paper's
+            // scale(zoom) is applied. The zoom then multiplies what the
+            // rounding threw away - up to half a pixel times the zoom - so the
+            // whole drawing was painted that far from where it IS: at 32x on a
+            // 150% display, 8.2 device pixels to the left of its own corners,
+            // while everything drawn on the sheet itself (whose SVG sits at 0,
+            // 0) was exact. A dimension snapped to a wall's corner, a vector
+            // traced over it and the snap marker on it all stood beside the
+            // line they were on (Adam, 21-Sep-2026: "they don't seem to align
+            // with the actual vector points"). A translate is carried through
+            // the zoom at full precision. left and top are held at 0 here, not
+            // by the stylesheet, so this file and that one can never disagree.
+            // ------------------------------------
             const rect = viewport.Viewport__FrameMm;
-            frame.style.left   = (rect.X * ppm) + 'px';
-            frame.style.top    = (rect.Y * ppm) + 'px';
+            frame.style.left      = '0px';
+            frame.style.top       = '0px';
+            frame.style.transform = 'translate(' + (rect.X * ppm) + 'px, ' + (rect.Y * ppm) + 'px)';
+            // A TURNED VIEWPORT (Viewport__RotationDeg) turns as a whole, frame
+            // and contents, about the middle of its frame: the turn goes on after
+            // the translate (so it turns the frame in place, then carries it),
+            // and the origin is written here with it, never left to the
+            // stylesheet. Everything inside is still laid out in the frame's own
+            // millimetres, so a turn renders nothing again. A level viewport
+            // gets neither: its frame is placed exactly as it always was. The
+            // turned transform is written whole rather than appended to what
+            // the style reads back, which the browser rounds to six digits.
+            const turn = Na__LeVpRot__CssRotate(Na__LeVpRot__Deg(viewport));
+            frame.style.transformOrigin = turn ? '50% 50%' : '';
+            if (turn) frame.style.transform = 'translate(' + (rect.X * ppm) + 'px, ' + (rect.Y * ppm) + 'px)' + turn;
             frame.style.width  = (rect.WidthMm  * ppm) + 'px';
             frame.style.height = (rect.HeightMm * ppm) + 'px';
             frame.hidden = !Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId);

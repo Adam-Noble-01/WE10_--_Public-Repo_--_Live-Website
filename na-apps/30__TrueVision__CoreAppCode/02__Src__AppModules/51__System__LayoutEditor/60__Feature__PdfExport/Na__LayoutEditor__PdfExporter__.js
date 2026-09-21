@@ -41,6 +41,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0 (TrueVision)
+// - A turned viewport (Viewport__RotationDeg) prints turned. DrawViewport
+//   draws it exactly as a level one inside one graphics state carrying the
+//   turn about the middle of its frame (Na__LeVpRot__PdfTurn): clip, underlay,
+//   vector lines, fog, scene markup and 3D picture turn together, still vector
+//   where they were vector. Its frame line and caption arrive as a turned group
+//   from the chrome. Offset carries a turned group's turning point with it.
+//
 // 21-Sep-2026 - Version 1.8.0 (TrueVision)
 // - Pictures (Sheet Images). BuildDocument first waits for every picture on
 //   the sheet to be cut to its print copy (Na__LeImgPdf__Prepare): the kept
@@ -139,6 +147,7 @@
     import { Na__LeSpec__EnsureLoaded } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
     import { Na__LeMargin__Push, Na__LeMargin__Report } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
     import { Na__LeImgPdf__Prepare } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Pdf__.js';   // <-- Pictures are cut to print size before the page is drawn
+    import { Na__LeVpRot__Deg, Na__LeVpRot__Centre, Na__LeVpRot__PdfTurn } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A turned viewport prints turned
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -198,7 +207,11 @@
             else if (p.Kind === 'line') { c.X1 = p.X1 + dx; c.Y1 = p.Y1 + dy; c.X2 = p.X2 + dx; c.Y2 = p.Y2 + dy; }
             else if (p.Kind === 'polyline') { c.Points = p.Points.map((pt) => [ pt[0] + dx, pt[1] + dy ]); }
             else if (p.Kind === 'text') { c.X = p.X + dx; c.BaselineY = p.BaselineY + dy; }
-            else if (p.Kind === 'group') { c.Children = Na__LePdf__Offset(p.Children, dx, dy); if (p.ClipRect) c.ClipRect = Object.assign({}, p.ClipRect, { X : p.ClipRect.X + dx, Y : p.ClipRect.Y + dy }); }
+            else if (p.Kind === 'group') {
+                c.Children = Na__LePdf__Offset(p.Children, dx, dy);
+                if (p.ClipRect) c.ClipRect = Object.assign({}, p.ClipRect, { X : p.ClipRect.X + dx, Y : p.ClipRect.Y + dy });
+                if (p.RotateDeg) { c.RotateX = p.RotateX + dx; c.RotateY = p.RotateY + dy; }   // <-- A turned group turns about a point that moves with it
+            }
             return c;
         });
     }
@@ -335,8 +348,16 @@
 
     // HELPER FUNCTION | Draw One Viewport
     // ------------------------------------------------------------
+    // A TURNED VIEWPORT (Viewport__RotationDeg) is drawn exactly as a level one,
+    // inside one graphics state that turns everything about the middle of its
+    // frame (Na__LeVpRot__PdfTurn): the clip, the underlay, the vector lines,
+    // the fog, the scene markup and a 3D picture all turn together, as the
+    // frame element does on screen. Both states close in the finally.
+    // ------------------------------------------------------------
     async function Na__LePdf__DrawViewport(doc, sheet, viewport, options) {
         const frame   = viewport.Viewport__FrameMm;
+        const middle  = Na__LeVpRot__Centre(viewport);
+        const turned  = Na__LeVpRot__PdfTurn(doc, middle.x, middle.y, Na__LeVpRot__Deg(viewport));   // <-- False, and nothing opened, for a level viewport
         const clipped = Na__LePdf__BeginClip(doc, frame);
         try {
             if (viewport.Viewport__Kind === Na__LeModel__KIND_2D) {
@@ -388,6 +409,7 @@
             }
         } finally {
             Na__LePdf__EndClip(doc, clipped);
+            if (turned) { try { doc.restoreGraphicsState(); } catch (e) { /* nothing to restore */ } }
         }
     }
     // ------------------------------------------------------------

@@ -11,7 +11,9 @@
 //
 // DESCRIPTION:
 // - Every sheet normalised and in tab order, one sheet by id, the active
-//   sheet and the switch between sheets.
+//   sheet and the switch between sheets. A sheet is normalised once per
+//   announcement, not once per read (IsNormalised): every tool asks for the
+//   active sheet on every pointer move, several times over.
 // - Create, duplicate, delete, update and reorder a sheet; the title block
 //   fields with their project defaults, one field set, and the notes margin.
 // - TrueVision only: site plan drawings. IsSitePlanSheet reads a sheet's
@@ -35,12 +37,33 @@
 // PORT NOTE:
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
-// - Divergences   : header; site plan drawings, TrueVision first: IsSitePlanSheet, TabGroup, NextOrder and RenumberSheets are TrueVision only, and GetSheets, CreateSheet, DuplicateSheet, DeleteSheet, UpdateSheet and ReorderSheet keep the two tab groups.
+// - Divergences   : header; site plan drawings, TrueVision first: IsSitePlanSheet, TabGroup, NextOrder and RenumberSheets are TrueVision only, and GetSheets, CreateSheet, DuplicateSheet, DeleteSheet, UpdateSheet and ReorderSheet keep the two tab groups. GetSheets normalising once per announcement (IsNormalised, NoteNormalised) is TrueVision first, 21-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - GetSheets normalises a sheet ONCE PER ANNOUNCEMENT, not once per read. It
+//   used to run the whole normaliser over every record of every sheet in the
+//   pack each time anything asked for the sheets, one sheet by id or the active
+//   sheet - 1.3 ms a call on RB05 (fifteen sheets), from 223 call sites. A
+//   pointer move with the Dimension tool up made eight of them: 10.5 ms of a
+//   16.7 ms frame gone before the snap, which itself takes 0.07 ms, had been
+//   looked for; the click that lands a dimension made sixty-odd (85 ms). Now
+//   0.5 ms a move and 13 ms for the click, and the sheet data is identical at
+//   every step of a scripted session run on both builds (undo, redo, a layer
+//   deleted with items on it, raw records slipped in with no announcement, a
+//   whole restore from raw records).
+// - WHAT BRINGS A SHEET BACK TO THE NORMALISER: an announcement (the State
+//   unit's Revision moves on every Dispatch, so undo, redo, a load and every
+//   edit all count); a sheet object it has not met (a load, a restore, a
+//   duplicate); or one of its lists replaced or a different length (a record
+//   pushed or spliced behind the model's back). A silent edit mid-gesture does
+//   not, and need not: Create, Insert and Update normalise the record they
+//   write, as they always have.
+// - TrueVision first; not yet in ValeVision.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - Short tab names. GetDrawingNumber, GetShortCode and GetTabLabel: a sheet's
 //   drawing number, the "D03" cut from it, and what its tab reads
@@ -94,6 +117,7 @@
     // ------------------------------------------------------------
     import {
         Na__LeModel__ActiveSheetId,
+        Na__LeModel__Revision,
         Na__LeModel__Dispatch,
         Na__LeModel__Touch,
         Na__LeModel__Array,
@@ -107,6 +131,58 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | What Has Already Been Normalised
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS AND VARIABLES | The Lists Watched, and Each Sheet as It Stood After Its Last Pass
+    // ------------------------------------------------------------
+    const Na__LeModel__SHEET_LISTS = [ 'Sheet__Layers', 'Sheet__Viewports', 'Sheet__Annotations', 'Sheet__Dimensions', 'Sheet__Shapes', 'Sheet__Leaders', 'Sheet__Groups' ];
+    const Na__LeModel__Normalised  = new WeakMap();   // <-- sheet -> { revision, lists, lengths }; a sheet that is let go takes its entry with it
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Has a Sheet Been Normalised Since Anything Could Have Changed It
+    // ------------------------------------------------------------
+    // THE NORMALISER IS NOT A READ. It walks every record of a sheet, and
+    // GetSheets ran it over every sheet of the pack for every caller that
+    // wanted one sheet - the active one, mostly, eight times per pointer move.
+    // A sheet is good until something could have changed it:
+    //   an announcement         Revision moves on every Dispatch - an edit, an
+    //                           undo, a redo, a load, the register
+    //   a sheet not met before  a load, a restore or a duplicate is new objects
+    //   a list replaced, or a   a record pushed or spliced behind the model's
+    //   different length        back; an undo swaps every list for the snapshot's
+    // A SILENT EDIT DOES NOT COUNT, and need not: Create, Insert and Update
+    // normalise the record they write themselves, which is all a drag changes
+    // between its first move and the announcement that ends it.
+    // ------------------------------------------------------------
+    function Na__LeModel__IsNormalised(sheet) {
+        const seen = Na__LeModel__Normalised.get(sheet);
+        if (!seen || seen.revision !== Na__LeModel__Revision) return false;
+        for (let i = 0; i < Na__LeModel__SHEET_LISTS.length; i++) {
+            const list = sheet[Na__LeModel__SHEET_LISTS[i]];
+            if (seen.lists[i] !== list || seen.lengths[i] !== (Array.isArray(list) ? list.length : -1)) return false;
+        }
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Note a Sheet as It Stands, Straight After Its Pass
+    // ------------------------------------------------------------
+    // AFTER, not before: the pass itself replaces some of the lists (the
+    // groups, filtered), and those are the ones the next read will find.
+    // ------------------------------------------------------------
+    function Na__LeModel__NoteNormalised(sheet) {
+        const lists = Na__LeModel__SHEET_LISTS.map((key) => sheet[key]);
+        Na__LeModel__Normalised.set(sheet, { revision : Na__LeModel__Revision, lists : lists, lengths : lists.map((list) => (Array.isArray(list) ? list.length : -1)) });
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Public API - Sheets
 // -----------------------------------------------------------------------------
 
@@ -114,11 +190,16 @@
     // ------------------------------------------------------------
     // Architectural sheets first, then site plan sheets, each group by
     // Sheet__Order. The one sort point: the tab strip, the editor's first
-    // sheet and the Dev menu all read this list.
+    // sheet and the Dev menu all read this list. A sheet already normalised
+    // since anything could have changed it is passed over (IsNormalised).
     // ------------------------------------------------------------
     function Na__LeModel__GetSheets() {
         const list = Na__LeModel__Array().filter((s) => s && typeof s === 'object' && typeof s.Sheet__Id === 'string');
-        list.forEach(Na__LeRec__NormaliseSheet);
+        list.forEach((sheet, index) => {
+            if (Na__LeModel__IsNormalised(sheet)) return;
+            Na__LeRec__NormaliseSheet(sheet, index);
+            Na__LeModel__NoteNormalised(sheet);
+        });
         return list.sort((a, b) => a.Sheet__Order - b.Sheet__Order);
     }
     // ------------------------------------------------------------

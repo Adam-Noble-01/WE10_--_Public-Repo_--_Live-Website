@@ -52,6 +52,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.0
+// - Rotatable viewports. ViewportRotateGripAt finds the selected viewport's
+//   rotate grip before anything else, as the text rotate grip is found, and
+//   Resolve hands it on as { kind : 'viewport', hit : { mode : 'rotate' } }.
+//   HoverCursor gives it the rotate cursor and turns a crop handle's arrow
+//   with the frame; PicksUpMove leaves Move down for it, as for a handle.
+//   Contains and HitTest (Na__LayoutEditor__ViewportHandles__) answer for the
+//   turned frame, so every other press on a turned viewport is unchanged.
+//
 // 21-Sep-2026 - Version 1.7.0
 // - SnapShapeTranslation and SnapGroupTranslation have LEFT: all the editor's
 //   snapping now lives in 28__System__ObjectSnap, and they are its
@@ -157,7 +166,8 @@
         Na__LeHandles__HitTest,
         Na__LeHandles__Contains,
         Na__LeHandles__CursorFor,
-        Na__LeHandles__FrontToBack
+        Na__LeHandles__FrontToBack,
+        Na__LeHandles__OnRotateGrip
     } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeMarkup__HitTest } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeGrips__DimensionGrab, Na__LeGrips__ShapeGrab, Na__LeGrips__LeaderGrab, Na__LeGrips__AnnotationGrab, Na__LeGrips__ROTATE_CURSOR, Na__LeGrips__MOVE_CURSOR, Na__LeGrips__ShowInsert, Na__LeGrips__HideInsert } from './Na__LayoutEditor__Grips__.js';
@@ -265,7 +275,7 @@
         if (found.kind === 'shape')      return !Na__LeModel__IsLayerLocked(sheet, record.Shape__LayerId) && Na__LeScope__GetVectorId() !== found.id;
         if (found.kind === 'leader')     return !Na__LeModel__IsLayerLocked(sheet, record.Leader__LayerId) && Na__LeGrips__LeaderGrab(record, pointMm, Na__LeTools__Tolerance()) !== 'tip';
         if (found.kind === 'dimension')  return !Na__LeModel__IsLayerLocked(sheet, record.Dimension__LayerId) && Na__LeScope__GetDimensionId() !== found.id;   // <-- Only if the config lists it
-        return !Na__LeTools__IsViewportLocked(sheet, record) && !(found.hit && found.hit.mode === 'handle') && Na__LeSurface__GetEditingViewport() !== found.id;   // <-- A viewport, likewise
+        return !Na__LeTools__IsViewportLocked(sheet, record) && !(found.hit && (found.hit.mode === 'handle' || found.hit.mode === 'rotate')) && Na__LeSurface__GetEditingViewport() !== found.id;   // <-- A viewport, likewise; its crop handles and its rotate grip are grips
     }
     // ------------------------------------------------------------
 
@@ -450,6 +460,31 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Selected Viewport's Rotate Grip Under a Point, or Null
+    // ------------------------------------------------------------
+    // Asked where the text rotate grip is asked, and for the same reason: the
+    // grip stands OFF the frame, over whatever lies beyond its top edge - a
+    // note, a title, another drawing - which would otherwise answer first.
+    // Only where the grip is drawn (Na__LeHandles__Render): the Select tool
+    // up in an editable session, one viewport selected on a visible, pickable
+    // layer, not locked, not being edited inside, and no container open.
+    // Returns { kind : 'viewport', id, hit : { mode : 'rotate' } }.
+    // ------------------------------------------------------------
+    function Na__LeTools__ViewportRotateGripAt(sheet, pointMm) {
+        if (!Na__LeTools__Editable || Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1 || !sheet || !pointMm) return null;
+        if (Na__LeScope__IsActive() || Na__LeModel__GetSelectionItems().length !== 1) return null;
+        const selection = Na__LeModel__GetSelection();
+        if (!selection || selection.kind !== 'viewport') return null;
+        const viewport = Na__LeModel__GetViewportById(sheet, selection.id);
+        if (!viewport || !Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId) || !Na__LeModel__IsLayerSelectable(sheet, viewport.Viewport__LayerId)) return null;
+        if (Na__LeTools__IsViewportLocked(sheet, viewport) || Na__LeSurface__GetEditingViewport() === viewport.Viewport__Id) return null;
+        return Na__LeHandles__OnRotateGrip(viewport, pointMm, Na__LeSurface__GetPixelsPerMm(), Na__LeSurface__GetZoom())
+            ? { kind : 'viewport', id : viewport.Viewport__Id, hit : { mode : 'rotate' } }
+            : null;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | A Grip of the Open Dimension, Wherever It Stands
     // ------------------------------------------------------------
     // A DIMENSION'S MEASURED POINTS ARE NOWHERE NEAR THE DIMENSION. They sit at
@@ -492,6 +527,8 @@
     function Na__LeTools__Resolve(sheet, pointMm, includeLocked, skipLockedViewports, keepMember) {
         const turning = includeLocked === true ? null : Na__LeTools__RotateGripAt(sheet, pointMm);   // <-- The rotate grip first: it stands off its text, over whatever lies beneath
         if (turning) return turning;
+        const spinning = includeLocked === true ? null : Na__LeTools__ViewportRotateGripAt(sheet, pointMm);   // <-- A viewport's rotate grip likewise stands off its frame
+        if (spinning) return spinning;
         const measured = includeLocked === true ? null : Na__LeTools__OpenDimensionGripAt(sheet, pointMm);   // <-- And the open dimension's grips, which stand off it further still
         if (measured) return measured;
         // A POINT OF THE OPEN CONTAINER COMES FIRST | Before the line, because a
@@ -576,7 +613,7 @@
     // ------------------------------------------------------------
     function Na__LeTools__DoorAt(sheet, found, pointMm) {
         if (!Na__LeTools__Editable || !found || found.kind !== 'viewport' || !Na__LeDoors__ClickToggles()) return null;
-        if (found.hit && found.hit.mode === 'handle') return null;
+        if (found.hit && (found.hit.mode === 'handle' || found.hit.mode === 'rotate')) return null;
         const selection = Na__LeModel__GetSelection();
         if (!selection || selection.kind !== 'viewport' || selection.id !== found.id) return null;
         const viewport = Na__LeModel__GetViewportById(sheet, found.id);
@@ -632,7 +669,8 @@
         if (Na__LeTools__DoorAt(sheet, found, pointMm)) return 'pointer';     // <-- A click here closes or opens that door, locked or not
         if (Na__LeTools__IsViewportLocked(sheet, record)) return 'default';
         if (Na__LeSurface__GetEditingViewport() === found.id) return 'grab';
-        if (found.hit && found.hit.mode === 'handle') return Na__LeHandles__CursorFor(found.hit);
+        if (found.hit && found.hit.mode === 'rotate') return Na__LeGrips__ROTATE_CURSOR;   // <-- The text rotate grip's own cursor: this one turns a viewport
+        if (found.hit && found.hit.mode === 'handle') return Na__LeHandles__CursorFor(found.hit, record);   // <-- The arrow turns with a turned frame
         return rest;
     }
     // ------------------------------------------------------------
@@ -647,7 +685,7 @@
     // ------------------------------------------------------------
     function Na__LeTools__CarryTarget(sheet, found) {
         if (!Na__LeTools__Editable || !found || found.kind !== 'viewport') return null;
-        if (found.hit && found.hit.mode === 'handle') return null;
+        if (found.hit && (found.hit.mode === 'handle' || found.hit.mode === 'rotate')) return null;   // <-- A crop handle crops and the rotate grip turns
         if (Na__LeModel__GetSelectionItems().length > 1 && Na__LeModel__IsSelected(found.kind, found.id)) return null;
         if (Na__LeSurface__GetEditingViewport() === found.id) return null;
         const viewport = Na__LeModel__GetViewportById(sheet, found.id);

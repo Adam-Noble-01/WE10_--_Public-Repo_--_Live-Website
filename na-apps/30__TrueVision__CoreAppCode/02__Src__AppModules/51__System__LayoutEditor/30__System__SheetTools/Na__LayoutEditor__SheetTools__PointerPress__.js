@@ -57,6 +57,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - A press on the selected viewport's rotate grip starts a turn: a viewport
+//   drag with hit mode 'rotate', held by Na__LeHandles__RotateStart. It is a
+//   grip, so the Select tool keeps it, as it keeps the text rotate grip.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - A press with a vector tool up (37__System__VectorTools: Circle, Arc, Trim,
 //   Extend, Join, Split, Offset, Fillet, Chamfer) goes to their adapter, the
@@ -147,7 +152,7 @@
         Na__LeSurface__GetEditingViewport,
         Na__LeSurface__SetEditingViewport
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeHandles__CaptureStart } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
+    import { Na__LeHandles__CaptureStart, Na__LeHandles__RotateStart } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeMarkup__HitTest } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeGrips__DimensionGrab, Na__LeGrips__ShapeGrab, Na__LeGrips__LeaderGrab, Na__LeGrips__HideInsert } from './Na__LayoutEditor__Grips__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__InsertPoint } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
@@ -301,6 +306,9 @@
         // content is being edited (double-click) a drag inside moves the drawing
         // instead - which is an edit inside an open container, so Select keeps it.
         if (Na__LeTools__IsViewportLocked(sheet, record)) return null;
+        if (found.hit && found.hit.mode === 'rotate') {                      // <-- The rotate grip turns it about the middle of its frame: a grip, so Select keeps it
+            return { kind : 'viewport', id : found.id, hit : { mode : 'rotate' }, start : Na__LeHandles__CaptureStart(record), rotate : Na__LeHandles__RotateStart(record, pointMm), baseMm : null };
+        }
         const editing = Na__LeSurface__GetEditingViewport() === found.id;
         const hit     = editing ? { mode : 'body' } : ((found.hit && found.hit.mode === 'handle') ? found.hit : { mode : 'border' });
         if (hit.mode === 'border' && !moving) return null;                   // <-- The frame travels under the Move tool alone

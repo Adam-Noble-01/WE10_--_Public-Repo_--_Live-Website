@@ -151,6 +151,10 @@ console.log('TrueVision3D - object snap: the running modes, what a hit belongs t
     const curvesTmp = join(tmpdir(), 'Na__Test__ObjectSnap__Curves__.mjs');
     writeFileSync(curvesTmp, readFileSync(resolve(SRC, '51__System__LayoutEditor/37__System__VectorTools/Na__LayoutEditor__VectorTools__Curves__.js'), 'utf8'), 'utf8');
     globalThis.__Curves = await import(pathToFileURL(curvesTmp).href + '?v=' + Math.random().toString(36).slice(2));
+    // The viewport rotation leaf, as it ships (no imports either): the search reads a frame's box through it.
+    const vpRotTmp = join(tmpdir(), 'Na__Test__ObjectSnap__ViewportRotation__.mjs');
+    writeFileSync(vpRotTmp, readFileSync(resolve(SRC, '51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js'), 'utf8'), 'utf8');
+    globalThis.__VpRot = await import(pathToFileURL(vpRotTmp).href + '?v=' + Math.random().toString(36).slice(2));
     const stubs = [
         'const T = globalThis.__T = { setup : { enabled : true, radiusPx : 3, endpoints : true, midpoints : true, hiddenLines : false, sheetObjects : true, sheetChrome : true, markerSizePx : 18 }, marker : null, chrome : [], source : null, gridOn : false };',
         'const Na__LeCfg__GetSnappingSetup = () => T.setup;',
@@ -166,6 +170,7 @@ console.log('TrueVision3D - object snap: the running modes, what a hit belongs t
         'const Na__LeMarkup__AnnotationCorners = (item) => item.Test__Corners;',                               // <-- The text\'s box, as the markup bridge would measure it
         "const Na__LeVecCurve__KIND_CIRCLE = 'circle', Na__LeVecCurve__Describe = (...a) => globalThis.__Curves.Na__LeVecCurve__Describe(...a);",   // <-- The Vector Tools' real leaf
         'const Na__LeGrid__IsSnapping = () => T.gridOn, Na__LeGrid__Nearest = (p) => ({ x : Math.round(p.x), y : Math.round(p.y) });',
+        'const Na__LeVpRot__Bounds = (...a) => globalThis.__VpRot.Na__LeVpRot__Bounds(...a);',                // <-- The viewport rotation leaf itself
         'const Na__LeOsnap__ShowMarker = (hit) => { T.marker = hit; }, Na__LeOsnap__HideMarker = () => { T.marker = null; };'
     ].join('\n');
     const O = await loadObjectSnap([ 'State', 'Geometry', 'Index', 'Sources', 'Search' ], stubs, 'Search');

@@ -198,7 +198,11 @@
         "LayoutEditor__Viewport__ImageZoomMin": 0.25,
         "LayoutEditor__Viewport__ImageZoomMax": 10,
         "LayoutEditor__Viewport__ImageZoomFineFactor": 0.2,
-        "LayoutEditor__Viewport__ImageZoomCommitMs": 350
+        "LayoutEditor__Viewport__ImageZoomCommitMs": 350,
+        "LayoutEditor__Viewport__RotateNote": "ROTATION (Viewport__RotationDeg, degrees clockwise). A selected viewport shows a round grip on a short stem off the middle of its top edge; drag it to turn the whole viewport - frame, drawing or picture, frame line and caption - about the middle of its frame, or type an angle in the Viewport panel's Rotation box. Shift holds a drag to RotateStepDeg steps counted from level (90: a quarter turn); without Shift a drag settles on a right angle once within RotateDetentDeg of one. RotateGripOffsetPx is how far off the top edge the grip stands on screen, at any zoom. Right-click a viewport for Rotate 90 degrees either way and Reset rotation. Nothing is rendered again for a turn - the picture and the linework are laid out in the frame's own axes and the frame is turned on the paper, and the PDF prints it turned. The key is written only while the viewport is turned, so a level viewport saves exactly as before.",
+        "LayoutEditor__Viewport__RotateStepDeg": 90,
+        "LayoutEditor__Viewport__RotateDetentDeg": 2,
+        "LayoutEditor__Viewport__RotateGripOffsetPx": 22
     },
 
     "LayoutEditor__Raster__Config": {
@@ -212,6 +216,11 @@
             "medium": { "PixelsPerMm": 12, "MaxPixels": 5120, "AntiAliasSamples": 4  },
             "high":   { "PixelsPerMm": 20, "MaxPixels": 8192, "AntiAliasSamples": 16 }
         }
+    },
+    "LayoutEditor__VectorQuality__Config": {
+        "LayoutEditor__VectorQuality__Description": "The toolbar's Vector control (Na__LayoutEditor__VectorQuality__): how a 2D viewport's linework is drawn while a sheet is worked on. High never holds the drawing: every line is drawn as vectors every time, the cleanest, and a heavy plan is slow to dimension and to drag things over. Medium holds the drawing as a compositor layer of its own only while the sheet is being redrawn, and lets it go after ReleaseAfterMs of quiet, when it is drawn clean again: fast to edit, as clean as High at rest. Low holds it all the time: no pause as an edit starts or ends and a smoother wheel zoom, always a touch soft. Nothing is rendered again when the level changes, nothing is saved, and the PDF never sees it. DefaultLevel is what a browser that has never chosen starts on.",
+        "LayoutEditor__VectorQuality__DefaultLevel": "medium",
+        "LayoutEditor__VectorQuality__ReleaseAfterMs": 1200
     },
     "LayoutEditor__ViewportCache__Config": {
         "LayoutEditor__ViewportCache__Description": "Sheets stay rendered while another sheet is shown. Leaving a drawing tab lifts that sheet's viewport frames off the paper whole - the base images, the painted linework, the 3D snapshots and the keys they were rendered under - and coming back puts them straight on again, so flipping between tabs renders nothing. A viewport only renders again when its own key has changed: a resized or re-cropped frame, a pan, a scale, a style or composite weight, its model layers, the raster level, the scene or the model. MaxParkedSheets is how many sheets are kept this way, the least recently shown dropped first; each holds its pictures in memory (a few megabytes a viewport), so lower it on a machine short of memory. 0 switches the cache off. SCREEN ONLY: the PDF never reads this cache - every raster in a PDF is rendered afresh at the Raster block's ExportLevel.",
@@ -258,6 +267,10 @@
         "LayoutEditor__Dimensions__DefaultUnitsSuffix": " mm",
         "LayoutEditor__Dimensions__ThousandsSeparator": ",",
         "LayoutEditor__Dimensions__DefaultAtScale": true,
+        "LayoutEditor__Dimensions__DefaultRoundUp": false,
+        "LayoutEditor__Dimensions__RoundUpStepMm": 5,
+        "LayoutEditor__Dimensions__RoundUpMarker": "*",
+        "LayoutEditor__Dimensions__RoundUpNote": "ROUND UP (the Dimensions panel's Round up to 5 mm, under Units; OFF by default - DefaultRoundUp). On, a dimension's figure is raised to the next multiple of RoundUpStepMm at or above it - 6,413 reads 6,415, 6,416 reads 6,420 - and RoundUpMarker is printed straight after the figure (6,415* or 8,325* mm), so a rounded size is always marked. It rounds the figure the dimension would print at its own Decimals, so a size that reads exactly 2,810 stays 2,810 and carries no marker: only a figure the rounding actually raised is marked. An override is printed as typed, never rounded. The panel's Measures line keeps showing the exact figure. The record keeps the switch as Dimension__RoundUp, written only while it is on; a record from before it has no key and prints exactly as it did. RoundUpStepMm 0 rounds nothing.",
         "LayoutEditor__Dimensions__TextLeaderMinMm": 1.5,
         "LayoutEditor__Dimensions__TextLeaderGapMm": 0.4,
         "LayoutEditor__Dimensions__TextLeaderNote": "TextLeaderMinMm is how far, in paper millimetres, a dragged value has to sit from its un-dragged place before the arc is drawn and before a drag keeps rather than snapping home. TextLeaderGapMm is the clear paper between the justified side of the value and the start of that arc. The arc is a circle from the middle of that side to the centre of the dimension line, bulging away from the line so the hook bends outwards. Dragged to the right of the centre the value is left-justified and the arc meets its left; dragged to the left, right-justified, the arc on the right."
@@ -817,6 +830,11 @@
         "LayoutEditor__Labels__RasterTitle": "Working resolution of the viewport pictures on screen. The PDF always exports at High.",
         "LayoutEditor__Labels__RasterGlobal": "Raster (all sheets)",
         "LayoutEditor__Labels__RasterNote": "Global working resolution of every viewport picture. The PDF always exports at High.",
+        "LayoutEditor__Labels__VectorLabel": "Vector",
+        "LayoutEditor__Labels__VectorLow": "Low",
+        "LayoutEditor__Labels__VectorMedium": "Medium",
+        "LayoutEditor__Labels__VectorHigh": "High",
+        "LayoutEditor__Labels__VectorTitle": "How the drawings' linework is drawn while you work. High: always the cleanest, and a heavy plan is slow to dimension. Medium: fast while you edit, clean again a moment after you stop. Low: fastest, always a touch soft. Nothing is re-rendered when this changes, and the PDF ignores it.",
         "LayoutEditor__Labels__ModelSourceLabel": "Model Source",
         "LayoutEditor__Labels__ModelSourceDefault": "Project Default - {label}",
         "LayoutEditor__Labels__ModelSourceDefaultNone": "Project Default",
@@ -1071,6 +1089,9 @@
         "LayoutEditor__Labels__DimPaperMeasure": "(paper millimetres)",
         "LayoutEditor__Labels__DimEndSize": "Size mm",
         "LayoutEditor__Labels__DimEndSizeTitle": "How large the ticks, arrows or dots at each end are, in paper millimetres.",
+        "LayoutEditor__Labels__DimRoundUp": "Round up to {step} mm",
+        "LayoutEditor__Labels__DimRoundUpTitle": "On: the figure is raised to the next {step} mm and marked {marker} - 6,413 reads 6,415{marker} - so a size is never shown smaller than it measures. A figure already on a multiple of {step} mm is exact and is not marked. Off (the default): the measured figure.",
+        "LayoutEditor__Labels__DimRoundedShown": "- shown rounded up as {shown}",
         "LayoutEditor__Labels__MenuCloseDoor": "Close door",
         "LayoutEditor__Labels__MenuOpenDoor": "Open door",
         "LayoutEditor__Labels__MenuOpenAllDoors": "Open all doors ({count} closed)",

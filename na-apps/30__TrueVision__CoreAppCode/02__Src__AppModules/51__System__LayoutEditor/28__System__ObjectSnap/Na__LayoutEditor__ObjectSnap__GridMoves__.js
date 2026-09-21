@@ -58,6 +58,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - A turned viewport (Viewport__RotationDeg) is picked up by its corners and
+//   edge middles where the turn has put them, and a crop handle is carried by
+//   its turned position. The rotate grip is not a grid drag at all: it turns,
+//   it does not travel.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - Moved into the Object Snap folder from the sheet tools, the code verbatim.
 //   Na__LeTools__GridGrabPoint, GridDragDelta and GridTranslation are now
@@ -84,6 +90,7 @@
     import { Na__LeGrid__IsSnapping, Na__LeGrid__Nearest } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';
     import { Na__LeOsnap__KIND_GRID, Na__LeOsnap__IsEnabled } from './Na__LayoutEditor__ObjectSnap__State__.js';
     import { Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from './Na__LayoutEditor__ObjectSnap__Marker__.js';
+    import { Na__LeVpRot__TurnVector } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned frame's points
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -109,12 +116,28 @@
 
     // HELPER FUNCTION | A Rectangle's Four Corners, the Middle of Each Side and Its Centre
     // ------------------------------------------------------------
-    function Na__LeOsnap__GridRectPoints(add, x, y, w, h) {
-        add(x, y, Na__LeOsnap__GRID_CORNER);         add(x + w, y, Na__LeOsnap__GRID_CORNER);
-        add(x + w, y + h, Na__LeOsnap__GRID_CORNER); add(x, y + h, Na__LeOsnap__GRID_CORNER);
-        add(x + (w / 2), y, Na__LeOsnap__GRID_MIDDLE);     add(x + w, y + (h / 2), Na__LeOsnap__GRID_MIDDLE);
-        add(x + (w / 2), y + h, Na__LeOsnap__GRID_MIDDLE); add(x, y + (h / 2), Na__LeOsnap__GRID_MIDDLE);
-        add(x + (w / 2), y + (h / 2), Na__LeOsnap__GRID_MIDDLE);
+    function Na__LeOsnap__GridRectPoints(add, x, y, w, h, turnDeg) {
+        const put = turnDeg ? Na__LeOsnap__GridTurned(add, x + (w / 2), y + (h / 2), turnDeg) : add;   // <-- A turned viewport offers its points where the turn has put them
+        put(x, y, Na__LeOsnap__GRID_CORNER);         put(x + w, y, Na__LeOsnap__GRID_CORNER);
+        put(x + w, y + h, Na__LeOsnap__GRID_CORNER); put(x, y + h, Na__LeOsnap__GRID_CORNER);
+        put(x + (w / 2), y, Na__LeOsnap__GRID_MIDDLE);     put(x + w, y + (h / 2), Na__LeOsnap__GRID_MIDDLE);
+        put(x + (w / 2), y + h, Na__LeOsnap__GRID_MIDDLE); put(x, y + (h / 2), Na__LeOsnap__GRID_MIDDLE);
+        put(x + (w / 2), y + (h / 2), Na__LeOsnap__GRID_MIDDLE);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | An Adder That Turns Each Point About a Middle First
+    // ------------------------------------------------------------
+    // A viewport turns about the middle of its frame (Viewport__RotationDeg,
+    // degrees clockwise), so its corners and edge middles are the level
+    // frame's, turned about that middle.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__GridTurned(add, cx, cy, turnDeg) {
+        return (x, y, kind) => {
+            const v = Na__LeVpRot__TurnVector(x - cx, y - cy, turnDeg);
+            add(cx + v.x, cy + v.y, kind);
+        };
     }
     // ------------------------------------------------------------
 
@@ -162,7 +185,7 @@
             const closed = !!shape && shape.Shape__Closed === true;
             Na__LeOsnap__GridShapePoints(add, s, closed, closed && !!shape.Shape__FillColour);
         } else if (drag.kind === 'viewport' && s && s.rect) {
-            Na__LeOsnap__GridRectPoints(add, s.rect.X, s.rect.Y, s.rect.WidthMm, s.rect.HeightMm);
+            Na__LeOsnap__GridRectPoints(add, s.rect.X, s.rect.Y, s.rect.WidthMm, s.rect.HeightMm, s.deg);
         } else if (drag.kind === 'group') {
             (drag.group || []).forEach((entry) => {
                 const g = entry.start || {};
@@ -170,7 +193,7 @@
                 else if (entry.kind === 'dimension') { add(g.sx, g.sy, Na__LeOsnap__GRID_CORNER); add(g.ex, g.ey, Na__LeOsnap__GRID_CORNER); }
                 else if (entry.kind === 'viewport') {
                     const record = sheet ? Na__LeModel__GetViewportById(sheet, entry.id) : null;
-                    if (record) Na__LeOsnap__GridRectPoints(add, g.x, g.y, record.Viewport__FrameMm.WidthMm, record.Viewport__FrameMm.HeightMm);
+                    if (record) Na__LeOsnap__GridRectPoints(add, g.x, g.y, record.Viewport__FrameMm.WidthMm, record.Viewport__FrameMm.HeightMm, record.Viewport__RotationDeg);
                 } else {
                     add(g.x, g.y, Na__LeOsnap__GRID_CORNER);
                     if (g.tipFollows) add(g.tipX, g.tipY, Na__LeOsnap__GRID_CORNER);
@@ -188,12 +211,14 @@
     // a corner by its corner. The axis a handle does not move is ignored by the
     // crop, so rounding it to the grid as well changes nothing.
     // ------------------------------------------------------------
-    function Na__LeOsnap__GridHandlePoint(rect, key) {
+    function Na__LeOsnap__GridHandlePoint(rect, key, turnDeg) {
         const k = String(key || '');
-        return {
-            x : k.indexOf('l') >= 0 ? rect.X : (k.indexOf('r') >= 0 ? rect.X + rect.WidthMm  : rect.X + (rect.WidthMm  / 2)),
-            y : k.indexOf('t') >= 0 ? rect.Y : (k.indexOf('b') >= 0 ? rect.Y + rect.HeightMm : rect.Y + (rect.HeightMm / 2))
-        };
+        const x = k.indexOf('l') >= 0 ? rect.X : (k.indexOf('r') >= 0 ? rect.X + rect.WidthMm  : rect.X + (rect.WidthMm  / 2));
+        const y = k.indexOf('t') >= 0 ? rect.Y : (k.indexOf('b') >= 0 ? rect.Y + rect.HeightMm : rect.Y + (rect.HeightMm / 2));
+        if (!turnDeg) return { x : x, y : y };
+        const cx = rect.X + (rect.WidthMm / 2), cy = rect.Y + (rect.HeightMm / 2);   // <-- A turned frame's handle is where the turn about the middle has put it
+        const v  = Na__LeVpRot__TurnVector(x - cx, y - cy, turnDeg);
+        return { x : cx + v.x, y : cy + v.y };
     }
     // ------------------------------------------------------------
 
@@ -210,7 +235,7 @@
         if (drag.gridGrabMm) return drag.gridGrabMm;
         let grab = { x : drag.startMm.x, y : drag.startMm.y };
         if (drag.kind === 'viewport' && drag.hit && drag.hit.mode === 'handle' && drag.start && drag.start.rect) {
-            grab = Na__LeOsnap__GridHandlePoint(drag.start.rect, drag.hit.key);
+            grab = Na__LeOsnap__GridHandlePoint(drag.start.rect, drag.hit.key, drag.start.deg);
         } else if (Na__LeOsnap__IsEnabled()) {
             const radius = Na__LeCfg__GetSnappingSetup().radiusPx / Math.max(1e-6, Na__LeSurface__GetPixelsPerMm() * Na__LeSurface__GetZoom());
             let best = null;

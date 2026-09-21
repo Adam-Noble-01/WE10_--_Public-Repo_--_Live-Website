@@ -202,6 +202,7 @@
     import { Na__LeOrtho__CHANGED_EVENT, Na__LeOrtho__IsOn, Na__LeOrtho__Toggle, Na__LeOrtho__Label } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__.js';
     import { Na__LePdf__ExportSheet } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';
     import { Na__LeRaster__LEVELS, Na__LeRaster__CHANGED_EVENT, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
+    import { Na__LeVectorQ__LEVELS, Na__LeVectorQ__CHANGED_EVENT, Na__LeVectorQ__Get, Na__LeVectorQ__Set } from '../20__System__Viewports/Na__LayoutEditor__VectorQuality__.js';   // <-- Vector: how clean the linework is drawn against how fast the editing is
     import { Na__LeDraft__CHANGED_EVENT, Na__LeDraft__IsOn, Na__LeDraft__Toggle, Na__LeDraft__Label } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__.js';
     import { Na__LeGrid__CHANGED_EVENT, Na__LeGrid__IsShowing, Na__LeGrid__IsSnapping, Na__LeGrid__ToggleShow, Na__LeGrid__ToggleSnap, Na__LeGrid__Label } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__.js';
     import { Na__LeAxes__CHANGED_EVENT, Na__LeAxes__IsOn, Na__LeAxes__Toggle, Na__LeAxes__Label } from '../33__System__DrawingAxes/Na__LayoutEditor__DrawingAxes__.js';
@@ -330,6 +331,8 @@
         }
         const raster = Na__LeToolbar__Root.querySelector('[data-na-toolbar="raster"]');
         if (raster && raster.value !== Na__LeRaster__Get()) raster.value = Na__LeRaster__Get();
+        const vector = Na__LeToolbar__Root.querySelector('[data-na-toolbar="vector"]');
+        if (vector && vector.value !== Na__LeVectorQ__Get()) vector.value = Na__LeVectorQ__Get();
         const hint = Na__LeToolbar__Root.querySelector('[data-na-toolbar="dropper-hint"]');
         if (hint) {
             const armed = tool === Na__LeTools__TOOL_EYEDROP;
@@ -524,6 +527,28 @@
         raster.value = Na__LeRaster__Get();
         raster.addEventListener('change', () => Na__LeRaster__Set(raster.value));
         root.appendChild(raster);
+
+        // VECTOR | How the drawings' linework is drawn while the sheet is worked
+        // on: clean against fast. A control of its own, beside Raster and not
+        // part of it, because Raster renders every viewport picture again when
+        // it changes and this renders nothing: it can be flicked mid-task.
+        const vectorLabel = document.createElement('span');
+        vectorLabel.className   = 'na-le-toolbar__label';
+        vectorLabel.textContent = Na__LeCfg__GetLabel('VectorLabel', 'Vector');
+        root.appendChild(vectorLabel);
+        const vector = document.createElement('select');
+        vector.className = 'na-le-toolbar__select';
+        vector.title     = Na__LeCfg__GetLabel('VectorTitle', 'How the drawings\' linework is drawn while you work. High: always the cleanest, and a heavy plan is slow to dimension. Medium: fast while you edit, clean again a moment after you stop. Low: fastest, always a touch soft. Nothing is re-rendered when this changes, and the PDF ignores it.');
+        vector.setAttribute('data-na-toolbar', 'vector');
+        Na__LeVectorQ__LEVELS.forEach((level) => {
+            const option = document.createElement('option');
+            option.value       = level;
+            option.textContent = Na__LeCfg__GetLabel('Vector' + level.charAt(0).toUpperCase() + level.slice(1), level.charAt(0).toUpperCase() + level.slice(1));
+            vector.appendChild(option);
+        });
+        vector.value = Na__LeVectorQ__Get();
+        vector.addEventListener('change', () => { Na__LeVectorQ__Set(vector.value); vector.blur(); });   // <-- Blur: the keys go back to the sheet, where the next one is meant
+        root.appendChild(vector);
         root.appendChild(Na__LeToolbar__Gap());
 
         if (Na__LeToolbar__Editable) {
@@ -542,6 +567,7 @@
         [ Na__LeTools__CHANGED_EVENT, Na__LeModel__CHANGED_EVENT, Na__LeOsnap__CHANGED_EVENT, Na__LeRaster__CHANGED_EVENT, Na__LeDrop__CHANGED_EVENT, Na__LeScope__CHANGED_EVENT, Na__LeSpec__CHANGED_EVENT, Na__LeDraft__CHANGED_EVENT, Na__LeGrid__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeToolbar__Listeners));
         window.addEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);     // <-- F8 lights the Ortho button, whoever switched it
         window.addEventListener(Na__LeAxes__CHANGED_EVENT, Na__LeToolbar__Listeners);      // <-- F9 lights the Axes button, whoever switched it
+        window.addEventListener(Na__LeVectorQ__CHANGED_EVENT, Na__LeToolbar__Listeners);   // <-- The Vector control reads the level, whoever set it
         Na__LeToolbar__Sync();
         return true;
     }
@@ -557,6 +583,7 @@
         }
         if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeOrtho__CHANGED_EVENT, Na__LeToolbar__Listeners);
         if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeAxes__CHANGED_EVENT, Na__LeToolbar__Listeners);
+        if (Na__LeToolbar__Listeners) window.removeEventListener(Na__LeVectorQ__CHANGED_EVENT, Na__LeToolbar__Listeners);
         if (Na__LeToolbar__Root && Na__LeToolbar__Root.parentNode) Na__LeToolbar__Root.parentNode.removeChild(Na__LeToolbar__Root);
         Na__LeToolbar__Root = Na__LeToolbar__Listeners = null;
     }

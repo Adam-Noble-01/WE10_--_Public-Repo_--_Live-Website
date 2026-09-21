@@ -33,6 +33,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.33.0
+// - Dimension__RoundUp: the Dimensions panel's Round up to 5 mm
+//   (Na__LayoutEditor__DimensionRounding__). NormaliseDimension keeps it only
+//   as true, so a dimension that never had it saves exactly as it did.
+//
+// 21-Sep-2026 - Version 1.32.0
+// - Viewport__RotationDeg: a viewport turned on the page, degrees clockwise
+//   about the middle of its frame (Na__LayoutEditor__ViewportRotation__).
+//   NormaliseViewport wraps it into (-180, 180] and keeps it only while it is
+//   not level, so every older viewport saves exactly as it did.
+//
 // 21-Sep-2026 - Version 1.31.0
 // - Shape__Curve: the one-word hint the Circle and Arc tools leave on what they
 //   draw (37__System__VectorTools) - { Curve__Kind : circle | arc }, no centre
@@ -342,6 +353,7 @@
     import { Na__LeImgGeo__NormaliseCrop, Na__LeImgGeo__Enforce } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Geometry__.js';   // <-- A leaf: a picture is held to its proportions without reaching the rest of the feature
     import { Na__LeDash__Normalise } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
+    import { Na__LeVpRot__FIELD, Na__LeVpRot__WrapDeg } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: imports nothing, so it cannot cycle back here
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LeCommon__Get, Na__LeCommon__Uses, Na__LeCommon__KEYS } from './Na__LayoutEditor__SheetModel__Common__.js';   // <-- A leaf: it reaches the drawings block and the admin record, never back here
     import { Na__PresentationMode__ProjectJson__GetActiveConfig } from '../../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
@@ -861,6 +873,13 @@
             WidthMm  : Math.max(setup.minSizeMm, Na__LeRec__Num(frame.WidthMm,  setup.defaultWidthMm)),
             HeightMm : Math.max(setup.minSizeMm, Na__LeRec__Num(frame.HeightMm, setup.defaultHeightMm))
         };
+        // ROTATION | Degrees clockwise about the middle of the frame
+        // (Na__LayoutEditor__ViewportRotation__), wrapped into (-180, 180] and
+        // kept only while the viewport is turned, so a level viewport - every
+        // one saved before viewports could turn - is exactly what it was.
+        const turn = Na__LeVpRot__WrapDeg(viewport[Na__LeVpRot__FIELD]);
+        if (turn !== 0) viewport[Na__LeVpRot__FIELD] = turn;
+        else delete viewport[Na__LeVpRot__FIELD];
         viewport.Viewport__ScaleDenominator = Na__LeScale__Coerce(viewport.Viewport__ScaleDenominator, Na__LeRec__IsSitePlanViewport(viewport));   // <-- A site plan viewport keeps 1:500 or 1:1250
 
         const pan = viewport.Viewport__PanMm || {};
@@ -1000,6 +1019,7 @@
         if (item.Dimension__OverrideText === undefined) item.Dimension__OverrideText = null;
         if ([ 'aligned', 'horizontal', 'vertical' ].indexOf(item.Dimension__Orientation) === -1) item.Dimension__Orientation = 'aligned';   // <-- A record from before ortho dimensions was aligned
         if (item.Dimension__AtScale !== undefined && typeof item.Dimension__AtScale !== 'boolean') delete item.Dimension__AtScale;   // <-- true, false or no key: a record from before Measure at scale keeps reading as it did
+        if (item.Dimension__RoundUp !== true) delete item.Dimension__RoundUp;   // <-- Round up to 5 mm: kept only while it is on, so a record from before it saves exactly as it did
         // FIXED LENGTH EXTENSION LINES | A length is a number of zero or more and
         // anything else is the full line, which is no key at all; the padlock is
         // kept only while it is open. A record from before either reads as it did.

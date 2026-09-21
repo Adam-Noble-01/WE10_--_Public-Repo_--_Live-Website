@@ -67,6 +67,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.14.0 (TrueVision)
+// - GetSnapSource keys the viewport's turn (Viewport__RotationDeg) as well, so
+//   the snap index is built again when a viewport is turned; its window's
+//   ToPaper already carries the turn. Nothing inside the frame is rendered
+//   again for a turn: the frame element is turned whole on the paper.
+//
 // 21-Sep-2026 - Version 1.13.0 (TrueVision)
 // - Draft mode (K, Na__LayoutEditor__DraftMode__). While Draft is on, Fill
 //   books no underlay and no fog render and cancels any still waiting on its
@@ -460,7 +466,7 @@
         return {
             classes : state.classes,
             window  : win,
-            key     : state.classesKey + '|' + Math.round(win.OriginX) + '|' + Math.round(win.OriginY) + '|' + Math.round(win.WidthMm) + '|' + Math.round(win.HeightMm) + '|' + win.Frame.X + '|' + win.Frame.Y
+            key     : state.classesKey + '|' + Math.round(win.OriginX) + '|' + Math.round(win.OriginY) + '|' + Math.round(win.WidthMm) + '|' + Math.round(win.HeightMm) + '|' + win.Frame.X + '|' + win.Frame.Y + '|' + win.RotationDeg   // <-- A turn moves every paper point, so the snap index is built again for it
         };
     }
     // ------------------------------------------------------------

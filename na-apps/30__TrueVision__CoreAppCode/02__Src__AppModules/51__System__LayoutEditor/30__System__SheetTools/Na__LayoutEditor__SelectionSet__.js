@@ -50,6 +50,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - A leader tip follows a moving viewport when it is inside the frame as the
+//   frame stands, turned (Viewport__RotationDeg) or not.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: group capture, move and commit, nudge and delete,
 //   each one undo step; locked items left out; a leader tip - a text item's or
@@ -79,6 +83,7 @@
     import { Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
+    import { Na__LeVpRot__Contains } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: inside a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -196,10 +201,10 @@
         const group = Na__LeSelSet__Editable(sheet, items).map((e) => ({ kind : e.kind, id : e.id, start : e.row.start(e.record) }));
         // LEADER TIPS | A tip inside a frame that moves with the group goes with
         // it - a text item's leader and a leader's own tip alike
-        const frames = group.filter((g) => g.kind === 'viewport').map((g) => Object.assign({}, Na__LeModel__GetViewportById(sheet, g.id).Viewport__FrameMm));
+        const frames = group.filter((g) => g.kind === 'viewport').map((g) => Na__LeModel__GetViewportById(sheet, g.id)).filter(Boolean);
         group.forEach((g) => {
             if (!Number.isFinite(g.start.tipX) || !Number.isFinite(g.start.tipY)) return;
-            g.start.tipFollows = frames.some((f) => g.start.tipX >= f.X && g.start.tipX <= f.X + f.WidthMm && g.start.tipY >= f.Y && g.start.tipY <= f.Y + f.HeightMm);
+            g.start.tipFollows = frames.some((viewport) => Na__LeVpRot__Contains(viewport, { x : g.start.tipX, y : g.start.tipY }, 0));   // <-- The frame as it stands, turned or not; read before anything moves
         });
         return group;
     }

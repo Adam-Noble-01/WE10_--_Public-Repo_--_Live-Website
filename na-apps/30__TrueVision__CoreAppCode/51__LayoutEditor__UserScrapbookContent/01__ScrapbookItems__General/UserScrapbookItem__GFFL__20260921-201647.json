@@ -1,0 +1,131 @@
+{
+    "UserScrapbookItem__Meta": {
+        "Meta__Description": "A Custom Scrapbook item for the TrueVision 3D Layout Editor: a selection saved from a sheet. Entries are sheet records in paper millimetres, y down, from an origin at the top left of the item; Roots is what a drop selects. Written by the app through the ProjectVision local server; see Na__LayoutEditor__ScrapbookCustom__.js.",
+        "Meta__Version": "1.0.0",
+        "Meta__Created": "21-Sept-2026",
+        "Meta__Author": "Adam Noble - Noble Architecture",
+        "Meta__FileName": "UserScrapbookItem__GFFL__20260921-201647.json"
+    },
+    "UserScrapbookItem__Id": "UserScrapbookItem__GFFL__20260921-201647",
+    "UserScrapbookItem__Name": "GFFL",
+    "UserScrapbookItem__Category": "01__ScrapbookItems__General",
+    "UserScrapbookItem__CreatedIso": "2026-09-21T19:16:47.463Z",
+    "UserScrapbookItem__UpdatedIso": "2026-09-21T19:16:47.463Z",
+    "UserScrapbookItem__SourceProject": "RB05",
+    "UserScrapbookItem__SourceSheet": "Front Elevation",
+    "UserScrapbookItem__SizeMm": {
+        "WidthMm": 40,
+        "HeightMm": 3.662
+    },
+    "UserScrapbookItem__Roots": [
+        {
+            "kind": "group",
+            "id": "Group_011"
+        }
+    ],
+    "UserScrapbookItem__Entries": [
+        {
+            "kind": "group",
+            "id": "Group_011",
+            "record": {
+                "Group__Members": [
+                    {
+                        "kind": "shape",
+                        "id": "Shape_165"
+                    },
+                    {
+                        "kind": "shape",
+                        "id": "Shape_166"
+                    },
+                    {
+                        "kind": "annotation",
+                        "id": "Text_081"
+                    }
+                ],
+                "Group__Id": "Group_011"
+            }
+        },
+        {
+            "kind": "shape",
+            "id": "Shape_165",
+            "record": {
+                "Shape__Id": "Shape_165",
+                "Shape__Points": [
+                    [
+                        40,
+                        3.662
+                    ],
+                    [
+                        20,
+                        3.662
+                    ],
+                    [
+                        0,
+                        3.662
+                    ]
+                ],
+                "Shape__Closed": false,
+                "Shape__StrokeColour": "#960000",
+                "Shape__StrokePt": 0.25,
+                "Shape__FillColour": null,
+                "Shape__Stroked": true,
+                "Shape__FillOpacity": 1,
+                "Shape__StrokeOpacity": 1,
+                "Shape__Gradient": null,
+                "Shape__LineStyle": {
+                    "LineStyle__Kind": "centre",
+                    "LineStyle__Scale": 0.5,
+                    "LineStyle__DashMm": 8,
+                    "LineStyle__GapMm": 2,
+                    "LineStyle__MarkMm": 2
+                }
+            }
+        },
+        {
+            "kind": "shape",
+            "id": "Shape_166",
+            "record": {
+                "Shape__Id": "Shape_166",
+                "Shape__Points": [
+                    [
+                        17.8811,
+                        1.9457
+                    ],
+                    [
+                        22.1189,
+                        1.9457
+                    ],
+                    [
+                        20,
+                        3.662
+                    ]
+                ],
+                "Shape__Closed": true,
+                "Shape__StrokeColour": "#960000",
+                "Shape__StrokePt": 0.2,
+                "Shape__FillColour": "#960000",
+                "Shape__Stroked": true,
+                "Shape__FillOpacity": 0.09,
+                "Shape__StrokeOpacity": 1,
+                "Shape__Gradient": null,
+                "Shape__LineStyle": null
+            }
+        },
+        {
+            "kind": "annotation",
+            "id": "Text_081",
+            "record": {
+                "Annotation__Id": "Text_081",
+                "Annotation__Text": "GFFL",
+                "Annotation__PosXMm": 17.7095,
+                "Annotation__PosYMm": 1.44,
+                "Annotation__SizeMm": 2,
+                "Annotation__FontWeight": 400,
+                "Annotation__Colour": "#960000",
+                "Annotation__Align": "left",
+                "Annotation__LeaderXMm": null,
+                "Annotation__LeaderYMm": null
+            }
+        }
+    ]
+}

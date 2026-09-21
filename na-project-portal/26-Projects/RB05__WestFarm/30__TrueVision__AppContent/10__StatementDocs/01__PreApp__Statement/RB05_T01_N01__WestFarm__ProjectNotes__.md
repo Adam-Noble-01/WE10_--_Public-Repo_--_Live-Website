@@ -106,6 +106,45 @@ The rear elevation facing the open land, the lake and the long view out. Arched 
 **NORTH EAST ELEVATION  -  COACH HOUSE REAR FASCADE**
 The coach house range, with its central carriage arch, gable roundel and cupola.
 
+### EXTRA DESIGN NOTES  -  21-Sep-2026
+
+**COLONNADE BALCONY (drawing note ES07)**
+Terrace over the flat roof of the colonnade entrance, reached by steps down from the master bedroom suite. Solid parapet set back from the face of the colonnade below, planting beds along the terrace edges, no balustrades. Set back is strategic, from ground level it reads as the colonnade roof rather than as a balcony. Flattened into an orthographic elevation it looks more prominent than it is, so the officer is invited to view the 3D model. Written up at section 7.4 of the statement.
+
+**COACH HOUSE EXTERNAL STAIR (drawing note ES09)**
+Indicative staircase to the accommodation above the coach house. Stone or metal not decided, finishes TBC. Shown so the access is honestly represented. Written into section 7.9 of the statement and into the materials table as a to confirm.
+
+**ENTABLATURES (FN note)**
+Classical entablatures of the Tuscan order to match the columns. Plain architrave, unenriched frieze, moulded projecting cornice. No triglyphs, no modillions, no dentils, since none belong to the Tuscan order. Written into section 7.1 and the materials table.
+
+***[TO CONFIRM  -  exact entablature profiles to be detailed before a full application.]***
+
+### GROUND FLOOR PLAN  -  RB05_T01_D10 REV A  -  21-Sep-2026
+
+Ground floor total 548.58 m2 / 5,905 ft2, excluding the coach house which is on RB05_T01_D14.
+
+Principal block measures 23,270 mm wide by 18,100 mm deep. Existing dwelling measures approximately 37,600 mm long, 14,390 mm deep at the north east end and 25,255 mm across the south west end including the projecting wing, taken from the OS data. The replacement is therefore about fourteen metres shorter across the site and gains its area in depth and in a second storey.
+
+Plan logic written up at section 6.4 of the statement. Grand Gallery is the spine from the Loggia Atrium to the Colonnade Atrium. Formal rooms on the north west garden front, family rooms on the south east courtyard front, two entrances, polite front door and working colonnade entrance. Garden Room is the hinge between the formal range and the kitchen. Kitchen 62.31 m2 opening into the Family Lounge.
+
+Lean to areas confirmed off the drawing: Shed 11.07 m2 and Firewood Store 9.88 m2.
+
+***[TO DO  -  the drawing still labels the atriums West, East and Grand. Retag to Loggia, Colonnade and Grand.]***
+
+***[TO DO  -  export a PNG of RB05_T01_D10 for the statement, and replace the crude footprint markup with a measured overlay.]***
+
+### LEAN TO STORE  -  ADDED 21-Sep-2026
+
+Small lean to store set in the angle where the kitchen building meets the coach house range. Seasonal storage for garden furniture and pool equipment.
+
+Mono pitched roof running down off the adjoining eaves. Timber weatherboarded walls, vertically boarded and strapped doors, open cart shed bay alongside on exposed posts with curved braces. No stone dressings and no classical elements on it at all, deliberately the lowest status building in the group.
+
+Written up at section 7.7 of the statement as softening the junction between the two largest subsidiary buildings and reinforcing the agricultural end of the composition.
+
+***[NOTE  -  Adam's wider thought, not in the statement: the store may allow the kitchen to push further out, burying cabinets or an arch into the perceived wall to gain internal space. Context only at this stage.]***
+
+***[TO CONFIRM  -  floor area, whether the open bay stays open, and a whitecard export of this corner for the statement.]***
+
 ### ATRIUM NAMING  -  SETTLED 20-Sep-2026
 
 ***The three atriums are renamed. Name first, cardinal direction after. The old east / west / south names are not to be used.***

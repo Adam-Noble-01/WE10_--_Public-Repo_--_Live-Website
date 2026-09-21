@@ -74,6 +74,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - A turned viewport (Viewport__RotationDeg): SearchViewport, OnLinework and
+//   SegmentsInBox test the pointer against the upright box round the frame as
+//   it stands (Na__LeVpRot__Bounds), where they tested the level frame. The
+//   index they read is filed turned already.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Moved here from the Snapping module. New: Intersection, Perpendicular,
 //   Centre and Nearest; text as a snap source; every hit carries its target;
@@ -94,6 +100,7 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetPixelsPerMm, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeGrid__IsSnapping, Na__LeGrid__Nearest } from '../27__System__DrawingGrid/Na__LayoutEditor__DrawingGrid__State__.js';   // <-- A leaf: the grid's settings and its nearest point
+    import { Na__LeVpRot__Bounds } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the upright box round a turned frame
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | This Folder: the Switches, the Maths, the Index, the Sheet's Sources and the Marker
@@ -346,7 +353,7 @@
     // ------------------------------------------------------------
     function Na__LeOsnap__SearchViewport(viewport, pointMm, radiusMm, modes, from) {
         const probe = Na__LeOsnap__NewProbe(pointMm, radiusMm, modes || Na__LeOsnap__RunningModes(), from);
-        const frame = viewport.Viewport__FrameMm;
+        const frame = Na__LeVpRot__Bounds(viewport);                            // <-- The box round the frame as it stands, turned or not
         if (pointMm.x < frame.X - radiusMm || pointMm.x > frame.X + frame.WidthMm + radiusMm ||
             pointMm.y < frame.Y - radiusMm || pointMm.y > frame.Y + frame.HeightMm + radiusMm) return probe;
         const entry = Na__LeOsnap__IndexFor(viewport.Viewport__Id);
@@ -550,7 +557,7 @@
         let onLine = false;
         const viewports = (sheet.Sheet__Viewports || []).filter((v) => v.Viewport__Kind === Na__LeModel__KIND_2D && Na__LeOsnap__Offers(sheet, v.Viewport__LayerId));
         for (let n = 0; n < viewports.length; n++) {
-            const frame = viewports[n].Viewport__FrameMm;
+            const frame = Na__LeVpRot__Bounds(viewports[n]);
             if (px < frame.X - tol || px > frame.X + frame.WidthMm + tol || py < frame.Y - tol || py > frame.Y + frame.HeightMm + tol) continue;
             const entry = Na__LeOsnap__IndexFor(viewports[n].Viewport__Id);
             if (!entry) continue;
@@ -595,7 +602,7 @@
         const minX = box.X, minY = box.Y, maxX = box.X + box.WidthMm, maxY = box.Y + box.HeightMm;
         (sheet.Sheet__Viewports || []).forEach((viewport) => {
             if (viewport.Viewport__Kind !== Na__LeModel__KIND_2D || !Na__LeOsnap__Offers(sheet, viewport.Viewport__LayerId)) return;
-            const frame = viewport.Viewport__FrameMm;
+            const frame = Na__LeVpRot__Bounds(viewport);
             if (maxX < frame.X || minX > frame.X + frame.WidthMm || maxY < frame.Y || minY > frame.Y + frame.HeightMm) return;
             const entry = Na__LeOsnap__IndexFor(viewport.Viewport__Id);
             if (!entry) return;

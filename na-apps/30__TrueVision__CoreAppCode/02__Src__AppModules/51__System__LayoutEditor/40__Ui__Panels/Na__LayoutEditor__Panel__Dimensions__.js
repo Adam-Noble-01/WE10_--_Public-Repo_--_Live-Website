@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LePanelDims
 // MODULE     : Layout Editor - Panel Dimensions
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Text size, colour, terminator, terminator size, offset, extension line lengths, precision, units and override for the selected dimension, or for new ones
+// PURPOSE    : Text size, colour, terminator, terminator size, offset, extension line lengths, precision, units, round up to 5 mm and override for the selected dimension, or for new ones
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
@@ -40,6 +40,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.6.0
+// - ROUND UP TO 5 MM, under Units: a toggle, OFF by default, that prints the
+//   figure raised to the next Dimensions RoundUpStepMm with an asterisk after
+//   it (Dimension__RoundUp; Na__LayoutEditor__DimensionRounding__). The
+//   selected dimension, every one of several selected (it is a style trait),
+//   or the setting for new ones. The Measures line keeps the exact figure and
+//   adds the rounded one when rounding moved it.
+//
 // 17-Sep-2026 - Version 1.5.0
 // - Several selected: the panel reads the first dimension and writes all of
 //   them. The value override stays a single-selection edit - it is that one
@@ -172,6 +180,10 @@
         }));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DimPrecision', 'Decimals'), Na__LePanels__Select('dim-precision', [ 0, 1, 2 ].map((p) => ({ value : p, label : String(p) })))));
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DimUnits', 'Units'), Na__LePanels__Input('text', 'dim-units', { placeholder : 'mm' })));
+        // ROUND UP | Under Units: the figure raised to the next step, and marked
+        const roundUp = Na__LePanels__Row(Na__LeCfg__FormatLabel('DimRoundUp', 'Round up to {step} mm', { step : setup.roundUpStepMm }), Na__LePanels__Input('checkbox', 'dim-round-up'), 'na-le-row--toggle');
+        roundUp.title = Na__LeCfg__FormatLabel('DimRoundUpTitle', 'On: the figure is raised to the next {step} mm and marked {marker}. A figure already on a multiple of {step} mm is exact and is not marked. Off (the default): the measured figure.', { step : setup.roundUpStepMm, marker : setup.roundUpMarker });
+        body.appendChild(roundUp);
         body.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('DimOverride', 'Override'), Na__LePanels__Input('text', 'dim-override', { placeholder : 'Measured value' })));
         const value = Na__LePanels__Note('');
         value.setAttribute('data-na-block', 'value');
@@ -240,6 +252,7 @@
         const atScale = body.querySelector('[data-na-control="dim-at-scale"]');
         atScale.checked = selected ? Na__LeDrawScale__DimensionAtScale(selected.sheet, selected.item) : d.atScale !== false;
         atScale.parentNode.querySelector('.na-le-row__label').textContent = Na__LePanelDims__AtScaleCaption(selected);
+        body.querySelector('[data-na-control="dim-round-up"]').checked = reading ? reading.item.Dimension__RoundUp === true : d.roundUp === true;   // <-- The one selected, the first of several, or the setting for new ones
         body.querySelector('[data-na-control="dim-override"]').parentNode.hidden = !selected;
         const picked = Na__LeModel__GetSelectionItems().length;
         body.querySelector('[data-na-block="note"]').textContent = selected
@@ -251,9 +264,14 @@
                     : Na__LeCfg__GetLabel('DimDefaultsNote', 'Nothing selected: these settings apply to new dimensions.')));
         const value = body.querySelector('[data-na-block="value"]');
         if (selected) {
-            const mm = Na__LeMarkup__DimensionValueMm(selected.sheet, selected.item);
-            value.textContent = Na__LeCfg__GetLabel('DimMeasures', 'Measures') + ' ' + Na__LeMarkup__FormatDimension(Object.assign({}, selected.item, { Dimension__OverrideText : null }), mm) +
-                Na__LePanelDims__MeasuresWhere(selected);
+            // MEASURES | Always the exact figure; a rounded one is quoted after it, as the sheet shows it
+            const mm      = Na__LeMarkup__DimensionValueMm(selected.sheet, selected.item);
+            const exact   = Na__LeMarkup__FormatDimension(Object.assign({}, selected.item, { Dimension__OverrideText : null, Dimension__RoundUp : false }), mm);
+            const shown   = Na__LeMarkup__FormatDimension(Object.assign({}, selected.item, { Dimension__OverrideText : null }), mm);
+            const hasText = typeof selected.item.Dimension__OverrideText === 'string' && selected.item.Dimension__OverrideText.trim() !== '';
+            value.textContent = Na__LeCfg__GetLabel('DimMeasures', 'Measures') + ' ' + exact +
+                Na__LePanelDims__MeasuresWhere(selected) +
+                ((shown !== exact && !hasText) ? ' ' + Na__LeCfg__FormatLabel('DimRoundedShown', '- shown rounded up as {shown}', { shown : shown }) : '');   // <-- An override is shown as typed, never rounded
             value.hidden = false;
         } else value.hidden = true;
     }
@@ -342,6 +360,10 @@
         Na__LePanels__OnControl('change', 'dim-precision',  (e, el) => { const v = parseInt(el.value, 10); if (Number.isFinite(v)) Na__LePanelDims__Apply({ precision : v }, { precision : v }); });
         Na__LePanels__OnControl('change', 'dim-units',      (e, el) => Na__LePanelDims__Apply({ unitsSuffix : el.value }, { unitsSuffix : el.value }));
         Na__LePanels__OnControl('change', 'dim-override',   (e, el) => Na__LePanelDims__Apply({ overrideText : el.value }, null));
+        Na__LePanels__OnControl('change', 'dim-round-up',   (e, el) => {
+            Na__LePanelDims__Apply({ roundUp : el.checked }, { roundUp : el.checked });   // <-- The selected dimensions print their figure again; or new dimensions will
+            Na__LePanels__Refresh(Na__LePanelDims__ID);                                    // <-- A settings change announces nothing, so it is shown here
+        });
         Na__LePanels__OnControl('change', 'dim-at-scale',   (e, el) => {
             Na__LePanelDims__Apply({ atScale : el.checked }, { atScale : el.checked });   // <-- The selected dimension reads its value again; or new dimensions will
             Na__LePanels__Refresh(Na__LePanelDims__ID);                                    // <-- A settings change announces nothing, so it is shown here
