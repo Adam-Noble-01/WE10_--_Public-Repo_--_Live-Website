@@ -8,6 +8,7 @@
         "specialTerms": false
     },
     "createdDate": "05-Mar-2026",
-    "lastModified": "05-Mar-2026 at 18:43",
-    "clientDataStorage": "cloudflare-r2-encrypted"
+    "lastModified": "21-Sep-2026 at 09:36",
+    "clientDataStorage": "cloudflare-r2-encrypted",
+    "projectDescription": "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications."
 }

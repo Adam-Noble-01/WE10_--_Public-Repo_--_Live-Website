@@ -174,9 +174,10 @@ and in the screen's schedulers, so it cannot reach the PDF.**
 - D6 **Draft covers the title block and border too** - hairlines, no fills, logo images hidden - because
   LayOut's Draft simplifies every entity on the page.
 - D7 **Force Render still renders** in Draft - it is an explicit request - and the picture waits hidden.
-- D8 **The redraw delay (300 ms, config) holds the zoom raster**: while a zoom gesture is under way the
-  paper is a composited layer (`will-change: transform`), so a step is a GPU scale, not a re-raster; the
-  crisp hairline raster happens once, when the wheel rests. Config `Navigation__HoldWhileZooming`.
+- D8 **The redraw delay holds the zoom raster**: while a zoom gesture is under way the paper is a
+  composited layer (`will-change: transform`), so a step is a GPU scale, not a re-raster; the crisp raster
+  happens once, when the wheel rests. **Since v2.111.0 this is every sheet's, not Draft's** (section 9):
+  `LayoutEditor__Navigation__ZoomSettleMs` (350) and `HoldPaperWhileZooming` (true) in the AppConfig.
 - D9 **The stage scroller is composited in Draft** (`will-change: scroll-position`) so a pan moves pixels
   rather than repainting them.
 - D10 **The paper's drop shadow is dropped in Draft** - a large blur re-rasterised every zoom step.
@@ -250,7 +251,8 @@ Also touched, all additive:
 | Date | Version | What |
 |---|---|---|
 | 21-Sep-2026 | - | Researched (section 3), mapped (section 4), plan written. |
-| 21-Sep-2026 | v2.107.0 | Built and tested as section 7. **Awaiting Adam's test.** DEVLOG v2.107.0 (v2.105.0 and v2.106.0 were taken by the storey band and paint order sessions while this was built). Service worker: no bump needed from this release; the token on disk already reads `2026-09-21-02`. |
+| 21-Sep-2026 | v2.107.0 | Built and tested as section 7. DEVLOG v2.107.0 (v2.105.0 and v2.106.0 were taken by the storey band and paint order sessions while this was built). Service worker: no bump needed from this release; the token on disk already reads `2026-09-21-02`. Committed and pushed by Adam as `866d1bd`. |
+| 21-Sep-2026 | v2.111.0 | Adam tried it: "still trying to redraw and regenerate the vectors on every mouse wheel zoom... there should be a debounce". Measured, found and fixed as section 9 - for every sheet, Draft or not. Token `2026-09-21-03`. **Awaiting Adam's test.** |
 
 ### Open after the build
 
@@ -258,6 +260,43 @@ Also touched, all additive:
 - "Pan and Zoom Only" (Draft only while navigating) is one config switch away if wanted.
 - Dashed hidden and overhead lines draw SOLID in Draft (LayOut drops dashes too). Keeping them would need the
   dash arrays rescaled, because non-scaling-stroke measures dashes in CSS pixels as well.
-- The zoom hold could serve the normal view too (blurred while the wheel turns, crisp 300 ms after) - not done:
-  outside Draft nothing changes.
+- `Na__LeModel__GetSheets()` normalises every sheet on every call (0.6 ms a call on RB05, several calls per
+  pointer move while drawing) - flagged as its own task; the zoom no longer goes near it.
 - The ValeVision question, once Adam has tried it.
+
+---
+
+## 9. The zoom settle (v2.111.0) - zoom now, redraw when it rests
+
+**The complaint.** In Draft it still felt as if the vectors were redrawn on every wheel notch; Adam asked for a
+debounce - "zoom in and then it regenerates, rather than trying to do too much at once".
+
+**Measured in the app first** (RB05 D02, Draft on, 20 notches; nothing was changed until this was known):
+- ~6 ms of synchronous JavaScript per notch, plus two animation-frame callbacks per notch (one, the group
+  boxes' repaint, never merged). 3.4 ms of it was the five zoom listeners; most of that the toolbar's full sync
+  for the zoom readout, which reads the active sheet four times - and `GetSheets()` normalises every sheet on
+  every call.
+- With a viewport selected, its outline (as big as the viewport) was torn down and rebuilt every notch, so the
+  browser redrew the whole viewport's linework under it every notch: the "regenerate" Adam felt.
+- A middle/right pan ran the tool under the pointer on every move (1.8 ms with Select; 5.2 ms, 41 at worst,
+  with Floor Area) for a paper point a drag-pan never changes.
+
+**The design.** A zoom GESTURE in the sheet surface: wheel and pinch steps call
+`Na__LeNav__ZoomAbout(..., gesture = true)`, which calls `Na__LeSurface__NoteZoomGesture`. While the gesture is
+open only the paper's scale changes and the paper is held (`na-le-paper--zooming`, `will-change: transform`).
+`ZoomSettleMs` after the last step, `SettleZoom` takes the hold off, counter-scales the handles and announces
+`Na__LeSurface__ZOOM_SETTLED_EVENT` - one task, one layout, one raster. Everything that followed the zoom listens
+for the settle now (margin grip, Measurements box, the sheet tools' counter-scaled boxes, Draft's hairlines);
+`ZOOM_EVENT` keeps only the toolbar's readout. A single zoom (Fit, 100%, a resize) settles at once. Wheel steps
+are gathered into one zoom per frame; a pan no longer drives the tools; the group repaint is booked once a frame.
+
+**Why the hold for every sheet, not just Draft.** Benchmarked on the live D02 markup (headless Chrome, 72 steps,
+three runs): normal mode with the hold runs at 50-60 fps zooming in AND out (17-20 ms a step), against 9-13 fps
+(76-110 ms) without; zooming out under the hold was checked specifically, in case a layer held at a high zoom had
+to be rasterised huge - Chrome coped (a flat 60 fps on GPU raster). The one crisp redraw at the settle is ~33 ms.
+The cost is a soft picture while the wheel turns, sharp a moment after - the LayOut "Pan and Zoom" behaviour.
+
+**After, same test in the app:** 0.03-0.05 ms of JavaScript per wheel event (was 5.4-5.9); 6 zooms for 24 wheel
+events over 6 frames (was 24); the selection outline rebuilt once, at the settle (was every notch); 7 DOM changes
+inside the paper during the gesture (was 100); a pan move with Floor Area mid-room 0.66 ms (was 5.2, 41 at worst).
+One settle, 381 ms after the last notch; Draft's hairline unchanged mid-gesture and exact after.

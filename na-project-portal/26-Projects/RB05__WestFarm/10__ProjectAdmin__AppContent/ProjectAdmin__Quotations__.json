@@ -6,7 +6,7 @@
             "signatureRequired": false,
             "quotationDate": "05-Mar-2026",
             "projectAddress": "West Beacon Farm, Deans Lane, Woodhouse Eaves, Leicestershire, LE12 8TE",
-            "projectDescription": "Design of a Period style Georgian Home and auxiliary estate buildings at West Beacon Farm, carried out as an ongoing hourly rate appointment rather than against a fixed fee.",
+            "projectDescription": "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications.",
             "clientDataStorage": "cloudflare-r2-encrypted",
             "status": "draft",
             "lineItems": [

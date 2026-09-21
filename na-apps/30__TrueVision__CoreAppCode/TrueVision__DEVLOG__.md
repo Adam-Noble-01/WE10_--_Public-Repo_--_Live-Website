@@ -2,6 +2,177 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.111.0  -  21-Sep-2026
+### Zoom Now, Redraw When It Rests: a Wheel Notch Was Rebuilding Things That Had Nothing to Do With the Zoom
+
+**Overview**
+- From Adam, trying Draft mode on RB05: "it's still trying to redraw and regenerate the vectors on every mouse
+  wheel zoom... There should be a debounce, so it waits a little bit after you stop zooming before it tries to
+  redraw... zoom in and then it regenerates, rather than trying to do too much at once."
+- There was no debounce - every notch did everything, synchronously - and this release adds one for the whole
+  Layout Editor, Draft or not: while a wheel or pinch zoom is under way ONLY the paper's scale changes; 350 ms after
+  the last step (config `LayoutEditor__Navigation__ZoomSettleMs`) the zoom SETTLES, once, and everything that
+  follows a zoom happens then, together, including the one crisp redraw of the sheet.
+
+**What a notch cost - measured in the app before touching anything** (RB05 D02, Draft on, 20 notches)
+- About 6 ms of JavaScript per notch, all synchronous, plus two animation-frame callbacks per notch, one of which
+  (the group boxes' repaint) was queued afresh on every notch, never merged.
+- 3.4 ms of that was the five zoom listeners, and most of it was the toolbar: it re-synced everything on every
+  notch for the one number that changes with the zoom, and asked the model for the active sheet four times -
+  and `Na__LeModel__GetSheets()` normalises EVERY sheet of the set on every call (0.6 ms a call on RB05).
+- With a viewport selected, its selection outline - as big as the viewport - was torn down and rebuilt on every
+  notch, and the browser redrew everything under it with it: the viewport's whole linework, per notch. That is
+  exactly the "regenerate on every wheel zoom" Adam felt; with nothing selected the only change was the scale.
+- Panning had the same fault: a middle- or right-button pan only scrolls, but every pointer move still ran the
+  tool under it - a hit test with Select (1.8 ms a move), a snapped rubber band with Floor Area or Draw (5.2 ms a
+  move, 41 ms at worst) - for a paper point a drag-pan never changes.
+
+**What changed**
+- **One zoom a frame.** Wheel steps are multiplied together and applied once per animation frame about the
+  latest pointer position (`Controls__Pc`); `preventDefault` still runs on every event.
+- **The zoom gesture** (sheet surface, `Na__LeSurface__NoteZoomGesture`, from `Na__LeNav__ZoomAbout`'s new
+  `gesture` argument - wheel and pinch pass it). While it is open the handles are not rebuilt per step, and the
+  paper carries `na-le-paper--zooming` - `will-change: transform` - so each step SCALES the picture already drawn
+  instead of rasterising every line, fill, hatch and picture again. It used to be Draft's alone; it is now every
+  sheet's (`LayoutEditor__Navigation__HoldPaperWhileZooming`, default on).
+- **The settle** (`Na__LeSurface__ZOOM_SETTLED_EVENT`): the hold comes off, the handles are counter-scaled again,
+  and the event goes out - in one task, so the sheet is laid out and rasterised ONCE at its new zoom. Moved onto
+  it: the notes margin grip (it re-planned the whole margin through jsPDF on every frame of a wheel), the
+  Measurements box (a forced layout per notch), the sheet tools' counter-scaled boxes, and Draft mode's hairline
+  width. A single zoom - Fit, 100%, a resize - settles at once, as before.
+- **The toolbar** tracks the zoom with its readout alone (`SyncZoom`); the full sync no longer runs per notch.
+- **The group boxes' repaint** is booked once a frame, however many announcements ask for it.
+- **A pan** no longer drives the tools: the tools' move handler returns while the stage carries
+  `na-le-stage--panning` and no drag is under way; the rubber band picks up again on the next ordinary move.
+- Draft mode lost its private zoom hold and its `Navigation` config block - it re-solves its hairline width on the
+  settle and nothing else.
+
+**Numbers - after, same test in the app**
+
+| | Before | After |
+|---|---|---|
+| JavaScript per wheel event | 5.4-5.9 ms | **0.03-0.05 ms** |
+| Zooms applied, 24 wheel events over 6 frames | 24 | **6** |
+| Selection outline rebuilt per notch (viewport selected) | every notch | **once, at the settle** |
+| DOM changes inside the paper during the gesture | 100 | **7** (the scale, and the hold class once) |
+| Pointer move during a pan, Floor Area tool mid-room | 5.2 ms (41 at worst) | **0.66 ms** (0.8 at worst) |
+
+And the raster, headless Chrome on the live D02 markup (72 zoom steps, three runs each, in AND out): a step with
+the hold is 17-20 ms (50-60 fps) in Draft and normal mode alike, against 76-110 ms (9-13 fps) without it. The one
+crisp redraw at the settle is ~33 ms. The sheet is soft while the wheel turns and sharp a moment after.
+
+**Proved**
+- In the app, RB05 on a no-store server, every write refused by a guard (none attempted): the table above; one
+  settle 381 ms after the last notch (350 configured); the hold on through the gesture and off after; Draft's
+  hairline unchanged mid-gesture and exactly 1 / (zoom x dpr) after (0.164126 px at x4.06); normal mode holds and
+  settles the same way; Fit settles at once and never holds; the toolbar readout follows; a room half drawn with
+  the Floor Area tool survives a pan and the tool stays armed.
+- Both verifiers: every named import resolves (433 files); the module graph shows only its two old false
+  positives.
+
+**Found, and left for its own change**
+- `Na__LeModel__GetSheets()` re-normalises every sheet on every call, and `GetActiveSheet()` goes through it - 0.6
+  ms a call on RB05, more on a bigger set, several calls per pointer move while drawing. Out of the zoom's path now;
+  flagged as a task of its own because the fix belongs to the sheet model.
+
+**Service worker**
+- Token bumped to `2026-09-21-03`: the sheet surface exports two new names that five existing modules now import,
+  and `2026-09-21-02` is deployed (origin/main = HEAD), so a warm cache would hold the old sheet surface.
+
+**Files**
+- `10__Core__SheetSurface/` - `SheetSurface__.js` (1.8.0), `Navigation__.js` (1.2.0), `Controls__Pc__.js` (1.2.0),
+  `Controls__TouchScreen__.js` (1.1.0), `Styles__Main__Paper__.css` (the hold rule)
+- `30__System__SheetTools/` - `SheetTools__.js` (1.32.0), `SheetTools__PointerDrag__.js` (1.8.0), `Measurements__.js` (1.5.1)
+- `50__Feature__Specification/Na__LayoutEditor__MarginGrip__.js` (1.2.0)
+- `40__Ui__Panels/Na__LayoutEditor__Toolbar__.js` (1.14.0)
+- `26__System__DraftMode/` - `DraftMode__.js` (1.1.0), `__Config__.json`, `Styles__DraftMode__.css`
+- `03__Core__Config/` - `AppConfig__.json` (Navigation: ZoomSettleMs, HoldPaperWhileZooming), `ConfigState__EditorSetup__.js` (1.2.0)
+- `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (the token)
+- `TrueVision__PLAN__DraftMode__.md` (section 9)
+
+**ValeVision**
+- Not ported. Goes with Draft mode, on Adam's sign-off.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.110.0  -  21-Sep-2026
+### Three Tool Sets, Three Keyboards: a Letter Typed Into a Statement Is a Letter
+
+**Overview**
+- From Adam, on the Statements tab: typing into a statement in Edit, some letters never arrived - R, for one -
+  and he asked for a separate hotkey system for the document tabs that always takes precedence over the drawing
+  tabs, "because it's two very different tool sets".
+- Every keyboard listener in the app was traced, tab by tab. The drawing tools' keys were NOT the thief: the mode
+  controller already detaches them on the Project Specification, the Drawing Register and the Statements. The 3D
+  Model tab's hotkeys were (`Na__Hotkeys__Manager`) - one window listener for the whole session that never asked
+  which tab was up, with an "am I typing" test that knew input, textarea and select but not contenteditable. The
+  statement page is contenteditable (the only such surface in the Layout Editor), so R (Reset View), B (Orbit),
+  T (Walk), Y (Fly), 1-9 and Page Up / Page Down (presentation scenes) were each preventDefault-ed out of the
+  statement - and reset, walked or flew a 3D camera nobody could see.
+- The same leak ran under every tab. T on a drawing picked the Text tool AND put the hidden model into Walk mode
+  (RB05 has Walk enabled); R reset the hidden camera as it picked the Rectangle; the digits flew it between
+  scenes. On the 3D tab itself, a plan annotation label being edited - contenteditable too - lost the same letters.
+- And Ctrl+S on the Statements tab saved the SHEETS: the editor's one save key knew nothing of the statement.
+
+**What changed**
+- NEW `03__AppUtils/Na__AppUtils__KeyScope__.js`, a leaf: three key scopes - model (the 3D Model tab), sheet (a
+  drawing tab), document (Specification, Register, Statements) - of which exactly one is live. The scope is READ,
+  never stored: the mode controller hands over its reader once (`Na__KeyScope__Follow`) and every key asks it
+  afresh, so no path in or out, and no tab that fails half way through opening, can leave a stale answer. A reader
+  that fails reads as the 3D model's scope, never a deaf one. `Na__KeyScope__IsTypingTarget` is the 3D hotkeys'
+  old test with contenteditable added.
+- `Na__Hotkeys__Manager.js` 2.1.0: acts only in the model scope, and its typing guard counts contenteditable.
+- NEW `51__System__LayoutEditor/31__System__DocumentKeys/`, beside the drawing tools' keyboard
+  (`30__System__SheetTools`): the documents' own keyboard, with its own key map
+  (`Na__LayoutEditor__DocumentKeys__Config__.json`). One window listener in the CAPTURE phase, so it hears a key
+  before any field, page or other keyboard in the app; it acts only in the document scope. Each document tab
+  registers the actions it answers. A key it takes is taken outright (stopImmediatePropagation); a key the tab on
+  screen has no answer for goes on exactly as before. Two rules hold whatever the key map says: a key that would
+  type a character (no Ctrl, Alt or Meta) is never acted on while the focus takes text, and a held key acts once.
+  Command counts as Ctrl on a Mac (`Setup__MetaIsCtrl`), as the Statements tab's keys always did.
+- Shipped bindings: `Doc__Save` (Ctrl+S), `Doc__ToggleSource` (Ctrl+/, Ctrl+?), `Doc__ToggleMono` (Ctrl+., Ctrl+>).
+  The key map's `PageKeys` block lists every key a document page answers on a single control (Enter, Escape, the
+  Alt+arrow moves, the Specification's Ctrl+Z / Ctrl+Y), so a document's whole keyboard reads in one place.
+- `Na__LayoutEditor__Statement__Page__.js` 1.1.0: its own window key listener is gone; Save, the raw markdown and
+  Lucida Console are registered with the document keyboard. CTRL+S SAVES THE STATEMENT, as the Save button does,
+  committing a raw HTML block or a title still being edited first (the page and the raw view are live, so the
+  caret stays where it was). The button's hover text names the key.
+- `Na__LayoutEditor__ModeController__.js` 1.22.0: hands the scope reader over at initialisation, waits on the
+  document key map with the other configs, and starts the document keyboard. Ctrl+S on the Specification and the
+  Register still reaches the editor's save (sheets saved, specification synced), unchanged.
+- No service worker token bump: every new import points into one of the two new files, so a warm cache cannot
+  link a new importer against an export an old module lacks.
+
+**Tests**
+- NEW `80__Testing__PrototypeEnvironment/Na__Test__DocumentKeys__.test.mjs`, 44 checks, all passing: the scope and
+  its reader; the 3D hotkeys by scope and by focus; the key map (Command, AltGr, / and ?); who answers, repeats,
+  declines and failures; and a bare-letter binding that must never eat typing. Run against HEAD's hotkey
+  manager, exactly five fail - R in a plan annotation label, R typed into the statement, R on a document tab, T
+  and 1 on a drawing tab: the report, reproduced. `Na__Verify__Exports__.mjs` passes (433 files).
+
+**Checked in the app** (RB05 on a no-cache static server; every write refused by a fetch/XHR guard)
+- 3D Model tab: R still resets the camera.
+- Statements tab: 18 trusted keydowns (the pane's `key` action - its `type` action fires no keydown and proves
+  nothing) left the window unprevented, and r, b, t, y and 1-9 all landed in the statement; the hidden camera did
+  not move and Walk stayed off. Ctrl+S made ONE write attempt, the statement's file, and never reached the sheets'
+  save. Ctrl+/ and Ctrl+. each switched exactly once. Page Up, Page Down and the digits went untouched.
+- Drawing tab: R gave the Rectangle, T the Text tool, Escape Select; the camera stayed put and Walk off.
+- Specification and Register: R on a focused button and Page Down untouched; Ctrl+S passed on to the editor's save.
+- The scope followed 3D > D02 > Statements > Specification > Register > D03 > Statements exactly. The real
+  statement file on disk was not touched, and the test's browser drafts were removed.
+- Confirmed independently, before and after, by the peer session spawned for the same bug ("Stop 3D hotkeys firing
+  inside the Layout Editor"): on HEAD a trusted r and 2 were eaten from a contenteditable, and T turned Walk on
+  under a sheet; on this build every one of its probes passes.
+
+**Left for Adam**
+- Page Up / Page Down on a drawing tab now scroll the stage, as the arrow keys already do with nothing selected
+  (the 3D keys used to swallow them). Say if the drawing tools should take them instead.
+- Ctrl+S on the Drawing Register runs the editor's save; the revision notes keep their own Save Locally / Save to
+  R2. The document keyboard can give the Register a save of its own if that is wanted.
+- Found by the peer session and not touched here: opening a drawing tab while in Walk leaves Walk active through
+  the editor and after it.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.109.0  -  21-Sep-2026
 ### The Big Sheets Give the Small Title Block Cells Air, the Rev Cell Says "Revision A", and the Portal Block Drops at 20 mm
 

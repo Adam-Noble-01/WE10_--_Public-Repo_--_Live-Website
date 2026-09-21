@@ -1,8 +1,8 @@
 {
     "quotationRef": "QUO-RB05-2026-001",
     "quotationDate": "05-Mar-2026",
-    "projectAddress": "",
-    "projectDescription": "Project description goes here",
+    "projectAddress": "West Beacon Farm, Deans Lane, Woodhouse Eaves, Leicestershire, LE12 8TE",
+    "projectDescription": "This is an example project demonstrating the full PlanVision data structure. It includes multiple design phases, folder-organised drawings and specifications.",
     "clientDetails": {
         "name": "Client Name"
     },

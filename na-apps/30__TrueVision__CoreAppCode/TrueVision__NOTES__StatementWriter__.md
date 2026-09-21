@@ -411,3 +411,39 @@ so adding a third adds a third button.
 ```bash
 python -c "import fitz; d=fitz.open('file.pdf'); print(len(d[0].get_text().strip()), 'chars')"
 ```
+
+---
+
+## 14 · The keyboard is the documents' own (v2.110.0)
+
+**A letter typed here is a letter.** Until 21-Sep-2026 it was not always: the 3D Model tab's
+hotkeys (`Na__Hotkeys__Manager`) listened on the window for the whole session, never asked
+which tab was up, and their typing test knew input, textarea and select but not
+contenteditable - and this page is contenteditable, the only such surface in the Layout
+Editor. So R, B, T, Y, 1-9 and Page Up / Page Down were taken out of the statement to
+reset, walk or fly a hidden camera. The drawing tools' keys were never the thief: they are
+detached on every document tab.
+
+**Three keyboards, one live at a time** (`03__AppUtils/Na__AppUtils__KeyScope__.js`): model
+on the 3D tab, sheet on a drawing tab, document on the Specification, the Register and
+here. The mode controller answers which, afresh on every key.
+
+**This tab's keys are bound in the documents' own key map**
+(`51__System__LayoutEditor/31__System__DocumentKeys/Na__LayoutEditor__DocumentKeys__Config__.json`),
+heard before anything else in the app, and registered by the page:
+
+| key | action | what it does here |
+|---|---|---|
+| Ctrl+S | `Doc__Save` | writes the statement to its file, as the Save button does. It used to save the SHEETS |
+| Ctrl+/ | `Doc__ToggleSource` | the raw markdown, and back (from Read it opens Edit first) |
+| Ctrl+. | `Doc__ToggleMono` | Lucida Console, and back; remembered in this browser |
+
+A binding that would type a character is never acted on while the focus takes text,
+whatever the key map says. To add a key: a row in the key map, and an action in the
+page's `Na__LeDocKeys__Register` call.
+
+**Testing typing: the pane's `type` action proves nothing.** It inserts text WITHOUT firing
+keydown, so it passes on code that eats every key. Use the `key` action, which fires
+trusted keydowns and inserts their text - but it sends no text for Space or Shift+letter
+(a plain textarea gets `ab` from `a space b shift+c`), so compare against a control.
+`Na__Test__DocumentKeys__.test.mjs` covers the logic without a browser.
