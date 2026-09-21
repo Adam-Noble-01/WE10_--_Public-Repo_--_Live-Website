@@ -12,12 +12,14 @@
 // DESCRIPTION:
 // - jsPDF (the vendored UMD build, injected as a classic script on first
 //   use) opens a page of the sheet's paper size. Bottom to top: the classic
-//   title block scan when that style is on, each viewport clipped to its
-//   frame (the composer underlay at RasterPixelsPerMm, the projected
-//   linework as true vector lines at the paper widths with a dash for the
-//   hidden class, the scene markup at scale), the sheet's own markup, and
-//   the chrome (border, frames, captions, modern title block or the
-//   classic field texts) drawn last so captions sit above content (D35).
+//   title block scan when that style is on, then the sheet in the Layers
+//   list's order (Na__LayoutEditor__PaintOrder__, the same plan the screen
+//   stacks by): each viewport clipped to its frame (the composer underlay at
+//   RasterPixelsPerMm, the projected linework as true vector lines at the
+//   paper widths with a dash for the hidden class, the scene markup at
+//   scale) with its own frame line and caption straight over it; the notes
+//   margin, border and title block (or the classic field texts) over the
+//   frontmost drawings; and each layer's markup where the list puts it.
 // - Printed at 100 percent a 1:50 viewport measures true because every
 //   coordinate is a paper millimetre.
 // - Open Sans is embedded before anything is drawn. jsPDF's built-in
@@ -39,6 +41,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0 (TrueVision)
+// - The page is laid down in the Layers list's order. It used to print every
+//   viewport, then all the sheet markup, then all the chrome - so a layer the
+//   list put under the Viewports layer printed over the drawing, and every
+//   caption printed over every note. BuildDocument now walks Na__LePaint__Plan:
+//   a viewport and its own frame and caption, the notes margin with the border
+//   and title block over the frontmost drawings, and each layer's markup where
+//   the list puts it. A sheet whose viewports are at the bottom of the list
+//   prints as it did, except that a note laid over the title block now prints
+//   over it, as the screen has always shown it.
+//
 // 20-Sep-2026 - Version 1.6.0 (TrueVision)
 // - Depth fog. A 2D viewport whose drawing has its fog switched on gets a
 //   third layer in its clip: the fog image, after the vector linework and
@@ -105,16 +118,17 @@
     import { Na__LeFileName__Build } from './Na__LayoutEditor__PdfFilename__.js';   // <-- Shared with the specification download, so both name their files alike
     import { Na__LeScale__SheetLabel } from '../07__Core__SheetData/Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
-    import { Na__LeModel__KIND_2D, Na__LeModel__GetLayers, Na__LeModel__GetFields, Na__LeModel__IsLayerVisible, Na__LeModel__IsSitePlanViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeChrome__Build, Na__LeChrome__DrawToPdf, Na__LeChrome__PushPolyline } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
-    import { Na__LeMarkup__BuildScenePrimitives, Na__LeMarkup__BuildSheetPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeModel__KIND_2D, Na__LeModel__GetFields, Na__LeModel__IsSitePlanViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeChrome__Build, Na__LeChrome__BuildViewportFrame, Na__LeChrome__DrawToPdf, Na__LeChrome__PushPolyline } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LeMarkup__BuildScenePrimitives, Na__LeMarkup__BuildLayerPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LePaint__STEP_VIEWPORT, Na__LePaint__STEP_SHEET, Na__LePaint__Plan } from '../15__Core__Markup/Na__LayoutEditor__PaintOrder__.js';   // <-- The page is laid down in the Layers list's order, as the screen stacks it
     import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeHatch__DrawPdf } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LeVp3d__RenderForExport, Na__LeVp3d__ExportRectMm } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__LeCfg__GetSpecificationSetup, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeSpec__EnsureLoaded } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
-    import { Na__LeMargin__Report } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
+    import { Na__LeMargin__Push, Na__LeMargin__Report } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -169,7 +183,7 @@
     function Na__LePdf__Offset(primitives, dx, dy) {
         return primitives.map((p) => {
             const c = Object.assign({}, p);
-            if (p.Kind === 'rect' || p.Kind === 'image') { c.X = p.X + dx; c.Y = p.Y + dy; }
+            if (p.Kind === 'rect' || p.Kind === 'image' || p.Kind === 'qr') { c.X = p.X + dx; c.Y = p.Y + dy; }   // <-- A QR symbol is placed by its top left corner, like a rectangle
             else if (p.Kind === 'line') { c.X1 = p.X1 + dx; c.Y1 = p.Y1 + dy; c.X2 = p.X2 + dx; c.Y2 = p.Y2 + dy; }
             else if (p.Kind === 'polyline') { c.Points = p.Points.map((pt) => [ pt[0] + dx, pt[1] + dy ]); }
             else if (p.Kind === 'text') { c.X = p.X + dx; c.BaselineY = p.BaselineY + dy; }
@@ -414,23 +428,36 @@
             creator : setup.creator
         });
 
-        // CHROME | Built once; the classic scan goes under everything, the rest on top
-        const chrome = Na__LeChrome__Build(layout, sheet, { fields : Na__LeModel__GetFields(sheet) });
+        // CHROME | The sheet's own, built once; the classic scan goes under everything
+        const chrome = Na__LeChrome__Build(layout, sheet, { fields : Na__LeModel__GetFields(sheet), includeFrames : false });
         const scans  = (layout.TitleBlockStyle === 'classic') ? chrome.filter((p) => p.Kind === 'image') : [];
         const rest   = (layout.TitleBlockStyle === 'classic') ? chrome.filter((p) => p.Kind !== 'image') : chrome;
         Na__LeChrome__DrawToPdf(doc, scans);
 
-        // VIEWPORTS | Back to front (the top of the layer list draws last)
-        const layers  = Na__LeModel__GetLayers(sheet).map((l) => l.Layer__Id);
-        const ordered = sheet.Sheet__Viewports.map((v, i) => ({ v : v, rank : layers.indexOf(v.Viewport__LayerId), i : i }))
-            .filter((e) => Na__LeModel__IsLayerVisible(sheet, e.v.Viewport__LayerId))
-            .sort((a, b) => (b.rank - a.rank) || (a.i - b.i))
-            .map((e) => e.v);
-        for (let i = 0; i < ordered.length; i++) await Na__LePdf__DrawViewport(doc, sheet, ordered[i], options);   // <-- Pictures at the raster export level
-
-        // SHEET MARKUP AND CHROME
-        Na__LeChrome__DrawToPdf(doc, Na__LeMarkup__BuildSheetPrimitives(sheet, layout, null));
-        Na__LeChrome__DrawToPdf(doc, rest);
+        // THE SHEET IN THE LAYERS LIST'S ORDER | Back to front, from the plan
+        // the screen stacks by, so what is under what on the page is what it is
+        // on the sheet. It used to be every viewport, then all the markup, then
+        // the chrome: a layer under the Viewports layer still printed over the
+        // drawing. A viewport now prints with its own frame and caption straight
+        // over it; the border, title block and notes margin over the frontmost
+        // drawings; and each layer's markup where the list puts it.
+        const steps = Na__LePaint__Plan(sheet);
+        for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            if (step.kind === Na__LePaint__STEP_VIEWPORT) {
+                await Na__LePdf__DrawViewport(doc, sheet, step.viewport, options);   // <-- Pictures at the raster export level
+                Na__LeChrome__DrawToPdf(doc, Na__LeChrome__BuildViewportFrame(sheet, step.viewport));
+                continue;
+            }
+            if (step.kind === Na__LePaint__STEP_SHEET) {
+                const margin = [];
+                Na__LeMargin__Push(margin, sheet, layout);                     // <-- The notes column's paper, then the border and title block over its edge
+                Na__LeChrome__DrawToPdf(doc, margin);
+                Na__LeChrome__DrawToPdf(doc, rest);
+                continue;
+            }
+            Na__LeChrome__DrawToPdf(doc, Na__LeMarkup__BuildLayerPrimitives(sheet, step.layerId, null));
+        }
         return { doc : doc, filename : Na__LePdf__Filename(sheet, layout) };
     }
     // ------------------------------------------------------------

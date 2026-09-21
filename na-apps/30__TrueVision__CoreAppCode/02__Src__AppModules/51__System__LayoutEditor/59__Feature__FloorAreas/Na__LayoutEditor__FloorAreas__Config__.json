@@ -24,6 +24,7 @@
         "Defaults__StrokeColour"  : "#2e6f96",
         "Defaults__StrokePt"      : 0.3,
         "Defaults__Stroked"       : true,
+        "Defaults__StrokedNote"   : "Whether a new room has its outline. The panel's Outline switches (the selected room, several, and New areas) and the room's right-click menu turn it off to leave the colour alone; it is the vector's own Shape__Stroked, the Vectors panel's Edges.",
         "Defaults__ColourNote"    : "A pale wash with a thin darker edge: it has to read as a measurement laid over a drawing, not as a filled shape that is part of it. The wash is what makes a room clickable anywhere inside it rather than on its outline alone."
     },
 
@@ -91,6 +92,8 @@
         "Labels__GroupNew"          : "New group...",
         "Labels__Colour"            : "Colour",
         "Labels__Opacity"           : "Opacity",
+        "Labels__Outline"           : "Outline",
+        "Labels__OutlineTitle"      : "The line round the room. Off shows the colour alone.",
         "Labels__LabelShows"        : "Label shows",
         "Labels__LabelBoth"         : "Name and area",
         "Labels__LabelName"         : "Name only",
@@ -138,6 +141,7 @@
         "Labels__MenuScaleAuto"     : "Measure at the drawing's scale ({scale})",
         "Labels__MenuScaleFixed"    : "Measure at {scale}",
         "Labels__MenuCentreLabel"   : "Centre its label",
+        "Labels__MenuOutline"       : "Show its outline",
         "Labels__MenuConvert"       : "Make it a plain vector",
         "Labels__ToastMeasured"     : "{name}: {area}.",
         "Labels__ToastConverted"    : "It is a plain vector again.",

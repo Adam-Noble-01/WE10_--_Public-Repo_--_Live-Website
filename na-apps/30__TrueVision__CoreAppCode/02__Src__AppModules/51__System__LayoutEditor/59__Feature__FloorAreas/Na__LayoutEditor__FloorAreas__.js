@@ -44,6 +44,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - Adam: "Add a toggle to switch off the bounding line... it'd be nice to be
+//   able to turn it off and see only the fill." A room's outline is the
+//   vector's own Shape__Stroked, which an area was always allowed to lose (its
+//   label means it is never invisible); the new-area settings now carry
+//   `stroked` too, seeded from Defaults__Stroked, so the next room drawn can
+//   start without one.
+// - EnsureLayer makes a missing Floor Areas layer straight over the frontmost
+//   drawing rather than at the bottom of the list: the Layers list is now the
+//   paint order, and at the bottom the rooms would sit behind the plans.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the config, the record helpers, the layer, the
 //   scale, the measurement, the index, and the edits.
@@ -62,6 +73,7 @@
         Na__LeModel__GetLayers,
         Na__LeModel__GetLayerById,
         Na__LeModel__CreateLayer,
+        Na__LeModel__LayerIndexAboveDrawings,
         Na__LeModel__UpdateLayer,
         Na__LeModel__GetShapeById,
         Na__LeModel__UpdateShape,
@@ -287,12 +299,18 @@
     // WHY SHOW IS OFFERED AT ALL. Drawing, pasting or dropping a room onto a
     // hidden layer puts work on the sheet that cannot be seen, which reads as
     // a fault rather than as a hidden layer. The config can turn it off.
+    //
+    // WHERE A NEW LAYER GOES: straight over the frontmost drawing, under every
+    // note, dimension and vector. The Layers list is the paint order, so that
+    // puts the rooms over the plans they measure - where they show even on a
+    // viewport whose picture is opaque. Dragged below the Viewports layer they
+    // tint the rooms UNDER a vector-only drawing's lines instead.
     // ------------------------------------------------------------
     function Na__LeArea__EnsureLayer(sheet, options) {
         if (!sheet) return null;
         const opts = options || {};
         let   layer = Na__LeArea__LayerOf(sheet);
-        if (!layer) layer = Na__LeModel__CreateLayer(sheet, { name : Na__LeArea__Value('Layer', 'Layer__Name', 'Floor Areas'), type : Na__LeArea__LAYER_TYPE });
+        if (!layer) layer = Na__LeModel__CreateLayer(sheet, { name : Na__LeArea__Value('Layer', 'Layer__Name', 'Floor Areas'), type : Na__LeArea__LAYER_TYPE, index : Na__LeModel__LayerIndexAboveDrawings(sheet) });
         if (!layer) return null;
         if (opts.show === true && layer.Layer__Visible === false && Na__LeArea__Value('Layer', 'Layer__ShowOnDrop', true)) {
             Na__LeModel__UpdateLayer(sheet, layer.Layer__Id, { visible : true });
@@ -512,6 +530,7 @@
                 group       : '',
                 fillColour  : Na__LeArea__Value('Defaults', 'Defaults__FillColour', '#bcd9ee'),
                 fillOpacity : Na__LeArea__Value('Defaults', 'Defaults__FillOpacity', 0.5),
+                stroked     : Na__LeArea__Value('Defaults', 'Defaults__Stroked', true) !== false,   // <-- The outline: off shows the wash alone
                 label       : Na__LeArea__Value('Label', 'Label__Mode', Na__LeArea__LABEL_BOTH),
                 rectangle   : false                                              // <-- Whether the Area tool draws corner to corner or point by point
             };
@@ -573,7 +592,7 @@
             fillOpacity   : settings.fillOpacity,
             strokeColour  : Na__LeArea__Value('Defaults', 'Defaults__StrokeColour', '#2e6f96'),
             strokePt      : Na__LeArea__Value('Defaults', 'Defaults__StrokePt', 0.3),
-            stroked       : Na__LeArea__Value('Defaults', 'Defaults__Stroked', true),
+            stroked       : settings.stroked !== false,                         // <-- The panel's New areas Outline, seeded from Defaults__Stroked
             strokeOpacity : 1
         };
     }
@@ -659,6 +678,27 @@
         });
         if (painted) Na__LeModel__AnnounceAreas(sheet, null);
         return painted;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Restyle Some Rooms as Vectors (one undo step)
+    // ------------------------------------------------------------
+    // shapePatch is an UpdateShape patch - { stroked : false } takes the
+    // outline off and leaves the wash. Written silently to every room among
+    // shapeIds and announced once, as an area change, so the right-click menu
+    // and the panel make the same single step.
+    // ------------------------------------------------------------
+    function Na__LeArea__Restyle(sheet, shapeIds, shapePatch) {
+        if (!sheet || !Array.isArray(shapeIds) || !shapePatch) return 0;
+        let written = 0;
+        shapeIds.forEach((id) => {
+            const shape = Na__LeModel__GetShapeById(sheet, id);
+            if (!Na__LeArea__Is(shape) || Na__LeArea__IsShapeLocked(sheet, shape)) return;
+            if (Na__LeModel__UpdateShape(sheet, id, shapePatch, true)) written++;
+        });
+        if (written) Na__LeModel__AnnounceAreas(sheet, shapeIds.length === 1 ? shapeIds[0] : null);
+        return written;
     }
     // ------------------------------------------------------------
 
@@ -768,6 +808,7 @@
         Na__LeArea__PatchMany,
         Na__LeArea__SetGroup,
         Na__LeArea__PaintGroup,
+        Na__LeArea__Restyle,
         Na__LeArea__Make,
         Na__LeArea__Unmake,
         Na__LeArea__IsShapeLocked

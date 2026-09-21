@@ -411,6 +411,7 @@
     } from './Na__LayoutEditor__SheetModel__Sheets__.js';
     import {
         Na__LeModel__GetLayers,
+        Na__LeModel__LayerIndexAboveDrawings,
         Na__LeModel__GetLayerById,
         Na__LeModel__DefaultLayerId,
         Na__LeModel__CreateLayer,
@@ -726,6 +727,7 @@
         Na__LeModel__SeedCommonFields,
         Na__LeModel__UpdateMarginNotes,
         Na__LeModel__GetLayers,
+        Na__LeModel__LayerIndexAboveDrawings,
         Na__LeModel__GetLayerById,
         Na__LeModel__DefaultLayerId,
         Na__LeModel__CreateLayer,

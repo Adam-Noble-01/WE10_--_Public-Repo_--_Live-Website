@@ -60,6 +60,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.1
+// - ScaleCell reads the title block's labels from EVERY .na-le-paper__chrome
+//   SVG. The sheet surface now stacks the paper in the Layers list's order and
+//   each viewport's frame and caption sit in a chrome slot of their own, so the
+//   first chrome SVG on the paper is a caption and the Scale label was never
+//   found in it - the noodle fell back to the middle of the band.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - THE PLUG. The noodle's far end is a handle as well as its near one. Adam:
 //   "for a lot of users it's going to be more logical to grab the end point and
@@ -275,12 +282,12 @@
         if (!band || !(band.WidthMm > 0)) return null;
         const whole  = { box : band, point : { x : band.X + (band.WidthMm * 0.75), y : band.Y } };
         const paper  = Na__LeSurface__GetElements().paper;
-        const chrome = paper ? paper.querySelector('.na-le-paper__chrome') : null;
+        const texts  = paper ? Array.from(paper.querySelectorAll('.na-le-paper__chrome text')) : [];   // <-- EVERY chrome slot: the surface stacks each viewport's caption in a slot of its own, so the first is no longer the title block's
         const setup  = Na__LeCfg__GetTitleBlockSetup();
         const row    = (setup && Array.isArray(setup.rows)) ? setup.rows.find((entry) => entry && entry.Key === Na__LeParamNoodle__SCALE_KEY) : null;
-        if (!chrome || !row) return whole;
+        if (!texts.length || !row) return whole;
         const wanted = String(row.Label || row.Key).trim().toLowerCase();
-        const inBand = Array.from(chrome.querySelectorAll('text')).map((el) => ({ x : parseFloat(el.getAttribute('x')), y : parseFloat(el.getAttribute('y')), text : (el.textContent || '').trim().toLowerCase() }))
+        const inBand = texts.map((el) => ({ x : parseFloat(el.getAttribute('x')), y : parseFloat(el.getAttribute('y')), text : (el.textContent || '').trim().toLowerCase() }))
             .filter((t) => Number.isFinite(t.x) && Number.isFinite(t.y) && t.y >= band.Y && t.y <= band.Y + band.HeightMm);
         const label  = inBand.find((t) => t.text === wanted);
         if (!label) return whole;

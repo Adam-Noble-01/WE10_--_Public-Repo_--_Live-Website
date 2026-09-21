@@ -62,6 +62,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0
+// - For the Project Portal element. ShapePatch carries Shape__Qr, so a
+//   regenerated element can resize its QR code in the record it already has.
+//   A type may offer `choices` - its own entries for the lookup grip's menu,
+//   each a patch - and may say `linkable : false`, which keeps it out of the
+//   viewport link's hands altogether.
+//
 // 20-Sep-2026 - Version 1.3.0
 // - HandlesOf passes a type's slide point through with the rest. A type that
 //   has no such grip simply has no slide, exactly as one with no scale to
@@ -227,6 +234,16 @@
     //                                 gives; exact says the point was snapped
     //                                 (optional - only a type with a slide grip)
     //     describe(params)            { real, paper } for the panel's length line
+    //     choices(params)             what the lookup grip's menu offers BEYOND
+    //                                 the scale and the split every scaled type
+    //                                 has: [{ label, checked, patch } |
+    //                                 { separator : true }], each patch merged
+    //                                 over the element's parameters as one undo
+    //                                 step (optional)
+    //     linkable                    false for a type that is never tied to a
+    //                                 viewport: it is dropped with no link, the
+    //                                 follower leaves it alone and the panel
+    //                                 shows it no link row (optional, default on)
     // }
     // ------------------------------------------------------------
     function Na__LeParam__RegisterType(definition) {
@@ -240,11 +257,30 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Is a Type Ever Tied to a Viewport
+    // ------------------------------------------------------------
+    // True unless its definition says otherwise, so every type written
+    // before this answer existed goes on being linked exactly as it was. A
+    // type that says no is dropped with no link, left alone by the follower
+    // and shown no link row: the Project Portal block reads the project, not
+    // a drawing, and a cable from it to the nearest elevation would say
+    // something untrue about what it is.
+    // ------------------------------------------------------------
+    function Na__LeParam__IsLinkable(type) {
+        const definition = Na__LeParam__GetType(type);
+        return !definition || definition.linkable !== false;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Set What a Type's Build and Handles Are Handed
     // ------------------------------------------------------------
-    // tools: { measureTextMm(text, sizeMm, weight) -> paper millimetres }.
+    // tools: { measureTextMm(text, sizeMm, weight) -> paper millimetres,
+    //          projectName() -> what the project on screen is called }.
     // A type is pure - it imports no DOM and no editor module - so whatever
-    // it needs from the editor arrives here. The panel sets it once.
+    // it needs from the editor arrives here. The panel sets it once. Each
+    // entry is a FUNCTION, called on every build, so what it answers is
+    // whatever is true at the moment the element is drawn.
     // ------------------------------------------------------------
     function Na__LeParam__SetTools(tools) {
         Na__LeParam__Tools = Object.freeze(Object.assign({}, (tools && typeof tools === 'object') ? tools : {}));
@@ -588,7 +624,8 @@
             fillOpacity   : record.Shape__FillOpacity,
             strokeOpacity : record.Shape__StrokeOpacity,
             gradient      : record.Shape__Gradient || null,
-            dash          : record.Shape__LineStyle || null
+            dash          : record.Shape__LineStyle || null,
+            qr            : (record.Shape__Qr && typeof record.Shape__Qr === 'object') ? record.Shape__Qr : null   // <-- The project's QR symbol inside the box, and null takes it off again
         };
     }
     function Na__LeParam__TextPatch(record) {
@@ -729,6 +766,7 @@
         Na__LeParam__Label,
         Na__LeParam__RegisterType,
         Na__LeParam__GetType,
+        Na__LeParam__IsLinkable,
         Na__LeParam__SetTools,
         Na__LeParam__ElementsFor,
         Na__LeParam__ElementName,

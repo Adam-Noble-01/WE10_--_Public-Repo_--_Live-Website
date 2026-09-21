@@ -40,6 +40,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.15.0
+// - THE LAYERS LIST NOW STACKS THE MARKUP. BuildSheetPrimitives used to paint
+//   by kind across the whole sheet - every vector, then every piece of text,
+//   then the dimensions, then the leaders - and never read the list at all, so
+//   a layer dragged to the bottom still drew over the ones above it. Markup is
+//   now painted a layer at a time, bottom of the list first, in the order
+//   Na__LayoutEditor__PaintOrder__ gives; inside a layer the kinds keep the
+//   order they always had. BuildLayerPrimitives draws one layer (the surface
+//   and the PDF interleave those with the viewports), and
+//   BuildHighlightPrimitives the selection on its own, so a selected item on
+//   the bottom layer is never hidden under its own highlight's neighbours.
+// - HitTest asks the layers front to back, top of the list first, the kind
+//   priority unchanged inside each: what is drawn on top is what a click
+//   finds. BuildItemPrimitives stacks an open container the same way.
+//
 // 21-Sep-2026 - Version 1.14.0
 // - A shape carrying Shape__Area writes its name and its measured area in the
 //   middle of itself (59__Feature__FloorAreas). Pushed here rather than as a
@@ -182,11 +197,13 @@
     import { Na__LeMargin__Push } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
     import { Na__LeDrawScale__DimensionDenominator } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
     import {
+        Na__LeModel__GetLayers,
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
         Na__LeModel__CreateAnnotation,
         Na__LeModel__CreateDimension
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LePaint__MarkupBackToFront, Na__LePaint__MarkupFrontToBack } from './Na__LayoutEditor__PaintOrder__.js';   // <-- The Layers list is the stack: markup is painted and hit tested layer by layer
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Scene Markup Records (plans and elevations share the engines)
@@ -671,70 +688,131 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Build the Sheet's Own Markup as Paper Primitives
+    // HELPER FUNCTION | Append One Primitive List to Another
     // ------------------------------------------------------------
-    // selection: { kind, id }, an array of them, or null; the highlights are
-    // drawn last, a box round each selected item.
-    // options: passed straight through to a leader's Push - the interactive
-    // surface opts into { showBrokenHalos : true } and nothing else does, so
-    // a PDF or an SVG export draws exactly what it always drew.
+    // A loop rather than push(...more): a busy layer can hold tens of
+    // thousands of primitives, past what a spread may pass as arguments.
     // ------------------------------------------------------------
-    function Na__LeMarkup__BuildSheetPrimitives(sheet, layout, selection, options) {
-        const list = [];
-        if (!sheet) return list;
+    function Na__LeMarkup__Append(list, more) {
+        for (let i = 0; i < more.length; i++) list.push(more[i]);
+        return list;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Test an Item's Layer Must Pass to Be in This Layer
+    // ------------------------------------------------------------
+    // layerId null is the unknown-layer group of Na__LayoutEditor__PaintOrder__:
+    // an item on a layer the list does not have, drawn in front of the rest.
+    // A loaded sheet has none; a scrapbook preview holds nothing else.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__OnLayer(sheet, layerId) {
+        if (layerId !== null) return (itemLayerId) => itemLayerId === layerId;
+        const known = new Set(Na__LeModel__GetLayers(sheet).map((layer) => layer.Layer__Id));
+        return (itemLayerId) => !known.has(itemLayerId);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Push What One Layer Holds, in Kind Order
+    // ------------------------------------------------------------
+    // Vectors (a measured room writes its name and figure straight after its
+    // own outline), then text, then dimensions, then leaders - the order the
+    // kinds have always stacked in, now WITHIN a layer. The layers themselves
+    // are stacked by the list. wanted, when given, is a Set of 'kind:id' and
+    // nothing outside it is drawn.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__PushLayer(list, sheet, on, wanted, options) {
         const textSetup = Na__LeCfg__GetTextSetup();
         const dimSetup  = Na__LeCfg__GetDimensionSetup();
         const style     = Na__LeCfg__GetStyleSetup();
-        const chosen    = new Set((Array.isArray(selection) ? selection : [ selection ]).filter(Boolean).map((item) => item.kind + ':' + item.id));
-        const isChosen  = (kind, id) => chosen.has(kind + ':' + id);
-        const highlights = [];
-
-        // NOTES MARGIN | First: its paper masks a viewport pushed beneath it,
-        // and everything the sheet carries can still be drawn over it
-        if (layout) Na__LeMargin__Push(list, sheet, layout);
-
-        // SHAPES | Under the text and the dimensions
+        const take      = (kind, id) => !wanted || wanted.has(kind + ':' + id);
         sheet.Sheet__Shapes.forEach((shape) => {
-            if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId)) return;
+            if (!on(shape.Shape__LayerId) || !take('shape', shape.Shape__Id)) return;
             Na__LeShapeGeo__Push(list, shape);
             Na__LeAreaPaint__Push(list, sheet, shape);                           // <-- A measured room's name and figure, worked out live so they follow a dragged corner
-            if (isChosen('shape', shape.Shape__Id)) highlights.push(Na__LeShapeGeo__Bounds(shape));
+        });
+        sheet.Sheet__Annotations.forEach((item) => {
+            if (on(item.Annotation__LayerId) && take('annotation', item.Annotation__Id)) Na__LeMarkup__PushAnnotation(list, item, textSetup);
+        });
+        sheet.Sheet__Dimensions.forEach((dim) => {
+            if (on(dim.Dimension__LayerId) && take('dimension', dim.Dimension__Id)) Na__LeMarkup__PushDimension(list, sheet, dim, dimSetup, textSetup, style);
+        });
+        // LEADERS | Last in their layer, so a filled bubble or note masks
+        // what it is laid on
+        (sheet.Sheet__Leaders || []).forEach((leader) => {
+            if (on(leader.Leader__LayerId) && take('leader', leader.Leader__Id)) Na__LeLeadGeo__Push(list, leader, options);
+        });
+        return list;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | One Layer's Own Markup as Paper Primitives
+    // ------------------------------------------------------------
+    // layerId null draws the unknown-layer items. Whether the layer is shown
+    // is the caller's question: Na__LePaint__Plan only names shown ones.
+    // options: passed straight through to each leader's Push - the
+    // interactive surface opts into { showBrokenHalos : true } and nothing
+    // else does, so a PDF or an SVG export draws exactly what it always drew.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__BuildLayerPrimitives(sheet, layerId, options) {
+        const list = [];
+        if (!sheet) return list;
+        return Na__LeMarkup__PushLayer(list, sheet, Na__LeMarkup__OnLayer(sheet, layerId === undefined ? null : layerId), null, options);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Selection Highlights, Drawn Over the Whole Sheet
+    // ------------------------------------------------------------
+    // A dashed box round each selected item on a shown layer, and a shortened
+    // dimension's undrawn run as a dashed ghost. Built apart from the layers
+    // so that selecting something on the bottom layer never hides its own
+    // highlight under the layers above it: the surface gives these a layer of
+    // their own over the whole stack. selection is { kind, id }, an array of
+    // them, or null.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__BuildHighlightPrimitives(sheet, selection) {
+        const list = [];
+        if (!sheet) return list;
+        const chosen = new Set((Array.isArray(selection) ? selection : [ selection ]).filter(Boolean).map((item) => item.kind + ':' + item.id));
+        if (chosen.size === 0) return list;
+        const style      = Na__LeCfg__GetStyleSetup();
+        const shown      = (layerId) => Na__LeModel__IsLayerVisible(sheet, layerId);
+        const highlights = [];
+
+        sheet.Sheet__Shapes.forEach((shape) => {
+            if (chosen.has('shape:' + shape.Shape__Id) && shown(shape.Shape__LayerId)) highlights.push(Na__LeShapeGeo__Bounds(shape));
         });
 
         sheet.Sheet__Annotations.forEach((item) => {
-            if (!Na__LeModel__IsLayerVisible(sheet, item.Annotation__LayerId)) return;
-            Na__LeMarkup__PushAnnotation(list, item, textSetup);
-            if (!isChosen('annotation', item.Annotation__Id)) return;
+            if (!chosen.has('annotation:' + item.Annotation__Id) || !shown(item.Annotation__LayerId)) return;
             if (Na__LeMarkup__AnnotationRotationDeg(item)) highlights.push({ Points : Na__LeMarkup__AnnotationCorners(item, Na__LeMarkup__SELECT_PAD_MM) });   // <-- The outline turns with the text
             else highlights.push(Na__LeMarkup__AnnotationBounds(item));
         });
 
         sheet.Sheet__Dimensions.forEach((dim) => {
-            if (!Na__LeModel__IsLayerVisible(sheet, dim.Dimension__LayerId)) return;
-            const sk = Na__LeMarkup__PushDimension(list, sheet, dim, dimSetup, textSetup, style);
-            if (sk && isChosen('dimension', dim.Dimension__Id)) {
-                // THE PART NOT DRAWN | A shortened extension line still measures
-                // from its point, so the selection shows the rest of it, dashed.
-                [ [ sk.G1, sk.X1 ], [ sk.G2, sk.X2 ] ].forEach((run) => {
-                    if (Math.hypot(run[1].x - run[0].x, run[1].y - run[0].y) <= Na__LeMarkup__GHOST_MIN_MM) return;
-                    Na__LeChrome__PushLine(list, run[0].x, run[0].y, run[1].x, run[1].y, style.selectionColour, Na__LeMarkup__GHOST_STROKE_MM, Na__LeMarkup__GHOST_DASH_MM);
-                });
-                const xs = [ sk.S.x, sk.E.x, sk.T1.x, sk.T2.x ], ys = [ sk.S.y, sk.E.y, sk.T1.y, sk.T2.y ];
-                const layout = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
-                if (layout && layout.box) layout.box.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
-                if (layout && layout.leader) layout.leader.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
-                const minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
-                const minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
-                highlights.push({ X : minX, Y : minY, WidthMm : maxX - minX, HeightMm : maxY - minY });
-            }
+            if (!chosen.has('dimension:' + dim.Dimension__Id) || !shown(dim.Dimension__LayerId)) return;
+            const sk = Na__LeMarkup__DimensionSkeleton(dim);                    // <-- The skeleton the dimension was drawn from: the same inputs, the same answer
+            if (!sk) return;
+            // THE PART NOT DRAWN | A shortened extension line still measures
+            // from its point, so the selection shows the rest of it, dashed.
+            [ [ sk.G1, sk.X1 ], [ sk.G2, sk.X2 ] ].forEach((run) => {
+                if (Math.hypot(run[1].x - run[0].x, run[1].y - run[0].y) <= Na__LeMarkup__GHOST_MIN_MM) return;
+                Na__LeChrome__PushLine(list, run[0].x, run[0].y, run[1].x, run[1].y, style.selectionColour, Na__LeMarkup__GHOST_STROKE_MM, Na__LeMarkup__GHOST_DASH_MM);
+            });
+            const xs = [ sk.S.x, sk.E.x, sk.T1.x, sk.T2.x ], ys = [ sk.S.y, sk.E.y, sk.T1.y, sk.T2.y ];
+            const layout = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
+            if (layout && layout.box) layout.box.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
+            if (layout && layout.leader) layout.leader.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
+            const minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
+            const minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+            highlights.push({ X : minX, Y : minY, WidthMm : maxX - minX, HeightMm : maxY - minY });
         });
 
-        // LEADERS | Last, over everything else, so a filled bubble or note
-        // masks the drawing it is laid on
         (sheet.Sheet__Leaders || []).forEach((leader) => {
-            if (!Na__LeModel__IsLayerVisible(sheet, leader.Leader__LayerId)) return;
-            const layout = Na__LeLeadGeo__Push(list, leader, options);
-            if (isChosen('leader', leader.Leader__Id)) highlights.push(Na__LeLeadGeo__Bounds(leader, layout));
+            if (chosen.has('leader:' + leader.Leader__Id) && shown(leader.Leader__LayerId)) highlights.push(Na__LeLeadGeo__Bounds(leader));   // <-- Laid out afresh: the same layout the painter made
         });
 
         const pad = Na__LeMarkup__SELECT_PAD_MM;
@@ -743,6 +821,27 @@
             Na__LeChrome__PushRect(list, box.X - pad, box.Y - pad, box.WidthMm + (pad * 2), box.HeightMm + (pad * 2), style.selectionColour, 0.3, null, 1.2);
         });
         return list;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Build the Sheet's Own Markup as Paper Primitives
+    // ------------------------------------------------------------
+    // The notes margin (when a layout is given), every shown layer's markup
+    // from the bottom of the Layers list to the top, and the selection
+    // highlights last. No viewports and no chrome: the surface and the PDF,
+    // which have both, interleave them through Na__LePaint__Plan and
+    // BuildLayerPrimitives instead. This whole-sheet build is what the
+    // scrapbook's previews draw.
+    // selection: { kind, id }, an array of them, or null.
+    // options: passed straight through to each leader's Push.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__BuildSheetPrimitives(sheet, layout, selection, options) {
+        const list = [];
+        if (!sheet) return list;
+        if (layout) Na__LeMargin__Push(list, sheet, layout);                     // <-- The notes column's paper first, so everything the sheet carries is drawn over it
+        Na__LePaint__MarkupBackToFront(sheet).forEach((layerId) => Na__LeMarkup__PushLayer(list, sheet, Na__LeMarkup__OnLayer(sheet, layerId), null, options));
+        return Na__LeMarkup__Append(list, Na__LeMarkup__BuildHighlightPrimitives(sheet, selection));
     }
     // ------------------------------------------------------------
 
@@ -760,30 +859,9 @@
     function Na__LeMarkup__BuildItemPrimitives(sheet, items) {
         const list = [];
         if (!sheet || !Array.isArray(items) || !items.length) return list;
-        const textSetup = Na__LeCfg__GetTextSetup();
-        const dimSetup  = Na__LeCfg__GetDimensionSetup();
-        const style     = Na__LeCfg__GetStyleSetup();
-        const wanted    = new Set(items.filter(Boolean).map((item) => item.kind + ':' + item.id));
-        sheet.Sheet__Shapes.forEach((shape) => {
-            if (!wanted.has('shape:' + shape.Shape__Id)) return;
-            if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId)) return;
-            Na__LeShapeGeo__Push(list, shape);
-            Na__LeAreaPaint__Push(list, sheet, shape);                           // <-- A room opened for editing keeps its label at full strength with its outline
-        });
-        sheet.Sheet__Annotations.forEach((item) => {
-            if (!wanted.has('annotation:' + item.Annotation__Id)) return;
-            if (!Na__LeModel__IsLayerVisible(sheet, item.Annotation__LayerId)) return;
-            Na__LeMarkup__PushAnnotation(list, item, textSetup);
-        });
-        sheet.Sheet__Dimensions.forEach((dim) => {
-            if (!wanted.has('dimension:' + dim.Dimension__Id)) return;
-            if (!Na__LeModel__IsLayerVisible(sheet, dim.Dimension__LayerId)) return;
-            Na__LeMarkup__PushDimension(list, sheet, dim, dimSetup, textSetup, style);
-        });
-        (sheet.Sheet__Leaders || []).forEach((leader) => {
-            if (!wanted.has('leader:' + leader.Leader__Id)) return;
-            if (!Na__LeModel__IsLayerVisible(sheet, leader.Leader__LayerId)) return;
-            Na__LeLeadGeo__Push(list, leader);
+        const wanted = new Set(items.filter(Boolean).map((item) => item.kind + ':' + item.id));
+        Na__LePaint__MarkupBackToFront(sheet).forEach((layerId) => {            // <-- Stacked as the sheet stacks them; a room opened for editing keeps its label with its outline
+            Na__LeMarkup__PushLayer(list, sheet, Na__LeMarkup__OnLayer(sheet, layerId), wanted, null);
         });
         return list;
     }
@@ -793,20 +871,37 @@
     // FUNCTION | Which Sheet Markup Item Is Under a Paper Point
     // ------------------------------------------------------------
     // Returns { kind : 'leader' | 'dimension' | 'annotation' | 'shape', id } or
-    // null, in that order of priority. Locked and hidden layers are skipped;
-    // later items of a kind win, as they draw on top.
+    // null. THE LAYERS ARE ASKED FRONT TO BACK, top of the Layers list first -
+    // the reverse of the painting, so what is drawn on top is what a click
+    // finds. Inside a layer the kinds keep the priority they always had
+    // (leaders, dimensions, text, vectors) and later items of a kind win, as
+    // they draw on top. Locked and hidden layers are skipped; includeLocked
+    // lets the eyedropper READ a locked item.
     // ------------------------------------------------------------
     function Na__LeMarkup__HitTest(sheet, pointMm, toleranceMm, includeLocked) {
         if (!sheet) return null;
-        const tol = Number.isFinite(toleranceMm) ? toleranceMm : 1.5;
-        const editable = (layerId) => Na__LeModel__IsLayerVisible(sheet, layerId) && (includeLocked === true || !Na__LeModel__IsLayerLocked(sheet, layerId));   // <-- includeLocked: the eyedropper may READ a locked item
+        const tol    = Number.isFinite(toleranceMm) ? toleranceMm : 1.5;
+        const layers = Na__LePaint__MarkupFrontToBack(sheet);                   // <-- Shown layers only; null is the unknown-layer group, which is never locked
+        for (let n = 0; n < layers.length; n++) {
+            const layerId = layers[n];
+            if (layerId !== null && includeLocked !== true && Na__LeModel__IsLayerLocked(sheet, layerId)) continue;
+            const hit = Na__LeMarkup__HitLayer(sheet, Na__LeMarkup__OnLayer(sheet, layerId), pointMm, tol);
+            if (hit) return hit;
+        }
+        return null;
+    }
+    // ------------------------------------------------------------
 
-        // LEADERS FIRST | They draw over everything else on the sheet, and a
+
+    // HELPER FUNCTION | Which Item of One Layer Is Under a Paper Point
+    // ------------------------------------------------------------
+    function Na__LeMarkup__HitLayer(sheet, on, pointMm, tol) {
+        // LEADERS FIRST | They draw over everything else in their layer, and a
         // leader's tip sits on the very thing it points at.
         const leaders = sheet.Sheet__Leaders || [];
         for (let i = leaders.length - 1; i >= 0; i--) {
             const leader = leaders[i];
-            if (!editable(leader.Leader__LayerId)) continue;
+            if (!on(leader.Leader__LayerId)) continue;
             if (Na__LeLeadGeo__Hit(leader, pointMm, tol)) return { kind : 'leader', id : leader.Leader__Id };
         }
 
@@ -815,7 +910,7 @@
         const lineTol  = tol * 1.5;
         for (let i = sheet.Sheet__Dimensions.length - 1; i >= 0; i--) {
             const dim = sheet.Sheet__Dimensions[i];
-            if (!editable(dim.Dimension__LayerId)) continue;
+            if (!on(dim.Dimension__LayerId)) continue;
             const sk = Na__LeMarkup__DimensionSkeleton(dim);
             if (!sk) continue;
             const layout = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
@@ -829,12 +924,12 @@
         }
         for (let i = sheet.Sheet__Annotations.length - 1; i >= 0; i--) {
             const item = sheet.Sheet__Annotations[i];
-            if (!editable(item.Annotation__LayerId)) continue;
+            if (!on(item.Annotation__LayerId)) continue;
             if (Na__LeMarkup__AnnotationHit(item, pointMm, tol)) return { kind : 'annotation', id : item.Annotation__Id };   // <-- On its turned box, for turned text
         }
         for (let i = sheet.Sheet__Shapes.length - 1; i >= 0; i--) {
             const shape = sheet.Sheet__Shapes[i];
-            if (!editable(shape.Shape__LayerId)) continue;
+            if (!on(shape.Shape__LayerId)) continue;
             if (Na__LeShapeGeo__Hit(shape, pointMm, tol)) return { kind : 'shape', id : shape.Shape__Id };
         }
         return null;
@@ -870,6 +965,8 @@
         Na__LeMarkup__DimensionTextShift,
         Na__LeMarkup__DimensionTextLayout,
         Na__LeMarkup__BuildSheetPrimitives,
+        Na__LeMarkup__BuildLayerPrimitives,
+        Na__LeMarkup__BuildHighlightPrimitives,
         Na__LeMarkup__BuildItemPrimitives,
         Na__LeMarkup__HitTest
     };

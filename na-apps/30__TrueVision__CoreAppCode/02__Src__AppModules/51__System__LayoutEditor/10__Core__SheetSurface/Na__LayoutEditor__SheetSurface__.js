@@ -15,12 +15,19 @@
 //   ScreenPixelsPerMm and scaled with a CSS transform. Everything on the
 //   paper is placed in paper millimetres times that constant, so a zoom
 //   never re-lays anything out.
-// - Layers on the paper, bottom to top: viewport frames (one clipped box
-//   each, filled by the 2D and 3D viewport modules), the chrome SVG (border,
-//   title block, frame captions), the sheet markup SVG (annotations and
-//   dimensions as primitives), and the selection layer (outline and handles,
-//   drawn by the handles module and counter-scaled so they stay the same
-//   size at any zoom).
+// - Layers on the paper, bottom to top: THE STACK, then the focus layer (an
+//   open container redrawn over the faded sheet), then the selection layer
+//   (outline and handles, drawn by the handles module and counter-scaled so
+//   they stay the same size at any zoom).
+// - THE STACK is the sheet itself, in the Layers list's order, top of the list
+//   frontmost (Na__LayoutEditor__PaintOrder__). The viewport frames (one
+//   clipped box each, filled by the 2D and 3D viewport modules) and SVG slots
+//   of primitives are interleaved by z-index inside one stacking context: a
+//   viewport's own frame line and caption straight over it, the sheet's own
+//   paper (border, title block, notes margin) over the frontmost viewports,
+//   each layer's markup where the list puts it, and the selection highlights
+//   in a last slot of their own. Chrome and markup never share an SVG, so
+//   .na-le-paper__chrome and .na-le-paper__markup still name what they hold.
 // - The surface never listens to pointer events itself; the sheet tools own
 //   the interaction and ask it for millimetres.
 //
@@ -40,6 +47,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.7.0 (TrueVision)
+// - THE LAYERS LIST IS THE STACK. Every viewport used to sit in one box at
+//   z-index 1 under one chrome SVG and one markup SVG, so the list only ever
+//   ordered viewports against each other: a layer dragged below the Viewports
+//   layer still drew over the drawing. The frames and the primitives now
+//   share one stacking context, div.na-le-paper__stack, and RefreshStack lays
+//   them down in the order Na__LePaint__Plan gives - a viewport's frame gets
+//   the z-index of its place, and the primitives between two viewports are one
+//   SVG slot. The frames container keeps its class and its frames, but is no
+//   longer a stacking context of its own, which is what lets them interleave.
+// - The chrome is built once per chrome change and kept (Na__LeSurface__Chrome),
+//   so a markup refresh - every frame of a drag - does not measure the title
+//   block again; and a slot whose markup is unchanged is not re-parsed.
+//
 // 18-Sep-2026 - Version 1.6.0 (TrueVision)
 // - THE VIEWPORT CACHE. Showing another sheet used to release every frame of
 //   the one being left: the base images, the painted linework SVG, the 3D
@@ -112,7 +133,6 @@
     import {
         Na__LeModel__KIND_3D,
         Na__LeModel__GetSheetById,
-        Na__LeModel__GetLayers,
         Na__LeModel__GetFields,
         Na__LeModel__GetSelection,
         Na__LeModel__GetSelectionItems,
@@ -122,9 +142,16 @@
     import {
         Na__LeChrome__ASSET_EVENT,
         Na__LeChrome__Build,
+        Na__LeChrome__BuildViewportFrame,
         Na__LeChrome__ToSvgMarkup
     } from './Na__LayoutEditor__SheetChrome__.js';
-    import { Na__LeMarkup__BuildSheetPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__BuildLayerPrimitives, Na__LeMarkup__BuildHighlightPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
+    import {
+        Na__LePaint__STEP_VIEWPORT,
+        Na__LePaint__STEP_SHEET,
+        Na__LePaint__Plan
+    } from '../15__Core__Markup/Na__LayoutEditor__PaintOrder__.js';
+    import { Na__LeMargin__Push } from '../50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js';
     import { Na__LeVp2d__Fill, Na__LeVp2d__Release, Na__LeVp2d__Park, Na__LeVp2d__Restore } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeVp3d__Fill, Na__LeVp3d__Release, Na__LeVp3d__Park, Na__LeVp3d__Restore } from '../20__System__Viewports/Na__LayoutEditor__Viewport3d__.js';
     import { Na__LeHandles__Render, Na__LeHandles__RenderOutlines, Na__LeHandles__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
@@ -148,6 +175,11 @@
     const Na__LeSurface__CLASS_PAPER  = 'na-le-paper';
     const Na__LeSurface__CLASS_FRAME  = 'na-le-frame';
     const Na__LeSurface__CLASS_FRAMES = 'na-le-paper__viewports';
+    const Na__LeSurface__CLASS_STACK  = 'na-le-paper__stack';    // <-- The sheet in the Layers list's order: frames and SVG slots in one stacking context
+    const Na__LeSurface__CLASS_SLOT   = 'na-le-paper__slot';
+    const Na__LeSurface__CLASS_CHROME = 'na-le-paper__chrome';
+    const Na__LeSurface__CLASS_MARKUP = 'na-le-paper__markup';
+    const Na__LeSurface__CLASS_MARKS  = 'na-le-paper__highlights'; // <-- The selection, over the whole stack
     const Na__LeSurface__CLASS_SCOPED = 'na-le-paper--scoped';   // <-- A container is open: everything outside it is faded back
     // ------------------------------------------------------------
 
@@ -157,9 +189,10 @@
     let Na__LeSurface__Room      = null;    // <-- Paper plus a whole stage of room on every side
     let Na__LeSurface__Scaler    = null;
     let Na__LeSurface__Paper     = null;
+    let Na__LeSurface__Stack     = null;    // <-- Holds the frames container and the SVG slots, interleaved by z-index
     let Na__LeSurface__Frames    = null;    // <-- Container of viewport frames: the shown sheet's own, swapped as sheets change
-    let Na__LeSurface__ChromeSvg = null;
-    let Na__LeSurface__MarkupSvg = null;
+    let Na__LeSurface__Slots     = [];      // <-- The stack's SVG slots, back to front: { el, markup, className }
+    let Na__LeSurface__Chrome    = null;    // <-- { sheet : primitives, frames : Map(viewportId -> primitives) }, rebuilt when the chrome changes
     let Na__LeSurface__FocusSvg  = null;    // <-- What is inside the open container, redrawn crisp over the faded sheet
     let Na__LeSurface__Handles   = null;
     let Na__LeSurface__Sheet     = null;
@@ -210,7 +243,10 @@
         Na__LeSurface__Room     = Na__LeSurface__El('div', Na__LeSurface__CLASS_ROOM, stageElement);
         Na__LeSurface__Scaler   = Na__LeSurface__El('div', Na__LeSurface__CLASS_SCALER, Na__LeSurface__Room);
         Na__LeSurface__Paper    = Na__LeSurface__El('div', Na__LeSurface__CLASS_PAPER, Na__LeSurface__Scaler);
-        Na__LeSurface__Frames   = Na__LeSurface__El('div', Na__LeSurface__CLASS_FRAMES, Na__LeSurface__Paper);
+        Na__LeSurface__Stack    = Na__LeSurface__El('div', Na__LeSurface__CLASS_STACK, Na__LeSurface__Paper);
+        Na__LeSurface__Frames   = Na__LeSurface__El('div', Na__LeSurface__CLASS_FRAMES, Na__LeSurface__Stack);
+        Na__LeSurface__Slots    = [];
+        Na__LeSurface__Chrome   = null;
         Na__LeSurface__Handles  = null;                                          // <-- Created after the SVG layers so it sits on top
         Na__LeSurface__OnAsset  = () => Na__LeSurface__RefreshChrome();
         window.addEventListener(Na__LeChrome__ASSET_EVENT, Na__LeSurface__OnAsset);
@@ -228,8 +264,10 @@
         if (Na__LeSurface__Sheet) Na__LeSurface__ReleaseFrames();
         Na__LeSurface__Parked.clear();                                           // <-- Parked states are in no map but this one: forgetting them is releasing them
         if (Na__LeSurface__Room && Na__LeSurface__Room.parentNode) Na__LeSurface__Room.parentNode.removeChild(Na__LeSurface__Room);
-        Na__LeSurface__Stage = Na__LeSurface__Room = Na__LeSurface__Scaler = Na__LeSurface__Paper = Na__LeSurface__Frames = null;
-        Na__LeSurface__ChromeSvg = Na__LeSurface__MarkupSvg = Na__LeSurface__FocusSvg = Na__LeSurface__Handles = null;
+        Na__LeSurface__Stage = Na__LeSurface__Room = Na__LeSurface__Scaler = Na__LeSurface__Paper = Na__LeSurface__Stack = Na__LeSurface__Frames = null;
+        Na__LeSurface__FocusSvg = Na__LeSurface__Handles = null;
+        Na__LeSurface__Slots  = [];
+        Na__LeSurface__Chrome = null;
         Na__LeSurface__Sheet = Na__LeSurface__Layout = null;
     }
     // ------------------------------------------------------------
@@ -280,7 +318,7 @@
         const parkedFrames = Na__LeSurface__Frames;
         Na__LeSurface__Frames = document.createElement('div');                   // <-- The stand-in the next sheet fills, or that TakeFrames swaps for a parked one
         Na__LeSurface__Frames.className = Na__LeSurface__CLASS_FRAMES;
-        Na__LeSurface__Paper.replaceChild(Na__LeSurface__Frames, parkedFrames);  // <-- Same place in the paper: under the chrome, the markup and the handles
+        parkedFrames.parentNode.replaceChild(Na__LeSurface__Frames, parkedFrames);   // <-- Same place in the stack; the frames' z-indexes interleave them with its slots
 
         Na__LeSurface__Parked.delete(sheetId);                                   // <-- Re-inserted, so it is the most recently shown
         Na__LeSurface__Parked.set(sheetId, { frames : parkedFrames, states : states });
@@ -306,7 +344,7 @@
         if (!entry || !Na__LeSurface__Frames || !Na__LeSurface__Paper) return false;
         Na__LeSurface__Parked.delete(sheetId);
         Na__LeSurface__ReleaseFrames();                                          // <-- The stand-in is empty; this only keeps the maps honest if it ever is not
-        Na__LeSurface__Paper.replaceChild(entry.frames, Na__LeSurface__Frames);
+        Na__LeSurface__Frames.parentNode.replaceChild(entry.frames, Na__LeSurface__Frames);
         Na__LeSurface__Frames = entry.frames;
         entry.states.forEach((held, id) => { if (held.is3d) Na__LeVp3d__Restore(id, held.state); else Na__LeVp2d__Restore(id, held.state); });
         return true;
@@ -340,8 +378,7 @@
         Na__LeSurface__Paper.style.height = (Na__LeSurface__Layout.Page.HeightMm * Na__LeSurface__Ppm) + 'px';
         Na__LeSurface__ApplyZoom();
         Na__LeSurface__RefreshFrames();
-        Na__LeSurface__RefreshChrome();
-        Na__LeSurface__RefreshMarkup();
+        Na__LeSurface__RefreshChrome();                                          // <-- The chrome afresh and the whole stack with it, markup included
         Na__LeSurface__RefreshScope();
         Na__LeSurface__RefreshSelection();
         return true;
@@ -494,20 +531,13 @@
 // REGION | Layers
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Frame Z Order: the Top of the Layer List Draws Frontmost
-    // ------------------------------------------------------------
-    function Na__LeSurface__LayerRank(sheet, layerId) {
-        const layers = Na__LeModel__GetLayers(sheet);
-        const index  = layers.findIndex((layer) => layer.Layer__Id === layerId);
-        return index < 0 ? 0 : (layers.length - index);
-    }
-    // ------------------------------------------------------------
-
-
     // FUNCTION | Rebuild or Reposition Every Viewport Frame
     // ------------------------------------------------------------
     // Frames are reused across refreshes so the viewport modules can keep
     // their rendered content; a frame whose viewport is gone is released.
+    // WHERE A FRAME SITS IN THE STACK is not decided here: RefreshStack gives
+    // each one its z-index among the SVG slots, and every path that reaches
+    // this goes on to it.
     // ------------------------------------------------------------
     function Na__LeSurface__RefreshFrames() {
         const sheet = Na__LeSurface__Sheet;
@@ -531,7 +561,6 @@
             frame.style.top    = (rect.Y * ppm) + 'px';
             frame.style.width  = (rect.WidthMm  * ppm) + 'px';
             frame.style.height = (rect.HeightMm * ppm) + 'px';
-            frame.style.zIndex = String(Na__LeSurface__LayerRank(sheet, viewport.Viewport__LayerId));
             frame.hidden = !Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId);
             frame.classList.toggle(Na__LeSurface__CLASS_FRAME + '--locked', Na__LeModel__IsLayerLocked(sheet, viewport.Viewport__LayerId));
             if (frame.hidden) return;
@@ -567,27 +596,127 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Redraw the Chrome (border, title block, captions)
+    // HELPER FUNCTION | Build the Chrome Once and Keep It
     // ------------------------------------------------------------
-    function Na__LeSurface__RefreshChrome() {
-        const sheet = Na__LeSurface__Sheet;
-        if (!sheet || !Na__LeSurface__Layout || !Na__LeSurface__Paper) return;
-        const primitives = Na__LeChrome__Build(Na__LeSurface__Layout, sheet, { fields : Na__LeModel__GetFields(sheet) });
-        const markup     = Na__LeChrome__ToSvgMarkup(primitives, Na__LeSurface__Layout.Page.WidthMm, Na__LeSurface__Layout.Page.HeightMm, 'na-le-paper__chrome');
-        Na__LeSurface__ChromeSvg = Na__LeSurface__SwapSvg(Na__LeSurface__ChromeSvg, markup, 'na-le-paper__chrome', Na__LeSurface__MarkupSvg || Na__LeSurface__Handles);
+    // The sheet's own chrome (the border and title block, or the classic scan
+    // and its field texts) apart from each viewport's frame line and caption,
+    // so the stack can lay every frame's chrome straight over its viewport.
+    // Kept until the chrome changes: the markup refresh a drag asks for every
+    // frame does not measure the title block over again.
+    // ------------------------------------------------------------
+    function Na__LeSurface__BuildChrome(sheet) {
+        const frames = new Map();
+        (sheet.Sheet__Viewports || []).forEach((viewport) => frames.set(viewport.Viewport__Id, Na__LeChrome__BuildViewportFrame(sheet, viewport)));
+        Na__LeSurface__Chrome = {
+            sheetId : sheet.Sheet__Id,
+            sheet   : Na__LeChrome__Build(Na__LeSurface__Layout, sheet, { fields : Na__LeModel__GetFields(sheet), includeFrames : false }),
+            frames  : frames
+        };
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Redraw the Sheet's Own Markup
+    // HELPER FUNCTION | Put One SVG Slot in the Stack at a Depth
     // ------------------------------------------------------------
-    function Na__LeSurface__RefreshMarkup() {
-        const sheet = Na__LeSurface__Sheet;
-        if (!sheet || !Na__LeSurface__Layout || !Na__LeSurface__Paper) return;
-        const primitives = Na__LeMarkup__BuildSheetPrimitives(sheet, Na__LeSurface__Layout, Na__LeModel__GetSelectionItems(), { showBrokenHalos : true });   // <-- The editor only: a PDF or an SVG export never opts in
-        const markup     = Na__LeChrome__ToSvgMarkup(primitives, Na__LeSurface__Layout.Page.WidthMm, Na__LeSurface__Layout.Page.HeightMm, 'na-le-paper__markup');
-        Na__LeSurface__MarkupSvg = Na__LeSurface__SwapSvg(Na__LeSurface__MarkupSvg, markup, 'na-le-paper__markup', Na__LeSurface__Handles);
+    // The slot at this index is kept when its markup has not changed - most of
+    // a sheet does not, frame to frame - and only its depth is set. className
+    // is written into the markup, so it is part of what is compared.
+    // ------------------------------------------------------------
+    function Na__LeSurface__PutSlot(index, primitives, className, zIndex) {
+        const layout = Na__LeSurface__Layout;
+        const markup = Na__LeChrome__ToSvgMarkup(primitives, layout.Page.WidthMm, layout.Page.HeightMm, className);
+        let slot = Na__LeSurface__Slots[index];
+        if (!slot || slot.markup !== markup || slot.el.parentNode !== Na__LeSurface__Stack) {
+            const holder = document.createElement('div');
+            holder.innerHTML = markup;
+            const svg = holder.firstElementChild;
+            if (!svg) return;
+            svg.setAttribute('class', className);
+            svg.style.width  = Na__LeSurface__Paper.style.width;
+            svg.style.height = Na__LeSurface__Paper.style.height;
+            if (slot && slot.el.parentNode === Na__LeSurface__Stack) Na__LeSurface__Stack.replaceChild(svg, slot.el);
+            else Na__LeSurface__Stack.appendChild(svg);
+            slot = { el : svg, markup : markup };
+            Na__LeSurface__Slots[index] = slot;
+        }
+        slot.el.style.zIndex = String(zIndex);
     }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Lay the Sheet Down in the Layers List's Order
+    // ------------------------------------------------------------
+    // Walks Na__LePaint__Plan back to front. A viewport step gives its frame
+    // the next depth and starts a new run with the frame's own line and
+    // caption; whatever comes before the next viewport joins that run, split
+    // only where it turns from chrome to markup or back, so every SVG slot
+    // holds one or the other and its class says which. The selection
+    // highlights are the last slot, over everything: a highlight belongs to
+    // what is selected, not to the layer it is on.
+    // rebuildChrome: the chrome changed, or the sheet did - build it afresh.
+    // ------------------------------------------------------------
+    function Na__LeSurface__RefreshStack(rebuildChrome) {
+        const sheet = Na__LeSurface__Sheet;
+        if (!sheet || !Na__LeSurface__Layout || !Na__LeSurface__Paper || !Na__LeSurface__Stack) return;
+        if (rebuildChrome || !Na__LeSurface__Chrome || Na__LeSurface__Chrome.sheetId !== sheet.Sheet__Id) Na__LeSurface__BuildChrome(sheet);
+        const chrome  = Na__LeSurface__Chrome;
+        const options = { showBrokenHalos : true };                              // <-- The editor only: a PDF or an SVG export never opts in
+        const CHROME  = Na__LeSurface__CLASS_CHROME, MARKUP = Na__LeSurface__CLASS_MARKUP;
+
+        const runs = [];                                                         // <-- { frameId } or { className, primitives }, back to front
+        const add  = (className, primitives) => {
+            if (!primitives || primitives.length === 0) return;
+            const last = runs[runs.length - 1];
+            if (last && last.className === className) { for (let i = 0; i < primitives.length; i++) last.primitives.push(primitives[i]); return; }
+            runs.push({ className : className, primitives : primitives.slice() });
+        };
+        Na__LePaint__Plan(sheet).forEach((step) => {
+            if (step.kind === Na__LePaint__STEP_VIEWPORT) {
+                const id = step.viewport.Viewport__Id;
+                runs.push({ frameId : id });
+                if (!chrome.frames.has(id)) chrome.frames.set(id, Na__LeChrome__BuildViewportFrame(sheet, step.viewport));   // <-- One arrived without a chrome refresh
+                add(CHROME, chrome.frames.get(id));
+                return;
+            }
+            if (step.kind === Na__LePaint__STEP_SHEET) {
+                const margin = [];
+                Na__LeMargin__Push(margin, sheet, Na__LeSurface__Layout);       // <-- The notes column's paper, then the border and title block over its edge
+                add(MARKUP, margin);
+                add(CHROME, chrome.sheet);
+                return;
+            }
+            add(MARKUP, Na__LeMarkup__BuildLayerPrimitives(sheet, step.layerId, options));
+        });
+
+        let depth = 0, slot = 0;
+        runs.forEach((run) => {
+            depth += 1;
+            if (run.frameId) {
+                const frame = Na__LeSurface__Frames ? Na__LeSurface__Frames.querySelector('[data-na-viewport-id="' + CSS.escape(run.frameId) + '"]') : null;
+                if (frame) frame.style.zIndex = String(depth);
+                return;
+            }
+            Na__LeSurface__PutSlot(slot++, run.primitives, run.className + ' ' + Na__LeSurface__CLASS_SLOT, depth);
+        });
+        Na__LeSurface__PutSlot(slot++, Na__LeMarkup__BuildHighlightPrimitives(sheet, Na__LeModel__GetSelectionItems()),
+            MARKUP + ' ' + Na__LeSurface__CLASS_MARKS + ' ' + Na__LeSurface__CLASS_SLOT, depth + 1);
+        while (Na__LeSurface__Slots.length > slot) {                             // <-- Slots a fuller stack needed and this one does not
+            const gone = Na__LeSurface__Slots.pop();
+            if (gone && gone.el.parentNode) gone.el.parentNode.removeChild(gone.el);
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Redraw the Chrome (border, title block, captions) and the Stack
+    // ------------------------------------------------------------
+    function Na__LeSurface__RefreshChrome() { Na__LeSurface__RefreshStack(true); }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Redraw the Sheet's Own Markup (the stack, the chrome kept)
+    // ------------------------------------------------------------
+    function Na__LeSurface__RefreshMarkup() { Na__LeSurface__RefreshStack(false); }
     // ------------------------------------------------------------
 
 

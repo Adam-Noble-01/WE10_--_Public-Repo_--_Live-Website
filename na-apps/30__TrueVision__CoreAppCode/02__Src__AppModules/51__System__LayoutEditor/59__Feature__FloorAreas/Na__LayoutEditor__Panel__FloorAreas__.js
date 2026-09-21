@@ -41,6 +41,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - Outline: a switch for the line round a room, in the selected block, the
+//   several-rooms block (half-set shows as indeterminate; a click sets them
+//   all) and the New areas block. It writes the vector's own Shape__Stroked
+//   through PaintSelected, one undo step, so the Vectors panel's Edges box and
+//   this one are the same setting seen from two places.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -232,6 +239,7 @@
         one.appendChild(Na__LePanels__Row(L('Group', 'Group'), Na__LePanels__Select('area-group', [], '')));
         one.appendChild(Na__LePanels__Row(L('Colour', 'Colour'), Na__LePanels__Input('color', 'area-colour')));
         one.appendChild(Na__LePanels__SliderRow(L('Opacity', 'Opacity'), 'area-opacity'));
+        one.appendChild(Na__LePanelArea__OutlineRow('area-stroked'));
         one.appendChild(Na__LePanels__Row(L('LabelShows', 'Label shows'), Na__LePanels__Select('area-label', [], '')));
         one.appendChild(Na__LePanels__Row(L('TextSize', 'Label size (mm)'), Na__LePanels__Input('number', 'area-text-size', { min : 0.8, max : 20, step : 0.1 })));
         one.appendChild(Na__LePanels__Row(L('Scale', 'Measured at'), Na__LePanels__Select('area-scale', [], '')));
@@ -258,6 +266,7 @@
         many.appendChild(manyNote);
         many.appendChild(Na__LePanels__Row(L('Group', 'Group'), Na__LePanels__Select('area-group-many', [], '')));
         many.appendChild(Na__LePanels__Row(L('Colour', 'Colour'), Na__LePanels__Input('color', 'area-colour-many')));
+        many.appendChild(Na__LePanelArea__OutlineRow('area-stroked-many'));
         body.appendChild(many);
 
         // NEW AREAS | The settings the next room drawn takes
@@ -268,6 +277,7 @@
         fresh.appendChild(Na__LePanels__Row(L('Group', 'Group'), Na__LePanels__Select('area-new-group', [], '')));
         fresh.appendChild(Na__LePanels__Row(L('Colour', 'Colour'), Na__LePanels__Input('color', 'area-new-colour')));
         fresh.appendChild(Na__LePanels__SliderRow(L('Opacity', 'Opacity'), 'area-new-opacity'));
+        fresh.appendChild(Na__LePanelArea__OutlineRow('area-new-stroked'));
         fresh.appendChild(Na__LePanels__Row(L('LabelShows', 'Label shows'), Na__LePanels__Select('area-new-label', [], '')));
         fresh.appendChild(Na__LePanels__Note(L('DefaultsNote', '')));
         body.appendChild(fresh);
@@ -304,6 +314,21 @@
     function Na__LePanelArea__Part(element, name) {
         element.setAttribute('data-na-area', name);
         return element;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Outline Switch
+    // ------------------------------------------------------------
+    // The line round a room, on or off - the vector's own edge, the Vectors
+    // panel's Edges, put beside the colour and the opacity because a room with
+    // its outline off is judged by its wash alone. Built three times: for the
+    // room selected, for several, and for the next one drawn.
+    // ------------------------------------------------------------
+    function Na__LePanelArea__OutlineRow(control) {
+        const row = Na__LePanels__Row(Na__LeArea__Label('Outline', 'Outline'), Na__LePanels__Input('checkbox', control));
+        row.title = Na__LeArea__Label('OutlineTitle', 'The line round the room. Off shows the colour alone.');
+        return row;
     }
     // ------------------------------------------------------------
 
@@ -412,6 +437,10 @@
             Na__LePanels__FillSelect(el('area-group-many'), Na__LePanelArea__GroupOptions(sheet), '');
             el('area-group-many').disabled  = !usable;
             el('area-colour-many').disabled = !usable;
+            const outlined = many.filter((shape) => shape.Shape__Stroked !== false).length;
+            el('area-stroked-many').checked       = outlined === many.length;
+            el('area-stroked-many').indeterminate = outlined > 0 && outlined < many.length;   // <-- Some with, some without: a click sets them all
+            el('area-stroked-many').disabled      = !usable;
         }
         if (!one && !many) Na__LePanelArea__ReflectNew(body, sheet, usable);
 
@@ -435,6 +464,7 @@
         el('area-colour').value = (typeof shape.Shape__FillColour === 'string') ? shape.Shape__FillColour : Na__LeArea__Value('Defaults', 'Defaults__FillColour', '#bcd9ee');
         const opacity = Math.round((Number.isFinite(shape.Shape__FillOpacity) ? shape.Shape__FillOpacity : 1) * 100);
         Na__LePanels__ShowSlider(body, 'area-opacity', opacity, opacity + '%');
+        el('area-stroked').checked = shape.Shape__Stroked !== false;
         Na__LePanels__FillSelect(el('area-label'), Na__LePanelArea__LabelOptions(), Na__LeArea__LabelModeOf(shape));
         const size = el('area-text-size');
         if (document.activeElement !== size) size.value = String(Math.round(Na__LeArea__TextSizeOf(shape) * 10) / 10);
@@ -453,7 +483,7 @@
         const offset = Na__LeArea__LabelOffsetOf(shape);
         el('area-centre').disabled = !usable || Math.hypot(offset.dx, offset.dy) < 1e-6;
         el('area-unmake').disabled = !usable;
-        [ 'area-name', 'area-group', 'area-colour', 'area-opacity', 'area-label', 'area-text-size', 'area-scale' ].forEach((control) => { el(control).disabled = !usable; });
+        [ 'area-name', 'area-group', 'area-colour', 'area-opacity', 'area-stroked', 'area-label', 'area-text-size', 'area-scale' ].forEach((control) => { el(control).disabled = !usable; });
 
         // A ROOM THAT HAS JUST LANDED gets the cursor, so its real name can
         // simply be typed. Only once, and never while something else has it.
@@ -474,8 +504,9 @@
         el('area-new-colour').value = settings.fillColour;
         const opacity = Math.round(settings.fillOpacity * 100);
         Na__LePanels__ShowSlider(body, 'area-new-opacity', opacity, opacity + '%');
+        el('area-new-stroked').checked = settings.stroked !== false;
         Na__LePanels__FillSelect(el('area-new-label'), Na__LePanelArea__LabelOptions(), settings.label);
-        [ 'area-new-group', 'area-new-colour', 'area-new-opacity', 'area-new-label' ].forEach((control) => { el(control).disabled = !usable; });
+        [ 'area-new-group', 'area-new-colour', 'area-new-opacity', 'area-new-stroked', 'area-new-label' ].forEach((control) => { el(control).disabled = !usable; });
     }
     // ------------------------------------------------------------
 
@@ -725,6 +756,11 @@
             const value = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
             Na__LePanelArea__PaintSelected({ fillOpacity : value / 100 }, false);
         });
+        // THE OUTLINE | The vector's own edge. A room can always lose it - its
+        // label means it is never invisible - so nothing has to be put on in
+        // its place, unlike a plain vector losing its last paint.
+        on('change', 'area-stroked',      (event, el) => { Na__LePanelArea__PaintSelected({ stroked : el.checked }, false); });
+        on('change', 'area-stroked-many', (event, el) => { Na__LePanelArea__PaintSelected({ stroked : el.checked }, false); });
         on('click',  'area-centre', () => { Na__LePanelArea__PatchSelected({ Area__LabelDXMm : 0, Area__LabelDYMm : 0 }); });
         on('click',  'area-unmake', () => {
             const picked = Na__LePanelArea__Selected();
@@ -754,6 +790,7 @@
             Na__LePanels__ShowSlider(el.closest('.na-le-section__body'), 'area-new-opacity', value, value + '%');
         });
         on('change', 'area-new-label', (event, el) => { Na__LeArea__SetNewSettings({ label : el.value }); });
+        on('change', 'area-new-stroked', (event, el) => { Na__LeArea__SetNewSettings({ stroked : el.checked }); });
 
         // THE INDEX
         on('click',    'area-row',          (event, el, id) => { Na__LeModel__SetSelection({ kind : 'shape', id : id }); });

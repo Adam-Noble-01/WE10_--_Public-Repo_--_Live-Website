@@ -45,6 +45,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.10.0
+// - BuildViewportFrame: one viewport's frame line and caption on their own.
+//   The surface and the PDF now stack every viewport where the Layers list
+//   puts it (Na__LayoutEditor__PaintOrder__), and a viewport's frame and
+//   caption go with it - a layer above draws over them, a layer below goes
+//   under them - rather than in one chrome layer over every drawing. Build
+//   is unchanged and still lays every frame down when asked to.
+//
 // 19-Sep-2026 - Version 1.9.0
 // - A 'qr' primitive: an encoded QR symbol in a paper-millimetre square. It
 //   carries the symbol rather than a picture of one, and both painters hand it
@@ -544,6 +552,24 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | One Viewport's Frame Line and Caption, on Their Own
+    // ------------------------------------------------------------
+    // The same primitives Build lays down for that viewport, for a painter
+    // that stacks each viewport with its own chrome in the Layers list's order
+    // (Na__LayoutEditor__PaintOrder__): the frame and caption belong to the
+    // viewport, so a layer above it draws over them and a layer below it is
+    // drawn under them. Whether the viewport's layer is shown is the
+    // caller's question. Empty for a viewport whose frame is hidden.
+    // ------------------------------------------------------------
+    function Na__LeChrome__BuildViewportFrame(sheet, viewport) {
+        const list = [];
+        if (!sheet || !viewport) return list;
+        Na__LeChrome__BuildFrame(list, sheet, viewport, Na__LeCfg__GetStyleSetup());
+        return list;
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -926,6 +952,7 @@
         Na__LeChrome__PushQr,
         Na__LeChrome__PushGroup,
         Na__LeChrome__Build,
+        Na__LeChrome__BuildViewportFrame,
         Na__LeChrome__ToSvgMarkup,
         Na__LeChrome__DrawToPdf,
         Na__LeChrome__LoadAsset,

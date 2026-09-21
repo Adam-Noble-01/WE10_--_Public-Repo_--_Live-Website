@@ -2,6 +2,144 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.106.0  -  21-Sep-2026
+### The Layers List Was Only Ever the Order of the Viewports; Now It Is the Order of the Sheet
+
+**Overview**
+- Adam's first floor area sat UNDER the Viewports layer in the list and was still drawn OVER the
+  plan's linework. Following that down showed the list had never been the paint order it says it
+  is. Decision D31 of the Layout Editor - "top of the list draws frontmost" - was only ever built
+  for viewports, and only against each other.
+- Three fixes from Adam's notes on that sheet: the stack; an **Outline** switch so a room can show
+  its colour alone; and **Floor Areas and Patterns** now fold with the other markup sections instead
+  of standing open over a selected drawing.
+
+**What was wrong - in three places at once**
+- **The screen** put every viewport frame in one box at z-index 1, under one chrome SVG and one
+  markup SVG. However the list was ordered, every drawing was under every note.
+- **The markup painter** went KIND by kind across the whole sheet - every vector, then all the text,
+  then the dimensions, then the leaders - and never read the list at all.
+- **The PDF** printed every viewport, then all the markup, then all the chrome - so it disagreed with
+  the screen as well: on paper the title block and every caption went over every note.
+- And every viewport frame on screen had an opaque **white background**, which the PDF never had -
+  so a layer put under a drawing would have vanished rather than shown through it.
+
+**One plan, and everything paints from it**
+- `15__Core__Markup/Na__LayoutEditor__PaintOrder__.js` (new): the sheet back to front. Layers from
+  the bottom of the list up; each gives its viewports (each followed by its own frame line and
+  caption, which belong to it) and then its markup, vectors - text - dimensions - leaders inside the
+  layer, the order the kinds always had. The border, the title block and the notes margin sit
+  directly over the frontmost drawings, which is where they have always been. Hidden layers are left
+  out, and an item on a layer the list does not have is drawn in front, as an unknown layer always
+  read as shown.
+- **The screen** now stacks the frames and SVG slots of primitives in one stacking context
+  (`div.na-le-paper__stack`), each at the depth of its place in the plan. Chrome and markup never share
+  an SVG, so `.na-le-paper__chrome` and `.na-le-paper__markup` still name what they hold. The chrome is
+  built once per chrome change and a slot whose markup is unchanged is not re-parsed, so a drag costs
+  what it did.
+- **The PDF** walks the same plan, so the page is stacked as the sheet is.
+- **The web viewer** is the same surface, so it followed without a line of its own.
+- **Clicks follow the paint**: the hit test asks the layers front to back, the old kind priority
+  inside each. Markup is still found before viewports, so a room under a drawing stays selectable
+  from inside it.
+- **Frames are clear.** A viewport with its Base Image off is its linework and nothing else, as the
+  PDF has always printed it. The Base Image itself is an opaque picture and covers what is under it,
+  as it should.
+
+**Existing sheets - restacked once**
+- Every sheet was seeded with the Viewports layer at the TOP of the list, which never showed while
+  markup always drew over viewports. Obeyed, it would put every picture over its notes. So a sheet
+  from before is restacked ONCE on load, and marked (`Sheet__LayerStack : 2`) so an order chosen
+  afterwards is never second-guessed: if any text, dimension or vector layer - holding anything or
+  not yet - sits under a viewport layer, the viewport layers move to the bottom and nothing else moves.
+- On the real data: **PS01 3D Images and Site Plan** (old seed) came in as Text > Dimensions > Vectors >
+  Viewports; **PS01 Floor Plans and Elevations**, which Adam had already dragged into order, were left
+  exactly as he had them; **RB05's** three stored sheets were restacked. A floor area layer somebody
+  has put under a drawing - RB05 D02 as it is in Adam's browser - is left there: that is what he
+  asked for.
+- An item on a layer that no longer exists is re-homed to the layer its kind lands on (DeleteLayer left
+  vectors behind until v2.104.0).
+
+**New layers**
+- A new sheet's list, top first: Text, Dimensions, Vectors, Floor Areas, Viewports. Same layer ids,
+  so every kind lands where it always did.
+- A Floor Areas or Vectors layer a sheet has to make for itself - the first room drawn, a paste - goes
+  straight over the frontmost drawing, not to the bottom of the list, which is now behind the drawings.
+  Rooms show over a plan whose picture is opaque; dragged below the Viewports layer they tint the room
+  UNDER a vector-only plan's lines. The panel's Add still adds at the bottom.
+
+**Outline**
+- A switch for the line round a room - the vector's own `Shape__Stroked`, the Vectors panel's Edges - in
+  the Floor Areas panel for the selected room, for several (half-set shows as indeterminate), and for
+  New areas; and **Show its outline** on the room's right-click menu. One undo step each way.
+
+**Floor Areas and Patterns fold with the rest**
+- Selecting a viewport used to leave the fold group alone (v2.57.0, "deliberate for now"), so Floor
+  Areas and Patterns stood open over a selected drawing. A viewport now folds the group, and a single
+  **site plan** viewport opens Patterns instead - its per-layer hatch rows are the one part of the group
+  that edits a drawing. Patterns joins `LayoutEditor__Panels__AccordionSections`. Nothing selected still
+  leaves the folds as they are, and the Viewport section itself is still outside the group.
+
+**Also fixed on the way**
+- **Vectors > Edges with several shapes selected recoloured them all.** Unticking it wrote a fill as well,
+  so no shape was left with nothing to show - but ONE colour, the new-shape default, to every selected
+  shape: a floor's coloured rooms and a plain line, Edges off, and every room came out the same blue. It
+  now takes the edges off and nothing else; a shape with no fill of its own keeps its edge, which the
+  normaliser has always guaranteed.
+- The parametric noodle read the title block's Scale cell from the FIRST chrome SVG on the paper, which is
+  now a viewport's caption; it reads every chrome slot.
+
+**Proved**
+- `Na__Test__LayerStack__.test.mjs` (23 checks): the plan for the new default, for D02 as Adam has it, a
+  hidden layer, drawings on two layers, a preview with no layers and a viewport on a layer that is gone;
+  the restack against the real orders found in PS01 and RB05, run twice, and never on a marked sheet.
+- In the app, PS01 and RB05, behind a guard that let `POST /r2/read` through and refused every write
+  (none was attempted): the restack on load as above; the stack in the DOM; and a room put over the
+  ground floor plan and then moved under it - the browser's own `elementsFromPoint` order at the room
+  flips from room-over-plan to plan-over-room, and in the PDF's page operators the room moves from after
+  the viewport's clip to before it. Folding driven by selection; the Outline switch through its real
+  control, with undo and redo; the menu item; New areas through to the tool; the Edges fix on a mixed
+  selection. Every suite in 80__Testing (19) passes; the export verifier is clean.
+
+**Also in this commit: the rest of the Project Portal release (v2.100.0 and v2.102.0)**
+- **v2.104.0 was broken on its own, and this is why.** Committing Floor Areas staged whole files that
+  another session had uncommitted changes in: the Project Portal block's record, geometry, panel and
+  config work went into v2.104.0, but its parametric engine, grips, viewport link and the `ProjectQr`
+  type itself did not. The committed panel imports that type and `Na__LeParam__IsLinkable`, so HEAD
+  would not have loaded the parametric panel - and the Area Schedule's own `linkable` and right-click
+  `choices` are read only by that same missing engine, grips and viewport link. Found by exporting the
+  staged tree and running the export verifier on it alone, which is now how this commit was checked.
+- So the other half is committed here, unchanged from the working copy that every test and every
+  in-app run today used: `57__Feature__ScrapbookParametric/` - the engine, `Grips__`, `ViewportLink__`,
+  `ProjectQr__` (new); the PDF exporter's `'qr'` offset line; `Na__Test__ScrapbookProjectQr__`; the
+  QR README and the Scrapbook plan's section 14; and its two DEVLOG entries, v2.102.0 and v2.100.0,
+  below v2.104.0. The staged tree passes the verifier alone (428 files) and every suite but two,
+  both failing the same way without this commit: the QR portal check needs the website root's `q/`
+  folder, and `Na__Test__SitePlanComposites__` at HEAD~1 already lacks a stub its linework module
+  needs (the site plan session's uncommitted copy adds it).
+
+**Service worker**
+- No new token, checked against HEAD: `2026-09-21-01` (v2.104.0) has not been pushed, and this is
+  committed on top of it, so no push that carries this code can reach a client under the deployed
+  `2026-09-20-14` - one eviction covers both. It is needed: the surface, the PDF exporter and the
+  Floor Areas menu now import exports that cached copies of MarkupBridge, SheetChrome, SheetRecords,
+  the sheet model and FloorAreas do not have. The storey band session's `-02` supersedes it when it
+  lands.
+
+**Files**
+- New: `15__Core__Markup/Na__LayoutEditor__PaintOrder__.js`,
+  `80__Testing__PrototypeEnvironment/Na__Test__LayerStack__.test.mjs`
+- `10__Core__SheetSurface/` - `SheetSurface__.js`, `SheetChrome__.js`, `Styles__Main__Paper__.css`
+- `15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js`
+- `60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js`
+- `07__Core__SheetData/` - `SheetRecords__.js`, `SheetModel__.js`, `SheetModel__Layers__.js`, `SheetModel__Shapes__.js`
+- `59__Feature__FloorAreas/` - `FloorAreas__.js`, `__Config__.json`, `__Menu__.js`, `Panel__FloorAreas__.js`
+- `05__Core__ModeController/Na__LayoutEditor__ModeController__.js`, `40__Ui__Panels/` - `PanelHost__.js`,
+  `Panel__Shapes__.js`, `03__Core__Config/` - `AppConfig__.json`, `ConfigState__EditorSetup__.js`
+- `57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__LinkNoodle__.js`
+- `TrueVision__PLAN__FloorAreas__.md` (ledger and decisions)
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.104.0  -  21-Sep-2026
 ### A Room's Area Is Not Something to Store, It Is a Question to Ask the Drawing Underneath It
 
@@ -117,6 +255,142 @@
 - `51__System__LayoutEditor/57__Feature__ScrapbookParametric/` - `Panel__ScrapbookParametric__.js`,
   `ScrapbookParametric__Config__.json`
 - `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (log entry only)
+
+# ---------------------------------------------------------
+## TrueVision3D v2.102.0  -  21-Sep-2026
+### The Project Portal Block Was Placed, Not Set: Every Gap Was a Baseline, Measured as Though It Were a Space
+
+**Overview**
+- Adam, on the first build: "Remove the 50 mm and the 40 mm options. Add a 15 mm option. Sort out
+  the spacing and alignment. See, they are way off. There needs to be space between the title, the
+  subtitle, the job number... Are you using the correct Open Sans, Open Sans Light, and Open Sans
+  Semi Bold fonts?"
+- He was right, and the reason is one mistake made eight times. Every gap in this block is a
+  distance from one BASELINE to the next, and the numbers were chosen as though they were the space
+  between two lines. A gap has to carry three things: the descender above it, the air wanted, and
+  the CAP HEIGHT below it. `NameGapMm` was 3.3 under a 5.4 mm title - which leaves 0.3 mm of air,
+  so the project name sat in the title's descenders.
+
+**Set against a rendering, not against arithmetic**
+- Both forms were built through the editor's own measurer and drawn with the real embedded Open Sans
+  cuts, then looked at, at four times size. Every gap now leaves at least 1.8 mm of clear paper, and
+  the title has a gap of its own (`TitleNameGapMm`), because one number cannot serve a 3.5 mm
+  heading and a 5.4 mm title at once.
+
+**One left edge**
+- The caption was centred on the code box while the heading, the name and the bullets were ranged
+  left. The wording is a fixed 30 mm of type and the box is whatever the code is, so at any size
+  under 25 mm it hung over BOTH edges - and the block's own left edge, the line an author lines up
+  with a viewport or a margin, moved with the code size. It is ranged left with everything else now.
+
+**15 mm needed the button to grow**
+- The handset and the words are house sizes and do not shrink with the code, so at 15 mm they are
+  wider than the code box and a button locked to that box wore its own label out of both ends. The
+  stadium is now the box's width OR its content's, whichever is more. From 20 mm up it is the box,
+  exactly as before.
+
+**The fonts, since he asked**
+- Yes: the block letters in weights 400 and 600, and the PDF pipeline maps those onto the embedded
+  Open Sans Regular and SemiBold, the same two the Drawing Title and the Scale Bar use. Light (300)
+  is embedded and available but no scrapbook element uses it - say the word if the paragraph should.
+
+**And the test now fails when this does**
+- The size list is `[15, 20, 25, 30]`; a block already set to 40 or 50 keeps it, since only the menu
+  changed. The test had been reading the standard size as `sizes[2]`, which silently became 25 mm
+  when the list changed - it finds 30 by value now. Two new checks stand exactly where the fault
+  was: no line may sit within 1 mm of the descenders of the line above it, in either form, and a
+  column must read down one left edge.
+
+**Files**
+- `02__Src__AppModules/51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js`
+- `02__Src__AppModules/51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__Config__.json`
+- `80__Testing__PrototypeEnvironment/Na__Test__ScrapbookProjectQr__.test.mjs`
+
+# ---------------------------------------------------------
+## TrueVision3D v2.100.0  -  21-Sep-2026
+### A Drawing Can Now Ask to Be Scanned: the Project Portal Block, Whose Code Is the Project's Own and Is One Record, Not Two Hundred
+
+**Overview**
+- Adam, 21-Sep, with two mock-ups: "Create parametric scrapbook items for these, but the actual QR
+  codes are the ones that are generated through the QR code generator that already generates the QR
+  code in the bottom right-hand corner in the title blocks. When these are dragged in, update the QR
+  code to the correct project. Also put the project name in as well... Don't mention PlanVision...
+  Point out to scan with your phone or tablet as well... The default should be the 30 mm square
+  one. But you can press the drop-down arrow... and make it bigger and smaller."
+- The title block has carried the project's code since v2.81.0, in an 8.8 mm square that somebody
+  who knows to look for it will find. This is for somebody who does not: a code big enough to see
+  across a table, a Scan Me button, and four lines saying what happens when you do.
+
+**Two tiles, one type**
+- `ProjectQr`, the parametric scrapbook's third element type, offered as "Project Portal QR" (a
+  column: code, button, caption, heading, project, bullets) and "Project Portal QR + Description"
+  (that column beside a heading and a wrapped paragraph). The lookup triangle swaps between them.
+- The code is 30 mm as dropped; the triangle and the panel offer 20, 25, 30, 40 and 50. Everything
+  round it is set in paper millimetres and does NOT scale with it - type on a drawing is house sizes
+  or it is wrong.
+- The project is lettered as PS01 - Musters Road, read live from the PWA project context (what the
+  Specification and the Register print), so renaming the project rewrites the block. A name typed
+  in the panel wins; clearing it goes back to automatic.
+- No app is named anywhere in the copy. The caption under the button says "Use your phone or tablet
+  camera", and the paragraph ends on the objection that stops people: nothing to download.
+
+**The code is ONE record, and that is the whole design**
+- A version 3 symbol is 217 runs. As 217 shape records it would have been 217 group members, 217
+  engine slots, 217 entries in every undo snapshot - and a hairline grid through every finder
+  pattern, because abutting fills are anti-aliased one at a time.
+- Instead the box is one ordinary four-point vector carrying a new block on the SHAPE RECORD:
+  `Shape__Qr : { Qr__MarginMm }`, and nothing else. `Na__LeShapeGeo__Push` draws the shape as it
+  always did and pushes the chrome's existing `'qr'` primitive inside it - the primitive the title
+  block's cell already uses, painted as one filled path on the screen and one in jsPDF.
+- The block names no project and holds no matrix. The painter asks `Na__ProjectQr__GetSymbol()` at
+  painting time - the identical call the title block makes - so a block dragged in shows THIS
+  project's code, and one saved to the Custom Scrapbook and dropped into another project shows that
+  one's. It moves, copies, prints, undoes and ungroups like any vector.
+- The margin inside the box is a FRACTION of the code (0.07), not a size, which keeps the quiet zone
+  at 2.03 modules at every size in the list; the printed size is reported to the QR system's own
+  `CheckPrint`.
+
+**Two small, general additions to the parametric engine**
+- `definition.choices(params)`: a type's own entries for the lookup grip's menu, each a patch the
+  grips module hands straight back to `Regenerate` without reading it.
+- `definition.linkable : false`: a type never tied to a viewport - dropped with no link, left alone
+  by the follower and by `AdoptNew`, shown no link row. This block reads the project, not a drawing.
+
+**Proved, not read**
+- `80__Testing__PrototypeEnvironment/Na__Test__ScrapbookProjectQr__.test.mjs`: 55 checks, the
+  quiet zone asserted against the QR system's OWN config at every size offered.
+- In the app on PS01 behind a fetch guard: both tiles preview live; a drop lands a 12 member group;
+  the triangle's menu ticks its size; 30 -> 40 mm regenerates IN PLACE (same record ids, box 34.2 ->
+  45.6 mm); the form switch re-letters the block; undo left the sheets byte-identical, nothing sent.
+- The rendered block, rasterised at 200 and 300 dpi, decoded by OpenCV to
+  `https://www.noble-architecture.com/q/?PS01` - both forms, every read.
+- The PDF path through a jsPDF stand-in: one `qr` primitive at the box origin plus the margin, 217
+  unpainted rects and one `fill()`.
+
+**Found on the way, not fixed**
+- `Na__LeRec__BuildFields` defaults the title block's Client to
+  `Na__PresentationMode__ProjectJson__GetActiveConfig().projectName` - but on PS01 that call answers
+  the SavedCameraScenes block, which has no such key, so the default is always empty.
+- `Na__Test__SitePlanComposites__.test.mjs` has failed since v2.95.0: `Viewport2d__Linework` began
+  importing `Na__LeModelLayers__IsOn` and the test's first stub block was never given it.
+
+**Files**
+- `51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js` (NEW, 1.0.0)
+- `51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__.js` (1.4.0)
+- `51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__Grips__.js` (1.3.0)
+- `51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__ViewportLink__.js` (1.3.0)
+- `51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__Panel__ScrapbookParametric__.js`
+- `51__System__LayoutEditor/57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__Config__.json` (1.3.0)
+- `51__System__LayoutEditor/15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js` (1.6.0)
+- `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js` (1.24.0)
+- `51__System__LayoutEditor/07__Core__SheetData/Na__LayoutEditor__SheetModel__Shapes__.js` (1.1.0)
+- `51__System__LayoutEditor/60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js` (the offset helper places a `qr`)
+- `53__System__ProjectQrCode/README__ProjectQrCode__.md`
+- `62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (token 2026-09-21-01: new exports)
+- `TrueVision__PLAN__ScrapbookSystem__.md` section 14
+
+**NOT YET TRIED BY ADAM. Not in ValeVision yet** - it needs `Shape__Qr` in its record layer and shape
+painter, and a Project QR Code system of its own.
 
 # ---------------------------------------------------------
 ## TrueVision3D v2.98.0  -  21-Sep-2026

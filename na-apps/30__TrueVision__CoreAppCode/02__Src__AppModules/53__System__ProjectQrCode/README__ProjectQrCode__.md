@@ -95,6 +95,24 @@ if (symbol) {
 | Sheet chrome primitives (drawing sheets, the Specification PDF) | `Na__LeChrome__PushQr(list, x, y, sizeMm, symbol, colours.darkColour, colours.lightColour)` |
 | Raw jsPDF (the Drawing Register PDF) | `Na__QrPaint__DrawPdf(doc, symbol, x, y, sizeMm, dark, light)` |
 | HTML (the Specification's reading view) | `Na__QrPaint__SvgDocument(symbol, { title, cssClass })` - its viewBox carries its own quiet zone |
+| **A code drawn ON a sheet, by a person** | Not this API at all - a `Shape__Qr` block on a vector. See below |
+
+**A code a person places on a drawing does not go through this API.** A shape record may
+carry `Shape__Qr : { Qr__MarginMm }`, and `Na__LayoutEditor__ShapeGeometry__` then draws
+the shape as it always did and pushes the symbol inside its box, that far in from it:
+
+```js
+Shape__Points : [ [0, 0], [B, 0], [B, B], [0, B] ],   Shape__Closed : true,
+Shape__Qr     : { Qr__MarginMm : 2.1 }
+```
+
+The block names no project and holds no matrix, so the shape carries whatever project it
+is looked at in - which is what lets the parametric scrapbook's **Project Portal** block
+be dragged onto any sheet, copied, saved to the Custom Scrapbook and dropped into another
+project. The margin there is a FRACTION of the code (0.07), not a size, so the quiet zone
+stays at two modules whatever size the code is drawn at; `Na__LeShapeGeo__PushQr` reports
+the printed size to `CheckPrint` the way a cell does. One record, one filled path, no
+seams - never 217 rectangles as 217 shapes.
 
 Rules for whoever does it:
 

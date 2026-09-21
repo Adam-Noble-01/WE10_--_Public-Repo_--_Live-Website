@@ -35,6 +35,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.1
+// - A Floor Areas or Vectors layer a paste has to make goes straight over the
+//   frontmost drawing (LayerIndexAboveDrawings) instead of to the bottom of the
+//   list, which is now the back of the paint order.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - Floor areas. CreateShape takes `area` (the Shape__Area block) and
 //   UpdateShape takes it as a patch key, MERGED so a panel that sets one field
@@ -73,7 +78,7 @@
     // MODULE IMPORTS | Sheet Model State, Layers and Groups
     // ------------------------------------------------------------
     import { Na__LeModel__Touch, Na__LeModel__Unselect, Na__LeModel__AssignDirty } from './Na__LayoutEditor__SheetModel__State__.js';
-    import { Na__LeModel__GetLayerById, Na__LeModel__DefaultLayerId, Na__LeModel__CreateLayer } from './Na__LayoutEditor__SheetModel__Layers__.js';
+    import { Na__LeModel__GetLayerById, Na__LeModel__DefaultLayerId, Na__LeModel__CreateLayer, Na__LeModel__LayerIndexAboveDrawings } from './Na__LayoutEditor__SheetModel__Layers__.js';
     import { Na__LeModel__PruneGroups } from './Na__LayoutEditor__SheetModel__Groups__.js';
     // ------------------------------------------------------------
 
@@ -110,9 +115,13 @@
 
     // HELPER FUNCTION | The Layer a Shape of That Kind Lands On, Made if the Sheet Has None
     // ------------------------------------------------------------
+    // A layer made here goes straight over the frontmost drawing, not to the
+    // bottom of the list: the list is the paint order, and at the bottom a
+    // pasted vector would land behind the very drawing it was pasted onto.
+    // ------------------------------------------------------------
     function Na__LeModel__ShapeLayerId(sheet, type) {
         const found = sheet.Sheet__Layers.find((l) => l.Layer__Type === type)
-            || Na__LeModel__CreateLayer(sheet, { name : type === 'area' ? 'Floor Areas' : 'Vectors', type : type });
+            || Na__LeModel__CreateLayer(sheet, { name : type === 'area' ? 'Floor Areas' : 'Vectors', type : type, index : Na__LeModel__LayerIndexAboveDrawings(sheet) });
         return found ? found.Layer__Id : Na__LeModel__DefaultLayerId(sheet, type);
     }
     // ------------------------------------------------------------

@@ -39,6 +39,7 @@
     display                            : none;
 }
 
+.na-le-paper__stack,
 .na-le-paper__viewports,
 .na-le-paper__chrome,
 .na-le-paper__markup,
@@ -51,9 +52,16 @@
     height                             : 100%;
 }
 
-.na-le-paper__viewports  { z-index : 1; }
-.na-le-paper__chrome     { z-index : 2; pointer-events : none; }
-.na-le-paper__markup     { z-index : 3; pointer-events : none; }
+/* THE STACK is the sheet in the Layers list's order, top of the list      */
+/* frontmost: the viewport frames and the SVG slots of chrome and markup,  */
+/* each given its depth inline by the surface (RefreshStack). It is the    */
+/* one stacking context they share. The frames' own box must NOT be one -  */
+/* z-index auto - or every frame would stack as a single block again and   */
+/* a layer under the Viewports layer would still draw over the drawing.    */
+.na-le-paper__stack      { z-index : 1; }
+.na-le-paper__viewports  { z-index : auto; }
+.na-le-paper__chrome     { pointer-events : none; }
+.na-le-paper__markup     { pointer-events : none; }
 .na-le-paper__focus      { z-index : 4; pointer-events : none; }
 .na-le-paper__handles    { z-index : 5; pointer-events : none; }
 
@@ -86,9 +94,9 @@
 /* The amount is set on the paper element from the EditScope block of       */
 /* Na__LayoutEditor__AppConfig__.json; the value here is the fallback.      */
 
-.na-le-paper--scoped .na-le-paper__viewports,
-.na-le-paper--scoped .na-le-paper__chrome,
-.na-le-paper--scoped .na-le-paper__markup {
+/* The whole stack fades as one: it is already a stacking context, so the  */
+/* layers inside it keep their order under the fade.                      */
+.na-le-paper--scoped .na-le-paper__stack {
     opacity                            : var(--na-le-scope-fade, 0.25);
     transition                         : opacity 120ms ease-out;
 }
@@ -102,10 +110,16 @@
 /* REGION  |  Viewport Frames                                        */
 /* ----------------------------------------------------------------- */
 
+/* A FRAME IS CLEAR where its drawing is. The picture a viewport renders   */
+/* is opaque and covers what is under it as it should; a vector-only one   */
+/* (Base Image off) is its linework and nothing else - which is also all  */
+/* the PDF has ever printed. Painted white, it hid whatever a lower layer  */
+/* put under it, so a floor area moved beneath the Viewports layer vanished */
+/* instead of tinting the room under the plan's lines.                     */
 .na-le-frame {
     position                           : absolute;
     overflow                           : hidden;
-    background                         : #ffffff;
+    background                         : transparent;
     box-sizing                         : border-box;
 }
 

@@ -36,6 +36,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0
+// - The layer list's order is now the paint order of everything on the sheet,
+//   so the comments that had it backwards are put right: GetLayers is the
+//   list top first - frontmost first - and index 0 of ReorderLayer is the top.
+// - CreateLayer takes opts.index, a place in the list to insert at, and
+//   LayerIndexAboveDrawings answers where a layer goes to sit straight over
+//   the frontmost drawing: a Floor Areas or Vectors layer the sheet has to
+//   make for itself lands there rather than at the bottom, where it would now
+//   be behind the drawings. The panel's Add still adds at the bottom.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - DeleteLayer re-homes SHAPES as it re-homes everything else. It never did,
 //   so a deleted layer left its vectors pointing at a layer that was gone:
@@ -75,10 +85,31 @@
 // REGION | Public API - Layers
 // -----------------------------------------------------------------------------
 
-    // FUNCTION | A Sheet's Layers, Frontmost Last in Paint Order
+    // FUNCTION | A Sheet's Layers, in List Order: the Top of the List First
+    // ------------------------------------------------------------
+    // Layer__Order 1 is the top of the Layers list, and the top of the list
+    // is FRONTMOST - decision D31, and since 21-Sep-2026 the paint order of
+    // everything on the sheet (Na__LayoutEditor__PaintOrder__). This read
+    // "frontmost last" until then, which was never how anything used it.
     // ------------------------------------------------------------
     function Na__LeModel__GetLayers(sheet) {
         return sheet ? sheet.Sheet__Layers.slice().sort((a, b) => a.Layer__Order - b.Layer__Order) : [];
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a New Layer Goes to Sit Just Over the Drawings
+    // ------------------------------------------------------------
+    // The list index of the frontmost layer carrying a viewport (or tagged as
+    // one while it is empty): a layer inserted there sits directly ABOVE it,
+    // over the drawings and under everything else. undefined when the sheet
+    // has no such layer, which CreateLayer reads as the bottom of the list.
+    // ------------------------------------------------------------
+    function Na__LeModel__LayerIndexAboveDrawings(sheet) {
+        if (!sheet) return undefined;
+        const holding = new Set((sheet.Sheet__Viewports || []).map((viewport) => viewport.Viewport__LayerId));
+        const index   = Na__LeModel__GetLayers(sheet).findIndex((layer) => holding.has(layer.Layer__Id) || layer.Layer__Type === 'viewport');
+        return index === -1 ? undefined : index;
     }
     // ------------------------------------------------------------
 
@@ -99,11 +130,17 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Add a Layer (on top)
+    // FUNCTION | Add a Layer
+    // ------------------------------------------------------------
+    // At the bottom of the list - the back of the stack - unless opts.index
+    // names a place in it (0 is the top, the front): the layer goes there and
+    // the ones from there down move one place back. This read "on top" until
+    // 21-Sep-2026, which the bottom of the list never was.
     // ------------------------------------------------------------
     function Na__LeModel__CreateLayer(sheet, options) {
         if (!sheet) return null;
         const opts  = options || {};
+        const list  = Na__LeModel__GetLayers(sheet);
         const layer = Na__LeRec__NormaliseLayer({
             Layer__Id    : Na__LeRec__NextId(sheet.Sheet__Layers, 'Layer_', 'Layer__Id'),
             Layer__Name  : opts.name,
@@ -111,6 +148,11 @@
             Layer__Order : sheet.Sheet__Layers.length + 1
         }, sheet.Sheet__Layers.length);
         sheet.Sheet__Layers.push(layer);
+        if (Number.isInteger(opts.index) && opts.index >= 0 && opts.index < list.length) {
+            list.splice(opts.index, 0, layer);
+            list.forEach((l, k) => { l.Layer__Order = k + 1; });
+            sheet.Sheet__Layers.sort((a, b) => a.Layer__Order - b.Layer__Order);  // <-- The array in list order too, so the first layer of a type is the frontmost one
+        }
         Na__LeModel__Touch('layers', sheet.Sheet__Id, layer.Layer__Id);
         return layer;
     }
@@ -160,7 +202,7 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Move a Layer in the Stack (index 0 = bottom)
+    // FUNCTION | Move a Layer in the Stack (index 0 = the top of the list, the front)
     // ------------------------------------------------------------
     function Na__LeModel__ReorderLayer(sheet, layerId, newIndex) {
         if (!sheet) return false;
@@ -199,6 +241,7 @@
     // ------------------------------------------------------------
     export {
         Na__LeModel__GetLayers,
+        Na__LeModel__LayerIndexAboveDrawings,
         Na__LeModel__GetLayerById,
         Na__LeModel__DefaultLayerId,
         Na__LeModel__CreateLayer,

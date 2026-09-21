@@ -33,6 +33,25 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.26.0
+// - THE LAYERS LIST IS NOW THE PAINT ORDER FOR EVERYTHING (Na__LayoutEditor__
+//   PaintOrder__), so the list a sheet carries decides what it looks like.
+//   Three consequences here:
+//   - A new sheet is seeded top of the list first: Text, Dimensions, Vectors,
+//     Floor Areas, Viewports - the drawings at the back. The old seed put
+//     Viewports first, which never showed while markup always drew over
+//     viewports, and would now bury every note under the pictures. The layer
+//     ids are unchanged, so each kind lands on the layer it always did.
+//   - Sheet__LayerStack (2) marks a sheet as laid out for the obeyed list. A
+//     sheet without it is restacked ONCE on load (RestackLegacyLayers): when a
+//     text, dimension or vector layer - holding anything or not yet - sits
+//     under a viewport layer, the viewport layers move below the rest and
+//     nothing else moves. A sheet whose drawings are already at the bottom is
+//     left as it is, and so is a floor area layer put under a drawing.
+//   - RehomeOrphans: an item on a layer that no longer exists (DeleteLayer
+//     left vectors behind until today) goes to the layer its kind lands on,
+//     so it is in the list, in the order, and in reach of the Layers panel.
+//
 // 21-Sep-2026 - Version 1.25.0
 // - FLOOR AREAS. Three additions, all of them additive:
 //   - 'area' joins LAYER_TYPES, so a sheet can carry a Floor Areas layer.
@@ -309,6 +328,16 @@
     const Na__LeRec__DRAWING_ARCHITECTURAL = 'architectural';                   // <-- A sheet with no Sheet__DrawingType
     const Na__LeRec__DRAWING_SITEPLAN      = 'siteplan';                        // <-- The only drawing type ever stored
     const Na__LeRec__SITEPLAN_CATEGORY_PREFIX = 'TrueVision__SitePlan__';       // <-- Category keys of site plan layers (the export's stems)
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Layer Stack
+    // ------------------------------------------------------------
+    // Sheet__LayerStack at 2: the sheet's Layers list is its paint order for
+    // EVERYTHING, top of the list frontmost (Na__LayoutEditor__PaintOrder__).
+    // A sheet without it was laid out when only viewports obeyed the list,
+    // and is restacked once, on load (Na__LeRec__RestackLegacyLayers).
+    // ------------------------------------------------------------
+    const Na__LeRec__LAYER_STACK = 2;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -1029,6 +1058,90 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Restack a Sheet Laid Out Before the List Was Obeyed
+    // ------------------------------------------------------------
+    // Until 21-Sep-2026 every viewport was painted under every piece of
+    // markup whatever order the Layers list was in, so the list only ever
+    // ordered viewports against each other. Every sheet was seeded with the
+    // Viewports layer at the TOP of the list, and now that the list is the
+    // paint order that would put every picture over the text, the dimensions
+    // and the vectors on it. So a sheet from before is restacked ONCE: every
+    // layer holding a viewport moves down below the rest, and nothing else
+    // moves. A sheet whose drawings already sit below its markup - PS01's plans
+    // and elevations, which Adam had dragged into that order - is left exactly
+    // as it is, and so is a floor area layer somebody has put under a drawing.
+    //
+    // A layer is judged by what it HOLDS, since its type is only a tag, and an
+    // empty one by what its type says it is for:
+    //   a viewport layer  holds a viewport (or is an empty Viewports layer)
+    //   an area layer     holds floor areas and nothing else (or is an empty
+    //                     Floor Areas layer)
+    //   a markup layer    everything else - text, dimensions, leaders, plain
+    //                     vectors, or nothing yet
+    // Any MARKUP layer under a viewport layer calls for the restack - an EMPTY
+    // one too, because the first note typed onto a sheet lands on its Text
+    // layer, and under the old seed that would put it under the picture
+    // (RB05's TEMP__Plans is exactly that: one viewport and three empty layers
+    // beneath it). An area layer never calls for it: floor areas are newer than
+    // the list's being ignored, and one under a drawing was put there. When a
+    // restack does happen the area layers ride up with the markup, so rooms
+    // drawn over a plan stay over it.
+    // Returns true when the order changed.
+    // ------------------------------------------------------------
+    function Na__LeRec__RestackLegacyLayers(sheet) {
+        const layers = sheet.Sheet__Layers.slice().sort((a, b) => a.Layer__Order - b.Layer__Order);   // <-- Top of the list first
+        const holds  = new Map(layers.map((layer) => [ layer.Layer__Id, { viewports : 0, markup : 0, areas : 0 } ]));
+        const count  = (layerId, key) => { const entry = holds.get(layerId); if (entry) entry[key] += 1; };
+        (sheet.Sheet__Viewports   || []).forEach((v) => count(v.Viewport__LayerId, 'viewports'));
+        (sheet.Sheet__Annotations || []).forEach((a) => count(a.Annotation__LayerId, 'markup'));
+        (sheet.Sheet__Dimensions  || []).forEach((d) => count(d.Dimension__LayerId, 'markup'));
+        (sheet.Sheet__Leaders     || []).forEach((l) => count(l.Leader__LayerId, 'markup'));
+        (sheet.Sheet__Shapes      || []).forEach((s) => count(s.Shape__LayerId, (s.Shape__Area && typeof s.Shape__Area === 'object') ? 'areas' : 'markup'));
+        const empty = (held) => held.viewports === 0 && held.markup === 0 && held.areas === 0;
+        const isViewportLayer = (layer) => {
+            const held = holds.get(layer.Layer__Id);
+            return held.viewports > 0 || (empty(held) && layer.Layer__Type === 'viewport');
+        };
+        const isAreaLayer = (layer) => {
+            const held = holds.get(layer.Layer__Id);
+            return !isViewportLayer(layer) && held.markup === 0 && (held.areas > 0 || layer.Layer__Type === 'area');
+        };
+        const topDrawing = layers.findIndex(isViewportLayer);
+        if (topDrawing === -1) return false;
+        const buried = layers.some((layer, index) => index > topDrawing && !isViewportLayer(layer) && !isAreaLayer(layer));
+        if (!buried) return false;                                               // <-- No markup layer sits under a picture: the list already shows what the sheet showed
+        const upper = layers.filter((layer) => !isViewportLayer(layer));
+        const lower = layers.filter(isViewportLayer);
+        upper.concat(lower).forEach((layer, index) => { layer.Layer__Order = index + 1; });
+        sheet.Sheet__Layers.sort((a, b) => a.Layer__Order - b.Layer__Order);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put Items on a Layer That Is Gone Back on One That Is Not
+    // ------------------------------------------------------------
+    // DeleteLayer did not re-home vectors until 21-Sep-2026, so a sheet can
+    // hold vectors whose layer is gone: drawn, because an unknown layer reads
+    // as shown, but out of reach of the Layers panel - and, now that the list
+    // is the paint order, outside it. Each goes to the layer its kind lands
+    // on, a floor area to Floor Areas when the sheet has one.
+    // ------------------------------------------------------------
+    function Na__LeRec__RehomeOrphans(sheet) {
+        const known = new Set(sheet.Sheet__Layers.map((layer) => layer.Layer__Id));
+        const home  = (item, key, type) => {
+            if (typeof item[key] === 'string' && item[key] && !known.has(item[key])) item[key] = Na__LeRec__DefaultLayerId(sheet, type);
+        };
+        const hasAreaLayer = sheet.Sheet__Layers.some((layer) => layer.Layer__Type === 'area');
+        sheet.Sheet__Viewports.forEach((v)   => home(v, 'Viewport__LayerId', 'viewport'));
+        sheet.Sheet__Annotations.forEach((a) => home(a, 'Annotation__LayerId', 'annotation'));
+        sheet.Sheet__Dimensions.forEach((d)  => home(d, 'Dimension__LayerId', 'dimension'));
+        sheet.Sheet__Leaders.forEach((l)     => home(l, 'Leader__LayerId', 'annotation'));
+        sheet.Sheet__Shapes.forEach((s)      => home(s, 'Shape__LayerId', (hasAreaLayer && s.Shape__Area && typeof s.Shape__Area === 'object') ? 'area' : 'vector'));
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Fill a Sheet Record's Defaults (mutates in place)
     // ------------------------------------------------------------
     function Na__LeRec__NormaliseSheet(sheet, index) {
@@ -1053,14 +1166,20 @@
         if (sheet.Sheet__DrawingType !== Na__LeRec__DRAWING_SITEPLAN) delete sheet.Sheet__DrawingType;   // <-- Stored only for a site plan; no key is an architectural drawing
         if (!sheet.Sheet__Fields || typeof sheet.Sheet__Fields !== 'object') sheet.Sheet__Fields = {};
 
+        // A NEW SHEET'S LAYERS, TOP OF THE LIST FIRST - which is frontmost, now
+        // that the list is the paint order: text over dimensions over vectors,
+        // the measured rooms over the drawings, and the drawings at the back.
+        // The ids are the ones every sheet has always had, so the layer a kind
+        // lands on is found exactly as before; only the order is new.
         if (!Array.isArray(sheet.Sheet__Layers) || sheet.Sheet__Layers.length === 0) {
             sheet.Sheet__Layers = [
-                { Layer__Id : 'Layer_001', Layer__Name : 'Viewports',  Layer__Type : 'viewport',   Layer__Visible : true, Layer__Locked : false, Layer__Order : 1 },
-                { Layer__Id : 'Layer_002', Layer__Name : 'Text',       Layer__Type : 'annotation', Layer__Visible : true, Layer__Locked : false, Layer__Order : 2 },
-                { Layer__Id : 'Layer_003', Layer__Name : 'Dimensions', Layer__Type : 'dimension',  Layer__Visible : true, Layer__Locked : false, Layer__Order : 3 },
-                { Layer__Id : 'Layer_004', Layer__Name : 'Vectors',    Layer__Type : 'vector',     Layer__Visible : true, Layer__Locked : false, Layer__Order : 4 },
-                { Layer__Id : 'Layer_005', Layer__Name : 'Floor Areas', Layer__Type : 'area',     Layer__Visible : true, Layer__Locked : false, Layer__Order : 5 }   // <-- Measured rooms, on a layer of their own so they can be switched off once drawn
+                { Layer__Id : 'Layer_002', Layer__Name : 'Text',        Layer__Type : 'annotation', Layer__Visible : true, Layer__Locked : false, Layer__Order : 1 },
+                { Layer__Id : 'Layer_003', Layer__Name : 'Dimensions',  Layer__Type : 'dimension',  Layer__Visible : true, Layer__Locked : false, Layer__Order : 2 },
+                { Layer__Id : 'Layer_004', Layer__Name : 'Vectors',     Layer__Type : 'vector',     Layer__Visible : true, Layer__Locked : false, Layer__Order : 3 },
+                { Layer__Id : 'Layer_005', Layer__Name : 'Floor Areas', Layer__Type : 'area',       Layer__Visible : true, Layer__Locked : false, Layer__Order : 4 },   // <-- Measured rooms, on a layer of their own so they can be switched off once drawn
+                { Layer__Id : 'Layer_001', Layer__Name : 'Viewports',   Layer__Type : 'viewport',   Layer__Visible : true, Layer__Locked : false, Layer__Order : 5 }
             ];
+            sheet.Sheet__LayerStack = Na__LeRec__LAYER_STACK;                    // <-- Born in the right order: nothing to restack
         }
         sheet.Sheet__Layers.forEach(Na__LeRec__NormaliseLayer);
         sheet.Sheet__Layers.sort((a, b) => a.Layer__Order - b.Layer__Order);
@@ -1089,7 +1208,29 @@
             if (typeof g.Group__Id !== 'string' || !g.Group__Id) g.Group__Id = Na__LeRec__NextId(sheet.Sheet__Groups, 'Group_', 'Group__Id');
             Na__LeRec__NormaliseGroup(g);
         });
+
+        Na__LeRec__NormaliseLayerStack(sheet);
         return sheet;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Make the Layers List Fit to Be the Paint Order
+    // ------------------------------------------------------------
+    // Every item on a layer that exists, and a sheet from before the list was
+    // obeyed restacked ONCE, so that nothing it showed ends up under a
+    // picture. Called by NormaliseSheet with its item lists in place; on its
+    // own it is the seam the layer stack test drives. Returns true when the
+    // order was changed.
+    // ------------------------------------------------------------
+    function Na__LeRec__NormaliseLayerStack(sheet) {
+        if (!sheet || !Array.isArray(sheet.Sheet__Layers)) return false;
+        [ 'Sheet__Viewports', 'Sheet__Annotations', 'Sheet__Dimensions', 'Sheet__Shapes', 'Sheet__Leaders' ].forEach((key) => { if (!Array.isArray(sheet[key])) sheet[key] = []; });
+        Na__LeRec__RehomeOrphans(sheet);
+        if (sheet.Sheet__LayerStack === Na__LeRec__LAYER_STACK) return false;
+        const moved = Na__LeRec__RestackLegacyLayers(sheet);
+        sheet.Sheet__LayerStack = Na__LeRec__LAYER_STACK;                        // <-- Once: an order chosen after this is the user's, and is never second-guessed
+        return moved;
     }
     // ------------------------------------------------------------
 
@@ -1349,6 +1490,7 @@
         Na__LeRec__NormaliseDimension,
         Na__LeRec__NormaliseGroup,
         Na__LeRec__NormaliseSheet,
+        Na__LeRec__NormaliseLayerStack,
         Na__LeRec__DefaultLayerId,
         Na__LeRec__DrawingNumber,
         Na__LeRec__Phase,

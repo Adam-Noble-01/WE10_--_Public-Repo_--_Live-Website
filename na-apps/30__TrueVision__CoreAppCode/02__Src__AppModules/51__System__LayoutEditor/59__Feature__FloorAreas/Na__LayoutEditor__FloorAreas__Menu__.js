@@ -38,6 +38,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.0
+// - "Show its outline", ticked while the room has its line, beside "Show its
+//   label": one click takes the outline off and leaves the colour.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -69,6 +73,7 @@
         Na__LeArea__ViewportName,
         Na__LeArea__FormatArea,
         Na__LeArea__Patch,
+        Na__LeArea__Restyle,
         Na__LeArea__SetGroup,
         Na__LeArea__Make,
         Na__LeArea__Unmake
@@ -162,6 +167,10 @@
         const hidden = Na__LeArea__LabelModeOf(shape) === Na__LeArea__LABEL_NONE;
         items.push({ label : L('MenuLabel', 'Show its label'), checked : !hidden,
                      onSelect : () => { Na__LeArea__Patch(sheet, shape.Shape__Id, { Area__Label : hidden ? Na__LeArea__LABEL_BOTH : Na__LeArea__LABEL_NONE }); } });
+        // THE OUTLINE | The line round the room, off for the colour alone
+        const outlined = shape.Shape__Stroked !== false;
+        items.push({ label : L('MenuOutline', 'Show its outline'), checked : outlined,
+                     onSelect : () => { Na__LeArea__Restyle(sheet, [ shape.Shape__Id ], { stroked : !outlined }); } });
         items.push({ label : L('MenuCentreLabel', 'Centre its label'), disabled : Math.hypot(offset.dx, offset.dy) < 1e-6,
                      onSelect : () => { Na__LeArea__Patch(sheet, shape.Shape__Id, { Area__LabelDXMm : 0, Area__LabelDYMm : 0 }); } });
         items.push({ label : L('MenuRename', 'Rename this area...'),

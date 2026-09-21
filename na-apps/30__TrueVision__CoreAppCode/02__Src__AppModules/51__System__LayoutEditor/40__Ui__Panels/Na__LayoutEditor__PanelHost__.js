@@ -490,7 +490,9 @@
     //
     // A section not in the group - Layers, Sheet, Viewport - is never folded by
     // this, and passing no id folds the whole group, which is what a selection
-    // of something with no panel of its own does.
+    // of something with no panel in it does: a viewport, since 21-Sep-2026,
+    // so Floor Areas and Patterns (group members too) do not stand open over
+    // a selected drawing.
     // ------------------------------------------------------------
     function Na__LePanels__FocusSection(sectionId) {
         const group = Na__LeCfg__GetPanelSetup().accordion || [];

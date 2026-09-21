@@ -36,6 +36,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.1.1
+// - GetPanelSetup's fallback fold group names Floor Areas and Patterns too, as
+//   the config's AccordionSections now does, so a config that fails to load
+//   folds the same sections the real one would.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - GetDrawingRegisterSetup moved out of the export region into the public
 //   API region and formatted to the Layout Editor conventions.
@@ -224,7 +229,7 @@
             minWidthPx   : Na__LeCfg__Num('Panels', 'MinWidthPx', 190),
             maxWidthPx   : Na__LeCfg__Num('Panels', 'MaxWidthPx', 520),
             collapseOthers : Na__LeCfg__Val('Panels', 'CollapseOthersOnOpen', false) === true,
-            accordion      : (() => { const v = Na__LeCfg__Val('Panels', 'AccordionSections', null); return Array.isArray(v) ? v.slice() : [ 'text', 'dimensions', 'shapes', 'leaders' ]; })(),
+            accordion      : (() => { const v = Na__LeCfg__Val('Panels', 'AccordionSections', null); return Array.isArray(v) ? v.slice() : [ 'text', 'dimensions', 'shapes', 'leaders', 'floor-areas', 'patterns' ]; })(),
             focusOnSelect  : Na__LeCfg__Val('Panels', 'FocusSectionOnSelect', true) !== false
         };
     }

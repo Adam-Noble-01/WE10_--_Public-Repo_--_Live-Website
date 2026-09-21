@@ -717,3 +717,140 @@ corner the end has been put under.
 Open, deliberately: a bar to the right is offered on every drawing title, not only on elevations,
 because a wide plan wants it too; and the reversed stretch does not snap - divisions are its own
 rule, and Adam asked for the snap on the placing end.
+
+## 14. The Project Portal block (21-Sep-2026, v2.100.0)
+---------------------------------------------------------
+
+Adam, with two mock-ups - a narrow column and a wide panel: *"Create parametric scrapbook items
+for these, but the actual QR codes are the ones that are generated through the QR code generator
+that already generates the QR code in the bottom right-hand corner in the title blocks. When these
+are dragged in, update the QR code to the correct project. Also put the project name in as well...
+Don't mention PlanVision. Mention the fully 3D model with navigatable scenes, etc. Basically, write
+a short little thing that's really persuasive to make people want to scan with their phone. Point
+out to scan with your phone or tablet as well, for Boomers, so Boomers can understand. There are
+two formats of this: the concise one and the bigger one. The actual QR codes make it parametric, so
+we can have the smallest, a 30 mm square, or a 40 mm square version. The default should be the 30
+mm square one. But you can press the drop-down arrow, like with the other parametric things we've
+made, and make it bigger and smaller."*
+
+### 14.1 The one decision everything else follows from
+
+**THE CODE IS ONE RECORD.** A version 3 symbol is 217 filled runs. Written as 217 shape records it
+would have been 217 ids in the group, 217 slots for the engine to regenerate, 217 entries in every
+undo snapshot and in the browser draft - and, because abutting filled rectangles are anti-aliased
+one at a time, a faint light grid through every finder pattern on the screen and in the PDF.
+
+So the box is ONE ordinary vector - four points - carrying a new block on the shape record:
+
+```
+Shape__Qr : { Qr__MarginMm }        and nothing else
+```
+
+`Na__LeShapeGeo__Push` draws the shape exactly as it always did and then pushes the chrome's
+existing `'qr'` primitive inside it, that far in from its box. That primitive already carries the
+symbol whole and is already painted by both surfaces - `Na__QrPaint__SvgGroup` on the screen and
+`Na__QrPaint__DrawPdf` into jsPDF - because the title block's cell has used it since 19-Sep. One
+filled path either way, no seams, and the model carries a rectangle.
+
+Everything else falls out of that. The code moves, copies, prints, exports, undoes and changes
+layer like any vector. Ungrouping the block leaves a box that still draws the code. A block saved
+to the Custom Scrapbook and dropped into another project draws **that** project's code, because the
+block names no project and holds no matrix: the painter asks `Na__ProjectQr__GetSymbol()` at
+painting time, which is the same call, and therefore the same symbol, the title block prints.
+
+### 14.2 The margin is a FRACTION of the code, not a size
+
+`MarginFraction` 0.07. The quiet zone the QR system asks for is counted in MODULES, and
+`0.07 x codeMm / (codeMm / N) = 0.07 x N` - **2.03 modules for a 29 module symbol at every size in
+the list**, and more for a bigger symbol. A margin in millimetres would have been right at one size
+and wrong at the other four. `Na__LeShapeGeo__PushQr` reports the printed size to
+`Na__ProjectQr__CheckPrint`, so a box drawn too small, or a margin squeezed, says so on the console
+the way the title block's cell does.
+
+### 14.3 The code is the parameter; the type is not
+
+`SizeMm` is the symbol edge to edge - 30 mm as shipped, 20/25/30/40/50 on the triangle. Everything
+round it is set in paper millimetres and does **not** scale with it. Type on a drawing is house
+sizes or it is wrong: a 20 mm code with 1.8 mm bullets under it would be a block nobody could read
+pointing at a code everybody could. The column instead grows to fit its own longest line, measured
+through the editor's own text measurer.
+
+### 14.4 Two forms, one type
+
+COMPACT is the column: code, Scan Me button, caption, heading, project, bullets. FULL stands that
+column beside a heading and a wrapped paragraph, and the left column then drops its project line,
+because the heading beside it is already carrying it. The lookup triangle swaps between them and
+the panel offers the same choice - they are the same block with more or less said.
+
+### 14.5 Two additions to the parametric engine, both small and general
+
+- **`definition.choices(params)`** - what a type offers on the lookup grip BEYOND the scale and the
+  split every scaled type has. Each entry is `{ label, checked, patch }`, and the grips module hands
+  the patch straight back to `Regenerate`. It never reads them: a code size and a choice of form
+  mean nothing there, which is the point.
+- **`definition.linkable : false`** - a type that is never tied to a viewport. It is dropped with no
+  link and no scale laid over its preset, the follower leaves it alone, `AdoptNew` does not adopt
+  it, and the panel shows it no link row. This block reads the PROJECT; a cable from it to the
+  nearest elevation would say something untrue about what it is.
+
+### 14.6 The project name
+
+Read live through `tools.projectName()` - the PWA's own project context, which is what the Project
+Specification and the Drawing Register both print, with the project code put in front of it:
+**PS01 - Musters Road**. Renaming the project rewrites every block. A name typed into the panel
+wins and stops it following, and clearing the box puts it back - the drawing title's own idiom.
+With nothing to ask it reads `{{Project}}`, the placeholder idiom, and the panel says why.
+
+*(The obvious source, `Na__PresentationMode__ProjectJson__GetActiveConfig().projectName`, which is
+what `Na__LeRec__BuildFields` uses for its Client default, is a DEAD END: on PS01 that call answers
+the SavedCameraScenes block, which has no such key. The Client default has been quietly falling
+back to empty ever since. Worth a look on its own.)*
+
+### 14.7 Traps
+
+- **`Na__LeParam__ShapePatch` is the list of what a regenerate writes onto an existing member.** A
+  new shape field that is not in it is written on the first build and never again, so the element
+  looks right until it is resized. `qr` is in it, and `Na__LeModel__UpdateShape` takes it.
+- **A shape carrying only a code is not "nothing to paint".** Both the record normaliser's
+  edges-or-fill guard and `Push`'s early return had to learn that.
+- **`RefreshProps` reflected the scale rows unconditionally.** For a type with no scale that put
+  `undefined` into the scale list and the divisions box - hidden, but waiting there for the next
+  bar selected. It now returns early for a type with neither a bar nor a link.
+- **The panel's tiles are not built until the Scrapbook tab is opened.** A test that drops a tile
+  has to click that tab first, and the drop is TWO pointer presses, not a `dblclick` - the tile
+  drag counts its own double press (see `Na__LeScrapDrag__OnPointerUp`).
+
+### 14.8 How it was proved
+
+- `80__Testing__PrototypeEnvironment/Na__Test__ScrapbookProjectQr__.test.mjs` - 55 checks. The
+  quiet-zone arithmetic is asserted against the **QR system's own config**, at every size the list
+  offers, rather than against a number typed in twice; so is the module floor.
+- In the app on PS01, with a fetch guard refusing every write: both tiles show live previews, a drop
+  lands a 12 member group with `Shape__Qr`, the triangle's menu ticks the size it is, 30 -> 40 mm
+  regenerates **in place** (same record ids, box 34.2 -> 45.6 mm, margin 2.1 -> 2.8 mm), the form
+  switch re-letters the block, and an undo left the sheets byte-identical with nothing sent to R2.
+- The rendered block was rasterised at 200 and 300 dpi and **decoded by OpenCV** back to
+  `https://www.noble-architecture.com/q/?PS01` - both forms, every read correct.
+- The PDF path was run through a jsPDF stand-in: one `qr` primitive at the box origin plus the
+  margin, 217 unpainted rects and one `fill()`. The single-path idiom, as the title block's.
+
+### 14.9 Audit of the brief
+
+| The brief | Where it is |
+|---|---|
+| "Parametric scrapbook items for these" | Two tiles, one type: `ProjectQr`, elements `ProjectPortalCompact` and `ProjectPortalFull` |
+| "The actual QR codes are the ones that are generated through the QR code generator that already generates the QR code in the... title blocks" | `Shape__Qr` -> `Na__ProjectQr__GetSymbol()`. The identical call the title block's cell makes, so the two codes on a sheet are the same object |
+| "When these are dragged in, update the QR code to the correct project" | Nothing is stored. The symbol is asked for at painting time, so it is always the project on screen's |
+| "Also put the project name in as well" | `PS01 - Musters Road`, under whichever heading leads the block, live from the PWA project context |
+| "Don't mention PlanVision" | No app is named anywhere in the copy. A test asserts it |
+| "Mention the fully 3D model with navigatable scenes" | "Walk through it at full size, step between the saved views and scenes"; bullets one and two |
+| "Really persuasive to make people want to scan with their phone" | The Scan Me button with its handset, and copy that says what to do, what happens, and answers the objection that stops people - "Nothing to download - it opens straight in your browser" |
+| "Point out to scan with your phone or tablet as well, for Boomers" | The caption under the button: *Use your phone or tablet camera*. In both forms, and said again in the paragraph |
+| "Two formats: the concise one and the bigger one" | COMPACT and FULL, 14.4 |
+| "The smallest, a 30 mm square, or a 40 mm square version" | `SizeChoicesMm` 20, 25, 30, 40, 50 - the two he named, with room either side |
+| "The default should be the 30 mm square one" | `ProjectQr__SizeMm` 30; neither tile presets a size |
+| "You can press the drop-down arrow, like with the other parametric things we've made, and make it bigger and smaller" | The lookup triangle off the code box's top right corner, through the new `choices` hook |
+
+Open, deliberately: the block is offered on every drawing type, including site plans; the bullets
+are one list shared by both forms; and there is no control for the code itself, because there is
+nothing about it to choose.

@@ -47,6 +47,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.21.0
+// - FLOOR AREAS AND PATTERNS FOLD WITH THE REST. Selecting a viewport used to
+//   leave the fold group as it was (v2.57.0, "deliberate for now"), so Floor
+//   Areas and Patterns stood open over a selected drawing. A viewport now
+//   folds the whole group, and a single site plan viewport opens Patterns,
+//   whose hatch rows are the one part of the group that edits a drawing.
+//   Patterns joins LayoutEditor__Panels__AccordionSections, which Floor Areas
+//   joined in v2.104.0 along with SectionForKind's floor-area rule: a
+//   selection of rooms opens Floor Areas, not Vectors.
+// - v2.104.0 also wired Floor Areas in here: its config is read before the
+//   editor opens, its schedules follow their rooms (Na__LeAreaTable__Attach),
+//   its panel is registered after Patterns, and 'areas' refreshes the markup.
+//
 // 20-Sep-2026 - Version 1.20.0
 // - The left column has two tabs, Document Preferences and Specification, as
 //   the right column has Properties and Scrapbook. Every section the column
@@ -199,6 +212,8 @@
         Na__LeModel__SetSelection,
         Na__LeModel__GetSelectionItems,
         Na__LeModel__GetShapeById,
+        Na__LeModel__GetViewportById,
+        Na__LeModel__IsSitePlanViewport,
         Na__LeModel__GetViewports
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Mount, Na__LeSurface__SetSheet, Na__LeSurface__Refresh, Na__LeSurface__SetZoom, Na__LeSurface__GetZoom } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
@@ -777,11 +792,19 @@
     // ------------------------------------------------------------
 
 
+    // MODULE CONSTANTS | The Answer That Folds the Whole Group
+    // ------------------------------------------------------------
+    const Na__LeMode__FOLD_GROUP = '';                                          // <-- Not null, which leaves the folds alone
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | The Section That Edits a Kind of Sheet Item
     // ------------------------------------------------------------
     // The selection side of PanelFor, which answers the same question for a
-    // change announcement. A kind with no section of its own - a viewport, a
-    // group - answers null and the folds are left alone.
+    // change announcement. Three kinds of answer:
+    //   a section id   open it and fold the rest of the group
+    //   FOLD_GROUP     no section of the group edits this: fold them all
+    //   null           leave the folds alone (a group, anything unknown)
     // ------------------------------------------------------------
     function Na__LeMode__SectionForKind(kind, items) {
         if (kind === 'annotation') return 'text';
@@ -793,7 +816,22 @@
         // fold away, because a room IS a vector.
         if (kind === 'shape')      return Na__LeMode__AllAreas(items) ? 'floor-areas' : 'shapes';
         if (kind === 'leader')     return 'leaders';
+        // A VIEWPORT FOLDS THE GROUP. Its own section is not one of them, and
+        // leaving the markup sections as they were - the choice made in
+        // v2.57.0 - left Floor Areas and Patterns standing open over a selected
+        // drawing, which is the clutter the group exists to prevent. Adam:
+        // "They should only be open when active." A site plan viewport is the
+        // one drawing a group section edits - its hatches are Patterns' - so
+        // one of those opens Patterns instead.
+        if (kind === 'viewport')   return Na__LeMode__OneSitePlan(items) ? 'patterns' : Na__LeMode__FOLD_GROUP;
         return null;
+    }
+    function Na__LeMode__OneSitePlan(items) {
+        const sheet     = Na__LeModel__GetActiveSheet();
+        const viewports = (Array.isArray(items) ? items : []).filter((item) => item && item.kind === 'viewport');
+        if (!sheet || viewports.length !== 1) return false;                     // <-- Patterns edits one viewport's layers at a time
+        const viewport = Na__LeModel__GetViewportById(sheet, viewports[0].id);
+        return !!viewport && Na__LeModel__IsSitePlanViewport(viewport);
     }
     function Na__LeMode__AllAreas(items) {
         const sheet = Na__LeModel__GetActiveSheet();
@@ -815,7 +853,8 @@
     function Na__LeMode__FocusPanelFor(kind, items) {
         if (!Na__LeMode__Active || !Na__LeCfg__GetPanelSetup().focusOnSelect) return false;
         const section = Na__LeMode__SectionForKind(kind, items);
-        return section ? Na__LePanels__FocusSection(section) : false;
+        if (section === null) return false;                                     // <-- Nothing to say: the folds stay as they are
+        return Na__LePanels__FocusSection(section || null);                     // <-- FOLD_GROUP: no id folds the whole group
     }
     function Na__LeMode__FocusPanelForSelection() {
         const items = Na__LeModel__GetSelectionItems();

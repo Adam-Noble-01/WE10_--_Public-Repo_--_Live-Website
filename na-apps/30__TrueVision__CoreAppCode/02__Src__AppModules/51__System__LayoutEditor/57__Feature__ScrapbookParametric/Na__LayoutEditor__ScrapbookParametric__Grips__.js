@@ -59,6 +59,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - The lookup menu asks the TYPE what else it offers (definition.choices),
+//   so an element with no scale and no split - the Project Portal block, whose
+//   triangle carries its code sizes and its two forms - has a menu of its own
+//   without this module learning what any of it means. Each entry is a patch,
+//   which is exactly the rebuild the panel's own controls make.
+// - An element whose stretch grip sets a width rather than a length says so on
+//   the grip (GripStretchWords), asked for by the type having no scale bar.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - The slide grip, and with it the drag it shares with the stretch grip: one
 //   drag state carrying which of the two is in hand, because everything about
@@ -400,6 +409,8 @@
         const params = Na__LeParam__GetParams(sheet, groupId);
         if (!params) return [];
         const items  = [];
+        const block  = Na__LeParam__GetBlockById(sheet, groupId);
+        const type   = block ? Na__LeParam__GetType(block.Parametric__Type) : null;
         const tied   = Na__LeParamLink__DescribeById(sheet, groupId);
         const linked = tied.kind === Na__LeParamLink__KIND_VIEWPORT ? tied.viewport : null;
 
@@ -435,6 +446,23 @@
             items.push({ label : Na__LeParam__Label('MenuBarRight', 'Scale bar to the right'), checked : right,
                          onSelect : () => { Na__LeParam__Regenerate(sheet, groupId, { BarPlacement : right ? Na__LeParamTitle__PLACE_BELOW : Na__LeParamTitle__PLACE_RIGHT }); } });
         }
+        // WHATEVER ELSE THE TYPE OFFERS | Its own entries, each a patch this
+        // module hands straight back to the engine. It never reads them: a
+        // code size and a choice of form mean nothing here, and that is the
+        // point - a new element type gets its own menu without this one
+        // learning a word of what the element is about.
+        const extra = (type && typeof type.choices === 'function') ? type.choices(params) : [];
+        if (Array.isArray(extra) && extra.length) {
+            if (items.length) items.push({ separator : true });               // <-- Never a menu that opens on a rule
+            extra.forEach((choice) => {
+                if (!choice) return;
+                if (choice.separator === true) { items.push({ separator : true }); return; }
+                if (typeof choice.label !== 'string' || !choice.patch) return;
+                items.push({ label : choice.label, checked : choice.checked === true,
+                             onSelect : () => { Na__LeParam__Regenerate(sheet, groupId, choice.patch); } });
+            });
+        }
+
         if (params.ScaleDenominator !== undefined) {
             items.push({ separator : true });
             items.push({ label : Na__LeParam__Label('MenuReset', 'Reset length'), onSelect : () => { Na__LeParam__ResetToStandard(sheet, groupId, params.ScaleDenominator); } });
@@ -507,11 +535,14 @@
         const groupId = selection.id;
         const clear   = (point, offsetPx) => ({ x : (point.x * ppm) + (point.away[0] * offsetPx / scale), y : (point.y * ppm) + (point.away[1] * offsetPx / scale) });   // <-- A point of the unzoomed paper, stood off the way the type says
         if (handles.stretch) {
-            const at   = clear(handles.stretch, Na__LeParamGrips__Px('StretchOffsetPx'));
-            const back = handles.stretch.away[0] < 0 && !!handles.slide;      // <-- An arrow pointing back at the title: the reversed stretch of a bar stood to the right
+            const at    = clear(handles.stretch, Na__LeParamGrips__Px('StretchOffsetPx'));
+            const back  = handles.stretch.away[0] < 0 && !!handles.slide;     // <-- An arrow pointing back at the title: the reversed stretch of a bar stood to the right
+            const words = !back && handles.params && handles.params.ScaleDenominator === undefined;   // <-- Nothing drawn to a scale: the arrow is setting a column of words, not a length on the ground
+            const told  = back  ? Na__LeParam__Label('GripStretchBack',  'Drag towards the title to lengthen; the far end stays put')
+                        : words ? Na__LeParam__Label('GripStretchWords', 'Drag to set how wide the words are set')
+                                : Na__LeParam__Label('GripStretch',      'Drag to lengthen or shorten');
             Na__LeParamGrips__Add(layer, Na__LeParamGrips__CLASS_STRETCH + (back ? ' is-reversed' : ''), at.x, at.y,
-                Na__LeParamGrips__Px('StretchSizePx') / scale,
-                back ? Na__LeParam__Label('GripStretchBack', 'Drag towards the title to lengthen; the far end stays put') : Na__LeParam__Label('GripStretch', 'Drag to lengthen or shorten'),
+                Na__LeParamGrips__Px('StretchSizePx') / scale, told,
                 (event) => Na__LeParamGrips__OnStretchDown(event, sheet, groupId, Na__LeParamGrips__MODE_STRETCH));
         }
         if (handles.slide) {

@@ -100,6 +100,13 @@
 //   do; a storey chosen in the Dev menu arrives as the identity module's
 //   'level' announcement, which books the same refresh north does.
 //
+// 21-Sep-2026 - Version 1.3.0
+// - A type may say it is never tied to a viewport (linkable : false). It is
+//   then dropped with no link and no scale laid over its preset, and a sheet
+//   that gains one does not adopt it. The Project Portal block reads the
+//   project, not a drawing, and a cable from it to the nearest elevation
+//   would say something untrue about what it is.
+//
 // 20-Sep-2026 - Version 1.2.0
 // - Facts: FactsOf, and the facts a type asks for laid in on a drop, a link,
 //   an adoption and a follow. InsertLinked takes an element's preset
@@ -150,6 +157,7 @@
         Na__LeParam__GetBlock,
         Na__LeParam__GetBlockById,
         Na__LeParam__GetType,
+        Na__LeParam__IsLinkable,
         Na__LeParam__GetParams,
         Na__LeParam__ListOnSheet,
         Na__LeParam__Insert,
@@ -475,6 +483,10 @@
     // ------------------------------------------------------------
     function Na__LeParamLink__InsertLinked(sheet, type, centreMm, preset) {
         if (!sheet || !centreMm) return null;
+        // A TYPE THAT IS NEVER TIED TO A DRAWING IS DROPPED AND NOTHING MORE.
+        // No link, and no scale laid over its preset either: a scale it has
+        // no use for would sit in its parameters looking like an answer.
+        if (!Na__LeParam__IsLinkable(type)) return Na__LeParam__Insert(sheet, type, centreMm, (preset && typeof preset === 'object') ? preset : {}, null);
         const auto        = Na__LeParamLink__Setup().autoLink;
         const viewport    = auto ? Na__LeParamLink__Nearest(sheet, centreMm) : null;
         const denominator = viewport ? viewport.Viewport__ScaleDenominator : Na__LeDrawScale__SheetDenominator(sheet);
@@ -499,7 +511,8 @@
         Na__LeParam__ListOnSheet(sheet).forEach((group) => {
             if (known.has(group.Group__Id)) return;
             const block = Na__LeParam__GetBlock(group);
-            if (!block || Na__LeParamLink__Describe(sheet, block).kind !== Na__LeParamLink__KIND_NONE) return;
+            if (!block || !Na__LeParam__IsLinkable(block.Parametric__Type)) return;   // <-- A type that is never tied to a drawing is not adopted by one it happens to have landed beside
+            if (Na__LeParamLink__Describe(sheet, block).kind !== Na__LeParamLink__KIND_NONE) return;
             const centre      = Na__LeParamLink__CentreOf(sheet, group.Group__Id);
             const viewport    = centre ? Na__LeParamLink__Nearest(sheet, centre) : null;
             const link        = viewport ? Na__LeParamLink__Make(sheet, viewport) : Na__LeParamLink__MakeSheet(sheet);   // <-- Out of reach of any drawing: the sheet's scale

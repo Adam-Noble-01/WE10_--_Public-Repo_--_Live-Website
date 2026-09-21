@@ -60,6 +60,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.8.1
+// - Edges off with SEVERAL vectors selected takes the edges off and nothing
+//   else. It used to write a fill as well, so that no shape was left with
+//   nothing to show - but one fill colour for all of them, the new-shape
+//   default, which repainted every selected shape in it: select a floor's
+//   coloured rooms and a plain line, untick Edges, and every room came out
+//   the same blue. A shape with no fill of its own now keeps its edges, which
+//   the normaliser has always guaranteed. One vector selected is unchanged.
+//
 // 17-Sep-2026 - Version 1.8.0
 // - Several selected: the panel reads the first vector and writes all of them,
 //   the fill, gradient and dashed-edge rows included. Open or closed stays a
@@ -476,6 +485,13 @@
         Na__LePanels__OnControl('change', 'shape-stroked', (e, el) => {
             if (el.checked) { Na__LePanelShapes__Apply({ stroked : true }, { stroked : true }); return; }
             if (Na__LePanelShapes__Gradient().on) { Na__LePanelShapes__Apply({ stroked : false }, { stroked : false }); return; }   // <-- The gradient is the fill: a gradient alone is the fade
+            // SEVERAL SELECTED: the edges come off and nothing else changes. The
+            // fill written below is ONE colour - the new-shape default, as no one
+            // shape speaks for the rest - so it used to repaint every selected
+            // shape in it, a plan's coloured rooms included. A shape with no fill
+            // of its own keeps its edges instead: the normaliser never lets one
+            // go invisible.
+            if (!Na__LePanelShapes__Selected() && Na__LePanels__ApplyToSelection(Na__LeModel__GetActiveSheet(), 'shape', { stroked : false })) return;
             const colour = Na__LePanelShapes__FillColour();
             Na__LePanelShapes__Apply({ stroked : false, fillColour : colour }, { stroked : false, filled : true, fillColour : colour });   // <-- No edges left, so the fill comes on
         });
