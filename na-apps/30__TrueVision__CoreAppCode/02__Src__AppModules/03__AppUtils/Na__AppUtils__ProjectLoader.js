@@ -19,6 +19,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 2.0.1
+// - Project data is fetched with cache:'no-cache', so the browser's HTTP cache
+//   can never hand back a previous build's TrueVision__ProjectData__.json.
+//
 // 27-Feb-2026 - Version 2.0.0
 // - Rewritten to fetch TrueVision__ProjectData__.json from Cloudflare R2 CDN.
 // - Added Na__AppUtils__GetProjectFolderFromUrl() for ?project-folder= param.
@@ -144,7 +148,12 @@
 
         console.log(`[TrueVision3D] Fetching project data: ${dataUrl}`);
 
-        const response = await fetch(dataUrl);
+        // cache:'no-cache' makes the browser ask the CDN every time (a 304 when
+        // nothing changed). R2 sends no Cache-Control, so a plain fetch let the
+        // HTTP cache reuse an OLD project data for hours whenever the service
+        // worker was not in the way - and since the sync deletes GLBs the local
+        // folders dropped, that old copy points at files that are gone.
+        const response = await fetch(dataUrl, { cache : 'no-cache' });
         if (!response.ok) {
             throw new Error(`Failed to fetch TrueVision project data: ${response.status} ${response.statusText}`);
         }

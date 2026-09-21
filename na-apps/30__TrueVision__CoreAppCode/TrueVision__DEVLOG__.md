@@ -2,6 +2,26 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.139.1  -  21-Sep-2026
+### Project Data Is Always Asked of the CDN, So a Tab Never Runs on a Previous Build's Layer List
+
+**Overview**
+- Found chasing a 404 on RB05's `OsMappingMinorFeature` site plan layer. The CDN was right: today's 22:30 export
+  emptied that tag, the build dropped it, and the sync (which since d76d763 deletes GLBs the local folders no longer
+  hold) removed its GLB. The tab was still drawing from the 20-Sep project data - 15 layers, one of them gone, and
+  none of today's four new ones (OS Mapping Minor Streets, Grassland, Rough Grassland, Hard Standing).
+- That tab had most likely loaded before the sync, and a reload puts it right. But it exposed a real gap:
+  `Na__AppUtils__FetchTrueVisionProjectData` used a plain `fetch`, and R2 sends no Cache-Control. Whenever the service
+  worker was not handling the request (the first load after a worker update, or no worker at all), the browser could
+  reuse an old `TrueVision__ProjectData__.json` from its HTTP cache for hours by heuristic.
+
+**What changed**
+- `Na__AppUtils__ProjectLoader` 2.0.1: the project data fetch passes `cache: 'no-cache'`. The browser now revalidates
+  with the CDN every time (a 304 when nothing changed), matching the worker's own `no-store` network-first route.
+- No service worker bump. The old module only means one more load on the old behaviour, which the worker already
+  covers once it is in control.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.139.0  -  21-Sep-2026
 ### Round Up to 5 mm: a Dimension Can Show Its Figure Raised to the Next 5 mm, With an Asterisk to Say It Was Rounded
 
