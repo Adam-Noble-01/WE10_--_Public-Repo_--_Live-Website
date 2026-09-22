@@ -67,6 +67,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.15.0 (TrueVision)
+// - Hide swings. ForceRender, RenderForExport and RenderFogForExport draw the
+//   picture with Na__LeDoors__RasterLayers(viewport): the viewport's own model
+//   layers, plus the SketchUp door swing linework switched off while a plan
+//   hides its swings. The keys need nothing new - the definition's record
+//   hash already changes with the pose and the exclusion tokens.
+//
 // 21-Sep-2026 - Version 1.14.0 (TrueVision)
 // - GetSnapSource keys the viewport's turn (Viewport__RotationDeg) as well, so
 //   the snap index is built again when a viewport is turned; its window's
@@ -203,6 +210,7 @@
     import { Na__LeComposite__RasterToken } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
     import { Na__LeRaster__Get, Na__LeRaster__Working, Na__LeRaster__Export, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeDraft__IsOn } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__State__.js';
+    import { Na__LeDoors__RasterLayers } from './Na__LayoutEditor__PlanDoors__.js';   // <-- The model layers a plan's picture is drawn with: its own, less the door swing linework while it hides its swings
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Projected Linework (definitions, pipeline, owners)
@@ -542,7 +550,7 @@
             state.inFlight = true;
             let result = null;
             try {
-                result = await Na__LeSnap__Render2d(described.definition, window0, styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), phaseId);
+                result = await Na__LeSnap__Render2d(described.definition, window0, styles, px.w, px.h, Na__LeDoors__RasterLayers(viewport), px.samples, Na__LeVp2d__RasterWeights(viewport), phaseId);
             } finally {
                 state.inFlight = false;
             }
@@ -580,7 +588,7 @@
         if (!(await Na__LeSource__WaitFor(described.modelSource.renderId))) return null;   // <-- Its design phase, loaded first
         const frame = viewport.Viewport__FrameMm;
         const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());   // <-- Always the export level, whatever is on screen
-        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId);
+        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, Na__LeDoors__RasterLayers(viewport), px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId);
     }
     // ------------------------------------------------------------
 
@@ -605,7 +613,7 @@
         if (!(await Na__LeSource__WaitFor(described.modelSource.renderId))) return null;   // <-- Its design phase, loaded first
         const frame = viewport.Viewport__FrameMm;
         const px    = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Export());   // <-- The export level, as the picture under it
-        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId, undefined, fog.source);
+        return Na__LeSnap__Render2d(described.definition, described.window, viewport.Viewport__Styles, px.w, px.h, Na__LeDoors__RasterLayers(viewport), px.samples, Na__LeVp2d__RasterWeights(viewport), described.modelSource.renderId, undefined, fog.source);
     }
     // ------------------------------------------------------------
 

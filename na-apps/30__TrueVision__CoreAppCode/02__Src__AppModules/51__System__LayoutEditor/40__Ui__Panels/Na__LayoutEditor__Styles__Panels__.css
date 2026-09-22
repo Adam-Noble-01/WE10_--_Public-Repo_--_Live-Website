@@ -229,10 +229,41 @@
     padding                            : 3px 4px;
 }
 
+/* WRAPS rather than clips: the Scale row holds one button per locked scale
+   (four since 1:200 joined, six on a site plan viewport), and in a narrow
+   column the last of them would otherwise be cut off at the edge. Nothing
+   moves while the buttons fit on one line. */
 .na-le-toggle-group {
     display                            : flex;
     flex                               : 1 1 auto;
+    flex-wrap                          : wrap;
     gap                                : 4px;
+}
+
+/* THE SCALE BUTTONS SIT CLOSER TO THEIR WORDS, so 1:20, 1:50, 1:100 and 1:200
+   stay on one line in the panel's default 300 px column - scroll bar showing
+   or not - where the ordinary 6 px sides left the fourth 3 px short. */
+.na-le-toggle-group--tight .na-le-btn--toggle {
+    padding                            : 4px 3px;
+}
+
+/* A CHECKBOX AND ITS WORDS INSIDE A ROW, after the row's own control - the
+   Doors row's Hide swings, beside Open all. Its own label, so a click on
+   the words ticks it and a click on the row's caption does nothing. */
+.na-le-row__inline-check {
+    display                            : inline-flex;
+    flex                               : 0 0 auto;
+    align-items                        : center;
+    gap                                : 5px;
+    margin-left                        : 4px;
+    color                              : #555;
+    font-size                          : 0.74rem;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+}
+
+.na-le-row__inline-check .na-le-input--check:disabled {
+    cursor                             : default;
 }
 
 .na-le-bar {

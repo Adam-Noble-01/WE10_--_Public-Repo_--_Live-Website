@@ -256,7 +256,9 @@ The hangar helps explain why the site must be understood as an established group
 
 The particulars also report historic buried aviation fuel storage behind the hangar. Its current condition and relationship to any proposed groundworks require verification.
 
-[TO CONFIRM: whether the hangar and landing area are to be retained, adapted or removed; their measured extent and planning status; documentary confirmation of the reported design award; and the location and condition of remaining fuel infrastructure. No future aviation use or hangar demolition is assumed in this statement.]
+The proposed site plan continues to show the hangar and retains part of the existing landing strip. The connecting road is reconfigured and a privacy hedge is introduced along the hangar line. These changes are described at section 6.2.
+
+[TO CONFIRM: the precise retained extent of the landing strip and any works to the hangar; their measured extent and planning status; documentary confirmation of the reported design award; and the location and condition of remaining fuel infrastructure. Retention of surfacing does not establish a proposal for future aviation use.]
 
 <div style=" /* | - - - - - - - - - - - -->|  Horizontal Page Divider Line   |<-- - - - - - - - - - - - - - - - -|  */ 
     text-align           :     center;    
@@ -334,29 +336,55 @@ The particulars also report historic buried aviation fuel storage behind the han
 
 #### 6.2 |  The Proposed Site Plan And Arrival Sequence
 
-The site plan brings the replacement house and its ancillary buildings into a coherent estate composition. The existing house occupies the central developed area with the lake to its north west. The stable and service buildings sit beyond the house towards the north east while the helicopter hangar stands separately to the south west. The aerial photography and survey imagery show how these elements are held within an established framework of woodland and mature planting. That framework is the starting point for the proposal.
+The comparison between the existing site plan D50 and proposed site plan D51 explains the wider purpose of the scheme. The present layout connects the house with the stable group and helicopter hangar through a series of internal roads and paved spaces. The landing strip forms a strong linear feature beside the house. Internal fencing divides the ground between the dwelling and lake. These features reflect the way the holding has developed over time but do not establish a clear relationship between the principal entrance and the garden.
 
-The main house remains the focus of the residential group. The new carriage drive establishes its formal approach. The coach house provides a working route through to the stables and the oak carport accommodates covered parking beside the arrival space. Each element has a clear purpose and a clear place in the hierarchy. The intention is to make the holding work as a connected country house setting while concentrating intervention around its existing developed core.
+The proposed layout gives each part of the site a more distinct role. The horseshoe drive provides the formal arrival. A side route through the coach house serves the converted stables. Covered parking is set against the tree line away from the immediate entrance front. Behind the house the garden descends to a new swimming pool and then towards the existing lake. The result is an arrangement in which movement and outdoor use support the architecture of the replacement house.
 
-#### The Crescent Carriage Drive
+#### The Horseshoe Carriage Drive  -  SP02
 
-A new crescent shaped drive is proposed in front of the south east entrance elevation. Its horseshoe form gives the house a carriage entrance suited to its Georgian composition. The approach curves towards the principal door and then turns away again. It allows the entrance front to be understood as a complete elevation and gives the central doorway the prominence that the architecture intends.
+The proposed horseshoe drive turns towards the principal south east entrance and curves away again around a landscaped centre. This is an appropriate companion to the balanced Georgian elevation. The approach gives the central doorway a clear destination and presents the entrance front as a complete composition.
 
-The curve also offers a practical way of arranging arrival and departure without allowing the entire frontage to become an undifferentiated parking court. A landscaped centre would preserve a soft foreground to the stone elevation. The final width and turning geometry will be developed around the vehicles that need to use the drive. Its alignment will respond to surveyed levels and the root protection requirements of retained trees. The sketch establishes the design intention rather than a fixed engineering layout.
+The improvement is practical as well as architectural. Arrival and departure can be organised around a continuous curve while the central landscape prevents the frontage reading as one broad parking apron. The final geometry will be tested for the vehicles that need to use it. The merit at this stage lies in the clearer relationship between the route and the entrance rather than an unverified claim about traffic capacity or highway safety.
 
-#### The Side Entrance And Coach House Route
+#### The Coach House And Stable Access  -  SP03 And SP04
 
-A separate side route passes through the carriage arch of the new coach house and continues to the existing stable group. This gives the arch a genuine function within the site plan. It connects the formal arrival space with the buildings beyond and provides access to the applicants' proposed gym and working spaces without requiring circulation through the main house.
+A new side access roadway passes through the coach house carriage arch and continues around to the existing stables. The stables are to be restored and converted into the applicants' private gym together with a podcasting studio and office. This route gives those buildings a direct connection to the house and makes the carriage arch a working part of the site plan.
 
-The distinction between the formal entrance and the working side of the group is central to the design. The crescent addresses the Georgian house. The route through the coach house serves the quieter ancillary accommodation beyond. The architecture therefore explains how the estate is used rather than simply borrowing the appearance of a historic farmstead.
+Everyday access to the ancillary accommodation is therefore given its own legible route. The principal entrance retains its formal role while the coach house connects the arrival space to the useful buildings beyond. The arrangement reinforces the character of a country house with a working stable range and allows the existing outbuildings to remain part of the household's daily life.
 
-#### The Oak Carport
+#### The Landing Strip And Side Road  -  SP05 And SP06
 
-An oak framed carport is proposed to the left of the horseshoe drive when approaching the principal entrance. Its position places covered parking close to the house while keeping the central entrance composition visually clear. The intended character is that of a simple open cart shed with expressed timber posts and a restrained roof form.
+Part of the existing landing strip is to remain. The connecting road is reconfigured to meet the new horseshoe arrangement rather than retaining the existing circulation unchanged. This selective approach allows usable hard surfacing to be incorporated into the revised layout while giving the principal approach a form appropriate to the replacement house.
 
-Oak is appropriate to the hierarchy of the group. The main house is expressed in stone and classical detail. The carport can take the lighter and more utilitarian character of a rural ancillary building. Its scale and roofline should remain subordinate to the house so that parked vehicles and their shelter do not become the dominant feature of arrival.
+Between the hangar and the approach from Deans Lane a new side road passes through the tree line to serve the carport. This places additional parking off the direct entrance drive. The precise length of retained landing strip and the areas of removed or new surfacing remain to be identified. The proposal is not presented as a demonstrated reduction in total hardstanding until those areas have been measured.
 
-[TO CONFIRM: the coordinated site plan is to establish the crescent alignment and its connections to Deans Lane, including whether any new highway opening is proposed; carriage arch clearances and vehicle tracking; carport footprint, height, roof covering and number of bays; surface materials, drainage, levels and tree protection.]
+#### The Four-Car Timber Carport  -  SP07
+
+The applicants are considering a single storey carport for four cars against the tree line. The intended form is an open timber frame with substantial oak members under consideration. The sides remain open beneath a solid roof with a covering to match the house. Its detailed design is still to be agreed.
+
+This is a more discreet location for covered parking than the immediate entrance front. Cars can be accommodated beside the tree line while the horseshoe remains principally an arrival space. An open frame also allows the structure to read as a cart shed within the ancillary group. Matching the roof covering would connect it to the house without repeating the formal stone architecture of the principal elevation.
+
+The tree line provides the setting for the structure but its screening cannot be treated as justification for unspecified clearance. The carport footprint and side road will be developed together with the assessment of retained trees and their roots. The objective is a subordinate parking structure fitted into the edge of the developed area.
+
+#### The Pool And Falling Garden Levels  -  SP08 And SP09
+
+A new outdoor swimming pool is proposed behind the house between the rear elevation and the lake. Steps descend from the house towards the pool in response to the fall of the land. The change in level is therefore part of the garden sequence rather than something concealed by the site plan.
+
+This arrangement gives the rear rooms a direct relationship with a usable garden terrace and the wider landscape beyond. The pool occupies an intermediate position between the house and lake. The descent through the garden allows those spaces to have distinct levels while remaining visually connected. It provides a more purposeful setting for the garden elevation than the present division by internal fencing.
+
+Finished levels and the extent of any retaining work will be resolved through the detailed landscape design. The steps shown do not establish step-free access. An alternative accessible route and the treatment of pool edges remain matters to address as the design develops.
+
+#### The Privacy Hedge And Landscape Changes  -  SP10 To SP13
+
+A new privacy hedge is proposed along the hangar line. It will define the edge of the domestic garden and provide a planted separation from the hangar area. The intention is to soften that division through vegetation. Its eventual screening effect will depend on the chosen species and maintained height as well as the establishment of the planting.
+
+The internal fences identified for removal include the sports fence between the house and lake. Their removal opens the relationship between the rear garden and the water and allows the pool terrace to form part of one connected landscape. This proposal concerns internal divisions rather than the external boundaries of the holding.
+
+The treatment of the small pond in front of the house remains open for discussion with the applicant. Removal has been considered and relocation further towards the woodland is another possibility to investigate. Its connection to the watercourse has not yet been established. The proposed plan therefore does not settle the pond works. Any option will need to respond to the existing water system and the ecological and tree implications of its location. This small pond is distinct from the main lake which remains part of the landscape setting.
+
+The tree lines are adjusted locally to accommodate the revised layout. These changes should be expressed as individual retention and removal decisions supported by arboricultural assessment. The new route through the tree line makes that assessment particularly relevant. The scheme should preserve the enclosing landscape structure while resolving the specific interventions needed for access and parking.
+
+[TO CONFIRM: the full proposed site plan is to show the retained landing-strip extent, fence removals, the agreed front-pond treatment, privacy-hedge alignment and individual tree proposals. Drive connections to Deans Lane, vehicle tracking, carriage arch clearances, surfacing, drainage and carport dimensions remain to be coordinated. Pool and terrace levels, retaining edges, step-free access and plant location are to be developed. Hedge species, planting size, spacing and maintained height remain to be selected. Turbine symbols are to be added at verified existing positions; the supplied markup is not a measured location survey.]
 
 #### The Stables  -  Restoration And A New Domestic Purpose
 
@@ -364,7 +392,7 @@ The intention is to restore the stable group and bring it into use as a private 
 
 The case for restoration rests on that useful continuity. The stable group already occupies a recognisable place within the holding. Repair and adaptation would sustain that relationship while allowing the internal accommodation to meet the applicants' needs. The route through the coach house makes these spaces accessible as part of everyday life.
 
-Replacement is also being investigated pending the applicants' proposed visit to the building manufacturer. At this stage restoration is the stated intention and replacement remains an option to be evaluated. A decision will follow examination of the existing fabric and the manufacturer's proposals. The eventual scheme should make clear which buildings are retained and repaired and which, if any, are replaced.
+The current site proposal is restoration and conversion of the existing stables. The earlier investigation of a manufacturer and possible replacement remains separate from the scheme now described. Any alternative that emerges from that visit would need its own defined scope before it could replace the conversion proposal on the drawings.
 
 #### Bonni And The Construction Period
 
@@ -378,11 +406,11 @@ The distinction between temporary use and temporary construction is material. Bo
 
 [TO CONFIRM: that Bonni Outbuildings is the intended supplier; whether the construction-period use includes overnight living accommodation; whether the structure is separate from or replaces part of the stable group; its size, servicing and duration; and whether it will be removed or retained for an agreed ancillary use. The manufacturer's visit is pending. No product, residential suitability, acoustic performance or consent position is assumed.]
 
-#### A Coordinated Landscape Setting
+#### Why The Revised Layout Is Better
 
-The crescent and the ancillary buildings should be resolved together with the landscape. The aim is to retain the lake and the enclosing woodland as the dominant setting while giving the space immediately around the house a more legible order. The aerial markup is useful for understanding that intention but cannot establish the extent of tree work or the final area of hard surfacing. Those matters will be fixed through the coordinated site plan and supporting surveys.
+The improvement lies in the relationship between the parts. The front drive addresses the Georgian entrance. Parking sits to one side against the tree line. The coach house provides access to reused ancillary buildings. Behind the house the pool and steps make use of the falling ground while removal of internal fencing reconnects the garden with the lake. The privacy hedge provides a planted edge to the hangar area.
 
-The benefit of the arrangement is its clarity. Formal arrival belongs to the principal house. Covered parking sits to one side. The coach house provides the route to the restored or carefully reconsidered stable group. Together these moves allow the Georgian design to extend beyond the elevations into the way the site is approached and used.
+These are specific benefits of the arrangement rather than a general claim that more development improves the site. They give the existing landscape and outbuildings a clearer role in the life of the replacement house. The detailed design still needs to resolve the tree interventions and water relationships on which the success of that arrangement depends.
 
 #### 6.3 |  The Composition Of The Group
 
@@ -830,7 +858,11 @@ The carriage arch is not decorative. It carries the pedestrian and service route
 
 #### 8.1 |  Landscape Strategy And Visual Containment
 
-*[TO DRAFT  -  retention of the woodland structure and mature specimen planting, the treatment of the setting around the new house, and why the replacement will be no more visible in the wider landscape than the building it replaces]*
+The proposed landscape strategy gives the entrance and rear garden different roles. The horseshoe drive and recessed parking serve arrival while the pool terrace and retained lake form the principal garden sequence. Removal of the internal sports fence opens that relationship. A new privacy hedge along the hangar line provides a planted division to the side.
+
+The design retains the broader woodland setting as its organising framework while proposing local adjustments to tree lines. The side road and carport require those adjustments to be examined in detail. The site plan should distinguish retained trees from individual removals and show replacement planting where proposed. The aerial images establish the wooded character of the holding but do not demonstrate the absence of landscape effects.
+
+The main lake remains. The small front pond may be retained, removed or relocated towards the woodland following discussion with the applicant. Its connection to the watercourse needs to be established before an option is selected. Pond works and new surfacing need to be coordinated with ecological advice and the treatment of connected water and drainage. The detailed layout and reasons for it are set out at section 6.2 and recorded in site notes SP08 to SP13.
 
 #### 8.2 |  Trees And Ecology
 
@@ -866,11 +898,11 @@ The carriage arch is not decorative. It carries the pedestrian and service route
 
 #### 9.1 |  Vehicular Access And Parking
 
-The proposed access arrangement gives the house a formal crescent carriage drive and a separate side route through the coach house to the stable group. Covered parking is proposed in an oak framed carport to the left of the crescent on approach. These elements are described together at section 6.2 because their relationship is both practical and architectural.
+The revised access arrangement comprises the horseshoe carriage drive at the principal entrance and a side roadway through the coach house to the converted stables. A further side road between the hangar and the approach from Deans Lane serves the proposed four-car timber carport. Part of the existing landing strip is retained and its connecting road is reconfigured into the new arrangement.
 
-The crescent is intended to accommodate arrival and turning within the site. The side route provides access to the applicants' gym and studio spaces beyond the coach house. The detailed layout will need to demonstrate workable vehicle movements and suitable separation between vehicles and people using the entrances.
+The benefit is a clearer separation of formal arrival from covered parking and access to the ancillary accommodation. Parking is placed against the tree line off the direct entrance drive. The route through the coach house gives the gym and studios a direct connection without requiring passage through the main dwelling.
 
-[TO CONFIRM: how the proposed routes connect with the existing access from Deans Lane and whether a new highway opening is intended. Parking numbers, turning provision, carriage arch clearances and access for service and emergency vehicles are to be demonstrated on the coordinated site plan. No finding of unchanged highway conditions is made at this stage.]
+The carport remains indicative. Its four-car capacity is the brief rather than a verified bay layout. The coordinated drawings will demonstrate bay sizes and turning movements together with clearances through the carriage arch. The relationship with the highway entrance also remains to be confirmed. No new highway opening or finding of unchanged highway conditions is assumed from the internal site markup.
 
 #### 9.2 |  Inclusive Access
 

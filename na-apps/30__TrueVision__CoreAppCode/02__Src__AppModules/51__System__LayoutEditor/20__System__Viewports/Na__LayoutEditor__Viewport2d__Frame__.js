@@ -53,6 +53,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.4.0 (TrueVision)
+// - Hide swings. The debounced underlay and fog renders draw with
+//   Na__LeDoors__RasterLayers(viewport): the viewport's own model layers,
+//   plus the SketchUp door swing linework switched off while a plan hides its
+//   swings, so the picture drops them with the vectors.
+//
 // 21-Sep-2026 - Version 1.3.0 (TrueVision)
 // - Draft mode (K, Na__LayoutEditor__DraftMode__). A frame draws no raster
 //   picture in Draft, so it renders none: the two debounced schedulers drop a
@@ -103,6 +109,7 @@
     import { Na__PlCfg__GetLineworkModifiers } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__ConfigAccess__.js';
     import { Na__LeRaster__Working, Na__LeRaster__Fit } from './Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeDraft__IsOn } from '../26__System__DraftMode/Na__LayoutEditor__DraftMode__State__.js';
+    import { Na__LeDoors__RasterLayers } from './Na__LayoutEditor__PlanDoors__.js';   // <-- The model layers a plan's picture is drawn with: its own, less the door swing linework while it hides its swings
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport 2D Window and Depth Fog Units
@@ -312,7 +319,7 @@
             const px      = Na__LeRaster__Fit(frame.WidthMm, frame.HeightMm, Na__LeRaster__Working());   // <-- The global working level
             const windowSnapshot = described.window;
             state.inFlight = true;
-            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, args.viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(args.viewport), phaseId, () => !state.parked && !Na__LeDraft__IsOn()).then((result) => {   // <-- Still queued when its sheet is left, or when Draft goes on: skipped, not rendered for nobody
+            Na__LeSnap__Render2d(described.definition, windowSnapshot, args.viewport.Viewport__Styles, px.w, px.h, Na__LeDoors__RasterLayers(args.viewport), px.samples, Na__LeVp2d__RasterWeights(args.viewport), phaseId, () => !state.parked && !Na__LeDraft__IsOn()).then((result) => {   // <-- Still queued when its sheet is left, or when Draft goes on: skipped, not rendered for nobody
                 state.inFlight = false;
                 if (!state.parked && Na__LeVp2d__States.get(viewportId) !== state) return;   // <-- Released. A parked state keeps the picture it was already rendering
                 if (result) {
@@ -384,7 +391,7 @@
         const windowSnapshot = described.window;
 
         state.fogInFlight = true;
-        return Na__LeSnap__Render2d(described.definition, windowSnapshot, viewport.Viewport__Styles, px.w, px.h, viewport.Viewport__ModelLayers, px.samples, Na__LeVp2d__RasterWeights(viewport), phaseId, stillWanted, fog.source).then((result) => {
+        return Na__LeSnap__Render2d(described.definition, windowSnapshot, viewport.Viewport__Styles, px.w, px.h, Na__LeDoors__RasterLayers(viewport), px.samples, Na__LeVp2d__RasterWeights(viewport), phaseId, stillWanted, fog.source).then((result) => {
             state.fogInFlight = false;
             if (!state.parked && Na__LeVp2d__States.get(viewportId) !== state) return false;   // <-- Released. A parked state keeps the fog it was already rendering
             if (!result) return false;

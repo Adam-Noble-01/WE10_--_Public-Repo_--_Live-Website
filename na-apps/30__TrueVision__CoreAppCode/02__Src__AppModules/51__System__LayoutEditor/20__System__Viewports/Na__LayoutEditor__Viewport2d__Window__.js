@@ -45,6 +45,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.0 (TrueVision)
+// - Hide swings. A plan's definition carries the pose PoseFor gives it (no
+//   arcs while the viewport hides its swings) and SwingExcludeTokens beside
+//   the Model Layers tokens, so the SketchUp door swing linework goes too.
+//   Both are empty or unchanged on a plan that draws its swings, so every
+//   such definition hashes exactly as before.
+//
 // 21-Sep-2026 - Version 1.1.0 (TrueVision)
 // - A TURNED VIEWPORT (Viewport__RotationDeg). ToPaper and FromPaper carry the
 //   frame's turn about its middle, so the snap index, the door hit test and
@@ -69,7 +76,7 @@
     import { Na__LeModel__ResolveViewportSource } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSource__Resolve } from './Na__LayoutEditor__ModelSource__.js';
     import { Na__LeModelLayers__ExcludeTokens } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
-    import { Na__LeDoors__PoseFor, Na__LeDoors__ShutPoseFor } from './Na__LayoutEditor__PlanDoors__.js';
+    import { Na__LeDoors__PoseFor, Na__LeDoors__ShutPoseFor, Na__LeDoors__SwingExcludeTokens } from './Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeVpRot__Deg, Na__LeVpRot__TurnVector } from './Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the turn of the frame on the paper
     // ------------------------------------------------------------
 
@@ -149,9 +156,11 @@
         // A PLAN DRAWS ITS DOORS OPEN, bar the ones this viewport closed, AND AN
         // ELEVATION OR SECTION DRAWS EVERY DOOR SHUT, whatever the 3D view shows.
         // The pose is part of the definition, so it keys everything the
-        // definition keys.
+        // definition keys. A plan that hides its swings (a roof plan, unless
+        // told otherwise) traces no arc and leaves the SketchUp door swing
+        // linework out as well; one that draws them adds no token at all.
         const definition = source.plan
-            ? Na__PlView__FromPlan(source.plan, override, exclude, Na__LeDoors__PoseFor(viewport))
+            ? Na__PlView__FromPlan(source.plan, override, exclude.concat(Na__LeDoors__SwingExcludeTokens(viewport, source.plan)), Na__LeDoors__PoseFor(viewport, source.plan))
             : (source.elevation ? Na__PlView__FromElevation(source.elevation, override, exclude, Na__LeDoors__ShutPoseFor(viewport)) : null);
         return { source : source, definition : definition, window : Na__LeVp2d__Window(viewport), modelSource : Na__LeSource__Resolve(viewport) };
     }

@@ -32,6 +32,8 @@
 //                 ModelSourceId (a model group's groupId; null draws the Project Default),
 //                 ShowScaleLabel, ShowFrame (only ever false: the frame and caption hidden),
 //                 ClosedDoors (the door keys a plan draws shut; absent while every door is open),
+//                 HideSwings (a plan's door swings left off, true, or drawn, false, once
+//                 somebody has ticked or unticked; absent, a roof plan hides them),
 //                 SitePlan {} (only on a viewport drawing the site plan data: always 2D, no drawing id)
 //     Annotation  Annotation__Id, LayerId, Text, PosXMm, PosYMm, SizeMm,
 //                 FontWeight, Colour, Align, LeaderXMm, LeaderYMm,
@@ -121,6 +123,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.33.0
+// - The Viewport record lists HideSwings (Na__LayoutEditor__PlanDoors__), and
+//   the Viewports unit's UpdateViewport takes the hideSwings patch key. The
+//   API is unchanged.
+//
 // 21-Sep-2026 - Version 1.32.0
 // - Re-exports the Shapes unit's AnnounceShapes and the Groups unit's
 //   AddGroupMember, for the vector tools (37__System__VectorTools).

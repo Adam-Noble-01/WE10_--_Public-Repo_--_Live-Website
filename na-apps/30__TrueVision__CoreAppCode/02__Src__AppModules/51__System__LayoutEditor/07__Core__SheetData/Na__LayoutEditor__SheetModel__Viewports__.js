@@ -38,12 +38,17 @@
 // PORT NOTE:
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
-// - Divergences   : header and folder numbers; site plan viewports, TrueVision first (IsSitePlanViewport is TrueVision only; UpdateViewport and ResolveViewportSource handle them), InsertViewport's silent flag, CreateViewport's modelSourceId, sitePlan and modelLayers options, and UpdateViewport's showFrame, closedDoors and modelSourceId keys.
+// - Divergences   : header and folder numbers; site plan viewports, TrueVision first (IsSitePlanViewport is TrueVision only; UpdateViewport and ResolveViewportSource handle them), InsertViewport's silent flag, CreateViewport's modelSourceId, sitePlan and modelLayers options, and UpdateViewport's showFrame, closedDoors, hideSwings and modelSourceId keys.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0 (TrueVision)
+// - Hide swings: UpdateViewport takes hideSwings - true or false stores a
+//   tick or an untick (Viewport__HideSwings), null removes it so the plan's
+//   storey decides again (Na__LayoutEditor__PlanDoors__).
+//
 // 21-Sep-2026 - Version 1.2.0 (TrueVision)
 // - Rotation: UpdateViewport takes rotationDeg and CreateViewport the option of
 //   the same name (Viewport__RotationDeg, degrees clockwise about the middle of
@@ -257,7 +262,7 @@
     // patch: { rect, scaleDenominator, pan, imageMm, imageOffset, imageZoom, styles, modelLayers,
     //          projectedEdges, compositeWeights, markupMode, name, layerId,
     //          sceneId, drawingId, kind, showScaleLabel, showFrame, locked, snapshotAsset, modelSourceId,
-    //          closedDoors, rotationDeg }
+    //          closedDoors, hideSwings (true / false, or null for the plan's storey to decide), rotationDeg }
     // silent: true skips the change event (live drags announce on release).
     // ------------------------------------------------------------
     function Na__LeModel__UpdateViewport(sheet, viewportId, patch, silent) {
@@ -317,6 +322,8 @@
         if (typeof patch.showScaleLabel === 'boolean') viewport.Viewport__ShowScaleLabel = patch.showScaleLabel;
         if (typeof patch.showFrame === 'boolean') viewport.Viewport__ShowFrame = patch.showFrame;   // <-- The normaliser keeps only false
         if (Array.isArray(patch.closedDoors)) viewport.Viewport__ClosedDoors = patch.closedDoors.slice();   // <-- The normaliser sorts it and drops an empty list
+        if (typeof patch.hideSwings === 'boolean') viewport.Viewport__HideSwings = patch.hideSwings;   // <-- A tick or an untick, kept either way
+        else if (patch.hideSwings === null) delete viewport.Viewport__HideSwings;                   // <-- Back to following the plan's storey
         if (typeof patch.locked === 'boolean') viewport.Viewport__Locked = patch.locked;
         if (patch.snapshotAsset !== undefined) viewport.Viewport__SnapshotAsset = patch.snapshotAsset;
         if (patch.modelSourceId !== undefined) viewport.Viewport__ModelSourceId = patch.modelSourceId || null;   // <-- The design phase drawn; empty is the Project Default

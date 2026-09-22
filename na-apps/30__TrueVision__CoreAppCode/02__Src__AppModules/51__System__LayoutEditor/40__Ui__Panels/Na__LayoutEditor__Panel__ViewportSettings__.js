@@ -16,7 +16,8 @@
 // - Model Source (TrueVision): on a project with more than one design phase,
 //   which phase the viewport draws - for the selected viewport, and for the
 //   next one added. Hidden on a project with a single model.
-// - Scale is a three-way toggle (D27) on 2D viewports; the frame and pan
+// - Scale is a row of toggle buttons (D27) on 2D viewports, one per locked
+//   scale - 1:20, 1:50, 1:100 and 1:200 as shipped; the frame and pan
 //   readouts are editable numbers in paper and drawing millimetres; the
 //   markup mode switch, Import From Scene and Edit In Drawing implement
 //   D34 (editing of scene markup happens in the drawing itself).
@@ -34,7 +35,9 @@
 //   hides the caption alone, so it only counts while the frame shows.
 // - Doors (plans only) says how many doors the viewport draws shut - a plan
 //   draws the rest open - and Open all puts every one back. A door is shut or
-//   opened by clicking it on the plan (Na__LayoutEditor__PlanDoors__).
+//   opened by clicking it on the plan (Na__LayoutEditor__PlanDoors__). Hide
+//   swings, beside Open all, leaves every door swing off the plan; a roof
+//   plan starts with it ticked, and the note says so.
 //
 // INTEGRATION:
 // - Registered into the right column by the mode controller, which also
@@ -52,6 +55,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0 (TrueVision)
+// - Hide swings: a checkbox on the Doors row, beside Open all. Ticked, the
+//   plan draws no door swing (Viewport__HideSwings, one undo step, through
+//   Na__LeDoors__SetSwingsHidden). While nobody has ticked or unticked it the
+//   plan's storey decides - a roof plan reads ticked - and the doors note adds
+//   "Swings are hidden by default on a roof plan." Greyed out only when the
+//   panel is read only: a lock holds the frame, not the doors.
+// - Scale gains 1:200 from the config list; nothing here names a scale.
+//
 // 21-Sep-2026 - Version 1.8.0 (TrueVision)
 // - Rotation deg under Frame mm: a number box for the viewport's turn (to a
 //   decimal place, wrapped into -180 to 180, one undo step), -90 and +90 for a
@@ -144,7 +156,14 @@
     import { Na__LeRaster__LEVELS, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeMarkup__ImportFromScene } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeClip__IsCopyName } from '../20__System__Viewports/Na__LayoutEditor__ViewportClipboard__.js';
-    import { Na__LeDoors__IsPlan, Na__LeDoors__ClosedCount, Na__LeDoors__OpenAll } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
+    import {
+        Na__LeDoors__SWINGS_FIELD,
+        Na__LeDoors__IsPlan,
+        Na__LeDoors__ClosedCount,
+        Na__LeDoors__OpenAll,
+        Na__LeDoors__SwingsHidden,
+        Na__LeDoors__SetSwingsHidden
+    } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import {
         Na__SpStore__CHANGED_EVENT,
         Na__SpStore__STATUS_READY,
@@ -178,6 +197,7 @@
     import { Na__PresentationMode__ProjectJson__GetActiveConfig } from '../../21__System__PresentationMode/Na__PresentationMode__ProjectJson__SceneData.js';
     import { Na__PresentationMode__SceneGroups__GetEnabledGroups, Na__PresentationMode__SceneGroups__GetScenesInGroup } from '../../21__System__PresentationMode/Na__PresentationMode__SceneGroups__Data__.js';
     import { Na__DrawData__IsFloorPlanScene, Na__DrawData__IsElevationScene, Na__DrawData__SCENE_PLAN_ID_KEY, Na__DrawData__SCENE_ELEVATION_ID_KEY } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__FpData__GetStoreyLevel } from '../../42__System__FloorPlanViews/Na__FloorPlan__ProjectJson__Data__.js';   // <-- The storey named in the Doors note when it hides the swings
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -446,7 +466,7 @@
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('LayerLabel', 'Layer'), Na__LePanels__Select('vp-layer', [], '')));
 
         const scale = document.createElement('div');
-        scale.className = 'na-le-toggle-group';
+        scale.className = 'na-le-toggle-group na-le-toggle-group--tight';     // <-- Four scales on one line in the default column
         scale.setAttribute('data-na-block', 'scale');
         Na__LeScale__ListDenominators().forEach((d) => scale.appendChild(Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d)));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ScaleLabel', 'Scale'), scale));
@@ -461,7 +481,7 @@
         sitePlanTypeRow.setAttribute('data-na-block', 'siteplan-type-row');
         edit.appendChild(sitePlanTypeRow);
         const sitePlanScale = document.createElement('div');                     // <-- A site plan viewport's own toggle: 1:500 and 1:1250
-        sitePlanScale.className = 'na-le-toggle-group';
+        sitePlanScale.className = 'na-le-toggle-group na-le-toggle-group--tight';
         sitePlanScale.setAttribute('data-na-block', 'scale-siteplan');
         Na__LeScale__ListDenominators(true).forEach((d) => sitePlanScale.appendChild(Na__LePanels__Button(Na__LeScale__FormatLabel(d), 'vp-scale', 'na-le-btn--toggle', d)));
         edit.appendChild(Na__LePanels__Row(Na__LeCfg__GetLabel('ScaleLabel', 'Scale'), sitePlanScale));
@@ -547,6 +567,19 @@
         doorsCaption.textContent = Na__LeCfg__GetLabel('DoorsLabel', 'Doors');
         doorsRow.appendChild(doorsCaption);
         if (editable) doorsRow.appendChild(Na__LePanels__Button(Na__LeCfg__GetLabel('DoorsOpenAll', 'Open all'), 'vp-doors-open-all', 'na-le-btn--small'));
+        // HIDE SWINGS | Beside Open all, on the row where the doors are set:
+        // every door swing left off this plan. A roof plan starts ticked. Its
+        // own small label round the box and its words, so a click on either
+        // ticks it and a click on the row's caption still does nothing.
+        const hideSwings = document.createElement('label');
+        hideSwings.className = 'na-le-row__inline-check';
+        hideSwings.setAttribute('data-na-block', 'hide-swings');
+        hideSwings.title = Na__LeCfg__GetLabel('DoorsHideSwingsTitle', 'Leave every door swing off this plan - the arcs and any door swing linework - on the sheet and in the PDF. The doors still draw open and still close with a click. A roof plan starts with it ticked.');
+        hideSwings.appendChild(Na__LePanels__Input('checkbox', 'vp-hide-swings'));
+        const hideSwingsText = document.createElement('span');
+        hideSwingsText.textContent = Na__LeCfg__GetLabel('DoorsHideSwings', 'Hide swings');
+        hideSwings.appendChild(hideSwingsText);
+        doorsRow.appendChild(hideSwings);
         edit.appendChild(doorsRow);
         const doorsNote = Na__LePanels__Note('');
         doorsNote.setAttribute('data-na-block', 'doors-note');
@@ -713,12 +746,24 @@
         if (doorsRow) doorsRow.hidden = !isPlan;
         const openAll = editBlock.querySelector('[data-na-control="vp-doors-open-all"]');
         if (openAll) openAll.disabled = !Na__LePanels__IsEditable() || shutCount === 0;   // <-- A lock holds the frame, not the doors
+        // HIDE SWINGS | The tick, or the plan's storey while nobody has ticked:
+        // a roof plan reads ticked, and the note says why.
+        const plan         = isPlan ? Na__LeModel__ResolveViewportSource(viewport).plan : null;
+        const swingsHidden = isPlan && Na__LeDoors__SwingsHidden(viewport, plan);
+        const byStorey     = swingsHidden && typeof viewport[Na__LeDoors__SWINGS_FIELD] !== 'boolean';
+        const hideSwings   = editBlock.querySelector('[data-na-control="vp-hide-swings"]');
+        if (hideSwings) {
+            hideSwings.checked  = swingsHidden;
+            hideSwings.disabled = !Na__LePanels__IsEditable();                   // <-- A lock holds the frame, not the doors
+        }
         const doorsNote = editBlock.querySelector('[data-na-block="doors-note"]');
         if (doorsNote) {
+            const storey = byStorey ? Na__FpData__GetStoreyLevel(plan) : null;
             doorsNote.hidden      = !isPlan;
-            doorsNote.textContent = shutCount === 0
+            doorsNote.textContent = (shutCount === 0
                 ? Na__LeCfg__GetLabel('DoorsAllOpen', 'Every door is drawn open. With the viewport selected, click a door on the plan to close it.')
-                : Na__LeCfg__FormatLabel('DoorsSomeClosed', '{count} closed. Click a door on the plan to open or close it.', { count : shutCount });
+                : Na__LeCfg__FormatLabel('DoorsSomeClosed', '{count} closed. Click a door on the plan to open or close it.', { count : shutCount }))
+                + (byStorey ? ' ' + Na__LeCfg__FormatLabel('DoorsSwingsHiddenByStorey', 'Swings are hidden by default on a {storey}.', { storey : storey ? storey.label.toLowerCase() : 'roof plan' }) : '');
         }
         const actions = editBlock.querySelector('[data-na-block="actions2d"]');
         if (actions) actions.hidden = !is2d || isSitePlan;
@@ -833,6 +878,11 @@
         Na__LePanels__OnControl('change', 'vp-caption', (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { showScaleLabel : el.checked }); });
         Na__LePanels__OnControl('change', 'vp-locked',  (e, el) => { const c = Na__LePanelViewport__Current(); if (c) Na__LeModel__UpdateViewport(c.sheet, c.viewport.Viewport__Id, { locked : el.checked }); });
         Na__LePanels__OnControl('click', 'vp-doors-open-all', () => { const c = Na__LePanelViewport__Current(); if (c) Na__LeDoors__OpenAll(c.sheet, c.viewport.Viewport__Id); });
+        Na__LePanels__OnControl('change', 'vp-hide-swings', (e, el) => {
+            const c = Na__LePanelViewport__Current();
+            if (!c) return;
+            if (!Na__LeDoors__SetSwingsHidden(c.sheet, c.viewport.Viewport__Id, el.checked)) el.checked = Na__LeDoors__SwingsHidden(c.viewport);   // <-- One undo step; nothing changed, the box shows what the plan draws
+        });
         Na__LePanels__OnControl('click', 'vp-import', () => {
             const c = Na__LePanelViewport__Current();
             if (!c || c.viewport.Viewport__Kind !== Na__LeModel__KIND_2D || Na__LeModel__IsSitePlanViewport(c.viewport)) return;

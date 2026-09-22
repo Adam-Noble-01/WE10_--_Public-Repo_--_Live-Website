@@ -2,6 +2,112 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.140.0  -  22-Sep-2026
+### Hide Swings: a Roof Plan No Longer Draws the Top Storey's Door Swings Over Its Roof - and 1:200 Joins the Scales
+
+**Overview**
+- From Adam, with RB05 D12's roof plan viewport circled where two faint arcs sat on the roof, an arrow from them to
+  the Scene row ("Floor Plans: Roof Plan") and "HIDE Swings" written beside the Doors row's Open all: "Add a hide swings
+  toggle in the drawing layout editor. It should be off by default, but on roof plans, enable it by default ... Secondly,
+  add an additional scale. I need 1:200 scale."
+- WHAT THE ARCS WERE (measured on RB05, not guessed). The Roof Plan is cut at 11,500 mm. The v2.105.0 storey band puts
+  that cut on the SECOND FLOOR (floor 7.5 m), so the six second floor interior doors ADR004-ADR009 stand open, and their
+  traced swings - 108 segments, 18 a door - join the drawing AFTER the occlusion clip, so no roof hides them. RB05 has
+  no SketchUp door swing linework GLB at all today; it was only ever the traced arcs.
+- HOW IT IS USED. The Doors row of the Viewport panel now reads **Doors - Open all - [ ] Hide swings**. Ticked, that
+  plan viewport draws no door swing anywhere: not on the sheet, not in the base image, not in the PDF. The doors still
+  draw open and still close with a click on the leaf. One undo step either way.
+- IT IS OFF BY DEFAULT, EXCEPT ON A ROOF PLAN. A plan viewport nobody has ticked or unticked follows its plan's STOREY
+  (v2.87.0: the one picked in Dev Tools > Floor Plans, else the guess from the plan's name, then its cut height). A
+  roof plan reads ticked, and the doors note adds "Swings are hidden by default on a roof plan." So Adam's existing
+  D12 viewport is fixed on the next load without anyone touching it, and a plan that is renamed or re-storeyed as a roof
+  plan follows. On RB05 only the Roof Plan (FloorPlan_004) is affected; the ground, first and second floor plans draw
+  their swings exactly as before.
+- 1:200. The Scale row is now **1:20 - 1:50 - 1:100 - 1:200**. A 1:200 viewport shows twice the building of a 1:100
+  one in the same frame, its caption and the title block say 1:200 ("1:100 & 1:200 @ ISO A2" on a mixed sheet), and a
+  saved 1:200 viewport keeps its scale on load (it used to be coerced to 1:50). The parametric scale bar already had a
+  1:200 row (a 100 mm bar, 25 mm divisions), so a Drawing Title tied to a 1:200 viewport draws it.
+
+**How it works**
+- THE RECORD. `Viewport__HideSwings`: `true` (ticked) or `false` (unticked), written only once somebody clicks the box,
+  kept either way. Absent, the storey decides. `NormaliseViewport` keeps it only as a boolean and never adds it, so
+  every viewport saved before today loads byte-identical. `UpdateViewport` takes `hideSwings` (`null` hands the choice
+  back to the storey).
+- ONE MODULE ANSWERS IT: `Na__LayoutEditor__PlanDoors__` 1.3.0.
+  - `SwingsHidden(viewport, plan)` - the tick, else `SwingsHiddenByDefault` (the plan's storey key in the config's
+    `HideSwingsOnStoreys`).
+  - `PoseFor` turns the pose's `Swings` off, so `Na__PlDoors__SwingEdges` traces no arc. The pose is in the
+    definition's record hash and the linework collection key, so the drawing re-projects rather than reusing a cache.
+  - `SwingExcludeTokens` adds `=TrueVision__Linetype__DoorSwings` (the config's `SwingCategoryKeys`) to the plan's
+    exclusion tokens - the SketchUp door swing linework is drawn as authored and never clipped, so hiding only the
+    traced arcs would have left it standing on a project that exports it. No repo project does today (RB05's GLB went
+    with its 21-Sep export; the other mentions in its data are old 3D scene visibility entries), so on today's data
+    this half changes nothing - it is there for the next project whose model carries the 02__Linetype__DoorSwings tag.
+  - `RasterLayers` is the model layers map the base image is drawn with: the viewport's own, plus that category off.
+    All five `Na__LeSnap__Render2d` call sites use it (Viewport2d ForceRender, RenderForExport, RenderFogForExport;
+    Frame's debounced underlay and fog), so the picture drops what the vectors drop - the trap where "the setting does
+    nothing" because the lines on screen are the raster. It hands back the viewport's own map, untouched, whenever there
+    is nothing to add.
+  - `SetSwingsHidden` is the panel's one undo step; nothing is written when the plan already draws that way.
+  - Only a plan that draws its doors open has swings to hide: a stale tick on a viewport since moved to an elevation or
+    a 3D scene does nothing there.
+- THE CLICK. `Na__PlDoors__HitTest` (DoorPose 1.3.0) leaves out the ground a swing covers when the pose draws no swings,
+  so a click on the bare roof where an arc used to be no longer opens or shuts the door under it. The leaf still answers.
+- THE SCALES. `LayoutEditor__Scales__AvailableScaleDenominators` is `[20, 50, 100, 200]`, and the fallback in
+  `ConfigState__SheetSetup__` matches it. The fallback matters: with the config unreadable, a saved 1:200 viewport would
+  otherwise be coerced to 1:50 on load and could be auto-saved that way. Nothing else names a scale: the swept code has
+  no scale threshold 200 falls on the wrong side of, and "site plan" is always the viewport's marker, never its scale.
+- THE PANEL. The scale buttons wrap rather than clip, and the scale row's buttons are 3 px a side instead of 6, so all
+  four sit on one line in the default 300 px column, scroll bar or not (at 6 px the fourth was 3 px short).
+
+**What changed**
+- `20__System__Viewports/Na__LayoutEditor__PlanDoors__` 1.3.0: the Hide Swings region (SwingsHiddenByDefault,
+  SwingsHidden, SwingExcludeTokens, RasterLayers, SetSwingsHidden, SWINGS_FIELD); PoseFor takes the plan and turns the
+  arcs off. Imports `Na__FpData__GetStoreyLevel`.
+- `Viewport2d__Window__` 1.2.0 (Describe: the pose and the tokens), `Viewport2d__` 1.15.0 and `Viewport2d__Frame__` 1.4.0
+  (RasterLayers at the five render calls).
+- `40__Ui__Panels/Na__LayoutEditor__Panel__ViewportSettings__` 1.9.0 (the checkbox, the note, the handler, the tight
+  scale groups) and `Na__LayoutEditor__Styles__Panels__.css` (`.na-le-row__inline-check`, the wrapping toggle group,
+  `.na-le-toggle-group--tight`).
+- `SheetRecords__` 1.34.0, `SheetModel__Viewports__` 1.3.0, `SheetModel__` 1.33.0 (the record key and the patch key).
+- `ConfigState__SheetSetup__` 1.9.0: `GetPlanDoorsSetup` answers `hideSwingsOnStoreys` and `swingCategoryKeys`; the
+  scales fallback has 1:200. An EMPTY list in the config is kept empty (nothing hidden by default).
+- Config (`Na__LayoutEditor__AppConfig__.json`): PlanDoors `HideSwingsOnStoreys` `["roof"]`, `SwingCategoryKeys`
+  `["TrueVision__Linetype__DoorSwings"]` and a `HideSwingsNote`; Labels `DoorsHideSwings`, `DoorsHideSwingsTitle`,
+  `DoorsSwingsHiddenByStorey`; Scales list `[20, 50, 100, 200]` and its description. The scale bar config's menu note
+  now says the first four are the architectural scales.
+- `50__System__ProjectedLinework/Na__ProjectedLinework__DoorPose__` 1.3.0 (the hit test), `ScaleManager__` 1.2.1
+  (comments only).
+- Service worker token `2026-09-22-1`: four modules import names no warm copy of PlanDoors exports.
+
+**How it was proved**
+- `Na__Test__HideSwings__.test.mjs`, NEW, 47 checks on the shipped modules (config readers on the shipped JSON, the
+  ScaleManager, the SheetRecords normaliser, the Viewports unit's UpdateViewport, PlanDoors) with RB05's four plans as
+  fixture: only the Roof Plan hides by default; a tick and an untick stand; an untick of what is already drawn costs no
+  undo step; null gives the choice back; a pick in Dev Tools beats the name; an unhelpfully named plan cut above 6.8 m
+  is a roof plan by height; DrawSwings off, an empty storey list and OpenOnPlans off each behave; 1:200 is kept, labelled
+  and converted; a pre-existing viewport loads byte-identical. `Na__Verify__Exports__.mjs` passes (488 files); every
+  other Node suite passes except `Na__Test__GroupMoveSnapping__.test.cjs`, which already failed on
+  `Na__LeVpRot__Bounds is not defined` - its snap bundle has no stub for the v2.138.0 rotation leaf.
+- In the app on RB05 (fresh modules, a fetch guard refusing every write - none was attempted):
+  - D12's viewport (FloorPlan_004, Roof Plan) projects 4,474 segments with no swing; drawn with its swings it is
+    4,582, 108 of them arcs. A multiset diff of every class: the 108 arcs are the ONLY difference. The other four plan
+    viewports are unchanged (same pose, no new token, same hash).
+  - The panel: Doors - Open all - Hide swings, ticked, with the roof plan note. A click on the words unticked it (stored
+    false, arcs back, note shortened); undo, redo and undo again put the record back byte-identical. The 1:200 button
+    set 1:200 (the window doubled to 96,557 mm) and undid cleanly.
+  - The click test: a click mid-arc on each of the six doors hit its door with swings drawn, and nothing with them
+    hidden.
+
+**NOT done, and worth knowing**
+- Clearance lines (`TrueVision__Linetype__ClearanceLines`) are NOT hidden by Hide swings. They are storey-bound like
+  the swing linework and would show through a roof in the same way on a project that has them. Adding the key to
+  `SwingCategoryKeys` would take them off with the swings.
+- The right-click menu has no Hide swings row; it is the panel's checkbox only.
+- A sheet using all four scales prints "As shown" in the title block's Scale cell (`SheetLabelMaxScales` is 3).
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.139.1  -  21-Sep-2026
 ### Project Data Is Always Asked of the CDN, So a Tab Never Runs on a Previous Build's Layer List
 

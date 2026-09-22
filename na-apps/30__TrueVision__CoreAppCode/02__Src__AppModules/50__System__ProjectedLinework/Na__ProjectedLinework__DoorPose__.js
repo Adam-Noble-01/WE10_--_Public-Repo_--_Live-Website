@@ -62,6 +62,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0
+// - HitTest leaves out the ground a swing covers when the pose draws no swings
+//   (Swings false: the Layout Editor's Hide swings, or DrawSwings off), so a
+//   click where no arc is drawn does not open or shut the door beside it. The
+//   leaf, open or shut, still answers.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - One storey per plan. StoreySamples measures where each door stands (the
 //   bottom of its ADR group, cached per door) and which Storey__ group it is
@@ -718,7 +724,8 @@
     // pointMm and toleranceMm are drawing millimetres; scaleDivisor is the
     // projector's scene-to-drawing divisor. A shut leaf answers where it stands;
     // an open one where it stands open, where it would stand shut, and the ground
-    // its swing covers. Returns { Key, AdrName, Closed, Independent, PanelKeys }
+    // its swing covers - while the plan draws its swings (the pose's Swings).
+    // Returns { Key, AdrName, Closed, Independent, PanelKeys }
     // for the nearest door within the tolerance, or null - always null for the
     // shut pose, whose doors are not there to be opened, and for a door on a
     // storey other than the one the plan is cut through, whose swing the plan
@@ -747,7 +754,7 @@
                 let score = Na__PlDoors__DistanceTo(Na__PlDoors__LeafOutline(panel, leaf, 0, viewMap, scaleDivisor), pointMm);
                 if (panel.type !== Na__DoorAnim__MOD_TYPE_FIXED && !closed) {
                     score = Math.min(score, Na__PlDoors__DistanceTo(Na__PlDoors__LeafOutline(panel, leaf, 1, viewMap, scaleDivisor), pointMm));
-                    if (hinged && panel.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY && leaf.TipLocal) {
+                    if (hinged && panel.type === Na__DoorAnim__MOD_TYPE_ROT_ONLY && leaf.TipLocal && pose.Swings !== false) {   // <-- A swing the plan does not draw is not there to be clicked
                         score = Math.min(score, Na__PlDoors__DistanceTo(Na__PlDoors__SweepOutline(panel, leaf, pose, viewMap, scaleDivisor), pointMm) + Na__PlDoors__SWEEP_BIAS_MM);
                     }
                 }

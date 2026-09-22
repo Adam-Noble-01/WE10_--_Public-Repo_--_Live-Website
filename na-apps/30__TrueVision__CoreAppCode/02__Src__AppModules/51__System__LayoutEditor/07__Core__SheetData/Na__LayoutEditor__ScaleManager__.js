@@ -11,10 +11,11 @@
 //
 // DESCRIPTION:
 // - A 2D viewport quotes one denominator from the configured list (D27:
-//   1:20, 1:50, 1:100). Everything about how much model a frame shows comes
-//   from that one number: a frame of W paper mm at 1:N shows W x N model mm.
+//   1:20, 1:50, 1:100, 1:200). Everything about how much model a frame shows
+//   comes from that one number: a frame of W paper mm at 1:N shows W x N
+//   model mm.
 // - Joinery staff read drawings with a scale rule, so a free factor is never
-//   offered; the three-way toggle steps through the list.
+//   offered; the Viewport panel's toggle buttons step through the list.
 // - A site plan viewport has a list of its own, 1:500 and 1:1250 (Scales
 //   SitePlanScaleDenominators), and is never coerced onto the architectural one.
 //
@@ -33,6 +34,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.2.1 (TrueVision)
+// - 1:200 joins the architectural list (Scales AvailableScaleDenominators and
+//   its fallback). No code here changes: every function reads the list.
+//
 // 17-Sep-2026 - Version 1.2.0
 // - SheetLabel names the paper the scale is true at, and lists a mix rather than
 //   hiding it. "1:50 @ ISO A2"; "1:50 & 1:100 @ ISO A2" where the viewports on a

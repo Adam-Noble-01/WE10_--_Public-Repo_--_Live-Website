@@ -33,6 +33,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.34.0
+// - Viewport__HideSwings: the Viewport panel's Hide swings on a plan
+//   (Na__LayoutEditor__PlanDoors__). NormaliseViewport keeps it only as a
+//   boolean - a tick or an untick somebody made - and never adds it, so a
+//   viewport saved before it is exactly what it was and follows its plan's
+//   storey (a roof plan hides its swings).
+//
 // 21-Sep-2026 - Version 1.33.0
 // - Dimension__RoundUp: the Dimensions panel's Round up to 5 mm
 //   (Na__LayoutEditor__DimensionRounding__). NormaliseDimension keeps it only
@@ -952,6 +959,12 @@
             : [];
         if (closedDoors.length > 0) viewport.Viewport__ClosedDoors = closedDoors;
         else delete viewport.Viewport__ClosedDoors;
+        // HIDE SWINGS | A plan viewport's door swings left off (true) or drawn
+        // (false), kept only once somebody has ticked or unticked the box.
+        // Absent, the plan's storey decides (Na__LayoutEditor__PlanDoors__: a
+        // roof plan hides them), so a viewport nobody has touched is unchanged
+        // by a load and goes on following its plan.
+        if (typeof viewport.Viewport__HideSwings !== 'boolean') delete viewport.Viewport__HideSwings;
         // SNAPSHOT ASSET | { Asset__Path, Asset__Fingerprint, Asset__PixelWidth,
         // Asset__Samples }. The width says how big the stored picture is, so a
         // stored picture that is too small for the working level is re-rendered

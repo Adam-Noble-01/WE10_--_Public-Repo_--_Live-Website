@@ -398,6 +398,62 @@ const EX = tags.ExportExclusions
 check('the new tags are in BOTH exclusion lists (the model export never writes them; Edge Paint leaves their edges alone)',
   [GRASS_TAG, ROUGH_TAG, sp[DRIVE_TAGS[0]], sp[PAVING_TAGS[0]]].map((t) => [EX.FullyExcludedTagNames.includes(t.Tag__SketchUpName), EX.AdvancedSwapOffTagNames.includes(t.Tag__SketchUpName)]),
   [[true, true], [true, true], [true, true], [true, true]])
+// ---- still water and removed hard surfaces (22-Sep-2026) --------------------------
+// Adam: "Add a still water because I've got a pool to do on this project. Use the water
+// texture we've already used, but just without the hatching." And: "a new tag for
+// 74__SitePlan__ExternalWorks__HardSurfaces__Removed ... paths, roads, etc., that are being
+// removed from within the site, so this should be a mid-grey dotted line."
+const STILL   = sp['74__SitePlan__ExternalWorks__StillWater']
+const WATER   = sp['71__SitePlan__BaseMap__Waterbodies']
+const REMOVED = sp['74__SitePlan__ExternalWorks__HardSurfaces__Removed']
+check('Still Water washes in the SAME water blue as Waterbodies, with NO ripple hatch, level with it at fill Z 4',
+  [STILL && STILL.SitePlan__FillMaterialId === WATER.SitePlan__FillMaterialId, STILL && STILL.SitePlan__FillHatchId, STILL && STILL.SitePlan__ExportFills, STILL && STILL.SitePlan__ZIndexFill],
+  [true, null, true, 4])
+check('and its edges draw exactly like Waterbodies', STILL && lineOf(STILL), lineOf(WATER))
+check('Hard Surfaces To Be Removed is a MID GREY DOTTED line, and no fill',
+  REMOVED && [REMOVED.SitePlan__LineColourId, REMOVED.SitePlan__LineType, REMOVED.SitePlan__ExportFills, REMOVED.SitePlan__FillMaterialId, REMOVED.Layout__LineStyleName],
+  ['MTE104__LineColour__MidGrey__L60', 'dotted', false, null, 'Dot'])
+
+// Adam, 22-Sep-2026: "Add fences removed". Named as he named the last one - the tag the fences are
+// on, plus __Removed - so it sorts directly under Walls and Fences in SketchUp's tag list.
+const FENCES   = sp['72__SitePlan__Boundary__WallsAndFences']
+const FENCES_X = sp['72__SitePlan__Boundary__WallsAndFences__Removed']
+check('Walls and Fences To Be Removed draws the SAME mid grey dotted line as removed hard surfaces - everything being taken out reads alike',
+  FENCES_X && [FENCES_X.SitePlan__LineColourId, FENCES_X.SitePlan__LineType, FENCES_X.Layout__LineStyleName, FENCES_X.SitePlan__ExportFills],
+  [REMOVED.SitePlan__LineColourId, REMOVED.SitePlan__LineType, REMOVED.Layout__LineStyleName, false])
+check('at the weight and line Z of the fences it removes',
+  FENCES_X && [FENCES_X.SitePlan__LineWeightPt, FENCES_X.SitePlan__LineWeightMm, FENCES_X.SitePlan__ZIndexLine, FENCES_X.SitePlan__LayerGroup],
+  [FENCES.SitePlan__LineWeightPt, FENCES.SitePlan__LineWeightMm, FENCES.SitePlan__ZIndexLine, FENCES.SitePlan__LayerGroup])
+
+// Adam, 22-Sep-2026: "73__SitePlan__Buildings__Existing__Removed ... a blue, small dotted line
+// showing the removed building, no fill." SMALL is the layer's dash scale - the lever built for the
+// Proposed Alterations dashes - on the dotted type, at 0.5 pt: dots on a 0.8 mm repeat, not 1.6.
+const BLD   = sp['73__SitePlan__Buildings__Existing']
+const BLD_X = sp['73__SitePlan__Buildings__Existing__Removed']
+const dottedMm = cfg.LayoutEditor__EdgeStyles__LineTypes.find((t) => t.LineType__Alias === 'dotted').LineType__PatternMm
+check('Existing Buildings To Be Removed is a BLUE dotted line with no fill, level with the buildings',
+  BLD_X && [BLD_X.SitePlan__LineColourId, BLD_X.SitePlan__LineType, BLD_X.SitePlan__ExportFills, BLD_X.SitePlan__FillMaterialId, BLD_X.SitePlan__ZIndexLine, BLD_X.SitePlan__LayerGroup, BLD_X.Layout__LineStyleName],
+  ['MTE205__LineColour__Blue', 'dotted', false, null, BLD.SitePlan__ZIndexLine, BLD.SitePlan__LayerGroup, 'Dot'])
+check('and SMALL: dots at half the spacing of the other removal lines, on a finer line',
+  BLD_X && [dottedMm.map((mm) => mm * BLD_X.SitePlan__LineDashScale), BLD_X.SitePlan__LineWeightPt < REMOVED.SitePlan__LineWeightPt, REMOVED.SitePlan__LineDashScale === undefined],
+  [[0.2, 0.6], true, true])
+
+// THREE GUARDS OVER EVERY SITE PLAN TAG. The first would have caught OsMapping__MajorFeature,
+// which sat out of both exclusion lists until Tags 2.7.1; the third is finding F4 - a line
+// colour missing from the EdgeStyles palette paints BLACK, silently.
+const siteTags = Object.values(sp).filter((t) => t && t.SitePlan__ExportFileNameStem)
+check('EVERY site plan tag is in BOTH exclusion lists',
+  siteTags.filter((t) => !(tags.ExportExclusions.FullyExcludedTagNames.includes(t.Tag__SketchUpName) && tags.ExportExclusions.AdvancedSwapOffTagNames.includes(t.Tag__SketchUpName))).map((t) => t.Tag__SketchUpName), [])
+const aliases = cfg.LayoutEditor__EdgeStyles__LineTypes.map((t) => t.LineType__Alias)
+check('EVERY site plan line type is a TrueVision EdgeStyles line type',
+  siteTags.filter((t) => !aliases.includes(t.SitePlan__LineType)).map((t) => t.Tag__SketchUpName + ' ' + t.SitePlan__LineType), [])
+const edgeDoc = JSON.parse(fs.readFileSync('C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__EdgeMaterials__.json', 'utf8'))
+const edgeHex = {}
+Object.values(edgeDoc.Na__DataLib__CoreIndex__EdgeMaterials).forEach((series) => { if (series && typeof series === 'object') Object.entries(series).forEach(([k, v]) => { if (v && v.HexValue) edgeHex[k] = String(v.HexValue).toUpperCase() }) })
+const palette = cfg.LayoutEditor__EdgeStyles__Colours.map((c) => String(c.Colour__Hex).toUpperCase())
+check('EVERY site plan line colour is in the EdgeStyles palette, so none paints black (F4)',
+  siteTags.filter((t) => !palette.includes(edgeHex[t.SitePlan__LineColourId])).map((t) => t.Tag__SketchUpName + ' ' + t.SitePlan__LineColourId), [])
+
 const stems = Object.values(sp).filter((t) => t && t.SitePlan__ExportFileNameStem).map((t) => t.SitePlan__ExportFileNameStem)
 check('no two site plan tags share a stem (a shared stem would overwrite one GLB with the other)', stems.length, new Set(stems).size)
 check('every site plan weight in points matches its millimetres',

@@ -2,7 +2,7 @@
     "Statement__Description": "TrueVision Statement Writer - the project's written documents. Each entry names a folder under 10__StatementDocs and the one markdown file in it that IS the statement. The words live in that markdown file, not here.",
     "Statement__Version": "1.0.0",
     "Statement__Project": "RB05",
-    "Statement__UpdatedIso": "2026-09-21T08:02:01.722Z",
+    "Statement__UpdatedIso": "2026-09-22T00:36:11.466Z",
     "Statement__LastId": 1,
     "Statement__Documents": [
         {
@@ -14,9 +14,106 @@
             "Doc__Revision": "A",
             "Doc__CreatedIso": "2026-09-20T22:07:02.430Z",
             "Doc__UpdatedIso": "2026-09-21T08:02:01.722Z",
-            "Doc__PublishedIso": null,
-            "Doc__PublishedUrl": null,
-            "Doc__Images": []
+            "Doc__PublishedIso": "2026-09-22T00:36:11.466Z",
+            "Doc__PublishedUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/RB05_T01_S01__WestFarm__PreApplicationStatement__.html",
+            "Doc__Images": [
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/02__Site__Location/Location__Far__.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/02__Site__Location/Location__Far__.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/02__Site__Location/Location__Far__.webp",
+                    "Img__Bytes": 348906
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/02__Site__Location/Location__Near__.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/02__Site__Location/Location__Near__.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/02__Site__Location/Location__Near__.webp",
+                    "Img__Bytes": 261134
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/02__ExistingHouse__Interior/ExistingSitePlan.jpg",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/02__ExistingHouse__Interior/ExistingSitePlan.jpg",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/02__ExistingHouse__Interior/ExistingSitePlan.jpg",
+                    "Img__Bytes": 178238
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/01_10__ExistingSite__AerialShot-01__.jpeg",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/01_10__ExistingSite__AerialShot-01__.jpeg",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/01_10__ExistingSite__AerialShot-01__.jpeg",
+                    "Img__Bytes": 807074
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-01.jpg",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Front-01.jpg",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Front-01.jpg",
+                    "Img__Bytes": 1012768
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Rear-01.jpg",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Rear-01.jpg",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Rear-01.jpg",
+                    "Img__Bytes": 793778
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Side.jpg",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Side.jpg",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Side.jpg",
+                    "Img__Bytes": 626366
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/30__Analysis__Footprint/30__Footprint__ProposedAgainstExisting__MARKUP__.png",
+                    "Img__Path": "01__PreApp__Statement/02_StatementDocs__Content__Images/30__Analysis__Footprint/30__Footprint__ProposedAgainstExisting__MARKUP__.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02_StatementDocs__Content__Images/30__Analysis__Footprint/30__Footprint__ProposedAgainstExisting__MARKUP__.webp",
+                    "Img__Bytes": 79470
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/30__Analysis__Footprint/31__Footprint__ExistingDwelling__OsDimensions__.png",
+                    "Img__Path": "01__PreApp__Statement/02_StatementDocs__Content__Images/30__Analysis__Footprint/31__Footprint__ExistingDwelling__OsDimensions__.png",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02_StatementDocs__Content__Images/30__Analysis__Footprint/31__Footprint__ExistingDwelling__OsDimensions__.png",
+                    "Img__Bytes": 134103
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/22__Proposed__3dBirdsEye/RB05__22__Birdseye-04__6144x4096.webp",
+                    "Img__Bytes": 84256
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/22__Proposed__3dBirdsEye/RB05__19__Birdseye-01__6144x4096.webp",
+                    "Img__Bytes": 136044
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__01__South-Facade-Front-Facing__6144x4096.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__01__South-Facade-Front-Facing__6144x4096.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__01__South-Facade-Front-Facing__6144x4096.webp",
+                    "Img__Bytes": 119538
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__02__West-Facade-Side-Facing__6144x4096.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__02__West-Facade-Side-Facing__6144x4096.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__02__West-Facade-Side-Facing__6144x4096.webp",
+                    "Img__Bytes": 99394
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__03__North-Facade-Rear-Facing__6144x4096.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__03__North-Facade-Rear-Facing__6144x4096.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__03__North-Facade-Rear-Facing__6144x4096.webp",
+                    "Img__Bytes": 150040
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/20__Proposed__3dExterior/RB05__05__West-Facade-Coach-House__6144x4096.png",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__05__West-Facade-Coach-House__6144x4096.webp",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/20__Proposed__3dExterior/RB05__05__West-Facade-Coach-House__6144x4096.webp",
+                    "Img__Bytes": 74590
+                },
+                {
+                    "Img__Src": "./02_StatementDocs__Content__Images/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg",
+                    "Img__Path": "01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg",
+                    "Img__Url": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/02__DocImages/10__ExistingHouse__Photos/10__ExistingHouse__Front-04.jpg",
+                    "Img__Bytes": 960786
+                }
+            ]
         }
     ]
 }

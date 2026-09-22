@@ -30,11 +30,21 @@
 //   the linework, the base image and the PDF like any other drawing setting.
 //   Na__ProjectedLinework__DoorPose__ poses the doors, traces the swings and
 //   finds the door under a click.
+// - HIDE SWINGS. A plan viewport can leave every door swing off: the arcs
+//   traced from its open doors (the pose's Swings) and the SketchUp door swing
+//   linework (PlanDoors SwingCategoryKeys), in its linework, its base image and
+//   the PDF. The doors still draw open and still close with a click. Off by
+//   default, but ON for a plan of a storey in HideSwingsOnStoreys - a roof
+//   plan looks down on the top storey's doors through the roof, and their
+//   swings were drawn over it. Viewport__HideSwings holds a tick or untick
+//   once somebody makes one; absent, the plan's storey decides, so a roof
+//   plan's viewport starts with its swings hidden and never had to be told.
 //
 // INTEGRATION:
-// - Na__LayoutEditor__Viewport2d__ (PoseFor, ShutPoseFor),
-//   Na__LayoutEditor__SheetTools__ (At, ToggleSoon, CancelPending, MenuItems),
-//   and the Viewport panel (IsPlan, ClosedCount, OpenAll).
+// - Na__LayoutEditor__Viewport2d__ (PoseFor, ShutPoseFor, SwingExcludeTokens,
+//   RasterLayers), Na__LayoutEditor__SheetTools__ (At, ToggleSoon,
+//   CancelPending, MenuItems), and the Viewport panel (IsPlan, ClosedCount,
+//   OpenAll, SwingsHidden, SwingsHiddenByDefault, SetSwingsHidden).
 //
 // -----------------------------------------------------------------------------
 //
@@ -45,6 +55,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.3.0 (TrueVision)
+// - Hide swings (Viewport__HideSwings). SwingsHidden answers the tick, or the
+//   plan's storey when nobody has ticked (a roof plan: hidden); PoseFor turns
+//   the traced arcs off with it; SwingExcludeTokens and RasterLayers take the
+//   SketchUp door swing linework out of the vectors and the base image;
+//   SetSwingsHidden is the panel's one undo step.
+//
 // 21-Sep-2026 - Version 1.2.0 (TrueVision)
 // - At works on a turned plan (Viewport__RotationDeg): the click is tested
 //   against the turned frame, and the window's FromPaper undoes the turn.
@@ -77,6 +94,11 @@
     import { Na__LeSnap__GetModelRoot } from '../25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Floor Plans (which storey a plan is a plan of)
+    // ------------------------------------------------------------
+    import { Na__FpData__GetStoreyLevel } from '../../42__System__FloorPlanViews/Na__FloorPlan__ProjectJson__Data__.js';
+    // ------------------------------------------------------------
+
     // MODULE IMPORTS | Projected Linework (the door pose and the page scale)
     // ------------------------------------------------------------
     import { Na__PlDoors__HitTest } from '../../50__System__ProjectedLinework/Na__ProjectedLinework__DoorPose__.js';
@@ -91,9 +113,10 @@
 // REGION | Module Constants and State
 // -----------------------------------------------------------------------------
 
-    // MODULE CONSTANTS | The Record Key
+    // MODULE CONSTANTS | The Record Keys
     // ------------------------------------------------------------
-    const Na__LeDoors__FIELD = 'Viewport__ClosedDoors';
+    const Na__LeDoors__FIELD        = 'Viewport__ClosedDoors';
+    const Na__LeDoors__SWINGS_FIELD = 'Viewport__HideSwings';     // <-- true or false once ticked or unticked; absent, the plan's storey decides
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Clicks Waiting Out the Double Click Window
@@ -151,12 +174,17 @@
     // FUNCTION | The Door Pose a Plan Viewport Draws With
     // ------------------------------------------------------------
     // Asked for once the source is known to be a plan. Null while the feature
-    // is switched off, which draws the doors as the model holds them.
+    // is switched off, which draws the doors as the model holds them. plan is
+    // the viewport's plan record when the caller already holds it.
     // ------------------------------------------------------------
-    function Na__LeDoors__PoseFor(viewport) {
+    function Na__LeDoors__PoseFor(viewport, plan) {
         const setup = Na__LeCfg__GetPlanDoorsSetup();
         if (!viewport || !setup.openOnPlans) return null;
-        return { Closed : Na__LeDoors__ClosedKeys(viewport), Swings : setup.drawSwings, SwingStepDegrees : setup.swingStepDegrees };
+        return {
+            Closed           : Na__LeDoors__ClosedKeys(viewport),
+            Swings           : setup.drawSwings && !Na__LeDoors__SwingsHidden(viewport, plan),   // <-- Hide swings: no arc is traced, and the pose's hash keys the drawing afresh
+            SwingStepDegrees : setup.swingStepDegrees
+        };
     }
     // ------------------------------------------------------------
 
@@ -171,6 +199,120 @@
     function Na__LeDoors__ShutPoseFor(viewport) {
         if (!viewport || !Na__LeCfg__GetPlanDoorsSetup().shutOnElevations) return null;
         return { Shut : true };
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Hide Swings
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The Plan a Viewport Draws, or Null
+    // ------------------------------------------------------------
+    // plan, when given, is taken as the answer: Describe has already resolved
+    // it, and the panel refresh asks several questions in a row.
+    // ------------------------------------------------------------
+    function Na__LeDoors__PlanOf(viewport, plan) {
+        if (plan !== undefined) return plan || null;
+        if (!viewport || viewport.Viewport__Kind !== Na__LeModel__KIND_2D) return null;
+        return Na__LeModel__ResolveViewportSource(viewport).plan || null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Whether a Plan Hides Its Swings When Nobody Has Said
+    // ------------------------------------------------------------
+    // By the plan's storey (Na__FpData__GetStoreyLevel: the one picked in the
+    // Dev menu, else a guess from the plan's name and then its cut height)
+    // against PlanDoors HideSwingsOnStoreys - a roof plan, as shipped. A roof
+    // plan's cut stands above the top storey, so that storey's doors are drawn
+    // open, and their swings joined the drawing over the roof.
+    // ------------------------------------------------------------
+    function Na__LeDoors__SwingsHiddenByDefault(viewport, plan) {
+        const record = Na__LeDoors__PlanOf(viewport, plan);
+        if (!record) return false;
+        const storey = Na__FpData__GetStoreyLevel(record);
+        return !!storey && Na__LeCfg__GetPlanDoorsSetup().hideSwingsOnStoreys.indexOf(storey.key) !== -1;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Whether a Plan Viewport Leaves Its Door Swings Off
+    // ------------------------------------------------------------
+    // A tick or an untick, once somebody has made one, stands; until then the
+    // plan's storey decides. Never written for the default, so the default
+    // follows the plan - a plan renamed or re-storeyed as a roof plan hides
+    // its swings from then on, and one that stops being one draws them again.
+    // ------------------------------------------------------------
+    function Na__LeDoors__SwingsHidden(viewport, plan) {
+        if (!viewport) return false;
+        const stored = viewport[Na__LeDoors__SWINGS_FIELD];
+        return (typeof stored === 'boolean') ? stored : Na__LeDoors__SwingsHiddenByDefault(viewport, plan);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Whether a Viewport Is a Plan Drawn Without Its Swings
+    // ------------------------------------------------------------
+    // Only a plan that draws its doors open has swings to hide (IsPlan's two
+    // tests), so a stored tick left on a viewport since moved to an elevation
+    // or a 3D scene does nothing there.
+    // ------------------------------------------------------------
+    function Na__LeDoors__PlanHidesSwings(viewport, plan) {
+        if (!viewport || !Na__LeCfg__GetPlanDoorsSetup().openOnPlans) return false;
+        const record = Na__LeDoors__PlanOf(viewport, plan);
+        return !!record && Na__LeDoors__SwingsHidden(viewport, record);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Exclusion Tokens That Take the Drawn Swings Off a Plan
+    // ------------------------------------------------------------
+    // The SketchUp door swing linework (PlanDoors SwingCategoryKeys) is its own
+    // model category, drawn as authored and never clipped, so the traced arcs
+    // going would leave it standing. '=' asks the projection for the whole
+    // name: nothing else is taken with it. Empty on a plan that draws its
+    // swings, so its definition, its hash and its caches are what they were.
+    // ------------------------------------------------------------
+    function Na__LeDoors__SwingExcludeTokens(viewport, plan) {
+        if (!Na__LeDoors__PlanHidesSwings(viewport, plan)) return [];
+        return Na__LeCfg__GetPlanDoorsSetup().swingCategoryKeys.map((key) => '=' + key);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Model Layers a Plan's Base Image Is Drawn With
+    // ------------------------------------------------------------
+    // Viewport__ModelLayers as it stands, plus the door swing linework switched
+    // off while the viewport hides its swings - the picture under the vectors
+    // drops them too, or they would show there after leaving the linework. The
+    // viewport's own map, untouched, whenever there is nothing to add.
+    // ------------------------------------------------------------
+    function Na__LeDoors__RasterLayers(viewport) {
+        const stored = viewport ? (viewport.Viewport__ModelLayers || null) : null;
+        if (!Na__LeDoors__PlanHidesSwings(viewport)) return stored;
+        const keys = Na__LeCfg__GetPlanDoorsSetup().swingCategoryKeys;
+        if (keys.length === 0) return stored;
+        const merged = Object.assign({}, stored || {});
+        keys.forEach((key) => { merged[key] = false; });
+        return merged;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Hide or Draw a Plan Viewport's Swings (one undo step)
+    // ------------------------------------------------------------
+    // Stores the choice either way, so a roof plan's untick stays unticked.
+    // Nothing is written when the viewport already draws them that way.
+    // ------------------------------------------------------------
+    function Na__LeDoors__SetSwingsHidden(sheet, viewportId, hidden) {
+        const viewport = sheet ? Na__LeModel__GetViewportById(sheet, viewportId) : null;
+        if (!viewport || !Na__LeDoors__IsPlan(viewport)) return false;
+        const want = hidden === true;
+        if (Na__LeDoors__SwingsHidden(viewport) === want) return false;
+        return Na__LeModel__UpdateViewport(sheet, viewportId, { hideSwings : want });
     }
     // ------------------------------------------------------------
 
@@ -294,10 +436,16 @@
     // ------------------------------------------------------------
     export {
         Na__LeDoors__FIELD,
+        Na__LeDoors__SWINGS_FIELD,
         Na__LeDoors__IsPlan,
         Na__LeDoors__ClickToggles,
         Na__LeDoors__PoseFor,
         Na__LeDoors__ShutPoseFor,
+        Na__LeDoors__SwingsHiddenByDefault,
+        Na__LeDoors__SwingsHidden,
+        Na__LeDoors__SwingExcludeTokens,
+        Na__LeDoors__RasterLayers,
+        Na__LeDoors__SetSwingsHidden,
         Na__LeDoors__ClosedCount,
         Na__LeDoors__At,
         Na__LeDoors__Toggle,

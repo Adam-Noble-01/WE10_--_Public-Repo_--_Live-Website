@@ -34,6 +34,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.9.29
+// - Token bumped (2026-09-22-1) for Hide swings and the 1:200 scale (v2.140.0): the
+//   viewport window, Viewport2d, its Frame unit and the Viewport panel now import
+//   Na__LeDoors__SwingExcludeTokens, RasterLayers, SwingsHidden, SetSwingsHidden and
+//   SWINGS_FIELD, which no warm copy of PlanDoors exports, and PlanDoors itself newly
+//   imports the floor plan data module. The panel stylesheet (imported by the core
+//   index sheet) gains the Hide swings and tight scale button rules, and the config's
+//   scale list and fallback both carry 1:200.
+//
 // 21-Sep-2026 - Version 1.9.28
 // - Token bumped (2026-09-21-20) for rotatable viewports (v2.138.0): the sheet tools'
 //   press, drag and hit resolution units now import Na__LeHandles__RotateStart,
@@ -449,7 +458,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-21-20';                                                                  // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-22-1';                                                                  // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

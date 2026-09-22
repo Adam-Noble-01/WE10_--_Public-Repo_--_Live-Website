@@ -644,6 +644,17 @@
         "D:/_ClaudeScratch/tv_dimroundup_out"
       ],
       "port": 9073
+    },
+    {
+      "name": "tv-hideswings",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "9087",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_hideswings_out"
+      ],
+      "port": 9087
     }
   ]
 }

@@ -35,7 +35,8 @@
 // - Ported from   : the ValeVision3D v2.47.0 split of the same module (same unit, same functions)
 // - Parity        : verbatim (moved code)
 // - Divergences   : GetPlanDoorsSetup, GetModelSourceSetup and PdfFontCuts
-//                   (TrueVision only), the site plan scales, the PDF fonts,
+//                   (TrueVision only), the site plan scales, the 1:200 in the
+//                   scales fallback and the Hide swings fallbacks, the PDF fonts,
 //                   TrueVision's own defaults (style font, logo aspect, drawn
 //                   by, PDF author, creator and jsPDF path) and one word in
 //                   the raster comment.
@@ -44,6 +45,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 21-Sep-2026 - Version 1.9.0
+// - GetPlanDoorsSetup answers hideSwingsOnStoreys (PlanDoors
+//   HideSwingsOnStoreys, ['roof']): the storeys whose plans start with Hide
+//   swings on; and swingCategoryKeys (PlanDoors SwingCategoryKeys,
+//   ['TrueVision__Linetype__DoorSwings']): the SketchUp door swing linework
+//   Hide swings takes off with the traced arcs.
+// - The scales fallback follows the shipped JSON to 1:20, 1:50, 1:100, 1:200.
+//
 // 21-Sep-2026 - Version 1.8.0
 // - GetTitleBlockSetup reads RowWidthFactorByPaper (TitleBlock): how much wider
 //   the fixed title block cells are on each paper - a fifth on A2 and A1. The
@@ -134,7 +143,9 @@
         rowWidthFactorByPaper : { A2 : 1.2, A1 : 1.2 },                         // <-- The fixed cells are a fifth wider on the big sheets
         statuses   : [ 'PRELIMINARY', 'FOR INFORMATION', 'FOR COMMENT', 'FOR COORDINATION', 'FOR APPROVAL', 'FOR PLANNING',
                        'FOR BUILDING CONTROL', 'FOR PRICING', 'FOR TENDER', 'FOR CONSTRUCTION', 'AS BUILT', 'SUPERSEDED' ],
-        scales     : [ 20, 50, 100 ],
+        scales     : [ 20, 50, 100, 200 ],
+        hideSwingsOnStoreys : [ 'roof' ],                                      // <-- A roof plan starts with Hide swings on
+        swingCategoryKeys   : [ 'TrueVision__Linetype__DoorSwings' ],          // <-- The SketchUp door swing linework, one whole-building GLB
         pdfFonts   : [
             { Style : 'light',  Weight : 300, FileName : 'CommonFont-01__OpenSans__Light__.ttf' },
             { Style : 'normal', Weight : 400, FileName : 'CommonFont-01__OpenSans__Regular__.ttf' },
@@ -427,14 +438,25 @@
 
     // FUNCTION | Doors on Plan, Elevation and Section Viewports
     // ------------------------------------------------------------
+    // hideSwingsOnStoreys: the storey keys (lower case) whose plans start with
+    // Hide swings on; swingCategoryKeys: the model categories that are door
+    // swings drawn in SketchUp, taken off with the traced arcs. An empty list
+    // in the config is kept as empty - nothing hidden by default, nothing
+    // extra taken off - and only a missing one reads the shipped default.
+    // ------------------------------------------------------------
     function Na__LeCfg__GetPlanDoorsSetup() {
+        const names   = (list) => list.map((entry) => String(entry === undefined || entry === null ? '' : entry).trim()).filter((entry) => entry !== '');
+        const storeys = Na__LeCfg__Val('PlanDoors', 'HideSwingsOnStoreys', null);
+        const swings  = Na__LeCfg__Val('PlanDoors', 'SwingCategoryKeys', null);
         return {
-            openOnPlans      : Na__LeCfg__Val('PlanDoors', 'OpenOnPlans', true) !== false,
-            shutOnElevations : Na__LeCfg__Val('PlanDoors', 'ShutOnElevations', true) !== false,
-            drawSwings       : Na__LeCfg__Val('PlanDoors', 'DrawSwings', true) !== false,
-            swingStepDegrees : Math.min(45, Math.max(1, Na__LeCfg__Num('PlanDoors', 'SwingStepDegrees', 5))),
-            clickToToggle    : Na__LeCfg__Val('PlanDoors', 'ClickToToggle', true) !== false,
-            clickDelayMs     : Math.max(0, Na__LeCfg__Num('PlanDoors', 'ClickDelayMs', 300))
+            openOnPlans         : Na__LeCfg__Val('PlanDoors', 'OpenOnPlans', true) !== false,
+            shutOnElevations    : Na__LeCfg__Val('PlanDoors', 'ShutOnElevations', true) !== false,
+            drawSwings          : Na__LeCfg__Val('PlanDoors', 'DrawSwings', true) !== false,
+            swingStepDegrees    : Math.min(45, Math.max(1, Na__LeCfg__Num('PlanDoors', 'SwingStepDegrees', 5))),
+            clickToToggle       : Na__LeCfg__Val('PlanDoors', 'ClickToToggle', true) !== false,
+            clickDelayMs        : Math.max(0, Na__LeCfg__Num('PlanDoors', 'ClickDelayMs', 300)),
+            hideSwingsOnStoreys : Array.isArray(storeys) ? names(storeys).map((key) => key.toLowerCase()) : Na__LeCfg__FALLBACKS.hideSwingsOnStoreys.slice(),   // <-- Storey keys are lower case (Na__FloorPlan__StoreyLevel__)
+            swingCategoryKeys   : Array.isArray(swings) ? names(swings) : Na__LeCfg__FALLBACKS.swingCategoryKeys.slice()
         };
     }
     // ------------------------------------------------------------

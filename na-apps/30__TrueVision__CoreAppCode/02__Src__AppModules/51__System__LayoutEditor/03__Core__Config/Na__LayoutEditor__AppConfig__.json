@@ -155,8 +155,8 @@
     },
 
     "LayoutEditor__Scales__Config": {
-        "LayoutEditor__Scales__Description": "Locked scales for 2D viewports (D27). A viewport quotes one of these; the three-way toggle on the Viewport Settings panel steps through them. A site plan viewport quotes one of SitePlanScaleDenominators instead. THE SITE PLAN LIST IS THE ONLY ONE THAT COUNTS: SitePlanExportConfig.SupportedScaleDenominators in the Tags SSOT is documentation and is read by nothing. A denominator of 500 or finer is a BLOCK PLAN, which draws the full fill / pattern / linework composite; coarser than 500 is a LOCATION PLAN, which draws only the proposed fills, no hatch patterns, and greyscales every line that is not a boundary or a proposal. THE SCALE ONLY DECIDES A VIEWPORT THAT HAS NOT BEEN TOLD: Viewport__SitePlan.SitePlan__PlanType overrules it, so a large site CAN be drawn as a block plan at 1:1250 and keep its patterns. The rule itself lives in Na__LayoutEditor__SitePlanComposites__Config__.json, which is what the app reads; the sentence here is the note beside the scales it applies to.",
-        "LayoutEditor__Scales__AvailableScaleDenominators": [20, 50, 100],
+        "LayoutEditor__Scales__Description": "Locked scales for 2D viewports (D27). A viewport quotes one of these; the Viewport Settings panel shows one toggle button per scale, finest first (1:20, 1:50, 1:100, 1:200 - the last added 21-Sep-2026, for a whole building or a street on one sheet). The fallback list in Na__LayoutEditor__ConfigState__SheetSetup__.js mirrors this one: a saved scale that is on neither list is coerced to DefaultScaleDenominator on load, so the two must agree. A site plan viewport quotes one of SitePlanScaleDenominators instead. THE SITE PLAN LIST IS THE ONLY ONE THAT COUNTS: SitePlanExportConfig.SupportedScaleDenominators in the Tags SSOT is documentation and is read by nothing. A denominator of 500 or finer is a BLOCK PLAN, which draws the full fill / pattern / linework composite; coarser than 500 is a LOCATION PLAN, which draws only the proposed fills, no hatch patterns, and greyscales every line that is not a boundary or a proposal. THE SCALE ONLY DECIDES A VIEWPORT THAT HAS NOT BEEN TOLD: Viewport__SitePlan.SitePlan__PlanType overrules it, so a large site CAN be drawn as a block plan at 1:1250 and keep its patterns. The rule itself lives in Na__LayoutEditor__SitePlanComposites__Config__.json, which is what the app reads; the sentence here is the note beside the scales it applies to.",
+        "LayoutEditor__Scales__AvailableScaleDenominators": [20, 50, 100, 200],
         "LayoutEditor__Scales__DefaultScaleDenominator": 50,
         "LayoutEditor__Scales__SitePlanScaleDenominators": [100, 200, 500, 1250, 2500, 5000],
         "LayoutEditor__Scales__SitePlanDefaultScaleDenominator": 500,
@@ -345,7 +345,10 @@
         "LayoutEditor__PlanDoors__DrawSwings": true,
         "LayoutEditor__PlanDoors__SwingStepDegrees": 5,
         "LayoutEditor__PlanDoors__ClickToToggle": true,
-        "LayoutEditor__PlanDoors__ClickDelayMs": 300
+        "LayoutEditor__PlanDoors__ClickDelayMs": 300,
+        "LayoutEditor__PlanDoors__HideSwingsNote": "Hide swings, beside Open all on the Viewport panel's Doors row, leaves every door swing off ONE plan viewport - the arcs traced from its open doors AND the SketchUp door swing linework named in SwingCategoryKeys - in its linework, its base image and the PDF. The doors themselves still draw open and still close with a click. It is off by default, except on a plan whose storey is listed in HideSwingsOnStoreys: a roof plan's cut stands above the top storey, so that storey's doors are drawn open and their swings were drawn over the roof. The storey is the plan's own (Dev Tools > Floor Plans > Storey), or the guess from its name and cut height when nobody has picked one. The record key is Viewport__HideSwings, written only once somebody ticks or unticks the box, either way; absent, the storey decides, so an existing roof plan viewport hides its swings without being told and one whose plan stops being a roof plan draws them again.",
+        "LayoutEditor__PlanDoors__HideSwingsOnStoreys": ["roof"],
+        "LayoutEditor__PlanDoors__SwingCategoryKeys": ["TrueVision__Linetype__DoorSwings"]
     },
     "LayoutEditor__History__Config": {
         "LayoutEditor__History__Description": "Undo and redo per sheet. Every announced change is one step (a drag is one step); MaxSteps is how many are kept.",
@@ -1098,7 +1101,10 @@
         "LayoutEditor__Labels__DoorsLabel": "Doors",
         "LayoutEditor__Labels__DoorsOpenAll": "Open all",
         "LayoutEditor__Labels__DoorsAllOpen": "Every door is drawn open. With the viewport selected, click a door on the plan to close it.",
-        "LayoutEditor__Labels__DoorsSomeClosed": "{count} closed. Click a door on the plan to open or close it."
+        "LayoutEditor__Labels__DoorsSomeClosed": "{count} closed. Click a door on the plan to open or close it.",
+        "LayoutEditor__Labels__DoorsHideSwings": "Hide swings",
+        "LayoutEditor__Labels__DoorsHideSwingsTitle": "Leave every door swing off this plan - the arcs and any door swing linework - on the sheet and in the PDF. The doors still draw open and still close with a click. A roof plan starts with it ticked.",
+        "LayoutEditor__Labels__DoorsSwingsHiddenByStorey": "Swings are hidden by default on a {storey}."
     },
 
     "LayoutEditor__DrawingRegister__Config": {

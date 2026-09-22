@@ -115,7 +115,7 @@
 
         "ScaleBar__DefaultScaleDenominator"  : 50,
         "ScaleBar__MenuScaleDenominators"    : [ 20, 50, 100, 200, 500, 1250 ],
-        "ScaleBar__MenuScaleNote"            : "The scales the lookup grip's menu and the panel offer. The first three are the app's architectural scales and the last two its site plan ones; 1:200 is here because a street elevation wants it. Any scale in ScaleBar__Standards can be added.",
+        "ScaleBar__MenuScaleNote"            : "The scales the lookup grip's menu and the panel offer. The first four are the app's architectural scales (1:200 joined them on 21-Sep-2026; it was here first because a street elevation wants it) and the last two its site plan ones. Any scale in ScaleBar__Standards can be added.",
 
         "ScaleBar__StandardsNote"            : "What a bar is put back to when its scale changes. DivisionMm and SubdivisionMm are real-world millimetres; Units is what the numerals count in ('m' or 'mm'). Every row is a 100 mm bar, and all but 1:1, 1:2, 1:20 and 1:200 are the house 5 x 20 mm.",
         "ScaleBar__Standards"                : [
