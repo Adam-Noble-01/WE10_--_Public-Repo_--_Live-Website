@@ -65,6 +65,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - A tool can draw THROUGH this one and make something that is not a vector:
+//   defaults carrying `land` (a function) are handed the four corners when the
+//   rectangle lands - clicked, dragged or typed - instead of a shape being
+//   created. The Note Region tool (50__Feature__Specification) draws a region
+//   so, with this tool's snapping, Shift square, typed sizes and Escape. Such
+//   a box selects nothing and cannot be retyped as a rectangle; with no
+//   `land` nothing here behaves differently.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - The Area tool draws rectangular rooms through this one
 //   (59__Feature__FloorAreas): `area` and `layerId` ride through the defaults
@@ -201,6 +210,7 @@
     // ------------------------------------------------------------
     function Na__LeRect__Write(sheet, points, defaults) {
         const d    = defaults || {};
+        if (typeof d.land === 'function') return d.land(sheet, points);        // <-- A tool drawing THROUGH this one that makes something other than a vector (a note region): it is handed the corners, and nothing is selected or kept to retype
         const item = Na__LeModel__CreateShape(sheet, points, {
             strokeColour : d.strokeColour, strokePt : d.strokePt, fillColour : d.filled ? d.fillColour : null,
             fillOpacity : d.fillOpacity, strokeOpacity : d.strokeOpacity,     // <-- The opacity defaults too, as for a drawn shape

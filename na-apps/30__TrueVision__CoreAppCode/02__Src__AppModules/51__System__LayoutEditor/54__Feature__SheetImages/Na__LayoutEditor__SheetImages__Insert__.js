@@ -30,6 +30,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - A picture dropped or picked while a group is open for editing joins that
+//   group (Na__LeScope__WithAdoption), just before it is announced: it used
+//   to land on the sheet outside the group, faded and out of reach.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - Nothing is written at the drop or the replace: the picture and its
 //   original are held in memory (Na__LeImgPub__Hold) and the save cuts and
@@ -52,6 +57,7 @@
     import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__GetElements, Na__LeSurface__GetLayout } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeTools__TOOL_SELECT } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__State__.js';
     import { Na__LeTools__SetTool, Na__LeTools__PickUpMove } from '../30__System__SheetTools/Na__LayoutEditor__SheetTools__ToolState__.js';
+    import { Na__LeScope__WithAdoption } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';   // <-- A picture dropped while a group is open joins the group
     import { Na__LeImgCfg__Placement, Na__LeImgCfg__Frame, Na__LeImgCfg__Label, Na__LeImgCfg__Storage } from './Na__LayoutEditor__SheetImages__Setup__.js';
     import { Na__LeImgGeo__FitPlacement, Na__LeImgGeo__RectPoints } from './Na__LayoutEditor__SheetImages__Geometry__.js';
     import { Na__LeImgEnc__Refusal, Na__LeImgEnc__Prepare } from './Na__LayoutEditor__SheetImages__Encode__.js';
@@ -172,7 +178,9 @@
                 Na__LeImgSrc__Adopt(stored.fileName, stored.blob);                  // <-- Drawn at once, from the bytes just made
                 const centre = { x : start.x + (i * setup.cascadeMm), y : start.y + (i * setup.cascadeMm) };
                 const rect   = Na__LeImgGeo__FitPlacement(centre, stored.pixelW, stored.pixelH, maxW, maxH);
-                const shape  = Na__LeModel__CreateShape(sheet, Na__LeImgGeo__RectPoints(rect.x0, rect.y0, rect.w, rect.h), {
+                // INSIDE AN OPEN GROUP the picture joins it, just before it is
+                // announced, so undo takes it and its membership together.
+                const shape  = Na__LeScope__WithAdoption(sheet, [ 'shape' ], () => Na__LeModel__CreateShape(sheet, Na__LeImgGeo__RectPoints(rect.x0, rect.y0, rect.w, rect.h), {
                     closed  : true,
                     stroked : false,
                     image   : {
@@ -186,7 +194,7 @@
                         Image__SourceW : stored.source.pixelW,
                         Image__SourceH : stored.source.pixelH
                     }
-                });
+                }));
                 if (shape) { placed.push(shape); Na__LeImgIns__RevealLayer(sheet, shape); }
             }
         } finally {

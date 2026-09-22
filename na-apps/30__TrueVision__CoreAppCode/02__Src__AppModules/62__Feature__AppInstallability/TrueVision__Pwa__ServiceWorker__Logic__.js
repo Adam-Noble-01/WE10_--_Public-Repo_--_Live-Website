@@ -34,6 +34,33 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.9.32
+// - Token bumped (2026-09-22-4) for overspill note regions (v2.143.0): the
+//   margin (SpecMargin) now imports its new Column and NoteRegions units and the
+//   new SheetRecords__NoteRegions__ leaf, which the sheet records and the Sheets
+//   unit import too; the model re-exports AddNoteRegion, UpdateNoteRegion and
+//   DeleteNoteRegion; the sheet tools' state exports TOOL_REGION, which the press,
+//   drag and keyboard units import, and they and the measurement unit import the
+//   new region tool; the mode controller imports the new region grips; the
+//   Margin Notes panel imports its new Regions unit. None of these exists in a
+//   warm copy. The notes stylesheet gains the region panel and grip rules.
+//
+// 22-Sep-2026 - Version 1.9.31
+// - Token bumped (2026-09-22-3) for viewports in groups and placing inside an
+//   open group (v2.142.0): the sheet tools' tool state, the item clipboard,
+//   Sheet Images' Insert and the Viewport panel import the edit scope's new
+//   AdoptIntoOpenGroup, BeginAdopting, EndAdopting and WithAdoption, which no
+//   warm copy of EditScope exports; the paper stylesheet moves the open-group
+//   fade from the stack onto each slot and frame.
+//
+// 22-Sep-2026 - Version 1.9.30
+// - Token bumped (2026-09-22-2) for leaders in set moves and in groups (v2.141.0):
+//   Groups now imports Na__LeMarkup__DimensionBounds, which no warm copy of the
+//   markup bridge exports, and the selection set imports Na__LeVpRot__Bounds,
+//   Na__LeShapeGeo__Bounds and Hit and the model's GetGroups and IsLayerVisible
+//   for the first time. A new importer beside an old exporter is a named import
+//   that is not there, and the editor would not load until the next visit.
+//
 // 22-Sep-2026 - Version 1.9.29
 // - Token bumped (2026-09-22-1) for Hide swings and the 1:200 scale (v2.140.0): the
 //   viewport window, Viewport2d, its Frame unit and the Viewport panel now import
@@ -458,7 +485,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-22-1';                                                                  // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-22-4';                                                              // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

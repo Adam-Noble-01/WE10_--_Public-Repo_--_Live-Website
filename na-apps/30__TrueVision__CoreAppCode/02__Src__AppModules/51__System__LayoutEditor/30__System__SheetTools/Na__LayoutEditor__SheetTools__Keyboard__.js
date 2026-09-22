@@ -51,6 +51,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.14.0
+// - Rerun restretches a note region's rubber box (TOOL_REGION) from the last
+//   pointer point, as it does a rectangle's. The rest - the arrows swallowed,
+//   Ctrl+Z and Escape abandoning the box - already keyed on the Rectangle
+//   tool's box being drawn, which is what a region is drawn with.
+//
 // 21-Sep-2026 - Version 1.13.0
 // - F9 (View__AxesToggle) shows or hides the Drawing Axes Overlay
 //   (Na__LayoutEditor__DrawingAxes__): a view, like F6, so the tool, the
@@ -207,6 +213,7 @@
     import { Na__LeRect__Move, Na__LeRect__Cancel, Na__LeRect__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
     import { Na__LeVec__IsTool, Na__LeVec__IsDrawing, Na__LeVec__Move, Na__LeVec__ToolForAction, Na__LeVec__StepBack, Na__LeVec__TakesAxis, Na__LeVec__SwallowsArrows } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools' one door
     import { Na__LeAreaTool__Rerun, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';
+    import { Na__LeRegionTool__Rerun } from '../50__Feature__Specification/Na__LayoutEditor__NoteRegions__Tool__.js';
     import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__IsPlacing } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeLeadGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
@@ -250,6 +257,7 @@
         Na__LeTools__TOOL_RECT,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__TOOL_AREA,
+        Na__LeTools__TOOL_REGION,
         Na__LeTools__SHEET_CHORDS,
         Na__LeTools__NON_TEXT_INPUTS,
         Na__LeTools__Stage,
@@ -516,6 +524,7 @@
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      Na__LeShape__Move(sheet, point, Na__LeTools__ShiftHeld);
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_DIMENSION) Na__LeDim__Move(sheet, point, Na__LeTools__ShiftHeld);
         else if (Na__LeTools__Tool === Na__LeTools__TOOL_RECT)      Na__LeRect__Move(sheet, point, Na__LeTools__ShiftHeld, false);
+        else if (Na__LeTools__Tool === Na__LeTools__TOOL_REGION)    Na__LeRegionTool__Rerun(sheet, point, Na__LeTools__ShiftHeld);
         else if (Na__LeVec__IsTool(Na__LeTools__Tool))              Na__LeVec__Move(Na__LeTools__Tool, sheet, point, { shift : Na__LeTools__ShiftHeld }, Na__LeTools__GetShapeDefaults());
         else return false;
         return true;

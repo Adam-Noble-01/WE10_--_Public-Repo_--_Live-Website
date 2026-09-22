@@ -59,7 +59,8 @@ function fixture() {
         Na__LeLayout__Solve: () => ({ Page: { WidthMm: 100, HeightMm: 100 } }),
         Na__LeGroup__ItemsBounds: () => ({ X: -40, Y: 220, WidthMm: 600, HeightMm: 100 }),
         Na__LeClip__HasShape: () => false, Na__LeClip__HasViewport: () => false,
-        Na__LeClip__RunViewportKeyAction: () => { throw Error('Complete selections must use the set clipboard'); }
+        Na__LeClip__RunViewportKeyAction: () => { throw Error('Complete selections must use the set clipboard'); },
+        Na__LeScope__AdoptIntoOpenGroup: () => 0   // No group is open for editing here: a paste joins none (Na__Test__SetMoveLeaderTips__ proves the joining)
     });
     for (const [kind, [list, prefix]] of Object.entries(rows)) {
         ctx['Na__LeModel__Get' + prefix + 'ById'] = (s, id) => s['Sheet__' + list].find(r => r[prefix + '__Id'] === id);

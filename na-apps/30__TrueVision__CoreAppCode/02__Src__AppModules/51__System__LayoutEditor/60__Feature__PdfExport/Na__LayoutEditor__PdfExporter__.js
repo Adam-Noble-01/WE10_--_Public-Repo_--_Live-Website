@@ -41,6 +41,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.10.0 (TrueVision)
+// - Overspill note regions print with the notes margin: Na__LeMargin__Push
+//   draws them in the sheet step, so nothing here draws them. The toast now
+//   counts every note that fitted NOWHERE (Report's overflow) - the margin's,
+//   or a region's with the margin off - where it used to ask only a margin
+//   that was switched on.
+//
 // 21-Sep-2026 - Version 1.9.0 (TrueVision)
 // - A turned viewport (Viewport__RotationDeg) prints turned. DrawViewport
 //   draws it exactly as a level one inside one graphics state carrying the
@@ -510,7 +517,7 @@
             const built = await Na__LePdf__BuildDocument(sheet, options);
             await built.doc.save(built.filename, { returnPromise : true });
             const margin = Na__LeMargin__Report(sheet, null);
-            if (margin.on && margin.overflow > 0) toast(Na__LeCfg__FormatLabel('PdfMarginOverflow', 'PDF downloaded, but {count} margin note(s) did not fit and were left out. Widen the notes margin or make its text smaller.', { count : margin.overflow }), true);
+            if (margin.overflow > 0) toast(Na__LeCfg__FormatLabel('PdfMarginOverflow', 'PDF downloaded, but {count} note(s) did not fit and were left out. Widen the notes margin, enlarge a note region or make the text smaller.', { count : margin.overflow }), true);   // <-- Every note that fitted nowhere: the margin's, or a note region's with the margin off
             else toast(Na__LeCfg__GetLabel('PdfReadyMessage', 'PDF downloaded.'), false);
             return true;
         } catch (exportError) {

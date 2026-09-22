@@ -425,7 +425,7 @@
             },
             {
                 "Id": "Edit__Group",
-                "Label": "Group the selected vectors and text",
+                "Label": "Group the selection - viewports, vectors, text, leaders and dimensions",
                 "Action": "Edit__Group",
                 "Enabled": true,
                 "Keys": [
@@ -436,7 +436,7 @@
                     "Ctrl"
                 ],
                 "ModifierMatch": "Exact",
-                "Note": "Needs at least two vectors, text items or groups. The browser Find chord is taken only when a group is made."
+                "Note": "Needs at least two items of any kind - viewports, vectors (pictures included), text items, leaders, dimensions or groups. The group moves as one piece, leader tips and all; one holding a viewport or a dimension waits for M, as they do alone. The browser Find chord is taken only when a group is made."
             },
             {
                 "Id": "Edit__Cut",
@@ -1152,7 +1152,7 @@
             },
             {
                 "Action": "Edit__Group",
-                "Label": "Group vectors and text",
+                "Label": "Group the selection",
                 "Group": "Editing"
             },
             {

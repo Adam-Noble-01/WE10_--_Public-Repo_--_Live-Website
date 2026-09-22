@@ -34,6 +34,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.3.0
+// - The badge counts the margin's own notes that go NOWHERE (Report's
+//   marginLost). With an overspill note region on the sheet the margin's tail
+//   carries on there, so the margin shows no badge for it; the region the
+//   list runs out in wears the badge instead (Na__LayoutEditor__NoteRegions__
+//   Grips__). With no region the count is the margin's overflow, as before.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - The grip is placed when a zoom settles (Na__LeSurface__ZOOM_SETTLED_EVENT),
 //   not on every frame of one. Render re-plans the whole notes margin - every
@@ -164,9 +171,9 @@
         grip.classList.toggle('is-dragging', !!Na__LeMarginGrip__Drag);
 
         const badge = Na__LeMarginGrip__Badge;
-        badge.hidden = !(report.overflow > 0);
+        badge.hidden = !(report.marginLost > 0);                                 // <-- The margin's own notes that go nowhere: a tail an overspill region carries on is shown there
         if (!badge.hidden) {
-            badge.textContent  = Na__LeCfg__FormatLabel('MarginOverflowBadge', '{count} not shown - widen the margin', { count : report.overflow });
+            badge.textContent  = Na__LeCfg__FormatLabel('MarginOverflowBadge', '{count} not shown - widen the margin', { count : report.marginLost });
             badge.style.left   = ((rect.X + 1.5) * ppm) + 'px';
             badge.style.bottom = ((layout.Page.HeightMm - (rect.Y + rect.HeightMm - 1.5)) * ppm) + 'px';
             badge.style.transform = 'scale(' + (1 / zoom) + ')';                 // <-- Readable at any zoom, anchored at its lower left

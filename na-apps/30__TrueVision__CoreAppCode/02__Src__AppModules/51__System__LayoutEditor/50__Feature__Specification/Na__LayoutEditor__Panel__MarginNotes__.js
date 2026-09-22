@@ -16,7 +16,12 @@
 // - A line under the switch says what the margin lists - how many notes, how
 //   many linked on this sheet and how many general - and warns when some do
 //   not fit, or when the specification is still loading or could not be read.
+// - Width and Heading are the column's own, shown while it is on; Text mm,
+//   List general notes and Group headings are the list's, and stay while the
+//   note regions list the notes with the margin off.
 // - Open Project Specification shows the tab where the notes are written.
+// - OVERSPILL NOTE REGIONS: a switch under the button, and under a rule the
+//   section it opens (Na__LayoutEditor__Panel__MarginNotes__Regions__).
 //
 // INTEGRATION:
 // - Registered in the left column by the mode controller, after Sheet.
@@ -30,6 +35,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - Overspill Note Regions: the switch and its section, built, refreshed and
+//   registered by the new Na__LayoutEditor__Panel__MarginNotes__Regions__.
+// - The settings block is two: the column's own (Width, Heading) while the
+//   margin is on, and the list's (Text mm, List general notes, Group
+//   headings) while the margin OR the regions are on - the regions are laid
+//   out by them too.
+// - The line under the switch counts across the margin and its regions: how
+//   many are in regions, what fits nowhere, and - with the margin off and no
+//   overspill region - what is not listed at all. A sheet with no regions
+//   reads exactly as before.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -47,6 +64,7 @@
     import { Na__LeRec__MarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeSpec__OPEN_EVENT, Na__LeSpec__STATUS_FAILED, Na__LeSpec__GetState } from './Na__LayoutEditor__SpecData__.js';
     import { Na__LeMargin__Report } from './Na__LayoutEditor__SpecMargin__.js';
+    import { Na__LePanelRegions__Build, Na__LePanelRegions__Refresh, Na__LePanelRegions__Register } from './Na__LayoutEditor__Panel__MarginNotes__Regions__.js';
     import {
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
@@ -85,13 +103,23 @@
         status.setAttribute('data-na-block', 'status');
         body.appendChild(status);
 
-        const rows = document.createElement('div');
-        rows.className = 'na-le-block';
-        rows.setAttribute('data-na-block', 'settings');
-        rows.appendChild(Na__LePanels__Row(L('MarginWidth', 'Width mm'), Na__LePanels__Input('number', 'margin-width', { min : setup.minWidthMm, max : 600, step : 1 })));
+        // THE COLUMN'S OWN | Only while the margin is on
+        // ------------------------------------
+        const column = document.createElement('div');
+        column.className = 'na-le-block';
+        column.setAttribute('data-na-block', 'column');
+        column.appendChild(Na__LePanels__Row(L('MarginWidth', 'Width mm'), Na__LePanels__Input('number', 'margin-width', { min : setup.minWidthMm, max : 600, step : 1 })));
         const heading = Na__LePanels__Input('text', 'margin-heading');
         heading.placeholder = setup.headingText;
-        rows.appendChild(Na__LePanels__Row(L('MarginHeading', 'Heading'), heading));
+        column.appendChild(Na__LePanels__Row(L('MarginHeading', 'Heading'), heading));
+        body.appendChild(column);
+
+        // THE LIST'S | What every box of notes on the sheet is laid out by, so
+        // they stay while the note regions list notes with the margin off
+        // ------------------------------------
+        const rows = document.createElement('div');
+        rows.className = 'na-le-block';
+        rows.setAttribute('data-na-block', 'list');
         rows.appendChild(Na__LePanels__Row(L('MarginTextSize', 'Text mm'), Na__LePanels__Input('number', 'margin-text-size', { min : setup.minTextSizeMm, max : setup.maxTextSizeMm, step : 0.1 })));
         const general = Na__LePanels__Row(L('MarginGeneral', 'List general notes'), Na__LePanels__Input('checkbox', 'margin-general'), 'na-le-row--toggle');
         general.title = L('MarginGeneralTitle', 'The notes in general groups, listed after the notes this sheet links to. A general note a bubble links to is listed either way.');
@@ -103,6 +131,8 @@
         bar.className = 'na-le-bar';
         bar.appendChild(Na__LePanels__Button(L('MarginOpenSpec', 'Open Project Specification'), 'margin-open-spec', ''));
         body.appendChild(bar);
+
+        Na__LePanelRegions__Build(body);                                         // <-- Overspill Note Regions: the switch, and under a rule the section it opens
     }
     // ------------------------------------------------------------
 
@@ -110,14 +140,23 @@
     // HELPER FUNCTION | The Line That Says What the Margin Holds (and whether it is a warning)
     // ------------------------------------------------------------
     function Na__LePanelMargin__Status(sheet, report) {
-        const L     = Na__LeCfg__GetLabel;
-        const state = Na__LeSpec__GetState();
-        if (!report.on) return { text : L('MarginOffNote', 'Off. Switch it on to list the specification notes this sheet’s bubbles link to, with the general notes last.'), warn : false };
-        if (state.status === Na__LeSpec__STATUS_FAILED && !state.loaded) return { text : L('MarginSpecFailed', 'The project specification could not be read, so there is nothing to list yet.'), warn : true };
-        if (report.pending) return { text : L('MarginSpecLoading', 'Loading the project specification...'), warn : false };
-        if (report.total === 0) return { text : L('MarginEmpty', 'Nothing to list yet: link a specification bubble to a note, or add general notes in Project Specification.'), warn : false };
-        let text = Na__LeCfg__FormatLabel('MarginStatus', 'Lists {total}: {linked} linked on this sheet, {general} general.', { total : report.total, linked : report.linked, general : report.general });
-        if (report.overflow > 0) text += ' ' + Na__LeCfg__FormatLabel('MarginOverflowNote', '{count} do not fit: widen the margin or make the text smaller.', { count : report.overflow });
+        const L       = Na__LeCfg__GetLabel;
+        const F       = Na__LeCfg__FormatLabel;
+        const state   = Na__LeSpec__GetState();
+        const regions = report.regions.length > 0;                              // <-- Note regions switched on and drawn: they list notes too
+        if (!report.on && !regions) return { text : L('MarginOffNote', 'Off. Switch it on to list the specification notes this sheet’s bubbles link to, with the general notes last.'), warn : false };
+        const lead = report.on ? '' : L('MarginOffRegions', 'The margin is off: the regions below list the notes.') + ' ';
+        if (state.status === Na__LeSpec__STATUS_FAILED && !state.loaded) return { text : lead + L('MarginSpecFailed', 'The project specification could not be read, so there is nothing to list yet.'), warn : true };
+        if (report.pending) return { text : lead + L('MarginSpecLoading', 'Loading the project specification...'), warn : false };
+        if (report.total === 0) return { text : lead + L('MarginEmpty', 'Nothing to list yet: link a specification bubble to a note, or add general notes in Project Specification.'), warn : false };
+        let text = lead + F('MarginStatus', 'Lists {total}: {linked} linked on this sheet, {general} general.', { total : report.total, linked : report.linked, general : report.general });
+        if (report.inRegions > 0) text += ' ' + F('MarginStatusRegions', '{count} in regions.', { count : report.inRegions });
+        if (report.overflow > 0) {
+            text += ' ' + (regions
+                ? F('MarginOverflowRegions', '{count} do not fit anywhere: enlarge a region, add an overspill region or make the text smaller.', { count : report.overflow })
+                : F('MarginOverflowNote', '{count} do not fit: widen the margin or make the text smaller.', { count : report.overflow }));
+        }
+        if (report.unlisted > 0) text += ' ' + F('MarginUnlisted', '{count} are not listed: the margin is off and no region takes the overspill.', { count : report.unlisted });
         if (state.status === Na__LeSpec__STATUS_FAILED) text += ' ' + L('MarginSpecOffline', 'The cloud copy could not be read: this is the copy in this browser.');
         return { text : text, warn : report.overflow > 0 || state.status === Na__LeSpec__STATUS_FAILED };
     }
@@ -139,11 +178,13 @@
         set('margin-text-size', settings.TextSizeMm);
         el('margin-general').checked = settings.IncludeGeneral === true;
         el('margin-groups').checked  = settings.GroupHeadings === true;
-        body.querySelector('[data-na-block="settings"]').hidden = settings.Enabled !== true;
+        body.querySelector('[data-na-block="column"]').hidden = settings.Enabled !== true;
+        body.querySelector('[data-na-block="list"]').hidden   = settings.Enabled !== true && !report.regionsOn;   // <-- The regions are laid out by these too
         const status = Na__LePanelMargin__Status(sheet, report);
         const note   = body.querySelector('[data-na-block="status"]');
         note.textContent = status.text;
         note.classList.toggle('na-le-note--warn', status.warn);
+        Na__LePanelRegions__Refresh(body, sheet, report);
     }
     // ------------------------------------------------------------
 
@@ -161,6 +202,7 @@
         on('change', 'margin-general',   (e, el) => apply({ includeGeneral : el.checked }));
         on('change', 'margin-groups',    (e, el) => apply({ groupHeadings : el.checked }));
         on('click',  'margin-open-spec', () => window.dispatchEvent(new CustomEvent(Na__LeSpec__OPEN_EVENT, { detail : {} })));
+        Na__LePanelRegions__Register();                                          // <-- The regions' switch, folds and Add region
         return Na__LePanels__RegisterSection('left', {
             id : Na__LePanelMargin__ID, title : Na__LeCfg__GetLabel('MarginNotesTitle', 'Margin Notes'),
             build : Na__LePanelMargin__Build, refresh : Na__LePanelMargin__Refresh

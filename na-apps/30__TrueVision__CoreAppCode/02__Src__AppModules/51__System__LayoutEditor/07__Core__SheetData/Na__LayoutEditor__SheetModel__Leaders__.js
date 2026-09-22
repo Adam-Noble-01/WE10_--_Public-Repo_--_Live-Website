@@ -17,8 +17,9 @@
 //   AssignDirty (an imported let cannot be assigned).
 //
 // INTEGRATION:
-// - Imports Na__LayoutEditor__SheetModel__State__ and
-//   Na__LayoutEditor__SheetModel__Layers__ (DefaultLayerId).
+// - Imports Na__LayoutEditor__SheetModel__State__,
+//   Na__LayoutEditor__SheetModel__Layers__ (DefaultLayerId) and
+//   Na__LayoutEditor__SheetModel__Groups__ (PruneGroups, after a delete).
 // - Leaders are drawn by Na__LayoutEditor__LeaderGeometry__.
 // - Na__LayoutEditor__SheetModel__ re-exports this unit's API. Every other
 //   module imports Na__LayoutEditor__SheetModel__.js, never this unit.
@@ -34,6 +35,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - DeleteLeader prunes the groups (Na__LeModel__PruneGroups), as DeleteShape
+//   and DeleteAnnotation always have: a leader can be a group's member now
+//   (Na__LayoutEditor__Groups__ 1.3.0), and deleting one on its own - the
+//   Delete key inside an open group, or a bubble's text emptied - left the
+//   group naming a leader that was gone.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - GetLeaderById and InsertLeader: a paste of a leader, the way InsertShape
 //   and InsertAnnotation paste a vector or a text item - a complete record,
@@ -64,6 +72,7 @@
     // ------------------------------------------------------------
     import { Na__LeModel__Touch, Na__LeModel__Unselect, Na__LeModel__AssignDirty } from './Na__LayoutEditor__SheetModel__State__.js';
     import { Na__LeModel__DefaultLayerId, Na__LeModel__GetLayerById } from './Na__LayoutEditor__SheetModel__Layers__.js';
+    import { Na__LeModel__PruneGroups } from './Na__LayoutEditor__SheetModel__Groups__.js';   // <-- It imports only the State unit, so this cannot cycle
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -181,6 +190,7 @@
         if (index === -1) return false;
         sheet.Sheet__Leaders.splice(index, 1);
         Na__LeModel__Unselect(itemId);
+        Na__LeModel__PruneGroups(sheet);                                        // <-- A group that held it lets it go; one left with one member dissolves
         Na__LeModel__Touch('leaders', sheet.Sheet__Id, itemId);
         return true;
     }

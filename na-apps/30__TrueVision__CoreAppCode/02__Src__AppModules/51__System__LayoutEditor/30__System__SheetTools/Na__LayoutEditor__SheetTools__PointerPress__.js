@@ -57,6 +57,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.7.0
+// - TOOL_REGION: a press hands the point to Na__LeRegionTool__Press (an
+//   overspill note region, drawn through the Rectangle tool) and captures
+//   the pointer, as the Rectangle tool's press does.
+//
 // 21-Sep-2026 - Version 1.6.0
 // - A press on the selected viewport's rotate grip starts a turn: a viewport
 //   drag with hit mode 'rotate', held by Na__LeHandles__RotateStart. It is a
@@ -162,6 +167,7 @@
     import { Na__LeRect__Press } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
     import { Na__LeVec__IsTool, Na__LeVec__Press } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools' one door: whichever of the nine is up
     import { Na__LeAreaTool__Press, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';   // <-- The Area tool: the two above, drawing a measured room
+    import { Na__LeRegionTool__Press } from '../50__Feature__Specification/Na__LayoutEditor__NoteRegions__Tool__.js';   // <-- The Region tool: the Rectangle tool, drawing an overspill note region
     import { Na__LeMeasure__Refresh, Na__LeMeasure__Clear } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__Press, Na__LeLeader__IsPlacing, Na__LeLeader__BeginEdit } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeDrop__Click, Na__LeDrop__Hover, Na__LeDrop__MODE_PALETTE, Na__LeDrop__GetMode } from './Na__LayoutEditor__Eyedropper__.js';
@@ -193,6 +199,7 @@
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__TOOL_AREA,
+        Na__LeTools__TOOL_REGION,
         Na__LeTools__PICK_TOOLS,
         Na__LeTools__Stage,
         Na__LeTools__Editable,
@@ -466,6 +473,16 @@
             // ------------------------------------
             if (Na__LeTools__Tool === Na__LeTools__TOOL_RECT) {
                 Na__LeRect__Press(sheet, point, event.shiftKey, Na__LeTools__GetShapeDefaults(), event.pointerId);
+                Na__LeMeasure__Refresh();
+                try { Na__LeTools__Stage.setPointerCapture(event.pointerId); } catch (e) { /* capture refused */ }
+                return;
+            }
+
+            // NOTE REGION | The Rectangle tool's press, with a region to make
+            // instead of a vector - captured for the same reason.
+            // ------------------------------------
+            if (Na__LeTools__Tool === Na__LeTools__TOOL_REGION) {
+                Na__LeRegionTool__Press(sheet, point, event.shiftKey, event.pointerId);
                 Na__LeMeasure__Refresh();
                 try { Na__LeTools__Stage.setPointerCapture(event.pointerId); } catch (e) { /* capture refused */ }
                 return;

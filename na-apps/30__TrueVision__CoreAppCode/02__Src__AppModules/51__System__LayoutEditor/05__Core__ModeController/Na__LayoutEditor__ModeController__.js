@@ -47,6 +47,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.29.0
+// - Overspill note regions' grips (Na__LayoutEditor__NoteRegions__Grips__) are
+//   attached and detached with the sheet input, beside the margin grip, and
+//   never for a viewer. A region is part of the notes margin record, so its
+//   changes are 'margin' changes: the markup redraws and the Margin Notes
+//   panel refreshes by the route the margin already had.
+//
 // 21-Sep-2026 - Version 1.28.0
 // - The Drawing Axes Overlay (Na__LayoutEditor__DrawingAxes__, F9) is
 //   attached and detached with the sheet input, straight after the drawing
@@ -331,6 +338,7 @@
     import { Na__LeStmt__OPEN_EVENT, Na__LeStmt__Initialize } from '../52__Feature__StatementWriter/01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
     import { Na__LeSpecEd__Mount, Na__LeSpecEd__Show, Na__LeSpecEd__Hide } from '../50__Feature__Specification/Na__LayoutEditor__SpecEditor__.js';
     import { Na__LeMarginGrip__Attach, Na__LeMarginGrip__Detach } from '../50__Feature__Specification/Na__LayoutEditor__MarginGrip__.js';
+    import { Na__LeRegionGrip__Attach, Na__LeRegionGrip__Detach } from '../50__Feature__Specification/Na__LayoutEditor__NoteRegions__Grips__.js';
     import { Na__LeText__Commit } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
     import { Na__LePdf__EnsureJsPdf } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';
     // ------------------------------------------------------------
@@ -539,11 +547,13 @@
         Na__LeGrid__Attach();                                                  // <-- The drawing grid is drawn with the tools, and never for a viewer
         Na__LeAxes__Attach();                                                  // <-- The drawing axes (F9) follow the pointer with the tools, and never for a viewer
         Na__LeMarginGrip__Attach({ editable : Na__LeMode__IsEditable() });
+        Na__LeRegionGrip__Attach({ editable : Na__LeMode__IsEditable() });    // <-- Each overspill note region's sides, corners and tab, beside the margin's own grip
         Na__LeImg__AttachInput();                                              // <-- Picture files dropped on the stage land on the sheet
     }
     function Na__LeMode__DetachSheetInput() {
         if (Na__LeVw__IsViewerMode()) return;
         Na__LeImg__DetachInput();                                              // <-- A crop in progress is kept, and drops stop
+        Na__LeRegionGrip__Detach();
         Na__LeMarginGrip__Detach();
         Na__LeGrid__Detach();
         Na__LeAxes__Detach();

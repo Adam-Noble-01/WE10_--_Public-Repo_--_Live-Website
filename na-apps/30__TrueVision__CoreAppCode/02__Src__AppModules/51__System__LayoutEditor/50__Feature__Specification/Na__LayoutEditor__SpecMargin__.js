@@ -6,7 +6,7 @@
 // NAMESPACE  : Na__LeMargin
 // MODULE     : Layout Editor - Specification Margin
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Lay out a sheet's notes margin - which specification notes it lists, in what order, wrapped to its width - and draw it as primitives
+// PURPOSE    : Lay out a sheet's notes margin - which specification notes it lists, in what order, wrapped to its width - with its overspill regions, and draw them as primitives
 // CREATED    : 14-Sep-2026
 //
 // DESCRIPTION:
@@ -21,29 +21,25 @@
 //   A general note is listed on every sheet whose margin includes general
 //   notes, and on any sheet whose bubbles link to it. A priority band that
 //   comes first is reserved here for when notes can be marked important.
-// - HOW A NOTE READS. Its code in bold, a pipe, then its title in bold on
-//   the same line; its specification text under that, wrapped to the full
-//   inner width at word boundaries (a word wider than the column breaks
-//   where it runs out), keeping the line breaks typed into it. A faint
-//   rule sits between notes. Optional group headings. The width of every
-//   run is measured with the same metrics the PDF uses, so a line breaks
-//   in the same place on the screen and on paper.
-// - OVERFLOW. Notes are laid top to bottom and a note that would cross the
-//   foot of the column is not drawn, nor any after it, so the order is never
-//   broken to squeeze a later note in. Report says how many did not fit; the
-//   panel, the grip badge and the PDF export warn about it.
-// - SPACING. The gap between two notes has a least and a most (NoteGapMm,
-//   NoteGapMaxMm), with the rule centred in it. What fits is decided at the
-//   least; when every note is in and the column has room left at the foot,
-//   every gap opens by the same amount towards the most. A full column, or
-//   one whose notes did not all fit, keeps the least.
+// - HOW A NOTE READS, OVERFLOW AND SPACING are the column's rules
+//   (Na__LayoutEditor__SpecMargin__Column__): code and title in bold on one
+//   line, the text wrapped under it by the PDF's own metrics, a faint rule
+//   between notes, optional group headings; a note that would cross the foot
+//   ends the list; the gaps open towards NoteGapMaxMm when every note fits.
+//   The margin hands the column its rectangle, its heading and its insets.
+// - OVERSPILL NOTE REGIONS (Na__LayoutEditor__NoteRegions__). The margin and
+//   the regions a sheet draws share its one list and are planned together
+//   (PlanAll): a group a region ticks leaves the margin, and the margin's
+//   tail carries on in the overspill regions. Push draws the regions straight
+//   after the margin, so every caller of Push draws them with nothing of its
+//   own to change, and Report counts the notes across all of them.
 // - Pure layout: nothing here touches the DOM or changes the model.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__MarkupBridge__ pushes the margin first in the sheet's
 //   markup, so the screen and the PDF draw it from the same primitives.
-// - Na__LayoutEditor__Panel__MarginNotes__, __MarginGrip__ and __PdfExporter__
-//   read Report.
+// - Na__LayoutEditor__Panel__MarginNotes__, __MarginGrip__, __NoteRegions__
+//   Grips__ and __PdfExporter__ read Report.
 //
 // -----------------------------------------------------------------------------
 //
@@ -54,6 +50,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - OVERSPILL NOTE REGIONS. PlanAll plans the margin and the sheet's regions
+//   in one pass (Na__LeRegions__Place); Plan answers the margin's part of it
+//   in the shape it always had, Push draws the regions after the margin, and
+//   Report adds regionsOn, inRegions, marginOverflow, marginLost, unlisted
+//   and a line per region. overflow now counts the notes that fitted
+//   NOWHERE - with no region on the sheet that is the margin's overflow
+//   exactly as before.
+// - The column itself - Wrap and the layout loop - moved verbatim to
+//   Na__LayoutEditor__SpecMargin__Column__, so a region is laid out by the
+//   margin's own code. Wrap is still exported here under its old name for
+//   the specification's PDF. A sheet with no regions plans, draws and
+//   reports exactly as it did - compared primitive for primitive against
+//   1.3.0 over ten margins, each with the specification loaded and loading -
+//   with one deliberate exception: a heading or group heading too wide for
+//   the margin now wraps rather than running past its right edge (the
+//   column's HeadingLines). One that fits is untouched.
+//
 // 14-Sep-2026 - Version 1.3.0
 // - The gap between notes stretches. NoteGapMm is the least and NoteGapMaxMm
 //   the most: a column with room to spare opens every gap evenly, up to the
@@ -89,25 +103,18 @@
         Na__LeCfg__GetSheetSetup,
         Na__LeCfg__PtToMm
     } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeChrome__MeasureTextMm, Na__LeChrome__PushRect, Na__LeChrome__PushLine, Na__LeChrome__PushText } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LeChrome__PushRect, Na__LeChrome__PushLine, Na__LeChrome__PushText } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeLayout__Solve, Na__LeLayout__MarginRect } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import { Na__LeRec__MarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js';
+    import { Na__LeRec__NoteRegionsOn, Na__LeRec__DrawnNoteRegions } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__NoteRegions__.js';
     import { Na__LeSpec__IsLoaded, Na__LeSpec__ListNotes } from './Na__LayoutEditor__SpecData__.js';
     import { Na__LeSpecLink__LinkedNoteIds } from './Na__LayoutEditor__SpecLinks__.js';
     // ------------------------------------------------------------
 
-// endregion -------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// REGION | Module Constants
-// -----------------------------------------------------------------------------
-
-    // MODULE CONSTANTS | Typography
+    // MODULE IMPORTS | The Column Every Box of Notes Is Laid By, and the Regions
     // ------------------------------------------------------------
-    const Na__LeMargin__CAP_HEIGHT = 0.72;     // <-- Helvetica cap height as a fraction of the font size, as the chrome measures it
-    const Na__LeMargin__DESCENT    = 0.25;
-    const Na__LeMargin__PIPE       = ' | ';    // <-- Fallback delimiter between the code and the title
+    import { Na__LeMarginCol__Wrap } from './Na__LayoutEditor__SpecMargin__Column__.js';
+    import { Na__LeRegions__Place, Na__LeRegions__Push } from './Na__LayoutEditor__NoteRegions__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -148,36 +155,10 @@
 
     // FUNCTION | Wrap Text to a Width: One String per Printed Line
     // ------------------------------------------------------------
-    // Line breaks typed into the text are kept (a blank line stays a blank
-    // line); within a line the breaks fall between words, and a word too wide
-    // for the column breaks where it runs out. Blank lines at either end go.
+    // The column's wrapper (Na__LayoutEditor__SpecMargin__Column__), under the
+    // name the specification's PDF has always imported it by.
     // ------------------------------------------------------------
-    function Na__LeMargin__Wrap(text, fontMm, weight, widthMm) {
-        const lines = [];
-        const fits  = (value) => Na__LeChrome__MeasureTextMm(value, fontMm, weight) <= widthMm;
-        String(text === undefined || text === null ? '' : text).split(/\r?\n/).forEach((paragraph) => {
-            const words = paragraph.split(/\s+/).filter((word) => word !== '');
-            if (!words.length) { lines.push(''); return; }
-            let line = '';
-            words.forEach((word) => {
-                const trial = line ? line + ' ' + word : word;
-                if (fits(trial)) { line = trial; return; }
-                if (line) lines.push(line);
-                line = '';
-                if (fits(word)) { line = word; return; }
-                let piece = '';
-                Array.from(word).forEach((character) => {
-                    if (piece && !fits(piece + character)) { lines.push(piece); piece = ''; }
-                    piece += character;
-                });
-                line = piece;
-            });
-            if (line) lines.push(line);
-        });
-        while (lines.length && lines[lines.length - 1] === '') lines.pop();
-        while (lines.length && lines[0] === '') lines.shift();
-        return lines;
-    }
+    const Na__LeMargin__Wrap = Na__LeMarginCol__Wrap;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -187,6 +168,54 @@
 // REGION | Layout
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | How the Margin's Notes Are Laid: Its Heading and Its Insets
+    // ------------------------------------------------------------
+    // The left inset runs down the top and the foot as well; the right one is
+    // the clearance before the sheet's right border. Neither is ever more than
+    // a quarter of the column's width. Heading null prints the configured one.
+    // ------------------------------------------------------------
+    function Na__LeMargin__ColumnOptions(rect, settings) {
+        const setup    = Na__LeCfg__GetMarginNotesSetup();
+        const padLeft  = Math.min(setup.paddingMm, rect.WidthMm / 4);
+        const padRight = Math.min(Number.isFinite(setup.paddingRightMm) ? setup.paddingRightMm : setup.paddingMm, rect.WidthMm / 4);
+        return {
+            heading    : String(settings.Heading || setup.headingText || ''),
+            padLeft    : padLeft,
+            padRight   : padRight,
+            padTop     : padLeft,
+            padBottom  : padLeft,
+            textSizeMm : settings.TextSizeMm,
+            groupHeadings : settings.GroupHeadings
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Plan Every Box of Notes on a Sheet: the Margin and Its Regions Together
+    // ------------------------------------------------------------
+    // Returns { layout, margin, place, found }:
+    //   margin  the margin's plan, as Plan answers it, or null without one
+    //   place   where every note went (Na__LeRegions__Place), or null when
+    //           neither the margin nor a region is drawn
+    //   found   the sheet's list (Entries), or undefined with nothing drawn
+    // One pass for both, because they share one list: a group a region ticks
+    // leaves the margin, and the margin's tail is what the overspill regions
+    // carry on with.
+    // ------------------------------------------------------------
+    function Na__LeMargin__PlanAll(sheet, layout) {
+        const lay     = layout || (sheet ? Na__LeLayout__Solve(sheet) : null);
+        const rect    = lay ? Na__LeLayout__MarginRect(sheet, lay.Content, lay.TitleBlock) : null;
+        const regions = lay ? Na__LeRec__DrawnNoteRegions(sheet) : [];
+        if (!rect && !regions.length) return { layout : lay, margin : null, place : null };
+        const settings = Na__LeRec__MarginNotes(sheet);
+        const found    = Na__LeMargin__Entries(sheet);
+        const place    = Na__LeRegions__Place(sheet, lay, found.entries, rect ? { rect : rect, options : Na__LeMargin__ColumnOptions(rect, settings) } : null);
+        const margin   = rect ? Object.assign(place.margin, { rect : rect, total : found.entries.length, linked : found.linked, general : found.general, pending : found.pending }) : null;
+        return { layout : lay, margin : margin, place : place, found : found };
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Plan the Column: Where Every Run of Text Goes and What Did Not Fit
     // ------------------------------------------------------------
     // Returns null when the sheet has no margin, else
@@ -194,128 +223,25 @@
     //   rules [{ X1, Y1, X2, Y2 }],
     //   total, shown, overflow, linked, general, pending,
     //   noteGapMm (the gap the notes were laid at, NoteGapMm to NoteGapMaxMm) }.
+    // total is every note the sheet lists; shown and overflow are the
+    // margin's own - a note a region claims was never the margin's to show,
+    // and one in overflow may carry on in an overspill region (Report says).
     // layout is the solved sheet layout; the margin itself is measured afresh
     // from the sheet, so a width dragged since the last solve is honoured.
     // ------------------------------------------------------------
     function Na__LeMargin__Plan(sheet, layout) {
-        const lay  = layout || (sheet ? Na__LeLayout__Solve(sheet) : null);
-        const rect = lay ? Na__LeLayout__MarginRect(sheet, lay.Content, lay.TitleBlock) : null;
-        if (!rect) return null;
-        const setup    = Na__LeCfg__GetMarginNotesSetup();
-        const style    = Na__LeCfg__GetStyleSetup();
-        const settings = Na__LeRec__MarginNotes(sheet);
-        const found    = Na__LeMargin__Entries(sheet);
-        const plan     = { rect : rect, runs : [], rules : [], total : found.entries.length, shown : 0, overflow : 0, linked : found.linked, general : found.general, pending : found.pending, noteGapMm : setup.noteGapMm };
-
-        const padLeft  = Math.min(setup.paddingMm, rect.WidthMm / 4);
-        const padRight = Math.min(Number.isFinite(setup.paddingRightMm) ? setup.paddingRightMm : setup.paddingMm, rect.WidthMm / 4);
-        const left     = rect.X + padLeft;
-        const right    = rect.X + rect.WidthMm - padRight;
-        const bottom   = rect.Y + rect.HeightMm - padLeft;
-        const bodyMm   = settings.TextSizeMm;
-        const titleMm = bodyMm * setup.titleScale;
-        const bodyGap = bodyMm * setup.lineSpacing;
-        const titleGap = titleMm * setup.lineSpacing;
-        const cap     = Na__LeMargin__CAP_HEIGHT;
-        let   y       = rect.Y + padLeft;                                        // <-- The top of the next run of text
-
-        // HEADING | Across the top, tracked capitals
-        const heading = String(settings.Heading || setup.headingText || '').trim();
-        if (heading) {
-            const headingMm = setup.headingSizeMm;
-            plan.runs.push({ text : heading.toUpperCase(), x : left, baselineY : y + (headingMm * cap), fontMm : headingMm, weight : 'bold', colour : style.inkColour, trackingMm : setup.headingTrackingMm });
-            y += (headingMm * (cap + Na__LeMargin__DESCENT)) + setup.headingGapMm;
-        }
-        if (!found.entries.length) return plan;
-
-        // THE NOTE | Code, a pipe and the title on one line; the body uses the
-        // full inner width. A title that wraps hangs under itself after the pipe.
-        // ------------------------------------
-        const inner = Math.max(1, right - left);
-        const pipe  = (typeof setup.codePipe === 'string') ? setup.codePipe : Na__LeMargin__PIPE;
-
-        let lastGroup = null;
-        let lastFoot  = y;                                                       // <-- The foot of the last note that fits, at the least gap
-        const laid    = [];                                                      // <-- Each note that fits: its runs and the rule above it, placed once the gap is known
-        for (let i = 0; i < found.entries.length; i++) {
-            const entry  = found.entries[i];
-            const runs   = [];
-            let   top    = y;
-
-            // GROUP HEADING | When asked for, above the first note of each group
-            if (settings.GroupHeadings && entry.group !== lastGroup) {
-                if (lastGroup) top += setup.groupGapMm;
-                const label = String(entry.group.Group__Title || entry.group.Group__Prefix).toUpperCase();
-                runs.push({ text : label, x : left, baselineY : top + (bodyMm * cap), fontMm : bodyMm, weight : 'bold', colour : style.mutedTextColour, trackingMm : setup.headingTrackingMm / 2 });
-                top += bodyGap;
-            }
-
-            const title     = String(entry.note.Note__Title == null ? '' : entry.note.Note__Title).trim();
-            const prefix    = title ? (String(entry.code) + pipe) : String(entry.code);
-            const prefixW   = Na__LeChrome__MeasureTextMm(prefix, titleMm, 'bold');
-            const titleW    = Math.max(1, inner - (title ? prefixW : 0));
-            const titleLines = title ? Na__LeMargin__Wrap(title, titleMm, 'bold', titleW) : [];
-            const bodyLines  = Na__LeMargin__Wrap(entry.note.Note__Body, bodyMm, 'normal', inner);
-            let baseline     = top + (titleMm * cap);
-            if (titleLines.length) {
-                runs.push({ text : prefix + titleLines[0], x : left, baselineY : baseline, fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
-                titleLines.slice(1).forEach((line) => {
-                    baseline += titleGap;
-                    runs.push({ text : line, x : left + prefixW, baselineY : baseline, fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
-                });
-            } else {
-                runs.push({ text : prefix, x : left, baselineY : baseline, fontMm : titleMm, weight : 'bold', colour : style.inkColour, trackingMm : 0 });
-            }
-            let bottomOfNote = baseline + (titleMm * Na__LeMargin__DESCENT);
-            if (bodyLines.length) {
-                let bodyBaseline = baseline + bodyGap;
-                bodyLines.forEach((line, k) => {
-                    if (k > 0) bodyBaseline += bodyGap;
-                    if (line !== '') runs.push({ text : line, x : left, baselineY : bodyBaseline, fontMm : bodyMm, weight : 'normal', colour : style.inkColour, trackingMm : 0 });
-                });
-                bottomOfNote = bodyBaseline + (bodyMm * Na__LeMargin__DESCENT);
-            }
-
-            // OVERFLOW | The first note that would cross the foot ends the list, so the order holds
-            if (bottomOfNote > bottom) { plan.overflow = found.entries.length - i; break; }
-            laid.push({ runs : runs, ruleY : (plan.shown > 0 && setup.noteGapMm > 0) ? y - (setup.noteGapMm / 2) : null });
-            plan.shown++;
-            lastGroup = entry.group;
-            lastFoot  = bottomOfNote;
-            y = bottomOfNote + setup.noteGapMm;
-        }
-
-        // SPACING | Room left at the foot opens every gap by the same amount,
-        // up to NoteGapMaxMm. Only a column whose notes all fit stretches, and
-        // what fits was decided at the least gap, so a stretch never pushes a
-        // note out. Each rule stays centred in its gap.
-        // ------------------------------------
-        const most  = Number.isFinite(setup.noteGapMaxMm) ? setup.noteGapMaxMm : setup.noteGapMm; // <-- A config without the key keeps the least
-        const gaps  = laid.length - 1;
-        const extra = (gaps > 0 && plan.overflow === 0) ? Math.max(0, Math.min(most - setup.noteGapMm, (bottom - lastFoot) / gaps)) : 0;
-        plan.noteGapMm = setup.noteGapMm + extra;
-        laid.forEach((note, n) => {
-            const shift = extra * n;
-            if (note.ruleY !== null) {
-                const ruleY = note.ruleY + shift - (extra / 2);
-                plan.rules.push({ X1 : left, Y1 : ruleY, X2 : right, Y2 : ruleY });
-            }
-            note.runs.forEach((run) => { run.baselineY += shift; plan.runs.push(run); });
-        });
-        return plan;
+        return Na__LeMargin__PlanAll(sheet, layout).margin;
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Push a Sheet's Margin as Primitives: Paper, Divider, Text (returns the plan, or null)
+    // HELPER FUNCTION | Push the Margin Column as Primitives: Paper, Divider, Rules, Text
     // ------------------------------------------------------------
     // The paper stops a border stroke short of the content border and the title
     // block, so on screen - where the chrome is under the markup - it never
     // covers the lines it sits between.
     // ------------------------------------------------------------
-    function Na__LeMargin__Push(list, sheet, layout) {
-        const plan = Na__LeMargin__Plan(sheet, layout);
-        if (!plan) return null;
+    function Na__LeMargin__PushColumn(list, plan) {
         const setup  = Na__LeCfg__GetMarginNotesSetup();
         const style  = Na__LeCfg__GetStyleSetup();
         const inset  = Na__LeCfg__GetSheetSetup().borderStrokeMm;
@@ -336,28 +262,68 @@
                 Colour : run.colour, Align : 'left', FontFamily : family, TrackingMm : run.trackingMm
             });
         });
-        return plan;
     }
     // ------------------------------------------------------------
 
 
-    // FUNCTION | A Sheet's Margin in Numbers, for the Panel, the Grip and the PDF
+    // FUNCTION | Push a Sheet's Notes as Primitives: the Margin, Then Its Regions (returns the margin's plan, or null)
     // ------------------------------------------------------------
-    // { on, settings, rect, total, shown, overflow, linked, general, pending }
+    // The regions go after the margin, so one laid over it is drawn over it.
+    // Every caller - the sheet surface, the PDF, the scrapbook previews - gets
+    // the regions from here with nothing of its own to change.
+    // ------------------------------------------------------------
+    function Na__LeMargin__Push(list, sheet, layout) {
+        const all = Na__LeMargin__PlanAll(sheet, layout);
+        if (all.margin) Na__LeMargin__PushColumn(list, all.margin);
+        if (all.place)  Na__LeRegions__Push(list, all.place);
+        return all.margin;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Sheet's Notes in Numbers, for the Panel, the Grips and the PDF
+    // ------------------------------------------------------------
+    // { on             the margin column is drawn
+    //   regionsOn      the regions are switched on (drawn or not: there may be none)
+    //   settings, rect, total, linked, general, pending   as they always were
+    //   shown          notes printed in the margin
+    //   inRegions      notes printed in a region
+    //   overflow       notes that had a place and fitted nowhere - with no
+    //                  region, the margin's overflow exactly as it always was
+    //   marginOverflow the margin's own tail, carried on or not
+    //   marginLost     the part of it that goes no further (the margin's badge)
+    //   unlisted       notes given no place at all: the margin off and no
+    //                  overspill region
+    //   regions        [{ id, index, rect, title, overspill, own, listed, shown,
+    //                     tail, lost, carriedTo (the index of the overspill
+    //                     region the tail carries on in, or null) }] }
     // ------------------------------------------------------------
     function Na__LeMargin__Report(sheet, layout) {
         const settings = Na__LeRec__MarginNotes(sheet);
-        const plan     = (sheet && settings.Enabled === true) ? Na__LeMargin__Plan(sheet, layout) : null;
+        const all      = sheet ? Na__LeMargin__PlanAll(sheet, layout) : { margin : null, place : null };
+        const plan     = all.margin;
+        const place    = all.place;
+        const found    = all.found || null;
         return {
-            on       : !!plan,
-            settings : settings,
-            rect     : plan ? plan.rect : null,
-            total    : plan ? plan.total : 0,
-            shown    : plan ? plan.shown : 0,
-            overflow : plan ? plan.overflow : 0,
-            linked   : plan ? plan.linked : 0,
-            general  : plan ? plan.general : 0,
-            pending  : plan ? plan.pending : !Na__LeSpec__IsLoaded()
+            on             : !!plan,
+            regionsOn      : Na__LeRec__NoteRegionsOn(sheet),
+            settings       : settings,
+            rect           : plan ? plan.rect : null,
+            total          : found ? found.entries.length : 0,
+            shown          : plan ? plan.shown : 0,
+            inRegions      : place ? place.inRegions : 0,
+            overflow       : place ? place.lost : 0,
+            marginOverflow : plan ? plan.overflow : 0,
+            marginLost     : place ? place.marginLost : 0,
+            unlisted       : place ? place.unlisted : 0,
+            linked         : found ? found.linked : 0,
+            general        : found ? found.general : 0,
+            pending        : found ? found.pending : !Na__LeSpec__IsLoaded(),
+            regions        : place ? place.regions.map((p) => ({
+                id : p.id, index : p.index, rect : p.rect, title : p.title, overspill : p.overspill,
+                own : p.own.length, listed : p.list.length, shown : p.shown, tail : p.tail, lost : p.lost,
+                carriedTo : p.carriedTo ? p.carriedTo.index : null
+            })) : []
         };
     }
     // ------------------------------------------------------------
@@ -374,6 +340,7 @@
     export {
         Na__LeMargin__Entries,
         Na__LeMargin__Wrap,
+        Na__LeMargin__PlanAll,
         Na__LeMargin__Plan,
         Na__LeMargin__Push,
         Na__LeMargin__Report

@@ -350,3 +350,193 @@
 
 /* endregion ------------------------------------------------------- */
 
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Overspill Note Regions in the Margin Notes Panel       */
+/* ----------------------------------------------------------------- */
+
+/* THE RULE the regions' section opens under: the section divider's own
+   hairline, so it reads as a part of Margin Notes rather than a new panel. */
+.na-le-rule {
+    height                             : 0;
+    margin                             : 10px 0 8px;
+    border                             : none;
+    border-top                         : 1px solid rgba(23, 43, 58, 0.14);
+}
+
+/* A REGION'S FOLD is the Leaders panel's Endpoint fold (na-le-subfold-toggle
+   and na-le-subfold, in the panels stylesheet); after its name it says, in a
+   quieter grey, what it lists. */
+.na-le-region-fold__summary {
+    flex                               : 0 1 auto;
+    min-width                          : 0;
+    overflow                           : hidden;
+    color                              : #8a96a0;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+}
+
+.na-le-region-fold__summary::before {
+    content                            : '\00B7';
+    margin                             : 0 6px 0 2px;
+}
+
+.na-le-region-fold__toggle.is-open .na-le-region-fold__summary {
+    color                              : #5f9ccb;
+}
+
+/* A GROUP'S ROW: its prefix in a small chip before its title, and - when an
+   earlier region already lists it - which one, before the tick. */
+.na-le-region-group__code {
+    flex                               : 0 0 auto;
+    min-width                          : 26px;
+    padding                            : 0 4px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 3px;
+    background                         : #f4f6f8;
+    color                              : #46596b;
+    font-size                          : 0.66rem;
+    font-weight                        : 700;
+    letter-spacing                     : 0.04em;
+    text-align                         : center;
+}
+
+.na-le-region-group__taken {
+    flex                               : 0 0 auto;
+    color                              : #8a96a0;
+    font-size                          : 0.66rem;
+    white-space                        : nowrap;
+}
+
+.na-le-region-group__taken.is-conflict {
+    color                              : #9b3b3b;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Overspill Note Regions on the Paper                    */
+/* ----------------------------------------------------------------- */
+
+/* The layer sits over the paper and takes no pointer itself, as the margin
+   grip's does; only a region's sides, corners and tab do, and only while they
+   are shown (the Select tool, an editable session). Every size in here is
+   counter-scaled in code, so it is the same on screen at any zoom. */
+.na-le-region-layer {
+    position                           : absolute;
+    top                                : 0;
+    left                               : 0;
+    width                              : 100%;
+    height                             : 100%;
+    z-index                            : 5;
+    pointer-events                     : none;
+}
+
+.na-le-region-layer[hidden],
+.na-le-region__edge[hidden],
+.na-le-region__corner[hidden],
+.na-le-region__move[hidden],
+.na-le-region__badge[hidden] {
+    display                            : none;
+}
+
+.na-le-region {
+    position                           : absolute;
+    pointer-events                     : none;
+    --na-le-region-line                : 1px;                        /* <-- One screen pixel inside the paper's scale, written in code */
+}
+
+/* THE OUTLINE: nothing until the region is found - the pointer on one of its
+   grips, its fold in the panel, or a drag - then a dashed box round it. */
+.na-le-region__outline {
+    position                           : absolute;
+    inset                              : 0;
+    border                             : var(--na-le-region-line) dashed rgba(26, 127, 196, 0);
+    transition                         : border-color 0.15s;
+    pointer-events                     : none;
+}
+
+.na-le-region.is-editable:hover .na-le-region__outline,
+.na-le-region.is-lit .na-le-region__outline,
+.na-le-region.is-dragging .na-le-region__outline {
+    border-color                       : rgba(26, 127, 196, 0.75);
+}
+
+.na-le-region__edge,
+.na-le-region__corner,
+.na-le-region__move {
+    position                           : absolute;
+    pointer-events                     : auto;
+    touch-action                       : none;
+}
+
+/* A SIDE shows the margin grip's line along it while the pointer is on it:
+   a fifth of its reach, in the middle. */
+.na-le-region__edge::after {
+    content                            : '';
+    position                           : absolute;
+    background                         : rgba(26, 127, 196, 0);
+    transition                         : background 0.15s;
+}
+
+.na-le-region__edge--n::after,
+.na-le-region__edge--s::after {
+    left                               : 0;
+    right                              : 0;
+    top                                : 40%;
+    height                             : 20%;
+}
+
+.na-le-region__edge--e::after,
+.na-le-region__edge--w::after {
+    top                                : 0;
+    bottom                             : 0;
+    left                               : 40%;
+    width                              : 20%;
+}
+
+.na-le-region__edge:hover::after {
+    background                         : rgba(26, 127, 196, 0.6);
+}
+
+/* A CORNER is a small open square, as a vector's grip is, once the region
+   has been found. */
+.na-le-region__corner::after {
+    content                            : '';
+    position                           : absolute;
+    inset                              : 28%;
+    border                             : var(--na-le-region-line) solid rgba(26, 127, 196, 0);
+    background                         : rgba(255, 255, 255, 0);
+    transition                         : border-color 0.15s, background 0.15s;
+}
+
+.na-le-region.is-editable:hover .na-le-region__corner::after,
+.na-le-region.is-lit .na-le-region__corner::after,
+.na-le-region.is-dragging .na-le-region__corner::after {
+    border-color                       : #1a7fc4;
+    background                         : #ffffff;
+}
+
+.na-le-region__corner:hover::after {
+    background                         : #1a7fc4;
+}
+
+/* THE TAB above the top side moves the region whole: the Move tool's
+   four-way arrow, in white on the selection blue, once the region is found. */
+.na-le-region__move {
+    border-radius                      : 999px;
+    background                         : #1a7fc4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.5 L15 6 H13 V11 H18 V9 L21.5 12 L18 15 V13 H13 V18 H15 L12 21.5 L9 18 H11 V13 H6 V15 L2.5 12 L6 9 V11 H11 V6 H9 Z' fill='%23ffffff'/%3E%3C/svg%3E") center / auto 80% no-repeat;
+    box-shadow                         : 0 1px 3px rgba(23, 43, 58, 0.25);
+    opacity                            : 0;
+    transition                         : opacity 0.15s;
+}
+
+.na-le-region.is-editable:hover .na-le-region__move,
+.na-le-region.is-lit .na-le-region__move,
+.na-le-region.is-dragging .na-le-region__move {
+    opacity                            : 1;
+}
+
+/* endregion ------------------------------------------------------- */
+

@@ -47,6 +47,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.7.0
+// - A PASTE INSIDE AN OPEN GROUP JOINS IT. InsertSet - Ctrl+V, the menu's
+//   Paste, Ctrl+D and a scrapbook drop - puts the roots it landed into the
+//   innermost open group (Na__LeScope__AdoptIntoOpenGroup) before its one
+//   announcement: they used to land on the sheet outside the group, faded and
+//   out of reach until it was closed. A group's leaders, dimensions and now
+//   viewports copy with it, remapped like every other member.
+//
 // 21-Sep-2026 - Version 1.6.0
 // - A PASTE ON ANOTHER SHEET BRINGS ITS LAYERS. Each item lands on the layer
 //   of the same NAME there: layer ids are per sheet - Layer_006 is Guides on
@@ -153,6 +161,7 @@
     import { Na__LeDrawScale__DimensionAtScale } from '../07__Core__SheetData/Na__LayoutEditor__DrawingScale__.js';
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeGroup__Expand, Na__LeGroup__ItemsBounds } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
+    import { Na__LeScope__AdoptIntoOpenGroup } from './Na__LayoutEditor__EditScope__.js';   // <-- What is put down inside an open group joins it
     import { Na__LePanels__GetContext } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
     import {
         Na__LeClip__CopyViewport,
@@ -178,10 +187,11 @@
     const Na__LeClip__SAME_SPOT_MM = 0.5;
     const Na__LeClip__MAX_STEPS    = 40;
 
-    // A leader is not a groupable kind (Na__LeGroup__KINDS leaves it out, so
-    // Ctrl+G never takes it - see Na__LayoutEditor__Groups__), but it is a
-    // "Set" member here: Copy, Duplicate and Paste all read it through this
-    // list rather than through Na__LeGroup__IsKind.
+    // Every kind a "Set" may hold: Copy, Duplicate and Paste all read it
+    // through this list rather than through Na__LeGroup__IsKind, because a
+    // viewport copies with the rest but never joins a group
+    // (Na__LayoutEditor__Groups__). A group's leaders and dimensions come
+    // with it as members, their ids remapped like any other.
     const Na__LeClip__COPYABLE_KINDS = Object.freeze([ 'shape', 'annotation', 'group', 'leader', 'dimension', 'viewport' ]);
 
     let Na__LeClip__HeldSet = null;   // <-- { kind:'set', roots, entries, origin, size, sourceSheetId, sourceLayers }
@@ -626,6 +636,16 @@
         const route   = Na__LeClip__Route(sheet, set.sourceSheetId, set.sourceLayers);
         const leaf    = Na__LeClip__InsertLeaves(sheet, entries, ids, dx, dy, null, route);   // <-- All silent until one announce below, so groups - and any layer the paste brings - land in the same undo step
         Na__LeClip__InsertGroups(sheet, entries, ids, null);
+        const landed  = (set.roots || []).map((root) => {
+            const id = ids.get(root.kind + ':' + root.id);
+            return id ? { kind : root.kind, id : id } : null;
+        }).filter(Boolean);
+        // INSIDE AN OPEN GROUP WHAT IS PUT DOWN JOINS IT, as a copy dragged off
+        // a member does: a paste, a Duplicate or a scrapbook item landing on
+        // the sheet outside the group would be faded and out of reach. Silent,
+        // before the one announcement, so undo takes the paste and its
+        // membership together (Na__LeScope__AdoptIntoOpenGroup).
+        Na__LeScope__AdoptIntoOpenGroup(sheet, landed);
         if (leaf && leaf.kind === 'shape')           Na__LeModel__UpdateShape(sheet, leaf.id, {}, false);
         else if (leaf && leaf.kind === 'annotation') Na__LeModel__UpdateAnnotation(sheet, leaf.id, {}, false);
         else if (leaf && leaf.kind === 'leader')     Na__LeModel__UpdateLeader(sheet, leaf.id, {}, false);
@@ -641,10 +661,6 @@
         const restacked = route.report.made.concat(route.report.shown);
         if (restacked.length) Na__LeModel__UpdateLayer(sheet, restacked[0].Layer__Id, {}, false);
         if (report && typeof report === 'object') Object.assign(report, route.report);
-        const landed = (set.roots || []).map((root) => {
-            const id = ids.get(root.kind + ':' + root.id);
-            return id ? { kind : root.kind, id : id } : null;
-        }).filter(Boolean);
         const selected = landed.filter((item) => Na__LeModel__IsItemPickable(sheet, item));   // <-- What landed on a reference layer is seen, not picked
         if (selected.length === 1) Na__LeModel__SetSelection(selected[0]);
         else if (selected.length > 1 || landed.length) Na__LeModel__SetSelectionItems(selected);

@@ -37,6 +37,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - DeleteDimension prunes the groups, as DeleteAnnotation does: a dimension
+//   can be a group's member now (Na__LayoutEditor__Groups__ 1.3.0), and one
+//   deleted on its own left the group naming a dimension that was gone.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - CreateDimension takes roundUp and UpdateDimension the roundUp patch key:
 //   Dimension__RoundUp, the Dimensions panel's Round up to 5 mm. Off is no
@@ -270,6 +275,7 @@
         if (index === -1) return false;
         sheet.Sheet__Dimensions.splice(index, 1);
         Na__LeModel__Unselect(itemId);
+        Na__LeModel__PruneGroups(sheet);                                        // <-- A group that held it lets it go; one left with one member dissolves
         Na__LeModel__Touch('dimensions', sheet.Sheet__Id, itemId);
         return true;
     }

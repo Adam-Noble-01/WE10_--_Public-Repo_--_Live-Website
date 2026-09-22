@@ -28,7 +28,8 @@
 //       block's and the notes margin's corners, ends and midpoints, and their
 //       lines - read off the chrome primitives the screen and the PDF are
 //       drawn from, so a cell that grows to fit a long title moves its snap
-//       points with it.
+//       points with it. And each overspill note region's corners, side
+//       middles, centre and sides, read live from the sheet.
 // - A LINEAR SCAN, NOT AN INDEX, and deliberately. A sheet carries tens to a
 //   few hundred vertices, which is microseconds to walk per pointer move. An
 //   index would have to be invalidated by every change - including the SILENT
@@ -66,6 +67,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - OVERSPILL NOTE REGIONS are paper snap sources (RegionBoxes): corners and
+//   side middles, the centre, and the four sides for Perpendicular,
+//   Intersection and Nearest - so a region's edge lines up with the margin,
+//   with another region or with a drawing, and a second region can start on
+//   the first one's corner. The one being dragged is left out
+//   ({ kind : 'noteregion', id } in exclude). Read live off the sheet's
+//   record, not with the chrome cache: a sheet has a handful, and they move
+//   under a grip. No new import, so the snap bundles the tests build need no
+//   new stub.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Moved here from the Snapping module. New: text is a snap source; a closed
 //   vector offers its centre; circles and arcs offer their centre and their
@@ -196,6 +208,41 @@
     // FUNCTION | The Sheet Paper's Snap Points (flat [x, y, kind (0 end, 1 mid), ...])
     // ------------------------------------------------------------
     function Na__LeOsnap__ChromePoints(sheet) { return Na__LeOsnap__ChromeFor(sheet).points; }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Note Regions the Sheet on Screen Draws, as the Boxes They Are Drawn In
+    // ------------------------------------------------------------
+    // Overspill note regions are set out on the paper like the notes margin
+    // whose tail they carry on, so they snap as its divider does - on the
+    // paper's own target, and only for the sheet on screen. Read LIVE, not
+    // cached with the chrome: there are a handful, and a region whose edge was
+    // dragged a moment ago must offer where it is now. The regions are read
+    // straight off the sheet's notes margin record, as the vectors and the
+    // text are read off theirs, and each box is its frame moved onto the page
+    // exactly as Na__LeLayout__ClampToPage moves it for drawing (never
+    // resized, only cut down to a page it is larger than). A region being
+    // dragged, named { kind : 'noteregion', id } in exclude, is left out so
+    // it never snaps to itself.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__RegionBoxes(sheet, exclude) {
+        const notes   = sheet ? sheet.Sheet__MarginNotes : null;
+        const regions = (notes && notes.RegionsOn === true && Array.isArray(notes.Regions)) ? notes.Regions : [];
+        if (!regions.length) return [];
+        const onScreen = Na__LeSurface__GetSheet();
+        const layout   = Na__LeSurface__GetLayout();
+        if (!onScreen || onScreen.Sheet__Id !== sheet.Sheet__Id || !layout || !layout.Page) return [];
+        const page = layout.Page;
+        const skip = new Set(Na__LeOsnap__Exclusions(exclude).filter((item) => item.kind === 'noteregion').map((item) => item.id));
+        const out  = [];
+        regions.forEach((region) => {
+            const f = region ? region.Region__FrameMm : null;
+            if (!f || skip.has(region.Region__Id) || ![ f.X, f.Y, f.WidthMm, f.HeightMm ].every(Number.isFinite)) return;
+            const w = Math.min(f.WidthMm, page.WidthMm), h = Math.min(f.HeightMm, page.HeightMm);
+            out.push({ id : region.Region__Id, box : { X : Math.max(0, Math.min(f.X, page.WidthMm - w)), Y : Math.max(0, Math.min(f.Y, page.HeightMm - h)), WidthMm : w, HeightMm : h } });
+        });
+        return out;
+    }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -393,6 +440,18 @@
             for (let k = 0; k + 2 < chrome.length; k += 3) {
                 visit(chrome[k], chrome[k + 1], chrome[k + 2] === 1 ? Na__LeOsnap__KIND_MID : Na__LeOsnap__KIND_END, Na__LeOsnap__TARGET_PAPER, 'chrome', null);
             }
+
+            // NOTE REGIONS | Their corners, the middles of their sides and their
+            // centre, on the paper's own target
+            // ------------------------------------
+            Na__LeOsnap__RegionBoxes(sheet, exclude).forEach((entry) => {
+                const b = entry.box, x0 = b.X, y0 = b.Y, x1 = b.X + b.WidthMm, y1 = b.Y + b.HeightMm;
+                if (Na__LeOsnap__FarFrom(near, x0, y0, x1, y1)) return;
+                const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+                [ [ x0, y0 ], [ x1, y0 ], [ x1, y1 ], [ x0, y1 ] ].forEach((p) => visit(p[0], p[1], Na__LeOsnap__KIND_END, Na__LeOsnap__TARGET_PAPER, 'noteregion', entry.id));
+                [ [ mx, y0 ], [ x1, my ], [ mx, y1 ], [ x0, my ] ].forEach((p) => visit(p[0], p[1], Na__LeOsnap__KIND_MID, Na__LeOsnap__TARGET_PAPER, 'noteregion', entry.id));
+                visit(mx, my, Na__LeOsnap__KIND_CEN, Na__LeOsnap__TARGET_PAPER, 'noteregion', entry.id);
+            });
         }
     }
     // ------------------------------------------------------------
@@ -442,6 +501,17 @@
                 if (Na__LeOsnap__FarFrom(near, Math.min(segs[k], segs[k + 2]), Math.min(segs[k + 1], segs[k + 3]), Math.max(segs[k], segs[k + 2]), Math.max(segs[k + 1], segs[k + 3]))) continue;
                 visit(segs[k], segs[k + 1], segs[k + 2], segs[k + 3], Na__LeOsnap__TARGET_PAPER, 'chrome', null);
             }
+
+            // NOTE REGIONS | Their four sides, drawn border or not: the edge of
+            // the box is where its notes stop either way
+            // ------------------------------------
+            Na__LeOsnap__RegionBoxes(sheet, exclude).forEach((entry) => {
+                const b = entry.box, x0 = b.X, y0 = b.Y, x1 = b.X + b.WidthMm, y1 = b.Y + b.HeightMm;
+                [ [ x0, y0, x1, y0 ], [ x1, y0, x1, y1 ], [ x0, y1, x1, y1 ], [ x0, y0, x0, y1 ] ].forEach((s) => {
+                    if (Na__LeOsnap__FarFrom(near, Math.min(s[0], s[2]), Math.min(s[1], s[3]), Math.max(s[0], s[2]), Math.max(s[1], s[3]))) return;
+                    visit(s[0], s[1], s[2], s[3], Na__LeOsnap__TARGET_PAPER, 'noteregion', entry.id);
+                });
+            });
         }
     }
     // ------------------------------------------------------------

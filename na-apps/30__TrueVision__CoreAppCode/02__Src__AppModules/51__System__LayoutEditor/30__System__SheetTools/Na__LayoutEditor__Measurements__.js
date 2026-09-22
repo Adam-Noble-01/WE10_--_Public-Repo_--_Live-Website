@@ -72,6 +72,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.10.0
+// - The Region tool (an overspill note region, 50__Feature__Specification)
+//   reads and takes a width x height exactly as the Rectangle tool it draws
+//   through does (Effective), but always in PAPER millimetres: a region is
+//   laid out on the paper, so Draw at scale never reaches it (RectAtScale).
+//   A typed size that lands one says so (Settle), and the panel opens it.
+//
 // 21-Sep-2026 - Version 1.9.0
 // - A VECTOR TOOL READS AND TYPES THROUGH THE CONTEXT (37__System__VectorTools:
 //   Circle, Arc, Offset, Fillet, Chamfer). getVectorReading gives the box its
@@ -179,6 +186,7 @@
     import { Na__LeShape__Measure, Na__LeShape__TypeLength } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Measure, Na__LeRect__TypeSize } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
     import { Na__LeAreaTool__IsRectangle, Na__LeAreaTool__Settled } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';   // <-- Which of the two the Area tool is drawing with
+    import { Na__LeRegionTool__Settled } from '../50__Feature__Specification/Na__LayoutEditor__NoteRegions__Tool__.js';                         // <-- A typed size that lands a note region says so
     import { Na__LeDim__Measure, Na__LeDim__TypeSpan, Na__LeDim__TypeOffset } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     // ------------------------------------------------------------
 
@@ -195,6 +203,7 @@
     const Na__LeMeasure__TOOL_RECT      = 'rectangle';
     const Na__LeMeasure__TOOL_DIMENSION = 'dimension';
     const Na__LeMeasure__TOOL_AREA      = 'area';       // <-- The Area tool, which IS one of the two above with a room's settings on it
+    const Na__LeMeasure__TOOL_REGION    = 'note-region';   // <-- The Region tool, which IS the Rectangle tool with a note region to make
     const Na__LeMeasure__KIND_LENGTH    = 'length';     // <-- One figure: a line, a span or an offset
     const Na__LeMeasure__KIND_PAIR      = 'pair';       // <-- Width and height
     // ------------------------------------------------------------
@@ -263,6 +272,7 @@
     // ------------------------------------------------------------
     function Na__LeMeasure__Settle(ctx, sheet) {
         if (ctx.getTool() === Na__LeMeasure__TOOL_AREA) Na__LeAreaTool__Settled(sheet);   // <-- The panel then puts the cursor in the new room's name box
+        if (ctx.getTool() === Na__LeMeasure__TOOL_REGION) Na__LeRegionTool__Settled();     // <-- A typed width and height landed a note region: the panel opens its fold
     }
     // ------------------------------------------------------------
 
@@ -273,10 +283,24 @@
     // the Rectangle tool corner to corner, so a length or a width by a height
     // is read and typed exactly as it is for a vector. Asking which of the two
     // it is here is what keeps every reading, hint and commit below unchanged.
+    // The Region tool IS the Rectangle tool, drawing a note region.
     // ------------------------------------------------------------
     function Na__LeMeasure__Effective(tool) {
+        if (tool === Na__LeMeasure__TOOL_REGION) return Na__LeMeasure__TOOL_RECT;
         if (tool !== Na__LeMeasure__TOOL_AREA) return tool;
         return Na__LeAreaTool__IsRectangle() ? Na__LeMeasure__TOOL_RECT : Na__LeMeasure__TOOL_DRAW;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does a Box Being Drawn Read and Take Sizes at the Drawing's Scale
+    // ------------------------------------------------------------
+    // A rectangle does while the Vectors panel's Draw at scale is on. A note
+    // region never does: it is laid out on the paper, and its size is paper
+    // millimetres whatever drawing it is drawn over.
+    // ------------------------------------------------------------
+    function Na__LeMeasure__RectAtScale(ctx) {
+        return ctx.getTool() !== Na__LeMeasure__TOOL_REGION && ctx.getShapeDefaults().atScale !== false;
     }
     // ------------------------------------------------------------
 
@@ -554,7 +578,7 @@
         }
 
         if (tool === Na__LeMeasure__TOOL_RECT) {
-            const atScale     = ctx.getShapeDefaults().atScale !== false;
+            const atScale     = Na__LeMeasure__RectAtScale(ctx);
             const box         = Na__LeRect__Measure(sheet);
             const denominator = atScale ? Na__LeDrawScale__DenominatorAt(sheet, box ? box.anchor : cursor) : 1;
             const value       = box ? Na__LeMeasure__FormatPair(Math.abs(box.corner.x - box.anchor.x) * denominator, Math.abs(box.corner.y - box.anchor.y) * denominator) : '';
@@ -810,7 +834,7 @@
         if (!box) return Na__LeMeasure__Fail('MeasureNeedCorner', 'Click the first corner, then type width x height.');
         const pair = Na__LeMParse__Pair(text);
         if (!pair.ok) return pair.reason === Na__LeMParse__REASON_UNIT ? Na__LeMeasure__BadLength(pair) : Na__LeMeasure__Fail('MeasureBadPair', 'Type width x height: 3000 x 2000, or 3m x 2m.');
-        const denominator = ctx.getShapeDefaults().atScale !== false ? Na__LeDrawScale__DenominatorAt(sheet, box.anchor) : 1;
+        const denominator = Na__LeMeasure__RectAtScale(ctx) ? Na__LeDrawScale__DenominatorAt(sheet, box.anchor) : 1;
         const result = Na__LeRect__TypeSize(sheet, pair.first === null ? null : pair.first / denominator, pair.second === null ? null : pair.second / denominator);
         if (!result.ok) {
             return result.reason === 'flat'

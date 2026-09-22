@@ -36,6 +36,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - GetMarginNotesSetup answers the Overspill Note Regions settings:
+//   regionMinSizeMm, regionPaddingMm, regionOverspillTitle, regionGroupsTitle,
+//   regionBordersDefault and regionGripPx. A config without them reads the
+//   same numbers from the fallbacks here.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - GetNavigationSetup reads AuthoringZoomMax (64 when unset, never below
 //   ZoomMax) as authoringZoomMax: how far a session that may author zooms
@@ -198,6 +204,11 @@
     // between the code and the title; RulePt and RuleColour draw the line
     // between notes. That gap is NoteGapMm at the least, and opens towards
     // NoteGapMaxMm when every note fits with room to spare.
+    // OVERSPILL NOTE REGIONS are laid out by the same rules: regionMinSizeMm is
+    // the least a region may be either way, regionPaddingMm its inset on every
+    // side, the two titles what an untitled region prints, regionBordersDefault
+    // whether a new region starts boxed, and regionGripPx the on-screen reach
+    // of its edge and corner grips.
     // ------------------------------------------------------------
     function Na__LeCfg__GetMarginNotesSetup() {
         return {
@@ -225,7 +236,13 @@
             ruleColour        : Na__LeCfg__Val('MarginNotes', 'RuleColour', '#cfd4d8'),
             includeGeneral    : Na__LeCfg__Val('MarginNotes', 'IncludeGeneralNotes', true) !== false,
             groupHeadings     : Na__LeCfg__Val('MarginNotes', 'GroupHeadings', false) === true,
-            gripWidthPx       : Math.max(4, Na__LeCfg__Num('MarginNotes', 'GripWidthPx', 10))
+            gripWidthPx       : Math.max(4, Na__LeCfg__Num('MarginNotes', 'GripWidthPx', 10)),
+            regionMinSizeMm   : Math.max(5, Na__LeCfg__Num('MarginNotes', 'RegionMinSizeMm', 15)),
+            regionPaddingMm   : Math.max(0, Na__LeCfg__Num('MarginNotes', 'RegionPaddingMm', 3)),
+            regionOverspillTitle : String(Na__LeCfg__Val('MarginNotes', 'RegionOverspillTitle', 'NOTES (CONTINUED)')),
+            regionGroupsTitle    : String(Na__LeCfg__Val('MarginNotes', 'RegionGroupsTitle', 'NOTES')),
+            regionBordersDefault : Na__LeCfg__Val('MarginNotes', 'RegionBordersDefault', true) !== false,
+            regionGripPx      : Math.max(4, Na__LeCfg__Num('MarginNotes', 'RegionGripPx', 10))
         };
     }
     // ------------------------------------------------------------

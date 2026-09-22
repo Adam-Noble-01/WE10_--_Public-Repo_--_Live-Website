@@ -2,6 +2,347 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.143.0  -  22-Sep-2026
+### Overspill Note Regions: Boxes Drawn Anywhere on a Sheet That Hold the Notes the Margin Cannot
+
+**Overview**
+- From Adam, with two screenshots of RB05 D01: the Margin Notes panel circled, and a red box dragged in the empty
+  paper left of the notes margin, "DRAG A BOX REGION". A toggle in the Margin Notes panel, Overspill Note Regions,
+  that opens a section for drawing regions on the sheet - as many as a drawing needs, each with a fold of its own and
+  its own choice of note groups - because one margin down the right is restricting on complex drawings and on some
+  kinds of document. Asked for: hidden unless needed; a region dragged as a box, respecting the snapping system; border
+  lines that can be toggled, in the style of the margin's left border; a title that can be overridden.
+- (v2.142.0 is the concurrent viewports-in-groups work, token 2026-09-22-3; this took the next number.)
+
+**How it works**
+- THE SWITCH. Overspill Note Regions sits under the margin's settings. Off, that is all the panel shows. On, a rule
+  and the section come up: one line on what regions are for, a fold per region, and Add region.
+- DRAWING ONE. Add region puts up the Region tool, which IS the Rectangle tool: its snapping, Shift for a square, a
+  width and height typed into the Measurements box, Escape or a right click to abandon. The box that lands becomes the
+  region, Select comes back and the new region's fold opens. A box is never under RegionMinSizeMm (15 mm) either way,
+  and it is kept on the paper.
+- EACH REGION'S FOLD, headed "Region 2 · EW" (its place in the list and what it lists): a line saying what it holds,
+  what carries on and what does not fit; Title (empty is the automatic one, shown as the placeholder); Borders - Top,
+  Right, Bottom, Left, each the margin divider's line; Lists - Overspill, then a switch per specification group (a
+  group an earlier region already ticks says so); Redraw (drag a new box for it) and Delete (undo brings it back). The
+  pointer over a fold lights that region on the sheet.
+- WHERE A NOTE GOES. The sheet's list is the margin's, unchanged - the notes its bubbles link to, then the general
+  notes when they are listed. Regions only decide where each is printed:
+  1. a note whose group a region ticks is that region's - the first region down the list that ticks it - and it
+     leaves the margin;
+  2. every other note is the margin's; with the margin off, it waits for the overspill regions;
+  3. what does not fit where it went - the margin's tail, a group region's tail - carries on in the OVERSPILL regions,
+     in the panel's order, in specification order; an overspill region lists its own ticked groups first.
+  Nothing is printed twice, and no box breaks the order to squeeze a later note in. With the margin off and no
+  overspill region, a note no region claims is counted as NOT LISTED (a choice), apart from LOST (a box too small).
+- HOW A REGION READS. Exactly as the margin does - the same code, its text size and its group headings setting - inset
+  RegionPaddingMm (3 mm). Its title across the top in tracked capitals: the one typed, else "NOTES (CONTINUED)" for a
+  region that only takes the overspill, a lone group's own title, or "NOTES". A title too wide for its box wraps. A
+  region titled after its one group does not print that group's heading again under it. Its paper masks what is under
+  it, as the margin's does: over the drawings, under each layer's markup and pictures.
+- ON THE SHEET, with Select up in an editable session: each side and corner of a region is a grip and a tab above it
+  moves it. They snap as every grip does (object snap, and Grid Snap); a side is drawn from the far side, so dragged
+  towards the margin's divider it lands flush on it (Perpendicular); the tab offers all four corners and the nearest
+  snap wins; Shift or Ortho holds one axis. One undo step per drag; Escape puts it back. A badge at the foot says how
+  many notes it could not fit. Object snap offers every region's corners, side middles, centre and sides to every
+  other tool, on the paper's target.
+- EVERYWHERE THE MARGIN GOES. The sheet surface, the PDF, the web viewer and the scrapbook previews all draw the margin
+  through Na__LeMargin__Push, which now draws the regions too, so none of them had to learn that a region exists. The
+  PDF's "not shown" toast now counts the notes that fit nowhere.
+- THE RECORD, on the sheet's notes margin record, so regions are switched, undone, drafted and saved with it:
+  `RegionsOn` (stored only as true) and `Regions` - `[ { Region__Id, Region__FrameMm, Region__Title (null for the
+  automatic one), Region__Overspill, Region__Groups, Region__Borders } ]`, stored only when there is one and kept while
+  the switch is off, so switching it back on puts them back. A sheet that never had a region normalises byte-identical.
+  Every change is one 'margin' announcement: a redraw, a panel refresh, one undo step and the browser draft, never an
+  auto save.
+
+**What changed**
+- NEW `07__Core__SheetData/Na__LayoutEditor__SheetRecords__NoteRegions__` 1.0.0, a leaf (it reads the config only):
+  the record, its defaults (a new region takes the overspill, no group, every border), its repairs (a duplicate or
+  missing id takes a fresh one past every id on the list; a frame is held to the least size; a group id the
+  specification lacks is KEPT, because the specification loads after the sheets) and its readers. Everything that
+  reads a region imports it by name; SheetRecords imports only NormaliseNoteRegions and re-exports nothing.
+- NEW `50__Feature__Specification/Na__LayoutEditor__SpecMargin__Column__` 1.0.0: the margin's Plan moved verbatim as
+  `Lay(rect, entries, options)`, so the margin and every region lay notes with the same code. Two additions: a heading
+  too wide for its box wraps (HeadingLines; one that fits is the single run it always was), and `headingGroupId`, which
+  only the regions pass.
+- NEW `Na__LayoutEditor__NoteRegions__` 1.0.0: Place (where every note goes) and Push (paper, border lines, rules,
+  text). NEW `__NoteRegions__Tool__` 1.0.0: the Region tool, an adapter on the Rectangle tool at the Area tool's
+  dispatch sites. NEW `__NoteRegions__Grips__` 1.0.0: the grips, the tab and the badge. NEW
+  `__Panel__MarginNotes__Regions__` 1.0.0: the switch, the section and the folds.
+- `Na__LayoutEditor__SpecMargin__` 1.4.0: plans the margin and its regions together (PlanAll) and Push draws both;
+  Report gains regionsOn, inRegions, marginOverflow, marginLost, unlisted and regions[], and its overflow counts the
+  notes that fit nowhere. Its Wrap export is the Column's.
+- `Na__LayoutEditor__Panel__MarginNotes__` 1.1.0: the settings split - Width and Heading show with the margin; Text mm,
+  List general notes and Group headings with the margin or the regions - and the status line counts the regions, the
+  not listed and the lost. `MarginGrip__` 1.3.0: its badge counts only the margin's own lost notes.
+- `SheetModel__Sheets__` 1.3.0: AddNoteRegion, UpdateNoteRegion (silent while a grip drags), DeleteNoteRegion, and
+  UpdateMarginNotes' regionsOn; `SheetModel__` 1.34.0 re-exports them; `SheetRecords__` 1.36.0 normalises the regions
+  inside NormaliseMarginNotes.
+- The sheet tools: `SheetTools__State__` 1.8.0 (TOOL_REGION, 'note-region' - no key and no button), `SheetTools__`
+  1.37.0, `__PointerPress__` 1.7.0, `__PointerDrag__` 1.17.0, `__Keyboard__` 1.14.0 (Rerun), `Measurements__` 1.10.0
+  (measures as the Rectangle tool, never at scale). `RectangleTool__` 1.4.0: a `land` hook in its defaults hands the
+  finished box to whoever armed the tool.
+- `ObjectSnap__Sources__` 1.1.0: RegionBoxes - the regions read live off the sheet on screen, kept on the page as they
+  are drawn, the one being dragged left out. `PdfExporter__` 1.10.0: the toast. `ModeController__` 1.29.0: the region
+  grips attached and detached beside the margin grip, never for a viewer.
+- Config: the MarginNotes block gains RegionMinSizeMm 15, RegionPaddingMm 3, RegionOverspillTitle "NOTES
+  (CONTINUED)", RegionGroupsTitle "NOTES", RegionBordersDefault true, RegionGripPx 10 and RegionsNote, and the labels
+  gain the panel's words; `ConfigState__EditorSetup__` 1.4.0 reads them. The notes stylesheet gains the panel and grip
+  rules.
+- Service worker token `2026-09-22-4` (Logic 1.9.32): every importer above is new beside an old exporter.
+
+**How it was proved**
+- `Na__Test__NoteRegions__.test.mjs`, NEW, 53 checks on the shipped record leaf, SheetRecords, the Sheets unit,
+  SpecMargin, its Column and NoteRegions, with the real sheet layout and config: the record's defaults and repairs;
+  add, update and delete, one announcement each and none for a silent drag; every rule of where a note goes (claims,
+  the first region wins, both tails carried in specification order, own groups first, the chain, lost against not
+  listed); kept on the paper; borders and titles; the wrap; a lone group's heading said once.
+- `Na__Test__ObjectSnap__.test.mjs` 1.1.0: eight checks on region snapping (corner, side middle, centre,
+  perpendicular, never to itself, kept on the page, switched off, off screen).
+- THE MARGIN IS WHAT IT WAS. A scratch comparison ran SpecMargin 1.3.0 against 1.4.0 on 156 cases (widths, text
+  sizes, group headings, general notes on and off, overflow, a specification still loading): 153 identical. The 3
+  that differ are one case - a 45 mm margin at 5 mm text with group headings - where "STRUCTURAL NOTES" did not fit
+  and now wraps instead of running past the edge.
+- The Node suite: 39 of 45 test files pass. The 6 that fail failed before this change - SheetsNormaliseOnce and
+  VectorQuality read their mutation strings from CRLF working copies (both pass on an LF copy of the tree, this change
+  included), SitePlanComposites, StatementRoundTrip, ViewportRotation and GroupMoveSnapping. `Na__Verify__Exports__.mjs`
+  passes.
+- In the app on RB05 D01, served locally with a fetch guard refusing every write (no write was ever attempted) and
+  Save Sheets never pressed:
+  - the switch showed and hid the section; Add region put the Region tool up (crosshair, button lit, the hint); a drag
+    made the region, its fold opened and Select came back;
+  - with the margin at 60 mm the margin ends at FN10, Region 1 carries FN11 and FN12 on under MATERIALS & FINISHES,
+    and Region 2, ticking the South West Elevation group, takes EW01 out of the margin: 17 notes, 14 in the margin, 3
+    in regions, none lost;
+  - the PDF build drew the region (its filled box and texts, captured through jsPDF); the top border off drew three
+    lines and paper with no outline; a typed title printed in capitals;
+  - a side dragged to the margin's divider landed at exactly 355.000 mm, as one undo step; the tab put a corner on the
+    divider's midpoint (355, 143.5), its size kept; Escape mid-drag put it back; undo and redo;
+  - Region 2's automatic title - the group's long title - wraps on three lines inside its box, with the group heading
+    not repeated under it.
+
+**NOT done, and worth knowing**
+- A picture, or any markup, laid over a region covers it: a region paints where the margin does, over the drawings and
+  under the markup.
+- The panel names a region by its place in the list, so deleting one renumbers the ones after it; their ids stay.
+- The browser draft did not come back by itself on either reload during testing: "Drawings data loaded" is logged
+  before "Layout Editor ready", and the sheet model starts listening for the load inside the editor's own start, so
+  AutoSave's RestoreDraft (which runs only on 'loaded') never runs. Nothing here touches that; it is left for its own
+  look.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.142.0  -  22-Sep-2026
+### A Viewport Groups With Its Notes, and What Is Placed Inside an Open Group Joins It
+
+**Overview**
+- From Adam, on the two items v2.141.0 left NOT done: "good spot with these, fix them".
+  - Ctrl+G left a viewport out, so a viewport and its specification bubbles could move together only as a selection,
+    never as a group.
+  - A leader, a text or a dimension placed while a group was open landed outside the group, faded and out of reach
+    until the group was closed. Only the vector tools drew into an open group.
+- ALSO FOUND, and fixed with it: deleting one grouped leader, dimension or viewport on its own (the Delete key inside
+  an open group, a bubble's text emptied) left the group naming an item that was gone. Only DeleteShape and
+  DeleteAnnotation pruned the groups; since v2.141.0 made leaders and dimensions groupable, the others must too.
+
+**The rule now**
+- A VIEWPORT GROUPS like anything else: Ctrl+G, or the menu's Group, takes viewports along with vectors (pictures
+  included), text, leaders and dimensions.
+  - A click on a grouped frame, or a box that takes it, selects the outermost group.
+  - A double click steps inside, where the frame is itself again: a click selects the viewport, and its handles and
+    rotate grip answer as before.
+  - Inside an open group a member's frame is found even behind a frame the group does not hold, and a click on a
+    frame the outer group holds steps back out to that group, not out of everything.
+- A LOCKED FRAME stays the sheet's background: a click on it never takes its group, and a group moved leaves a
+  locked frame where it is, as a set move always has.
+- A GROUP HOLDING A VIEWPORT OR A DIMENSION WAITS FOR M: a click on it leaves the Select tool up, as a lone viewport or
+  dimension always has. A group of only vectors, text and leaders still brings Move up. Nested groups are read all the
+  way down.
+- An open group keeps its frames at full strength and fades everything else. Each viewport frame and each drawn layer
+  now fades on its own; the fade used to sit on the whole stack, which would have dimmed the group's own frames with
+  it.
+- The blue box round a group takes in its viewports: the upright box round a turned one.
+- A viewport's drawing title is its own group (a DrawingTitle). Box the viewport, its title and its bubbles, then press
+  Ctrl+G: the title's group nests whole, and the three move as one.
+- WHAT IS PLACED INSIDE AN OPEN GROUP JOINS IT, in the same undo step:
+  - The Text, Leader and Dimension tools keep a group open, as Draw, Rectangle, Circle and Arc already did, and what
+    they place joins it.
+  - So does a paste, a Duplicate, a Custom Scrapbook drop, a picture dropped on the sheet, and a viewport or site plan
+    added from the Viewport panel. A Ctrl-drag copy of a member already joined.
+  - Only what the tool itself places joins. Nothing already on the sheet is taken, and nothing placed after the tool
+    is put down.
+  - With a vector or a dimension open for its points, nothing joins.
+  - The Vector Tools config's `Behaviour.DrawInsideOpenGroup` switch now covers Text, Leader and Dimension too. Paste,
+    drop and add join regardless.
+
+**What changed**
+- `15__Core__Markup/Na__LayoutEditor__Groups__` 1.4.0: KINDS take `viewport`. MemberBounds reads a viewport's frame as
+  it stands (`Na__LeVpRot__Bounds`).
+- The record and the prune:
+  - `SheetRecords__` 1.35.0: GROUP_KINDS takes `viewport`.
+  - `SheetModel__Groups__` 1.3.0: PruneGroups knows viewports.
+  - Both devlog entries were widened on the same day.
+- A single delete prunes the groups: `SheetModel__Leaders__` 1.2.0 (DeleteLeader), `SheetModel__TextAndDimensions__`
+  1.2.0 (DeleteDimension) and `SheetModel__Viewports__` 1.4.0 (DeleteViewport).
+- `30__System__SheetTools/Na__LayoutEditor__EditScope__` 1.4.0:
+  - Contents takes viewports.
+  - A new region, What Is Placed Inside an Open Group: `AdoptIntoOpenGroup`, the adoption window (`BeginAdopting`,
+    `EndAdopting`, `IsAdopting`, `WithAdoption`) and a before-announce hook.
+  - The hook takes only an item created inside the window, of the window's kind, on its sheet. It runs before the
+    history snapshot, so the membership is part of the placement's undo step.
+- `Na__LayoutEditor__SheetTools__HitResolution__` 1.9.0:
+  - Resolve sends a frame through the scope: the outermost group, a locked frame raw, a member found behind a frame
+    the group does not hold.
+  - The selected frame's handles and rotate grip work only where the scope allows.
+  - RawHit falls back to the frontmost frame.
+  - `GroupAutoMoves` feeds SelectionPicksUpMove and PicksUpMove.
+- `Na__LayoutEditor__SheetTools__ToolState__` 1.6.0: `PLACE_KINDS` and `PlacesIntoGroup`. ApplyTool keeps a group open
+  for Text, Leader and Dimension and opens the window for the kind the tool places. Any other tool closes it.
+- `Na__LayoutEditor__ItemClipboard__` 1.7.0: InsertSet (paste, Duplicate, scrapbook drop) adopts what landed.
+- `Na__LayoutEditor__SheetImages__Insert__` 1.2.0 and `Na__LayoutEditor__Panel__ViewportSettings__` 1.10.0: a dropped
+  picture and an added viewport or site plan go in through `WithAdoption`.
+- The fade:
+  - `10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__` 1.13.0: MarkScopedFrames marks the frames the open
+    group holds `na-le-frame--in-scope`.
+  - `Na__LayoutEditor__Styles__Main__Paper__.css`: the fade moves from the stack to each slot and each frame not
+    marked.
+- Config and labels:
+  - `Na__LayoutEditor__VectorTools__Config__.json`: DrawInsideOpenGroupNote.
+  - `Na__Hotkeys__DrawingTabs__.json`: Ctrl+G's label and note, and the menu's "Group the selection".
+- Service worker token `2026-09-22-3` (Logic 1.9.31): four modules import the edit scope's new exports, which no warm
+  copy of EditScope has.
+
+**How it was proved**
+- `Na__Test__SetMoveLeaderTips__.test.cjs` 1.1.0: 11 new tests (18-28), and test 9 now expects Ctrl+G to take the
+  viewport; 28 of 28 pass. It runs the shipped HitResolution (Resolve, RawHit, SelectionPicksUpMove, GroupAutoMoves),
+  the tool state's PlacesIntoGroup, AddGroupMember and the single deletes. Three mutations of the shipped code, each
+  put back byte for byte:
+  - no `viewport` kind: tests 9, 18 and 27 fail;
+  - DeleteLeader without the prune: test 24 fails;
+  - the hook adopting nothing: tests 25-27 fail.
+- `Na__Test__CrossSheetClipboard__` and `Na__Test__LayerMenu__` load ItemClipboard's text with its imports stubbed.
+  They gained a stub for `AdoptIntoOpenGroup`.
+- The whole Node suite: 94 of 101 pass. The 7 that fail are the same 7 as before v2.141.0. `Na__Verify__Exports__.mjs`
+  passes (494 files).
+- In the app on RB05 D11 (3D Images), served read-only as for v2.141.0. The guard refused only the load's two R2
+  reads, and the server saw no write. The subject was the viewport "Proposed East - Storage" and its bubbles EE02,
+  FN08 and FN04, all with real mouse and keys:
+  - a click on the frame and Shift-clicks on the three bubbles, then Ctrl+G: one group of the viewport and the three
+    leaders, and the Select tool stayed up;
+  - a click on the frame selected the group, and Move did not come up by itself. M, then a drag, moved the frame and
+    every tip and head exactly (25, 0) mm; one undo put it all back;
+  - a double click opened the group. Its frame stayed at full strength; the six other frames and every drawn layer
+    went to 0.45 (the EditScope fade).
+  - With the group open:
+    - the Leader tool kept it open, and the leader dragged out joined it;
+    - a Text click placed a note that joined it;
+    - Ctrl+C and Ctrl+V of FN04 pasted a copy that joined it;
+    - one undo each took the item and its membership together;
+    - Delete on FN04 let the group go of it, leaving no dangling member.
+  - Escape closed the group and everything was back at full strength;
+  - a box from bare paper took the group, and the title's own group with it; Select stayed up;
+  - Ctrl+G on those two nested them. A click on the frame took the outer group, and M with a drag moved (25, 12.5) mm:
+    the frame, all three tips and heads, and the title's line and text, each exactly as far.
+  - Every change was undone: history back to empty, and all 14 sheets byte-identical. The test origin's draft,
+    storage, caches and service worker were cleared.
+
+**NOT done, and worth knowing**
+- Floor Area, and every placing tool other than Draw, Rectangle, Circle, Arc, Text, Leader and Dimension, still closes
+  an open group.
+- The fade is per layer now. Where something outside the open group overlaps a faded frame, the faded picture shows
+  faintly through a filled shape or bubble that used to hide it. This happens only outside the open group.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.141.0  -  22-Sep-2026
+### A Leader Travels With What It Is Moved With, and a Group Takes Its Leaders and Dimensions
+
+**Overview**
+- From Adam, with two screenshots of RB05 D01 (Project Introduction): the lower CGI boxed with its seven specification
+  bubbles (FN04, EN05, EN04, FN12, EN02, FN11, EN01), then moved to the right with the Move tool. "The annotations do
+  not travel correctly with the other items" - and the same "when within groups". He asked for the whole of box select,
+  the move, and the different kinds of item to be looked at.
+- WHAT WAS WRONG (measured on his second screenshot, then proved). Every bubble's head moved exactly the picture's
+  distance and every tip stayed where it was, still pointing at the old place; FN04 and EN05 flipped sides, because a
+  bubble always faces away from its tip. The set move's tip rule (SelectionSet, v2.34.0) carried a tip only when it lay
+  inside a moving VIEWPORT. A picture is a vector carrying Shape__Image (Sheet Images, 21-Sep), so no picture has ever
+  carried a tip. The arrow keys, a typed distance, a copy array and a Ctrl-drag copy all ran the same rule - a
+  Ctrl-dragged set of bubbles came out with every copy pointing back at the originals' targets.
+- AND A GROUP COULD NOT HOLD THEM. Leaders and dimensions were not groupable kinds, so Ctrl+G quietly left them out:
+  grouping the CGI with its bubbles grouped the CGI alone, and the group moved without them. A group of notes left its
+  leader tips behind on every move as well.
+
+**The rule now**
+- SEVERAL ITEMS MOVED TOGETHER (a box, Shift or Ctrl clicks) - a drag, the arrow keys, a typed distance - each leader
+  tip (a leader's own, or a text note's leader) is asked once, at the press:
+  - over the ground the moving drawings cover - the viewports, pictures and vectors in the set, one box round them all,
+    1.5 mm wider (Selection HitToleranceMm) - it goes with the set;
+  - on a drawing staying behind - inside a viewport frame, or where a click would find a vector (a line, a fill, a
+    picture, a room) - it stays on it; a locked drawing holds its tips, a hidden one holds nothing;
+  - on bare paper, it goes with the set;
+  - notes and leaders moved with no drawing among them keep every tip where it points - tidying a column of notes -
+    as dragging one note on its own always has.
+- A GROUP MOVES AS ONE PIECE: every member, every tip, whatever it points at, however deeply nested. Loose items moved
+  beside a group still take the rule above; so do members picked inside an open group.
+- A CTRL-DRAG COPY, and every copy of a copy array, carries every tip: a copy points at nothing yet.
+- Unchanged: one item on its own (a bubble pressed on its head moves the head, on its curve moves it whole, on its tip
+  re-points it; a note's words move alone; the arrow keys move a lone leader whole), and a paste or a Duplicate, which
+  already shifted everything.
+
+**Groups**
+- Ctrl+G takes leaders and dimensions, and so does the menu's Group; viewports are still left out. A click on a grouped
+  bubble or dimension selects the outermost group, a box that takes one takes the group, and a double click steps
+  inside, where each is itself again (a further double click edits a bubble's text or opens a dimension to its grips).
+- The record keeps them (`Na__LeRec__GROUP_KINDS`); a delete's prune knows them (`PruneGroups` knew only vectors, text
+  and groups, so the first delete anywhere on the sheet would have dropped every leader and dimension from every
+  group); an open group draws them crisp over the faded sheet (`Na__LeScope__Contents`); the blue box frames them.
+- Copy, cut, paste, duplicate, the Custom Scrapbook and the layer flyout already carried leaders and dimensions by kind
+  and remap a group's members by id: nothing new was needed there.
+
+**What changed**
+- `30__System__SheetTools/Na__LayoutEditor__SelectionSet__` 1.2.0: the Where a Leader Tip Goes region (TipReachMm,
+  GroupedBy, Drawings, Holds, TipFollows); `Capture(sheet, items, options)`, `options.rigid` for a copy. Imports
+  GetGroups, IsLayerVisible, GetSelectionSetup, `Na__LeShapeGeo__Bounds` and `Hit`, `Na__LeVpRot__Bounds`.
+- `Na__LayoutEditor__SheetTools__CopyDrag__` 1.2.0: CloneAim captures a copied set rigid.
+- `15__Core__Markup/Na__LayoutEditor__Groups__` 1.3.0: KINDS take `leader` and `dimension`; MemberBounds reads a
+  dimension.
+- `Na__LayoutEditor__MarkupBridge__` 1.19.0: `DimensionBounds` (exported) - its measured points, line, value and a
+  dragged value's arc - lifted out of BuildHighlightPrimitives, which now calls it, so a group frames exactly what the
+  highlight frames.
+- `SheetRecords__` 1.35.0 (GROUP_KINDS), `SheetModel__Groups__` 1.3.0 (PruneGroups), `EditScope__` 1.3.0 (Contents),
+  `ItemClipboard__` (a comment).
+- `Na__Hotkeys__DrawingTabs__.json`: Ctrl+G reads "Group the selected vectors, text, leaders and dimensions".
+- Service worker token `2026-09-22-2` (Logic 1.9.30): Groups imports `Na__LeMarkup__DimensionBounds`, which no warm
+  copy of the markup bridge exports.
+
+**How it was proved**
+- `Na__Test__SetMoveLeaderTips__.test.cjs`, NEW, 17 tests on the shipped SelectionSet, Groups, EditScope and viewport
+  rotation units, the real shape geometry, group normaliser, prune and delete; RB05 D01's geometry is the first
+  fixture. Against the code before this change 14 of the 17 fail; the three that pass are the behaviours kept (a
+  viewport carrying its tips, notes tidied on their own, ungroup).
+- The whole Node suite: 82 of 89 pass. The 7 that fail failed identically before the change:
+  `Na__Test__GroupMoveSnapping__` (2, no stub for `Na__LeVpRot__Bounds`), `SheetsNormaliseOnce`, `SitePlanComposites`,
+  `StatementRoundTrip`, `VectorQuality`, and `ViewportRotation` (Node 22's read-only `navigator`).
+  `Na__Verify__Exports__.mjs` passes (488 files).
+- In the app on RB05 D01, served read-only with a fetch guard refusing every write and the Cloudflare worker (it
+  refused the load's two R2 reads; nothing else was attempted, and the server saw no write):
+  - a real mouse window from bare paper took the lower CGI, the upper caption's group and the seven bubbles, and the
+    Move tool came up; a drag on the picture moved it (60, 0) mm and every bubble's tip and head by exactly (60, 0);
+  - Ctrl+G made a group of the CGI, the caption group and all seven bubbles; a press on FN04's bubble selected the
+    group and dragged it (45.13, -4.91) mm, snapped, and every tip and head went exactly as far;
+  - FN04 and EN05 alone, Shift+Right: heads 10 mm, tips unmoved;
+  - a double click into the group: its contents are the CGI and the seven bubbles, drawn over the faded sheet;
+  - every change undone (history back to empty, every record byte-identical), the browser draft removed.
+
+**NOT done, and worth knowing**
+- Viewports still do not group. A viewport moves with its notes as a selection, tips inside its frame included, but
+  Ctrl+G leaves it out: grouping one reaches its own press, the carry-by-a-point snap, its lock and its stacking.
+- A leader, a text or a dimension placed while a group is open lands outside it; only the vector tools join an open
+  group (AddGroupMember).
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.140.0  -  22-Sep-2026
 ### Hide Swings: a Roof Plan No Longer Draws the Top Storey's Door Swings Over Its Roof - and 1:200 Joins the Scales
 

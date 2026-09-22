@@ -2,6 +2,17 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "tv-noteregions",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-apps/ProjectVision__LocalServer__Main__.py",
+        "--port",
+        "8093",
+        "--no-browser"
+      ],
+      "port": 8093
+    },
+    {
       "name": "tv-titleunderline",
       "runtimeExecutable": "python",
       "runtimeArgs": [

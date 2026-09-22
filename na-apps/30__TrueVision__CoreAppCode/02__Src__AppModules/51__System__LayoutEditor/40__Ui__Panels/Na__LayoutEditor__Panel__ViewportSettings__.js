@@ -55,6 +55,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.10.0 (TrueVision)
+// - A viewport added while a group is open for editing - a scene, or a site
+//   plan - joins that group (Na__LeScope__WithAdoption), in the same undo
+//   step, now that a group may hold viewports (Na__LayoutEditor__Groups__
+//   1.4.0). It used to land on the sheet outside the group, out of reach.
+//
 // 21-Sep-2026 - Version 1.9.0 (TrueVision)
 // - Hide swings: a checkbox on the Doors row, beside Open all. Ticked, the
 //   plan draws no door swing (Viewport__HideSwings, one undo step, through
@@ -156,6 +162,7 @@
     import { Na__LeRaster__LEVELS, Na__LeRaster__Get, Na__LeRaster__Set } from '../20__System__Viewports/Na__LayoutEditor__RasterQuality__.js';
     import { Na__LeMarkup__ImportFromScene } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeClip__IsCopyName } from '../20__System__Viewports/Na__LayoutEditor__ViewportClipboard__.js';
+    import { Na__LeScope__WithAdoption } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';   // <-- A viewport added while a group is open joins the group
     import {
         Na__LeDoors__SWINGS_FIELD,
         Na__LeDoors__IsPlan,
@@ -267,10 +274,10 @@
         if (!sheet || !described) return null;
         const setup    = Na__LeCfg__GetViewportSetup();
         const layout   = Na__LeLayout__Solve(sheet);
-        const viewport = Na__LeModel__CreateViewport(sheet, {
+        const viewport = Na__LeScope__WithAdoption(sheet, [ 'viewport' ], () => Na__LeModel__CreateViewport(sheet, {   // <-- Added while a group is open, it joins the group, in the same undo step
             kind : described.kind, sceneId : sceneId, drawingId : described.drawingId, modelSourceId : modelSourceId || null,
             rect : Na__LeLayout__DefaultViewportRect(layout, setup.defaultWidthMm, setup.defaultHeightMm)
-        });
+        }));
         if (viewport && viewport.Viewport__Kind === Na__LeModel__KIND_2D) Na__LeVp2d__CentreOnDrawing(sheet, viewport);
         if (viewport) Na__LeModel__SetSelection({ kind : 'viewport', id : viewport.Viewport__Id });
         return viewport;
@@ -336,11 +343,11 @@
         descriptor.SitePlan__Layers.forEach((layer) => { if (layer.Layer__VisibleAtScales.indexOf(scale) === -1) off[layer.Layer__CategoryKey] = false; });
         const setup  = Na__LeCfg__GetViewportSetup();
         const layout = Na__LeLayout__Solve(sheet);
-        const viewport = Na__LeModel__CreateViewport(sheet, {
+        const viewport = Na__LeScope__WithAdoption(sheet, [ 'viewport' ], () => Na__LeModel__CreateViewport(sheet, {   // <-- Added while a group is open, it joins the group, in the same undo step
             kind : Na__LeModel__KIND_2D, sitePlan : { SitePlan__StoreId : store }, scaleDenominator : scale, modelLayers : off,
             name : Na__LePanelViewport__PlanTypeName(scale),                     // <-- The config's own 1:500 rule, not a second threshold written here
             rect : Na__LeLayout__DefaultViewportRect(layout, setup.defaultWidthMm, setup.defaultHeightMm)
-        });
+        }));
         if (!viewport) return null;
         const bounds = Na__SpStore__GetFocusBoundsMm(store);
         if (bounds) Na__LeModel__UpdateViewport(sheet, viewport.Viewport__Id, { pan : { X : (bounds.MinX + bounds.MaxX) / 2, Y : (bounds.MinY + bounds.MaxY) / 2 } }, true);

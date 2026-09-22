@@ -1,0 +1,126 @@
+{
+    "UserScrapbookItem__Meta": {
+        "Meta__Description": "A Custom Scrapbook item for the TrueVision 3D Layout Editor: a selection saved from a sheet. Entries are sheet records in paper millimetres, y down, from an origin at the top left of the item; Roots is what a drop selects. Written by the app through the ProjectVision local server; see Na__LayoutEditor__ScrapbookCustom__.js.",
+        "Meta__Version": "1.0.0",
+        "Meta__Created": "22-Sept-2026",
+        "Meta__Author": "Adam Noble - Noble Architecture",
+        "Meta__FileName": "UserScrapbookItem__Leader__20260922-083918.json"
+    },
+    "UserScrapbookItem__Id": "UserScrapbookItem__Leader__20260922-083918",
+    "UserScrapbookItem__Name": "Leader",
+    "UserScrapbookItem__Category": "01__ScrapbookItems__General",
+    "UserScrapbookItem__CreatedIso": "2026-09-22T07:39:18.890Z",
+    "UserScrapbookItem__UpdatedIso": "2026-09-22T07:39:18.890Z",
+    "UserScrapbookItem__SourceProject": "RB05",
+    "UserScrapbookItem__SourceSheet": "Project Introduction",
+    "UserScrapbookItem__SizeMm": {
+        "WidthMm": 67.1086,
+        "HeightMm": 68.6331
+    },
+    "UserScrapbookItem__Roots": [
+        {
+            "kind": "annotation",
+            "id": "Text_011"
+        },
+        {
+            "kind": "annotation",
+            "id": "Text_015"
+        },
+        {
+            "kind": "leader",
+            "id": "Leader_008"
+        },
+        {
+            "kind": "leader",
+            "id": "Leader_012"
+        }
+    ],
+    "UserScrapbookItem__Entries": [
+        {
+            "kind": "annotation",
+            "id": "Text_011",
+            "record": {
+                "Annotation__Id": "Text_011",
+                "Annotation__Text": "Standard Leader",
+                "Annotation__PosXMm": 25.8,
+                "Annotation__PosYMm": 19.4659,
+                "Annotation__SizeMm": 5,
+                "Annotation__FontWeight": 400,
+                "Annotation__Colour": "#172b3a",
+                "Annotation__Align": "left",
+                "Annotation__LeaderXMm": null,
+                "Annotation__LeaderYMm": null
+            }
+        },
+        {
+            "kind": "annotation",
+            "id": "Text_015",
+            "record": {
+                "Annotation__Id": "Text_015",
+                "Annotation__Text": "Intro Page Leader",
+                "Annotation__PosXMm": 25.8,
+                "Annotation__PosYMm": 63.6879,
+                "Annotation__SizeMm": 5,
+                "Annotation__FontWeight": 400,
+                "Annotation__Colour": "#172b3a",
+                "Annotation__Align": "left",
+                "Annotation__LeaderXMm": null,
+                "Annotation__LeaderYMm": null
+            }
+        },
+        {
+            "kind": "leader",
+            "id": "Leader_008",
+            "record": {
+                "Leader__Id": "Leader_008",
+                "Leader__Type": "bubble",
+                "Leader__TipXMm": 0.8,
+                "Leader__TipYMm": 25.611,
+                "Leader__AnchorXMm": 20.7626,
+                "Leader__AnchorYMm": 4.5,
+                "Leader__Text": "EN04",
+                "Leader__TextSizeMm": 2.5,
+                "Leader__FontWeight": 600,
+                "Leader__TextColour": "#172b3a",
+                "Leader__LineColour": "#172b3a",
+                "Leader__LinePt": 0.35,
+                "Leader__LineStyle": "dashed",
+                "Leader__LineOpacity": 1,
+                "Leader__EndpointFilled": false,
+                "Leader__EndpointPt": 0.35,
+                "Leader__EndpointSizeMm": 1.6,
+                "Leader__BubbleSizeMm": 9,
+                "Leader__BubbleEdgePt": 0.35,
+                "Leader__FillColour": "#f2f4f5",
+                "Leader__FillOpacity": 1
+            }
+        },
+        {
+            "kind": "leader",
+            "id": "Leader_012",
+            "record": {
+                "Leader__Id": "Leader_012",
+                "Leader__Type": "bubble",
+                "Leader__TipXMm": 0.8,
+                "Leader__TipYMm": 67.8331,
+                "Leader__AnchorXMm": 20.7626,
+                "Leader__AnchorYMm": 46.722,
+                "Leader__Text": "EN04",
+                "Leader__TextSizeMm": 2.5,
+                "Leader__FontWeight": 600,
+                "Leader__TextColour": "#172b3a",
+                "Leader__LineColour": "#172b3a",
+                "Leader__LinePt": 0.6,
+                "Leader__LineStyle": "dashed",
+                "Leader__LineOpacity": 1,
+                "Leader__EndpointFilled": true,
+                "Leader__EndpointPt": 0.6,
+                "Leader__EndpointSizeMm": 1.6,
+                "Leader__BubbleSizeMm": 9,
+                "Leader__BubbleEdgePt": 0.6,
+                "Leader__FillColour": "#f2f4f5",
+                "Leader__FillOpacity": 1
+            }
+        }
+    ]
+}

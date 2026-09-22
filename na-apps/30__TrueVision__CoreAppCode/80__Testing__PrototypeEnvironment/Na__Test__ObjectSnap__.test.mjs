@@ -28,7 +28,10 @@
 //   text, dimension, paper. A switched-off mode and a switched-off target find
 //   nothing. A vertex in motion leaves its own edges out. A circle from the
 //   Vector Tools offers its centre and quadrant points, not its 48 vertices
-//   (the real Curves leaf from 37__System__VectorTools).
+//   (the real Curves leaf from 37__System__VectorTools). An overspill note
+//   region offers its corners, side middles, centre and sides on the paper's
+//   target, where it is drawn (moved onto the page), never to itself while
+//   dragged, and nothing once switched off or off screen.
 // - THE CHECK THE GRIPS ARE COLOURED BY (OnLinework): 'point' on an end, a
 //   middle or a crossing of the linework, 'line' anywhere else along it, null
 //   off it, and null again once the viewport's layer is hidden.
@@ -41,6 +44,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - Overspill note regions (TrueVision3D v2.143.0): eight checks on the
+//   Sources unit's RegionBoxes, through Find. The surface stub hands out a
+//   layout (T.layout) only while they run; everything before them still sees
+//   none, as it always has.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Written with the Object Snap folder (TrueVision3D v2.129.0).
 //
@@ -156,14 +165,14 @@ console.log('TrueVision3D - object snap: the running modes, what a hit belongs t
     writeFileSync(vpRotTmp, readFileSync(resolve(SRC, '51__System__LayoutEditor/20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js'), 'utf8'), 'utf8');
     globalThis.__VpRot = await import(pathToFileURL(vpRotTmp).href + '?v=' + Math.random().toString(36).slice(2));
     const stubs = [
-        'const T = globalThis.__T = { setup : { enabled : true, radiusPx : 3, endpoints : true, midpoints : true, hiddenLines : false, sheetObjects : true, sheetChrome : true, markerSizePx : 18 }, marker : null, chrome : [], source : null, gridOn : false };',
+        'const T = globalThis.__T = { setup : { enabled : true, radiusPx : 3, endpoints : true, midpoints : true, hiddenLines : false, sheetObjects : true, sheetChrome : true, markerSizePx : 18 }, marker : null, chrome : [], source : null, gridOn : false, layout : null };',
         'const Na__LeCfg__GetSnappingSetup = () => T.setup;',
         "const Na__LeModel__KIND_2D = '2d';",
         'const Na__LeModel__GetLayers = (sheet) => sheet.Sheet__Layers;',
         'const Na__LeModel__IsLayerVisible = (sheet, id) => { const l = sheet.Sheet__Layers.find((x) => x.Layer__Id === id); return !l || l.Layer__Visible !== false; };',
         'const Na__LeModel__IsLayerSelectable = (sheet, id) => { const l = sheet.Sheet__Layers.find((x) => x.Layer__Id === id); return !l || l.Layer__Selectable !== false; };',
         'const Na__LeSurface__GetPixelsPerMm = () => 1, Na__LeSurface__GetZoom = () => 1;',                 // <-- Radius 3 px at 1 px per mm: 3 mm of paper
-        'const Na__LeSurface__GetSheet = () => T.sheet, Na__LeSurface__GetLayout = () => null, Na__LeSurface__GetSheetChrome = () => T.chrome;',
+        'const Na__LeSurface__GetSheet = () => T.sheet, Na__LeSurface__GetLayout = () => T.layout, Na__LeSurface__GetSheetChrome = () => T.chrome;',   // <-- A layout only for the note regions: they are kept on its page
         'const Na__LeLayout__MarginRect = () => null;',
         'const Na__LeVp2d__GetSnapSource = (id) => (id === "Viewport_001" ? T.source : null);',
         'const Na__LeShapeGeo__Points = (s) => s.Shape__Points || [];',
@@ -292,6 +301,28 @@ console.log('TrueVision3D - object snap: the running modes, what a hit belongs t
     check('Grid Snap on: the grid answers where no object snap reaches, in the grid\'s own colour', O.Na__LeOsnap__Snap(sheet, { x : 350.3, y : 20.6 }, null, null), { x : 350, y : 21, snapped : true, kind : 'grid', target : 'grid' });
     check('...unless the caller keeps steps of its own ({ grid : false })', O.Na__LeOsnap__Snap(sheet, { x : 350.3, y : 20.6 }, null, { grid : false }).snapped, false);
     T.gridOn = false;
+
+    console.log('\n    Overspill note regions: on the paper, like the notes margin');
+    T.layout = { Page : { WidthMm : 420, HeightMm : 297 } };
+    sheet.Sheet__MarginNotes = { Enabled : true, RegionsOn : true, Regions : [
+        { Region__Id : 'Region_001', Region__FrameMm : { X : 320, Y : 180, WidthMm : 60, HeightMm : 40 } },
+        { Region__Id : 'Region_002', Region__FrameMm : { X : 400, Y : 30, WidthMm : 50, HeightMm : 30 } }        // <-- Hangs 30 mm off the page's right edge
+    ] };
+    check('a region\'s corner: a square, the paper\'s slate', find(321, 180.6), [ 320, 180, 'end', 'paper' ]);
+    check('...the middle of a side: a triangle', find(350.4, 180.5), [ 350, 180, 'mid', 'paper' ]);
+    check('...its centre: a circle', find(350.6, 200.4), [ 350, 200, 'cen', 'paper' ]);
+    check('...and square on to a side from a point above it: a boxed right angle', find(335.2, 180.4, { from : { x : 335, y : 150 } }), [ 335, 180, 'perp', 'paper' ]);
+    check('a region being dragged never snaps to itself', find(321, 180.6, null, { kind : 'noteregion', id : 'Region_001' }), null);
+    check('one hanging off the page offers where it is DRAWN, moved onto the page', [ find(370.4, 30.3), find(400.4, 30.3) ], [ [ 370, 30, 'end', 'paper' ], null ]);
+    sheet.Sheet__MarginNotes.RegionsOn = false;
+    check('regions switched off offer nothing, kept or not', find(321, 180.6), null);
+    sheet.Sheet__MarginNotes.RegionsOn = true;
+    const shown = T.sheet;
+    T.sheet = { Sheet__Id : 'Sheet_002' };
+    check('...nor does a sheet that is not the one on screen', find(321, 180.6), null);
+    T.sheet = shown;
+    delete sheet.Sheet__MarginNotes;
+    T.layout = null;
 
 // endregion -------------------------------------------------------------------
 

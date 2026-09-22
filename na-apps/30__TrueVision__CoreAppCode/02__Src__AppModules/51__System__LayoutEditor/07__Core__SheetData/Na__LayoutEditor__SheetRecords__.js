@@ -33,6 +33,24 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.36.0
+// - OVERSPILL NOTE REGIONS on the notes margin record: RegionsOn (stored only
+//   as true) and Regions (stored only when there is one), filled by the new
+//   leaf Na__LayoutEditor__SheetRecords__NoteRegions__, which this file calls
+//   from NormaliseMarginNotes. The leaf's readers are imported from the leaf
+//   by name, as the sheet layout is, rather than re-exported from here - so a
+//   test that loads this file with its own few stubs meets no new name.
+//   NormaliseMarginNotes used to
+//   rebuild the record from its six keys alone, which would have thrown a
+//   region away on the next load; a margin record without them is rebuilt
+//   exactly as before.
+//
+// 22-Sep-2026 - Version 1.35.0
+// - A group may hold leaders, dimensions and viewports
+//   (Na__LayoutEditor__Groups__ 1.3.0 and 1.4.0): GROUP_KINDS takes all
+//   three, so NormaliseGroup keeps them. A group saved before holds none,
+//   and reads exactly as it did.
+//
 // 21-Sep-2026 - Version 1.34.0
 // - Viewport__HideSwings: the Viewport panel's Hide swings on a plan
 //   (Na__LayoutEditor__PlanDoors__). NormaliseViewport keeps it only as a
@@ -326,6 +344,7 @@
     } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeScale__Coerce, Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__PaperSizeMm } from './Na__LayoutEditor__SheetLayout__.js';               // <-- A leaf: it reads the sheet config and nothing else, so it cannot cycle back here
+    import { Na__LeRec__NormaliseNoteRegions } from './Na__LayoutEditor__SheetRecords__NoteRegions__.js';   // <-- A leaf too (the config alone): the overspill note regions on the margin record
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Projected Edge Styles and Composite Weights
@@ -382,7 +401,7 @@
     const Na__LeRec__ID_PAD      = 3;
     const Na__LeRec__LEADER_TYPES       = [ 'text', 'bubble' ];             // <-- A note with a leader, or a specification bubble
     const Na__LeRec__LEADER_LINE_STYLES = [ 'solid', 'dashed' ];
-    const Na__LeRec__GROUP_KINDS        = [ 'shape', 'annotation', 'group' ];   // <-- What a group may hold: vectors, text, and nested groups
+    const Na__LeRec__GROUP_KINDS        = [ 'viewport', 'shape', 'annotation', 'leader', 'dimension', 'group' ];   // <-- What a group may hold: anything on a sheet, nested groups included (Na__LeGroup__KINDS)
     const Na__LeRec__DRAWING_ARCHITECTURAL = 'architectural';                   // <-- A sheet with no Sheet__DrawingType
     const Na__LeRec__DRAWING_SITEPLAN      = 'siteplan';                        // <-- The only drawing type ever stored
     const Na__LeRec__SITEPLAN_CATEGORY_PREFIX = 'TrueVision__SitePlan__';       // <-- Category keys of site plan layers (the export's stems)
@@ -1141,7 +1160,7 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | Fill In a Group (members are { kind, id } of a vector, text or group)
+    // FUNCTION | Fill In a Group (members are { kind, id } of a viewport, vector, text, leader, dimension or group)
     // ------------------------------------------------------------
     // Kind and id are the only fields. Duplicates and anything else drop out,
     // so a draft or a record from before a kind existed stays a list of live
@@ -1191,6 +1210,7 @@
             IncludeGeneral : typeof raw.IncludeGeneral === 'boolean' ? raw.IncludeGeneral : setup.includeGeneral,
             GroupHeadings  : typeof raw.GroupHeadings === 'boolean' ? raw.GroupHeadings : setup.groupHeadings
         };
+        Na__LeRec__NormaliseNoteRegions(raw, sheet.Sheet__MarginNotes);         // <-- RegionsOn and Regions, only when the record had them
         return sheet.Sheet__MarginNotes;
     }
     // ------------------------------------------------------------

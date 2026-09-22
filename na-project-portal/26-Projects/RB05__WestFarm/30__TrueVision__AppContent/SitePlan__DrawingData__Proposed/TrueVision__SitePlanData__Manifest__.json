@@ -2,8 +2,8 @@
   "SitePlanData__Description": "Site plan drawing data exported by the TrueVision3D GLB Builder. One linework GLB per site plan tag, plus a fill GLB for fill tags; a fill tag holding faces alone has a fill GLB and no linework GLB. Read by the ProjectVision build script and TrueVision3D site plan drawings.",
   "SitePlanData__SchemaVersion": 1,
   "SitePlanData__ProjectPrefix": "RB05",
-  "SitePlanData__SourceModelFile": "RB05_T01_M00__SitePlanModel__Proposed__0.2.2__.skp",
-  "SitePlanData__ExportedIso": "2026-09-22T00:20:45Z",
+  "SitePlanData__SourceModelFile": "RB05_T01_M00__SitePlanModel__Proposed__0.3.0__.skp",
+  "SitePlanData__ExportedIso": "2026-09-22T09:53:14Z",
   "SitePlanData__ExporterVersion": "1.4.0",
   "SitePlanData__TagsSsotVersion": "2.9.0",
   "SitePlanData__Units": "metres",
@@ -102,11 +102,11 @@
       "Layer__ZIndexFill": null,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__OsMappingMajorFeature__LineworkModel__.glb",
       "Layer__FillFile": null,
-      "Layer__SegmentCount": 52,
+      "Layer__SegmentCount": 66,
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
-        "MinX": 513547.4,
-        "MinZ": -494112.9,
+        "MinX": 306561.4,
+        "MinZ": -723919.9,
         "MaxX": 666316.4,
         "MaxZ": -397849.9
       },
@@ -268,12 +268,12 @@
       "Layer__ZIndexFill": 2,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__HardSurfaces__LineworkModel__.glb",
       "Layer__FillFile": "RB05__TrueVision__SitePlan__HardSurfaces__FillModel__.glb",
-      "Layer__SegmentCount": 601,
-      "Layer__RingCount": 40,
+      "Layer__SegmentCount": 712,
+      "Layer__RingCount": 41,
       "Layer__BoundsMm": {
         "MinX": 432558.3,
         "MinZ": -479398.8,
-        "MaxX": 536433.7,
+        "MaxX": 573133.4,
         "MaxZ": -272290.3
       },
       "Layer__Style": {
@@ -308,11 +308,11 @@
       "Layer__ZIndexFill": null,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__ParkingAndAccess__LineworkModel__.glb",
       "Layer__FillFile": null,
-      "Layer__SegmentCount": 14,
+      "Layer__SegmentCount": 28,
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
-        "MinX": 502102.4,
-        "MinZ": -274367.9,
+        "MinX": 452026.9,
+        "MinZ": -293393.1,
         "MaxX": 509512.4,
         "MaxZ": -266567.9
       },
@@ -501,6 +501,46 @@
       ]
     },
     {
+      "Layer__TagName": "73__SitePlan__Buildings__Existing__Removed",
+      "Layer__CategoryKey": "TrueVision__SitePlan__ExistingBuildingsRemoved",
+      "Layer__Label": "Existing Buildings To Be Removed",
+      "Layer__Group": "Buildings",
+      "Layer__DrawOrder": 42,
+      "Layer__ZIndexLine": 5,
+      "Layer__ZIndexFill": null,
+      "Layer__LineworkFile": "RB05__TrueVision__SitePlan__ExistingBuildingsRemoved__LineworkModel__.glb",
+      "Layer__FillFile": null,
+      "Layer__SegmentCount": 14,
+      "Layer__RingCount": 0,
+      "Layer__BoundsMm": {
+        "MinX": 459402.4,
+        "MinZ": -379702.3,
+        "MaxX": 499014.8,
+        "MaxZ": -341334.4
+      },
+      "Layer__Style": {
+        "LineColourId": "MTE205__LineColour__Blue",
+        "LineHex": "#1E88E5",
+        "LineType": "dotted",
+        "LineDashScale": 0.5,
+        "LineWeightMm": 0.176,
+        "LineWeightPt": 0.5,
+        "FillColourId": null,
+        "FillMaterialId": null,
+        "FillHex": null,
+        "FillOpacity": null,
+        "HatchPatternId": null
+      },
+      "Layer__VisibleAtScales": [
+        100,
+        200,
+        500
+      ],
+      "Layer__Warnings": [
+        "2 face(s) ignored; this tag exports lines only"
+      ]
+    },
+    {
       "Layer__TagName": "72__SitePlan__Boundary__WallsAndFences",
       "Layer__CategoryKey": "TrueVision__SitePlan__WallsAndFences",
       "Layer__Label": "Walls and Fences",
@@ -510,7 +550,7 @@
       "Layer__ZIndexFill": null,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__WallsAndFences__LineworkModel__.glb",
       "Layer__FillFile": null,
-      "Layer__SegmentCount": 10,
+      "Layer__SegmentCount": 4,
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
         "MinX": 349262.4,
@@ -522,6 +562,46 @@
         "LineColourId": "MTE102__LineColour__SoftBlack__L20",
         "LineHex": "#333333",
         "LineType": "solid",
+        "LineDashScale": null,
+        "LineWeightMm": 0.265,
+        "LineWeightPt": 0.75,
+        "FillColourId": null,
+        "FillMaterialId": null,
+        "FillHex": null,
+        "FillOpacity": null,
+        "HatchPatternId": null
+      },
+      "Layer__VisibleAtScales": [
+        100,
+        200,
+        500
+      ],
+      "Layer__Warnings": [
+
+      ]
+    },
+    {
+      "Layer__TagName": "72__SitePlan__Boundary__WallsAndFences__Removed",
+      "Layer__CategoryKey": "TrueVision__SitePlan__WallsAndFencesRemoved",
+      "Layer__Label": "Walls and Fences To Be Removed",
+      "Layer__Group": "Boundaries",
+      "Layer__DrawOrder": 46,
+      "Layer__ZIndexLine": 3,
+      "Layer__ZIndexFill": null,
+      "Layer__LineworkFile": "RB05__TrueVision__SitePlan__WallsAndFencesRemoved__LineworkModel__.glb",
+      "Layer__FillFile": null,
+      "Layer__SegmentCount": 11,
+      "Layer__RingCount": 0,
+      "Layer__BoundsMm": {
+        "MinX": 385964.8,
+        "MinZ": -419107.9,
+        "MaxX": 506142.4,
+        "MaxZ": -376392.6
+      },
+      "Layer__Style": {
+        "LineColourId": "MTE104__LineColour__MidGrey__L60",
+        "LineHex": "#999999",
+        "LineType": "dotted",
         "LineDashScale": null,
         "LineWeightMm": 0.265,
         "LineWeightPt": 0.75,
@@ -630,7 +710,7 @@
       "Layer__ZIndexFill": 1,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__RoughGrassland__LineworkModel__.glb",
       "Layer__FillFile": "RB05__TrueVision__SitePlan__RoughGrassland__FillModel__.glb",
-      "Layer__SegmentCount": 594,
+      "Layer__SegmentCount": 559,
       "Layer__RingCount": 12,
       "Layer__BoundsMm": {
         "MinX": 245592.4,
@@ -670,8 +750,8 @@
       "Layer__ZIndexFill": 3,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__TreesMixedWoodland__LineworkModel__.glb",
       "Layer__FillFile": "RB05__TrueVision__SitePlan__TreesMixedWoodland__FillModel__.glb",
-      "Layer__SegmentCount": 741,
-      "Layer__RingCount": 11,
+      "Layer__SegmentCount": 814,
+      "Layer__RingCount": 13,
       "Layer__BoundsMm": {
         "MinX": 144842.4,
         "MinZ": -828617.9,
@@ -750,11 +830,11 @@
       "Layer__ZIndexFill": 8,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb",
       "Layer__FillFile": "RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__FillModel__.glb",
-      "Layer__SegmentCount": 39,
+      "Layer__SegmentCount": 25,
       "Layer__RingCount": 5,
       "Layer__BoundsMm": {
-        "MinX": 306561.4,
-        "MinZ": -723919.9,
+        "MinX": 413852.4,
+        "MinZ": -468214.9,
         "MaxX": 509112.4,
         "MaxZ": -286797.9
       },
@@ -792,13 +872,13 @@
       "Layer__ZIndexFill": 8,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__ProposedBuildings__LineworkModel__.glb",
       "Layer__FillFile": "RB05__TrueVision__SitePlan__ProposedBuildings__FillModel__.glb",
-      "Layer__SegmentCount": 46,
-      "Layer__RingCount": 1,
+      "Layer__SegmentCount": 51,
+      "Layer__RingCount": 2,
       "Layer__BoundsMm": {
-        "MinX": 458459.0,
+        "MinX": 451211.0,
         "MinZ": -386429.9,
         "MaxX": 511366.2,
-        "MaxZ": -346299.7
+        "MaxZ": -287311.2
       },
       "Layer__Style": {
         "LineColourId": "MTE201__LineColour__Red",

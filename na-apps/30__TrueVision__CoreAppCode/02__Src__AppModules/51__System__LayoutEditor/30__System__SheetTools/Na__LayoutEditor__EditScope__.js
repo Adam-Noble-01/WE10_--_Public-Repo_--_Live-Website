@@ -36,6 +36,14 @@
 //   inside a vector takes vertices rather than sheet items (BoxCandidates), a
 //   drag of one picked vertex carries every picked vertex, and whatever is
 //   picked is drawn red rather than blue.
+// - WHAT IS PLACED INSIDE AN OPEN GROUP JOINS IT, as in LayOut and SketchUp.
+//   An adoption window (BeginAdopting, WithAdoption) remembers what was on the
+//   sheet when it opened, and a before-announce hook puts anything NEW that is
+//   announced while it is open into the innermost open group - just before
+//   the announcement, so the history's one step holds the item and its
+//   membership. An edit to an older item is never taken for a placement.
+//   AdoptIntoOpenGroup does the same at once for a paste, which knows what it
+//   put down.
 // - Nothing here draws or reads the screen. The module announces CHANGED_EVENT
 //   and the sheet tools book the redraw, which keeps the scope out of the
 //   surface's import graph.
@@ -50,6 +58,10 @@
 // - Na__LayoutEditor__SheetSurface__ fades everything outside it and redraws
 //   its contents crisply in the focus layer.
 // - Na__LayoutEditor__SheetTools__ clears it on detach and books the redraw.
+// - Adoption: Na__LayoutEditor__SheetTools__ToolState__ opens a window while
+//   the Text, Leader or Dimension tool is up; Na__LayoutEditor__ItemClipboard__
+//   adopts a paste, a duplicate and a scrapbook drop; Sheet Images' Insert a
+//   dropped picture and the Viewport panel a viewport it adds (WithAdoption).
 //
 // -----------------------------------------------------------------------------
 //
@@ -60,6 +72,22 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - WHAT IS PLACED INSIDE AN OPEN GROUP JOINS IT (Adam: a leader, text or
+//   dimension placed while a group was open landed outside it). The What Is
+//   Placed Inside an Open Group region: BeginAdopting, EndAdopting,
+//   WithAdoption, AdoptIntoOpenGroup and the before-announce hook
+//   AdoptAnnounced. Only what is new since the window opened can join.
+// - Contents lists an open group's viewports too, now that a group may hold
+//   them (Na__LayoutEditor__Groups__ 1.4.0); the surface keeps their frames
+//   at full strength while the rest of the sheet is faded.
+//
+// 22-Sep-2026 - Version 1.3.0
+// - Contents hands the focus layer a group's leaders and dimensions too, now
+//   that a group may hold them (Na__LayoutEditor__Groups__ 1.3.0): it only
+//   looked for vectors and text, so an open group's bubbles would have been
+//   left faded with the sheet behind it.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - Prune closes an open vector or dimension whose layer is hidden or made a
 //   REFERENCE layer (the Layers panel's Ref): its points could otherwise go
@@ -93,13 +121,18 @@
     // MODULE IMPORTS | Model, Groups and Shape Geometry
     // ------------------------------------------------------------
     import {
+        Na__LeModel__GetActiveSheet,
         Na__LeModel__GetGroupById,
         Na__LeModel__GetShapeById,
         Na__LeModel__GetAnnotationById,
+        Na__LeModel__GetLeaderById,
+        Na__LeModel__GetViewportById,
         Na__LeModel__IsLayerVisible,
-        Na__LeModel__IsLayerSelectable
+        Na__LeModel__IsLayerSelectable,
+        Na__LeModel__AddGroupMember,
+        Na__LeModel__RegisterBeforeAnnounce
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeGroup__ParentOf, Na__LeGroup__Resolve, Na__LeGroup__Descendants } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
+    import { Na__LeGroup__IsKind, Na__LeGroup__ParentOf, Na__LeGroup__Resolve, Na__LeGroup__Descendants } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeShapeGeo__Points } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     // ------------------------------------------------------------
 
@@ -125,6 +158,29 @@
     let Na__LeScope__Stack    = [];    // <-- Outermost first; empty is the sheet
     let Na__LeScope__Vertices = [];    // <-- Indices into the open vector's points
     let Na__LeScope__Grip     = null;  // <-- The grip picked inside the open dimension: 'start', 'end', 'offset' or 'text'
+    let Na__LeScope__Adopting = null;  // <-- The adoption window: { sheetId, kinds, before : { kind : Set of ids } }, or null
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | Where Each Kind Lives, and the Kind Each Announcement Names
+    // ------------------------------------------------------------
+    // A creation announces the plural reason; a leader or a dimension, made
+    // silently while it is placed, announces the singular one when it lands.
+    // Both name the item, and both are read.
+    // ------------------------------------------------------------
+    const Na__LeScope__KIND_LISTS = Object.freeze({
+        viewport   : [ 'Sheet__Viewports',   'Viewport__Id'   ],
+        shape      : [ 'Sheet__Shapes',      'Shape__Id'      ],
+        annotation : [ 'Sheet__Annotations', 'Annotation__Id' ],
+        leader     : [ 'Sheet__Leaders',     'Leader__Id'     ],
+        dimension  : [ 'Sheet__Dimensions',  'Dimension__Id'  ]
+    });
+    const Na__LeScope__REASON_KINDS = Object.freeze({
+        viewports   : 'viewport',   viewport   : 'viewport',
+        shapes      : 'shape',      shape      : 'shape',
+        annotations : 'annotation', annotation : 'annotation',
+        leaders     : 'leader',     leader     : 'leader',
+        dimensions  : 'dimension',  dimension  : 'dimension'
+    });
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -384,18 +440,25 @@
     // FUNCTION | The Items the Open Container Holds, Nested Groups Opened Up
     // ------------------------------------------------------------
     // Used to redraw what is being edited crisply over the faded sheet. For a
-    // vector it is that vector; for a group it is every vector and text item
-    // inside it, at any depth.
+    // vector it is that vector; for a group it is every item inside it, at any
+    // depth, that is still there. The markup is drawn again from this list;
+    // a viewport's frame is kept at full strength by the surface instead.
     // ------------------------------------------------------------
     function Na__LeScope__Contents(sheet) {
         const open = Na__LeScope__Get();
         if (!sheet || !open) return [];
         if (Na__LeScope__LEAF_KINDS.indexOf(open.kind) !== -1) return [ { kind : open.kind, id : open.id } ];
+        const exists = (member) => {
+            if (member.kind === 'viewport')               return !!Na__LeModel__GetViewportById(sheet, member.id);
+            if (member.kind === Na__LeScope__KIND_VECTOR) return !!Na__LeModel__GetShapeById(sheet, member.id);
+            if (member.kind === 'annotation')             return !!Na__LeModel__GetAnnotationById(sheet, member.id);
+            if (member.kind === 'leader')                 return !!Na__LeModel__GetLeaderById(sheet, member.id);
+            if (member.kind === Na__LeScope__KIND_DIM)    return !!Na__LeScope__DimensionById(sheet, member.id);
+            return false;
+        };
         return Na__LeGroup__Descendants(sheet, open.id)
             .filter((member) => member.kind !== Na__LeScope__KIND_GROUP)
-            .filter((member) => (member.kind === Na__LeScope__KIND_VECTOR
-                ? !!Na__LeModel__GetShapeById(sheet, member.id)
-                : !!Na__LeModel__GetAnnotationById(sheet, member.id)));
+            .filter(exists);
     }
     // ------------------------------------------------------------
 
@@ -567,6 +630,116 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | What Is Placed Inside an Open Group
+// -----------------------------------------------------------------------------
+//
+// LayOut's rule, and SketchUp's: while a group is open for editing, what is
+// placed goes into it. It used to land on the sheet outside the group - faded
+// with everything else out there, and out of reach until the group was closed.
+//
+// ONLY WHAT IS NEW. A window remembers what was already on the sheet when it
+// opened, so an announcement about anything else - an edit to an older item,
+// the eyedropper painting something outside the group - is never taken for a
+// placement. An item already in a group keeps its own.
+//
+
+    // HELPER FUNCTION | Is This Item on the Sheet
+    // ------------------------------------------------------------
+    function Na__LeScope__Exists(sheet, kind, id) {
+        if (kind === Na__LeScope__KIND_GROUP) return !!Na__LeModel__GetGroupById(sheet, id);
+        const row  = Na__LeScope__KIND_LISTS[kind];
+        const list = (row && sheet && Array.isArray(sheet[row[0]])) ? sheet[row[0]] : [];
+        return list.some((record) => !!record && record[row[1]] === id);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put Items Into the Innermost Open Group, Silently
+    // ------------------------------------------------------------
+    // items: [{ kind, id }]. Only while a GROUP is innermost (a vector or a
+    // dimension open inside one holds points, not items). Each item must be
+    // on the sheet and in no group yet, and a group is never put inside one of
+    // its own members. Silent: the caller's announcement carries it. Returns
+    // how many joined.
+    // ------------------------------------------------------------
+    function Na__LeScope__AdoptIntoOpenGroup(sheet, items) {
+        const groupId = Na__LeScope__GetGroupId();
+        if (!sheet || !groupId || !Array.isArray(items)) return 0;
+        let joined = 0;
+        items.forEach((item) => {
+            if (!item || !item.id || !Na__LeGroup__IsKind(item.kind) || !Na__LeScope__Exists(sheet, item.kind, item.id)) return;
+            if (Na__LeGroup__ParentOf(sheet, item.kind, item.id)) return;       // <-- In a group already: it keeps its own
+            if (item.kind === Na__LeScope__KIND_GROUP && (item.id === groupId
+                || Na__LeGroup__Descendants(sheet, item.id).some((member) => member.kind === Na__LeScope__KIND_GROUP && member.id === groupId))) return;   // <-- Never a group inside itself
+            if (Na__LeModel__AddGroupMember(sheet, groupId, { kind : item.kind, id : item.id }, true)) joined += 1;
+        });
+        return joined;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Open an Adoption Window: What Is Placed From Now On Joins the Open Group
+    // ------------------------------------------------------------
+    // kinds: those that may join ('viewport', 'shape', 'annotation', 'leader',
+    // 'dimension'). Only while a GROUP is innermost; with none open any window
+    // closes and the answer is false. The hook is registered with the model
+    // the first time, and a second registration is refused, so this can be
+    // asked as often as a tool is picked up.
+    // ------------------------------------------------------------
+    function Na__LeScope__BeginAdopting(sheet, kinds) {
+        const wanted = (Array.isArray(kinds) ? kinds : []).filter((kind) => !!Na__LeScope__KIND_LISTS[kind]);
+        if (!sheet || !Na__LeScope__GetGroupId() || !wanted.length) { Na__LeScope__Adopting = null; return false; }
+        const before = {};
+        wanted.forEach((kind) => {
+            const row = Na__LeScope__KIND_LISTS[kind];
+            before[kind] = new Set((Array.isArray(sheet[row[0]]) ? sheet[row[0]] : []).filter(Boolean).map((record) => record[row[1]]));
+        });
+        Na__LeScope__Adopting = { sheetId : sheet.Sheet__Id, kinds : wanted, before : before };
+        Na__LeModel__RegisterBeforeAnnounce(Na__LeScope__AdoptAnnounced);
+        return true;
+    }
+    function Na__LeScope__EndAdopting() { Na__LeScope__Adopting = null; }
+    function Na__LeScope__IsAdopting()  { return !!Na__LeScope__Adopting; }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Place Something Inside a Window of Its Own (a dropped picture, an added viewport)
+    // ------------------------------------------------------------
+    // Opens a window for kinds, runs place() - which creates and announces as
+    // it always did - and puts back whatever window was open before, whatever
+    // happens. Returns what place() returns.
+    // ------------------------------------------------------------
+    function Na__LeScope__WithAdoption(sheet, kinds, place) {
+        const previous = Na__LeScope__Adopting;
+        Na__LeScope__BeginAdopting(sheet, kinds);
+        try { return place(); }
+        finally { Na__LeScope__Adopting = previous; }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Before-Announce Hook: an Announced New Item Joins the Open Group
+    // ------------------------------------------------------------
+    // Runs ahead of every listener, the history's included
+    // (Na__LeModel__RegisterBeforeAnnounce), so the one snapshot of the change
+    // holds the item and its membership. A restore - undo, redo - runs no
+    // hooks at all.
+    // ------------------------------------------------------------
+    function Na__LeScope__AdoptAnnounced(reason, sheetId, itemId) {
+        const open = Na__LeScope__Adopting;
+        const kind = Na__LeScope__REASON_KINDS[reason];
+        if (!open || !kind || !itemId || sheetId !== open.sheetId || open.kinds.indexOf(kind) === -1) return;
+        if (open.before[kind].has(itemId)) return;                             // <-- On the sheet before the window opened: an edit, never a placement
+        const sheet = Na__LeModel__GetActiveSheet();
+        if (!sheet || sheet.Sheet__Id !== sheetId) return;
+        Na__LeScope__AdoptIntoOpenGroup(sheet, [ { kind : kind, id : itemId } ]);
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -609,7 +782,12 @@
         Na__LeScope__GetGrip,
         Na__LeScope__HasGrip,
         Na__LeScope__SetGrip,
-        Na__LeScope__BoxCandidates
+        Na__LeScope__BoxCandidates,
+        Na__LeScope__AdoptIntoOpenGroup,
+        Na__LeScope__BeginAdopting,
+        Na__LeScope__EndAdopting,
+        Na__LeScope__IsAdopting,
+        Na__LeScope__WithAdoption
     };
     // ------------------------------------------------------------
 

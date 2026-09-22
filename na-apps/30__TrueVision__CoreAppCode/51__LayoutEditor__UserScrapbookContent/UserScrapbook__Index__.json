@@ -4,7 +4,7 @@
         "Meta__Description": "Every item in the TrueVision Layout Editor Custom Scrapbook. Written by the ProjectVision local server (ProjectVision__TrueVisionScrapbook__Api__.py) from what is in the category folders, on every save and delete and whenever the library is read locally. Do not edit by hand: add or remove item files instead, and the next read puts this right. The live website reads this file, since it has no directory listing.",
         "Meta__Author": "Adam Noble - Noble Architecture"
     },
-    "UserScrapbook__Index__UpdatedIso": "2026-09-21T19:16:47.473Z",
+    "UserScrapbook__Index__UpdatedIso": "2026-09-22T08:36:32.481Z",
     "UserScrapbook__Index__Items": [
         {
             "Item__Id": "UserScrapbookItem__GFFL__20260921-201647",
@@ -12,6 +12,13 @@
             "Item__Category": "01__ScrapbookItems__General",
             "Item__File": "01__ScrapbookItems__General/UserScrapbookItem__GFFL__20260921-201647.json",
             "Item__UpdatedIso": "2026-09-21T19:16:47.463Z"
+        },
+        {
+            "Item__Id": "UserScrapbookItem__LeaderStandards__20260922-093631",
+            "Item__Name": "Leader Standards",
+            "Item__Category": "01__ScrapbookItems__General",
+            "Item__File": "01__ScrapbookItems__General/UserScrapbookItem__LeaderStandards__20260922-093631.json",
+            "Item__UpdatedIso": "2026-09-22T08:36:31.708Z"
         },
         {
             "Item__Id": "UserScrapbookItem__Test__20260921-122253",

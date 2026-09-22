@@ -38,6 +38,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.3.0
+// - PruneGroups knows a leader, a dimension and a viewport, which a group may
+//   now hold (Na__LayoutEditor__Groups__ 1.3.0 and 1.4.0). It only knew
+//   vectors, text and groups, so the first delete anywhere on the sheet would
+//   have dropped every one of them from every group as "no longer there".
+//   The single deletes of those three kinds now prune as well
+//   (DeleteLeader, DeleteDimension, DeleteViewport), as DeleteShape and
+//   DeleteAnnotation always did.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - AddGroupMember: one more member into a group that already exists, for the
 //   vector tools (37__System__VectorTools) - what is drawn inside an open group
@@ -133,10 +142,11 @@
 
     // FUNCTION | Put One More Member Into a Group That Already Exists
     // ------------------------------------------------------------
-    // member: { kind, id } of a vector, a text item or a group. What a group
-    // open for editing needs when something is drawn INSIDE it, and what a
-    // trim needs when the line it cut in two was a member: the new piece
-    // belongs where the old one did. A member already in ANY group is left
+    // member: { kind, id } of anything a group may hold. What a group open
+    // for editing needs when something is drawn or placed INSIDE it
+    // (Na__LeScope__AdoptIntoOpenGroup, the vector tools), and what a trim
+    // needs when the line it cut in two was a member: the new piece belongs
+    // where the old one did. A member already in ANY group is left
     // where it is - an item has one parent - and answers false. silent marks
     // the sheet dirty and leaves the announcement to the caller.
     // ------------------------------------------------------------
@@ -166,10 +176,13 @@
     function Na__LeModel__PruneGroups(sheet) {
         if (!sheet || !Array.isArray(sheet.Sheet__Groups) || !sheet.Sheet__Groups.length) return false;
         const exists = (kind, id) => {
+            if (kind === 'viewport')   return !!(sheet.Sheet__Viewports || []).some((v) => v.Viewport__Id === id);
             if (kind === 'shape')      return !!(sheet.Sheet__Shapes || []).some((s) => s.Shape__Id === id);
             if (kind === 'annotation') return !!(sheet.Sheet__Annotations || []).some((a) => a.Annotation__Id === id);
+            if (kind === 'leader')     return !!(sheet.Sheet__Leaders || []).some((l) => l.Leader__Id === id);
+            if (kind === 'dimension')  return !!(sheet.Sheet__Dimensions || []).some((d) => d.Dimension__Id === id);
             if (kind === 'group')      return sheet.Sheet__Groups.some((g) => g.Group__Id === id);
-            return false;
+            return false;                                                    // <-- A kind no group may hold (Na__LeRec__GROUP_KINDS)
         };
         let changed = false;
         sheet.Sheet__Groups.forEach((group) => {

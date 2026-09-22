@@ -76,6 +76,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.17.0
+// - TOOL_REGION: the move stretches a note region's rubber box
+//   (Na__LeRegionTool__Move) and the release lands it (RegionUp), exactly as
+//   for the Rectangle tool it draws through.
+//
 // 21-Sep-2026 - Version 1.16.0
 // - A viewport drag on its rotate grip turns the viewport about the middle of
 //   its frame (Na__LeHandles__RotateTo), Shift holding quarter turns; it
@@ -301,6 +306,7 @@
     import { Na__LeShape__Move } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Move, Na__LeRect__Release, Na__LeRect__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
     import { Na__LeAreaTool__Move, Na__LeAreaTool__Release, Na__LeAreaTool__Cancel, Na__LeAreaTool__IsRectangle } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';
+    import { Na__LeRegionTool__Move, Na__LeRegionTool__Release, Na__LeRegionTool__Cancel } from '../50__Feature__Specification/Na__LayoutEditor__NoteRegions__Tool__.js';   // <-- An overspill note region, drawn through the Rectangle tool
     import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__Move, Na__LeLeader__Release, Na__LeLeader__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeDrop__Hover } from './Na__LayoutEditor__Eyedropper__.js';
@@ -337,6 +343,7 @@
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__TOOL_AREA,
+        Na__LeTools__TOOL_REGION,
         Na__LeTools__TYPED_MIN_MM,
         Na__LeTools__SAME_MM,
         Na__LeTools__Stage,
@@ -402,6 +409,7 @@
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_DRAW)      { Na__LeShape__Move(sheet, point, event.shiftKey); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_RECT)      { Na__LeRect__Move(sheet, point, event.shiftKey, (event.buttons & 1) === 1 || event.pointerType === 'touch'); Na__LeMeasure__Refresh(); return; }
             if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_AREA)      { Na__LeAreaTool__Move(sheet, point, event.shiftKey, (event.buttons & 1) === 1 || event.pointerType === 'touch'); Na__LeMeasure__Refresh(); return; }   // <-- Whichever of the two is drawing the room
+            if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_REGION)    { Na__LeRegionTool__Move(sheet, point, event.shiftKey, (event.buttons & 1) === 1 || event.pointerType === 'touch'); Na__LeMeasure__Refresh(); return; }   // <-- A note region's rubber box, snapping as a rectangle's does
             if (Na__LeTools__Editable && Na__LeVec__IsTool(Na__LeTools__Tool)) {   // <-- A vector tool: its preview follows the pointer, and it says which cursor to carry (not-allowed over what it cannot edit)
                 const carry = Na__LeVec__Move(Na__LeTools__Tool, sheet, point, { shift : event.shiftKey, pointerId : event.pointerId, pressed : (event.buttons & 1) === 1 || event.pointerType === 'touch' }, Na__LeTools__GetShapeDefaults());
                 if (carry && Na__LeTools__Stage) Na__LeTools__Stage.style.cursor = carry;
@@ -747,6 +755,7 @@
         if (Na__LeSelBox__IsActive()) Na__LeTools__BoxUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_RECT) Na__LeTools__RectangleUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_AREA) Na__LeTools__AreaUp(event);
+        if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_REGION) Na__LeTools__RegionUp(event);
         if (Na__LeTools__Editable && Na__LeVec__IsTool(Na__LeTools__Tool)) Na__LeTools__VectorUp(event);
         if (Na__LeTools__Editable && Na__LeTools__Tool === Na__LeTools__TOOL_LEADER) Na__LeTools__LeaderUp(event);
         const drag = Na__LeTools__Drag;
@@ -800,6 +809,22 @@
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
         if (sheet && point) Na__LeAreaTool__Release(sheet, point, event.shiftKey, event.pointerId);
+        Na__LeMeasure__Refresh();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Button Comes Up While a Note Region Is Being Drawn
+    // ------------------------------------------------------------
+    // Exactly the rectangle's release: a box dragged out lands where the
+    // button lets go, one that never moved waits for a second click, and a
+    // cancelled pointer abandons it.
+    // ------------------------------------------------------------
+    function Na__LeTools__RegionUp(event) {
+        if (event.type === 'pointercancel') { Na__LeRegionTool__Cancel(); return; }
+        const sheet = Na__LeModel__GetActiveSheet();
+        const point = Na__LeSurface__ClientToPaperMm(event.clientX, event.clientY);
+        if (sheet && point) Na__LeRegionTool__Release(sheet, point, event.shiftKey, event.pointerId);
         Na__LeMeasure__Refresh();
     }
     // ------------------------------------------------------------

@@ -48,6 +48,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.8.0
+// - TOOL_REGION ('note-region') joins TOOLS: drawing an overspill note region
+//   (50__Feature__Specification/Na__LayoutEditor__NoteRegions__Tool__). It has
+//   no key and no toolbar button - the Margin Notes panel's Add region and a
+//   region's Redraw put it up - and it is a placing tool like the rest, so
+//   picking it closes an open container and Escape puts Select back.
+//
 // 21-Sep-2026 - Version 1.7.0
 // - SHEET_CHORDS takes View__AxesToggle (F9, the Drawing Axes Overlay): a
 //   function key types nothing, so a panel's select, checkbox or number box
@@ -132,7 +139,8 @@
     const Na__LeTools__TOOL_EYEDROP   = 'eyedropper';
     const Na__LeTools__TOOL_LEADER    = 'leader';
     const Na__LeTools__TOOL_AREA      = 'area';     // <-- A: draws a measured room through the Draw or Rectangle tool (59__Feature__FloorAreas)
-    const Na__LeTools__TOOLS          = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__TOOL_TEXT, Na__LeTools__TOOL_DIMENSION, Na__LeTools__TOOL_DRAW, Na__LeTools__TOOL_RECT, Na__LeTools__TOOL_EYEDROP, Na__LeTools__TOOL_LEADER, Na__LeTools__TOOL_AREA ]
+    const Na__LeTools__TOOL_REGION    = 'note-region';   // <-- No key and no button: the Margin Notes panel arms it to draw an overspill note region through the Rectangle tool (50__Feature__Specification)
+    const Na__LeTools__TOOLS          = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE, Na__LeTools__TOOL_TEXT, Na__LeTools__TOOL_DIMENSION, Na__LeTools__TOOL_DRAW, Na__LeTools__TOOL_RECT, Na__LeTools__TOOL_EYEDROP, Na__LeTools__TOOL_LEADER, Na__LeTools__TOOL_AREA, Na__LeTools__TOOL_REGION ]
         .concat(Na__LeVec__TOOLS);   // <-- Circle, Arc, Trim, Extend, Join, Split, Offset, Fillet and Chamfer (37__System__VectorTools): named there, so a tenth is added in one place
     const Na__LeTools__PICK_TOOLS     = [ Na__LeTools__TOOL_SELECT, Na__LeTools__TOOL_MOVE ];   // <-- The two that work on what is already on the sheet: they keep an open container, the rest close it
     const Na__LeTools__CHANGED_EVENT  = 'na-layouteditor-tool-changed';
@@ -206,6 +214,7 @@
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__TOOL_AREA,
+        Na__LeTools__TOOL_REGION,
         Na__LeTools__TOOLS,
         Na__LeTools__PICK_TOOLS,
         Na__LeTools__CHANGED_EVENT,

@@ -72,6 +72,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - A COPY CARRIES ITS LEADER TIPS. CloneAim captures a copied set rigid
+//   (Na__LeSelSet__Capture's options.rigid): every leader and note leader in
+//   the copy goes with it, tip and all. Under the move rule a copied bubble's
+//   tip could stay on what the ORIGINAL points at, so a Ctrl-dragged set of
+//   bubbles came out with every copy pointing back at the old place.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - SketchUp's copy arrays: BuildCopyArray (3x or /3 after a copy),
 //   FollowCopyArray (a new distance spaces them again) and CopyArraySelection,
@@ -263,7 +270,7 @@
         if (!cloned) return null;
         Na__LeCopyDrag__JoinOpenGroup(sheet, cloned);
         const aim = drag.kind === 'group'
-            ? { group : Na__LeSelSet__Capture(sheet, Na__LeGroup__Expand(sheet, cloned.roots)) }
+            ? { group : Na__LeSelSet__Capture(sheet, Na__LeGroup__Expand(sheet, cloned.roots), { rigid : true }) }   // <-- A copy points at nothing yet: every leader tip goes with it, never left on the original's target
             : { id : cloned.roots[0].id };
         return { cloned : cloned, aim : aim };
     }

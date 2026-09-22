@@ -40,6 +40,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.19.0
+// - DimensionBounds: the paper box a sheet dimension occupies - its measured
+//   points, its line, its value and a dragged value's arc - lifted out of
+//   BuildHighlightPrimitives, which now calls it, so a group holding a
+//   dimension (Na__LayoutEditor__Groups__ 1.3.0) frames exactly what its
+//   highlight frames.
+//
 // 21-Sep-2026 - Version 1.18.0
 // - ROUND UP TO 5 MM. FormatDimension prints a dimension carrying
 //   Dimension__RoundUp at its figure raised to the next Dimensions
@@ -660,6 +667,28 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | The Paper Box a Sheet Dimension Occupies
+    // ------------------------------------------------------------
+    // The points it measures, the ends of its line, its value and a dragged
+    // value's arc back to the line. What its selection highlight frames, and
+    // what a group holding it takes in (Na__LayoutEditor__Groups__), from one
+    // description so the two cannot drift apart. skeleton is optional: the
+    // record's own is used when it is left out. Null for a degenerate span.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__DimensionBounds(sheet, dim, skeleton) {
+        const sk = skeleton || (dim ? Na__LeMarkup__DimensionSkeleton(dim) : null);
+        if (!sk) return null;
+        const xs = [ sk.S.x, sk.E.x, sk.T1.x, sk.T2.x ], ys = [ sk.S.y, sk.E.y, sk.T1.y, sk.T2.y ];
+        const layout = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
+        if (layout && layout.box) layout.box.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
+        if (layout && layout.leader) layout.leader.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
+        const minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
+        const minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+        return { X : minX, Y : minY, WidthMm : maxX - minX, HeightMm : maxY - minY };
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Push a Sheet Annotation With Its Leader
     // ------------------------------------------------------------
     // A turned item is laid out in its own frame and turned onto the paper:
@@ -838,13 +867,7 @@
                 if (Math.hypot(run[1].x - run[0].x, run[1].y - run[0].y) <= Na__LeMarkup__GHOST_MIN_MM) return;
                 Na__LeChrome__PushLine(list, run[0].x, run[0].y, run[1].x, run[1].y, style.selectionColour, Na__LeMarkup__GHOST_STROKE_MM, Na__LeMarkup__GHOST_DASH_MM);
             });
-            const xs = [ sk.S.x, sk.E.x, sk.T1.x, sk.T2.x ], ys = [ sk.S.y, sk.E.y, sk.T1.y, sk.T2.y ];
-            const layout = Na__LeMarkup__DimensionTextLayout(sheet, dim, sk);
-            if (layout && layout.box) layout.box.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
-            if (layout && layout.leader) layout.leader.points.forEach((p) => { xs.push(p[0]); ys.push(p[1]); });
-            const minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
-            const minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
-            highlights.push({ X : minX, Y : minY, WidthMm : maxX - minX, HeightMm : maxY - minY });
+            highlights.push(Na__LeMarkup__DimensionBounds(sheet, dim, sk));      // <-- The same box a group holding it takes in
         });
 
         (sheet.Sheet__Leaders || []).forEach((leader) => {
@@ -885,12 +908,12 @@
     // FUNCTION | Draw a Named Handful of Items, and Nothing Else
     // ------------------------------------------------------------
     // The same drawing BuildSheetPrimitives makes of a whole sheet, for a list
-    // of { kind, id } - vectors and text only, which is what a group can hold.
-    // The sheet surface uses it for the focus layer: while a container is open
-    // the whole sheet is faded, and its contents are drawn again over the top
-    // at full strength (Na__LayoutEditor__EditScope__). Selection highlights
-    // are left out on purpose; the grips and the highlight box come from the
-    // layers above, as they always did.
+    // of { kind, id } - vectors, text, dimensions and leaders, which is what a
+    // group can hold. The sheet surface uses it for the focus layer: while a
+    // container is open the whole sheet is faded, and its contents are drawn
+    // again over the top at full strength (Na__LayoutEditor__EditScope__).
+    // Selection highlights are left out on purpose; the grips and the
+    // highlight box come from the layers above, as they always did.
     // ------------------------------------------------------------
     function Na__LeMarkup__BuildItemPrimitives(sheet, items) {
         const list = [];
@@ -1003,6 +1026,7 @@
         Na__LeMarkup__DimensionTickMm,
         Na__LeMarkup__DimensionTextShift,
         Na__LeMarkup__DimensionTextLayout,
+        Na__LeMarkup__DimensionBounds,
         Na__LeMarkup__BuildSheetPrimitives,
         Na__LeMarkup__BuildLayerPrimitives,
         Na__LeMarkup__BuildHighlightPrimitives,

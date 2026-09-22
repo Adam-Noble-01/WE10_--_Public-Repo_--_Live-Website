@@ -53,6 +53,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.6.0
+// - TEXT, LEADERS AND DIMENSIONS ARE PLACED INSIDE AN OPEN GROUP (Adam: they
+//   landed outside it). ApplyTool keeps a GROUP open for the Text, Leader
+//   and Dimension tools, as it already did for Draw, Rectangle, Circle and
+//   Arc (PlacesIntoGroup), and opens an adoption window for the kind the tool
+//   places (Na__LeScope__BeginAdopting): what it places joins the group just
+//   before it is announced, one undo step. Any other tool closes the window.
+//   The vector tools' DrawInsideOpenGroup switch turns both off together.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - The settings for new dimensions carry roundUp (Round up to 5 mm), filled
 //   from the config's DefaultRoundUp: off.
@@ -118,13 +127,14 @@
     import { Na__LeRect__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
     import { Na__LeVec__Cancel, Na__LeVec__Arm, Na__LeVec__KeepsContainer, Na__LeVec__IsDrawTool } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- Circle, Arc, Trim, Extend, Join, Split, Offset, Fillet, Chamfer: one door for all nine
     // @delegate: ../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js
+    import { Na__LeVecCfg__Value } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__Setup__.js';   // <-- DrawInsideOpenGroup: the one switch for drawing and placing inside an open group
     import { Na__LeMeasure__Refresh, Na__LeMeasure__Clear } from './Na__LayoutEditor__Measurements__.js';
     import { Na__LeLeader__Cancel } from '../35__System__DrawingTools/Na__LayoutEditor__LeaderTool__.js';
     import { Na__LeDrop__Clear, Na__LeDrop__Pick, Na__LeDrop__MODE_ITEM, Na__LeDrop__MODE_PALETTE, Na__LeDrop__SetMode, Na__LeDrop__GetMode, Na__LeDrop__SyncPalette } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeAxis__Clear } from './Na__LayoutEditor__AxisLock__.js';
     import { Na__LeVpMove__Clear } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
     import { Na__LeSelBox__Cancel } from './Na__LayoutEditor__SelectionBox__.js';
-    import { Na__LeScope__Clear, Na__LeScope__IsActive } from './Na__LayoutEditor__EditScope__.js';
+    import { Na__LeScope__Clear, Na__LeScope__IsActive, Na__LeScope__GetGroupId, Na__LeScope__BeginAdopting, Na__LeScope__EndAdopting } from './Na__LayoutEditor__EditScope__.js';
     import { Na__LeGrips__MOVE_CURSOR } from './Na__LayoutEditor__Grips__.js';
     // ------------------------------------------------------------
 
@@ -168,6 +178,15 @@
     let Na__LeTools__ShapeDefaults = null;
     let Na__LeTools__LeaderDefaults = null;
     let Na__LeTools__LastVectorTool = Na__LeTools__TOOL_DRAW;   // <-- Draw or Rectangle, whichever drew last: where a vector palette sync hands over
+    // ------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Tools That Place an Item Into an Open Group, and the Kind Each Places
+    // ------------------------------------------------------------
+    const Na__LeTools__PLACE_KINDS = Object.freeze({
+        [Na__LeTools__TOOL_TEXT]      : 'annotation',
+        [Na__LeTools__TOOL_LEADER]    : 'leader',
+        [Na__LeTools__TOOL_DIMENSION] : 'dimension'
+    });
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -254,9 +273,11 @@
     // ------------------------------------------------------------
     // AN OPEN CONTAINER BELONGS TO THE TOOLS THAT EDIT WHAT IS ALREADY THERE.
     // Select and Move keep it open - stepping into a vector and then moving its
-    // vertices is one piece of work - and every other tool closes it, because a
-    // tool that PLACES something is starting new work on the sheet itself. So
-    // is putting the tools down: Escape leaves no container open.
+    // vertices is one piece of work - and a placing tool closes it, because it
+    // is starting new work on the sheet itself. The exception is an open
+    // GROUP, which the tools that draw or place a plain item keep open and put
+    // their work into (Draw, Rectangle, Circle, Arc, Text, Leader, Dimension).
+    // Putting the tools down is the other way out: Escape leaves no container open.
     // ------------------------------------------------------------
     function Na__LeTools__SetTool(tool) { return Na__LeTools__ApplyTool(tool, false); }   // <-- The deliberate way to a tool: a key, a toolbar button
     function Na__LeTools__GetTool() { return Na__LeTools__Tool; }
@@ -279,9 +300,17 @@
         // Trim, Extend, Join, Split, Offset, Fillet and Chamfer edit what is
         // already there, as Select and Move do, so they never close it; and a
         // tool that draws a plain vector - Draw, Rectangle, Circle, Arc - keeps
-        // a GROUP open and draws into it, as LayOut does. Every other placing
-        // tool still closes whatever is open, exactly as before.
-        if (Na__LeTools__PICK_TOOLS.indexOf(next) === -1 && !Na__LeVec__KeepsContainer(next) && Na__LeScope__IsActive()) Na__LeScope__Clear();
+        // a GROUP open and draws into it, as LayOut does. So do Text, Leader
+        // and Dimension (PlacesIntoGroup): what they place joins the group.
+        // Every other placing tool still closes whatever is open.
+        const intoGroup = Na__LeTools__PlacesIntoGroup(next);
+        if (Na__LeTools__PICK_TOOLS.indexOf(next) === -1 && !Na__LeVec__KeepsContainer(next) && !intoGroup && Na__LeScope__IsActive()) Na__LeScope__Clear();
+        // WHAT THIS TOOL PLACES JOINS THE GROUP: an adoption window for its
+        // kind while it is up (Na__LeScope__BeginAdopting), taken just before
+        // each placement is announced, so undo takes the item and its
+        // membership together. Any other tool closes the window.
+        if (intoGroup) Na__LeScope__BeginAdopting(Na__LeModel__GetActiveSheet(), [ Na__LeTools__PLACE_KINDS[next] ]);
+        else Na__LeScope__EndAdopting();
         Na__LeTools__Tool       = next;
         Na__LeTools__MoveIsAuto = auto === true && next === Na__LeTools__TOOL_MOVE;
         if (next === Na__LeTools__TOOL_DRAW || next === Na__LeTools__TOOL_RECT || Na__LeVec__IsDrawTool(next)) Na__LeTools__LastVectorTool = next;   // <-- Circle and Arc draw vectors too: a palette sync hands back to whichever drew last
@@ -290,6 +319,20 @@
         Na__LeMeasure__Refresh();                                            // <-- The Measurements box reads for the new tool, or rests
         window.dispatchEvent(new CustomEvent(Na__LeTools__CHANGED_EVENT, { detail : { tool : next, auto : Na__LeTools__MoveIsAuto } }));
         return next;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does This Tool Place Its Item Into the Open Group
+    // ------------------------------------------------------------
+    // Text, Leader and Dimension, while a GROUP is the innermost container
+    // and the vector tools' DrawInsideOpenGroup is on (LayOut's behaviour; off
+    // puts back picking any of them closing the group). A vector or a
+    // dimension open for its points is not a group: they close it as before.
+    // ------------------------------------------------------------
+    function Na__LeTools__PlacesIntoGroup(tool) {
+        if (!Na__LeTools__PLACE_KINDS[tool] || !Na__LeScope__GetGroupId()) return false;
+        return Na__LeVecCfg__Value('Behaviour', 'DrawInsideOpenGroup', true) !== false;
     }
     // ------------------------------------------------------------
 

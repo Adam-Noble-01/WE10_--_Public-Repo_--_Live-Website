@@ -22,7 +22,7 @@
         "Behaviour__MaxExtendMm"              : 2000,
         "Behaviour__MaxExtendMmNote"          : "The furthest an end may be carried on to reach a line: further than the largest sheet is across, so in practice only a guard against a runaway.",
         "Behaviour__DrawInsideOpenGroup"      : true,
-        "Behaviour__DrawInsideOpenGroupNote"  : "True is LayOut's behaviour: while a GROUP is open for editing, the Draw, Rectangle, Circle and Arc tools leave it open and what they draw joins it. False is how the editor behaved before the vector tools: picking any drawing tool closed the container and drew on the sheet.",
+        "Behaviour__DrawInsideOpenGroupNote"  : "True is LayOut's behaviour: while a GROUP is open for editing, the Draw, Rectangle, Circle and Arc tools - and the sheet tools' Text, Leader and Dimension (v2.142.0) - leave it open and what they draw or place joins it. False is how the editor behaved before the vector tools: picking any of them closed the container and drew on the sheet. A paste, a Duplicate, a scrapbook drop, a dropped picture and a viewport added from the panel join an open group whatever this says: nothing else closes it for them.",
         "Behaviour__ShiftSwapsTrimAndExtend"  : true,
         "Behaviour__ShiftSwapsNote"           : "True is AutoCAD's: holding Shift with Trim up extends, and with Extend up trims, for as long as it is held.",
         "Behaviour__CutToOwnCrossings"        : true,

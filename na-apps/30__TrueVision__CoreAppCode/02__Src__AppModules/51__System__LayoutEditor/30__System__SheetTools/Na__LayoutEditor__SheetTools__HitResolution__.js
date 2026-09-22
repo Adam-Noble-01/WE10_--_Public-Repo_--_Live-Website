@@ -52,6 +52,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.9.0
+// - VIEWPORTS GROUP (Na__LayoutEditor__Groups__ 1.4.0). Resolve sends a
+//   viewport's frame through the scope as it sends markup: at the sheet a
+//   grouped frame answers as its outermost group; inside an open GROUP a
+//   member frame answers as itself and one outside it is looked through.
+//   Only an open vector or dimension still ends the search at the markup. A
+//   LOCKED frame at the sheet stays background - a press on it still starts
+//   a box. The selected viewport's handles and its rotate grip answer inside
+//   an open group when it is a member (ViewportRotateGripAt asked no
+//   container at all). RawHit finds a frame when no markup is under the
+//   pointer, so a click outside an inner group steps back out to the outer
+//   group holding that frame.
+// - GroupAutoMoves: a group that holds a viewport or a dimension waits for M,
+//   as each does on its own; PicksUpMove and SelectionPicksUpMove ask it.
+//
 // 21-Sep-2026 - Version 1.8.0
 // - Rotatable viewports. ViewportRotateGripAt finds the selected viewport's
 //   rotate grip before anything else, as the text rotate grip is found, and
@@ -153,6 +168,7 @@
     import { Na__LeCfg__GetSelectionSetup, Na__LeCfg__GetEditScopeSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeModel__KIND_2D,
+        Na__LeModel__GetActiveSheet,
         Na__LeModel__GetViewportById,
         Na__LeModel__IsLayerVisible,
         Na__LeModel__IsLayerLocked,
@@ -175,6 +191,7 @@
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__ClickToggles, Na__LeDoors__At } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeOsnap__Find, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
+    import { Na__LeGroup__Descendants } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';   // <-- What a group holds, for whether it picks Move up
     import {
         Na__LeScope__IsActive,
         Na__LeScope__IsLeafOpen,
@@ -235,7 +252,24 @@
         const setup = Na__LeCfg__GetEditScopeSetup();
         if (!setup.autoMoveOnSelect || !setup.moveToolRequired) return false;
         if (!Array.isArray(items) || !items.length || Na__LeScope__IsLeafOpen()) return false;
-        return items.every((item) => !!item && setup.autoMoveKinds.indexOf(item.kind) !== -1);
+        const sheet = Na__LeModel__GetActiveSheet();
+        return items.every((item) => !!item && setup.autoMoveKinds.indexOf(item.kind) !== -1
+            && (item.kind !== 'group' || Na__LeTools__GroupAutoMoves(sheet, item.id, setup.autoMoveKinds)));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Would Everything Inside a Group Pick the Move Tool Up
+    // ------------------------------------------------------------
+    // A GROUP HOLDING A DRAWING IS A DRAWING. A group is one of the
+    // AutoMoveKinds, but one that holds a viewport or a dimension - kinds the
+    // config leaves out so a drawing or a measurement never travels on a Move
+    // nobody asked for - waits for M, exactly as that viewport or dimension
+    // does on its own. Nested groups are looked through.
+    // ------------------------------------------------------------
+    function Na__LeTools__GroupAutoMoves(sheet, groupId, kinds) {
+        if (!sheet) return true;
+        return Na__LeGroup__Descendants(sheet, groupId).every((member) => member.kind === 'group' || kinds.indexOf(member.kind) !== -1);
     }
     // ------------------------------------------------------------
 
@@ -268,7 +302,7 @@
         const items = Na__LeModel__GetSelectionItems();
         if (items.length > 1 && Na__LeModel__IsSelected(found.kind, found.id)) return Na__LeTools__SelectionPicksUpMove(items);
         if (setup.autoMoveKinds.indexOf(found.kind) === -1) return false;
-        if (found.kind === 'group') return true;                             // <-- Its members answer for their own locks when the set is captured
+        if (found.kind === 'group') return Na__LeTools__GroupAutoMoves(sheet, found.id, setup.autoMoveKinds);   // <-- Its members answer for their own locks when the set is captured; one holding a viewport or a dimension waits for M
         const record = Na__LeTools__Record(sheet, found);
         if (!record) return false;
         if (found.kind === 'annotation') return !Na__LeModel__IsLayerLocked(sheet, record.Annotation__LayerId) && !(found.hit && found.hit.mode === 'rotate');
@@ -467,14 +501,16 @@
     // note, a title, another drawing - which would otherwise answer first.
     // Only where the grip is drawn (Na__LeHandles__Render): the Select tool
     // up in an editable session, one viewport selected on a visible, pickable
-    // layer, not locked, not being edited inside, and no container open.
+    // layer, not locked, not being edited inside, and no vector or dimension
+    // open - a GROUP may be open, with the viewport one of its members.
     // Returns { kind : 'viewport', id, hit : { mode : 'rotate' } }.
     // ------------------------------------------------------------
     function Na__LeTools__ViewportRotateGripAt(sheet, pointMm) {
         if (!Na__LeTools__Editable || Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1 || !sheet || !pointMm) return null;
-        if (Na__LeScope__IsActive() || Na__LeModel__GetSelectionItems().length !== 1) return null;
+        if (Na__LeScope__IsLeafOpen() || Na__LeModel__GetSelectionItems().length !== 1) return null;
         const selection = Na__LeModel__GetSelection();
         if (!selection || selection.kind !== 'viewport') return null;
+        if (!Na__LeScope__Allows(sheet, 'viewport', selection.id)) return null;   // <-- Inside an open group, only a member turns
         const viewport = Na__LeModel__GetViewportById(sheet, selection.id);
         if (!viewport || !Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId) || !Na__LeModel__IsLayerSelectable(sheet, viewport.Viewport__LayerId)) return null;
         if (Na__LeTools__IsViewportLocked(sheet, viewport) || Na__LeSurface__GetEditingViewport() === viewport.Viewport__Id) return null;
@@ -539,20 +575,25 @@
         const markup = Na__LeMarkup__HitTest(sheet, pointMm, Na__LeTools__Tolerance(), includeLocked === true);   // <-- The eyedropper reads locked markup; nothing else touches it
         if (markup) return keepMember === true ? { kind : markup.kind, id : markup.id, hit : null } : Na__LeScope__Resolve(sheet, { kind : markup.kind, id : markup.id, hit : null });
 
-        // A CONTAINER IS OPEN | Viewports are never inside one, so there is
-        // nothing left below the markup to find: the press has landed outside,
-        // and the press handler reads that null as "step back out". The
-        // eyedropper (keepMember) still reads the whole sheet, because matching
-        // a style changes nothing and refusing it would be a puzzle.
+        // A VECTOR OR A DIMENSION IS OPEN | It holds points, and no viewport is
+        // ever inside one, so there is nothing left below the markup to find:
+        // the press has landed outside, and the press handler reads that null
+        // as "step back out". An open GROUP may hold viewports, so the frames
+        // below are still asked - each through the scope, which answers null
+        // for one outside the group. The eyedropper (keepMember) still reads
+        // the whole sheet, because matching a style changes nothing and
+        // refusing it would be a puzzle.
         // ------------------------------------
-        if (Na__LeScope__IsActive() && keepMember !== true) return null;
+        const scoped = keepMember !== true && Na__LeScope__IsActive();
+        if (scoped && Na__LeScope__IsLeafOpen()) return null;
 
         const ppm  = Na__LeSurface__GetPixelsPerMm();
         const zoom = Na__LeSurface__GetZoom();
         const selection = Na__LeModel__GetSelection();
         const selected  = (selection && selection.kind === 'viewport') ? Na__LeModel__GetViewportById(sheet, selection.id) : null;
         if (selected && Na__LeModel__IsLayerVisible(sheet, selected.Viewport__LayerId) && Na__LeModel__IsLayerSelectable(sheet, selected.Viewport__LayerId)
-                && !(skipLockedViewports && Na__LeTools__IsViewportLocked(sheet, selected))) {
+                && !(skipLockedViewports && Na__LeTools__IsViewportLocked(sheet, selected))
+                && (!scoped || Na__LeScope__Allows(sheet, 'viewport', selected.Viewport__Id))) {
             const hit = Na__LeHandles__HitTest(selected, pointMm, ppm, zoom, true);
             if (hit) return { kind : 'viewport', id : selected.Viewport__Id, hit : hit };
         }
@@ -560,7 +601,17 @@
         for (let i = 0; i < ordered.length; i++) {
             if (!Na__LeModel__IsLayerSelectable(sheet, ordered[i].Viewport__LayerId)) continue;   // <-- A reference layer's frame is not there to the pointer at all
             if (skipLockedViewports && Na__LeTools__IsViewportLocked(sheet, ordered[i])) continue;   // <-- Look through a locked frame
-            if (Na__LeHandles__Contains(ordered[i], pointMm)) return { kind : 'viewport', id : ordered[i].Viewport__Id, hit : null };
+            if (!Na__LeHandles__Contains(ordered[i], pointMm)) continue;
+            const frame = { kind : 'viewport', id : ordered[i].Viewport__Id, hit : null };
+            // A GROUPED FRAME ANSWERS AS ITS GROUP, the way a grouped note or
+            // vector does (Na__LeScope__Resolve): at the sheet the outermost
+            // group, inside an open group the member, outside it nothing - and
+            // then the frames behind are asked, since a frame outside the group
+            // is faded and inert. A LOCKED frame at the sheet stays background:
+            // a press on it still starts a box, grouped or not.
+            if (keepMember === true || (!scoped && Na__LeTools__IsViewportLocked(sheet, ordered[i]))) return frame;
+            const resolved = Na__LeScope__Resolve(sheet, frame);
+            if (resolved) return resolved;
         }
         return null;
     }
@@ -574,11 +625,16 @@
     // item itself, group or no group. It is what decides how far a press
     // outside an open container steps back out (Na__LayoutEditor__EditScope__
     // ExitTo), because that question is about the sheet, not about the level.
+    // With no markup there, the frontmost pickable viewport frame: a viewport
+    // can be a group's member, so a click on one inside an outer group steps
+    // back out to that group rather than out of everything.
     // ------------------------------------------------------------
     function Na__LeTools__RawHit(sheet, pointMm) {
         if (!sheet || !pointMm) return null;
         const markup = Na__LeMarkup__HitTest(sheet, pointMm, Na__LeTools__Tolerance(), false);
-        return markup ? { kind : markup.kind, id : markup.id } : null;
+        if (markup) return { kind : markup.kind, id : markup.id };
+        const frame = Na__LeHandles__FrontToBack(sheet).find((viewport) => Na__LeModel__IsLayerSelectable(sheet, viewport.Viewport__LayerId) && Na__LeHandles__Contains(viewport, pointMm));
+        return frame ? { kind : 'viewport', id : frame.Viewport__Id } : null;
     }
     // ------------------------------------------------------------
 

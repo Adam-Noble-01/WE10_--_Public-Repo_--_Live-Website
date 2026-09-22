@@ -6,21 +6,25 @@
 // NAMESPACE  : Na__LeGroup
 // MODULE     : Layout Editor - Groups
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : Group and ungroup vectors and text (Ctrl+G / Ctrl+Shift+G), and the blue box a selected group shows
+// PURPOSE    : Group and ungroup anything on a sheet - viewports, vectors, text, leaders and dimensions (Ctrl+G / Ctrl+Shift+G) - and the blue box a selected group shows
 // CREATED    : 14-Sep-2026
 //
 // DESCRIPTION:
 // - A group is a sheet record (Sheet__Groups) that names its members: a
-//   vector, a text item, or another group. Members stay first-class and
-//   keep drawing; the group is what a click, a move, a copy and a delete
-//   take hold of.
-// - Ctrl+G groups every groupable item in the selection (at least two of
-//   vectors, text and groups). Ctrl+Shift+G ungroups each selected group
-//   one level, lifting nested groups out as groups and the rest as items.
-//   One announcement, so one undo step.
-// - A click on a member selects the outermost group that holds it. A box
-//   that takes a member takes that group. The eyedropper still reads the
-//   member, so a grouped vector can still paint its style.
+//   viewport, a vector (a picture is one), a text item, a leader, a
+//   dimension, or another group. Members stay first-class and keep drawing
+//   where the Layers list stacks them; the group is what a click, a move, a
+//   copy and a delete take hold of. A group moves as one piece, every leader
+//   tip included (Na__LayoutEditor__SelectionSet__).
+// - Ctrl+G groups every item in the selection (at least two of them).
+//   Ctrl+Shift+G ungroups each selected group one level, lifting nested
+//   groups out as groups and the rest as items. One announcement, so one
+//   undo step.
+// - A click on a member selects the outermost group that holds it - a
+//   viewport's frame included, unless the viewport is locked, which stays
+//   background as ever. A box that takes a member takes that group. The
+//   eyedropper still reads the member, so a grouped vector can still paint
+//   its style.
 // - A selected group shows one blue bounding box around every member, with
 //   the word "Group" in the top-left corner, counter-scaled like the
 //   viewport note so it reads the same at any zoom. Vertex grips stay off;
@@ -42,6 +46,28 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - VIEWPORTS GROUP. A drawing and the notes, bubbles and dimensions laid
+//   over it are one thing on the sheet (Adam, after v2.141.0: "fix them").
+//   KINDS takes 'viewport', MemberBounds reads a viewport's frame - the
+//   upright box round a turned one (Na__LeVpRot__Bounds) - and the record,
+//   the prune and a single delete keep a group whole around one. The sheet
+//   tools resolve a press on a grouped frame to its group
+//   (Na__LayoutEditor__SheetTools__HitResolution__), and an open group draws
+//   its viewports at full strength (Na__LayoutEditor__SheetSurface__).
+//
+// 22-Sep-2026 - Version 1.3.0
+// - LEADERS AND DIMENSIONS GROUP. A CGI and its specification bubbles, or a
+//   detail and its dimensions, are one thing on the sheet, and Ctrl+G used to
+//   leave the bubbles and the dimensions out of the group - so the group moved
+//   and they stayed where they were (Adam). KINDS takes both; a click on a
+//   grouped bubble or dimension now selects its group, a box that takes one
+//   takes the group, and MemberBounds reads a dimension's box
+//   (Na__LeMarkup__DimensionBounds) so the blue box and a copy's placement
+//   frame it. The record keeps them (Na__LeRec__NormaliseGroup), a delete's
+//   prune knows them (Na__LeModel__PruneGroups), and an open group draws them
+//   over the faded sheet (Na__LeScope__Contents). Viewports still do not group.
+//
 // 19-Sep-2026 - Version 1.2.0
 // - RegisterLabeller: a feature can say what a selected group's box is
 //   tagged with, in place of "Group". A parametric element's box reads its
@@ -82,10 +108,12 @@
         Na__LeModel__DeleteGroup,
         Na__LeModel__GetShapeById,
         Na__LeModel__GetAnnotationById,
-        Na__LeModel__GetLeaderById
+        Na__LeModel__GetLeaderById,
+        Na__LeModel__GetViewportById
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeShapeGeo__Bounds } from './Na__LayoutEditor__ShapeGeometry__.js';
-    import { Na__LeMarkup__AnnotationBounds, Na__LeMarkup__LeaderBounds } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeMarkup__AnnotationBounds, Na__LeMarkup__LeaderBounds, Na__LeMarkup__DimensionBounds } from './Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeVpRot__Bounds } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the upright box round a turned frame
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -97,7 +125,11 @@
 
     // MODULE CONSTANTS | Groupable Kinds, Overlay Class and Box Pad
     // ------------------------------------------------------------
-    const Na__LeGroup__KINDS     = Object.freeze([ 'shape', 'annotation', 'group' ]);
+    // Na__LeRec__GROUP_KINDS (Na__LayoutEditor__SheetRecords__) is the same
+    // list for the record, and Na__LeModel__PruneGroups knows each of them:
+    // a kind added here is added there too, or a saved group loses it.
+    // ------------------------------------------------------------
+    const Na__LeGroup__KINDS     = Object.freeze([ 'viewport', 'shape', 'annotation', 'leader', 'dimension', 'group' ]);
     const Na__LeGroup__CLASS     = 'na-le-selection na-le-selection--group';
     const Na__LeGroup__PAD_MM    = 1.0;     // <-- Same pad as a selected vector's highlight box
     // ------------------------------------------------------------
@@ -192,7 +224,7 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Walk Every Leaf Member of a Group (vectors and text)
+    // HELPER FUNCTION | Walk Every Leaf Member of a Group (everything but the nested groups themselves)
     // ------------------------------------------------------------
     function Na__LeGroup__WalkLeaves(sheet, groupId, visit, seen) {
         const walked = seen || new Set();
@@ -210,8 +242,9 @@
 
     // FUNCTION | Every Record a Group Owns, Nested Groups Included
     // ------------------------------------------------------------
-    // Returns [{ kind, id }] of vectors, text and nested groups. The group
-    // itself is not in the list. Used to copy, move and delete the contents.
+    // Returns [{ kind, id }] of viewports, vectors, text, leaders, dimensions
+    // and nested groups. The group itself is not in the list. Used to copy,
+    // move and delete the contents.
     // ------------------------------------------------------------
     function Na__LeGroup__Descendants(sheet, groupId) {
         const out  = [];
@@ -234,9 +267,10 @@
 
     // FUNCTION | Expand Groups in a Selection to the Records an Edit Touches
     // ------------------------------------------------------------
-    // A selected group becomes its descendant vectors, text and nested groups,
-    // plus the group itself (so a delete takes the group record as well).
-    // Ungrouped items pass through. Duplicates drop out.
+    // A selected group becomes its descendant members and nested groups, plus
+    // the group itself - so a delete takes the group record as well, and a
+    // move knows which of what it carries sit in a group being moved
+    // (Na__LeSelSet__Capture). Ungrouped items pass through. Duplicates drop out.
     // ------------------------------------------------------------
     function Na__LeGroup__Expand(sheet, items) {
         const seen = new Set();
@@ -265,13 +299,17 @@
 
     // HELPER FUNCTION | The Paper Box of One Member
     // ------------------------------------------------------------
-    // A leader is not a groupable kind (Na__LeGroup__KINDS leaves it out, so
-    // Ctrl+G never takes it) but it is still a clipboard "Set" member
-    // (Na__LayoutEditor__ItemClipboard__), which reads its box through this
-    // same helper to place a copy.
+    // Every groupable kind, which is also every kind a clipboard "Set" places
+    // a copy by (Na__LayoutEditor__ItemClipboard__). A viewport is its frame,
+    // or the upright box round it when it is turned - what it covers on the
+    // paper, never the drawing it shows beyond a crop.
     // ------------------------------------------------------------
     function Na__LeGroup__MemberBounds(sheet, member) {
         if (!member) return null;
+        if (member.kind === 'viewport') {
+            const viewport = Na__LeModel__GetViewportById(sheet, member.id);
+            return (viewport && viewport.Viewport__FrameMm) ? Na__LeVpRot__Bounds(viewport) : null;
+        }
         if (member.kind === 'shape') {
             const shape = Na__LeModel__GetShapeById(sheet, member.id);
             return shape ? Na__LeShapeGeo__Bounds(shape) : null;
@@ -290,6 +328,10 @@
         if (member.kind === 'leader') {
             const leader = Na__LeModel__GetLeaderById(sheet, member.id);
             return leader ? Na__LeMarkup__LeaderBounds(leader) : null;
+        }
+        if (member.kind === 'dimension') {
+            const dim = (sheet && Array.isArray(sheet.Sheet__Dimensions)) ? sheet.Sheet__Dimensions.find((d) => d && d.Dimension__Id === member.id) : null;
+            return dim ? Na__LeMarkup__DimensionBounds(sheet, dim) : null;   // <-- Its lines, its value and a dragged value's arc: what its highlight frames
         }
         if (member.kind === 'group') return Na__LeGroup__Bounds(sheet, member.id);
         return null;
@@ -349,8 +391,7 @@
     // HELPER FUNCTION | The Groupable Items in a Selection, Outermost Groups Kept
     // ------------------------------------------------------------
     // A selected member of a group is already the group (Resolve). Loose
-    // vectors and text stay as they are. Viewports, dimensions and leaders
-    // are left out: they do not group.
+    // items of every kind stay as they are.
     // ------------------------------------------------------------
     function Na__LeGroup__Groupable(sheet, items) {
         const seen = new Set();
@@ -403,7 +444,7 @@
 
     // FUNCTION | Ungroup Each Selected Group One Level (Ctrl+Shift+G)
     // ------------------------------------------------------------
-    // Nested groups come out as groups; vectors and text come out free. A
+    // Nested groups come out as groups; everything else comes out free. A
     // group that lived inside another has its members lifted into that
     // parent in its place. One announcement (the first DeleteGroup), so
     // one undo step: later deletes are silent.

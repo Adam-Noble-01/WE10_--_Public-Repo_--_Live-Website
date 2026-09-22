@@ -71,7 +71,13 @@
 //                 SpecNoteId (only on a bubble linked to a specification note)
 //                 (drawn by Na__LayoutEditor__LeaderGeometry__)
 //     MarginNotes Sheet__MarginNotes {Enabled, WidthMm, Heading, TextSizeMm,
-//                 IncludeGeneral, GroupHeadings} - only on a sheet that has had one
+//                 IncludeGeneral, GroupHeadings, RegionsOn (only ever true),
+//                 Regions [] (only when there is one)} - only on a sheet that
+//                 has had one
+//     NoteRegion  Region__Id, FrameMm {X, Y, WidthMm, HeightMm}, Title (null
+//                 for the automatic one), Overspill, Groups [group ids],
+//                 Borders {Top, Right, Bottom, Left}
+//                 (Na__LayoutEditor__SheetRecords__NoteRegions__)
 //   Paper coordinates are millimetres from the sheet's top-left, y down.
 //
 // - The active sheet and the selection are session state, held in the State
@@ -123,6 +129,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.34.0
+// - Re-exports the Sheets unit's AddNoteRegion, UpdateNoteRegion and
+//   DeleteNoteRegion: the overspill note regions on a sheet's notes margin
+//   record, which the header's record list now names.
+//
 // 21-Sep-2026 - Version 1.33.0
 // - The Viewport record lists HideSwings (Na__LayoutEditor__PlanDoors__), and
 //   the Viewports unit's UpdateViewport takes the hideSwings patch key. The
@@ -433,6 +444,9 @@
         Na__LeModel__CleanSheetName,
         Na__LeModel__ApplySheetName,
         Na__LeModel__UpdateMarginNotes,
+        Na__LeModel__AddNoteRegion,
+        Na__LeModel__UpdateNoteRegion,
+        Na__LeModel__DeleteNoteRegion,
         Na__LeModel__SetField,
         Na__LeModel__IsCommonFields,
         Na__LeModel__SetCommonFields,
@@ -767,6 +781,9 @@
         Na__LeModel__SetCommonFieldValue,
         Na__LeModel__SeedCommonFields,
         Na__LeModel__UpdateMarginNotes,
+        Na__LeModel__AddNoteRegion,
+        Na__LeModel__UpdateNoteRegion,
+        Na__LeModel__DeleteNoteRegion,
         Na__LeModel__GetLayers,
         Na__LeModel__LayerIndexAboveDrawings,
         Na__LeModel__LayerIndexLike,

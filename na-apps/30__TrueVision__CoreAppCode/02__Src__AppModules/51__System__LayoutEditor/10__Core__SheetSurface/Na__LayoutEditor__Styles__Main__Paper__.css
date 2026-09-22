@@ -104,9 +104,15 @@
 /* The amount is set on the paper element from the EditScope block of       */
 /* Na__LayoutEditor__AppConfig__.json; the value here is the fallback.      */
 
-/* The whole stack fades as one: it is already a stacking context, so the  */
-/* layers inside it keep their order under the fade.                      */
-.na-le-paper--scoped .na-le-paper__stack {
+/* EACH PART OF THE STACK FADES ON ITS OWN: every SVG slot, and every       */
+/* viewport frame the open container does not hold. A group may hold        */
+/* viewports, and an opacity on the stack would dim those with the rest -   */
+/* no child can undo its parent's opacity. The surface marks the frames a   */
+/* group holds (na-le-frame--in-scope) and they stay at full strength. The  */
+/* frames' own box still takes no fade and no stacking context, so frames   */
+/* and slots keep their order under the fade.                             */
+.na-le-paper--scoped .na-le-paper__slot,
+.na-le-paper--scoped .na-le-frame:not(.na-le-frame--in-scope) {
     opacity                            : var(--na-le-scope-fade, 0.25);
     transition                         : opacity 120ms ease-out;
 }

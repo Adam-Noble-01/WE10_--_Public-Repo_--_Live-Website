@@ -141,6 +141,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.37.0
+// - TOOL_REGION is exported with the other tool names: the Margin Notes panel
+//   puts it up to draw an overspill note region, which the press, drag and
+//   keyboard units hand to Na__LayoutEditor__NoteRegions__Tool__ - the
+//   Rectangle tool with a region to make instead of a vector.
+//
 // 21-Sep-2026 - Version 1.36.0
 // - The Measurements box's context gains getVectorReading and typeVectorValue:
 //   what it reads and types for a vector tool (37__System__VectorTools), asked
@@ -487,6 +493,7 @@
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__TOOL_AREA,
+        Na__LeTools__TOOL_REGION,
         Na__LeTools__CHANGED_EVENT,
         Na__LeTools__DEFAULTS_EVENT,
         Na__LeTools__Stage,
@@ -699,6 +706,7 @@
         Na__LeTools__TOOL_EYEDROP,
         Na__LeTools__TOOL_LEADER,
         Na__LeTools__TOOL_AREA,
+        Na__LeTools__TOOL_REGION,
         Na__LeTools__CHANGED_EVENT,
         Na__LeTools__DEFAULTS_EVENT,
         Na__LeTools__Attach,

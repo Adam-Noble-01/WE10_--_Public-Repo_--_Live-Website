@@ -47,6 +47,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.13.0 (TrueVision)
+// - AN OPEN GROUP'S VIEWPORTS STAY AT FULL STRENGTH. A group may hold
+//   viewports now (Na__LayoutEditor__Groups__ 1.4.0), and the fade was one
+//   opacity on the whole stack, which dimmed them with everything else and
+//   which no child can undo. The fade is now on each SVG slot and each frame
+//   (Na__LayoutEditor__Styles__Main__Paper__.css), and MarkScopedFrames marks
+//   the frames inside the open group na-le-frame--in-scope, which leaves them
+//   out of it. Run by RefreshScope and at the end of RefreshFrames. The
+//   frames' own box still takes no fade and no stacking context, so the
+//   stack keeps its order.
+//
 // 21-Sep-2026 - Version 1.12.0 (TrueVision)
 // - ROTATABLE VIEWPORTS. RefreshFrames appends the viewport's turn
 //   (Viewport__RotationDeg, Na__LayoutEditor__ViewportRotation__) to the
@@ -207,7 +218,7 @@
     import { Na__LeHandles__Render, Na__LeHandles__RenderOutlines, Na__LeHandles__Clear } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeVpRot__Deg, Na__LeVpRot__CssRotate } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned viewport's turn on the paper
     import { Na__LeGrips__Render } from '../30__System__SheetTools/Na__LayoutEditor__Grips__.js';
-    import { Na__LeScope__Get, Na__LeScope__Contents } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
+    import { Na__LeScope__Get, Na__LeScope__Contents, Na__LeScope__IsInside } from '../30__System__SheetTools/Na__LayoutEditor__EditScope__.js';
     import { Na__LeMarkup__BuildItemPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     // ------------------------------------------------------------
 
@@ -730,6 +741,7 @@
             if (frame.classList.contains(Na__LeSurface__CLASS_FRAME + '--3d')) Na__LeVp3d__Release(id, frame.firstElementChild); else Na__LeVp2d__Release(id, frame.firstElementChild);
             frame.remove();
         });
+        Na__LeSurface__MarkScopedFrames();                                       // <-- A frame just made inside an open group is not faded with the sheet
     }
     // ------------------------------------------------------------
 
@@ -895,6 +907,7 @@
         const open  = Na__LeScope__Get();
         Na__LeSurface__Paper.classList.toggle(Na__LeSurface__CLASS_SCOPED, !!open);
         Na__LeSurface__Paper.style.setProperty('--na-le-scope-fade', String(Na__LeCfg__GetEditScopeSetup().fadeOpacity));
+        Na__LeSurface__MarkScopedFrames();                                       // <-- A viewport the open group holds stays at full strength
         if (!open) {
             if (Na__LeSurface__FocusSvg && Na__LeSurface__FocusSvg.parentNode) Na__LeSurface__FocusSvg.parentNode.removeChild(Na__LeSurface__FocusSvg);
             Na__LeSurface__FocusSvg = null;
@@ -903,6 +916,29 @@
         const primitives = Na__LeMarkup__BuildItemPrimitives(sheet, Na__LeScope__Contents(sheet));
         const markup     = Na__LeChrome__ToSvgMarkup(primitives, Na__LeSurface__Layout.Page.WidthMm, Na__LeSurface__Layout.Page.HeightMm, 'na-le-paper__focus');
         Na__LeSurface__FocusSvg = Na__LeSurface__SwapSvg(Na__LeSurface__FocusSvg, markup, 'na-le-paper__focus', Na__LeSurface__Handles);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep the Frames an Open Group Holds at Full Strength
+    // ------------------------------------------------------------
+    // A group may hold viewports (Na__LayoutEditor__Groups__ 1.4.0), and their
+    // pictures are frames, not markup, so the focus layer cannot draw them
+    // again. The fade is on each frame instead of the stack
+    // (Na__LayoutEditor__Styles__Main__Paper__.css), and a frame inside the
+    // open group is left out of it: na-le-frame--in-scope. Asked whenever the
+    // scope changes and whenever the frames are laid out, so a frame made
+    // while a group is open is marked too.
+    // ------------------------------------------------------------
+    function Na__LeSurface__MarkScopedFrames() {
+        const sheet = Na__LeSurface__Sheet;
+        if (!sheet || !Na__LeSurface__Frames) return;
+        const open = Na__LeScope__Get();
+        Array.from(Na__LeSurface__Frames.children).forEach((frame) => {
+            const id     = frame.getAttribute('data-na-viewport-id');
+            const inside = !!open && !!id && Na__LeScope__IsInside(sheet, open, { kind : 'viewport', id : id });
+            frame.classList.toggle(Na__LeSurface__CLASS_FRAME + '--in-scope', inside);
+        });
     }
     // ------------------------------------------------------------
 

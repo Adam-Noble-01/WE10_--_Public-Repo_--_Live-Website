@@ -26,9 +26,10 @@
 //   assigned).
 //
 // INTEGRATION:
-// - Imports Na__LayoutEditor__SheetModel__State__ and
-//   Na__LayoutEditor__SheetModel__Layers__ (GetLayerById, DefaultLayerId),
-//   and the site plan viewport's label from Na__LayoutEditor__ConfigState__.
+// - Imports Na__LayoutEditor__SheetModel__State__,
+//   Na__LayoutEditor__SheetModel__Layers__ (GetLayerById, DefaultLayerId) and
+//   Na__LayoutEditor__SheetModel__Groups__ (PruneGroups, after a delete), and
+//   the site plan viewport's label from Na__LayoutEditor__ConfigState__.
 // - Na__LayoutEditor__SheetModel__ calls GetViewportById for the selected
 //   viewport and re-exports this unit's API. Every other module imports
 //   Na__LayoutEditor__SheetModel__.js, never this unit.
@@ -44,6 +45,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0 (TrueVision)
+// - DeleteViewport prunes the groups (Na__LeModel__PruneGroups), as
+//   DeleteShape does: a viewport can be a group's member now
+//   (Na__LayoutEditor__Groups__ 1.4.0), and one deleted on its own left the
+//   group naming a viewport that was gone.
+//
 // 21-Sep-2026 - Version 1.3.0 (TrueVision)
 // - Hide swings: UpdateViewport takes hideSwings - true or false stores a
 //   tick or an untick (Viewport__HideSwings), null removes it so the plan's
@@ -110,6 +117,7 @@
         Na__LeModel__AssignDirty
     } from './Na__LayoutEditor__SheetModel__State__.js';
     import { Na__LeModel__GetLayerById, Na__LeModel__DefaultLayerId } from './Na__LayoutEditor__SheetModel__Layers__.js';
+    import { Na__LeModel__PruneGroups } from './Na__LayoutEditor__SheetModel__Groups__.js';   // <-- It imports only the State unit, so this cannot cycle
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport Rotation (a leaf: the record key)
@@ -251,6 +259,7 @@
         sheet.Sheet__Viewports.splice(index, 1);
         sheet.Sheet__Dimensions.forEach((d) => { if (d.Dimension__ViewportId === viewportId) d.Dimension__ViewportId = null; });
         Na__LeModel__Unselect(viewportId);
+        Na__LeModel__PruneGroups(sheet);                                        // <-- A group that held it lets it go; one left with one member dissolves
         Na__LeModel__Touch('viewports', sheet.Sheet__Id, viewportId);
         return true;
     }

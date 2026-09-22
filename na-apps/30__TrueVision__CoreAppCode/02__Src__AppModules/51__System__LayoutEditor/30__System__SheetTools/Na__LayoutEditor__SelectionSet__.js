@@ -22,20 +22,27 @@
 // - LOCKED ITEMS STAY PUT. A locked viewport, or anything on a locked layer, may
 //   be part of a selection - a click still inspects it - but every move, nudge
 //   and delete leaves it out, as AutoCAD leaves out an object on a locked layer.
-// - A LEADER TIP FOLLOWS A VIEWPORT, NOT ITS TEXT. Dragging a text item on its
-//   own moves the words and leaves the leader pointing where it points, and a
-//   group does the same - unless the tip lies inside a viewport frame that is
-//   moving with the group, when the tip goes with the drawing it points at.
-//   Moving a view with its notes keeps every leader on its target; tidying a
-//   column of notes leaves every leader still pointing. A leader of its own
-//   (Sheet__Leaders) keeps the same rule: its head moves with the group, its
-//   tip only with a viewport it points into.
+// - A LEADER KEEPS POINTING AT WHAT IT POINTS AT. A leader's tip - a text
+//   item's leader or a leader's own (Sheet__Leaders) - goes with the set when
+//   it lies over what the set's drawings cover: a viewport it points into, a
+//   picture, a vector detail. It stays on a drawing staying behind, so notes
+//   moved with an arrow over a plan leave every leader on the plan. A tip on
+//   bare paper goes with a set that moves anything besides notes and leaders.
+//   Notes and leaders moved on their own move their words and bubbles and
+//   leave every tip where it points - tidying a column of notes - as dragging
+//   one note on its own always has.
+// - A GROUP IS ONE PIECE. Everything inside a group being moved goes with it,
+//   every leader tip included, whatever the tip points at; a group never comes
+//   apart on a move. So does a copy being carried off (a Ctrl-drag), which
+//   points at nothing yet.
 // - Dimensions and vectors move whole, as a single whole-item drag moves them.
 // - A delete that would take a viewport asks first, once, for the whole lot.
 //
 // INTEGRATION:
 // - Na__LayoutEditor__SheetTools__: Capture, Apply and Commit for a group drag;
 //   Nudge for the arrow keys; Delete for the Delete key and the context menu.
+// - Na__LayoutEditor__SheetTools__CopyDrag__: Capture with options.rigid for
+//   the copy a Ctrl-drag carries, and for each copy of an array.
 //
 // -----------------------------------------------------------------------------
 //
@@ -45,11 +52,30 @@
 //                   below the header, on top of the Leaders port (v2.32.0).
 //                   Nothing here is app-specific; it writes only records both
 //                   apps share. Later versions wait for their own sign-off.
-// - Depends on    : Na__LeModel__GetLeaders and UpdateLeader for the leader row
+// - Depends on    : Na__LeModel__GetLeaders and UpdateLeader for the leader row;
+//                   GetGroups, IsLayerVisible, Na__LeShapeGeo__Bounds and Hit
+//                   and Selection HitToleranceMm for the tip rule (1.2.0)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - A LEADER TIP FOLLOWS WHAT IT POINTS AT, NOT ONLY A VIEWPORT. A picture is
+//   a vector (Shape__Image), and the tip rule only ever looked for a moving
+//   viewport, so boxing a CGI with its specification bubbles and moving the
+//   lot carried every bubble and left every tip pointing at the old place
+//   (Adam, RB05's Project Introduction sheet). Capture now asks what lies
+//   under each tip (TipFollows): over the ground the moving viewports,
+//   pictures and vectors cover, it goes with them; on a drawing staying
+//   behind, it stays on it; on bare paper it goes with any set that moves
+//   more than notes and leaders.
+// - A GROUP MOVES AS ONE PIECE. A member of a group being moved takes its tip
+//   with it whatever it points at (GroupedBy), so a group of notes, or a
+//   picture grouped with its bubbles, never comes apart on a move, a nudge, a
+//   typed length or a copy array.
+// - Capture takes options.rigid, for a Ctrl-drag copy: every tip goes, since
+//   a copy points at nothing yet (Na__LayoutEditor__SheetTools__CopyDrag__).
+//
 // 21-Sep-2026 - Version 1.1.0
 // - A leader tip follows a moving viewport when it is inside the frame as the
 //   frame stands, turned (Viewport__RotationDeg) or not.
@@ -68,10 +94,12 @@
 
     // MODULE IMPORTS | Config, Model, Surface, Shape Geometry and the Confirm Dialog
     // ------------------------------------------------------------
-    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
+    import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetSelectionSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import {
         Na__LeModel__GetViewportById,
+        Na__LeModel__GetGroups,
         Na__LeModel__IsLayerLocked,
+        Na__LeModel__IsLayerVisible,
         Na__LeModel__UpdateViewport,
         Na__LeModel__UpdateAnnotation,
         Na__LeModel__UpdateDimension,
@@ -81,9 +109,9 @@
         Na__LeModel__DeleteItems
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__Refresh } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated, Na__LeShapeGeo__Bounds, Na__LeShapeGeo__Hit } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
-    import { Na__LeVpRot__Contains } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: inside a turned frame
+    import { Na__LeVpRot__Contains, Na__LeVpRot__Bounds } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: inside a turned frame, and the upright box round one
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -189,6 +217,140 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Where a Leader Tip Goes
+// -----------------------------------------------------------------------------
+//
+// A leader's tip sits ON something - a drawing in a viewport, a picture, a
+// line - and a set move should leave it on that something. So each tip asks,
+// once, at the press: does it belong to a group being moved (then it goes),
+// does it lie over the ground the moving drawings cover (then it goes), or is
+// it on a drawing staying behind (then it stays)? A tip with nothing under it
+// goes with a set that moves drawings, and stays with notes and leaders moved
+// on their own.
+//
+
+    // HELPER FUNCTION | How Near a Tip Must Sit to What It Points At, in Paper Millimetres
+    // ------------------------------------------------------------
+    // The click's own reach at 100 percent (Selection HitToleranceMm): a tip
+    // placed by eye on a line is as near it as a click on that line would be.
+    // ------------------------------------------------------------
+    function Na__LeSelSet__TipReachMm() {
+        const reach = Na__LeCfg__GetSelectionSetup().hitToleranceMm;
+        return (Number.isFinite(reach) && reach > 0) ? reach : 1.5;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Which Items Belong to a Group Being Moved
+    // ------------------------------------------------------------
+    // items is what the move was handed: the selection with every group opened
+    // up to its members (Na__LeGroup__Expand), the group records themselves
+    // included - which is how a moving group is known. Returns (kind, id) =>
+    // true when the item sits in one of them at any depth. A member picked on
+    // its own inside an open group is not "a group being moved": it answers
+    // false, and takes the pointing rule like anything picked loose.
+    // ------------------------------------------------------------
+    function Na__LeSelSet__GroupedBy(sheet, items) {
+        const moving = new Set((Array.isArray(items) ? items : []).filter((item) => item && item.kind === 'group').map((item) => item.id));
+        if (!moving.size) return () => false;
+        const parentOf = new Map();                                          // <-- 'kind:id' -> the id of the group that holds it
+        Na__LeModel__GetGroups(sheet).forEach((group) => {
+            (group.Group__Members || []).forEach((member) => { if (member) parentOf.set(member.kind + ':' + member.id, group.Group__Id); });
+        });
+        return (kind, id) => {
+            const seen = new Set();
+            let key = kind + ':' + id;
+            while (parentOf.has(key) && !seen.has(key)) {
+                seen.add(key);
+                const groupId = parentOf.get(key);
+                if (moving.has(groupId)) return true;
+                key = 'group:' + groupId;
+            }
+            return false;
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Ground the Moving Drawings Cover, and the Drawings Staying Behind
+    // ------------------------------------------------------------
+    // footprint is the box round every viewport and vector moving with the
+    // set, reach wider all round, or null when none moves. It is the WHOLE of
+    // what they cover, not each one's own box, so a tip among the lines of a
+    // vector detail - on none of them, over the drawing the detail was drawn
+    // on - still goes with the detail.
+    //
+    // staying is every other viewport and vector on a visible layer: a hidden
+    // one cannot be what a leader is seen to point at. A LOCKED one stays and
+    // holds the tips on it, as the lock holds it. Each vector's box is worked
+    // out once here, so a sheet of many is not measured again for every tip.
+    // ------------------------------------------------------------
+    function Na__LeSelSet__Drawings(sheet, group, reach) {
+        const moving  = new Set(group.filter((entry) => entry.kind === 'viewport' || entry.kind === 'shape').map((entry) => entry.kind + ':' + entry.id));
+        const staying = [];
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        const cover = (box) => {
+            if (!box || !Number.isFinite(box.X) || !Number.isFinite(box.Y)) return;
+            minX = Math.min(minX, box.X); maxX = Math.max(maxX, box.X + (box.WidthMm || 0));
+            minY = Math.min(minY, box.Y); maxY = Math.max(maxY, box.Y + (box.HeightMm || 0));
+        };
+        (sheet.Sheet__Viewports || []).forEach((viewport) => {
+            if (!viewport || !viewport.Viewport__FrameMm) return;
+            if (moving.has('viewport:' + viewport.Viewport__Id)) cover(Na__LeVpRot__Bounds(viewport));   // <-- The upright box round a turned frame
+            else if (Na__LeModel__IsLayerVisible(sheet, viewport.Viewport__LayerId)) staying.push({ kind : 'viewport', record : viewport });
+        });
+        (sheet.Sheet__Shapes || []).forEach((shape) => {
+            if (!shape) return;
+            if (moving.has('shape:' + shape.Shape__Id)) cover(Na__LeShapeGeo__Bounds(shape));
+            else if (Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId)) staying.push({ kind : 'shape', record : shape, box : Na__LeShapeGeo__Bounds(shape) });
+        });
+        const footprint = Number.isFinite(minX) ? { minX : minX - reach, minY : minY - reach, maxX : maxX + reach, maxY : maxY + reach } : null;
+        return { footprint : footprint, staying : staying };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does a Tip Sit on a Drawing Staying Behind
+    // ------------------------------------------------------------
+    // A viewport holds a tip anywhere inside its frame, turned or not. A
+    // vector holds one where a click would find it (Na__LeShapeGeo__Hit): on
+    // an edge, or anywhere inside a fill, a picture or a room.
+    // ------------------------------------------------------------
+    function Na__LeSelSet__Holds(drawing, tip, reach) {
+        if (drawing.kind === 'viewport') return Na__LeVpRot__Contains(drawing.record, tip, 0);
+        const box = drawing.box;
+        if (!box || tip.x < box.X - reach || tip.x > box.X + box.WidthMm + reach || tip.y < box.Y - reach || tip.y > box.Y + box.HeightMm + reach) return false;
+        return Na__LeShapeGeo__Hit(drawing.record, tip, reach);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does This Entry's Tip Go With the Set
+    // ------------------------------------------------------------
+    // context: { rigid, grouped, drawings } - drawings made on the first tip
+    // that needs them, so a copy or a group never measures anything.
+    //   a copy being carried, or a member of a group being moved   it goes
+    //   notes and leaders moved with no drawing among them          it stays
+    //   over the ground the moving drawings cover                   it goes
+    //   on a drawing staying behind                                 it stays
+    //   on bare paper                                               it goes
+    // ------------------------------------------------------------
+    function Na__LeSelSet__TipFollows(sheet, entry, group, context) {
+        if (context.rigid || context.grouped(entry.kind, entry.id)) return true;
+        const reach = Na__LeSelSet__TipReachMm();
+        if (!context.drawings) context.drawings = Na__LeSelSet__Drawings(sheet, group, reach);
+        const area = context.drawings.footprint;
+        if (!area) return false;
+        const tip = { x : entry.start.tipX, y : entry.start.tipY };
+        if (tip.x >= area.minX && tip.x <= area.maxX && tip.y >= area.minY && tip.y <= area.maxY) return true;
+        return !context.drawings.staying.some((drawing) => Na__LeSelSet__Holds(drawing, tip, reach));
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Public API
 // -----------------------------------------------------------------------------
 
@@ -196,16 +358,18 @@
     // ------------------------------------------------------------
     // Returns the group, [{ kind, id, start }]. It is empty when nothing selected
     // can move, which still makes a valid drag: one that moves nothing.
+    // options: { rigid } - true carries every leader tip with the set, for a
+    // copy (Na__LayoutEditor__SheetTools__CopyDrag__), which points at nothing
+    // yet. Left out, each tip goes where TipFollows says.
     // ------------------------------------------------------------
-    function Na__LeSelSet__Capture(sheet, items) {
+    function Na__LeSelSet__Capture(sheet, items, options) {
         const group = Na__LeSelSet__Editable(sheet, items).map((e) => ({ kind : e.kind, id : e.id, start : e.row.start(e.record) }));
-        // LEADER TIPS | A tip inside a frame that moves with the group goes with
-        // it - a text item's leader and a leader's own tip alike
-        const frames = group.filter((g) => g.kind === 'viewport').map((g) => Na__LeModel__GetViewportById(sheet, g.id)).filter(Boolean);
-        group.forEach((g) => {
-            if (!Number.isFinite(g.start.tipX) || !Number.isFinite(g.start.tipY)) return;
-            g.start.tipFollows = frames.some((viewport) => Na__LeVpRot__Contains(viewport, { x : g.start.tipX, y : g.start.tipY }, 0));   // <-- The frame as it stands, turned or not; read before anything moves
-        });
+        // LEADER TIPS | A text item's leader and a leader's own tip alike, each
+        // decided once, from where everything stands before anything moves
+        const tips = group.filter((g) => Number.isFinite(g.start.tipX) && Number.isFinite(g.start.tipY));
+        if (!tips.length) return group;
+        const context = { rigid : !!(options && options.rigid === true), grouped : Na__LeSelSet__GroupedBy(sheet, items), drawings : null };
+        tips.forEach((g) => { g.start.tipFollows = Na__LeSelSet__TipFollows(sheet, g, group, context); });
         return group;
     }
     // ------------------------------------------------------------

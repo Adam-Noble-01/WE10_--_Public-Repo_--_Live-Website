@@ -467,6 +467,7 @@ import { tmpdir } from 'node:os';
         const Na__LeModel__GetLeaderById = () => null;
         const Na__LeModel__GetViewportById = () => null;
         const Na__LeModel__IsLayerLocked = () => false;
+        const Na__LeScope__AdoptIntoOpenGroup = () => 0;                         // <-- No group is open for editing here: a paste joins none (Na__Test__SetMoveLeaderTips__ proves the joining)
         const Na__LeModel__DeleteItems = (sheet, items) => items.filter((item) => { const k = Na__Test__Lists[item.kind]; const i = k ? sheet[k[0]].findIndex((r) => r[k[1]] === item.id) : -1; if (i !== -1) sheet[k[0]].splice(i, 1); return i !== -1; }).length;
         const Na__LeModel__InsertViewport = () => null;
         const Na__LeModel__InsertDimension = () => null;

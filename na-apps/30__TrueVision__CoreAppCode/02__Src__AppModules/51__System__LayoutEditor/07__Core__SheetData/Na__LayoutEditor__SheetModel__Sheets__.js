@@ -43,6 +43,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.3.0
+// - OVERSPILL NOTE REGIONS. UpdateMarginNotes takes regionsOn (the Margin
+//   Notes panel's Overspill Note Regions switch). AddNoteRegion,
+//   UpdateNoteRegion and DeleteNoteRegion keep the regions on the notes
+//   margin record, each announced as 'margin' - one undo step, kept by the
+//   browser draft and Save Sheets, never an auto save - and UpdateNoteRegion
+//   can be silent for a grip mid-drag, as UpdateMarginNotes is for the
+//   margin's edge. Each normalises the record it writes, as the margin always
+//   has, so a silent edit is never read back half made.
+// - TrueVision first; not yet in ValeVision.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - GetSheets normalises a sheet ONCE PER ANNOUNCEMENT, not once per read. It
 //   used to run the whole normaliser over every record of every sheet in the
@@ -111,6 +122,7 @@
         Na__LeRec__StripSheetCode,
         Na__LeRec__NormaliseMarginNotes
     } from './Na__LayoutEditor__SheetRecords__.js';
+    import { Na__LeRec__NewNoteRegion, Na__LeRec__NoteRegionById } from './Na__LayoutEditor__SheetRecords__NoteRegions__.js';   // <-- The overspill note regions on the margin record
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Sheet Model State
@@ -481,25 +493,116 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | A Sheet's Notes Margin Record, Made When It Has None
+    // ------------------------------------------------------------
+    function Na__LeModel__NotesRecord(sheet) {
+        return (sheet.Sheet__MarginNotes && typeof sheet.Sheet__MarginNotes === 'object') ? sheet.Sheet__MarginNotes : (sheet.Sheet__MarginNotes = {});
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Switch, Widen or Restyle a Sheet's Notes Margin
     // ------------------------------------------------------------
     // patch: { enabled, widthMm, heading (null or empty for the configured
-    // one), textSizeMm, includeGeneral, groupHeadings }. The first change
-    // creates Sheet__MarginNotes. Announced as 'margin': a content edit, kept
-    // by the browser draft and Save Sheets, one undo step, never an auto save.
-    // silent: true skips the announcement (the edge grip while it is dragged).
+    // one), textSizeMm, includeGeneral, groupHeadings, regionsOn }. The first
+    // change creates Sheet__MarginNotes. Announced as 'margin': a content edit,
+    // kept by the browser draft and Save Sheets, one undo step, never an auto
+    // save. silent: true skips the announcement (the edge grip while it is
+    // dragged). regionsOn switches the overspill note regions: off keeps every
+    // region, so on again puts them back as they were.
     // ------------------------------------------------------------
     function Na__LeModel__UpdateMarginNotes(sheet, patch, silent) {
         if (!sheet || !patch) return false;
-        const notes = (sheet.Sheet__MarginNotes && typeof sheet.Sheet__MarginNotes === 'object') ? sheet.Sheet__MarginNotes : (sheet.Sheet__MarginNotes = {});
+        const notes = Na__LeModel__NotesRecord(sheet);
         if (typeof patch.enabled === 'boolean') notes.Enabled = patch.enabled;
         if (Number.isFinite(patch.widthMm)) notes.WidthMm = patch.widthMm;
         if (patch.heading !== undefined) notes.Heading = (typeof patch.heading === 'string' && patch.heading.trim()) ? patch.heading : null;
         if (Number.isFinite(patch.textSizeMm)) notes.TextSizeMm = patch.textSizeMm;
         if (typeof patch.includeGeneral === 'boolean') notes.IncludeGeneral = patch.includeGeneral;
         if (typeof patch.groupHeadings === 'boolean') notes.GroupHeadings = patch.groupHeadings;
+        if (typeof patch.regionsOn === 'boolean') { if (patch.regionsOn) notes.RegionsOn = true; else delete notes.RegionsOn; }   // <-- Stored only as true
         Na__LeRec__NormaliseMarginNotes(sheet);
         if (silent) { Na__LeModel__AssignDirty(true); return true; }
+        Na__LeModel__Touch('margin', sheet.Sheet__Id);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Add an Overspill Note Region Where One Was Drawn
+    // ------------------------------------------------------------
+    // frame: { X, Y, WidthMm, HeightMm } in paper millimetres. patch: { title,
+    // overspill, groups, borders }, each optional - a new region takes the
+    // overspill, no group and every border line. A region drawn is a region
+    // meant to be seen, so the regions are switched on with it. Announced as
+    // 'margin' like every other notes change: one undo step. Returns the
+    // region as it is kept, or null.
+    // ------------------------------------------------------------
+    function Na__LeModel__AddNoteRegion(sheet, frame, patch) {
+        if (!sheet || !frame || typeof frame !== 'object') return null;
+        const notes   = Na__LeModel__NotesRecord(sheet);
+        const regions = Array.isArray(notes.Regions) ? notes.Regions : [];
+        const region  = Na__LeRec__NewNoteRegion(regions, frame, patch);
+        if (!region) return null;
+        notes.Regions   = regions.concat([ region ]);
+        notes.RegionsOn = true;
+        Na__LeRec__NormaliseMarginNotes(sheet);
+        Na__LeModel__Touch('margin', sheet.Sheet__Id);
+        return Na__LeRec__NoteRegionById(sheet, region.Region__Id);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Move, Resize, Retitle or Restyle One Note Region
+    // ------------------------------------------------------------
+    // patch, every key optional:
+    //   frameMm    { X, Y, WidthMm, HeightMm } - where it now sits
+    //   title      the title to print; null or empty for the automatic one
+    //   overspill  whether it takes the notes that did not fit elsewhere
+    //   groups     the whole list of group ids it lists
+    //   group      { id, on } - one group ticked or unticked, the rest kept
+    //   borders    { Top, Right, Bottom, Left } - the sides given, the rest kept
+    // silent: true skips the announcement (a grip while it is dragged); the
+    // release announces once, so a whole drag is one undo step.
+    // ------------------------------------------------------------
+    function Na__LeModel__UpdateNoteRegion(sheet, regionId, patch, silent) {
+        const region = (sheet && patch) ? Na__LeRec__NoteRegionById(sheet, regionId) : null;
+        if (!region) return false;
+        const frame = patch.frameMm;
+        if (frame && typeof frame === 'object') {
+            const was = region.Region__FrameMm || {};
+            const pick = (key) => (Number.isFinite(frame[key]) ? frame[key] : was[key]);
+            region.Region__FrameMm = { X : pick('X'), Y : pick('Y'), WidthMm : pick('WidthMm'), HeightMm : pick('HeightMm') };
+        }
+        if (patch.title !== undefined) region.Region__Title = (typeof patch.title === 'string' && patch.title.trim()) ? patch.title : null;
+        if (typeof patch.overspill === 'boolean') region.Region__Overspill = patch.overspill;
+        if (Array.isArray(patch.groups)) region.Region__Groups = patch.groups.slice();
+        if (patch.group && typeof patch.group.id === 'string' && patch.group.id) {
+            const kept = (region.Region__Groups || []).filter((id) => id !== patch.group.id);
+            region.Region__Groups = patch.group.on === true ? kept.concat([ patch.group.id ]) : kept;
+        }
+        if (patch.borders && typeof patch.borders === 'object') {
+            const sides = Object.assign({}, region.Region__Borders || {});
+            Object.keys(patch.borders).forEach((side) => { if (typeof patch.borders[side] === 'boolean') sides[side] = patch.borders[side]; });
+            region.Region__Borders = sides;
+        }
+        Na__LeRec__NormaliseMarginNotes(sheet);
+        if (silent) { Na__LeModel__AssignDirty(true); return true; }
+        Na__LeModel__Touch('margin', sheet.Sheet__Id);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Delete One Note Region (one undo step; the switch is left as it was)
+    // ------------------------------------------------------------
+    function Na__LeModel__DeleteNoteRegion(sheet, regionId) {
+        const notes = sheet ? sheet.Sheet__MarginNotes : null;
+        if (!notes || typeof notes !== 'object' || !Array.isArray(notes.Regions)) return false;
+        const kept = notes.Regions.filter((region) => !region || region.Region__Id !== regionId);
+        if (kept.length === notes.Regions.length) return false;
+        if (kept.length) notes.Regions = kept; else delete notes.Regions;
+        Na__LeRec__NormaliseMarginNotes(sheet);
         Na__LeModel__Touch('margin', sheet.Sheet__Id);
         return true;
     }
@@ -596,6 +699,9 @@
         Na__LeModel__CleanSheetName,
         Na__LeModel__ApplySheetName,
         Na__LeModel__UpdateMarginNotes,
+        Na__LeModel__AddNoteRegion,
+        Na__LeModel__UpdateNoteRegion,
+        Na__LeModel__DeleteNoteRegion,
         Na__LeModel__SetField,
         Na__LeModel__IsCommonFields,
         Na__LeModel__SetCommonFields,
