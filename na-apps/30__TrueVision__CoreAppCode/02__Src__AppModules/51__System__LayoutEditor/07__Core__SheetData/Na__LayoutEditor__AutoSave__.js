@@ -15,6 +15,11 @@
 //   from what the project supplied is put back, the model is marked dirty
 //   and a toast says so. A successful save clears the draft, so a draft only
 //   ever exists while something is unsaved.
+// - A DRAFT KNOWS WHICH FILE IT WAS MADE AGAINST. It records the version of
+//   TrueVision__ProjectData__.json the window held (Local File Parity). When
+//   the file loaded now is a version someone else wrote since - an agent, or
+//   another window - the draft does not simply come back over it: the user is
+//   asked (Use the File on Disk, or Restore My Unsaved Changes).
 // - AUTO SAVE. A structural change (a sheet created, renamed, reordered or
 //   deleted, or its paper or title block changed) schedules a project save
 //   a short debounce later, on localhost only (the web build is read-only).
@@ -58,6 +63,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - LOCAL FILE PARITY. The draft records the project data version it was
+//   written against (fileVersion). On a load, a draft made against another
+//   version than the one on disk - one this browser did not write - is not
+//   put back unasked: Na__FileParity__AskDraft puts the question, and the
+//   draft is restored or discarded by the answer. The fault it closes: an
+//   agent edits the project data, the page is refreshed, the old draft comes
+//   back over the agent's version, and the next Save Sheets buries it.
+// - ReleaseCloseGuard: the draft is written now and the leave-site question
+//   is not asked again this session. The parity watcher calls it just before
+//   the reload the user has already agreed to in its modal.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - CLOSE GUARD. A beforeunload handler asks the browser's leave-site question
 //   while sheets are unsaved or the specification is unsynced. Content edits -
@@ -118,6 +135,17 @@
     import { Na__LeSpec__IsDirty } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__Document__.js';
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Local File Parity Registry (the draft's file version and the question before it comes back)
+    // ------------------------------------------------------------
+    // @delegate: ../../63__System__LocalFileParity/Na__FileParity__Registry__.js
+    // ------------------------------------------------------------
+    import {
+        Na__FileParity__BaseVersion,
+        Na__FileParity__DraftVerdict,
+        Na__FileParity__AskDraft
+    } from '../../63__System__LocalFileParity/Na__FileParity__Registry__.js';
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -144,6 +172,7 @@
     let Na__LeAuto__Ready     = false;
     let Na__LeAuto__Suspended = false;
     let Na__LeAuto__Running = null;
+    let Na__LeAuto__Released = false;      // <-- The user agreed to a reload in the parity modal: no leave-site question on top of it
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | The Close Guard's Legacy Return Value
@@ -185,7 +214,7 @@
     function Na__LeAuto__WriteDraft() {
         const key = Na__LeAuto__Key();
         if (!key || !Na__LeCfg__GetAutoSaveSetup().draftEnabled) return false;
-        try { window.localStorage.setItem(key, JSON.stringify({ savedAt : Date.now(), sheets : Na__LeModel__GetSheets() })); return true; }
+        try { window.localStorage.setItem(key, JSON.stringify({ savedAt : Date.now(), fileVersion : Na__FileParity__BaseVersion('project-data'), sheets : Na__LeModel__GetSheets() })); return true; }
         catch (e) { return false; }                                              // <-- Private mode or a full store: the draft is a courtesy
     }
     function Na__LeAuto__ReadDraft() {
@@ -244,12 +273,46 @@
         if (Na__LeAuto__Restoring || !Na__LeCfg__GetAutoSaveSetup().draftEnabled) return false;
         const draft = Na__LeAuto__ReadDraft();
         if (!draft || Na__LeAuto__Same(draft.sheets, Na__LeModel__GetSheets())) return false;
+
+        // LOCAL FILE PARITY | A draft made against another version of the
+        // project data than the one just loaded - a version this browser did
+        // not write - would come back over somebody else's work. Ask instead.
+        if (Na__FileParity__DraftVerdict('project-data', draft) === 'ask') {
+            void Na__LeAuto__AskThenRestore(draft);
+            return false;
+        }
+        return Na__LeAuto__PutDraftBack(draft);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put a Draft's Sheets Back and Say So
+    // ------------------------------------------------------------
+    function Na__LeAuto__PutDraftBack(draft) {
         Na__LeAuto__Restoring = true;
         try { Na__LeModel__RestoreSheets(draft.sheets); }
         finally { Na__LeAuto__Restoring = false; }
         if (typeof Na__LeAuto__ShowToast === 'function') Na__LeAuto__ShowToast(Na__LeCfg__GetLabel('DraftRestored', 'Unsaved sheet changes from this browser were restored. Save Sheets keeps them.'), false);
         console.log('[TrueVision3D] Layout Editor: unsaved sheet draft restored from this browser.');
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Ask Before an Older Draft Comes Back Over a Newer File
+    // ------------------------------------------------------------
+    // The draft in hand is the one asked about, so Restore puts exactly that
+    // back even if a fresh draft of the loaded sheets was written while the
+    // question was up. Discard removes it only if it is still the one stored:
+    // a newer draft was made against the file on disk and stays.
+    // ------------------------------------------------------------
+    async function Na__LeAuto__AskThenRestore(draft) {
+        const answer = await Na__FileParity__AskDraft('project-data', { draftSavedAt : draft.savedAt, draftVersion : draft.fileVersion || null });
+        if (answer === 'restore') { Na__LeAuto__PutDraftBack(draft); return; }
+        const stored = Na__LeAuto__ReadDraft();
+        if (stored && stored.savedAt === draft.savedAt) Na__LeAuto__ClearDraft();
+        if (typeof Na__LeAuto__ShowToast === 'function') Na__LeAuto__ShowToast(Na__LeCfg__GetLabel('DraftDiscardedForDisk', 'Unsaved sheet changes from this browser were set aside; the newer project file on disk is kept.'), false);
+        console.log('[TrueVision3D] Layout Editor: unsaved sheet draft discarded in favour of the newer project file on disk.');
     }
     // ------------------------------------------------------------
 
@@ -376,6 +439,7 @@
     // "your drawing has unsaved changes" - only somewhere to make it ask.
     // ------------------------------------------------------------
     function Na__LeAuto__OnBeforeUnload(event) {
+        if (Na__LeAuto__Released) return undefined;                               // <-- A reload the user already agreed to (Local File Parity)
         if (!Na__LeCfg__GetAutoSaveSetup().closeGuardEnabled) return undefined;
         if (!Na__LeAuto__HasUnsavedWork()) return undefined;                     // <-- Nothing at stake: leaving stays instant
 
@@ -470,8 +534,20 @@
 
     function Na__LeAuto__Resume() { Na__LeAuto__Suspended = false; }
 
+    // FUNCTION | Write the Draft Now and Stop Asking Before the Window Closes (this session)
+    // ------------------------------------------------------------
+    // For a reload the user has already agreed to - the Local File Parity
+    // modal's Reload Changes. Unsaved work is written to the draft first, so
+    // what the reload does not replace comes back after it.
+    // ------------------------------------------------------------
+    function Na__LeAuto__ReleaseCloseGuard() {
+        Na__LeAuto__FlushDraft();
+        Na__LeAuto__Released = true;
+    }
+
     export {
         Na__LeAuto__DiscardSavedDraft,
+        Na__LeAuto__ReleaseCloseGuard,
         Na__LeAuto__Suspend,
         Na__LeAuto__Resume,
         Na__LeAuto__Initialize,

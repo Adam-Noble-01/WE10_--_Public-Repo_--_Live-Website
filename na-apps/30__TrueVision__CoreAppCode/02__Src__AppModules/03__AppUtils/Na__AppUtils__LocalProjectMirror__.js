@@ -27,6 +27,15 @@
 //   skipped, and the caller says the save went to R2.
 // - NEVER THROWS. R2 already holds the save when this runs, so a failure here
 //   is reported and can never undo or hide that save.
+// - EVERY WRITE SAYS WHICH VERSION IT WAS MADE FROM. The Local File Parity
+//   registry supplies this window's id and the version of the file the window
+//   last read or wrote; the local server refuses the write (409, reported as
+//   a conflict, nothing written) when the file on disk has moved on since -
+//   an agent's edit is never buried by a copy that predates it. The version
+//   the server says a write produced becomes the window's new baseline.
+// - THE MERGE'S OWN READ IS A PEEK. MergeKeys reads the file fresh only to
+//   keep the keys it does not own; that read is marked (X-Na-Parity-Peek) so
+//   the parity watcher does not take it as the version this window holds.
 //
 // INTEGRATION:
 // - Na__DrawView__ProjectData__ calls Na__LocalMirror__MergeKeys after every
@@ -42,6 +51,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - Local File Parity. Every write of a watched file (the project data, the
+//   drawing notes, the statement index, a statement's markdown) carries
+//   X-Na-Client-Id and, once the window holds a version, X-Na-Base-Version.
+//   A 409 from the local server comes back as { ok : false, conflict : true }
+//   with the server's own words, and the registry is told so the watcher can
+//   say "Local File Updates Detected" at once. A successful write's version
+//   (X-Na-File-Version) is adopted as the window's baseline and remembered as
+//   this browser's own. MergeKeys marks its fresh read as a peek. A statement
+//   moved or deleted here is forgotten by the registry.
+//
 // 14-Sep-2026 - Version 1.1.1
 // - A 405 from the ProjectVision local server itself (its /api/health answers)
 //   now says to restart it. A server started before the drawing-notes route
@@ -70,6 +90,21 @@
         Na__AppUtils__GetProjectFolderFromUrl,
         Na__AppUtils__GetYearFromUrl
     } from './Na__AppUtils__ProjectLoader.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Local File Parity Registry (imports only the URL helpers above: no cycle)
+    // ------------------------------------------------------------
+    // @delegate: ../63__System__LocalFileParity/Na__FileParity__Registry__.js
+    // ------------------------------------------------------------
+    import {
+        Na__FileParity__HEADER_PEEK,
+        Na__FileParity__KeyForFileName,
+        Na__FileParity__StatementKey,
+        Na__FileParity__WriteHeaders,
+        Na__FileParity__AdoptWriteResponse,
+        Na__FileParity__NoteRefused,
+        Na__FileParity__Forget
+    } from '../63__System__LocalFileParity/Na__FileParity__Registry__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -152,16 +187,29 @@
 
     // HELPER FUNCTION | POST JSON to the Local Server; Never Throws
     // ------------------------------------------------------------
-    async function Na__LocalMirror__PostJson(url, origin, payload) {
+    // parityKey: the Local File Parity key of the file being written (null for
+    // a write that is not of a watched file). With it, the write carries this
+    // window's id and base version, a success hands back the version it
+    // produced (result.version), and a refusal because the file moved on disk
+    // comes back as result.conflict with nothing written.
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__PostJson(url, origin, payload, parityKey) {
         try {
             const response = await fetch(url, {
                 method  : 'POST',
-                headers : { 'Content-Type' : 'application/json' },
+                headers : Object.assign({ 'Content-Type' : 'application/json' }, parityKey ? Na__FileParity__WriteHeaders(parityKey) : {}),
                 body    : JSON.stringify(payload)
             });
-            if (response.ok) return Na__LocalMirror__Result(true, false, null);
+            if (response.ok) {
+                const version = parityKey ? Na__FileParity__AdoptWriteResponse(parityKey, response) : null;
+                return Object.assign(Na__LocalMirror__Result(true, false, null), { version : version });
+            }
 
             const answer = await response.json().catch(() => null);                                  // <-- The local server answers in JSON; a static server does not
+            if (response.status === 409 && answer && answer.conflict) {                              // <-- The file moved on disk since this window read it: nothing was written
+                if (parityKey) Na__FileParity__NoteRefused(parityKey, answer);
+                return Object.assign(Na__LocalMirror__Result(false, false, answer.error || 'the file was changed on disk since this window read it'), { conflict : true });
+            }
             if (answer && answer.error) return Na__LocalMirror__Result(false, false, answer.error);
             if (response.status === 405 && await Na__LocalMirror__IsProjectVisionServer(origin)) {    // <-- The right server, running from before this route: it never reloads its routes
                 return Na__LocalMirror__Result(false, false, `the ProjectVision local server at ${origin} refused this write (405): it is running without this route - restart it to load its current routes`);
@@ -199,10 +247,15 @@
         const place = Na__LocalMirror__Locate();
         if (!place) return Na__LocalMirror__Result(false, false, 'no project in the URL');
 
-        // READ | The file as it is on disk now, never the copy the app loaded
+        // READ | The file as it is on disk now, never the copy the app loaded.
+        // A peek: the parity watcher must not take it as the version this
+        // window holds, or the base version the write names would be this
+        // read's and a change landed since the save began would be buried.
         let onDisk = null;
         try {
-            const response = await fetch(place.fileUrl, { cache : 'no-store' });
+            const peek = {};
+            peek[Na__FileParity__HEADER_PEEK] = '1';
+            const response = await fetch(place.fileUrl, { cache : 'no-store', headers : peek });
             if (!response.ok) return Na__LocalMirror__Result(false, false, `the local project data file could not be read (${response.status})`);
             onDisk = await response.json();
         } catch (error) {
@@ -214,7 +267,7 @@
 
         // WRITE | The saved keys over the file's own, through the local server
         const merged = Object.assign({}, onDisk, partialObject);
-        return Na__LocalMirror__PostJson(place.writeUrl, place.origin, merged);
+        return Na__LocalMirror__PostJson(place.writeUrl, place.origin, merged, 'project-data');
     }
     // ------------------------------------------------------------
 
@@ -236,7 +289,7 @@
         if (!place) return Na__LocalMirror__Result(false, false, 'no project in the URL');
 
         const writeUrl = `${place.origin}/api/projects/${encodeURIComponent(place.code)}/files/${encodeURIComponent(fileName)}?${place.query}`;
-        return Na__LocalMirror__PostJson(writeUrl, place.origin, dataObject);
+        return Na__LocalMirror__PostJson(writeUrl, place.origin, dataObject, Na__FileParity__KeyForFileName(fileName));
     }
     // ------------------------------------------------------------
 
@@ -293,15 +346,30 @@
 
     // HELPER FUNCTION | POST to One of the Statement Routes
     // ------------------------------------------------------------
-    async function Na__LocalMirror__StatementPost(route, payload) {
+    async function Na__LocalMirror__StatementPost(route, payload, parityKey) {
         if (!Na__AppUtils__IsRunningOnLocalhost()) return Na__LocalMirror__Result(false, true, null);
         const place = Na__LocalMirror__Locate();
         if (!place) return Na__LocalMirror__Result(false, false, 'no project in the URL');
         return Na__LocalMirror__PostJson(
             `${place.origin}/api/truevision/statements/${route}?${place.query}`,
             place.origin,
-            payload
+            payload,
+            parityKey || null
         );
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Registry Forgets a Statement File, or Everything Under a Folder
+    // ------------------------------------------------------------
+    // After this window moves or deletes it: the old path is gone by this
+    // window's own hand, which is not a change on disk to warn about.
+    // ------------------------------------------------------------
+    function Na__LocalMirror__ForgetStatement(path) {
+        const key = Na__FileParity__StatementKey(path);
+        if (!key) return;
+        Na__FileParity__Forget(key);
+        Na__FileParity__Forget(key + '/');
     }
     // ------------------------------------------------------------
 
@@ -310,10 +378,14 @@
     // ------------------------------------------------------------
     // path is relative to 10__StatementDocs, e.g.
     // "01__PreApp__Statement/RB05_T01_S01__WestFarm__PreApplicationStatement__.md".
+    // A statement's markdown is a watched file: its write names the version it
+    // was made from, so a quiet save while typing can never bury an edit an
+    // agent made to the same file (the server answers 409, nothing written).
     // ------------------------------------------------------------
     async function Na__LocalMirror__WriteStatementFile(path, text) {
         if (typeof text !== 'string') return Na__LocalMirror__Result(false, false, 'nothing to write');
-        return Na__LocalMirror__StatementPost('file', { path : path, text : text });
+        const parityKey = /\.md$/i.test(String(path || '')) ? Na__FileParity__StatementKey(path) : null;
+        return Na__LocalMirror__StatementPost('file', { path : path, text : text }, parityKey);
     }
     // ------------------------------------------------------------
 
@@ -329,7 +401,9 @@
     // FUNCTION | Move or Rename Something Inside the Statements Folder
     // ------------------------------------------------------------
     async function Na__LocalMirror__MoveStatement(fromPath, toPath) {
-        return Na__LocalMirror__StatementPost('move', { from : fromPath, to : toPath });
+        const result = await Na__LocalMirror__StatementPost('move', { from : fromPath, to : toPath });
+        if (result.ok) Na__LocalMirror__ForgetStatement(fromPath);
+        return result;
     }
     // ------------------------------------------------------------
 
@@ -340,7 +414,9 @@
     // the confirmation - because this one takes a folder of writing with it.
     // ------------------------------------------------------------
     async function Na__LocalMirror__DeleteStatement(path) {
-        return Na__LocalMirror__StatementPost('delete', { path : path, confirm : path });
+        const result = await Na__LocalMirror__StatementPost('delete', { path : path, confirm : path });
+        if (result.ok) Na__LocalMirror__ForgetStatement(path);
+        return result;
     }
     // ------------------------------------------------------------
 

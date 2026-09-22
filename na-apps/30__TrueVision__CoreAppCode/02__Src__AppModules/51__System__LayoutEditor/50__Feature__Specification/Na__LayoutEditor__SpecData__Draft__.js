@@ -40,6 +40,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - LOCAL FILE PARITY. The draft records the version of the local
+//   TrueVision__DrawingNotes__.json the window held when it was written
+//   (fileVersion). A draft made against another version than the one just
+//   read - a version this browser did not write, such as an agent's - is not
+//   put back unasked: Na__FileParity__AskDraft puts the question (Use the
+//   File on Disk, or Restore My Unsaved Changes), and a restore that comes
+//   after the load announces itself as a load so the editor redraws. The
+//   fault it closes: an agent adds notes, the page is refreshed, the old
+//   draft comes back over them, and the next Sync buries them.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SpecData__.js; the code moved verbatim.
 //
@@ -68,9 +79,22 @@
         Na__LeSpec__SetBaseStamp,
         Na__LeSpec__SetHistory,
         Na__LeSpec__SetIdFloor,
+        Na__LeSpec__SetCodeSig,
+        Na__LeSpec__Dispatch,
         Na__LeSpec__Toast
     } from './Na__LayoutEditor__SpecData__State__.js';
-    import { Na__LeSpec__Normalise, Na__LeSpec__ContentJson, Na__LeSpec__IsDirty } from './Na__LayoutEditor__SpecData__Document__.js';
+    import { Na__LeSpec__Normalise, Na__LeSpec__ContentJson, Na__LeSpec__IsDirty, Na__LeSpec__CodeSignature } from './Na__LayoutEditor__SpecData__Document__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Local File Parity Registry (the draft's file version and the question before it comes back)
+    // ------------------------------------------------------------
+    // @delegate: ../../63__System__LocalFileParity/Na__FileParity__Registry__.js
+    // ------------------------------------------------------------
+    import {
+        Na__FileParity__BaseVersion,
+        Na__FileParity__DraftVerdict,
+        Na__FileParity__AskDraft
+    } from '../../63__System__LocalFileParity/Na__FileParity__Registry__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -110,7 +134,7 @@
         const key = Na__LeSpec__DraftKey();
         if (!key || !Na__LeSpec__Doc || !Na__LeCfg__GetSpecificationSetup().draftEnabled) return false;
         if (!Na__LeSpec__IsDirty()) { Na__LeSpec__ClearDraft(); return false; }
-        try { window.localStorage.setItem(key, JSON.stringify({ savedAt : Date.now(), baseStamp : Na__LeSpec__BaseStamp, doc : Na__LeSpec__Doc })); return true; }
+        try { window.localStorage.setItem(key, JSON.stringify({ savedAt : Date.now(), baseStamp : Na__LeSpec__BaseStamp, fileVersion : Na__FileParity__BaseVersion('drawing-notes'), doc : Na__LeSpec__Doc })); return true; }
         catch (e) { return false; }                                                  // <-- Private mode or a full store: the draft is a courtesy
     }
     function Na__LeSpec__ReadDraft() {
@@ -161,6 +185,45 @@
         if (!draft) return false;
         const drafted = Na__LeSpec__Normalise(draft.doc);
         if (Na__LeSpec__ContentJson(drafted) === Na__LeSpec__ContentJson(Na__LeSpec__Doc)) { Na__LeSpec__ClearDraft(); return false; }
+
+        // LOCAL FILE PARITY | Made against another version of the local
+        // drawing-notes file than the one just read, which this browser did
+        // not write: the draft would come back over somebody else's notes.
+        if (Na__FileParity__DraftVerdict('drawing-notes', draft) === 'ask') {
+            void Na__LeSpec__AskThenRestore(draft);
+            return false;
+        }
+        Na__LeSpec__PutDraftBack(draft, drafted);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Ask Before an Older Draft Comes Back Over a Newer File
+    // ------------------------------------------------------------
+    // The load has already announced itself by the time the answer comes, so
+    // a restore announces a load of its own for the editor to redraw from.
+    // Discard removes the draft only if it is still the one stored.
+    // ------------------------------------------------------------
+    async function Na__LeSpec__AskThenRestore(draft) {
+        const answer = await Na__FileParity__AskDraft('drawing-notes', { draftSavedAt : draft.savedAt, draftVersion : draft.fileVersion || null });
+        if (answer === 'restore') {
+            Na__LeSpec__PutDraftBack(draft, Na__LeSpec__Normalise(draft.doc));
+            Na__LeSpec__SetCodeSig(Na__LeSpec__CodeSignature());
+            Na__LeSpec__Dispatch('loaded', { codesChanged : true });
+            return;
+        }
+        const stored = Na__LeSpec__ReadDraft();
+        if (stored && stored.savedAt === draft.savedAt) Na__LeSpec__ClearDraft();
+        Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecDraftDiscardedForDisk', 'Unsynced specification changes from this browser were set aside; the newer drawing-notes file on disk is kept.'), false);
+        console.log('[TrueVision3D] Layout Editor: unsynced specification draft discarded in favour of the newer drawing-notes file on disk.');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put a Draft Back as the Live Document and Say So
+    // ------------------------------------------------------------
+    function Na__LeSpec__PutDraftBack(draft, drafted) {
         const draftBase = (typeof draft.baseStamp === 'string') ? draft.baseStamp : null;
         const stale     = Na__LeSpec__Status === Na__LeSpec__STATUS_READY && draftBase !== Na__LeSpec__BaseStamp;
         Na__LeSpec__SetIdFloor(Math.max(Na__LeSpec__IdFloor, drafted[Na__LeSpec__K_LAST_ID], Na__LeSpec__Doc[Na__LeSpec__K_LAST_ID]));

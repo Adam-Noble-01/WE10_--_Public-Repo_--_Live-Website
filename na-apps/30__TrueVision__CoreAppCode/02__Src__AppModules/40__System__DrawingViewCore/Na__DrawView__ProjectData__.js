@@ -29,6 +29,9 @@
 // - AND A LOCAL COPY. On localhost the same blocks then go into the
 //   repository's TrueVision__ProjectData__.json through the ProjectVision local
 //   server, so a save lands in R2 and on disk (Na__AppUtils__LocalProjectMirror__).
+// - A SAVE GATE ASKS FIRST. Before anything is written, a registered gate (the
+//   Local File Parity watcher) may stop a save that would write over a change
+//   made to the project data file on disk since this window read it.
 //
 // INTEGRATION:
 // - Na__AppFlow__LoadingSequence.js dispatches na-layouteditor-drawingsdata-loaded
@@ -64,6 +67,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.5.0
+// - Save gate: Na__DrawData__RegisterSaveGate. Every save - Save Sheets, the
+//   structural auto save, the register, north, a rename - asks the gate
+//   before its first write, and stops with the gate's message when the gate
+//   says no. The Local File Parity watcher registers it: a save that would
+//   write over a change an agent made to TrueVision__ProjectData__.json on
+//   disk now asks first (Local File Updates Detected) instead of burying it
+//   in R2 and in the local copy. A gate that fails lets the save go, as
+//   before there was one.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - Save steps: Na__DrawData__RegisterSaveStep. A feature whose records point
 //   at FILES - the pictures placed on Layout Editor sheets - registers a step
@@ -254,6 +267,21 @@
     // @delegate: ../51__System__LayoutEditor/54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Publish__.js
     // ------------------------------------------------------------
     const Na__DrawData__SaveSteps = [];              // <-- [{ id, before, payload, after }]
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | Save Gate (a save that would bury a change made on disk asks first)
+    // ------------------------------------------------------------
+    // Save writes R2 first and the local copy second, and both from the copy
+    // this window loaded. When an agent has changed TrueVision__ProjectData__.json
+    // on disk since, that write buries the agent's work in both places. The
+    // Local File Parity watcher registers here and is asked before the first
+    // write; it answers true to go on, or { proceed : false, message } to stop.
+    // A hook for the same reason the others are: this module is armed on every
+    // project, and the watcher only on localhost.
+    // @delegate: ../63__System__LocalFileParity/Na__FileParity__Watcher__.js
+    // ------------------------------------------------------------
+    let Na__DrawData__SaveGate = null;               // <-- async ({ keys, report, registerKeys, projectCode }) => true | { proceed, message }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -584,6 +612,17 @@
             return false;
         }
 
+        // SAVE GATE | Before anything is written anywhere: has the project data
+        // file on disk been changed by someone else since this window read it,
+        // in the keys this save writes? The gate asks the user when it has.
+        const gateKeys = [Na__DrawData__BLOCK_KEY, Na__DrawData__PRESENTATION_KEY, Na__DrawData__CROSSSECTION_KEY]
+            .concat(Object.keys((registerKeys && registerKeys.cloud) || {}), Object.keys((registerKeys && registerKeys.local) || {}));
+        const gate = await Na__DrawData__PassSaveGate({ keys : gateKeys, report : report || null, registerKeys : registerKeys || null, projectCode : projectCode });
+        if (!gate.proceed) {
+            toast(gate.message || 'Drawings not saved: the project file changed on disk.', true);
+            return false;
+        }
+
         // SAVE STEPS | Files the drawings point at go first (see SaveSteps).
         // Their notes ride on the report for a caller that says where the save
         // landed; any other caller is shown the ones that went wrong.
@@ -709,6 +748,37 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Register the Save Gate (one; a second registration replaces the first)
+    // ------------------------------------------------------------
+    // Called by Na__FileParity__Watcher__ as it starts, on localhost only.
+    // Passing a non-function clears the registration.
+    // ------------------------------------------------------------
+    function Na__DrawData__RegisterSaveGate(gate) {
+        Na__DrawData__SaveGate = (typeof gate === 'function') ? gate : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Ask the Gate: { proceed, message }
+    // ------------------------------------------------------------
+    // A gate that throws must not cost the save: the save then goes on, which
+    // is what happened before there was a gate at all.
+    // ------------------------------------------------------------
+    async function Na__DrawData__PassSaveGate(context) {
+        if (!Na__DrawData__SaveGate) return { proceed : true, message : null };
+        try {
+            const answer = await Na__DrawData__SaveGate(context);
+            if (answer === false) return { proceed : false, message : null };
+            if (answer && typeof answer === 'object' && answer.proceed === false) return { proceed : false, message : answer.message || null };
+            return { proceed : true, message : null };
+        } catch (gateError) {
+            console.warn('[TrueVision3D] Drawings save gate failed; saving as before.', gateError);
+            return { proceed : true, message : null };
+        }
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Register a Save Step (one per id; a second registration replaces the first)
     // ------------------------------------------------------------
     // step: { id, before(ctx), payload(ctx), after(ctx) } - any may be left
@@ -795,6 +865,7 @@
         Na__DrawView__ProjectData__Initialize,
         Na__DrawData__RegisterSectionBlockProvider,
         Na__DrawData__RegisterPayloadGuard,
+        Na__DrawData__RegisterSaveGate,
         Na__DrawData__RegisterSaveStep,
         Na__DrawData__GetBlock,
         Na__DrawData__Load,

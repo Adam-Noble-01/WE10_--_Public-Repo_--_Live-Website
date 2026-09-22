@@ -87,6 +87,8 @@
     import { Na__AppUtils__ConfirmDialog__Show } from '../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
     // @delegate: ../../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js
     import { Na__LocalMirror__WriteSiblingFile } from '../../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
+    // @delegate: ../../63__System__LocalFileParity/Na__FileParity__Registry__.js
+    import { Na__FileParity__ConfirmSave } from '../../63__System__LocalFileParity/Na__FileParity__Registry__.js';   // <-- Sync asks first when the local drawing-notes file changed on disk (Local File Parity, 22-Sep-2026)
     import {
         Na__CfApi__IsConfigured,
         Na__CfApi__ProjectFileLocation,
@@ -487,13 +489,14 @@
     // that file fresh (no browser cache) and adopts it as the live document,
     // asking first when this browser holds unsynced edits it would discard.
     // ------------------------------------------------------------
-    async function Na__LeSpec__ReloadFromLocal() {
+    async function Na__LeSpec__ReloadFromLocal(options) {
+        const confirmed = !!(options && options.confirmed);                    // <-- Already asked by the Local File Parity modal: do not ask a second time
         if (Na__LeSpec__Syncing) return false;
         if (!Na__LeSpec__CanReloadLocal()) { Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadLocalUnavailable', 'The local copy is only available on localhost.'), true); return false; }
         const setup    = Na__LeCfg__GetSpecificationSetup();
         const location = Na__CfApi__ProjectFileLocation(setup.fileName);
         if (!location) { Na__LeSpec__Toast(Na__LeCfg__GetLabel('SpecReloadNoProject', 'No project folder in the URL.'), true); return false; }
-        if (Na__LeSpec__IsDirty()) {
+        if (Na__LeSpec__IsDirty() && !confirmed) {
             const ok = await Na__AppUtils__ConfirmDialog__Show({
                 title         : Na__LeCfg__GetLabel('SpecReloadLocalTitle', 'Reload from the local file?'),
                 message       : Na__LeCfg__GetLabel('SpecReloadLocalPrompt', 'This browser holds changes that have not been synced. Reloading replaces them with the local file on disk, and the unsynced changes are lost.'),
@@ -538,6 +541,17 @@
         if (!Na__LeSpec__Editable) { toast(Na__LeCfg__GetLabel('SpecSyncReadOnly', 'The specification is read-only here.'), true); return false; }
         if (!Na__LeSpec__IsLoaded()) { toast(Na__LeCfg__GetLabel('SpecSyncNotLoaded', 'The specification has not finished loading.'), true); return false; }
         if (!Na__CfApi__IsConfigured()) { toast(Na__LeCfg__GetLabel('SpecSyncNoWorker', 'Cloudflare Worker not configured. The specification cannot be synced.'), true); return false; }
+
+        // LOCAL FILE PARITY (22-Sep-2026) | Before anything is written: Sync
+        // writes R2 and then the WHOLE local drawing-notes file from this
+        // window's copy, so a change made to that file on disk since this
+        // window read it - an agent's notes - would be buried in both. The
+        // watcher asks first (Local File Updates Detected); Reload Changes
+        // loads the disk version once this Sync has stepped back.
+        if (!(await Na__FileParity__ConfirmSave('drawing-notes', { label : 'Sync' }))) {
+            toast(Na__LeCfg__GetLabel('SpecSyncHeldForDisk', 'Sync held back: the local drawing-notes file was changed on disk since this window read it. Nothing was written; your changes are kept in this browser.'), true);
+            return false;
+        }
 
         Na__LeSpec__SetSyncing(true);
         Na__LeSpec__Dispatch('status');

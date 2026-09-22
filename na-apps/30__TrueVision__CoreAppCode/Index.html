@@ -890,6 +890,7 @@
     import { Na__UiFeature__InitializePurgeAppCacheButton } from './02__Src__AppModules/70__System__DevTools/Na__UiFeature__PurgeAppCache__Button.js';
     import { Na__DevGate__Initialize } from './02__Src__AppModules/03__AppUtils/Na__AppUtils__DevGate__.js';
     import { Na__DrawView__ProjectData__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__FileParity__Initialize } from './02__Src__AppModules/63__System__LocalFileParity/Na__FileParity__Watcher__.js';
     import { Na__DrawCfg__SetAppConfig, Na__DrawCfg__Load } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__ConfigState__.js';
     import { Na__DrawView__RenderPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__RenderPreset__.js';
     import { Na__DrawView__MaterialPreset__Initialize } from './02__Src__AppModules/40__System__DrawingViewCore/Na__DrawView__MaterialPreset__.js';
@@ -1537,6 +1538,21 @@
     // panel asks. A gate that changed answer mid-session would leave half the
     // dev surfaces built and half not.
     Na__DevGate__Initialize();
+    // ------------------------------------------------------------
+
+
+    // LOCAL FILE PARITY (localhost only; must precede the loading sequence)
+    // ------------------------------------------------------------
+    // Watches this project's data files on disk - the project data, the
+    // drawing notes, the statements - every 30 seconds and on return to the
+    // window, and raises "Local File Updates Detected" when an agent (or
+    // anything outside this window) changes one, so a save can never write an
+    // older copy over that work. It must start HERE, above the loading
+    // sequence, because it learns which version this window holds from the
+    // loading sequence's own read of TrueVision__ProjectData__.json. On the
+    // web build, or with no project folder in the URL, it does nothing.
+    // @delegate: ./02__Src__AppModules/63__System__LocalFileParity/Na__FileParity__Watcher__.js
+    Na__FileParity__Initialize();
     // ------------------------------------------------------------
 
 

@@ -16,6 +16,8 @@
 #   gallery at /gallery inside it
 # - Injects the Studio shell bridge into every HTML page it serves, which is how
 #   the sub-applications gain the shell without a single edit to their source
+# - Watches the TrueVision project data files on disk and refuses a save that
+#   would overwrite a change the app has not loaded (Local File Parity)
 # - Opens a chromeless application window on startup
 # - Supports hot-reloading in debug mode
 # - Provides health-check, project-data and drawing-notes API endpoints
@@ -53,6 +55,7 @@ from urllib.parse import quote
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ProjectVision__DevLauncher__Shared__ as dev_launcher      # <-- Shared with the Project Admin dev server
 from ProjectVision__ProjectManager__Api__ import project_manager_api   # <-- Multi-project admin endpoints
+from ProjectVision__TrueVisionFileWatch__Api__ import truevision_file_watch_api   # <-- TrueVision Local File Parity: file versions, the file watch and the write guard
 from ProjectVision__TrueVisionScrapbook__Api__ import truevision_scrapbook_api   # <-- TrueVision Layout Editor Custom Scrapbook files
 from ProjectVision__TrueVisionStatements__Api__ import truevision_statements_api   # <-- TrueVision Layout Editor Statement Writer files
 from ProjectVision__TrueVisionSheetImages__Api__ import truevision_sheet_images_api   # <-- TrueVision Layout Editor pictures, filed by document id
@@ -193,6 +196,7 @@ CORS(app, resources={
 })
 
 app.register_blueprint(project_manager_api)                      # <-- /api/manager/... Project Manager tab
+app.register_blueprint(truevision_file_watch_api)                # <-- /api/truevision/file-watch/state, plus app-wide read/write stamps and the 409 write guard
 app.register_blueprint(truevision_scrapbook_api)                 # <-- /api/truevision/scrapbook... Custom Scrapbook items
 app.register_blueprint(truevision_statements_api)                # <-- /api/truevision/statements... Statement Writer documents
 app.register_blueprint(truevision_sheet_images_api)              # <-- /api/truevision/sheet-images... Layout Editor pictures (05__Layout__DrawingDocs__Images)
