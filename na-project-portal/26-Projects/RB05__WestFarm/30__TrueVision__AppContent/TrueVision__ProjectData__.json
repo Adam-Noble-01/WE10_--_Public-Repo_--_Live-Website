@@ -42897,6 +42897,45 @@
                         "Annotation__LeaderXMm": null,
                         "Annotation__LeaderYMm": null,
                         "Annotation__Id": "Text_014"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED BIRDSEYE - 08",
+                        "Annotation__PosXMm": 42.629,
+                        "Annotation__PosYMm": 209.069,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_015"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED BIRDSEYE - 03",
+                        "Annotation__PosXMm": 19.629,
+                        "Annotation__PosYMm": 394.969,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_016"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED BIRDSEYE - 01",
+                        "Annotation__PosXMm": 268.129,
+                        "Annotation__PosYMm": 393.769,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_017"
                     }
                 ],
                 "Sheet__Dimensions": [],
@@ -43202,6 +43241,75 @@
                         "Shape__Gradient": null,
                         "Shape__LineStyle": null,
                         "Shape__Id": "Shape_014"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                42.8,
+                                210.7
+                            ],
+                            [
+                                102.8,
+                                210.7
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_015"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                19.8,
+                                396.6
+                            ],
+                            [
+                                79.8,
+                                396.6
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_016"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                268.3,
+                                395.4
+                            ],
+                            [
+                                328.3,
+                                395.4
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_017"
                     }
                 ],
                 "Sheet__Leaders": [],
@@ -43313,6 +43421,126 @@
                             }
                         },
                         "Group__Id": "Group_003"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_015"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_015"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "Birdseye - 08",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_004"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_016"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_016"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "Birdseye - 03",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_005"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_017"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_017"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "Birdseye - 01",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_006"
                     }
                 ],
                 "Sheet__LayerStack": 2,
@@ -43772,9 +44000,9 @@
                         "Annotation__LayerId": "Layer_002"
                     },
                     {
-                        "Annotation__Text": "{{DRAWING}}",
-                        "Annotation__PosXMm": 226.3892236109673,
-                        "Annotation__PosYMm": 121.98152120208718,
+                        "Annotation__Text": "PROPOSED SOUTH FACADE - FRONT FACING",
+                        "Annotation__PosXMm": 198.829,
+                        "Annotation__PosYMm": 139.869,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
                         "Annotation__Colour": "#172b3a",
@@ -43783,6 +44011,71 @@
                         "Annotation__LeaderXMm": null,
                         "Annotation__LeaderYMm": null,
                         "Annotation__Id": "Text_002"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED NORTH FACADE - REAR FACING",
+                        "Annotation__PosXMm": 309.829,
+                        "Annotation__PosYMm": 139.869,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_003"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED WEST FACADE - SIDE FACING",
+                        "Annotation__PosXMm": 8.529,
+                        "Annotation__PosYMm": 116.969,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_004"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED WEST FACADE - COACH HOUSE",
+                        "Annotation__PosXMm": 255.229,
+                        "Annotation__PosYMm": 371.269,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_005"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED EAST - STORAGE",
+                        "Annotation__PosXMm": 33.329,
+                        "Annotation__PosYMm": 250.969,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_006"
+                    },
+                    {
+                        "Annotation__Text": "PROPOSED NORTH - ORANGERY",
+                        "Annotation__PosXMm": 43.329,
+                        "Annotation__PosYMm": 376.269,
+                        "Annotation__SizeMm": 3.5,
+                        "Annotation__FontWeight": 600,
+                        "Annotation__Colour": "#172b3a",
+                        "Annotation__Align": "left",
+                        "Annotation__LayerId": "Layer_002",
+                        "Annotation__LeaderXMm": null,
+                        "Annotation__LeaderYMm": null,
+                        "Annotation__Id": "Text_007"
                     }
                 ],
                 "Sheet__Dimensions": [],
@@ -43821,12 +44114,12 @@
                     {
                         "Shape__Points": [
                             [
-                                226.56022361096728,
-                                123.61252120208718
+                                199,
+                                141.5
                             ],
                             [
-                                286.5602236109673,
-                                123.61252120208718
+                                277.5,
+                                141.5
                             ]
                         ],
                         "Shape__Closed": false,
@@ -43840,9 +44133,425 @@
                         "Shape__Gradient": null,
                         "Shape__LineStyle": null,
                         "Shape__Id": "Shape_002"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                310,
+                                141.5
+                            ],
+                            [
+                                386.1,
+                                141.5
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_003"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                8.7,
+                                118.6
+                            ],
+                            [
+                                80.4,
+                                118.6
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_004"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                255.4,
+                                372.9
+                            ],
+                            [
+                                330.8,
+                                372.9
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_005"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                33.5,
+                                252.6
+                            ],
+                            [
+                                93.5,
+                                252.6
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_006"
+                    },
+                    {
+                        "Shape__Points": [
+                            [
+                                43.5,
+                                377.9
+                            ],
+                            [
+                                103.5,
+                                377.9
+                            ]
+                        ],
+                        "Shape__Closed": false,
+                        "Shape__Stroked": true,
+                        "Shape__StrokeColour": "#172b3a",
+                        "Shape__StrokePt": 0.4,
+                        "Shape__FillColour": null,
+                        "Shape__LayerId": "Layer_004",
+                        "Shape__FillOpacity": 1,
+                        "Shape__StrokeOpacity": 1,
+                        "Shape__Gradient": null,
+                        "Shape__LineStyle": null,
+                        "Shape__Id": "Shape_007"
                     }
                 ],
-                "Sheet__Leaders": [],
+                "Sheet__Leaders": [
+                    {
+                        "Leader__Id": "Leader_001",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 268,
+                        "Leader__TipYMm": 88,
+                        "Leader__AnchorXMm": 248.5,
+                        "Leader__AnchorYMm": 80,
+                        "Leader__Text": "FN01",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_022"
+                    },
+                    {
+                        "Leader__Id": "Leader_002",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 212,
+                        "Leader__TipYMm": 75,
+                        "Leader__AnchorXMm": 192.5,
+                        "Leader__AnchorYMm": 67,
+                        "Leader__Text": "FN10",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_063"
+                    },
+                    {
+                        "Leader__Id": "Leader_003",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 293,
+                        "Leader__TipYMm": 83,
+                        "Leader__AnchorXMm": 278.5,
+                        "Leader__AnchorYMm": 68,
+                        "Leader__Text": "FN12",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_065"
+                    },
+                    {
+                        "Leader__Id": "Leader_004",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 87,
+                        "Leader__TipYMm": 78,
+                        "Leader__AnchorXMm": 68.5,
+                        "Leader__AnchorYMm": 68,
+                        "Leader__Text": "FN02",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_023"
+                    },
+                    {
+                        "Leader__Id": "Leader_005",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 100,
+                        "Leader__TipYMm": 66,
+                        "Leader__AnchorXMm": 110.5,
+                        "Leader__AnchorYMm": 79,
+                        "Leader__Text": "FN09",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_062"
+                    },
+                    {
+                        "Leader__Id": "Leader_006",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 45,
+                        "Leader__TipYMm": 93,
+                        "Leader__AnchorXMm": 29.5,
+                        "Leader__AnchorYMm": 79,
+                        "Leader__Text": "FN11",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_064"
+                    },
+                    {
+                        "Leader__Id": "Leader_007",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 85,
+                        "Leader__TipYMm": 40,
+                        "Leader__AnchorXMm": 65.5,
+                        "Leader__AnchorYMm": 32,
+                        "Leader__Text": "FN06",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_027"
+                    },
+                    {
+                        "Leader__Id": "Leader_008",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 405,
+                        "Leader__TipYMm": 313,
+                        "Leader__AnchorXMm": 385.5,
+                        "Leader__AnchorYMm": 305,
+                        "Leader__Text": "FN03",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_024"
+                    },
+                    {
+                        "Leader__Id": "Leader_009",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 180,
+                        "Leader__TipYMm": 175,
+                        "Leader__AnchorXMm": 168.5,
+                        "Leader__AnchorYMm": 158,
+                        "Leader__Text": "FN04",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_025"
+                    },
+                    {
+                        "Leader__Id": "Leader_010",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 120,
+                        "Leader__TipYMm": 165,
+                        "Leader__AnchorXMm": 100.5,
+                        "Leader__AnchorYMm": 157,
+                        "Leader__Text": "FN05",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_026"
+                    },
+                    {
+                        "Leader__Id": "Leader_011",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 98,
+                        "Leader__TipYMm": 230,
+                        "Leader__AnchorXMm": 78.5,
+                        "Leader__AnchorYMm": 222,
+                        "Leader__Text": "FN08",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_052"
+                    },
+                    {
+                        "Leader__Id": "Leader_012",
+                        "Leader__LayerId": "Layer_002",
+                        "Leader__Type": "bubble",
+                        "Leader__TipXMm": 100,
+                        "Leader__TipYMm": 325,
+                        "Leader__AnchorXMm": 89.5,
+                        "Leader__AnchorYMm": 306,
+                        "Leader__Text": "FN07",
+                        "Leader__TextSizeMm": 2.5,
+                        "Leader__FontWeight": 600,
+                        "Leader__TextColour": "#172b3a",
+                        "Leader__LineColour": "#172b3a",
+                        "Leader__LinePt": 0.35,
+                        "Leader__LineStyle": "dashed",
+                        "Leader__LineOpacity": 1,
+                        "Leader__EndpointFilled": false,
+                        "Leader__EndpointPt": 0.35,
+                        "Leader__EndpointSizeMm": 1.6,
+                        "Leader__BubbleSizeMm": 9,
+                        "Leader__BubbleEdgePt": 0.35,
+                        "Leader__FillColour": "#f2f4f5",
+                        "Leader__FillOpacity": 1,
+                        "Leader__SpecNoteId": "SpecNote_028"
+                    }
+                ],
                 "Sheet__Groups": [
                     {
                         "Group__Members": [
@@ -43886,16 +44595,216 @@
                                 "UnderlineMm": 60,
                                 "BarPlacement": "below",
                                 "BarOffsetMm": 150,
-                                "ViewKind": "",
-                                "ViewPhase": "",
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
                                 "ViewFacing": "",
                                 "ViewLevel": "",
-                                "ViewName": "",
+                                "ViewName": "South Facade - Front Facing",
                                 "ViewDrawing": ""
                             },
                             "Parametric__Link": null
                         },
                         "Group__Id": "Group_002"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_003"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_003"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "North Facade - Rear Facing",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_003"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_004"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_004"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "West Facade - Side Facing",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_004"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_005"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_005"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "West Facade - Coach House",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_005"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_006"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_006"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "East - Storage",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_006"
+                    },
+                    {
+                        "Group__Members": [
+                            {
+                                "kind": "shape",
+                                "id": "Shape_007"
+                            },
+                            {
+                                "kind": "annotation",
+                                "id": "Text_007"
+                            }
+                        ],
+                        "Group__Parametric": {
+                            "Parametric__Type": "DrawingTitle",
+                            "Parametric__Version": 1,
+                            "Parametric__Params": {
+                                "ScaleDenominator": 50,
+                                "DivisionMm": 1000,
+                                "Divisions": 5,
+                                "SubdivideFirst": false,
+                                "SubdivisionMm": 200,
+                                "Units": "m",
+                                "ShowUnits": false,
+                                "ShowScaleBar": false,
+                                "PhaseMode": "auto",
+                                "TitleText": "",
+                                "Uppercase": true,
+                                "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
+                                "ViewKind": "3d",
+                                "ViewPhase": "proposed",
+                                "ViewFacing": "",
+                                "ViewLevel": "",
+                                "ViewName": "North - Orangery",
+                                "ViewDrawing": ""
+                            },
+                            "Parametric__Link": null
+                        },
+                        "Group__Id": "Group_007"
                     }
                 ],
                 "Sheet__LayerStack": 2,
