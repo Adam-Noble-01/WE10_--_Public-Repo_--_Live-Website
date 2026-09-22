@@ -2,7 +2,7 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "RB05",
-    "ProjectSpecification__UpdatedIso": "2026-09-22T15:44:34.476Z",
+    "ProjectSpecification__UpdatedIso": "2026-09-22T16:28:10.732Z",
     "ProjectSpecification__NumberDigits": 2,
     "ProjectSpecification__LastIdNumber": 103,
     "ProjectSpecification__Revision": "A",
