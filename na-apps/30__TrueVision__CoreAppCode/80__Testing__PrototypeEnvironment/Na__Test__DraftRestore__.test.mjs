@@ -174,7 +174,7 @@ import { tmpdir } from 'node:os';
     // put in this world's browser first, as a reload finds it.
     async function boot(draft) {
         const world = newWorld();
-        if (draft) world.store.set(DRAFT_KEY, JSON.stringify({ savedAt : 1, sheets : draft }));
+        if (draft) world.store.set(DRAFT_KEY, JSON.stringify({ savedAt : 1, base : null, sheets : draft }));   // <-- base null: grown from these drawings, which carry no saved stamp (AutoSave 1.5.0 judges a draft by it)
         const seen = { toasts : [], lines : [], announced : [], seeds : 0 };
 
         const Data   = (await load(DATA, {

@@ -38,6 +38,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.1
+// - "Measure this shape as a floor area" is not offered for a vector with
+//   holes (the vector tools' Boolean section): a room is one outline.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - "Show its outline", ticked while the room has its line, beside "Show its
 //   label": one click takes the outline off and leaves the colour.
@@ -120,6 +124,7 @@
         // A PLAIN SHAPE | One line, and only when it could actually be one
         if (!Na__LeArea__Is(shape)) {
             if (!Na__LeAreaGeo__Encloses(shape.Shape__Points)) return [];
+            if (Array.isArray(shape.Shape__Holes) && shape.Shape__Holes.length > 0) return [];   // <-- A vector with holes is not offered: a room is measured round one outline
             return [
                 { label : L('MenuMeasure', 'Measure this shape as a floor area'),
                   onSelect : () => { Na__LeArea__Make(sheet, shape.Shape__Id); } },

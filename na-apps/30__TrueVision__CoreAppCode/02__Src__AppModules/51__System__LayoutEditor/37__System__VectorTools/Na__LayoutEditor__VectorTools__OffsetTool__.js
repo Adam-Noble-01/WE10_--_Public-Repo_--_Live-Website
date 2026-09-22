@@ -49,6 +49,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - A refusal is said in the targets' own words (Na__LeVecAim__RefusalText),
+//   which now include a vector with holes from the Boolean tools: Offset,
+//   Fillet and Chamfer work on one run of points, and refuse one with a reason.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -67,9 +72,9 @@
     import { Na__LeVecCurve__KIND_CIRCLE, Na__LeVecCurve__SegmentsFor, Na__LeVecCurve__ArcSegmentsFor, Na__LeVecCurve__CirclePoints, Na__LeVecCurve__ArcPoints, Na__LeVecCurve__Describe } from './Na__LayoutEditor__VectorTools__Curves__.js';
     import { Na__LeVecOff__Offset, Na__LeVecOff__SideOf, Na__LeVecOff__NearestCorner, Na__LeVecOff__AtVertex, Na__LeVecOff__BetweenEnds } from './Na__LayoutEditor__VectorTools__Offset__.js';
     import {
-        Na__LeVecAim__REFUSE_LOCKED,
         Na__LeVecAim__ReachMm,
         Na__LeVecAim__Refusal,
+        Na__LeVecAim__RefusalText,
         Na__LeVecAim__At,
         Na__LeVecAim__Replace,
         Na__LeVecAim__AddBeside,
@@ -105,9 +110,7 @@
     // HELPER FUNCTION | Why a Vector Was Refused, in Words
     // ------------------------------------------------------------
     function Na__LeVecSize__SayRefusal(refusal) {
-        Na__LeVec__Say(refusal === Na__LeVecAim__REFUSE_LOCKED
-            ? Na__LeVecCfg__Label('SayLocked', 'That vector is on a locked layer.')
-            : Na__LeVecCfg__Label('SayNotVector', 'Only plain vectors can be edited this way - not pictures, QR codes or measured rooms.'));
+        Na__LeVec__Say(Na__LeVecAim__RefusalText(refusal));                   // <-- A locked layer, a picture or a room, or a shape with holes: the targets' own words
     }
     // ------------------------------------------------------------
 

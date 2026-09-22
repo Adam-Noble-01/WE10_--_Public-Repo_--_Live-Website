@@ -44,6 +44,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.2
+// - Make refuses a vector with holes (Shape__Holes, from the vector tools'
+//   Boolean section): a room's area and label are worked out round one
+//   outline, and the record keeps no holes on a room. Its menu row and the
+//   panel's button are not offered for one either.
+//
 // 21-Sep-2026 - Version 1.2.1
 // - HostViewport finds the viewport under a room by the frame as it stands,
 //   turned (Viewport__RotationDeg) or not. A turn is rigid, so no area changes.
@@ -738,6 +744,7 @@
         const shape = Na__LeModel__GetShapeById(sheet, shapeId);
         if (!shape || Na__LeArea__Is(shape)) return null;
         if (!Na__LeAreaGeo__Encloses(shape.Shape__Points)) return null;
+        if (Array.isArray(shape.Shape__Holes) && shape.Shape__Holes.length > 0) return null;   // <-- A vector with holes (the Boolean tools'): a room is measured round ONE outline, so it is not offered
         const layer = Na__LeArea__EnsureLayer(sheet, { show : true });
         const block = Object.assign(Na__LeArea__NewBlock(sheet), patch || {});
         const style = Na__LeArea__NewStyle(sheet);

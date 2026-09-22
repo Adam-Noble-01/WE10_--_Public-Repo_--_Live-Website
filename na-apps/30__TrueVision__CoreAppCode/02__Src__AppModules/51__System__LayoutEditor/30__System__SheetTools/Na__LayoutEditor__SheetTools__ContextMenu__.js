@@ -50,6 +50,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.7.0
+// - A VECTOR WITH HOLES (the vector tools' Boolean section): Insert point
+//   here sends the hole starts that move up with the new point
+//   (Na__LeShapeGeo__HolesAfterInsert), and Open shape is greyed out on it,
+//   in the vector and out - a hole is only ever round a closed outline. With
+//   several vectors selected, the menu gains the vector tools' Boolean row
+//   (Na__LeVec__SelectionMenuItems), asked for rather than written here.
+//
 // 22-Sep-2026 - Version 1.6.0
 // - SHOW IN SPECIFICATION. Adam: a bubble's right-click menu should find its
 //   note in the side column, scroll to it and ring it with a halo that pulses
@@ -142,7 +150,7 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__ClientToPaperMm, Na__LeSurface__GetEditingViewport } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeMarkup__AnnotationRotationDeg } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
-    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__InsertPoint } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__InsertPoint, Na__LeShapeGeo__HolesAfterInsert } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeText__BeginEdit, Na__LeText__Commit, Na__LeText__IsEditing, Na__LeText__RotationPatch } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
     import { Na__LeDim__Cancel, Na__LeDim__IsPlacing, Na__LeDim__BeginTextEdit } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Finish, Na__LeShape__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
@@ -195,7 +203,7 @@
     import { Na__LeImgMenu__ItemsFor } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Menu__.js';   // <-- What a picture offers instead of them
     // @delegate: ../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Menu__.js
     import { Na__LeTools__SyncPaletteFrom, Na__LeTools__SetTool } from './Na__LayoutEditor__SheetTools__ToolState__.js';
-    import { Na__LeVec__RightClick, Na__LeVec__MenuItems } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools: a right click abandons what one has half done, and a vector's menu offers them
+    import { Na__LeVec__RightClick, Na__LeVec__MenuItems, Na__LeVec__SelectionMenuItems } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools: a right click abandons what one has half done, and a vector's menu offers them
     // @delegate: ../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js
     import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record, Na__LeTools__RawHit, Na__LeTools__ShapeInsertHit } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
     import { Na__LeLeadGeo__NoteFor } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';   // <-- A specification bubble's note, asked of the resolver the specification registers
@@ -292,7 +300,8 @@
             const groupOps = [];
             if (Na__LeGroup__CanGroup(sheet))   groupOps.push({ label : label('MenuGroup', 'Group'),     onSelect : () => { Na__LeGroup__Group(sheet); } });
             if (Na__LeGroup__CanUngroup(sheet)) groupOps.push({ label : label('MenuUngroup', 'Ungroup'), onSelect : () => { Na__LeGroup__Ungroup(sheet); } });
-            return noteRows(bubbleUnder()).concat(groupOps, Na__LeClip__MenuItems(sheet, found, pointMm), [   // <-- The bubble right-clicked, one of several selected, still leads with its note
+            const booleans = Na__LeVec__SelectionMenuItems(sheet);                // <-- Two or more closed shapes: Union, Subtract... on them at once (37__System__VectorTools), asked for rather than written here
+            return noteRows(bubbleUnder()).concat(groupOps, booleans, Na__LeClip__MenuItems(sheet, found, pointMm), [   // <-- The bubble right-clicked, one of several selected, still leads with its note
                 { separator : true }
             ], styleMany(selected), [                                           // <-- Copy one, then paste it over the rest in a single click
                 { label : Na__LeCfg__FormatLabel('MenuDeleteSelection', 'Delete {count} selected items', { count : selected.length }), danger : true,
@@ -384,6 +393,7 @@
         if (found.kind === 'shape') {
             const shape  = Na__LeTools__Record(sheet, found);
             const closed = !!shape && shape.Shape__Closed === true;
+            const holed  = !!shape && Array.isArray(shape.Shape__Holes) && shape.Shape__Holes.length > 0;   // <-- A shape with holes (the Boolean tools') cannot be opened: a hole is only ever round a closed outline. The normaliser keeps the key only while it holds one
             // THE VECTOR TOOLS' ROW (37__System__VectorTools): Trim, Extend, Join,
             // Split, Offset, Fillet and Chamfer in one flyout, asked for rather
             // than written here, as the room's rows and the picture's are. Empty
@@ -404,12 +414,12 @@
                       onSelect : () => {
                           const points = Na__LeShapeGeo__InsertPoint(Na__LeShapeGeo__Points(shape), insert.index, insert.point);
                           Na__LeScope__SetVertices([ insert.index + 1 ]);
-                          Na__LeModel__UpdateShape(sheet, found.id, { points : points }, false);
+                          Na__LeModel__UpdateShape(sheet, found.id, { points : points, holes : Na__LeShapeGeo__HolesAfterInsert(shape, insert.index) }, false);   // <-- A holed shape's later holes start one further on; undefined leaves a plain one's record as it was
                       } },
                     { label : picked > 1 ? Na__LeCfg__FormatLabel('MenuDeleteVertices', 'Delete {count} points', { count : picked }) : label('MenuDeleteVertex', 'Delete point'),
                       disabled : picked < 1, danger : true, onSelect : () => { Na__LeTools__DeleteVertices(); } },
                     { separator : true },
-                    { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3,
+                    { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3 || holed,
                       onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
                     { label : label('MenuCloseScope', 'Close and step back out'), onSelect : () => { Na__LeScope__Clear(); Na__LeModel__SetSelection(null); } },
                     { separator : true }
@@ -440,7 +450,7 @@
             const area = Na__LeAreaMenu__ItemsFor(sheet, shape, pointMm);
             return area.concat([
                      { label : label('MenuEnterVector', 'Edit vector points'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'shape', id : found.id }); } },
-                     { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3,
+                     { label : closed ? label('MenuOpenShape', 'Open shape') : label('MenuCloseShape', 'Close shape'), disabled : !shape || Na__LeShapeGeo__Points(shape).length < 3 || holed,
                        onSelect : () => Na__LeModel__UpdateShape(sheet, found.id, { closed : !closed }) },
                      { separator : true } ]).concat(arrange('shape', found.id), [
                      { separator : true }, remove('MenuDeleteShape', 'Delete shape'), { separator : true } ])

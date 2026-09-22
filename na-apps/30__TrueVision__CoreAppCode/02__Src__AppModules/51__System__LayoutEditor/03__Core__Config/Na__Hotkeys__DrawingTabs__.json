@@ -6,7 +6,7 @@
         "Modifiers are named Ctrl, Shift, Alt, Meta and Space. Space is the held space bar, tracked by the PC controls module.",
         "ModifierMatch Exact means the listed modifiers must be the only ones held. ModifierMatch Any ignores modifiers entirely. ModifierMatch CoarseOptional means Exact, except that the coarse step modifier is allowed on top.",
         "Bindings are tested in list order and the first enabled match wins, so put the more specific binding above the general one.",
-        "When names the one situation a keyboard binding applies in; left out, it always applies. InContainer is the only one so far: a group, a vector or a dimension is open for editing (double-click, or Enter). It is what lets T be the Trim tool inside a container and the Text tool everywhere else. A caller that does not say what situation it is in never matches a When binding.",
+        "When names the one situation a keyboard binding applies in; left out, it always applies. InContainer: a group, a vector or a dimension is open for editing (double-click, or Enter) - it is what lets T be the Trim tool inside a container and the Text tool everywhere else. BooleanSelection: two or more closed vectors a Boolean can take are selected - it is what lets Shift+T trim the selected shapes there and pick the Extend tool up everywhere else, and keeps Shift+U and Shift+S to the moment they mean something. OuterShellSelection: the same, or one closed vector with holes - Shift+O's, as Outer Shell alone fills a shape's holes. A caller that does not say what situation it is in never matches a When binding.",
         "RequiresEmptyStage true limits a binding to a press that lands on the grey stage rather than on the paper.",
         "Zoom limits and the wheel step live in Na__LayoutEditor__AppConfig__.json under LayoutEditor__Navigation__Config. This file owns which input triggers an action, that file owns how far and how fast it travels."
     ],
@@ -689,6 +689,62 @@
                 "Note": "T IS THE TEXT TOOL ON THE SHEET, as it is in LayOut, so Trim takes T only while a container is open (When InContainer) - where the Text tool could not be used anyway, because a placing tool closes the container. Listed ABOVE Tool__Text so it is tested first. Out on the sheet Trim is reached from the Vector Tools panel, from a vector's right-click menu, or by holding Shift with Extend (Shift+T) up, which trims for as long as it is held - AutoCAD's swap. LayOut 2026's own key for Trim is Shift+T. To make T trim everywhere, take the When line off this row and move Tool__Text to another key."
             },
             {
+                "Id": "Edit__BooleanUnion",
+                "Label": "Union the selected shapes (two or more closed vectors selected)",
+                "Action": "Edit__BooleanUnion",
+                "Enabled": true,
+                "Keys": [
+                    "u",
+                    "U"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "When": "BooleanSelection",
+                "Note": "Shift+U, as Adam asked. Only with two or more closed vectors a Boolean can take selected (When BooleanSelection); it acts on them at once, as the Boolean row of the selection's right-click menu does, and leaves the tool as it is. Shift+U was free before; plain U is Split."
+            },
+            {
+                "Id": "Edit__BooleanSubtract",
+                "Label": "Subtract: cut the selected shapes in front out of the one at the back",
+                "Action": "Edit__BooleanSubtract",
+                "Enabled": true,
+                "Keys": [
+                    "s",
+                    "S"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "When": "BooleanSelection",
+                "Note": "Shift+S, as Adam asked, in the same situation. On a selection the paint order decides: the shapes in front are cut out of the one at the back, and go. Shift+S was free before; Ctrl+S is Save and needs Ctrl alone (ModifierMatch Exact), so the two can never be confused."
+            },
+            {
+                "Id": "Edit__BooleanTrim",
+                "Label": "Trim the selected shapes: each loses what the ones in front of it cover",
+                "Action": "Edit__BooleanTrim",
+                "Enabled": true,
+                "Keys": [
+                    "t",
+                    "T"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "When": "BooleanSelection",
+                "Note": "Shift+T - THE ONE CLASH: Shift+T is also the Extend tool (below), on the sheet as well as inside a container. This row is ABOVE Extend and matches only while two or more closed vectors are selected, so there Shift+T trims the shapes and at every other time - nothing selected, one shape, open lines - it still picks Extend up. Extend works on the ends of open lines, which a Boolean selection holds none of, so the two never want the key at the same moment."
+            },
+            {
+                "Id": "Edit__BooleanOuterShell",
+                "Label": "Outer Shell: unite the selected shapes and fill every hole (two or more closed vectors, or one with holes)",
+                "Action": "Edit__BooleanOuterShell",
+                "Enabled": true,
+                "Keys": [
+                    "o",
+                    "O"
+                ],
+                "Modifiers": [ "Shift" ],
+                "ModifierMatch": "Exact",
+                "When": "OuterShellSelection",
+                "Note": "Shift+O, as Adam asked with the other three. Its own situation, OuterShellSelection: two or more closed vectors a Boolean can take, as theirs - or ONE with holes, whose holes it fills. O was free, bare and with every modifier."
+            },
+            {
                 "Id": "Tool__Extend",
                 "Label": "Extend tool: run the end of a line on to the next line in its way",
                 "Action": "Tool__Extend",
@@ -849,9 +905,10 @@
         ]
     },
     "LayoutEditor__SelectionBindings__Config": {
-        "LayoutEditor__SelectionBindings__Description": "What a modifier held on a Select tool press does to the selection - for a click on an item and for a box dragged from bare paper alike - as SketchUp holds them. With none held the click or the box replaces the selection. The list is tested in order with Exact matching, so the two-modifier binding sits first. BoxAnywhereModifier is set aside before the list is tested: while it is held a drag draws a box even from on top of something that could be moved, which is the way in on a sheet with no bare paper left to start from, and Shift or Ctrl still combine with it. A box dragged to the right is a window (only what it wholly encloses); dragged to the left it is a crossing (anything it touches as well). CopyDragModifier is SketchUp LayOut's copy by drag: held on the press of a move, or pressed during one, the move carries a copy and leaves the original where it was, and pressed again it is a move again - a tap is enough, so it can be let go of to reach the arrow keys or type a length. It is not set aside like BoxAnywhereModifier: Ctrl still adds an unselected item at the press, and the drag then copies the whole selection. A viewport or a dimension copies only where it would move, under the Move tool. Leave it empty to switch copying by drag off.",
+        "LayoutEditor__SelectionBindings__Description": "What a modifier held on a Select tool press does to the selection - for a click on an item and for a box dragged from bare paper alike - as SketchUp holds them. With none held the click or the box replaces the selection. The list is tested in order with Exact matching, so the two-modifier binding sits first. BoxAnywhereModifier is set aside before the list is tested: while it is held a drag draws a box even from on top of something that could be moved, which is the way in on a sheet with no bare paper left to start from, and Shift or Ctrl still combine with it. A box dragged to the right is a window (only what it wholly encloses); dragged to the left it is a crossing (anything it touches as well). CopyDragModifier is SketchUp LayOut's copy by drag: held on the press of a move, or pressed during one, the move carries a copy and leaves the original where it was, and pressed again it is a move again - a tap is enough, so it can be let go of to reach the arrow keys or type a length. It is not set aside like BoxAnywhereModifier: Ctrl still adds an unselected item at the press, and the drag then copies the whole selection. A viewport or a dimension copies only where it would move, under the Move tool. Leave it empty to switch copying by drag off. MoveAnchorModifier puts the move anchor on an item: held ON ITS OWN through a click that leaves one item or one group selected, a red cross comes up in the middle of its box, with the Move tool. Drag the cross onto any snap point to re-place it (double-click it to centre it again); drag the item and it is carried by the cross alone, which snaps - so it moves from this point to that point. It is not set aside either: Ctrl still adds on the press and copies on a drag, so with something else already selected a Ctrl+click adds and no cross comes up. Leave it empty to switch the cross off; its look and settings are in 28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__Config__.json.",
         "LayoutEditor__SelectionBindings__BoxAnywhereModifier": "Alt",
         "LayoutEditor__SelectionBindings__CopyDragModifier": "Ctrl",
+        "LayoutEditor__SelectionBindings__MoveAnchorModifier": "Ctrl",
         "LayoutEditor__SelectionBindings__List": [
             {
                 "Id": "Select__Remove",
@@ -1158,6 +1215,26 @@
             {
                 "Action": "Edit__Ungroup",
                 "Label": "Ungroup the selection",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__BooleanUnion",
+                "Label": "Union the selected shapes",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__BooleanSubtract",
+                "Label": "Subtract the selected shapes in front from the one at the back",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__BooleanTrim",
+                "Label": "Trim each selected shape by the ones in front of it",
+                "Group": "Editing"
+            },
+            {
+                "Action": "Edit__BooleanOuterShell",
+                "Label": "Outer Shell: unite the selected shapes and fill their holes",
                 "Group": "Editing"
             },
             {

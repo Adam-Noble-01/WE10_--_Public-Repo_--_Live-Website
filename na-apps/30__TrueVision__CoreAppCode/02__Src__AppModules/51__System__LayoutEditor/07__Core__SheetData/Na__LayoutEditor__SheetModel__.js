@@ -72,8 +72,10 @@
 //                 (drawn by Na__LayoutEditor__LeaderGeometry__)
 //     MarginNotes Sheet__MarginNotes {Enabled, WidthMm, Heading, TextSizeMm,
 //                 IncludeGeneral, GroupHeadings, RegionsOn (only ever true),
-//                 Regions [] (only when there is one)} - only on a sheet that
-//                 has had one
+//                 Regions [] (only when there is one), LeaderlessOn (only
+//                 ever true), LeaderlessGroups [group ids in print order]
+//                 (only when there is one; Na__LayoutEditor__SheetRecords__
+//                 LeaderlessNotes__)} - only on a sheet that has had one
 //     NoteRegion  Region__Id, FrameMm {X, Y, WidthMm, HeightMm}, Title (null
 //                 for the automatic one), Overspill, Groups [group ids],
 //                 Borders {Top, Right, Bottom, Left}
@@ -131,6 +133,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.35.1
+// - Comments only: the MarginNotes record lists LeaderlessOn and
+//   LeaderlessGroups (Leaderless Notes, v2.147.0). The Sheets unit's
+//   UpdateMarginNotes takes them; nothing new is re-exported here.
+//
 // 22-Sep-2026 - Version 1.35.0
 // - Fix: a project load that landed before Initialize was never announced.
 //   The editor starts once its configs are in, and the drawings usually get

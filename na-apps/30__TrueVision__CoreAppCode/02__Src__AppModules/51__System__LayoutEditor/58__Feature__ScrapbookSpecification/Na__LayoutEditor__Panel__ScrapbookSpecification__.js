@@ -64,6 +64,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - The how-to-use hint moved behind a small "i", on the Show full notes
+//   row before its words rather than a line of its own: it was read past
+//   on every visit whether it was wanted or not. Status now hands Refresh a
+//   .hint apart from its .text, so the plain status line (loading, empty,
+//   read-only, offline) is unaffected. The row is a div, not a label, so
+//   the icon's click is its own and never forwards to the checkbox.
+// - The filter and Show full notes are pinned under the tab strip while the
+//   list scrolls beneath them, rather than scrolling away with it.
+//
 // 22-Sep-2026 - Version 1.1.0
 // - A row's right-click menu: Edit spec item (the row editor, with the caret
 //   where the click was) and Open in Project Specification. F2 on a row
@@ -160,6 +170,7 @@
     let   Na__LePanelScrapSpec__Signature = null;       // <-- What the rows were last built for, so a refresh per model change rebuilds nothing
     let   Na__LePanelScrapSpec__Filter = '';
     let   Na__LePanelScrapSpec__Full   = null;          // <-- null until first asked: the remembered choice, else the config's default
+    let   Na__LePanelScrapSpec__InfoOpen = false;       // <-- The "i" disclosure; starts closed on every fresh body, never remembered - it is read once, not a setting
     let   Na__LePanelScrapSpec__Wired  = false;
     // ------------------------------------------------------------
 
@@ -533,8 +544,25 @@
         filter.setAttribute('data-na-control', 'scrapspec-filter');
         tools.appendChild(filter);
 
-        const full  = part('full-row', document.createElement('label'));
+        // THE HOW-TO-USE HINT, an "i" on the Show full notes row rather than
+        // spelled out on a line of its own. The row is a plain div now, not a
+        // label - a label around the icon too would forward its clicks to the
+        // checkbox - and na-le-scrapspec__full-wrap (display:contents) is the
+        // actual label, worn by the caption and the checkbox alone.
+        // Na__LePanelScrapSpec__Status still writes the words (as .hint,
+        // where the old paragraph carried it as part of .text), so Refresh is
+        // the only place that reads it.
+        const full  = part('full-row', document.createElement('div'));
         full.className = 'na-le-row na-le-row--toggle';
+        const infoIcon = part('info-icon', document.createElement('button'));
+        infoIcon.type      = 'button';
+        infoIcon.className = 'na-le-scrapspec__info-icon';
+        infoIcon.textContent = 'i';
+        infoIcon.setAttribute('data-na-control', 'scrapspec-info');
+        infoIcon.setAttribute('aria-expanded', 'false');
+        full.appendChild(infoIcon);
+        const fullWrap = document.createElement('label');
+        fullWrap.className = 'na-le-scrapspec__full-wrap';
         const fullCaption = document.createElement('span');
         fullCaption.className = 'na-le-row__label';
         part('full-caption', fullCaption);
@@ -542,10 +570,18 @@
         fullBox.type      = 'checkbox';
         fullBox.className = 'na-le-input na-le-input--check';
         fullBox.setAttribute('data-na-control', 'scrapspec-full');
-        full.appendChild(fullCaption);
-        full.appendChild(fullBox);
+        fullWrap.appendChild(fullCaption);
+        fullWrap.appendChild(fullBox);
+        full.appendChild(fullWrap);
         tools.appendChild(full);
         body.appendChild(tools);
+
+        // THE HINT'S WORDS, revealed under the row that opened them - never
+        // under the tab strip's pin, which is where the row itself stays.
+        const infoText = part('info-text', Na__LePanels__Note(''));
+        infoText.classList.add('na-le-scrapspec__info-text');
+        infoText.hidden = true;
+        body.appendChild(infoText);
 
         const list = part('list', document.createElement('div'));
         list.className = 'na-le-scrapspec';
@@ -561,24 +597,31 @@
         Na__LePanelScrapSpec__Rows.clear();                                     // <-- A new body has no rows yet
         Na__LePanelScrapSpec__Heads     = [];
         Na__LePanelScrapSpec__Signature = null;
+        Na__LePanelScrapSpec__InfoOpen  = false;
     }
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | The Line Above the List: What It Is, or Why It Is Empty
+    // HELPER FUNCTION | The Line Above the List, and the "i" Hint Behind It
+    // ------------------------------------------------------------
+    // .text is what is said plainly - loading, empty, read-only, and the
+    // offline warning when the cloud copy could not be read: short, and
+    // about the state of the data, not about how to use the tab. .hint is
+    // the how-it-works paragraph, only ever present while editable and
+    // notes are on show; Refresh puts it behind the "i" rather than in the
+    // note, since that one was read past on every visit whether it was
+    // wanted or not.
     // ------------------------------------------------------------
     function Na__LePanelScrapSpec__Status(state, total, editable) {
         const L = Na__LeScrapSpec__Label;
         if (!state.loaded) {
-            if (state.status === Na__LeSpec__STATUS_FAILED) return { text : L('Failed', 'The project specification could not be read, so there are no notes to list yet.'), warn : true };
-            return { text : L('Loading', 'Loading the project specification...'), warn : false };
+            if (state.status === Na__LeSpec__STATUS_FAILED) return { text : L('Failed', 'The project specification could not be read, so there are no notes to list yet.'), warn : true, hint : null };
+            return { text : L('Loading', 'Loading the project specification...'), warn : false, hint : null };
         }
-        if (total === 0) return { text : L('Empty', 'This project’s specification has no notes yet. Write them on the Project Specification tab and they appear here, each as a bubble ready to drag onto a sheet.'), warn : false };
-        let text = editable
-            ? L('Hint', 'Drag a bubble onto the sheet: it lands as a specification bubble linked to that note. Then drag its square endpoint onto what it describes. Double-click a row to place one in the middle of the view. Right-click a row to edit its note here.')
-            : L('ReadOnly', 'The project specification’s codes and notes. Bubbles can only be placed while sheets are editable.');
-        if (state.status === Na__LeSpec__STATUS_FAILED) text += ' ' + L('Offline', 'The cloud copy could not be read: these are the notes kept in this browser.');
-        return { text : text, warn : state.status === Na__LeSpec__STATUS_FAILED };
+        if (total === 0) return { text : L('Empty', 'This project’s specification has no notes yet. Write them on the Project Specification tab and they appear here, each as a bubble ready to drag onto a sheet.'), warn : false, hint : null };
+        const offline = state.status === Na__LeSpec__STATUS_FAILED ? L('Offline', 'The cloud copy could not be read: these are the notes kept in this browser.') : '';
+        if (editable) return { text : offline, warn : offline !== '', hint : L('Hint', 'Drag a bubble onto the sheet: it lands as a specification bubble linked to that note. Then drag its square endpoint onto what it describes. Double-click a row to place one in the middle of the view. Right-click a row to edit its note here.') };
+        return { text : [ L('ReadOnly', 'The project specification’s codes and notes. Bubbles can only be placed while sheets are editable.'), offline ].filter((s) => s !== '').join(' '), warn : offline !== '', hint : null };
     }
     // ------------------------------------------------------------
 
@@ -599,7 +642,22 @@
         // THE WORDS | Set on every refresh: the config may have arrived since the body was built
         const status = Na__LePanelScrapSpec__Status(state, total, editable);
         el('note').textContent = status.text;
+        el('note').hidden = status.text === '';
         el('note').classList.toggle('na-le-note--warn', status.warn);
+
+        // THE "i" | Only there while there is a hint to give (editable, loaded,
+        // something to drag). Opened and closed by hand alone - a refresh
+        // never closes it back up mid-read.
+        const hasHint = status.hint !== null;
+        const infoOpen = hasHint && Na__LePanelScrapSpec__InfoOpen;
+        el('info-icon').hidden = !hasHint;
+        el('info-icon').title  = L('InfoTitle', 'How these notes work');
+        el('info-icon').setAttribute('aria-label', L('InfoLabel', 'Info'));
+        el('info-icon').setAttribute('aria-expanded', String(infoOpen));
+        el('info-icon').classList.toggle('is-open', infoOpen);
+        el('info-text').textContent = status.hint || '';
+        el('info-text').hidden = !infoOpen;
+
         el('filter').placeholder      = L('FilterHolder', 'Filter by code or words');
         el('filter').title            = L('FilterTitle', 'Type a code (RF02), a prefix (RF), or words from a note of three letters or more. Escape clears it.');
         el('full-caption').textContent = L('FullNotes', 'Show full notes');
@@ -706,6 +764,7 @@
             Na__LePanels__Refresh(Na__LePanelScrapSpec__ID);
         });
         on('change',  'scrapspec-full',   (event, el) => { Na__LePanelScrapSpec__SetFull(el.checked); Na__LePanels__Refresh(Na__LePanelScrapSpec__ID); });
+        on('click',   'scrapspec-info',   () => { Na__LePanelScrapSpec__InfoOpen = !Na__LePanelScrapSpec__InfoOpen; Na__LePanels__Refresh(Na__LePanelScrapSpec__ID); });
         on('click',   'scrapspec-open',   () => window.dispatchEvent(new CustomEvent(Na__LeSpec__OPEN_EVENT, { detail : {} })));
         const entry = Na__LePanels__RegisterSection(Na__LePanelScrapSpec__COLUMN, {
             id : Na__LePanelScrapSpec__ID, title : L('SectionTitle', 'Specification Scrapbook'), tab : Na__LeScrapSpec__TAB_ID,

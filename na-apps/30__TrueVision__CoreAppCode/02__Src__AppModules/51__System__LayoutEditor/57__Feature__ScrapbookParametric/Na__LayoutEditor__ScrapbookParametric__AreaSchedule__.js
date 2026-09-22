@@ -10,11 +10,16 @@
 // CREATED    : 21-Sep-2026
 //
 // DESCRIPTION:
-// - TWO FORMS, ONE TYPE. AREAS is a row per room, under its group heading with
-//   a subtotal; GROUPS is a row per group and nothing else - the summary a
-//   planning statement quotes. They are two presets of one type, because they
-//   are the same table with more or less said, and the lookup grip swaps
-//   between them.
+// - THREE FORMS, ONE TYPE. AREAS is a row per room, under its group heading
+//   with a subtotal; GROUPS is a row per group and nothing else - the summary
+//   a planning statement quotes. PROJECT is GROUPS for the whole building: a
+//   row per group with its rooms added up across EVERY sheet in the project,
+//   so the ground floor measured on D02 and the first floor on D03 stand in
+//   one master list. They are presets of one type, because they are the same
+//   table with more or less said, and the lookup grip swaps between them.
+// - A FLOOR CAN FOLLOW THE TITLE (TitleSuffix): "Floor Areas  -  Ground
+//   Floor", picked from the lookup grip or the panel. The words and the join
+//   are the config's.
 // - THE NUMBERS ARE A PARAMETER, and that is the whole design. This module is
 //   PURE - parameters in, records out - so the sheet's index reaches it as
 //   `Data`, filled by 59__Feature__FloorAreas' before-announce hook exactly as
@@ -45,6 +50,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - The PROJECT form: every group's total across every sheet in the project,
+//   the master floor list for a building. Drawn exactly as GROUPS is; only
+//   its numbers (filled by 59__Feature__FloorAreas from every sheet), its
+//   heading and its column name differ.
+// - TitleSuffix: a floor written after the title - "  -  Ground Floor" -
+//   offered from the lookup grip in the config's order.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the two forms, the group headings and subtotals,
 //   the total, the swatches, the units and the stretch.
@@ -61,9 +74,10 @@
     const Na__LeParamArea__TYPE        = 'AreaSchedule';
     const Na__LeParamArea__FORM_AREAS  = 'areas';
     const Na__LeParamArea__FORM_GROUPS = 'groups';
-    const Na__LeParamArea__FORMS       = Object.freeze([ Na__LeParamArea__FORM_AREAS, Na__LeParamArea__FORM_GROUPS ]);
+    const Na__LeParamArea__FORM_PROJECT = 'project';                            // <-- GROUPS for the whole project: every sheet's rooms, added up by group
+    const Na__LeParamArea__FORMS       = Object.freeze([ Na__LeParamArea__FORM_AREAS, Na__LeParamArea__FORM_GROUPS, Na__LeParamArea__FORM_PROJECT ]);
     const Na__LeParamArea__UNITS       = Object.freeze([ 'm2', 'ft2', 'both' ]);
-    const Na__LeParamArea__KEEP        = Object.freeze([ 'Form', 'Group', 'ShowGroups', 'ShowTotal', 'ShowSwatch', 'Units', 'Decimals', 'TitleText', 'WidthMm', 'TextSizeMm', 'Data' ]);
+    const Na__LeParamArea__KEEP        = Object.freeze([ 'Form', 'Group', 'ShowGroups', 'ShowTotal', 'ShowSwatch', 'Units', 'Decimals', 'TitleText', 'TitleSuffix', 'WidthMm', 'TextSizeMm', 'Data' ]);
     const Na__LeParamArea__MAX_ROWS    = 240;                                    // <-- A sheet with more rooms than this has a problem a table cannot fix
     const Na__LeParamArea__SQ_FT       = 10.763910416709722;
     // ------------------------------------------------------------
@@ -109,13 +123,18 @@
 
         HeadingAreas       : 'Floor Areas',
         HeadingGroups      : 'Area Summary',
+        HeadingProject     : 'Floor Areas',
         ColumnRoom         : 'Room',
         ColumnGroup        : 'Group',
+        ColumnProject      : 'Floor',
         ColumnArea         : 'Area',
         TotalLabel         : 'Total',
         SubtotalLabel      : '',
         UngroupedLabel     : 'Ungrouped',
         EmptyLabel         : 'No areas measured on this sheet',
+        EmptyProjectLabel  : 'No areas measured in this project',
+        TitleSuffixJoin    : '  -  ',
+        TitleSuffixes      : Object.freeze([ 'Ground Floor', 'First Floor', 'Second Floor', 'Basement Level' ]),
         CrossedLabel       : '-',
         Units              : 'm2',
         Decimals           : 2,
@@ -143,6 +162,22 @@
         const value = config ? config['AreaSchedule__' + key] : undefined;
         return (typeof value === 'string') ? value : Na__LeParamArea__FALLBACK[key];
     }
+    function Na__LeParamArea__List(config, key) {
+        const value = config ? config['AreaSchedule__' + key] : undefined;
+        const list  = Array.isArray(value) ? value.filter((entry) => typeof entry === 'string' && entry.trim() !== '') : null;
+        return (list && list.length ? list : Na__LeParamArea__FALLBACK[key]).slice();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does This Form Report Groups, Not Rooms
+    // ------------------------------------------------------------
+    // GROUPS and PROJECT are drawn alike - a row per group - and differ only
+    // in where their numbers came from.
+    // ------------------------------------------------------------
+    function Na__LeParamArea__IsGroupForm(form) {
+        return form === Na__LeParamArea__FORM_GROUPS || form === Na__LeParamArea__FORM_PROJECT;
+    }
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -168,6 +203,7 @@
             Units      : Na__LeParamArea__Text(config, 'Units'),
             Decimals   : Na__LeParamArea__Number(config, 'Decimals'),
             TitleText  : '',
+            TitleSuffix: '',
             WidthMm    : Na__LeParamArea__Number(config, 'WidthMm'),
             TextSizeMm : Na__LeParamArea__Number(config, 'TextSizeMm'),
             Data       : { Areas : [], Groups : [], TotalM2 : 0 }
@@ -227,6 +263,7 @@
             Units      : (Na__LeParamArea__UNITS.indexOf(given.Units) !== -1) ? given.Units : standard.Units,
             Decimals   : Math.max(0, Math.min(3, Math.round((typeof given.Decimals === 'number' && Number.isFinite(given.Decimals)) ? given.Decimals : standard.Decimals))),
             TitleText  : (typeof given.TitleText === 'string') ? given.TitleText.replace(/\s+/g, ' ').trim().slice(0, 120) : '',
+            TitleSuffix: (typeof given.TitleSuffix === 'string') ? given.TitleSuffix.replace(/\s+/g, ' ').trim().slice(0, 60) : '',   // <-- Any words are kept, not only the listed ones, so a list changed later never rewrites a title already on a sheet
             WidthMm    : Math.round(Math.min(wide, Math.max(narrow, width)) * 10) / 10,
             TextSizeMm : Math.round(Math.min(12, Math.max(0.8, size)) * 100) / 100,
             Data       : Na__LeParamArea__NormaliseData(given.Data)
@@ -285,12 +322,12 @@
         const key   = (name) => String(name || '').trim().toLowerCase();
         const wanted = key(whole.Group);
 
-        if (whole.Form === Na__LeParamArea__FORM_GROUPS) {
+        if (Na__LeParamArea__IsGroupForm(whole.Form)) {
             data.Groups.forEach((group) => {
                 if (wanted !== '' && key(group.Name) !== wanted) return;
                 rows.push({ kind : 'group', text : group.Name, value : group.AreaM2, colour : group.Colour || null, indent : false });
             });
-            if (!rows.length) rows.push({ kind : 'empty', text : Na__LeParamArea__Text(config, 'EmptyLabel'), value : null, colour : null, indent : false });
+            if (!rows.length) rows.push({ kind : 'empty', text : Na__LeParamArea__Text(config, whole.Form === Na__LeParamArea__FORM_PROJECT ? 'EmptyProjectLabel' : 'EmptyLabel'), value : null, colour : null, indent : false });
             return rows;
         }
 
@@ -329,7 +366,7 @@
     // on a planning drawing.
     // ------------------------------------------------------------
     function Na__LeParamArea__Total(whole, rows) {
-        const counted = whole.Form === Na__LeParamArea__FORM_GROUPS ? 'group' : 'area';
+        const counted = Na__LeParamArea__IsGroupForm(whole.Form) ? 'group' : 'area';
         return rows.filter((row) => row.kind === counted && Number.isFinite(row.value)).reduce((sum, row) => sum + row.value, 0);
     }
     // ------------------------------------------------------------
@@ -415,15 +452,16 @@
         shapes.push(Na__LeParamArea__Rule(0, 0, width, 0, ruleInk, rulePt));
 
         // THE TITLE | Above the rule, as a drawing title sits above its own
-        const title = whole.TitleText !== ''
-            ? whole.TitleText
-            : Na__LeParamArea__Text(config, whole.Form === Na__LeParamArea__FORM_GROUPS ? 'HeadingGroups' : 'HeadingAreas');
+        const heading = whole.Form === Na__LeParamArea__FORM_PROJECT ? 'HeadingProject' : (whole.Form === Na__LeParamArea__FORM_GROUPS ? 'HeadingGroups' : 'HeadingAreas');
+        const base    = whole.TitleText !== '' ? whole.TitleText : Na__LeParamArea__Text(config, heading);
+        const title   = whole.TitleSuffix !== '' ? base + Na__LeParamArea__Text(config, 'TitleSuffixJoin') + whole.TitleSuffix : base;   // <-- "Floor Areas  -  Ground Floor"
         if (title !== '') texts.push(Na__LeParamArea__Line(title, 0, -Na__LeParamArea__Number(config, 'TitleAboveRuleMm'), titleMm, Na__LeParamArea__Number(config, 'TitleWeight'), Na__LeParamArea__Text(config, 'TitleColour'), 'left'));
 
         // THE COLUMN HEADS | What the two columns are, and the hairline under them
         const headBaseline = Na__LeParamArea__Number(config, 'HeaderBaselineMm') * (bodyMm / Na__LeParamArea__Number(config, 'TextSizeMm'));
         const headRuleY    = Na__LeParamArea__Number(config, 'HeaderRuleMm') * (bodyMm / Na__LeParamArea__Number(config, 'TextSizeMm'));
-        texts.push(Na__LeParamArea__Line(Na__LeParamArea__Text(config, whole.Form === Na__LeParamArea__FORM_GROUPS ? 'ColumnGroup' : 'ColumnRoom'), 0, headBaseline, headMm, Na__LeParamArea__Number(config, 'HeadWeight'), headInk, 'left'));
+        const column = whole.Form === Na__LeParamArea__FORM_PROJECT ? 'ColumnProject' : (whole.Form === Na__LeParamArea__FORM_GROUPS ? 'ColumnGroup' : 'ColumnRoom');
+        texts.push(Na__LeParamArea__Line(Na__LeParamArea__Text(config, column), 0, headBaseline, headMm, Na__LeParamArea__Number(config, 'HeadWeight'), headInk, 'left'));
         texts.push(Na__LeParamArea__Line(Na__LeParamArea__Text(config, 'ColumnArea'), width, headBaseline, headMm, Na__LeParamArea__Number(config, 'HeadWeight'), headInk, 'right'));
         shapes.push(Na__LeParamArea__Rule(0, headRuleY, width, headRuleY, hairInk, hairPt));
 
@@ -514,7 +552,8 @@
 
     // FUNCTION | What the Lookup Grip's Menu Offers
     // ------------------------------------------------------------
-    // The two forms, then the groups it can be filtered to, then the switches.
+    // The forms, then the floor written after the title, then the groups it
+    // can be filtered to, then the switches.
     // Each entry is a patch the engine merges as one undo step - the same
     // rebuild the panel's controls make, so grip and panel cannot disagree.
     // ------------------------------------------------------------
@@ -523,8 +562,20 @@
         const said  = (words && typeof words === 'object') ? words : {};
         const items = [
             { label : said.formAreas  || 'Every area, by group', checked : whole.Form === Na__LeParamArea__FORM_AREAS,  patch : { Form : Na__LeParamArea__FORM_AREAS } },
-            { label : said.formGroups || 'Totals by group',      checked : whole.Form === Na__LeParamArea__FORM_GROUPS, patch : { Form : Na__LeParamArea__FORM_GROUPS } }
+            { label : said.formGroups || 'Totals by group',      checked : whole.Form === Na__LeParamArea__FORM_GROUPS, patch : { Form : Na__LeParamArea__FORM_GROUPS } },
+            { label : said.formProject || 'Totals by group, whole project', checked : whole.Form === Na__LeParamArea__FORM_PROJECT, patch : { Form : Na__LeParamArea__FORM_PROJECT } }
         ];
+
+        // THE FLOOR AFTER THE TITLE | Written as it will read on the paper -
+        // "  -  Ground Floor" - so the menu shows exactly what is added.
+        const join     = Na__LeParamArea__Text(config, 'TitleSuffixJoin');
+        const suffixes = Na__LeParamArea__List(config, 'TitleSuffixes');
+        if (whole.TitleSuffix !== '' && suffixes.every((floor) => floor.toLowerCase() !== whole.TitleSuffix.toLowerCase())) suffixes.push(whole.TitleSuffix);   // <-- Words typed in the panel stay ticked
+        items.push({ separator : true });
+        items.push({ label : said.noSuffix || 'No floor in the title', checked : whole.TitleSuffix === '', patch : { TitleSuffix : '' } });
+        suffixes.forEach((floor) => {
+            items.push({ label : join + floor, checked : whole.TitleSuffix.toLowerCase() === floor.toLowerCase(), patch : { TitleSuffix : floor } });
+        });
 
         const groups = whole.Data.Groups.filter((group) => group.Name !== '');
         if (groups.length) {
@@ -577,6 +628,7 @@
             stretchTo : (params, xMm)   => Na__LeParamArea__StretchTo(config(), params, xMm),
             choices   : (params)        => Na__LeParamArea__Choices(config(), params, words()),
             hasBar    : ()              => false,
+            suffixes  : ()              => Na__LeParamArea__List(config(), 'TitleSuffixes'),   // <-- The floors the panel's list offers, in the config's order
             rowsOf    : (params)        => Na__LeParamArea__Rows(config(), Na__LeParamArea__Normalise(config(), params)),
             figure    : (params, m2)    => Na__LeParamArea__Figure(config(), Na__LeParamArea__Normalise(config(), params), m2)   // <-- So the panel quotes a total in the table's OWN units and decimals, not in a second reading of them
         };
@@ -596,7 +648,9 @@
         Na__LeParamArea__TYPE,
         Na__LeParamArea__FORM_AREAS,
         Na__LeParamArea__FORM_GROUPS,
+        Na__LeParamArea__FORM_PROJECT,
         Na__LeParamArea__FORMS,
+        Na__LeParamArea__IsGroupForm,
         Na__LeParamArea__Standard,
         Na__LeParamArea__Normalise,
         Na__LeParamArea__NormaliseData,

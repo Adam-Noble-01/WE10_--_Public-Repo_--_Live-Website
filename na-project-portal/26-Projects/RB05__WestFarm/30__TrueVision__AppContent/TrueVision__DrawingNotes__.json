@@ -2,9 +2,9 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "RB05",
-    "ProjectSpecification__UpdatedIso": "2026-09-22T10:07:57.399Z",
+    "ProjectSpecification__UpdatedIso": "2026-09-22T15:44:34.476Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 100,
+    "ProjectSpecification__LastIdNumber": 103,
     "ProjectSpecification__Revision": "A",
     "ProjectSpecification__DocumentNumber": "",
     "ProjectSpecification__Groups": [
@@ -154,8 +154,8 @@
                     "Note__Id": "SpecNote_038",
                     "Note__Code": "EN04",
                     "Note__Title": "Orangery Link",
-                    "Note__Body": "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                    "Note__Body": "Orangery between the house and the kitchen building: painted timber, glazed the full height of its bays, under a bespoke glazed lantern, applicant to consider a traditional manufacturer such as Vale Garden House who can provide the level of finish required for such a bespoke painted hardwood orangery structure..",
+                    "Note__UpdatedIso": "2026-09-22T11:43:54.885Z"
                 },
                 {
                     "Note__Id": "SpecNote_039",
@@ -163,6 +163,13 @@
                     "Note__Title": "Kitchen Building Gable Openings",
                     "Note__Body": "Kitchen building gable: two tall arched openings with radial fanlights in cut ashlar surrounds. Stone chimney stack against the gable.",
                     "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                },
+                {
+                    "Note__Id": "SpecNote_102",
+                    "Note__Code": "EN06",
+                    "Note__Title": "Kitchen apex rooflights",
+                    "Note__Body": "Kitchen building: glazed apex rooflights to both roof slopes at the ridge, set flush with the roof covering of FN03 in the manner of conservation rooflights. They light a vaulted ceiling with exposed roof timbers. Frame material, finish and product to be confirmed before a full application.",
+                    "Note__UpdatedIso": "2026-09-22T14:27:58.032Z"
                 }
             ]
         },
@@ -227,6 +234,13 @@
                     "Note__Title": "Coach House External Stair",
                     "Note__Body": "Indicative external staircase to the accommodation over the coach house, shown to establish the access only. Form, construction and finish to be confirmed before a full application.",
                     "Note__UpdatedIso": "2026-09-21T19:56:39.480Z"
+                },
+                {
+                    "Note__Id": "SpecNote_101",
+                    "Note__Code": "ES09",
+                    "Note__Title": "Crown roof form",
+                    "Note__Body": "Main house roof: crown form, a flat lead deck at the crown within pitched surrounds. The crown lowers the ridge within the landscape setting; the pitched surrounds keep it reading as a hipped roof from ground level. Deck extent, pitch and lead specification to be confirmed before a full application. Pitched roof covering as FN03.",
+                    "Note__UpdatedIso": "2026-09-22T11:24:39.273Z"
                 }
             ]
         },
@@ -290,8 +304,8 @@
                     "Note__Id": "SpecNote_042",
                     "Note__Code": "EW03",
                     "Note__Title": "Kitchen Building, South West Side",
-                    "Note__Body": "Kitchen building: three pairs of painted timber French doors with moulded cornice heads, beneath a run of flush rooflights in the roof slope. Eaves sit below the eaves of the house.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                    "Note__Body": "Kitchen building: three pairs of painted timber French doors with moulded cornice heads, beneath the apex rooflights of EN06. Eaves sit below the eaves of the house.",
+                    "Note__UpdatedIso": "2026-09-22T14:27:58.032Z"
                 }
             ]
         },
@@ -325,16 +339,16 @@
                 {
                     "Note__Id": "SpecNote_025",
                     "Note__Code": "FN04",
-                    "Note__Title": "Chimney Stacks",
+                    "Note__Title": "Chimney Stack",
                     "Note__Body": "Natural stone chimney stacks with moulded caps to the house, the kitchen building and the coach house.",
-                    "Note__UpdatedIso": "2026-09-20T23:03:02.532Z"
+                    "Note__UpdatedIso": "2026-09-22T12:09:53.009Z"
                 },
                 {
                     "Note__Id": "SpecNote_026",
                     "Note__Code": "FN05",
                     "Note__Title": "Rooflights",
-                    "Note__Body": "Conservation pattern rooflights set flush within the roof plane to the kitchen building and the coach house. Product to be confirmed before a full application.",
-                    "Note__UpdatedIso": "2026-09-20T22:08:17.669Z"
+                    "Note__Body": "Conservation pattern rooflights set flush within the roof plane to the coach house. Kitchen building apex rooflights as EN06. Product to be confirmed before a full application.",
+                    "Note__UpdatedIso": "2026-09-22T14:27:58.032Z"
                 },
                 {
                     "Note__Id": "SpecNote_027",
@@ -534,6 +548,13 @@
                     "Note__Title": "Existing tree lines",
                     "Note__Body": "Existing woodland belts and tree lines enclose the developed site. Refer to D51 for local adjustments; individual tree retention and removal to be established through arboricultural assessment.",
                     "Note__UpdatedIso": "2026-09-22T00:39:53.982Z"
+                },
+                {
+                    "Note__Id": "SpecNote_103",
+                    "Note__Code": "SE11",
+                    "Note__Title": "Existing solar array",
+                    "Note__Body": "Existing ground-mounted solar PV array beyond the stable group, reached from the internal access road. Array remains shown on the proposed site plan.",
+                    "Note__UpdatedIso": "2026-09-22T15:44:34.476Z"
                 }
             ]
         },

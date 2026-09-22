@@ -2,7 +2,7 @@
     "LayoutEditor__ScrapbookParametric__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookParametric__Config__.json",
         "Meta__Description" : "The Parametric Scrapbook: scripted sheet elements that are dragged onto the paper like any scrapbook item and then keep answering to their parameters, the way an AutoCAD dynamic block does. Owned by Na__LayoutEditor__ScrapbookParametric__.js (the engine); each element type has a module of its own and a block of its own here. A parametric element lands as an ordinary group of vectors and text, so it moves, copies, prints, exports and undoes like anything drawn by hand; the group record carries a Group__Parametric block, which is what lets it be regenerated. Ungrouping it explodes it: the vectors and text stay, the parameters go.",
-        "Meta__Version"     : "1.5.0",
+        "Meta__Version"     : "1.7.0",
         "Meta__Created"     : "19-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
 
@@ -11,7 +11,7 @@
         "Meta__HouseBar"    : "The scale bar was measured on 19-Sep-2026 from the twelve bars Adam drew by hand on PS02 D21 Floor Plans and D22 Elevations (A2, 1:50). All twelve agree: five cells of 20 mm in two rows of 1 mm, the top row filled on odd cells and the bottom row on even ones, fill #666666, edge #172b3a at 0.2 pt, an empty cell with no fill at all; Open Sans 400 numerals in #172b3a centred on each division with their baseline 5.314 mm under the bar, 2.5 mm at the two ends and 2 mm between. THE FILL WAS LIGHTENED ON 20-Sep-2026 to #858585 - a fifth of the way from the measured #666666 to white - because Adam found the checker too heavy on the page. Nothing else about the bar moved, and the test fixtures carry the new value.",
         "Meta__BarRight"    : "A SCALE BAR PLACED TO THE RIGHT was measured on 20-Sep-2026 from the arrangement Adam laid out by hand over PS01's proposed south east elevation: the title and its underline exactly where they always are, and the bar standing away along the same line with its FOOT on the title's baseline - 3.631 mm (1.631 + the bar's own 2) above the underline - so the two read as one band across the foot of the drawing. Its far end is meant to land under a corner of the building above it, which is why that end is the one that is dragged and the near end is the one that lengthens.",
         "Meta__Portal"      : "THE PROJECT PORTAL BLOCK (21-Sep-2026) is drawn from two mock-ups Adam made: a narrow column - code, Scan Me button, heading, bullets - and a wider one that stands that column beside a heading and a paragraph. Its code is NEVER encoded here: the box is one vector carrying a Shape__Qr block, and the shape painter fills it with whatever symbol the Project QR Code system answers for the project on screen, which is the same symbol the title block prints. So a block dragged onto a sheet carries THIS project's code, and one copied into another project carries that one's. The size of the code is the parameter (20 mm as shipped, the rest of the list on the lookup grip); everything round it is set in paper millimetres and does not scale with it, because type on a drawing is house sizes or it is wrong.",
-        "Meta__Infill"      : "THE CABINET INFILL (21-Sep-2026) was measured from the vector PDF of NP03 D07 Rev C (First Floor Plans, 31-Mar-2026) and the LayOut Core Scrapbook Adam drew it from - five Storage infills and a Shelving one on that sheet, all alike: a cross corner to corner of the cupboard, #333333 at 0.15 pt, dashed 0.9 pt on 0.9 pt; the name in Open Sans Regular 6 pt #333333, centred in a #fcfcfc box under the same dashed rule; the box 2 pt (0.706 mm) clear of the words at each end and 3.034 mm deep, the baseline 0.856 mm below its middle. An infill taller than it is wide has its words turned to read UP the sheet. Its size is paper millimetres, never tied to a drawing: dropped on one, a tile is sized at that drawing's scale from Element__RealSizeMm."
+        "Meta__Infill"      : "THE CABINET INFILL (21-Sep-2026) was measured from the vector PDF of NP03 D07 Rev C (First Floor Plans, 31-Mar-2026) and the LayOut Core Scrapbook Adam drew it from - five Storage infills and a Shelving one on that sheet, all alike: a cross corner to corner of the cupboard, #333333 at 0.15 pt, dashed 0.9 pt on 0.9 pt; the name in Open Sans Regular 6 pt #333333, centred in a #fcfcfc box under the same dashed rule; the box 2 pt (0.706 mm) clear of the words at each end and 3.034 mm deep, the baseline 0.856 mm below its middle. An infill taller than it is wide has its words turned to read UP the sheet. Its size is paper millimetres, never tied to a drawing: dropped on one, a tile is sized at that drawing's scale from Element__RealSizeMm. THE FILL GAINED A RULE ROUND IT ON 22-Sep-2026, FillLineColour at FillLinePt - Adam's Vectors standard, Soft Black at 0.3 pt - so a white fill switched on reads as a boundary and not a hole; off, or hand-restyled away, no rule is drawn, exactly as the fill itself is."
     },
 
     "LayoutEditor__ScrapbookParametric__Elements": {
@@ -76,6 +76,14 @@
                 "Element__Description"   : "One row per group - Ground Floor, First Floor, Garage - with its total and the whole sheet's total. The summary a planning statement quotes. The groups are made in the Floor Areas panel by filing each room under one.",
                 "Element__Params"        : { "Form" : "groups" },
                 "Element__PreviewParams" : { "Data" : { "Areas" : [], "Groups" : [ { "Name" : "Ground Floor", "AreaM2" : 42.55, "Count" : 2, "Colour" : "#bcd9ee" }, { "Name" : "First Floor", "AreaM2" : 15.2, "Count" : 1, "Colour" : "#c6e0c6" } ], "TotalM2" : 57.75 } }
+            },
+            {
+                "Element__Id"            : "AreaScheduleProject",
+                "Element__Type"          : "AreaSchedule",
+                "Element__Name"          : "Project Floor Areas",
+                "Element__Description"   : "The master list for the whole building: one row per group - Basement, Ground Floor, First Floor, Second Floor - with its rooms added up across EVERY sheet in the project, and the building's total at the foot. Measure each floor on its own plan sheet and file its rooms under that floor's group; this list gathers them. It re-writes itself whenever a room on any sheet changes.",
+                "Element__Params"        : { "Form" : "project" },
+                "Element__PreviewParams" : { "Data" : { "Areas" : [], "Groups" : [ { "Name" : "Ground Floor", "AreaM2" : 142.3, "Count" : 9, "Colour" : "#bcd9ee" }, { "Name" : "First Floor", "AreaM2" : 128.6, "Count" : 8, "Colour" : "#c6e0c6" }, { "Name" : "Second Floor", "AreaM2" : 74.48, "Count" : 6, "Colour" : "#f1e2b8" } ], "TotalM2" : 345.38 } }
             },
             {
                 "Element__Id"            : "CabinetInfill",
@@ -271,7 +279,7 @@
     },
 
     "LayoutEditor__ScrapbookParametric__AreaSchedule": {
-        "AreaSchedule__Description"      : "Element four: the area schedule (Na__LayoutEditor__ScrapbookParametric__AreaSchedule__.js), which reports what the rooms measured on a sheet add up to. Two forms of one type: 'areas' is a row per room under its group heading with a subtotal, and 'groups' is a row per group - the summary a planning statement quotes. The origin is the LEFT END OF THE TOP RULE, with the title above it and the rows below, as the drawing title's origin is the left end of its underline. THE NUMBERS ARE NOT HERE AND ARE NOT TYPED: they arrive as the Data parameter, filled from the sheet's own index by 59__Feature__FloorAreas, so a table always says what the drawing beside it says.",
+        "AreaSchedule__Description"      : "Element four: the area schedule (Na__LayoutEditor__ScrapbookParametric__AreaSchedule__.js), which reports what the rooms measured on a sheet add up to. Three forms of one type: 'areas' is a row per room under its group heading with a subtotal, 'groups' is a row per group - the summary a planning statement quotes - and 'project' is 'groups' for the whole building, each group's rooms added up across every sheet in the project (22-Sep-2026). The origin is the LEFT END OF THE TOP RULE, with the title above it and the rows below, as the drawing title's origin is the left end of its underline. THE NUMBERS ARE NOT HERE AND ARE NOT TYPED: they arrive as the Data parameter, filled from the sheet's own index by 59__Feature__FloorAreas, so a table always says what the drawing beside it says.",
 
         "AreaSchedule__WidthMm"          : 78,
         "AreaSchedule__WidthMinMm"       : 40,
@@ -312,12 +320,19 @@
 
         "AreaSchedule__HeadingAreas"     : "Floor Areas",
         "AreaSchedule__HeadingGroups"    : "Area Summary",
+        "AreaSchedule__HeadingProject"   : "Floor Areas",
         "AreaSchedule__ColumnRoom"       : "Room",
         "AreaSchedule__ColumnGroup"      : "Group",
+        "AreaSchedule__ColumnProject"    : "Floor",
         "AreaSchedule__ColumnArea"       : "Area",
         "AreaSchedule__TotalLabel"       : "Total",
         "AreaSchedule__UngroupedLabel"   : "Ungrouped",
         "AreaSchedule__EmptyLabel"       : "No areas measured on this sheet",
+        "AreaSchedule__EmptyProjectLabel": "No areas measured in this project",
+        "AreaSchedule__ProjectNote"      : "The project form counts ONLY rooms filed under a group, matched by name across sheets (case and spacing aside), in tab order. A group measured on two sheets is added up on both - which is right for a floor split across two plans, and double counts one drawn twice (an existing and a proposed plan both filed under Ground Floor), so give those groups different names.",
+        "AreaSchedule__TitleSuffixJoin"  : "  -  ",
+        "AreaSchedule__TitleSuffixes"    : [ "Ground Floor", "First Floor", "Second Floor", "Basement Level" ],
+        "AreaSchedule__TitleSuffixNote"  : "The floor written after a table's title - Floor Areas  -  Ground Floor - picked from the lookup grip's triangle or the panel, in this order (Adam, 22-Sep-2026). Join is what stands between the title and the floor. A table keeps the words it was given if this list changes.",
         "AreaSchedule__CrossedLabel"     : "-",
         "AreaSchedule__CrossedNote"      : "What is printed instead of a figure for a room whose outline crosses itself. Such a run has no honest area - the shoelace subtracts one lobe from the other - so a number is never shown for it, here or on the room itself.",
 
@@ -371,7 +386,9 @@
         "CabinetInfill__FitNote"                : "The words run along the infill's longer side unless told otherwise, and break at their spaces over as many as MaxLines lines - as evenly as they will go - when they would come within LabelClearMm of either end of the cabinet. LineSpacing is used only when the editor cannot say its own (the Text setup's LineSpacing, which the label is drawn at).",
 
         "CabinetInfill__FillColour"             : "#ffffff",
-        "CabinetInfill__FillNote"               : "The fill underneath is OFF as dropped: the cross and the label alone, so the cabinet the model draws shows through. Switched on, a rectangle of this colour, with no rule, lies under the cross and blanks out whatever is under the infill. It is an ordinary vector - open the group and give it any colour to match a background, and the element keeps that colour through every rebuild after, as it keeps anything else restyled by hand."
+        "CabinetInfill__FillLineColour"         : "#333333",
+        "CabinetInfill__FillLinePt"             : 0.3,
+        "CabinetInfill__FillNote"               : "The fill underneath is OFF as dropped: the cross and the label alone, so the cabinet the model draws shows through. Switched on, a rectangle of this colour lies under the cross and blanks out whatever is under the infill, with a rule of FillLineColour at FillLinePt round it - Adam's Vectors standard, Soft Black at 0.3 pt - so the white does not read as a hole with no edge. It is an ordinary vector - open the group and give the fill or its rule any colour or weight, or take the rule off, and the element keeps that choice through every rebuild after, as it keeps anything else restyled by hand."
     },
 
     "LayoutEditor__ScrapbookParametric__ViewportLink": {
@@ -473,6 +490,8 @@
         "Labels__PropsQrCode"        : "The code is this project's own, and is the same one the title block prints. It fills itself in - there is nothing to choose.",
         "Labels__MenuAreaFormAreas"  : "Every area, by group",
         "Labels__MenuAreaFormGroups" : "Totals by group",
+        "Labels__MenuAreaFormProject": "Totals by group, whole project",
+        "Labels__MenuAreaNoSuffix"   : "No floor in the title",
         "Labels__MenuAreaAllGroups"  : "Every group",
         "Labels__MenuAreaOnlyGroup"  : "Only {group}",
         "Labels__MenuAreaHeadings"   : "Group headings and subtotals",
@@ -493,8 +512,11 @@
         "Labels__PropsAreaSwatch"    : "Colour chips",
         "Labels__PropsAreaTitle"     : "Title",
         "Labels__PropsAreaTitleAuto" : "Automatic",
+        "Labels__PropsAreaSuffix"    : "Floor after the title",
         "Labels__PropsAreaReads"     : "{count} rows, {total} in total.",
         "Labels__PropsAreaEmpty"     : "No rooms have been measured on this sheet yet. Draw one with the Floor Area tool (A) and this fills itself in.",
+        "Labels__PropsAreaReadsProject" : "{count} floors across the project, {total} in total.",
+        "Labels__PropsAreaEmptyProject" : "No rooms filed under a group have been measured on any sheet yet. Measure each floor on its plan sheet, file its rooms under that floor's group, and this fills itself in.",
         "Labels__MenuQrCompact"      : "Code and list",
         "Labels__MenuQrFull"         : "With the full description",
         "Labels__GripStretchWords"   : "Drag to set how wide the words are set",

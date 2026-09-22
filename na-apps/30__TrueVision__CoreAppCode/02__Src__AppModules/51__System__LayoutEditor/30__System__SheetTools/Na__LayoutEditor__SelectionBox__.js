@@ -63,6 +63,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.7.0
+// - A vector with holes (the vector tools' Boolean section) is each of its
+//   rings, closed (Na__LeShapeGeo__Rings), so a crossing box meets its real
+//   edges and no phantom edge from its outline to a hole.
+//
 // 21-Sep-2026 - Version 1.6.0
 // - A turned viewport (Viewport__RotationDeg) is its turned outline, so a
 //   window takes it only when it holds all four turned corners and a crossing
@@ -125,7 +130,7 @@
         Na__LeMarkup__DimensionTextLayout
     } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeDimGeo__Terminator } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
-    import { Na__LeShapeGeo__Points } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Rings } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeLeadGeo__TYPE_BUBBLE, Na__LeLeadGeo__Layout, Na__LeLeadGeo__Circle, Na__LeLeadGeo__HasText } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeScope__BoxCandidates } from './Na__LayoutEditor__EditScope__.js';
     import { Na__LeVpRot__Corners } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned frame's four corners
@@ -308,6 +313,13 @@
     function Na__LeSelBox__ShapeParts(sheet, shape) {
         const pts = Na__LeShapeGeo__Points(shape).map((p) => [ p[0], p[1] ]);
         if (!pts.length) return [];
+        // A HOLED VECTOR (the Boolean tools') is each of its rings, closed: a
+        // window takes it when it holds the outline, and a crossing when the
+        // box touches any ring's edge - never a phantom edge from the outline
+        // to a hole.
+        if (Array.isArray(shape.Shape__Holes) && shape.Shape__Holes.length > 0) {
+            return Na__LeShapeGeo__Rings(shape).map((ring) => ({ points : ring.map((p) => [ p[0], p[1] ]), closed : true, area : false }));
+        }
         const filled = !!shape.Shape__FillColour || !!shape.Shape__Gradient;       // <-- As the hit test reads a fill
         // A MEASURED ROOM COUNTS AS ITS INSIDE, so a box drawn within one
         // picks it up - which is how a floor's worth of rooms is selected to

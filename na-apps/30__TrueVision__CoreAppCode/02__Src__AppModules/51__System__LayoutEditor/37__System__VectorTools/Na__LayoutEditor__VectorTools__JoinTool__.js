@@ -49,6 +49,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - A refusal is said in the targets' own words (Na__LeVecAim__RefusalText),
+//   which now include a vector with holes from the Boolean tools: Join and
+//   Split work on one run of points, and refuse one with a reason.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -73,9 +78,9 @@
         Na__LeVecGeo__JoinMany
     } from './Na__LayoutEditor__VectorTools__Geometry__.js';
     import {
-        Na__LeVecAim__REFUSE_LOCKED,
         Na__LeVecAim__ReachMm,
         Na__LeVecAim__Refusal,
+        Na__LeVecAim__RefusalText,
         Na__LeVecAim__At,
         Na__LeVecAim__All,
         Na__LeVecAim__CuttersFor,
@@ -127,9 +132,7 @@
     // HELPER FUNCTION | Why a Vector Was Refused, in Words
     // ------------------------------------------------------------
     function Na__LeVecJoin__SayRefusal(refusal) {
-        Na__LeVec__Say(refusal === Na__LeVecAim__REFUSE_LOCKED
-            ? Na__LeVecCfg__Label('SayLocked', 'That vector is on a locked layer.')
-            : Na__LeVecCfg__Label('SayNotVector', 'Only plain vectors can be edited this way - not pictures, QR codes or measured rooms.'));
+        Na__LeVec__Say(Na__LeVecAim__RefusalText(refusal));                   // <-- A locked layer, a picture or a room, or a shape with holes: the targets' own words
     }
     // ------------------------------------------------------------
 

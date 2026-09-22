@@ -15,12 +15,14 @@
 //   block (Na__LeLayout__MarginRect). It is painted paper, so a viewport
 //   pushed beneath it never prints through the notes, with a divider down its
 //   left edge - the edge the grip drags.
-// - WHAT IT LISTS, AND IN WHAT ORDER. The notes this sheet's bubbles link to
-//   (on visible layers), in specification order - group by group, note by
-//   note, so codes read in sequence - and then the general notes, always last.
-//   A general note is listed on every sheet whose margin includes general
-//   notes, and on any sheet whose bubbles link to it. A priority band that
-//   comes first is reserved here for when notes can be marked important.
+// - WHAT IT LISTS, AND IN WHAT ORDER. First the groups the sheet lists
+//   without leaders (Leaderless Notes), whole, in the order its stack keeps
+//   them; then the notes this sheet's bubbles link to (on visible layers), in
+//   specification order - group by group, note by note, so codes read in
+//   sequence - and then the general notes, always last. A general note is
+//   listed on every sheet whose margin includes general notes, and on any
+//   sheet whose bubbles link to it. A priority band, after the leaderless
+//   groups, is reserved here for when notes can be marked important.
 // - HOW A NOTE READS, OVERFLOW AND SPACING are the column's rules
 //   (Na__LayoutEditor__SpecMargin__Column__): code and title in bold on one
 //   line, the text wrapped under it by the PDF's own metrics, a faint rule
@@ -50,6 +52,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.5.0
+// - LEADERLESS NOTES. Entries lists the groups the sheet keeps to list
+//   without leaders (Na__LayoutEditor__SheetRecords__LeaderlessNotes__) FIRST,
+//   whole and in the sheet's order for them, before the notes its bubbles
+//   link to; a note of theirs a bubble links to as well is listed there,
+//   once. Entries, the margin's plan and Report count them apart
+//   (leaderless), and Report says whether they are switched on
+//   (leaderlessOn). Nothing else changes: the regions claim, and the
+//   overspill carries, the notes of a leaderless group exactly as any
+//   other's, and a sheet that lists no group this way plans, draws and
+//   reports exactly as it did.
+//
 // 22-Sep-2026 - Version 1.4.0
 // - OVERSPILL NOTE REGIONS. PlanAll plans the margin and the sheet's regions
 //   in one pass (Na__LeRegions__Place); Plan answers the margin's part of it
@@ -107,6 +121,7 @@
     import { Na__LeLayout__Solve, Na__LeLayout__MarginRect } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import { Na__LeRec__MarginNotes } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeRec__NoteRegionsOn, Na__LeRec__DrawnNoteRegions } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__NoteRegions__.js';
+    import { Na__LeRec__LeaderlessOn, Na__LeRec__ListedLeaderlessGroups } from '../07__Core__SheetData/Na__LayoutEditor__SheetRecords__LeaderlessNotes__.js';
     import { Na__LeSpec__IsLoaded, Na__LeSpec__ListNotes } from './Na__LayoutEditor__SpecData__.js';
     import { Na__LeSpecLink__LinkedNoteIds } from './Na__LayoutEditor__SpecLinks__.js';
     // ------------------------------------------------------------
@@ -126,29 +141,40 @@
 
     // FUNCTION | The Notes a Sheet's Margin Lists, in Order
     // ------------------------------------------------------------
-    // Returns { entries, linked, general, pending }: entries are specification
-    // entries ({ note, group, code, ... }); linked counts the notes listed
-    // because this sheet's bubbles link to them, in whatever group; general
-    // counts the general notes listed only because the margin lists general
-    // notes; pending is true while the specification has not loaded, when
-    // nothing can be listed yet.
+    // Returns { entries, linked, general, leaderless, pending }: entries are
+    // specification entries ({ note, group, code, ... }); linked counts the
+    // notes listed because this sheet's bubbles link to them, in whatever
+    // group; general counts the general notes listed only because the margin
+    // lists general notes; leaderless counts the notes listed only because
+    // their group is one the sheet lists without leaders; pending is true
+    // while the specification has not loaded, when nothing can be listed yet.
+    // So total = leaderless + linked + general, whatever overlaps.
+    // THE LEADERLESS GROUPS COME FIRST, whole, in the order the sheet keeps
+    // them (the Leaderless Notes stack), each group's notes in specification
+    // order. A note of theirs a bubble also links to is listed there, once.
     // ------------------------------------------------------------
     function Na__LeMargin__Entries(sheet) {
         const settings = Na__LeRec__MarginNotes(sheet);
-        if (!Na__LeSpec__IsLoaded()) return { entries : [], linked : 0, general : 0, pending : true };
+        if (!Na__LeSpec__IsLoaded()) return { entries : [], linked : 0, general : 0, leaderless : 0, pending : true };
         const linkedIds = Na__LeSpecLink__LinkedNoteIds(sheet, true);
-        const priority  = [];                                                    // <-- Reserved: notes marked important will be listed first
+        const order     = Na__LeRec__ListedLeaderlessGroups(sheet);             // <-- The groups listed without leaders, top of the stack first; [] while switched off
+        const bands     = order.map(() => []);                                   // <-- One band per group, so the stack's order wins over the specification's
+        const priority  = [];                                                    // <-- Reserved: notes marked important will be listed first after the leaderless groups
         const standard  = [];
         const general   = [];
         let   linked    = 0;
         Na__LeSpec__ListNotes().forEach((entry) => {
             const isLinked = linkedIds.has(entry.note.Note__Id);
             if (isLinked) linked++;
+            const band = order.indexOf(entry.group.Group__Id);
+            if (band !== -1) { bands[band].push(entry); return; }                // <-- Listed whole, bubble or not, a general group too
             if (entry.group.Group__IsGeneral) { if (isLinked || settings.IncludeGeneral) general.push(entry); return; }
             if (isLinked) standard.push(entry);
         });
-        const generalOnly = general.filter((entry) => !linkedIds.has(entry.note.Note__Id)).length;
-        return { entries : priority.concat(standard, general), linked : linked, general : generalOnly, pending : false };
+        const leaderless     = [].concat(...bands);
+        const generalOnly    = general.filter((entry) => !linkedIds.has(entry.note.Note__Id)).length;
+        const leaderlessOnly = leaderless.filter((entry) => !linkedIds.has(entry.note.Note__Id)).length;
+        return { entries : leaderless.concat(priority, standard, general), linked : linked, general : generalOnly, leaderless : leaderlessOnly, pending : false };
     }
     // ------------------------------------------------------------
 
@@ -210,7 +236,7 @@
         const settings = Na__LeRec__MarginNotes(sheet);
         const found    = Na__LeMargin__Entries(sheet);
         const place    = Na__LeRegions__Place(sheet, lay, found.entries, rect ? { rect : rect, options : Na__LeMargin__ColumnOptions(rect, settings) } : null);
-        const margin   = rect ? Object.assign(place.margin, { rect : rect, total : found.entries.length, linked : found.linked, general : found.general, pending : found.pending }) : null;
+        const margin   = rect ? Object.assign(place.margin, { rect : rect, total : found.entries.length, linked : found.linked, general : found.general, leaderless : found.leaderless, pending : found.pending }) : null;
         return { layout : lay, margin : margin, place : place, found : found };
     }
     // ------------------------------------------------------------
@@ -221,7 +247,7 @@
     // Returns null when the sheet has no margin, else
     // { rect, runs [{ text, x, baselineY, fontMm, weight, colour, trackingMm }],
     //   rules [{ X1, Y1, X2, Y2 }],
-    //   total, shown, overflow, linked, general, pending,
+    //   total, shown, overflow, linked, general, leaderless, pending,
     //   noteGapMm (the gap the notes were laid at, NoteGapMm to NoteGapMaxMm) }.
     // total is every note the sheet lists; shown and overflow are the
     // margin's own - a note a region claims was never the margin's to show,
@@ -285,7 +311,10 @@
     // ------------------------------------------------------------
     // { on             the margin column is drawn
     //   regionsOn      the regions are switched on (drawn or not: there may be none)
+    //   leaderlessOn   the leaderless notes are switched on (ticked groups or not)
     //   settings, rect, total, linked, general, pending   as they always were
+    //   leaderless     notes listed only because their group is listed
+    //                  without leaders (Entries)
     //   shown          notes printed in the margin
     //   inRegions      notes printed in a region
     //   overflow       notes that had a place and fitted nowhere - with no
@@ -318,6 +347,8 @@
             unlisted       : place ? place.unlisted : 0,
             linked         : found ? found.linked : 0,
             general        : found ? found.general : 0,
+            leaderlessOn   : Na__LeRec__LeaderlessOn(sheet),
+            leaderless     : found ? found.leaderless : 0,
             pending        : found ? found.pending : !Na__LeSpec__IsLoaded(),
             regions        : place ? place.regions.map((p) => ({
                 id : p.id, index : p.index, rect : p.rect, title : p.title, overspill : p.overspill,

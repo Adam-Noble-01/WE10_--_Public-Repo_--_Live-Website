@@ -57,6 +57,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.12.0
+// - THE RUBBER BOX IS DRAWN LIKE THE BAND: THIN AT ANY ZOOM, ON ITS EDGE.
+//   Adam: the rectangle preview was "too thick" zoomed in and "set in
+//   slightly" from the snapped corner. Its 4 / zoom border hit Chrome's
+//   one-device-pixel floor before the paper's scale, and a border-box
+//   border lies inside the box. PlaceBox lays it out at its screen size plus
+//   one stroke, scales it back and pulls it back half a stroke, so the
+//   stroke's middle is the rectangle's edge; laid again when a zoom settles.
+//   Box and band are now 2 px on screen (were 4), the vector previews' width.
+//   EdgePx, used by nothing else, is gone.
+//
 // 21-Sep-2026 - Version 1.11.0
 // - A GRIP IS PAINTED ON ITS POINT, AND THE BAND RUNS TO THE POINT IT RUNS TO.
 //   Found from the snap marker standing beside the corner it had found (Adam:
@@ -217,7 +228,9 @@
     let Na__LeGrips__Band   = null;
     let Na__LeGrips__BandAt = null;        // <-- { sx, sy, ex, ey } paper millimetres of the band on show, so a settled zoom can lay it again
     let Na__LeGrips__Box    = null;
+    let Na__LeGrips__BoxAt  = null;        // <-- { sx, sy, ex, ey } paper millimetres of the box on show, so a settled zoom can lay it again
     let Na__LeGrips__Insert = null;
+    const Na__LeGrips__BOX_EDGE_PX = 2;    // <-- The box's edge on SCREEN, the vector previews' LinePx
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Features That Draw Grips of Their Own on a Selected Group
@@ -280,26 +293,6 @@
         grip.style.top             = '0px';
         grip.style.transformOrigin = '0 0';
         grip.style.transform       = 'translate(' + xPx + 'px, ' + yPx + 'px) scale(' + (1 / (zoom > 0 ? zoom : 1)) + ')' + (turnDeg ? ' rotate(' + turnDeg + 'deg)' : '') + ' translate(-50%, -50%)';
-    }
-    // ------------------------------------------------------------
-
-
-    // HELPER FUNCTION | An Edge Width That Is This Many Pixels On Screen
-    // ------------------------------------------------------------
-    // For what is still sized in paper pixels - the rubber box. Everything in
-    // the handles layer sits inside the paper's scale(zoom), so a width
-    // written here is multiplied by the zoom before it is seen: one screen
-    // pixel is 1 / zoom.
-    //
-    // THIS USED TO READ Math.max(1, 1 / zoom), WHICH PUT THE FLOOR IN THE WRONG
-    // UNITS. Zoomed in, 1 / zoom is below 1, so the clamp pinned the edge at one
-    // PAPER pixel - which is zoom pixels on screen. At 4x a grip is 9 px across
-    // with a 4 px border on each side, and a picked vertex is a white ring with
-    // no red left in the middle; further in it disappears altogether. The clamp
-    // only ever bit while zoomed in, which is exactly where the grips are needed.
-    // ------------------------------------------------------------
-    function Na__LeGrips__EdgePx(screenPx, zoom) {
-        return (screenPx / (zoom > 0 ? zoom : 1));
     }
     // ------------------------------------------------------------
 
@@ -585,16 +578,53 @@
         if (!layer) return false;
         const sx = Array.isArray(start) ? start[0] : start.x, sy = Array.isArray(start) ? start[1] : start.y;
         const ex = Array.isArray(end)   ? end[0]   : end.x,   ey = Array.isArray(end)   ? end[1]   : end.y;
-        if (!Na__LeGrips__Box) Na__LeGrips__Box = document.createElement('div');
+        if (!Na__LeGrips__Box) {
+            Na__LeGrips__Box = document.createElement('div');
+            window.addEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeGrips__OnZoomSettledBox);   // <-- Once, with the one box there ever is, as the band does
+        }
         Na__LeGrips__Box.className = 'na-le-rubber-box' + (square ? ' na-le-rubber-box--square' : '');
         if (Na__LeGrips__Box.parentNode !== layer) layer.appendChild(Na__LeGrips__Box);
-        const ppm = Na__LeSurface__GetPixelsPerMm();
-        Na__LeGrips__Box.style.left        = (Math.min(sx, ex) * ppm) + 'px';
-        Na__LeGrips__Box.style.top         = (Math.min(sy, ey) * ppm) + 'px';
-        Na__LeGrips__Box.style.width       = (Math.abs(ex - sx) * ppm) + 'px';
-        Na__LeGrips__Box.style.height      = (Math.abs(ey - sy) * ppm) + 'px';
-        Na__LeGrips__Box.style.borderWidth = Na__LeGrips__EdgePx(1, Na__LeSurface__GetZoom()) + 'px';
+        Na__LeGrips__BoxAt = { sx : sx, sy : sy, ex : ex, ey : ey };
+        Na__LeGrips__PlaceBox();
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Lay the Box Over Its Rectangle, Its Edge Centred on the Rectangle's Edge
+    // ------------------------------------------------------------
+    // THE BOX IS DRAWN THE WAY THE BAND IS (PlaceBand), for the same reasons.
+    // It was laid out in paper pixels with a border of 4 / zoom, and Chrome
+    // floors a border at one device pixel BEFORE the paper's scale - so zoomed
+    // in, the zoom multiplied the floor back up into a bar many pixels thick.
+    // And a border-box border lies wholly INSIDE the box, so the dashed edge
+    // stood a whole stroke in from the corner it runs to (Adam, 22-Sep-2026:
+    // "the line is set in slightly"). Now the element is its size ON SCREEN
+    // plus one stroke, with a whole-pixel border, carried to the corner and
+    // scaled back by one transform, and pulled back by half a stroke - so the
+    // MIDDLE of the stroke is the rectangle's edge, at any zoom.
+    // ------------------------------------------------------------
+    function Na__LeGrips__PlaceBox() {
+        const box = Na__LeGrips__Box, at = Na__LeGrips__BoxAt;
+        if (!box || !at) return;
+        const ppm  = Na__LeSurface__GetPixelsPerMm();
+        const zoom = Math.max(1e-6, Na__LeSurface__GetZoom());
+        const edge = Na__LeGrips__BOX_EDGE_PX;
+        box.style.left            = '0px';
+        box.style.top             = '0px';
+        box.style.transformOrigin = '0 0';
+        box.style.borderWidth     = edge + 'px';
+        box.style.width           = (Math.abs(at.ex - at.sx) * ppm * zoom + edge) + 'px';
+        box.style.height          = (Math.abs(at.ey - at.sy) * ppm * zoom + edge) + 'px';
+        box.style.transform       = 'translate(' + (Math.min(at.sx, at.ex) * ppm) + 'px, ' + (Math.min(at.sy, at.ey) * ppm) + 'px) scale(' + (1 / zoom) + ') translate(' + (-edge / 2) + 'px, ' + (-edge / 2) + 'px)';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Zoom Has Settled: the Box on Show Takes Its Thickness Again
+    // ------------------------------------------------------------
+    function Na__LeGrips__OnZoomSettledBox() {
+        if (Na__LeGrips__Box && Na__LeGrips__Box.parentNode) Na__LeGrips__PlaceBox();
     }
     // ------------------------------------------------------------
 
@@ -603,6 +633,7 @@
     // ------------------------------------------------------------
     function Na__LeGrips__HideBox() {
         if (Na__LeGrips__Box && Na__LeGrips__Box.parentNode) Na__LeGrips__Box.parentNode.removeChild(Na__LeGrips__Box);
+        Na__LeGrips__BoxAt = null;
     }
     // ------------------------------------------------------------
 

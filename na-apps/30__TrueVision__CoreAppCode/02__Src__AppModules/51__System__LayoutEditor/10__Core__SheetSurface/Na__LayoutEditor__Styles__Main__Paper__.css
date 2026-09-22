@@ -299,7 +299,7 @@ body.na-le-vector-hold:not(.na-le-viewer--active) .na-le-frame--2d {
 .na-le-rubber-band {
     position                           : absolute;
     height                             : 0;
-    border-top                         : 1px dashed #336699;
+    border-top                         : 2px dashed #336699;
     transform-origin                   : 0 0;
     pointer-events                     : none;
 }
@@ -320,12 +320,13 @@ body.na-le-vector-hold:not(.na-le-viewer--active) .na-le-frame--2d {
 
 /* The rectangle tool's rubber box: the four edges the rectangle will     */
 /* have, dashed like the band, and solid while Shift holds it square.     */
-/* The edge width is set inline, counter-scaled like the grips.           */
+/* Laid out at its size on screen and scaled back (Grips PlaceBox), so    */
+/* the edge is a true 2 px at any zoom and centred on the rectangle.      */
 
 .na-le-rubber-box {
     position                           : absolute;
     box-sizing                         : border-box;
-    border                             : 1px dashed #336699;
+    border                             : 2px dashed #336699;
     pointer-events                     : none;
 }
 

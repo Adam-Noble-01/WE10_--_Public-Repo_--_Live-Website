@@ -111,6 +111,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - DrawPdf takes an optional fourth argument, holes (a holed vector's, from
+//   the vector tools' Boolean section): every ring is traced into the clip and
+//   it is taken even-odd, so the gradient leaves the holes bare. Without it the
+//   clip is drawn exactly as before. TrueVision first; not in ValeVision.
+//
 // 13-Sep-2026 - Version 1.0.0
 // - Initial implementation: the record, the premultiplied colour curve, the SVG
 //   and PDF painters, the panel preview and the Vectors panel rows.
@@ -129,6 +135,7 @@
         Na__LePanels__Row,
         Na__LePanels__Input
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
+    import { Na__LeRings__Spans } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';   // <-- A leaf with no imports: a holed shape's rings, for the PDF clip
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -528,8 +535,13 @@
     // frame: its length along u from the start colour, its height along v. The
     // corner handed to jsPDF is where the strip starts along u and sits lowest
     // along v, and that single point plus the angle places the whole strip.
+    //
+    // holes is optional: where each hole of a holed shape begins in `points`
+    // (Na__LayoutEditor__ShapeRings__). Given, every ring is traced into the
+    // clip and it is taken even-odd, so the gradient stops at every hole as
+    // the screen's does.
     // ------------------------------------------------------------
-    function Na__LeGrad__DrawPdf(doc, points, gradient) {
+    function Na__LeGrad__DrawPdf(doc, points, gradient, holes) {
         const g    = Na__LeGrad__Normalise(gradient);
         const axis = g ? Na__LeGrad__Axis(points, g.Gradient__AngleDeg) : null;
         if (!doc || !axis) return false;
@@ -541,13 +553,16 @@
         if (!png) return false;
         const cornerX = (aStart * axis.u.x) + (bStart * axis.v.x);
         const cornerY = (aStart * axis.u.y) + (bStart * axis.v.y);
-        const first   = points[0];
-        const rel     = [];
-        for (let i = 1; i < points.length; i++) rel.push([ points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1] ]);
+        const holed   = Array.isArray(holes) && holes.length > 0;
+        const rings   = holed ? Na__LeRings__Spans(points.length, holes).map((span) => points.slice(span[0], span[1])) : [ points ];
         doc.saveGraphicsState();
         try {
-            doc.lines(rel, first[0], first[1], [ 1, 1 ], null, true);          // <-- A path with no paint operator: it becomes the clip
-            doc.clip();
+            rings.forEach((ring) => {                                           // <-- Paths with no paint operator: together they become the clip
+                const rel = [];
+                for (let i = 1; i < ring.length; i++) rel.push([ ring[i][0] - ring[i - 1][0], ring[i][1] - ring[i - 1][1] ]);
+                doc.lines(rel, ring[0][0], ring[0][1], [ 1, 1 ], null, true);
+            });
+            if (holed) doc.clip('evenodd'); else doc.clip();
             doc.discardPath();
             doc.addImage(png, 'PNG', cornerX, cornerY - bLen, aLen, bLen, undefined, undefined, g.Gradient__AngleDeg);
         } finally {

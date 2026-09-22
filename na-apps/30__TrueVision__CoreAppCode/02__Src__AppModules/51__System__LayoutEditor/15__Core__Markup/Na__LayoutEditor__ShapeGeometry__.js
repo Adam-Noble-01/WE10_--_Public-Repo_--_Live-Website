@@ -18,6 +18,11 @@
 //   what SVG and PDF both do, so Closed only decides whether the closing
 //   edge is drawn. With the edges off the shape is its fill alone; the
 //   record never allows both to be off at once.
+// - A HOLED SHAPE (Shape__Holes, made by the Boolean tools) keeps its outline
+//   and then each hole in the same run of points; every function here that
+//   walks edges or asks what is inside reads the rings from
+//   Na__LayoutEditor__ShapeRings__, and every other one - bounds, a move, a
+//   vertex under the pointer - works on the run as it always did.
 // - Nothing here touches the model or the DOM: the markup bridge draws
 //   through Push, the tools hit test through Hit and VertexAt, and the
 //   grips read Points.
@@ -33,12 +38,23 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__ShapeGeometry__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; holed shapes (Shape__Holes), TrueVision first on 22-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.9.0
+// - HOLES (islands), for the vector tools' Boolean section. A shape carrying
+//   Shape__Holes holds its outline and then each hole in Shape__Points
+//   (Na__LayoutEditor__ShapeRings__). Segments, ClosestOnEdge and the new
+//   EdgeEnd walk each ring's own edges - none from the outline to a hole;
+//   Contains is even-odd, so a hole is not inside; Push hands the holes to the
+//   primitive. New: Holes, Rings, EdgePairs, EdgeEnd, and HolesAfterInsert and
+//   RemoveVertices, which give inserting and deleting a vertex the hole starts
+//   to send with the points. A shape without the key takes exactly the path
+//   it always did, and the leaf is never asked about it.
+//
 // 21-Sep-2026 - Version 1.8.0
 // - A Shape__Qr code is painted in the QR system's portalDarkColour
 //   (#595959, hsl(0, 0%, 35%)) instead of its black: the Project Portal
@@ -108,6 +124,7 @@
     // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js
     import { Na__LeImgDraw__Push } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Paint__.js';
     // @delegate: ../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Paint__.js
+    import { Na__LeRings__Of, Na__LeRings__Edges, Na__LeRings__Next, Na__LeRings__Split, Na__LeRings__Contains, Na__LeRings__AfterInsert, Na__LeRings__Remove } from './Na__LayoutEditor__ShapeRings__.js';   // <-- A leaf: a holed vector's rings, asked only of a shape that has holes
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -138,14 +155,69 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Where a Shape's Holes Begin in Its Points ([] for nearly every shape)
+    // ------------------------------------------------------------
+    // Shape__Holes (Na__LayoutEditor__ShapeRings__), cleaned. The key is
+    // absent from every vector but a holed one, so the leaf is never asked
+    // about any other and a plain shape takes exactly the path it always did.
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__Holes(shape) {
+        return (shape && Array.isArray(shape.Shape__Holes) && shape.Shape__Holes.length > 0) ? Na__LeRings__Of(shape) : [];
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Shape's Rings: [ outline ] for a plain vector, the outline then each hole for a holed one
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__Rings(shape) {
+        const pts   = Na__LeShapeGeo__Points(shape);
+        const holes = Na__LeShapeGeo__Holes(shape);
+        return holes.length ? Na__LeRings__Split(pts, holes) : [ pts ];
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Every Edge, Including the Closing One of a Polygon
     // ------------------------------------------------------------
+    // A holed shape's rings each close on themselves: no edge ever runs from
+    // the outline to a hole.
+    // ------------------------------------------------------------
     function Na__LeShapeGeo__Segments(shape) {
-        const pts = Na__LeShapeGeo__Points(shape);
+        const pts   = Na__LeShapeGeo__Points(shape);
+        const holes = Na__LeShapeGeo__Holes(shape);
+        if (holes.length) return Na__LeRings__Edges(pts.length, holes, true).map((e) => [ pts[e[0]], pts[e[1]] ]);
         const out = [];
         for (let i = 1; i < pts.length; i++) out.push([ pts[i - 1], pts[i] ]);
         if (shape.Shape__Closed === true && pts.length > 2) out.push([ pts[pts.length - 1], pts[0] ]);
         return out;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Every Edge as [ from, to ] Vertex Indices (what Segments walks, by index)
+    // ------------------------------------------------------------
+    // For a caller that has to know WHICH points an edge joins - the snaps
+    // leave out the two edges a dragged vertex carries with it.
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__EdgePairs(shape) {
+        const n     = Na__LeShapeGeo__Points(shape).length;
+        const holes = Na__LeShapeGeo__Holes(shape);
+        return Na__LeRings__Edges(n, holes, shape && shape.Shape__Closed === true);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Point the Edge Starting at a Vertex Runs To (-1 when none does)
+    // ------------------------------------------------------------
+    // The next point, or the first point again from the last of a closed
+    // shape; on a holed shape, the first point of that vertex's OWN ring.
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__EdgeEnd(shape, index) {
+        const n     = Na__LeShapeGeo__Points(shape).length;
+        const holes = Na__LeShapeGeo__Holes(shape);
+        if (holes.length) return Na__LeRings__Next(n, holes, index, true);
+        if (index + 1 < n) return index + 1;
+        return (shape.Shape__Closed === true && n > 2) ? 0 : -1;
     }
     // ------------------------------------------------------------
 
@@ -205,9 +277,15 @@
 
     // FUNCTION | Is a Point Inside a Shape (ray casting, the run treated as closed)
     // ------------------------------------------------------------
+    // A HOLE IS NOT INSIDE. On a holed shape a point is inside when an odd
+    // number of its rings go round it - the even-odd rule both painters fill
+    // it by - so a click in a hole goes through to whatever is under it.
+    // ------------------------------------------------------------
     function Na__LeShapeGeo__Contains(shape, point) {
         const pts = Na__LeShapeGeo__Points(shape);
         if (pts.length < 3) return false;
+        const holes = Na__LeShapeGeo__Holes(shape);
+        if (holes.length) return Na__LeRings__Contains(pts, holes, point.x, point.y);
         let inside = false;
         for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
             const xi = pts[i][0], yi = pts[i][1], xj = pts[j][0], yj = pts[j][1];
@@ -258,10 +336,13 @@
         const pts = Na__LeShapeGeo__Points(shape);
         const n   = pts.length;
         if (n < 2 || !point) return null;
-        const edges = (shape.Shape__Closed === true && n > 2) ? n : n - 1;
+        const holes = Na__LeShapeGeo__Holes(shape);
+        const pairs = holes.length ? Na__LeRings__Edges(n, holes, true) : null;   // <-- A holed shape: each ring's own edges, the index still the vertex the edge starts at
+        const edges = pairs ? pairs.length : ((shape.Shape__Closed === true && n > 2) ? n : n - 1);
         let best = null;
-        for (let i = 0; i < edges; i++) {
-            const a = pts[i], b = pts[(i + 1) % n];
+        for (let e = 0; e < edges; e++) {
+            const i = pairs ? pairs[e][0] : e;
+            const a = pts[i], b = pts[pairs ? pairs[e][1] : (i + 1) % n];
             const abx = b[0] - a[0], aby = b[1] - a[1];
             const len2 = (abx * abx) + (aby * aby);
             let t = len2 > 0 ? (((point.x - a[0]) * abx) + ((point.y - a[1]) * aby)) / len2 : 0;
@@ -282,6 +363,38 @@
         const at   = Math.max(0, Math.min(next.length, Math.round(edgeIndex) + 1));
         next.splice(at, 0, [ pt[0], pt[1] ]);
         return next;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Hole Starts to Send With an Inserted Point (undefined when the shape has none)
+    // ------------------------------------------------------------
+    // Goes in the same UpdateShape patch as InsertPoint's points: every hole
+    // that starts after the edge moves up one. undefined leaves a plain
+    // shape's record without the key, exactly as before.
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__HolesAfterInsert(shape, edgeIndex) {
+        const holes = Na__LeShapeGeo__Holes(shape);
+        return holes.length ? Na__LeRings__AfterInsert(holes, Math.round(edgeIndex)) : undefined;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Patch That Takes Picked Vertices Out: { points, holes? }, or Null When Too Few Would Be Left
+    // ------------------------------------------------------------
+    // floor is the fewest the OUTLINE may keep. On a holed shape a hole left
+    // with fewer than three corners goes whole, and every later hole's start
+    // follows the points out; on any other the patch is only the points.
+    // ------------------------------------------------------------
+    function Na__LeShapeGeo__RemoveVertices(shape, picked, floor) {
+        const pts   = Na__LeShapeGeo__Points(shape);
+        const holes = Na__LeShapeGeo__Holes(shape);
+        if (holes.length) {
+            const kept = Na__LeRings__Remove(pts, holes, picked, floor);
+            return (kept && kept.points.length < pts.length) ? { points : kept.points, holes : kept.holes } : null;
+        }
+        const points = pts.filter((point, index) => picked.indexOf(index) === -1).map((point) => [ point[0], point[1] ]);
+        return (points.length < floor || points.length === pts.length) ? null : { points : points };
     }
     // ------------------------------------------------------------
 
@@ -368,10 +481,17 @@
         const code = (shape.Shape__Qr && typeof shape.Shape__Qr === 'object') ? shape.Shape__Qr : null;
         if (!stroked && !fill && !gradient && !hatch && !code) return false;  // <-- Nothing to paint
         if (stroked || fill || gradient || hatch) {
-            Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient,
-                { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity,
-                  hatch : hatch, hatchInk : shape.Shape__StrokeColour,
-                  dashArray : stroked ? Na__LeDash__PatternMm(shape.Shape__LineStyle) : [] });   // <-- A record from before the toggle has no line style and paints solid
+            // A HOLED SHAPE is one primitive whose rings are each their own
+            // closed subpath, filled even-odd: the fill, the gradient and the
+            // hatch stop at every hole, and the edges ring each one. `holes`
+            // is only handed over when there are some, so a plain shape's
+            // primitive is exactly what it always was.
+            const holes = Na__LeShapeGeo__Holes(shape);
+            const extra = { fillOpacity : shape.Shape__FillOpacity, strokeOpacity : shape.Shape__StrokeOpacity,
+                            hatch : hatch, hatchInk : shape.Shape__StrokeColour,
+                            dashArray : stroked ? Na__LeDash__PatternMm(shape.Shape__LineStyle) : [] };   // <-- A record from before the toggle has no line style and paints solid
+            if (holes.length) extra.holes = holes;
+            Na__LeChrome__PushPolyline(list, pts.map((p) => [ p[0], p[1] ]), stroked ? shape.Shape__StrokeColour : null, Na__LeShapeGeo__StrokeMm(shape), fill, closed, gradient, extra);
         }
         if (code) Na__LeShapeGeo__PushQr(list, shape);
         return true;
@@ -389,7 +509,11 @@
     // ------------------------------------------------------------
     export {
         Na__LeShapeGeo__Points,
+        Na__LeShapeGeo__Holes,
+        Na__LeShapeGeo__Rings,
         Na__LeShapeGeo__Segments,
+        Na__LeShapeGeo__EdgePairs,
+        Na__LeShapeGeo__EdgeEnd,
         Na__LeShapeGeo__Bounds,
         Na__LeShapeGeo__Translated,
         Na__LeShapeGeo__DistanceToEdge,
@@ -398,6 +522,8 @@
         Na__LeShapeGeo__VertexAt,
         Na__LeShapeGeo__ClosestOnEdge,
         Na__LeShapeGeo__InsertPoint,
+        Na__LeShapeGeo__HolesAfterInsert,
+        Na__LeShapeGeo__RemoveVertices,
         Na__LeShapeGeo__StrokeMm,
         Na__LeShapeGeo__Push
     };

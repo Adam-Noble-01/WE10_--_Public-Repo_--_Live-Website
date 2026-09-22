@@ -1,0 +1,34 @@
+{
+    "LayoutEditor__MoveAnchor__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__MoveAnchor__Config__.json",
+        "Meta__Description" : "The move anchor: Ctrl+click one item or one group and a red cross comes up in the middle of its box, with the Move tool. Drag the cross onto any snap point - the item's own corners included - to re-place it; drag the item and it is carried by the cross alone, which snaps as a drawn point does. So an item is moved from this point to that point. Double-click the cross, or Ctrl+click the item again, to put it back in the middle. The key is in Na__Hotkeys__DrawingTabs__.json (SelectionBindings MoveAnchorModifier), the colours in Na__LayoutEditor__Styles__ObjectSnap__.css. Nothing here is written to a sheet: the cross is a way of moving, not part of the drawing.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "22-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Research"    : "SketchUp LayOut's move point, read 22-Sep-2026 from LayOut users' descriptions (SketchUcation 'Layout move tool'; SketchUp forums 'LO default center point does not snap to other snapping points' and 'LayOut 2024 Object Snapping'); SketchUp's own help page on moving entities in LayOut does not describe it. COPIED: a crosshair in the middle of the selection's box that can be dragged to another point and is then the point the entity is moved by. NOT COPIED, DELIBERATELY: in LayOut it is on every selection all the time, whether a move is wanted or not - here it is asked for with Ctrl+click and never shown otherwise (Adam: 'ours will be better, only switches to using the anchor point when control is held when selecting'); users report it does not snap to other entities' points, and that since LayOut 2024 a move only snaps by a point if the press lands near one - here the cross snaps through the editor's own object snap (every running mode, every target, the grid) both while it is re-placed and while the item is carried by it, and it snaps wherever on the item the press lands."
+    },
+
+    "LayoutEditor__MoveAnchor__Behaviour": {
+        "Behaviour__Description"      : "Whether the cross is offered, what it snaps to while it is re-placed, and whether it says what to do.",
+        "Behaviour__Enabled"          : true,
+        "Behaviour__EnabledNote"      : "False and a Ctrl+click only adds to the selection, as it did before the cross existed.",
+        "Behaviour__SnapToOwnBox"     : true,
+        "Behaviour__SnapToOwnBoxNote" : "True and a cross being re-placed also snaps to the item's own box: its four corners (while Endpoint runs), the middle of each side (Midpoint) and its middle (Centre) - the points LayOut's move point is dragged to. For a text item, a viewport or a group they are often the only corners it has. Everything object snap offers is offered as well, the item's own vertices included.",
+        "Behaviour__SayWhatToDo"      : true,
+        "Behaviour__SayWhatToDoNote"  : "True writes a line above the Measurements box when the cross is set, placed or put back in the middle (the Labels below), unless a value is being typed there."
+    },
+
+    "LayoutEditor__MoveAnchor__Look": {
+        "Look__Description"   : "The cross on the paper, in screen pixels at any zoom.",
+        "Look__CrossSizePx"   : 26,
+        "Look__GrabRadiusPx"  : 10,
+        "Look__GrabRadiusNote": "How close a press has to land to the cross to take the cross rather than the item under it. A press further away moves the item, carried by the cross."
+    },
+
+    "LayoutEditor__MoveAnchor__Labels": {
+        "Labels__Description" : "Every word the move anchor puts on the screen.",
+        "Labels__Armed"       : "Move anchor set. Drag the red cross onto a point to move by it, then drag the item. Double-click the cross to centre it.",
+        "Labels__Placed"      : "Move anchor placed. Drag the item to move it by the cross.",
+        "Labels__Recentred"   : "Move anchor back in the middle."
+    }
+}

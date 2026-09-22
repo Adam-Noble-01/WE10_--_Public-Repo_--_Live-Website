@@ -27,9 +27,10 @@
 //   has already taken the drawing scale off.
 // - The shape is created silently on the first click and announced once
 //   on finishing, so a whole shape is one undo step. While it is being
-//   drawn, Ctrl+Z takes the last vertex off (the first vertex abandons the
-//   shape) and Ctrl+Y puts a taken-off vertex back; a new click or a typed
-//   length clears what redo was holding.
+//   drawn, Backspace or Ctrl+Z takes the last vertex off (the first vertex
+//   abandons the shape) and Ctrl+Y puts a taken-off vertex back; a new click
+//   or a typed length clears what redo was holding. The keys are wired in
+//   Na__LayoutEditor__SheetTools__Keyboard__.
 // - Edge colour, edge weight (points), whether the edges draw at all and
 //   the fill come from the Vectors panel's defaults; the panel edits them
 //   afterwards. A shape being drawn always shows its edges, whatever the

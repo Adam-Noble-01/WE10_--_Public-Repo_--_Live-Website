@@ -687,6 +687,26 @@
         "9111"
       ],
       "port": 9112
+    },
+    {
+      "name": "tv-leaderless-guarded",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "C:/Users/adamw/AppData/Local/Temp/claude/D--11-RefLib--StudioRepository--RemoteSystem-NaWeb-na-apps-30--TrueVision--CoreAppCode/8fb118d9-0623-4bda-bea5-8bd4e4edca21/scratchpad/Na__Leaderless__GuardedServer__.py",
+        "9122",
+        "9121"
+      ],
+      "port": 9122
+    },
+    {
+      "name": "tv-rubberbox-guarded",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "C:/Users/adamw/AppData/Local/Temp/claude/D--11-RefLib--StudioRepository--RemoteSystem-NaWeb-na-apps-30--TrueVision--CoreAppCode/5939778d-5f20-4558-b95e-02888e2aeb90/scratchpad/Na__Booleans__GuardedServer__.py",
+        "9151",
+        "9150"
+      ],
+      "port": 9151
     }
   ]
 }

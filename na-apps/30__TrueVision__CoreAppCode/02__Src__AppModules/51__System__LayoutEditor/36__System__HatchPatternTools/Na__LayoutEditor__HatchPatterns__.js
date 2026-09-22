@@ -34,6 +34,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - DrawPdf's options take holes (a holed vector's, from the vector tools'
+//   Boolean section): the clip is every ring, each closed, taken even-odd, so
+//   the stamped tiles stop at the holes. Without it the clip is drawn exactly
+//   as before. The ring arithmetic is done in place, so this stays a leaf.
+//
 // 21-Sep-2026 - Version 1.3.0
 // - A USE OF A PATTERN MAY SET ITS OWN LINE WEIGHT AND LINE COLOUR. Adam:
 //   "A line thickness control for the pattern. A line colour for the pattern,
@@ -810,12 +816,29 @@
         const cos = Math.cos(rad), sin = Math.sin(rad);
         const rgb = Na__LeHatch__Rgb(opts.colour);
 
+        // A HOLED SHAPE (options.holes: where each hole begins in `points`,
+        // already cleaned by the shape geometry) is clipped to every ring at
+        // once, even-odd, so the tile stops at each hole as the screen's
+        // pattern does; each ring is closed on itself. Worked out here rather
+        // than imported, so this module stays a leaf.
+        const holed = Array.isArray(opts.holes) && opts.holes.length > 0;
         let clipped = false;
         try {
             doc.saveGraphicsState();
-            doc.moveTo(points[0][0], points[0][1]);
-            for (let i = 1; i < points.length; i++) doc.lineTo(points[i][0], points[i][1]);
-            doc.clip();
+            if (holed) {
+                const starts = [ 0 ].concat(opts.holes);
+                starts.forEach((start, k) => {
+                    const end = k + 1 < starts.length ? starts[k + 1] : points.length;
+                    doc.moveTo(points[start][0], points[start][1]);
+                    for (let i = start + 1; i < end; i++) doc.lineTo(points[i][0], points[i][1]);
+                    doc.close();
+                });
+                doc.clip('evenodd');
+            } else {
+                doc.moveTo(points[0][0], points[0][1]);
+                for (let i = 1; i < points.length; i++) doc.lineTo(points[i][0], points[i][1]);
+                doc.clip();
+            }
             doc.discardPath();
             clipped = true;
         } catch (error) {

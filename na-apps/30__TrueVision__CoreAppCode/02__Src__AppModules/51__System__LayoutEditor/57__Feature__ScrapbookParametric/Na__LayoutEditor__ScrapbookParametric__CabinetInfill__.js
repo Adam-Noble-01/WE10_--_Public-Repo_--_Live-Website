@@ -27,8 +27,11 @@
 // - THE FILL UNDERNEATH IS OFF UNTIL IT IS WANTED. Off, the cross and its
 //   label are all there is, and whatever the model draws inside the cabinet -
 //   doors, shelves, a hanging rail - shows through. On, a white rectangle
-//   under everything blanks it out. It is an ordinary vector: open the group
-//   and give it any colour, and the element keeps that colour from then on.
+//   under everything blanks it out, with a rule round it - Adam's Vectors
+//   standard, Soft Black at 0.3 pt (22-Sep-2026) - so the white reads as a
+//   boundary and not a hole. Both are ordinary vectors: open the group and
+//   give either any colour, weight, or take the rule off, and the element
+//   keeps that choice from then on.
 // - WHAT IS RESTYLED BY HAND IS KEPT (adopt). The geometry is always this
 //   type's - every rebuild puts the cross back corner to corner and the label
 //   back in the middle - but a colour, weight or dash given to a member inside
@@ -83,6 +86,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - The fill underneath now carries a rule too, FillLineColour at
+//   FillLinePt (Soft Black, 0.3 pt as shipped) - a white blank with no edge
+//   read as a hole cut in the drawing. Stroked, coloured and weighed like
+//   the box's own rule: a house default while nobody has said otherwise,
+//   restyled or taken off by hand and kept, never offered in the panel.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - After Adam used it: the one corner grip, stood where the drop had put
 //   the origin's opposite corner, made the block "impossible to use". Now a
@@ -116,7 +126,7 @@
     const Na__LeParamInfill__COVER_SLACK_MM  = 0.01;                          // <-- How close a rectangle must lie to the infill's own edges to be taken for its fill
     const Na__LeParamInfill__DASH_KINDS      = Object.freeze([ 'dashed', 'dotted', 'centre', 'hidden' ]);
     const Na__LeParamInfill__KEEP            = Object.freeze([ 'WidthMm', 'HeightMm', 'Label', 'LabelText', 'Orientation', 'TextSizeMm', 'Fill',
-                                                                'FillColour', 'FillOpacity', 'LineColour', 'LinePt', 'LineDash',
+                                                                'FillColour', 'FillOpacity', 'FillLineColour', 'FillLinePt', 'FillStroked', 'LineColour', 'LinePt', 'LineDash',
                                                                 'BoxFill', 'BoxLineColour', 'BoxLinePt', 'BoxDash', 'BoxStroked', 'TextColour', 'TextWeight' ]);
     // ------------------------------------------------------------
 
@@ -151,7 +161,9 @@
         LabelClearMm           : 1,
         MaxLines               : 3,
         LineSpacing            : 1.2,
-        FillColour             : '#ffffff'
+        FillColour             : '#ffffff',
+        FillLineColour         : '#333333',
+        FillLinePt             : 0.3
     });
     // ------------------------------------------------------------
 
@@ -278,18 +290,21 @@
             LineStyle__MarkMm : 0
         });
         return {
-            fillColour    : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'FillColour')) || Na__LeParamInfill__FALLBACK.FillColour,
-            fillOpacity   : 1,
-            lineColour    : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'LineColour')) || Na__LeParamInfill__FALLBACK.LineColour,
-            linePt        : Na__LeParamInfill__Number(config, 'LinePt'),
-            lineDash      : dash(),
-            boxFill       : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'BoxFillColour')) || Na__LeParamInfill__FALLBACK.BoxFillColour,
-            boxLineColour : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'BoxLineColour')) || Na__LeParamInfill__FALLBACK.BoxLineColour,
-            boxLinePt     : Na__LeParamInfill__Number(config, 'BoxLinePt'),
-            boxDash       : dash(),
-            boxStroked    : true,
-            textColour    : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'TextColour')) || Na__LeParamInfill__FALLBACK.TextColour,
-            textWeight    : Na__LeParamInfill__Number(config, 'TextWeight')
+            fillColour     : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'FillColour')) || Na__LeParamInfill__FALLBACK.FillColour,
+            fillOpacity    : 1,
+            fillLineColour : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'FillLineColour')) || Na__LeParamInfill__FALLBACK.FillLineColour,
+            fillLinePt     : Na__LeParamInfill__Number(config, 'FillLinePt'),
+            fillStroked    : true,                                                   // <-- The house fill always has its rule; off is only ever a hand choice, kept by adopt (as boxStroked)
+            lineColour     : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'LineColour')) || Na__LeParamInfill__FALLBACK.LineColour,
+            linePt         : Na__LeParamInfill__Number(config, 'LinePt'),
+            lineDash       : dash(),
+            boxFill        : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'BoxFillColour')) || Na__LeParamInfill__FALLBACK.BoxFillColour,
+            boxLineColour  : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'BoxLineColour')) || Na__LeParamInfill__FALLBACK.BoxLineColour,
+            boxLinePt      : Na__LeParamInfill__Number(config, 'BoxLinePt'),
+            boxDash        : dash(),
+            boxStroked     : true,
+            textColour     : Na__LeParamInfill__Colour(Na__LeParamInfill__Text(config, 'TextColour')) || Na__LeParamInfill__FALLBACK.TextColour,
+            textWeight     : Na__LeParamInfill__Number(config, 'TextWeight')
         };
     }
     // ------------------------------------------------------------
@@ -308,18 +323,21 @@
         const dash   = (a, b) => Na__LeParamInfill__DashKey(a) === Na__LeParamInfill__DashKey(b);
         const fill   = (a, b) => (a === null && b === null) || colour(a, b);
         return [
-            { key : 'FillColour',    house : house.fillColour,    clean : Na__LeParamInfill__Colour,                                        same : colour },
-            { key : 'FillOpacity',   house : house.fillOpacity,   clean : (v) => (typeof v === 'number' && v >= 0 && v <= 1) ? Math.round(v * 1000) / 1000 : null, same : number },
-            { key : 'LineColour',    house : house.lineColour,    clean : Na__LeParamInfill__Colour,                                        same : colour },
-            { key : 'LinePt',        house : house.linePt,        clean : Na__LeParamInfill__Positive,                                      same : number },
-            { key : 'LineDash',      house : house.lineDash,      clean : Na__LeParamInfill__Dash,                                          same : dash,   nullable : true },
-            { key : 'BoxFill',       house : house.boxFill,       clean : (v) => (v === null ? null : Na__LeParamInfill__Colour(v)),        same : fill,   nullable : true },
-            { key : 'BoxLineColour', house : house.boxLineColour, clean : Na__LeParamInfill__Colour,                                        same : colour },
-            { key : 'BoxLinePt',     house : house.boxLinePt,     clean : Na__LeParamInfill__Positive,                                      same : number },
-            { key : 'BoxDash',       house : house.boxDash,       clean : Na__LeParamInfill__Dash,                                          same : dash,   nullable : true },
-            { key : 'BoxStroked',    house : house.boxStroked,    clean : (v) => (typeof v === 'boolean' ? v : null),                       same : (a, b) => a === b },
-            { key : 'TextColour',    house : house.textColour,    clean : Na__LeParamInfill__Colour,                                        same : colour },
-            { key : 'TextWeight',    house : house.textWeight,    clean : Na__LeParamInfill__Positive,                                      same : number }
+            { key : 'FillColour',     house : house.fillColour,     clean : Na__LeParamInfill__Colour,                                        same : colour },
+            { key : 'FillOpacity',    house : house.fillOpacity,    clean : (v) => (typeof v === 'number' && v >= 0 && v <= 1) ? Math.round(v * 1000) / 1000 : null, same : number },
+            { key : 'FillLineColour', house : house.fillLineColour, clean : Na__LeParamInfill__Colour,                                        same : colour },
+            { key : 'FillLinePt',     house : house.fillLinePt,     clean : Na__LeParamInfill__Positive,                                      same : number },
+            { key : 'FillStroked',    house : house.fillStroked,    clean : (v) => (typeof v === 'boolean' ? v : null),                       same : (a, b) => a === b },
+            { key : 'LineColour',     house : house.lineColour,     clean : Na__LeParamInfill__Colour,                                        same : colour },
+            { key : 'LinePt',         house : house.linePt,         clean : Na__LeParamInfill__Positive,                                      same : number },
+            { key : 'LineDash',       house : house.lineDash,       clean : Na__LeParamInfill__Dash,                                          same : dash,   nullable : true },
+            { key : 'BoxFill',        house : house.boxFill,        clean : (v) => (v === null ? null : Na__LeParamInfill__Colour(v)),        same : fill,   nullable : true },
+            { key : 'BoxLineColour',  house : house.boxLineColour,  clean : Na__LeParamInfill__Colour,                                        same : colour },
+            { key : 'BoxLinePt',      house : house.boxLinePt,      clean : Na__LeParamInfill__Positive,                                      same : number },
+            { key : 'BoxDash',        house : house.boxDash,        clean : Na__LeParamInfill__Dash,                                          same : dash,   nullable : true },
+            { key : 'BoxStroked',     house : house.boxStroked,     clean : (v) => (typeof v === 'boolean' ? v : null),                       same : (a, b) => a === b },
+            { key : 'TextColour',     house : house.textColour,     clean : Na__LeParamInfill__Colour,                                        same : colour },
+            { key : 'TextWeight',     house : house.textWeight,     clean : Na__LeParamInfill__Positive,                                      same : number }
         ];
     }
     // ------------------------------------------------------------
@@ -396,8 +414,9 @@
 
     // FUNCTION | The Style an Infill Is Drawn In: the House Style With Its Own Choices Laid Over
     // ------------------------------------------------------------
-    // { fillColour, fillOpacity, lineColour, linePt, lineDash, boxFill,
-    //   boxLineColour, boxLinePt, boxDash, boxStroked, textColour, textWeight }.
+    // { fillColour, fillOpacity, fillLineColour, fillLinePt, fillStroked,
+    //   lineColour, linePt, lineDash, boxFill, boxLineColour, boxLinePt,
+    //   boxDash, boxStroked, textColour, textWeight }.
     // A null lineDash is a solid line and a null boxFill is a box with no fill:
     // both are real choices somebody made inside the group.
     // ------------------------------------------------------------
@@ -406,18 +425,21 @@
         const house = Na__LeParamInfill__House(config);
         const pick  = (key, fallback) => (Object.prototype.hasOwnProperty.call(whole, key) ? whole[key] : fallback);
         return {
-            fillColour    : pick('FillColour',    house.fillColour),
-            fillOpacity   : pick('FillOpacity',   house.fillOpacity),
-            lineColour    : pick('LineColour',    house.lineColour),
-            linePt        : pick('LinePt',        house.linePt),
-            lineDash      : pick('LineDash',      house.lineDash),
-            boxFill       : pick('BoxFill',       house.boxFill),
-            boxLineColour : pick('BoxLineColour', house.boxLineColour),
-            boxLinePt     : pick('BoxLinePt',     house.boxLinePt),
-            boxDash       : pick('BoxDash',       house.boxDash),
-            boxStroked    : pick('BoxStroked',    house.boxStroked),
-            textColour    : pick('TextColour',    house.textColour),
-            textWeight    : pick('TextWeight',    house.textWeight)
+            fillColour     : pick('FillColour',     house.fillColour),
+            fillOpacity    : pick('FillOpacity',    house.fillOpacity),
+            fillLineColour : pick('FillLineColour', house.fillLineColour),
+            fillLinePt     : pick('FillLinePt',     house.fillLinePt),
+            fillStroked    : pick('FillStroked',    house.fillStroked),
+            lineColour     : pick('LineColour',     house.lineColour),
+            linePt         : pick('LinePt',         house.linePt),
+            lineDash       : pick('LineDash',       house.lineDash),
+            boxFill        : pick('BoxFill',        house.boxFill),
+            boxLineColour  : pick('BoxLineColour',  house.boxLineColour),
+            boxLinePt      : pick('BoxLinePt',      house.boxLinePt),
+            boxDash        : pick('BoxDash',        house.boxDash),
+            boxStroked     : pick('BoxStroked',     house.boxStroked),
+            textColour     : pick('TextColour',     house.textColour),
+            textWeight     : pick('TextWeight',     house.textWeight)
         };
     }
     // ------------------------------------------------------------
@@ -608,9 +630,9 @@
             shapes.push({ kind : 'shape', record : {
                 Shape__Points       : Na__LeParamInfill__Rect(0, 0, W, H),
                 Shape__Closed       : true,
-                Shape__Stroked      : false,                                  // <-- A blank, not a box: the cabinet's own outline is the drawing's
-                Shape__StrokeColour : style.lineColour,
-                Shape__StrokePt     : style.linePt,
+                Shape__Stroked      : style.fillStroked !== false,            // <-- A rule round the white, Adam's Vectors standard, so it reads as a boundary and not a hole
+                Shape__StrokeColour : style.fillLineColour,
+                Shape__StrokePt     : style.fillLinePt,
                 Shape__FillColour   : style.fillColour,
                 Shape__FillOpacity  : style.fillOpacity,
                 Shape__LineStyle    : null
@@ -728,8 +750,11 @@
             patch[key] = entry.same(clean, entry.house) ? undefined : clean;    // <-- The house value again: the key comes off
         };
         if (found.fill) {
-            take('FillColour',  found.fill.Shape__FillColour);
-            take('FillOpacity', Number.isFinite(found.fill.Shape__FillOpacity) ? found.fill.Shape__FillOpacity : 1);
+            take('FillColour',     found.fill.Shape__FillColour);
+            take('FillOpacity',    Number.isFinite(found.fill.Shape__FillOpacity) ? found.fill.Shape__FillOpacity : 1);
+            take('FillLineColour', found.fill.Shape__StrokeColour);
+            take('FillLinePt',     found.fill.Shape__StrokePt);
+            take('FillStroked',    found.fill.Shape__Stroked !== false);
         }
         if (found.line) {
             take('LineColour', found.line.Shape__StrokeColour);

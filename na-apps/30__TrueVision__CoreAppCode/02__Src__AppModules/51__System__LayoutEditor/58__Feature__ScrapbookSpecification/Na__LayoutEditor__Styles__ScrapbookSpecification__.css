@@ -36,6 +36,13 @@
  * - ValeVision  : not yet ported.
  *
  * DEVELOPMENT LOG:
+ * 22-Sep-2026 - Version 1.2.0
+ * - The "i" info disclosure, on the Show full notes row rather than a line
+ *   of its own, and the filter/toggle pinned under the tab strip while the
+ *   list scrolls beneath them (the section body's own overflow-y:auto
+ *   turned off for this one section, so the pin can reach the column that
+ *   actually scrolls).
+ *
  * 22-Sep-2026 - Version 1.1.0
  * - The row editor and the located row's halo.
  *
@@ -45,16 +52,102 @@
 
 
 /* ----------------------------------------------------------------- */
+/* REGION  |  Info Disclosure                                        */
+/* ----------------------------------------------------------------- */
+
+/* HOW TO USE THIS TAB, on demand. The instructions ran to four sentences and
+   sat on a line of their own on every visit whether they were wanted or not;
+   now it is a small "i" on the Show full notes row, before its words, and a
+   person opens it once and remembers. Reuses .na-le-note for the revealed
+   text, so it reads exactly as the old paragraph did.
+
+   THE ROW IS A DIV, NOT A LABEL, because the row now holds two things a
+   click means differently for: the icon opens the hint, the caption and
+   checkbox toggle Show full notes. A label wrapping both would forward a
+   click on the icon to the checkbox too. na-le-scrapspec__full-wrap is the
+   actual label - display:contents, so it takes no box of its own and the
+   caption and checkbox still lay out as the row's own flex children. */
+
+.na-le-scrapspec__info-icon {
+    display                            : inline-flex;
+    flex                                : 0 0 auto;
+    align-items                        : center;
+    justify-content                    : center;
+    width                              : 16px;
+    height                             : 16px;
+    margin                             : 0;
+    padding                            : 0;
+    border                             : 1px solid #b7c0c7;
+    border-radius                      : 50%;
+    background                         : #f4f6f8;
+    color                              : #6c757d;
+    font-family                        : Georgia, 'Times New Roman', serif;
+    font-size                          : 0.64rem;
+    font-style                         : italic;
+    font-weight                        : 700;
+    line-height                        : 1;
+    cursor                             : pointer;
+}
+
+.na-le-scrapspec__info-icon:hover {
+    border-color                       : #1a7fc4;
+    color                              : #1a7fc4;
+    background                         : #eef5fb;
+}
+
+.na-le-scrapspec__info-icon.is-open {
+    border-color                       : #1a7fc4;
+    color                              : #ffffff;
+    background                         : #1a7fc4;
+}
+
+.na-le-scrapspec__info-icon[hidden] {
+    display                            : none;
+}
+
+.na-le-scrapspec__full-wrap {
+    display                            : contents;
+}
+
+.na-le-scrapspec__info-text {
+    margin-top                         : -2px;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
 /* REGION  |  Filter and Toggle                                      */
 /* ----------------------------------------------------------------- */
 
 /* THE TWO CONTROLS above the list. The filter takes the whole width - it has
    no label, its placeholder says what it is - and the toggle is a panel row
    like every other. Neither sets a display of its own, so the hidden
-   attribute puts either away. */
+   attribute puts either away.
+
+   BOTH ARE PINNED under the tab strip while the list scrolls beneath them -
+   a specification runs to dozens of notes, and a filter that scrolls away
+   with them has to be hunted back down every time. The 30px offset is the
+   column tab strip's own rendered height (.na-le-panel__tabs in
+   Styles__Panels), so the pin sits flush under it rather than beneath it.
+
+   position:sticky ONLY reaches the column that actually scrolls
+   (.na-le-panel__scroll) if nothing between here and there also declares an
+   overflow - so the section body's own overflow-y:auto (Styles__Panels,
+   there for the height grip's clip) is turned off for this one section,
+   below. */
 
 .na-le-scrapspec__tools {
+    position                           : sticky;
+    top                                : 30px;
+    z-index                            : 2;
     margin                             : 0 0 6px 0;
+    padding-top                        : 6px;
+    background                         : #ffffff;
+}
+
+.na-le-section[data-na-section="scrapbook-specification"] > .na-le-section__body {
+    overflow-y                         : visible;
 }
 
 .na-le-scrapspec__filter {

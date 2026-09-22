@@ -36,6 +36,25 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.11.0
+// - THE BOOLEAN KEYS in the built-in fallback, the same three rows as the
+//   shipped key file (Adam): Shift+U Edit__BooleanUnion, Shift+S
+//   Edit__BooleanSubtract and Shift+T Edit__BooleanTrim, each When
+//   BooleanSelection (two or more closed vectors selected), and Shift+O
+//   Edit__BooleanOuterShell When OuterShellSelection (that, or one vector with
+//   holes). The Shift+T row is listed ABOVE
+//   Tool__Extend so Shift+T trims the shapes only in that situation and is
+//   Extend at every other time. MatchKeyBinding is unchanged: a When is still
+//   a flag the caller's situation must set.
+//
+// 22-Sep-2026 - Version 1.10.0
+// - THE MOVE ANCHOR'S KEY (Na__LayoutEditor__MoveAnchor__). MatchSelectionModifier
+//   also answers anchor: the SelectionBindings MoveAnchorModifier (Ctrl, in the
+//   shipped JSON and the fallback) held ON ITS OWN, so a Ctrl+click on one item
+//   puts the red cross on it. Ctrl+Shift and Ctrl+Alt keep only their old
+//   meanings. Nothing is set aside: Ctrl still adds at the press and still
+//   copies on a drag. An empty value switches the cross off.
+//
 // 21-Sep-2026 - Version 1.9.0
 // - View__AxesToggle on F9 in the built-in fallback, the same binding as the
 //   new row in the shipped key map: the Drawing Axes Overlay
@@ -158,6 +177,10 @@
                      { Id : 'Tool__Select',      Action : 'Tool__Select',      Enabled : true, Keys : [ 'v', 'V' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Move',        Action : 'Tool__Move',        Enabled : true, Keys : [ 'm', 'M' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Trim',        Action : 'Tool__Trim',        Enabled : true, Keys : [ 't', 'T' ],               Modifiers : [], ModifierMatch : 'Exact', When : 'InContainer' },
+                     { Id : 'Edit__BooleanUnion',    Action : 'Edit__BooleanUnion',    Enabled : true, Keys : [ 'u', 'U' ],   Modifiers : [ 'Shift' ], ModifierMatch : 'Exact', When : 'BooleanSelection' },
+                     { Id : 'Edit__BooleanSubtract', Action : 'Edit__BooleanSubtract', Enabled : true, Keys : [ 's', 'S' ],   Modifiers : [ 'Shift' ], ModifierMatch : 'Exact', When : 'BooleanSelection' },
+                     { Id : 'Edit__BooleanTrim',     Action : 'Edit__BooleanTrim',     Enabled : true, Keys : [ 't', 'T' ],   Modifiers : [ 'Shift' ], ModifierMatch : 'Exact', When : 'BooleanSelection' },   // <-- ABOVE Extend: Shift+T trims the shapes only in its situation
+                     { Id : 'Edit__BooleanOuterShell', Action : 'Edit__BooleanOuterShell', Enabled : true, Keys : [ 'o', 'O' ], Modifiers : [ 'Shift' ], ModifierMatch : 'Exact', When : 'OuterShellSelection' },   // <-- Two or more closed shapes, or one with holes
                      { Id : 'Tool__Extend',      Action : 'Tool__Extend',      Enabled : true, Keys : [ 't', 'T' ],               Modifiers : [ 'Shift' ], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Join',        Action : 'Tool__Join',        Enabled : true, Keys : [ 'j', 'J' ],               Modifiers : [], ModifierMatch : 'Exact' },
                      { Id : 'Tool__Split',       Action : 'Tool__Split',       Enabled : true, Keys : [ 'u', 'U' ],               Modifiers : [], ModifierMatch : 'Exact' },
@@ -199,7 +222,7 @@
         selection : { list : [ { Id : 'Select__Remove', Action : 'Select__Remove', Enabled : true, Modifiers : [ 'Ctrl', 'Shift' ], ModifierMatch : 'Exact' },
                                { Id : 'Select__Add',    Action : 'Select__Add',    Enabled : true, Modifiers : [ 'Ctrl' ],          ModifierMatch : 'Exact' },
                                { Id : 'Select__Toggle', Action : 'Select__Toggle', Enabled : true, Modifiers : [ 'Shift' ],         ModifierMatch : 'Exact' } ],
-                      boxAnywhereModifier : 'Alt', copyDragModifier : 'Ctrl' },
+                      boxAnywhereModifier : 'Alt', copyDragModifier : 'Ctrl', moveAnchorModifier : 'Ctrl' },
         measure   : { start : '0123456789.,-', typing : '0123456789.,-+ xX*;mMcC', array : 'xX*/', commit : [ 'Enter' ], clear : [ 'Escape', 'Delete' ], erase : [ 'Backspace' ] }
     });
     // ------------------------------------------------------------
@@ -465,7 +488,7 @@
 
     // FUNCTION | What the Modifiers Held on a Select Press Mean
     // ------------------------------------------------------------
-    // held is { Ctrl, Shift, Alt, Meta }. Returns { combine, anywhere, copy }.
+    // held is { Ctrl, Shift, Alt, Meta }. Returns { combine, anywhere, copy, anchor }.
     // combine is 'add', 'toggle', 'remove', or null to replace the selection,
     // from the SelectionBindings list; the box-anywhere modifier is set aside
     // before the list is tested, so Alt+Shift still toggles. anywhere says a
@@ -473,6 +496,9 @@
     // copy says the copy-drag modifier is held, so a move that starts from this
     // press carries a copy. It is NOT set aside: Ctrl still adds an unselected
     // item at the press, as LayOut's does, and the drag then copies the lot.
+    // anchor says the move-anchor modifier is held and NOTHING ELSE is: a
+    // click that leaves one item selected puts the red cross on it
+    // (Na__LayoutEditor__MoveAnchor__). Nothing is set aside for it either.
     // ------------------------------------------------------------
     function Na__LeCfg__MatchSelectionModifier(held) {
         const fallback = Na__LeCfg__KEYMAP_FALLBACK.selection;
@@ -481,15 +507,31 @@
         const anywhere = Na__LeCfg__MODIFIERS.indexOf(name) !== -1 && !!rest[name];
         const copyName = Na__LeCfg__GetCopyDragModifier();
         const copy     = !!copyName && !!(held || {})[copyName];
+        const anchorName = Na__LeCfg__GetMoveAnchorModifier();
+        const anchor   = !!anchorName && !!(held || {})[anchorName] && Na__LeCfg__MODIFIERS.every((one) => one === anchorName || !(held || {})[one]);   // <-- That key alone: Ctrl+Shift removes, Ctrl+Alt boxes
         if (anywhere) rest[name] = false;
         const combines = { Select__Add : 'add', Select__Toggle : 'toggle', Select__Remove : 'remove' };
         const list     = Na__LeCfg__KeyList('SelectionBindings', fallback.list);
         for (let i = 0; i < list.length; i++) {
             const binding = list[i];
             if (!binding || binding.Enabled === false || !combines[binding.Action]) continue;
-            if (Na__LeCfg__ModifiersSatisfy(binding, rest)) return { combine : combines[binding.Action], anywhere : anywhere, copy : copy };
+            if (Na__LeCfg__ModifiersSatisfy(binding, rest)) return { combine : combines[binding.Action], anywhere : anywhere, copy : copy, anchor : anchor };
         }
-        return { combine : null, anywhere : anywhere, copy : copy };
+        return { combine : null, anywhere : anywhere, copy : copy, anchor : anchor };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Modifier That Puts the Move Anchor on an Item (null when switched off)
+    // ------------------------------------------------------------
+    // Held on its own through a click that leaves ONE item or group selected,
+    // it puts the red cross in the middle of its box, and the item is then
+    // moved by that cross (Na__LayoutEditor__MoveAnchor__). Space is never it -
+    // it is the pan's. An empty value switches the cross off.
+    // ------------------------------------------------------------
+    function Na__LeCfg__GetMoveAnchorModifier() {
+        const name = Na__LeCfg__KeyVal('SelectionBindings', 'MoveAnchorModifier', Na__LeCfg__KEYMAP_FALLBACK.selection.moveAnchorModifier);
+        return (name !== 'Space' && Na__LeCfg__MODIFIERS.indexOf(name) !== -1) ? name : null;
     }
     // ------------------------------------------------------------
 
@@ -568,6 +610,7 @@
         Na__LeCfg__MatchKeyBinding,
         Na__LeCfg__MatchSelectionModifier,
         Na__LeCfg__GetCopyDragModifier,
+        Na__LeCfg__GetMoveAnchorModifier,
         Na__LeCfg__IsCopyDragKey,
         Na__LeCfg__IsPointerModifierBound,
         Na__LeCfg__GetActionCatalogue

@@ -33,6 +33,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - The fill's own rule: on by default at Soft Black 0.3 pt, read back and
+//   kept when restyled or taken off by hand, same as the box's.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - The base point and the corners, after Adam used it: the bottom left
 //   corner is the base, the other three are corner grips each holding the
@@ -110,6 +114,8 @@ import { tmpdir } from 'node:os';
         near(config.CabinetInfill__TextSizeMm, NP03.textSizeMm, 0.0005) && config.CabinetInfill__TextWeight === 400 && config.CabinetInfill__TextColour === '#333333' && config.CabinetInfill__BoxFillColour === '#fcfcfc');
     check('the fill underneath is white, and a dropped infill has it off',
         config.CabinetInfill__FillColour === '#ffffff' && infill.Na__LeParamInfill__Standard(config).Fill === false);
+    check('the fill\'s rule is Soft Black at 0.3 pt - Adam\'s Vectors standard',
+        config.CabinetInfill__FillLineColour === '#333333' && config.CabinetInfill__FillLinePt === 0.3);
     check('the words offered are Adam\'s five, in his order, then Shelving from his screenshot - and Storage is what a drop says',
         infill.Na__LeParamInfill__Presets(config).join('|') === 'Storage|Services|Full Height Storage|Wardrobes|Pantry Unit|Shelving' && infill.Na__LeParamInfill__Standard(config).Label === 'Storage',
         infill.Na__LeParamInfill__Presets(config));
@@ -132,7 +138,9 @@ import { tmpdir } from 'node:os';
     const filled = build({ Fill : true });
     const fs     = shapes(filled);
     check('fill on: exactly one vector more, and it is the FIRST - painted under everything',
-        fs.length === ps.length + 1 && fs[0].Shape__Closed === true && fs[0].Shape__Stroked === false && fs[0].Shape__FillColour === '#ffffff', fs.length);
+        fs.length === ps.length + 1 && fs[0].Shape__Closed === true && fs[0].Shape__FillColour === '#ffffff', fs.length);
+    check('...ruled round in Soft Black at 0.3 pt, so the white does not read as a hole',
+        fs[0].Shape__Stroked === true && fs[0].Shape__StrokeColour === '#333333' && fs[0].Shape__StrokePt === 0.3);
     check('the fill\'s first point is still the origin, and it covers the infill exactly',
         fs[0].Shape__Points[0][0] === 0 && fs[0].Shape__Points[0][1] === 0 && near(span(fs[0], 0), 36) && near(span(fs[0], 1), 12));
     check('behind the fill the order is unchanged: cross, cross, box, words',
@@ -256,19 +264,29 @@ import { tmpdir } from 'node:os';
     check('members exactly as built adopt nothing', defined(untouched).length === 0, untouched);
     const hand = moved(build(base));
     hand.shapes[0].Shape__FillColour = '#E8E0D0';                              // <-- The fill given a colour inside the group
+    hand.shapes[0].Shape__StrokePt = 0.5;                                     // <-- ...and its own rule made heavier
     hand.shapes[1].Shape__StrokeColour = '#808080';                           // <-- One line of the cross made mid-grey
     hand.shapes[1].Shape__LineStyle = null;                                   // <-- ...and solid
     hand.shapes[3].Shape__Stroked = false;                                    // <-- The box's rule taken off
     hand.texts[0].Annotation__Colour = '#172b3a';
     hand.shapes[2].Shape__Points = [ [ 5, 5 ], [ 9, 9 ] ];                    // <-- The other line bent by hand
     const adopted = infill.Na__LeParamInfill__Adopt(config, base, hand);
-    check('the fill\'s colour, the cross\'s colour and dash, the box\'s rule and the words\' colour are read back',
-        adopted.FillColour === '#e8e0d0' && adopted.LineColour === '#808080' && adopted.LineDash === null && adopted.BoxStroked === false && adopted.TextColour === '#172b3a', adopted);
+    check('the fill\'s colour and rule weight, the cross\'s colour and dash, the box\'s rule and the words\' colour are read back',
+        adopted.FillColour === '#e8e0d0' && adopted.FillLinePt === 0.5 && adopted.LineColour === '#808080' && adopted.LineDash === null && adopted.BoxStroked === false && adopted.TextColour === '#172b3a', adopted);
     check('no geometry is read back', !('WidthMm' in adopted) && !('HeightMm' in adopted));
     const rebuilt = build(infill.Na__LeParamInfill__Normalise(config, Object.assign({}, base, adopted)));
     check('the rebuild keeps them, and puts the bent line back corner to corner',
-        shapes(rebuilt)[0].Shape__FillColour === '#e8e0d0' && shapes(rebuilt)[1].Shape__StrokeColour === '#808080' && shapes(rebuilt)[2].Shape__LineStyle === null
+        shapes(rebuilt)[0].Shape__FillColour === '#e8e0d0' && shapes(rebuilt)[0].Shape__StrokePt === 0.5 && shapes(rebuilt)[1].Shape__StrokeColour === '#808080' && shapes(rebuilt)[2].Shape__LineStyle === null
         && JSON.stringify(shapes(rebuilt)[2].Shape__Points) === '[[36,0],[0,12]]' && shapes(rebuilt)[3].Shape__Stroked === false && texts(rebuilt)[0].Annotation__Colour === '#172b3a');
+
+    const bareFill = moved(build(base));
+    bareFill.shapes[0].Shape__Stroked = false;                                // <-- The fill's rule taken off by hand, the fill itself kept
+    const bareAdopted = infill.Na__LeParamInfill__Adopt(config, base, bareFill);
+    check('the fill\'s rule can be taken off by hand and kept, same as the box\'s',
+        bareAdopted.FillStroked === false, bareAdopted);
+    const bareRebuilt = build(infill.Na__LeParamInfill__Normalise(config, Object.assign({}, base, bareAdopted)));
+    check('...and the rebuild draws the fill with no rule, the box\'s still stroked',
+        shapes(bareRebuilt)[0].Shape__Stroked === false && shapes(bareRebuilt)[0].Shape__FillColour === '#ffffff' && shapes(bareRebuilt)[3].Shape__Stroked === true);
     const back = moved(rebuilt);
     back.shapes[0].Shape__FillColour = '#ffffff';
     check('a colour set back to the house one takes its key off again',

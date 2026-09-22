@@ -472,7 +472,7 @@
         "LayoutEditor__Enhance__SharpenOpacity": 1.0
     },
     "LayoutEditor__AutoSave__Config": {
-        "LayoutEditor__AutoSave__Description": "A browser draft of every change, put back on the next load while unsaved, and a project save of its own DebounceMs after a sheet is created, renamed, reordered or deleted. Localhost only; the web build is read-only. The draft is written DraftDebounceMs after the editing pauses rather than inside every click - it is a synchronous disk write of every sheet, so doing it per change stalled the editor - and it is flushed when the tab is hidden or closed.",
+        "LayoutEditor__AutoSave__Description": "A browser draft of every change, put back on the next load while unsaved - if it grew from the very drawings loaded; a draft grown from drawings since saved elsewhere is asked about first (apply, discard, decide later) - and a project save of its own DebounceMs after a sheet is created, renamed, reordered or deleted. Localhost only; the web build is read-only. The draft is written DraftDebounceMs after the editing pauses rather than inside every click - it is a synchronous disk write of every sheet, so doing it per change stalled the editor - and it is flushed when the tab is hidden or closed.",
         "LayoutEditor__AutoSave__Enabled": true,
         "LayoutEditor__AutoSave__DebounceMs": 1500,
         "LayoutEditor__AutoSave__DraftEnabled": true,
@@ -532,7 +532,7 @@
         ]
     },
     "LayoutEditor__MarginNotes__Config": {
-        "LayoutEditor__MarginNotes__Description": "The notes margin a sheet can carry down its right-hand side, from the top of the border to the title block. Switched on per sheet with Show notes margin in the Margin Notes panel; drag its left edge to make it wider or narrower. It lists the specification notes the sheet's bubbles link to, in specification order, then the general notes. Distances and text sizes are paper millimetres except the divider and rule (printed points). TextSizeMm is the body (2 mm); titles are TitleScale times that. PaddingMm is the left and top/foot inset; PaddingRightMm is the clearance before the sheet's right border, a little more so wrapped lines do not clip. A note reads as its code, CodePipe, then its title, with the body wrapped to the full inner width. A faint RuleColour line at RulePt sits between notes, centred in the gap between them: NoteGapMm is the least that gap can be, and decides what fits; when every note fits and the column has room left at the foot, every gap opens by the same amount, up to NoteGapMaxMm. IncludeGeneralNotes and GroupHeadings are what a newly switched-on margin starts with.",
+        "LayoutEditor__MarginNotes__Description": "The notes margin a sheet can carry down its right-hand side, from the top of the border to the title block. Switched on per sheet with Show notes margin in the Margin Notes panel; drag its left edge to make it wider or narrower. It lists any groups the sheet lists without leaders first (LeaderlessNote), then the specification notes the sheet's bubbles link to, in specification order, then the general notes. Distances and text sizes are paper millimetres except the divider and rule (printed points). TextSizeMm is the body (2 mm); titles are TitleScale times that. PaddingMm is the left and top/foot inset; PaddingRightMm is the clearance before the sheet's right border, a little more so wrapped lines do not clip. A note reads as its code, CodePipe, then its title, with the body wrapped to the full inner width. A faint RuleColour line at RulePt sits between notes, centred in the gap between them: NoteGapMm is the least that gap can be, and decides what fits; when every note fits and the column has room left at the foot, every gap opens by the same amount, up to NoteGapMaxMm. IncludeGeneralNotes and GroupHeadings are what a newly switched-on margin starts with.",
         "LayoutEditor__MarginNotes__DefaultWidthMm": 90,
         "LayoutEditor__MarginNotes__MinWidthMm": 40,
         "LayoutEditor__MarginNotes__MaxWidthFraction": 0.6,
@@ -564,7 +564,8 @@
         "LayoutEditor__MarginNotes__RegionOverspillTitle": "NOTES (CONTINUED)",
         "LayoutEditor__MarginNotes__RegionGroupsTitle": "NOTES",
         "LayoutEditor__MarginNotes__RegionBordersDefault": true,
-        "LayoutEditor__MarginNotes__RegionGripPx": 10
+        "LayoutEditor__MarginNotes__RegionGripPx": 10,
+        "LayoutEditor__MarginNotes__LeaderlessNote": "Leaderless Notes: whole specification groups a sheet lists whether or not a bubble on it links to them - a project introduction, or a block of notes that needs no leader. Switched on per sheet with Leaderless Notes in the Margin Notes panel, where each group is ticked; the ticked groups form a stack whose order is the print order, dragged by a grip (or moved with the arrow keys on it), and a group ticked joins the foot of the stack. They are listed FIRST, before the notes the sheet's bubbles link to and the general notes, each group's notes in specification order; a note of theirs a bubble links to as well is listed once, in its group's place. Everything else is as for any note: the margin's text size and group headings, a region ticking the group takes its notes, and what does not fit carries on in the overspill regions. Switching it off keeps the ticked groups and their order. The sheet keeps them on its notes margin record as LeaderlessOn and LeaderlessGroups."
     },
 
     "LayoutEditor__Measurements__Config": {
@@ -720,6 +721,9 @@
         "LayoutEditor__Labels__ShowFrameTitle": "The border and caption round this viewport, on the sheet and in the PDF. Untick once the sheet is set out, to title the view yourself.",
         "LayoutEditor__Labels__CaptionNeedsFrame": "The caption shows with the frame. Tick Frame to show it.",
         "LayoutEditor__Labels__DraftRestored": "Unsaved sheet changes from this browser were restored. Save Sheets keeps them.",
+        "LayoutEditor__Labels__DraftApplied": "The draft was applied over the saved drawings. Save Sheets keeps it.",
+        "LayoutEditor__Labels__DraftDiscarded": "The draft was discarded. The drawings are as saved.",
+        "LayoutEditor__Labels__DraftLeftAside": "The draft was not applied. You will be asked again the next time this project opens; editing before then replaces it.",
         "LayoutEditor__Labels__ToolDraw": "Draw",
         "LayoutEditor__Labels__ToolRectangle": "Rectangle",
         "LayoutEditor__Labels__ToolDimensionTitle": "Place a dimension in three clicks (D): start, end, then where the line sits. Hold Shift while placing the line for a horizontal or vertical dimension.",
@@ -979,6 +983,18 @@
         "LayoutEditor__Labels__RegionGripTitle": "Drag to resize the region",
         "LayoutEditor__Labels__RegionMoveTitle": "Drag to move the region",
         "LayoutEditor__Labels__RegionOverflowBadge": "{count} not shown - enlarge the region",
+        "LayoutEditor__Labels__MarginStatusLeaderless": "Lists {total}: {leaderless} without leaders, {linked} linked on this sheet, {general} general.",
+        "LayoutEditor__Labels__LeaderlessToggle": "Leaderless Notes",
+        "LayoutEditor__Labels__LeaderlessToggleTitle": "Whole specification groups listed on this sheet with no bubble pointing at them - an introduction, or a block of notes that needs no leader. They print first, in the order of the stack.",
+        "LayoutEditor__Labels__LeaderlessIntro": "Tick a group to list all of its notes on this sheet, bubble or no bubble. Ticked groups print first, before the notes the bubbles link to, top of the stack first: drag a group by its grip to move it.",
+        "LayoutEditor__Labels__LeaderlessStack": "Listed first",
+        "LayoutEditor__Labels__LeaderlessStackEmpty": "Nothing ticked yet. Tick a group below to list it here.",
+        "LayoutEditor__Labels__LeaderlessOthers": "Other groups",
+        "LayoutEditor__Labels__LeaderlessGripTitle": "Drag up or down to change the order, or use the arrow keys",
+        "LayoutEditor__Labels__LeaderlessInRegion": "in {region}",
+        "LayoutEditor__Labels__LeaderlessInRegionTitle": "{region} ticks this group, so its notes print there instead of in the margin.",
+        "LayoutEditor__Labels__LeaderlessGroupEmpty": "no notes",
+        "LayoutEditor__Labels__LeaderlessGroupEmptyTitle": "This group has no notes yet, so it lists nothing.",
         "LayoutEditor__Labels__LeaderSpecNote": "Spec note",
         "LayoutEditor__Labels__LeaderSpecNoteTitle": "The project specification note this bubble shows the code of. A linked bubble is renumbered with its note and listed in the sheet's notes margin.",
         "LayoutEditor__Labels__LeaderSpecOpen": "Open in specification",

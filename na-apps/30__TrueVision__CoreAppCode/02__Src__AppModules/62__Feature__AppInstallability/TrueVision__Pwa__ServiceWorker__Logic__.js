@@ -34,6 +34,51 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.9.40
+// - Token bumped (2026-09-22-14) for the Boolean keys (v2.151.0): the sheet
+//   keyboard imports four new adapter exports (CommandForAction, RunCommand,
+//   BooleanSelection, OuterShellSelection) that a warm copy of the vector tools
+//   does not have, and the key file and the vector tools config gain rows and
+//   labels the new code reads.
+//
+// 22-Sep-2026 - Version 1.9.39
+// - Token bumped (2026-09-22-13) for the Boolean tools and holed vectors (v2.150.0):
+//   the vector tools import the new BooleanTool and Boolean units (the latter
+//   importing the vendored clipper2-js by its own path), and the records, shape
+//   geometry, sheet chrome, gradient tool, snaps, selection box, sheet tools and
+//   floor areas read the new 15__Core__Markup/Na__LayoutEditor__ShapeRings__ leaf
+//   and new exports none of which a warm copy has. The Vector Tools stylesheet
+//   (in the shell precache list) gains the rule over the Boolean section.
+//
+// 22-Sep-2026 - Version 1.9.38
+// - Token bumped (2026-09-22-12) for the move anchor (v2.149.0): the pointer press,
+//   pointer drag, hit resolution, tool state and sheet tools import the new
+//   28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__ module, the keyboard
+//   imports IsAnchorDrag and RerunAnchorDrag from the pointer drag unit - none of
+//   which a warm copy has - and the ObjectSnap stylesheet gains the cross.
+//
+// 22-Sep-2026 - Version 1.9.37
+// - Token bumped (2026-09-22-11) for Project Floor Areas (v2.148.0): the floor
+//   area schedules module imports Na__LeParamArea__FORM_PROJECT and
+//   Na__LeParamArea__FORMS, and the parametric panel FORM_PROJECT, from the
+//   Area Schedule element - none of which a warm copy of it exports. Both
+//   configs gain the new tile, keys and labels.
+//
+// 22-Sep-2026 - Version 1.9.36
+// - Token bumped (2026-09-22-10) for Leaderless Notes (v2.147.0): the sheet
+//   records, the Sheets unit and the margin (SpecMargin) import the new
+//   SheetRecords__LeaderlessNotes__ leaf, and the Margin Notes panel imports
+//   its new Leaderless unit - none of which a warm copy has. The notes
+//   stylesheet gains the stack's rules and the app config its labels.
+//
+// 22-Sep-2026 - Version 1.9.35
+// - Token bumped (2026-09-22-9) for the drawings save guard (v2.146.0): the auto
+//   save now imports Na__DrawData__GetBlock, GetBase, WhenBaseKnown and
+//   SAVED_ISO_KEY from the drawings data and the Dev menu modal's Confirm, and
+//   the drawings data imports Na__LocalMirror__DrawingsFingerprint - none of
+//   which a warm copy of those modules exports. The app config gains the draft
+//   question's toast labels.
+//
 // 22-Sep-2026 - Version 1.9.34
 // - Token bumped (2026-09-22-8) for the browser draft restored on a late start
 //   (v2.145.0): the sheet model and the auto save now import
@@ -505,7 +550,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-22-8';                                                             // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-22-14';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

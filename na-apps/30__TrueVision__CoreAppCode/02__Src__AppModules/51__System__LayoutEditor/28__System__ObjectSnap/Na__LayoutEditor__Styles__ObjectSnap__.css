@@ -27,6 +27,10 @@
    - The marker rules moved here from Na__LayoutEditor__Styles__Main__Paper__
      .css and the grid ring's from Na__LayoutEditor__Styles__DrawingGrid__.css,
      where the colour used to say which TOOL was snapping.
+   - THE MOVE ANCHOR (Na__LayoutEditor__MoveAnchor__, 22-Sep-2026): the red
+     cross Ctrl+click puts on one item, which the item is then moved by. It
+     is placed, sized and counter-scaled inline like the marker; here are its
+     colours and its hover, drag and carry states.
 
    ============================================================================= */
 
@@ -348,6 +352,81 @@
 
     .na-le-osnap-menu__note[hidden] {
         display                            : none;
+    }
+
+/* endregion ------------------------------------------------------------------- */
+
+/* -----------------------------------------------------------------------------
+   REGION | The Move Anchor (Ctrl+click)
+   -----------------------------------------------------------------------------
+   The red cross an item is moved by, from this point to that point. Red on
+   a white halo, so it reads over black linework, a grey fill and a coloured
+   plan alike; a ring round its middle says where exactly the point is. Its
+   place, its size and its counter-scale are written inline by
+   Na__LayoutEditor__MoveAnchor__ (one transform, as the marker's), so these
+   rules carry only colour and weight. The strokes do not scale with the
+   cross: vector-effect keeps them in screen pixels.
+   ----------------------------------------------------------------------------- */
+
+    .na-le-move-anchor {
+        --na-le-move-anchor-rgb            : 225, 29, 29;
+        position                           : absolute;
+        box-sizing                         : border-box;
+        pointer-events                     : none;
+        z-index                            : 6;
+    }
+
+    .na-le-move-anchor[hidden] {
+        display                            : none;
+    }
+
+    .na-le-move-anchor svg {
+        display                            : block;
+        overflow                           : visible;
+        transition                         : transform 90ms ease-out;
+    }
+
+    .na-le-move-anchor line,
+    .na-le-move-anchor circle {
+        vector-effect                      : non-scaling-stroke;
+        stroke-linecap                     : round;
+    }
+
+    .na-le-move-anchor__halo line,
+    .na-le-move-anchor__halo circle {
+        stroke                             : rgba(255, 255, 255, 0.92);
+        stroke-width                       : 4px;
+        fill                               : none;
+    }
+
+    .na-le-move-anchor__ink line {
+        stroke                             : rgb(var(--na-le-move-anchor-rgb));
+        stroke-width                       : 1.75px;
+    }
+
+    .na-le-move-anchor__ink circle {
+        stroke                             : rgb(var(--na-le-move-anchor-rgb));
+        stroke-width                       : 1.75px;
+        fill                               : rgba(var(--na-le-move-anchor-rgb), 0.14);
+    }
+
+    /* UNDER THE POINTER it grows a little: a press here re-places the cross   */
+    /* rather than moving the item, and the hand should see that coming.      */
+    .na-le-move-anchor--hover svg,
+    .na-le-move-anchor--moving svg {
+        transform                          : scale(1.22);
+    }
+
+    .na-le-move-anchor--hover .na-le-move-anchor__ink circle,
+    .na-le-move-anchor--moving .na-le-move-anchor__ink circle {
+        fill                               : rgba(var(--na-le-move-anchor-rgb), 0.3);
+    }
+
+    /* BEING RE-PLACED OR CARRYING A MOVE, the ring empties so the snap marker */
+    /* sitting on the same point shows through it.                            */
+    .na-le-move-anchor--moving .na-le-move-anchor__ink circle,
+    .na-le-move-anchor--carrying .na-le-move-anchor__ink circle {
+        fill                               : none;
     }
 
 /* endregion ------------------------------------------------------------------- */

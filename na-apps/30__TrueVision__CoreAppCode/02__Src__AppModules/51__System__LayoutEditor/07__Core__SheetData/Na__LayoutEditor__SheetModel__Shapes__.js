@@ -35,6 +35,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.6.0
+// - Holes (islands), for the vector tools' Boolean section. CreateShape takes
+//   opts.holes and UpdateShape patch.holes: Shape__Holes, where each hole
+//   begins in Shape__Points, replaced whole, null or [] clearing it. Every
+//   existing caller passes neither and behaves as it did; InsertShape keeps a
+//   copied record's holes through the normaliser.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - For the vector tools (37__System__VectorTools). InsertShape takes afterId:
 //   the new record goes straight after that shape instead of last, so a piece
@@ -207,7 +214,7 @@
     // ------------------------------------------------------------
     // points: [[x, y], ...] paper mm. options: { strokeColour, strokePt,
     // fillColour, fillOpacity, strokeOpacity, closed, stroked, gradient, dash,
-    // layerId, silent }. A sheet without a
+    // holes, layerId, silent }. A sheet without a
     // vector layer gets one the first time a shape lands. Edges and fill
     // are either-or at the least: the normaliser puts the edges back on a
     // shape that would otherwise have nothing to show.
@@ -235,7 +242,8 @@
             Shape__LineStyle    : (opts.dash && typeof opts.dash === 'object') ? opts.dash : null,
             Shape__Area         : area,                                         // <-- The normaliser drops it unless it is an object, and holds a room closed
             Shape__Curve        : (opts.curve && typeof opts.curve === 'object') ? opts.curve : null,   // <-- The Circle and Arc tools' one-word hint; the normaliser drops it unless it names a kind
-            Shape__Image        : image ? Object.assign({}, image) : null       // <-- The normaliser drops it unless it names a file, and holds the picture to its proportions
+            Shape__Image        : image ? Object.assign({}, image) : null,      // <-- The normaliser drops it unless it names a file, and holds the picture to its proportions
+            Shape__Holes        : Array.isArray(opts.holes) ? opts.holes.slice() : []   // <-- Where each hole begins in the points; the normaliser keeps the key only while it holds one
         }, layerId);
         sheet.Sheet__Shapes.push(item);
         if (opts.silent) Na__LeModel__AssignDirty(true); else Na__LeModel__Touch('shapes', sheet.Sheet__Id, item.Shape__Id);   // <-- The draw tool announces once, on finishing
@@ -288,6 +296,13 @@
         // REPLACED, like the QR block: the hint is one word. `null` makes it a
         // plain polyline again as far as anything that reads the hint goes.
         if (patch.curve !== undefined) item.Shape__Curve = (patch.curve && typeof patch.curve === 'object') ? Object.assign({}, patch.curve) : null;
+        // REPLACED, like the curve hint: where each hole begins in the points
+        // (Na__LayoutEditor__ShapeRings__). Sent with the points by anything
+        // that changes how many there are - inserting or deleting a vertex
+        // moves every later hole's start - and by the Boolean tools, which
+        // make them. `null` or [] is one ring again; the normaliser keeps the
+        // key only while it holds a hole.
+        if (patch.holes !== undefined) item.Shape__Holes = Array.isArray(patch.holes) ? patch.holes.slice() : [];
         if (typeof patch.layerId === 'string') item.Shape__LayerId = patch.layerId;
         Na__LeRec__NormaliseShape(item, item.Shape__LayerId);
         if (silent) { Na__LeModel__AssignDirty(true); return true; }

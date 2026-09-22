@@ -20,7 +20,10 @@
 //   List general notes and Group headings are the list's, and stay while the
 //   note regions list the notes with the margin off.
 // - Open Project Specification shows the tab where the notes are written.
-// - OVERSPILL NOTE REGIONS: a switch under the button, and under a rule the
+// - LEADERLESS NOTES: a switch under the button, and under a rule the stack
+//   of groups listed without bubbles, in the order they print
+//   (Na__LayoutEditor__Panel__MarginNotes__Leaderless__).
+// - OVERSPILL NOTE REGIONS: a switch under that, and under a rule the
 //   section it opens (Na__LayoutEditor__Panel__MarginNotes__Regions__).
 //
 // INTEGRATION:
@@ -35,6 +38,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - Leaderless Notes: the switch and its stack, built, refreshed and
+//   registered by the new Na__LayoutEditor__Panel__MarginNotes__Leaderless__,
+//   above Overspill Note Regions - what is listed, then where.
+// - The line under the switch counts the notes listed without leaders
+//   ("Lists 12: 9 without leaders, 3 linked on this sheet, 0 general.");
+//   a sheet listing no group that way reads exactly as before.
+//
 // 22-Sep-2026 - Version 1.1.0
 // - Overspill Note Regions: the switch and its section, built, refreshed and
 //   registered by the new Na__LayoutEditor__Panel__MarginNotes__Regions__.
@@ -65,6 +76,7 @@
     import { Na__LeSpec__OPEN_EVENT, Na__LeSpec__STATUS_FAILED, Na__LeSpec__GetState } from './Na__LayoutEditor__SpecData__.js';
     import { Na__LeMargin__Report } from './Na__LayoutEditor__SpecMargin__.js';
     import { Na__LePanelRegions__Build, Na__LePanelRegions__Refresh, Na__LePanelRegions__Register } from './Na__LayoutEditor__Panel__MarginNotes__Regions__.js';
+    import { Na__LePanelLeaderless__Build, Na__LePanelLeaderless__Refresh, Na__LePanelLeaderless__Register } from './Na__LayoutEditor__Panel__MarginNotes__Leaderless__.js';
     import {
         Na__LePanels__RegisterSection,
         Na__LePanels__OnControl,
@@ -132,7 +144,8 @@
         bar.appendChild(Na__LePanels__Button(L('MarginOpenSpec', 'Open Project Specification'), 'margin-open-spec', ''));
         body.appendChild(bar);
 
-        Na__LePanelRegions__Build(body);                                         // <-- Overspill Note Regions: the switch, and under a rule the section it opens
+        Na__LePanelLeaderless__Build(body);                                      // <-- Leaderless Notes: WHAT is listed - the switch, and under a rule the stack it opens
+        Na__LePanelRegions__Build(body);                                         // <-- Overspill Note Regions: WHERE - the switch, and under a rule the section it opens
     }
     // ------------------------------------------------------------
 
@@ -149,7 +162,10 @@
         if (state.status === Na__LeSpec__STATUS_FAILED && !state.loaded) return { text : lead + L('MarginSpecFailed', 'The project specification could not be read, so there is nothing to list yet.'), warn : true };
         if (report.pending) return { text : lead + L('MarginSpecLoading', 'Loading the project specification...'), warn : false };
         if (report.total === 0) return { text : lead + L('MarginEmpty', 'Nothing to list yet: link a specification bubble to a note, or add general notes in Project Specification.'), warn : false };
-        let text = lead + F('MarginStatus', 'Lists {total}: {linked} linked on this sheet, {general} general.', { total : report.total, linked : report.linked, general : report.general });
+        const counts = { total : report.total, linked : report.linked, general : report.general, leaderless : report.leaderless };
+        let text = lead + (report.leaderless > 0
+            ? F('MarginStatusLeaderless', 'Lists {total}: {leaderless} without leaders, {linked} linked on this sheet, {general} general.', counts)
+            : F('MarginStatus', 'Lists {total}: {linked} linked on this sheet, {general} general.', counts));
         if (report.inRegions > 0) text += ' ' + F('MarginStatusRegions', '{count} in regions.', { count : report.inRegions });
         if (report.overflow > 0) {
             text += ' ' + (regions
@@ -184,6 +200,7 @@
         const note   = body.querySelector('[data-na-block="status"]');
         note.textContent = status.text;
         note.classList.toggle('na-le-note--warn', status.warn);
+        Na__LePanelLeaderless__Refresh(body, sheet);
         Na__LePanelRegions__Refresh(body, sheet, report);
     }
     // ------------------------------------------------------------
@@ -202,6 +219,7 @@
         on('change', 'margin-general',   (e, el) => apply({ includeGeneral : el.checked }));
         on('change', 'margin-groups',    (e, el) => apply({ groupHeadings : el.checked }));
         on('click',  'margin-open-spec', () => window.dispatchEvent(new CustomEvent(Na__LeSpec__OPEN_EVENT, { detail : {} })));
+        Na__LePanelLeaderless__Register();                                       // <-- The leaderless switch, the ticks and the grips' keys
         Na__LePanelRegions__Register();                                          // <-- The regions' switch, folds and Add region
         return Na__LePanels__RegisterSection('left', {
             id : Na__LePanelMargin__ID, title : Na__LeCfg__GetLabel('MarginNotesTitle', 'Margin Notes'),

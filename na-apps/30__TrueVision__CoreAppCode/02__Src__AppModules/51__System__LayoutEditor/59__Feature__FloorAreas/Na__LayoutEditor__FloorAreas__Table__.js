@@ -36,6 +36,13 @@
 //   string, so the ordinary announcement costs a comparison and stops.
 // - A RESTORE IS NEVER FOLLOWED. The model runs no hooks for an undo or a
 //   redo, which is right: the snapshot already holds the table as it was.
+// - A PROJECT TABLE (Form 'project') reads EVERY sheet, not its own: each
+//   group's rooms added up across the whole pack. Its own sheet's tables are
+//   followed ahead of the announcement like any other; a project table on
+//   ANOTHER sheet is followed straight after it, with an announcement of its
+//   own on that sheet - so it is a step in THAT sheet's history, and never
+//   a silent edit the next step there would sweep up and undo with itself.
+//   The history keeps a snapshot per sheet, which is why this matters.
 //
 // INTEGRATION:
 // - Attached once by Na__LayoutEditor__ModeController__ with the rest of the
@@ -51,6 +58,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - Project tables: DataForProject adds every sheet's groups together, Follow
+//   gives each table the numbers its form reads, and FollowElsewhere keeps
+//   the project tables on the other sheets true after a change here - so a
+//   batch PDF of the pack never prints a master list the last edit left
+//   behind. Insert takes the project form too.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: the data, the insert, the hook and the refresh.
 //
@@ -68,6 +82,7 @@
         Na__LeModel__RegisterBeforeAnnounce,
         Na__LeModel__GetActiveSheet,
         Na__LeModel__GetSheetById,
+        Na__LeModel__GetSheets,
         Na__LeModel__AddAreaGroup,
         Na__LeModel__GetAreaGroups,
         Na__LeModel__AreaGroupKey,
@@ -89,7 +104,9 @@
     import {
         Na__LeParamArea__TYPE,
         Na__LeParamArea__FORM_AREAS,
-        Na__LeParamArea__FORM_GROUPS
+        Na__LeParamArea__FORM_GROUPS,
+        Na__LeParamArea__FORM_PROJECT,
+        Na__LeParamArea__FORMS
     } from '../57__Feature__ScrapbookParametric/Na__LayoutEditor__ScrapbookParametric__AreaSchedule__.js';
     import { Na__LeArea__Index, Na__LeArea__List, Na__LeArea__GroupOf, Na__LeArea__NextGroupColour, Na__LeArea__Label } from './Na__LayoutEditor__FloorAreas__.js';
     // ------------------------------------------------------------
@@ -112,6 +129,7 @@
     // ------------------------------------------------------------
     const Na__LeAreaTable__FORM_AREAS  = Na__LeParamArea__FORM_AREAS;            // <-- The two forms under this module's own name, so the panel imports one module and not two
     const Na__LeAreaTable__FORM_GROUPS = Na__LeParamArea__FORM_GROUPS;
+    const Na__LeAreaTable__FORM_PROJECT = Na__LeParamArea__FORM_PROJECT;
     const Na__LeAreaTable__REASONS = Object.freeze([ 'shape', 'shapes', 'areas', 'groups', 'group', 'viewport', 'viewports', 'layers' ]);
     const Na__LeAreaTable__WAKE    = Object.freeze([ 'active', 'loaded' ]);      // <-- A sheet comes up: its tables are checked against facts that may have moved while it was away
     // ------------------------------------------------------------
@@ -121,6 +139,7 @@
     let Na__LeAreaTable__Attached  = false;
     let Na__LeAreaTable__Working   = false;
     let Na__LeAreaTable__Waking    = false;
+    let Na__LeAreaTable__Spreading = false;                                     // <-- A pass over the other sheets' project tables is already booked
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -159,6 +178,51 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Every Sheet's Groups Added Together, in the Shape a Schedule Reads
+    // ------------------------------------------------------------
+    // The master list for a building: one row per group, its rooms added up
+    // wherever in the pack they were measured - the ground floor on D02 and
+    // the first floor on D03 stand in one table. Groups are matched by name
+    // the way a sheet matches them (case and spacing aside), take the colour
+    // and spelling of the first sheet that has them, and run in tab order,
+    // then in each sheet's own order. Only rooms filed under a group count:
+    // this is a list of floors, and a room left loose belongs to none.
+    // ------------------------------------------------------------
+    function Na__LeAreaTable__DataForProject() {
+        const groups = [];
+        const byKey  = new Map();
+        Na__LeModel__GetSheets().forEach((sheet) => {
+            const index = Na__LeArea__Index(sheet);
+            index.groups.forEach((group) => {
+                if (!group.name) return;
+                const key = Na__LeModel__AreaGroupKey(group.name);
+                let entry = byKey.get(key);
+                if (!entry) {
+                    entry = { Name : group.name, AreaM2 : 0, Count : 0 };
+                    if (group.colour) entry.Colour = group.colour;
+                    byKey.set(key, entry);
+                    groups.push(entry);
+                }
+                if (!entry.Colour && group.colour) entry.Colour = group.colour;
+                entry.AreaM2 += group.m2;
+                entry.Count  += group.count;
+            });
+        });
+        const used = groups.filter((entry) => entry.Count > 0);                   // <-- A group listed on a sheet with nothing measured in it is not a floor of this building yet
+        return { Areas : [], Groups : used, TotalM2 : used.reduce((sum, entry) => sum + entry.AreaM2, 0) };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Form a Table on a Sheet Is Set To
+    // ------------------------------------------------------------
+    function Na__LeAreaTable__FormOf(sheet, group) {
+        const params = Na__LeParam__GetParams(sheet, group.Group__Id);
+        return (params && Na__LeParamArea__FORMS.indexOf(params.Form) !== -1) ? params.Form : Na__LeParamArea__FORM_AREAS;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Every Area Schedule on a Sheet
     // ------------------------------------------------------------
     function Na__LeAreaTable__ListOnSheet(sheet) {
@@ -184,13 +248,15 @@
     // ------------------------------------------------------------
     function Na__LeAreaTable__Insert(sheet, form) {
         if (!sheet || !Na__LePanels__IsEditable()) return null;
+        const chosen = (Na__LeParamArea__FORMS.indexOf(form) !== -1) ? form : Na__LeParamArea__FORM_AREAS;
         const params = {
-            Form : (form === Na__LeParamArea__FORM_GROUPS) ? Na__LeParamArea__FORM_GROUPS : Na__LeParamArea__FORM_AREAS,
-            Data : Na__LeAreaTable__DataFor(sheet)
+            Form : chosen,
+            Data : chosen === Na__LeParamArea__FORM_PROJECT ? Na__LeAreaTable__DataForProject() : Na__LeAreaTable__DataFor(sheet)
         };
+        const label = chosen === Na__LeParamArea__FORM_PROJECT ? 'InsertProject' : (chosen === Na__LeParamArea__FORM_GROUPS ? 'InsertSummary' : 'InsertSchedule');
         return Na__LeScrapDrag__PlaceInView({
             id       : 'floor-areas:' + params.Form,
-            name     : Na__LeArea__Label(params.Form === Na__LeParamArea__FORM_GROUPS ? 'InsertSummary' : 'InsertSchedule', 'Area schedule'),
+            name     : Na__LeArea__Label(label, 'Area schedule'),
             buildSet : () => Na__LeParam__BuildSet(Na__LeParamArea__TYPE, params, null),
             place    : (live, centreMm) => Na__LeParam__Insert(live, Na__LeParamArea__TYPE, centreMm, params, null)
         });
@@ -235,10 +301,13 @@
     // a rebuild writing the same records over themselves and marking a sheet
     // dirty for nothing.
     // ------------------------------------------------------------
-    function Na__LeAreaTable__Follow(sheet) {
-        const tables = Na__LeAreaTable__ListOnSheet(sheet);
+    // onlyProject follows the project tables alone: what a change on ANOTHER
+    // sheet can have moved. Each set of numbers is read at most once, and
+    // only when a table on the sheet asks for it.
+    // ------------------------------------------------------------
+    function Na__LeAreaTable__Follow(sheet, onlyProject) {
+        const tables = Na__LeAreaTable__ListOnSheet(sheet).filter((group) => !onlyProject || Na__LeAreaTable__FormOf(sheet, group) === Na__LeParamArea__FORM_PROJECT);
         if (!tables.length) return [];
-        const fresh = Na__LeAreaTable__DataFor(sheet);
         // COMPARED THROUGH THE TYPE'S OWN NORMALISER, never raw against
         // stored. What a table HOLDS has been through that normaliser and what
         // is read off the sheet has not, and the two write their keys in a
@@ -247,14 +316,23 @@
         // table and marked the drawing dirty for nothing. Found in the app, not
         // by reading: the numbers matched and the strings did not.
         const definition = Na__LeParam__GetType(Na__LeParamArea__TYPE);
-        const settled    = (definition && typeof definition.normalise === 'function') ? definition.normalise({ Data : fresh }).Data : fresh;
-        const wanted     = JSON.stringify(settled);
+        const settle     = (fresh) => {
+            const settled = (definition && typeof definition.normalise === 'function') ? definition.normalise({ Data : fresh }).Data : fresh;
+            return { data : settled, json : JSON.stringify(settled) };
+        };
+        const read    = {};                                                     // <-- 'sheet' and 'project', each settled once, on first asking
+        const wantFor = (form) => {
+            const which = form === Na__LeParamArea__FORM_PROJECT ? 'project' : 'sheet';
+            if (!read[which]) read[which] = settle(which === 'project' ? Na__LeAreaTable__DataForProject() : Na__LeAreaTable__DataFor(sheet));
+            return read[which];
+        };
         const changed = [];
         tables.forEach((group) => {
             const params = Na__LeParam__GetParams(sheet, group.Group__Id);
             if (!params) return;
-            if (JSON.stringify(params.Data) === wanted) return;                  // <-- Nothing about the rooms has moved: leave every record alone
-            if (Na__LeParam__Regenerate(sheet, group.Group__Id, { Data : settled }, { silent : true })) changed.push(group.Group__Id);
+            const wanted = wantFor(params.Form);
+            if (JSON.stringify(params.Data) === wanted.json) return;             // <-- Nothing about the rooms has moved: leave every record alone
+            if (Na__LeParam__Regenerate(sheet, group.Group__Id, { Data : wanted.data }, { silent : true })) changed.push(group.Group__Id);
         });
         return changed;
     }
@@ -282,6 +360,47 @@
         } finally {
             Na__LeAreaTable__Working = false;
         }
+        Na__LeAreaTable__BookSpread(sheet.Sheet__Id);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Bring the Project Tables on Every OTHER Sheet Into Line
+    // ------------------------------------------------------------
+    // Booked for straight after the announcement that asked for it, never
+    // run inside it: each sheet it changes gets an announcement of its own,
+    // so the change is a step in that sheet's history and a save of that
+    // sheet. Guarded by Working, so those announcements do not come back
+    // round and book another pass. Editable sessions only.
+    // ------------------------------------------------------------
+    function Na__LeAreaTable__FollowElsewhere(fromSheetId) {
+        if (Na__LeAreaTable__Working || !Na__LePanels__IsEditable()) return 0;
+        const others = Na__LeModel__GetSheets().filter((sheet) => sheet.Sheet__Id !== fromSheetId);
+        if (!others.some((sheet) => Na__LeAreaTable__ListOnSheet(sheet).length)) return 0;   // <-- No schedule anywhere else: nothing to read the whole project for
+        Na__LeAreaTable__Working = true;
+        let count = 0;
+        try {
+            others.forEach((sheet) => {
+                const rebuilt = Na__LeAreaTable__Follow(sheet, true);
+                if (!rebuilt.length) return;
+                count += rebuilt.length;
+                Na__LeModel__MarkDirty();
+                Na__LeParam__Announce(sheet, rebuilt[rebuilt.length - 1]);
+            });
+        } catch (error) {
+            console.warn('[TrueVision3D LayoutEditor] A project area schedule on another sheet could not be brought up to date.', error);
+        } finally {
+            Na__LeAreaTable__Working = false;
+        }
+        return count;
+    }
+    function Na__LeAreaTable__BookSpread(fromSheetId) {
+        if (Na__LeAreaTable__Spreading) return;
+        Na__LeAreaTable__Spreading = true;
+        window.setTimeout(() => {
+            Na__LeAreaTable__Spreading = false;
+            Na__LeAreaTable__FollowElsewhere(fromSheetId);
+        }, 0);
     }
     // ------------------------------------------------------------
 
@@ -357,11 +476,14 @@
     export {
         Na__LeAreaTable__FORM_AREAS,
         Na__LeAreaTable__FORM_GROUPS,
+        Na__LeAreaTable__FORM_PROJECT,
         Na__LeAreaTable__DataFor,
+        Na__LeAreaTable__DataForProject,
         Na__LeAreaTable__ListOnSheet,
         Na__LeAreaTable__Insert,
         Na__LeAreaTable__Reconcile,
         Na__LeAreaTable__Follow,
+        Na__LeAreaTable__FollowElsewhere,
         Na__LeAreaTable__Refresh,
         Na__LeAreaTable__Attach
     };

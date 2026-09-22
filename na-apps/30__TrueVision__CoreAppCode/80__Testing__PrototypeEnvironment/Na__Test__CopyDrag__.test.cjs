@@ -34,6 +34,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.1
+// - MatchSelectionModifier answers anchor too (KeyMap 1.10.0): the move
+//   anchor's key, Ctrl, held on its own. The key map test expects it, and
+//   that Ctrl+Shift and Ctrl+Alt never carry it.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - Arrays: the parser, the build, a replaced count, a retyped distance.
 //
@@ -381,10 +386,10 @@ test('the key map: Ctrl is the copy modifier in the shipped file and the fallbac
         assert.equal(KeyMap.Na__LeCfg__GetCopyDragModifier(), 'Ctrl', which);
         assert.equal(KeyMap.Na__LeCfg__IsCopyDragKey('Control'), true, which);
         assert.equal(KeyMap.Na__LeCfg__IsCopyDragKey('Shift'), false, which);
-        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([ 'Ctrl' ])), { combine : 'add', anywhere : false, copy : true }, which + ': Ctrl still adds at the press');
-        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([ 'Ctrl', 'Shift' ])), { combine : 'remove', anywhere : false, copy : true }, which);
-        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([])), { combine : null, anywhere : false, copy : false }, which);
-        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([ 'Alt', 'Ctrl' ])), { combine : 'add', anywhere : true, copy : true }, which);
+        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([ 'Ctrl' ])), { combine : 'add', anywhere : false, copy : true, anchor : true }, which + ': Ctrl still adds at the press (and held alone it is the move anchor key)');
+        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([ 'Ctrl', 'Shift' ])), { combine : 'remove', anywhere : false, copy : true, anchor : false }, which);
+        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([])), { combine : null, anywhere : false, copy : false, anchor : false }, which);
+        assert.deepEqual(KeyMap.Na__LeCfg__MatchSelectionModifier(held([ 'Alt', 'Ctrl' ])), { combine : 'add', anywhere : true, copy : true, anchor : false }, which);
     }
     const off = plain(shipped);
     off.LayoutEditor__SelectionBindings__Config.LayoutEditor__SelectionBindings__CopyDragModifier = '';

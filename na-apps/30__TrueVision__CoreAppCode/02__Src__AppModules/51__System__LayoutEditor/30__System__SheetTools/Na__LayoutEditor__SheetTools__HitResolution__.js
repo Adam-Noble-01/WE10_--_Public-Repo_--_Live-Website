@@ -52,6 +52,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.11.0
+// - ShapeInsertHit reads the far end of an edge from the shape geometry
+//   (Na__LeShapeGeo__EdgeEnd): on a vector with holes a ring's closing edge
+//   runs back to its own first point, not on to the next ring's. A plain
+//   vector's is the same point as before.
+//
+// 22-Sep-2026 - Version 1.10.0
+// - AN ITEM WITH THE MOVE ANCHOR ON IT PICKS MOVE UP, whatever its kind
+//   (Na__LayoutEditor__MoveAnchor__). The red cross is only ever put on by a
+//   Ctrl+click, which is asking to move the thing, so a viewport or a dimension
+//   carrying one keeps the Move tool up like a note does: PicksUpMove answers
+//   true for a press on it (not on a crop handle or the rotate grip), and
+//   SelectionPicksUpMove for a selection of it alone, so SettleAutoMove leaves
+//   the Move up after the first move and the next one needs no M either.
+//
 // 22-Sep-2026 - Version 1.9.0
 // - VIEWPORTS GROUP (Na__LayoutEditor__Groups__ 1.4.0). Resolve sends a
 //   viewport's frame through the scope as it sends markup: at the sheet a
@@ -187,11 +202,12 @@
     } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeMarkup__HitTest } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeGrips__DimensionGrab, Na__LeGrips__ShapeGrab, Na__LeGrips__LeaderGrab, Na__LeGrips__AnnotationGrab, Na__LeGrips__ROTATE_CURSOR, Na__LeGrips__MOVE_CURSOR, Na__LeGrips__ShowInsert, Na__LeGrips__HideInsert } from './Na__LayoutEditor__Grips__.js';
-    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt, Na__LeShapeGeo__ClosestOnEdge } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__VertexAt, Na__LeShapeGeo__ClosestOnEdge, Na__LeShapeGeo__EdgeEnd } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeVp2d__Describe } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
     import { Na__LeDoors__ClickToggles, Na__LeDoors__At } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeOsnap__Find, Na__LeOsnap__ShowMarker, Na__LeOsnap__HideMarker } from '../28__System__ObjectSnap/Na__LayoutEditor__ObjectSnap__Search__.js';
     import { Na__LeGroup__Descendants } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';   // <-- What a group holds, for whether it picks Move up
+    import { Na__LeAnchor__Holds, Na__LeAnchor__HoldsItems } from '../28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__.js';   // <-- An item with the red cross on it was Ctrl+clicked to be moved
     import {
         Na__LeScope__IsActive,
         Na__LeScope__IsLeafOpen,
@@ -253,6 +269,7 @@
         if (!setup.autoMoveOnSelect || !setup.moveToolRequired) return false;
         if (!Array.isArray(items) || !items.length || Na__LeScope__IsLeafOpen()) return false;
         const sheet = Na__LeModel__GetActiveSheet();
+        if (Na__LeAnchor__HoldsItems(sheet, items)) return true;             // <-- The move anchor is on it: it was asked to move, whatever its kind
         return items.every((item) => !!item && setup.autoMoveKinds.indexOf(item.kind) !== -1
             && (item.kind !== 'group' || Na__LeTools__GroupAutoMoves(sheet, item.id, setup.autoMoveKinds)));
     }
@@ -301,6 +318,7 @@
         if (!setup.autoMoveOnSelect || !setup.moveToolRequired) return false;   // <-- With the catch off Select drags everything itself, and there is nothing to pick up
         const items = Na__LeModel__GetSelectionItems();
         if (items.length > 1 && Na__LeModel__IsSelected(found.kind, found.id)) return Na__LeTools__SelectionPicksUpMove(items);
+        if (Na__LeAnchor__Holds(sheet, found) && !(found.hit && (found.hit.mode === 'handle' || found.hit.mode === 'rotate'))) return true;   // <-- The move anchor is on it; a crop handle and the rotate grip are still grips
         if (setup.autoMoveKinds.indexOf(found.kind) === -1) return false;
         if (found.kind === 'group') return Na__LeTools__GroupAutoMoves(sheet, found.id, setup.autoMoveKinds);   // <-- Its members answer for their own locks when the set is captured; one holding a viewport or a dimension waits for M
         const record = Na__LeTools__Record(sheet, found);
@@ -439,7 +457,7 @@
         const edge = Na__LeShapeGeo__ClosestOnEdge(shape, pointMm);
         if (!edge || edge.distance > tol) return null;
         const pts = Na__LeShapeGeo__Points(shape);
-        const a = pts[edge.index], b = pts[(edge.index + 1) % pts.length];
+        const a = pts[edge.index], b = pts[Na__LeShapeGeo__EdgeEnd(shape, edge.index)];   // <-- On a holed shape a ring's closing edge runs back to ITS first point, not on to the next ring's
         const minMm = Na__LeCfg__GetSelectionSetup().dragThresholdMm;
         if (Math.hypot(edge.x - a[0], edge.y - a[1]) < minMm) return null;
         if (Math.hypot(edge.x - b[0], edge.y - b[1]) < minMm) return null;

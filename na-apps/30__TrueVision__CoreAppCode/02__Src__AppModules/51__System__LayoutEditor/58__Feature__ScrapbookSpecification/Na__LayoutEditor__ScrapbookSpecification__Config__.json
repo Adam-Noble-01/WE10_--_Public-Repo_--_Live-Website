@@ -2,7 +2,7 @@
     "LayoutEditor__ScrapbookSpecification__Meta": {
         "Meta__FileName"    : "Na__LayoutEditor__ScrapbookSpecification__Config__.json",
         "Meta__Description" : "The Specification Scrapbook: the project specification's notes, listed on the left column's Specification tab as the code in an annotation bubble beside the note it stands for, so the codes can be read while a drawing is tagged - the Project Specification tab cannot be open beside a sheet. A bubble is dragged onto the paper and lands as an ordinary specification bubble (a leader of type 'bubble') already linked to its note. Owned by Na__LayoutEditor__ScrapbookSpecification__.js (the library), Na__LayoutEditor__Panel__ScrapbookSpecification__.js (the tab and its section) and Na__LayoutEditor__ScrapbookSpecification__RowEditor__.js (editing a note in its row).",
-        "Meta__Version"     : "1.1.0",
+        "Meta__Version"     : "1.2.0",
         "Meta__Created"     : "20-Sep-2026",
         "Meta__Updated"     : "22-Sep-2026",
         "Meta__Author"      : "Adam Noble - Noble Architecture",
@@ -40,6 +40,8 @@
         "Labels__TabHint"          : "The project specification's codes and notes, as bubbles to drag onto the sheet.",
         "Labels__SectionTitle"     : "Specification Scrapbook",
         "Labels__Hint"             : "Drag a bubble onto the sheet: it lands as a specification bubble linked to that note. Then drag its square endpoint onto what it describes. Double-click a row to place one in the middle of the view. Right-click a row to edit its note here.",
+        "Labels__InfoTitle"        : "How these notes work",
+        "Labels__InfoLabel"        : "Info",
         "Labels__ReadOnly"         : "The project specification's codes and notes. Bubbles can only be placed while sheets are editable.",
         "Labels__Loading"          : "Loading the project specification...",
         "Labels__Failed"           : "The project specification could not be read, so there are no notes to list yet.",

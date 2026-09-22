@@ -42,6 +42,19 @@
     white-space                        : nowrap;
 }
 
+/* THE RULE OVER THE BOOLEAN SECTION (22-Sep-2026). The Draw and Edit    */
+/* tools make and cut lines; the Boolean tools combine closed shapes as  */
+/* areas, so a hairline sets them apart before their own subhead. The    */
+/* weight and tint are the margin notes' rule (na-le-rule), kept here so */
+/* the section does not lean on another feature's stylesheet.           */
+
+.na-le-vectools__rule {
+    height                             : 0;
+    margin                             : 10px 0 2px;
+    border                             : none;
+    border-top                         : 1px solid rgba(23, 43, 58, 0.14);
+}
+
 /* endregion */
 
 

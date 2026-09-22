@@ -13,9 +13,11 @@
 // - DRAFT. Every announced change writes the sheet records to localStorage
 //   under the project code. On the next project load a draft that differs
 //   from what the project supplied is put back, the model is marked dirty
-//   and a toast says so. A successful save clears the draft, so a draft only
-//   ever exists while something is unsaved. Nothing reads or writes the
-//   draft until the project's sheets have arrived.
+//   and a toast says so - if it grew from the very drawings loaded. A draft
+//   grown from other drawings (saved since, elsewhere) is asked about first:
+//   apply it, discard it, or decide later. A successful save clears the
+//   draft, so a draft only ever exists while something is unsaved. Nothing
+//   reads or writes the draft until the project's sheets have arrived.
 // - AUTO SAVE. A structural change (a sheet created, renamed, reordered or
 //   deleted, or its paper or title block changed) schedules a project save
 //   a short debounce later, on localhost only (the web build is read-only).
@@ -60,6 +62,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.5.0
+// - A DRAFT IS JUDGED BEFORE IT GOES BACK. Every draft now records what it
+//   grew from (base: the drawings' identity from Na__DrawData__GetBase - the
+//   local server's fingerprint of the file on disk, or the block's saved
+//   stamp). On a load, a draft grown from the very drawings loaded goes back
+//   as before; one grown from other drawings - saved since by another window,
+//   or changed on the file - or written before drafts said, is asked about
+//   (JudgeDraft, AskAboutDraft): Apply Draft, Discard Draft or Decide Later,
+//   and nothing touches the sheets until the answer. RB05, 22-Sep-2026: a
+//   window's draft still held D10 from before its 24 bubbles were added in
+//   another window; every reload put that D10 back, and one save wrote it.
+// - Nothing writes the draft while it is being asked about.
+//
 // 22-Sep-2026 - Version 1.4.0
 // - The draft is restored whichever arrives first, the drawings or the editor.
 //   The restore still runs on the model's 'loaded', and the model now
@@ -120,7 +135,22 @@
         Na__LeModel__IsDirty,
         Na__LeModel__Save
     } from './Na__LayoutEditor__SheetModel__.js';
-    import { Na__DrawData__CHANGED_EVENT, Na__DrawData__GetProjectCode, Na__DrawData__IsLoaded } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import {
+        Na__DrawData__CHANGED_EVENT,
+        Na__DrawData__GetProjectCode,
+        Na__DrawData__IsLoaded,
+        Na__DrawData__GetBlock,
+        Na__DrawData__GetBase,
+        Na__DrawData__WhenBaseKnown,
+        Na__DrawData__SAVED_ISO_KEY
+    } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | The Question About a Draft Older Than the Drawings
+    // ------------------------------------------------------------
+    // @delegate: ../../21__System__PresentationMode/Na__PresentationMode__DevMenu__Modal__.js
+    // ------------------------------------------------------------
+    import { Na__PresentationMode__DevMenu__Confirm } from '../../21__System__PresentationMode/Na__PresentationMode__DevMenu__Modal__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Specification Document (the close guard's second half)
@@ -155,6 +185,7 @@
     let Na__LeAuto__Saving    = false;
     let Na__LeAuto__Again     = false;     // <-- A structural change arrived while a save was in flight
     let Na__LeAuto__Restoring = false;
+    let Na__LeAuto__Asking    = false;     // <-- A draft is being asked about: nothing writes or restores the draft until the answer
     let Na__LeAuto__Ready     = false;
     let Na__LeAuto__Suspended = false;
     let Na__LeAuto__Running = null;
@@ -202,10 +233,22 @@
 
     // HELPER FUNCTION | Write, Read and Clear the Draft
     // ------------------------------------------------------------
+    // A draft says what it grew from: base, the drawings' identity as the
+    // drawings data learned it after the load (Na__DrawData__GetBase - the
+    // local server's fingerprint of the file, or the block's saved stamp; null
+    // for a project that had no drawings). Left out while that is still being
+    // asked for, and a draft without it is asked about on the next load rather
+    // than assumed to belong to whatever is loaded then. Nothing is written
+    // while a draft is being asked about: the one in the store is the one the
+    // question is about.
+    // ------------------------------------------------------------
     function Na__LeAuto__WriteDraft() {
         const key = Na__LeAuto__Key();
-        if (!key || !Na__LeCfg__GetAutoSaveSetup().draftEnabled) return false;
-        try { window.localStorage.setItem(key, JSON.stringify({ savedAt : Date.now(), sheets : Na__LeModel__GetSheets() })); return true; }
+        if (!key || Na__LeAuto__Asking || !Na__LeCfg__GetAutoSaveSetup().draftEnabled) return false;
+        const base  = Na__DrawData__GetBase();
+        const draft = { savedAt : Date.now(), sheets : Na__LeModel__GetSheets() };
+        if (base !== undefined) draft.base = base;
+        try { window.localStorage.setItem(key, JSON.stringify(draft)); return true; }
         catch (e) { return false; }                                              // <-- Private mode or a full store: the draft is a courtesy
     }
     function Na__LeAuto__ReadDraft() {
@@ -258,18 +301,119 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | On a Project Load, Put an Unsaved Draft Back
+    // HELPER FUNCTION | Is a Draft a Continuation of the Drawings Loaded, or Older Than Them
     // ------------------------------------------------------------
-    function Na__LeAuto__RestoreDraft() {
-        if (Na__LeAuto__Restoring || !Na__LeCfg__GetAutoSaveSetup().draftEnabled) return false;
+    // draft: what ReadDraft answered. base: what the drawings are now, once
+    // known. Pure, so it can be proved on its own.
+    //   'restore' - the draft grew from these very drawings: put it back
+    //   'ask'     - it grew from other drawings (saved since, by another
+    //               window or by a hand on the file), or was written before a
+    //               draft said what it grew from: the person decides
+    //   'none'    - no draft
+    // ------------------------------------------------------------
+    function Na__LeAuto__JudgeDraft(draft, base) {
+        if (!draft) return 'none';
+        if (!Object.prototype.hasOwnProperty.call(draft, 'base')) return 'ask';
+        return (draft.base === base) ? 'restore' : 'ask';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | On a Project Load, Put an Unsaved Draft Back - or Ask First
+    // ------------------------------------------------------------
+    // THE DRAFT USED TO GO BACK WHATEVER IT WAS. A draft is every sheet of the
+    // project as this browser last had them, and it replaces every sheet. On
+    // RB05 (22-Sep-2026) a window's draft still held D10 from before its 24
+    // bubbles were added in another window; each reload put that D10 back,
+    // and one save wrote it to the project. So a draft is judged against
+    // what the drawings are now (JudgeDraft): grown from these very drawings,
+    // it goes back as before; grown from others, or from before drafts said,
+    // the person is asked - apply it over the saved drawings, discard it, or
+    // decide later - and nothing touches the sheets until they answer.
+    // ------------------------------------------------------------
+    async function Na__LeAuto__RestoreDraft() {
+        if (Na__LeAuto__Restoring || Na__LeAuto__Asking || !Na__LeCfg__GetAutoSaveSetup().draftEnabled) return false;
         const draft = Na__LeAuto__ReadDraft();
         if (!draft || Na__LeAuto__Same(draft.sheets, Na__LeModel__GetSheets())) return false;
+        const block = Na__DrawData__GetBlock();
+        const base  = await Na__DrawData__WhenBaseKnown();
+        if (Na__DrawData__GetBlock() !== block || Na__LeAuto__Asking) return false;   // <-- Another project loaded meanwhile: its own load asks for itself
+        const verdict = Na__LeAuto__JudgeDraft(draft, base);
+        if (verdict === 'restore') return Na__LeAuto__PutDraftBack(draft, false);
+        if (verdict !== 'ask') return false;
+        return Na__LeAuto__AskAboutDraft(draft, base);
+    }
+    function Na__LeAuto__PutDraftBack(draft, applied) {
         Na__LeAuto__Restoring = true;
         try { Na__LeModel__RestoreSheets(draft.sheets); }
         finally { Na__LeAuto__Restoring = false; }
-        if (typeof Na__LeAuto__ShowToast === 'function') Na__LeAuto__ShowToast(Na__LeCfg__GetLabel('DraftRestored', 'Unsaved sheet changes from this browser were restored. Save Sheets keeps them.'), false);
-        console.log('[TrueVision3D] Layout Editor: unsaved sheet draft restored from this browser.');
+        if (typeof Na__LeAuto__ShowToast === 'function') {
+            Na__LeAuto__ShowToast(applied
+                ? Na__LeCfg__GetLabel('DraftApplied', 'The draft was applied over the saved drawings. Save Sheets keeps it.')
+                : Na__LeCfg__GetLabel('DraftRestored', 'Unsaved sheet changes from this browser were restored. Save Sheets keeps them.'), false);
+        }
+        console.log('[TrueVision3D] Layout Editor: unsaved sheet draft ' + (applied ? 'applied over the saved drawings' : 'restored from this browser') + '.');
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Ask About a Draft That Is Older Than the Drawings
+    // ------------------------------------------------------------
+    // Three answers. Apply Draft puts every sheet back to the draft's copy,
+    // over anything saved since. Discard Draft removes it; the drawings stay
+    // as saved. Decide Later (Cancel, Escape, the backdrop) leaves the draft
+    // where it is, to be asked about on the next load - and warns that an
+    // edit before then writes over it, as every edit writes the draft.
+    // ------------------------------------------------------------
+    async function Na__LeAuto__AskAboutDraft(draft, base) {
+        const block     = Na__DrawData__GetBlock();
+        const savedIso  = block ? block[Na__DrawData__SAVED_ISO_KEY] : null;
+        const draftWhen = Na__LeAuto__ClockWords(draft.savedAt);
+        const savedWhen = (typeof savedIso === 'string' && savedIso) ? Na__LeAuto__ClockWords(savedIso) : null;
+        const onDisk    = Na__LeModel__GetSheets().length;
+        Na__LeAuto__Asking = true;
+        let answer = false;
+        try {
+            answer = await Na__PresentationMode__DevMenu__Confirm({
+                title            : 'Unsaved sheet changes from this browser',
+                message          : 'This browser kept sheet changes that were never saved, but the project\'s drawings are not the ones '
+                                 + 'those changes were made on: they have been saved since' + (savedWhen ? ' (' + savedWhen + ')' : '')
+                                 + ', by another window or on the file itself. Applying the draft puts EVERY sheet back to the '
+                                 + 'draft\'s copy, including whatever was saved since. Discarding it keeps the drawings as saved.',
+                details          : [
+                    'Draft written: ' + draftWhen + ', ' + draft.sheets.length + ' sheet' + (draft.sheets.length === 1 ? '' : 's'),
+                    'Drawings as saved: ' + (savedWhen || 'no saved stamp yet') + ', ' + onDisk + ' sheet' + (onDisk === 1 ? '' : 's'),
+                    'Base: ' + (base || 'none') + ' now; the draft grew from ' + (draft.base === undefined ? 'a copy that did not say' : (draft.base || 'none'))
+                ],
+                footnote         : 'Decide Later leaves the draft for the next time this project opens; editing before then replaces it.',
+                confirmLabel     : 'Apply Draft',
+                isDestructive    : true,
+                altLabel         : 'Discard Draft',
+                altIsDestructive : true,
+                cancelLabel      : 'Decide Later'
+            });
+        } catch (e) {
+            answer = false;                                                      // <-- No dialog to be had: the draft is left aside, never applied unseen
+        } finally {
+            Na__LeAuto__Asking = false;
+        }
+        if (answer === true) return Na__LeAuto__PutDraftBack(draft, true);
+        if (answer === 'alt') {
+            Na__LeAuto__ClearDraft();
+            if (typeof Na__LeAuto__ShowToast === 'function') Na__LeAuto__ShowToast(Na__LeCfg__GetLabel('DraftDiscarded', 'The draft was discarded. The drawings are as saved.'), false);
+            console.log('[TrueVision3D] Layout Editor: an unsaved sheet draft older than the saved drawings was discarded.');
+            return false;
+        }
+        if (typeof Na__LeAuto__ShowToast === 'function') Na__LeAuto__ShowToast(Na__LeCfg__GetLabel('DraftLeftAside', 'The draft was not applied. You will be asked again the next time this project opens; editing before then replaces it.'), false);
+        console.log('[TrueVision3D] Layout Editor: an unsaved sheet draft older than the saved drawings was left aside.');
+        return false;
+    }
+    function Na__LeAuto__ClockWords(when) {
+        const date = new Date(when);
+        if (Number.isNaN(date.getTime())) return String(when);
+        const pad = (n) => String(n).padStart(2, '0');
+        return pad(date.getHours()) + ':' + pad(date.getMinutes()) + ' on ' + pad(date.getDate()) + '/' + pad(date.getMonth() + 1) + '/' + date.getFullYear();
     }
     // ------------------------------------------------------------
 
@@ -333,7 +477,7 @@
     function Na__LeAuto__OnModelChanged(event) {
         const detail = event.detail || {};
         const reason = detail.reason || '';
-        if (reason === 'loaded') { Na__LeAuto__DropDraftWrite(); Na__LeAuto__RestoreDraft(); return; }   // <-- A write still queued from the last project must not overwrite this one's draft
+        if (reason === 'loaded') { Na__LeAuto__DropDraftWrite(); void Na__LeAuto__RestoreDraft(); return; }   // <-- A write still queued from the last project must not overwrite this one's draft
         if (Na__LeAuto__IGNORED.indexOf(reason) >= 0) return;
         Na__LeAuto__ScheduleDraft();
         if (Na__LeAuto__Editable && Na__LeCfg__GetAutoSaveSetup().enabled && Na__LeAuto__CallsForSave(detail)) Na__LeAuto__Schedule();

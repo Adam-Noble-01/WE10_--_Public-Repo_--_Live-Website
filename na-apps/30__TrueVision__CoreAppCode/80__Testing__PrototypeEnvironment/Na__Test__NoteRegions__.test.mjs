@@ -40,6 +40,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.0.1
+// - Loads the Leaderless Notes record leaf beside the regions' one: the
+//   margin imports it since v2.147.0. No sheet here lists a group that way,
+//   so every check reads as it did.
+//
 // 22-Sep-2026 - Version 1.0.0
 // - Written with Overspill Note Regions (TrueVision3D v2.143.0).
 //
@@ -144,7 +149,8 @@ import { tmpdir } from 'node:os';
 
     const Layout    = await load(LE + '07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js', cfg);
     const RegionRec = await load(LE + '07__Core__SheetData/Na__LayoutEditor__SheetRecords__NoteRegions__.js', cfg);
-    const Records   = await load(LE + '07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js', Object.assign({}, cfg, RegionRec));
+    const LeadRec   = await load(LE + '07__Core__SheetData/Na__LayoutEditor__SheetRecords__LeaderlessNotes__.js', {});   // <-- The margin reads its leaderless groups too (v2.147.0); none are set here
+    const Records   = await load(LE + '07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js', Object.assign({}, cfg, RegionRec, LeadRec));
 
     // THE SPECIFICATION: General Notes (general, 4), Structural Notes (6) and
     // Finishes (5), every note linked on the sheet, bodies long enough to fill
@@ -169,7 +175,7 @@ import { tmpdir } from 'node:os';
         Na__LeSpec__GetGroupById  : (id) => groups.find((g) => g.Group__Id === id) || null,
         Na__LeSpecLink__LinkedNoteIds : () => new Set(entries.filter((e) => !e.group.Group__IsGeneral).map((e) => e.note.Note__Id))
     };
-    const common  = Object.assign({}, cfg, chrome, Layout, Records, RegionRec, spec);
+    const common  = Object.assign({}, cfg, chrome, Layout, Records, RegionRec, LeadRec, spec);
     const Column  = await load(LE + '50__Feature__Specification/Na__LayoutEditor__SpecMargin__Column__.js', common);
     const Regions = await load(LE + '50__Feature__Specification/Na__LayoutEditor__NoteRegions__.js', Object.assign({}, common, Column));
     const Margin  = await load(LE + '50__Feature__Specification/Na__LayoutEditor__SpecMargin__.js', Object.assign({}, common, Column, Regions));

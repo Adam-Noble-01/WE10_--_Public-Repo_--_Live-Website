@@ -944,6 +944,7 @@
         Na__DrawData__FLOOR_PLANS_KEY,
         Na__DrawData__ELEVATIONS_KEY,
         Na__DrawData__SHEETS_KEY,
+        Na__DrawData__SAVED_ISO_KEY,
         Na__DrawData__SCENE_PLAN_ID_KEY,
         Na__DrawData__SCENE_ELEVATION_ID_KEY,
         Na__DrawData__LOADED_EVENT,

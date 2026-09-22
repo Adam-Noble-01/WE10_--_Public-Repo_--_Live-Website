@@ -37,7 +37,7 @@
 #
 # DEVELOPMENT LOG:
 # 22-Sep-2026 - Version 1.0.0
-# - Written with the project data save guard and backups (TrueVision3D v2.145.0).
+# - Written with the project data save guard and backups (TrueVision3D v2.146.0).
 #
 # =============================================================================
 

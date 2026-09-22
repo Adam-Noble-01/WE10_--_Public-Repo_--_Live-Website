@@ -45,6 +45,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.14.0
+// - A HOLED POLYLINE (a vector with islands, from the vector tools' Boolean
+//   section). PushPolyline's extra takes holes - where each hole begins in
+//   the points - and the primitive carries them as Holes, only when there are
+//   some. The SVG writes every ring as its own closed subpath of the one path
+//   (PolylineD) with fill-rule="evenodd" on each path that fills - the solid,
+//   the gradient and the hatch - so the holes stay bare; the PDF traces the
+//   rings into one path (PdfTrace) and paints it with the even-odd operators
+//   (f*, B*), and the gradient and hatch clip to it even-odd. A polyline
+//   without holes is the same object, the same markup and the same drawing
+//   calls as before.
+//
 // 21-Sep-2026 - Version 1.13.0
 // - A TURNED GROUP. PushGroup takes an optional turn { deg, x, y } and the
 //   group carries RotateDeg, RotateX and RotateY; the SVG painter wraps it
@@ -181,6 +193,7 @@
     import { Na__QrPaint__SvgGroup, Na__QrPaint__DrawPdf } from '../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js';   // <-- A leaf: a symbol and numbers in, markup or drawing calls out
     import { Na__LeImgPaint__KIND, Na__LeImgPaint__Svg, Na__LeImgPaint__DrawPdf } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Painter__.js';   // <-- A leaf too: a picture primitive in, markup or drawing calls out
     import { Na__LeVpRot__Deg, Na__LeVpRot__Centre, Na__LeVpRot__WrapDeg, Na__LeVpRot__PdfTurn } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned viewport's frame and caption turn with it
+    import { Na__LeRings__Spans } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';   // <-- A leaf too: where each ring of a holed polyline starts, asked only of one that has holes
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -365,13 +378,15 @@
         if (!hatch || typeof hatch.Hatch__PatternKey !== 'string' || !hatch.Hatch__PatternKey) return null;
         const pattern = Na__LeHatch__Get(hatch.Hatch__PatternKey);
         if (!pattern) return null;
-        return {
+        const def = {
             pattern     : pattern,
             scale       : hatch.Hatch__Scale,
             rotationDeg : hatch.Hatch__RotationDeg,
             colour      : hatch.Hatch__Colour || pattern.Pattern__Ink || primitive.HatchInk || primitive.StrokeColour,
             strokePt    : hatch.Hatch__StrokePt
         };
+        if (Na__LeChrome__HasHoles(primitive)) def.holes = primitive.Holes;     // <-- The PDF clips a holed shape's hatch even-odd; the SVG's pattern fills the path, whose own rule does it
+        return def;
     }
     function Na__LeChrome__HatchPaint(primitive) {
         const def = Na__LeChrome__HatchDef(primitive);
@@ -396,14 +411,61 @@
         const dashArray = Array.isArray(more.dashArray)
             ? more.dashArray.filter((n) => Number.isFinite(n) && n > 0)
             : [];
-        list.push({ Kind : Na__LeChrome__KIND_POLYLINE, Points : points, StrokeColour : strokeColour || null,
+        const primitive = { Kind : Na__LeChrome__KIND_POLYLINE, Points : points, StrokeColour : strokeColour || null,
                     StrokeMm : strokeMm || 0, FillColour : fillColour || null, Closed : closed === true,
                     Gradient : (gradient && typeof gradient === 'object') ? gradient : null,
                     Hatch : (more.hatch && typeof more.hatch === 'object') ? more.hatch : null,
                     HatchInk : (typeof more.hatchInk === 'string' && more.hatchInk) ? more.hatchInk : null,
                     DashMm : dashArray.length > 0 ? 0 : ((Number.isFinite(more.dashMm) && more.dashMm > 0) ? more.dashMm : 0),
                     DashArray : dashArray.length > 0 ? dashArray : null,
-                    FillOpacity : Na__LeChrome__Alpha(more.fillOpacity), StrokeOpacity : Na__LeChrome__Alpha(more.strokeOpacity) });
+                    FillOpacity : Na__LeChrome__Alpha(more.fillOpacity), StrokeOpacity : Na__LeChrome__Alpha(more.strokeOpacity) };
+        // HOLES: where each hole begins in Points, already cleaned by the shape
+        // geometry. Carried only when there are some, so every other polyline
+        // is the very object it always was.
+        if (Array.isArray(more.holes) && more.holes.length > 0) primitive.Holes = more.holes.slice();
+        list.push(primitive);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does a Polyline Primitive Have Holes
+    // ------------------------------------------------------------
+    function Na__LeChrome__HasHoles(primitive) {
+        return Array.isArray(primitive.Holes) && primitive.Holes.length > 0;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Polyline's SVG Path Data: One Subpath, or One Closed Subpath Per Ring
+    // ------------------------------------------------------------
+    function Na__LeChrome__PolylineD(primitive, R) {
+        const pts  = primitive.Points;
+        const line = (run) => run.map((p, i) => (i === 0 ? 'M' : 'L') + R(p[0]) + ' ' + R(p[1])).join('');
+        if (!Na__LeChrome__HasHoles(primitive)) return line(pts) + (primitive.Closed ? 'Z' : '');
+        return Na__LeRings__Spans(pts.length, primitive.Holes).map((span) => line(pts.slice(span[0], span[1])) + 'Z').join('');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Trace a Polyline Into jsPDF and Paint It: One Subpath, or One Per Ring, Even-Odd
+    // ------------------------------------------------------------
+    // style is jsPDF's: 'F', 'FD', 'S', or null for a path that is only to be
+    // clipped to. A holed polyline is every ring as a closed subpath of ONE
+    // path, painted once at the end with the even-odd operators (f*, B*), so a
+    // hole is left bare exactly as the screen leaves it. A plain one is the
+    // single doc.lines call it always was.
+    // ------------------------------------------------------------
+    function Na__LeChrome__PdfTrace(doc, primitive, style) {
+        const pts   = primitive.Points;
+        const holed = Na__LeChrome__HasHoles(primitive);
+        const spans = holed ? Na__LeRings__Spans(pts.length, primitive.Holes) : [ [ 0, pts.length ] ];
+        const op    = (!holed || style === null) ? style : (style === 'F' ? 'f*' : (style === 'FD' ? 'B*' : style));
+        spans.forEach((span, k) => {
+            const run = pts.slice(span[0], span[1]);
+            const rel = [];
+            for (let i = 1; i < run.length; i++) rel.push([ run[i][0] - run[i - 1][0], run[i][1] - run[i - 1][1] ]);
+            doc.lines(rel, run[0][0], run[0][1], [ 1, 1 ], k === spans.length - 1 ? op : null, holed ? true : primitive.Closed === true);   // <-- Only the last ring paints: until then the path is still being built
+        });
     }
     // ------------------------------------------------------------
 
@@ -686,7 +748,11 @@
                    '" stroke="' + primitive.StrokeColour + '" stroke-width="' + R(primitive.StrokeMm) + '" stroke-linecap="round"' + dash(primitive) + '/>';
         }
         if (primitive.Kind === Na__LeChrome__KIND_POLYLINE) {
-            const d      = primitive.Points.map((p, i) => (i === 0 ? 'M' : 'L') + R(p[0]) + ' ' + R(p[1])).join('') + (primitive.Closed ? 'Z' : '');
+            const d      = Na__LeChrome__PolylineD(primitive, R);
+            // A HOLED SHAPE FILLS EVEN-ODD, so every path that fills - the
+            // solid, the gradient, the hatch - leaves its holes bare. A plain
+            // one writes no rule at all and its markup is what it always was.
+            const rule   = Na__LeChrome__HasHoles(primitive) ? ' fill-rule="evenodd"' : '';
             // A DASHED RUN takes butt caps, the PDF's own, so its dashes break in
             // the same places on the screen as on paper; a solid run keeps the
             // round cap and join that tidy a polyline's corners.
@@ -706,20 +772,20 @@
             // gets a path of its own and the edges ride on IT - the last path
             // drawn is the one the outline belongs to.
             const hatchPaint = Na__LeChrome__HatchPaint(primitive);
-            const solidPath  = primitive.FillColour ? '<path d="' + d + '" fill="' + primitive.FillColour + '"' + fillOp + ' stroke="none"/>' : '';
+            const solidPath  = primitive.FillColour ? '<path d="' + d + '"' + rule + ' fill="' + primitive.FillColour + '"' + fillOp + ' stroke="none"/>' : '';
             if (hatchPaint) {
                 // EVERY DEFINITION FIRST, then the paths in painting order. A
                 // <defs> block is legal anywhere in an SVG, but putting it in the
                 // middle makes the markup unreadable and hides the stacking from
                 // anyone checking it.
                 const defs  = (paint ? paint.defs : '') + hatchPaint.defs;
-                const grad  = paint ? '<path d="' + d + '" fill="' + paint.fill + '" stroke="none"/>' : '';
-                return defs + solidPath + grad + '<path d="' + d + '" fill="' + hatchPaint.fill + '"' + edges;
+                const grad  = paint ? '<path d="' + d + '"' + rule + ' fill="' + paint.fill + '" stroke="none"/>' : '';
+                return defs + solidPath + grad + '<path d="' + d + '"' + rule + ' fill="' + hatchPaint.fill + '"' + edges;
             }
             if (paint) {
-                return paint.defs + solidPath + '<path d="' + d + '" fill="' + paint.fill + '"' + edges;
+                return paint.defs + solidPath + '<path d="' + d + '"' + rule + ' fill="' + paint.fill + '"' + edges;
             }
-            return '<path d="' + d + '" fill="' + (primitive.FillColour || 'none') + '"' + (primitive.FillColour ? fillOp : '') + edges;
+            return '<path d="' + d + '"' + rule + ' fill="' + (primitive.FillColour || 'none') + '"' + (primitive.FillColour ? fillOp : '') + edges;
         }
         if (primitive.Kind === Na__LeChrome__KIND_TEXT) {
             const anchor = primitive.Align === 'right' ? 'end' : (primitive.Align === 'center' ? 'middle' : 'start');
@@ -853,11 +919,7 @@
             return;
         }
         if (primitive.Kind === Na__LeChrome__KIND_POLYLINE) {
-            const first = primitive.Points[0];
-            const rel   = [];
-            for (let i = 1; i < primitive.Points.length; i++) {
-                rel.push([ primitive.Points[i][0] - primitive.Points[i - 1][0], primitive.Points[i][1] - primitive.Points[i - 1][1] ]);
-            }
+            const trace  = (style) => Na__LeChrome__PdfTrace(doc, primitive, style);   // <-- One doc.lines for a plain run; every ring, even-odd, for a holed one
             const fill   = primitive.FillColour ? Na__LeChrome__Rgb(primitive.FillColour) : null;
             const stroke = primitive.StrokeColour ? Na__LeChrome__Rgb(primitive.StrokeColour) : null;
             const fillA  = fill ? Na__LeChrome__Alpha(primitive.FillOpacity) : 1;
@@ -870,17 +932,17 @@
                 // it, then the hatch over that, then the edges on top - so
                 // nothing below can ever paint over the outline. The screen
                 // stacks these in the same order, in Na__LeChrome__ToSvg.
-                if (fill)   Na__LeChrome__WithOpacity(doc, fillA, 1, () => { doc.setFillColor(fill.R, fill.G, fill.B); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'F', primitive.Closed === true); });
-                if (primitive.Gradient) Na__LeGrad__DrawPdf(doc, primitive.Points, primitive.Gradient);
+                if (fill)   Na__LeChrome__WithOpacity(doc, fillA, 1, () => { doc.setFillColor(fill.R, fill.G, fill.B); trace('F'); });
+                if (primitive.Gradient) Na__LeGrad__DrawPdf(doc, primitive.Points, primitive.Gradient, primitive.Holes);   // <-- A holed shape's gradient is clipped even-odd, holes left bare
                 if (hatchDef) Na__LeHatch__DrawPdf(doc, primitive.Points, hatchDef);
-                if (stroke) Na__LeChrome__WithOpacity(doc, 1, edgeA, () => { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash(dash); doc.lines(rel, first[0], first[1], [ 1, 1 ], 'S', primitive.Closed === true); });
+                if (stroke) Na__LeChrome__WithOpacity(doc, 1, edgeA, () => { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash(dash); trace('S'); });
                 if (Na__LeChrome__DashList(dash).length > 0) setDash({ DashMm : 0, DashArray : null });
                 return;
             }
             Na__LeChrome__WithOpacity(doc, fillA, edgeA, () => {
                 if (fill)   doc.setFillColor(fill.R, fill.G, fill.B);
                 if (stroke) { doc.setDrawColor(stroke.R, stroke.G, stroke.B); doc.setLineWidth(primitive.StrokeMm); setDash(dash); }
-                doc.lines(rel, first[0], first[1], [ 1, 1 ], fill ? (stroke ? 'FD' : 'F') : 'S', primitive.Closed === true);
+                trace(fill ? (stroke ? 'FD' : 'F') : 'S');
             });
             if (Na__LeChrome__DashList(dash).length > 0) setDash({ DashMm : 0, DashArray : null });   // <-- A dash never carries into the next primitive
             return;

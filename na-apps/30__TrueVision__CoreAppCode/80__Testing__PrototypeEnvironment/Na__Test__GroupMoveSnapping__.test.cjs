@@ -32,6 +32,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.2
+// - ApplyDrag (PointerDrag 1.19.0) asks the move anchor first; the context
+//   stubs it with no cross in hand, so every move here snaps as it always has.
+//   Na__Test__MoveAnchor__ proves a move carried by the cross.
+//
 // 22-Sep-2026 - Version 1.2.1
 // - The Search unit tests a viewport against the box round its frame as it
 //   stands (Na__LeVpRot__Bounds, ObjectSnap Search 1.1.0), and the fixture
@@ -121,7 +126,9 @@ function fixture() {
         // reaches hides the marker and keeps its delta - what these functions did before the grid existed.
         // Na__Test__DrawingGrid__.test.mjs proves the grid itself.
         Na__LeOsnap__GridDragDelta: (s, drag, dMm) => dMm,
-        Na__LeOsnap__GridTranslation: (s, drag, delta) => { marker = null; return delta; }
+        Na__LeOsnap__GridTranslation: (s, drag, delta) => { marker = null; return delta; },
+        // The move anchor (Ctrl+click's red cross): none in hand here, so no drag is the cross's and none is carried by it.
+        Na__LeAnchor__IsDrag: () => false, Na__LeAnchor__Relocate() {}, Na__LeAnchor__Carry: (s, drag, dMm) => dMm, Na__LeAnchor__ShowAt() {}
     });
     // The viewport rotation leaf, whole (it imports nothing): the search tests the pointer against the box round
     // a viewport's frame as it stands, turned or not (Na__LeVpRot__Bounds).

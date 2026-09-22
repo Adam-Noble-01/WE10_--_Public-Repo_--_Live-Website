@@ -51,6 +51,38 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.18.0
+// - THE BOOLEAN KEYS (Adam): Shift+U Union, Shift+S Subtract, Shift+T Trim,
+//   while two or more closed shapes are selected, and Shift+O Outer Shell
+//   (that, or one shape with holes). The situation handed to the key map
+//   gains BooleanSelection and OuterShellSelection - getters, so the
+//   selection is only looked at when a binding naming one has matched - and a
+//   key map COMMAND
+//   (Na__LeVec__CommandForAction) runs the Boolean on the selection at once
+//   instead of picking a tool up (Na__LeVec__RunCommand). Everywhere else
+//   Shift+T is Extend, as before.
+//
+// 22-Sep-2026 - Version 1.17.0
+// - Delete inside a vector asks the shape geometry for the whole patch
+//   (Na__LeShapeGeo__RemoveVertices): the points left and, on a holed vector
+//   from the Boolean tools, the hole starts that follow them out - a hole left
+//   with fewer than three corners goes whole. A plain vector loses its points
+//   exactly as before.
+//
+// 22-Sep-2026 - Version 1.16.0
+// - The move anchor's cross being re-placed (Na__LayoutEditor__MoveAnchor__)
+//   takes the arrow-key axis lock, as a vertex does - it never nudges the item
+//   from under the drag - and Shift or Ortho redraws it at once (RedrawHeld).
+//
+// 22-Sep-2026 - Version 1.15.0
+// - Backspace mid-draw takes the last point off a line, polyline, polygon
+//   or room (Na__LeShape__UndoVertex) and gives an arc its last point back
+//   (Na__LeVec__StepBack) - the Ctrl+Z step-back on the key tracing tools
+//   use for it, so one bad click no longer means starting the vector again.
+//   A length half typed in the Measurements box is erased first; with
+//   nothing being drawn Backspace deletes the selection as before, and
+//   Delete is unchanged.
+//
 // 22-Sep-2026 - Version 1.14.0
 // - Rerun restretches a note region's rubber box (TOOL_REGION) from the last
 //   pointer point, as it does a rectangle's. The rest - the arrows swallowed,
@@ -207,11 +239,11 @@
         Na__LeModel__GetSelectionItems
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetEditingViewport } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
-    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated, Na__LeShapeGeo__RemoveVertices } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeDim__Move, Na__LeDim__IsPlacing, Na__LeDim__IsSpanning } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Move, Na__LeShape__Finish, Na__LeShape__IsDrawing, Na__LeShape__UndoVertex, Na__LeShape__RedoVertex } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
     import { Na__LeRect__Move, Na__LeRect__Cancel, Na__LeRect__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__RectangleTool__.js';
-    import { Na__LeVec__IsTool, Na__LeVec__IsDrawing, Na__LeVec__Move, Na__LeVec__ToolForAction, Na__LeVec__StepBack, Na__LeVec__TakesAxis, Na__LeVec__SwallowsArrows } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools' one door
+    import { Na__LeVec__IsTool, Na__LeVec__IsDrawing, Na__LeVec__Move, Na__LeVec__ToolForAction, Na__LeVec__CommandForAction, Na__LeVec__RunCommand, Na__LeVec__BooleanSelection, Na__LeVec__OuterShellSelection, Na__LeVec__StepBack, Na__LeVec__TakesAxis, Na__LeVec__SwallowsArrows } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools' one door
     import { Na__LeAreaTool__Rerun, Na__LeAreaTool__Finish, Na__LeAreaTool__IsDrawing } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Tool__.js';
     import { Na__LeRegionTool__Rerun } from '../50__Feature__Specification/Na__LayoutEditor__NoteRegions__Tool__.js';
     import { Na__LeMeasure__Refresh } from './Na__LayoutEditor__Measurements__.js';
@@ -276,7 +308,7 @@
         Na__LeTools__GetShapeDefaults
     } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import { Na__LeTools__RefreshShapeInsert, Na__LeTools__Record, Na__LeTools__IsViewportLocked } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
-    import { Na__LeTools__IsVertexDrag, Na__LeTools__RerunVertexDrag, Na__LeTools__IsDimEndDrag, Na__LeTools__RerunDimEndDrag, Na__LeTools__IsMoveDrag, Na__LeTools__RerunMoveDrag, Na__LeTools__IsViewportMoveDrag, Na__LeTools__RerunViewportDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
+    import { Na__LeTools__IsVertexDrag, Na__LeTools__RerunVertexDrag, Na__LeTools__IsDimEndDrag, Na__LeTools__RerunDimEndDrag, Na__LeTools__IsMoveDrag, Na__LeTools__RerunMoveDrag, Na__LeTools__IsViewportMoveDrag, Na__LeTools__RerunViewportDrag, Na__LeTools__IsAnchorDrag, Na__LeTools__RerunAnchorDrag } from './Na__LayoutEditor__SheetTools__PointerDrag__.js';
     import { Na__LeTools__SetEditingViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
     import { Na__LeTools__ToggleCopyDrag } from './Na__LayoutEditor__SheetTools__CopyDrag__.js';
     // ------------------------------------------------------------
@@ -326,12 +358,15 @@
         if (!sheet || !shapeId || !picked.length || !Na__LeTools__Editable) return false;
         const shape = Na__LeTools__Record(sheet, { kind : 'shape', id : shapeId });
         if (!shape || Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return false;
-        const points = Na__LeShapeGeo__Points(shape);
-        const kept   = points.filter((point, index) => picked.indexOf(index) === -1).map((point) => [ point[0], point[1] ]);
         const floor  = shape.Shape__Area ? 3 : 2;                             // <-- A measured room needs three corners to enclose anything; a plain vector needs two to draw
-        if (kept.length < floor || kept.length === points.length) return false;
+        // THE SHAPE GEOMETRY WORKS THE PATCH OUT: the points left, and on a
+        // holed shape the hole starts that follow them out - a hole left with
+        // fewer than three corners goes whole. Null when nothing would change
+        // or the outline would be too few.
+        const patch  = Na__LeShapeGeo__RemoveVertices(shape, picked, floor);
+        if (!patch) return false;
         Na__LeScope__ClearVertices();
-        return Na__LeModel__UpdateShape(sheet, shapeId, { points : kept }, false);
+        return Na__LeModel__UpdateShape(sheet, shapeId, patch, false);
     }
     // ------------------------------------------------------------
 
@@ -392,6 +427,7 @@
         if (Na__LeTools__IsMoveDrag())   { Na__LeAxis__Toggle(axis); Na__LeTools__RerunMoveDrag();   return true; }   // <-- A whole object held by the Move tool locks to an axis the same way
         if (Na__LeTools__IsDimEndDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunDimEndDrag(); return true; }   // <-- A measured point holds an axis the same way a vertex does
         if (Na__LeTools__IsViewportMoveDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunViewportDrag(); return true; }   // <-- And so does a viewport frame, carried by a point or moved plain
+        if (Na__LeTools__IsAnchorDrag()) { Na__LeAxis__Toggle(axis); Na__LeTools__RerunAnchorDrag(); return true; }   // <-- And the move anchor's cross being re-placed: held from where it was, never a nudge of the item under it
         if (Na__LeVec__TakesAxis(Na__LeTools__Tool)) {                       // <-- An arc's chord, or its radius from the centre: a straight run, locked as a line's is
             Na__LeAxis__Toggle(axis);
             const at = Na__LeTools__LastPointMm, on = Na__LeModel__GetActiveSheet();
@@ -434,7 +470,7 @@
         if (!Na__LeTools__Editable) return false;
         const drag = Na__LeTools__Drag;
         if (drag && drag.moved === true) {
-            if (Na__LeTools__RerunVertexDrag() || Na__LeTools__RerunMoveDrag() || Na__LeTools__RerunDimEndDrag() || Na__LeTools__RerunViewportDrag()) return true;
+            if (Na__LeTools__RerunVertexDrag() || Na__LeTools__RerunMoveDrag() || Na__LeTools__RerunDimEndDrag() || Na__LeTools__RerunViewportDrag() || Na__LeTools__RerunAnchorDrag()) return true;
         }
         const sheet = Na__LeModel__GetActiveSheet();
         const point = Na__LeTools__LastPointMm;
@@ -608,7 +644,16 @@
         // are left alone here: the PC controls module owns those. An arrow with
         // the copy key still held mid-move is the axis lock all the same.
         const held  = { Ctrl : !!event.ctrlKey, Shift : !!event.shiftKey, Alt : !!event.altKey, Meta : !!event.metaKey, Space : false };
-        const match = Na__LeCfg__MatchKeyBinding(event.key, held, { InContainer : Na__LeScope__IsActive() }) || Na__LeTools__MatchUnderCopy(event.key, held);   // <-- The situation goes with the key: a binding may name When it applies (T is Trim inside a container, Text outside)
+        // THE SITUATION GOES WITH THE KEY: a binding may name When it applies -
+        // T is Trim inside a container and Text outside; Shift+T is Trim the
+        // SHAPES while two or more closed ones are selected and Extend at every
+        // other time. BooleanSelection and OuterShellSelection are getters, so
+        // the selection is only looked at once a binding that names one has
+        // matched the key and its modifiers: no other key pays for it.
+        const situation = { InContainer : Na__LeScope__IsActive() };
+        Object.defineProperty(situation, 'BooleanSelection',    { enumerable : true, get : () => Na__LeVec__BooleanSelection(Na__LeModel__GetActiveSheet()) === true });
+        Object.defineProperty(situation, 'OuterShellSelection', { enumerable : true, get : () => Na__LeVec__OuterShellSelection(Na__LeModel__GetActiveSheet()) === true });   // <-- Shift+O: that, or ONE shape with holes, which Outer Shell fills
+        const match = Na__LeCfg__MatchKeyBinding(event.key, held, situation) || Na__LeTools__MatchUnderCopy(event.key, held);
         if (!match || !match.action) return;
         // A SELECT, A CHECKBOX OR A NUMBER BOX HAS NO UNDO OR PASTE OF ITS OWN,
         // so a Ctrl chord always belongs to the sheet. Without this, Ctrl+Z
@@ -673,7 +718,19 @@
                 if (sheet && one.length === 1 && Na__LeTools__EnterScope(sheet, one[0])) event.preventDefault();
                 return;
             }
+            // BACKSPACE MID-DRAW TAKES THE LAST POINT OFF, as it does in AutoCAD,
+            // Illustrator and every tracing tool: one misplaced click no longer
+            // costs the whole line. It is the Ctrl+Z step-back (the first point
+            // abandons the shape; Ctrl+Y puts a point back), and a length being
+            // typed in the Measurements box has its figures erased first - that
+            // box takes the key in the capture phase while it holds any. Delete
+            // is left as it was.
+            // ------------------------------------
             case 'Edit__Delete':
+                if (event.key === 'Backspace') {
+                    if (Na__LeShape__IsDrawing() && sheet) { event.preventDefault(); Na__LeShape__UndoVertex(sheet); Na__LeMeasure__Refresh(); return; }
+                    if (Na__LeVec__StepBack(Na__LeTools__Tool)) { event.preventDefault(); Na__LeMeasure__Refresh(); return; }   // <-- An arc gives its last point back
+                }
                 if (Na__LeScope__IsVectorEdit()) { if (Na__LeTools__DeleteVertices()) event.preventDefault(); return; }   // <-- Inside a vector, Delete is about its points
                 if (Na__LeModel__GetSelectionItems().length) { event.preventDefault(); void Na__LeTools__DeleteSelection(); }
                 return;
@@ -810,7 +867,18 @@
             // nothing here. A held key counts once: picking Join up again would
             // let go of the line it is holding.
             // ------------------------------------
+            // THE BOOLEAN KEYS - Shift+U Union, Shift+S Subtract, Shift+T Trim -
+            // are commands, not tools: their bindings only match while two or
+            // more closed shapes are selected, and they act on those at once,
+            // leaving the tool as it is, like the Boolean row of the selection's
+            // right-click menu. A held key counts once.
+            // ------------------------------------
             default: {
+                if (Na__LeVec__CommandForAction(match.action)) {
+                    event.preventDefault();
+                    if (!event.repeat && Na__LeTools__Editable && sheet) Na__LeVec__RunCommand(match.action, sheet);
+                    return;
+                }
                 const vectorTool = Na__LeVec__ToolForAction(match.action);
                 if (!vectorTool) return;
                 event.preventDefault();

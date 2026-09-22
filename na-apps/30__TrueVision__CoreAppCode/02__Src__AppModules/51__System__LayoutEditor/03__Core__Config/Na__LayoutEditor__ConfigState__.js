@@ -51,6 +51,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.29.0
+// - Re-exports GetMoveAnchorModifier (the KeyMap unit): the key that, held on
+//   its own through a click on one item, puts the move anchor's red cross on it.
+//
 // 21-Sep-2026 - Version 1.28.0
 // - Re-exports GetCopyDragModifier and IsCopyDragKey (the KeyMap unit): the key
 //   that makes a move carry a copy, SketchUp LayOut's Ctrl-drag.
@@ -242,6 +246,7 @@
         Na__LeCfg__MatchKeyBinding,
         Na__LeCfg__MatchSelectionModifier,
         Na__LeCfg__GetCopyDragModifier,
+        Na__LeCfg__GetMoveAnchorModifier,
         Na__LeCfg__IsCopyDragKey,
         Na__LeCfg__IsPointerModifierBound,
         Na__LeCfg__GetActionCatalogue
@@ -442,6 +447,7 @@
         Na__LeCfg__MatchKeyBinding,
         Na__LeCfg__MatchSelectionModifier,
         Na__LeCfg__GetCopyDragModifier,
+        Na__LeCfg__GetMoveAnchorModifier,
         Na__LeCfg__IsCopyDragKey,
         Na__LeCfg__IsPointerModifierBound,
         Na__LeCfg__GetActionCatalogue

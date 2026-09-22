@@ -36,6 +36,10 @@
 // - A press on a point of a 2D viewport's own linework carries the viewport
 //   BY that point, snapping it onto or into line with other drawings, through
 //   Na__LayoutEditor__ViewportSnapMove__. Hovering shows the point first.
+// - THE MOVE ANCHOR (Na__LayoutEditor__MoveAnchor__): Ctrl+click one item or
+//   one group and a red cross comes up in the middle of its box, with the Move
+//   tool. Drag the cross onto any snap point to re-place it; drag the item and
+//   it is carried by the cross alone - from this point to that point.
 // - Keys: Delete removes the selection (a viewport asks first), Escape
 //   backs out, Space clears the selection, Enter finishes a shape or the
 //   editing of a viewport's content, arrows nudge by a millimetre (ten with
@@ -141,6 +145,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.39.0
+// - The move anchor (Na__LayoutEditor__MoveAnchor__): Attach reads its config
+//   (Ready), the repaint after a model change or a settled zoom puts the cross
+//   right or drops it once its item is no longer the one thing selected
+//   (Refresh, in DropperDraw), and Detach forgets it.
+//
 // 22-Sep-2026 - Version 1.38.0
 // - Attach and Detach take the note tooltip's stage listeners with them
 //   (Na__LayoutEditor__SheetTools__NoteTooltip__): a press, a wheel turn, a
@@ -480,6 +490,7 @@
     import { Na__LeVec__SetSpeaker } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__State__.js';
     import { Na__LeDrop__Refresh } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeVpMove__Refresh } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeAnchor__Ready, Na__LeAnchor__Refresh, Na__LeAnchor__Clear } from '../28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__.js';   // <-- Ctrl+click's red cross: counter-scaled, and dropped with its selection
     import { Na__LeGroup__Render } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import { Na__LeSelBox__Refresh } from './Na__LayoutEditor__SelectionBox__.js';
     import { Na__LeScope__CHANGED_EVENT, Na__LeScope__Clear, Na__LeScope__Prune } from './Na__LayoutEditor__EditScope__.js';
@@ -595,7 +606,7 @@
     // ------------------------------------------------------------
     function Na__LeTools__DropperDraw() {
         const sheet = Na__LeModel__GetActiveSheet();
-        Na__LeScope__Prune(sheet); Na__LeDrop__Refresh(sheet); Na__LeVpMove__Refresh(sheet); Na__LeSelBox__Refresh(sheet);
+        Na__LeScope__Prune(sheet); Na__LeDrop__Refresh(sheet); Na__LeVpMove__Refresh(sheet); Na__LeSelBox__Refresh(sheet); Na__LeAnchor__Refresh(sheet);
         if (Na__LeTools__GroupFrame) return;
         Na__LeTools__GroupFrame = requestAnimationFrame(() => {
             Na__LeTools__GroupFrame = 0;
@@ -663,6 +674,7 @@
             typeVectorValue      : (text) => Na__LeVec__TypeValue(Na__LeTools__Tool, Na__LeModel__GetActiveSheet(), text, Na__LeTools__GetShapeDefaults(), Na__LeTools__LastPointMm)
         });
         Na__LeVec__SetSpeaker((text) => Na__LeMeasure__Say(text));           // <-- The vector tools say a line above the Measurements box ("Nothing crosses that line") without importing it
+        Na__LeAnchor__Ready();                                               // <-- The move anchor's settings, read once, before the first Ctrl+click
         Na__LeTools__SetTool(Na__LeTools__TOOL_SELECT);
         return true;
     }
@@ -678,6 +690,7 @@
         Na__LeTools__WriteLastPointMm(null);
         Na__LeText__Cancel();
         Na__LeScope__Clear();                                                // <-- Never leave a sheet with a container still open
+        Na__LeAnchor__Clear();                                               // <-- Nor a move anchor's cross on a stage that is going
         Na__LeTools__CancelPlacement();
         Na__LeMeasure__Detach();                                             // <-- The box is put away with the tools, and its keys with it
         if (!Na__LeTools__Stage || !Na__LeTools__Handlers) return;

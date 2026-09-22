@@ -18,7 +18,11 @@
 //   group, so no selection ever closes it.
 // - THE TOOLS. Draw: Line, Rectangle, Circle, Arc - the two the editor had and
 //   the two that are new, together because that is how they are reached for.
-//   Edit: Trim, Extend, Join, Split, Offset, Fillet, Chamfer. The one that is
+//   Edit: Trim, Extend, Join, Split, Offset, Fillet, Chamfer. Then a rule and
+//   Boolean: Union, Subtract, Trim, Intersect, Split, Outer Shell - SketchUp's
+//   Solid Tools, which combine closed shapes as areas and can leave holes in
+//   them (Adam's marked-up screenshot, 22-Sep-2026: the space under the Edit
+//   row, "a new section after a hr"). The one that is
 //   up is lit, exactly as its toolbar button is, and every button's tooltip is
 //   its whole instruction, key included - so the panel itself carries no
 //   paragraphs (the Vectors panel took its own out for the same reason).
@@ -48,6 +52,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - Under the Edit row, a rule and a Boolean section: Union, Subtract, Trim,
+//   Intersect, Split and Outer Shell, lit as every other tool is, their whole
+//   instruction in each tooltip. They have no settings, so no option row
+//   shows for them; the hint line under the buttons says what each wants.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -83,6 +93,12 @@
         Na__LeVec__TOOL_OFFSET,
         Na__LeVec__TOOL_FILLET,
         Na__LeVec__TOOL_CHAMFER,
+        Na__LeVec__TOOL_UNION,
+        Na__LeVec__TOOL_SUBTRACT,
+        Na__LeVec__TOOL_BOOL_TRIM,
+        Na__LeVec__TOOL_INTERSECT,
+        Na__LeVec__TOOL_BOOL_SPLIT,
+        Na__LeVec__TOOL_OUTER_SHELL,
         Na__LeVec__ARC_MODES,
         Na__LeVec__SETTINGS_EVENT,
         Na__LeVec__HINT_EVENT,
@@ -111,6 +127,11 @@
     const Na__LePanelVec__DRAW = [ [ 'draw', 'ToolDraw', 'Line' ], [ 'rectangle', 'ToolRectangle', 'Rectangle' ], [ Na__LeVec__TOOL_CIRCLE, 'ToolCircle', 'Circle' ], [ Na__LeVec__TOOL_ARC, 'ToolArc', 'Arc' ] ];
     const Na__LePanelVec__EDIT = [ [ Na__LeVec__TOOL_TRIM, 'ToolTrim', 'Trim' ], [ Na__LeVec__TOOL_EXTEND, 'ToolExtend', 'Extend' ], [ Na__LeVec__TOOL_JOIN, 'ToolJoin', 'Join' ], [ Na__LeVec__TOOL_SPLIT, 'ToolSplit', 'Split' ],
                                    [ Na__LeVec__TOOL_OFFSET, 'ToolOffset', 'Offset' ], [ Na__LeVec__TOOL_FILLET, 'ToolFillet', 'Fillet' ], [ Na__LeVec__TOOL_CHAMFER, 'ToolChamfer', 'Chamfer' ] ];
+    // THE BOOLEAN TOOLS, in the order Adam named them ("union, subtract,
+    // trim etc") and then SketchUp's other three. Trim and Split here are the
+    // shape tools, under their own heading, as they are in SketchUp.
+    const Na__LePanelVec__BOOLEAN = [ [ Na__LeVec__TOOL_UNION, 'ToolUnion', 'Union' ], [ Na__LeVec__TOOL_SUBTRACT, 'ToolSubtract', 'Subtract' ], [ Na__LeVec__TOOL_BOOL_TRIM, 'ToolBoolTrim', 'Trim' ],
+                                      [ Na__LeVec__TOOL_INTERSECT, 'ToolIntersect', 'Intersect' ], [ Na__LeVec__TOOL_BOOL_SPLIT, 'ToolBoolSplit', 'Split' ], [ Na__LeVec__TOOL_OUTER_SHELL, 'ToolOuterShell', 'Outer Shell' ] ];
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | Wired Once a Session
@@ -170,6 +191,16 @@
         body.classList.add('na-le-vectools');
         Na__LePanelVec__ToolRow(body, 'GroupDraw', 'Draw', Na__LePanelVec__DRAW);
         Na__LePanelVec__ToolRow(body, 'GroupEdit', 'Edit', Na__LePanelVec__EDIT);
+
+        // A RULE, THEN THE BOOLEAN SECTION - where Adam drew it, under the Edit
+        // row (22-Sep-2026). A rule rather than just another subhead because
+        // these work on a different thing: the Draw and Edit tools make and cut
+        // LINES, these combine closed shapes as AREAS.
+        const rule = document.createElement('hr');
+        rule.className = 'na-le-vectools__rule';
+        rule.setAttribute('data-na-block', 'vec-rule-boolean');
+        body.appendChild(rule);
+        Na__LePanelVec__ToolRow(body, 'GroupBoolean', 'Boolean', Na__LePanelVec__BOOLEAN);
 
         const hint = Na__LePanels__Note('');
         hint.className += ' na-le-vectools__hint';

@@ -135,9 +135,10 @@
         "Labels__NewGroupName"      : "Group {n}",
 
         "Labels__TablesHeading"     : "Schedules",
-        "Labels__TablesNote"        : "A schedule is a dynamic block: drag it anywhere, and it re-writes itself whenever an area is drawn, renamed, regrouped or stretched. The same two are in the Parametric Scrapbook.",
+        "Labels__TablesNote"        : "A schedule is a dynamic block: drag it anywhere, and it re-writes itself whenever an area is drawn, renamed, regrouped or stretched. The project summary adds each group up across EVERY sheet - the building's floors in one list. The same three are in the Parametric Scrapbook.",
         "Labels__InsertSchedule"    : "Insert area schedule",
         "Labels__InsertSummary"     : "Insert group summary",
+        "Labels__InsertProject"     : "Insert project summary",
         "Labels__TableInserted"     : "Schedule placed in the middle of the view.",
 
         "Labels__MenuMeasure"       : "Measure this shape as a floor area",

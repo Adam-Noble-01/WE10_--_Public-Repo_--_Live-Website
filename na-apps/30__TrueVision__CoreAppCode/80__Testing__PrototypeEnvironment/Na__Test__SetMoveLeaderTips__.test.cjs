@@ -53,6 +53,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.2
+// - Loads Na__LeShapeGeo__Holes with the shape geometry it runs: Segments and
+//   Contains ask it (ShapeGeometry 1.9.0, holed vectors from the Boolean
+//   tools). It answers [] for every shape here, which carry no Shape__Holes.
+//
+// 22-Sep-2026 - Version 1.1.1
+// - The context stubs the move anchor's Holds and HoldsItems (no cross on
+//   anything): HitResolution 1.10.0 asks them first in PicksUpMove and
+//   SelectionPicksUpMove. Na__Test__MoveAnchor__ proves the cross itself.
+//
 // 22-Sep-2026 - Version 1.1.0
 // - Tests 18-28 for viewports in groups and for placing inside an open group
 //   (Groups 1.4.0, EditScope 1.4.0, HitResolution 1.9.0, ToolState 1.6.0);
@@ -132,6 +142,8 @@ function fixture() {
         Na__LeModel__AssignDirty () {},
         Na__LeModel__GetActiveSheet : () => sheet,
         Na__LeModel__GetSelection : () => (state.selection.length === 1 ? state.selection[0] : null),
+        Na__LeAnchor__Holds : () => false,                                   // <-- No move anchor's cross on anything here (Na__Test__MoveAnchor__ proves it)
+        Na__LeAnchor__HoldsItems : () => false,
         // THE HOOK CONTRACT (Na__LayoutEditor__SheetModel__State__): registered once each, run in order ahead of the
         // announcement with (reason, sheetId, itemId).
         Na__LeModel__RegisterBeforeAnnounce : (hook) => { if (typeof hook !== 'function' || hooks.indexOf(hook) !== -1) return false; hooks.push(hook); return true; },
@@ -170,7 +182,7 @@ function fixture() {
     }
     // THE REAL THING, bar the stubs above: shape geometry, the turned frame, the
     // group record and its prune and delete, groups, the selection set, the scope.
-    loadFunctions(ctx, '15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js', [ 'Na__LeShapeGeo__Points', 'Na__LeShapeGeo__Segments', 'Na__LeShapeGeo__Bounds',
+    loadFunctions(ctx, '15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js', [ 'Na__LeShapeGeo__Points', 'Na__LeShapeGeo__Holes', 'Na__LeShapeGeo__Segments', 'Na__LeShapeGeo__Bounds',
         'Na__LeShapeGeo__Translated', 'Na__LeShapeGeo__DistanceToSegment', 'Na__LeShapeGeo__DistanceToEdge', 'Na__LeShapeGeo__Contains', 'Na__LeShapeGeo__Hit' ]);
     vm.runInContext(strip(read('20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js')), ctx);
     loadConst(ctx, '07__Core__SheetData/Na__LayoutEditor__SheetRecords__.js', 'Na__LeRec__GROUP_KINDS');

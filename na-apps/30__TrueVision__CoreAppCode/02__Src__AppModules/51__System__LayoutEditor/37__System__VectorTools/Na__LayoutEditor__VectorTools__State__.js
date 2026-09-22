@@ -14,8 +14,10 @@
 //   the tool names from here without closing a circle, and the panel, the
 //   tools and the Measurements box can all read one set of settings.
 // - THE TOOLS. Two DRAW something new - Circle and Arc, beside the Draw and
-//   Rectangle tools the editor already had. Seven EDIT what is already on the
-//   sheet - Trim, Extend, Join, Split, Offset, Fillet and Chamfer. The
+//   Rectangle tools the editor already had. Thirteen EDIT what is already on
+//   the sheet - Trim, Extend, Join, Split, Offset, Fillet and Chamfer, which
+//   work on lines, and the six Boolean tools, which work on closed shapes as
+//   areas (Union, Subtract, Trim, Intersect, Split, Outer Shell). The
 //   difference matters to the container that may be open: an edit tool works
 //   INSIDE it, like Select and Move, so picking one never closes it; a draw
 //   tool keeps a GROUP open and draws into it, as LayOut does, and closes a
@@ -45,6 +47,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - The six Boolean tools - Union, Subtract, Trim, Intersect, Split and Outer
+//   Shell (boolUnion ... boolOuterShell, BOOLEAN_TOOLS) - join EDIT_TOOLS, so
+//   they work inside an open container and never close it, and TOOLS, so the
+//   sheet tools take them in with nothing of their own to change.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -66,8 +74,19 @@
     const Na__LeVec__TOOL_OFFSET  = 'offset';
     const Na__LeVec__TOOL_FILLET  = 'fillet';
     const Na__LeVec__TOOL_CHAMFER = 'chamfer';
+    // THE BOOLEAN TOOLS (22-Sep-2026): SketchUp's Solid Tools, for closed
+    // shapes. Their names carry "bool" because Trim and Split are already the
+    // line tools' - the panel shows them under their own heading as Trim and
+    // Split, as SketchUp does.
+    const Na__LeVec__TOOL_UNION       = 'boolUnion';
+    const Na__LeVec__TOOL_SUBTRACT    = 'boolSubtract';
+    const Na__LeVec__TOOL_BOOL_TRIM   = 'boolTrim';
+    const Na__LeVec__TOOL_INTERSECT   = 'boolIntersect';
+    const Na__LeVec__TOOL_BOOL_SPLIT  = 'boolSplit';
+    const Na__LeVec__TOOL_OUTER_SHELL = 'boolOuterShell';
+    const Na__LeVec__BOOLEAN_TOOLS = Object.freeze([ Na__LeVec__TOOL_UNION, Na__LeVec__TOOL_SUBTRACT, Na__LeVec__TOOL_BOOL_TRIM, Na__LeVec__TOOL_INTERSECT, Na__LeVec__TOOL_BOOL_SPLIT, Na__LeVec__TOOL_OUTER_SHELL ]);
     const Na__LeVec__DRAW_TOOLS   = Object.freeze([ Na__LeVec__TOOL_CIRCLE, Na__LeVec__TOOL_ARC ]);
-    const Na__LeVec__EDIT_TOOLS   = Object.freeze([ Na__LeVec__TOOL_TRIM, Na__LeVec__TOOL_EXTEND, Na__LeVec__TOOL_JOIN, Na__LeVec__TOOL_SPLIT, Na__LeVec__TOOL_OFFSET, Na__LeVec__TOOL_FILLET, Na__LeVec__TOOL_CHAMFER ]);
+    const Na__LeVec__EDIT_TOOLS   = Object.freeze([ Na__LeVec__TOOL_TRIM, Na__LeVec__TOOL_EXTEND, Na__LeVec__TOOL_JOIN, Na__LeVec__TOOL_SPLIT, Na__LeVec__TOOL_OFFSET, Na__LeVec__TOOL_FILLET, Na__LeVec__TOOL_CHAMFER ].concat(Na__LeVec__BOOLEAN_TOOLS));   // <-- The Boolean tools edit what is there too, so they work inside an open container and never close it
     const Na__LeVec__TOOLS        = Object.freeze(Na__LeVec__DRAW_TOOLS.concat(Na__LeVec__EDIT_TOOLS));
     const Na__LeVec__GROUP_DRAW_TOOLS = Object.freeze([ 'draw', 'rectangle', Na__LeVec__TOOL_CIRCLE, Na__LeVec__TOOL_ARC ]);   // <-- The tools that draw a plain vector: with a GROUP open they draw into it. 'draw' and 'rectangle' are the sheet tools' own names for theirs
     // ------------------------------------------------------------
@@ -242,6 +261,13 @@
         Na__LeVec__TOOL_OFFSET,
         Na__LeVec__TOOL_FILLET,
         Na__LeVec__TOOL_CHAMFER,
+        Na__LeVec__TOOL_UNION,
+        Na__LeVec__TOOL_SUBTRACT,
+        Na__LeVec__TOOL_BOOL_TRIM,
+        Na__LeVec__TOOL_INTERSECT,
+        Na__LeVec__TOOL_BOOL_SPLIT,
+        Na__LeVec__TOOL_OUTER_SHELL,
+        Na__LeVec__BOOLEAN_TOOLS,
         Na__LeVec__DRAW_TOOLS,
         Na__LeVec__EDIT_TOOLS,
         Na__LeVec__TOOLS,

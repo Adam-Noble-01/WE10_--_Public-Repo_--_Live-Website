@@ -27,12 +27,29 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__SheetRecords__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026; Shape__Holes (holed vectors), TrueVision first on 22-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.38.0
+// - HOLES IN A VECTOR (islands), for the vector tools' Boolean section:
+//   NormaliseShapeHoles keeps Shape__Holes - where each hole begins in
+//   Shape__Points - only while it holds a hole, only on a plain vector, and
+//   holds such a shape closed. The starts are cleaned by the new leaf
+//   Na__LayoutEditor__ShapeRings__, which is only asked about a shape that
+//   has the key, so every record from before (and every test that loads this
+//   file with its own stubs) reads exactly as it did.
+//
+// 22-Sep-2026 - Version 1.37.0
+// - LEADERLESS NOTES on the notes margin record: LeaderlessOn (stored only as
+//   true) and LeaderlessGroups (stored only when there is one), filled by the
+//   new leaf Na__LayoutEditor__SheetRecords__LeaderlessNotes__, called from
+//   NormaliseMarginNotes straight after the regions. Its readers are imported
+//   from the leaf by name, as the regions' are. A margin record without them
+//   is rebuilt exactly as before.
+//
 // 22-Sep-2026 - Version 1.36.0
 // - OVERSPILL NOTE REGIONS on the notes margin record: RegionsOn (stored only
 //   as true) and Regions (stored only when there is one), filled by the new
@@ -345,6 +362,8 @@
     import { Na__LeScale__Coerce, Na__LeScale__SheetLabel } from './Na__LayoutEditor__ScaleManager__.js';
     import { Na__LeLayout__PaperSizeMm } from './Na__LayoutEditor__SheetLayout__.js';               // <-- A leaf: it reads the sheet config and nothing else, so it cannot cycle back here
     import { Na__LeRec__NormaliseNoteRegions } from './Na__LayoutEditor__SheetRecords__NoteRegions__.js';   // <-- A leaf too (the config alone): the overspill note regions on the margin record
+    import { Na__LeRec__NormaliseLeaderlessNotes } from './Na__LayoutEditor__SheetRecords__LeaderlessNotes__.js';   // <-- A leaf with no imports at all: the groups the margin lists without leaders
+    import { Na__LeRings__Clean } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';   // <-- A leaf with no imports: where a holed vector's holes begin, asked only of a shape that has the key
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Projected Edge Styles and Composite Weights
@@ -765,6 +784,33 @@
     // ---------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Tidy a Shape's Holes (islands)
+    // ---------------------------------------------------------------
+    // Shape__Holes lists where each hole begins in Shape__Points: the outline
+    // is the run up to the first start, each hole the run from its start to
+    // the next (Na__LayoutEditor__ShapeRings__). The Boolean tools make them.
+    //
+    // KEPT ONLY WHILE IT HOLDS A HOLE, the rule Dimension__RoundUp follows, so
+    // every shape drawn before holes existed stays byte-identical on save and
+    // nothing has to migrate - and the leaf is never asked about a shape
+    // without the key. A start that would leave a ring under three points
+    // drops out (that hole's points join the ring before it rather than the
+    // shape losing its outline). A hole is only ever round a CLOSED outline,
+    // so a shape that has one is held closed; a picture, a QR box and a
+    // measured room keep none - each reads its own points as one ring.
+    // ---------------------------------------------------------------
+    function Na__LeRec__NormaliseShapeHoles(item) {
+        if (!('Shape__Holes' in item)) return;
+        if (!Array.isArray(item.Shape__Holes) || item.Shape__Holes.length === 0) { delete item.Shape__Holes; return; }   // <-- None: no key, and no question for the leaf
+        const plain  = !item.Shape__Image && !item.Shape__Qr && !item.Shape__Area;
+        const starts = plain ? Na__LeRings__Clean(item.Shape__Points.length, item.Shape__Holes, true) : [];
+        if (!starts.length) { delete item.Shape__Holes; return; }
+        item.Shape__Holes  = starts;
+        item.Shape__Closed = true;
+    }
+    // ---------------------------------------------------------------
+
+
     // HELPER FUNCTION | Tidy a Shape's QR Block
     // ---------------------------------------------------------------
     // Shape__Qr is { Qr__MarginMm } and NOTHING ELSE. It says "paint the
@@ -1102,6 +1148,7 @@
         Na__LeRec__NormaliseShapeCurve(item);                                             // <-- The Circle and Arc tools' one-word hint, if it carries one
         Na__LeRec__NormaliseShapeArea(item);                                              // <-- What it is called and what it is filed under, if it is a measured room
         Na__LeRec__NormaliseShapeImage(item);                                             // <-- Which stored picture it shows and how much of it, if it is a picture - after the three above, which it clears
+        Na__LeRec__NormaliseShapeHoles(item);                                             // <-- Where each hole begins, if it has any - after the picture, the QR box and the room, none of which keeps one
         item.Shape__StrokeOpacity = Na__LeRec__Unit(item.Shape__StrokeOpacity, 1);
         item.Shape__Gradient = Na__LeGrad__Normalise(item.Shape__Gradient);              // <-- A fresh object or null: no two shapes ever hold the same gradient
         item.Shape__LineStyle = Na__LeDash__Normalise(item.Shape__LineStyle);            // <-- Likewise: null is a solid edge, and a record from before the toggle stays one
@@ -1187,7 +1234,9 @@
     // FUNCTION | Fill In a Sheet's Notes Margin (only on a sheet that has one)
     // ------------------------------------------------------------
     // Sheet__MarginNotes : { Enabled, WidthMm, Heading, TextSizeMm,
-    // IncludeGeneral, GroupHeadings }. A sheet that never had a margin carries
+    // IncludeGeneral, GroupHeadings }, then - only when the record had them -
+    // the overspill note regions (RegionsOn, Regions) and the leaderless notes
+    // (LeaderlessOn, LeaderlessGroups). A sheet that never had a margin carries
     // no key and is left without one. Heading null prints the configured
     // heading. The width is only kept above MinWidthMm here; the layout clamps
     // it to the paper when it is solved, so a paper change that narrows the
@@ -1211,6 +1260,7 @@
             GroupHeadings  : typeof raw.GroupHeadings === 'boolean' ? raw.GroupHeadings : setup.groupHeadings
         };
         Na__LeRec__NormaliseNoteRegions(raw, sheet.Sheet__MarginNotes);         // <-- RegionsOn and Regions, only when the record had them
+        Na__LeRec__NormaliseLeaderlessNotes(raw, sheet.Sheet__MarginNotes);     // <-- LeaderlessOn and LeaderlessGroups, likewise
         return sheet.Sheet__MarginNotes;
     }
     // ------------------------------------------------------------

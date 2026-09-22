@@ -67,6 +67,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - A VECTOR WITH HOLES (the vector tools' Boolean section) offers each
+//   ring's own edges, and their middles, for every snap that reads edges, and
+//   its OUTLINE's centre - never a phantom edge from the outline to a hole.
+//   Its corners, holes' included, are ends as every vertex is. The rings are
+//   read from the shape geometry (Na__LeShapeGeo__EdgePairs, __Rings) only for
+//   a vector that has the key, so every other shape - and every suite that
+//   stubs this unit's outside - walks exactly as before.
+//
 // 22-Sep-2026 - Version 1.1.0
 // - OVERSPILL NOTE REGIONS are paper snap sources (RegionBoxes): corners and
 //   side middles, the centre, and the four sides for Perpendicular,
@@ -96,7 +105,7 @@
     import { Na__LeModel__IsLayerVisible, Na__LeModel__IsLayerSelectable } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSurface__GetSheet, Na__LeSurface__GetLayout, Na__LeSurface__GetSheetChrome } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     import { Na__LeLayout__MarginRect } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
-    import { Na__LeShapeGeo__Points } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Rings, Na__LeShapeGeo__EdgePairs } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeMarkup__AnnotationCorners } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeVecCurve__KIND_CIRCLE, Na__LeVecCurve__Describe } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__Curves__.js';   // <-- A leaf: what curve a Shape__Curve vector's points are
     import { Na__LeOsnapGeo__Centroid } from './Na__LayoutEditor__ObjectSnap__Geometry__.js';
@@ -337,18 +346,34 @@
             if (i !== moving) visit(pts[i][0], pts[i][1], Na__LeOsnap__KIND_END, Na__LeOsnap__TARGET_SHAPE, 'shape', id);
         }
         const closed = shape.Shape__Closed === true && n > 2;
+        // A HOLED VECTOR (the Boolean tools') snaps to each ring's own edges and
+        // its outline's centre - never the middle of a phantom edge from the
+        // outline to a hole. Asked of the shape geometry only when it has holes.
+        const pairs = Na__LeOsnap__HoledPairs(shape);
         if (n > 1) {
-            const edges = closed ? n : n - 1;
-            for (let i = 0; i < edges; i++) {
-                const j = (i + 1) % n;
+            const edges = pairs ? pairs.length : (closed ? n : n - 1);
+            for (let e = 0; e < edges; e++) {
+                const i = pairs ? pairs[e][0] : e;
+                const j = pairs ? pairs[e][1] : (i + 1) % n;
                 if (i === moving || j === moving) continue;                      // <-- That edge is being dragged; its middle moves with the cursor
                 visit((pts[i][0] + pts[j][0]) / 2, (pts[i][1] + pts[j][1]) / 2, Na__LeOsnap__KIND_MID, Na__LeOsnap__TARGET_SHAPE, 'shape', id);
             }
         }
         if (closed && moving === -1) {
-            const centre = Na__LeOsnapGeo__Centroid(pts);
+            const centre = Na__LeOsnapGeo__Centroid(pairs ? Na__LeShapeGeo__Rings(shape)[0] : pts);
             if (centre) visit(centre.x, centre.y, Na__LeOsnap__KIND_CEN, Na__LeOsnap__TARGET_SHAPE, 'shape', id);
         }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Holed Vector's Edges as [ from, to ] Indices, or Null for Any Other
+    // ------------------------------------------------------------
+    // The key is on a holed vector alone, so every other shape walks its run
+    // exactly as it always did and never asks the shape geometry for rings.
+    // ------------------------------------------------------------
+    function Na__LeOsnap__HoledPairs(shape) {
+        return (shape && Array.isArray(shape.Shape__Holes) && shape.Shape__Holes.length > 0) ? Na__LeShapeGeo__EdgePairs(shape) : null;
     }
     // ------------------------------------------------------------
 
@@ -485,9 +510,11 @@
             const pts = Na__LeShapeGeo__Points(shape);
             const n   = pts.length;
             if (n < 2) continue;
-            const edges = (shape.Shape__Closed === true && n > 2) ? n : n - 1;
-            for (let i = 0; i < edges; i++) {
-                const j = (i + 1) % n;
+            const pairs = Na__LeOsnap__HoledPairs(shape);                        // <-- A holed vector: each ring's own edges
+            const edges = pairs ? pairs.length : ((shape.Shape__Closed === true && n > 2) ? n : n - 1);
+            for (let e = 0; e < edges; e++) {
+                const i = pairs ? pairs[e][0] : e;
+                const j = pairs ? pairs[e][1] : (i + 1) % n;
                 if (i === moving || j === moving) continue;
                 const a = pts[i], b = pts[j];
                 if (Na__LeOsnap__FarFrom(near, Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[0], b[0]), Math.max(a[1], b[1]))) continue;

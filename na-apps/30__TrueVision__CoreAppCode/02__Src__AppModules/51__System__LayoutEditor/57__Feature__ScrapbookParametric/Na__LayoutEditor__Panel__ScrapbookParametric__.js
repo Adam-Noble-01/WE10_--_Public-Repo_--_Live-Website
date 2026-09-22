@@ -166,6 +166,7 @@
         Na__LeParamArea__TYPE,
         Na__LeParamArea__FORM_AREAS,
         Na__LeParamArea__FORM_GROUPS,
+        Na__LeParamArea__FORM_PROJECT,
         Na__LeParamArea__CreateType
     } from './Na__LayoutEditor__ScrapbookParametric__AreaSchedule__.js';
     import {
@@ -234,7 +235,7 @@
     const Na__LePanelParam__BAR_CONTROLS   = Object.freeze([ 'param-scale', 'param-divisions', 'param-subdivide', 'param-subdivision', 'param-units', 'param-reset' ]);
     const Na__LePanelParam__TITLE_CONTROLS = Object.freeze([ 'param-title-text', 'param-title-phase', 'param-title-upper', 'param-title-underline', 'param-title-bar', 'param-title-bar-place', 'param-title-bar-offset' ]);
     const Na__LePanelParam__QR_CONTROLS    = Object.freeze([ 'param-qr-size', 'param-qr-form', 'param-qr-width', 'param-qr-project' ]);
-    const Na__LePanelParam__AREA_CONTROLS  = Object.freeze([ 'param-area-form', 'param-area-group', 'param-area-width', 'param-area-text', 'param-area-units', 'param-area-decimals', 'param-area-headings', 'param-area-total', 'param-area-swatch', 'param-area-title' ]);
+    const Na__LePanelParam__AREA_CONTROLS  = Object.freeze([ 'param-area-form', 'param-area-group', 'param-area-width', 'param-area-text', 'param-area-units', 'param-area-decimals', 'param-area-headings', 'param-area-total', 'param-area-swatch', 'param-area-title', 'param-area-suffix' ]);
     const Na__LePanelParam__INFILL_CONTROLS = Object.freeze([ 'param-infill-label', 'param-infill-text', 'param-infill-run', 'param-infill-fill', 'param-infill-fill-colour', 'param-infill-width', 'param-infill-height', 'param-infill-size' ]);
     const Na__LePanelParam__LIBRARY_SHOWS = Object.freeze([ 'active', 'loaded', 'sheet-created', 'sheet-deleted', 'sheet-updated' ]);   // <-- What can alter which sheet, or which drawing type, is up
     const Na__LePanelParam__PROPS_SHOWS   = Object.freeze([ 'selection', 'active', 'loaded', 'sheet-deleted', 'sheet-updated', 'groups', 'shape', 'shapes', 'annotation', 'annotations', 'viewport', 'viewports', 'layers' ]);   // <-- What can alter the selected element, its link or its lock
@@ -309,6 +310,8 @@
         return {
             formAreas     : L('MenuAreaFormAreas', 'Every area, by group'),
             formGroups    : L('MenuAreaFormGroups', 'Totals by group'),
+            formProject   : L('MenuAreaFormProject', 'Totals by group, whole project'),
+            noSuffix      : L('MenuAreaNoSuffix', 'No floor in the title'),
             allGroups     : L('MenuAreaAllGroups', 'Every group'),
             onlyGroup     : L('MenuAreaOnlyGroup', 'Only {group}'),
             groupHeadings : L('MenuAreaHeadings', 'Group headings and subtotals'),
@@ -642,6 +645,7 @@
         schedule.appendChild(Na__LePanels__Row(L('PropsAreaForm', 'Shows'), Na__LePanels__Select('param-area-form', [], null)));
         schedule.appendChild(Na__LePanels__Row(L('PropsAreaGroup', 'Only the group'), Na__LePanels__Select('param-area-group', [], null)));
         schedule.appendChild(Na__LePanels__Row(L('PropsAreaTitle', 'Title'), Na__LePanels__Input('text', 'param-area-title', { maxlength : 120, placeholder : L('PropsAreaTitleAuto', 'Automatic') })));
+        schedule.appendChild(Na__LePanels__Row(L('PropsAreaSuffix', 'Floor after the title'), Na__LePanels__Select('param-area-suffix', [], null)));
         schedule.appendChild(Na__LePanels__Row(L('PropsAreaUnits', 'Units'), Na__LePanels__Select('param-area-units', [], null)));
         schedule.appendChild(Na__LePanels__Row(L('PropsAreaDecimals', 'Decimal places'), Na__LePanels__Input('number', 'param-area-decimals', { min : 0, max : 3, step : 1 })));
         schedule.appendChild(Na__LePanels__Row(L('PropsAreaWidth', 'Width (mm)'), Na__LePanels__Input('number', 'param-area-width', { min : 40, max : 260, step : 2 })));
@@ -902,14 +906,26 @@
         const rows   = (typeof picked.type.rowsOf === 'function') ? picked.type.rowsOf(params) : [];
         const data   = params.Data || { Areas : [], Groups : [], TotalM2 : 0 };
 
+        const project = params.Form === Na__LeParamArea__FORM_PROJECT;
         part('area-reads').textContent = data.Areas.length || data.Groups.length
-            ? L('PropsAreaReads', '{count} rows, {total} in total.', { count : rows.filter((row) => row.kind !== 'empty').length, total : (typeof picked.type.figure === 'function' ? picked.type.figure(params, data.TotalM2) : String(data.TotalM2)) })
-            : L('PropsAreaEmpty', 'No rooms have been measured on this sheet yet.');
+            ? L(project ? 'PropsAreaReadsProject' : 'PropsAreaReads', '{count} rows, {total} in total.', { count : rows.filter((row) => row.kind !== 'empty').length, total : (typeof picked.type.figure === 'function' ? picked.type.figure(params, data.TotalM2) : String(data.TotalM2)) })
+            : (project ? L('PropsAreaEmptyProject', 'No rooms filed under a group have been measured on any sheet yet.') : L('PropsAreaEmpty', 'No rooms have been measured on this sheet yet.'));
 
         Na__LePanels__FillSelect(el('param-area-form'), [
-            { value : Na__LeParamArea__FORM_AREAS,  label : L('MenuAreaFormAreas', 'Every area, by group') },
-            { value : Na__LeParamArea__FORM_GROUPS, label : L('MenuAreaFormGroups', 'Totals by group') }
+            { value : Na__LeParamArea__FORM_AREAS,   label : L('MenuAreaFormAreas', 'Every area, by group') },
+            { value : Na__LeParamArea__FORM_GROUPS,  label : L('MenuAreaFormGroups', 'Totals by group') },
+            { value : Na__LeParamArea__FORM_PROJECT, label : L('MenuAreaFormProject', 'Totals by group, whole project') }
         ], params.Form);
+
+        // THE FLOOR AFTER THE TITLE | The config's floors in its order, and
+        // any other words the table already carries, so the list never shows
+        // a choice the paper does not.
+        const floors = (typeof picked.type.suffixes === 'function') ? picked.type.suffixes() : [];
+        const suffix = params.TitleSuffix || '';
+        if (suffix !== '' && floors.every((floor) => floor.toLowerCase() !== suffix.toLowerCase())) floors.push(suffix);
+        Na__LePanels__FillSelect(el('param-area-suffix'),
+            [ { value : '', label : L('MenuAreaNoSuffix', 'No floor in the title') } ].concat(floors.map((floor) => ({ value : floor, label : floor }))),
+            floors.find((floor) => floor.toLowerCase() === suffix.toLowerCase()) || '');
 
         Na__LePanels__FillSelect(el('param-area-group'),
             [ { value : '', label : L('PropsAreaGroupAll', 'Every group') } ]
@@ -1084,6 +1100,7 @@
         on('change', 'param-area-form',     guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Form : el.value })));
         on('change', 'param-area-group',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Group : el.value })));
         on('change', 'param-area-title',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TitleText : el.value })));
+        on('change', 'param-area-suffix',   guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { TitleSuffix : el.value })));
         on('change', 'param-area-units',    guarded((picked, el) => Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Units : el.value })));
         on('change', 'param-area-decimals', guarded((picked, el) => { const n = parseInt(el.value, 10); if (Number.isFinite(n)) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { Decimals : n }); }));
         on('change', 'param-area-width',    guarded((picked, el) => { const mm = parseFloat(el.value); if (Number.isFinite(mm) && mm > 0) Na__LeParam__Regenerate(picked.sheet, picked.groupId, { WidthMm : mm }); }));

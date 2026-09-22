@@ -416,6 +416,117 @@
 
 
 /* ----------------------------------------------------------------- */
+/* REGION  |  Leaderless Notes in the Margin Notes Panel             */
+/* ----------------------------------------------------------------- */
+
+/* THE LISTS: the stack of groups listed without leaders, then every other
+   group. A row is the overspill regions' group row (its prefix chip, title
+   and tick) with a grip, or an empty slot the grip's width, at its left. */
+.na-le-leaderless__list {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 2px;
+    margin-bottom                      : 6px;
+}
+
+.na-le-leaderless__row {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 4px;
+    padding                            : 2px 6px 2px 2px;
+    border                             : 1px solid transparent;
+    border-radius                      : 4px;
+}
+
+.na-le-leaderless__row > .na-le-row {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    margin-bottom                      : 0;
+}
+
+/* A LISTED ROW sits on the Layers panel's row ground, so the stack reads as
+   the thing to drag; the groups under it do not. */
+.na-le-leaderless__row.is-listed {
+    background                         : #f8f9fa;
+}
+
+.na-le-leaderless__row.is-listed:hover {
+    background                         : #eef2f5;
+}
+
+.na-le-leaderless__slot {
+    flex                               : 0 0 20px;
+    width                              : 20px;
+    height                             : 22px;
+}
+
+/* THE GRIP - the Layers panel's: faint until its row is under the pointer. */
+.na-le-leaderless__grip {
+    flex                               : 0 0 auto;
+    display                            : inline-flex;
+    align-items                        : center;
+    justify-content                    : center;
+    width                              : 20px;
+    height                             : 22px;
+    padding                            : 0;
+    border                             : 1px solid transparent;
+    border-radius                      : 4px;
+    background                         : transparent;
+    color                              : #a0aab2;
+    cursor                             : grab;
+    touch-action                       : none;
+    user-select                        : none;
+}
+
+.na-le-leaderless__grip svg {
+    display                            : block;
+    width                              : 8px;
+    height                             : 13px;
+    fill                               : currentColor;
+    pointer-events                     : none;
+}
+
+.na-le-leaderless__row:hover .na-le-leaderless__grip:not(:disabled) {
+    color                              : #6c7a86;
+}
+
+.na-le-leaderless__row .na-le-leaderless__grip:hover:not(:disabled),
+.na-le-leaderless__stack .na-le-leaderless__row.is-dragging .na-le-leaderless__grip {
+    background                         : #e2e8ee;
+    color                              : #172b3a;
+}
+
+.na-le-leaderless__grip:focus-visible {
+    outline                            : none;
+    border-color                       : #1a7fc4;
+}
+
+.na-le-leaderless__grip:disabled {
+    opacity                            : 0.35;
+    cursor                             : default;
+}
+
+/* WHILE A ROW IS DRAGGED the rows it passes slide aside to open the gap it
+   will drop into, and the dragged row tracks the pointer with no easing,
+   lifted above its neighbours - the Layers panel's sort, class for class.
+   The grabbing cursor is that panel's body.na-le-sorting. */
+.na-le-leaderless__stack.is-sorting .na-le-leaderless__row {
+    transition                         : transform 0.12s ease;
+}
+
+.na-le-leaderless__stack.is-sorting .na-le-leaderless__row.is-dragging {
+    position                           : relative;
+    z-index                            : 2;
+    border-color                       : #1a7fc4;
+    background                         : #ffffff;
+    box-shadow                         : 0 3px 10px rgba(23, 43, 58, 0.18);
+    transition                         : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
 /* REGION  |  Overspill Note Regions on the Paper                    */
 /* ----------------------------------------------------------------- */
 

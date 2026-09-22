@@ -3,7 +3,8 @@
 #
 # FILE     : TrueVision__PLAN__VectorTools__.md
 # PURPOSE  : The map, the decisions, the keys, the traps and the ledger for the Layout Editor's
-#            vector editing overhaul: Trim, Extend, Join, Split, Offset, Fillet, Chamfer, Circle and Arc
+#            vector editing overhaul: Trim, Extend, Join, Split, Offset, Fillet, Chamfer, Circle and Arc -
+#            and (22-Sep-2026) the Boolean section and vectors with holes (section 10)
 # CREATED  : 21-Sep-2026
 # AUTHOR   : Adam Noble - Noble Architecture (brief) / built with Claude
 #
@@ -245,7 +246,7 @@ container open.
 |---|---|---|
 | Grips for a curve (a centre and four quadrant grips rather than 100 vertex dots when a circle is opened) | The panel's Radius / Sides boxes resize a selected curve now; grips need the press pipeline to learn a new grab, as pictures' corner grips did | medium |
 | Extending an ARC along its own curve | Extend carries the END EDGE on in a straight line, right for lines and wrong for an arc's last chord | small |
-| Offset's full self-intersection clean-up | Mitres, the mitre limit, swallowed edges and closed-up slots are handled; a path that folds right over itself needs a polygon clipper (clipper2 is already vendored) | medium |
+| Offset's full self-intersection clean-up | Mitres, the mitre limit, swallowed edges and closed-up slots are handled; a path that folds right over itself needs a polygon clipper. clipper2 is vendored, but in its 0.9.0 port `InflatePaths` runs through the PolyTree build, which throws - so a cleaned offset would offset here and union through the flat `execute` the Boolean module uses (section 10) | medium |
 | Bezier curves with handles, Freehand, Ellipse, Eraser | LayOut has them; they are a new kind of record (curves) or a new gesture, not part of this overhaul | large / small |
 | Rotate, Scale, Mirror / Flip, Align and Distribute | The CAD-adjacent transforms; vectors, text and groups all want them, so they are a sheet tools job rather than a vector tools one | medium each |
 | Tangent inference while drawing an arc (LayOut's turquoise) | Wants the snap system's help; Perpendicular from the centre already lands a TANGENT circle | small |
@@ -272,7 +273,61 @@ container open.
 
 
 ---------------------------------------------------------
-## 10. Ledger
+## 10. The Boolean section and vectors with holes (22-Sep-2026)
+---------------------------------------------------------
+
+**The brief.** Adam: "In vector Tools add booleans, union, subtract, trim etc and a new section after a hr in the
+menu" - a screenshot of three wall rectangles snapped round a stair, and one marking the space under the Edit row.
+And: "look at the vector drawing system we already have, can it support islands etc?"
+
+**The answer on islands was no.** A vector was one run of points and a Closed flag; every painter, the hit test, the
+snaps, the marquee and every tool walked one ring. So holes were built first, then the tools.
+
+| Decision | Why |
+|---|---|
+| The six are SketchUp's Solid Tools: Union, Subtract, Trim, Intersect, Split, Outer Shell, in Adam's order | "union, subtract, trim" are SketchUp's names; he lives in SketchUp |
+| By clicking, SketchUp's order: the FIRST shape is Subtract's cutter, and Trim's (which stays, held) | His muscle memory |
+| On a selection, the paint order decides (Illustrator's Pathfinder): the back shape is the one kept and cut | A box selection has no order of its own |
+| Union, Intersect and Outer Shell keep the result held; Trim keeps the cutter held | Gathering walls by clicking round them; one cutter, many shapes |
+| A result that comes apart is several vectors; the donor keeps its record | The line tools' rule (section 4, G) |
+| Holes live in the SAME run of points: `Shape__Holes` lists where each begins | Every move, copy, paste and nudge maps the run whole, so they carry holes with nothing to learn |
+| Painted even-odd, SVG and PDF, hatch and gradient clips too | Direction never matters; screen and paper agree |
+| Only closed shapes take part; the line tools refuse a holed shape with a reason | A Boolean is an area; a trim is a run |
+| Keys (v2.151.0; v2.150.0 bound none): Shift+U Union, Shift+S Subtract, Shift+T Trim while two or more closed shapes are selected (When BooleanSelection), Shift+O Outer Shell on that or one holed shape (When OuterShellSelection). Intersect and Split have none | Adam asked for those four. They are COMMANDS on the selection, not tool pick-ups. Shift+T was Extend on the sheet and in containers: the Boolean row sits above Extend, so Extend still wins at any other time |
+| The Boolean rows sit after a rule, under their own subhead | Where Adam drew it; they work on areas, not lines |
+
+**The map.** New: `15__Core__Markup/Na__LayoutEditor__ShapeRings__.js` (the rings leaf, no imports),
+`37__System__VectorTools/...VectorTools__Boolean__.js` (the maths, Clipper2 by its own path) and
+`...VectorTools__BooleanTool__.js` (the six tools). Taught rings: the records' normaliser, the shape model, the shape
+geometry, the sheet chrome (SVG and PDF), the gradient and hatch PDF clips, the object snap sources, the selection box,
+the keyboard's Delete, the context menu's Insert point and Open shape, the Shift-click insert, the insert hit, the
+targets. Floor areas refuse a holed vector. Tests: `Na__Test__VectorBooleans__.test.mjs` (105 checks; 148 with the
+keys). The keys: four rows in `Na__Hotkeys__DrawingTabs__.json` and the fallback in `ConfigState__KeyMap__`, the
+situation getters in `SheetTools__Keyboard__`, the commands in the adapter (`VectorTools__`, CommandForAction and
+RunCommand), SelectionTakesBoolean and SelectionTakesOuterShell in the Boolean tools.
+
+**Traps, for whoever touches this next.**
+- The vendored clipper2-js 0.9.0: never call `executePolyTree`, `Clipper.InflatePaths` or anything that reaches
+  `Clipper.InvalidRect64` (a shared object its bounds helpers mutate). Use flat `execute`, and CLEAN every run before
+  feeding it back: with its repeated points in, shapes that share an edge stop merging.
+- A module that tests load with their imports stripped must not reach the rings leaf for a plain shape: read
+  `shape.Shape__Holes` first (the normaliser keeps the key only while it holds a hole). A test that extracts single
+  functions from the shape geometry needs `Na__LeShapeGeo__Holes` with them (`Na__Test__SetMoveLeaderTips__` does).
+- Anything that ADDS or TAKES AWAY a point must send the hole starts with the points: `Na__LeShapeGeo__HolesAfterInsert`
+  and `Na__LeShapeGeo__RemoveVertices`. A count change without them misaligns every later hole.
+- `Na__LeVecAim__Replace`, `AddBeside` and `Absorb` write a piece's own holes or none - a copy never inherits its
+  source's.
+- A group left with one member is pruned (the editor's rule), so a Union of a group's only two members dissolves it.
+- Key rows are tried in list order and the first match wins: `Edit__BooleanTrim` (Shift+T, When BooleanSelection)
+  must stay ABOVE `Tool__Extend` in the JSON and in the fallback, or Extend always wins. The test checks the order.
+
+**Next pass candidates.** The line tools on a holed shape per ring (Fillet and Chamfer a hole's corner, Offset the
+whole region); a holed floor area (a room less a void: its area and label round the rings); a Divide by an open line
+(Illustrator's knife); keys for Intersect and Split, if Adam wants them.
+
+
+---------------------------------------------------------
+## 11. Ledger
 ---------------------------------------------------------
 
 | Date | What | Version |
@@ -280,3 +335,5 @@ container open.
 | 21-Sep-2026 | Built, tested in the app, documented. Sessions live in the same files that day: Colour Palette (v2.126.0), Drawing Layer Context Menu (v2.127.0), Object Snap (v2.129.0), Floor Area Labels (v2.125.0), Drawing Axes | see the DEVLOG entry |
 | - | Adam tries it; confirms T / `When`, the panel's place, and what comes next from section 8 | - |
 | - | ValeVision port (offer once Adam confirms) | - |
+| 22-Sep-2026 | The Boolean section (Union, Subtract, Trim, Intersect, Split, Outer Shell) and vectors with holes: built, tested in the app, documented (section 10). The move anchor session (v2.149.0) was live in the same sheet tools files that day | v2.150.0 |
+| 22-Sep-2026 | The Boolean keys: Shift+U, Shift+S and Shift+T on two or more closed shapes selected, Shift+O on that or one holed shape; Trim on a selection says how many it cut back. Tested in the app | v2.151.0 |

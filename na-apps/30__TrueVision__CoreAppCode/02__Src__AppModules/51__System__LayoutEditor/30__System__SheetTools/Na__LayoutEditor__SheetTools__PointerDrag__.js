@@ -76,6 +76,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.19.0
+// - THE MOVE ANCHOR (Na__LayoutEditor__MoveAnchor__), Ctrl+click's red cross.
+//   A drag that began on the cross re-places it (Na__LeAnchor__Relocate: object
+//   snap, the item's own box and the grid, an arrow key, Shift or Ortho holding
+//   it to an axis), and moves nothing. A whole-object move or a set move whose
+//   press found the cross (drag.anchorMm) is carried by it: ApplyDrag asks
+//   Na__LeAnchor__Carry for the translation first - only the cross snaps, and
+//   nothing that travels with it is a target - and then lands it the way it
+//   lands a typed length, since the lock, the snap and the grid are already in
+//   it. A frame carried by the cross goes through the viewport snap move as a
+//   frame carried by its linework does, and the cross and the band follow it.
+// - The Select/Move hover lights the cross under the pointer and gives it the
+//   crosshair cursor; over the item with the cross, the viewport snap move's
+//   linework marker is not offered, because a press there moves by the cross.
+// - FinishDrag hands every drag to Na__LeAnchor__Finish (the cross keeps its
+//   new place, or is read from the item again after a move, and a copy made
+//   on the way keeps one) and announces nothing for the cross's own drag.
+// - IsAnchorDrag and RerunAnchorDrag let an arrow key, Shift or Ortho hold the
+//   cross being re-placed at once, without waiting for the next move.
+//
 // 22-Sep-2026 - Version 1.18.0
 // - The Select/Move hover pass hands every move to the note tooltip
 //   (Na__LayoutEditor__SheetTools__NoteTooltip__): a specification bubble the
@@ -327,6 +347,15 @@
     import { Na__LeAxis__Get, Na__LeAxis__Apply, Na__LeAxis__Hold, Na__LeAxis__Clear } from './Na__LayoutEditor__AxisLock__.js';
     import { Na__LeOrtho__Resolve } from '../32__System__OrthoMode/Na__LayoutEditor__OrthoMode__State__.js';
     import { Na__LeVpMove__Hover, Na__LeVpMove__Solve, Na__LeVpMove__Finish } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
+    import {
+        Na__LeAnchor__IsDrag,
+        Na__LeAnchor__Holds,
+        Na__LeAnchor__Hover,
+        Na__LeAnchor__Relocate,
+        Na__LeAnchor__Carry,
+        Na__LeAnchor__ShowAt,
+        Na__LeAnchor__Finish
+    } from '../28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__.js';   // <-- Ctrl+click's red cross: re-placed by a drag on it, and the one point a move of its item snaps by
     import { Na__LeGroup__ResolveItems } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import {
         Na__LeScope__KIND_VERTEX,
@@ -430,9 +459,11 @@
             const found     = Na__LeTools__Resolve(sheet, point);
             Na__LeTools__RefreshBrokenTooltip(sheet, found, event);          // <-- A red-haloed bubble explains itself on hover
             Na__LeNoteTip__Hover(sheet, found, point, event.clientX, event.clientY, Na__LeTools__NoteTipWanted);   // <-- ...and a sound one names its note, once the pointer has rested on it
-            const grab      = Na__LeVpMove__Hover(sheet, Na__LeTools__CarryTarget(sheet, found), point);   // <-- Marks the point a press would carry the viewport by
+            const onAnchor  = Na__LeTools__Editable && Na__LeAnchor__Hover(sheet, point);   // <-- The move anchor's cross lights up: a press here re-places it
+            const carryable = (onAnchor || Na__LeAnchor__Holds(sheet, found)) ? null : Na__LeTools__CarryTarget(sheet, found);   // <-- A frame with the cross on it is carried by the cross, not by a point of its drawing
+            const grab      = Na__LeVpMove__Hover(sheet, carryable, point);  // <-- Marks the point a press would carry the viewport by
             const inserting = Na__LeTools__RefreshShapeInsert(sheet, point, event.shiftKey);
-            Na__LeTools__Stage.style.cursor = (inserting || grab) ? 'crosshair' : Na__LeTools__HoverCursor(sheet, found, point);
+            Na__LeTools__Stage.style.cursor = (inserting || grab || onAnchor) ? 'crosshair' : Na__LeTools__HoverCursor(sheet, found, point);
             return;
         }
         Na__LeHoverTip__Hide();                                              // <-- A drag in flight never shows the hover tip
@@ -551,6 +582,23 @@
     // ------------------------------------------------------------
     function Na__LeTools__ApplyDrag(sheet, drag, dMm, shift, exact) {
         if (drag.kind === 'door') return;                                    // <-- A press on a door of a locked plan moves nothing
+        // THE MOVE ANCHOR'S CROSS BEING RE-PLACED moves nothing but the cross
+        // (Na__LayoutEditor__MoveAnchor__), held and snapped there.
+        if (Na__LeAnchor__IsDrag(drag)) {
+            Na__LeAnchor__Relocate(sheet, drag, { x : drag.startMm.x + dMm.x, y : drag.startMm.y + dMm.y }, !exact && Na__LeOrtho__Resolve(shift));
+            return;
+        }
+        // CARRIED BY THE MOVE ANCHOR. The cross is the one point that snaps -
+        // not the nearest corner of whatever is moving - and Carry hands back
+        // the whole answer, the arrow lock, Shift, Ortho and the grid already
+        // in it. From here on it is landed exactly as a typed length is: as it
+        // stands, from every item's own start, with nothing to massage it. A
+        // frame carried by the cross goes through the viewport snap move below
+        // instead (its baseMm is the cross).
+        if (!exact && drag.anchorMm && Na__LeTools__IsMoveDrag(drag)) {
+            dMm   = Na__LeAnchor__Carry(sheet, drag, dMm, Na__LeOrtho__Resolve(shift));
+            exact = true;
+        }
         // GRID SNAP (F7) FIRST, THEN ANY AXIS. A drag with no snap of its own -
         // a text item, a leader moved whole or by its head, a dimension moved
         // whole, a viewport frame moved plain or cropped, a vector held to an
@@ -632,6 +680,10 @@
             if (!patch) return;
             Na__LeModel__UpdateViewport(sheet, drag.id, patch, true);
             Na__LeSurface__Refresh('frames');
+            if (carried && drag.anchorMm) {                                  // <-- Carried by the move anchor: the cross goes with the frame, and the band says from where
+                Na__LeAnchor__ShowAt(carried);
+                Na__LeGrips__ShowBand(drag.anchorMm, carried, axis);
+            }
             if (Na__LeTools__IsViewportMoveDrag(drag)) {
                 if (!carried && !exact && axis) Na__LeGrips__ShowBand(drag.startMm, { x : drag.startMm.x + moveBy.x, y : drag.startMm.y + moveBy.y }, axis);   // <-- A carried frame has the tracking guides instead
                 else if (!carried) Na__LeGrips__HideBand();
@@ -955,6 +1007,8 @@
         // lock are shared with the tools that are placing points, and a drag
         // finishing is no reason to take a half-drawn polyline's band away.
         if ((drag.kind === 'shape' && drag.mode === 'vertex') || Na__LeTools__IsDimEndDrag() || Na__LeTools__IsMoveDrag(drag) || Na__LeTools__IsViewportMoveDrag(drag)) { Na__LeGrips__HideBand(); Na__LeAxis__Clear(); }
+        if (Na__LeAnchor__IsDrag(drag)) Na__LeAxis__Clear();                 // <-- The cross's own lock is spent with it; its band goes in Finish
+        Na__LeAnchor__Finish(Na__LeModel__GetActiveSheet(), drag);          // <-- The cross keeps its new place, or is read off the item again after a move it carried (a copy gets one too)
         if (pointerId !== null && pointerId !== undefined && Na__LeTools__Stage) {
             try { Na__LeTools__Stage.releasePointerCapture(pointerId); } catch (e) { /* already released */ }
         }
@@ -977,6 +1031,7 @@
         const sheet = Na__LeModel__GetActiveSheet();
         if (!sheet) return;
         if (drag.kind === 'door')            return;                                                // <-- A door press that moved changed nothing
+        if (Na__LeAnchor__IsDrag(drag))      return;                                                // <-- Nor did re-placing the move anchor's cross: it is not part of the drawing
         if (drag.kind === 'group')           { Na__LeSelSet__Commit(sheet, drag.group); return; }   // <-- Once per kind: one undo step for the lot
         if (drag.kind === 'viewport')        Na__LeModel__UpdateViewport(sheet, drag.id, {}, false);
         else if (drag.kind === 'annotation') Na__LeModel__UpdateAnnotation(sheet, drag.id, {}, false);
@@ -1503,6 +1558,32 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Is the Move Anchor's Cross Being Re-Placed (Na__LayoutEditor__MoveAnchor__)
+    // ------------------------------------------------------------
+    function Na__LeTools__IsAnchorDrag() {
+        return Na__LeAnchor__IsDrag(Na__LeTools__Drag);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Redraw the Move Anchor's Cross Being Re-Placed, From the Last Pointer Point
+    // ------------------------------------------------------------
+    // An arrow key, Shift or Ortho changed what holds it: shown at once
+    // rather than on the next mouse move. True when the cross is being
+    // dragged, whether or not there was anything to redraw yet.
+    // ------------------------------------------------------------
+    function Na__LeTools__RerunAnchorDrag() {
+        const drag = Na__LeTools__Drag;
+        if (!Na__LeAnchor__IsDrag(drag)) return false;
+        const sheet = Na__LeModel__GetActiveSheet();
+        const point = Na__LeTools__LastPointMm;
+        if (!sheet || !point || drag.moved !== true) return true;            // <-- The lock is taken; nothing has moved to redraw yet
+        Na__LeTools__ApplyDrag(sheet, drag, { x : point.x - drag.startMm.x, y : point.y - drag.startMm.y }, Na__LeTools__ShiftHeld);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | An Arrow Key Locked or Released the Axis Mid-Move: Redraw It
     // ------------------------------------------------------------
     function Na__LeTools__RerunMoveDrag() {
@@ -2018,6 +2099,8 @@
         Na__LeTools__GetMoveRetype,
         Na__LeTools__TypeMoveLength,
         Na__LeTools__RerunMoveDrag,
+        Na__LeTools__IsAnchorDrag,
+        Na__LeTools__RerunAnchorDrag,
         Na__LeTools__LeaveScope,
         Na__LeTools__GetVertexDrag,
         Na__LeTools__GetVertexRetype,

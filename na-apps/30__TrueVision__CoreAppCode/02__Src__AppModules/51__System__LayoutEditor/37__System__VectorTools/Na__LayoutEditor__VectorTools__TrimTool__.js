@@ -50,6 +50,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - A refusal is said in the targets' own words (Na__LeVecAim__RefusalText),
+//   which now include a vector with holes from the Boolean tools: it is never
+//   trimmed or extended, and still CUTS along every one of its rings.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation: hover previews, click, the fence (click-click and
 //   press-drag), Shift's swap, and the refusals.
@@ -75,7 +80,7 @@
         Na__LeVecGeo__NearerEnd
     } from './Na__LayoutEditor__VectorTools__Geometry__.js';
     import {
-        Na__LeVecAim__REFUSE_LOCKED,
+        Na__LeVecAim__RefusalText,
         Na__LeVecAim__At,
         Na__LeVecAim__All,
         Na__LeVecAim__CuttersFor,
@@ -246,9 +251,7 @@
             return true;
         }
         if (aim.refusal) {
-            Na__LeVec__Say(aim.refusal === Na__LeVecAim__REFUSE_LOCKED
-                ? Na__LeVecCfg__Label('SayLocked', 'That vector is on a locked layer.')
-                : Na__LeVecCfg__Label('SayNotVector', 'Only plain vectors can be edited this way - not pictures, QR codes or measured rooms.'));
+            Na__LeVec__Say(Na__LeVecAim__RefusalText(aim.refusal));           // <-- A locked layer, a picture or a room, or a shape with holes: the targets' own words
             return false;
         }
         const plan = tool === Na__LeVec__TOOL_TRIM

@@ -57,6 +57,23 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.9.0
+// - Shift-click inserting a vertex on a vector with holes (the vector tools'
+//   Boolean section) sends the hole starts that move up with it
+//   (Na__LeShapeGeo__HolesAfterInsert). A plain vector's patch is unchanged.
+//
+// 22-Sep-2026 - Version 1.8.0
+// - THE MOVE ANCHOR (Na__LayoutEditor__MoveAnchor__). A Ctrl+click that leaves
+//   ONE item or group selected puts the red cross in the middle of its box and
+//   picks the Move tool up (ArmAnchor, run on the release, so a Ctrl-drag is
+//   still only a copy; Anchorable refuses a locked item and anything inside an
+//   open vector or dimension). A press on the cross, with Select or Move,
+//   comes before everything else and re-places it (a 'moveanchor' drag); a
+//   whole-object move, a set move or a frame move of the item with the cross
+//   is carried by it (drag.anchorMm, and a frame's baseMm, so the viewport
+//   snap move carries the frame by the cross). A double click on the cross
+//   puts it back in the middle.
+//
 // 22-Sep-2026 - Version 1.7.0
 // - TOOL_REGION: a press hands the point to Na__LeRegionTool__Press (an
 //   overspill note region, drawn through the Rectangle tool) and captures
@@ -160,7 +177,7 @@
     import { Na__LeHandles__CaptureStart, Na__LeHandles__RotateStart } from '../20__System__Viewports/Na__LayoutEditor__ViewportHandles__.js';
     import { Na__LeMarkup__HitTest } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LeGrips__DimensionGrab, Na__LeGrips__ShapeGrab, Na__LeGrips__LeaderGrab, Na__LeGrips__HideInsert } from './Na__LayoutEditor__Grips__.js';
-    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__InsertPoint } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
+    import { Na__LeShapeGeo__Points, Na__LeShapeGeo__InsertPoint, Na__LeShapeGeo__HolesAfterInsert } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeText__Place, Na__LeText__BeginEdit, Na__LeText__Commit, Na__LeText__IsEditing, Na__LeText__RotateStart } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
     import { Na__LeDim__Click, Na__LeDim__BeginTextEdit } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeShape__Click, Na__LeShape__Finish, Na__LeShape__IsDrawing } from '../35__System__DrawingTools/Na__LayoutEditor__ShapeTool__.js';
@@ -173,6 +190,7 @@
     import { Na__LeDrop__Click, Na__LeDrop__Hover, Na__LeDrop__MODE_PALETTE, Na__LeDrop__GetMode } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeDoors__ToggleSoon, Na__LeDoors__CancelPending } from '../20__System__Viewports/Na__LayoutEditor__PlanDoors__.js';
     import { Na__LeVpMove__GrabAt } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeAnchor__Arm, Na__LeAnchor__Grab, Na__LeAnchor__ForDrag, Na__LeAnchor__HitAt, Na__LeAnchor__Recentre } from '../28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__.js';   // <-- Ctrl+click: the red cross an item is moved by
     import { Na__LeGroup__Expand } from '../15__Core__Markup/Na__LayoutEditor__Groups__.js';
     import {
         Na__LeScope__IsActive,
@@ -435,6 +453,43 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | May the Move Anchor Go on This Item
+    // ------------------------------------------------------------
+    // Only on something that could then be moved: nothing on a locked layer,
+    // no locked viewport, and nothing while a vector or a dimension is open -
+    // in there a click is about its points. A group answers for its members
+    // when a move captures them, as it does for every set move.
+    // ------------------------------------------------------------
+    function Na__LeTools__Anchorable(sheet, item) {
+        if (!sheet || !item || Na__LeScope__IsLeafOpen()) return false;
+        if (item.kind === 'group') return true;
+        const record = Na__LeTools__Record(sheet, item);
+        if (!record) return false;
+        if (item.kind === 'viewport') return !Na__LeTools__IsViewportLocked(sheet, record);
+        const layerId = record.Annotation__LayerId || record.Shape__LayerId || record.Leader__LayerId || record.Dimension__LayerId || null;
+        return !Na__LeModel__IsLayerLocked(sheet, layerId);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Put the Move Anchor on What a Ctrl+Click Left Selected
+    // ------------------------------------------------------------
+    // Run when the button comes up without the press having moved. Only a
+    // selection of ONE - the item pressed, alone - takes the cross: Ctrl on an
+    // item added to others makes a set, and there Ctrl has only ever added.
+    // The Move tool comes up with it, whatever the kind: asking for the cross
+    // is asking to move the thing, so a viewport or a dimension needs no M.
+    // ------------------------------------------------------------
+    function Na__LeTools__ArmAnchor(sheet, pressed) {
+        const items = Na__LeModel__GetSelectionItems();
+        if (!pressed || items.length !== 1 || items[0].kind !== pressed.kind || items[0].id !== pressed.id) return false;
+        if (!Na__LeTools__Anchorable(sheet, pressed) || !Na__LeAnchor__Arm(sheet, pressed)) return false;
+        Na__LeTools__PickUpMove();
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Pointer Down
     // ------------------------------------------------------------
     function Na__LeTools__OnDown(event) {
@@ -530,6 +585,22 @@
             }
         }
 
+        // THE MOVE ANCHOR'S CROSS IS A GRIP (Na__LayoutEditor__MoveAnchor__).
+        // A press on it re-places it, whatever lies under it: it sits in the
+        // middle of the item, where a press would otherwise move the item. It
+        // selects nothing and opens nothing; the release keeps the new place.
+        // ------------------------------------
+        if (Na__LeTools__Editable && Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) !== -1) {
+            const grab = Na__LeAnchor__Grab(sheet, point);
+            if (grab) {
+                Na__LeTools__WriteLastPress(null);
+                Na__LeTools__WriteDrag(Object.assign(grab, { startMm : point, moved : false, pointerId : event.pointerId, click : null }));
+                try { Na__LeTools__Stage.setPointerCapture(event.pointerId); } catch (e) { /* capture refused */ }
+                event.preventDefault();
+                return;
+            }
+        }
+
         const found     = Na__LeTools__Resolve(sheet, point);                // <-- Inside an open container this is null for everything outside it
         const editingId = Na__LeSurface__GetEditingViewport();
         if (editingId && (!found || found.kind !== 'viewport' || found.id !== editingId)) Na__LeSurface__SetEditingViewport(null);   // <-- A press anywhere else finishes content editing
@@ -602,7 +673,7 @@
             if (hit) {
                 Na__LeGrips__HideInsert();
                 const start = Na__LeShapeGeo__InsertPoint(Na__LeShapeGeo__Points(shape), hit.index, hit.point);
-                Na__LeModel__UpdateShape(sheet, found.id, { points : start }, true);
+                Na__LeModel__UpdateShape(sheet, found.id, { points : start, holes : Na__LeShapeGeo__HolesAfterInsert(shape, hit.index) }, true);   // <-- A holed shape's later holes start one further on; undefined leaves a plain one's record as it was
                 Na__LeSurface__Refresh('markup');
                 Na__LeScope__ClearVertices();                                // <-- The new point is the one being held, on its own
                 Na__LeTools__WriteDrag({ kind : 'shape', id : found.id, mode : 'vertex', index : hit.index + 1, indices : [ hit.index + 1 ], start : start, inserted : true,
@@ -626,6 +697,14 @@
         event.preventDefault();
         if (!Na__LeModel__IsSelected(pressed.kind, pressed.id)) return;         // <-- Ctrl+Shift on an unselected item: nothing to change, nothing to drag
         if (!Na__LeTools__Editable) { if (click) click(); return; }
+
+        // CTRL+CLICK PUTS THE MOVE ANCHOR ON IT (Na__LayoutEditor__MoveAnchor__).
+        // On the release, and only if the press never became a drag: a
+        // Ctrl-DRAG is still a copy. ArmAnchor then asks whether the click left
+        // this one item selected. A second Ctrl+click puts a moved cross back
+        // in the middle.
+        // ------------------------------------
+        const arm = intent.anchor === true ? () => Na__LeTools__ArmAnchor(sheet, pressed) : null;
 
         // THE TOOL FOLLOWS WHAT WAS PRESSED | Text, a vector, a leader's bubble
         // or a group is nearly always moved next, so Select picks Move up for it
@@ -662,6 +741,7 @@
                 return;
             }
             if (click) click();
+            if (arm) arm();                                                  // <-- Nothing can drag from here, so the click is already a click
             return;
         }
         drag.startMm   = point;
@@ -690,6 +770,21 @@
         if (door && items.length === 1) {
             const viewportId = found.id;
             drag.click = () => { if (click) click(); Na__LeDoors__ToggleSoon(sheet, viewportId, door); };   // <-- A click on a door, not a move: close or open it
+        }
+        if (arm) { const then = drag.click; drag.click = () => { if (typeof then === 'function') then(); arm(); }; }   // <-- The Ctrl+click that sets the move anchor
+
+        // CARRIED BY THE MOVE ANCHOR. A move of the one item that has the red
+        // cross on it - moved whole, as a set, or a frame - is carried by the
+        // cross: the pointer drag unit lands the cross, and only the cross, on
+        // what it snaps to. A frame is handed the cross as the point it is
+        // carried by, so the viewport snap move carries it, tracking and all.
+        // The place on the box goes with it, for a copy made on the way.
+        // ------------------------------------
+        const anchor = (Na__LeTools__IsMoveDrag(drag) || Na__LeTools__IsViewportMoveDrag(drag)) ? Na__LeAnchor__ForDrag(sheet, items) : null;
+        if (anchor) {
+            drag.anchorMm    = { x : anchor.x, y : anchor.y };
+            drag.anchorPlace = { fx : anchor.fx, fy : anchor.fy, ox : anchor.ox, oy : anchor.oy };
+            if (drag.kind === 'viewport') drag.baseMm = { x : anchor.x, y : anchor.y };
         }
         Na__LeTools__WriteDrag(drag);
         Na__LeGrips__HideInsert();
@@ -722,6 +817,12 @@
         if (Na__LeTools__Tool === Na__LeTools__TOOL_AREA) { if (Na__LeAreaTool__IsDrawing()) { event.preventDefault(); Na__LeAreaTool__Finish(sheet); } return; }   // <-- A double click closes the room, where it would leave a polyline open
         if (Na__LeTools__Tool === Na__LeTools__TOOL_DRAW) { if (Na__LeShape__IsDrawing()) { event.preventDefault(); Na__LeShape__Finish(sheet, false); } return; }
         if (Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) return;
+
+        // THE MOVE ANCHOR'S CROSS GOES BACK IN THE MIDDLE of its item's box, and
+        // the double click is spent on that: it lies over the item, which a
+        // double click would otherwise step inside or open.
+        // ------------------------------------
+        if (Na__LeAnchor__HitAt(sheet, point)) { event.preventDefault(); Na__LeAnchor__Recentre(sheet); return; }
         const found = Na__LeTools__Resolve(sheet, point);
 
         // A PICTURE OPENS ITS CROP (Sheet Images). It has no points to step

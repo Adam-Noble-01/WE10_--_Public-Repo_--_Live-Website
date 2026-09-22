@@ -53,6 +53,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.7.0
+// - ApplyTool drops the move anchor's red cross (Na__LayoutEditor__MoveAnchor__)
+//   for any tool but Select and Move. Not in CancelPlacement, which runs for
+//   every change of tool: Move coming up by itself, or going down, keeps it.
+//
 // 22-Sep-2026 - Version 1.6.0
 // - TEXT, LEADERS AND DIMENSIONS ARE PLACED INSIDE AN OPEN GROUP (Adam: they
 //   landed outside it). ApplyTool keeps a GROUP open for the Text, Leader
@@ -133,6 +138,7 @@
     import { Na__LeDrop__Clear, Na__LeDrop__Pick, Na__LeDrop__MODE_ITEM, Na__LeDrop__MODE_PALETTE, Na__LeDrop__SetMode, Na__LeDrop__GetMode, Na__LeDrop__SyncPalette } from './Na__LayoutEditor__Eyedropper__.js';
     import { Na__LeAxis__Clear } from './Na__LayoutEditor__AxisLock__.js';
     import { Na__LeVpMove__Clear } from '../28__System__ObjectSnap/Na__LayoutEditor__ViewportSnapMove__.js';
+    import { Na__LeAnchor__Clear } from '../28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__.js';   // <-- The red cross an item is moved by: Select and Move keep it, every other tool drops it
     import { Na__LeSelBox__Cancel } from './Na__LayoutEditor__SelectionBox__.js';
     import { Na__LeScope__Clear, Na__LeScope__IsActive, Na__LeScope__GetGroupId, Na__LeScope__BeginAdopting, Na__LeScope__EndAdopting } from './Na__LayoutEditor__EditScope__.js';
     import { Na__LeGrips__MOVE_CURSOR } from './Na__LayoutEditor__Grips__.js';
@@ -296,6 +302,7 @@
         const next = Na__LeTools__TOOLS.indexOf(tool) === -1 ? Na__LeTools__TOOL_SELECT : tool;
         if (!Na__LeTools__Editable && next !== Na__LeTools__TOOL_SELECT) return Na__LeTools__Tool;
         Na__LeTools__CancelPlacement();
+        if (Na__LeTools__PICK_TOOLS.indexOf(next) === -1) Na__LeAnchor__Clear();   // <-- The move anchor is for moving: a placing tool ends it, Move coming up or going down by itself does not
         // THE VECTOR TOOLS WORK INSIDE A CONTAINER (Na__LeVec__KeepsContainer).
         // Trim, Extend, Join, Split, Offset, Fillet and Chamfer edit what is
         // already there, as Select and Move do, so they never close it; and a

@@ -2,6 +2,531 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.151.0  -  22-Sep-2026
+### The Boolean Keys: Shift+U Union, Shift+S Subtract, Shift+T Trim and Shift+O Outer Shell, on a Selection
+
+**Overview**
+- From Adam, after trying v2.150.0 ("It works INCREDIBLE!"): "now add hotkeys IF More than one Vectors in selection
+  THEN Shift + u = Union, Shift + s = Subtract, Shift + t = Subtract. check for clashes, context matters though if
+  clashes exist could be with operations such as extend / trim which arent availible unless diving into vector
+  groups" - and then "I meant to ask for outer shell too shift o".
+- Shift+T is taken as TRIM, the third of the three named in v2.150.0's brief ("union, subtract, trim"); the second
+  "Subtract" read as a slip. Put to Adam.
+- The keys are COMMANDS: they act at once on the selection, as picking the tool up over a selection does (the paint
+  order decides: the shape at the back is the one kept and cut), leave whatever tool is up where it is, and a held
+  key acts once. One undo step each, as before.
+
+**When each key applies**
+- Shift+U, Shift+S, Shift+T - two or more closed vectors a Boolean can take are selected (the key map's
+  BooleanSelection), within reach of the level the editor is at. An open line, text, a dimension, a picture, a
+  measured room or a shape on a locked layer selected alongside is left out and said, as the tools already did.
+- Shift+O - that, or ONE vector with holes, whose holes it fills (OuterShellSelection).
+- At any other time the four do what they did before: Shift+T is Extend; Shift+U, Shift+S and Shift+O do nothing and
+  leave the key to the browser.
+
+**The clashes, checked against every binding in the drawing tabs**
+- SHIFT+T WAS TAKEN: Extend, on the sheet and inside a container alike (only T alone changes with the container:
+  Trim inside, Text outside). Bindings are tried in list order and the first match wins, so the Boolean row sits just
+  above Extend and matches only while BooleanSelection holds. Extend still wins with one shape selected, with a shape
+  and an open line, with nothing, inside a group or out. Extend works on lines, which a Boolean selection never
+  holds, so nothing Extend could act on is lost.
+- Shift+U, Shift+S and Shift+O were free. U alone stays Split, T alone Text (Trim in a container), S and O alone
+  nothing, Ctrl+S Save (ModifierMatch Exact keeps Ctrl+Shift+S nothing). The Measurements box takes keys only while a
+  value is being typed, a text field keeps every key (a capital U typed in a box is a U), the 3D view's hotkeys
+  stand down in a drawing tab, and the plan markup's use none of these.
+
+**What changed**
+- `Na__Hotkeys__DrawingTabs__.json`: four rows just above Tool__Extend - Edit__BooleanUnion, Edit__BooleanSubtract,
+  Edit__BooleanTrim (When BooleanSelection) and Edit__BooleanOuterShell (When OuterShellSelection), each with its
+  Label and Note - the four in the action catalogue (Editing), and the When notes naming the two situations.
+  `ConfigState__KeyMap__` 1.11.0: the same four in the built-in fallback, in the same place.
+- `SheetTools__Keyboard__` 1.18.0: the situation handed to the key map gains BooleanSelection and
+  OuterShellSelection - getters, so the selection is only looked at once a row naming one has matched the key and its
+  modifiers - and a key map COMMAND runs at once instead of picking a tool up.
+- `VectorTools__` 1.2.0 (the adapter): COMMANDS (action to Boolean), CommandForAction, RunCommand, BooleanSelection,
+  OuterShellSelection.
+- `VectorTools__BooleanTool__` 1.1.0: SelectionTakesBoolean and SelectionTakesOuterShell; the several-selected menu's
+  Boolean flyout shows the four keys; Trim on a selection now says "Trim: 1 of 2 shapes cut back by the ones in
+  front." instead of "2 shapes into 1" - it keeps every shape.
+- `VectorTools__Config__.json`: the four tooltips name their key (Trim's says Shift+T is Extend at any other time),
+  SayBoolTrimmed, Meta__Booleans.
+- Service worker token `2026-09-22-14` (Logic 1.9.40).
+
+**How it was proved**
+- `Na__Test__VectorBooleans__`, 148 checks (43 new): through the shipped key file and the built-in fallback alike,
+  the four keys on their situations, inside an open group too; Shift+T still Extend without one - told so, told
+  nothing, in a container, or with only one holed shape; the bare keys, Ctrl+S and Ctrl+Shift+S untouched; the
+  Shift+T row above Extend; the adapter's commands; and the sheet keyboard as shipped, the key map real and the rest
+  stubbed - each key runs its Boolean and picks no tool up, a held key runs once, Shift+O runs on one holed shape,
+  Shift+U without a selection does nothing and leaves the key to the browser, and the selection is never looked at
+  for any other key. `Na__Test__DrawingTabKeys__`: 588 presses resolve the same through both maps. The 138 vector
+  tools checks pass unchanged; every Node suite passes but LeaderlessNotes and StatementRoundTrip, as before;
+  Na__Verify__Exports passes.
+- IN THE APP, RB05 D06 in a guarded read-only tab (localhost:9131), key events on the page: two overlapping
+  rectangles selected - Shift+U one shape (2,100 sq mm), Shift+S one (900), Shift+T two (900, the one in front kept
+  at 1,200) with the new words, Shift+O one (2,100), each undone by one Ctrl+Z, the Select tool up throughout; a
+  rectangle inside another, Shift+S cut a hole, and with that one holed shape selected Shift+O filled it while
+  Shift+U and Shift+S did nothing and Shift+T picked Extend up; a rectangle and an open line selected: Shift+U and
+  Shift+S nothing, Shift+T Extend; nothing selected: Shift+T Extend, Shift+O nothing; a capital U typed in a text box
+  left the shapes alone. Everything undone and the test shapes deleted; the page sent no write and its guard refused
+  nothing; the origin's draft, service worker and caches removed.
+- NOT tried by Adam. NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.150.0  -  22-Sep-2026
+### Boolean Tools and Vectors With Holes: Union, Subtract, Trim, Intersect, Split and Outer Shell
+
+**Overview**
+- From Adam: "In vector Tools add booleans, union, subtract, trim etc and a new section after a hr in the menu" - with
+  a screenshot of three wall rectangles snapped together round a stair, and a second marking the space under the Edit
+  row of the Vector Tools section. And: "look at the vector drawing system we already have, can it support islands
+  etc?"
+- THE ANSWER ON ISLANDS WAS NO. A vector was one run of points (Shape__Points) and a Closed flag. The sheet's SVG
+  drew one subpath, the PDF one `doc.lines` call, the hatch and the gradient clipped to one outline, and the hit test,
+  the snaps, the marquee and every vector tool walked one ring. So a Subtract of a void from the middle of a slab had
+  nothing it could be written back as. Now it can: a vector may carry holes, and the Boolean tools make them.
+- The six are SketchUp's Solid Tools, in the plane, named and ordered as Adam asked. By clicking they take SketchUp's
+  order; on a selection, Illustrator's Pathfinder rule (the paint order decides), because a box selection has no
+  order of its own.
+
+**The Boolean section** (under the Edit row, after a rule)
+- Union - one shape; a space the shapes close in between them stays a hole. Keeps the first shape's style and record.
+- Subtract - the FIRST shape clicked is cut out of the second, and goes. A cut in the middle is a hole, a cut right
+  across is two shapes. On a selection, the shapes in front are cut out of the one at the back.
+- Trim - the same cut, and the cutter STAYS and stays held, so it trims shape after shape. On a selection, every shape
+  loses what the ones in front of it cover.
+- Intersect - only what both (on a selection, all) cover is left.
+- Split - each shape's own part and the part they share, which takes the style of the one in front.
+- Outer Shell - Union with every hole filled; a holed shape clicked twice, or selected when the tool is picked up,
+  has its holes filled.
+- BY CLICKING: click the first shape (held, heavy blue), hover the second and the result shows dashed blue (what a
+  Subtract takes away, red), click. Union, Intersect and Outer Shell keep the result held so shapes are gathered by
+  clicking round them; Esc or bare paper lets go. A shape is found by its edge or anywhere inside its fill, and a
+  closed shape wins over an open line drawn across it.
+- ON A SELECTION: two or more closed shapes selected when a tool is picked up are combined at once; one selected is
+  held as the first. Several selected also get a Boolean row in their right-click menu, and a closed vector's menu a
+  Boolean tools flyout beside Vector tools.
+- ONE UNDO STEP each. The shape whose result it is keeps its record (id, style, layer, group, place in the paint
+  order); a result that comes apart is several vectors, copies straight after it. They work inside an open group, as
+  the other edit tools do, and never close it.
+- REFUSED WITH A REASON, NOTHING DELETED: an open line (a Boolean works on areas), a picture, a QR box, a measured
+  room, a locked layer, shapes that do not overlap (for the tools that need them to) and a Subtract that would cut the
+  whole shape away. No keys are bound; SketchUp ships none for its Solid Tools either.
+
+**Holes in a vector (islands)**
+- `Shape__Holes` - where each hole begins in `Shape__Points`: the outline first, then each hole, in ONE run. [ 4 ] on
+  eight points is a square with a square hole. Kept only while it holds a hole, only on a plain vector, and a shape
+  with holes is held closed. Every record from before is byte-identical.
+- WHY ONE RUN: every move, nudge, drag, Ctrl-drag copy, paste, snap move, group move, scrapbook drop and parametric
+  rebuild maps Shape__Points whole, so they all carry the holes with nothing to learn, and the grips edit a hole's
+  corners as they edit the outline's. What had to learn rings is what walks EDGES, and the three edits that add or
+  take away a point.
+- PAINTED EVEN-ODD: the SVG writes each ring as a closed subpath with `fill-rule="evenodd"` on every path that fills
+  (solid, gradient, hatch); the PDF traces the rings into one path and paints `f*` / `B*`, and the hatch and the
+  gradient clip `W*`. A plain vector's markup and drawing calls are exactly what they were.
+- A click in a hole goes through to what is under it. Snaps offer each ring's own edges and middles and the outline's
+  centre, never a phantom edge from the outline to a hole; the marquee reads each ring. Inserting a point moves the
+  later holes along; deleting most of a hole's corners takes the hole away. Open shape is greyed out for a holed shape.
+- NOT YET: Trim, Extend, Join, Split, Offset, Fillet and Chamfer refuse a holed shape with a reason (they work on one
+  run of points) - it still CUTS other lines along every ring. A holed vector is not offered as a floor area: a room's
+  area is still worked out round one outline. Both are candidates for the next pass.
+
+**The geometry**
+- Clipper2 does the cutting: the vendored `clipper2-js` 0.9.0, imported by its own path (the same file the import map
+  names, so the same module the projection system loads). Only its flat `Clipper64.execute` is used. Found in this
+  port, 22-Sep-2026: every PolyTree build throws (`OutRec` never sets `bounds` or `path`), `InflatePaths` goes through
+  that build, and `Clipper.InvalidRect64` hands out one shared rectangle that its bounds helpers write into - so none
+  of those is touched. Its runs also repeat points, and fed back in with the repeats they stop MERGING shapes that only
+  share an edge (the three walls came out as two pieces); every run is now cleaned before anything else sees it.
+- Holes are nested into the smallest outline round them; an island in a hole is a piece of its own. A corner that
+  went in comes back bit for bit, and a new one is worked out exactly from the two edges it was cut where (7.654321,
+  not Clipper's 7.6543). A hairline piece or hole thinner than a micron is not kept.
+
+**What changed**
+- NEW `15__Core__Markup/Na__LayoutEditor__ShapeRings__.js` 1.0.0 (Na__LeRings): a leaf with no imports - Clean,
+  Spans, Split, Flatten, Edges, Next, Prev, Contains (even-odd), Area, AfterInsert, Remove.
+- NEW `37__System__VectorTools/Na__LayoutEditor__VectorTools__Boolean__.js` 1.0.0 (Na__LeVecBool): Union, OuterShell,
+  Intersect, Subtract, Divide, Overlaps, Area, ToRecord.
+- NEW `37__System__VectorTools/Na__LayoutEditor__VectorTools__BooleanTool__.js` 1.0.0 (Na__LeVecOps): the six tools -
+  aiming, click and selection plans, the preview, the menus.
+- `SheetRecords__` 1.38.0 (NormaliseShapeHoles), `SheetModel__Shapes__` 1.6.0 (opts.holes, patch.holes),
+  `ShapeGeometry__` 1.9.0 (Holes, Rings, EdgePairs, EdgeEnd, HolesAfterInsert, RemoveVertices; ring-aware Segments,
+  Contains, ClosestOnEdge, Push), `SheetChrome__` 1.14.0 (Holes on the primitive, PolylineD, PdfTrace),
+  `GradientTool__` 1.1.0 and `HatchPatterns__` 1.4.0 (even-odd PDF clip), `ObjectSnap__Sources__` 1.2.0,
+  `SelectionBox__` 1.7.0, `SheetTools__Keyboard__` 1.17.0, `__ContextMenu__` 1.7.0, `__PointerPress__` 1.9.0,
+  `__HitResolution__` 1.11.0, `FloorAreas__` 1.2.2, `FloorAreas__Menu__` 1.1.1, `Panel__FloorAreas__` 1.2.1.
+- Vector tools: `State__` 1.1.0 (the six, BOOLEAN_TOOLS in EDIT_TOOLS), `VectorTools__` 1.1.0 (the adapter's rows,
+  SelectionMenuItems), `Targets__` 1.2.0 (PathsOf, REFUSE_HOLES, RefusalText, Rebuild; write-back carries holes),
+  `JoinTool__`, `OffsetTool__`, `TrimTool__` 1.1.0 (the targets' refusal words), `Panel__VectorTools__` 1.1.0 (the rule
+  and the section), `Styles__VectorTools__.css` (the rule), `Config__.json` 1.1.0 (every label, tooltip, hint and
+  message, and Meta__Booleans).
+- Service worker token `2026-09-22-13` (Logic 1.9.39).
+
+**How it was proved**
+- The vendored Clipper2's flat output, before building on it: 12,000 random unions, intersections, differences and
+  exclusions of grid-snapped rectangles, stars and circles, 3.6 million points sampled - none wrong.
+- NEW `Na__Test__VectorBooleans__.test.mjs`, 105 checks: the rings leaf; the geometry on the shapes an architect draws
+  (walls that only share an edge unite into one outline; a frame's room is a hole; voids; a cut across; an island;
+  circles; exact corners; hairlines); at random, 600 unions of snapped walls - one piece per touching cluster - and
+  2,226 results of Union, Intersect, Subtract and Split sampled at 133,558 points, none wrong; the normaliser; the
+  shape geometry; the SVG, PDF, hatch and gradient painting of a holed shape against a plain one's; the six tools'
+  plans, by clicking and on a selection, and the refusals.
+- `Na__Test__SetMoveLeaderTips__` 1.1.2 loads Na__LeShapeGeo__Holes with the geometry it runs. Every Node suite passes
+  but LeaderlessNotes (RB05's live D01 data) and StatementRoundTrip (this PC's CRLF copies), as before; the 138
+  vector tools checks pass unchanged; Na__Verify__Exports passes; ModuleGraph's two failures are the old ones.
+- IN THE APP, RB05 D02 and D06 in a guarded read-only tab (localhost:9131), the pane hidden, driven by the panel's own
+  buttons, the right-click menus and pointer and key events on the stage: the three walls of Adam's screenshot united
+  into one ten-corner outline, one Ctrl+Z bringing all three back; Subtract by clicking (hint, red and blue preview)
+  cut a void out as a hole, painted `M...Z M...Z` with fill-rule evenodd and, through the real jsPDF, one path of two
+  subpaths painted `B*`; the hatch clipped `W*` and the gradient drew inside a `W*` clip; a nudge carried the hole; a
+  point put in on the outline moved the hole on one, and deleting two of its corners took it away; Open shape greyed
+  out and Boolean tools beside Vector tools on its menu; Outer Shell from that flyout filled it; the several-selected
+  menu's Boolean > Union merged a bar across it, keeping the hole; a line Trim refused it with its reason; a click in
+  the hole selected nothing; the hole's edge snapped at its middle and the phantom edge did not; inside an open group
+  a Subtract kept the group open and its result a member. Every step undone, the demo shapes deleted; D02 and D06 came
+  back identical to the file on disk; the app sent no POST and the page's guard refused nothing; the origin's draft,
+  service worker and caches removed.
+- NOT tried by Adam. NOT in ValeVision (a reader there that does not know Shape__Holes would draw a holed vector's
+  outline and holes joined by a stray edge).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.149.0  -  22-Sep-2026
+### The Move Anchor: Ctrl+Click an Item, Put the Red Cross on a Point, and Move It From That Point to Another
+
+**Overview**
+- From Adam: "Add a new way to move things. Modifier key = Control + Select. If any single object / single group is
+  selected with control held down, a red crosshair appears in the centre of its bounds. This becomes a point you can
+  grab and move around and snap to vertices on other objects, and becomes its reference point for moving - so you can
+  say move from this point to this point." His two sketches: the cross dragged from the middle of a box onto its
+  top-right corner, then the box moved by that corner onto the same corner of the box above it.
+- SketchUp LayOut has the idea and keeps it on all the time: every selection carries a crosshair in the middle of its
+  box (its move point and centre of rotation), and dragging the crosshair re-places it. LayOut users report that it
+  does not snap to other entities' points, and that since LayOut 2024 a move only snaps by a point if the press lands
+  near one. Here it is asked for with Ctrl+click and never shown otherwise, and it snaps as a drawn point does.
+
+**How it is used**
+- CTRL+CLICK ONE ITEM OR ONE GROUP. A red cross (on a white halo, with a ring round its middle) comes up in the middle
+  of its box, and the Move tool comes up with it - for a viewport and a dimension too, which otherwise wait for M,
+  because asking for the cross is asking to move the thing. It has to be a click: a Ctrl-DRAG is still a copy. With
+  something else already selected Ctrl adds, as it always has, and no cross comes up: the cross is only ever put on a
+  selection of one. Ctrl+Shift and Ctrl+Alt keep their old meanings.
+- DRAG THE CROSS to re-place it. It snaps to everything object snap offers (F3) - the item's OWN corners included -
+  and to the corners, the middle of each side and the middle of the item's box. An arrow key holds it to an axis from
+  where it was, Shift or Ortho (F8) to the nearer one; Grid Snap (F7) puts it on the grid when nothing else is in
+  reach. A dashed band runs from where it was. Double-click the cross, or Ctrl+click the item again, to put it back in
+  the middle.
+- DRAG THE ITEM, from anywhere on it, and it is carried by the cross: the cross, and no other point of the item, snaps
+  onto what it comes near, and the dashed band runs from where the cross started - from this point to that point.
+  The arrow keys, Shift and Ortho hold the move as they hold any move, a length typed in the Measurements box lands it
+  exactly that far (the box reads the cross's travel), and a Ctrl-drag carries a copy by the cross; the copy keeps a
+  cross of its own. A viewport is carried through the viewport snap move, tracking lines and all.
+- The cross rides with its item - a move, a nudge, an undo, a typed move - because it is kept as a place on the item's
+  box (a fraction of its width and height), so it also stays on its corner when the item is resized. It goes when the
+  selection is anything else, when a container opens or closes, when a tool other than Select or Move is picked, on
+  Escape and on another sheet. Placing it writes nothing to the sheet and is no undo step; the move is one undo step.
+
+**What changed**
+- NEW `28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__.js` 1.0.0 (Na__LeAnchor): the cross - where it is (Held,
+  on the item's box), drawing it (one transform, counter-scaled, like the snap marker), Arm, Recentre, HitAt, Hover,
+  Grab, ForDrag, Relocate (object snap, the item's own box, the grid, the axis holds), Carry (the translation that
+  lands the cross on the snap, everything moving left out of the search), ShowAt, Finish (keeps the new place; hands
+  the cross to a copy), Refresh and Clear.
+- NEW `28__System__ObjectSnap/Na__LayoutEditor__MoveAnchor__Config__.json` 1.0.0: Enabled, SnapToOwnBox, SayWhatToDo,
+  CrossSizePx 26, GrabRadiusPx 10, the three lines it says above the Measurements box, and the LayOut research.
+- `Na__Hotkeys__DrawingTabs__.json`: SelectionBindings `MoveAnchorModifier: "Ctrl"`, and the description says what it
+  does. Empty switches the cross off.
+- `ConfigState__KeyMap__` 1.10.0: MatchSelectionModifier also answers `anchor` (the modifier held on its own);
+  GetMoveAnchorModifier. `ConfigState__` 1.29.0 re-exports it.
+- `SheetTools__PointerPress__` 1.8.0: ArmAnchor on a Ctrl+click's release (Anchorable refuses a locked item and
+  anything inside an open vector or dimension); a press on the cross comes before everything and re-places it (a
+  'moveanchor' drag); a whole-object, set or frame move of the item with the cross carries drag.anchorMm (and a
+  frame's baseMm); a double click on the cross recentres it.
+- `SheetTools__PointerDrag__` 1.19.0: ApplyDrag relocates the cross, or asks Carry first and lands its answer as a
+  typed length is landed; the frame carry draws the cross and the band; the hover lights the cross and gives it the
+  crosshair; FinishDrag hands every drag to Finish and announces nothing for the cross's own; IsAnchorDrag and
+  RerunAnchorDrag.
+- `SheetTools__Keyboard__` 1.16.0: the arrow keys lock the axis of the cross being re-placed (never a nudge of the
+  item under it), and Shift or Ortho redraws it at once.
+- `SheetTools__HitResolution__` 1.10.0: an item with the cross picks Move up, whatever its kind (PicksUpMove,
+  SelectionPicksUpMove), so the Move stays up after the first move.
+- `SheetTools__ToolState__` 1.7.0: a tool other than Select or Move drops the cross.
+- `SheetTools__` 1.39.0: Attach reads the cross's config, the repaint after a model change or a settled zoom puts it
+  right or drops it, Detach forgets it.
+- `Na__LayoutEditor__Styles__ObjectSnap__.css`: the Move Anchor region - the cross, its hover, re-placing and
+  carrying states.
+- Service worker token `2026-09-22-12` (Logic 1.9.38).
+
+**How it was proved**
+- NEW `Na__Test__MoveAnchor__.test.mjs`, 70 checks on the shipped cross, the pointer drag unit and the pointer press
+  unit with the real cross wired in: the middle of the box; only while that one item is selected, in that container,
+  on that sheet; the grab radius at two zooms; re-placed onto its own box's corner and midpoint, onto a drawing point
+  that is nearer, held by an arrow, Shift and the grid; kept on the box through a move and a resize; a move carried
+  by the cross landing it exactly on another corner with the item left out of the search, the move's own snap and the
+  grid step never asked; a set carried the same way; a copy keeping a cross; the cross's own drag announcing nothing;
+  Ctrl+click on one item arming it and picking Move up, and not on a second item, a plain click, Ctrl+Shift or a
+  Ctrl-drag copy; a press on the cross leaving the selection alone; the double click recentring it.
+- `Na__Test__CopyDrag__` 1.1.1 expects `anchor` in MatchSelectionModifier's answer; `Na__Test__GroupMoveSnapping__`
+  1.2.2 and `Na__Test__SetMoveLeaderTips__` 1.1.1 stub the cross. Every Node suite passes but LeaderlessNotes (RB05's
+  D01 now lists the IN group, a live-data check) and StatementRoundTrip (this PC's CRLF copies); Na__Verify__Exports
+  passes; Na__Verify__ModuleGraph's two failures are the old ones in the Statement PDF and Scene Editor.
+- IN THE APP, on RB05 D05 in a guarded read-only tab (localhost:9132): Ctrl+click on one vector of Group_003 (the
+  Project Portal block) selected the group, put the cross on the middle of its box and brought Move up; the cross
+  dragged to the group's top-right corner snapped there (40.436, 8.000); the group dragged by one of its lines, aimed
+  half a millimetre off Shape_009's corner, landed with its corner exactly on it (-72.000, 4.305) - one undo step, the
+  Measurements box reading 11,249.7 mm at 1:100. From Select, Ctrl+click on the elevation viewport put the cross on
+  the middle of its frame and brought Move up; the frame carried by it landed the cross exactly on the scale bar's
+  corner (298.7504, 305.5443). Both undone; the sheet came back byte-identical; nothing was written.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.148.0  -  22-Sep-2026
+### Project Floor Areas: One Master List of Floors Across Every Sheet, and a Floor After a Schedule's Title
+
+**Overview**
+- From Adam: "One master floor level list for all floors of a building." The area schedules read ONE sheet, which is
+  right for the plan beside them but gives no single place where the ground, first and second floors - each measured
+  on its own plan sheet - stand together. It needs each floor's total, not every room.
+- And on the existing schedules: a dropdown to write a floor after the title - "Floor Areas  -  Ground Floor" - with
+  Ground Floor, First Floor, Second Floor and Basement Level offered in that order.
+
+**The project form** (`Na__LayoutEditor__ScrapbookParametric__AreaSchedule__` 1.1.0, `Na__LayoutEditor__FloorAreas__Table__` 1.1.0)
+- A third form of the Area Schedule, `project`: one row per group, its rooms added up across EVERY sheet, and the
+  building's total at the foot. Drawn exactly as the group summary is; titled Floor Areas, its column Floor.
+- `DataForProject` reads every sheet's index: groups matched by name as a sheet matches them (case and spacing aside),
+  in tab order then each sheet's own order, spelled and coloured as the first sheet that has them. Only rooms filed
+  under a group count, and a group with nothing measured in it is left out. A group on two sheets is added on both -
+  right for a floor split across two plans, a double count for one drawn twice (existing and proposed both filed
+  under Ground Floor), so those want different names.
+- KEPT TRUE ON EVERY SHEET. Its own sheet's tables follow ahead of the announcement, as before. A project table on
+  ANOTHER sheet is followed straight after it (`FollowElsewhere`), with an announcement of its own on that sheet, so
+  it is a step in that sheet's history rather than a silent edit the next step there would sweep up and undo with
+  itself - the history keeps a snapshot per sheet. So a batch PDF never prints a master list the last edit left
+  behind. Opening a sheet still checks its tables too.
+- Offered as a third scrapbook tile, **Project Floor Areas**, a third button in the Floor Areas panel (**Insert
+  project summary**), a third entry on the lookup triangle and the panel's Shows list.
+
+**The floor after the title**
+- A new parameter, `TitleSuffix`, kept through a rebuild. The title reads title + join + floor; the join (`  -  `)
+  and the four floors are the config's (`AreaSchedule__TitleSuffixJoin`, `AreaSchedule__TitleSuffixes`). Offered on
+  the lookup triangle as they read on the paper ("  -  Ground Floor"), with "No floor in the title" first, and as
+  **Floor after the title** in the panel. Works on all three forms and after a typed title. A table keeps its words
+  if the list changes.
+
+**Tests**
+- `Na__Test__AreaSchedule__` - the tile check now expects three tiles; fourteen new checks for the project form and
+  the title floor. `Na__Test__FloorAreas__` unchanged and passing.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.147.0  -  22-Sep-2026
+### Leaderless Notes: Whole Specification Groups Listed on a Sheet With No Bubble Pointing at Them - First, in an Order Dragged Into Place
+
+**Overview**
+- From Adam: "Add the ability to add groups of notes into the margin without requiring tags" - for introduction notes, or
+  bespoke blocks that need no annotation leader. A toggle named "Leaderless Notes" that, switched on, lists the groups
+  "exactly like the overspill notes" and lets him tick the groups to show in the margin; and "a click and drag stack so
+  dragging a group up makes those notes first", because his introduction section should come first.
+- He pointed at two screenshots; none reached this session, so the work was fitted to RB05 as it is on disk. The IN group
+  (Project Introduction Notes, IN01-IN09, 6d8ef04) was put first in the specification this morning for D01's margin, and D01
+  could never list it: no bubble links to an IN note, and the margin listed only what bubbles link to.
+
+**How it is used**
+- THE MARGIN NOTES PANEL, under Open Project Specification and above Overspill Note Regions: **Leaderless Notes**. Off, that
+  is all there is. On, a rule and the section come up:
+  - LISTED FIRST: the ticked groups, top of the stack printed first. Each row has the Layers panel's grip at its left:
+    press it, drag up or down, release. The rows it passes slide aside, and the drop is one move and one undo step. The Up
+    and Down keys work on a focused grip too.
+  - OTHER GROUPS: every other group of the specification, in its order, each with a tick. A group ticked joins the foot of
+    the stack; unticked, it goes back.
+  - Each row is the overspill regions' group row: prefix chip, title, tick. A listed group that a region ticks says
+    "in Region 1", because its notes print there, as any group's do. A listed group with no notes says so.
+- WHAT PRINTS. The ticked groups come first, whole, each group's notes in specification order. The notes the sheet's
+  bubbles link to follow, then the general notes.
+  - A note a bubble also links to is listed once, in its group's place.
+  - A general group that is ticked moves to the front and is not listed again at the foot, with List general notes on or off.
+  - The margin's heading, text size and group headings are unchanged. With Group headings on, the group's title heads its
+    notes.
+- The line under Show notes margin counts them: "Lists 26: 9 without leaders, 17 linked on this sheet, 0 general." A sheet
+  that lists no group this way reads exactly as before.
+- Switched off, the ticked groups and their order are kept, so switching it on again puts them back. Everything is per
+  sheet.
+
+**How it works**
+- THE RECORD lives on the sheet's notes margin record, beside the regions, so it is switched, undone, drafted and saved with
+  it. `LeaderlessOn` is stored only as true. `LeaderlessGroups` holds the group ids in print order and is stored only when
+  there is one. A group id the specification lacks is kept: the specification loads after the sheets, and a deleted group
+  lists nothing. A margin record without either key normalises byte-identical, so every sheet saved before today is
+  untouched.
+- THE LIST is the margin's one list (`Na__LeMargin__Entries`), so everything downstream follows with nothing new to learn:
+  - the sheet, the PDF, the web viewer and the scrapbook previews all draw through `Na__LeMargin__Push`;
+  - a region that ticks the group takes its notes;
+  - what does not fit carries on into the overspill regions in the list's order, the introduction first;
+  - with the margin off and no overspill region, the notes are counted as not listed.
+- THE MODEL gains three patch keys on `UpdateMarginNotes`: `leaderlessOn`; `leaderlessGroup` ({ id, on }); and
+  `leaderlessMove` ({ id, index }, the index in the whole list, by the Layers grip's rule). Each is one 'margin'
+  announcement: one undo step, the browser draft, never an auto save. No new model export.
+- THE PANEL rebuilds its lists only when what they show changes: the sheet, its list, the specification's groups and note
+  counts, or the regions that claim them. It never rebuilds mid-drag, and it gives the focus back to the same grip or tick
+  after a rebuild.
+
+**What changed**
+- NEW `07__Core__SheetData/Na__LayoutEditor__SheetRecords__LeaderlessNotes__.js` 1.0.0, a leaf with no imports:
+  NormaliseLeaderlessNotes, LeaderlessToggled and LeaderlessMoved, and the readers LeaderlessOn, LeaderlessGroups and
+  ListedLeaderlessGroups.
+- NEW `50__Feature__Specification/Na__LayoutEditor__Panel__MarginNotes__Leaderless__.js` 1.0.0: the switch, the stack with its
+  grip drag and arrow keys, and the other groups.
+- Changed modules:
+  - `SheetRecords__` 1.37.0: NormaliseMarginNotes keeps the two keys.
+  - `SheetModel__Sheets__` 1.4.0: the three patch keys.
+  - `SpecMargin__` 1.5.0: Entries lists the groups first; Entries, the plan and Report count `leaderless`; Report says
+    `leaderlessOn`.
+  - `Panel__MarginNotes__` 1.2.0: builds, refreshes and registers the new part; the status line.
+  - `NoteRegions__` 1.0.1 and `SheetModel__` 1.35.1: comments only.
+- `Na__LayoutEditor__Styles__Specification__Notes__.css`: a Leaderless Notes region (the rows, the grip, the sort).
+- Config (`Na__LayoutEditor__AppConfig__.json`): MarginNotes gains `LeaderlessNote`, and its Description mentions the groups.
+  Labels gain `MarginStatusLeaderless` and eleven `Leaderless*` labels.
+- Service worker token `2026-09-22-10` (Logic 1.9.36): the records, the Sheets unit, the margin and the panel import names no
+  warm copy has.
+- `.claude/launch.json`: `tv-leaderless-guarded`, the local server on 9121 behind the read-only guard proxy on 9122. It starts
+  as one entry, so the only tab it opens is the guarded one; its two scripts are in the session's scratchpad.
+
+**How it was proved**
+- `Na__Test__LeaderlessNotes__.test.mjs`, NEW, 51 checks on the shipped record leaf, SheetRecords, the Sheets unit,
+  SpecMargin, its Column and NoteRegions, with the real sheet layout and config:
+  - the record: no key added, the switch only as true, the list cleaned, both beside the regions, byte-identical again;
+  - the tick and the move rules;
+  - the three patch keys, one announcement each;
+  - the list: none, switched off and nothing ticked all as before; the groups first, in the sheet's order; a linked note
+    once; a general group ticked; a lost group; the specification loading; group headings; a region's claim, the overspill
+    order, not listed;
+  - RB05 D01 read from the project file: IN01-IN09 lead its list, then everything it listed before, unchanged.
+- `Na__Test__NoteRegions__.test.mjs` 1.0.1 loads the new leaf (the margin imports it); its 53 checks still pass.
+- The whole Node suite: 50 of 51 files pass. StatementRoundTrip's headings fail as they did before (CRLF copies).
+  `Na__Verify__Exports__.mjs` passes (502 files). `Na__Verify__ModuleGraph__.mjs` walks 593 modules and reports only the two
+  unresolved specifiers it already reported.
+- In the app, RB05 through the guard proxy, with real clicks, drags and keys on D01. No write was attempted: nothing was
+  refused, no POST reached the proxy, and Save Sheets was never pressed.
+  - The switch opened the section, with all 16 groups under Other groups.
+  - A tick on IN moved it to Listed first. The margin began PROJECT INTRODUCTION NOTES, IN01 ... IN09, then EN01, and read
+    "Lists 26: 9 without leaders, 17 linked on this sheet, 0 general. 8 in regions.", nothing overflowing.
+  - GN ticked joined the foot. A mouse drag of its grip above IN made the order GN, IN in the record and on the sheet. Up on
+    IN's focused grip put IN first again, and the focus stayed on it.
+  - With Region 1 ticking IN as well, the row said "in Region 1" and the notes went to the region.
+  - Every change was undone with Ctrl+Z: the history was empty and D01's margin record byte-identical to the project file.
+    The test origin's draft, caches and service worker were cleared and the server stopped.
+
+**NOT done, and worth knowing**
+- THE LEADERLESS GROUPS ALWAYS LEAD. The stack has no place for the bubble-linked notes, so a block cannot be put after them.
+  A "Linked notes" row in the stack would allow that, if a bespoke block ever needs to sit at the foot.
+- D01's margin is 90 mm wide with group headings on. IN01-IN09 and its 17 linked notes fit today with nothing left over (FN
+  goes to its region). A longer introduction would push the linked notes out; an overspill region would take them.
+- Only whole groups can be listed this way: a single note cannot be listed without a leader on its own.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.146.0  -  22-Sep-2026
+### Three Guards Round the Project File: a Draft Is Judged Before It Goes Back, a Save Is Judged Before It Goes Out, and Every Copy Overwritten Is Kept
+
+**Overview**
+- From Adam, after D10 (Roof Plan & 3D Bird's-eye Views) lost its 24 specification bubbles twice in one morning: "is
+  there some way we can add some guard in the future?" - and, on the drawing register's number jumps and renames,
+  whether a permanent id was needed. It was not: every sheet already has one (`Sheet__Id`), the jump and the renames
+  never touch it. What was missing was any notion of WHICH COPY IS NEWER.
+- WHAT HAPPENED (RB05, 22-Sep-2026, from the local server's log and git). At 10:12 D10 had no bubbles. Its 24 bubbles
+  were added and saved at 10:49 from one window. Another window, opened before that, still held D10 without them; its
+  browser draft held the same. At 11:07 that window pressed Save Sheets: the drawings block is written whole, every
+  sheet of it, so D10 went back to 10:12 - on R2 first, then in the repository copy. D10 was restored from the 10:59
+  commit at 11:20, and the window's draft, put back on every reload, took it away again at 11:22. Nothing in the app
+  compared the draft, or the save, with what had been saved since.
+- Layer 1 (the draft) and layer 2 (the save) both key off one new thing: THE BASE - what the drawings block was when
+  this session loaded it, or last saved it. On localhost that is the local server's fingerprint of the block on disk
+  (`sha1:` of its canonical JSON), which changes whoever changes the file: another window, an agent editing it, a git
+  checkout. On the web build it is the block's own saved stamp. A project that has no drawings block yet is `none`.
+
+**Layer 1 - a draft is judged before it goes back** (`Na__LayoutEditor__AutoSave__` 1.5.0)
+- Every draft now records the base it grew from. On a load the draft is judged (`JudgeDraft`, pure): grown from the
+  very drawings loaded, it goes back as before, one toast; grown from other drawings - saved since by another window,
+  or changed on the file - or written before drafts said what they grew from, the person is asked, and nothing touches
+  the sheets until they answer.
+- THE QUESTION (the Dev menu modal, now with a third button): "Unsaved sheet changes from this browser" - when the
+  draft was written and how many sheets it holds, when the drawings were saved and how many sheets they hold, and both
+  bases. **Apply Draft** (red: it puts EVERY sheet back to the draft's copy, over whatever was saved since), **Discard
+  Draft** (the drawings stay as saved), **Decide Later** (Cancel, Escape, the backdrop: the draft is left for the next
+  load, and the footnote says an edit before then replaces it). Nothing writes the draft while the question is up.
+- This is what Adam's window meets on its next load: its draft says nothing about what it grew from, so it is asked
+  about, and Discard Draft ends it.
+
+**Layer 2 - a save is judged before it goes out** (`Na__DrawView__ProjectData__` 1.6.0, `Na__AppUtils__LocalProjectMirror__` 1.2.0, the local server)
+- After every load the drawings data learns the base (`GetBase`, `WhenBaseKnown`): the local server's new
+  `GET /api/projects/<code>/drawings-fingerprint`, or the block's stamp. Save asks the server again BEFORE R2 is written
+  - R2 is written first, so the server's own refusal would come too late for it - and when the block on disk is no
+  longer the one this window loaded, the save is refused with a red toast: "Not saved: the project's drawings on disk
+  are not the ones this window loaded - they were saved elsewhere at HH:MM since. Reload to pick them up; this
+  window's unsaved changes will be offered as a draft." The model stays dirty; nothing was written anywhere.
+- The local write carries the base too (`X-TrueVision-Drawings-Base`), and the server refuses with 409 a save that
+  slipped past the check; a save that lands answers the file's new fingerprint, which becomes the base. A save carrying
+  no base - other writers merge other keys and leave the block as they found it - is not judged.
+- Every save now stamps the block: `LayoutEditor__DrawingsData__SavedIso`, for people and for the question above.
+- A server running from before the route leaves saves unjudged, as they always were, and says so once in the console:
+  it never reloads its routes, so the running one must be restarted.
+
+**Layer 3 - every copy overwritten is kept** (the local server)
+- Before `POST /api/projects/<code>` and `POST /api/projects/<code>/files/<name>` overwrite a file, the copy going is
+  kept: `PROJECT_BACKUP_ROOT` (`%LOCALAPPDATA%\NobleArchitecture\TrueVision\ProjectDataBackups`, or
+  `TRUEVISION_PROJECT_BACKUP_ROOT`), the file's path under the portal mirrored beneath it, the moment in the name; the
+  newest 30 stay. Outside the repository and outside every project folder on purpose: the repository is public and the
+  R2 sync uploads a project folder whole. `GET /api/projects/<code>/backups` lists them, newest first; the banner
+  prints the folder. A refused save keeps no copy. A copy that could not be made is printed and the save goes on: a
+  save refused for want of a backup would lose more than the backup protects.
+
+**What changed**
+- `na-apps/ProjectVision__LocalServer__Main__.py`: `_read_json_file`, `_drawings_fingerprint`, `_backup_dir_for`,
+  `_backup_before_overwrite`, `_list_backups`; the guard and the backup in the project data POST; the backup in the
+  sibling file POST; the fingerprint and backups routes; the header in CORS; the banner.
+- `Na__AppUtils__LocalProjectMirror__` 1.2.0: `DrawingsFingerprint`; `MergeKeys(partialObject, { drawingsBase })`; a
+  409 as `conflict`; a landed merge carries `drawings` and `backup`.
+- `Na__DrawView__ProjectData__` 1.6.0: the base, `GetBase`, `WhenBaseKnown`, `LearnBase`, `CheckBase`; the guard,
+  the stamp and the new base in Save; `SAVED_ISO_KEY` exported.
+- `Na__LayoutEditor__AutoSave__` 1.5.0: `JudgeDraft`, `PutDraftBack`, `AskAboutDraft`; the base in the draft; no draft
+  written while asking.
+- `Na__PresentationMode__DevMenu__Modal__` 1.2.0: `altLabel` / `altIsDestructive`, a third button answering `'alt'`.
+- `Na__LayoutEditor__AppConfig__.json`: DraftApplied, DraftDiscarded and DraftLeftAside labels; the AutoSave
+  description.
+- Service worker token `2026-09-22-9` (Logic 1.9.35).
+
+**How it was proved**
+- `Na__Test__ProjectDataSaveGuard__.test.py`, NEW: the local server through Flask's test client against a temporary
+  project - 32 checks: the fingerprint is the same however the file is formatted and blind to keys outside the block;
+  a save built on the disk lands and answers the new fingerprint; the same base sent again after the file changed is
+  refused, the file untouched, no copy kept; a file changed by hand refuses too and keeps the hand edit; a save with
+  no base is never judged; `none` matches only a file with no block; backups mirror the portal path outside it, are
+  byte for byte the file overwritten, capped at KEEP, newest first, the drawing notes included.
+- `Na__Test__DraftGuard__.test.cjs`, NEW, 11 tests on the shipped Auto Save and Drawings Data: the judge; the base in
+  the draft (left out while unknown); a matching draft goes back unasked; Apply, Discard, Decide Later and no answer;
+  a draft that does not say is asked about even against unstamped drawings; nothing written while asking; a load
+  meanwhile asks for itself; the base learned from the server; a save refused before R2 with the toast; unjudged on a
+  server without the route; the web build's base. Three mutations of the shipped code, each put back byte for byte:
+  a judge that always restores (tests 1, 4, 6 fail), no pre-save check (9), a draft written while asking (6).
+- `Na__Test__DraftRestore__.test.mjs` (v2.145.0): its fixture draft now says what it grew from (`base : null`); every
+  check passes.
+- The whole Node suite: 115 of 116 pass; the one that fails (`StatementRoundTrip`, headings) failed before.
+  `Na__Verify__Exports__.mjs` passes (500 files). The Python API tests pass.
+- NOT tried in the app: the running local server is the one started before these routes, and the Layout Editor was
+  in use.
+
+**NOT done, and worth knowing**
+- THE RUNNING LOCAL SERVER MUST BE RESTARTED: it never reloads its routes. Until then saves are unjudged and no
+  backups are kept, and the console says so once.
+- R2 is not judged. The Cloudflare Worker merges the block without a check, so the web build (and a localhost session
+  whose fingerprint could not be read) still saves last-writer-wins to R2; the pre-save check on localhost is what
+  protects R2 there. The Worker would need the same base header.
+- A hand edit of the project file (an agent, a restore script) is caught by the fingerprint but not announced: the
+  window finds out when it saves, or on its next load through the draft question.
+- The sibling files (the drawing notes) are backed up, not judged.
+- Decide Later keeps the draft only until the next edit, which writes over it as every edit does.
+- The first Save Sheets after Adam's window loads the restored D10 also puts the good D10 back on R2, which still holds
+  the 11:07 copy.
+- NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.145.0  -  22-Sep-2026
 ### The Browser Draft of Unsaved Sheets Comes Back After a Reload, Whichever Gets There First - the Drawings or the Editor
 

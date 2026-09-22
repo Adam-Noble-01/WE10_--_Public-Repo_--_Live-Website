@@ -43,6 +43,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - LEADERLESS NOTES. UpdateMarginNotes takes leaderlessOn (the Margin Notes
+//   panel's Leaderless Notes switch), leaderlessGroup ({ id, on }: a group
+//   ticked joins the end of the list) and leaderlessMove ({ id, index }: the
+//   stack's drag and arrow keys). The list arithmetic is the new record
+//   leaf's (LeaderlessToggled, LeaderlessMoved); each is one 'margin'
+//   announcement, as every other margin change is. No new export.
+// - TrueVision first; not yet in ValeVision.
+//
 // 22-Sep-2026 - Version 1.3.0
 // - OVERSPILL NOTE REGIONS. UpdateMarginNotes takes regionsOn (the Margin
 //   Notes panel's Overspill Note Regions switch). AddNoteRegion,
@@ -123,6 +132,7 @@
         Na__LeRec__NormaliseMarginNotes
     } from './Na__LayoutEditor__SheetRecords__.js';
     import { Na__LeRec__NewNoteRegion, Na__LeRec__NoteRegionById } from './Na__LayoutEditor__SheetRecords__NoteRegions__.js';   // <-- The overspill note regions on the margin record
+    import { Na__LeRec__LeaderlessToggled, Na__LeRec__LeaderlessMoved } from './Na__LayoutEditor__SheetRecords__LeaderlessNotes__.js';   // <-- The groups the margin lists without leaders
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Sheet Model State
@@ -504,12 +514,19 @@
     // FUNCTION | Switch, Widen or Restyle a Sheet's Notes Margin
     // ------------------------------------------------------------
     // patch: { enabled, widthMm, heading (null or empty for the configured
-    // one), textSizeMm, includeGeneral, groupHeadings, regionsOn }. The first
-    // change creates Sheet__MarginNotes. Announced as 'margin': a content edit,
-    // kept by the browser draft and Save Sheets, one undo step, never an auto
+    // one), textSizeMm, includeGeneral, groupHeadings, regionsOn,
+    // leaderlessOn, leaderlessGroup, leaderlessMove }. The first change
+    // creates Sheet__MarginNotes. Announced as 'margin': a content edit, kept
+    // by the browser draft and Save Sheets, one undo step, never an auto
     // save. silent: true skips the announcement (the edge grip while it is
     // dragged). regionsOn switches the overspill note regions: off keeps every
     // region, so on again puts them back as they were.
+    // THE LEADERLESS NOTES, the groups listed without bubbles:
+    //   leaderlessOn    the switch; off keeps the groups, as regionsOn does
+    //   leaderlessGroup { id, on } - one group ticked (it joins the end of
+    //                   the list) or unticked, the rest kept in their order
+    //   leaderlessMove  { id, index } - one group moved to index in the whole
+    //                   list (the Leaderless Notes stack's drag and arrow keys)
     // ------------------------------------------------------------
     function Na__LeModel__UpdateMarginNotes(sheet, patch, silent) {
         if (!sheet || !patch) return false;
@@ -521,7 +538,10 @@
         if (typeof patch.includeGeneral === 'boolean') notes.IncludeGeneral = patch.includeGeneral;
         if (typeof patch.groupHeadings === 'boolean') notes.GroupHeadings = patch.groupHeadings;
         if (typeof patch.regionsOn === 'boolean') { if (patch.regionsOn) notes.RegionsOn = true; else delete notes.RegionsOn; }   // <-- Stored only as true
-        Na__LeRec__NormaliseMarginNotes(sheet);
+        if (typeof patch.leaderlessOn === 'boolean') { if (patch.leaderlessOn) notes.LeaderlessOn = true; else delete notes.LeaderlessOn; }   // <-- Stored only as true
+        if (patch.leaderlessGroup && typeof patch.leaderlessGroup === 'object') notes.LeaderlessGroups = Na__LeRec__LeaderlessToggled(notes.LeaderlessGroups, patch.leaderlessGroup.id, patch.leaderlessGroup.on);
+        if (patch.leaderlessMove && typeof patch.leaderlessMove === 'object') notes.LeaderlessGroups = Na__LeRec__LeaderlessMoved(notes.LeaderlessGroups, patch.leaderlessMove.id, patch.leaderlessMove.index);
+        Na__LeRec__NormaliseMarginNotes(sheet);                                  // <-- An emptied list is dropped here, so the record keeps no empty key
         if (silent) { Na__LeModel__AssignDirty(true); return true; }
         Na__LeModel__Touch('margin', sheet.Sheet__Id);
         return true;

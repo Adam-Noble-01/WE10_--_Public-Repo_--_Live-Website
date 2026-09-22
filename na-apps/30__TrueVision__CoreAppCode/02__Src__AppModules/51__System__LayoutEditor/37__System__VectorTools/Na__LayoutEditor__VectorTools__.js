@@ -48,6 +48,7 @@
 // // @delegate: ./Na__LayoutEditor__VectorTools__TrimTool__.js
 // // @delegate: ./Na__LayoutEditor__VectorTools__JoinTool__.js
 // // @delegate: ./Na__LayoutEditor__VectorTools__OffsetTool__.js
+// // @delegate: ./Na__LayoutEditor__VectorTools__BooleanTool__.js
 //
 // -----------------------------------------------------------------------------
 //
@@ -58,6 +59,25 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - THE BOOLEAN KEYS (Adam: Shift+U Union, Shift+S Subtract, Shift+T Trim,
+//   when more than one vector is selected, and Shift+O Outer Shell). COMMANDS
+//   maps their key map actions to the Boolean each runs; CommandForAction and
+//   RunCommand are the sheet keyboard's door (the Boolean on the selection, at
+//   once, the tool left as it is), and BooleanSelection is the situation the
+//   first three name (When BooleanSelection) - two or more closed shapes a
+//   Boolean can take. OuterShellSelection is Shift+O's: that, or one shape
+//   with holes.
+//
+// 22-Sep-2026 - Version 1.1.0
+// - THE BOOLEAN TOOLS (Na__LayoutEditor__VectorTools__BooleanTool__): Union,
+//   Subtract, Trim, Intersect, Split and Outer Shell are routed through Arm,
+//   Cancel, IsBusy, Press and Move like every other vector tool - one row in
+//   each switch. A closed vector's right-click menu gains a Boolean tools
+//   flyout beside Vector tools, and SelectionMenuItems gives the menu of
+//   several selected shapes a Boolean row that acts on them at once. They
+//   take no typed value, so Reading answers null for them as for Trim.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -89,6 +109,12 @@
         Na__LeVec__TOOL_OFFSET,
         Na__LeVec__TOOL_FILLET,
         Na__LeVec__TOOL_CHAMFER,
+        Na__LeVec__TOOL_UNION,
+        Na__LeVec__TOOL_SUBTRACT,
+        Na__LeVec__TOOL_BOOL_TRIM,
+        Na__LeVec__TOOL_INTERSECT,
+        Na__LeVec__TOOL_BOOL_SPLIT,
+        Na__LeVec__TOOL_OUTER_SHELL,
         Na__LeVec__GROUP_DRAW_TOOLS,
         Na__LeVec__IsTool,
         Na__LeVec__IsEditTool,
@@ -114,6 +140,7 @@
         Na__LeVecSize__CornerMove,
         Na__LeVecSize__CornerMeasure
     } from './Na__LayoutEditor__VectorTools__OffsetTool__.js';
+    import { Na__LeVecOps__IsTool, Na__LeVecOps__Arm, Na__LeVecOps__Press, Na__LeVecOps__Move, Na__LeVecOps__Cancel, Na__LeVecOps__IsBusy, Na__LeVecOps__SelectionItems, Na__LeVecOps__SelectionTakesBoolean, Na__LeVecOps__SelectionTakesOuterShell, Na__LeVecOps__ApplySelection } from './Na__LayoutEditor__VectorTools__BooleanTool__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -136,6 +163,17 @@
         Tool__Fillet  : Na__LeVec__TOOL_FILLET,
         Tool__Chamfer : Na__LeVec__TOOL_CHAMFER
     });
+    // THE KEY MAP'S COMMANDS: keys that ACT on the selection there and then,
+    // rather than pick a tool up (Adam, 22-Sep-2026). Their bindings carry
+    // When BooleanSelection, so they only ever match while two or more closed
+    // shapes are selected - which is what lets Shift+T be Trim here and still
+    // be Extend everywhere else.
+    const Na__LeVec__COMMANDS = Object.freeze({
+        Edit__BooleanUnion      : Na__LeVec__TOOL_UNION,
+        Edit__BooleanSubtract   : Na__LeVec__TOOL_SUBTRACT,
+        Edit__BooleanTrim       : Na__LeVec__TOOL_BOOL_TRIM,
+        Edit__BooleanOuterShell : Na__LeVec__TOOL_OUTER_SHELL   // <-- Shift+O, When OuterShellSelection: two or more closed shapes, or one with holes
+    });
     const Na__LeVec__EXTRAS_CIRCLE = 'sSdD';    // <-- 6s sides, 3000d a diameter
     const Na__LeVec__EXTRAS_ARC    = 'sSrR°';   // <-- 6s sides, 750r a radius, 90 degrees with its sign
     // ------------------------------------------------------------
@@ -157,6 +195,51 @@
     // ------------------------------------------------------------
     function Na__LeVec__ToolForAction(action) {
         return Object.prototype.hasOwnProperty.call(Na__LeVec__ACTIONS, action) ? Na__LeVec__ACTIONS[action] : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Boolean a Key Map Command Runs on the Selection, or Null
+    // ------------------------------------------------------------
+    function Na__LeVec__CommandForAction(action) {
+        return Object.prototype.hasOwnProperty.call(Na__LeVec__COMMANDS, action) ? Na__LeVec__COMMANDS[action] : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Run a Key Map Command: the Boolean, on the Selection, at Once (true when anything changed)
+    // ------------------------------------------------------------
+    // The tool that is up stays up - Select, most often - exactly as the
+    // Boolean row of the several-selected menu leaves it. One undo step; what
+    // it did, or why it could not, is said above the Measurements box.
+    // ------------------------------------------------------------
+    function Na__LeVec__RunCommand(action, sheet) {
+        const tool = Na__LeVec__CommandForAction(action);
+        if (!tool || !sheet) return false;
+        return Na__LeVecOps__ApplySelection(tool, sheet);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Is the Selection One the Boolean Keys Act On (the key map's BooleanSelection)
+    // ------------------------------------------------------------
+    // Two or more closed shapes a Boolean can take, within reach of the level
+    // the editor is at. Asked by the sheet's keyboard only once a binding that
+    // names it has matched the key.
+    // ------------------------------------------------------------
+    function Na__LeVec__BooleanSelection(sheet) {
+        return Na__LeVecOps__SelectionTakesBoolean(sheet);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Can Shift+O Act on the Selection (the key map's OuterShellSelection)
+    // ------------------------------------------------------------
+    // As BooleanSelection, and one shape with holes as well: Outer Shell on its
+    // own fills a shape's holes.
+    // ------------------------------------------------------------
+    function Na__LeVec__OuterShellSelection(sheet) {
+        return Na__LeVecOps__SelectionTakesOuterShell(sheet);
     }
     // ------------------------------------------------------------
 
@@ -238,6 +321,7 @@
         else if (tool === Na__LeVec__TOOL_TRIM || tool === Na__LeVec__TOOL_EXTEND) Na__LeVecTrim__Arm(tool);
         else if (tool === Na__LeVec__TOOL_JOIN)   Na__LeVecJoin__Arm(sheet);
         else if (tool === Na__LeVec__TOOL_SPLIT)  Na__LeVec__SetHint(Na__LeVecCfg__Label('HintSplit', 'Split: click where to cut.'));
+        else if (Na__LeVecOps__IsTool(tool))      Na__LeVecOps__Arm(tool, sheet);   // <-- A Boolean: two or more closed shapes selected are combined there and then; one is held as the first
         else Na__LeVecSize__Arm(tool);
         return true;
     }
@@ -247,7 +331,7 @@
     // FUNCTION | Abandon Whatever Any Vector Tool Has Half Done
     // ------------------------------------------------------------
     function Na__LeVec__Cancel() {
-        const had = [ Na__LeVecCircle__Cancel(), Na__LeVecArc__Cancel(), Na__LeVecTrim__Cancel(), Na__LeVecJoin__Cancel(), Na__LeVecSize__Cancel() ].some((flag) => flag === true);
+        const had = [ Na__LeVecCircle__Cancel(), Na__LeVecArc__Cancel(), Na__LeVecTrim__Cancel(), Na__LeVecJoin__Cancel(), Na__LeVecSize__Cancel(), Na__LeVecOps__Cancel() ].some((flag) => flag === true);
         Na__LeVecPrev__Clear();
         return had;
     }
@@ -262,6 +346,7 @@
         if (tool === Na__LeVec__TOOL_TRIM || tool === Na__LeVec__TOOL_EXTEND) return Na__LeVecTrim__IsBusy();
         if (tool === Na__LeVec__TOOL_JOIN)   return Na__LeVecJoin__IsBusy();
         if (tool === Na__LeVec__TOOL_OFFSET || tool === Na__LeVec__TOOL_FILLET || tool === Na__LeVec__TOOL_CHAMFER) return Na__LeVecSize__IsBusy();
+        if (Na__LeVecOps__IsTool(tool)) return Na__LeVecOps__IsBusy();
         return false;
     }
     // ------------------------------------------------------------
@@ -304,6 +389,7 @@
         if (tool === Na__LeVec__TOOL_JOIN)   return Na__LeVecJoin__Press(ctx);
         if (tool === Na__LeVec__TOOL_SPLIT)  return Na__LeVecJoin__SplitPress(ctx);
         if (tool === Na__LeVec__TOOL_OFFSET) return Na__LeVecSize__OffsetPress(ctx);
+        if (Na__LeVecOps__IsTool(tool))      return Na__LeVecOps__Press(ctx);
         return Na__LeVecSize__CornerPress(ctx);
     }
     // ------------------------------------------------------------
@@ -323,6 +409,7 @@
         if (tool === Na__LeVec__TOOL_JOIN)   return Na__LeVecJoin__Move(ctx);
         if (tool === Na__LeVec__TOOL_SPLIT)  return Na__LeVecJoin__SplitMove(ctx);
         if (tool === Na__LeVec__TOOL_OFFSET) return Na__LeVecSize__OffsetMove(ctx);
+        if (Na__LeVecOps__IsTool(tool))      return Na__LeVecOps__Move(ctx);
         return Na__LeVecSize__CornerMove(ctx);
     }
     // ------------------------------------------------------------
@@ -547,7 +634,35 @@
             { separator : true },
             { label : Na__LeVecCfg__Label('MenuSplitHere', 'Split here'), onSelect : () => { Na__LeVecJoin__SplitShapeAt(sheet, shape.Shape__Id, pointMm); } }
         ];
-        return [ { label : Na__LeVecCfg__Label('MenuTools', 'Vector tools'), submenu : flyout }, { separator : true } ];
+        // THE BOOLEAN TOOLS | A second row with a flyout of its own, as the
+        // panel gives them a section of their own: a flyout cannot open
+        // another, and under their own heading Trim and Split read as the
+        // shape tools they are. Only for a CLOSED vector - a Boolean works on
+        // areas - and never inside a vector, where it is the only thing in
+        // reach. Picked up with this shape selected, it is held as the first.
+        const pts    = Array.isArray(shape.Shape__Points) ? shape.Shape__Points : [];
+        const booles = (shape.Shape__Closed === true && pts.length >= 3 && !Na__LeScope__GetVectorId()) ? [ { label : Na__LeVecCfg__Label('MenuBooleanTools', 'Boolean tools'), submenu : [
+            row(Na__LeVec__TOOL_UNION,       'ToolUnion',      'Union',       ''),
+            row(Na__LeVec__TOOL_SUBTRACT,    'ToolSubtract',   'Subtract',    ''),
+            row(Na__LeVec__TOOL_BOOL_TRIM,   'ToolBoolTrim',   'Trim',        ''),
+            row(Na__LeVec__TOOL_INTERSECT,   'ToolIntersect',  'Intersect',   ''),
+            row(Na__LeVec__TOOL_BOOL_SPLIT,  'ToolBoolSplit',  'Split',       ''),
+            row(Na__LeVec__TOOL_OUTER_SHELL, 'ToolOuterShell', 'Outer Shell', '')
+        ] } ] : [];
+        return [ { label : Na__LeVecCfg__Label('MenuTools', 'Vector tools'), submenu : flyout } ].concat(booles, [ { separator : true } ]);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Row the Right-Click Menu of SEVERAL Selected Items Offers, or []
+    // ------------------------------------------------------------
+    // Boolean, with a flyout of the six that act on the selection at once -
+    // Illustrator's Pathfinder, the paint order deciding which shape is cut.
+    // Only while two or more closed shapes within reach are selected. The row
+    // brings the rule that closes its section.
+    // ------------------------------------------------------------
+    function Na__LeVec__SelectionMenuItems(sheet) {
+        return Na__LeVecOps__SelectionItems(sheet);
     }
     // ------------------------------------------------------------
 
@@ -565,6 +680,10 @@
         Na__LeVec__IsEditTool,
         Na__LeVec__IsDrawTool,
         Na__LeVec__ToolForAction,
+        Na__LeVec__CommandForAction,
+        Na__LeVec__RunCommand,
+        Na__LeVec__BooleanSelection,
+        Na__LeVec__OuterShellSelection,
         Na__LeVec__KeepsContainer,
         Na__LeVec__AdoptIntoOpenGroup,
         Na__LeVec__Initialize,
@@ -582,7 +701,8 @@
         Na__LeVec__Reading,
         Na__LeVec__TypingExtras,
         Na__LeVec__TypeValue,
-        Na__LeVec__MenuItems
+        Na__LeVec__MenuItems,
+        Na__LeVec__SelectionMenuItems
     };
     // ------------------------------------------------------------
 

@@ -45,6 +45,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.1
+// - Measure this shape is hidden for a vector with holes (the vector tools'
+//   Boolean section): a room is one outline.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - Register attaches the label grip, so an open room's label can be dragged
 //   (Na__LayoutEditor__FloorAreas__LabelGrip__). Centre the label, already
@@ -143,7 +147,7 @@
         Na__LeArea__Unmake
     } from './Na__LayoutEditor__FloorAreas__.js';
     import { Na__LeAreaTool__PLACED_EVENT, Na__LeAreaTool__IsRectangle, Na__LeAreaTool__SetRectangle } from './Na__LayoutEditor__FloorAreas__Tool__.js';
-    import { Na__LeAreaTable__FORM_AREAS, Na__LeAreaTable__FORM_GROUPS, Na__LeAreaTable__Insert } from './Na__LayoutEditor__FloorAreas__Table__.js';
+    import { Na__LeAreaTable__FORM_AREAS, Na__LeAreaTable__FORM_GROUPS, Na__LeAreaTable__FORM_PROJECT, Na__LeAreaTable__Insert } from './Na__LayoutEditor__FloorAreas__Table__.js';
     import { Na__LeAreaGrip__Attach } from './Na__LayoutEditor__FloorAreas__LabelGrip__.js';
     // ------------------------------------------------------------
 
@@ -314,6 +318,7 @@
         tables.className = 'na-le-bar';
         tables.appendChild(Na__LePanels__Button(L('InsertSchedule', 'Insert area schedule'), 'area-insert-schedule', ''));
         tables.appendChild(Na__LePanels__Button(L('InsertSummary', 'Insert group summary'), 'area-insert-summary', ''));
+        tables.appendChild(Na__LePanels__Button(L('InsertProject', 'Insert project summary'), 'area-insert-project', ''));   // <-- Every sheet's groups in one list: the building's floors
         body.appendChild(tables);
     }
     // ------------------------------------------------------------
@@ -431,7 +436,8 @@
 
         // MEASURE THIS SHAPE | Only for a plain closed vector, which is the
         // one thing that can become a room without being drawn again
-        const candidate = picked.shape && !Na__LeArea__Is(picked.shape) && Na__LeAreaGeo__Encloses(picked.shape.Shape__Points);
+        const candidate = picked.shape && !Na__LeArea__Is(picked.shape) && Na__LeAreaGeo__Encloses(picked.shape.Shape__Points)
+            && !(Array.isArray(picked.shape.Shape__Holes) && picked.shape.Shape__Holes.length > 0);   // <-- Not a vector with holes: a room is measured round one outline
         part('make').hidden = !candidate || !usable;
 
         const one  = (picked.areas.length === 1 && picked.shape && Na__LeArea__Is(picked.shape)) ? picked.shape : null;
@@ -824,6 +830,7 @@
         // THE SCHEDULES
         on('click', 'area-insert-schedule', () => { if (Na__LeAreaTable__Insert(sheet(), Na__LeAreaTable__FORM_AREAS))  Na__LePanelArea__Toast(Na__LeArea__Label('TableInserted', 'Schedule placed in the middle of the view.')); });
         on('click', 'area-insert-summary',  () => { if (Na__LeAreaTable__Insert(sheet(), Na__LeAreaTable__FORM_GROUPS)) Na__LePanelArea__Toast(Na__LeArea__Label('TableInserted', 'Schedule placed in the middle of the view.')); });
+        on('click', 'area-insert-project',  () => { if (Na__LeAreaTable__Insert(sheet(), Na__LeAreaTable__FORM_PROJECT)) Na__LePanelArea__Toast(Na__LeArea__Label('TableInserted', 'Schedule placed in the middle of the view.')); });
 
         if (!Na__LePanelArea__Listening) {
             Na__LePanelArea__Listening = true;

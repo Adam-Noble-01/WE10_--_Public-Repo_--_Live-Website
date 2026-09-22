@@ -16,8 +16,9 @@
 //   the sheet that holds notes the way the margin does - the notes a margin
 //   cannot fit, or the groups picked for it - so the notes can break out.
 // - WHERE A NOTE GOES (Place). The sheet's list is the margin's, unchanged:
-//   the notes its bubbles link to, then the general notes
-//   (Na__LeMargin__Entries). Regions decide only WHERE each is printed:
+//   the groups it lists without leaders, the notes its bubbles link to, then
+//   the general notes (Na__LeMargin__Entries). "Specification order" below is
+//   that list's order. Regions decide only WHERE each is printed:
 //     1. A note whose group is ticked in a region is that region's - the
 //        first region down the list that ticks it. It leaves the margin.
 //     2. Every other note is the margin's. With the margin off, it waits for
@@ -65,6 +66,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.0.1
+// - Comments only: the sheet's list now starts with the groups it lists
+//   without leaders (Leaderless Notes, SpecMargin 1.5.0). Place already
+//   worked in that list's order, so a region claims, and the overspill
+//   carries, their notes exactly as any other's.
+//
 // 22-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //

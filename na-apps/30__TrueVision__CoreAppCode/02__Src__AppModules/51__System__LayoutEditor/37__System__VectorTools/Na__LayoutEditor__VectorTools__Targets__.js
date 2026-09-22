@@ -54,6 +54,17 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - HOLES (islands), for the Boolean section. PathsOf gives a holed vector as
+//   one closed path per ring, so At finds it by its nearest ring and
+//   CuttersFor cuts along every ring and never from the outline to a hole.
+//   Refusal gains REFUSE_HOLES - the line tools work on one run of points -
+//   unless options.holes says the caller (a Boolean tool) takes them, and
+//   RefusalText is every refusal in words, for the tools to say. Replace,
+//   AddBeside and Absorb write a piece's own holes, or none - a copy never
+//   keeps its source's - and Rebuild rewrites several donors from what a
+//   Boolean leaves of them, deleting the rest, as ONE undo step.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - A turned viewport (Viewport__RotationDeg): DrawingEdges tests the frame by
 //   the box round it as it stands, crops its lines in the level frame and
@@ -92,6 +103,8 @@
     import { Na__LeVpRot__Bounds } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: the upright box round a turned frame
     import { Na__LeVecGeo__Path, Na__LeVecGeo__NearestStation, Na__LeVecGeo__Cutters } from './Na__LayoutEditor__VectorTools__Geometry__.js';
     import { Na__LeVec__GetSetting } from './Na__LayoutEditor__VectorTools__State__.js';
+    import { Na__LeVecCfg__Label } from './Na__LayoutEditor__VectorTools__Setup__.js';
+    import { Na__LeShapeGeo__Rings } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';   // <-- A holed vector's rings, each its own closed path
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -105,6 +118,7 @@
     // ------------------------------------------------------------
     const Na__LeVecAim__REFUSE_LOCKED = 'locked';
     const Na__LeVecAim__REFUSE_KIND   = 'kind';
+    const Na__LeVecAim__REFUSE_HOLES  = 'holes';                                 // <-- A vector with holes: the line tools work on one run, and a Boolean tool is what reshapes it
     const Na__LeVecAim__LINE_CLASSES  = [ 'visible', 'section', 'authored' ];    // <-- The classes the snaps offer: what is drawn solid on the sheet
     const Na__LeVecAim__PICK_FACTOR   = 1.5;                                     // <-- A tool's reach for a line, as a multiple of the Select tool's: there is no fill to fall back on, so the line itself is the whole target
     // ------------------------------------------------------------
@@ -148,11 +162,44 @@
 
     // FUNCTION | Why a Vector Cannot Be Edited, or Null When It Can
     // ------------------------------------------------------------
-    function Na__LeVecAim__Refusal(sheet, shape) {
+    // options.holes true: a vector with holes may be edited - the Boolean
+    // tools ask so. Every other tool here works on one run of points (a trim,
+    // a join, a fillet), which a holed vector is not, and is refused with a
+    // reason rather than left to cut across from the outline to a hole.
+    // ------------------------------------------------------------
+    function Na__LeVecAim__Refusal(sheet, shape, options) {
         if (!shape) return Na__LeVecAim__REFUSE_KIND;
         if (shape.Shape__Image || shape.Shape__Qr || shape.Shape__Area) return Na__LeVecAim__REFUSE_KIND;
         if (Na__LeModel__IsLayerLocked(sheet, shape.Shape__LayerId)) return Na__LeVecAim__REFUSE_LOCKED;
+        if (!(options && options.holes === true) && Na__LeVecAim__IsHoled(shape)) return Na__LeVecAim__REFUSE_HOLES;
         return null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Refusal in Words, for the Line Above the Measurements Box
+    // ------------------------------------------------------------
+    function Na__LeVecAim__RefusalText(refusal) {
+        if (refusal === Na__LeVecAim__REFUSE_LOCKED) return Na__LeVecCfg__Label('SayLocked', 'That vector is on a locked layer.');
+        if (refusal === Na__LeVecAim__REFUSE_HOLES)  return Na__LeVecCfg__Label('SayHoled', 'That shape has holes in it: reshape it with the Boolean tools, or fill its holes with Outer Shell first.');
+        return Na__LeVecCfg__Label('SayNotVector', 'Only plain vectors can be edited this way - not pictures, QR codes or measured rooms.');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Does a Vector Have Holes (the normaliser keeps the key only while it holds one)
+    // ------------------------------------------------------------
+    function Na__LeVecAim__IsHoled(shape) {
+        return !!shape && Array.isArray(shape.Shape__Holes) && shape.Shape__Holes.length > 0;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | A Vector as the Paths Its Edges Make: One, or One Closed Path Per Ring
+    // ------------------------------------------------------------
+    function Na__LeVecAim__PathsOf(shape) {
+        if (!Na__LeVecAim__IsHoled(shape)) return [ Na__LeVecGeo__Path(shape.Shape__Points, shape.Shape__Closed) ];
+        return Na__LeShapeGeo__Rings(shape).map((ring) => Na__LeVecGeo__Path(ring, true));
     }
     // ------------------------------------------------------------
 
@@ -175,12 +222,13 @@
             if (!shape || shape.Shape__Id === except) return;
             if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId) || !Na__LeModel__IsLayerSelectable(sheet, shape.Shape__LayerId)) return;
             if (!Na__LeVecAim__InScope(sheet, shape)) return;
-            const path = Na__LeVecGeo__Path(shape.Shape__Points, shape.Shape__Closed);
-            const at   = Na__LeVecGeo__NearestStation(path, pointMm);
-            if (!at || at.distance > reach) return;
-            if (!best || at.distance <= best.at.distance) best = { shape : shape, path : path, at : at, refusal : null };   // <-- A tie goes to the later one, which is drawn on top
+            Na__LeVecAim__PathsOf(shape).forEach((path) => {                     // <-- A holed vector is found by the nearest of its rings - it is then refused, below
+                const at = Na__LeVecGeo__NearestStation(path, pointMm);
+                if (!at || at.distance > reach) return;
+                if (!best || at.distance <= best.at.distance) best = { shape : shape, path : path, at : at, refusal : null };   // <-- A tie goes to the later one, which is drawn on top
+            });
         });
-        if (best) best.refusal = Na__LeVecAim__Refusal(sheet, best.shape);
+        if (best) best.refusal = Na__LeVecAim__Refusal(sheet, best.shape, options);
         return best;
     }
     // ------------------------------------------------------------
@@ -267,10 +315,10 @@
         (sheet.Sheet__Shapes || []).forEach((shape) => {
             if (!shape || shape.Shape__Id === shapeId || shape.Shape__Image || shape.Shape__Qr) return;
             if (!Na__LeModel__IsLayerVisible(sheet, shape.Shape__LayerId) || !Na__LeModel__IsLayerSelectable(sheet, shape.Shape__LayerId)) return;
-            Na__LeVecGeo__Cutters(Na__LeVecGeo__Path(shape.Shape__Points, shape.Shape__Closed)).forEach((c) => {
+            Na__LeVecAim__PathsOf(shape).forEach((path) => Na__LeVecGeo__Cutters(path).forEach((c) => {   // <-- A holed vector cuts along every ring, and nowhere between them
                 if ((c[0] < box.minX && c[2] < box.minX) || (c[0] > box.maxX && c[2] > box.maxX) || (c[1] < box.minY && c[3] < box.minY) || (c[1] > box.maxY && c[3] > box.maxY)) return;
                 out.push(c);
-            });
+            }));
         });
         if (Na__LeVec__GetSetting('cutToDrawing') === true) Na__LeVecAim__DrawingEdges(sheet, box).forEach((c) => out.push(c));
         return out;
@@ -297,7 +345,9 @@
 
     // FUNCTION | Swap One Vector for the Pieces Left of It (one undo step)
     // ------------------------------------------------------------
-    // pieces: [{ points, closed }]. None at all deletes the vector. Returns the
+    // pieces: [{ points, closed, holes }] - holes (where each hole begins in
+    // points) only from the Boolean tools; a piece without them is one ring,
+    // and the record keeps none. None at all deletes the vector. Returns the
     // ids of what is there afterwards, the record's own first. Every write is
     // silent and ONE announcement follows them, which is the history's one
     // step; options.silent leaves even that to the caller, so a fence that
@@ -319,15 +369,51 @@
             const copy = JSON.parse(JSON.stringify(shape));
             copy.Shape__Points = list[i].points.map((p) => [ p[0], p[1] ]);
             copy.Shape__Closed = list[i].closed === true;
+            copy.Shape__Holes  = Na__LeVecAim__HolesOf(list[i]);                  // <-- The piece's own, or none: never the source's
             const made = Na__LeModel__InsertShape(sheet, copy, true, after);      // <-- Straight after the piece before it: the paint order is kept
             if (!made) continue;
             if (parent) Na__LeModel__AddGroupMember(sheet, parent.Group__Id, { kind : 'shape', id : made.Shape__Id }, true);
             ids.push(made.Shape__Id);
             after = made.Shape__Id;
         }
-        Na__LeModel__UpdateShape(sheet, shape.Shape__Id, { points : list[0].points, closed : list[0].closed === true }, true);
+        Na__LeModel__UpdateShape(sheet, shape.Shape__Id, { points : list[0].points, closed : list[0].closed === true, holes : Na__LeVecAim__HolesOf(list[0]) }, true);
         if (!quiet) Na__LeModel__AnnounceShapes(sheet, shape.Shape__Id);
         return ids;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Piece's Hole Starts ([] for a piece of one ring)
+    // ------------------------------------------------------------
+    function Na__LeVecAim__HolesOf(piece) {
+        return (piece && Array.isArray(piece.holes)) ? piece.holes.slice() : [];
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Rebuild Several Vectors From What a Boolean Leaves of Them (one undo step)
+    // ------------------------------------------------------------
+    // plan: [{ shape, pieces : [{ points, holes }] }]. Each shape is a DONOR:
+    // its record takes its first piece - id, style, layer, group and place in
+    // the paint order kept - and each further piece is a copy of it put
+    // straight after it (Replace); a donor given no pieces is deleted. gone:
+    // the ids of further vectors to take away (Subtract's cutter). Every write
+    // is silent and ONE announcement follows. Returns the ids of every piece.
+    // ------------------------------------------------------------
+    function Na__LeVecAim__Rebuild(sheet, plan, gone) {
+        if (!sheet) return [];
+        const made  = [];
+        const taken = new Set();
+        (Array.isArray(plan) ? plan : []).forEach((entry) => {
+            if (!entry || !entry.shape) return;
+            const pieces = (Array.isArray(entry.pieces) ? entry.pieces : []).map((piece) => ({ points : piece.points, closed : true, holes : piece.holes }));
+            Na__LeVecAim__Replace(sheet, entry.shape, pieces, { silent : true }).forEach((id) => made.push(id));
+            taken.add(entry.shape.Shape__Id);
+        });
+        const rest = (Array.isArray(gone) ? gone : []).filter((id) => id && !taken.has(id)).map((id) => ({ kind : 'shape', id : id }));
+        if (rest.length) Na__LeModel__DeleteItems(sheet, rest, true);
+        Na__LeModel__AnnounceShapes(sheet, made[0] || null);
+        return made;
     }
     // ------------------------------------------------------------
 
@@ -342,6 +428,7 @@
         const copy = JSON.parse(JSON.stringify(shape));
         copy.Shape__Points = piece.points.map((p) => [ p[0], p[1] ]);
         copy.Shape__Closed = piece.closed === true;
+        copy.Shape__Holes  = Na__LeVecAim__HolesOf(piece);
         const parent = Na__LeGroup__ParentOf(sheet, 'shape', shape.Shape__Id);
         const made   = Na__LeModel__InsertShape(sheet, copy, true, shape.Shape__Id);
         if (!made) return null;
@@ -360,7 +447,7 @@
         if (!sheet || !keepId || !piece) return false;
         const gone = (Array.isArray(goneIds) ? goneIds : []).filter((id) => id && id !== keepId).map((id) => ({ kind : 'shape', id : id }));
         if (gone.length) Na__LeModel__DeleteItems(sheet, gone, true);
-        const ok = Na__LeModel__UpdateShape(sheet, keepId, { points : piece.points, closed : piece.closed === true }, true);
+        const ok = Na__LeModel__UpdateShape(sheet, keepId, { points : piece.points, closed : piece.closed === true, holes : Na__LeVecAim__HolesOf(piece) }, true);
         if (ok && !(options && options.silent === true)) Na__LeModel__AnnounceShapes(sheet, keepId);
         return ok;
     }
@@ -394,13 +481,19 @@
     export {
         Na__LeVecAim__REFUSE_LOCKED,
         Na__LeVecAim__REFUSE_KIND,
+        Na__LeVecAim__REFUSE_HOLES,
         Na__LeVecAim__ReachMm,
+        Na__LeVecAim__InScope,
         Na__LeVecAim__Refusal,
+        Na__LeVecAim__RefusalText,
+        Na__LeVecAim__IsHoled,
+        Na__LeVecAim__PathsOf,
         Na__LeVecAim__At,
         Na__LeVecAim__All,
         Na__LeVecAim__CuttersFor,
         Na__LeVecAim__BoxOf,
         Na__LeVecAim__Replace,
+        Na__LeVecAim__Rebuild,
         Na__LeVecAim__AddBeside,
         Na__LeVecAim__Absorb,
         Na__LeVecAim__Announce,

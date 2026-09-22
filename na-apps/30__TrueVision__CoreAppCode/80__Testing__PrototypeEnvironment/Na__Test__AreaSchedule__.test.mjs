@@ -235,11 +235,40 @@ import { tmpdir } from 'node:os';
     check('a missing config still draws the shipped table',
         table.Na__LeParamArea__Build(null, AREAS).records.length === built.records.length);
     const offered = elements.Elements__List.filter((element) => element.Element__Type === 'AreaSchedule');
-    check('the scrapbook offers both forms as tiles, each preset to one of them',
-        offered.length === 2 && offered[0].Element__Params.Form === 'areas' && offered[1].Element__Params.Form === 'groups', offered.map((element) => element.Element__Id));
+    check('the scrapbook offers all three forms as tiles, each preset to one of them',
+        offered.length === 3 && offered[0].Element__Params.Form === 'areas' && offered[1].Element__Params.Form === 'groups' && offered[2].Element__Params.Form === 'project', offered.map((element) => element.Element__Id));
     check('each tile previews with rooms in it, so it is not an empty box on the shelf',
         offered.every((element) => !!element.Element__PreviewParams && !!element.Element__PreviewParams.Data));
     check('the type is named for the sheet\'s group tag and the panel', elements.Elements__TypeNames.AreaSchedule === 'Area Schedule');
+
+    // -- THE PROJECT FORM (22-Sep-2026) --------------------------------------
+    // The master floor list: drawn as the summary is, from numbers the floor
+    // area system has added up across every sheet.
+    const PROJECT = { Form : 'project', Data : { Areas : [], Groups : [
+        { Name : 'Ground Floor', AreaM2 : 142.3, Count : 9, Colour : '#bcd9ee' },
+        { Name : 'First Floor',  AreaM2 : 128.6, Count : 8 },
+        { Name : 'Second Floor', AreaM2 : 174.48, Count : 9 } ], TotalM2 : 445.38 } };
+    const projectRows = rowsOf(PROJECT);
+    check('the project form lists one row per floor and no rooms',
+        projectRows.length === 3 && projectRows.every((row) => row.kind === 'group'), projectRows.map((row) => row.text));
+    check('and foots the building, 445.38', near(table.Na__LeParamArea__Total(table.Na__LeParamArea__Normalise(config, PROJECT), projectRows), 445.38));
+    check('it is titled Floor Areas with a Floor column', words(build(PROJECT))[0] === 'Floor Areas' && words(build(PROJECT))[1] === 'Floor', words(build(PROJECT)).slice(0, 3));
+    check('it can be filtered to one floor like the summary', rowsOf(Object.assign({ Group : 'first floor' }, PROJECT)).map((row) => row.text).join() === 'First Floor');
+    check('an empty project says so in its own words',
+        rowsOf({ Form : 'project', Data : { Areas : [], Groups : [], TotalM2 : 0 } })[0].text === 'No areas measured in this project');
+    check('the lookup menu offers it as the third form', type.choices({ Form : 'project' }).filter((item) => item.patch && item.patch.Form)[2].checked === true);
+
+    // -- THE FLOOR AFTER THE TITLE (22-Sep-2026) -----------------------------
+    check('a floor is written after the title with the config\'s join',
+        words(build({ Form : 'areas', TitleSuffix : 'Ground Floor', Data : DATA }))[0] === 'Floor Areas  -  Ground Floor', words(build({ Form : 'areas', TitleSuffix : 'Ground Floor', Data : DATA }))[0]);
+    check('...after a typed title too', words(build({ Form : 'groups', TitleText : 'GIA', TitleSuffix : 'First Floor', Data : DATA }))[0] === 'GIA  -  First Floor');
+    check('no floor leaves the title alone', words(build(AREAS))[0] === 'Floor Areas');
+    check('the choice is kept through a rebuild', type.keep.indexOf('TitleSuffix') !== -1);
+    const floorsOffered = type.choices({ Form : 'areas' }).filter((item) => item.patch && item.patch.TitleSuffix !== undefined);
+    check('the lookup menu offers none, then the four floors in Adam\'s order, as they read on the paper',
+        floorsOffered.map((item) => item.label).join('|') === 'No floor in the title|  -  Ground Floor|  -  First Floor|  -  Second Floor|  -  Basement Level',
+        floorsOffered.map((item) => item.label));
+    check('the one in force is ticked', type.choices({ Form : 'areas', TitleSuffix : 'Second Floor' }).filter((item) => item.checked && item.patch && item.patch.TitleSuffix !== undefined).map((item) => item.patch.TitleSuffix).join() === 'Second Floor');
 
     rmSync(SCRATCH, { recursive : true, force : true });
     console.log(failures === 0 ? '\n  PASS - every check passed.' : '\n  FAIL - ' + failures + ' check(s) failed.');
