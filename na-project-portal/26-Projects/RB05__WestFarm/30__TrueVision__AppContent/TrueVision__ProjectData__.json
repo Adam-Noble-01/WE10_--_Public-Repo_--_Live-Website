@@ -5771,7 +5771,7 @@
                         "Leader__SpecNoteId": "SpecNote_036",
                         "Leader__TipXMm": 196.51237432552492,
                         "Leader__TipYMm": 220.91997026524112,
-                        "Leader__AnchorXMm": 241.85219704787994,
+                        "Leader__AnchorXMm": 228.85219704787994,
                         "Leader__AnchorYMm": 203.37157042094415,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_001"
@@ -5796,7 +5796,7 @@
                         "Leader__SpecNoteId": "SpecNote_065",
                         "Leader__TipXMm": 204.02970354146572,
                         "Leader__TipYMm": 194.49382148723777,
-                        "Leader__AnchorXMm": 242.99790348539813,
+                        "Leader__AnchorXMm": 229.99790348539813,
                         "Leader__AnchorYMm": 173.31503898355655,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_002"
@@ -5819,8 +5819,8 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "EN04",
                         "Leader__SpecNoteId": "SpecNote_038",
-                        "Leader__TipXMm": 107.68424940755847,
-                        "Leader__TipYMm": 207.80358998522127,
+                        "Leader__TipXMm": 108.54851482750622,
+                        "Leader__TipYMm": 209.27284752924007,
                         "Leader__AnchorXMm": 64.46848276241359,
                         "Leader__AnchorYMm": 139.38088120851123,
                         "Leader__LayerId": "Layer_002",
@@ -6091,9 +6091,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "FN11",
                         "Leader__SpecNoteId": "SpecNote_064",
-                        "Leader__TipXMm": 205.6283976731058,
+                        "Leader__TipXMm": 198.6283976731058,
                         "Leader__TipYMm": 231.9035551285715,
-                        "Leader__AnchorXMm": 240.38042101799772,
+                        "Leader__AnchorXMm": 230.38042101799772,
                         "Leader__AnchorYMm": 238.19396568901794,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_020"
@@ -6335,7 +6335,30 @@
                     "Heading": null,
                     "TextSizeMm": 2,
                     "IncludeGeneral": false,
-                    "GroupHeadings": true
+                    "GroupHeadings": true,
+                    "RegionsOn": true,
+                    "Regions": [
+                        {
+                            "Region__Id": "Region_001",
+                            "Region__FrameMm": {
+                                "X": 242.04128616792124,
+                                "Y": 153.43206952812253,
+                                "WidthMm": 79.42362094905573,
+                                "HeightMm": 121.27653849288728
+                            },
+                            "Region__Title": null,
+                            "Region__Overspill": false,
+                            "Region__Groups": [
+                                "SpecGroup_003"
+                            ],
+                            "Region__Borders": {
+                                "Top": false,
+                                "Right": false,
+                                "Bottom": false,
+                                "Left": true
+                            }
+                        }
+                    ]
                 }
             },
             {
@@ -9573,7 +9596,8 @@
                     "Heading": null,
                     "TextSizeMm": 2,
                     "IncludeGeneral": true,
-                    "GroupHeadings": false
+                    "GroupHeadings": false,
+                    "RegionsOn": true
                 },
                 "Sheet__LayerStack": 2
             },
@@ -40566,7 +40590,8 @@
                     "Heading": null,
                     "TextSizeMm": 2,
                     "IncludeGeneral": true,
-                    "GroupHeadings": false
+                    "GroupHeadings": false,
+                    "RegionsOn": true
                 }
             },
             {
@@ -46980,7 +47005,7 @@
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
                             "X": 228.23518934669283,
-                            "Y": 149.5,
+                            "Y": 139.5,
                             "WidthMm": 271.365193062485,
                             "HeightMm": 120
                         },
@@ -47193,7 +47218,7 @@
                         "Viewport__Name": "",
                         "Viewport__FrameMm": {
                             "X": 33.534756653819414,
-                            "Y": 149.79925537109378,
+                            "Y": 139.79925537109378,
                             "WidthMm": 171.50543030917498,
                             "HeightMm": 99.76642335766422
                         },
@@ -47321,7 +47346,7 @@
                     {
                         "Annotation__Text": "PROPOSED NORTH FACADE - REAR FACING",
                         "Annotation__PosXMm": 238.819,
-                        "Annotation__PosYMm": 249.819,
+                        "Annotation__PosYMm": 239.819,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
                         "Annotation__Colour": "#172b3a",
@@ -47360,7 +47385,7 @@
                     {
                         "Annotation__Text": "PROPOSED EAST - STORAGE",
                         "Annotation__PosXMm": 33.359,
-                        "Annotation__PosYMm": 243.119,
+                        "Annotation__PosYMm": 233.119,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
                         "Annotation__Colour": "#172b3a",
@@ -47444,11 +47469,11 @@
                         "Shape__Points": [
                             [
                                 238.99,
-                                251.45
+                                241.45
                             ],
                             [
                                 315.09,
-                                251.45
+                                241.45
                             ]
                         ],
                         "Shape__Closed": false,
@@ -47513,11 +47538,11 @@
                         "Shape__Points": [
                             [
                                 33.53,
-                                244.75
+                                234.75
                             ],
                             [
                                 93.53,
-                                244.75
+                                234.75
                             ]
                         ],
                         "Shape__Closed": false,
@@ -47787,9 +47812,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 385.79,
-                        "Leader__TipYMm": 218.95,
+                        "Leader__TipYMm": 208.95,
                         "Leader__AnchorXMm": 375.29,
-                        "Leader__AnchorYMm": 239.95,
+                        "Leader__AnchorYMm": 229.95,
                         "Leader__Text": "EN01",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -47812,9 +47837,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 430.69,
-                        "Leader__TipYMm": 220.55,
+                        "Leader__TipYMm": 210.55,
                         "Leader__AnchorXMm": 420.19,
-                        "Leader__AnchorYMm": 243.55,
+                        "Leader__AnchorYMm": 233.55,
                         "Leader__Text": "EN02",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -47837,9 +47862,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 258.59,
-                        "Leader__TipYMm": 215.95,
+                        "Leader__TipYMm": 205.95,
                         "Leader__AnchorXMm": 248.09,
-                        "Leader__AnchorYMm": 238.95,
+                        "Leader__AnchorYMm": 228.95,
                         "Leader__Text": "EN05",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -47862,9 +47887,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 281.49,
-                        "Leader__TipYMm": 191.75,
+                        "Leader__TipYMm": 181.75,
                         "Leader__AnchorXMm": 270.99,
-                        "Leader__AnchorYMm": 169.75,
+                        "Leader__AnchorYMm": 159.75,
                         "Leader__Text": "FN05",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -47887,9 +47912,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 109.98,
-                        "Leader__TipYMm": 202.25,
+                        "Leader__TipYMm": 192.25,
                         "Leader__AnchorXMm": 98.48,
-                        "Leader__AnchorYMm": 232.25,
+                        "Leader__AnchorYMm": 222.25,
                         "Leader__Text": "EE02",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -47912,9 +47937,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 138.5,
-                        "Leader__TipYMm": 216,
+                        "Leader__TipYMm": 206,
                         "Leader__AnchorXMm": 127,
-                        "Leader__AnchorYMm": 233,
+                        "Leader__AnchorYMm": 223,
                         "Leader__Text": "FN08",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -47937,9 +47962,9 @@
                         "Leader__LayerId": "Layer_002",
                         "Leader__Type": "bubble",
                         "Leader__TipXMm": 178.88,
-                        "Leader__TipYMm": 192.05,
+                        "Leader__TipYMm": 182.05,
                         "Leader__AnchorXMm": 196.38,
-                        "Leader__AnchorYMm": 184.05,
+                        "Leader__AnchorYMm": 174.05,
                         "Leader__Text": "FN04",
                         "Leader__TextSizeMm": 2.5,
                         "Leader__FontWeight": 600,
@@ -48534,7 +48559,7 @@
                                     "Hatch__RotationDeg": 0
                                 },
                                 "TrueVision__SitePlan__HardStandingAndDriveways@existing": {
-                                    "Hatch__PatternKey": "SitePlanHatch__Grassland",
+                                    "Hatch__PatternKey": "",
                                     "Hatch__Scale": 0.5
                                 },
                                 "TrueVision__SitePlan__Grassland@existing": {

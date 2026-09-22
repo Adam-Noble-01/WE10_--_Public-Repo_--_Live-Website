@@ -442,7 +442,10 @@
         "LayoutEditor__Leader__StubMm": 3,
         "LayoutEditor__Leader__StubMaxFraction": 0.25,
         "LayoutEditor__Leader__CurveTension": 0.5,
-        "LayoutEditor__Leader__MinLengthMm": 2
+        "LayoutEditor__Leader__MinLengthMm": 2,
+        "LayoutEditor__Leader__NoteTooltip": true,
+        "LayoutEditor__Leader__NoteTooltipMs": 500,
+        "LayoutEditor__Leader__NoteTooltipNote": "With Select or Move up, resting the pointer on a specification bubble's circle for NoteTooltipMs names its note beside the pointer - the code in bold, then the note's title (EW01  Loggia Arcade) - so a code can be read zoomed in, with the notes margin off the screen. A bubble linked to a note, or unlinked but reading a note's code, names it; one on a locked layer too, one on a reference layer not. Moving straight on to the next bubble names that one at once. NoteTooltip false turns it off; 0 ms shows it at once."
     },
     "LayoutEditor__Eyedropper__Config": {
         "LayoutEditor__Eyedropper__Description": "The eyedropper (hotkey B) matches properties from one object on the sheet onto another. Click the object that already looks right, then click each object that should match it. StayLoadedAfterApply keeps the picked style on the dropper so a run of items costs one click each; with it off the dropper empties after the first apply and must be re-picked. CopyDimensionOffset is off on purpose: a dimension's offset is where its line sits, so copying it would move the target rather than restyle it. Style travels, content and geometry do not, and the layer never travels in any kind. Unlocked viewports match each other (render composites, frame, caption and scale); a locked viewport is not picked up at all, so the dropper reaches markup and other unlocked viewports through the frame. Shift+B is the palette mode: click an object and its style becomes the setting new objects of that kind are created with - the same traits travel, turned into the panel settings. PaletteSwitchesTool then hands over to the drawing tool for that kind (Text, Dimension, or whichever of Draw and Rectangle drew last); FlashMs is how long the item the style came from pulses.",
@@ -902,6 +905,7 @@
         "LayoutEditor__Labels__EditLeaderText": "Edit text",
         "LayoutEditor__Labels__MenuEditLeaderText": "Edit leader text",
         "LayoutEditor__Labels__MenuDeleteLeader": "Delete leader",
+        "LayoutEditor__Labels__MenuShowInSpecification": "Show in Specification",
         "LayoutEditor__Labels__EyedropperKindLeader": "leader",
         "LayoutEditor__Labels__EyedropperPaletteKindLeader": "leaders",
         "LayoutEditor__Labels__ShapeFillOpacity": "Fill opacity",
@@ -987,6 +991,7 @@
         "LayoutEditor__Labels__LeaderSpecUnknown": "No specification note has the code {code}.",
         "LayoutEditor__Labels__LeaderSpecUnlinked": "Not linked to the project specification. Type a note's code into the bubble, or choose a note above.",
         "LayoutEditor__Labels__LeaderSpecPending": "Loading the project specification...",
+        "LayoutEditor__Labels__LeaderNoteUntitled": "Untitled note",
         "LayoutEditor__Labels__PdfMarginOverflow": "PDF downloaded, but {count} note(s) did not fit and were left out. Widen the notes margin, enlarge a note region or make the text smaller.",
         "LayoutEditor__Labels__SpecTitle": "Project Specification",
         "LayoutEditor__Labels__SpecUntitledNote": "Untitled note",

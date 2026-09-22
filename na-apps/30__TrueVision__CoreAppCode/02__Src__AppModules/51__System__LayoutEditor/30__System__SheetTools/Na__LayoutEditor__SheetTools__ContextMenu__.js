@@ -50,6 +50,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.6.0
+// - SHOW IN SPECIFICATION. Adam: a bubble's right-click menu should find its
+//   note in the side column, scroll to it and ring it with a halo that pulses
+//   - "hey, I'm the spec for that bubble, and the info is here". A
+//   specification bubble's menu now leads with Show in Specification, its code
+//   as the row's hint; the bubble right-clicked inside a group, or as one of
+//   several selected, offers it too. The note and how to show it come from
+//   the specification through the leader geometry (Na__LeLeadGeo__NoteFor),
+//   so this module still imports nothing of the specification.
+//
 // 21-Sep-2026 - Version 1.5.0
 // - A viewport's menu offers Rotate 90 degrees clockwise and anticlockwise, and
 //   Reset rotation on a turned one (Viewport__RotationDeg), each one undo step
@@ -187,7 +197,8 @@
     import { Na__LeTools__SyncPaletteFrom, Na__LeTools__SetTool } from './Na__LayoutEditor__SheetTools__ToolState__.js';
     import { Na__LeVec__RightClick, Na__LeVec__MenuItems } from '../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js';   // <-- The vector tools: a right click abandons what one has half done, and a vector's menu offers them
     // @delegate: ../37__System__VectorTools/Na__LayoutEditor__VectorTools__.js
-    import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record, Na__LeTools__ShapeInsertHit } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
+    import { Na__LeTools__Tolerance, Na__LeTools__Resolve, Na__LeTools__Record, Na__LeTools__RawHit, Na__LeTools__ShapeInsertHit } from './Na__LayoutEditor__SheetTools__HitResolution__.js';
+    import { Na__LeLeadGeo__NoteFor } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';   // <-- A specification bubble's note, asked of the resolver the specification registers
     import { Na__LeTools__SetEditingViewport, Na__LeTools__RecentreViewport } from './Na__LayoutEditor__SheetTools__ContentEditing__.js';
 
     // ------------------------------------------------------------
@@ -257,6 +268,23 @@
         // Delete row's own rule opens it.
         // ------------------------------------
         const layerOf = (list) => Na__LeLayerMenu__MenuItems(sheet, list);
+
+        // SHOW IN SPECIFICATION | A specification bubble's menu leads with its
+        // note: the drawing's Specification tab comes up with the note's row
+        // centred and pulsing, "I am the note for that bubble". Asked of the
+        // bubble actually under the click, so one inside a group or a
+        // selection still offers it; the note, and how to show it, are the
+        // specification's answer (Na__LeLeadGeo__NoteFor), never this module's.
+        // ------------------------------------
+        const noteRows = (leader) => {
+            const note = leader ? Na__LeLeadGeo__NoteFor(leader) : null;
+            if (!note || typeof note.locate !== 'function') return [];
+            return [ { label : label('MenuShowInSpecification', 'Show in Specification'), hint : note.code, onSelect : () => note.locate() }, { separator : true } ];
+        };
+        const bubbleUnder = () => {
+            const raw = Na__LeTools__RawHit(sheet, pointMm);
+            return (raw && raw.kind === 'leader') ? Na__LeTools__Record(sheet, raw) : null;
+        };
         if (!Na__LeTools__Editable) return [ { label : label('MenuZoomFit', 'Zoom to fit'), onSelect : () => Na__LeNav__Fit() } ];
         // SEVERAL SELECTED | A right click on one of them is about all of them
         const selected = Na__LeModel__GetSelectionItems();
@@ -264,7 +292,7 @@
             const groupOps = [];
             if (Na__LeGroup__CanGroup(sheet))   groupOps.push({ label : label('MenuGroup', 'Group'),     onSelect : () => { Na__LeGroup__Group(sheet); } });
             if (Na__LeGroup__CanUngroup(sheet)) groupOps.push({ label : label('MenuUngroup', 'Ungroup'), onSelect : () => { Na__LeGroup__Ungroup(sheet); } });
-            return groupOps.concat(Na__LeClip__MenuItems(sheet, found, pointMm), [
+            return noteRows(bubbleUnder()).concat(groupOps, Na__LeClip__MenuItems(sheet, found, pointMm), [   // <-- The bubble right-clicked, one of several selected, still leads with its note
                 { separator : true }
             ], styleMany(selected), [                                           // <-- Copy one, then paste it over the rest in a single click
                 { label : Na__LeCfg__FormatLabel('MenuDeleteSelection', 'Delete {count} selected items', { count : selected.length }), danger : true,
@@ -312,10 +340,10 @@
             const copy    = oneKind
                 ? [ { label : label('MenuCopyStyle', 'Copy properties'), onSelect : () => Na__LeDrop__Pick(sheet, members[0].kind, members[0].id) }, { separator : true } ]
                 : [];
-            return [ { label : label('MenuEnterGroup', 'Edit inside group'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'group', id : found.id }); } },
+            return noteRows(bubbleUnder()).concat([ { label : label('MenuEnterGroup', 'Edit inside group'), onSelect : () => { Na__LeTools__EnterScope(sheet, { kind : 'group', id : found.id }); } },
                      { label : label('MenuUngroup', 'Ungroup'), disabled : !Na__LeGroup__CanUngroup(sheet), onSelect : () => { Na__LeGroup__Ungroup(sheet); } },
-                     remove('MenuDeleteGroup', 'Delete group'), { separator : true } ]
-                     .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), copy, styleMany([ found ]), history);
+                     remove('MenuDeleteGroup', 'Delete group'), { separator : true } ],
+                     layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), copy, styleMany([ found ]), history);   // <-- A bubble inside the group, right-clicked, leads with its note
         }
         if (found.kind === 'dimension') {
             const dim   = Na__LeTools__Record(sheet, found);
@@ -348,8 +376,8 @@
                      .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }
         if (found.kind === 'leader') {
-            return [ { label : label('MenuEditLeaderText', 'Edit leader text'), onSelect : () => Na__LeLeader__BeginEdit(found.id) },
-                     { separator : true } ].concat(arrange('leader', found.id), [
+            return noteRows(Na__LeTools__Record(sheet, found)).concat([ { label : label('MenuEditLeaderText', 'Edit leader text'), onSelect : () => Na__LeLeader__BeginEdit(found.id) },
+                     { separator : true } ], arrange('leader', found.id), [
                      { separator : true }, remove('MenuDeleteLeader', 'Delete leader'), { separator : true } ])
                      .concat(layerOf([ found ]), Na__LeClip__MenuItems(sheet, found, pointMm), style(found.kind, found.id)).concat(history);
         }

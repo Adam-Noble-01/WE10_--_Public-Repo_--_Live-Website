@@ -95,6 +95,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - Re-exports the State unit's LOCATE_EVENT (show a note in the drawing
+//   editor's own Specification tab) and the Transport unit's WriteLocalCopy
+//   (the local drawing-notes file written at once, and read back).
+//
 // 18-Sep-2026 - Version 1.3.0
 // - Re-exports the Transport unit's new ReloadFromCloud, ReloadFromLocal,
 //   CanReloadCloud and CanReloadLocal (Transport 1.1.0).
@@ -138,6 +143,7 @@
         Na__LeSpec__CHANGED_EVENT,
         Na__LeSpec__OPEN_EVENT,
         Na__LeSpec__GOTO_EVENT,
+        Na__LeSpec__LOCATE_EVENT,
         Na__LeSpec__STATUS_IDLE,
         Na__LeSpec__STATUS_LOADING,
         Na__LeSpec__STATUS_READY,
@@ -197,6 +203,7 @@
         Na__LeSpec__EnsureLoaded,
         Na__LeSpec__Retry,
         Na__LeSpec__Sync,
+        Na__LeSpec__WriteLocalCopy,
         Na__LeSpec__CanReloadCloud,
         Na__LeSpec__CanReloadLocal,
         Na__LeSpec__ReloadFromCloud,
@@ -260,6 +267,7 @@
         Na__LeSpec__CHANGED_EVENT,
         Na__LeSpec__OPEN_EVENT,
         Na__LeSpec__GOTO_EVENT,
+        Na__LeSpec__LOCATE_EVENT,
         Na__LeSpec__STATUS_IDLE,
         Na__LeSpec__STATUS_LOADING,
         Na__LeSpec__STATUS_READY,
@@ -269,6 +277,7 @@
         Na__LeSpec__EnsureLoaded,
         Na__LeSpec__Retry,
         Na__LeSpec__Sync,
+        Na__LeSpec__WriteLocalCopy,
         Na__LeSpec__CanReloadCloud,
         Na__LeSpec__CanReloadLocal,
         Na__LeSpec__ReloadFromCloud,

@@ -49,6 +49,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - LOCATE_EVENT: a request to show a note in the drawing editor's own
+//   Specification tab (the left column), scrolled to and pulsing. Raised by
+//   a specification bubble's right-click menu on the sheet, answered by
+//   Na__LayoutEditor__Panel__ScrapbookSpecification__ - declared here with
+//   OPEN_EVENT and GOTO_EVENT so neither has to import the other.
+//
 // 15-Sep-2026 - Version 1.0.0
 // - Split out of Na__LayoutEditor__SpecData__.js; the code moved verbatim.
 //
@@ -76,6 +83,7 @@
     const Na__LeSpec__CHANGED_EVENT = 'na-layouteditor-spec-changed';   // <-- detail { reason, codesChanged, live, noteId, groupId }
     const Na__LeSpec__OPEN_EVENT    = 'na-layouteditor-spec-open';      // <-- detail { noteId } : show the Project Specification tab
     const Na__LeSpec__GOTO_EVENT    = 'na-layouteditor-spec-goto';      // <-- detail { sheetId, leaderId } : show a sheet with a bubble selected
+    const Na__LeSpec__LOCATE_EVENT  = 'na-layouteditor-spec-locate';    // <-- detail { noteId, leaderId } : show a note in the drawing's own Specification tab, scrolled to and pulsing
     const Na__LeSpec__DRAFT_PREFIX  = 'Na__LayoutEditor__SpecDraft__';
     const Na__LeSpec__VERSION       = 1;
     const Na__LeSpec__STATUS_IDLE    = 'idle';      // <-- Not asked for yet
@@ -230,6 +238,7 @@
         Na__LeSpec__CHANGED_EVENT,
         Na__LeSpec__OPEN_EVENT,
         Na__LeSpec__GOTO_EVENT,
+        Na__LeSpec__LOCATE_EVENT,
         Na__LeSpec__DRAFT_PREFIX,
         Na__LeSpec__VERSION,
         Na__LeSpec__STATUS_IDLE,

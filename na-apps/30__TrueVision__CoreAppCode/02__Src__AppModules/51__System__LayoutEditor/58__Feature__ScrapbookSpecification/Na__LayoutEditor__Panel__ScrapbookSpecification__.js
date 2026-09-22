@@ -33,12 +33,26 @@
 // - NOTHING IS REBUILT THAT HAS NOT CHANGED. The rows are rebuilt only when
 //   the specification's content, the look of a new bubble or the editable
 //   flag changes; the counts and the filter are applied to the rows in place.
+// - A ROW CAN BE EDITED WHERE IT IS (22-Sep-2026). Right-click it - Edit spec
+//   item - or press F2 on it, and the row becomes its note's title and text,
+//   spell-checked; Enter saves into the specification and the local
+//   specification file, Save Sheets takes it to the cloud
+//   (Na__LayoutEditor__ScrapbookSpecification__RowEditor__). The caret starts
+//   in the word that was right-clicked. While a row is open the rows are not
+//   rebuilt, so nothing on the sheet can take the editor away; they catch up
+//   when it closes.
+// - A BUBBLE CAN ASK TO BE FOUND HERE (22-Sep-2026). A specification bubble's
+//   right-click menu on the sheet raises Na__LeSpec__LOCATE_EVENT; this tab
+//   comes up, its section opens, a filter hiding the note is cleared, and the
+//   note's row is scrolled to the middle of the column and pulses a halo
+//   three times - "I am the note for that bubble".
 //
 // INTEGRATION:
 // - Na__LayoutEditor__ModeController__ calls RegisterTab straight after the
 //   left column's first tab, and Register after that column's other sections.
 //   It is the only module outside this folder that imports from it.
 // // @delegate: ./Na__LayoutEditor__ScrapbookSpecification__.js
+// // @delegate: ./Na__LayoutEditor__ScrapbookSpecification__RowEditor__.js
 // // @delegate: ../55__Feature__Scrapbook/Na__LayoutEditor__Scrapbook__TileDrag__.js
 //
 // -----------------------------------------------------------------------------
@@ -50,6 +64,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.1.0
+// - A row's right-click menu: Edit spec item (the row editor, with the caret
+//   where the click was) and Open in Project Specification. F2 on a row
+//   edits it too. The rows wait while one is open.
+// - Locate: the answer to Na__LeSpec__LOCATE_EVENT - the tab up, the section
+//   open, the filter cleared if it hid the note, the row centred and pulsing.
+// - The hint and a row's hover text say a row can be right-clicked to edit.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation: the Specification tab, its one section, the rows,
 //   the filter, Show full notes and the on-sheet counts.
@@ -61,17 +83,30 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Model, Specification, the Tile Drag, the Panel Host and the Library
+    // MODULE IMPORTS | Model, Specification, the Menu, the Tile Drag, the Panel Host and the Library
     // ------------------------------------------------------------
     import { Na__LeModel__CHANGED_EVENT, Na__LeModel__GetActiveSheet } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LeSpec__CHANGED_EVENT, Na__LeSpec__OPEN_EVENT, Na__LeSpec__STATUS_FAILED, Na__LeSpec__GetState } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
+    import {
+        Na__LeSpec__CHANGED_EVENT,
+        Na__LeSpec__OPEN_EVENT,
+        Na__LeSpec__LOCATE_EVENT,
+        Na__LeSpec__STATUS_FAILED,
+        Na__LeSpec__GetState,
+        Na__LeSpec__IsLoaded,
+        Na__LeSpec__EnsureLoaded,
+        Na__LeSpec__GetNoteEntry
+    } from '../50__Feature__Specification/Na__LayoutEditor__SpecData__.js';
+    import { Na__LeMenu__Open } from '../30__System__SheetTools/Na__LayoutEditor__ContextMenu__.js';
     import { Na__LeScrapDrag__Tile, Na__LeScrapDrag__EndDrag } from '../55__Feature__Scrapbook/Na__LayoutEditor__Scrapbook__TileDrag__.js';
     import {
         Na__LePanels__RegisterTab,
         Na__LePanels__RegisterSection,
         Na__LePanels__Refresh,
+        Na__LePanels__SetActiveTab,
+        Na__LePanels__SetFolded,
         Na__LePanels__OnControl,
         Na__LePanels__IsEditable,
+        Na__LePanels__GetContext,
         Na__LePanels__Button,
         Na__LePanels__Note
     } from '../40__Ui__Panels/Na__LayoutEditor__PanelHost__.js';
@@ -86,6 +121,16 @@
         Na__LeScrapSpec__BuildSet,
         Na__LeScrapSpec__Insert
     } from './Na__LayoutEditor__ScrapbookSpecification__.js';
+    import {
+        Na__LeScrapSpecEd__CanEdit,
+        Na__LeScrapSpecEd__OffsetAtPoint,
+        Na__LeScrapSpecEd__Open,
+        Na__LeScrapSpecEd__Commit,
+        Na__LeScrapSpecEd__Abandon,
+        Na__LeScrapSpecEd__IsEditing,
+        Na__LeScrapSpecEd__EditedNoteId,
+        Na__LeScrapSpecEd__Element
+    } from './Na__LayoutEditor__ScrapbookSpecification__RowEditor__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -103,11 +148,14 @@
     const Na__LePanelScrapSpec__TILE_MODIFIER = 'na-le-scrap__item--spec';
     const Na__LePanelScrapSpec__FILTER_WORD_MIN = 3;                            // <-- A shorter word is read as the start of a code, never searched for in the text
     const Na__LePanelScrapSpec__COUNT_REASONS = Object.freeze([ 'leader', 'leaders', 'active', 'loaded', 'sheet-created', 'sheet-deleted', 'sheet-updated' ]);   // <-- A bubble placed, deleted, linked or unlinked; another sheet; an undo or a redo
+    const Na__LePanelScrapSpec__LOCATED_CLASS = 'is-located';                   // <-- The halo a located row pulses (the stylesheet's Na_LeScrapSpec_Locate)
+    const Na__LePanelScrapSpec__LOCATED_ANIMATION = 'Na_LeScrapSpec_Locate';
+    const Na__LePanelScrapSpec__LOCATED_MS    = 3200;                          // <-- The halo is taken off after this even if its animation never ended (a page the browser is not drawing runs none)
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Rows on Show, the Filter and the Wiring
     // ------------------------------------------------------------
-    const Na__LePanelScrapSpec__Rows   = new Map();     // <-- noteId -> { tile, used, note, count, code, text } - code and text in lower case, for the filter
+    const Na__LePanelScrapSpec__Rows   = new Map();     // <-- noteId -> { tile, used, titleEl, bodyEl, note, count, code, text } - code and text in lower case, for the filter
     let   Na__LePanelScrapSpec__Heads  = [];            // <-- [{ heading, noteIds }], to put away a group the filter has emptied
     let   Na__LePanelScrapSpec__Signature = null;       // <-- What the rows were last built for, so a refresh per model change rebuilds nothing
     let   Na__LePanelScrapSpec__Filter = '';
@@ -150,7 +198,7 @@
         const parts = [ L('RowTitle', '{code}  {title}\n\n{body}', { code : note.code, title : note.title || L('Untitled', 'Untitled note'), body : note.body }).trim() ];
         if (count === 1) parts.push(L('RowUsedOne', 'On this sheet: 1 bubble.'));
         if (count > 1)   parts.push(L('RowUsedMany', 'On this sheet: {count} bubbles.', { count : count }));
-        if (editable)    parts.push(L('RowDrag', 'Drag onto the sheet, or double-click to place it in the middle of the view.'));
+        if (editable)    parts.push(L('RowDrag', 'Drag onto the sheet, or double-click to place it in the middle of the view.') + '\n' + L('RowEdit', 'Right-click (or F2) to edit the note here.'));
         return parts.join('\n\n');
     }
     // ------------------------------------------------------------
@@ -184,13 +232,16 @@
                 head.appendChild(title);
                 head.appendChild(used);
                 element.appendChild(head);
+                row.bodyEl = null;
                 if (note.body.trim() !== '') {
                     const text = document.createElement('span');
                     text.className   = 'na-le-scrapspec__body';
                     text.textContent = note.body;
                     element.appendChild(text);
+                    row.bodyEl = text;                                         // <-- Read by a right-click, to start the editor's caret on the word clicked
                 }
-                row.used = used;
+                row.used    = used;
+                row.titleEl = note.title ? title : null;                      // <-- "Untitled note" is not the note's text: no caret is found in it
             }
         };
     }
@@ -212,11 +263,21 @@
             list.appendChild(heading);
             const head = { heading : heading, noteIds : [] };
             group.notes.forEach((note) => {
-                const row = { tile : null, used : null, note : note, count : 0,
+                const row = { tile : null, used : null, titleEl : null, bodyEl : null, note : note, count : 0,
                               code : String(note.code).toLowerCase(),
                               text : [ group.title, note.title, note.body ].join(' ').toLowerCase() };
                 row.tile = Na__LeScrapDrag__Tile(Na__LePanelScrapSpec__Spec(note, editable, row));
                 row.tile.setAttribute('data-na-scrapspec-note', note.noteId);
+                // EDIT WHERE IT IS READ | The row's own menu, and F2 as for a
+                // file name. Asked by note id, never by this row object: a save
+                // rebuilds the rows.
+                row.tile.addEventListener('contextmenu', (event) => Na__LePanelScrapSpec__OnRowMenu(event, note.noteId));
+                row.tile.addEventListener('keydown', (event) => {
+                    if (event.key !== 'F2' || event.repeat) return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    Na__LePanelScrapSpec__Edit(note.noteId, null);
+                });
                 list.appendChild(row.tile);
                 Na__LePanelScrapSpec__Rows.set(note.noteId, row);
                 head.noteIds.push(note.noteId);
@@ -289,6 +350,162 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Editing a Row, and Finding One
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | Say Something in the Editor's Toast
+    // ------------------------------------------------------------
+    function Na__LePanelScrapSpec__Toast(message, isError) {
+        const context = Na__LePanels__GetContext();
+        if (context && typeof context.showToast === 'function') context.showToast(message, isError === true);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Where in a Row a Client Point Is: { field, at }
+    // ------------------------------------------------------------
+    // The note's title or its text, and the character there - so the editor
+    // opens with the caret in the word that was right-clicked. Anywhere else
+    // on the row (the bubble, the gaps) is the end of the text.
+    // ------------------------------------------------------------
+    function Na__LePanelScrapSpec__PointInRow(row, clientX, clientY) {
+        const over = (el) => {
+            if (!el) return false;
+            const box = el.getBoundingClientRect();
+            return clientX >= box.left && clientX <= box.right && clientY >= box.top && clientY <= box.bottom;
+        };
+        if (over(row.titleEl)) {
+            const at = Na__LeScrapSpecEd__OffsetAtPoint(row.titleEl, clientX, clientY);
+            return { field : 'title', at : at === null ? 'end' : at };
+        }
+        if (over(row.bodyEl)) {
+            const at = Na__LeScrapSpecEd__OffsetAtPoint(row.bodyEl, clientX, clientY);
+            return { field : 'body', at : at === null ? 'end' : at };
+        }
+        return { field : 'body', at : 'end' };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Open a Row's Editor
+    // ------------------------------------------------------------
+    // where: { field, at } or null (the end of the text). A row open already
+    // is saved first; its save rebuilds the rows, so the row is looked up by
+    // its note afresh after it. Closing the editor lets the rows catch up and
+    // keeps the note in view.
+    // ------------------------------------------------------------
+    function Na__LePanelScrapSpec__Edit(noteId, where) {
+        const place = where || { field : 'body', at : 'end' };
+        if (Na__LeScrapSpecEd__IsEditing() && Na__LeScrapSpecEd__EditedNoteId() !== noteId) {
+            Na__LeScrapSpecEd__Commit('switch');
+            if (Na__LeScrapSpecEd__IsEditing()) return false;                    // <-- It could not be saved: it stays open, and says why
+        }
+        const row = Na__LePanelScrapSpec__Rows.get(noteId);
+        if (!row) return false;
+        return Na__LeScrapSpecEd__Open(row, {
+            field    : place.field,
+            at       : place.at,
+            onClosed : (closedId) => {
+                Na__LePanels__Refresh(Na__LePanelScrapSpec__ID);                 // <-- The rows held back while it was open catch up
+                window.requestAnimationFrame(() => {                             // <-- After the save's own rebuild, which is announced straight after this
+                    const again = Na__LePanelScrapSpec__Rows.get(closedId);
+                    if (again && again.tile.isConnected && !again.tile.hidden) Na__LePanelScrapSpec__Reveal(again.tile, false);
+                });
+            }
+        });
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | A Row's Right-Click Menu
+    // ------------------------------------------------------------
+    function Na__LePanelScrapSpec__OnRowMenu(event, noteId) {
+        event.preventDefault();
+        const row = Na__LePanelScrapSpec__Rows.get(noteId);
+        if (!row) return;
+        const L     = Na__LeScrapSpec__Label;
+        const can   = Na__LeScrapSpecEd__CanEdit();
+        const where = Na__LePanelScrapSpec__PointInRow(row, event.clientX, event.clientY);   // <-- Read now, while the row is where the pointer was
+        Na__LeMenu__Open(event.clientX, event.clientY, [
+            { label : L('MenuEdit', 'Edit spec item'), hint : can.ok ? row.note.code : L('MenuEditOff', 'read-only'), disabled : !can.ok,
+              onSelect : () => { Na__LePanelScrapSpec__Edit(noteId, where); } },
+            { separator : true },
+            { label : L('MenuOpenSpec', 'Open in Project Specification'),
+              onSelect : () => window.dispatchEvent(new CustomEvent(Na__LeSpec__OPEN_EVENT, { detail : { noteId : noteId } })) }
+        ]);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Bring a Row Into View, Pulsing a Halo When Asked
+    // ------------------------------------------------------------
+    // The halo is three soft pulses (the stylesheet's Na_LeScrapSpec_Locate),
+    // started again if the same row is found twice, and taken off when the
+    // animation ends - or after LOCATED_MS, should it never end. It pulses
+    // whatever the operating system's animation setting, as the stylesheet
+    // explains: the studio PC reports reduced motion, and a still wash there
+    // would lose the very thing asked for.
+    // ------------------------------------------------------------
+    const Na__LePanelScrapSpec__Halos = new WeakMap();                          // <-- element -> the function that takes its halo off
+    function Na__LePanelScrapSpec__Reveal(target, pulse) {
+        if (!target || !target.isConnected) return;
+        try { target.scrollIntoView({ block : pulse ? 'center' : 'nearest', behavior : pulse ? 'smooth' : 'auto' }); }
+        catch (error) { target.scrollIntoView(); }
+        if (!pulse) return;
+        const earlier = Na__LePanelScrapSpec__Halos.get(target);
+        if (earlier) earlier();                                                // <-- Found twice: the first halo goes, listener and timer with it
+        const cls   = Na__LePanelScrapSpec__LOCATED_CLASS;
+        let   timer = 0;
+        const onEnd = (event) => { if (event.animationName === Na__LePanelScrapSpec__LOCATED_ANIMATION) off(); };
+        const off   = () => {
+            target.classList.remove(cls);
+            target.removeEventListener('animationend', onEnd);
+            window.clearTimeout(timer);
+            if (Na__LePanelScrapSpec__Halos.get(target) === off) Na__LePanelScrapSpec__Halos.delete(target);
+        };
+        void target.offsetWidth;                                               // <-- A class taken off and put straight back starts the animation again
+        target.classList.add(cls);
+        target.addEventListener('animationend', onEnd);
+        timer = window.setTimeout(off, Na__LePanelScrapSpec__LOCATED_MS);
+        Na__LePanelScrapSpec__Halos.set(target, off);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Show a Note in This Tab: the Tab Up, the Row Centred and Pulsing
+    // ------------------------------------------------------------
+    // The answer to Na__LeSpec__LOCATE_EVENT, raised by a specification
+    // bubble's right-click menu on the sheet. A filter that hides the note is
+    // cleared - a filter never keeps a note from being found. A note being
+    // edited is found as its editor. Resolves true when it was shown.
+    // ------------------------------------------------------------
+    async function Na__LePanelScrapSpec__Locate(noteId) {
+        const L = Na__LeScrapSpec__Label;
+        if (typeof noteId !== 'string' || noteId === '') return false;
+        Na__LePanels__SetActiveTab(Na__LePanelScrapSpec__COLUMN, Na__LeScrapSpec__TAB_ID);
+        Na__LePanels__SetFolded(Na__LePanelScrapSpec__ID, false);
+        if (!Na__LeSpec__IsLoaded()) await Na__LeSpec__EnsureLoaded();
+        Na__LePanels__Refresh(Na__LePanelScrapSpec__ID);
+        let row = Na__LePanelScrapSpec__Rows.get(noteId);
+        if (!row) {
+            Na__LePanelScrapSpec__Toast(L('LocateMissing', 'That note is not in the project specification any more.'), true);
+            return false;
+        }
+        if (row.tile.hidden && Na__LePanelScrapSpec__Filter !== '') {
+            Na__LePanelScrapSpec__Filter = '';                                 // <-- The box shows it: Refresh writes the filter back into it
+            Na__LePanels__Refresh(Na__LePanelScrapSpec__ID);
+            row = Na__LePanelScrapSpec__Rows.get(noteId) || row;
+        }
+        const editor = Na__LeScrapSpecEd__EditedNoteId() === noteId ? Na__LeScrapSpecEd__Element() : null;
+        Na__LePanelScrapSpec__Reveal(editor || row.tile, true);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Section
 // -----------------------------------------------------------------------------
 
@@ -301,6 +518,8 @@
     function Na__LePanelScrapSpec__Build(body) {
         const L    = Na__LeScrapSpec__Label;
         const part = (name, element) => { element.setAttribute('data-na-scrapspec', name); return element; };
+        if (Na__LeScrapSpecEd__IsEditing()) Na__LeScrapSpecEd__Commit('switch');   // <-- A row left open in the body this one replaces: what was typed is kept, not stranded
+        if (Na__LeScrapSpecEd__IsEditing()) Na__LeScrapSpecEd__Abandon();          // <-- ...and one that could not be kept is let go, rather than holding the new rows back for ever
 
         body.appendChild(part('note', Na__LePanels__Note('')));
 
@@ -356,7 +575,7 @@
         }
         if (total === 0) return { text : L('Empty', 'This project’s specification has no notes yet. Write them on the Project Specification tab and they appear here, each as a bubble ready to drag onto a sheet.'), warn : false };
         let text = editable
-            ? L('Hint', 'Drag a bubble onto the sheet: it lands as a specification bubble linked to that note. Then drag its square endpoint onto what it describes. Double-click a row to place one in the middle of the view.')
+            ? L('Hint', 'Drag a bubble onto the sheet: it lands as a specification bubble linked to that note. Then drag its square endpoint onto what it describes. Double-click a row to place one in the middle of the view. Right-click a row to edit its note here.')
             : L('ReadOnly', 'The project specification’s codes and notes. Bubbles can only be placed while sheets are editable.');
         if (state.status === Na__LeSpec__STATUS_FAILED) text += ' ' + L('Offline', 'The cloud copy could not be read: these are the notes kept in this browser.');
         return { text : text, warn : state.status === Na__LeSpec__STATUS_FAILED };
@@ -387,9 +606,15 @@
         el('full-row').title          = L('FullNotesTitle', 'List every note in full, instead of its first few lines.');
         el('open').textContent        = L('OpenSpec', 'Open Project Specification');
 
-        // THE ROWS | Rebuilt only when what they are built from has changed
+        // THE ROWS | Rebuilt only when what they are built from has changed -
+        // and never under a row being edited, which a rebuild would take away
+        // with whatever was typed into it. They wait, and catch up when it
+        // closes. A note that has gone from the specification meanwhile takes
+        // its editor with it.
         const signature = JSON.stringify([ editable, Na__LeScrapSpec__Look(), groups ]);
-        if (signature !== Na__LePanelScrapSpec__Signature) {
+        const editing   = Na__LeScrapSpecEd__EditedNoteId();
+        if (signature !== Na__LePanelScrapSpec__Signature && editing && !Na__LeSpec__GetNoteEntry(editing)) Na__LeScrapSpecEd__Abandon();
+        if (signature !== Na__LePanelScrapSpec__Signature && !Na__LeScrapSpecEd__IsEditing()) {
             Na__LePanelScrapSpec__Signature = signature;
             Na__LePanelScrapSpec__BuildRows(list, groups, editable);
         }
@@ -438,6 +663,9 @@
         window.addEventListener(Na__LeModel__CHANGED_EVENT, (event) => {
             const reason = (event && event.detail) ? event.detail.reason : '';
             if (Na__LePanelScrapSpec__COUNT_REASONS.indexOf(reason) !== -1) Na__LePanels__Refresh(Na__LePanelScrapSpec__ID);
+        });
+        window.addEventListener(Na__LeSpec__LOCATE_EVENT, (event) => {          // <-- A bubble's Show in Specification, from the sheet's right-click menu
+            void Na__LePanelScrapSpec__Locate(event && event.detail ? event.detail.noteId : null);
         });
     }
     // ------------------------------------------------------------

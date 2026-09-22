@@ -1,0 +1,46 @@
+{
+    "SpellCheck__Meta": {
+        "Meta__FileName"    : "Na__SpellCheck__Config__.json",
+        "Meta__Description" : "The Spell Check feature: TrueVision's text boxes checked by the browser's own spell check, with the practice's dictionary of words it must never mark - manufacturers, product names, trade words - kept in 50__TrueVision__UserConfig/TrueVision__UserSpellings__.json at the app root. Owned by 02__Src__AppModules/55__Feature__SpellCheck (Na__SpellCheck__.js is the one door in).",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "22-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture"
+    },
+
+    "SpellCheck__Dictionary": {
+        "Dictionary__Description"      : "Where the dictionary is and how a word is matched against it. File is relative to the TrueVision app root (the folder Index.html is in); ApiPath is the ProjectVision local server's route for Add to Dictionary. A word matches in any case; AcceptPossessive also takes it with 's, AcceptPlural with a plural s or es. Enabled false leaves every word to the browser's own spell check, dictionary words included.",
+        "Dictionary__Enabled"          : true,
+        "Dictionary__File"             : "50__TrueVision__UserConfig/TrueVision__UserSpellings__.json",
+        "Dictionary__ApiPath"          : "/api/truevision/user-config/spellings",
+        "Dictionary__Language"         : "en-GB",
+        "Dictionary__AcceptPossessive" : true,
+        "Dictionary__AcceptPlural"     : true
+    },
+
+    "SpellCheck__Field": {
+        "Field__Description" : "The spell-checked text box. UndoMergeMs: typing within this long of the last change is one undo step (Ctrl+Z inside the box undoes its own typing, never the drawing's). The box keeps its own history because it re-marks the dictionary's words as they are typed, which the browser's own undo cannot follow.",
+        "Field__UndoMergeMs" : 800,
+        "Field__UndoSteps"   : 200
+    },
+
+    "SpellCheck__Labels": {
+        "Labels__Description"  : "Every word the feature shows. {tokens} are filled in by the module. The curly quotes are part of the wording.",
+        "Labels__AddWord"      : "Add “{word}” to Dictionary",
+        "Labels__AddWordTitle" : "Add {word} to the TrueVision spelling dictionary (50__TrueVision__UserConfig/TrueVision__UserSpellings__.json), so it is never marked as a spelling mistake again.",
+        "Labels__RemoveWord"   : "Remove “{word}” from Dictionary",
+        "Labels__RemoveTitle"  : "Take {word} out of the TrueVision spelling dictionary. It was added from the app; the browser will check it again.",
+        "Labels__InGroup"      : "“{word}” is in the dictionary: {group}",
+        "Labels__InEntry"      : "“{word}” is accepted as part of “{entry}” ({group})",
+        "Labels__NoWord"       : "Put the caret in a word to add it to the dictionary.",
+        "Labels__ReadOnly"     : "Words can be added to the dictionary only with the ProjectVision local server.",
+        "Labels__Restart"      : "Restart the ProjectVision local server to add words to the dictionary.",
+        "Labels__Unreadable"   : "Words cannot be added until the dictionary file is put right: {reason}. Correct it in 50__TrueVision__UserConfig, then reload TrueVision.",
+        "Labels__Loading"      : "Reading the spelling dictionary...",
+        "Labels__Added"        : "Added “{word}” to the TrueVision dictionary. It is not marked again, in any box.",
+        "Labels__AlreadyThere" : "“{word}” is already in the TrueVision dictionary.",
+        "Labels__Removed"      : "Took “{word}” out of the TrueVision dictionary.",
+        "Labels__NotRemoved"   : "“{word}” was not in the dictionary on its own, so nothing was taken out.",
+        "Labels__Failed"       : "The dictionary was not changed: {reason}",
+        "Labels__NotAWord"     : "“{word}” is not one word. A dictionary word is letters and digits, with an apostrophe inside it if it needs one."
+    }
+}

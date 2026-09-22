@@ -27,10 +27,18 @@
 //   skipped, and the caller says the save went to R2.
 // - NEVER THROWS. R2 already holds the save when this runs, so a failure here
 //   is reported and can never undo or hide that save.
+// - THE DRAWINGS SAVE GUARD. The local server fingerprints the drawings block
+//   on disk (DrawingsFingerprint: { savedIso, digest }). A merge that says
+//   which fingerprint it was built on (options.drawingsBase) is refused with
+//   a conflict when the block on disk has since become something else - a
+//   save from another window, an agent's edit on the file, a git checkout -
+//   so one window can no longer put another's sheets back unseen. The server
+//   also keeps a copy of every file it overwrites (its /backups route).
 //
 // INTEGRATION:
 // - Na__DrawView__ProjectData__ calls Na__LocalMirror__MergeKeys after every
-//   drawings save that reached R2: Save Sheets, the structural auto save, renames.
+//   drawings save that reached R2: Save Sheets, the structural auto save, renames -
+//   and DrawingsFingerprint as a project loads and before each save.
 // - Na__LayoutEditor__SpecData__ calls Na__LocalMirror__WriteSiblingFile after
 //   a specification Sync, and to seed the local drawing-notes file on load.
 // - Needs the ProjectVision local server (na-apps/ProjectVision__LocalServer__Main__.py),
@@ -42,6 +50,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - DrawingsFingerprint: what the drawings block on disk is, from the local
+//   server's drawings-fingerprint route; unsupported on a server running from
+//   before the route. MergeKeys takes options.drawingsBase and sends it as
+//   X-TrueVision-Drawings-Base; a 409 comes back as conflict true with the
+//   fingerprint on disk, and a merge that landed carries the fingerprint
+//   written and the backup the server kept. Every other result is as before.
+//
 // 14-Sep-2026 - Version 1.1.1
 // - A 405 from the ProjectVision local server itself (its /api/health answers)
 //   now says to restart it. A server started before the drawing-notes route
@@ -89,6 +105,7 @@
         'TrueVision__StatementDocs__.json'                                         // <-- The Statement Writer's index of the project's written documents
     ];
     const Na__LocalMirror__ServerService  = 'na-projectvision-local-dev';          // <-- The name the ProjectVision local server gives in /api/health
+    const Na__LocalMirror__DrawingsBaseHeader = 'X-TrueVision-Drawings-Base';      // <-- The drawings fingerprint a save was built on (the server's DRAWINGS_BASE_HEADER)
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -152,16 +169,33 @@
 
     // HELPER FUNCTION | POST JSON to the Local Server; Never Throws
     // ------------------------------------------------------------
-    async function Na__LocalMirror__PostJson(url, origin, payload) {
+    // headers (optional): extra request headers. A save the server refused as
+    // a conflict (409: the drawings on disk are not the ones the window
+    // loaded) comes back with conflict true and the fingerprint on disk in
+    // drawings; a save that landed carries the fingerprint written and the
+    // backup the server kept, so the caller can take the file's new identity
+    // without asking for it again.
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__PostJson(url, origin, payload, headers) {
         try {
             const response = await fetch(url, {
                 method  : 'POST',
-                headers : { 'Content-Type' : 'application/json' },
+                headers : Object.assign({ 'Content-Type' : 'application/json' }, headers || {}),
                 body    : JSON.stringify(payload)
             });
-            if (response.ok) return Na__LocalMirror__Result(true, false, null);
-
             const answer = await response.json().catch(() => null);                                  // <-- The local server answers in JSON; a static server does not
+            if (response.ok) {
+                const result = Na__LocalMirror__Result(true, false, null);
+                if (answer && answer.drawings) result.drawings = answer.drawings;
+                if (answer && typeof answer.backup === 'string') result.backup = answer.backup;
+                return result;
+            }
+            if (response.status === 409 && answer && answer.conflict) {
+                const result = Na__LocalMirror__Result(false, false, answer.error || 'the drawings on disk are not the ones this window loaded');
+                result.conflict = true;
+                result.drawings = answer.drawings || null;
+                return result;
+            }
             if (answer && answer.error) return Na__LocalMirror__Result(false, false, answer.error);
             if (response.status === 405 && await Na__LocalMirror__IsProjectVisionServer(origin)) {    // <-- The right server, running from before this route: it never reloads its routes
                 return Na__LocalMirror__Result(false, false, `the ProjectVision local server at ${origin} refused this write (405): it is running without this route - restart it to load its current routes`);
@@ -183,16 +217,24 @@
     // FUNCTION | Merge Top-Level Keys Into the Repository Copy of the Project Data
     // ------------------------------------------------------------
     // partialObject: { KeyName: value, ... } - the keys the save wrote to R2.
-    // Resolves to { ok, skipped, error }; never rejects.
+    // options (optional): { drawingsBase } - the drawings fingerprint this
+    // window loaded (DrawingsFingerprint), or null for a project that had no
+    // drawings block. Given, it rides as X-TrueVision-Drawings-Base and the
+    // server refuses the write when the block on disk is no longer that one:
+    // the result then has conflict true. Left out, the write is not judged -
+    // a save of other keys leaves the block as it found it on disk.
+    // Resolves to { ok, skipped, error, conflict?, drawings?, backup? };
+    // never rejects.
     // ------------------------------------------------------------
     let Na__LocalMirror__MergeQueue = Promise.resolve();
-    function Na__LocalMirror__MergeKeys(partialObject) {
+    function Na__LocalMirror__MergeKeys(partialObject, options) {
         const snapshot = JSON.parse(JSON.stringify(partialObject || null));
-        const job = Na__LocalMirror__MergeQueue.then(() => Na__LocalMirror__MergeKeysNow(snapshot));
+        const opts     = Object.assign({}, options || {});
+        const job = Na__LocalMirror__MergeQueue.then(() => Na__LocalMirror__MergeKeysNow(snapshot, opts));
         Na__LocalMirror__MergeQueue = job.catch(() => {});
         return job;
     }
-    async function Na__LocalMirror__MergeKeysNow(partialObject) {
+    async function Na__LocalMirror__MergeKeysNow(partialObject, options) {
         if (!Na__AppUtils__IsRunningOnLocalhost()) return Na__LocalMirror__Result(false, true, null);   // <-- The web build has no local copy
         if (!partialObject || typeof partialObject !== 'object') return Na__LocalMirror__Result(false, false, 'nothing to write');
 
@@ -213,8 +255,45 @@
         }
 
         // WRITE | The saved keys over the file's own, through the local server
-        const merged = Object.assign({}, onDisk, partialObject);
-        return Na__LocalMirror__PostJson(place.writeUrl, place.origin, merged);
+        const merged  = Object.assign({}, onDisk, partialObject);
+        const headers = {};
+        if (options && options.drawingsBase !== undefined) headers[Na__LocalMirror__DrawingsBaseHeader] = options.drawingsBase || 'none';   // <-- null: the project had no drawings block when it was loaded
+        return Na__LocalMirror__PostJson(place.writeUrl, place.origin, merged, headers);
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | What the Drawings Block on Disk Is Right Now
+    // ------------------------------------------------------------
+    // Resolves to { ok, skipped, unsupported, error, drawings }, where
+    // drawings is { savedIso, digest } as the local server computes it:
+    // digest 'sha1:...' of the block's canonical JSON, null when the file has
+    // no block. Asked as a project loads, so a save can say what it was built
+    // on, and again just before a save, so a block changed since - by another
+    // window, an agent on the file, a git checkout - is found before R2 is
+    // written. unsupported is a ProjectVision server running from before this
+    // route (it never reloads its routes): the caller saves unjudged, as it
+    // always did, rather than refusing to save at all. Never rejects.
+    // ------------------------------------------------------------
+    async function Na__LocalMirror__DrawingsFingerprint() {
+        const none = { ok : false, skipped : false, unsupported : false, error : null, drawings : null };
+        if (!Na__AppUtils__IsRunningOnLocalhost()) return Object.assign(none, { skipped : true });
+        const place = Na__LocalMirror__Locate();
+        if (!place) return Object.assign(none, { error : 'no project in the URL' });
+        try {
+            const response = await fetch(`${place.origin}/api/projects/${encodeURIComponent(place.code)}/drawings-fingerprint?${place.query}`, { cache : 'no-store' });
+            const answer   = await response.json().catch(() => null);
+            if (response.ok && answer && answer.drawings && typeof answer.drawings === 'object') {
+                return Object.assign(none, { ok : true, drawings : { savedIso : answer.drawings.savedIso || null, digest : answer.drawings.digest || null } });
+            }
+            if (response.status === 404 || response.status === 405) {
+                if (!(answer && answer.error)) return Object.assign(none, { unsupported : true, error : `the server at ${place.origin} has no drawings-fingerprint route - restart the ProjectVision local server` });
+                return Object.assign(none, { error : answer.error });                                 // <-- The route exists: the project itself was not found
+            }
+            return Object.assign(none, { error : (answer && answer.error) || `the fingerprint could not be read (${response.status})` });
+        } catch (error) {
+            return Object.assign(none, { error : `the local server did not answer (${(error && error.message) || 'no answer'})` });
+        }
     }
     // ------------------------------------------------------------
 
@@ -355,6 +434,7 @@
     // ------------------------------------------------------------
     export {
         Na__LocalMirror__MergeKeys,
+        Na__LocalMirror__DrawingsFingerprint,
         Na__LocalMirror__WriteSiblingFile,
         Na__LocalMirror__StatementTree,
         Na__LocalMirror__WriteStatementFile,

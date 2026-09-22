@@ -21,11 +21,24 @@
  * - The tab strip is the panel host's (.na-le-panel__tabs in Styles__Panels),
  *   shared with the right column: nothing here touches it.
  *
+ * - A ROW BEING EDITED (22-Sep-2026) steps aside for its editor
+ *   (Na__LayoutEditor__ScrapbookSpecification__RowEditor__): the same card in
+ *   the house blue, holding the note's title and text as spell-checked boxes
+ *   (their text rules are the Spell Check feature's), the word bar and the
+ *   keys. The boxes are drawn like the panels' own inputs.
+ * - A ROW BEING LOCATED pulses a halo three times - a bubble's Show in
+ *   Specification. The spread stays inside the column's padding, so nothing
+ *   clips it. It pulses whatever the operating system's animation setting:
+ *   see the region's note.
+ *
  * PORT NOTE:
  * - Authored in : TrueVision3D first (20-Sep-2026)
  * - ValeVision  : not yet ported.
  *
  * DEVELOPMENT LOG:
+ * 22-Sep-2026 - Version 1.1.0
+ * - The row editor and the located row's halo.
+ *
  * 20-Sep-2026 - Version 1.0.0
  * - Initial implementation.
  */
@@ -160,6 +173,154 @@
     -webkit-line-clamp                 : unset;
     line-clamp                         : unset;
     overflow                           : visible;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  A Row Being Edited                                     */
+/* ----------------------------------------------------------------- */
+
+/* THE ROW STEPS ASIDE for its editor, whatever the filter says of it: a class
+   of its own, so the filter's hidden attribute can never bring it back
+   beside the editor. */
+
+.na-le-scrap__item--spec.is-editing {
+    display                            : none;
+}
+
+.na-le-scrapspec-edit {
+    display                            : flex;
+    flex-direction                     : column;
+    gap                                : 5px;
+    padding                            : 6px;
+    border                             : 1px solid #1a7fc4;
+    border-radius                      : 5px;
+    background                         : #f7fbfe;
+    box-shadow                         : 0 0 0 2px rgba(26, 127, 196, 0.16);
+}
+
+.na-le-scrapspec-edit__head {
+    display                            : flex;
+    align-items                        : center;
+    gap                                : 8px;
+}
+
+.na-le-scrapspec-edit__thumb {
+    flex                               : 0 0 28px;
+    width                              : 28px;
+    height                             : 28px;
+}
+
+.na-le-scrapspec-edit__thumb svg {
+    display                            : block;
+    width                              : 100%;
+    height                             : 100%;
+    overflow                           : visible;
+}
+
+.na-le-scrapspec-edit__thumb svg [stroke]:not([stroke="none"]) {
+    vector-effect                      : non-scaling-stroke;
+    stroke-width                       : 1px;
+}
+
+.na-le-scrapspec-edit__caption {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    font-size                          : 0.66rem;
+    font-weight                        : 700;
+    letter-spacing                     : 0.05em;
+    text-transform                     : uppercase;
+    color                              : #1a7fc4;
+}
+
+/* THE TWO BOXES are drawn like the panels' own inputs; the Spell Check
+   feature's own sheet gives them their wrapping, their caret and their
+   placeholder. */
+
+.na-le-scrapspec-edit__title,
+.na-le-scrapspec-edit__body {
+    padding                            : 4px 6px;
+    border                             : 1px solid #ccd3d8;
+    border-radius                      : 4px;
+    background                         : #ffffff;
+    color                              : #172b3a;
+}
+
+.na-le-scrapspec-edit__title {
+    font-size                          : 0.74rem;
+    font-weight                        : 600;
+    line-height                        : 1.3;
+}
+
+.na-le-scrapspec-edit__body {
+    min-height                         : 4.4em;
+    max-height                         : 50vh;
+    overflow-y                         : auto;
+    font-size                          : 0.72rem;
+    line-height                        : 1.4;
+}
+
+.na-le-scrapspec-edit__title:focus,
+.na-le-scrapspec-edit__body:focus {
+    border-color                       : #1a7fc4;
+    box-shadow                         : 0 0 0 2px rgba(26, 127, 196, 0.2);
+}
+
+.na-le-scrapspec-edit__foot {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : 6px;
+}
+
+.na-le-scrapspec-edit__keys {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    font-size                          : 0.64rem;
+    line-height                        : 1.3;
+    color                              : #8a96a0;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  A Row Being Located                                    */
+/* ----------------------------------------------------------------- */
+
+/* "I AM THE NOTE FOR THAT BUBBLE." Three pulses of a blue ring spreading from
+   the row, over a blue wash that fades back to white. The ring spreads 6 px,
+   inside the section's 10 px padding, so the column never clips it.
+
+   NO prefers-reduced-motion BRANCH, for the reason written up in
+   Na__UiFeature__Styles__AppHeader__.css ("Why There Is No
+   prefers-reduced-motion Branch Here"): Windows' Animation effects are off on
+   the studio PC and Chromium reports that as reduce, so a branch here would
+   turn the pulses the halo exists for into a still wash on the very machine
+   it was asked for. The motion is a 6 px ring and a colour fade - no zoom,
+   spin or travel. */
+
+@keyframes Na_LeScrapSpec_Locate {
+    0% {
+        background                     : #d9ebf8;
+        box-shadow                     : 0 0 0 0 rgba(26, 127, 196, 0.55);
+    }
+    70% {
+        background                     : #eaf3fb;
+        box-shadow                     : 0 0 0 6px rgba(26, 127, 196, 0);
+    }
+    100% {
+        background                     : #f7fbfe;
+        box-shadow                     : 0 0 0 0 rgba(26, 127, 196, 0);
+    }
+}
+
+.na-le-scrap__item--spec.is-located,
+.na-le-scrapspec-edit.is-located {
+    border-color                       : #1a7fc4;
+    animation                          : Na_LeScrapSpec_Locate 0.9s ease-out 3;
 }
 
 /* endregion ------------------------------------------------------- */

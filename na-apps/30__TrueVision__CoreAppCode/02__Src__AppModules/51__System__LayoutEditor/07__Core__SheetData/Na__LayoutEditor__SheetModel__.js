@@ -109,8 +109,9 @@
 //     delete, and DeleteItems (the multi-item delete).
 //
 // INTEGRATION:
-// - Loads from Na__DrawView__ProjectData__ on its events; Save goes through
-//   Na__DrawData__Save (D08).
+// - Loads from Na__DrawView__ProjectData__ on its change event, and announces
+//   a load that landed before Initialize itself (Na__DrawData__IsLoaded);
+//   Save goes through Na__DrawData__Save (D08).
 // - Callers keep importing this file, which still exports every name it
 //   always has; no other module imports a unit. The units never import this
 //   file: they share the State unit and otherwise import downward only
@@ -123,12 +124,26 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__SheetModel__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026.
+// - Divergences   : Console prefix, header and folder numbers; site plan drawings (Sheet__DrawingType), TrueVision first on 14-Sep-2026;
+//                   the load that landed before Initialize announced, on the change event alone, TrueVision first on 22-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.35.0
+// - Fix: a project load that landed before Initialize was never announced.
+//   The editor starts once its configs are in, and the drawings usually get
+//   there first (RB05: drawings at 2.0 s, the editor at 2.2 s), so the model
+//   listened for a load that had already happened: no 'loaded', no browser
+//   draft restore, no common field seed - and the next edit wrote the
+//   server's sheets over the unsaved draft. Initialize now announces that
+//   load itself, on a microtask, so every listener the mode controller
+//   attaches after the model in the same start-up pass hears it.
+// - Fix: one listener, on the drawings change event. The raw load event heard
+//   the same load a second time, which cleared the dirty flag a draft restore
+//   had just set and seeded the common fields twice.
+//
 // 22-Sep-2026 - Version 1.34.0
 // - Re-exports the Sheets unit's AddNoteRegion, UpdateNoteRegion and
 //   DeleteNoteRegion: the overspill note regions on a sheet's notes margin
@@ -374,12 +389,12 @@
 // REGION | Module Imports
 // -----------------------------------------------------------------------------
 
-    // MODULE IMPORTS | Drawings Block: Save and the Load Events
+    // MODULE IMPORTS | Drawings Block: Save, the Change Event and Whether a Project Is In
     // ------------------------------------------------------------
     import {
         Na__DrawData__Save,
-        Na__DrawData__LOADED_EVENT,
-        Na__DrawData__CHANGED_EVENT
+        Na__DrawData__CHANGED_EVENT,
+        Na__DrawData__IsLoaded
     } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
@@ -549,6 +564,7 @@
     // MODULE VARIABLES | Initialization Guard (the session state is the State unit's)
     // ------------------------------------------------------------
     let Na__LeModel__Initialized   = false;
+    let Na__LeModel__LoadHeard     = false;   // <-- A project load has been announced since Initialize
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -712,6 +728,20 @@
 
     // FUNCTION | Initialize: Follow the Drawings Block Across Project Loads
     // ------------------------------------------------------------
+    // ONE LISTENER, ON THE CHANGE EVENT. The drawings data raises it once it
+    // has adopted a project's block ('loaded') and after a save ('saved').
+    // The raw load event is not listened to as well: it is the same load
+    // heard a second time, after the block was adopted, and that second
+    // hearing cleared the dirty flag a draft restore had just set.
+    //
+    // A LOAD THAT LANDED FIRST. The editor starts once its configs are in,
+    // and the drawings usually get there before that, so the load this
+    // listens for has already happened. It is announced here instead - on a
+    // microtask, so the mode controller finishes the same start-up pass and
+    // every listener it attaches after the model (the history, the auto save
+    // and its draft restore, the specification links) hears it. A load heard
+    // in between is not announced twice.
+    // ------------------------------------------------------------
     function Na__LeModel__Initialize() {
         if (Na__LeModel__Initialized) return true;
         Na__LeModel__Initialized = true;
@@ -720,6 +750,7 @@
             Na__LeModel__AssignDirty(false);
             if (Na__LeModel__ActiveSheetId && !Na__LeModel__GetSheetById(Na__LeModel__ActiveSheetId)) Na__LeModel__AssignActiveSheetId(null);
             if (saved) { Na__LeModel__Dispatch('saved', Na__LeModel__ActiveSheetId); return; }   // <-- The same records, now on disk: selection and undo history stay
+            Na__LeModel__LoadHeard = true;
             Na__LeModel__AssignSelectionItems([]);
             Na__LeModel__Dispatch('loaded', Na__LeModel__ActiveSheetId);
             // THE PACK'S CLIENT AND SITE ADDRESS | A new project brings a new
@@ -731,8 +762,8 @@
             Na__LeRecord__Reset();
             void Na__LeModel__SeedCommonFields();
         };
-        window.addEventListener(Na__DrawData__LOADED_EVENT,  reload);
         window.addEventListener(Na__DrawData__CHANGED_EVENT, reload);
+        if (Na__DrawData__IsLoaded()) queueMicrotask(() => { if (!Na__LeModel__LoadHeard) reload(null); });   // <-- The drawings got here first: announce their load once the start-up pass is done
         return true;
     }
     // ------------------------------------------------------------

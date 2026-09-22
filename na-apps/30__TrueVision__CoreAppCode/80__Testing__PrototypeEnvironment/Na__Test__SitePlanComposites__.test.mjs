@@ -3,6 +3,9 @@
 // =============================================================================
 //
 // FILE       : Na__Test__SitePlanComposites__.test.mjs
+// NAMESPACE  : Na__Test
+// MODULE     : Site Plan Composites Test
+// AUTHOR     : Adam Noble - Noble Architecture
 // PURPOSE    : Prove TASK 06 - block plan against location plan, the three decks,
 //              and the Z-ordered linework - against the SHIPPED modules and the
 //              SHIPPED config, not against a description of them
@@ -18,6 +21,9 @@
 //   from disk. The config being read is the real one in the repo, which means a
 //   value edited there and not here shows up as a failure rather than as a
 //   silently passing test.
+// - The SketchUp SSOT (Tags, Materials, Edge Materials) is read where the
+//   plugin installs it, under the signed-in user's APPDATA, so the PC that
+//   runs this needs Na__Common__DataLib__CoreSuEntityStandards installed.
 //
 // WHAT IT GUARDS:
 // - THE 1:500 BOUNDARY. Adam: 'Viewports over 1:500' are location plans. Off by
@@ -37,6 +43,20 @@
 //   names really exists. The SSOT is in another repository, so nothing else would
 //   notice a typo until a wash or a hatch silently failed to paint.
 //
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.0.1
+// - The three SSOT files were read from C:/Users/Administrator, one PC's
+//   user folder, so on the other PC the file stopped at the first of them.
+//   They are now found under APPDATA (the user's AppData/Roaming where that
+//   is not set), which names the right user folder on either machine.
+//
+// 20-Sep-2026 - Version 1.0.0
+// - Written with the site plan composites (TASK 06). The checks added since
+//   carry their dates in the comments above them; there was no log before
+//   1.0.1.
+//
 // =============================================================================
 
 import fs from 'node:fs'
@@ -46,6 +66,12 @@ import { pathToFileURL } from 'node:url'
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))
 const SRC  = path.resolve(HERE, '../02__Src__AppModules')
+
+// The SketchUp SSOT is installed under the signed-in user's Roaming AppData, and
+// the studio's two PCs have different user folders, so it is found from APPDATA
+// and never written out for one of them.
+const SSOT = path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData/Roaming'),
+  'SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards')
 
 let pass = 0, fail = 0
 const check = (label, got, want) => {
@@ -327,7 +353,7 @@ check('the dashed pattern is still 2.5 / 1.5 in the config', dashed.LineType__Pa
 check('the weight ceiling clears the 2.00 pt proposal outline at a 0.25 pt master',
   cfg.LayoutEditor__EdgeStyles__Weight.Weight__Max >= (0.706 / (0.25 * 0.352778)), true)
 
-const tags = JSON.parse(fs.readFileSync('C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Tags__.json', 'utf8'))
+const tags = JSON.parse(fs.readFileSync(path.join(SSOT, 'Na__DataLib__CoreIndex__Tags__.json'), 'utf8'))
 const sp = tags.Na__DataLib__CoreIndex__Tags['71_75__SitePlanTags__']
 check('the SSOT gives Proposed Alterations a half-size dash and leaves its weight alone',
   [sp['73__SitePlan__Buildings__Proposed__Alterations'].SitePlan__LineDashScale,
@@ -347,7 +373,7 @@ check('and it has an export stem, or the exporter would skip it',
 // a hard standing tag, make a material so I can make the driveway a very light grey."
 // The SSOT lives in another repository, so these are the checks that catch a hatch id
 // or a MAT id that names nothing - which paints no hatch, or no wash, and says nothing.
-const matsDoc = JSON.parse(fs.readFileSync('C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__Materials__.json', 'utf8'))
+const matsDoc = JSON.parse(fs.readFileSync(path.join(SSOT, 'Na__DataLib__CoreIndex__Materials__.json'), 'utf8'))
 const matById = {}
 Object.values(matsDoc.Na__DataLib__CoreIndex__Materials).forEach((series) => Object.entries(series).forEach(([k, v]) => { matById[k] = v }))
 const rgbOf = (id) => (matById[id] && /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/.test(matById[id].BaseColor)) ? matById[id].BaseColor.replace(/\s+/g, '') : null
@@ -447,7 +473,7 @@ check('EVERY site plan tag is in BOTH exclusion lists',
 const aliases = cfg.LayoutEditor__EdgeStyles__LineTypes.map((t) => t.LineType__Alias)
 check('EVERY site plan line type is a TrueVision EdgeStyles line type',
   siteTags.filter((t) => !aliases.includes(t.SitePlan__LineType)).map((t) => t.Tag__SketchUpName + ' ' + t.SitePlan__LineType), [])
-const edgeDoc = JSON.parse(fs.readFileSync('C:/Users/Administrator/AppData/Roaming/SketchUp/SketchUp 2026/SketchUp/Plugins/Na__Common__DataLib__CoreSuEntityStandards/Na__DataLib__CoreIndex__EdgeMaterials__.json', 'utf8'))
+const edgeDoc = JSON.parse(fs.readFileSync(path.join(SSOT, 'Na__DataLib__CoreIndex__EdgeMaterials__.json'), 'utf8'))
 const edgeHex = {}
 Object.values(edgeDoc.Na__DataLib__CoreIndex__EdgeMaterials).forEach((series) => { if (series && typeof series === 'object') Object.entries(series).forEach(([k, v]) => { if (v && v.HexValue) edgeHex[k] = String(v.HexValue).toUpperCase() }) })
 const palette = cfg.LayoutEditor__EdgeStyles__Colours.map((c) => String(c.Colour__Hex).toUpperCase())

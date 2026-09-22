@@ -180,3 +180,11 @@
 /* Plan Annotations toolbar alike, so it belongs to neither's region.   */
 @import url('../02__Src__AppModules/54__Feature__ColourPalette/Na__ColourPalette__Styles__.css');
 /* endregion -------------------------------------------------------- */
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  Spell Check - the Browser's Spell Check, the Practice's Words */
+/* ----------------------------------------------------------------- */
+/* Its own feature, like the Colour Palette: any text box in the app  */
+/* can be a spell-checked one, so it belongs to no one system's region. */
+@import url('../02__Src__AppModules/55__Feature__SpellCheck/Na__SpellCheck__Styles__.css');
+/* endregion -------------------------------------------------------- */

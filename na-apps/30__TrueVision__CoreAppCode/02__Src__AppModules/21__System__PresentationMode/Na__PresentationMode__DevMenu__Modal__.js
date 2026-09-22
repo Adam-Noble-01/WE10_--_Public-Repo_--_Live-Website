@@ -42,6 +42,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - Confirm takes `altLabel` (and `altIsDestructive`): a third button between
+//   Cancel and Confirm that settles the dialog with the string 'alt'. A dialog
+//   without one still answers true or false and nothing else. For the Layout
+//   Editor's question about an unsaved browser draft that is older than the
+//   drawings saved since - apply it, discard it, or decide later.
+//
 // 20-Sep-2026 - Version 1.1.0
 // - Confirm takes `details` (a list of lines, shown as a list under the
 //   message), a `footnote`, and `isCommit` for a green confirm button. For the
@@ -232,7 +239,7 @@
                 card.innerHTML = '';                                          // <-- Leave nothing behind for the next dialog
 
                 Na__PmDevModal__ActiveClose = null;
-                resolve(result === true);
+                resolve(result === true ? true : (result === 'alt' ? 'alt' : false));   // <-- 'alt' only from a dialog that asked for a third button
             };
 
             const footer = document.createElement('div');
@@ -250,6 +257,14 @@
                 'na-pm-modal__btn--cancel',
                 () => Na__PmDevModal__SettleDialog(false)
             );
+            // A THIRD ANSWER (altLabel): between Cancel and Confirm, settling
+            // the dialog with 'alt'. Never the keyboard's: Enter is Confirm and
+            // Escape is Cancel, as they always were.
+            const altBtn = opts.altLabel ? Na__PmDevModal__BuildButton(
+                opts.altLabel,
+                'na-pm-modal__btn--cancel' + (opts.altIsDestructive ? ' na-pm-modal__btn--danger' : ''),
+                () => Na__PmDevModal__SettleDialog('alt')
+            ) : null;
 
             const setSatisfied = (isSatisfied) => {
                 confirmBtn.disabled = !isSatisfied;
@@ -259,6 +274,7 @@
             const focusBody = (typeof buildBody === 'function') ? buildBody(card, setSatisfied) : null;
 
             footer.appendChild(cancelBtn);
+            if (altBtn) footer.appendChild(altBtn);
             footer.appendChild(confirmBtn);
             card.appendChild(footer);
 

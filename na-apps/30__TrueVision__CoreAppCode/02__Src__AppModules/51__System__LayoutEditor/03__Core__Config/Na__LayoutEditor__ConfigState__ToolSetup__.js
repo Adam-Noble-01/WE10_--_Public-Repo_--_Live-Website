@@ -35,6 +35,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.5.0
+// - GetLeaderSetup answers noteTooltip (Leader NoteTooltip, on unless the
+//   config says false) and noteTooltipMs (NoteTooltipMs, 500, 0 to 5000): a
+//   specification bubble names its note when the pointer rests on it.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - GetDimensionSetup answers defaultRoundUp (Dimensions DefaultRoundUp, off
 //   unless the config says true), roundUpStepMm (RoundUpStepMm, 5) and
@@ -278,7 +283,9 @@
             stubMm             : Math.max(0, Na__LeCfg__Num('Leader', 'StubMm', 3)),
             stubMaxFraction    : Math.max(0, Math.min(0.5, Na__LeCfg__Num('Leader', 'StubMaxFraction', 0.25))),
             curveTension       : Math.max(0, Math.min(1, Na__LeCfg__Num('Leader', 'CurveTension', 0.5))),
-            minLengthMm        : Math.max(0.5, Na__LeCfg__Num('Leader', 'MinLengthMm', 2))
+            minLengthMm        : Math.max(0.5, Na__LeCfg__Num('Leader', 'MinLengthMm', 2)),
+            noteTooltip        : Na__LeCfg__Val('Leader', 'NoteTooltip', true) !== false,           // <-- A bubble names its note when the pointer rests on it
+            noteTooltipMs      : Math.max(0, Math.min(5000, Na__LeCfg__Num('Leader', 'NoteTooltipMs', 500)))
         };
     }
     // ------------------------------------------------------------

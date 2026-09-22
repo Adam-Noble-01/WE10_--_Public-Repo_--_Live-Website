@@ -1,4 +1,58 @@
-// Run with node --test 80__Testing__PrototypeEnvironment/Na__Test__GroupMoveSnapping__.test.cjs
+// =============================================================================
+// TRUEVISION3D - TEST - GROUP MOVE SNAPPING
+// =============================================================================
+//
+// FILE       : Na__Test__GroupMoveSnapping__.test.cjs
+// NAMESPACE  : Na__Test
+// MODULE     : Group Move Snapping Test
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Prove a group moved as one piece snaps one of its points to what stays still, moves every member the same distance, and keeps the axis, Shift and typed-distance rules
+// CREATED    : 19-Sep-2026
+//
+// DESCRIPTION:
+// - Runs the real Object Snap folder whole (State, Geometry, Index, Sources,
+//   Search and Moves, through Na__TestEnv__ObjectSnapBundle__), the viewport
+//   rotation leaf and the Selection Set whole, and the real IsMoveDrag,
+//   IsViewportMoveDrag and ApplyDrag of the pointer drag and Descendants and
+//   Expand of the groups, in one vm context. Everything outside them - the
+//   config, the model, the surface, a viewport's snap source, the marker, the
+//   axis lock, ortho (F8) and the grid moves (F7, off) - is stubbed.
+// - A nested group snaps a descendant's point to another vector's end or
+//   middle, or to a viewport's linework, and every member moves by the same
+//   delta, measured each time from where the drag began.
+// - What moves is never a target: its shapes, dimensions and viewports are
+//   excluded together, and excluding one vertex still leaves the shape's
+//   other points.
+// - An arrow-key axis and Shift survive the snap, a typed distance bypasses
+//   it, F3 off leaves the move free, and a member on a locked layer stays put.
+//
+// USAGE:
+//     node --test 80__Testing__PrototypeEnvironment/Na__Test__GroupMoveSnapping__.test.cjs
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.1
+// - The Search unit tests a viewport against the box round its frame as it
+//   stands (Na__LeVpRot__Bounds, ObjectSnap Search 1.1.0), and the fixture
+//   had no rotation leaf, so the two viewport tests threw a ReferenceError.
+//   The leaf now runs whole in the vm context. House header added.
+//
+// 21-Sep-2026 - Version 1.2.0
+// - The snapping moved into 28__System__ObjectSnap: the fixture runs the
+//   folder's real units through Na__TestEnv__ObjectSnapBundle__ in place of
+//   single functions and stubbed constants, and a viewport's linework comes
+//   through the real index from a snap source.
+//
+// 21-Sep-2026 - Version 1.1.0
+// - A reference layer offers no snap points (v2.123.0); ortho (F8) and the
+//   drawing grid's moves stubbed off; IsViewportMoveDrag loaded.
+//
+// 19-Sep-2026 - Version 1.0.0
+// - Written with group moves that snap.
+//
+// =============================================================================
+
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -6,6 +60,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const root = path.resolve(__dirname, '../02__Src__AppModules/51__System__LayoutEditor');
 const source = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const strip = (text) => text.replace(/\bimport\s+[\s\S]*?\s+from\s+['"][^'"]+['"];?/g, '').replace(/\bexport\s*\{[^}]*\};?/g, '');   // <-- A module run whole: its imports and export block taken out
 const tools = '30__System__SheetTools/Na__LayoutEditor__';
 const { Na__TestEnv__ObjectSnapBundle } = require('./Na__TestEnv__ObjectSnapBundle__.cjs');   // <-- The Object Snap folder's units as one source, imports taken out
 
@@ -68,13 +123,16 @@ function fixture() {
         Na__LeOsnap__GridDragDelta: (s, drag, dMm) => dMm,
         Na__LeOsnap__GridTranslation: (s, drag, delta) => { marker = null; return delta; }
     });
+    // The viewport rotation leaf, whole (it imports nothing): the search tests the pointer against the box round
+    // a viewport's frame as it stands, turned or not (Na__LeVpRot__Bounds).
+    vm.runInContext(strip(source('20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js')), ctx);
     // THE REAL SNAPPING, WHOLE: the switches, the maths, the linework index, the sheet's sources, the search and
     // the whole-object moves, from 28__System__ObjectSnap. Only the marker (it needs a document) and the grid
     // moves (stubbed above, Grid Snap off) are left out.
     vm.runInContext(Na__TestEnv__ObjectSnapBundle(path.resolve(__dirname, '../02__Src__AppModules'), ['State', 'Geometry', 'Index', 'Sources', 'Search', 'Moves']).source, ctx);
     loadFunctions(ctx, tools + 'SheetTools__PointerDrag__.js', ['Na__LeTools__IsMoveDrag', 'Na__LeTools__IsViewportMoveDrag', 'Na__LeTools__ApplyDrag']);
     loadFunctions(ctx, '15__Core__Markup/Na__LayoutEditor__Groups__.js', ['Na__LeGroup__Descendants', 'Na__LeGroup__Expand']);
-    vm.runInContext(source(tools + 'SelectionSet__.js').replace(/\bimport\s+[\s\S]*?\s+from\s+['"][^'"]+['"];?/g, '').replace(/\bexport\s*\{[^}]*\};?/g, ''), ctx);
+    vm.runInContext(strip(source(tools + 'SelectionSet__.js')), ctx);
     const capture = () => ({ kind: 'group', startMm: { x: 0, y: 0 }, group: ctx.Na__LeSelSet__Capture(sheet, ctx.Na__LeGroup__Expand(sheet, [{ kind: 'group', id: 'outer' }])) });
     const move = (drag, x, y, shift = false, exact = false) => ctx.Na__LeTools__ApplyDrag(sheet, drag, { x, y }, shift, exact);
     const viewport = (id, x, y) => {

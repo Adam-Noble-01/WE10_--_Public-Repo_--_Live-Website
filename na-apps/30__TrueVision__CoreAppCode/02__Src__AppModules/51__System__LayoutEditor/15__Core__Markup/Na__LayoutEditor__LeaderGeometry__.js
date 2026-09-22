@@ -60,6 +60,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.3.0
+// - SetNoteResolver and NoteFor: the specification note a bubble stands for
+//   - its id, its code, its title and a locate() that shows it in the
+//   drawing's Specification tab - asked the way IsBroken asks, through a
+//   resolver Na__LayoutEditor__SpecLinks__ registers. The sheet tools read it
+//   for a bubble's hover tooltip (its note's title, after a moment) and its
+//   Show in Specification row, and still import nothing of the specification.
+//
 // 18-Sep-2026 - Version 1.2.0
 // - SetBrokenResolver and IsBroken: a specification bubble linked to a note
 //   that no longer exists (Leader__SpecNoteId pointing at nothing) can be
@@ -137,6 +145,16 @@
     // Leader__Text exactly as before.
     // ------------------------------------------------------------
     let Na__LeLeadGeo__CodeResolver = null;
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | The Specification Note Resolver
+    // ------------------------------------------------------------
+    // (leader) => { noteId, code, title, linked } for the note a bubble stands
+    // for, or null. Registered by the specification, like the code resolver,
+    // so the sheet tools can name a bubble's note - its hover tooltip, its
+    // Show in Specification row - without importing the specification.
+    // ------------------------------------------------------------
+    let Na__LeLeadGeo__NoteResolver = null;
     // ------------------------------------------------------------
 
     // MODULE VARIABLES | The Broken-Link Resolver
@@ -279,6 +297,42 @@
             return Na__LeLeadGeo__BrokenResolver(leader) === true;
         } catch (e) {
             return false;
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Register the Specification Note Resolver (a non-function clears it)
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__SetNoteResolver(resolver) {
+        Na__LeLeadGeo__NoteResolver = (typeof resolver === 'function') ? resolver : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Specification Note a Bubble Stands For: { noteId, code, title, linked, locate } or null
+    // ------------------------------------------------------------
+    // Only a bubble asks, and only when a resolver is registered. linked is
+    // false for a bubble that is not linked but reads a note's code. locate(),
+    // when the specification gives one, shows the note where the drawing's
+    // Specification tab lists it - the sheet's right-click menu calls it
+    // without knowing how. A resolver that throws, or answers without a note
+    // id and a code, reads as no note at all.
+    // ------------------------------------------------------------
+    function Na__LeLeadGeo__NoteFor(leader) {
+        if (!leader || leader.Leader__Type !== Na__LeLeadGeo__TYPE_BUBBLE || !Na__LeLeadGeo__NoteResolver) return null;
+        try {
+            const note = Na__LeLeadGeo__NoteResolver(leader);
+            if (!note || typeof note.noteId !== 'string' || !note.noteId || typeof note.code !== 'string' || !note.code) return null;
+            return {
+                noteId : note.noteId,
+                code   : note.code,
+                title  : typeof note.title === 'string' ? note.title : '',
+                linked : note.linked === true,
+                locate : typeof note.locate === 'function' ? note.locate : null
+            };
+        } catch (e) {
+            return null;
         }
     }
     // ------------------------------------------------------------
@@ -606,6 +660,8 @@
         Na__LeLeadGeo__SetCodeResolver,
         Na__LeLeadGeo__SetBrokenResolver,
         Na__LeLeadGeo__IsBroken,
+        Na__LeLeadGeo__SetNoteResolver,
+        Na__LeLeadGeo__NoteFor,
         Na__LeLeadGeo__HasText,
         Na__LeLeadGeo__Circle,
         Na__LeLeadGeo__EndpointRadius,

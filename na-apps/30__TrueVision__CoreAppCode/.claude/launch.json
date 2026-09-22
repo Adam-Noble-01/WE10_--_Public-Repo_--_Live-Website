@@ -666,6 +666,27 @@
         "D:/_ClaudeScratch/tv_hideswings_out"
       ],
       "port": 9087
+    },
+    {
+      "name": "tv-draftrestore-server",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/11_RefLib__StudioRepository__RemoteSystem/NaWeb/na-apps/ProjectVision__LocalServer__Main__.py",
+        "--port",
+        "9111",
+        "--no-browser"
+      ],
+      "port": 9111
+    },
+    {
+      "name": "tv-draftrestore-guard",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "C:/Users/adamw/AppData/Local/Temp/claude/D--11-RefLib--StudioRepository--RemoteSystem-NaWeb-na-apps-30--TrueVision--CoreAppCode/994ebd4f-a325-413d-9dbb-34fcc2e9f970/scratchpad/Na__DraftRestore__GuardProxy__.py",
+        "9112",
+        "9111"
+      ],
+      "port": 9112
     }
   ]
 }

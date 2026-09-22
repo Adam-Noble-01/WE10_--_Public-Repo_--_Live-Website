@@ -30,6 +30,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.0.1
+// - A checkout with core.autocrlf=true gives the module CRLF line ends, and
+//   two of the mutations span lines joined by '\n', so they matched nothing
+//   and the file stopped at the first of them. load() now reads the module
+//   as LF, as Na__TestEnv__ObjectSnapBundle__ does.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Written with the Vector control (TrueVision3D v2.136.0).
 //
@@ -76,7 +82,7 @@ import { tmpdir } from 'node:os';
     }
 
     async function load(defaults, mutate) {
-        let src = readFileSync(resolve(SRC, MODULE), 'utf8');
+        let src = readFileSync(resolve(SRC, MODULE), 'utf8').replace(/\r\n/g, '\n');     // <-- CRLF files are read as LF first: a mutation that spans lines joins them with '\n'
         src = src.replace(/^[ \t]*import\s+(?:\{[\s\S]*?\}|[\w*\s,]+)\s+from\s+'[^']+';[ \t]*(?:\/\/[^\n]*)?$/gm, '');
         if (/^\s*import\s/m.test(src)) { console.error('FAIL: an import survived'); process.exit(1); }
         if (mutate) { const changed = mutate(src); if (changed === src) { console.error('FAIL: a mutation changed nothing'); process.exit(1); } src = changed; }

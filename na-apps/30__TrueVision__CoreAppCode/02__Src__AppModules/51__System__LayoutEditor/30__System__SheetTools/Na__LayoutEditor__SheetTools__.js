@@ -141,6 +141,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.38.0
+// - Attach and Detach take the note tooltip's stage listeners with them
+//   (Na__LayoutEditor__SheetTools__NoteTooltip__): a press, a wheel turn, a
+//   key or the pointer leaving the sheet takes a bubble's note label down.
+//
 // 22-Sep-2026 - Version 1.37.0
 // - TOOL_REGION is exported with the other tool names: the Margin Notes panel
 //   puts it up to draw an overspill note region, which the press, drag and
@@ -479,6 +484,7 @@
     import { Na__LeSelBox__Refresh } from './Na__LayoutEditor__SelectionBox__.js';
     import { Na__LeScope__CHANGED_EVENT, Na__LeScope__Clear, Na__LeScope__Prune } from './Na__LayoutEditor__EditScope__.js';
     import { Na__LeMenu__Close } from './Na__LayoutEditor__ContextMenu__.js';
+    import { Na__LeNoteTip__Attach, Na__LeNoteTip__Detach } from './Na__LayoutEditor__SheetTools__NoteTooltip__.js';   // <-- A bubble's note label comes down on a press, a wheel turn, a key or the pointer leaving
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Sheet Tools Units
@@ -622,6 +628,7 @@
             dropperdraw   : () => Na__LeTools__DropperDraw()                  // <-- The counter-scaled boxes, once a frame; a zoom counts when it settles
         };
         [ 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'dblclick', 'contextmenu' ].forEach((name) => Na__LeTools__Stage.addEventListener(name, Na__LeTools__Handlers[name]));
+        Na__LeNoteTip__Attach(Na__LeTools__Stage);                           // <-- The hover pass puts a bubble's note label up; these take it down
         window.addEventListener('keydown', Na__LeTools__Handlers.keydown);
         window.addEventListener('keyup', Na__LeTools__Handlers.keyup);
         [ Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeModel__CHANGED_EVENT ].forEach((name) => window.addEventListener(name, Na__LeTools__Handlers.dropperdraw));
@@ -666,6 +673,7 @@
     // ------------------------------------------------------------
     function Na__LeTools__Detach() {
         Na__LeMenu__Close();
+        Na__LeNoteTip__Detach();                                             // <-- No note label left up, or waiting, over a stage that is going
         Na__LeTools__WriteRightPress(null);
         Na__LeTools__WriteLastPointMm(null);
         Na__LeText__Cancel();

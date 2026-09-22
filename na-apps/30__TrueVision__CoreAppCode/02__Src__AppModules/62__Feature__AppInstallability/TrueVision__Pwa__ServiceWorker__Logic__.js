@@ -34,6 +34,26 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.9.34
+// - Token bumped (2026-09-22-8) for the browser draft restored on a late start
+//   (v2.145.0): the sheet model and the auto save now import
+//   Na__DrawData__IsLoaded, which no warm copy of the drawings data exports, and
+//   the sheet model no longer imports its LOADED_EVENT.
+//
+// 22-Sep-2026 - Version 1.9.33
+// - Token bumped (2026-09-22-7) for editing a specification note in the drawing's
+//   Specification tab, the bubble note tooltip and Show in Specification (v2.144.0):
+//   the Specification tab's panel, SpecLinks, the sheet tools' context menu, pointer
+//   drag and attach now import names no warm copy exports (Na__LeSpec__LOCATE_EVENT,
+//   Na__LeSpec__WriteLocalCopy, Na__LeLeadGeo__SetNoteResolver, Na__LeLeadGeo__NoteFor)
+//   and three new modules (55__Feature__SpellCheck, the row editor, the note tooltip).
+// - The Specification tab's stylesheet (Na__LayoutEditor__Styles__ScrapbookSpecification__.css)
+//   joins the shell precache list: its panel links it on first use, and it now carries
+//   the row editor and the located row's halo - a lazily linked sheet the token does not
+//   govern would paint the previous release (the Vector Tools sheet's reason).
+// - 7, not the next number: a session branched from main now bumps -4 to -5, and
+//   two releases carrying one token merge without a conflict and evict nothing.
+//
 // 22-Sep-2026 - Version 1.9.32
 // - Token bumped (2026-09-22-4) for overspill note regions (v2.143.0): the
 //   margin (SpecMargin) now imports its new Column and NoteRegions units and the
@@ -485,7 +505,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-22-4';                                                              // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-22-8';                                                             // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -566,7 +586,10 @@
         '02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css',
         // The Vector Tools panel injects its own sheet on first use, for the same
         // reason: precached, the token governs it.
-        '02__Src__AppModules/51__System__LayoutEditor/37__System__VectorTools/Na__LayoutEditor__Styles__VectorTools__.css'
+        '02__Src__AppModules/51__System__LayoutEditor/37__System__VectorTools/Na__LayoutEditor__Styles__VectorTools__.css',
+        // So does the drawing's Specification tab - and its sheet now draws the
+        // row editor and the located row's halo.
+        '02__Src__AppModules/51__System__LayoutEditor/58__Feature__ScrapbookSpecification/Na__LayoutEditor__Styles__ScrapbookSpecification__.css'
     ];
     // ------------------------------------------------------------
 

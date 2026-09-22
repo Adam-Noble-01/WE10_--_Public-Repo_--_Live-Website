@@ -76,6 +76,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.18.0
+// - The Select/Move hover pass hands every move to the note tooltip
+//   (Na__LayoutEditor__SheetTools__NoteTooltip__): a specification bubble the
+//   pointer rests on names its note - "EW01  Loggia Arcade" - after the
+//   Leader config's NoteTooltipMs. NoteTipWanted is its check when the wait
+//   is over; a drag cancels it.
+//
 // 22-Sep-2026 - Version 1.17.0
 // - TOOL_REGION: the move stretches a note region's rubber box
 //   (Na__LeRegionTool__Move) and the release lands it (RegionUp), exactly as
@@ -300,6 +307,7 @@
     import { Na__LeShapeGeo__Points, Na__LeShapeGeo__Translated } from '../15__Core__Markup/Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeLeadGeo__IsBroken, Na__LeLeadGeo__Lines } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     import { Na__LeHoverTip__Show, Na__LeHoverTip__Hide } from './Na__LayoutEditor__SheetTools__HoverTooltip__.js';
+    import { Na__LeNoteTip__Hover, Na__LeNoteTip__Cancel } from './Na__LayoutEditor__SheetTools__NoteTooltip__.js';   // <-- A specification bubble names its note after a moment
     import { Na__LeText__RotateTo } from '../35__System__DrawingTools/Na__LayoutEditor__TextTool__.js';
     import { Na__LeDim__Move, Na__LeDim__OffsetFor, Na__LeDim__ShowInference } from '../35__System__DrawingTools/Na__LayoutEditor__DimensionTool__.js';
     import { Na__LeDimGeo__OffsetKeepingLine, Na__LeDimGeo__SpanMm, Na__LeDimGeo__HORIZONTAL, Na__LeDimGeo__VERTICAL } from '../15__Core__Markup/Na__LayoutEditor__DimensionGeometry__.js';
@@ -421,12 +429,14 @@
             if (Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) === -1) return;   // <-- Move hovers too: its cursor sharpens on a grip like Select's
             const found     = Na__LeTools__Resolve(sheet, point);
             Na__LeTools__RefreshBrokenTooltip(sheet, found, event);          // <-- A red-haloed bubble explains itself on hover
+            Na__LeNoteTip__Hover(sheet, found, point, event.clientX, event.clientY, Na__LeTools__NoteTipWanted);   // <-- ...and a sound one names its note, once the pointer has rested on it
             const grab      = Na__LeVpMove__Hover(sheet, Na__LeTools__CarryTarget(sheet, found), point);   // <-- Marks the point a press would carry the viewport by
             const inserting = Na__LeTools__RefreshShapeInsert(sheet, point, event.shiftKey);
             Na__LeTools__Stage.style.cursor = (inserting || grab) ? 'crosshair' : Na__LeTools__HoverCursor(sheet, found, point);
             return;
         }
         Na__LeHoverTip__Hide();                                              // <-- A drag in flight never shows the hover tip
+        Na__LeNoteTip__Cancel(false);                                        // <-- ...nor a bubble's note, waiting or up
         const dMm = { x : point.x - drag.startMm.x, y : point.y - drag.startMm.y };
         if (!drag.moved) {
             if (Math.hypot(dMm.x, dMm.y) < Na__LeTools__DragStartMm(drag)) return;
@@ -494,6 +504,19 @@
         if (!record || !Na__LeLeadGeo__IsBroken(record)) return;
         const shown = Na__LeLeadGeo__Lines(record)[0] || '';
         Na__LeHoverTip__Show(Na__LeCfg__FormatLabel('LeaderSpecBroken', 'Its specification note was deleted. The bubble keeps its last code, {code}.', { code : shown }), event.clientX, event.clientY);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is a Bubble's Note Label Still Wanted When Its Wait Is Over
+    // ------------------------------------------------------------
+    // Asked by Na__LayoutEditor__SheetTools__NoteTooltip__ when the pointer has
+    // rested long enough: still Select or Move, nothing being dragged, no box
+    // being drawn out. A tool picked up from the toolbar meanwhile, or a press
+    // that became a drag, says no.
+    // ------------------------------------------------------------
+    function Na__LeTools__NoteTipWanted() {
+        return !Na__LeTools__Drag && Na__LeTools__PICK_TOOLS.indexOf(Na__LeTools__Tool) !== -1 && !Na__LeSelBox__IsActive();
     }
     // ------------------------------------------------------------
 

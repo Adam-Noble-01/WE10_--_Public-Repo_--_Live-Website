@@ -14,7 +14,8 @@
 //   under the project code. On the next project load a draft that differs
 //   from what the project supplied is put back, the model is marked dirty
 //   and a toast says so. A successful save clears the draft, so a draft only
-//   ever exists while something is unsaved.
+//   ever exists while something is unsaved. Nothing reads or writes the
+//   draft until the project's sheets have arrived.
 // - AUTO SAVE. A structural change (a sheet created, renamed, reordered or
 //   deleted, or its paper or title block changed) schedules a project save
 //   a short debounce later, on localhost only (the web build is read-only).
@@ -52,12 +53,25 @@
 // - Ported from   : ValeVision3D 51__System__LayoutEditor/Na__LayoutEditor__AutoSave__.js
 // - Ported on     : 10-Sep-2026 for TrueVision3D v2.21.0 (re-alignment)
 // - Parity        : verbatim
-// - Divergences   : Console prefix, header and folder numbers only.
+// - Divergences   : Console prefix, header and folder numbers; the draft key waits for the
+//                   project's sheets (Na__DrawData__IsLoaded), TrueVision first on 22-Sep-2026.
 // - Back-port     : n/a (this IS the back-port)
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.4.0
+// - The draft is restored whichever arrives first, the drawings or the editor.
+//   The restore still runs on the model's 'loaded', and the model now
+//   announces a load that landed before it started (SheetModel 1.35.0); on
+//   RB05 the drawings always got there first, so no draft had ever come back
+//   and the first edit after a reload wrote over it.
+// - Na__LeAuto__Key answers only once the project's sheets are in
+//   (Na__DrawData__IsLoaded). The project code alone came from the address
+//   bar while the model was still the empty block, so a change announced in
+//   that gap would have written the empty block over the waiting draft - and
+//   restoring that on the load took every sheet off the model.
+//
 // 19-Sep-2026 - Version 1.3.0
 // - CLOSE GUARD. A beforeunload handler asks the browser's leave-site question
 //   while sheets are unsaved or the specification is unsynced. Content edits -
@@ -106,7 +120,7 @@
         Na__LeModel__IsDirty,
         Na__LeModel__Save
     } from './Na__LayoutEditor__SheetModel__.js';
-    import { Na__DrawData__CHANGED_EVENT, Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
+    import { Na__DrawData__CHANGED_EVENT, Na__DrawData__GetProjectCode, Na__DrawData__IsLoaded } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Specification Document (the close guard's second half)
@@ -163,9 +177,15 @@
 // REGION | Browser Draft
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Storage Key for the Open Project
+    // HELPER FUNCTION | Storage Key for the Open Project (none until its sheets are in)
+    // ------------------------------------------------------------
+    // The project code alone is not enough: it falls back to the address bar,
+    // which names the project while the model is still the empty block. A
+    // draft written in that gap would be the empty block, and restored on the
+    // load it was waiting for it would take every sheet off the model.
     // ------------------------------------------------------------
     function Na__LeAuto__Key() {
+        if (!Na__DrawData__IsLoaded()) return null;
         const code = Na__DrawData__GetProjectCode();
         return code ? Na__LeAuto__DRAFT_PREFIX + code : null;
     }

@@ -59,11 +59,38 @@
 //                   (3) MIGRATION. TrueVision arrives with drawings nested inside the
 //                       presentation block; ValeVision never had them there. The whole
 //                       Legacy Migration region below is TrueVision-only.
-// - Back-port     : no. Every divergence is a fact about TrueVision's transport or history.
+//                   (4) IS LOADED. Na__DrawData__IsLoaded, TrueVision first on 22-Sep-2026, for
+//                       the Layout Editor's late start (see the 1.5.0 log entry).
+// - Back-port     : no for (1) to (3), every one a fact about TrueVision's transport or history.
+//                   (4) goes with the sheet model's late start fix, if that is ever back-ported.
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.6.0
+// - THE DRAWINGS SAVE GUARD. The base - what the drawings block was when this
+//   session loaded or last saved it - is learned after every load (on
+//   localhost the local server's fingerprint of the file on disk, elsewhere
+//   the block's own saved stamp; GetBase, WhenBaseKnown). Save asks the local
+//   server, BEFORE R2 is written, whether the block on disk is still that
+//   one, and refuses with a toast when it is not: the sheets would have gone
+//   back to how this window had them, over whatever another window - or an
+//   agent, or a git checkout - had saved since. The local write carries the
+//   base too (Na__LocalMirror__MergeKeys options.drawingsBase), so the server
+//   refuses a save that slipped past the check, and answers the file's new
+//   fingerprint, which becomes the base. Every save now stamps the block with
+//   LayoutEditor__DrawingsData__SavedIso. RB05, 22-Sep-2026: a window that
+//   had loaded D10 before its 24 bubbles were added saved after them, and
+//   the bubbles were gone; then its browser draft put them back to gone.
+//
+// 22-Sep-2026 - Version 1.5.0
+// - Na__DrawData__IsLoaded: true once a project's block has been adopted.
+//   GetProjectCode cannot answer that - it falls back to the address bar,
+//   which names the project from the first moment - and a module that starts
+//   after the load (the Layout Editor, once its configs are in) needs to know
+//   the load it listens for has already happened. The sheet model announces
+//   such a load itself; the auto save keeps its draft out of reach until then.
+//
 // 21-Sep-2026 - Version 1.4.0
 // - Save steps: Na__DrawData__RegisterSaveStep. A feature whose records point
 //   at FILES - the pictures placed on Layout Editor sheets - registers a step
@@ -120,7 +147,7 @@
     // ------------------------------------------------------------
     // @delegate: ../03__AppUtils/Na__AppUtils__ProjectLoader.js
     // ------------------------------------------------------------
-    import { Na__AppUtils__GetProjectCodeFromUrl } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
+    import { Na__AppUtils__GetProjectCodeFromUrl, Na__AppUtils__IsRunningOnLocalhost } from '../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Cloudflare R2 API Client (the only writer)
@@ -137,7 +164,7 @@
     // ------------------------------------------------------------
     // @delegate: ../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js
     // ------------------------------------------------------------
-    import { Na__LocalMirror__MergeKeys } from '../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
+    import { Na__LocalMirror__MergeKeys, Na__LocalMirror__DrawingsFingerprint } from '../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -158,6 +185,7 @@
     const Na__DrawData__FLOOR_PLANS_KEY  = 'LayoutEditor__DrawingsData__FloorPlans';
     const Na__DrawData__ELEVATIONS_KEY   = 'LayoutEditor__DrawingsData__Elevations';
     const Na__DrawData__SHEETS_KEY       = 'LayoutEditor__DrawingsData__Sheets';
+    const Na__DrawData__SAVED_ISO_KEY    = 'LayoutEditor__DrawingsData__SavedIso';   // <-- When the block was last saved, written by the save: for people, and for the draft's question
     const Na__DrawData__PRESENTATION_KEY = 'PresentationMode__SavedCameraScenes';
     const Na__DrawData__CROSSSECTION_KEY = 'CrossSection__SceneData';
     const Na__DrawData__VERSION          = 1;
@@ -201,8 +229,30 @@
     // ------------------------------------------------------------
     let Na__DrawData__Block        = null;    // <-- Live LayoutEditor__DrawingsData object (skeleton until a project supplies one)
     let Na__DrawData__ProjectCode  = null;    // <-- Project code the block was loaded for
+    let Na__DrawData__Loaded       = false;   // <-- A project's block has been adopted (the skeleton alone is not a load)
     let Na__DrawData__Initialized  = false;
     let Na__DrawData__MigratedFrom = null;    // <-- Non-null when this session migrated; cleared by the save that lands it
+    // ------------------------------------------------------------
+
+
+    // MODULE VARIABLES | The Base: What the Drawings Were When This Session Took Them
+    // ------------------------------------------------------------
+    // The identity of the drawings block this session loaded, or last saved:
+    // on localhost the local server's fingerprint of the block on disk
+    // ('sha1:...'), on the web build the block's own saved stamp ('iso:...');
+    // null for a project that had no block; undefined until it has been
+    // asked for after a load. A save is built on it: the local server refuses
+    // one built on a block that is no longer the one on disk, and the browser
+    // draft records it so a draft grown from drawings since saved elsewhere is
+    // asked about rather than put back over them (Na__LayoutEditor__AutoSave__).
+    // Judged is true only once the fingerprint route has answered: a server
+    // without it, or one that did not answer, leaves saves unjudged as they
+    // always were rather than refused for a reason that is not theirs.
+    // ------------------------------------------------------------
+    let Na__DrawData__Base        = undefined;               // <-- 'sha1:...' | 'iso:...' | null | undefined
+    let Na__DrawData__BaseJudged  = false;                   // <-- The local server fingerprinted the block: saves say what they were built on
+    let Na__DrawData__BaseKnown   = Promise.resolve(undefined);   // <-- Settles with the base once it has been asked for after a load
+    let Na__DrawData__BaseWarned  = false;                   // <-- The route missing is said once a session
     // ------------------------------------------------------------
 
 
@@ -419,11 +469,85 @@
         }
 
         Na__DrawData__ProjectCode = projectCode || Na__DrawData__ProjectCode || null;
+        Na__DrawData__Loaded      = true;                                        // <-- Before the announcement: a listener may ask
+        Na__DrawData__Base        = undefined;                                   // <-- Not known for this load until the server answers
+        Na__DrawData__BaseJudged  = false;
+        Na__DrawData__BaseKnown   = Na__DrawData__LearnBase();
 
         window.dispatchEvent(new CustomEvent(Na__DrawData__CHANGED_EVENT, {
             detail : { reason : 'loaded', projectCode : Na__DrawData__ProjectCode }
         }));
         return Na__DrawData__Block;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Base, and a Promise of It
+    // ------------------------------------------------------------
+    // GetBase answers undefined until the base has been learned for the
+    // current load; WhenBaseKnown resolves with it once it has.
+    // ------------------------------------------------------------
+    function Na__DrawData__GetBase() { return Na__DrawData__Base; }
+    function Na__DrawData__WhenBaseKnown() { return Na__DrawData__BaseKnown; }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Learn What the Drawings Are, After a Load
+    // ------------------------------------------------------------
+    // The block's own saved stamp first, which every build has; then, on
+    // localhost, the local server's fingerprint of the file on disk, which
+    // sees a change made by anything - another window's save, an agent
+    // editing the file, a git checkout - not only one that wrote a stamp.
+    // ------------------------------------------------------------
+    async function Na__DrawData__LearnBase() {
+        const block = Na__DrawData__GetBlock();
+        const iso   = block[Na__DrawData__SAVED_ISO_KEY];
+        let   base  = (typeof iso === 'string' && iso) ? 'iso:' + iso : null;
+        let   judged = false;
+        if (Na__AppUtils__IsRunningOnLocalhost()) {
+            const answer = await Na__LocalMirror__DrawingsFingerprint();
+            if (answer.ok) { base = answer.drawings.digest || null; judged = true; }
+            else if (!answer.skipped && !Na__DrawData__BaseWarned) {
+                Na__DrawData__BaseWarned = true;
+                console.warn('[TrueVision3D] The drawings on disk could not be fingerprinted; saves from this window will not be checked against the file: ' + (answer.error || 'no answer'));
+            }
+        }
+        if (block !== Na__DrawData__GetBlock()) return Na__DrawData__Base;   // <-- Another project loaded meanwhile: its own LearnBase answers for it
+        Na__DrawData__Base       = base;
+        Na__DrawData__BaseJudged = judged;
+        return base;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Before a Save: Are the Drawings on Disk Still the Ones This Window Loaded
+    // ------------------------------------------------------------
+    // Asked BEFORE R2 is written, because R2 is written first and the local
+    // server's own refusal (409) would come too late to protect it. Answers
+    // { ok, message }: ok false is a refusal, with the words for the toast.
+    // Unjudged sessions, and a fingerprint that cannot be read right now, save
+    // as they always did - the local server still judges the write itself.
+    // ------------------------------------------------------------
+    async function Na__DrawData__CheckBase() {
+        await Na__DrawData__BaseKnown;
+        if (!Na__DrawData__BaseJudged || !Na__AppUtils__IsRunningOnLocalhost()) return { ok : true, message : null };
+        const answer = await Na__LocalMirror__DrawingsFingerprint();
+        if (!answer.ok) return { ok : true, message : null };
+        const onDisk = answer.drawings.digest || null;
+        if (onDisk === Na__DrawData__Base) return { ok : true, message : null };
+        return { ok : false, message : Na__DrawData__ConflictWords(answer.drawings) };
+    }
+    function Na__DrawData__ConflictWords(drawings) {
+        const when = (drawings && drawings.savedIso) ? Na__DrawData__ClockWords(drawings.savedIso) : null;
+        return 'Not saved: the project\'s drawings on disk are not the ones this window loaded - they were saved '
+             + (when ? 'elsewhere at ' + when : 'elsewhere, or changed on disk,') + ' since. Reload to pick them up; '
+             + 'this window\'s unsaved changes will be offered as a draft.';
+    }
+    function Na__DrawData__ClockWords(iso) {
+        const date = new Date(iso);
+        if (Number.isNaN(date.getTime())) return iso;
+        const pad = (n) => String(n).padStart(2, '0');
+        return pad(date.getHours()) + ':' + pad(date.getMinutes()) + ' on ' + pad(date.getDate()) + '/' + pad(date.getMonth() + 1);
     }
     // ------------------------------------------------------------
 
@@ -435,6 +559,18 @@
             || Na__AppUtils__GetProjectCodeFromUrl()
             || null;
     }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Has a Project's Block Been Adopted Yet
+    // ------------------------------------------------------------
+    // Not the same question as GetProjectCode, which falls back to the address
+    // bar and so names the project before its drawings are here. Until this
+    // answers true the block is the empty skeleton, whatever the code says. A
+    // module that starts after the load asks this to know that the load it
+    // listens for has already happened.
+    // ------------------------------------------------------------
+    function Na__DrawData__IsLoaded() { return Na__DrawData__Loaded; }
     // ------------------------------------------------------------
 
 
@@ -596,6 +732,19 @@
             note     : (message, isError) => { if (message) stepNotes.push({ message : String(message), error : isError === true }); }
         };
         if (report && typeof report === 'object') report.steps = stepNotes;
+
+        // THE DRAWINGS SAVE GUARD | Before anything is written, R2 included:
+        // are the drawings on disk still the ones this window loaded? A window
+        // that loaded them before another window saved would write every
+        // sheet back to how it had them, and R2 is written first, so the local
+        // server's own refusal would come too late for it.
+        const guard = await Na__DrawData__CheckBase();
+        if (!guard.ok) {
+            console.warn('[TrueVision3D] Drawings save refused: ' + guard.message);
+            toast(guard.message, true);
+            if (report && typeof report === 'object') report.conflict = true;
+            return false;
+        }
         await Na__DrawData__RunSaveSteps('before', stepContext);
 
         const sceneConfig    = Na__PresentationMode__ProjectJson__GetActiveConfig();
@@ -624,15 +773,18 @@
         try {
             if (registerKeys && registerKeys.cloud) Object.assign(payload, registerKeys.cloud);
             const cloudKeys = JSON.parse(JSON.stringify(payload));
+            const stampIso  = new Date().toISOString();
+            if (cloudKeys[Na__DrawData__BLOCK_KEY]) cloudKeys[Na__DrawData__BLOCK_KEY][Na__DrawData__SAVED_ISO_KEY] = stampIso;   // <-- When: read back by people, and by the draft's question on the next load
             Na__DrawData__ApplyPayloadGuard(cloudKeys);                              // <-- A drawing still being edited goes out as it was last updated
             stepContext.block = cloudKeys[Na__DrawData__BLOCK_KEY] || null;
             await Na__DrawData__RunSaveSteps('payload', stepContext);                // <-- The copy about to be written points at the files the before phase put in place
             const localKeys = JSON.parse(JSON.stringify(cloudKeys));                 // <-- The local copy gets exactly what R2 gets, whatever is edited during the write
+            const mirrorOptions = Na__DrawData__BaseJudged ? { drawingsBase : Na__DrawData__Base } : undefined;   // <-- What this save was built on: the local server refuses it if the disk has moved on
             // DELETION | Explicit local-first mode; a local failure never reaches R2.
             let firstLocal = null;
             if (registerKeys && registerKeys.localFirst) {
                 if (registerKeys.local) Object.assign(localKeys, registerKeys.local);
-                firstLocal = await Na__LocalMirror__MergeKeys(localKeys);
+                firstLocal = await Na__LocalMirror__MergeKeys(localKeys, mirrorOptions);
                 if (report) { report.local = firstLocal; report.localKeys = localKeys; report.localFirstWritten = !!firstLocal.ok; }
                 if (!firstLocal.ok) { toast('Drawing deletion was not saved locally: ' + (firstLocal.error || 'Local server unavailable.'), true); return false; }
             }
@@ -644,6 +796,8 @@
             }
 
             if (report) report.cloudSaved = true;
+            Na__DrawData__GetBlock()[Na__DrawData__SAVED_ISO_KEY] = stampIso;      // <-- The live block now says when it was saved, as the copies do
+            if (!Na__DrawData__BaseJudged) Na__DrawData__Base = 'iso:' + stampIso;  // <-- Unjudged (the web build): the stamp is the drawings' identity from here
 
             if (wasMigration) {
                 Na__DrawData__MigratedFrom = null;                                   // <-- Landed; later saves are ordinary
@@ -660,8 +814,10 @@
             // confirmation, and any other caller is shown it here as an error.
             if (registerKeys && registerKeys.local) Object.assign(localKeys, registerKeys.local);
             if (report && typeof report === 'object') report.localKeys = localKeys;
-            const local = firstLocal || await Na__LocalMirror__MergeKeys(localKeys);
-            if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Drawings saved to R2; the local copy was not written:', local.error);
+            const local = firstLocal || await Na__LocalMirror__MergeKeys(localKeys, mirrorOptions);
+            if (local.ok && local.drawings) { Na__DrawData__Base = local.drawings.digest || null; Na__DrawData__BaseJudged = true; }   // <-- The file's new identity: the next save is built on this one
+            if (local.conflict) console.warn('[TrueVision3D] Drawings saved to R2, but the local server refused the copy: the drawings on disk were saved elsewhere since this window loaded them. Reload before saving again.');
+            else if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Drawings saved to R2; the local copy was not written:', local.error);
             if (report && typeof report === 'object') report.local = local;
             else if (!local.ok && !local.skipped) toast(`Drawings saved to R2, but the local copy was not written: ${local.error}`, true);
             stepContext.local = local;
@@ -799,6 +955,9 @@
         Na__DrawData__GetBlock,
         Na__DrawData__Load,
         Na__DrawData__GetProjectCode,
+        Na__DrawData__IsLoaded,
+        Na__DrawData__GetBase,
+        Na__DrawData__WhenBaseKnown,
         Na__DrawData__GetFloorPlansArray,
         Na__DrawData__GetElevationsArray,
         Na__DrawData__GetSheetsArray,

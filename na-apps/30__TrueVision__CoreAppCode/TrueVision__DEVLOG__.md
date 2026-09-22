@@ -2,6 +2,253 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.145.0  -  22-Sep-2026
+### The Browser Draft of Unsaved Sheets Comes Back After a Reload, Whichever Gets There First - the Drawings or the Editor
+
+**Overview**
+- From Adam, on RB05 WestFarm served locally: `Na__LayoutEditor__Draft__RB05` held sheets the server copy did not, and
+  on two reloads the changes did not come back - the model held the server's sheets, with no "unsaved sheet draft
+  restored" console line and no toast. The console had "Drawings data loaded" long before "Layout Editor ready".
+- THE CAUSE, confirmed in the app and in a new Node suite. The draft is restored on the sheet model's 'loaded'
+  announcement, and the model only announced a load it had HEARD. The mode controller starts the model and the auto
+  save once eleven configs are in; the drawings get there first (RB05 this morning: drawings at 2.0-2.4 s, the editor
+  0.2-0.3 s later, on every load). So the model began listening after the only load there was, never announced it,
+  and nothing restored the draft. Worse, the first edit after the reload wrote the server's sheets plus that edit over
+  the draft: seen in the app, one more edit and the unsaved text was gone from it for good.
+- Found on the way, in the Node suite against the old code, for the other order (the editor first, which a project
+  switch or a slow bucket gives):
+  - the model heard every load TWICE, once on the raw load event and once on the change event the drawings data
+    raises after adopting the block. The second hearing cleared the dirty flag the restore had just set, so restored
+    work showed as saved, with no close guard, and the common fields were seeded twice;
+  - a change announced before the sheets arrived wrote a draft of the EMPTY block over the waiting one (the draft key
+    came from the address bar, which names the project from the first moment), and restoring that on the load took
+    every sheet off the model. Nothing in the app announces a change that early today; it is closed anyway.
+
+**How it works**
+- THE DRAWINGS DATA says whether a project's block is in: `Na__DrawData__IsLoaded()`, set as the block is adopted and
+  before the change event goes out. `GetProjectCode` could not answer it: it falls back to the address bar.
+- THE SHEET MODEL listens on the change event only ('loaded' and 'saved'), and Initialize announces a load that landed
+  before it - on a microtask, so the mode controller finishes the same start-up pass and every listener it attaches
+  after the model hears it: the history (clears an empty stack), the auto save (the draft restore), the specification
+  links (they stamp nothing until the specification is read), the tabs and panels (they redraw only while the editor
+  is open), the floor area schedules and the parametric links (they refresh the active sheet, and at start-up there is
+  none). A load heard in between is not announced twice.
+- THE AUTO SAVE has no draft key until the project's sheets are in, so nothing reads or writes a draft against the
+  empty block.
+- The common fields seed now runs on the first load, as it always did when the editor won the race. RB05's pack
+  already agrees with itself: a plain load stayed clean.
+
+**What changed**
+- `40__System__DrawingViewCore/Na__DrawView__ProjectData__` 1.5.0: `Na__DrawData__IsLoaded`.
+- `07__Core__SheetData/Na__LayoutEditor__SheetModel__` 1.35.0: the change event only; the late start announcement.
+  It no longer imports `Na__DrawData__LOADED_EVENT`.
+- `07__Core__SheetData/Na__LayoutEditor__AutoSave__` 1.4.0: `Na__LeAuto__Key` waits for `Na__DrawData__IsLoaded`.
+- Service worker 1.9.34, token `2026-09-22-8`: the model and the auto save import a name no warm copy exports.
+- NEW `80__Testing__PrototypeEnvironment/Na__Test__DraftRestore__.test.mjs` 1.0.0.
+- `.claude/launch.json`: `tv-draftrestore-server` (the ProjectVision local server on 9111) and `tv-draftrestore-guard`
+  (a read-only proxy on 9112, kept in the session's scratchpad: GET, HEAD and POST to /r2/read and /r2/list only, and
+  a fetch, XHR and sendBeacon guard injected as the first thing in every page's head).
+
+**How it was proved**
+- `Na__Test__DraftRestore__.test.mjs`, 27 checks, on the shipped drawings data, State and Sheets units, sheet model
+  and auto save, wired as the app wires them over one event bus and one localStorage (the State unit's import is kept
+  as a real import, so the dirty flag stays live): both orders, no draft, a draft the project matches, an editor with
+  no project, a change before the sheets arrive, the first edit after a restore, a save, a second load before the late
+  announcement. Against the code before the fix, 18 of the 27 failed - every failure described above.
+- `Na__Verify__Exports__.mjs` passes (500 files); `Na__Verify__ModuleGraph__.mjs` walks 591 modules with the two
+  unresolved specifiers it already reported (neither file touched since 20-Sep). The whole Node suite: 48 of 49 pass;
+  StatementRoundTrip's headings fail as they do on main.
+- In the app, RB05 served from the live repo through the guard proxy, in the built-in browser. The guard was up before
+  the app's first script, Save Sheets was never pressed, and nothing was refused because no write was ever attempted.
+  The test change was one text item on D01 (Sheet_005), made through the sheet model:
+  - BEFORE: the draft was written 600 ms after the edit; the reload showed the server's 12 text items, the model
+    clean, the draft still there with the test text; one more edit and the draft held the server copy plus that edit.
+  - AFTER: a plain load with no draft - 'loaded' announced once, right after "Layout Editor ready", the model clean
+    4 s later. With the draft - the toast over the loading screen, the console line, D01 back to 13 text items, the
+    model dirty, the draft intact; one more edit and the draft held both. The new service worker took over and
+    reloaded the page once, as a token bump should. The test drafts were then removed from that browser.
+
+**NOT done, and worth knowing**
+- A STALE DRAFT STILL WINS, and now does every time rather than only when the editor won the race. A draft lives in one
+  browser and only a save from THAT browser clears it, so a draft older than a save made elsewhere (another browser,
+  the other PC, a skill's throwaway browser) is put back over it, and Save Sheets would then write it. The fix worth
+  having next: keep the fingerprint of the sheets a draft was started from, and restore only while the project still
+  matches it - otherwise ask. The TrueVision skills already clear drafts before a fresh load (their rule 3).
+- Adam's own RB05 draft: whatever is in his browser now comes back on his next reload, with the toast. If an edit was
+  made after one of the reloads before this fix, the draft holds the server copy plus that edit, not the older work.
+- The PWA registrar holds its update reload while the restored work is unsaved, as it does for any unsaved work.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.144.0  -  22-Sep-2026
+### A Specification Note Is Reworded Beside the Drawing, Spell-Checked With the Practice's Own Dictionary - and a Bubble Names Its Note and Shows Where It Is
+
+**Overview**
+- From Adam, with a screenshot of the drawing editor's left-column Specification tab ("NOT! The dedicated spec tab"):
+  right-click a row, "Edit spec item", the text becomes editable, "hit enter, then it update the local version of the
+  spec (Pressing Save Sheets should also sync the spec to the cloud R2)" - by "a safe and reliable method" using "the
+  already established local and r2 systems". The boxes to have spell check and "an app dictionary for user words":
+  product names and brands "always get flagged as incorrect spelling, so make a user spellings json in my style in the
+  user config folder at the root level". Why: "it takes a long time traversing all of the multiple tabs to edit one
+  small tweak".
+- And: a tooltip on a bubble naming its note after a moment's hover - zoomed in, the notes margin is off the screen and
+  EW01 is four letters in a circle. Then, while it was being built: the bubble's right-click menu to find its note in
+  the side column, scroll to it and ring it with a halo that pulses "a couple of times" - "hey im the spec for that
+  bubble and the info is here!".
+
+**How it is used**
+- EDIT A NOTE WHERE IT IS LISTED. Right-click a row of the drawing editor's Specification tab: **Edit spec item** (its
+  code as the hint; greyed, "read-only", when the sheets cannot be edited) or **Open in Project Specification**. F2 on
+  a row edits it too. The row becomes the note's title and text, the caret in the word that was right-clicked.
+  **Enter** saves, **Shift+Enter** is a new line, **Esc** puts the row back. Clicking away saves as well; a window that
+  merely loses the focus (another program brought forward to look up a product) leaves the edit open. The toast:
+  "EW01 saved to the local specification file. Save Sheets sends it to the cloud." - and Save Sheets lights up.
+- SPELL CHECK. Both boxes are checked by the browser's own spell check, in British English, and the practice's
+  dictionary's words are passed by. Under them, **Add "word" to Dictionary** for the word at the caret, and **Remove**
+  for a word the app added.
+- HOVER A BUBBLE for half a second with Select or Move and a label beside the pointer names its note:
+  **EW01** Loggia Arcade.
+- RIGHT-CLICK A BUBBLE: its menu now leads with **Show in Specification** (its code as the hint). The left column's
+  Specification tab comes up, a filter hiding the note is cleared, and the note's row is scrolled to the middle of the
+  column and pulses a blue halo three times.
+
+**How it works**
+- THE SAVE IS THE SPECIFICATION'S OWN (`ScrapbookSpecification__RowEditor__` 1.0.0, new). What was typed goes through
+  `Na__LeSpec__UpdateNote`, the call the Project Specification tab commits with: one undo step there, the change
+  announced so every sheet's notes margin follows. Only a field that was changed is sent, so a field left alone never
+  overwrites a change made to it meanwhile. Then, at once, the browser draft is written (`FlushDraft`) and the local
+  file is written and READ BACK (`Na__LeSpec__WriteLocalCopy`): `TrueVision__DrawingNotes__.json` through the local
+  server's existing project-file route, fetched again and compared before the toast says it is in the file. A
+  refusal (sheets not editable, specification not loaded or read-only, the note gone) keeps the editor open with the
+  text in it and says why. Away from the local server the toast says "saved in this browser" instead.
+- R2 IS LEFT TO SAVE SHEETS, which already syncs a changed specification and lights up while one waits.
+  WriteLocalCopy touches no cloud bookkeeping, so the specification stays unsynced until Save Sheets sends it. If the
+  tab is closed first, the next session finds the local file newer than the cloud copy, adopts it as local-ahead -
+  still unsynced - and Save Sheets sends it then.
+- ONE QUEUE FOR THE LOCAL FILE (`SpecData__Transport__` 1.2.0). The seed on load, Sync's copy and WriteLocalCopy wait
+  their turn in one queue (`InTurn`), so two writes in flight can never land out of order. `FileCopy` builds the
+  stamped copy (UpdatedIso, LastIdNumber) both Sync and WriteLocalCopy write; the live document is never stamped.
+- EVERY JSON THE LOCAL SERVER WRITES IS NOW ATOMIC. `_write_json_file` builds the whole text, writes a temporary file
+  beside the target and moves it over (`os.replace`), falling back to the old in-place write where Windows refuses the
+  move (a file held open). A crash, or an object that will not serialise, now leaves the previous file whole rather
+  than a truncated one. The bytes are the same as before (4-space JSON, LF, a final newline): the RB05 test edit's git
+  diff was exactly its three changed lines. A leftover `*.tmp` is ignored by git.
+- THE ROWS WAIT WHILE ONE IS OPEN. The tab does not rebuild its rows while a row is being edited, so a bubble placed or
+  a count moving never takes the editor away; they catch up when it closes, and the row is kept in view.
+- SPELL CHECK IS A FEATURE OF ITS OWN (`55__Feature__SpellCheck`, new; its README says how to give any text box it). A
+  page cannot teach the browser a word, but Chromium does not mark a word inside `spellcheck="false"`, so the box wraps
+  each dictionary word in such a span and redraws only when those words change, putting the caret back. It keeps its
+  own undo (a redraw clears the browser's), takes a paste as plain text, and hands Enter and Escape to its owner and
+  no further.
+- THE DICTIONARY IS THE PRACTICE'S: `50__TrueVision__UserConfig/TrueVision__UserSpellings__.json`, a new folder at the
+  app root. 339 entries in six groups, in the house style - manufacturers and brands (240), product names, stone and
+  quarry names, construction terms (rooflight, cill, monocouche, weatherboarding), abbreviations (uPVC, GFFL, DPC) and
+  the practice's software - and `AddedInTheApp`, the only group the app writes. Matched in any case, with 's and a
+  plural s or es; an entry of several words (Farrow & Ball) accepts each of them. Add and Remove go through a new
+  blueprint, `ProjectVision__TrueVisionUserConfig__Api__.py`: the file read fresh for every change, written atomically
+  and byte for byte in its house style, and a word refused unless it is one word by the rule the app reads text with.
+  A file a hand edit broke is never written over: both routes answer `unreadable` with the line and column, and the
+  word bar's Add says so rather than asking for a restart. A byte order mark is read past.
+- THE BUBBLE'S NOTE, WITHOUT THE SHEET TOOLS KNOWING THE SPECIFICATION. `LeaderGeometry__` 1.3.0 gains a note resolver
+  beside its broken-bubble one: `SpecLinks__` 1.2.0 registers `NoteOf` (a linked bubble, or an unlinked one reading a
+  note's code) and `NoteFor(leader)` answers `{ noteId, code, title, linked, locate }`. The sheet tools ask it and
+  still import nothing of the specification.
+- THE LABEL (`SheetTools__NoteTooltip__` 1.0.0, new). The circle only - never the tail or the tip, which lie over the
+  drawing. After `NoteTooltipMs` (500 ms, the Leader config), and at once when moving from one bubble straight onto the
+  next. A bubble inside a group is found through the group; one on a locked layer still names its note (reading is not
+  editing); one on a reference layer does not (nothing there answers a hover). Off on a press, a wheel, a key, a drag,
+  the pointer leaving the sheet or the window losing the focus. The shared hover tooltip (1.1.0) takes a bold lead -
+  the code - and flips to stay inside the window.
+- SHOW IN SPECIFICATION (`SheetTools__ContextMenu__` 1.6.0) leads a bubble's menu, and the menu of a group or of
+  several items when a bubble is the thing under the pointer. It raises `Na__LeSpec__LOCATE_EVENT`, and the tab's
+  `Locate` answers: the tab up, its section open, the specification loaded if it was not, a filter hiding the note
+  cleared, the row - or its open editor - scrolled smoothly to the middle and ringed three times (0.9 s each). The
+  halo comes off when the animation ends, or after 3.2 s whatever happens.
+- NO prefers-reduced-motion BRANCH ON THE HALO. The first build had one, and the test pane reported reduce: the studio
+  PC's Windows Animation effects are off, so the pulses asked for would have been a still wash on the machine they were
+  asked for. `Na__UiFeature__Styles__AppHeader__.css` ("Why There Is No prefers-reduced-motion Branch Here") gives the
+  reasoning, and the stylesheet cites it.
+
+**What changed**
+- NEW `58__Feature__ScrapbookSpecification/Na__LayoutEditor__ScrapbookSpecification__RowEditor__.js` 1.0.0.
+- `Panel__ScrapbookSpecification__` 1.1.0 (the row menu, F2, Edit, Locate and its halo, the rows held while a row is
+  open); `ScrapbookSpecification__Config__.json` 1.1.0 (the menu, editor, toast and locate labels);
+  `Styles__ScrapbookSpecification__.css` 1.1.0 (the editor, the halo), now in the service worker's precache list.
+- `SpecData__State__` 1.1.0 (`LOCATE_EVENT`), `SpecData__Transport__` 1.2.0 (`InTurn`, `FileCopy`, `WriteLocalCopy`),
+  `SpecData__` 1.4.0 (exports both).
+- `LeaderGeometry__` 1.3.0 (`SetNoteResolver`, `NoteFor`), `SpecLinks__` 1.2.0 (`NoteOf`, registered).
+- NEW `30__System__SheetTools/Na__LayoutEditor__SheetTools__NoteTooltip__.js` 1.0.0; `SheetTools__HoverTooltip__` 1.1.0;
+  `SheetTools__PointerDrag__` 1.18.0 (the hover and the drag hand to it); `SheetTools__` 1.38.0 (attach, detach);
+  `SheetTools__ContextMenu__` 1.6.0; `Styles__Main__Paper__.css` (`.na-le-hovertip__lead`).
+- Config (`Na__LayoutEditor__AppConfig__.json`): Leader `NoteTooltip` true, `NoteTooltipMs` 500 and `NoteTooltipNote`;
+  Labels `MenuShowInSpecification` and `LeaderNoteUntitled`. `ConfigState__ToolSetup__` 1.5.0 reads them (0-5000 ms).
+- NEW `55__Feature__SpellCheck/` (Config, Dictionary, Field, WordBar, the one door `Na__SpellCheck__.js`, Styles and
+  `README__SpellCheck__.md`); its stylesheet imported by `Na__CoreUi__Styles__Index__.css`.
+- NEW `50__TrueVision__UserConfig/TrueVision__UserSpellings__.json`.
+- Server: NEW `na-apps/ProjectVision__TrueVisionUserConfig__Api__.py` (GET and POST
+  `/api/truevision/user-config/spellings`, `write_text_atomic`); `ProjectVision__LocalServer__Main__.py` registers it
+  and writes every JSON through `write_text_atomic`. **Restart the local server** to load the route.
+- Service worker 1.9.33, token `2026-09-22-7` (main was at `-4`): several modules import names no warm copy exports.
+  Not `-5`: a session branched from main now bumps `-4` to `-5`, and two releases on one token merge without a conflict
+  and evict nothing.
+
+**How it was proved**
+- New suites, on the shipped modules:
+  - `Na__Test__SpecInlineEdit__.test.mjs`, 32 checks: the real specification units wired together over a stubbed local
+    server and bucket - one undo step, the local file written and read back, a refused or failed local write reported,
+    writes landing in order, the cloud untouched until Sync, a fresh session adopting the newer local file and syncing
+    it; the row editor's rules (only fields typed into, tidying, refusals).
+  - `Na__Test__BubbleNoteTooltip__.test.mjs`, 33 checks: the resolver, the label's wait and every way it comes down,
+    locked and reference layers, groups, and Show in Specification in the bubble, group and multi-selection menus.
+  - `Na__Test__SpellCheckDictionary__.test.mjs`, 40 checks: the word rule and that it is the Python server's,
+    candidate for candidate; matching; the stretches a box marks; Add and Remove; the read-only, restart and broken-file
+    states, and the word bar's answer in each.
+  - `Na__Test__UserSpellingsApi__.test.py`, 49 checks: the shipped file (round-trips byte for byte, every entry
+    readable, nothing listed twice), the routes on a copy, the refusals, a broken, a non-UTF-8 and a BOM file, the
+    atomic write, and the shipped file never written.
+  - `Na__Test__SpellCheckField__.html`, 26 checks in Chromium, typing letter by letter through the browser's own
+    insertText: the marks, the caret after every redraw, Backspace, undo and redo, Shift+Enter, Enter and Escape kept
+    from the page, pastes.
+- `Na__Verify__Exports__.mjs` passes (494 files); `Na__Verify__ModuleGraph__.mjs` walks 585 modules with the two
+  unresolved specifiers it already reported. The whole Node suite: 40 of 46 pass; the other six fail exactly as they
+  do on main, none of them near this change (GroupMoveSnapping's missing `Na__LeVpRot__Bounds` stub, SitePlanComposites'
+  SketchUp path on another machine, ViewportRotation against Node 22's read-only `navigator`, the SheetsNormaliseOnce
+  and VectorQuality mutation harnesses, StatementRoundTrip's headings).
+- In the app on RB05, served from a worktree, with a fetch guard refusing every write but the local specification file
+  and the dictionary route (the app attempted no cloud write):
+  - D01's Specification tab: a real right-click on "arched" in EW01 (Loggia Arcade) and Edit spec item opened the editor
+    with the caret at "ar|ched". " Crittall steel test." typed key by key - Crittall marked for the checker to pass by -
+    then Enter: the toast, the row updated, Save Sheets lit, and the worktree's `TrueVision__DrawingNotes__.json` diff
+    exactly three lines (the note's text, its stamp, the file's stamp). One undo put the note back.
+  - The title: " Zenitherm" typed and Add to Dictionary pressed - the file's `AddedInTheApp` held it, the word was
+    marked, the focus stayed in the box; Remove took it out; Escape closed the editor, the title unchanged, nothing
+    written.
+  - D04: the pointer resting on EW01's bubble showed "EW01 Loggia Arcade". With the left column on Document
+    Preferences, Show in Specification brought the tab up with the EW01 row centred (row and column centres both at
+    418 px) and ringed.
+  - Found on the way and fixed: the halo's reduced-motion branch (above); the word bar waited for an animation frame to
+    follow the caret, so in a window the browser was not drawing it stopped following - a timer now; a literal NUL
+    byte in the hover tooltip's source, which made git treat the file as binary, and two literal control characters in
+    a test.
+
+**NOT done, and worth knowing**
+- Save Sheets' R2 sync was NOT pressed in the app: it would have sent the test edit to the live bucket. It is the path
+  Save Sheets has always taken for a changed specification, and the suite drives it against a stubbed bucket.
+- The in-app test browser has no spell checker at all, so a dictionary word going un-underlined was not SEEN. The
+  markup is right and Chromium's own test says it is honoured; worth a look in Edge ("Kingspan Kingspam" in a note).
+- The word bar offers Add for the word at the caret whatever it is: a page cannot see which words the browser
+  underlined.
+- Only the row editor's boxes use the dictionary; the Project Specification tab's own editors are unchanged.
+- The hover label and Show in Specification belong to the editor: the read-only web viewer attaches no sheet tools.
+- Unchanged: `ReloadFromLocal` takes the local file as the synced baseline, so a local file behind the cloud would not
+  show as unsynced after it.
+- Written on a worktree from b716a9a and merged onto main at c52a827 (v2.141.0 to v2.143.0). Six files met
+  main's changes - the AppConfig labels, the SheetTools and PointerDrag dev logs, the service worker's log and
+  token, the paper stylesheet and this log - and each was a join, not a clash of code. Since v2.141.0 a leader can
+  be grouped: a bubble inside a group is found through the group, as the label and the menu were built to.
+- NOT tried by Adam; NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.143.0  -  22-Sep-2026
 ### Overspill Note Regions: Boxes Drawn Anywhere on a Sheet That Hold the Notes the Margin Cannot
 

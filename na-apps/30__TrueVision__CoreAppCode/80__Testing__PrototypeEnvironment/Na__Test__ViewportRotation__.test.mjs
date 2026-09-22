@@ -37,6 +37,11 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.0.1
+// - Node 21 and later give globalThis a navigator of their own, a getter
+//   that throws when a module assigns to it, so the file stopped at the
+//   jsPDF load on Node 22. One is now defined only where there is none.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Written with rotatable viewports (TrueVision3D v2.138.0).
 //
@@ -296,7 +301,10 @@ import { createRequire } from 'node:module';
     // must hold exactly one extra graphics state, balanced, with the turn in it
     // before the frame's rectangle.
     let jsPDF = null;
-    globalThis.navigator = globalThis.navigator || { userAgent : 'node' };        // <-- The UMD build asks after it at load
+    // The UMD build asks after navigator at load. Node 21 and later have one of
+    // their own - a getter, which throws when a module assigns to it - so one is
+    // only defined where there is none.
+    if (!globalThis.navigator) Object.defineProperty(globalThis, 'navigator', { value : { userAgent : 'node' }, configurable : true, writable : true });
     globalThis.window.atob = globalThis.window.atob || atob;                      // <-- And binds these off the window
     globalThis.window.btoa = globalThis.window.btoa || btoa;
     try {

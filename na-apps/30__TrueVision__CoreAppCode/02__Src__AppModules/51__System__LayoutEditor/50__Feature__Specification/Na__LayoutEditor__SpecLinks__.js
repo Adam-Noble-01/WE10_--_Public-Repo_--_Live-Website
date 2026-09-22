@@ -47,6 +47,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - NoteOf, registered as the leader geometry's note resolver: the note a
+//   bubble stands for - linked to it, or unlinked and reading its code - with
+//   its id, code and title, and locate(), which raises LOCATE_EVENT for it. A
+//   bubble's hover tooltip on the sheet names it, and the bubble's right-click
+//   menu shows it in the drawing's Specification tab.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - Registers the leader geometry's broken-link resolver alongside the code
 //   resolver, so a bubble linked to a deleted note can be asked about by
@@ -74,13 +81,14 @@
     } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import {
         Na__LeSpec__CHANGED_EVENT,
+        Na__LeSpec__LOCATE_EVENT,
         Na__LeSpec__IsLoaded,
         Na__LeSpec__GetNoteEntry,
         Na__LeSpec__CodeFor,
         Na__LeSpec__FindByCode,
         Na__LeSpec__NormaliseCode
     } from './Na__LayoutEditor__SpecData__.js';
-    import { Na__LeLeadGeo__TYPE_BUBBLE, Na__LeLeadGeo__Lines, Na__LeLeadGeo__SetCodeResolver, Na__LeLeadGeo__SetBrokenResolver } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
+    import { Na__LeLeadGeo__TYPE_BUBBLE, Na__LeLeadGeo__Lines, Na__LeLeadGeo__SetCodeResolver, Na__LeLeadGeo__SetBrokenResolver, Na__LeLeadGeo__SetNoteResolver } from '../15__Core__Markup/Na__LayoutEditor__LeaderGeometry__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -143,6 +151,32 @@
         const entry = Na__LeSpec__FindByCode(shown);
         if (entry) return { state : 'matches', entry : entry, code : entry.code, shown : shown };
         return { state : Na__LeSpec__NormaliseCode(shown) ? 'unknown' : 'unlinked', entry : null, code : null, shown : shown };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Note a Bubble Stands For: { noteId, code, title, linked, locate } or null
+    // ------------------------------------------------------------
+    // A bubble linked to a note that exists, or an unlinked one that reads a
+    // note's code (linked false): the two states that count as a use of the
+    // note on the Project Specification tab. A broken link, a code no note has
+    // and a specification not yet loaded all answer null. Registered with the
+    // leader geometry as its note resolver (Na__LeLeadGeo__NoteFor).
+    // locate() raises LOCATE_EVENT for the note - the drawing's Specification
+    // tab answers it - so the sheet's menu can offer Show in Specification
+    // without importing the specification to learn the event's name.
+    // ------------------------------------------------------------
+    function Na__LeSpecLink__NoteOf(leader) {
+        const info = Na__LeSpecLink__Describe(leader);
+        if ((info.state !== 'linked' && info.state !== 'matches') || !info.entry) return null;
+        const noteId = info.entry.note.Note__Id;
+        return {
+            noteId : noteId,
+            code   : info.code,
+            title  : info.entry.note.Note__Title || '',
+            linked : info.state === 'linked',
+            locate : () => window.dispatchEvent(new CustomEvent(Na__LeSpec__LOCATE_EVENT, { detail : { noteId : noteId, leaderId : leader.Leader__Id } }))
+        };
     }
     // ------------------------------------------------------------
 
@@ -320,6 +354,7 @@
         Na__LeSpecLink__Ready = true;
         Na__LeLeadGeo__SetCodeResolver((leader) => (Na__LeSpec__IsLoaded() ? Na__LeSpec__CodeFor(leader.Leader__SpecNoteId) : null));
         Na__LeLeadGeo__SetBrokenResolver((leader) => Na__LeSpec__IsLoaded() && typeof leader.Leader__SpecNoteId === 'string' && !Na__LeSpec__GetNoteEntry(leader.Leader__SpecNoteId));
+        Na__LeLeadGeo__SetNoteResolver(Na__LeSpecLink__NoteOf);             // <-- The bubble's hover tooltip and its Show in Specification row ask this
         window.addEventListener(Na__LeSpec__CHANGED_EVENT, (event) => {
             const detail = event.detail || {};
             if (detail.codesChanged) Na__LeSpecLink__Propagate();
@@ -346,6 +381,7 @@
         Na__LeSpecLink__IsBubble,
         Na__LeSpecLink__NoteIdOf,
         Na__LeSpecLink__Describe,
+        Na__LeSpecLink__NoteOf,
         Na__LeSpecLink__PatchForText,
         Na__LeSpecLink__StartFor,
         Na__LeSpecLink__Link,

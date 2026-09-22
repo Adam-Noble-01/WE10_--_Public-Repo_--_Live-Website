@@ -19,6 +19,15 @@
 # - Opens a chromeless application window on startup
 # - Supports hot-reloading in debug mode
 # - Provides health-check, project-data and drawing-notes API endpoints
+# - Writes every JSON file atomically (a temporary file moved over the old
+#   one), so a crash mid-save can never leave a project file half written
+# - Registers the TrueVision user config routes (the spelling dictionary in
+#   30__TrueVision__CoreAppCode/50__TrueVision__UserConfig)
+# - Keeps the last copies of every project JSON it overwrites, outside the
+#   repository (see PROJECT_BACKUP_ROOT), and refuses a drawings save from a
+#   window that loaded an older copy of the drawings than the one on disk
+#   (the X-TrueVision-Drawings-Base header against the block's fingerprint),
+#   so two windows can never overwrite each other's sheets unseen
 #
 # USAGE:
 #   python ProjectVision__LocalServer__Main__.py
@@ -47,7 +56,9 @@ import argparse
 import traceback
 import shutil
 import subprocess
+import hashlib
 
+from datetime import datetime, timezone
 from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -56,6 +67,7 @@ from ProjectVision__ProjectManager__Api__ import project_manager_api   # <-- Mul
 from ProjectVision__TrueVisionScrapbook__Api__ import truevision_scrapbook_api   # <-- TrueVision Layout Editor Custom Scrapbook files
 from ProjectVision__TrueVisionStatements__Api__ import truevision_statements_api   # <-- TrueVision Layout Editor Statement Writer files
 from ProjectVision__TrueVisionSheetImages__Api__ import truevision_sheet_images_api   # <-- TrueVision Layout Editor pictures, filed by document id
+from ProjectVision__TrueVisionUserConfig__Api__ import truevision_user_config_api, write_text_atomic   # <-- TrueVision user config: the spelling dictionary; and the atomic write every JSON save uses
 
 try:
     from flask import Flask, send_from_directory, jsonify, abort, request
@@ -91,6 +103,31 @@ TRUEVISION_SIBLING_FILES  = frozenset({
     'TrueVision__DrawingNotes__.json',
     'TrueVision__StatementDocs__.json',                          # <-- The Statement Writer's index of the project's written documents
 })
+
+# PROJECT FILE BACKUPS | The copy about to be overwritten is kept first
+# -----------------------------------------------------------------------------
+# Outside the repository and outside every project folder: the repository is
+# public, and the R2 sync uploads a project folder whole, so a copy kept in
+# either would be published. TRUEVISION_PROJECT_BACKUP_ROOT in the environment
+# moves the folder; the banner prints where it is.
+PROJECT_BACKUP_ROOT      = os.environ.get('TRUEVISION_PROJECT_BACKUP_ROOT') or os.path.join(
+    os.environ.get('LOCALAPPDATA') or os.path.expanduser('~'), 'NobleArchitecture', 'TrueVision', 'ProjectDataBackups')
+PROJECT_BACKUP_KEEP      = 30                                        # <-- Copies kept per file; the oldest goes as a new one is made
+PROJECT_BACKUP_STAMP     = '%Y%m%d-%H%M%S-%f'                        # <-- Sorts by name into time order
+
+# DRAWINGS SAVE GUARD | A save must be built on the drawings as they are on disk
+# -----------------------------------------------------------------------------
+# The Layout Editor writes the drawings block whole (every sheet), so a window
+# that loaded the block, then saved after another window had, would put the
+# other window's sheets back to how they were. The app learns the block's
+# fingerprint when it loads (GET .../drawings-fingerprint), sends it back with
+# every save, and the write is refused (409) when the block on disk has since
+# become something else - whoever changed it: another window, an agent editing
+# the file, a git checkout. A save that carries no header is not checked:
+# other writers merge other keys and leave the block as they found it.
+DRAWINGS_BLOCK_KEY       = 'LayoutEditor__DrawingsData'
+DRAWINGS_SAVED_ISO_KEY   = 'LayoutEditor__DrawingsData__SavedIso'    # <-- Written by the app on each save: when, for people
+DRAWINGS_BASE_HEADER     = 'X-TrueVision-Drawings-Base'              # <-- The fingerprint the app loaded, or "none"
 
 # SUB-APPLICATION ENTRYPOINTS | Shared with the Project Admin dev server
 SUB_APP_PATHS            = dev_launcher.SUB_APP_PATHS
@@ -188,7 +225,7 @@ CORS(app, resources={
     r"/*": {
         "origins"        : "*",
         "methods"        : ["GET", "POST", "OPTIONS"],
-        "allow_headers"  : ["Content-Type"]
+        "allow_headers"  : ["Content-Type", DRAWINGS_BASE_HEADER]
     }
 })
 
@@ -196,6 +233,7 @@ app.register_blueprint(project_manager_api)                      # <-- /api/mana
 app.register_blueprint(truevision_scrapbook_api)                 # <-- /api/truevision/scrapbook... Custom Scrapbook items
 app.register_blueprint(truevision_statements_api)                # <-- /api/truevision/statements... Statement Writer documents
 app.register_blueprint(truevision_sheet_images_api)              # <-- /api/truevision/sheet-images... Layout Editor pictures (05__Layout__DrawingDocs__Images)
+app.register_blueprint(truevision_user_config_api)               # <-- /api/truevision/user-config/spellings... the spelling dictionary (50__TrueVision__UserConfig)
 
 # endregion -------------------------------------------------------------------
 
@@ -335,12 +373,113 @@ def _resolve_project_data_path(project_code):
 
 
 def _write_json_file(file_path, payload):
-    """Write a JSON object to disk with project-standard formatting."""
+    """
+    Write a JSON object to disk with project-standard formatting. The text is
+    built in full first and written atomically (a temporary file moved over
+    the old one), so a save that fails part way - a crash, a full disk, an
+    object that will not serialise - leaves the previous file whole rather
+    than a truncated one the app then cannot read.
+    """
     directory = os.path.dirname(file_path)
     os.makedirs(directory, exist_ok=True)
-    with open(file_path, 'w', encoding='utf-8', newline='\n') as file_handle:
-        json.dump(payload, file_handle, indent=4, ensure_ascii=False)
-        file_handle.write('\n')
+    text = json.dumps(payload, indent=4, ensure_ascii=False) + '\n'
+    write_text_atomic(file_path, text)
+
+
+def _read_json_file(file_path):
+    """The JSON object on disk, or None when the file is missing or unreadable."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file_handle:
+            document = json.load(file_handle)
+        return document if isinstance(document, dict) else None
+    except (OSError, ValueError):
+        return None
+
+
+def _drawings_fingerprint(document):
+    """
+    What the drawings block of a project document is, as { savedIso, digest }.
+    digest is 'sha1:' and the SHA-1 of the block's canonical JSON (keys sorted,
+    no spaces), so two files holding the same drawings fingerprint the same
+    however they were formatted, and a block changed by anything at all - a
+    save from another window, an agent's edit on disk, a git checkout - does
+    not. Both are None when the document has no block.
+    """
+    block = document.get(DRAWINGS_BLOCK_KEY) if isinstance(document, dict) else None
+    if not isinstance(block, dict):
+        return {'savedIso': None, 'digest': None}
+    canonical = json.dumps(block, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf-8')
+    saved_iso = block.get(DRAWINGS_SAVED_ISO_KEY)
+    return {
+        'savedIso': saved_iso if isinstance(saved_iso, str) else None,
+        'digest'  : 'sha1:' + hashlib.sha1(canonical).hexdigest()
+    }
+
+
+def _backup_dir_for(file_path):
+    """Where a file's backups go: its path under the portal, mirrored under PROJECT_BACKUP_ROOT."""
+    relative = os.path.relpath(os.path.abspath(file_path), PORTAL_ROOT)
+    if relative.startswith('..') or os.path.isabs(relative):
+        relative = os.path.basename(file_path)                            # <-- A file outside the portal keeps just its name
+    return os.path.join(PROJECT_BACKUP_ROOT, os.path.dirname(relative))
+
+
+def _backup_before_overwrite(file_path):
+    """
+    Copy the file about to be overwritten into its backup folder, named with
+    the moment, and keep the newest PROJECT_BACKUP_KEEP of them. Returns the
+    copy's path, or None when there was nothing to copy. Never raises: a copy
+    that could not be made is printed and the save goes on, since a save
+    refused for want of a backup would lose more than the backup protects.
+    """
+    if not os.path.isfile(file_path):
+        return None
+    try:
+        stem, extension = os.path.splitext(os.path.basename(file_path))
+        backup_dir  = _backup_dir_for(file_path)
+        os.makedirs(backup_dir, exist_ok=True)
+        stamp       = datetime.now().strftime(PROJECT_BACKUP_STAMP)
+        backup_path = os.path.join(backup_dir, f'{stem}.{stamp}{extension}')
+        shutil.copy2(file_path, backup_path)
+        kept = sorted(
+            name for name in os.listdir(backup_dir)
+            if name.startswith(stem + '.') and name.endswith(extension) and len(name) > len(stem) + len(extension) + 1
+        )
+        for name in kept[:-PROJECT_BACKUP_KEEP] if len(kept) > PROJECT_BACKUP_KEEP else []:
+            try:
+                os.remove(os.path.join(backup_dir, name))
+            except OSError:
+                pass
+        return backup_path
+    except Exception as error:
+        print(f"[LocalServer] Backup before overwrite failed for {file_path}")
+        print(f"[LocalServer] {type(error).__name__}: {error}")
+        return None
+
+
+def _list_backups(file_path):
+    """The backups kept for a file, newest first: [{ file, path, bytes, modifiedIso }]."""
+    stem, extension = os.path.splitext(os.path.basename(file_path))
+    backup_dir = _backup_dir_for(file_path)
+    if not os.path.isdir(backup_dir):
+        return []
+    entries = []
+    for name in os.listdir(backup_dir):
+        if not (name.startswith(stem + '.') and name.endswith(extension)):
+            continue
+        path = os.path.join(backup_dir, name)
+        try:
+            stat = os.stat(path)
+        except OSError:
+            continue
+        entries.append({
+            'file'        : name,
+            'path'        : path,
+            'bytes'       : stat.st_size,
+            'modifiedIso' : datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat().replace('+00:00', 'Z')
+        })
+    entries.sort(key=lambda entry: entry['file'], reverse=True)
+    return entries
 
 
 def _sanitize_sibling_filename(filename):
@@ -529,6 +668,24 @@ def project_data_api(project_code):
     if not isinstance(payload, dict):
         return jsonify({'error': 'Request body must be a JSON object'}), 400
 
+    # DRAWINGS SAVE GUARD | The block on disk must still be the one the app loaded
+    # -------------------------------------------------------------------------
+    # Only a save that says what it loaded is judged. "none" is a project that
+    # had no drawings block when it was loaded.
+    base_sent = request.headers.get(DRAWINGS_BASE_HEADER)
+    if base_sent is not None:
+        on_disk = _drawings_fingerprint(_read_json_file(project_file_path))
+        if (base_sent.strip() or 'none') != (on_disk['digest'] or 'none'):
+            print(f"[LocalServer] Refused a drawings save for {safe_project_code}: the block on disk is not the one the app loaded")
+            return jsonify({
+                'error'    : 'The drawings on disk are not the ones this window loaded: they were saved '
+                             'elsewhere since. Reload to pick them up before saving.',
+                'conflict' : True,
+                'drawings' : on_disk
+            }), 409
+
+    backup_path = _backup_before_overwrite(project_file_path)          # <-- The copy going is kept first, whoever is saving
+
     try:
         _write_json_file(project_file_path, payload)
     except Exception as error:
@@ -539,8 +696,57 @@ def project_data_api(project_code):
     return jsonify({
         'status': 'ok',
         'message': f'Project data updated for {safe_project_code}',
-        'projectFile': project_file_path
+        'projectFile': project_file_path,
+        'backup': backup_path,
+        'drawings': _drawings_fingerprint(payload)                      # <-- What is on disk now: the app's next base
     })
+
+
+@app.route('/api/projects/<project_code>/drawings-fingerprint')
+def project_drawings_fingerprint_api(project_code):
+    """What the project's drawings block is on disk now: { savedIso, digest }."""
+    safe_project_code = _sanitize_project_code(project_code)
+    if not safe_project_code:
+        return jsonify({'error': 'Invalid project code'}), 400
+
+    project_file_path = _resolve_project_data_path(safe_project_code)
+    if not project_file_path:
+        return jsonify({'error': f'Project not found: {safe_project_code}'}), 404
+
+    response = jsonify({
+        'status'      : 'ok',
+        'projectCode' : safe_project_code,
+        'projectFile' : project_file_path,
+        'drawings'    : _drawings_fingerprint(_read_json_file(project_file_path))
+    })
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route('/api/projects/<project_code>/backups')
+def project_backups_api(project_code):
+    """The copies kept of the project's data file and its sibling files, newest first."""
+    safe_project_code = _sanitize_project_code(project_code)
+    if not safe_project_code:
+        return jsonify({'error': 'Invalid project code'}), 400
+
+    project_file_path = _resolve_project_data_path(safe_project_code)
+    if not project_file_path:
+        return jsonify({'error': f'Project not found: {safe_project_code}'}), 404
+
+    files = {TRUEVISION_DATA_FILENAME: _list_backups(project_file_path)}
+    for sibling_name in sorted(TRUEVISION_SIBLING_FILES):
+        files[sibling_name] = _list_backups(os.path.join(os.path.dirname(project_file_path), sibling_name))
+
+    response = jsonify({
+        'status'      : 'ok',
+        'projectCode' : safe_project_code,
+        'backupRoot'  : _backup_dir_for(project_file_path),
+        'keep'        : PROJECT_BACKUP_KEEP,
+        'files'       : files
+    })
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 @app.route('/api/projects/<project_code>/files/<path:filename>', methods=['GET', 'POST'])
@@ -574,6 +780,8 @@ def project_sibling_file_api(project_code, filename):
     if not isinstance(payload, dict):
         return jsonify({'error': 'Request body must be a JSON object'}), 400
 
+    backup_path = _backup_before_overwrite(sibling_path)               # <-- The notes are as precious as the sheets
+
     try:
         _write_json_file(sibling_path, payload)
     except Exception as error:
@@ -584,7 +792,8 @@ def project_sibling_file_api(project_code, filename):
     return jsonify({
         'status': 'ok',
         'message': f'{safe_filename} updated for {safe_project_code}',
-        'projectFile': sibling_path
+        'projectFile': sibling_path,
+        'backup': backup_path
     })
 
 
@@ -830,8 +1039,12 @@ def print_banner():
     print("\n  API:")
     print(f"    - Health:         http://localhost:{PORT}/api/health")
     print(f"    - Projects:       http://localhost:{PORT}/api/dev/projects")
-    print(f"    - Project data:   POST /api/projects/<code>")
+    print(f"    - Project data:   POST /api/projects/<code>  (refused with 409 when the drawings on disk are not the ones the window loaded)")
     print(f"    - Drawing notes:  GET/POST /api/projects/<code>/files/TrueVision__DrawingNotes__.json")
+    print(f"    - Fingerprint:    GET /api/projects/<code>/drawings-fingerprint")
+    print(f"    - Backups:        GET /api/projects/<code>/backups")
+    print(f"\n  Project file backups: the last {PROJECT_BACKUP_KEEP} copies of each file it overwrites, under")
+    print(f"    {PROJECT_BACKUP_ROOT}")
 
     print("\n  Press Ctrl+C to stop the server")
     print("=" * 70 + "\n")

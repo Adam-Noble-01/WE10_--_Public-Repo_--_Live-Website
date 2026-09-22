@@ -57,6 +57,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.2.0
+// - WriteLocalCopy: the live specification written to the local
+//   TrueVision__DrawingNotes__.json now, then READ BACK and compared before
+//   it reports verified - for a note reworded in the drawing editor's own
+//   Specification tab, which Adam wants in the file the moment Enter is
+//   pressed. R2 and the cloud bookkeeping are untouched, so Save Sheets still
+//   syncs it (see the function for why the newer local stamp is safe).
+// - Every write of the local file - the seed on load, Sync's copy and
+//   WriteLocalCopy's - waits its turn in one queue (InTurn), so two writes in
+//   flight can no longer land out of order.
+// - FileCopy: the stamped copy a file holds, which Sync built inline; Sync
+//   and WriteLocalCopy now build it the same way. No change to what Sync
+//   writes.
+//
 // 18-Sep-2026 - Version 1.1.0
 // - Added ReloadFromCloud and ReloadFromLocal: a fast, explicit re-read of
 //   the cloud copy or the local repository copy, each asking first (through
@@ -184,13 +198,45 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Write the Live Document to the Local Drawing-Notes File
+    // HELPER FUNCTION | Write a Document to the Local Drawing-Notes File, in Turn
     // ------------------------------------------------------------
-    async function Na__LeSpec__MirrorLocal(doc) {
+    // EVERY WRITE OF THE LOCAL FILE GOES THROUGH ONE QUEUE - the seed on load,
+    // Sync's copy and WriteLocalCopy's - so two writes in flight can never
+    // land in the wrong order and leave the older document on disk. The
+    // server answers each POST in its own time; the queue does not.
+    // ------------------------------------------------------------
+    let Na__LeSpec__LocalQueue = Promise.resolve();
+    function Na__LeSpec__InTurn(task) {
+        const job = Na__LeSpec__LocalQueue.then(task);
+        Na__LeSpec__LocalQueue = job.catch(() => {});
+        return job;
+    }
+    async function Na__LeSpec__MirrorLocalNow(doc) {
         if (!Na__AppUtils__IsRunningOnLocalhost() || !doc || typeof doc !== 'object') return { ok : false, skipped : true, error : null };
         const local = await Na__LocalMirror__WriteSiblingFile(Na__LeCfg__GetSpecificationSetup().fileName, doc);
         if (!local.ok && !local.skipped) console.warn('[TrueVision3D] Layout Editor: the local drawing-notes file was not written:', local.error);
         return local;
+    }
+    function Na__LeSpec__MirrorLocal(doc) {
+        return Na__LeSpec__InTurn(() => Na__LeSpec__MirrorLocalNow(doc));
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Live Document as a File Holds It: a Fresh, Stamped Copy
+    // ------------------------------------------------------------
+    // What Sync writes to R2 and to the local file, and what WriteLocalCopy
+    // writes to the local file alone: the same keys, the same stamp rule.
+    // THE LIVE DOCUMENT IS NEVER STAMPED - see Sync - only this copy is.
+    // ------------------------------------------------------------
+    function Na__LeSpec__FileCopy() {
+        const out = Na__LeSpec__Normalise(Na__LeSpec__Doc);
+        out[Na__LeSpec__K_DESCRIPTION] = Na__LeSpec__DESCRIPTION;
+        out[Na__LeSpec__K_VERSION]     = Na__LeSpec__VERSION;
+        out[Na__LeSpec__K_PROJECT]     = Na__LeSpec__ProjectCode || Na__DrawData__GetProjectCode() || null;
+        out[Na__LeSpec__K_UPDATED]     = new Date().toISOString();
+        out[Na__LeSpec__K_LAST_ID]     = Math.max(out[Na__LeSpec__K_LAST_ID], Na__LeSpec__IdFloor);   // <-- Ids undone away stay spent in the file too
+        return out;
     }
     // ------------------------------------------------------------
 
@@ -566,12 +612,7 @@
                 if (!ok) { toast(Na__LeCfg__GetLabel('SpecSyncCancelled', 'Sync cancelled. Your changes are kept in this browser.'), false); return false; }
             }
 
-            const out = Na__LeSpec__Normalise(Na__LeSpec__Doc);
-            out[Na__LeSpec__K_DESCRIPTION] = Na__LeSpec__DESCRIPTION;
-            out[Na__LeSpec__K_VERSION]     = Na__LeSpec__VERSION;
-            out[Na__LeSpec__K_PROJECT]     = Na__LeSpec__ProjectCode || Na__DrawData__GetProjectCode() || null;
-            out[Na__LeSpec__K_UPDATED]     = new Date().toISOString();
-            out[Na__LeSpec__K_LAST_ID]     = Math.max(out[Na__LeSpec__K_LAST_ID], Na__LeSpec__IdFloor);   // <-- Ids undone away stay spent in the file too
+            const out   = Na__LeSpec__FileCopy();                              // <-- Stamped now; ids undone away stay spent in the file too
             const write = await Na__CfApi__WriteProjectFile(setup.fileName, out);
             if (!write || !write.ok) {
                 toast(Na__LeCfg__FormatLabel('SpecSyncFailed', 'Specification sync failed: {error}. Your changes are kept in this browser.', { error : (write && write.error) || 'unknown' }), true);
@@ -603,6 +644,56 @@
     }
     // ------------------------------------------------------------
 
+
+    // FUNCTION | Write This Computer's Copy of the Specification Now: { ok, skipped, verified, error }
+    // ------------------------------------------------------------
+    // WHY. A note reworded where it is read - the drawing editor's own
+    // Specification tab - is a finished change, made with Enter, and belongs
+    // in the specification FILE straight away: the repository's
+    // TrueVision__DrawingNotes__.json beside the project data, the copy an
+    // agent reads on disk. Until now only Sync wrote that file.
+    //
+    // WHAT IT DOES NOT DO. It does not touch R2, and it changes none of the
+    // cloud bookkeeping - the base stamp and the synced content stay the
+    // cloud copy's - so the specification still reads as unsynced, Save
+    // Sheets stays lit, and Save Sheets still takes the change to R2 (Sync),
+    // asking first as ever if the cloud copy moved on meanwhile.
+    //
+    // WHY THE NEWER STAMP IS SAFE. The file is stamped now, later than the
+    // cloud copy it started from, and a load that finds a local copy newer
+    // than R2 adopts it as the live document (Reconcile) - which is what an
+    // edit on disk has always done. A cloud copy synced since, by someone
+    // else, is newer still and wins; this browser's draft then brings the
+    // edit back and Sync asks before replacing the cloud copy.
+    //
+    // SAFE ON DISK. The document is the live one AS IT STANDS NOW, copied
+    // before anything is awaited; the write waits its turn behind any other
+    // write of the file; and the file is READ BACK and compared, content for
+    // content, before this reports verified. Localhost only: elsewhere there
+    // is no local file and the answer is skipped.
+    // ------------------------------------------------------------
+    function Na__LeSpec__WriteLocalCopy() {
+        if (!Na__AppUtils__IsRunningOnLocalhost()) return Promise.resolve({ ok : false, skipped : true, verified : false, error : null });
+        if (!Na__LeSpec__IsLoaded() || !Na__LeSpec__Doc) return Promise.resolve({ ok : false, skipped : false, verified : false, error : Na__LeCfg__GetLabel('SpecSyncNotLoaded', 'The specification has not finished loading.') });
+        const setup    = Na__LeCfg__GetSpecificationSetup();
+        const location = Na__CfApi__ProjectFileLocation(setup.fileName);
+        const out      = Na__LeSpec__FileCopy();                              // <-- Now, before anything is awaited
+        return Na__LeSpec__InTurn(async () => {
+            const written = await Na__LeSpec__MirrorLocalNow(out);
+            if (!written.ok) return { ok : false, skipped : written.skipped === true, verified : false, error : written.error || null };
+            if (!location) return { ok : true, skipped : false, verified : false, error : null };
+            const back = await Na__LeSpec__FetchJson(location.repoUrl);       // <-- Inside the turn: no later write can land between the two
+            if (!back.ok || !Na__LeSpec__HasDoc(back.data)) {
+                return { ok : false, skipped : false, verified : false, error : 'the file could not be read back (' + ((back && back.error) || 'not found') + ')' };
+            }
+            if (Na__LeSpec__ContentJson(Na__LeSpec__Normalise(back.data)) !== Na__LeSpec__ContentJson(out)) {
+                return { ok : false, skipped : false, verified : false, error : 'the file on disk does not hold what was written' };
+            }
+            return { ok : true, skipped : false, verified : true, error : null };
+        });
+    }
+    // ------------------------------------------------------------
+
 // endregion -------------------------------------------------------------------
 
 
@@ -616,6 +707,7 @@
         Na__LeSpec__EnsureLoaded,
         Na__LeSpec__Retry,
         Na__LeSpec__Sync,
+        Na__LeSpec__WriteLocalCopy,
         Na__LeSpec__CanReloadCloud,
         Na__LeSpec__CanReloadLocal,
         Na__LeSpec__ReloadFromCloud,

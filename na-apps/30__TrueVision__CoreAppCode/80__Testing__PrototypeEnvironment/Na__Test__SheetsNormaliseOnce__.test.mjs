@@ -32,6 +32,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.0.1
+// - A checkout with core.autocrlf=true gives the units CRLF line ends, and
+//   two of the mutations span lines joined by '\n', so they matched nothing
+//   and the file stopped at the first of them. load() now reads a unit as
+//   LF, as Na__TestEnv__ObjectSnapBundle__ does.
+//
 // 21-Sep-2026 - Version 1.0.0
 // - Written with the pointer-move and repaint fixes (TrueVision3D v2.136.0).
 //
@@ -55,7 +61,7 @@ import { tmpdir } from 'node:os';
 
     // mutate(source) -> source, optional: a deliberate fault for the mutation checks
     async function load(relative, stubs, tag, mutate) {
-        let src = readFileSync(resolve(SRC, relative), 'utf8');
+        let src = readFileSync(resolve(SRC, relative), 'utf8').replace(/\r\n/g, '\n');   // <-- CRLF files are read as LF first: a mutation that spans lines joins them with '\n'
         const had = /^\s*import\s/m.test(src);
         // The trailing `// <-- ...` note some imports carry is part of the line.
         src = src.replace(/^[ \t]*import\s+(?:\{[\s\S]*?\}|[\w*\s,]+)\s+from\s+'[^']+';[ \t]*(?:\/\/[^\n]*)?$/gm, '');

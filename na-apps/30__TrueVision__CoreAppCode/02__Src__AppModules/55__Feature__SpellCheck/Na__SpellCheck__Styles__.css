@@ -1,0 +1,115 @@
+/* ================================================================= */
+/* TRUEVISION3D - SPELL CHECK - STYLES                                */
+/* ================================================================= */
+/*
+ * FILE       : Na__SpellCheck__Styles__.css
+ * MODULE     : Spell Check
+ * AUTHOR     : Adam Noble - Noble Architecture
+ * PURPOSE    : The spell-checked box and the word bar under it
+ * CREATED    : 22-Sep-2026
+ *
+ * DESCRIPTION:
+ * - Imported by 03__Style__AppStylesheets/Na__CoreUi__Styles__Index__.css, never
+ *   injected on first use: a lazily injected sheet is outside the service
+ *   worker's precache and paints the previous release on the first load
+ *   after an edit (the Colour Palette's lesson).
+ * - THE BOX looks like nothing in particular: its owner gives it the border,
+ *   the padding and the type of the place it stands in. What is here is what
+ *   every spell-checked box needs whatever it looks like - text that wraps
+ *   and keeps its line breaks, a caret, and a placeholder.
+ * - A DICTIONARY WORD LOOKS LIKE ANY OTHER WORD. The absence of the red line
+ *   is the whole of the difference; the word bar says why when the caret is
+ *   in it.
+ * - The bar keeps one line's height whether it says anything or not, so the
+ *   box above it never jumps as the caret moves.
+ *
+ * PORT NOTE:
+ * - Authored in : TrueVision3D first (22-Sep-2026)
+ * - ValeVision  : not yet ported.
+ *
+ * DEVELOPMENT LOG:
+ * 22-Sep-2026 - Version 1.0.0
+ * - Initial implementation.
+ */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Box                                                */
+/* ----------------------------------------------------------------- */
+
+.na-spellcheck-field {
+    white-space                        : pre-wrap;                      /* <-- A typed line break is a line break, and a space is a space */
+    overflow-wrap                      : anywhere;
+    word-break                         : normal;
+    cursor                             : text;
+    outline                            : none;
+    user-select                        : text;
+    -webkit-user-select                : text;
+}
+
+.na-spellcheck-field:empty::before {
+    content                            : attr(data-placeholder);
+    color                              : #9aa5b1;
+    pointer-events                     : none;
+}
+
+/* endregion ------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------- */
+/* REGION  |  The Word Bar                                           */
+/* ----------------------------------------------------------------- */
+
+.na-spellcheck-bar {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    align-items                        : center;
+    gap                                : 4px 8px;
+    min-height                         : 22px;
+    font-size                          : 0.68rem;
+    line-height                        : 1.3;
+    color                              : #6c757d;
+}
+
+.na-spellcheck-bar__note[hidden],
+.na-spellcheck-bar__button[hidden] {
+    display                            : none;
+}
+
+.na-spellcheck-bar__note {
+    flex                               : 1 1 auto;
+    min-width                          : 0;
+    overflow-wrap                      : anywhere;
+}
+
+.na-spellcheck-bar__button {
+    flex                               : 0 1 auto;
+    min-width                          : 0;
+    max-width                          : 100%;
+    padding                            : 2px 8px;
+    border                             : 1px solid #1a7fc4;
+    border-radius                      : 5px;
+    background                         : #eef5fb;
+    color                              : #1a7fc4;
+    font-family                        : inherit;
+    font-size                          : inherit;
+    line-height                        : 1.3;
+    text-align                         : left;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    white-space                        : nowrap;
+    cursor                             : pointer;
+}
+
+.na-spellcheck-bar__button:hover:not(:disabled) {
+    background                         : #dcebf7;
+}
+
+.na-spellcheck-bar__button:disabled {
+    border-color                       : #ccd3d8;
+    background                         : #f4f6f8;
+    color                              : #8a96a0;
+    cursor                             : default;
+}
+
+/* endregion ------------------------------------------------------- */

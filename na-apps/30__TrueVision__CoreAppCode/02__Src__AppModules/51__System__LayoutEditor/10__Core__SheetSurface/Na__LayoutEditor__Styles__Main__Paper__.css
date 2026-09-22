@@ -455,6 +455,14 @@ body.na-le-vector-hold:not(.na-le-viewer--active) .na-le-frame--2d {
     display                            : none;
 }
 
+/* A LEAD before the words: a specification bubble's code before its note's
+   title (Na__LayoutEditor__SheetTools__NoteTooltip__). */
+.na-le-hovertip__lead {
+    margin-right                       : 6px;
+    font-weight                        : 700;
+    letter-spacing                     : 0.02em;
+}
+
 /* endregion ------------------------------------------------------- */
 
 

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrueVision3D - Spell-Checked Field</title>
+<!--
+// =============================================================================
+// TRUEVISION3D - TEST - SPELL-CHECKED FIELD
+// =============================================================================
+//
+// FILE       : Na__Test__SpellCheckField__.html
+// NAMESPACE  : Na__Test
+// MODULE     : Spell Check - the Spell-Checked Box
+// AUTHOR     : Adam Noble - Noble Architecture
+// PURPOSE    : Prove the spell-checked box keeps what is typed, marks the dictionary's words for the browser's checker to pass by, and keeps its caret and its own undo
+// CREATED    : 22-Sep-2026
+//
+// DESCRIPTION:
+// - THE FRAGILE PART IS THE REDRAW UNDER THE CARET. The box redraws itself
+//   when a dictionary word is completed or broken, and every letter typed
+//   after that must land where the caret was. This page types the way a
+//   person types - one character at a time through the browser's own
+//   insertText, so the same beforeinput and input events fire in the same
+//   order - and checks the text, the marks and the caret after each step.
+// - It checks: the words marked spellcheck="false" and nothing else; a word
+//   typed onto the end of a marked one unmarked again; the caret after a
+//   redraw; Backspace; the box's own undo and redo; Shift+Enter a line break
+//   in a box of several lines and nothing in a box of one; Enter and Escape
+//   handed to the owner and no further; a paste taken as plain text, folded
+//   to one line in a box of one; the text read back exactly as typed.
+// - It needs the dictionary: the shipped 50__TrueVision__UserConfig file,
+//   read through the ProjectVision local server's route or as a file.
+//
+// USAGE:
+//     Serve the repository root and open
+//     /na-apps/30__TrueVision__CoreAppCode/80__Testing__PrototypeEnvironment/Na__Test__SpellCheckField__.html
+//     window.__NaSpellFieldResults holds { passed, failed, lines } when done.
+//
+// -----------------------------------------------------------------------------
+//
+// DEVELOPMENT LOG:
+// 22-Sep-2026 - Version 1.0.0
+// - Written with the Spell Check feature (TrueVision3D v2.144.0).
+//
+// =============================================================================
+-->
+<link rel="stylesheet" href="../02__Src__AppModules/55__Feature__SpellCheck/Na__SpellCheck__Styles__.css">
+<style>
+    body   { margin: 0; padding: 18px 22px; background: #f4f6f8; color: #172b3a;
+             font: 13px/1.6 'Open Sans', Arial, sans-serif; }
+    h1     { font-size: 17px; margin: 0 0 14px; }
+    .pass  { color: #2f7a46; }
+    .fail  { color: #9b3b3b; font-weight: 600; }
+    .note  { color: #6c757d; }
+    #out   { padding: 0; margin: 0 0 20px; }
+    #out li{ list-style: none; margin-bottom: 2px; white-space: pre-wrap; }
+    #stage { width: 360px; }
+    #stage .na-spellcheck-field { margin: 0 0 8px; padding: 4px 6px; border: 1px solid #ccd3d8; background: #fff; }
+</style>
+</head>
+<body>
+
+<h1>Spell-Checked Field</h1>
+<ul id="out"><li class="note">running…</li></ul>
+<div id="stage"></div>
+
+<script type="module">
+    import { Na__SpellCheck__Ready, Na__SpellCheck__Field, Na__SpellCheck__KNOWN_CLASS, Na__SpellCheck__IsKnown } from '../02__Src__AppModules/55__Feature__SpellCheck/Na__SpellCheck__.js';
+
+    const out = document.getElementById('out');
+    const stage = document.getElementById('stage');
+    const lines = [];
+    let passed = 0, failed = 0;
+    out.innerHTML = '';
+    function check(name, got, want) {
+        const ok = JSON.stringify(got) === JSON.stringify(want);
+        ok ? passed++ : failed++;
+        const li = document.createElement('li');
+        li.className = ok ? 'pass' : 'fail';
+        li.textContent = (ok ? 'PASS  ' : 'FAIL  ') + name + (ok ? '' : '\n        got  ' + JSON.stringify(got) + '\n        want ' + JSON.stringify(want));
+        out.appendChild(li);
+        lines.push(li.textContent);
+    }
+
+    // TYPING THE WAY A PERSON TYPES: the browser's own insertText, one character at a time.
+    const type  = (text) => { for (const ch of text) document.execCommand('insertText', false, ch); };
+    const key   = (el, name, options) => el.dispatchEvent(new KeyboardEvent('keydown', Object.assign({ key : name, bubbles : true, cancelable : true }, options || {})));
+    const marks = (el) => Array.from(el.querySelectorAll('.' + Na__SpellCheck__KNOWN_CLASS)).map((span) => span.textContent + (span.getAttribute('spellcheck') === 'false' ? '' : ' (checked!)'));
+    const caret = (field) => { const s = field.getSelection(); return s ? [ s.start, s.end ] : null; };
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 50));    // <-- A timer, not a frame: a page in a hidden pane gets no frames
+
+    await Na__SpellCheck__Ready();
+    check('the dictionary is read: Kingspan and rooflights are known, Kingspam is not', [ Na__SpellCheck__IsKnown('Kingspan'), Na__SpellCheck__IsKnown('rooflights'), Na__SpellCheck__IsKnown('Kingspam') ], [ true, true, false ]);
+
+    // -------------------------------------------------------------------------
+    // A BOX OF SEVERAL LINES
+    // -------------------------------------------------------------------------
+    let submitted = 0, cancelled = 0, heardByPage = 0;
+    document.addEventListener('keydown', () => heardByPage++);
+    const body = Na__SpellCheck__Field({ text : 'Insulation to be ', multiline : true, label : 'Body', onSubmit : () => submitted++, onCancel : () => cancelled++ });
+    stage.appendChild(body.element);
+    check('the box is editable plain text, spell-checked, in British English', [ body.element.getAttribute('contenteditable'), body.element.getAttribute('spellcheck'), body.element.getAttribute('lang') ], [ 'plaintext-only', 'true', 'en-GB' ]);
+    check('it opens with its text, nothing marked', [ body.getText(), marks(body.element) ], [ 'Insulation to be ', [] ]);
+
+    body.focus('end');
+    type('Kingsp');
+    check('a word part typed is left alone', [ body.getText(), marks(body.element), caret(body) ], [ 'Insulation to be Kingsp', [], [ 23, 23 ] ]);
+    type('an');
+    check('the letter that completes a dictionary word marks it, spellcheck="false"', [ body.getText(), marks(body.element) ], [ 'Insulation to be Kingspan', [ 'Kingspan' ] ]);
+    check('...and the caret is still at the end of it', caret(body), [ 25, 25 ]);
+    type(' K15 board');
+    check('typing on after the redraw lands where the caret is', [ body.getText(), marks(body.element), caret(body) ], [ 'Insulation to be Kingspan K15 board', [ 'Kingspan' ], [ 35, 35 ] ]);
+
+    body.select(25, 25);
+    type('x');
+    check('a letter typed onto the end of a marked word unmarks it for the checker', [ body.getText(), marks(body.element), caret(body) ], [ 'Insulation to be Kingspanx K15 board', [], [ 26, 26 ] ]);
+    document.execCommand('delete');
+    check('Backspace puts it back, marked again, caret in place', [ body.getText(), marks(body.element), caret(body) ], [ 'Insulation to be Kingspan K15 board', [ 'Kingspan' ], [ 25, 25 ] ]);
+
+    body.focus('end');
+    type(' with rooflights');
+    check('a plural of a dictionary word is marked', marks(body.element), [ 'Kingspan', 'rooflights' ]);
+
+    // Shift+Enter: a line break, in a box of several lines
+    key(body.element, 'Enter', { shiftKey : true });
+    type('Second line.');
+    check('Shift+Enter is a line break, and the typing carries on after it', body.getText(), 'Insulation to be Kingspan K15 board with rooflights\nSecond line.');
+    check('...the caret after the last letter', caret(body), [ body.getText().length, body.getText().length ]);
+
+    // Undo and redo are the box's own
+    const before = body.getText();
+    await new Promise((resolve) => setTimeout(resolve, 900));                   // <-- Past UndoMergeMs: a new step
+    type(' More');
+    key(body.element, 'z', { ctrlKey : true });
+    check('Ctrl+Z undoes the last typing, in the box', body.getText(), before);
+    key(body.element, 'y', { ctrlKey : true });
+    check('Ctrl+Y does it again', body.getText(), before + ' More');
+    key(body.element, 'z', { ctrlKey : true });
+    key(body.element, 'z', { ctrlKey : true });
+    check('two more Ctrl+Z take back the typing on the new line, leaving the line break', body.getText(), 'Insulation to be Kingspan K15 board with rooflights\n');
+    key(body.element, 'z', { ctrlKey : true });
+    check('...and a third takes the line break, a step of its own', body.getText(), 'Insulation to be Kingspan K15 board with rooflights');
+    check('...and the marks follow the text back', marks(body.element), [ 'Kingspan', 'rooflights' ]);
+
+    // Enter and Escape are the owner's, and go no further
+    heardByPage = 0;
+    key(body.element, 'Enter');
+    key(body.element, 'Escape');
+    check('Enter asks to save, Escape to cancel, and the page never hears either', [ submitted, cancelled, heardByPage ], [ 1, 1, 0 ]);
+
+    // A paste is plain text, line breaks kept in a box of several lines
+    body.focus('end');
+    const paste = new DataTransfer();
+    paste.setData('text/html', '<b>Bold</b> Velux');
+    paste.setData('text/plain', ' Velux\r\nroof windows');
+    body.element.dispatchEvent(new ClipboardEvent('paste', { clipboardData : paste, bubbles : true, cancelable : true }));
+    check('a paste is taken as plain text, its line break kept, the brand marked', [ body.getText().endsWith(' Velux\nroof windows'), marks(body.element).indexOf('Velux') !== -1, body.element.querySelector('b') === null ], [ true, true, true ]);
+    key(body.element, 'z', { ctrlKey : true });
+    check('...and one Ctrl+Z takes the whole paste back', body.getText(), 'Insulation to be Kingspan K15 board with rooflights');
+
+    // -------------------------------------------------------------------------
+    // A BOX OF ONE LINE
+    // -------------------------------------------------------------------------
+    const title = Na__SpellCheck__Field({ text : 'Loggia Arcade', multiline : false, label : 'Title' });
+    stage.appendChild(title.element);
+    title.focus('end');
+    key(title.element, 'Enter', { shiftKey : true });
+    type(' East');
+    check('Shift+Enter is nothing in a box of one line', title.getText(), 'Loggia Arcade East');
+    const one = new DataTransfer();
+    one.setData('text/plain', ' by\nCrittall\n');
+    title.element.dispatchEvent(new ClipboardEvent('paste', { clipboardData : one, bubbles : true, cancelable : true }));
+    check('a paste of several lines is folded to one', title.getText(), 'Loggia Arcade East by Crittall ');
+    check('...and Crittall is marked', marks(title.element), [ 'Crittall' ]);
+
+    // -------------------------------------------------------------------------
+    // WHAT IS READ BACK
+    // -------------------------------------------------------------------------
+    const exact = Na__SpellCheck__Field({ text : 'Two  spaces\n\nand a blank line\n', multiline : true });
+    stage.appendChild(exact.element);
+    check('a text is read back exactly as it was given: double spaces, a blank line, a last line break', exact.getText(), 'Two  spaces\n\nand a blank line\n');
+    exact.focus('end');
+    type('x');
+    check('...and typing on its empty last line lands on that line', exact.getText(), 'Two  spaces\n\nand a blank line\nx');
+    check('the word at the caret is offered, and a selection of one word is too', [ body.wordAtCaret() && body.wordAtCaret().word, (() => { body.select(17, 25); return body.wordAtCaret().word; })() ], [ 'rooflights', 'Kingspan' ]);
+
+    [ body, title, exact ].forEach((field) => field.destroy());
+    await settle();
+    const summary = document.createElement('li');
+    summary.className = failed ? 'fail' : 'pass';
+    summary.textContent = failed ? failed + ' FAILED, ' + passed + ' passed' : 'ALL ' + passed + ' PASSED';
+    out.insertBefore(summary, out.firstChild);
+    window.__NaSpellFieldResults = { passed : passed, failed : failed, lines : lines };
+</script>
+</body>
+</html>
