@@ -2,12 +2,83 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "RB05",
-    "ProjectSpecification__UpdatedIso": "2026-09-22T01:15:38.959Z",
+    "ProjectSpecification__UpdatedIso": "2026-09-22T09:04:30.700Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 90,
+    "ProjectSpecification__LastIdNumber": 100,
     "ProjectSpecification__Revision": "A",
     "ProjectSpecification__DocumentNumber": "",
     "ProjectSpecification__Groups": [
+        {
+            "Group__Id": "SpecGroup_091",
+            "Group__Prefix": "IN",
+            "Group__Title": "Project Introduction Notes",
+            "Group__IsGeneral": false,
+            "Group__Notes": [
+                {
+                    "Note__Id": "SpecNote_092",
+                    "Note__Code": "IN01",
+                    "Note__Title": "Pre-application enquiry",
+                    "Note__Body": "Drawings issued to Charnwood Borough Council for pre-application advice on a replacement dwelling at West Beacon Farm, with associated site works. Scheme at concept stage; materials, dimensions and levels to be fixed before a full application.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_093",
+                    "Note__Code": "IN02",
+                    "Note__Title": "Existing 1960s dwelling",
+                    "Note__Body": "Detached house, altered and extended over time: a low range, mostly single storey, with a one-and-a-half-storey element at one end and a later conservatory. Approximately 37,600 mm long and 456 m² over two floors. Demolish in full. Dimensions from Ordnance Survey data and marketing floor plans; to be confirmed by measured survey before a full application.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_094",
+                    "Note__Code": "IN03",
+                    "Note__Title": "Replacement dwelling",
+                    "Note__Body": "Country house of Georgian farmhouse character, in the area of the existing dwelling within the developed core of the holding. Two-storey main house with a second floor in the roof lit by hipped dormers, linked by an orangery and a colonnade entrance to a kitchen building designed to read as a converted barn.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_095",
+                    "Note__Code": "IN04",
+                    "Note__Title": "Coach house",
+                    "Note__Body": "Adjoining the kitchen building and designed to read as a converted stable range, with a carriage arch on the side access to the stables. Guest accommodation and utility rooms for the occupants of the main house.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_096",
+                    "Note__Code": "IN05",
+                    "Note__Title": "Architectural character",
+                    "Note__Body": "Principal elevations symmetrical about their centre lines and set out to classical proportion, with window heights diminishing from ground floor to first floor and again at the dormers. Tuscan order throughout; ornament concentrated at the entrances, the loggia, the canted bays and the eaves. Coursed natural stone walling, cut ashlar dressings and natural stone slate roofs to FN01-FN12.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_097",
+                    "Note__Code": "IN06",
+                    "Note__Title": "Footprint and scale",
+                    "Note__Body": "Principal block 23,270 x 18,100 mm, about 14 m shorter across the site than the existing range, with its area gained in depth and height. Ground floor gross internal area 548.58 m² across the main house, orangery, kitchen building and stores; upper floors and coach house additional.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_098",
+                    "Note__Code": "IN07",
+                    "Note__Title": "Wider site proposals",
+                    "Note__Body": "Horseshoe carriage drive, rear swimming pool, indicative four-car timber carport, hangar privacy hedge, and stable conversion to a private gym, podcasting studio and office. Lake, hangar and part of the landing strip retained. Refer to SP01-SP13.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_099",
+                    "Note__Code": "IN08",
+                    "Note__Title": "Concept visualisations",
+                    "Note__Body": "Concept CGIs on this sheet: the south east entrance front and the north west garden front. Planting and landscaping indicative. Explore the full three-dimensional model through the QR code.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                },
+                {
+                    "Note__Id": "SpecNote_100",
+                    "Note__Code": "IN09",
+                    "Note__Title": "Matters for advice",
+                    "Note__Body": "Advice sought on: the policy basis for a replacement dwelling; scale, massing and landscape effect; demolition of the existing dwelling; the stone and stone slate palette; the surveys, reports and validation documents needed for a full application.",
+                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                }
+            ]
+        },
         {
             "Group__Id": "SpecGroup_001",
             "Group__Prefix": "GN",
