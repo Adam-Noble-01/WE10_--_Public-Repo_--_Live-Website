@@ -22,8 +22,9 @@
 //   finishes content editing. A door in the selected plan viewport (DoorAt,
 //   read before the press changes the selection) closes or opens on a click
 //   (Na__LayoutEditor__PlanDoors__); on a locked plan the press is a door
-//   press alone, whose drag does nothing. Where nothing can move it starts a
-//   selection box (StartsBox); a Shift-click on an edge of the one selected
+//   press alone, whose drag does nothing. Where nothing can move - a locked
+//   viewport, or one the press would not move (ViewportHoldsStill) - it
+//   starts a selection box (StartsBox); a Shift-click on an edge of the one selected
 //   vector inserts a vertex and drags it; otherwise the selection modifiers
 //   apply (PressSelection) and the drag for what was pressed begins
 //   (DragFor, which carries a viewport by a point of its linework where
@@ -57,6 +58,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.10.0
+// - A DRAG FROM A VIEWPORT THE PRESS WOULD NOT MOVE DRAWS A SELECTION BOX
+//   (ViewportHoldsStill), locked or not. Under Select such a press picked the
+//   viewport and its drag did nothing, so a box started over a site plan to
+//   take the vectors drawn on it failed (RB05 D13). A click still selects the
+//   viewport, as the box's pending item. A crop handle, the rotate grip, the
+//   viewport being edited inside, a door on the selected plan, the move
+//   anchor's Ctrl+click and the Move tool keep the press as before.
+//
 // 22-Sep-2026 - Version 1.9.0
 // - Shift-click inserting a vertex on a vector with holes (the vector tools'
 //   Boolean section) sends the hole starts that move up with it
@@ -412,15 +422,44 @@
     // HELPER FUNCTION | Does a Select Press Start a Selection Box
     // ------------------------------------------------------------
     // It does where there is nothing to move: bare paper or the grey stage, a
-    // locked viewport, anything at all in a read-only session - or anywhere
-    // with the box modifier (Alt) held. A touch that lands off the paper is the
-    // one-finger pan's, so a box never fights the pan for the finger.
+    // locked viewport, a viewport the press would not move (below), anything
+    // at all in a read-only session - or anywhere with the box modifier (Alt)
+    // held. A touch that lands off the paper is the one-finger pan's, so a box
+    // never fights the pan for the finger.
     // ------------------------------------------------------------
-    function Na__LeTools__StartsBox(sheet, found, intent, event) {
+    function Na__LeTools__StartsBox(sheet, found, intent, event, door, pointMm) {
         const target = event.target;
         if (event.pointerType === 'touch' && !(target && target.closest && target.closest(Na__LeCfg__GetGuards().paperSelector))) return false;
         if (!found || intent.anywhere || !Na__LeTools__Editable) return true;
-        return found.kind === 'viewport' && Na__LeTools__IsViewportLocked(sheet, Na__LeModel__GetViewportById(sheet, found.id));
+        if (found.kind !== 'viewport') return false;
+        if (Na__LeTools__IsViewportLocked(sheet, Na__LeModel__GetViewportById(sheet, found.id))) return true;
+        return Na__LeTools__ViewportHoldsStill(sheet, found, intent, door, pointMm);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Would a Press on This Unlocked Viewport Leave It Where It Is
+    // ------------------------------------------------------------
+    // A DRAG THAT MOVES NOTHING DRAWS A BOX. Under Select a press on a viewport
+    // picks it, and a drag from there did nothing at all - so a box started over
+    // a site plan, to take the vectors drawn on it, never got going: the press
+    // took the drawing, whose frame at that zoom was off the screen, and nothing
+    // showed it. Now the press waits: a click still selects the viewport (the
+    // box's pending item), and a drag draws the box. Everything that does
+    // something with a press on a viewport keeps it:
+    //   a crop handle or the rotate grip   grips
+    //   the viewport being edited inside   the drag moves its drawing
+    //   a door on the selected plan        the click closes or opens it
+    //   the move anchor's modifier alone   the click puts the cross on it
+    //   the Move tool, or the move anchor  the drag moves the frame
+    // A Move that came up by itself would be put down by this press, so it
+    // counts as Select.
+    // ------------------------------------------------------------
+    function Na__LeTools__ViewportHoldsStill(sheet, found, intent, door, pointMm) {
+        if (found.hit && (found.hit.mode === 'handle' || found.hit.mode === 'rotate')) return false;
+        if (Na__LeSurface__GetEditingViewport() === found.id || door || intent.anchor === true) return false;
+        if (Na__LeTools__CanMoveWhole() && !Na__LeTools__IsMoveAuto()) return false;
+        return !Na__LeTools__PicksUpMove(sheet, found, pointMm);
     }
     // ------------------------------------------------------------
 
@@ -652,7 +691,7 @@
         // takes - or, for a click that never became one, the item it landed
         // on - goes into the selection when the button comes up (BoxUp).
         // ------------------------------------
-        if (Na__LeTools__StartsBox(sheet, found, intent, event)) {
+        if (Na__LeTools__StartsBox(sheet, found, intent, event, door, point)) {
             if (!found && !intent.combine) Na__LeModel__SetSelection(null);
             Na__LeSelBox__Press(point, event.clientX, event.clientY, event.pointerId, { combine : intent.combine, pending : pressed });
             try { Na__LeTools__Stage.setPointerCapture(event.pointerId); } catch (e) { /* capture refused */ }

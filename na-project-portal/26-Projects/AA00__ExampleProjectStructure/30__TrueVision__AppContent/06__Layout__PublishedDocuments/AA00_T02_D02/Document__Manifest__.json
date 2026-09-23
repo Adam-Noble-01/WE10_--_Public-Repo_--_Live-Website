@@ -1,0 +1,83 @@
+{
+    "PublishedDocument__Meta": {
+        "Meta__FileName"    : "Document__Manifest__.json",
+        "Meta__Description" : "Everything this published document is made of, and nothing about how to draw it. The manifest is written LAST of the files in this folder, after every file it names has been uploaded and checked, so its presence is the signal that the document is whole. A reader that finds a manifest naming a file it cannot fetch treats the document as broken and shows the unpublished mask - it never attempts to make the missing part.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__ExampleNote" : "DUMMY DATA. Hand-written to show the shape."
+    },
+
+    "PublishedDocument__Identity": {
+        "Document__Id"            : "AA00_T02_D02",
+        "Document__ProjectCode"   : "AA00",
+        "Document__Phase"         : "T02",
+        "Document__Number"        : "D02",
+        "Document__Name"          : "Front Elevation",
+        "Document__Revision"      : "B",
+        "Document__Status"        : "PLANNING",
+        "Document__SourceSheetId" : "Sheet_001",
+        "Document__IdNote"        : "The document id is composed from project code, phase and number and is never stored on the sheet. It is the folder name here because a renumber or a phase change must make a NEW folder - see TrueVision__NOTES__DrawingNumberingSchema__.md."
+    },
+
+    "PublishedDocument__Publish": {
+        "Publish__SchemaVersion"    : 1,
+        "Publish__AtIso"            : "2026-09-23T14:01:58.143Z",
+        "Publish__AtEpochMs"        : 1790172118143,
+        "Publish__ByApp"            : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"     : "v2.142.0",
+        "Publish__ModelSourceId"    : "DesignPhase02__PlanningApproval__Scheme-01",
+        "Publish__ModelBuildToken"  : "2026-09-22T17:38:44Z",
+        "Publish__SourceFingerprint": "8f31c0a4be7d5219",
+        "Publish__FingerprintNote"  : "What the sheet and the model looked like when this was baked. The READER NEVER CHECKS IT - a published document is the document, not a cache entry, and a fingerprint that fails to match must not make a reader compute anything. It is here so the publisher can tell whether a re-publish would change anything, and so a bad bake can be traced to a model state.",
+        "Publish__DurationMs"       : 14290,
+        "Publish__RevisionAction"   : "archived-and-rebuilt",
+        "Publish__RevisionNote"     : "Revision A was zipped to 00__Archive__Revisions/AA00_T02_D02__Revision__A.zip before this folder was rebuilt. A re-publish of the SAME revision overwrites in place and archives nothing."
+    },
+
+    "PublishedDocument__Files": {
+        "Files__Sheet": {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 4180,
+            "File__Sha256" : "c07e4b19a8"
+        },
+        "Files__Elements": [
+            { "File__Layer": "Layer_001", "File__Type": "viewport",   "File__Path": "01__Elements__Data/Elements__Viewports__.json",  "File__Count": 1,  "File__Bytes": 2410, "File__Sha256": "1d4f77ba60" },
+            { "File__Layer": "Layer_003", "File__Type": "dimension",  "File__Path": "01__Elements__Data/Elements__Dimensions__.json", "File__Count": 24, "File__Bytes": 9840, "File__Sha256": "77c1e3af05" },
+            { "File__Layer": "Layer_002", "File__Type": "annotation", "File__Path": "01__Elements__Data/Elements__Text__.json",       "File__Count": 24, "File__Bytes": 5120, "File__Sha256": "9be2140c8a" },
+            { "File__Layer": "Layer_004", "File__Type": "vector",     "File__Path": "01__Elements__Data/Elements__Vectors__.json",    "File__Count": 39, "File__Bytes": 8930, "File__Sha256": "44a0d6e3f1" },
+            { "File__Layer": "Layer_006", "File__Type": "leader",     "File__Path": "01__Elements__Data/Elements__Bubbles__.json",    "File__Count": 17, "File__Bytes": 7615, "File__Sha256": "2ea9508cb7" },
+            { "File__Layer": null,        "File__Type": "group",      "File__Path": "01__Elements__Data/Elements__Groups__.json",     "File__Count": 4,  "File__Bytes": 1240, "File__Sha256": "b5117da49e" }
+        ],
+        "Files__Viewports": [
+            {
+                "Viewport__Id"   : "Viewport_001",
+                "Viewport__Hash" : "4f8a1c27d9",
+                "Viewport__Vector": {
+                    "File__Path"    : "02__Viewports__Vector/Viewport_001__Linework__4f8a1c27d9.svg",
+                    "File__Bytes"   : 186420,
+                    "File__Sha256"  : "4f8a1c27d9",
+                    "File__Paths"   : 5,
+                    "File__Segments": 18842
+                },
+                "Viewport__Rasters": [
+                    { "Tier__Id": "Tier01", "File__Path": "03__Viewports__Raster/Viewport_001__Tier01__Fit__4f8a1c27d9.webp",    "File__PixelW": 948,  "File__PixelH": 254,  "File__Bytes": 41280,   "File__DecodedBytes": 963168,   "File__Sha256": "4f8a1c27d9" },
+                    { "Tier__Id": "Tier02", "File__Path": "03__Viewports__Raster/Viewport_001__Tier02__Read__4f8a1c27d9.webp",   "File__PixelW": 2844, "File__PixelH": 761,  "File__Bytes": 268940,  "File__DecodedBytes": 8657136,  "File__Sha256": "4f8a1c27d9" },
+                    { "Tier__Id": "Tier03", "File__Path": "03__Viewports__Raster/Viewport_001__Tier03__Detail__4f8a1c27d9.webp", "File__PixelW": 5120, "File__PixelH": 1371, "File__Bytes": 812600,  "File__DecodedBytes": 28078080, "File__Sha256": "4f8a1c27d9" },
+                    { "Tier__Id": "Print",  "File__Path": "03__Viewports__Raster/Viewport_001__Print__4f8a1c27d9.png",           "File__PixelW": 8192, "File__PixelH": 2193, "File__Bytes": 6140880, "File__DecodedBytes": 71860224, "File__Sha256": "4f8a1c27d9" }
+                ]
+            }
+        ],
+        "Files__HashNote"  : "The ten hex digits are the first ten of the file's SHA-256, appended to its name exactly as a stored sheet picture is. A name therefore never means two different files, so every file in this folder can be cached immutably forever and a re-publish of a changed viewport writes a NEW name rather than invalidating an old one. The raster files of one viewport share the vector's hash because all five are one bake of one viewport definition; only the tier differs.",
+        "Files__BytesNote" : "EXAMPLE FOLDER CAVEAT. File__Bytes and File__Sha256 are the figures a real bake of a real elevation would write. The dummy files actually sitting in this folder are at the correct PIXEL DIMENSIONS but are drawn from flat fills, so they compress to a small fraction of these numbers - 1.8 KB rather than 41 KB at Tier01. File__PixelW, File__PixelH and File__DecodedBytes are exact and are the figures that matter.",
+        "Files__TotalBytes": 7508255
+    },
+
+    "PublishedDocument__MemoryNote": {
+        "Memory__Description" : "What this document costs a reader, which is the whole reason the folder exists. Decoded bytes are width x height x 4, the only figure that matters to a phone - the file size on disk is a download, not a footprint.",
+        "Memory__TodayFitted" : "56.2 MB. The viewer renders this viewport at the Medium raster level scaled by device pixel ratio, 5120 x 1371, and holds the base image AND the depth-fog layer, even when the sheet is merely fitted to the screen. Before that it has to compute both, on the device.",
+        "Memory__PublishedFit": "0.96 MB. Tier01, one opaque image, no fog layer, nothing computed.",
+        "Memory__Factor"      : "58x less memory for the view a reader actually opens on, and no projection, no tiled render, no supersampler, no sharpener and no PNG encode.",
+        "Memory__Ceiling"     : "28.1 MB if the reader zooms all the way to Tier03 - still half of what is spent today on a sheet nobody has zoomed."
+    }
+}

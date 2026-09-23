@@ -699,7 +699,7 @@
         void Na__LeVeil__FirstOpen(Na__LeMode__Host, {
             specification : specLoad,
             textMetrics   : metricsLoad,
-            viewportCount : (Na__LeModel__GetViewports(sheet) || []).length
+            viewportCount : Na__LeVw__IsViewerMode() ? 0 : (Na__LeModel__GetViewports(sheet) || []).length   // <-- The viewer renders no viewport: it shows the PUBLISHED drawing, so there is nothing to wait for
         });
         Na__LeModel__SetActiveSheetId(sheet.Sheet__Id);
         Na__LeHist__Track(sheet);                                          // <-- Undo baseline for this sheet
@@ -710,10 +710,15 @@
             Na__LeMode__Dispatch();
             return true;
         }
-        Na__LeSurface__SetSheet(sheet);
+        // THE WEB VIEWER NEVER RENDERS A SHEET. SetSheet builds every viewport
+        // frame and renders it on this device - the work that crashes phones -
+        // so the viewer skips it and shows the PUBLISHED drawing instead
+        // (Na__LeVw__ShowDrawing -> 52__System__Layout__PublishedDocuments),
+        // fitting it once its paper is known. The editor path is unchanged.
+        if (!Na__LeVw__IsViewerMode()) Na__LeSurface__SetSheet(sheet);
         Na__LePanels__Refresh();
         if (Na__LeVw__IsViewerMode()) Na__LeVw__ShowDrawing(sheet);
-        window.requestAnimationFrame(() => { if (Na__LeMode__Active) Na__LeNav__Fit(); });   // <-- Stage has a size once shown
+        else window.requestAnimationFrame(() => { if (Na__LeMode__Active) Na__LeNav__Fit(); });   // <-- Stage has a size once shown
         Na__LeMode__Dispatch();
         return true;
     }
@@ -1056,6 +1061,20 @@
         if (!Na__LeMode__Active) return;
         const reason = event.detail ? event.detail.reason : 'all';
         const active = Na__LeModel__GetActiveSheet();
+        // THE WEB VIEWER NEVER RENDERS A SHEET, and this is the other way into
+        // SetSheet: pressing a drawing tab makes its sheet active, and that
+        // change lands here BEFORE Enter reaches its own viewer branch - so a
+        // phone was still rendering every viewport of the sheet it had just
+        // been told to show published. The viewer's paper holds a published
+        // drawing and only Na__LeVw__ShowDrawing changes it.
+        if (Na__LeVw__IsViewerMode()) {
+            if (reason === 'loaded' || reason === 'sheet-deleted') {
+                if (!active) { const first = Na__LeModel__GetSheets()[0]; if (first) Na__LeMode__Enter(first.Sheet__Id); else Na__LeMode__Leave(); return; }
+                Na__LeVw__ShowDrawing(active, { fit : false });
+            }
+            Na__LePanels__Refresh(Na__LeMode__PanelFor(reason));
+            return;
+        }
         if (reason === 'loaded' || reason === 'sheet-deleted') {
             if (!active) { const first = Na__LeModel__GetSheets()[0]; if (first) Na__LeMode__Enter(first.Sheet__Id); else Na__LeMode__Leave(); return; }
             Na__LeSurface__SetSheet(active);

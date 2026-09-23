@@ -15,7 +15,7 @@
 //   the ValeVision3D v2.47.0 split (Window, Frame and Linework).
 // - A site plan viewport (Viewport__SitePlan) draws the project's site plan
 //   data: no underlay, no projection and no design phase. The lines arrive
-//   ready-made in drawing millimetres (52__System__SitePlanData).
+//   ready-made in drawing millimetres (21__System__SitePlanData).
 // - SitePlanToken and SitePlanPaintKey: what the lines depend on (the export
 //   time and the layers switched off) and the repaint guard built on it.
 // - SitePlanBuild and SitePlanDrawing: the classes and the fills. Every
@@ -88,7 +88,7 @@
         Na__SpStore__GetDescriptor,
         Na__SpStore__GetLayerData,
         Na__SpStore__DefaultStoreId
-    } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
+    } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport 2D Units (Window, Frame, Linework)

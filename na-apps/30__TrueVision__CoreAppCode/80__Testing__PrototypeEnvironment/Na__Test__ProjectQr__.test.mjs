@@ -67,7 +67,7 @@ import { tmpdir } from 'node:os';
     const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
     const APP        = resolve(SCRIPT_DIR, '..');
     const MODULES    = join(APP, '02__Src__AppModules');
-    const QR_DIR     = join(MODULES, '53__System__ProjectQrCode');
+    const QR_DIR     = join(MODULES, '51__System__LayoutEditor', '53__Feature__ProjectQrCode');
     const REPO_ROOT  = resolve(APP, '..', '..');
     const SCRATCH    = mkdtempSync(join(tmpdir(), 'na-projectqr-'));
 
@@ -84,7 +84,13 @@ import { tmpdir } from 'node:os';
     const painter = await import(copyAs(join(QR_DIR, 'Na__ProjectQr__Painter__.js'), 'Painter.mjs'));
     copyAs(join(MODULES, '03__AppUtils', 'Na__AppUtils__ProjectLoader.js'), 'ProjectLoader.mjs');
     const linker  = await import(copyAs(join(QR_DIR, 'Na__ProjectQr__ProjectLink__.js'), 'ProjectLink.mjs',
-        (source) => source.replace("'../03__AppUtils/Na__AppUtils__ProjectLoader.js'", "'./ProjectLoader.mjs'")));
+        // MATCHED WITHOUT ITS DEPTH, deliberately. This was an exact string once -
+        // '../03__AppUtils/...' - and moving the QR system one folder deeper
+        // (23-Sep-2026) turned it into '../../03__AppUtils/...', so the rewrite
+        // silently stopped matching and the staged copy reached out of the temp
+        // directory for a file that was never there. Any number of leading ../
+        // now matches, so the next move cannot break this.
+        (source) => source.replace(/'(?:\.\.\/)+03__AppUtils\/Na__AppUtils__ProjectLoader\.js'/, "'./ProjectLoader.mjs'")));
 
     const qrConfig    = JSON.parse(readFileSync(join(QR_DIR, 'Na__ProjectQr__Config__.json'), 'utf8'));
     const titleConfig = JSON.parse(readFileSync(join(MODULES, '51__System__LayoutEditor', '03__Core__Config', 'Na__LayoutEditor__AppConfig__.json'), 'utf8'))['LayoutEditor__TitleBlock__Config'];
@@ -422,7 +428,7 @@ import { tmpdir } from 'node:os';
     const qrSource   = readFileSync(join(QR_DIR, 'Na__ProjectQr__Symbol__.js'), 'utf8')
         .replace("'./Na__ProjectQr__Encoder__.js'", "'./Encoder.mjs'")
         .replace("'./Na__ProjectQr__ProjectLink__.js'", "'./ProjectLink.mjs'")
-        .replace("'../03__AppUtils/Na__AppUtils__ProjectLoader.js'", "'./ProjectLoader.mjs'");
+        .replace(/'(?:\.\.\/)+03__AppUtils\/Na__AppUtils__ProjectLoader\.js'/, "'./ProjectLoader.mjs'");   // <-- Depth-proof: see the note at the first staging site
     writeFileSync(join(SCRATCH, 'Symbol.mjs'), qrSource, 'utf8');
     const realFetch = globalThis.fetch;
     const realWarn  = console.warn;

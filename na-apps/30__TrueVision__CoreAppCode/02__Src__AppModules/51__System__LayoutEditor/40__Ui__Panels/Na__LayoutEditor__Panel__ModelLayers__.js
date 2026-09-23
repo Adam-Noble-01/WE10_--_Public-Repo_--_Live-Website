@@ -68,7 +68,7 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__GetActiveSheet, Na__LeModel__GetSelectedViewport, Na__LeModel__UpdateViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeModelLayers__Ready, Na__LeModelLayers__Groups, Na__LeModelLayers__IsOn } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeSource__CategoryKeys } from '../20__System__Viewports/Na__LayoutEditor__ModelSource__.js';
-    import { Na__SpStore__CHANGED_EVENT } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
+    import { Na__SpStore__CHANGED_EVENT } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     import {
         Na__LeEdge__FIELD,
         Na__LeEdge__CAT_FIELD,

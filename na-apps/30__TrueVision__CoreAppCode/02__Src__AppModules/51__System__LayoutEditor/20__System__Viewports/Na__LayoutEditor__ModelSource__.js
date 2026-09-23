@@ -56,7 +56,7 @@
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetModelSourceSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__UpdateViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__SpStore__GetLayers } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
+    import { Na__SpStore__GetLayers } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     import { Na__LeVp2d__SitePlanStoreId } from './Na__LayoutEditor__Viewport2d__SitePlan__.js';
     // ------------------------------------------------------------
 

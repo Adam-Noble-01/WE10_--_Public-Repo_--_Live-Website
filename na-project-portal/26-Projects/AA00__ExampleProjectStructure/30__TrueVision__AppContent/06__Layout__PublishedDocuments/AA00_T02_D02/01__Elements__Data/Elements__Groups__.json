@@ -1,0 +1,35 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Groups__.json",
+        "Meta__Description" : "Which elements were grouped together when the drawing was built. Nothing in the reader needs a group to paint a sheet, and no group is ever drawn. It is published because a group is a fact about the document - a future reader may want to highlight or dim one, and a document that reads back into the editor must come back grouped as it left.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : null,
+        "Meta__LayerType"   : "group",
+        "Meta__Count"       : 4,
+        "Meta__ExampleNote" : "DUMMY DATA. Two of the four are written out."
+    },
+
+    "Elements__Groups": [
+        {
+            "Group__Id"     : "Group_001",
+            "Group__Name"   : "GFFL datum",
+            "Group__Members": [
+                { "kind": "shape", "id": "Shape_001" },
+                { "kind": "shape", "id": "Shape_002" },
+                { "kind": "text",  "id": "Text_001"  }
+            ]
+        },
+        {
+            "Group__Id"     : "Group_002",
+            "Group__Name"   : "Width dimensions - row 1",
+            "Group__Members": [
+                { "kind": "dimension", "id": "Dim_001" },
+                { "kind": "dimension", "id": "Dim_002" },
+                { "kind": "dimension", "id": "Dim_003" },
+                { "kind": "dimension", "id": "Dim_004" }
+            ]
+        }
+    ]
+}

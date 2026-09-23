@@ -68,7 +68,7 @@ import { tmpdir } from 'node:os';
 
     // THE QR SYSTEM'S OWN NUMBERS | What the quiet zone has to satisfy, read
     // from the system that owns them rather than restated here
-    const qrConfig = JSON.parse(readFileSync(join(APP, '53__System__ProjectQrCode', 'Na__ProjectQr__Config__.json'), 'utf8'));
+    const qrConfig = JSON.parse(readFileSync(join(APP, '51__System__LayoutEditor', '53__Feature__ProjectQrCode', 'Na__ProjectQr__Config__.json'), 'utf8'));
     const QUIET    = qrConfig['ProjectQr__Symbol__Config']['ProjectQr__Symbol__QuietZoneModules'];
     const FLOOR_MM = qrConfig['ProjectQr__Symbol__Config']['ProjectQr__Symbol__MinModuleMm'];
     const MODULES  = 29;                                                      // <-- A version 3 symbol, which is what the shipped 42 byte address encodes to
@@ -361,7 +361,7 @@ import { tmpdir } from 'node:os';
     const BLACK_HEX  = QR_SYMBOL['ProjectQr__Symbol__DarkColour'];
     const PORTAL_HEX = QR_SYMBOL['ProjectQr__Symbol__PortalDarkColour'];
     const LIGHT_HEX  = QR_SYMBOL['ProjectQr__Symbol__LightColour'];
-    const QR_DIR     = join(APP, '53__System__ProjectQrCode');
+    const QR_DIR     = join(APP, '51__System__LayoutEditor', '53__Feature__ProjectQrCode');
     copyFileSync(join(QR_DIR, 'Na__ProjectQr__Encoder__.js'), join(SCRATCH, 'Na__ProjectQr__Encoder__.js'));
     copyFileSync(join(QR_DIR, 'Na__ProjectQr__Painter__.js'), join(SCRATCH, 'Na__ProjectQr__Painter__.js'));
     const encoder = await import(pathToFileURL(join(SCRATCH, 'Na__ProjectQr__Encoder__.js')).href);

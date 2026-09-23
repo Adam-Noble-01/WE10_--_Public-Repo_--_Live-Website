@@ -707,6 +707,39 @@
         "9150"
       ],
       "port": 9151
+    },
+    {
+      "name": "tv-dimlines",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_projectqr_nocache_save_server.py",
+        "9163",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/tv_dimlines_out"
+      ],
+      "port": 9163
+    },
+    {
+      "name": "tv-boxlocked",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "9177",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 9177
+    },
+    {
+      "name": "tv-publishing",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-B",
+        "D:/WE10_--_Public-Repo_--_Live-Website/na-apps/ProjectVision__LocalServer__Main__.py",
+        "--port",
+        "8097",
+        "--no-browser"
+      ],
+      "port": 8097
     }
   ]
 }

@@ -47,7 +47,7 @@
 //   are solved across the narrower strip, and Build after them.
 // - The symbol and the words come from the Project QR Code system, which is
 //   the only place that knows the address. This module only knows where they go.
-//   // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js
+//   // @delegate: ../53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js
 // - THE NOTE'S BASELINES ARE NOT THE FIELD LABELS'. The parametric scrapbook's
 //   link noodle finds the Scale cell by reading label runs on the strip's
 //   shared label baseline (Na__LeParamNoodle__ScaleCell); this cell's text is
@@ -92,7 +92,7 @@
         Na__ProjectQr__GetSymbol,
         Na__ProjectQr__GetNote,
         Na__ProjectQr__CheckPrint
-    } from '../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js';
+    } from '../53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------

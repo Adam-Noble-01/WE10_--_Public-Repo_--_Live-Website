@@ -188,7 +188,7 @@
     },
 
     "LayoutEditor__ScrapbookParametric__ProjectQr": {
-        "ProjectQr__Description"        : "Element three: the Project Portal block (Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js). See Meta__Portal for where it came from. The origin is the top left corner of the code's box; the button, the caption, the heading and the bullets run down from it, and the full form's heading and paragraph stand to its right. The SYMBOL is not here and is not in the record: the box carries a Shape__Qr block and the shape painter asks the Project QR Code system (02__Src__AppModules/53__System__ProjectQrCode/) for the project's own code every time the sheet is drawn.",
+        "ProjectQr__Description"        : "Element three: the Project Portal block (Na__LayoutEditor__ScrapbookParametric__ProjectQr__.js). See Meta__Portal for where it came from. The origin is the top left corner of the code's box; the button, the caption, the heading and the bullets run down from it, and the full form's heading and paragraph stand to its right. The SYMBOL is not here and is not in the record: the box carries a Shape__Qr block and the shape painter asks the Project QR Code system (02__Src__AppModules/53__Feature__ProjectQrCode/) for the project's own code every time the sheet is drawn.",
 
         "ProjectQr__SizeMm"             : 20,
         "ProjectQr__SizeChoicesMm"      : [ 15, 20, 25, 30 ],

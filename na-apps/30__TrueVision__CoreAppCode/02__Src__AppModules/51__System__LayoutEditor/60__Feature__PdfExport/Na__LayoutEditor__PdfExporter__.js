@@ -41,6 +41,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.11.0 (TrueVision)
+// - Viewport pictures (underlay, fog, 3D) are packed 'FAST' - the Sub
+//   predictor - in Download PDF and in a published PDF alike. jsPDF's default
+//   on a compressed document is Paeth, and Chrome's PDF viewer (and Android's)
+//   garbles a Paeth picture over 60 MB decoded into black blocks and streaks.
+//   Pictures come out larger. options.pictureCompression can override it.
+//
 // 22-Sep-2026 - Version 1.10.0 (TrueVision)
 // - Overspill note regions print with the notes margin: Na__LeMargin__Push
 //   draws them in the sheet step, so nothing here draws them. The toast now
@@ -353,6 +360,24 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Put One Viewport Picture on the Page
+    // ------------------------------------------------------------
+    // EVERY VIEWPORT PICTURE IS PACKED 'FAST'. Given no compression, jsPDF
+    // picks 'SLOW' on a compressed document - the Paeth predictor on every
+    // row - and Chrome's PDF viewer, the same engine as Android's, paints
+    // black blocks and streaks over any such picture over 60,000,000 decoded
+    // bytes (PS01 D01's proposed plan, 4518 x 5183 px, 70.3 MB). 'FAST' is the
+    // Sub predictor, which never reads the row above, so it cannot happen; the
+    // cost is a larger picture. Sheet Images have always been packed this way.
+    // options.pictureCompression overrides it for a caller that wants other.
+    // ------------------------------------------------------------
+    function Na__LePdf__AddPicture(doc, dataUrl, x, y, widthMm, heightMm, options) {
+        const packing = (options && typeof options.pictureCompression === 'string') ? options.pictureCompression : 'FAST';
+        doc.addImage(dataUrl, 'PNG', x, y, widthMm, heightMm, undefined, packing);
+    }
+    // ------------------------------------------------------------
+
+
     // HELPER FUNCTION | Draw One Viewport
     // ------------------------------------------------------------
     // A TURNED VIEWPORT (Viewport__RotationDeg) is drawn exactly as a level one,
@@ -386,7 +411,7 @@
                 }
                 if (!described.definition) { if (options && options.strict) throw new Error('A viewport drawing source is missing.'); return; }
                 const underlay = await Na__LeVp2d__RenderForExport(viewport);
-                if (underlay && underlay.dataUrl) doc.addImage(underlay.dataUrl, 'PNG', frame.X, frame.Y, frame.WidthMm, frame.HeightMm);
+                if (underlay && underlay.dataUrl) Na__LePdf__AddPicture(doc, underlay.dataUrl, frame.X, frame.Y, frame.WidthMm, frame.HeightMm, options);
                 if (viewport.Viewport__Styles.projectedLinework !== false) {
                     const classes = await Na__LeVp2d__EnsureLinework(described.definition, null, false, described.modelSource);   // <-- The viewport's own design phase
                     if (classes) Na__LePdf__DrawLinework(doc, sheet, viewport, described, classes);
@@ -402,7 +427,7 @@
                 // as 'RGBA' - the layer would print as a solid white rectangle
                 // over the whole drawing.
                 const fog = await Na__LeVp2d__RenderFogForExport(viewport);
-                if (fog && fog.dataUrl) doc.addImage(fog.dataUrl, 'PNG', frame.X, frame.Y, frame.WidthMm, frame.HeightMm);
+                if (fog && fog.dataUrl) Na__LePdf__AddPicture(doc, fog.dataUrl, frame.X, frame.Y, frame.WidthMm, frame.HeightMm, options);
                 if (viewport.Viewport__MarkupMode === 'scene') {
                     Na__LeChrome__DrawToPdf(doc, Na__LePdf__Offset(Na__LeMarkup__BuildScenePrimitives(described), frame.X, frame.Y));
                 }
@@ -412,7 +437,7 @@
             if (!dataUrl && options && options.strict) throw new Error('A 3D viewport could not be rendered.');
             if (dataUrl) {
                 const rect = Na__LeVp3d__ExportRectMm(viewport);                   // <-- The picture's own rectangle, or the frame when it shows a window of a zoomed picture
-                doc.addImage(dataUrl, 'PNG', frame.X + rect.X, frame.Y + rect.Y, rect.WidthMm, rect.HeightMm);
+                Na__LePdf__AddPicture(doc, dataUrl, frame.X + rect.X, frame.Y + rect.Y, rect.WidthMm, rect.HeightMm, options);
             }
         } finally {
             Na__LePdf__EndClip(doc, clipped);

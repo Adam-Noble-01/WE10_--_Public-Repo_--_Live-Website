@@ -182,7 +182,7 @@
         Na__SpStore__GetStores,
         Na__SpStore__ResolveAll,
         Na__SpStore__DefaultStoreId
-    } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
+    } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     import {
         Na__LeSpComp__PLAN_AUTO,
         Na__LeSpComp__PLAN_BLOCK,

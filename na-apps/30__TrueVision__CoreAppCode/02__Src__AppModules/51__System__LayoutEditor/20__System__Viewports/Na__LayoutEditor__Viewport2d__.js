@@ -24,7 +24,7 @@
 //   R2 asset, else an on-device render, in that order.
 // - A SITE PLAN VIEWPORT (Viewport__SitePlan) draws the project's site plan
 //   data instead: no underlay and no projection. The lines arrive ready-made
-//   in drawing millimetres (52__System__SitePlanData), styled per layer, with
+//   in drawing millimetres (21__System__SitePlanData), styled per layer, with
 //   the layers' fills underneath.
 // - This file keeps the entry points the rest of the editor calls
 //   (CentreOnDrawing, Fill, GetSnapSource, Release, ForceRender and
@@ -226,7 +226,7 @@
         Na__SpStore__Reload,
         Na__SpStore__LoadAll,
         Na__SpStore__GetFocusBoundsMm
-    } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
+    } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Viewport 2D Units (Window, Frame, Linework, SitePlan)

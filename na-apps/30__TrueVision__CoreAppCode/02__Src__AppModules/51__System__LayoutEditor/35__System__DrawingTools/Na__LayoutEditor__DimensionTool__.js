@@ -330,6 +330,8 @@
             colour : d.colour, terminator : d.terminator, tickLengthMm : d.tickLengthMm, precision : d.precision, unitsSuffix : d.unitsSuffix,
             atScale : d.atScale !== false,                                    // <-- Measure at scale: the drawing's real size, unless the panel says paper
             roundUp : d.roundUp === true,                                     // <-- Round up to 5 mm: only when the panel says so
+            linePt : Number.isFinite(d.linePt) ? d.linePt : null,             // <-- Line weight: null draws at the sheet's Dimension pt
+            dash : d.dashOn === true ? d.dash : null,                         // <-- Dashed lines only when the panel's toggle is on
             startExtensionMm : d.startExtensionMm, endExtensionMm : d.endExtensionMm, extensionsLinked : d.extensionsLinked,   // <-- Fixed length extension lines; the model keeps only what differs from the full line
             orientation : Na__LeOrtho__Resolve(shift) ? Na__LeDimGeo__OrthoToward(p.startMm, end, end, null, Na__LeCfg__GetSelectionSetup().dragThresholdMm) : Na__LeDimGeo__ALIGNED,   // <-- Shift already down, or Ortho on: ortho from the first frame
             silent : true

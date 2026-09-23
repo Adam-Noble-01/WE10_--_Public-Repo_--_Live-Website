@@ -107,7 +107,7 @@
         "LayoutEditor__TitleBlock__StatusDefaultNote": "What a sheet prints until a status is chosen for it. Empty on purpose: the cell is drawn with its label and no value. Every drawing made before the field existed would otherwise start claiming a status nobody gave it, and a wrong status on an issued drawing is worse than none. Set it to an entry from Statuses to give new and untouched sheets that one instead.",
         "LayoutEditor__TitleBlock__StatusDefault": "",
 
-        "LayoutEditor__TitleBlock__QrCellNote": "THE RIGHT-HAND END OF THE STRIP IS THE PROJECT'S QR CODE AND A NOTE SAYING WHAT SCANNING IT DOES, so anybody holding a drawing can point a phone at it and be standing in the 3D model. It mirrors the logo cell at the left: an absolute width in paper millimetres off the end of the strip, the same on every paper, with the Rows solved across what is left between the two - so Status is the last FIELD and this cell stands beyond it, in the sheet's bottom right corner. It is modelled on Lantern Designer's terms cell, and at this strip height it is that cell's size: an 8.79 mm code with 0.61 mm round it. These keys say WHERE the code goes and how its note is set. WHAT it says - the address, the words, the symbol's colours, quiet zone and smallest readable module - belongs to the Project QR Code system: 02__Src__AppModules/53__System__ProjectQrCode/Na__ProjectQr__Config__.json. The code needs no size here: it is the strip's HeightMm less the quiet zone it is owed, so it follows the strip. With no project on the address bar, or with that system switched off, there is no cell and the fields keep the whole strip.",
+        "LayoutEditor__TitleBlock__QrCellNote": "THE RIGHT-HAND END OF THE STRIP IS THE PROJECT'S QR CODE AND A NOTE SAYING WHAT SCANNING IT DOES, so anybody holding a drawing can point a phone at it and be standing in the 3D model. It mirrors the logo cell at the left: an absolute width in paper millimetres off the end of the strip, the same on every paper, with the Rows solved across what is left between the two - so Status is the last FIELD and this cell stands beyond it, in the sheet's bottom right corner. It is modelled on Lantern Designer's terms cell, and at this strip height it is that cell's size: an 8.79 mm code with 0.61 mm round it. These keys say WHERE the code goes and how its note is set. WHAT it says - the address, the words, the symbol's colours, quiet zone and smallest readable module - belongs to the Project QR Code system: 02__Src__AppModules/53__Feature__ProjectQrCode/Na__ProjectQr__Config__.json. The code needs no size here: it is the strip's HeightMm less the quiet zone it is owed, so it follows the strip. With no project on the address bar, or with that system switched off, there is no cell and the fields keep the whole strip.",
         "LayoutEditor__TitleBlock__QrCellEnabled": true,
         "LayoutEditor__TitleBlock__QrCellWidthMm": 56,
         "LayoutEditor__TitleBlock__QrCellWidthMmNote": "The whole cell: the note's column, then the code with its clear margin either side. The code and its margins take 10 mm of this, PaddingHMm and TextGapMm another 2.4, which leaves the note a column of 43.6 mm. MEASURED, NOT GUESSED: every width from 42 to 58 was wrapped against the shipped words in Open Sans at three body sizes, and this column is the one that sets the body at 1.5 mm in TWO LINES OF ALMOST EXACTLY EQUAL LENGTH - '...and view the building' over 'in full 3D, and to freely navigate and take a tour.' - flush without any letter spacing to speak of (0.004 mm). A millimetre either side wraps the same words into one long line and one short, or three with a widow, so re-measure if the words or BodyFontMm change. Lantern Designer's terms cell is 57. Never drawn narrower than the code and its margins, and never wider than a third of the strip, which is the logo cell's own cap.",
@@ -134,10 +134,10 @@
         "LayoutEditor__TitleBlock__QrCellJustifyNote": "Every body line but the last is stretched to the column by letter spacing, so the note reads as a block with a flush right edge beside a square code (Lantern Designer's terms cell does the same). ALL OF THEM OR NONE: if any line would need more than JustifyMaxTrackingMm after every character, the whole block is left at its natural spacing - one flush line over one ragged one reads as a fault, where a wholly ragged block reads as a choice.",
 
         "LayoutEditor__TitleBlock__ClassicScanAssets": {
-            "A3": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png",
-            "A4": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png",
-            "A2": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png",
-            "A1": "./02__Src__AppModules/90__System__PageLayoutSystem/PageLayoutSystem__TitleBlock__A3__.png"
+            "A3": "./01__AppAssets__TrueVision/06__AppAssets__TitleBlocks/TitleBlock__ClassicScan__A3__.png",
+            "A4": "./01__AppAssets__TrueVision/06__AppAssets__TitleBlocks/TitleBlock__ClassicScan__A3__.png",
+            "A2": "./01__AppAssets__TrueVision/06__AppAssets__TitleBlocks/TitleBlock__ClassicScan__A3__.png",
+            "A1": "./01__AppAssets__TrueVision/06__AppAssets__TitleBlocks/TitleBlock__ClassicScan__A3__.png"
         },
         "LayoutEditor__TitleBlock__ClassicFieldAnchorsNote": "Paper-mm anchors per paper size, measured from the top-left of the sheet, for the text overlaid on the scan. FontMm is the value size. Adjust once against the scan and every sheet follows.",
         "LayoutEditor__TitleBlock__ClassicFieldAnchors": {
@@ -495,7 +495,7 @@
         "LayoutEditor__Pdf__FilenamePatternNote": "Tokens: {drawingCode} the sheet's Drawing No. field as the title block prints it (PS01_T02_D01); {drawingName} the sheet's tab name with its leading sheet number stripped and run together in PascalCase (D01 - Floor Plans -> FloorPlans); {paperSize} A4/A3/A2/A1; {revision} the Revision field prefixed Rev (RevA); {date} today, the day the file was issued, as DD-MMM-YYYY. {projectCode} and {sheetName} still answer, so a pattern configured before these existed keeps working. Every token but the date comes from the sheet the way the title block reads it, so the file name and the drawing inside it cannot disagree. Anything outside A-Z, a-z, 0-9, _ and - becomes an underscore.",
         "LayoutEditor__Pdf__Author": "Noble Architecture Ltd",
         "LayoutEditor__Pdf__Creator": "TrueVision3D Layout Editor",
-        "LayoutEditor__Pdf__JsPdfScriptPath": "./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js",
+        "LayoutEditor__Pdf__JsPdfScriptPath": "./04__Lib__ThirdParty__VersionLocked/05__Vendor__JsPdf__v4.1.0/jspdf.umd.js",
         "LayoutEditor__Pdf__FontFamily": "OpenSans",
         "LayoutEditor__Pdf__FontFamilyNote": "jsPDF family name for the embedded cuts. No space: jsPDF looks fonts up by this exact id. The screen CSS family remains 'Open Sans'.",
         "LayoutEditor__Pdf__FontBasePath": "../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/",
@@ -1312,6 +1312,6 @@
             { "Key": "full",  "Label": "Download PDF",         "RasterScale": 1.50, "JpegQuality": 0.80, "FileSuffix": "" },
             { "Key": "print", "Label": "Download PDF (print)", "RasterScale": 2.00, "JpegQuality": 0.92, "FileSuffix": "__Print" }
         ],
-        "LayoutEditor__Statement__Html2CanvasScriptPath": "./02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/html2canvas.umd.js"
+        "LayoutEditor__Statement__Html2CanvasScriptPath": "./04__Lib__ThirdParty__VersionLocked/06__Vendor__Html2Canvas__v1.4.1/html2canvas.umd.js"
     }
 }

@@ -37,7 +37,7 @@ import os from 'node:os'
 import { pathToFileURL } from 'node:url'
 
 const HERE = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))
-const SRC  = path.resolve(HERE, '../02__Src__AppModules/52__System__SitePlanData/Na__SitePlan__Store__.js')
+const SRC  = path.resolve(HERE, '../02__Src__AppModules/51__System__LayoutEditor/21__System__SitePlanData/Na__SitePlan__Store__.js')
 const TMP = path.join(os.tmpdir(), 'Na__SitePlan__Store__UnderTest__.mjs')
 
 let src = fs.readFileSync(SRC, 'utf8')

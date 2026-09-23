@@ -74,12 +74,12 @@
             "SitePlan__FolderName": "SitePlan__DrawingData",
             "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
             "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
-            "SitePlan__NorthAngleDeg": 0.0,
+            "SitePlan__NorthAngleDeg": 0,
             "SitePlan__BoundsMm": {
-                "MinX": 0.0,
+                "MinX": 0,
                 "MinZ": -143295.2,
-                "MaxX": 150353.0,
-                "MaxZ": 0.0
+                "MaxX": 150353,
+                "MaxZ": 0
             },
             "SitePlan__Layers": [
                 {
@@ -107,10 +107,10 @@
                     ],
                     "Layer__SegmentCount": 364,
                     "Layer__BoundsMm": {
-                        "MinX": 0.0,
+                        "MinX": 0,
                         "MinZ": -143295.2,
-                        "MaxX": 150353.0,
-                        "MaxZ": 0.0
+                        "MaxX": 150353,
+                        "MaxZ": 0
                     }
                 },
                 {
@@ -169,8 +169,8 @@
                     ],
                     "Layer__SegmentCount": 394,
                     "Layer__BoundsMm": {
-                        "MinX": 0.0,
-                        "MinZ": -142893.0,
+                        "MinX": 0,
+                        "MinZ": -142893,
                         "MaxX": 136084.7,
                         "MaxZ": -455.9
                     }
@@ -245,12 +245,12 @@
         "SitePlan__FolderName": "SitePlan__DrawingData",
         "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
         "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
-        "SitePlan__NorthAngleDeg": 0.0,
+        "SitePlan__NorthAngleDeg": 0,
         "SitePlan__BoundsMm": {
-            "MinX": 0.0,
+            "MinX": 0,
             "MinZ": -143295.2,
-            "MaxX": 150353.0,
-            "MaxZ": 0.0
+            "MaxX": 150353,
+            "MaxZ": 0
         },
         "SitePlan__Layers": [
             {
@@ -278,10 +278,10 @@
                 ],
                 "Layer__SegmentCount": 364,
                 "Layer__BoundsMm": {
-                    "MinX": 0.0,
+                    "MinX": 0,
                     "MinZ": -143295.2,
-                    "MaxX": 150353.0,
-                    "MaxZ": 0.0
+                    "MaxX": 150353,
+                    "MaxZ": 0
                 }
             },
             {
@@ -340,8 +340,8 @@
                 ],
                 "Layer__SegmentCount": 394,
                 "Layer__BoundsMm": {
-                    "MinX": 0.0,
-                    "MinZ": -142893.0,
+                    "MinX": 0,
+                    "MinZ": -142893,
                     "MaxX": 136084.7,
                     "MaxZ": -455.9
                 }
@@ -1091,7 +1091,9 @@
                     "Sheet__Fields__DrawnBy": "A. Noble",
                     "Sheet__Fields__DrawingNumber": "D01",
                     "Sheet__Fields__Title": "Permitted Development Compliance  -  Existing Conditions & Design Proposal Floor Plans",
-                    "Sheet__Fields__Revision": "B"
+                    "Sheet__Fields__Revision": "B",
+                    "Sheet__Fields__Status": "FOR PLANNING",
+                    "Sheet__Fields__Phase": "T02"
                 },
                 "Sheet__Layers": [
                     {
@@ -1164,7 +1166,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": {
@@ -1213,7 +1216,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": {
                             "Edges__Description": "Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.",
@@ -3924,7 +3928,7 @@
                                 314.6124
                             ],
                             [
-                                345.8316,
+                                348.0316,
                                 314.6124
                             ]
                         ],
@@ -3994,7 +3998,7 @@
                         "Shape__Stroked": true,
                         "Shape__StrokeColour": "#172b3a",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#666666",
+                        "Shape__FillColour": "#858585",
                         "Shape__LayerId": "Layer_004",
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -4025,7 +4029,7 @@
                         "Shape__Stroked": true,
                         "Shape__StrokeColour": "#172b3a",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#666666",
+                        "Shape__FillColour": "#858585",
                         "Shape__LayerId": "Layer_004",
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -4118,7 +4122,7 @@
                         "Shape__Stroked": true,
                         "Shape__StrokeColour": "#172b3a",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#666666",
+                        "Shape__FillColour": "#858585",
                         "Shape__LayerId": "Layer_004",
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -4149,7 +4153,7 @@
                         "Shape__Stroked": true,
                         "Shape__StrokeColour": "#172b3a",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#666666",
+                        "Shape__FillColour": "#858585",
                         "Shape__LayerId": "Layer_004",
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -4242,7 +4246,7 @@
                         "Shape__Stroked": true,
                         "Shape__StrokeColour": "#172b3a",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#666666",
+                        "Shape__FillColour": "#858585",
                         "Shape__LayerId": "Layer_004",
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -5191,6 +5195,8 @@
                                 "TitleText": "",
                                 "Uppercase": true,
                                 "UnderlineMm": 60,
+                                "BarPlacement": "below",
+                                "BarOffsetMm": 150,
                                 "ViewKind": "plan",
                                 "ViewPhase": "proposed",
                                 "ViewFacing": "",
@@ -5310,7 +5316,8 @@
                         },
                         "Group__Id": "Group_009"
                     }
-                ]
+                ],
+                "Sheet__LayerStack": 2
             },
             {
                 "Sheet__Id": "Sheet_001",
@@ -5325,7 +5332,9 @@
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
                     "Sheet__Fields__Title": "Permitted Development Compliance  -  Existing Conditions & Design Proposal Elevations",
-                    "Sheet__Fields__Revision": "B"
+                    "Sheet__Fields__Revision": "B",
+                    "Sheet__Fields__Status": "FOR PLANNING",
+                    "Sheet__Fields__Phase": "T02"
                 },
                 "Sheet__Layers": [
                     {
@@ -5396,7 +5405,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
@@ -5445,7 +5455,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
@@ -5493,7 +5504,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": false,
@@ -5540,7 +5552,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
@@ -5591,7 +5604,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
@@ -5641,7 +5655,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": false,
@@ -11387,7 +11402,8 @@
                         ],
                         "Group__Id": "Group_007"
                     }
-                ]
+                ],
+                "Sheet__LayerStack": 2
             },
             {
                 "Sheet__Id": "Sheet_003",
@@ -11401,24 +11417,18 @@
                     "Sheet__Fields__DrawingNumber": "D03",
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
-                    "Sheet__Fields__DrawnBy": "A. Noble"
+                    "Sheet__Fields__DrawnBy": "A. Noble",
+                    "Sheet__Fields__Status": "FOR PLANNING",
+                    "Sheet__Fields__Phase": "T02"
                 },
                 "Sheet__Layers": [
-                    {
-                        "Layer__Id": "Layer_001",
-                        "Layer__Name": "Viewports",
-                        "Layer__Type": "viewport",
-                        "Layer__Visible": true,
-                        "Layer__Locked": false,
-                        "Layer__Order": 1
-                    },
                     {
                         "Layer__Id": "Layer_002",
                         "Layer__Name": "Text",
                         "Layer__Type": "annotation",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 2
+                        "Layer__Order": 1
                     },
                     {
                         "Layer__Id": "Layer_003",
@@ -11426,12 +11436,20 @@
                         "Layer__Type": "dimension",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 3
+                        "Layer__Order": 2
                     },
                     {
                         "Layer__Id": "Layer_004",
                         "Layer__Name": "Vectors",
                         "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
                         "Layer__Order": 4
@@ -11474,7 +11492,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
@@ -11525,7 +11544,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
@@ -11577,7 +11597,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
@@ -11629,7 +11650,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
@@ -11681,7 +11703,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
@@ -11733,7 +11756,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": null,
                         "Viewport__CompositeWeights": null,
@@ -12789,7 +12813,8 @@
                     "TextSizeMm": 2,
                     "IncludeGeneral": true,
                     "GroupHeadings": false
-                }
+                },
+                "Sheet__LayerStack": 2
             },
             {
                 "Sheet__Id": "Sheet_004",
@@ -12804,24 +12829,18 @@
                     "Sheet__Fields__Client": "Mr P. Samra",
                     "Sheet__Fields__SiteAddress": "255 Musters Road, West Bridgford, Nottinghamshire, NG2 7DD ",
                     "Sheet__Fields__DrawingNumber": "D04",
-                    "Sheet__Fields__Title": "Permitted Development Compliance  -  Design Proposal Site Block & Location Plan"
+                    "Sheet__Fields__Title": "Permitted Development Compliance  -  Design Proposal Site Block & Location Plan",
+                    "Sheet__Fields__Status": "FOR PLANNING",
+                    "Sheet__Fields__Phase": "T02"
                 },
                 "Sheet__Layers": [
-                    {
-                        "Layer__Id": "Layer_001",
-                        "Layer__Name": "Viewports",
-                        "Layer__Type": "viewport",
-                        "Layer__Visible": true,
-                        "Layer__Locked": false,
-                        "Layer__Order": 1
-                    },
                     {
                         "Layer__Id": "Layer_002",
                         "Layer__Name": "Text",
                         "Layer__Type": "annotation",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 2
+                        "Layer__Order": 1
                     },
                     {
                         "Layer__Id": "Layer_003",
@@ -12829,12 +12848,20 @@
                         "Layer__Type": "dimension",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
-                        "Layer__Order": 3
+                        "Layer__Order": 2
                     },
                     {
                         "Layer__Id": "Layer_004",
                         "Layer__Name": "Vectors",
                         "Layer__Type": "vector",
+                        "Layer__Visible": true,
+                        "Layer__Locked": false,
+                        "Layer__Order": 3
+                    },
+                    {
+                        "Layer__Id": "Layer_001",
+                        "Layer__Name": "Viewports",
+                        "Layer__Type": "viewport",
                         "Layer__Visible": true,
                         "Layer__Locked": false,
                         "Layer__Order": 4
@@ -12878,7 +12905,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": {
                             "Edges__Description": "Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.",
@@ -12941,7 +12969,8 @@
                             "whitecard": true,
                             "hiddenLines": false,
                             "enhanceWhitecard": true,
-                            "contextLayer": true
+                            "contextLayer": true,
+                            "depthFog": true
                         },
                         "Viewport__ProjectedEdges": {
                             "Edges__Description": "Projected linework style for this viewport only, per SketchUp model category. Weight is a multiplier on the sheet master viewport lineweight; the colour and line type are aliases from Na__LayoutEditor__EdgeStyles__Config__.json. A category absent from this list draws at the default in Na__LayoutEditor__ModelLayers__Config__.json. Visibility is NOT here - that is Viewport__ModelLayers.",
@@ -14681,7 +14710,8 @@
                     "ViewportPt": 0.3,
                     "DimensionPt": 0.35
                 },
-                "Sheet__DrawingType": "siteplan"
+                "Sheet__DrawingType": "siteplan",
+                "Sheet__LayerStack": 2
             }
         ],
         "LayoutEditor__DrawingsData__CommonClient": "Mr P. Samra",
@@ -14694,6 +14724,19 @@
                 "PosZ": 916
             },
             "North__SetIso": "2026-09-20T08:36:09.616Z"
-        }
+        },
+        "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T16:44:52.447Z"
+    },
+    "LayoutEditor__DrawingRegister": {
+        "DrawingRegister__Document__Description": "Drawing register numbering and per-sheet revision history. Sheet ids link to LayoutEditor__DrawingsData; drawing metadata stays in its sheet records.",
+        "DrawingRegister__Document__Version": 1,
+        "DrawingRegister__Document__Updated": "2026-09-23T16:44:52.446Z",
+        "DrawingRegister__Numbering": {
+            "DrawingRegister__Numbering__Prefix": "D",
+            "DrawingRegister__Numbering__Start": 1,
+            "DrawingRegister__Numbering__Digits": 2,
+            "DrawingRegister__Numbering__Overrides": {}
+        },
+        "DrawingRegister__Revisions": {}
     }
 }

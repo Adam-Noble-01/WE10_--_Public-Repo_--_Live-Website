@@ -1,0 +1,90 @@
+{
+    "PublishedDocument__Meta": {
+        "Meta__FileName"    : "Document__Manifest__.json",
+        "Meta__Description" : "A floor plan. Same shape as the elevation's manifest; the differences worth looking at are the floor-area element file, the storey the plan cuts, and the memory figures - a plan viewport is nearly square and therefore far more pixels than an elevation, which is why the tier ladder matters more here than anywhere.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__ExampleNote" : "DUMMY DATA. Hand-written to show the shape."
+    },
+
+    "PublishedDocument__Identity": {
+        "Document__Id"            : "AA00_T02_D06",
+        "Document__ProjectCode"   : "AA00",
+        "Document__Phase"         : "T02",
+        "Document__Number"        : "D06",
+        "Document__Name"          : "Ground Floor Plan",
+        "Document__Revision"      : "B",
+        "Document__Status"        : "PLANNING",
+        "Document__SourceSheetId" : "Sheet_006"
+    },
+
+    "PublishedDocument__Publish": {
+        "Publish__SchemaVersion"    : 1,
+        "Publish__AtIso"            : "2026-09-23T14:02:19.418Z",
+        "Publish__AtEpochMs"        : 1790172139418,
+        "Publish__ByApp"            : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"     : "v2.142.0",
+        "Publish__ModelSourceId"    : "DesignPhase02__PlanningApproval__Scheme-01",
+        "Publish__ModelBuildToken"  : "2026-09-22T17:38:44Z",
+        "Publish__SourceFingerprint": "a20b77ff14e9c806",
+        "Publish__DurationMs"       : 31740,
+        "Publish__RevisionAction"   : "overwritten",
+        "Publish__RevisionNote"     : "Revision B was already published, so this re-publish overwrote the folder in place and archived nothing. Only a CHANGE of revision letter makes an archive zip."
+    },
+
+    "PublishedDocument__Files": {
+        "Files__Sheet": {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 4620,
+            "File__Sha256" : "e41902cb7d"
+        },
+        "Files__Elements": [
+            { "File__Layer": "Layer_001", "File__Type": "viewport",   "File__Path": "01__Elements__Data/Elements__Viewports__.json",  "File__Count": 1,   "File__Bytes": 2680,  "File__Sha256": "77bd0e1a34" },
+            { "File__Layer": "Layer_003", "File__Type": "dimension",  "File__Path": "01__Elements__Data/Elements__Dimensions__.json", "File__Count": 45,  "File__Bytes": 18420, "File__Sha256": "0cc7f9e251" },
+            { "File__Layer": "Layer_002", "File__Type": "annotation", "File__Path": "01__Elements__Data/Elements__Text__.json",       "File__Count": 112, "File__Bytes": 24180, "File__Sha256": "3a6e82b0dd" },
+            { "File__Layer": "Layer_004", "File__Type": "vector",     "File__Path": "01__Elements__Data/Elements__Vectors__.json",    "File__Count": 159, "File__Bytes": 39640, "File__Sha256": "c9014fa6b2" },
+            { "File__Layer": "Layer_005", "File__Type": "area",       "File__Path": "01__Elements__Data/Elements__Areas__.json",      "File__Count": 6,   "File__Bytes": 3910,  "File__Sha256": "51d3ab8e70" },
+            { "File__Layer": "Layer_006", "File__Type": "leader",     "File__Path": "01__Elements__Data/Elements__Bubbles__.json",    "File__Count": 31,  "File__Bytes": 13880, "File__Sha256": "8f20c4da16" },
+            { "File__Layer": null,        "File__Type": "group",      "File__Path": "01__Elements__Data/Elements__Groups__.json",     "File__Count": 10,  "File__Bytes": 3260,  "File__Sha256": "6b7e15c982" }
+        ],
+        "Files__Viewports": [
+            {
+                "Viewport__Id"   : "Viewport_001",
+                "Viewport__Hash" : "b93e5407ac",
+                "Viewport__Vector": {
+                    "File__Path"    : "02__Viewports__Vector/Viewport_001__Linework__b93e5407ac.svg",
+                    "File__Bytes"   : 402180,
+                    "File__Sha256"  : "b93e5407ac",
+                    "File__Paths"   : 5,
+                    "File__Segments": 41206
+                },
+                "Viewport__Rasters": [
+                    { "Tier__Id": "Tier01", "File__Path": "03__Viewports__Raster/Viewport_001__Tier01__Fit__b93e5407ac.webp",    "File__PixelW": 988,  "File__PixelH": 794,  "File__Bytes": 94120,   "File__DecodedBytes": 3137888,   "File__Sha256": "b93e5407ac" },
+                    { "Tier__Id": "Tier02", "File__Path": "03__Viewports__Raster/Viewport_001__Tier02__Read__b93e5407ac.webp",   "File__PixelW": 2964, "File__PixelH": 2382, "File__Bytes": 681340,  "File__DecodedBytes": 28240992,  "File__Sha256": "b93e5407ac" },
+                    { "Tier__Id": "Tier03", "File__Path": "03__Viewports__Raster/Viewport_001__Tier03__Detail__b93e5407ac.webp", "File__PixelW": 5120, "File__PixelH": 4115, "File__Bytes": 1904220, "File__DecodedBytes": 84275200,  "File__Sha256": "b93e5407ac" },
+                    { "Tier__Id": "Print",  "File__Path": "03__Viewports__Raster/Viewport_001__Print__b93e5407ac.png",           "File__PixelW": 8192, "File__PixelH": 6583, "File__Bytes": 9820400, "File__DecodedBytes": 215711744, "File__Sha256": "b93e5407ac" }
+                ]
+            }
+        ],
+        "Files__BytesNote" : "EXAMPLE FOLDER CAVEAT. File__Bytes and File__Sha256 are what a real bake of a real plan would write; the dummy files in this folder are at the correct PIXEL DIMENSIONS but drawn from flat fills, so they compress far smaller. File__PixelW, File__PixelH and File__DecodedBytes are exact.",
+        "Files__TotalBytes": 12988250
+    },
+
+    "PublishedDocument__Storey": {
+        "Storey__Id"        : "Storey_GF",
+        "Storey__Name"      : "Ground Floor",
+        "Storey__LevelMm"   : 0,
+        "Storey__CutMm"     : 1200,
+        "Storey__BandTopMm" : 2700,
+        "Storey__Note"      : "A record of which storey this plan cuts, published for the reader's own labelling and for tracing a bad bake. The reader does not cut anything - the cut happened when the picture and the linework were baked."
+    },
+
+    "PublishedDocument__MemoryNote": {
+        "Memory__Description" : "Decoded bytes, which is width x height x 4 and the only figure a phone cares about.",
+        "Memory__TodayFitted" : "168.6 MB. Medium raster level scaled by device pixel ratio gives 5120 x 4115, held twice - base image and fog - for a plan the reader has only just opened and has not zoomed.",
+        "Memory__PublishedFit": "3.14 MB. Tier01, one opaque image.",
+        "Memory__Factor"      : "54x, and the site plan sheets of a real project are worse still: a 560 x 535mm site plan viewport is 200 MB decoded today against 4 MB at Tier01.",
+        "Memory__Ceiling"     : "84.3 MB at Tier03, and a reader has to have zoomed a long way in to be given it. The reader holds ONE tier of one viewport at a time: stepping up a tier drops the tier below rather than adding to it."
+    }
+}

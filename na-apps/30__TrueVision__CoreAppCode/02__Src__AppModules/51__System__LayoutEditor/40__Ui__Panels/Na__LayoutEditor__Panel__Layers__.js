@@ -22,14 +22,16 @@
 //   model until release: one reorder, one undo step. A focused grip takes
 //   the arrow keys too, so the order can still be changed without a mouse.
 // - THE LOCK BUTTON NAMES WHAT A CLICK WILL DO: "Lock" on an open layer,
-//   "Unlock" on a locked one. A locked layer's button carries a faint red -
-//   enough to spot the locked rows at a glance, and no more.
+//   "Unlock" on a locked one.
 // - THE REF BUTTON MAKES A REFERENCE LAYER, Blender's Selectable switch: the
 //   layer is drawn and printed as ever, but nothing on it can be clicked,
 //   boxed, hovered or snapped to - the pointer passes straight through to
 //   whatever lies beneath. A lock is the other half: it stops an edit and
-//   still offers its points to snap to. The button reads Ref either way and
-//   carries a faint blue while the layer is one, as the lock carries red.
+//   still offers its points to snap to. The button reads Ref either way.
+// - ONE RED FOR EVERY SWITCH AWAY FROM ITS USUAL STATE: Off, Unlock (locked)
+//   and Ref (a reference layer) all carry the same faint red. A finished
+//   drawing has every layer On, unlocked and selectable, so a red button
+//   anywhere down the three columns is one still to put back.
 //
 // INTEGRATION:
 // - Registered into the panel host by the mode controller.
@@ -46,6 +48,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.3.0
+// - The On / Off button is red while the layer is Off (na-le-btn--eye
+//   is-off, aria-pressed), and the Ref button's faint blue becomes the lock's
+//   faint red: Adam's "when layers are off, make the button red, like with
+//   the locked and the same with ref", so a layer left in any of the three
+//   switched states shows at a glance.
+//
 // 21-Sep-2026 - Version 1.2.0
 // - A third switch beside On and Lock, Ref, for Adam's "non-selectable layer
 //   ... so you can see it, but nothing tries to snap or bind to it. Blender
@@ -165,8 +174,10 @@
         row.className = 'na-le-layer' + (layer.Layer__Visible === false ? ' na-le-layer--hidden' : '') + (locked ? ' na-le-layer--locked' : '');
         row.setAttribute('data-na-layer-id', layer.Layer__Id);
 
-        const eye = Na__LePanels__Button(layer.Layer__Visible === false ? 'Off' : 'On', 'layer-eye', 'na-le-btn--icon', layer.Layer__Id);
+        const hidden = layer.Layer__Visible === false;                            // <-- The same test the model shows by
+        const eye = Na__LePanels__Button(hidden ? 'Off' : 'On', 'layer-eye', 'na-le-btn--icon na-le-btn--eye' + (hidden ? ' is-off' : ''), layer.Layer__Id);
         eye.title = 'Show or hide';
+        eye.setAttribute('aria-pressed', String(hidden));
         const lock = Na__LePanels__Button(locked ? 'Unlock' : 'Lock', 'layer-lock', 'na-le-btn--icon na-le-btn--lock' + (locked ? ' is-locked' : ''), layer.Layer__Id);
         lock.title = locked ? 'Locked - click to unlock' : 'Lock this layer';
         lock.setAttribute('aria-pressed', String(locked));

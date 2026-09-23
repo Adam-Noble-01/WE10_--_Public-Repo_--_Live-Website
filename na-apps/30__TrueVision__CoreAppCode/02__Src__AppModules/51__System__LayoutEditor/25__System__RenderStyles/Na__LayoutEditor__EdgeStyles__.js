@@ -80,7 +80,7 @@
     // ------------------------------------------------------------
     import { Na__LeModelLayers__EdgeDefault, Na__LeModelLayers__Ready, Na__LeModelLayers__IsLoaded } from './Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeCfg__GetLineweightSetup, Na__LeCfg__PtToMm } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__SpStore__GetLayers } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';   // <-- Site plan layers carry their own default style
+    import { Na__SpStore__GetLayers } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';   // <-- Site plan layers carry their own default style
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------

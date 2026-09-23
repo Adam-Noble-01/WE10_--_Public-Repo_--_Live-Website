@@ -183,7 +183,7 @@
         Na__LeParamInfill__RUN_UP,
         Na__LeParamInfill__CreateType
     } from './Na__LayoutEditor__ScrapbookParametric__CabinetInfill__.js';
-    import { Na__QrLink__CurrentProject } from '../../53__System__ProjectQrCode/Na__ProjectQr__ProjectLink__.js';
+    import { Na__QrLink__CurrentProject } from '../53__Feature__ProjectQrCode/Na__ProjectQr__ProjectLink__.js';
     import { Na__DrawData__GetProjectCode } from '../../40__System__DrawingViewCore/Na__DrawView__ProjectData__.js';
     import { Na__CfApi__GetLoadedProjectData } from '../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
     import { Na__LeViewId__Ready, Na__LeViewId__Words, Na__LeViewId__IsNorthSet } from '../20__System__Viewports/Na__LayoutEditor__ViewportIdentity__.js';

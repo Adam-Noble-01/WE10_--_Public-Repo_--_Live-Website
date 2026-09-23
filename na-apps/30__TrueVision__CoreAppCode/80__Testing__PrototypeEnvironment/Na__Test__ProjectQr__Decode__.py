@@ -48,7 +48,8 @@ import cv2
 PIXELS_PER_MODULE = (4, 5, 6, 8, 10)
 QUIET_MODULES     = (2, 4, 6)
 CONFIG_PATH       = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '02__Src__AppModules',
-                                 '53__System__ProjectQrCode', 'Na__ProjectQr__Config__.json')
+                                 '51__System__LayoutEditor', '53__Feature__ProjectQrCode',
+                                 'Na__ProjectQr__Config__.json')
 
 
 def grey(hex_colour):

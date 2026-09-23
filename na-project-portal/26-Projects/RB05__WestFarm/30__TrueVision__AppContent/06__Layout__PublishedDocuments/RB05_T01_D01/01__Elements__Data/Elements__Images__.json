@@ -1,0 +1,93 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Images__.json",
+        "Meta__Kind"      : "image",
+        "Meta__LayerType" : "image",
+        "Meta__Document"  : "RB05_T01_D01",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Images" : [
+        {
+            "Shape__Id"      : "Shape_001",
+            "Shape__LayerId" : "Layer_006",
+            "Shape__Points"  : [
+                [
+                    112.6,
+                    24
+                ],
+                [
+                    309,
+                    24
+                ],
+                [
+                    309,
+                    134.47500000000002
+                ],
+                [
+                    112.6,
+                    134.47500000000002
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Image"         : {
+                "Image__File"   : "RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__f305e28510.webp",
+                "Image__Folder" : "RB05_T01_D01",
+                "Image__PixelW" : 3840,
+                "Image__PixelH" : 2160,
+                "Image__Frame"  : true,
+                "Image__Name"   : "RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__.png"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_002",
+            "Shape__LayerId" : "Layer_006",
+            "Shape__Points"  : [
+                [
+                    25,
+                    153.8253674976861
+                ],
+                [
+                    217.31045778189136,
+                    153.8253674976861
+                ],
+                [
+                    217.31045778189136,
+                    262
+                ],
+                [
+                    25,
+                    262
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#172b3a",
+            "Shape__StrokePt"      : 0.2,
+            "Shape__FillColour"    : null,
+            "Shape__Stroked"       : false,
+            "Shape__FillOpacity"   : 1,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Image"         : {
+                "Image__File"   : "RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__0a982a8998.webp",
+                "Image__Folder" : "RB05_T01_D01",
+                "Image__PixelW" : 3840,
+                "Image__PixelH" : 2160,
+                "Image__Frame"  : true,
+                "Image__Name"   : "RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__.png"
+            }
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_006" : "<g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" viewBox=\"0 0 3840 2160\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"3840\" height=\"2160\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__f305e28510.webp\"/></svg><rect x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g><g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"25\" y=\"153.825\" width=\"192.31\" height=\"108.175\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"25\" y=\"153.825\" width=\"192.31\" height=\"108.175\" viewBox=\"0 0 3840 2160\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"3840\" height=\"2160\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__0a982a8998.webp\"/></svg><rect x=\"25\" y=\"153.825\" width=\"192.31\" height=\"108.175\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g>"
+    }
+}

@@ -1,0 +1,54 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Vectors__.json",
+        "Meta__Description" : "Hand-drawn vectors on the plan: section marks, door swing corrections, hatch boundaries, the demolition overlay. A hatch is published as its FILL RULE and its boundary, not as a thousand little lines - the reader paints an SVG pattern, which is one paint whatever the area.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_004",
+        "Meta__LayerType"   : "vector",
+        "Meta__Count"       : 159,
+        "Meta__ExampleNote" : "DUMMY DATA. Two of the hundred and fifty-nine are written out."
+    },
+
+    "Elements__Vectors": [
+        {
+            "Shape__Id"           : "Shape_041",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 168.9, 118.4 ], [ 268.4, 118.4 ], [ 268.4, 198.2 ], [ 168.9, 198.2 ] ],
+            "Shape__Closed"       : true,
+            "Shape__Stroked"      : true,
+            "Shape__StrokeColour" : "#8a8a8a",
+            "Shape__StrokePt"     : 0.25,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : null,
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : null,
+            "Shape__Gradient"     : null,
+            "Shape__Hatch"        : {
+                "Hatch__PatternId"  : "Masonry__StoneRubble",
+                "Hatch__ScaleMm"    : 4,
+                "Hatch__AngleDeg"   : 0,
+                "Hatch__Colour"     : "#8a8a8a",
+                "Hatch__StrokePt"   : 0.18,
+                "Hatch__TileSvg"    : "/01__Shared__Patterns/Hatch__Masonry__StoneRubble__7c1e05a92b.svg",
+                "Hatch__Note"       : "The pattern tile is published ONCE PER PROJECT as its own small SVG and referenced by every shape on every document that uses it, so a plan with forty hatched walls downloads one tile and a second plan downloads none. A path beginning with a slash is relative to the PUBLISHED DOCUMENTS ROOT, not to this document's folder - that is the only shape a shared asset takes. The reader makes an SVG <pattern> from the tile and fills the boundary: one paint per shape, whatever the area."
+            }
+        },
+        {
+            "Shape__Id"           : "Shape_112",
+            "Shape__LayerId"      : "Layer_004",
+            "Shape__Points"       : [ [ 268.4, 118.4 ], [ 268.4, 92.6 ] ],
+            "Shape__Closed"       : false,
+            "Shape__Stroked"      : true,
+            "Shape__StrokeColour" : "#909090",
+            "Shape__StrokePt"     : 0.3,
+            "Shape__StrokeOpacity": 1,
+            "Shape__FillColour"   : null,
+            "Shape__FillOpacity"  : 1,
+            "Shape__LineStyle"    : "dotted",
+            "Shape__Gradient"     : null,
+            "Shape__Note"         : "A removed wall, mid grey dotted, exactly as the site plan composites draw them."
+        }
+    ]
+}

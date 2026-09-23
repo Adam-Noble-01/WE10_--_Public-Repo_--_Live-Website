@@ -664,34 +664,29 @@
     min-width                          : 48px;
 }
 
-/* A LOCKED LAYER'S BUTTON is only just red: enough to pick the locked rows
+/* THE REF BUTTON - a reference layer, Blender's Selectable switch - reads
+   Ref either way, so it is only as wide as that word. */
+.na-le-btn--ref {
+    min-width                          : 32px;
+}
+
+/* ONE RED FOR EVERY SWITCH AWAY FROM ITS USUAL STATE - a layer Off, a layer
+   locked (Unlock), a reference layer (Ref). A finished drawing has every
+   layer On, unlocked and selectable, so a red button anywhere down the three
+   columns is one still to put back. Only just red: enough to pick the rows
    out at a glance, too little to be mistaken for a warning or for Delete. */
-.na-le-btn--lock.is-locked {
+.na-le-btn--eye.is-off,
+.na-le-btn--lock.is-locked,
+.na-le-btn--ref.is-reference {
     border-color                       : #e8c9c9;
     background                         : #fbf3f3;
     color                              : #9b3b3b;
 }
 
-.na-le-btn--lock.is-locked:hover:not(:disabled) {
-    background                         : #f6e7e7;
-}
-
-/* THE REF BUTTON - a reference layer, Blender's Selectable switch - reads
-   Ref either way, so it is only as wide as that word. A reference layer's
-   button is only just blue, the lock's faint red in another colour: enough
-   to pick out the rows the pointer passes through, and no more. */
-.na-le-btn--ref {
-    min-width                          : 32px;
-}
-
-.na-le-btn--ref.is-reference {
-    border-color                       : #c3d8ea;
-    background                         : #f0f6fb;
-    color                              : #1f5f8b;
-}
-
+.na-le-btn--eye.is-off:hover:not(:disabled),
+.na-le-btn--lock.is-locked:hover:not(:disabled),
 .na-le-btn--ref.is-reference:hover:not(:disabled) {
-    background                         : #e3eef8;
+    background                         : #f6e7e7;
 }
 
 /* THE GRIP - six small squares, the usual sign for "hold here and drag".

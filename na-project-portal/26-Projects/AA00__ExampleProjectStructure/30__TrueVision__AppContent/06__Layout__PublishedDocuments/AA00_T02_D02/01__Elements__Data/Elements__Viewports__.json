@@ -1,0 +1,52 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Viewports__.json",
+        "Meta__Description" : "Where each viewport sits on the paper and which baked files are its picture and its linework. This is the ONLY file that knows a viewport was ever a 3D model: there is no camera, no scene id, no model source, no style flags, no composite weights and no door poses, because none of that can be acted on by a reader and publishing all of it would only invite somebody to try.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_001",
+        "Meta__LayerType"   : "viewport",
+        "Meta__ExampleNote" : "DUMMY DATA. Hand-written to show the shape."
+    },
+
+    "Elements__Viewports": [
+        {
+            "Viewport__Id"              : "Viewport_001",
+            "Viewport__Kind"            : "2d",
+            "Viewport__Name"            : "Front Elevation",
+            "Viewport__LayerId"         : "Layer_001",
+            "Viewport__FrameMm"         : { "X": 31, "Y": 127.1018, "WidthMm": 474, "HeightMm": 126.8982 },
+            "Viewport__RotationDeg"     : 0,
+            "Viewport__ScaleDenominator": 100,
+            "Viewport__ScaleLabel"      : "1:100",
+            "Viewport__ShowScaleLabel"  : false,
+            "Viewport__ShowFrame"       : false,
+
+            "Viewport__Vector": {
+                "Vector__File"       : "02__Viewports__Vector/Viewport_001__Linework__4f8a1c27d9.svg",
+                "Vector__WidthMm"    : 474,
+                "Vector__HeightMm"   : 126.8982,
+                "Vector__PathCount"  : 5,
+                "Vector__SegmentCount": 18842,
+                "Vector__Note"       : "Paint-ready. Stroke colour, width, opacity and dash are already on each path, and the path coordinates are paper millimetres in the viewport's own frame, so the reader positions it with one translate. The reader loads NO styling config, NO owner tags, NO appearance rules and NO linework modifier table - all of that was resolved when the SVG was written."
+            },
+
+            "Viewport__Rasters": [
+                { "Tier__Id": "Tier01", "Tier__File": "03__Viewports__Raster/Viewport_001__Tier01__Fit__4f8a1c27d9.webp",    "Tier__PixelW": 948,  "Tier__PixelH": 254  },
+                { "Tier__Id": "Tier02", "Tier__File": "03__Viewports__Raster/Viewport_001__Tier02__Read__4f8a1c27d9.webp",   "Tier__PixelW": 2844, "Tier__PixelH": 761  },
+                { "Tier__Id": "Tier03", "Tier__File": "03__Viewports__Raster/Viewport_001__Tier03__Detail__4f8a1c27d9.webp", "Tier__PixelW": 5120, "Tier__PixelH": 1371 },
+                { "Tier__Id": "Print",  "Tier__File": "03__Viewports__Raster/Viewport_001__Print__4f8a1c27d9.png",           "Tier__PixelW": 8192, "Tier__PixelH": 2193 }
+            ],
+
+            "Viewport__RasterOpaque"    : true,
+            "Viewport__RasterOpaqueNote": "The flattened picture has NO alpha channel. Base image, depth fog, whitecard and the enhancement were composited into it when it was baked, so nothing has to be blended on the device - and an opaque image cannot show the black fringe or the inverted viewport that transparent layers produce on some devices. A viewport that genuinely needs paper to show through it - a site plan composite with a lone face fill, a gradient mask - sets this false and publishes with alpha; it is per viewport, never a global setting.",
+
+            "Viewport__BakedLayers": [ "baseImage", "whitecard", "enhanceWhitecard", "depthFog", "contextLayer" ],
+            "Viewport__BakedLayersNote": "Only a record of what went into the picture, for tracing a bad bake. The reader does not read it.",
+
+            "Viewport__PaintOrder"     : [ "raster", "vector" ],
+            "Viewport__PaintOrderNote" : "Two things, in this order, and that is the whole viewport: the flattened picture, then the linework over it."
+        }
+    ]
+}

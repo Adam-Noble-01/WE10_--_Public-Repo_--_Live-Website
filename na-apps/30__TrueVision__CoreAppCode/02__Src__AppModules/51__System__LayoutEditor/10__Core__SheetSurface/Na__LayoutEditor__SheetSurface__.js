@@ -455,6 +455,55 @@
     // ------------------------------------------------------------
 
 
+    // FUNCTION | Show a PUBLISHED Drawing on the Paper (the web viewer only)
+    // ------------------------------------------------------------
+    // The web viewer never renders a sheet. It is handed a published drawing -
+    // one SVG of baked files (52__System__Layout__PublishedDocuments) - and
+    // this puts that on the SAME paper the editor uses, sized the same way, so
+    // every navigation the viewer already has - fit, pinch, pan, double tap,
+    // the zoom keys - works on it unchanged.
+    //
+    // WHAT IT DELIBERATELY DOES NOT DO: build frames, render a viewport, build
+    // the chrome or the markup. Na__LeSurface__Sheet stays null, so Refresh and
+    // every rebuild the editor would book are inert on this paper; the editor's
+    // own layer stack is hidden, and the published drawing sits in a host of
+    // its own beside it. The authoring path (SetSheet) is untouched and is never
+    // called in the viewer.
+    //
+    // page: { WidthMm, HeightMm, ScreenPixelsPerMm } - the published paper.
+    // Returns the host element the published markup goes into, or null.
+    // ------------------------------------------------------------
+    function Na__LeSurface__ShowPublished(page) {
+        if (!Na__LeSurface__Paper || !page) return null;
+        const width  = Number(page.WidthMm);
+        const height = Number(page.HeightMm);
+        if (!(width > 0) || !(height > 0)) return null;
+        Na__LeSurface__CancelPending();
+        // AN EDITOR SHEET STILL ON THIS PAPER IS PARKED, which is what its own
+        // renders ask before they start: one booked for a sheet nobody can see
+        // is skipped rather than drawn.
+        if (Na__LeSurface__Sheet) Na__LeSurface__ParkFrames(Na__LeSurface__Sheet.Sheet__Id);
+        Na__LeSurface__Sheet  = null;                                            // <-- Nothing on this paper is the editor's: Refresh stays inert
+        Na__LeSurface__Layout = { Page : { WidthMm : width, HeightMm : height }, ScreenPixelsPerMm : Number(page.ScreenPixelsPerMm) || Na__LeSurface__Ppm || 3.2 };
+        Na__LeSurface__Ppm    = Na__LeSurface__Layout.ScreenPixelsPerMm;
+        Na__LeSurface__Paper.hidden = false;
+        Na__LeSurface__Paper.style.width  = (width  * Na__LeSurface__Ppm) + 'px';
+        Na__LeSurface__Paper.style.height = (height * Na__LeSurface__Ppm) + 'px';
+        if (Na__LeSurface__Stack) Na__LeSurface__Stack.hidden = true;            // <-- The editor's own layers are never shown in the viewer
+        let host = Na__LeSurface__Paper.querySelector(':scope > .na-le-paper__published');
+        if (!host) {
+            host = document.createElement('div');
+            host.className = 'na-le-paper__published';
+            host.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;';
+            Na__LeSurface__Paper.appendChild(host);
+        }
+        host.hidden = false;
+        Na__LeSurface__ApplyZoom();
+        return host;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Refresh Part of the Paper After a Model Change
     // ------------------------------------------------------------
     // reason: 'frames' | 'chrome' | 'markup' | 'scope' | 'selection' | 'sheet' | 'all'
@@ -1001,6 +1050,7 @@
         Na__LeSurface__Mount,
         Na__LeSurface__Unmount,
         Na__LeSurface__SetSheet,
+        Na__LeSurface__ShowPublished,
         Na__LeSurface__Refresh,
         Na__LeSurface__RefreshNow,
         Na__LeSurface__SetZoom,

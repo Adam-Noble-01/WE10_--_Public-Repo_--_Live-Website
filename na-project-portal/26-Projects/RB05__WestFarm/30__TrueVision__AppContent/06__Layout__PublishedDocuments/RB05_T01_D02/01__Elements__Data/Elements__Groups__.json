@@ -1,0 +1,290 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D02",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_129"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_058"
+                }
+            ],
+            "Group__Id" : "Group_007"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_130"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_131"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_132"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_133"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_134"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_135"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_136"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_137"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_138"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_139"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_140"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_141"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_142"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_143"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_144"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_145"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_146"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_147"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_148"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_149"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_150"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_151"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_152"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_153"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_154"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_155"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_156"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_059"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_060"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_061"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_062"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_063"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_064"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_065"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_066"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_067"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_068"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_069"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_070"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 100,
+                    "DivisionMm"       : 2000,
+                    "Divisions"        : 10,
+                    "SubdivideFirst"   : true,
+                    "SubdivisionMm"    : 500,
+                    "Units"            : "m",
+                    "ShowUnits"        : true,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "right",
+                    "BarOffsetMm"      : 217.417,
+                    "ViewKind"         : "elevation",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "South East",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "South East Elevation - House Front Fascade",
+                    "ViewDrawing"      : "South East Elevation - House Front Fascade"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_001",
+                    "Link__ViewportId" : "Viewport_001"
+                }
+            },
+            "Group__Id" : "Group_008"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_157"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_158"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_159"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_160"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_071"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_072"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_073"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_074"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_075"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_076"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_077"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ProjectQr",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "SizeMm"      : 20,
+                    "Form"        : "compact",
+                    "BodyWidthMm" : 95,
+                    "ProjectName" : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_009"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_164"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_080"
+                }
+            ],
+            "Group__Id" : "Group_010"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

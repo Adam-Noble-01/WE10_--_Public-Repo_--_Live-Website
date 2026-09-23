@@ -1,0 +1,123 @@
+/* =============================================================================
+   TRUEVISION3D - PUBLISHED DOCUMENTS - STYLES
+   =============================================================================
+
+   FILE       : Na__PubDoc__Styles__Main__.css
+   MODULE     : Published Documents - Styles
+   AUTHOR     : Adam Noble - Noble Architecture
+   PURPOSE    : Style the host a published sheet sits in, and nothing on the sheet itself
+   SCHEMA REF : na-project-portal/26-Projects/AA00__ExampleProjectStructure/
+                30__TrueVision__AppContent/06__Layout__PublishedDocuments
+   CREATED    : 23-Sep-2026
+
+   DESCRIPTION:
+   - A PUBLISHED SHEET CARRIES ITS OWN APPEARANCE. Every colour, weight, dash and
+     font size is a presentation attribute on the element, written from the
+     published file, so the drawing looks the same whatever stylesheet happens to
+     be loaded - and looks right the instant the markup lands, with no second
+     paint once CSS arrives.
+   - THAT IS DELIBERATE, NOT LAZY. A drawing whose appearance depended on a
+     stylesheet could be silently restyled by a cache holding an older copy of it,
+     which is exactly the fault that has bitten this codebase before (lazily
+     injected CSS painting a previous release). A client's drawing must not be
+     able to change because a stylesheet did.
+   - SO WHAT IS LEFT HERE is the host: the scroller the sheet sits in, how it is
+     centred, the cursor, and the one or two states the reader adds on top of the
+     document (a bubble that has a note, a tier notice). Nothing here changes a
+     published mark.
+
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The Host
+   ----------------------------------------------------------------------------- */
+
+.na-pubdoc__host {
+    position         : relative;
+    width            : 100%;
+    height           : 100%;
+    overflow         : hidden;                    /* Pan and zoom are a transform, never a scroll */
+    background       : #d9dcde;
+    display          : flex;
+    align-items      : center;
+    justify-content  : center;
+    touch-action     : none;                      /* The touch recogniser owns the gesture */
+    -webkit-user-select : none;
+    user-select      : none;
+}
+
+.na-pubdoc__stage {
+    transform-origin : 0 0;
+    will-change      : opacity;                   /* NEVER will-change: transform - it freezes the raster scale and a zoomed sheet goes soft */
+}
+
+.na-pubdoc__sheet {
+    display          : block;
+    /* The sheet's own drop shadow is a published mark, so nothing is added here. */
+}
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Images Inside a Sheet
+   ----------------------------------------------------------------------------- */
+
+/* A viewport's raster and its linework are <image> elements. Smoothing is left
+   to the browser: a published tier is chosen so its pixels are at or above the
+   screen's, so there is nothing to sharpen and disabling smoothing would only
+   make a between-tiers moment look worse. */
+.na-pubdoc__viewport-raster,
+.na-pubdoc__viewport-linework {
+    pointer-events   : none;
+}
+
+.na-pubdoc__image-bitmap {
+    pointer-events   : none;
+}
+
+
+/* -----------------------------------------------------------------------------
+   REGION | The States the Reader Adds
+   ----------------------------------------------------------------------------- */
+
+/* A bubble that carries a specification note can be tapped; one that does not is
+   inert, so the cursor tells the truth about which is which. */
+.na-pubdoc__bubble--noted {
+    cursor           : pointer;
+}
+
+.na-pubdoc__mask-heading,
+.na-pubdoc__mask-body,
+.na-pubdoc__mask-reason {
+    pointer-events   : none;
+}
+
+/* Shown while a larger tier is being fetched, and while it is held back on a
+   device that could not take it. Both are the dock's business; these are only
+   the hooks. */
+.na-pubdoc__host[data-na-tier-swapping="true"] .na-pubdoc__stage {
+    opacity          : 0.97;
+    transition       : opacity 140ms ease-out;
+}
+
+.na-pubdoc__host[data-na-tier-held="true"] {
+    /* No visual change to the drawing: the dock says it in words instead. A
+       drawing that dimmed itself would look like a fault. */
+}
+
+
+/* -----------------------------------------------------------------------------
+   REGION | Reduced Motion
+   ----------------------------------------------------------------------------- */
+
+/* Adam's own machine reports prefers-reduced-motion, so anything gated on motion
+   is invisible to him. Nothing here is load-bearing - only the tier fade - and it
+   is removed rather than relied on. */
+@media (prefers-reduced-motion: reduce) {
+    .na-pubdoc__host[data-na-tier-swapping="true"] .na-pubdoc__stage {
+        transition   : none;
+        opacity      : 1;
+    }
+}
+
+/* endregion ----------------------------------------------------------------- */

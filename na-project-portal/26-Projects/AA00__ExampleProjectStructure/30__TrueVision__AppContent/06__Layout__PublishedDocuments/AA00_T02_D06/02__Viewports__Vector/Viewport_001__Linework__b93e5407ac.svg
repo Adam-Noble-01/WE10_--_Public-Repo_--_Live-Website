@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="494mm" height="397mm"
+     viewBox="0 0 494 397"
+     data-na-document="AA00_T02_D06"
+     data-na-viewport="Viewport_001"
+     data-na-space="paper-mm, origin top-left, x right, y down"
+     data-na-scale="1:50"
+     data-na-segments="41206">
+    <!--
+      PUBLISHED LINEWORK - DUMMY EXAMPLE, hand-drawn to show the shape.
+
+      A plan at 1:50, so the configured drawing-millimetre widths are divided
+      by 50 rather than 100: a visible edge of 12 drawing mm is 0.24 paper mm
+      here against 0.12 on the 1:100 elevation. The reader does no such
+      arithmetic - it is done once, here, at publish.
+
+      The real file is 41,206 segments and about 400 KB of path text, and
+      STILL FIVE DOM NODES. That is the property that makes vector linework
+      safe on a phone: the cost of an SVG to the browser is the number of
+      elements far more than the length of a path.
+
+      The section class carries the cut - the walls this plan slices through -
+      at 28 drawing mm, which is 0.56 paper mm at 1:50.
+    -->
+
+    <g data-na-class="section" fill="none" stroke="#505050" stroke-width="0.56" stroke-opacity="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M40.2,72.0 L378.6,72.0 L378.6,276.2 L40.2,276.2 Z
+                 M144.7,72.0 L144.7,276.2
+                 M244.2,72.0 L244.2,151.8
+                 M40.2,151.8 L144.7,151.8
+                 M244.2,151.8 L378.6,151.8" />
+    </g>
+
+    <g data-na-class="visible" fill="none" stroke="#323232" stroke-width="0.24" stroke-opacity="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M67.6,72.0 L67.6,76.4 L95.0,76.4 L95.0,72.0
+                 M180.4,72.0 L180.4,76.4 L215.8,76.4 L215.8,72.0
+                 M40.2,186.2 L44.6,186.2 L44.6,221.6 L40.2,221.6
+                 M144.7,196.4 A 24.8 24.8 0 0 1 169.5 221.2
+                 M244.2,112.6 A 22.4 22.4 0 0 0 266.6 135.0
+                 M298.4,151.8 L298.4,276.2
+                 M298.4,214.0 L378.6,214.0" />
+    </g>
+
+    <g data-na-class="authored" fill="none" stroke="#323232" stroke-width="0.24" stroke-opacity="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M40.2,286.4 L378.6,286.4" />
+    </g>
+
+    <g data-na-class="hidden" fill="none" stroke="#6a6a6a" stroke-width="0.16" stroke-opacity="0.9" stroke-dasharray="2.4 2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M144.7,112.6 L244.2,112.6 M298.4,186.2 L378.6,186.2" />
+    </g>
+</svg>

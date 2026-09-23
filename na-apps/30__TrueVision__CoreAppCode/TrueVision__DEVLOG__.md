@@ -2,6 +2,221 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.155.0  -  23-Sep-2026
+### Publishing: Drawings Are Baked Once on the Authoring Machine, and the Web Viewer Only Shows the Files
+
+**Overview**
+- From Adam: older iPhones crash the moment a drawing tab is pressed, the iPad Pro crashes on complex drawings and the
+  Pixel after a few tabs - because every drawing is rendered in the browser at runtime by the same renderer the
+  authoring side uses. His brief: a separate, streamlined PUBLISHED system. Each viewport becomes two things, a
+  flattened picture of everything behind and the projected linework as vectors in front; every other element (text,
+  dimensions, bubbles, vectors, floor areas) is drawn over them as vectors and real text; one JSON file per element
+  type; a per-drawing folder in a new published documents folder; lazy zoom levels; unpublished drawings show the real
+  sheet with a grey panel and fetch nothing; a revision change zips the old folder into a local archive; R2 keeps only
+  the latest; its own URL builder and service worker cache. "Baked" in the code, "Publishing" in the app, and nothing
+  on the authoring side is to change.
+- The readable schema is the example folder Adam approved:
+  `na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments`.
+  Every new file's header carries a SCHEMA REF line pointing at it. Plan and ledger: `TrueVision__PLAN__PublishingSystem__.md`.
+
+**Phase 0 - module tree** (Adam's Option 2: "the two moves AND empty out 90")
+- `52__System__SitePlanData` -> `51__System__LayoutEditor/21__System__SitePlanData`; `53__System__ProjectQrCode` ->
+  `51__System__LayoutEditor/53__Feature__ProjectQrCode`. Every import and test path relinked (the QR test's specifier
+  rewrites made depth-proof). ColourPalette and SpellCheck stay where they are, as that option said.
+- `90__System__PageLayoutSystem` retired: jsPDF 4.1.0 and html2canvas 1.4.1 to `04__Lib__ThirdParty__VersionLocked/
+  05__Vendor__JsPdf__v4.1.0` and `06__Vendor__Html2Canvas__v1.4.1` (import map index and version-lock README updated);
+  the classic A3 title block scan to `01__AppAssets__TrueVision/06__AppAssets__TitleBlocks/TitleBlock__ClassicScan__A3__.png`;
+  the emptied folder removed.
+
+**The new modules** (Adam's numbering)
+- `53__Data__Layout__PublishedSchema` - the shared contract: every folder, file name, element kind and raster tier,
+  the path builders, the schema version check, and a README with the parity rule and the link to the example folder.
+- `52__System__Layout__PublishedDocuments` - the READER. Loads the project index, then a drawing's manifest, sheet and
+  element files, and puts the sheet on the page as ONE string of SVG. It can reach no renderer, projection, model
+  loader or image exporter (checked statically by its test). Picks the raster tier by screen density - the smallest
+  picture that is sharp at the current size - and swaps when a zoom settles. Its own URL builder: R2 through the CDN
+  first on the live site, the repository copy first on localhost.
+- `51__System__LayoutEditor/65__Feature__DocumentPublishing` - the PUBLISHER, run on the authoring machine only:
+  - Each viewport is rendered ONCE at the export level and stepped down into a ladder: Print (20 px/mm PNG, kept for
+    print) and three screen WebPs, Tier01 Fit / Tier02 Read / Tier03 Detail (2, 6 and 12 px/mm). One content hash
+    names all of a viewport's files, so they cache forever. Linework is one SVG per viewport (a path per style band).
+  - Depth fog is painted over the linework on paper, so a fogged viewport also gets an opaque greyscale fog mask per
+    screen tier that the reader applies to its linework. A viewport without fog is exactly the two files.
+  - The sheet's markup, notes margin, border and title block are the editor's OWN drawing (the same SVG the screen and
+    the PDF use), with the paint order the PDF uses, so the published sheet matches by construction. Each element file
+    carries the authoring records in Adam's naming plus finished values: dimension strings, m2 and area labels, each
+    bubble's specification code, heading and text.
+  - The PDF is baked at publish by the editor's own exporter, so the viewer's PDF button downloads a file and renders
+    nothing.
+  - Order: a new revision letter zips the whole drawing folder to `00__Archive__Revisions/<id>__Revision__<old>.zip`
+    first (same letter overwrites); files are written, the manifest last, then that ONE drawing's folder is pruned to
+    what its manifest names. With R2: upload, list back and check every size, then the manifest, then prune that
+    drawing's old keys. The unpublished sheets file and the index go last of all. A publish never sweeps.
+  - The index is a few hundred bytes a drawing (RB05: 16 KB for 14 drawings); an unpublished drawing's sheet paper is
+    in `PublishedDocuments__Unpublished__.json`, fetched only when one is opened.
+  - "Publish drawings..." in the Drawing Register (editable only): drawing list with states, All/None, "Also push to R2
+    (clients see it)" off by default, a progress log.
+
+**Transport**
+- `na-apps/ProjectVision__TrueVisionPublished__Api__.py`, registered in the local server: write, read and list published
+  files, archive a revision (zip, never overwriting an old zip), prune one drawing. Refuses writes into the archive
+  folder. Adam's silent 8090 server was restarted at 17:46 to load the routes.
+- `80__CloudflareIntegration` ApiClient: a Published Documents region - upload (raw, base64 fallback), list, delete;
+  content-hashed files immutable for a year, the rest must-revalidate. The archive folder is refused, and the R2 sync
+  already skips every `00__` folder.
+- Service worker token `2026-09-23-03`: a `tv-published-` cache - hashed pictures and linework cache-first (capped),
+  index/manifests/element files network-first, PDFs not cached.
+
+**The web viewer** (only when authoring is locked; the authoring path is unchanged)
+- `80__Feature__WebViewer`: a drawing tab shows the PUBLISHED drawing; the previous drawing's pictures are let go
+  first; the PDF button downloads the baked PDF, or says "This drawing has no published PDF yet".
+- `ModeController`: the viewer never calls SetSheet - on entering a sheet, AND on the active-sheet change that landed
+  there first (that second path was still rendering every viewport on a phone; found and closed today).
+- `SheetSurface`: ShowPublished sizes the same paper with a host for the published SVG, so fit, pinch, pan and zoom work
+  unchanged; any editor frames still on it are parked, so a booked render is skipped.
+- Unpublished drawing: real paper, title block and notes margin, and the grey panel "Drawing has not yet been published
+  officially" (Adam's words). Its own folder is never asked for.
+
+**PDF exporter 1.11.0 - Chrome and Android garbling fixed**
+- Viewport pictures (underlay, fog, 3D) are packed 'FAST' (each row against the pixel to its left) instead of jsPDF's
+  default Paeth (against the row above). Chrome's PDF engine - also Android's - re-reads a picture over 60 MB decoded
+  in strips and loses the row above, which snowballed into black blocks and streaks (PS01 D01's proposed plan,
+  4518 x 5183 px, 70.3 MB). One exporter serves every PDF button: toolbar Download PDF, the register exports and
+  publishing. Pictures are larger (PS01 D01: 744 KB to 972 KB), same pixels.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS; module graph 612 modules (the 2 known false positives). `Na__Test__PublishedSchema__`
+  49 pass, `Na__Test__PublishedReader__` 55 pass (includes live-site URL checks and the no-renderer import walk).
+- RB05 published locally (writes to R2 and the project data refused throughout): D01, D02 and D06 in 25 s, no
+  failures or warnings. D02: Print 8192 x 2193 down to Tier01, three fog masks, linework, PDF, all 17 bubbles with
+  their spec text. D06 is vector-only by its own settings (base image off), so linework and no picture - correct.
+  Publishing again overwrote in place and pruned the old hashes. The Publish panel publishes from the Drawing Register.
+- Viewer with authoring locked: 0 WebGL draw calls and 0 snapshot renders opening D02, D03, D06 and D10 (D03, D04 and
+  D05 each made about 10,000 draw calls before the active-sheet fix). Fitted D02 opens on Tier02; zoom x4 swaps to
+  Tier03, zooming out to Tier01, with no draws. PDF button: D02's baked PDF (200, application/pdf); D03 the toast.
+- `80__Testing__PrototypeEnvironment/Na__Test__PublishedReader__Harness__.html` runs the reader alone; headless Chrome
+  pictures of D02, D06 and unpublished D03 match the drawings.
+- PDF fix: the re-published D02 and PS01 D01 through the Download PDF code show the Sub predictor on every viewport
+  picture. CONFIRMED by Adam in Chrome 23-Sep-2026.
+- NOT yet: a push to R2 (first live run is Adam's PS01 publish); a real revision change A to B; the example folder is
+  the approved version and must be brought up to the final format; nothing committed. NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.154.0  -  23-Sep-2026
+### Layer Switches in One Red: Off, Unlock and Ref Show Which Layers Are Out of Their Usual State
+
+**Overview**
+- From Adam, with a screenshot of D13's Drawing Layers: "when layers are off, make the button red, like with the
+  locked and the same with ref ... ideally, when working in the final drawings, all of those should be in their
+  primary state. Highlighting them red helps show ... which state is toggled, but also whether any need to be
+  untoggled."
+- A finished drawing has every layer On, unlocked and selectable. Until now only a locked layer's button was marked
+  (faint red); a hidden layer's On/Off button was plain, and a reference layer's Ref was faint blue.
+
+**The change**
+- `Panel__Layers__` 1.3.0: the On/Off button carries `na-le-btn--eye` and `is-off` (and aria-pressed) while the layer
+  is Off.
+- `Styles__Panels__.css`: one rule gives Off, Unlock and Ref the lock's faint red (#9b3b3b on #fbf3f3, border
+  #e8c9c9, hover #f6e7e7); Ref's faint blue is gone.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS; `Na__Test__LayerStack__` and `Na__Test__LayerMenu__` pass.
+- In the app on RB05 D13 (writes refused, none tried): computed colours of all 21 buttons - Floor Areas' Off,
+  MarkUp's Unlock and OutBuilding's Ref (switched on in memory for the test, then put back) are the same three
+  colours; every other button is the plain grey. Screenshot taken.
+- NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.153.0  -  23-Sep-2026
+### Box Select Over a Viewport: a Drag That Moves Nothing Draws the Box
+
+**Overview**
+- From Adam, with a screenshot of RB05 D13 (Proposed Site Plan) zoomed in on the OutBuilding: "If you try and box
+  select items with a viewport underneath, you can't box select the other items ... I should still be able to, when
+  it's locked, box select and select items in front of it, such as these vectors ... It's still grabbing hold of the
+  underlying viewport."
+- What was found: a box started on a LOCKED viewport already worked (Viewport__Locked true: window and crossing both
+  took the five vectors he circled, Shape_055 to Shape_059). D13's Viewport_001 is NOT locked - Adam's own save at
+  15:16 has all three viewports `Viewport__Locked: false`. Under Select a press on an unlocked viewport picked the
+  viewport, and its drag did nothing at all, so no box ever began. At his zoom (about 70 px per paper mm) the
+  frame's outline was off screen, so the pick was invisible except for the right panel turning to the site plan's
+  hatch Properties - which his screenshot shows.
+
+**The change**
+- A drag from a viewport that the press would not move now draws a selection box, locked or not. A click still
+  selects the viewport (the box's pending item, as for a locked one).
+- Everything that does something with a press on a viewport keeps it: a crop handle, the rotate grip, the viewport
+  being edited inside (the drag moves its drawing), a door on the selected plan, the move anchor's Ctrl+click, the
+  move anchor already on it, and the Move tool (the drag moves the frame). A Move that came up by itself counts as
+  Select, as the press would have put it down.
+- `SheetTools__PointerPress__` 1.10.0: StartsBox takes the door and the point; new ViewportHoldsStill. No new
+  imports or exports, so no service worker token bump. `SelectionBox__` description updated, no code change.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS (506 files).
+- In the app on Adam's saved D13 (no-cache static server, every non-GET refused, nothing tried to write), zoom 22,
+  synthetic presses on the stage, the new OnDown proved by its source: with Viewport_001 unlocked a window box and a
+  crossing box both take Shape_055 to Shape_059 (they took nothing before - the press selected the viewport); the
+  same with the viewport already selected; a click selects the viewport. Unchanged: the Move tool gives a frame drag,
+  Ctrl gives the move anchor path, content editing gives the drawing drag, the top-left crop handle gives a handle
+  drag, Shift+click takes the viewport out of a selection, and with the viewport locked a box and a click behave as
+  before. The sheet JSON was byte-identical at the end.
+- CONFIRMED by Adam 23-Sep-2026 ("It works fantastically. I just had to refresh everything"). NOT in ValeVision.
+
+# ---------------------------------------------------------
+## TrueVision3D v2.152.0  -  23-Sep-2026
+### Dimension Line Weight and Line Style: Line pt and Dashed Lines in the Dimensions Panel
+
+**Overview**
+- From Adam, with a screenshot of the Dimensions panel: "Add a set of controls for me to be able to actually control
+  the line thickness of dimensions. Currently, they are fixed to this. Whatever this is should be the default. But I'd
+  like to be able to change the line thickness, like with the vectors, and also line style. We should be able to have
+  dotted, dashed, and all the other options that are available for the others".
+- Until now every dimension on a sheet drew at the sheet's one Dimension pt (Sheet panel, Lineweights, 0.35 pt by
+  default), solid. That stays the default: a dimension with no weight of its own still draws at it.
+
+**The controls** (Dimensions panel, under Colour, as the Vectors panel has Edge pt and Dashed edges under Edge colour)
+- Line pt: the dimension's own weight in printed points, inside the Lineweights MinPt to MaxPt. Until one is typed the
+  field shows the sheet's Dimension pt, which is what the dimension draws at; clearing the field goes back to it. It
+  weights the dimension line, the extension lines, a moved value's leader and the ticks, arrows and dots.
+- Dashed lines: the very rows the Vectors panel's Dashed edges has - Dashed, Dotted, Dash-dot and Hidden, the preview,
+  the Scale slider and the Dash, Gap and Mark millimetres - built by the same module. The dimension line, both
+  extension lines and a moved value's leader take the pattern; the ends stay solid, as a broken 1.5 mm tick reads as a
+  mistake. Off by default.
+- Both are style traits: the selected dimension, every one of several selected, or the settings for new dimensions;
+  the eyedropper copies them.
+
+**The record**
+- Dimension__LinePt (points) and Dimension__LineStyle (the Shape__LineStyle object, made whole by the line style
+  module). Each is kept only while it says something: no weight is the sheet's Dimension pt, no style is solid. A
+  dimension from before this has neither key and draws and saves exactly as it did.
+
+**What changed**
+- `LineStyleTool__` 1.1.0: BuildRows, RefreshRows and RegisterControls take optional { prefix, dashedLabel,
+  dashedTitle }; left out, the Vectors panel's rows are exactly what they were.
+- `Panel__Dimensions__` 1.7.0: Line pt and Dashed lines (controls dim-line-pt, dim-dash, dim-dash-kind, ...), the dash
+  scale slider live while it moves and one undo step on release.
+- `DimensionGeometry__` 1.6.0: Push takes spec.dashArray; a dashed rule goes as a two-point polyline, the primitive
+  that already carries a dash array to the screen and the PDF; a solid one is the plain line it always was.
+- `MarkupBridge__` 1.20.0: DimensionStrokeMm reads the dimension's own points first; new SheetDimensionPt;
+  PushDimension passes the line style as a paper-millimetre pattern (the same answer vectors paint from).
+- `SheetRecords__` 1.39.0 (NormaliseDimension), `SheetModel__TextAndDimensions__` (create and update carry linePt and
+  dash), `Eyedropper__` (two traits: linePt, dash with palette dashOn), `SheetTools__ToolState__` (new-dimension
+  settings linePt null, dashOn false), `DimensionTool__` (a new dimension takes them).
+- Labels fall back in code (DimLinePt, DimLinePtTitle, DimDashed, DimDashedTitle); none added to the config JSON.
+- Service worker token `2026-09-23-02` (Logic 1.9.41): the panel imports new MarkupBridge exports.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS (504 files); the 21 suites touching dimensions, line styles and the eyedropper pass.
+- In the app (no-cache static server, every non-GET refused, nothing tried to write): a new dimension shows Line pt
+  0.35 and carries no new keys; Line pt 1 and Dashed lines > Dash-dot through the panel give a 0.353 mm stroke and
+  [8, 2, 2, 2] on the three rules with solid ticks; two selected take 0.25 pt and dashes together, and clearing the
+  field or the toggle removes the keys; with nothing selected the same controls set the settings for new dimensions.
+  A close-up through the chrome's own SVG painter showed dash-dot, solid default, dotted and dashed with arrows.
+- NOT tried by Adam. The PDF goes through the polyline dash path vectors already print with; not exported in this run.
+- NOT in ValeVision.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.151.0  -  22-Sep-2026
 ### The Boolean Keys: Shift+U Union, Shift+S Subtract, Shift+T Trim and Shift+O Outer Shell, on a Selection
 

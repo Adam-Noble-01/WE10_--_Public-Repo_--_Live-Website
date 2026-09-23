@@ -1,0 +1,56 @@
+{
+    "PublishedDocument__Meta": {
+        "Meta__FileName"    : "Document__Manifest__.json",
+        "Meta__Description" : "An introduction sheet: pictures, text and vectors, and no model viewport at all. It is here because it is the case that proves publishing is cheap when there is nothing to render - this document has NO raster folder and NO vector folder, because nothing was baked. Its pictures were already published as sheet images and are referenced where they live.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__ExampleNote" : "DUMMY DATA. Hand-written to show the shape."
+    },
+
+    "PublishedDocument__Identity": {
+        "Document__Id"            : "AA00_T02_D01",
+        "Document__ProjectCode"   : "AA00",
+        "Document__Phase"         : "T02",
+        "Document__Number"        : "D01",
+        "Document__Name"          : "Project Introduction",
+        "Document__Revision"      : "B",
+        "Document__Status"        : "PLANNING",
+        "Document__SourceSheetId" : "Sheet_005"
+    },
+
+    "PublishedDocument__Publish": {
+        "Publish__SchemaVersion"    : 1,
+        "Publish__AtIso"            : "2026-09-23T14:01:44.902Z",
+        "Publish__AtEpochMs"        : 1790172104902,
+        "Publish__ByApp"            : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"     : "v2.142.0",
+        "Publish__ModelSourceId"    : null,
+        "Publish__ModelBuildToken"  : null,
+        "Publish__SourceFingerprint": "3c88ee0142ab9f70",
+        "Publish__DurationMs"       : 640,
+        "Publish__RevisionAction"   : "overwritten",
+        "Publish__ModelNote"        : "No model source and no build token, because no part of this document came from the model. A sheet with no 2D or 3D viewport never loads a GLB to publish."
+    },
+
+    "PublishedDocument__Files": {
+        "Files__Sheet": {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 3140,
+            "File__Sha256" : "5d2ba0c714"
+        },
+        "Files__Elements": [
+            { "File__Layer": "Layer_002", "File__Type": "annotation", "File__Path": "01__Elements__Data/Elements__Text__.json",    "File__Count": 38, "File__Bytes": 11260, "File__Sha256": "a17fe4b309" },
+            { "File__Layer": "Layer_004", "File__Type": "vector",     "File__Path": "01__Elements__Data/Elements__Vectors__.json", "File__Count": 31, "File__Bytes": 7480,  "File__Sha256": "64c02e8fb5" },
+            { "File__Layer": "Layer_007", "File__Type": "image",      "File__Path": "01__Elements__Data/Elements__Images__.json",  "File__Count": 2,  "File__Bytes": 2960,  "File__Sha256": "b820d5c7e3" },
+            { "File__Layer": null,        "File__Type": "group",      "File__Path": "01__Elements__Data/Elements__Groups__.json",  "File__Count": 4,  "File__Bytes": 1520,  "File__Sha256": "f3a09d2165" }
+        ],
+        "Files__Viewports"  : [],
+        "Files__ViewportNote": "Empty, and the folders 02__Viewports__Vector and 03__Viewports__Raster do not exist for this document. A reader that finds no viewports paints the sheet and stops - it does not go looking for a picture that was never made.",
+        "Files__TotalBytes" : 26360
+    },
+
+    "PublishedDocument__MemoryNote": {
+        "Memory__Description" : "26 KB of JSON and two pictures that the reader was going to download anyway. This is what a document costs when nothing has to be rendered - and it is worth noticing that this is the sheet a client opens FIRST."
+    }
+}

@@ -218,6 +218,8 @@
             Na__LeTools__DimDefaults = { textSizeMm : s.defaultTextSizeMm, colour : s.defaultColour, terminator : s.defaultTerminator, tickLengthMm : s.tickLengthMm, offsetMm : s.defaultOffsetMm, precision : s.defaultPrecision, unitsSuffix : s.defaultUnits,
                                          atScale : s.defaultAtScale,     // <-- Measure at scale: the Dimensions panel's first control
                                          roundUp : s.defaultRoundUp,     // <-- Round up to 5 mm: off unless the config says otherwise
+                                         linePt : null,                  // <-- Line weight: null is the sheet's Dimension pt
+                                         dashOn : false, dash : Na__LeDash__Create(),   // <-- Solid lines; the dash settings outlive the toggle, as on a vector
                                          startExtensionMm : s.defaultExtensionMm, endExtensionMm : s.defaultExtensionMm, extensionsLinked : true };   // <-- Fixed length extension lines, linked; null is the full line
         }
         return Na__LeTools__DimDefaults;

@@ -1,0 +1,89 @@
+{
+    "PubDoc__Meta": {
+        "Meta__FileName"    : "Na__PubDoc__Config__.json",
+        "Meta__Namespace"   : "Na__PubDoc",
+        "Meta__Module"      : "Published Documents - Reader Settings",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Purpose"     : "Everything the published reader is allowed to decide, in one place",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__SchemaRef"   : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"        : "The tier ladder itself is NOT here - it is in 53__Data__Layout__PublishedSchema, because the publisher and the reader must agree about it. This file holds only what the reader does with it."
+    },
+
+    "PubDoc__Fetch__Config": {
+        "Fetch__Description"    : "How a published file is fetched. R2 through the CDN first, the GitHub Pages copy second, exactly as every other project asset resolves - there is no second URL scheme.",
+        "Fetch__TimeoutMs"      : 20000,
+        "Fetch__TimeoutNote"    : "A phone on a bad connection is slow, not broken. Past this the fetch is abandoned and the drawing shows the unavailable mask rather than hanging on a blank sheet.",
+        "Fetch__Retries"        : 1,
+        "Fetch__RetryNote"      : "ONE retry, and only for a network error or a 5xx. A 404 is an answer: the file is not there and asking again will not put it there. This is the opposite of the authoring viewer's underlay scheduler, which retried an impossible render indefinitely and is the single behaviour this system exists to stop.",
+        "Fetch__RetryDelayMs"   : 700,
+        "Fetch__DataCacheMode"  : "default",
+        "Fetch__AssetCacheMode" : "default",
+        "Fetch__AssetCacheNote" : "A baked asset's name carries its own content hash, so a name can never mean two files and the browser and service worker may both keep it forever. The JSON is fetched normally so a re-publish is picked up."
+    },
+
+    "PubDoc__Tiers__Config": {
+        "Tiers__Description"        : "How the reader moves up and down the published raster ladder.",
+        "Tiers__StartAtFit"         : true,
+        "Tiers__StartAtFitNote"     : "Every document opens fitted to the screen, so it opens on the smallest tier. This is the single biggest reason the published reader is cheap: the view a reader actually arrives on costs about a fiftieth of what the authoring renderer spends on the same sheet.",
+        "Tiers__HoldOnePerViewport" : true,
+        "Tiers__HoldOneNote"        : "Stepping up a tier REPLACES the tier below rather than adding to it. Holding two tiers of one viewport is how a cache turns into a leak.",
+        "Tiers__SwapDebounceMs"     : 220,
+        "Tiers__SwapDebounceNote"   : "A pinch is a stream of zoom changes. Swapping on every one would fetch three tiers to land on the third; the swap waits for the gesture to settle instead.",
+        "Tiers__DowngradeOnFailure" : true,
+        "Tiers__DowngradeNote"      : "A tier whose decode fails leaves the reader on the tier below and SAYS SO. It is never retried: a decode that failed for want of memory fails again, and trying is what takes the page down.",
+        "Tiers__MaxDecodedBytes"    : 134217728,
+        "Tiers__MaxDecodedNote"     : "128 MB. An aggregate ceiling over every decoded raster the reader is holding, counted as width x height x 4 from the manifest - the figure a phone cares about, not the file size. A tier that would breach it is not loaded and the reader stays where it is. This is a budget in BYTES, never a count of sheets: counting sheets is what let the authoring viewer hold 24 of them."
+    },
+
+    "PubDoc__Sheet__Config": {
+        "Sheet__Description"      : "How the paper is drawn. Numbers a published document does not carry itself.",
+        "Sheet__PaperColour"      : "#ffffff",
+        "Sheet__PaperShadow"      : true,
+        "Sheet__ShadowColour"     : "#1f1d18",
+        "Sheet__ShadowOpacity"    : 0.18,
+        "Sheet__ShadowBlurMm"     : 2.4,
+        "Sheet__ShadowOffsetYMm"  : 1.2,
+        "Sheet__FontFamily"       : "'Open Sans', 'Segoe UI', system-ui, sans-serif",
+        "Sheet__FontFamilyNote"   : "The published document carries its text already broken into lines, measured at publish with this family. A reader that substituted a different one would draw the right lines at the wrong widths, so this is the one font setting that must not drift from the authoring side's.",
+        "Sheet__MmPerPt"          : 0.352777778,
+        "Sheet__MmPerPtNote"      : "Lineweights are published in points, as the authoring side stores them. One point is 1/72 inch."
+    },
+
+    "PubDoc__Unpublished__Config": {
+        "Unpublished__Description"  : "The grey mask, which is the whole guard. A drawing that is not published gets a real sheet and a real title block, then this over the drawing area. Nothing is fetched and nothing is computed.",
+        "Unpublished__FillColour"   : "#e9ebec",
+        "Unpublished__FillOpacity"  : 1,
+        "Unpublished__EdgeColour"   : "#c8ccce",
+        "Unpublished__EdgePt"       : 0.5,
+        "Unpublished__TextColour"   : "#6b7478",
+        "Unpublished__HeadingSizeMm": 6,
+        "Unpublished__BodySizeMm"   : 3,
+        "Unpublished__Heading"      : "Drawing has not yet been published officially",
+        "Unpublished__Body"         : "It is drawn but has not been issued for viewing. The sheet, its number and its title block are correct; the drawing itself will appear here once it is published.",
+        "Unpublished__BrokenHeading": "This drawing could not be loaded",
+        "Unpublished__BrokenBody"   : "Part of the published drawing is missing or is from a different version of the app. Nothing has been drawn rather than a drawing you could not trust.",
+        "Unpublished__ReasonPrefix" : "Reason: ",
+        "Unpublished__ShowReason"   : true,
+        "Unpublished__ShowReasonNote": "The version gate's reason string is shown on the mask. \"Why is this drawing blank\" should be answerable by looking at it, not with a debugger."
+    },
+
+    "PubDoc__Labels__Config": {
+        "Labels__Loading"        : "Loading drawing...",
+        "Labels__TierSwapping"   : "Sharpening...",
+        "Labels__TierHeld"       : "Shown at a lower resolution on this device.",
+        "Labels__PdfBuilding"    : "Preparing PDF...",
+        "Labels__PdfFailed"      : "The PDF could not be built.",
+        "Labels__BubbleClose"    : "Close",
+        "Labels__NoSpecNote"     : "No specification note has been written for this reference yet."
+    },
+
+    "PubDoc__Debug__Config": {
+        "Debug__Description"   : "Console reporting. Off by default: a client's console is not a development log.",
+        "Debug__LogLoads"      : false,
+        "Debug__LogTierSwaps"  : false,
+        "Debug__LogBudget"     : false,
+        "Debug__PrefixNote"    : "Every line the reader logs is prefixed [TrueVision3D PubDoc] so it can be filtered out of a client's console capture."
+    }
+}

@@ -82,6 +82,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.1.0
+// - The panel rows take an optional { prefix, dashedLabel, dashedTitle }, so
+//   the Dimensions panel builds the very same rows for a dimension's lines
+//   (controls dim-dash, dim-dash-kind, ...). Left out, the prefix is 'shape'
+//   and the Vectors panel's rows are exactly what they were.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation: the record, the four kinds, the scale, the
 //   millimetre fields, the Vectors panel rows and the paper-millimetre
@@ -116,14 +122,29 @@
     const Na__LeDash__ConfigUrl = new URL('./Na__LayoutEditor__LineStyleTool__Config__.json', import.meta.url);
     const Na__LeDash__FIELD     = 'Shape__LineStyle';
     const Na__LeDash__BLOCK     = 'dash';
-    const Na__LeDash__CONTROLS  = Object.freeze({
-        toggle : 'shape-dash',
-        kind   : 'shape-dash-kind',
-        scale  : 'shape-dash-scale',
-        dash   : 'shape-dash-dash',
-        gap    : 'shape-dash-gap',
-        mark   : 'shape-dash-mark'
-    });
+    const Na__LeDash__CONTROLS  = Na__LeDash__ControlsFor('shape');
+    // ------------------------------------------------------------
+
+    // HELPER FUNCTION | The Control Names for One Panel's Rows
+    // ------------------------------------------------------------
+    // 'shape' is the Vectors panel's (shape-dash, shape-dash-kind, ...); the
+    // Dimensions panel passes 'dim'. Controls are wired by name across the
+    // whole panel column, so each panel's rows need their own names.
+    // ------------------------------------------------------------
+    function Na__LeDash__ControlsFor(prefix) {
+        const p = (typeof prefix === 'string' && prefix) ? prefix : 'shape';
+        return Object.freeze({
+            toggle : p + '-dash',
+            kind   : p + '-dash-kind',
+            scale  : p + '-dash-scale',
+            dash   : p + '-dash-dash',
+            gap    : p + '-dash-gap',
+            mark   : p + '-dash-mark'
+        });
+    }
+    function Na__LeDash__Controls(options) {
+        return (options && options.prefix) ? Na__LeDash__ControlsFor(options.prefix) : Na__LeDash__CONTROLS;
+    }
     const Na__LeDash__KINDS     = Object.freeze([ 'dashed', 'dotted', 'centre', 'hidden' ]);
     // ------------------------------------------------------------
 
@@ -397,11 +418,12 @@
     // while the toggle is off - the same way the gradient block goes away
     // while there is no gradient. Explanations are tooltips, not notes.
     // ------------------------------------------------------------
-    function Na__LeDash__BuildRows(body) {
-        const C      = Na__LeDash__CONTROLS;
+    function Na__LeDash__BuildRows(body, options) {
+        const o      = options || {};
+        const C      = Na__LeDash__Controls(o);
         const bounds = Na__LeDash__Bounds();
-        const toggle = Na__LePanels__Row(Na__LeDash__Label('Dashed', 'Dashed edges'), Na__LePanels__Input('checkbox', C.toggle), 'na-le-row--toggle');
-        toggle.title = Na__LeDash__Label('DashedTitle', 'Draw the edges dashed, dotted or dash-dot instead of solid. Off by default.');
+        const toggle = Na__LePanels__Row(o.dashedLabel || Na__LeDash__Label('Dashed', 'Dashed edges'), Na__LePanels__Input('checkbox', C.toggle), 'na-le-row--toggle');
+        toggle.title = o.dashedTitle || Na__LeDash__Label('DashedTitle', 'Draw the edges dashed, dotted or dash-dot instead of solid. Off by default.');
         body.appendChild(toggle);
 
         const block = document.createElement('div');
@@ -452,8 +474,8 @@
 
     // HELPER FUNCTION | Show One Line Style's Values in the Block
     // ------------------------------------------------------------
-    function Na__LeDash__Show(block, style) {
-        const C     = Na__LeDash__CONTROLS;
+    function Na__LeDash__Show(block, style, options) {
+        const C     = Na__LeDash__Controls(options);
         const s     = Na__LeDash__Normalise(style) || Na__LeDash__Create();
         const el    = (name) => block.querySelector('[data-na-control="' + name + '"]');
         const set   = (name, value) => { const e = el(name); if (e && document.activeElement !== e) e.value = String(value); };
@@ -486,16 +508,16 @@
     // exactly as the edge colour row is hidden while the edges are off. A
     // two-point line still shows it - centre lines are two points.
     // ------------------------------------------------------------
-    function Na__LeDash__RefreshRows(body, state) {
+    function Na__LeDash__RefreshRows(body, state, options) {
         const s      = state || {};
-        const toggle = body.querySelector('[data-na-control="' + Na__LeDash__CONTROLS.toggle + '"]');
+        const toggle = body.querySelector('[data-na-control="' + Na__LeDash__Controls(options).toggle + '"]');
         const block  = body.querySelector('[data-na-block="' + Na__LeDash__BLOCK + '"]');
         if (!toggle || !block) return;
         const stroked = s.stroked !== false;
         toggle.checked           = s.on === true;
         toggle.parentNode.hidden = !stroked;
         block.hidden             = !(s.on === true && stroked);
-        if (!block.hidden) Na__LeDash__Show(block, s.style);
+        if (!block.hidden) Na__LeDash__Show(block, s.style, options);
     }
     // ------------------------------------------------------------
 
@@ -510,13 +532,13 @@
     // The scale slider writes live on every input event and announces once on
     // release, so dragging it end to end is one undo step.
     // ------------------------------------------------------------
-    function Na__LeDash__RegisterControls(host) {
-        const C       = Na__LeDash__CONTROLS;
+    function Na__LeDash__RegisterControls(host, options) {
+        const C       = Na__LeDash__Controls(options);
         const current = () => Na__LeDash__Normalise(host.read().style) || Na__LeDash__Create();
         const commit  = (el, patch, live) => {
             const next  = Na__LeDash__With(current(), patch);
             const block = el.closest('[data-na-block="' + Na__LeDash__BLOCK + '"]');
-            if (block) Na__LeDash__Show(block, next);
+            if (block) Na__LeDash__Show(block, next, options);
             host.write(next, live === true);
         };
         const numeric = (field, live) => (e, el) => {

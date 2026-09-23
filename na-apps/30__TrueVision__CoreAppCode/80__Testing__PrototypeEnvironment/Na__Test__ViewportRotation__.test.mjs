@@ -309,7 +309,7 @@ import { createRequire } from 'node:module';
     globalThis.window.btoa = globalThis.window.btoa || btoa;
     try {
         const require = createRequire(import.meta.url);
-        const mod = require(resolve(SRC, '90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js'));
+        const mod = require(resolve(SRC, '..', '04__Lib__ThirdParty__VersionLocked/05__Vendor__JsPdf__v4.1.0/jspdf.umd.js'));
         jsPDF = mod.jsPDF || (mod.default && mod.default.jsPDF) || null;
     } catch (error) { console.log('  (jsPDF did not load under Node: ' + error.message + ')'); }
     if (jsPDF) {

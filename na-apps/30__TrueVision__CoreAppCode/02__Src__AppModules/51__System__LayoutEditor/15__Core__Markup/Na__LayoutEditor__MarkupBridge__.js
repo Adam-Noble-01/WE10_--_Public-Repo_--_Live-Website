@@ -40,6 +40,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.20.0
+// - A dimension's own line weight and line style. DimensionStrokeMm reads
+//   Dimension__LinePt first, then the sheet's Dimension pt, then the config
+//   millimetres; PushDimension hands Dimension__LineStyle to the geometry as
+//   a paper-millimetre dash array (Na__LayoutEditor__LineStyleTool__), the
+//   same answer a vector's dashed edges paint from. A record without either
+//   key draws exactly as before.
+//
 // 22-Sep-2026 - Version 1.19.0
 // - DimensionBounds: the paper box a sheet dimension occupies - its measured
 //   points, its line, its value and a dragged value's arc - lifted out of
@@ -218,6 +226,8 @@
         Na__LeDimGeo__HitText,
         Na__LeDimGeo__SpanMm
     } from './Na__LayoutEditor__DimensionGeometry__.js';
+    import { Na__LeDash__PatternMm } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';   // <-- A dimension's dashed lines: the same pattern a vector's dashed edges paint
+    // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
     import { Na__LeDimRound__Up } from './Na__LayoutEditor__DimensionRounding__.js';   // <-- Round up to 5 mm: the figure raised to the next step, and whether it moved
     import { Na__LeShapeGeo__Push, Na__LeShapeGeo__Bounds, Na__LeShapeGeo__Hit } from './Na__LayoutEditor__ShapeGeometry__.js';
     import { Na__LeAreaPaint__Push } from '../59__Feature__FloorAreas/Na__LayoutEditor__FloorAreas__Paint__.js';   // <-- A measured room writes its name and its figure in the middle of itself
@@ -585,11 +595,25 @@
     // ------------------------------------------------------------
 
 
-    // FUNCTION | The Dimension Line Weight: the Sheet's Points, Else the Config Millimetres
+    // FUNCTION | The Dimension Line Weight: Its Own Points, the Sheet's, Else the Config Millimetres
     // ------------------------------------------------------------
-    function Na__LeMarkup__DimensionStrokeMm(sheet, dimSetup) {
-        const pt = sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.DimensionPt : null;
+    function Na__LeMarkup__DimensionStrokeMm(sheet, dimSetup, dim) {
+        const own = dim ? dim.Dimension__LinePt : null;
+        if (typeof own === 'number' && Number.isFinite(own) && own > 0) return Na__LeCfg__PtToMm(own);   // <-- The Dimensions panel's Line pt
+        const pt = Na__LeMarkup__SheetDimensionPt(sheet);
         return Number.isFinite(pt) ? Na__LeCfg__PtToMm(pt) : dimSetup.strokeMm;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Sheet's Dimension Line Weight in Points, or Null
+    // ------------------------------------------------------------
+    // What a dimension with no Line pt of its own draws at; the Dimensions
+    // panel shows it until one is typed.
+    // ------------------------------------------------------------
+    function Na__LeMarkup__SheetDimensionPt(sheet) {
+        const pt = sheet && sheet.Sheet__Lineweights ? sheet.Sheet__Lineweights.DimensionPt : null;
+        return Number.isFinite(pt) ? pt : null;
     }
     // ------------------------------------------------------------
 
@@ -740,7 +764,8 @@
             end   : { x : dim.Dimension__EndXMm,   y : dim.Dimension__EndYMm },
             orientation : dim.Dimension__Orientation,
             offsetMm : dim.Dimension__OffsetMm, gapMm : dimSetup.extGapMm, overshootMm : dimSetup.overshootMm,
-            tickMm : Na__LeMarkup__DimensionTickMm(dim), strokeMm : Na__LeMarkup__DimensionStrokeMm(sheet, dimSetup), colour : dim.Dimension__Colour,
+            tickMm : Na__LeMarkup__DimensionTickMm(dim), strokeMm : Na__LeMarkup__DimensionStrokeMm(sheet, dimSetup, dim), colour : dim.Dimension__Colour,
+            dashArray : Na__LeDash__PatternMm(dim.Dimension__LineStyle),      // <-- No line style is solid: an empty pattern
             terminator : dim.Dimension__Terminator,
             text : Na__LeMarkup__FormatDimension(dim, Na__LeMarkup__DimensionValueMm(sheet, dim)),
             fontMm : dim.Dimension__TextSizeMm, weight : 400, liftMm : dimSetup.textGapMm, fontFamily : textSetup.fontFamily,
@@ -1024,6 +1049,8 @@
         Na__LeMarkup__FormatDimension,
         Na__LeMarkup__DimensionSkeleton,
         Na__LeMarkup__DimensionTickMm,
+        Na__LeMarkup__DimensionStrokeMm,
+        Na__LeMarkup__SheetDimensionPt,
         Na__LeMarkup__DimensionTextShift,
         Na__LeMarkup__DimensionTextLayout,
         Na__LeMarkup__DimensionBounds,

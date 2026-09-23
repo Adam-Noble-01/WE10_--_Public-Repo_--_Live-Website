@@ -187,7 +187,7 @@
                 { Key : 'compact', Label : 'Download PDF (small)', RasterScale : 1.25, JpegQuality : 0.75, FileSuffix : '__Compact' }
             ],
             html2CanvasPath   : String(val('Html2CanvasScriptPath',
-                './02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/html2canvas.umd.js'))
+                './04__Lib__ThirdParty__VersionLocked/06__Vendor__Html2Canvas__v1.4.1/html2canvas.umd.js'))
         };
     }
     // ------------------------------------------------------------

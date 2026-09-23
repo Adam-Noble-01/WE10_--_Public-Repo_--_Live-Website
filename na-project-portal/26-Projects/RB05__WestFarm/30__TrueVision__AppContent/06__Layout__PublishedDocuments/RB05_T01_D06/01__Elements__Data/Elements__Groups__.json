@@ -1,0 +1,1134 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D06",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_002"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_003"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_004"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_005"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_006"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_014"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_015"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_016"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_017"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_019"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_021"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_067"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_069"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_078"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_081"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_084"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_087"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_098"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_103"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_105"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_107"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_001"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_002"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_003"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_004"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_005"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_006"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_007"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_008"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_009"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_010"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_011"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_012"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_013"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_014"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_015"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_016"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_017"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_018"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_019"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_020"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_021"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_061"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_062"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_065"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_066"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_071"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_072"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_075"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_076"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_079"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_080"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_083"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_084"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_097"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_098"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_101"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_102"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_105"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_106"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_109"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_110"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "areas",
+                    "Group"       : "Ground Floor",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "m2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 62,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Kids Lounge",
+                                "AreaM2" : 39.496875,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#bedcef"
+                            },
+                            {
+                                "Name"   : "Grand Atrium",
+                                "AreaM2" : 35.40312,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#c3efbe"
+                            },
+                            {
+                                "Name"   : "Library",
+                                "AreaM2" : 25.432006,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#c3beef"
+                            },
+                            {
+                                "Name"   : "West Atrium",
+                                "AreaM2" : 43.560021,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efe2be"
+                            },
+                            {
+                                "Name"   : "Executive Study",
+                                "AreaM2" : 28.178231,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efd1be"
+                            },
+                            {
+                                "Name"   : "Grand Gallery",
+                                "AreaM2" : 70.818865,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#beefe7"
+                            },
+                            {
+                                "Name"   : "Formal Lounge",
+                                "AreaM2" : 32.383657,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efbebe"
+                            },
+                            {
+                                "Name"   : "Bar Lounge",
+                                "AreaM2" : 26.265625,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efbebe"
+                            },
+                            {
+                                "Name"   : "Formal Dining Room",
+                                "AreaM2" : 41.794373,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#d1beef"
+                            },
+                            {
+                                "Name"   : "Garden Room",
+                                "AreaM2" : 25.812681,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#beefd0"
+                            },
+                            {
+                                "Name"   : "Pantry",
+                                "AreaM2" : 7.12125,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efebbe"
+                            },
+                            {
+                                "Name"   : "East Atrium",
+                                "AreaM2" : 42.021807,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efbebe"
+                            },
+                            {
+                                "Name"   : "W/C",
+                                "AreaM2" : 6.4575,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#beefd5"
+                            },
+                            {
+                                "Name"   : "Family Lounge",
+                                "AreaM2" : 41.48775,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#ccbeef"
+                            },
+                            {
+                                "Name"   : "Firewood Store",
+                                "AreaM2" : 9.87622,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#c8efbe"
+                            },
+                            {
+                                "Name"   : "Shed",
+                                "AreaM2" : 11.069885,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#ccbeef"
+                            },
+                            {
+                                "Name"   : "Kitchen",
+                                "AreaM2" : 62.677933,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#bee5ef"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Ground Floor",
+                                "AreaM2" : 549.857798,
+                                "Colour" : "#efbebe",
+                                "Count"  : 17
+                            }
+                        ],
+                        "TotalM2" : 549.857798
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_001"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_022"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_023"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_024"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_025"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_026"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_027"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_028"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_029"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_030"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_031"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_032"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_033"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_034"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_035"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_036"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_037"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_038"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_039"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_040"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_041"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_042"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_022"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_023"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_024"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_025"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_027"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_028"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_029"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_030"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_031"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_032"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_033"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 100,
+                    "DivisionMm"       : 2000,
+                    "Divisions"        : 10,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 500,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "plan",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "Ground Floor Plan",
+                    "ViewName"         : "",
+                    "ViewDrawing"      : "Ground Floor Plan"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_006",
+                    "Link__ViewportId" : "Viewport_001"
+                }
+            },
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_043"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_034"
+                }
+            ],
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_049"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_050"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_051"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_052"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_053"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_054"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_055"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_056"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_057"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_058"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_059"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_068"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_070"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_079"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_082"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_085"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_088"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_099"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_104"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_106"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_108"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_040"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_041"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_042"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_043"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_044"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_045"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_046"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_047"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_048"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_049"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_050"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_051"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_052"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_053"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_054"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_055"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_056"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_057"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_058"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_059"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_060"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_063"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_064"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_067"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_068"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_073"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_074"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_077"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_078"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_081"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_082"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_085"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_086"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_099"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_100"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_103"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_104"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_107"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_108"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_111"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_112"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "areas",
+                    "Group"       : "Ground Floor",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "ft2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 62,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Kids Lounge",
+                                "AreaM2" : 39.496875,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#bedcef"
+                            },
+                            {
+                                "Name"   : "Grand Atrium",
+                                "AreaM2" : 35.40312,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#c3efbe"
+                            },
+                            {
+                                "Name"   : "Library",
+                                "AreaM2" : 25.432006,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#c3beef"
+                            },
+                            {
+                                "Name"   : "West Atrium",
+                                "AreaM2" : 43.560021,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efe2be"
+                            },
+                            {
+                                "Name"   : "Executive Study",
+                                "AreaM2" : 28.178231,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efd1be"
+                            },
+                            {
+                                "Name"   : "Grand Gallery",
+                                "AreaM2" : 70.818865,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#beefe7"
+                            },
+                            {
+                                "Name"   : "Formal Lounge",
+                                "AreaM2" : 32.383657,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efbebe"
+                            },
+                            {
+                                "Name"   : "Bar Lounge",
+                                "AreaM2" : 26.265625,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efbebe"
+                            },
+                            {
+                                "Name"   : "Formal Dining Room",
+                                "AreaM2" : 41.794373,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#d1beef"
+                            },
+                            {
+                                "Name"   : "Garden Room",
+                                "AreaM2" : 25.812681,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#beefd0"
+                            },
+                            {
+                                "Name"   : "Pantry",
+                                "AreaM2" : 7.12125,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efebbe"
+                            },
+                            {
+                                "Name"   : "East Atrium",
+                                "AreaM2" : 42.021807,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#efbebe"
+                            },
+                            {
+                                "Name"   : "W/C",
+                                "AreaM2" : 6.4575,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#beefd5"
+                            },
+                            {
+                                "Name"   : "Family Lounge",
+                                "AreaM2" : 41.48775,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#ccbeef"
+                            },
+                            {
+                                "Name"   : "Firewood Store",
+                                "AreaM2" : 9.87622,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#c8efbe"
+                            },
+                            {
+                                "Name"   : "Shed",
+                                "AreaM2" : 11.069885,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#ccbeef"
+                            },
+                            {
+                                "Name"   : "Kitchen",
+                                "AreaM2" : 62.677933,
+                                "Group"  : "Ground Floor",
+                                "Colour" : "#bee5ef"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Ground Floor",
+                                "AreaM2" : 549.857798,
+                                "Colour" : "#efbebe",
+                                "Count"  : 17
+                            }
+                        ],
+                        "TotalM2" : 549.857798
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_071"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_072"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_073"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_069"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 11,
+                    "HeightMm"    : 18.7,
+                    "Label"       : "Storage",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : false
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_074"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_075"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_076"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_070"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 12,
+                    "HeightMm"    : 19.7,
+                    "Label"       : "Storage",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : false
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_006"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_091"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_092"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_093"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_094"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_087"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_088"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_089"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_090"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_091"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_092"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_093"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ProjectQr",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "SizeMm"      : 20,
+                    "Form"        : "compact",
+                    "BodyWidthMm" : 95,
+                    "ProjectName" : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_007"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_161"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_162"
+                }
+            ],
+            "Group__Id" : "Group_008"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_169"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_170"
+                }
+            ],
+            "Group__Id" : "Group_009"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_173"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_174"
+                }
+            ],
+            "Group__Id" : "Group_011"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

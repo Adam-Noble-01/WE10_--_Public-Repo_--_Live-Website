@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="474mm" height="126.8982mm"
+     viewBox="0 0 474 126.8982"
+     data-na-document="AA00_T02_D02"
+     data-na-viewport="Viewport_001"
+     data-na-space="paper-mm, origin top-left, x right, y down"
+     data-na-scale="1:100"
+     data-na-segments="18842">
+    <!--
+      PUBLISHED LINEWORK - DUMMY EXAMPLE, hand-drawn to show the shape.
+
+      This is the whole vector half of a viewport: one <path> per line class,
+      paint order heavy first and dashed last, with stroke colour, width,
+      opacity and dash ALREADY RESOLVED onto the element.
+
+      The real file is the same five paths with the real 'd' data - about
+      180 KB of text for an elevation of 18,842 segments, and five DOM nodes
+      however many segments there are.
+
+      COORDINATES are paper millimetres inside the viewport's own frame, so
+      the reader positions the whole thing with one translate to
+      Viewport__FrameMm and scales it with one transform when the sheet zooms.
+      Nothing is re-rasterised on zoom, because nothing was ever a raster.
+
+      STROKE WIDTHS are the configured drawing-millimetre widths divided by the
+      viewport's scale denominator: a visible edge is 12 drawing mm, which at
+      1:100 is 0.12 paper mm. The division happens HERE, at publish, so the
+      reader holds no appearance config and no scale arithmetic.
+
+      WHAT IS NOT HERE, deliberately: the segment coordinate arrays, the owner
+      tag runs, the model build token, the view fingerprint and the class
+      appearance rules. Publishing those would mean the reader has to own the
+      styling half of the projection module to turn them into lines - and a
+      reader that can style linework is a reader that can be asked to compute
+      it.
+    -->
+
+    <g data-na-class="section" fill="none" stroke="#505050" stroke-width="0.28" stroke-opacity="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0,126.8982 L474,126.8982" />
+    </g>
+
+    <g data-na-class="visible" fill="none" stroke="#323232" stroke-width="0.12" stroke-opacity="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M62.4,126.8982 L62.4,41.2 L118.7,8.4 L175.0,41.2 L175.0,126.8982
+                 M175.0,41.2 L288.6,41.2 L288.6,126.8982
+                 M288.6,41.2 L344.9,12.6 L401.2,41.2 L401.2,126.8982
+                 M62.4,41.2 L175.0,41.2
+                 M96.8,126.8982 L96.8,86.4 L127.2,86.4 L127.2,126.8982
+                 M204.5,126.8982 L204.5,78.9 L236.1,78.9 L236.1,126.8982
+                 M258.0,126.8982 L258.0,78.9 L289.6,78.9 L289.6,126.8982
+                 M318.4,126.8982 L318.4,82.1 L349.0,82.1 L349.0,126.8982
+                 M88.2,57.6 L110.4,57.6 L110.4,72.8 L88.2,72.8 Z
+                 M140.6,57.6 L162.8,57.6 L162.8,72.8 L140.6,72.8 Z
+                 M212.9,53.1 L235.1,53.1 L235.1,68.3 L212.9,68.3 Z
+                 M265.4,53.1 L287.6,53.1 L287.6,68.3 L265.4,68.3 Z
+                 M326.8,55.4 L349.0,55.4 L349.0,70.6 L326.8,70.6 Z" />
+    </g>
+
+    <g data-na-class="authored" fill="none" stroke="#323232" stroke-width="0.12" stroke-opacity="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M62.4,49.8 L175.0,49.8 M288.6,49.8 L401.2,49.8" />
+    </g>
+
+    <g data-na-class="hidden" fill="none" stroke="#6a6a6a" stroke-width="0.08" stroke-opacity="0.9" stroke-dasharray="1.2 1.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M175.0,86.4 L288.6,86.4 M204.5,41.2 L204.5,78.9" />
+    </g>
+</svg>

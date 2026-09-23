@@ -32,6 +32,31 @@ lets the `50__System__ProjectedLinework` modules port between them without edits
 | `02__Vendor__ThreeMeshBvh__v0.9.9` | `three-mesh-bvh` | 0.9.9 | 2.2 MB | 91 |
 | `03__Vendor__Clipper2Js__v0.9.0` | `clipper2-js` | 0.9.0 | 1.8 MB | 22 |
 | `04__Vendor__ThreeEdgeProjection__v0.0.10` | `three-edge-projection` | 0.0.10 @ `f794481` | 253 KB | 47 |
+| `05__Vendor__JsPdf__v4.1.0` | `jspdf` | 4.1.0 (built 2026-02-02) | 1.2 MB | 1 |
+| `06__Vendor__Html2Canvas__v1.4.1` | `html2canvas` | 1.4.1 | 196 KB | 1 |
+
+**Vendors 05 and 06 are the document-output pair, and they are NOT part of the
+coordinated 3D set** — see rule 1. Both are single UMD bundles **injected as a
+`<script>` tag at the moment they are first needed**, not imported as ES modules, so
+neither has an import-map entry and neither ever will. They are read by path, from:
+
+| Vendor | Read by | Config key | Hard-coded fallback |
+|---|---|---|---|
+| jsPDF | `Na__LayoutEditor__PdfExporter__.js` | `LayoutEditor__Pdf__JsPdfScriptPath` | `Na__LayoutEditor__ConfigState__SheetSetup__.js` |
+| html2canvas | the Statement Writer's PDF export | `LayoutEditor__Statement__Html2CanvasScriptPath` | `Na__LayoutEditor__ConfigState__EditorSetup__.js` |
+
+**Each one has its path written down twice** — in the config JSON and as a hard-coded
+default in a ConfigState module — so moving either file means editing both, or the app
+silently falls back to a path that no longer exists and the PDF button does nothing.
+Three test harnesses (`Na__Test__SpecificationPdf__.html`,
+`Na__Test__TitleBlockCells__.html`, `Na__Test__TitleBlockScaleCell__.html`) and
+`Na__Test__ViewportRotation__.test.mjs` load jsPDF by path too.
+
+Both arrived here on 23-Sep-2026 from `02__Src__AppModules/90__System__PageLayoutSystem`,
+a folder that had held the retired Page Layout System and survived only as the home of
+these two files. Vendored libraries belong in a version-locked vendor folder, not in a
+module tree, and certainly not in a module folder named after a system that no longer
+exists.
 
 `TrueVision__Dependencies__ImportMap__Index__.json` is the single source of truth for
 the import map. A browser cannot read an import map from JSON, so the copy declared
@@ -43,9 +68,14 @@ inline in `Index.html` **must be kept in sync by hand**.
 
 ### 1. Do not upgrade any one vendor on its own
 
-Vendors 01 to 04 are a coordinated set. `three-edge-projection` is pinned to a three
-revision; `three-mesh-bvh` is pinned to both. Moving one alone produces silent geometry
-faults rather than an error. If the set moves, it moves in all three apps together.
+**This rule is about vendors 01 to 04 only.** They are a coordinated set:
+`three-edge-projection` is pinned to a three revision; `three-mesh-bvh` is pinned to
+both. Moving one alone produces silent geometry faults rather than an error. If the set
+moves, it moves in all three apps together.
+
+Vendors 05 and 06 are independent of that set and of each other, and either can be
+upgraded on its own. Upgrading one means renaming its folder to the new version and
+updating the four path strings above.
 
 ### 2. Clipper2 is not optional
 

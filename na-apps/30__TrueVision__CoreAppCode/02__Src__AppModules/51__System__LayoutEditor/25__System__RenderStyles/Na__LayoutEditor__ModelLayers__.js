@@ -70,7 +70,7 @@
     // MODULE IMPORTS | The Loaded Model Categories
     // ------------------------------------------------------------
     import { Na__ModelToggle__GetCategoryKeys } from '../../26__System__ToggleModelElements/Na__UiFeature__ModelToggle__Controls.js';
-    import { Na__SpStore__GetLayers } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';   // <-- A site plan viewport's layers and their names
+    import { Na__SpStore__GetLayers } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';   // <-- A site plan viewport's layers and their names
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------

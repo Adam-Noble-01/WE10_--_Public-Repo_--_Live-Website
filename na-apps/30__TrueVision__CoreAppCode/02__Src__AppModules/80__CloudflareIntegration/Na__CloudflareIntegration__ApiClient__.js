@@ -975,6 +975,207 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | Published Documents (the Reader's Baked Files)
+// -----------------------------------------------------------------------------
+
+    // MODULE CONSTANTS | The Published Folder and What May Go Into It
+    // ------------------------------------------------------------
+    // Every published drawing lives in
+    //     <project>/30__TrueVision__AppContent/06__Layout__PublishedDocuments/<path>
+    // on R2 and in the repository alike - the index at the root, each document
+    // in a folder named after its document id, shared hatch tiles and pictures
+    // in 01__Shared__*. The archive folder is LOCAL ONLY and is refused here,
+    // so no archive zip can ever be pushed to a client by mistake.
+    //
+    // TWO CACHE POLICIES, AND THE DIFFERENCE MATTERS. A baked viewport file,
+    // a shared asset and the baked PDF all carry their own content hash in the
+    // name, so a name never means two files and they are immutable forever.
+    // The index, the manifests, the sheet and the element files have FIXED
+    // names and change on every re-publish; cached for a year behind the CDN,
+    // a re-publish would be invisible to every reader. They get a minute.
+    //
+    // SCHEMA REF : na-project-portal/26-Projects/AA00__ExampleProjectStructure/
+    //              30__TrueVision__AppContent/06__Layout__PublishedDocuments
+    // @delegate: ../51__System__LayoutEditor/65__Feature__DocumentPublishing/Na__LayoutEditor__Publish__Transport__.js
+    // ------------------------------------------------------------
+    const Na__CfApi__PUBLISHED_DIR       = '06__Layout__PublishedDocuments';
+    const Na__CfApi__PUBLISHED_ARCHIVE   = '00__Archive__Revisions';
+    const Na__CfApi__PublishedSegment    = /^[A-Za-z0-9][A-Za-z0-9_\-.]{0,159}$/;
+    const Na__CfApi__PublishedExtension  = /\.(json|svg|webp|png|pdf|md)$/i;
+    const Na__CfApi__PublishedHashed     = /__[0-9a-f]{10}\.(svg|webp|png|pdf)$/;
+    const Na__CfApi__PublishedImmutable  = 'public, max-age=31536000, immutable';
+    const Na__CfApi__PublishedMutable    = 'public, max-age=60, must-revalidate';
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Content Type a Published File Goes Up As
+    // ------------------------------------------------------------
+    function Na__CfApi__PublishedType(path) {
+        const ext = String(path).split('.').pop().toLowerCase();
+        return ({ json : 'application/json', svg : 'image/svg+xml', webp : 'image/webp', png : 'image/png',
+                  pdf : 'application/pdf', md : 'text/markdown' })[ext] || 'application/octet-stream';
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Where a Published File Lives: R2 Key, CDN URL, Repository URL
+    // ------------------------------------------------------------
+    // relativePath is relative to 06__Layout__PublishedDocuments. Null when the
+    // URL names no project, or when any segment is not one this app may write -
+    // including anything under the archive folder.
+    // ------------------------------------------------------------
+    function Na__CfApi__PublishedLocation(relativePath) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder) return null;
+        const parts = String(relativePath || '').replace(/\\/g, '/').split('/').filter((one) => one !== '');
+        if (parts.length === 0 || parts.length > 6) return null;
+        if (parts[0] === Na__CfApi__PUBLISHED_ARCHIVE) return null;               // <-- Archives never leave the machine
+        if (!parts.every((one) => Na__CfApi__PublishedSegment.test(one) && one !== '.' && one !== '..')) return null;
+        if (!Na__CfApi__PublishedExtension.test(parts[parts.length - 1])) return null;
+        const relative = `${ctx.yearCode}-Projects/${ctx.projectFolder}/${Na__CfApi__TvContentDir}/${Na__CfApi__PUBLISHED_DIR}/${parts.join('/')}`;
+        return {
+            key      : `${Na__CfApi__R2Prefix}/${relative}`,
+            cdnUrl   : `${Na__CfApi__CdnBaseUrl}/${Na__CfApi__R2Prefix}/${relative}`,
+            repoUrl  : `${window.location.origin}/na-project-portal/${relative}`,
+            path     : parts.join('/'),
+            immutable: Na__CfApi__PublishedHashed.test(parts[parts.length - 1])
+        };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The R2 Key Prefix of the Published Root, or of One Document
+    // ------------------------------------------------------------
+    function Na__CfApi__PublishedPrefix(documentId) {
+        const ctx = Na__CfApi__GetProjectContext();
+        if (!ctx.projectFolder) return null;
+        const root = `${Na__CfApi__R2Prefix}/${ctx.yearCode}-Projects/${ctx.projectFolder}/${Na__CfApi__TvContentDir}/${Na__CfApi__PUBLISHED_DIR}/`;
+        if (!documentId) return root;
+        return Na__CfApi__PublishedSegment.test(String(documentId)) ? (root + documentId + '/') : null;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Every Published File on R2, Under the Root or One Document
+    // ------------------------------------------------------------
+    // Resolves to { ok, objects: [{ key, path, size }] } with path relative to
+    // the published root - the same form a manifest names its files in, so a
+    // publish can compare what is on R2 with what it has just written.
+    // ------------------------------------------------------------
+    async function Na__CfApi__ListPublished(documentId) {
+        if (!Na__CfApi__IsConfigured()) return { ok: false, error: 'Worker not configured', objects: [] };
+        const prefix = Na__CfApi__PublishedPrefix(documentId);
+        const root   = Na__CfApi__PublishedPrefix(null);
+        if (!prefix || !root) return { ok: false, error: 'No project-folder in URL', objects: [] };
+        const objects = [];
+        let cursor = null;
+        try {
+            for (let page = 0; page < 50; page++) {
+                const response = await fetch(`${Na__CfApi__WorkerBaseUrl}/r2/list`, {
+                    method  : 'POST',
+                    headers : { 'Content-Type': 'application/json' },
+                    body    : JSON.stringify(cursor ? { prefix, limit: 1000, cursor } : { prefix, limit: 1000 })
+                });
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    return { ok: false, error: err.error || `List failed (${response.status})`, objects };
+                }
+                const result = await response.json();
+                (Array.isArray(result.objects) ? result.objects : []).forEach((object) => {
+                    const key = String(object.key || '');
+                    if (key.indexOf(root) !== 0) return;
+                    objects.push({ key: key, path: key.slice(root.length), size: object.size });
+                });
+                if (!result.truncated || !result.cursor) break;
+                cursor = result.cursor;
+            }
+            return { ok: true, objects };
+        } catch (error) {
+            console.error('[TrueVision3D] CfApi published list error:', error);
+            return { ok: false, error: 'Worker unreachable', objects };
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put One Published File on R2
+    // ------------------------------------------------------------
+    // Raw bytes through /r2/upload with the right type and cache policy; a
+    // Worker without that route takes them as base64 through /r2/write, the
+    // same fallback Sheet Images uses. Resolves to { ok, key, error }.
+    // ------------------------------------------------------------
+    async function Na__CfApi__UploadPublished(relativePath, blob) {
+        if (!Na__CfApi__IsConfigured()) return { ok: false, error: 'Worker not configured' };
+        const location = Na__CfApi__PublishedLocation(relativePath);
+        if (!location) return { ok: false, error: `Refused published path "${relativePath}"` };
+        if (!(blob instanceof Blob) || !blob.size) return { ok: false, error: 'Nothing to upload' };
+        const type  = Na__CfApi__PublishedType(location.path);
+        const cache = location.immutable ? Na__CfApi__PublishedImmutable : Na__CfApi__PublishedMutable;
+
+        if (!Na__CfApi__RawUploadMissing) {
+            try {
+                const query    = new URLSearchParams({ key: location.key, cacheControl: cache });
+                const response = await fetch(`${Na__CfApi__WorkerBaseUrl}/r2/upload?${query.toString()}`, {
+                    method  : 'PUT',
+                    headers : { 'Content-Type': type },
+                    body    : blob
+                });
+                if (response.ok) return { ok: true, key: location.key };
+                const err = await response.json().catch(() => ({}));
+                if (!(response.status === 400 && /unknown r2 operation/i.test(err.error || '')) && response.status !== 404 && response.status !== 405) {
+                    return { ok: false, error: err.error || `Upload failed (${response.status})` };
+                }
+                Na__CfApi__RawUploadMissing = true;
+                console.info('[TrueVision3D] The Worker has no /r2/upload yet (deploy it with wrangler); published files go up through /r2/write.');
+            } catch (error) {
+                console.error('[TrueVision3D] CfApi published upload error:', error);
+                return { ok: false, error: 'Worker unreachable' };
+            }
+        }
+        const write = await Na__CfApi__WriteKey({
+            key          : location.key,
+            data         : await Na__CfApi__BlobToBase64(blob),
+            encoding     : 'base64',
+            contentType  : type,
+            cacheControl : cache
+        });
+        return write.ok ? { ok: true, key: location.key } : write;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take One Published File Off R2
+    // ------------------------------------------------------------
+    // Called by a publish ONLY for a key under the document it has just
+    // published, and only after that document's new manifest is on R2. A
+    // publish never sweeps a prefix: a sweep on a half-failed publish would
+    // delete live drawings of documents it was never asked about.
+    // ------------------------------------------------------------
+    async function Na__CfApi__DeletePublished(relativePath) {
+        if (!Na__CfApi__IsConfigured()) return { ok: false, error: 'Worker not configured' };
+        const location = Na__CfApi__PublishedLocation(relativePath);
+        if (!location) return { ok: false, error: `Refused published path "${relativePath}"` };
+        try {
+            const response = await fetch(`${Na__CfApi__WorkerBaseUrl}/r2/delete`, {
+                method  : 'POST',
+                headers : { 'Content-Type': 'application/json' },
+                body    : JSON.stringify({ key: location.key })
+            });
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                return { ok: false, error: err.error || `Delete failed (${response.status})` };
+            }
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, error: 'Worker unreachable' };
+        }
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Module Exports
 // -----------------------------------------------------------------------------
 
@@ -1008,7 +1209,12 @@
         Na__CfApi__ListSheetImages,
         Na__CfApi__UploadSheetImage,
         Na__CfApi__CopySheetImage,
-        Na__CfApi__DeleteSheetImage
+        Na__CfApi__DeleteSheetImage,
+        Na__CfApi__PublishedLocation,
+        Na__CfApi__PublishedPrefix,
+        Na__CfApi__ListPublished,
+        Na__CfApi__UploadPublished,
+        Na__CfApi__DeletePublished
     };
     // ------------------------------------------------------------
 

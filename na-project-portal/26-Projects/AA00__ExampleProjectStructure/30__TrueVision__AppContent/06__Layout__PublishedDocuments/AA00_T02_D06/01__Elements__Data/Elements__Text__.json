@@ -1,0 +1,49 @@
+{
+    "Elements__Meta": {
+        "Meta__FileName"    : "Elements__Text__.json",
+        "Meta__Description" : "Room names, door and window references, level markers, general notes. Same shape as the elevation's text file: Annotation__Lines is added at publish and the reader measures nothing.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__LayerId"     : "Layer_002",
+        "Meta__LayerType"   : "annotation",
+        "Meta__Count"       : 112,
+        "Meta__ExampleNote" : "DUMMY DATA. Two of the hundred and twelve are written out."
+    },
+
+    "Elements__Text": [
+        {
+            "Annotation__Id"        : "Text_004",
+            "Annotation__LayerId"   : "Layer_002",
+            "Annotation__Text"      : "W04",
+            "Annotation__Lines"     : [ "W04" ],
+            "Annotation__PosXMm"    : 128.4,
+            "Annotation__PosYMm"    : 121.6,
+            "Annotation__SizeMm"    : 2,
+            "Annotation__FontWeight": 600,
+            "Annotation__Colour"    : "#172b3a",
+            "Annotation__Align"     : "centre",
+            "Annotation__LeaderXMm" : null,
+            "Annotation__LeaderYMm" : null
+        },
+        {
+            "Annotation__Id"        : "Text_061",
+            "Annotation__LayerId"   : "Layer_002",
+            "Annotation__Text"      : "New opening formed in existing stone wall. Refer to structural engineer's details for lintel and padstone sizes.",
+            "Annotation__Lines"     : [
+                "New opening formed in existing stone wall.",
+                "Refer to structural engineer's details for",
+                "lintel and padstone sizes."
+            ],
+            "Annotation__PosXMm"    : 428.0,
+            "Annotation__PosYMm"    : 214.8,
+            "Annotation__SizeMm"    : 2,
+            "Annotation__FontWeight": 400,
+            "Annotation__Colour"    : "#172b3a",
+            "Annotation__Align"     : "left",
+            "Annotation__WrapWidthMm": 62,
+            "Annotation__LeaderXMm" : 396.2,
+            "Annotation__LeaderYMm" : 226.4
+        }
+    ]
+}

@@ -218,6 +218,8 @@
         };
         if (typeof opts.atScale === 'boolean') record.Dimension__AtScale = opts.atScale;   // <-- Measure at scale; left out, no key, and the record reads as one from before it
         if (opts.roundUp === true) record.Dimension__RoundUp = true;                       // <-- Round up to 5 mm; off is no key
+        if (Number.isFinite(opts.linePt)) record.Dimension__LinePt = opts.linePt;          // <-- Line weight in points; left out, the sheet's Dimension pt
+        if (opts.dash && typeof opts.dash === 'object') record.Dimension__LineStyle = opts.dash;   // <-- Dashed, dotted or dash-dot lines; left out, solid
         const item = Na__LeRec__NormaliseDimension(record, Na__LeModel__DefaultLayerId(sheet, 'dimension'));
         sheet.Sheet__Dimensions.push(item);
         if (opts.silent) Na__LeModel__AssignDirty(true); else Na__LeModel__Touch('dimensions', sheet.Sheet__Id, item.Dimension__Id);   // <-- The dimension tool announces once, on the third click
@@ -258,6 +260,8 @@
         if (typeof patch.orientation === 'string') item.Dimension__Orientation = patch.orientation;
         if (typeof patch.atScale === 'boolean') item.Dimension__AtScale = patch.atScale;               // <-- Measure at scale, from the Dimensions panel
         if (typeof patch.roundUp === 'boolean') item.Dimension__RoundUp = patch.roundUp;               // <-- Round up to 5 mm; the normaliser keeps only true
+        if (patch.linePt !== undefined) item.Dimension__LinePt = patch.linePt;                         // <-- null, or anything but points, is the sheet's Dimension pt
+        if (patch.dash !== undefined) item.Dimension__LineStyle = (patch.dash && typeof patch.dash === 'object') ? patch.dash : null;   // <-- null is a solid line
         if (patch.startExtensionMm !== undefined) item.Dimension__StartExtensionMm = patch.startExtensionMm;   // <-- null, or anything but a length, is the full line
         if (patch.endExtensionMm !== undefined)   item.Dimension__EndExtensionMm   = patch.endExtensionMm;
         if (typeof patch.extensionsLinked === 'boolean') item.Dimension__ExtensionsLinked = patch.extensionsLinked;   // <-- The normaliser keeps only false

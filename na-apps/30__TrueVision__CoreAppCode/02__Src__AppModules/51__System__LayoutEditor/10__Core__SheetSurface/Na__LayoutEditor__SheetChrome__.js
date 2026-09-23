@@ -99,7 +99,7 @@
 //   so the code is one vector path on the screen sheet and one in the PDF. Not
 //   an 'image' on purpose: the exporter sends a classic sheet's images UNDER
 //   the viewports, which is right for the scan and wrong for a code.
-//   // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js
+//   // @delegate: ../53__Feature__ProjectQrCode/Na__ProjectQr__Painter__.js
 //
 // 17-Sep-2026 - Version 1.8.0
 // - BuildFrame stopped truncating captions the box was built to hold. It sized the
@@ -190,7 +190,7 @@
     import { Na__LeGrad__SvgPaint, Na__LeGrad__DrawPdf } from '../35__System__DrawingTools/Na__LayoutEditor__GradientTool__.js';
     import { Na__LeHatch__Get, Na__LeHatch__SvgPaint, Na__LeHatch__DrawPdf } from '../36__System__HatchPatternTools/Na__LayoutEditor__HatchPatterns__.js';
     import { Na__LePdfFonts__Install, Na__LePdfFonts__SetFont } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfFonts__.js';
-    import { Na__QrPaint__SvgGroup, Na__QrPaint__DrawPdf } from '../../53__System__ProjectQrCode/Na__ProjectQr__Painter__.js';   // <-- A leaf: a symbol and numbers in, markup or drawing calls out
+    import { Na__QrPaint__SvgGroup, Na__QrPaint__DrawPdf } from '../53__Feature__ProjectQrCode/Na__ProjectQr__Painter__.js';   // <-- A leaf: a symbol and numbers in, markup or drawing calls out
     import { Na__LeImgPaint__KIND, Na__LeImgPaint__Svg, Na__LeImgPaint__DrawPdf } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Painter__.js';   // <-- A leaf too: a picture primitive in, markup or drawing calls out
     import { Na__LeVpRot__Deg, Na__LeVpRot__Centre, Na__LeVpRot__WrapDeg, Na__LeVpRot__PdfTurn } from '../20__System__Viewports/Na__LayoutEditor__ViewportRotation__.js';   // <-- A leaf: a turned viewport's frame and caption turn with it
     import { Na__LeRings__Spans } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';   // <-- A leaf too: where each ring of a holed polyline starts, asked only of one that has holes

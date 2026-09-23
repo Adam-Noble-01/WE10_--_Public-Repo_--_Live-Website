@@ -1,0 +1,352 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D01",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_003"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_004"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_005"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_006"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_001"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_002"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_003"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_005"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_006"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_007"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_008"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ProjectQr",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "SizeMm"      : 20,
+                    "Form"        : "compact",
+                    "BodyWidthMm" : 95,
+                    "ProjectName" : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_001"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_008"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_016"
+                }
+            ],
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_010"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_011"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_012"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_013"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_014"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_015"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_016"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_018"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_019"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_020"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_021"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_022"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_023"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_024"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_025"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_027"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_028"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_029"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_030"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "project",
+                    "Group"       : "",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "m2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 82,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas"  : [],
+                        "Groups" : [
+                            {
+                                "Name"   : "Ground Floor",
+                                "AreaM2" : 549.857798,
+                                "Colour" : "#efbebe",
+                                "Count"  : 17
+                            },
+                            {
+                                "Name"   : "First Floor - Main House",
+                                "AreaM2" : 330.387051,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 13
+                            },
+                            {
+                                "Name"   : "Second Floor - Main House",
+                                "AreaM2" : 174.479333,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 9
+                            },
+                            {
+                                "Name"   : "Ground Floor - Coach House",
+                                "AreaM2" : 190.537,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 4
+                            }
+                        ],
+                        "TotalM2" : 1245.261181
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_017"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_018"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_019"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_020"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_021"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_022"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_023"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_031"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_032"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_033"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_034"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_035"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_036"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_037"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_038"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_039"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_040"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_041"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_042"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_043"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"        : "project",
+                    "Group"       : "",
+                    "ShowGroups"  : true,
+                    "ShowTotal"   : true,
+                    "ShowSwatch"  : true,
+                    "Units"       : "ft2",
+                    "Decimals"    : 2,
+                    "TitleText"   : "",
+                    "TitleSuffix" : "",
+                    "WidthMm"     : 82,
+                    "TextSizeMm"  : 2.4,
+                    "Data"        : {
+                        "Areas"  : [],
+                        "Groups" : [
+                            {
+                                "Name"   : "Ground Floor",
+                                "AreaM2" : 549.857798,
+                                "Colour" : "#efbebe",
+                                "Count"  : 17
+                            },
+                            {
+                                "Name"   : "First Floor - Main House",
+                                "AreaM2" : 330.387051,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 13
+                            },
+                            {
+                                "Name"   : "Second Floor - Main House",
+                                "AreaM2" : 174.479333,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 9
+                            },
+                            {
+                                "Name"   : "Ground Floor - Coach House",
+                                "AreaM2" : 190.537,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 4
+                            }
+                        ],
+                        "TotalM2" : 1245.261181
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_004"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

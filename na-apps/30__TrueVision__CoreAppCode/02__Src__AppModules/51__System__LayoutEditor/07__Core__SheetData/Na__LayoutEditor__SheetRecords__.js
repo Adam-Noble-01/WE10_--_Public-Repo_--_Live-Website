@@ -33,6 +33,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.39.0
+// - Dimension__LinePt and Dimension__LineStyle: a dimension's own line weight
+//   in points and its dashed, dotted or dash-dot lines (the Dimensions
+//   panel). NormaliseDimension keeps the weight only as a number of points
+//   inside the Lineweights bounds, and the line style only while it is not
+//   solid (made whole by Na__LayoutEditor__LineStyleTool__). With neither key a
+//   dimension draws at the sheet's Dimension pt, solid, exactly as before.
+//
 // 22-Sep-2026 - Version 1.38.0
 // - HOLES IN A VECTOR (islands), for the vector tools' Boolean section:
 //   NormaliseShapeHoles keeps Shape__Holes - where each hole begins in
@@ -910,7 +918,7 @@
         if (viewport.Viewport__SceneId   === undefined) viewport.Viewport__SceneId   = null;
         if (viewport.Viewport__DrawingId === undefined) viewport.Viewport__DrawingId = null;
         // SITE PLAN | Viewport__SitePlan marks a viewport that draws the project's
-        // site plan data (52__System__SitePlanData) rather than a plan or an
+        // site plan data (21__System__SitePlanData) rather than a plan or an
         // elevation. Kept only on such a viewport, as an object with room for the
         // settings still to come; it is always 2D and never carries a drawing id.
         // SitePlan__StoreId names which store it draws - the Existing site plan
@@ -1098,6 +1106,19 @@
         if ([ 'aligned', 'horizontal', 'vertical' ].indexOf(item.Dimension__Orientation) === -1) item.Dimension__Orientation = 'aligned';   // <-- A record from before ortho dimensions was aligned
         if (item.Dimension__AtScale !== undefined && typeof item.Dimension__AtScale !== 'boolean') delete item.Dimension__AtScale;   // <-- true, false or no key: a record from before Measure at scale keeps reading as it did
         if (item.Dimension__RoundUp !== true) delete item.Dimension__RoundUp;   // <-- Round up to 5 mm: kept only while it is on, so a record from before it saves exactly as it did
+        // LINE WEIGHT AND STYLE | Points inside the Lineweights bounds, else no
+        // key - the sheet's Dimension pt. A line style only while it is not
+        // solid, else no key. A record from before either draws as it did.
+        if (item.Dimension__LinePt !== undefined) {
+            const pt = item.Dimension__LinePt;
+            const lw = Na__LeCfg__GetLineweightSetup();
+            if (!(typeof pt === 'number' && Number.isFinite(pt) && pt > 0)) delete item.Dimension__LinePt;
+            else item.Dimension__LinePt = Math.min(lw.maxPt, Math.max(lw.minPt, pt));
+        }
+        if (item.Dimension__LineStyle !== undefined) {
+            const style = Na__LeDash__Normalise(item.Dimension__LineStyle);
+            if (style) item.Dimension__LineStyle = style; else delete item.Dimension__LineStyle;
+        }
         // FIXED LENGTH EXTENSION LINES | A length is a number of zero or more and
         // anything else is the full line, which is no key at all; the padlock is
         // kept only while it is open. A record from before either reads as it did.

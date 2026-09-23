@@ -1,0 +1,89 @@
+{
+    "PublishedDocument__Meta" : {
+        "Meta__FileName"  : "Document__Manifest__.json",
+        "Meta__Note"      : "Everything this published document is made of. Written LAST, after every file it names is in place, so its presence means the document is whole.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocument__Identity" : {
+        "Document__Id"            : "RB05_T01_D01",
+        "Document__ProjectCode"   : "RB05",
+        "Document__Phase"         : "T01",
+        "Document__Number"        : "D01",
+        "Document__Name"          : "Project Introduction",
+        "Document__Revision"      : "A",
+        "Document__Status"        : "PRELIMINARY",
+        "Document__SourceSheetId" : "Sheet_005"
+    },
+    "PublishedDocument__Publish" : {
+        "Publish__SchemaVersion"  : 1,
+        "Publish__AtIso"          : "2026-09-23T16:21:28.040Z",
+        "Publish__AtEpochMs"      : 1790180488040,
+        "Publish__ByApp"          : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__RevisionAction" : "overwritten",
+        "Publish__Archived"       : null
+    },
+    "PublishedDocument__Files" : {
+        "Files__Sheet" : {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 51335,
+            "File__Sha256" : "25771aa06f"
+        },
+        "Files__Elements" : [
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 38,
+                "File__Bytes"  : 100982,
+                "File__Sha256" : "615624b4d0"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 20,
+                "File__Bytes"  : 30243,
+                "File__Sha256" : "e0f58bf266"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 4,
+                "File__Bytes"  : 11902,
+                "File__Sha256" : "56220c4cf1"
+            },
+            {
+                "File__Type"   : "image",
+                "File__Layers" : [
+                    "Layer_006"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Images__.json",
+                "File__Count"  : 2,
+                "File__Bytes"  : 5246,
+                "File__Sha256" : "6d43d3e0e4"
+            },
+            {
+                "File__Type"   : "vector",
+                "File__Layers" : [
+                    "Layer_004"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
+                "File__Count"  : 29,
+                "File__Bytes"  : 45511,
+                "File__Sha256" : "603e00dd2e"
+            }
+        ],
+        "Files__Viewports" : [],
+        "Files__Pdf"       : {
+            "File__Path"   : "Document__Print__15d3cb5ba1.pdf",
+            "File__Bytes"  : 2732727,
+            "File__Sha256" : "15d3cb5ba1",
+            "File__Name"   : "RB05_T01_D01__ProjectIntroduction__A3__RevA__23-Sep-2026__.pdf"
+        },
+        "Files__TotalBytes" : 2977946
+    }
+}

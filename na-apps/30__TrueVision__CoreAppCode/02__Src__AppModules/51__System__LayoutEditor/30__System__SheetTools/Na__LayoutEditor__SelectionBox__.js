@@ -12,8 +12,10 @@
 // DESCRIPTION:
 // - A left drag with the Select tool draws a selection box when it starts
 //   where there is nothing to move: bare paper, the grey stage, a locked
-//   viewport, anything at all in a read-only session - or anywhere with Alt
-//   held, for a sheet with no bare paper left to start from.
+//   viewport, a viewport the press would not move (not a grip, a door, the
+//   one being edited inside, or under the Move tool), anything at all in a
+//   read-only session - or anywhere with Alt held, for a sheet with no bare
+//   paper left to start from.
 // - THE DIRECTION DECIDES THE RULE, as in AutoCAD. Dragged to the RIGHT the box
 //   is a WINDOW: blue with a solid edge, and it takes only what lies wholly
 //   inside it. Dragged to the LEFT it is a CROSSING: green with a dashed edge,

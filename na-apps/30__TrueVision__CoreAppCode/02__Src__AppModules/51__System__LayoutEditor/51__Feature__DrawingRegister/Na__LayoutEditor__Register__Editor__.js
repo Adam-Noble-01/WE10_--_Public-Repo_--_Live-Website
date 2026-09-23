@@ -81,6 +81,7 @@
     import { Na__LeRegPdf__Rows, Na__LeRegPdf__ProjectName, Na__LeRegPdf__BuildDocument, Na__LeRegPdf__Download } from './Na__LayoutEditor__Register__Pdf__.js';
     import { Na__LeRegNotes__Build } from './Na__LayoutEditor__Register__Notes__.js';
     import { Na__LeRegExport__Run } from './Na__LayoutEditor__Register__Export__.js';
+    import { Na__LePubPanel__Open } from '../65__Feature__DocumentPublishing/Na__LayoutEditor__Publish__Panel__.js';   // <-- Publish Drawings: bakes the drawings the web viewer shows
     import { Na__LeRegPreview__Render, Na__LeRegPreview__Clear } from './Na__LayoutEditor__Register__Preview__.js';
     // ------------------------------------------------------------
 
@@ -519,6 +520,9 @@
         bar.appendChild(Na__LeRegEd__Button('Export all drawings', () => Na__LeRegExport__Run(false, Na__LeRegEd__Detailed, Na__LeRegEd__Options.navigation, Na__LeRegEd__Options.showToast)));
         bar.appendChild(Na__LeRegEd__Button('Download entire pack', () => Na__LeRegExport__Run(true, Na__LeRegEd__Detailed, Na__LeRegEd__Options.navigation, Na__LeRegEd__Options.showToast)));
         if (Na__LeRegEd__Options.editable) {
+            // PUBLISH DRAWINGS | Authoring only: bakes each drawing into the files
+            // the web viewer shows, so a reader's phone renders nothing.
+            bar.appendChild(Na__LeRegEd__Button('Publish drawings...', () => Na__LePubPanel__Open({ showToast : Na__LeRegEd__Options.showToast })));
             const save = Na__LeRegEd__El('details', 'na-le-register__save');
             save.appendChild(Na__LeRegEd__El('summary', '', 'Save / Load notes'));
             const actions = Na__LeRegEd__El('div');

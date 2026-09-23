@@ -1,0 +1,121 @@
+{
+    "PublishedDocument__Meta" : {
+        "Meta__FileName"  : "Document__Manifest__.json",
+        "Meta__Note"      : "Everything this published document is made of. Written LAST, after every file it names is in place, so its presence means the document is whole.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocument__Identity" : {
+        "Document__Id"            : "RB05_T01_D06",
+        "Document__ProjectCode"   : "RB05",
+        "Document__Phase"         : "T01",
+        "Document__Number"        : "D06",
+        "Document__Name"          : "Ground Floor Plan",
+        "Document__Revision"      : "A",
+        "Document__Status"        : "PRELIMINARY",
+        "Document__SourceSheetId" : "Sheet_006"
+    },
+    "PublishedDocument__Publish" : {
+        "Publish__SchemaVersion"  : 1,
+        "Publish__AtIso"          : "2026-09-23T16:09:34.375Z",
+        "Publish__AtEpochMs"      : 1790179774375,
+        "Publish__ByApp"          : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__RevisionAction" : "overwritten",
+        "Publish__Archived"       : null
+    },
+    "PublishedDocument__Files" : {
+        "Files__Sheet" : {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 22685,
+            "File__Sha256" : "33bad54bc4"
+        },
+        "Files__Elements" : [
+            {
+                "File__Type"   : "dimension",
+                "File__Layers" : [
+                    "Layer_003"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Dimensions__.json",
+                "File__Count"  : 45,
+                "File__Bytes"  : 93837,
+                "File__Sha256" : "e7ff4b9ee6"
+            },
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 112,
+                "File__Bytes"  : 97059,
+                "File__Sha256" : "b8edbb282c"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 3,
+                "File__Bytes"  : 5061,
+                "File__Sha256" : "c053cd1cad"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 10,
+                "File__Bytes"  : 38470,
+                "File__Sha256" : "8c3f881028"
+            },
+            {
+                "File__Type"   : "area",
+                "File__Layers" : [
+                    "Layer_005"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Areas__.json",
+                "File__Count"  : 17,
+                "File__Bytes"  : 45972,
+                "File__Sha256" : "2196db7ac6"
+            },
+            {
+                "File__Type"   : "vector",
+                "File__Layers" : [
+                    "Layer_004"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
+                "File__Count"  : 142,
+                "File__Bytes"  : 239800,
+                "File__Sha256" : "8db3d3745a"
+            },
+            {
+                "File__Type"   : "viewport",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
+                "File__Count"  : 1,
+                "File__Bytes"  : 1669,
+                "File__Sha256" : "82838c8a6e"
+            }
+        ],
+        "Files__Viewports" : [
+            {
+                "Viewport__Id"     : "Viewport_001",
+                "Viewport__Hash"   : "e8139555f8",
+                "Viewport__Vector" : {
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__e8139555f8.svg",
+                    "File__Bytes"    : 735000,
+                    "File__Sha256"   : "e8139555f8",
+                    "File__Paths"    : 13,
+                    "File__Segments" : 23602
+                },
+                "Viewport__Rasters"  : [],
+                "Viewport__FogMasks" : []
+            }
+        ],
+        "Files__Pdf" : {
+            "File__Path"   : "Document__Print__f213996495.pdf",
+            "File__Bytes"  : 466594,
+            "File__Sha256" : "f213996495",
+            "File__Name"   : "RB05_T01_D06__GroundFloorPlan__A2__RevA__23-Sep-2026__.pdf"
+        },
+        "Files__TotalBytes" : 1746147
+    }
+}

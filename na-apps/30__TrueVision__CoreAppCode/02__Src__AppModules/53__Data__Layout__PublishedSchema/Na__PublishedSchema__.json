@@ -1,0 +1,187 @@
+{
+    "PublishedSchema__Meta": {
+        "Meta__FileName"    : "Na__PublishedSchema__.json",
+        "Meta__Namespace"   : "Na__PubSchema",
+        "Meta__Module"      : "Published Schema - The Shared Contract",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Purpose"     : "Every folder name, file name, element kind and raster tier the publishing system and the published reader both have to agree about",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__SchemaRef"   : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__SchemaRefNote": "THE READABLE SCHEMA, and it lives outside this app. A change to any name or key in this file is not finished until that folder matches it. See README__PublishedSchema__.md."
+    },
+
+    "PublishedSchema__Version": {
+        "Version__Schema"       : 1,
+        "Version__SchemaNote"   : "A reader refuses a schema it does not know rather than half-reading it. Bumping this means every published document in the bucket must be re-published, because a reader that understands schema 2 has no obligation to understand schema 1. The example folder's PublishedDocuments__Publish.Publish__SchemaVersion must carry the same number.",
+        "Version__MinReader"    : "v2.142.0",
+        "Version__WriterNote"   : "The publisher stamps Publish__ByAppVersion from the app version, never from here."
+    },
+
+    "PublishedSchema__Folders": {
+        "Folders__Description"  : "Where published documents live. The root sits beside 05__Layout__DrawingDocs__Images inside a project's 30__TrueVision__AppContent, because a published drawing is project content exactly as a sheet picture is.",
+        "Folders__Root"         : "06__Layout__PublishedDocuments",
+        "Folders__Archive"      : "00__Archive__Revisions",
+        "Folders__ArchiveNote"  : "Local only. The R2 sync skips every folder whose name starts with 00__ (SKIP_FOLDER_PREFIXES in CloudflareR2__ModelSync__Main__.py), which is the whole mechanism keeping archives off the bucket.",
+        "Folders__Shared"       : "01__Shared__Patterns",
+        "Folders__SharedNote"   : "Assets shared by every document of the project - hatch pattern tiles so far. A path beginning with a slash in any published file is relative to Folders__Root, and that is the only shape a shared reference takes.",
+        "Folders__SharedImages" : "02__Shared__Images",
+        "Folders__SharedImagesNote": "Images a published sheet's markup refers to that are not sheet pictures - the title block logo, a classic title block scan - stored ONCE per project under their own content hash and referenced from every sheet that shows them. Sheet pictures are never copied: they are referenced where they already live, in 05__Layout__DrawingDocs__Images.",
+        "Folders__Elements"     : "01__Elements__Data",
+        "Folders__Vector"       : "02__Viewports__Vector",
+        "Folders__Raster"       : "03__Viewports__Raster",
+        "Folders__DocumentNote" : "A document's own folder is named after its DOCUMENT ID - <project code>_<phase>_<number>, e.g. AA00_T02_D02 - which is what the title block prints and what 05__Layout__DrawingDocs__Images already uses for sheet pictures. It is composed on every read and never stored, so a renumber or a phase change makes a NEW folder and the old one is archived."
+    },
+
+    "PublishedSchema__Files": {
+        "Files__Description"   : "Every file name the reader ever asks for. None is guessed: the index names the documents, and a document's manifest names its own files.",
+        "Files__Index"         : "PublishedDocuments__Index__.json",
+        "Files__IndexNote"     : "The first file a reader downloads, and deliberately a small one: a few hundred bytes a drawing, whatever state it is in. Written LAST by a publish, after every document's manifest has landed, so a half-finished publish is never visible.",
+        "Files__Unpublished"   : "PublishedDocuments__Unpublished__.json",
+        "Files__UnpublishedNote": "The sheet paper of every drawing that is NOT published - its border, title block, notes margin and QR as the editor draws them - so the reader can show the right sheet behind the grey panel. Kept OUT of the index because it is most of the weight (about 30 KB a sheet) and only a reader that opens an unpublished drawing needs it: fetched once, the first time one is opened, and never for a published drawing. Written just before the index.",
+        "Files__Manifest"      : "Document__Manifest__.json",
+        "Files__ManifestNote"  : "Written last of the files in a document's folder, after every file it names has been uploaded and checked. Its presence is the signal that the document is whole.",
+        "Files__Sheet"         : "Document__Sheet__.json",
+        "Files__ReadMe"        : "PublishedDocuments__ReadMe__.md",
+        "Files__PdfPrefix"     : "Document__Print",
+        "Files__PdfNote"       : "The sheet's PDF, BAKED AT PUBLISH by the same exporter the editor's Download PDF uses, named Document__Print__<hash>.pdf. The reader's PDF button downloads it and builds nothing: building a PDF renders every viewport at the export level, which is the single most expensive thing the app can do and the last thing a phone should be asked to.",
+        "Files__ElementPrefix" : "Elements__",
+        "Files__ElementSuffix" : "__.json",
+        "Files__HashLength"    : 10,
+        "Files__HashNote"      : "Every baked viewport file carries the first ten hex digits of its own SHA-256 in its name, exactly as a stored sheet picture does. A name therefore never means two different files, so the whole folder can be cached immutably and a re-publish of a changed viewport writes a NEW name instead of invalidating an old one."
+    },
+
+    "PublishedSchema__Elements": {
+        "Elements__NameNote"    : "Kind__Name is the stable identity of a kind and is what a manifest records as File__Type. It is NOT the layer type: seven kinds share a name with their Layer__Type, but groups have no layer at all, so matching a manifest entry on layer type alone silently fails for exactly one kind. Match on the name.",
+        "Elements__Description" : "One file per element kind, named after the sheet layer that holds it. This is NOT a new taxonomy: Sheet__Layers already carries a Layer__Type of exactly these values, so the split is the existing one written to disk. A LAYER IS A FILE, which is what makes a future show/hide in the reader a load or a drop rather than a filter.",
+        "Elements__Kinds": [
+            {
+                "Kind__Name"        : "viewport",
+                "Kind__LayerType"   : "viewport",
+                "Kind__File"        : "Elements__Viewports__.json",
+                "Kind__ArrayKey"    : "Elements__Viewports",
+                "Kind__IdPrefix"    : "Viewport__",
+                "Kind__SourceKey"   : "Sheet__Viewports",
+                "Kind__Note"        : "The only file that knows a viewport was ever a 3D model, and it carries no camera, no scene, no style flags and no door poses - none of that can be acted on by a reader."
+            },
+            {
+                "Kind__Name"        : "dimension",
+                "Kind__LayerType"   : "dimension",
+                "Kind__File"        : "Elements__Dimensions__.json",
+                "Kind__ArrayKey"    : "Elements__Dimensions",
+                "Kind__IdPrefix"    : "Dimension__",
+                "Kind__SourceKey"   : "Sheet__Dimensions",
+                "Kind__Resolved"    : [ "Dimension__Text", "Dimension__Row" ],
+                "Kind__Note"        : "Dimension__Text is the finished string. The reader holds no precision rule, no units suffix, no at-scale conversion, no round-up-to-5 and no asterisk rule, so it can never print a number the drawing does not."
+            },
+            {
+                "Kind__Name"        : "annotation",
+                "Kind__LayerType"   : "annotation",
+                "Kind__File"        : "Elements__Text__.json",
+                "Kind__ArrayKey"    : "Elements__Text",
+                "Kind__IdPrefix"    : "Annotation__",
+                "Kind__SourceKey"   : "Sheet__Annotations",
+                "Kind__Resolved"    : [ "Annotation__Lines", "Annotation__Runs" ],
+                "Kind__Note"        : "Lines are measured at publish with the real font; Runs carry the emphasis already resolved. A reader that runs a markdown regex over client-facing text will one day eat an asterisk that belonged to a dimension."
+            },
+            {
+                "Kind__Name"        : "vector",
+                "Kind__LayerType"   : "vector",
+                "Kind__File"        : "Elements__Vectors__.json",
+                "Kind__ArrayKey"    : "Elements__Vectors",
+                "Kind__IdPrefix"    : "Shape__",
+                "Kind__SourceKey"   : "Sheet__Shapes",
+                "Kind__Note"        : "Hand-drawn vectors only. NOT the projected linework of a viewport, which is an SVG file in 02__Viewports__Vector and is never an element."
+            },
+            {
+                "Kind__Name"        : "area",
+                "Kind__LayerType"   : "area",
+                "Kind__File"        : "Elements__Areas__.json",
+                "Kind__ArrayKey"    : "Elements__Areas",
+                "Kind__IdPrefix"    : "Area__",
+                "Kind__SourceKey"   : "Sheet__AreaGroups",
+                "Kind__Resolved"    : [ "Area__AreaM2", "Area__LabelText" ],
+                "Kind__Note"        : "Square metres are never stored on the authoring side - they are worked out from the polygon every time the label is painted. Published, they are a number and a string."
+            },
+            {
+                "Kind__Name"        : "leader",
+                "Kind__LayerType"   : "leader",
+                "Kind__File"        : "Elements__Bubbles__.json",
+                "Kind__ArrayKey"    : "Elements__Bubbles",
+                "Kind__IdPrefix"    : "Leader__",
+                "Kind__SourceKey"   : "Sheet__Leaders",
+                "Kind__Resolved"    : [ "Leader__SpecCode", "Leader__SpecHeading", "Leader__SpecText" ],
+                "Kind__Note"        : "The specification note travels with the bubble, so the reader never loads the specification document to say what a bubble means. A note with no text is published with Leader__SpecText null and the reader simply does not offer it."
+            },
+            {
+                "Kind__Name"        : "image",
+                "Kind__LayerType"   : "image",
+                "Kind__File"        : "Elements__Images__.json",
+                "Kind__ArrayKey"    : "Elements__Images",
+                "Kind__IdPrefix"    : "Shape__",
+                "Kind__SourceKey"   : "Sheet__Shapes",
+                "Kind__Note"        : "Pictures are NOT copied into a published document. They already live in 05__Layout__DrawingDocs__Images under the document id, immutably named and already cached; publishing writes down where each one is and which part of it shows."
+            },
+            {
+                "Kind__Name"        : "group",
+                "Kind__LayerType"   : null,
+                "Kind__File"        : "Elements__Groups__.json",
+                "Kind__ArrayKey"    : "Elements__Groups",
+                "Kind__IdPrefix"    : "Group__",
+                "Kind__SourceKey"   : "Sheet__Groups",
+                "Kind__Note"        : "Not drawn, and not needed to paint a sheet. Published so the document is a complete record and reads back grouped as it left."
+            }
+        ]
+    },
+
+    "PublishedSchema__Marks": {
+        "Marks__Description"    : "The sheet's own furniture - the border, the title block and its cells, the logo, the QR block, the drawing title and its underline, the scale bar, the compass and the margin notes - published as a RESOLVED DISPLAY LIST rather than as settings for the reader to lay out.",
+        "Marks__WhyNote"        : "Because the reader must not lay out a title block. The authoring side draws it with Na__LeChrome__ (SheetChrome), which measures text, fits it to cells, positions a logo by its aspect and wraps the QR block's body to a line count - about a thousand lines of decisions. A reader reimplementing that would diverge from the drawing Adam approved in ways nobody would notice until a client saw it, and it cannot import SheetChrome because SheetChrome transitively reaches the snapshot renderer. So the PUBLISHER runs SheetChrome - it is already loaded in the editor - and writes out the marks it produced. Parity is then guaranteed by construction rather than hoped for, and the reader is an emitter.",
+        "Marks__ArrayKey"       : "PublishedSheet__Marks",
+        "Marks__SpaceNote"      : "Every coordinate is paper millimetres in the sheet's declared space, and every lineweight is points, as everywhere else.",
+        "Marks__Types": [
+            { "Type__Name": "rect",   "Type__Keys": [ "Mark__XMm", "Mark__YMm", "Mark__WidthMm", "Mark__HeightMm" ] },
+            { "Type__Name": "line",   "Type__Keys": [ "Mark__X1Mm", "Mark__Y1Mm", "Mark__X2Mm", "Mark__Y2Mm" ] },
+            { "Type__Name": "path",   "Type__Keys": [ "Mark__D" ] },
+            { "Type__Name": "circle", "Type__Keys": [ "Mark__CxMm", "Mark__CyMm", "Mark__RadiusMm" ] },
+            { "Type__Name": "text",   "Type__Keys": [ "Mark__XMm", "Mark__YMm", "Mark__Lines", "Mark__SizeMm", "Mark__Align", "Mark__Baseline", "Mark__FontWeight", "Mark__RotationDeg" ] },
+            { "Type__Name": "image",  "Type__Keys": [ "Mark__XMm", "Mark__YMm", "Mark__WidthMm", "Mark__HeightMm", "Mark__Source" ] }
+        ],
+        "Marks__StyleKeys"      : [ "Mark__FillColour", "Mark__FillOpacity", "Mark__StrokeColour", "Mark__StrokePt", "Mark__StrokeOpacity", "Mark__LineStyle", "Mark__Colour" ],
+        "Marks__RoleKey"        : "Mark__Role",
+        "Marks__RoleNote"       : "What the mark is for - border, titleblock, titlecell, logo, qr, drawingtitle, underline, scalebar, north, marginnote. Nothing in the reader branches on it; it is there so a mark can be found when one is wrong, and so a future reader could dim or hide the furniture.",
+        "Marks__TextNote"       : "Mark__Lines is always an ARRAY of the exact lines the mark prints, measured at publish. A text mark never carries an unwrapped string for the reader to break."
+    },
+
+    "PublishedSchema__RasterTiers": {
+        "RasterTiers__Description" : "The zoom ladder. Every published viewport raster exists at each screen tier and once at print. A tier is a PIXEL SIZE, not a codec: a WebP and a PNG of the same dimensions cost identical memory once decoded (width x height x 4 bytes), so the codec only changes the download. A device that is struggling is given a SMALLER TIER, never a different codec.",
+        "RasterTiers__PaperMmNote" : "PixelsPerMm is pixels per PAPER millimetre at the size the viewport frame occupies on the sheet, exactly as LayoutEditor__Raster__Config means it. MaxPixels caps the longest side.",
+        "RasterTiers__Tiers": [
+            { "Tier__Id": "Tier01", "Tier__Name": "Fit",    "Tier__PixelsPerMm": 2,  "Tier__MaxPixels": 1024, "Tier__Format": "image/webp", "Tier__Extension": "webp", "Tier__Quality": 0.90, "Tier__UpToZoom": 1.5,  "Tier__Screen": true,  "Tier__Note": "What a sheet opens on. A sheet fitted to a phone in portrait is about 0.65 CSS px per paper mm; at a device pixel ratio of 3 that is 2 device px per mm, so this tier is already native when the sheet is fitted." },
+            { "Tier__Id": "Tier02", "Tier__Name": "Read",   "Tier__PixelsPerMm": 6,  "Tier__MaxPixels": 3072, "Tier__Format": "image/webp", "Tier__Extension": "webp", "Tier__Quality": 0.92, "Tier__UpToZoom": 4.5,  "Tier__Screen": true,  "Tier__Note": "152 dpi at paper size - zoomed in far enough to read a dimension string. Matches the authoring side's Low raster level." },
+            { "Tier__Id": "Tier03", "Tier__Name": "Detail", "Tier__PixelsPerMm": 12, "Tier__MaxPixels": 5120, "Tier__Format": "image/webp", "Tier__Extension": "webp", "Tier__Quality": 0.94, "Tier__UpToZoom": null, "Tier__Screen": true,  "Tier__Note": "305 dpi at paper size - print quality on screen, and the top tier a reader ever loads. Matches the authoring side's Medium raster level, which is what the viewer decodes TODAY for a sheet that is merely fitted to the screen." },
+            { "Tier__Id": "Print",  "Tier__Name": "Print",  "Tier__PixelsPerMm": 20, "Tier__MaxPixels": 8192, "Tier__Format": "image/png",  "Tier__Extension": "png",  "Tier__Quality": null, "Tier__UpToZoom": null, "Tier__Screen": false, "Tier__Note": "508 dpi at paper size, and NEVER loaded to look at. Downloaded only when the reader asks for the PDF and dropped as soon as the PDF is built. PNG because jsPDF drops the alpha of raw RGBA and because print is the one place lossless earns its bytes." }
+        ],
+        "RasterTiers__MaskSuffix"   : "FogMask",
+        "RasterTiers__MaskNote"     : "On paper the depth fog is painted OVER the projected lines - fading far lines is the whole of what it is for - so it cannot simply be flattened into the picture underneath them. A viewport with fog publishes the fog composited into its picture AND an opaque greyscale mask of it at each screen tier, <viewport>__FogMask__<tier>__<name>__<hash>.webp, which the reader applies to the linework: white keeps a line, darker fades it. Neither image carries an alpha channel.",
+        "RasterTiers__VectorSuffix" : "Linework",
+        "RasterTiers__VectorNote"   : "One paint-ready SVG per viewport: about five <path> elements with stroke colour, width, opacity and dash already resolved, in paper millimetres inside the viewport's own frame. 41,000 segments is still five DOM nodes, which is the property that makes vector linework safe on a phone."
+    },
+
+    "PublishedSchema__States": {
+        "States__Description"  : "What the index says about a document, and what the reader does about it.",
+        "States__Published"    : "published",
+        "States__Unpublished"  : "unpublished",
+        "States__Superseded"   : "superseded",
+        "States__UnpublishedNote": "The reader draws a REAL sheet - correct paper, correct orientation, the title block as the editor drew it, from PublishedDocuments__Unpublished__.json - then masks the drawing area grey and says the drawing has not been published yet. It never asks for the document's folder, a manifest or a raster, and computes nothing. This must be the FIRST branch in the load, not a check somewhere inside it.",
+        "States__SupersededNote": "Reserved. Today only the latest revision of a document is on R2 and past revisions live in the local archive zips. Nothing reads this yet."
+    },
+
+    "PublishedSchema__Coordinates": {
+        "Coordinates__Space"       : "paper millimetres",
+        "Coordinates__OriginCorner": "top-left",
+        "Coordinates__AxisX"       : "right",
+        "Coordinates__AxisY"       : "down",
+        "Coordinates__Note"        : "The authored space, which is what the project data holds and what the linework asset already declares. NOTHING IS FLIPPED AT PUBLISH TIME. A reader that wants CAD semantics - origin bottom left, y up - applies one transform to one group; flipping at publish would mean every element file, every SVG and every raster offset has to agree about the flip, and one disagreement is a silently upside-down drawing. Each document declares its own space in Document__Sheet__.json so it is stated rather than assumed."
+    }
+}

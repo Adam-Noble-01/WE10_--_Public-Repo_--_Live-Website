@@ -71,6 +71,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.6.0
+// - Push takes an optional spec.dashArray (paper millimetres, as a vector's
+//   Shape__LineStyle answers it). The dimension line, both extension lines
+//   and a dragged value's leader are drawn to it; the ticks, arrows and dots
+//   stay solid, as a broken 1.5 mm tick reads as a mistake. Left out, or
+//   empty, every line is the plain rule it always was.
+//
 // 14-Sep-2026 - Version 1.5.1
 // - The outward hook is a shallower bow (less of the chord) so it reads
 //   as a soft arc rather than a tight C.
@@ -644,7 +651,8 @@
     // spec: { start, end, orientation, offsetMm, gapMm, overshootMm, tickMm,
     //         strokeMm, colour, terminator, text, fontMm, weight, liftMm, fontFamily,
     //         extension, textDXMm, textDYMm, textLeaderMinMm, textLeaderGapMm,
-    //         textFillColour }
+    //         textFillColour, dashArray }
+    // dashArray may be left out as well: solid lines.
     // orientation may be left out: a scene dimension has none, and is aligned.
     // extension may be left out as well ({ startMm, endMm }): the full lines.
     // textDXMm / textDYMm are the value's paper offset from its un-dragged
@@ -656,10 +664,18 @@
         if (!sk) return null;
         const stroke = Math.max(spec.strokeMm, 0.05);
         const colour = spec.colour;
+        // DASHED | A dashed rule goes as a two-point polyline, the primitive that
+        // carries a dash array to the screen and the PDF alike; a solid one stays
+        // the plain line primitive it always was.
+        const dashArray = Array.isArray(spec.dashArray) ? spec.dashArray.filter((n) => Number.isFinite(n) && n > 0) : [];
+        const rule = (a, b) => {
+            if (dashArray.length > 0) Na__LeChrome__PushPolyline(list, [ [ a.x, a.y ], [ b.x, b.y ] ], colour, stroke, null, false, null, { dashArray : dashArray });
+            else Na__LeChrome__PushLine(list, a.x, a.y, b.x, b.y, colour, stroke);
+        };
 
-        Na__LeChrome__PushLine(list, sk.X1.x, sk.X1.y, sk.T1.x, sk.T1.y, colour, stroke);
-        Na__LeChrome__PushLine(list, sk.X2.x, sk.X2.y, sk.T2.x, sk.T2.y, colour, stroke);
-        Na__LeChrome__PushLine(list, sk.DS.x, sk.DS.y, sk.DE.x, sk.DE.y, colour, stroke);
+        rule(sk.X1, sk.T1);
+        rule(sk.X2, sk.T2);
+        rule(sk.DS, sk.DE);
 
         const t1 = Na__LeDimGeo__Terminator(spec.terminator, sk.DS, -sk.dirX, -sk.dirY, spec.tickMm);
         const t2 = Na__LeDimGeo__Terminator(spec.terminator, sk.DE,  sk.dirX,  sk.dirY, spec.tickMm);
@@ -670,7 +686,7 @@
                 liftMm : spec.liftMm, text : spec.text, fontMm : spec.fontMm, weight : spec.weight,
                 dx : spec.textDXMm, dy : spec.textDYMm, minMm : spec.textLeaderMinMm, gapMm : spec.textLeaderGapMm
             });
-            if (layout.leader) Na__LeChrome__PushPolyline(list, layout.leader.points, colour, stroke, null, false);
+            if (layout.leader) Na__LeChrome__PushPolyline(list, layout.leader.points, colour, stroke, null, false, null, dashArray.length > 0 ? { dashArray : dashArray } : undefined);
             if (layout.leader && spec.textFillColour) {
                 Na__LeChrome__PushPolyline(list, layout.box.points, null, 0, spec.textFillColour, true);
             }

@@ -34,6 +34,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.9.41
+// - Token bumped (2026-09-23-02) for dimension line weight and line style
+//   (v2.152.0): the Dimensions panel imports new MarkupBridge exports
+//   (SheetDimensionPt) and the line style module's rows, which a warm copy
+//   does not have. (2026-09-23-01 was another session's bump, not logged here.)
+//
 // 22-Sep-2026 - Version 1.9.40
 // - Token bumped (2026-09-22-14) for the Boolean keys (v2.151.0): the sheet
 //   keyboard imports four new adapter exports (CommandForAction, RunCommand,
@@ -550,15 +556,17 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-22-14';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-23-03';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
     const PWA_SW_CACHE_NAME_VENDOR          = `tv-vendor-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Third-party ES module cache id
     const PWA_SW_CACHE_NAME_IMAGES          = `tv-images-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Layout Editor sheet pictures cache id
-    const PWA_SW_CACHE_PREFIXES_OWNED       = ['tv-shell-', 'tv-data-', 'tv-models-', 'tv-vendor-', 'tv-images-'];                   // <-- Owned prefixes, used for cleanup
+    const PWA_SW_CACHE_NAME_PUBLISHED       = `tv-published-${PWA_SW_VERSION_TOKEN}`;                                                // <-- Published drawings: baked pictures, linework and fog masks
+    const PWA_SW_CACHE_PREFIXES_OWNED       = ['tv-shell-', 'tv-data-', 'tv-models-', 'tv-vendor-', 'tv-images-', 'tv-published-'];  // <-- Owned prefixes, used for cleanup
     const PWA_SW_MODELS_MAX_ENTRIES         = 80;                                                                                    // <-- LRU cap on the model bucket
     const PWA_SW_IMAGES_MAX_ENTRIES         = 160;                                                                                   // <-- LRU cap on the sheet pictures bucket
+    const PWA_SW_PUBLISHED_MAX_ENTRIES      = 240;                                                                                   // <-- LRU cap on the published drawings bucket
     const PWA_SW_MODELS_NETWORK_TIMEOUT_MS  = 4000;                                                                                  // <-- Slow-network grace before serving cache
     // ------------------------------------------------------------
 
@@ -572,6 +580,8 @@
     const PWA_SW_PATTERN_SHELL_ASSET        = /\.(css|js|mjs|webmanifest|ico|png|jpe?g|svg|webp|woff2?)(\?.*)?$/i;                   // <-- App shell assets
     const PWA_SW_PATTERN_SCENE_THUMBNAIL    = /\/PresentationMode\/Thumbnails\/[^/]+\.webp(\?.*)?$/i;                                // <-- Per-project scene thumbnails (mutable, fixed filenames)
     const PWA_SW_PATTERN_SHEET_IMAGE        = /\/05__Layout__DrawingDocs__Images\/[^/]+\/[^/]+\.(webp|jpe?g|png)(\?.*)?$/i;          // <-- Pictures placed on sheets (immutable: the name carries the content hash)
+    const PWA_SW_PATTERN_PUBLISHED_ASSET    = /\/06__Layout__PublishedDocuments\/.+__[0-9a-f]{10}\.(svg|webp|png)(\?.*)?$/i;       // <-- Baked viewport files and shared images (immutable: the name carries the content hash)
+    const PWA_SW_PATTERN_PUBLISHED_DATA     = /\/06__Layout__PublishedDocuments\/.+\.json(\?.*)?$/i;                               // <-- The index, manifests, sheets and element files (fixed names, changed by a re-publish)
     // ------------------------------------------------------------
 
 
@@ -714,6 +724,17 @@
         // be stale. They get a capped bucket of their own - a CGI is a few MB,
         // and the shell bucket has no cap.
         if (PWA_SW_PATTERN_SHEET_IMAGE.test(requestUrl)) return 'sheet-image';                                                      // <-- Content-hashed: download once
+
+        // Published drawings, tested BEFORE the shell pattern for the same
+        // reasons. A baked file's name carries its content hash, so it is kept
+        // for ever in a capped bucket of its own. The index, the manifests and
+        // the element files keep their names across a re-publish, so they are
+        // asked of the network first - a reader must see a new publish - and
+        // only fall back to the cache when offline. A baked PDF is neither: it
+        // is left to the browser, because a phone's cache quota is not the place
+        // for a document it downloads once.
+        if (PWA_SW_PATTERN_PUBLISHED_ASSET.test(requestUrl)) return 'published-asset';                                              // <-- Content-hashed: download once
+        if (PWA_SW_PATTERN_PUBLISHED_DATA.test(requestUrl))  return 'published-data';                                               // <-- Fixed names: network first
 
         if (PWA_SW_PATTERN_DATA_JSON.test(requestUrl)) return 'data';                                                               // <-- Project data or app config
         if (PWA_SW_PATTERN_HTML.test(requestUrl)) return 'html';                                                                    // <-- HTML document
@@ -926,7 +947,8 @@
                     PWA_SW_CACHE_NAME_DATA,
                     PWA_SW_CACHE_NAME_MODELS,
                     PWA_SW_CACHE_NAME_VENDOR,
-                    PWA_SW_CACHE_NAME_IMAGES
+                    PWA_SW_CACHE_NAME_IMAGES,
+                    PWA_SW_CACHE_NAME_PUBLISHED                                                                                     // <-- Without this, every activation would delete the published bucket
                 ];
 
                 const allCacheNames = await caches.keys();                                                                          // <-- Enumerate every cache
@@ -967,6 +989,18 @@
             fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__CacheFirstCapped(                                         // <-- Content-hashed: download once, keep the bucket capped
                 request, PWA_SW_CACHE_NAME_IMAGES, PWA_SW_IMAGES_MAX_ENTRIES
             ));
+            return;
+        }
+
+        if (classification === 'published-asset') {
+            fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__CacheFirstCapped(                                         // <-- Content-hashed: download once, keep the bucket capped
+                request, PWA_SW_CACHE_NAME_PUBLISHED, PWA_SW_PUBLISHED_MAX_ENTRIES
+            ));
+            return;
+        }
+
+        if (classification === 'published-data') {
+            fetchEvent.respondWith(TrueVision__Pwa__ServiceWorker__Logic__NetworkFirst(request, PWA_SW_CACHE_NAME_PUBLISHED));      // <-- A re-publish must be seen; the last copy serves offline
             return;
         }
 

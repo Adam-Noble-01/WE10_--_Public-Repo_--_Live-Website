@@ -75,8 +75,19 @@
     // MODULE IMPORTS | Config, Sheet Model, PDF, and the Two Reading Surfaces
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetWebViewerSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__GetSheets, Na__LeModel__GetActiveSheet, Na__LeModel__IsSitePlanSheet } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
-    import { Na__LePdf__ExportSheet } from '../60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js';
+    import { Na__LeModel__GetSheets, Na__LeModel__GetActiveSheet, Na__LeModel__IsSitePlanSheet, Na__LeModel__GetDocumentId } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';   // <-- Pure layout: the paper and its drawing area, nothing rendered
+    import {
+        Na__LeSurface__ShowPublished, Na__LeSurface__GetZoom, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__ZOOM_SETTLED_EVENT
+    } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
+    // THE PUBLISHED READER | The viewer shows PUBLISHED drawings and never
+    // renders one: no viewport render, no projection, no PDF build ever runs on
+    // a reader's device. The authoring exporter is deliberately NOT imported
+    // here any more - the PDF button downloads the PDF baked at publish.
+    import {
+        Na__PubDoc__LoadIndex, Na__PubDoc__Build, Na__PubDoc__PaperOf, Na__PubDoc__PdfUrl, Na__PubDoc__Forget
+    } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Document__.js';
+    import { Na__PubDoc__Urls__FromPage } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Urls__.js';
     import {
         Na__LeVwDraw__Attach,
         Na__LeVwDraw__Detach,
@@ -113,8 +124,16 @@
     let Na__LeVw__Dock      = null;
     let Na__LeVw__Nav       = null;                                              // <-- { enter, openSpec } from the mode controller
     let Na__LeVw__Current   = null;                                              // <-- The showing document's id, or the specification's
-    let Na__LeVw__Busy      = false;                                             // <-- A PDF is being written
+    let Na__LeVw__Busy      = false;                                             // <-- A PDF is being fetched
     let Na__LeVw__Keys      = null;
+    // ------------------------------------------------------------
+
+    // MODULE VARIABLES | The Published Drawing on Screen
+    // ------------------------------------------------------------
+    let Na__LeVw__Index     = null;                                              // <-- The project index's answer, loaded once: { Ok, Reason }
+    let Na__LeVw__Shown     = null;                                              // <-- { SheetId, DocumentId, State, Host, Markup, Fallback }
+    let Na__LeVw__Token     = 0;                                                 // <-- The latest show; an older one landing late is thrown away
+    let Na__LeVw__OnSettle  = null;                                              // <-- The zoom-settled listener that swaps raster tiers
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -281,15 +300,31 @@
 // REGION | Actions
 // -----------------------------------------------------------------------------
 
-    // HELPER FUNCTION | Write the Showing Sheet Out as a PDF
+    // HELPER FUNCTION | Hand the Reader the Showing Drawing's Published PDF
+    // ------------------------------------------------------------
+    // THE PDF WAS BAKED AT PUBLISH, by the editor's own exporter, and this only
+    // opens it. Building a PDF here - as this button used to - renders every
+    // viewport at the export level, 20 pixels per millimetre with sixteen
+    // samples: the single most expensive thing the app can do, and the button
+    // most likely to take a phone down. It is never done on a reader's device.
     // ------------------------------------------------------------
     async function Na__LeVw__Pdf() {
-        const sheet = Na__LeModel__GetActiveSheet();
-        if (Na__LeVw__Busy || !sheet) return;
+        const shown = Na__LeVw__Shown;
+        if (Na__LeVw__Busy || !shown) return;
         Na__LeVw__Busy = true;
         Na__LeVw__Sync();
-        try { await Na__LePdf__ExportSheet(sheet, Na__LeVw__ShowToast); }
-        finally { Na__LeVw__Busy = false; Na__LeVw__Sync(); }
+        try {
+            const url = (shown.State === 'published') ? await Na__PubDoc__PdfUrl(shown.DocumentId) : null;
+            if (!url) {
+                if (Na__LeVw__ShowToast) Na__LeVw__ShowToast(Na__LeCfg__GetLabel('ViewerNoPdf', 'This drawing has no published PDF yet.'), true);
+                return;
+            }
+            const link = document.createElement('a');                            // <-- The browser's own viewer or download; nothing is built here
+            link.href = url; link.target = '_blank'; link.rel = 'noopener';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } finally { Na__LeVw__Busy = false; Na__LeVw__Sync(); }
     }
     // ------------------------------------------------------------
 
@@ -395,9 +430,130 @@
         Na__LeVwSpec__Hide();                                                    // <-- The specification lets its gestures go before the stage takes them
         Na__LeVw__Current = sheet ? sheet.Sheet__Id : null;
         Na__LeVwDraw__Attach();                                                  // <-- A drawing keeps the finger for panning; the tabs and the dock change document
-        if (!options || options.fit !== false) Na__LeVwDraw__Fit();
+        Na__LeVw__Sync();
+        if (!sheet) return false;
+        // THE PUBLISHED DRAWING, never a rendered one. The mode controller no
+        // longer hands the viewer's sheet to the surface to render; the paper
+        // is sized here and the baked files are put on it.
+        void Na__LeVw__ShowPublished(sheet, !options || options.fit !== false);
+        return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Device Pixels One Paper Millimetre Covers on Screen Now
+    // ------------------------------------------------------------
+    // The reader's rule for the raster tier: the smallest published picture
+    // whose pixels per millimetre meet this. Fitted on a phone in portrait it is
+    // about two, which is the smallest tier.
+    // ------------------------------------------------------------
+    function Na__LeVw__Density() {
+        const ppm  = Number(Na__LeSurface__GetPixelsPerMm()) || 3.2;
+        const zoom = Number(Na__LeSurface__GetZoom()) || 1;
+        return ppm * zoom * (window.devicePixelRatio || 1);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The Project Index, Asked For Once
+    // ------------------------------------------------------------
+    async function Na__LeVw__EnsureIndex() {
+        if (Na__LeVw__Index) return Na__LeVw__Index;
+        Na__PubDoc__Urls__FromPage();                                            // <-- The same R2 folder every baked asset of this project resolves to
+        Na__LeVw__Index = await Na__PubDoc__LoadIndex();
+        if (!Na__LeVw__Index.Ok) console.info('[TrueVision3D] Published drawings: ' + Na__LeVw__Index.Reason);
+        return Na__LeVw__Index;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Put a Sheet's PUBLISHED Drawing on the Paper
+    // ------------------------------------------------------------
+    // 1. The index, once per session. An unpublished drawing costs only that
+    //    and the one shared unpublished sheets file, also fetched once.
+    // 2. The paper, sized from the index row (or the sheet's own layout when it
+    //    is not in the index), so the sheet can be FITTED before anything is
+    //    chosen.
+    // 3. The markup, built for the fitted density, so a sheet opens on the
+    //    smallest picture that is sharp at that size - and put on the paper in
+    //    one assignment.
+    // A later tab press wins: a show that lands after another has started is
+    // thrown away rather than painted over it.
+    // ------------------------------------------------------------
+    async function Na__LeVw__ShowPublished(sheet, fit) {
+        const token = ++Na__LeVw__Token;
+        const index = await Na__LeVw__EnsureIndex();
+        if (token !== Na__LeVw__Token) return false;
+
+        const documentId = Na__LeModel__GetDocumentId(sheet);
+        const layout     = Na__LeLayout__Solve(sheet);
+        const fallback   = {
+            WidthMm       : layout.Page.WidthMm,
+            HeightMm      : layout.Page.HeightMm,
+            DrawingAreaMm : { X : layout.Drawing.X, Y : layout.Drawing.Y, WidthMm : layout.Drawing.WidthMm, HeightMm : layout.Drawing.HeightMm }
+        };
+        const paper = Na__PubDoc__PaperOf(documentId, fallback) || { WidthMm : fallback.WidthMm, HeightMm : fallback.HeightMm };
+
+        // THE PREVIOUS DRAWING LETS GO FIRST, so its decoded pictures are free
+        // before the next ones are asked for.
+        if (Na__LeVw__Shown && Na__LeVw__Shown.DocumentId !== documentId) Na__LeVw__Release();
+
+        const host = Na__LeSurface__ShowPublished({ WidthMm : paper.WidthMm, HeightMm : paper.HeightMm, ScreenPixelsPerMm : layout.ScreenPixelsPerMm });
+        if (!host) return false;
+        if (fit) Na__LeVwDraw__Fit();
+
+        const built = await Na__PubDoc__Build(documentId, {
+            Density       : Na__LeVw__Density(),
+            FallbackPaper : fallback,
+            IndexReason   : index.Ok ? null : index.Reason
+        });
+        if (token !== Na__LeVw__Token) return false;
+
+        host.innerHTML = built.Markup || '';                                     // <-- One parse for the whole sheet
+        Na__LeVw__Shown = { SheetId : sheet.Sheet__Id, DocumentId : documentId, State : built.State, Host : host, Markup : built.Markup, Fallback : fallback };
+        if (!built.Ok) console.warn('[TrueVision3D] ' + documentId + ' could not be shown: ' + built.Reason);
+        Na__LeVw__WatchZoom();
         Na__LeVw__Sync();
         return true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Swap Raster Tiers When a Zoom Settles
+    // ------------------------------------------------------------
+    // Rebuilding the markup is a string - cheap - and the pictures already on
+    // screen are the browser's to reuse. The paper is only touched when the
+    // tier choice actually changed, so a pan or a small zoom costs nothing.
+    // ------------------------------------------------------------
+    function Na__LeVw__WatchZoom() {
+        if (Na__LeVw__OnSettle) return;
+        Na__LeVw__OnSettle = async () => {
+            const shown = Na__LeVw__Shown;
+            if (!shown || shown.State !== 'published') return;
+            const token = Na__LeVw__Token;
+            const built = await Na__PubDoc__Build(shown.DocumentId, { Density : Na__LeVw__Density(), FallbackPaper : shown.Fallback });
+            if (token !== Na__LeVw__Token || Na__LeVw__Shown !== shown) return;
+            if (built.Markup && built.Markup !== shown.Markup) {
+                shown.Host.innerHTML = built.Markup;
+                shown.Markup = built.Markup;
+            }
+        };
+        window.addEventListener(Na__LeSurface__ZOOM_SETTLED_EVENT, Na__LeVw__OnSettle);
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Let the Published Drawing on Screen Go
+    // ------------------------------------------------------------
+    // Emptying the host drops every decoded picture of the drawing at once;
+    // the reader's own record of what it was holding goes with it.
+    // ------------------------------------------------------------
+    function Na__LeVw__Release() {
+        const shown = Na__LeVw__Shown;
+        Na__LeVw__Shown = null;
+        if (!shown) return;
+        if (shown.Host) shown.Host.innerHTML = '';
+        Na__PubDoc__Forget(shown.DocumentId);
     }
     // ------------------------------------------------------------
 
@@ -425,6 +581,8 @@
     function Na__LeVw__Teardown() {
         Na__LeVwSpec__Hide();
         Na__LeVwDraw__Detach();
+        Na__LeVw__Token += 1;                                                    // <-- A show still in flight is abandoned
+        Na__LeVw__Release();                                                     // <-- Back to the 3D model: the drawing's pictures are let go
         Na__LeVw__Current = null;
         return true;
     }

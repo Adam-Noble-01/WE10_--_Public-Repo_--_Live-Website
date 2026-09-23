@@ -120,8 +120,8 @@
     import { Na__LeChrome__PushPolyline, Na__LeChrome__PushQr } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeDash__PatternMm } from '../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js';
     // @delegate: ../35__System__DrawingTools/Na__LayoutEditor__LineStyleTool__.js
-    import { Na__ProjectQr__GetSymbol, Na__ProjectQr__GetSetup, Na__ProjectQr__CheckPrint } from '../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js';
-    // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js
+    import { Na__ProjectQr__GetSymbol, Na__ProjectQr__GetSetup, Na__ProjectQr__CheckPrint } from '../53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js';
+    // @delegate: ../53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js
     import { Na__LeImgDraw__Push } from '../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Paint__.js';
     // @delegate: ../54__Feature__SheetImages/Na__LayoutEditor__SheetImages__Paint__.js
     import { Na__LeRings__Of, Na__LeRings__Edges, Na__LeRings__Next, Na__LeRings__Split, Na__LeRings__Contains, Na__LeRings__AfterInsert, Na__LeRings__Remove } from './Na__LayoutEditor__ShapeRings__.js';   // <-- A leaf: a holed vector's rings, asked only of a shape that has holes

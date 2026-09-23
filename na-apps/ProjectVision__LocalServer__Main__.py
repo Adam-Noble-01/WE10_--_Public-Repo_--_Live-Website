@@ -67,6 +67,7 @@ from ProjectVision__ProjectManager__Api__ import project_manager_api   # <-- Mul
 from ProjectVision__TrueVisionScrapbook__Api__ import truevision_scrapbook_api   # <-- TrueVision Layout Editor Custom Scrapbook files
 from ProjectVision__TrueVisionStatements__Api__ import truevision_statements_api   # <-- TrueVision Layout Editor Statement Writer files
 from ProjectVision__TrueVisionSheetImages__Api__ import truevision_sheet_images_api   # <-- TrueVision Layout Editor pictures, filed by document id
+from ProjectVision__TrueVisionPublished__Api__ import truevision_published_api   # <-- TrueVision published drawings: baked files, revision archive, prune
 from ProjectVision__TrueVisionUserConfig__Api__ import truevision_user_config_api, write_text_atomic   # <-- TrueVision user config: the spelling dictionary; and the atomic write every JSON save uses
 
 try:
@@ -233,6 +234,7 @@ app.register_blueprint(project_manager_api)                      # <-- /api/mana
 app.register_blueprint(truevision_scrapbook_api)                 # <-- /api/truevision/scrapbook... Custom Scrapbook items
 app.register_blueprint(truevision_statements_api)                # <-- /api/truevision/statements... Statement Writer documents
 app.register_blueprint(truevision_sheet_images_api)              # <-- /api/truevision/sheet-images... Layout Editor pictures (05__Layout__DrawingDocs__Images)
+app.register_blueprint(truevision_published_api)                 # <-- /api/truevision/published... published drawings (06__Layout__PublishedDocuments); restart to pick up new routes
 app.register_blueprint(truevision_user_config_api)               # <-- /api/truevision/user-config/spellings... the spelling dictionary (50__TrueVision__UserConfig)
 
 # endregion -------------------------------------------------------------------

@@ -1,0 +1,51 @@
+{
+    "LayoutEditor__Publish__Meta": {
+        "Meta__FileName"    : "Na__LayoutEditor__Publish__Config__.json",
+        "Meta__Namespace"   : "Na__LePub",
+        "Meta__Module"      : "Layout Editor - Document Publishing - Settings",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__Purpose"     : "What publishing does, where it asks first, and every word it says",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__SchemaRef"   : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"        : "Folder names, file names and the tier ladder are NOT here - they are in 53__Data__Layout__PublishedSchema, because the reader must agree about them. This file holds only what the publisher decides alone."
+    },
+
+    "LayoutEditor__Publish__Behaviour": {
+        "Behaviour__Description"     : "How a publish runs.",
+        "Behaviour__AppVersion"      : "v2.155.0",
+        "Behaviour__AppVersionNote"  : "Stamped into every manifest and the index as Publish__ByAppVersion. The app keeps its version only in the DEVLOG headings, so this is bumped with each release that changes what is published.",
+        "Behaviour__PushToR2Default" : false,
+        "Behaviour__PushNote"        : "Off by default: a publish files everything into the project folder first, where it can be looked at on localhost before a client ever can. Pushing to R2 is a second, deliberate tick.",
+        "Behaviour__BakePdf"         : true,
+        "Behaviour__BakePdfNote"     : "The PDF is baked by the same exporter the editor's Download PDF uses, so the reader's PDF button downloads a finished file and builds nothing. Turning this off leaves readers without a PDF.",
+        "Behaviour__RetireOrphansOnFullPublish": true,
+        "Behaviour__RetireOrphansNote": "A published document whose sheet no longer exists in the register - renumbered, re-phased or deleted - is archived locally and taken off R2, but ONLY when every sheet is being published at once. A partial publish never retires anything; it reports what it found.",
+        "Behaviour__SpecLoadTimeoutMs": 15000,
+        "Behaviour__SpecNote"        : "The specification is waited for before a sheet is baked, as the PDF does: the notes margin prints its notes and each bubble's note travels with it."
+    },
+
+    "LayoutEditor__Publish__Labels": {
+        "Labels__PanelTitle"        : "Publish Drawings",
+        "Labels__PanelIntro"        : "Publishing bakes each drawing into the files the web viewer shows - a picture and linework for every viewport, the markup, and the PDF - so a phone opening a drawing renders nothing. A drawing that is not published shows its sheet with a grey panel saying so.",
+        "Labels__SelectAll"         : "All",
+        "Labels__SelectNone"        : "None",
+        "Labels__PushToR2"          : "Also push to R2 (clients see it)",
+        "Labels__Publish"           : "Publish",
+        "Labels__Close"             : "Close",
+        "Labels__Working"           : "Publishing {index} of {total}: {name}...",
+        "Labels__Stage"             : "{name}: {stage}",
+        "Labels__Done"              : "Published {count} drawing(s).",
+        "Labels__DoneR2"            : "Published {count} drawing(s) and pushed them to R2.",
+        "Labels__Failed"            : "{name} was not published: {reason}",
+        "Labels__Archived"          : "{name}: revision {revision} archived to {file}.",
+        "Labels__Orphans"           : "{count} published drawing(s) no longer match a sheet: {ids}. Publish all drawings to retire them.",
+        "Labels__Retired"           : "Retired {ids}: archived here and taken off R2.",
+        "Labels__NoLocal"           : "Cannot publish: {reason}.",
+        "Labels__NoR2"              : "Not pushed to R2: {reason}.",
+        "Labels__StatePublished"    : "Published rev {revision}",
+        "Labels__StateStale"        : "Published rev {published}, now rev {revision}",
+        "Labels__StateNever"        : "Not published",
+        "Labels__Warnings"          : "{count} warning(s) - see the console."
+    }
+}

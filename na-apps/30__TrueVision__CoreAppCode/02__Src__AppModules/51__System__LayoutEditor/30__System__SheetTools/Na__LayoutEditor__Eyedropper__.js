@@ -299,7 +299,9 @@
                 { patch : 'startExtensionMm', field : 'Dimension__StartExtensionMm', nullable : true, absent : null },   // <-- null, or no field at all, is the full line: a real value to copy
                 { patch : 'endExtensionMm',   field : 'Dimension__EndExtensionMm',   nullable : true, absent : null },
                 { patch : 'extensionsLinked', field : 'Dimension__ExtensionsLinked', absent : true },                     // <-- Stored only as false
-                { patch : 'roundUp',          field : 'Dimension__RoundUp',          absent : false }                     // <-- Stored only as true: a missing field is an unrounded figure, a real value to copy
+                { patch : 'roundUp',          field : 'Dimension__RoundUp',          absent : false },                    // <-- Stored only as true: a missing field is an unrounded figure, a real value to copy
+                { patch : 'linePt',           field : 'Dimension__LinePt',           nullable : true, absent : null },   // <-- No field is the sheet's Dimension pt: a real value to copy
+                { patch : 'dash',             field : 'Dimension__LineStyle',        nullable : true, absent : null, palette : 'dashOn' }   // <-- No field is a solid line, as on a vector
             ]
         },
         shape : {

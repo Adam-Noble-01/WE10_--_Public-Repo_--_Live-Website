@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TrueVision - Published Drawings Reader Harness</title>
+<!--
+=============================================================================
+TRUEVISION3D - TESTING - PUBLISHED DRAWINGS READER HARNESS
+=============================================================================
+
+FILE       : Na__Test__PublishedReader__Harness__.html
+PURPOSE    : Show a project's PUBLISHED drawings exactly as the web viewer's reader builds them, with nothing else loaded
+SCHEMA REF : na-project-portal/26-Projects/AA00__ExampleProjectStructure/
+             30__TrueVision__AppContent/06__Layout__PublishedDocuments
+CREATED    : 23-Sep-2026
+
+WHY THIS EXISTS:
+- The reader (02__Src__AppModules/52__System__Layout__PublishedDocuments) is
+  what a phone runs to show a drawing. This page runs ONLY that - no model, no
+  three.js, no layout editor - so what it shows is what the published files
+  say, and a picture of it is proof that a publish came out right.
+- It is also the quickest way to look at a publish: open it on a phone and it
+  is the phone's own reading of the bucket, or run it headless for a PNG.
+
+QUERY:
+  ?project-folder=RB05__WestFarm   the project's content folder (required)
+  &year=26                         the year folder, as the app takes it
+  &doc=RB05_T01_D02                one drawing, or "all" (the default)
+  &density=4                       device px per paper mm the tier is chosen for
+  &ppm=2.4                         CSS px per paper mm each sheet is drawn at
+
+HEADLESS (a PNG of one drawing):
+  chrome --headless=new --screenshot=D:/_ClaudeScratch/published.png
+         --window-size=1500,1100 --virtual-time-budget=20000 "<this url>"
+
+The body gets data-na-ready="yes" once every sheet is built and every picture
+it names has loaded or failed; each sheet's caption says its state and which
+raster tier it chose.
+=============================================================================
+-->
+<link rel="stylesheet" href="../03__Style__AppStylesheets/Na__CoreUi__Styles__Fonts__.css">
+<link rel="stylesheet" href="../02__Src__AppModules/52__System__Layout__PublishedDocuments/Na__PubDoc__Styles__Main__.css">
+<style>
+    :root { color-scheme: light; }
+    body {
+        margin: 0;
+        padding: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14px;
+        color: #1b2535;
+        background: #d9dde3;
+    }
+    h1 { font-size: 16px; margin: 0 0 10px; }
+    .na-harness__sheet { margin: 0 0 18px; }
+    .na-harness__paper { background: #ffffff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25); position: relative; }
+    .na-harness__caption { font-size: 12px; color: #3d4757; margin: 4px 0 0; }
+    .na-harness__error { color: #a4262c; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1 id="na-harness-title">Published drawings</h1>
+<div id="na-harness-sheets"></div>
+
+<script type="module">
+    import { Na__PubDoc__Urls__FromPage } from '../02__Src__AppModules/52__System__Layout__PublishedDocuments/Na__PubDoc__Urls__.js';
+    import { Na__PubDoc__LoadIndex, Na__PubDoc__Build, Na__PubDoc__PaperOf } from '../02__Src__AppModules/52__System__Layout__PublishedDocuments/Na__PubDoc__Document__.js';
+
+    const query   = new URLSearchParams(window.location.search);
+    const wanted  = query.get('doc') || 'all';
+    const density = Number(query.get('density')) || 4;
+    const ppm     = Number(query.get('ppm')) || 2.4;
+    const title   = document.getElementById('na-harness-title');
+    const holder  = document.getElementById('na-harness-sheets');
+
+    // HELPER FUNCTION | Wait for Every Picture a Sheet Names to Load or Fail
+    // ------------------------------------------------------------
+    function Na__Harness__Pictures(host) {
+        const hrefs = Array.from(host.querySelectorAll('image')).map((one) => one.getAttribute('href') || one.getAttribute('xlink:href')).filter(Boolean);
+        return Promise.all(hrefs.map((href) => new Promise((resolve) => {
+            const probe = new Image();
+            probe.onload  = () => resolve({ Href : href, Ok : true });
+            probe.onerror = () => resolve({ Href : href, Ok : false });
+            probe.src = href;
+        })));
+    }
+    // ------------------------------------------------------------
+
+    // FUNCTION | Build Every Wanted Sheet Through the Reader, One After Another
+    // ------------------------------------------------------------
+    async function Na__Harness__Run() {
+        const folder = Na__PubDoc__Urls__FromPage();
+        if (!folder) { title.innerHTML = '<span class="na-harness__error">Add ?project-folder= (and ?year=) to the url.</span>'; document.body.dataset.naReady = 'yes'; return; }
+        const index = await Na__PubDoc__LoadIndex();
+        if (!index.Ok) { title.innerHTML = '<span class="na-harness__error">' + index.Reason + '</span>'; document.body.dataset.naReady = 'yes'; return; }
+        const documents = index.Documents.filter((one) => wanted === 'all' || one['Document__Id'] === wanted);
+        title.textContent = folder + ' - ' + documents.length + ' of ' + index.Documents.length + ' drawing(s), tier chosen for ' + density + ' device px per paper mm';
+
+        for (const entry of documents) {
+            const id    = entry['Document__Id'];
+            const paper = Na__PubDoc__PaperOf(id, null);
+            const block = document.createElement('div');
+            block.className = 'na-harness__sheet';
+            const host = document.createElement('div');
+            host.className = 'na-harness__paper';
+            host.style.width  = Math.round(paper.WidthMm  * ppm) + 'px';
+            host.style.height = Math.round(paper.HeightMm * ppm) + 'px';
+            const caption = document.createElement('p');
+            caption.className = 'na-harness__caption';
+            block.appendChild(host);
+            block.appendChild(caption);
+            holder.appendChild(block);
+
+            const built = await Na__PubDoc__Build(id, { Density : density });
+            host.innerHTML = built.Markup || '';
+            const pictures = await Na__Harness__Pictures(host);
+            const tiers    = Array.from(new Set(pictures.map((one) => (one.Href.match(/__(Tier0\d)__/) || [])[1]).filter(Boolean)));
+            const failed   = pictures.filter((one) => !one.Ok);
+            caption.innerHTML = id + ' - ' + entry['Document__Name'] + ' - <b>' + built.State + '</b>' +
+                (tiers.length ? ' - ' + tiers.join(', ') : '') + ' - ' + pictures.length + ' picture(s)' +
+                (failed.length ? ' <span class="na-harness__error">' + failed.length + ' failed</span>' : '') +
+                (built.Reason ? ' <span class="na-harness__error">' + built.Reason + '</span>' : '');
+        }
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;  // <-- The sheet text is Open Sans, as the app's own stylesheet declares it
+        document.body.dataset.naReady = 'yes';
+    }
+    // ------------------------------------------------------------
+
+    Na__Harness__Run().catch((error) => {
+        title.innerHTML = '<span class="na-harness__error">' + (error && error.message) + '</span>';
+        document.body.dataset.naReady = 'yes';
+    });
+</script>
+</body>
+</html>

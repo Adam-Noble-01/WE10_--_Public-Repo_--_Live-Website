@@ -1,0 +1,817 @@
+{
+    "PublishedDocuments__Meta" : {
+        "Meta__FileName"    : "PublishedDocuments__Index__.json",
+        "Meta__Description" : "Which drawings of this project are published, and what the reader should do about the ones that are not. This is the FIRST and for an unpublished drawing the ONLY file a reader downloads: it carries enough of each document - number, name, order, paper, revision, status - to draw a correct sheet and a correct title block before a single element file is fetched. A drawing named here with a state of 'unpublished' gets its sheet and its title block and a grey mask where the drawing would be; no element file, no raster and no vector is requested for it, and nothing is computed on the device. The file is written LAST by a publish, after every document's own manifest has landed, so a half-finished publish is never visible.",
+        "Meta__Version"     : "1.0.0",
+        "Meta__Created"     : "23-Sep-2026",
+        "Meta__Author"      : "Adam Noble - Noble Architecture",
+        "Meta__ExampleNote" : "DUMMY DATA. This is the AA00 example project, hand-written to show the shape. No app wrote it."
+    },
+    "PublishedDocuments__Project" : {
+        "Project__Code"          : "AA00",
+        "Project__Name"          : "Example Project Structure",
+        "Project__Folder"        : "26-Projects/AA00__ExampleProjectStructure",
+        "Project__ContentFolder" : "30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Project__SiteAddress"   : "1 Example Lane, Example Village, Nottinghamshire, NG00 0AA",
+        "Project__Client"        : "Mr & Mrs Example"
+    },
+    "PublishedDocuments__Publish" : {
+        "Publish__SchemaVersion"    : 1,
+        "Publish__SchemaNote"       : "A reader refuses a schema it does not know rather than half-reading it. Bumping this is a deliberate act: every published document in the bucket must be re-published, because a reader that understands schema 2 has no obligation to understand schema 1.",
+        "Publish__ReaderMinVersion" : "v2.142.0",
+        "Publish__LastPublishedIso" : "2026-09-23T14:02:19.418Z",
+        "Publish__LastPublishedBy"  : "TrueVision3D Layout Editor v2.142.0",
+        "Publish__DocumentCount"    : 3,
+        "Publish__UnpublishedCount" : 2,
+        "Publish__ArchiveFolder"    : "00__Archive__Revisions",
+        "Publish__ArchiveNote"      : "Local only. A folder whose name starts with 00__ is skipped by the R2 sync, so no archive zip ever reaches the bucket or a client.",
+        "Publish__MarksNote"        : "Document__Marks on an unpublished row is the furniture for its sheet. It is here rather than in a document folder because an unpublished drawing HAS no folder - that absence is the whole grey-mask mechanism, and the reader must be able to draw a correct sheet without fetching anything."
+    },
+    "PublishedDocuments__RasterTiers" : {
+        "RasterTiers__Description" : "The zoom ladder. Every published viewport raster exists at each screen tier and once at print. A tier is a PIXEL SIZE, not a codec: a WebP and a PNG of the same dimensions cost the same memory once decoded (width x height x 4 bytes), so the codec only changes the download. The reader opens a sheet on Tier01, and steps up a tier when the sheet's zoom means a tier's pixels would be smaller than the screen's. It never holds two tiers of the same viewport: the new one replaces the old.",
+        "RasterTiers__PaperMmNote" : "PixelsPerMm is pixels per PAPER millimetre at the size the viewport frame occupies on the sheet, exactly as LayoutEditor__Raster__Config means it. MaxPixels caps the longest side.",
+        "RasterTiers__Tiers"       : [
+            {
+                "Tier__Id"          : "Tier01",
+                "Tier__Name"        : "Fit",
+                "Tier__PixelsPerMm" : 2,
+                "Tier__MaxPixels"   : 1024,
+                "Tier__Format"      : "image/webp",
+                "Tier__Quality"     : 0.9,
+                "Tier__UpToZoom"    : 1.5,
+                "Tier__Note"        : "What a sheet opens on. A sheet fitted to a phone in portrait is about 0.65 CSS px per paper mm; at a device pixel ratio of 3 that is 2 device px per mm, so this tier is already at native resolution when the sheet is fitted."
+            },
+            {
+                "Tier__Id"          : "Tier02",
+                "Tier__Name"        : "Read",
+                "Tier__PixelsPerMm" : 6,
+                "Tier__MaxPixels"   : 3072,
+                "Tier__Format"      : "image/webp",
+                "Tier__Quality"     : 0.92,
+                "Tier__UpToZoom"    : 4.5,
+                "Tier__Note"        : "152 dpi at paper size. Zoomed in far enough to read a dimension string. Matches the authoring side's Low raster level."
+            },
+            {
+                "Tier__Id"          : "Tier03",
+                "Tier__Name"        : "Detail",
+                "Tier__PixelsPerMm" : 12,
+                "Tier__MaxPixels"   : 5120,
+                "Tier__Format"      : "image/webp",
+                "Tier__Quality"     : 0.94,
+                "Tier__UpToZoom"    : null,
+                "Tier__Note"        : "305 dpi at paper size - print quality on screen, and the top tier a reader ever loads. Matches the authoring side's Medium raster level, which is what the viewer decodes TODAY for a sheet that is merely fitted to the screen."
+            },
+            {
+                "Tier__Id"          : "Print",
+                "Tier__Name"        : "Print",
+                "Tier__PixelsPerMm" : 20,
+                "Tier__MaxPixels"   : 8192,
+                "Tier__Format"      : "image/png",
+                "Tier__Quality"     : null,
+                "Tier__UpToZoom"    : null,
+                "Tier__Note"        : "508 dpi at paper size, PNG, and NEVER loaded to look at. Downloaded only when the reader asks for the PDF, and dropped as soon as the PDF is built. PNG because jsPDF drops the alpha of raw RGBA and because print is the one place lossless earns its bytes."
+            }
+        ],
+        "RasterTiers__DeviceNote" : "A device that is struggling is given a SMALLER TIER, never a different codec. If a tier's decode fails or the device reports little memory, the reader stays on the tier below and says so in the dock rather than retrying the tier that failed."
+    },
+    "PublishedDocuments__Documents" : [
+        {
+            "Document__Id"             : "AA00_T02_D01",
+            "Document__Number"         : "D01",
+            "Document__Phase"          : "T02",
+            "Document__Name"           : "Project Introduction",
+            "Document__Order"          : 1,
+            "Document__PaperSize"      : "A3",
+            "Document__Orientation"    : "landscape",
+            "Document__Revision"       : "B",
+            "Document__Status"         : "PLANNING",
+            "Document__State"          : "published",
+            "Document__Folder"         : "AA00_T02_D01",
+            "Document__PublishedAtIso" : "2026-09-23T14:01:44.902Z",
+            "Document__HasViewports"   : false,
+            "Document__Note"           : "An introduction sheet: pictures and text, no model viewport. Nothing was rendered for it - the pictures were already published as sheet images."
+        },
+        {
+            "Document__Id"             : "AA00_T02_D02",
+            "Document__Number"         : "D02",
+            "Document__Phase"          : "T02",
+            "Document__Name"           : "Front Elevation",
+            "Document__Order"          : 2,
+            "Document__PaperSize"      : "A2",
+            "Document__Orientation"    : "landscape",
+            "Document__Revision"       : "B",
+            "Document__Status"         : "PLANNING",
+            "Document__State"          : "published",
+            "Document__Folder"         : "AA00_T02_D02",
+            "Document__PublishedAtIso" : "2026-09-23T14:01:58.143Z",
+            "Document__HasViewports"   : true,
+            "Document__Note"           : "Revision A of this document is in 00__Archive__Revisions as a zip. Only Revision B is on R2."
+        },
+        {
+            "Document__Id"             : "AA00_T02_D03",
+            "Document__Number"         : "D03",
+            "Document__Phase"          : "T02",
+            "Document__Name"           : "Rear Elevation",
+            "Document__Order"          : 3,
+            "Document__PaperSize"      : "A2",
+            "Document__Orientation"    : "landscape",
+            "Document__Revision"       : "B",
+            "Document__Status"         : "PRELIMINARY",
+            "Document__State"          : "unpublished",
+            "Document__Folder"         : null,
+            "Document__PublishedAtIso" : null,
+            "Document__HasViewports"   : true,
+            "Document__Note"           : "Drawn, not published. The reader draws the A2 sheet and the title block from THIS entry, masks the drawing area grey and says so. It requests nothing else.",
+            "Document__Marks"          : [
+                {
+                    "Mark__Type"         : "rect",
+                    "Mark__Role"         : "border",
+                    "Mark__XMm"          : 8,
+                    "Mark__YMm"          : 8,
+                    "Mark__WidthMm"      : 578,
+                    "Mark__HeightMm"     : 404,
+                    "Mark__FillColour"   : null,
+                    "Mark__StrokeColour" : "#172b3a",
+                    "Mark__StrokePt"     : 0.7
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titleblock",
+                    "Mark__X1Mm"         : 8,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 586,
+                    "Mark__Y2Mm"         : 374,
+                    "Mark__StrokeColour" : "#172b3a",
+                    "Mark__StrokePt"     : 0.7
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 140.94,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 140.94,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 10.0,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "CLIENT"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 10.0,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "Mr & Mrs Example"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 285.44,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 285.44,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 142.94,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "PROJECT"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 142.94,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "1 Example Lane, Example Village,",
+                        "Nottinghamshire, NG00 0AA"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 377.92,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 377.92,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 287.44,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DRAWING TITLE"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 287.44,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "REAR ELEVATION"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 429.94,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 429.94,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 379.92,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "SCALE"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 379.92,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "1:100 @ A2"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 481.96,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 481.96,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 431.94,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DRAWN"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 431.94,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "AN"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 528.2,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 528.2,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 483.96,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DATE"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 483.96,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "23-Sep-2026"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 530.2,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DRAWING NUMBER"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 530.2,
+                    "Mark__YMm"   : 385.0,
+                    "Mark__Lines" : [
+                        "AA00_T02_D03"
+                    ],
+                    "Mark__SizeMm"     : 3.6,
+                    "Mark__FontWeight" : 700,
+                    "Mark__Colour"     : "#172b3a",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 530.2,
+                    "Mark__YMm"   : 390.4,
+                    "Mark__Lines" : [
+                        "REV B   PRELIMINARY"
+                    ],
+                    "Mark__SizeMm"     : 2.2,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#960000",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "logo",
+                    "Mark__XMm"   : 10,
+                    "Mark__YMm"   : 371.0,
+                    "Mark__Lines" : [
+                        "NOBLE ARCHITECTURE"
+                    ],
+                    "Mark__SizeMm"     : 3.0,
+                    "Mark__FontWeight" : 700,
+                    "Mark__Colour"     : "#555041",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"         : "rect",
+                    "Mark__Role"         : "qr",
+                    "Mark__XMm"          : 568.0,
+                    "Mark__YMm"          : 376.0,
+                    "Mark__WidthMm"      : 16.0,
+                    "Mark__HeightMm"     : 16.0,
+                    "Mark__FillColour"   : "#ffffff",
+                    "Mark__StrokeColour" : null,
+                    "Mark__StrokePt"     : 0
+                },
+                {
+                    "Mark__Type"         : "path",
+                    "Mark__Role"         : "qr",
+                    "Mark__D"            : "M568.000,376.000h0.889v0.889h-0.889ZM568.889,376.000h0.889v0.889h-0.889ZM569.778,376.000h0.889v0.889h-0.889ZM570.667,376.000h0.889v0.889h-0.889ZM571.556,376.000h0.889v0.889h-0.889ZM572.444,376.000h0.889v0.889h-0.889ZM573.333,376.000h0.889v0.889h-0.889ZM575.111,376.000h0.889v0.889h-0.889ZM576.889,376.000h0.889v0.889h-0.889ZM578.667,376.000h0.889v0.889h-0.889ZM579.556,376.000h0.889v0.889h-0.889ZM580.444,376.000h0.889v0.889h-0.889ZM581.333,376.000h0.889v0.889h-0.889ZM582.222,376.000h0.889v0.889h-0.889ZM583.111,376.000h0.889v0.889h-0.889ZM568.000,376.889h0.889v0.889h-0.889ZM573.333,376.889h0.889v0.889h-0.889ZM576.000,376.889h0.889v0.889h-0.889ZM576.889,376.889h0.889v0.889h-0.889ZM578.667,376.889h0.889v0.889h-0.889ZM583.111,376.889h0.889v0.889h-0.889ZM568.000,377.778h0.889v0.889h-0.889ZM569.778,377.778h0.889v0.889h-0.889ZM570.667,377.778h0.889v0.889h-0.889ZM571.556,377.778h0.889v0.889h-0.889ZM573.333,377.778h0.889v0.889h-0.889ZM575.111,377.778h0.889v0.889h-0.889ZM576.889,377.778h0.889v0.889h-0.889ZM578.667,377.778h0.889v0.889h-0.889ZM580.444,377.778h0.889v0.889h-0.889ZM581.333,377.778h0.889v0.889h-0.889ZM582.222,377.778h0.889v0.889h-0.889ZM568.000,378.667h0.889v0.889h-0.889ZM569.778,378.667h0.889v0.889h-0.889ZM570.667,378.667h0.889v0.889h-0.889ZM571.556,378.667h0.889v0.889h-0.889ZM573.333,378.667h0.889v0.889h-0.889ZM577.778,378.667h0.889v0.889h-0.889ZM578.667,378.667h0.889v0.889h-0.889ZM580.444,378.667h0.889v0.889h-0.889ZM581.333,378.667h0.889v0.889h-0.889ZM582.222,378.667h0.889v0.889h-0.889ZM568.000,379.556h0.889v0.889h-0.889ZM569.778,379.556h0.889v0.889h-0.889ZM570.667,379.556h0.889v0.889h-0.889ZM571.556,379.556h0.889v0.889h-0.889ZM573.333,379.556h0.889v0.889h-0.889ZM575.111,379.556h0.889v0.889h-0.889ZM576.000,379.556h0.889v0.889h-0.889ZM578.667,379.556h0.889v0.889h-0.889ZM580.444,379.556h0.889v0.889h-0.889ZM581.333,379.556h0.889v0.889h-0.889ZM582.222,379.556h0.889v0.889h-0.889ZM568.000,380.444h0.889v0.889h-0.889ZM573.333,380.444h0.889v0.889h-0.889ZM575.111,380.444h0.889v0.889h-0.889ZM576.889,380.444h0.889v0.889h-0.889ZM578.667,380.444h0.889v0.889h-0.889ZM583.111,380.444h0.889v0.889h-0.889ZM568.000,381.333h0.889v0.889h-0.889ZM568.889,381.333h0.889v0.889h-0.889ZM569.778,381.333h0.889v0.889h-0.889ZM570.667,381.333h0.889v0.889h-0.889ZM571.556,381.333h0.889v0.889h-0.889ZM572.444,381.333h0.889v0.889h-0.889ZM573.333,381.333h0.889v0.889h-0.889ZM575.111,381.333h0.889v0.889h-0.889ZM576.889,381.333h0.889v0.889h-0.889ZM577.778,381.333h0.889v0.889h-0.889ZM578.667,381.333h0.889v0.889h-0.889ZM579.556,381.333h0.889v0.889h-0.889ZM580.444,381.333h0.889v0.889h-0.889ZM581.333,381.333h0.889v0.889h-0.889ZM582.222,381.333h0.889v0.889h-0.889ZM583.111,381.333h0.889v0.889h-0.889ZM575.111,382.222h0.889v0.889h-0.889ZM576.000,382.222h0.889v0.889h-0.889ZM568.000,383.111h0.889v0.889h-0.889ZM568.889,383.111h0.889v0.889h-0.889ZM570.667,383.111h0.889v0.889h-0.889ZM571.556,383.111h0.889v0.889h-0.889ZM573.333,383.111h0.889v0.889h-0.889ZM575.111,383.111h0.889v0.889h-0.889ZM576.889,383.111h0.889v0.889h-0.889ZM577.778,383.111h0.889v0.889h-0.889ZM579.556,383.111h0.889v0.889h-0.889ZM580.444,383.111h0.889v0.889h-0.889ZM582.222,383.111h0.889v0.889h-0.889ZM569.778,384.000h0.889v0.889h-0.889ZM572.444,384.000h0.889v0.889h-0.889ZM574.222,384.000h0.889v0.889h-0.889ZM576.000,384.000h0.889v0.889h-0.889ZM578.667,384.000h0.889v0.889h-0.889ZM581.333,384.000h0.889v0.889h-0.889ZM583.111,384.000h0.889v0.889h-0.889ZM568.000,384.889h0.889v0.889h-0.889ZM568.889,384.889h0.889v0.889h-0.889ZM571.556,384.889h0.889v0.889h-0.889ZM572.444,384.889h0.889v0.889h-0.889ZM575.111,384.889h0.889v0.889h-0.889ZM576.889,384.889h0.889v0.889h-0.889ZM577.778,384.889h0.889v0.889h-0.889ZM580.444,384.889h0.889v0.889h-0.889ZM581.333,384.889h0.889v0.889h-0.889ZM568.889,385.778h0.889v0.889h-0.889ZM569.778,385.778h0.889v0.889h-0.889ZM570.667,385.778h0.889v0.889h-0.889ZM573.333,385.778h0.889v0.889h-0.889ZM574.222,385.778h0.889v0.889h-0.889ZM576.000,385.778h0.889v0.889h-0.889ZM578.667,385.778h0.889v0.889h-0.889ZM579.556,385.778h0.889v0.889h-0.889ZM582.222,385.778h0.889v0.889h-0.889ZM583.111,385.778h0.889v0.889h-0.889ZM574.222,386.667h0.889v0.889h-0.889ZM575.111,386.667h0.889v0.889h-0.889ZM576.889,386.667h0.889v0.889h-0.889ZM581.333,386.667h0.889v0.889h-0.889ZM582.222,386.667h0.889v0.889h-0.889ZM568.000,387.556h0.889v0.889h-0.889ZM568.889,387.556h0.889v0.889h-0.889ZM569.778,387.556h0.889v0.889h-0.889ZM570.667,387.556h0.889v0.889h-0.889ZM571.556,387.556h0.889v0.889h-0.889ZM572.444,387.556h0.889v0.889h-0.889ZM573.333,387.556h0.889v0.889h-0.889ZM576.000,387.556h0.889v0.889h-0.889ZM577.778,387.556h0.889v0.889h-0.889ZM578.667,387.556h0.889v0.889h-0.889ZM579.556,387.556h0.889v0.889h-0.889ZM580.444,387.556h0.889v0.889h-0.889ZM583.111,387.556h0.889v0.889h-0.889ZM568.000,388.444h0.889v0.889h-0.889ZM572.444,388.444h0.889v0.889h-0.889ZM573.333,388.444h0.889v0.889h-0.889ZM575.111,388.444h0.889v0.889h-0.889ZM576.889,388.444h0.889v0.889h-0.889ZM577.778,388.444h0.889v0.889h-0.889ZM582.222,388.444h0.889v0.889h-0.889ZM583.111,388.444h0.889v0.889h-0.889ZM568.000,389.333h0.889v0.889h-0.889ZM569.778,389.333h0.889v0.889h-0.889ZM570.667,389.333h0.889v0.889h-0.889ZM571.556,389.333h0.889v0.889h-0.889ZM573.333,389.333h0.889v0.889h-0.889ZM576.000,389.333h0.889v0.889h-0.889ZM576.889,389.333h0.889v0.889h-0.889ZM578.667,389.333h0.889v0.889h-0.889ZM580.444,389.333h0.889v0.889h-0.889ZM581.333,389.333h0.889v0.889h-0.889ZM568.000,390.222h0.889v0.889h-0.889ZM569.778,390.222h0.889v0.889h-0.889ZM570.667,390.222h0.889v0.889h-0.889ZM571.556,390.222h0.889v0.889h-0.889ZM573.333,390.222h0.889v0.889h-0.889ZM575.111,390.222h0.889v0.889h-0.889ZM577.778,390.222h0.889v0.889h-0.889ZM579.556,390.222h0.889v0.889h-0.889ZM582.222,390.222h0.889v0.889h-0.889ZM583.111,390.222h0.889v0.889h-0.889ZM568.000,391.111h0.889v0.889h-0.889ZM568.889,391.111h0.889v0.889h-0.889ZM569.778,391.111h0.889v0.889h-0.889ZM570.667,391.111h0.889v0.889h-0.889ZM571.556,391.111h0.889v0.889h-0.889ZM572.444,391.111h0.889v0.889h-0.889ZM573.333,391.111h0.889v0.889h-0.889ZM575.111,391.111h0.889v0.889h-0.889ZM576.000,391.111h0.889v0.889h-0.889ZM578.667,391.111h0.889v0.889h-0.889ZM580.444,391.111h0.889v0.889h-0.889ZM581.333,391.111h0.889v0.889h-0.889Z",
+                    "Mark__FillColour"   : "#595959",
+                    "Mark__StrokeColour" : null,
+                    "Mark__StrokePt"     : 0
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "qr",
+                    "Mark__XMm"   : 566.0,
+                    "Mark__YMm"   : 380.0,
+                    "Mark__Lines" : [
+                        "PROJECT",
+                        "PORTAL"
+                    ],
+                    "Mark__SizeMm"     : 2.0,
+                    "Mark__LeadingMm"  : 2.6,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "right"
+                }
+            ],
+            "Document__MarksNote" : "The furniture for a drawing that is NOT published. Laying out a title block needs no model and no render, so the publisher writes it for every row of the register - which is what lets an unpublished sheet still show its own number, title and revision behind the grey mask instead of being a blank page."
+        },
+        {
+            "Document__Id"             : "AA00_T02_D04",
+            "Document__Number"         : "D04",
+            "Document__Phase"          : "T02",
+            "Document__Name"           : "West Elevation",
+            "Document__Order"          : 4,
+            "Document__PaperSize"      : "A2",
+            "Document__Orientation"    : "landscape",
+            "Document__Revision"       : "A",
+            "Document__Status"         : "PRELIMINARY",
+            "Document__State"          : "unpublished",
+            "Document__Folder"         : null,
+            "Document__PublishedAtIso" : null,
+            "Document__HasViewports"   : true,
+            "Document__Note"           : "As D03.",
+            "Document__Marks"          : [
+                {
+                    "Mark__Type"         : "rect",
+                    "Mark__Role"         : "border",
+                    "Mark__XMm"          : 8,
+                    "Mark__YMm"          : 8,
+                    "Mark__WidthMm"      : 578,
+                    "Mark__HeightMm"     : 404,
+                    "Mark__FillColour"   : null,
+                    "Mark__StrokeColour" : "#172b3a",
+                    "Mark__StrokePt"     : 0.7
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titleblock",
+                    "Mark__X1Mm"         : 8,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 586,
+                    "Mark__Y2Mm"         : 374,
+                    "Mark__StrokeColour" : "#172b3a",
+                    "Mark__StrokePt"     : 0.7
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 140.94,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 140.94,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 10.0,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "CLIENT"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 10.0,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "Mr & Mrs Example"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 285.44,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 285.44,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 142.94,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "PROJECT"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 142.94,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "1 Example Lane, Example Village,",
+                        "Nottinghamshire, NG00 0AA"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 377.92,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 377.92,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 287.44,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DRAWING TITLE"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 287.44,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "WEST ELEVATION"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 429.94,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 429.94,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 379.92,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "SCALE"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 379.92,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "1:100 @ A2"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 481.96,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 481.96,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 431.94,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DRAWN"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 431.94,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "AN"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"         : "line",
+                    "Mark__Role"         : "titlecell",
+                    "Mark__X1Mm"         : 528.2,
+                    "Mark__Y1Mm"         : 374,
+                    "Mark__X2Mm"         : 528.2,
+                    "Mark__Y2Mm"         : 412,
+                    "Mark__StrokeColour" : "#8a9296",
+                    "Mark__StrokePt"     : 0.35
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 483.96,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DATE"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 483.96,
+                    "Mark__YMm"   : 383.4,
+                    "Mark__Lines" : [
+                        "23-Sep-2026"
+                    ],
+                    "Mark__SizeMm"    : 2.6,
+                    "Mark__LeadingMm" : 3.2,
+                    "Mark__Colour"    : "#172b3a",
+                    "Mark__Align"     : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 530.2,
+                    "Mark__YMm"   : 378.2,
+                    "Mark__Lines" : [
+                        "DRAWING NUMBER"
+                    ],
+                    "Mark__SizeMm"     : 1.8,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 530.2,
+                    "Mark__YMm"   : 385.0,
+                    "Mark__Lines" : [
+                        "AA00_T02_D04"
+                    ],
+                    "Mark__SizeMm"     : 3.6,
+                    "Mark__FontWeight" : 700,
+                    "Mark__Colour"     : "#172b3a",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "titlecell",
+                    "Mark__XMm"   : 530.2,
+                    "Mark__YMm"   : 390.4,
+                    "Mark__Lines" : [
+                        "REV A   PRELIMINARY"
+                    ],
+                    "Mark__SizeMm"     : 2.2,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#960000",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "logo",
+                    "Mark__XMm"   : 10,
+                    "Mark__YMm"   : 371.0,
+                    "Mark__Lines" : [
+                        "NOBLE ARCHITECTURE"
+                    ],
+                    "Mark__SizeMm"     : 3.0,
+                    "Mark__FontWeight" : 700,
+                    "Mark__Colour"     : "#555041",
+                    "Mark__Align"      : "left"
+                },
+                {
+                    "Mark__Type"         : "rect",
+                    "Mark__Role"         : "qr",
+                    "Mark__XMm"          : 568.0,
+                    "Mark__YMm"          : 376.0,
+                    "Mark__WidthMm"      : 16.0,
+                    "Mark__HeightMm"     : 16.0,
+                    "Mark__FillColour"   : "#ffffff",
+                    "Mark__StrokeColour" : null,
+                    "Mark__StrokePt"     : 0
+                },
+                {
+                    "Mark__Type"         : "path",
+                    "Mark__Role"         : "qr",
+                    "Mark__D"            : "M568.000,376.000h0.889v0.889h-0.889ZM568.889,376.000h0.889v0.889h-0.889ZM569.778,376.000h0.889v0.889h-0.889ZM570.667,376.000h0.889v0.889h-0.889ZM571.556,376.000h0.889v0.889h-0.889ZM572.444,376.000h0.889v0.889h-0.889ZM573.333,376.000h0.889v0.889h-0.889ZM575.111,376.000h0.889v0.889h-0.889ZM576.889,376.000h0.889v0.889h-0.889ZM578.667,376.000h0.889v0.889h-0.889ZM579.556,376.000h0.889v0.889h-0.889ZM580.444,376.000h0.889v0.889h-0.889ZM581.333,376.000h0.889v0.889h-0.889ZM582.222,376.000h0.889v0.889h-0.889ZM583.111,376.000h0.889v0.889h-0.889ZM568.000,376.889h0.889v0.889h-0.889ZM573.333,376.889h0.889v0.889h-0.889ZM576.000,376.889h0.889v0.889h-0.889ZM576.889,376.889h0.889v0.889h-0.889ZM578.667,376.889h0.889v0.889h-0.889ZM583.111,376.889h0.889v0.889h-0.889ZM568.000,377.778h0.889v0.889h-0.889ZM569.778,377.778h0.889v0.889h-0.889ZM570.667,377.778h0.889v0.889h-0.889ZM571.556,377.778h0.889v0.889h-0.889ZM573.333,377.778h0.889v0.889h-0.889ZM575.111,377.778h0.889v0.889h-0.889ZM576.889,377.778h0.889v0.889h-0.889ZM578.667,377.778h0.889v0.889h-0.889ZM580.444,377.778h0.889v0.889h-0.889ZM581.333,377.778h0.889v0.889h-0.889ZM582.222,377.778h0.889v0.889h-0.889ZM568.000,378.667h0.889v0.889h-0.889ZM569.778,378.667h0.889v0.889h-0.889ZM570.667,378.667h0.889v0.889h-0.889ZM571.556,378.667h0.889v0.889h-0.889ZM573.333,378.667h0.889v0.889h-0.889ZM577.778,378.667h0.889v0.889h-0.889ZM578.667,378.667h0.889v0.889h-0.889ZM580.444,378.667h0.889v0.889h-0.889ZM581.333,378.667h0.889v0.889h-0.889ZM582.222,378.667h0.889v0.889h-0.889ZM568.000,379.556h0.889v0.889h-0.889ZM569.778,379.556h0.889v0.889h-0.889ZM570.667,379.556h0.889v0.889h-0.889ZM571.556,379.556h0.889v0.889h-0.889ZM573.333,379.556h0.889v0.889h-0.889ZM575.111,379.556h0.889v0.889h-0.889ZM576.000,379.556h0.889v0.889h-0.889ZM578.667,379.556h0.889v0.889h-0.889ZM580.444,379.556h0.889v0.889h-0.889ZM581.333,379.556h0.889v0.889h-0.889ZM582.222,379.556h0.889v0.889h-0.889ZM568.000,380.444h0.889v0.889h-0.889ZM573.333,380.444h0.889v0.889h-0.889ZM575.111,380.444h0.889v0.889h-0.889ZM576.889,380.444h0.889v0.889h-0.889ZM578.667,380.444h0.889v0.889h-0.889ZM583.111,380.444h0.889v0.889h-0.889ZM568.000,381.333h0.889v0.889h-0.889ZM568.889,381.333h0.889v0.889h-0.889ZM569.778,381.333h0.889v0.889h-0.889ZM570.667,381.333h0.889v0.889h-0.889ZM571.556,381.333h0.889v0.889h-0.889ZM572.444,381.333h0.889v0.889h-0.889ZM573.333,381.333h0.889v0.889h-0.889ZM575.111,381.333h0.889v0.889h-0.889ZM576.889,381.333h0.889v0.889h-0.889ZM577.778,381.333h0.889v0.889h-0.889ZM578.667,381.333h0.889v0.889h-0.889ZM579.556,381.333h0.889v0.889h-0.889ZM580.444,381.333h0.889v0.889h-0.889ZM581.333,381.333h0.889v0.889h-0.889ZM582.222,381.333h0.889v0.889h-0.889ZM583.111,381.333h0.889v0.889h-0.889ZM575.111,382.222h0.889v0.889h-0.889ZM576.000,382.222h0.889v0.889h-0.889ZM568.000,383.111h0.889v0.889h-0.889ZM568.889,383.111h0.889v0.889h-0.889ZM570.667,383.111h0.889v0.889h-0.889ZM571.556,383.111h0.889v0.889h-0.889ZM573.333,383.111h0.889v0.889h-0.889ZM575.111,383.111h0.889v0.889h-0.889ZM576.889,383.111h0.889v0.889h-0.889ZM577.778,383.111h0.889v0.889h-0.889ZM579.556,383.111h0.889v0.889h-0.889ZM580.444,383.111h0.889v0.889h-0.889ZM582.222,383.111h0.889v0.889h-0.889ZM569.778,384.000h0.889v0.889h-0.889ZM572.444,384.000h0.889v0.889h-0.889ZM574.222,384.000h0.889v0.889h-0.889ZM576.000,384.000h0.889v0.889h-0.889ZM578.667,384.000h0.889v0.889h-0.889ZM581.333,384.000h0.889v0.889h-0.889ZM583.111,384.000h0.889v0.889h-0.889ZM568.000,384.889h0.889v0.889h-0.889ZM568.889,384.889h0.889v0.889h-0.889ZM571.556,384.889h0.889v0.889h-0.889ZM572.444,384.889h0.889v0.889h-0.889ZM575.111,384.889h0.889v0.889h-0.889ZM576.889,384.889h0.889v0.889h-0.889ZM577.778,384.889h0.889v0.889h-0.889ZM580.444,384.889h0.889v0.889h-0.889ZM581.333,384.889h0.889v0.889h-0.889ZM568.889,385.778h0.889v0.889h-0.889ZM569.778,385.778h0.889v0.889h-0.889ZM570.667,385.778h0.889v0.889h-0.889ZM573.333,385.778h0.889v0.889h-0.889ZM574.222,385.778h0.889v0.889h-0.889ZM576.000,385.778h0.889v0.889h-0.889ZM578.667,385.778h0.889v0.889h-0.889ZM579.556,385.778h0.889v0.889h-0.889ZM582.222,385.778h0.889v0.889h-0.889ZM583.111,385.778h0.889v0.889h-0.889ZM574.222,386.667h0.889v0.889h-0.889ZM575.111,386.667h0.889v0.889h-0.889ZM576.889,386.667h0.889v0.889h-0.889ZM581.333,386.667h0.889v0.889h-0.889ZM582.222,386.667h0.889v0.889h-0.889ZM568.000,387.556h0.889v0.889h-0.889ZM568.889,387.556h0.889v0.889h-0.889ZM569.778,387.556h0.889v0.889h-0.889ZM570.667,387.556h0.889v0.889h-0.889ZM571.556,387.556h0.889v0.889h-0.889ZM572.444,387.556h0.889v0.889h-0.889ZM573.333,387.556h0.889v0.889h-0.889ZM576.000,387.556h0.889v0.889h-0.889ZM577.778,387.556h0.889v0.889h-0.889ZM578.667,387.556h0.889v0.889h-0.889ZM579.556,387.556h0.889v0.889h-0.889ZM580.444,387.556h0.889v0.889h-0.889ZM583.111,387.556h0.889v0.889h-0.889ZM568.000,388.444h0.889v0.889h-0.889ZM572.444,388.444h0.889v0.889h-0.889ZM573.333,388.444h0.889v0.889h-0.889ZM575.111,388.444h0.889v0.889h-0.889ZM576.889,388.444h0.889v0.889h-0.889ZM577.778,388.444h0.889v0.889h-0.889ZM582.222,388.444h0.889v0.889h-0.889ZM583.111,388.444h0.889v0.889h-0.889ZM568.000,389.333h0.889v0.889h-0.889ZM569.778,389.333h0.889v0.889h-0.889ZM570.667,389.333h0.889v0.889h-0.889ZM571.556,389.333h0.889v0.889h-0.889ZM573.333,389.333h0.889v0.889h-0.889ZM576.000,389.333h0.889v0.889h-0.889ZM576.889,389.333h0.889v0.889h-0.889ZM578.667,389.333h0.889v0.889h-0.889ZM580.444,389.333h0.889v0.889h-0.889ZM581.333,389.333h0.889v0.889h-0.889ZM568.000,390.222h0.889v0.889h-0.889ZM569.778,390.222h0.889v0.889h-0.889ZM570.667,390.222h0.889v0.889h-0.889ZM571.556,390.222h0.889v0.889h-0.889ZM573.333,390.222h0.889v0.889h-0.889ZM575.111,390.222h0.889v0.889h-0.889ZM577.778,390.222h0.889v0.889h-0.889ZM579.556,390.222h0.889v0.889h-0.889ZM582.222,390.222h0.889v0.889h-0.889ZM583.111,390.222h0.889v0.889h-0.889ZM568.000,391.111h0.889v0.889h-0.889ZM568.889,391.111h0.889v0.889h-0.889ZM569.778,391.111h0.889v0.889h-0.889ZM570.667,391.111h0.889v0.889h-0.889ZM571.556,391.111h0.889v0.889h-0.889ZM572.444,391.111h0.889v0.889h-0.889ZM573.333,391.111h0.889v0.889h-0.889ZM575.111,391.111h0.889v0.889h-0.889ZM576.000,391.111h0.889v0.889h-0.889ZM578.667,391.111h0.889v0.889h-0.889ZM580.444,391.111h0.889v0.889h-0.889ZM581.333,391.111h0.889v0.889h-0.889Z",
+                    "Mark__FillColour"   : "#595959",
+                    "Mark__StrokeColour" : null,
+                    "Mark__StrokePt"     : 0
+                },
+                {
+                    "Mark__Type"  : "text",
+                    "Mark__Role"  : "qr",
+                    "Mark__XMm"   : 566.0,
+                    "Mark__YMm"   : 380.0,
+                    "Mark__Lines" : [
+                        "PROJECT",
+                        "PORTAL"
+                    ],
+                    "Mark__SizeMm"     : 2.0,
+                    "Mark__LeadingMm"  : 2.6,
+                    "Mark__FontWeight" : 600,
+                    "Mark__Colour"     : "#8a9296",
+                    "Mark__Align"      : "right"
+                }
+            ],
+            "Document__MarksNote" : "The furniture for a drawing that is NOT published. Laying out a title block needs no model and no render, so the publisher writes it for every row of the register - which is what lets an unpublished sheet still show its own number, title and revision behind the grey mask instead of being a blank page."
+        },
+        {
+            "Document__Id"             : "AA00_T02_D06",
+            "Document__Number"         : "D06",
+            "Document__Phase"          : "T02",
+            "Document__Name"           : "Ground Floor Plan",
+            "Document__Order"          : 6,
+            "Document__PaperSize"      : "A2",
+            "Document__Orientation"    : "landscape",
+            "Document__Revision"       : "B",
+            "Document__Status"         : "PLANNING",
+            "Document__State"          : "published",
+            "Document__Folder"         : "AA00_T02_D06",
+            "Document__PublishedAtIso" : "2026-09-23T14:02:19.418Z",
+            "Document__HasViewports"   : true,
+            "Document__Note"           : "A plan. Carries the floor-area fills, which are their own element file and their own layer, so the reader can drop them without touching anything else."
+        }
+    ],
+    "PublishedDocuments__Superseded" : {
+        "Superseded__Description" : "Reserved. Today only the latest revision of a document is on R2 and past revisions live in the local archive zips. When past revisions are wanted on R2 they are named here, each with its own folder, and the reader offers them behind the revision letter in the title block. Nothing reads this yet.",
+        "Superseded__Documents"   : []
+    }
+}

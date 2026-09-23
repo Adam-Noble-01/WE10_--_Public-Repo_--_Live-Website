@@ -50,7 +50,7 @@
 //   left corner. Whatever it cannot reach arrives in `tools`.
 // - The Shape__Qr block it writes is painted by 15__Core__Markup/
 //   Na__LayoutEditor__ShapeGeometry__, which is what knows the Project QR Code
-//   system. // @delegate: ../../53__System__ProjectQrCode/Na__ProjectQr__Symbol__.js
+//   system. // @delegate: ../53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js
 //
 // -----------------------------------------------------------------------------
 //

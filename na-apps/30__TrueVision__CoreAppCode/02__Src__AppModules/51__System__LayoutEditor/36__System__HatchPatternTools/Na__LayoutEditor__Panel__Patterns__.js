@@ -89,7 +89,7 @@
         Na__LeHatch__StandardColour,
         Na__LeHatch__SwatchMarkup
     } from './Na__LayoutEditor__HatchPatterns__.js';
-    import { Na__SpStore__GetLayers, Na__SpStore__CHANGED_EVENT } from '../../52__System__SitePlanData/Na__SitePlan__Store__.js';
+    import { Na__SpStore__GetLayers, Na__SpStore__CHANGED_EVENT } from '../21__System__SitePlanData/Na__SitePlan__Store__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------

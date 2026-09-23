@@ -1,0 +1,994 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Areas__.json",
+        "Meta__Kind"      : "area",
+        "Meta__LayerType" : "area",
+        "Meta__Document"  : "RB05_T01_D06",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Areas" : [
+        {
+            "Shape__Id"      : "Shape_001",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    227.5649571010237,
+                    304.324756162361
+                ],
+                [
+                    170.1149571010237,
+                    304.324756162361
+                ],
+                [
+                    170.1149571010237,
+                    235.57475616236098
+                ],
+                [
+                    227.5649571010237,
+                    235.57475616236098
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#bedcef",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Kids Lounge",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Kids Lounge"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_007",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    116.65956283949788,
+                    238.07475616236098
+                ],
+                [
+                    131.2095628394979,
+                    238.07475616236098
+                ],
+                [
+                    131.2095628394979,
+                    234.07475616236098
+                ],
+                [
+                    154.2095628394979,
+                    234.07475616236098
+                ],
+                [
+                    154.2095628394979,
+                    238.07475616236098
+                ],
+                [
+                    168.7095628394979,
+                    238.07475616236098
+                ],
+                [
+                    168.7095628394979,
+                    304.324746396736
+                ],
+                [
+                    116.65956283949788,
+                    304.324746396736
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#c3efbe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.5,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Grand Atrium",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Grand Atrium"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_009",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    57.359562839497876,
+                    260.324736631111
+                ],
+                [
+                    115.15956283949788,
+                    260.324736631111
+                ],
+                [
+                    115.15956283949788,
+                    304.324746396736
+                ],
+                [
+                    57.359562839497876,
+                    304.324746396736
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#c3beef",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.5,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Library",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Library"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_011",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    115.15956283949788,
+                    258.824756162361
+                ],
+                [
+                    62.359562839497876,
+                    258.824756162361
+                ],
+                [
+                    62.359562839497876,
+                    176.324717099861
+                ],
+                [
+                    115.15956283949788,
+                    176.324717099861
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efe2be",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.5,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "West Atrium",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "West Atrium"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_013",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    115.15956283949788,
+                    174.82473663111102
+                ],
+                [
+                    57.359562839497876,
+                    174.82475616236098
+                ],
+                [
+                    57.359562839497876,
+                    130.824736631111
+                ],
+                [
+                    68.56666733168538,
+                    130.824736631111
+                ],
+                [
+                    68.55956283949789,
+                    126.628076474861
+                ],
+                [
+                    75.65575424574787,
+                    119.531865537361
+                ],
+                [
+                    76.38398666762288,
+                    119.531865537361
+                ],
+                [
+                    91.60245346449788,
+                    119.531865537361
+                ],
+                [
+                    92.54915756606037,
+                    119.531865537361
+                ],
+                [
+                    99.58521713637288,
+                    126.567939756111
+                ],
+                [
+                    99.58521713637288,
+                    130.824736631111
+                ],
+                [
+                    110.85956283949788,
+                    130.824736631111
+                ],
+                [
+                    110.85956283949788,
+                    136.82475616236098
+                ],
+                [
+                    115.15956283949788,
+                    136.82475616236098
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efd1be",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.5,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Executive Study",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Executive Study"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_018",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    115.15956283949788,
+                    234.07475616236098
+                ],
+                [
+                    115.15956283949788,
+                    201.07475616236098
+                ],
+                [
+                    227.65956283949788,
+                    201.07475616236098
+                ],
+                [
+                    231.40956283949788,
+                    201.07475616236098
+                ],
+                [
+                    231.40956283949788,
+                    172.52477569361093
+                ],
+                [
+                    282.6595628394979,
+                    172.52477569361093
+                ],
+                [
+                    282.6595628394979,
+                    206.17475616236095
+                ],
+                [
+                    286.6595628394979,
+                    206.17475616236095
+                ],
+                [
+                    286.6595628394979,
+                    228.9747561623609
+                ],
+                [
+                    282.6595628394979,
+                    228.9747561623609
+                ],
+                [
+                    282.6595628394979,
+                    234.07475616236098
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#beefe7",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Grand Gallery",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : 0,
+                "Area__LabelDYMm"  : 14.437441821594234,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Grand Gallery"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_020",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    116.65956283949788,
+                    136.82475616236098
+                ],
+                [
+                    116.65956283949788,
+                    156.124756162361
+                ],
+                [
+                    120.65956283949788,
+                    156.124756162361
+                ],
+                [
+                    120.65956283949788,
+                    176.97475616236102
+                ],
+                [
+                    116.65956283949788,
+                    176.97475616236102
+                ],
+                [
+                    116.65956283949788,
+                    197.07475616236098
+                ],
+                [
+                    131.2095628394979,
+                    197.07475616236098
+                ],
+                [
+                    131.2095628394979,
+                    201.07475616236098
+                ],
+                [
+                    154.28486557387288,
+                    201.07475616236098
+                ],
+                [
+                    154.28486557387288,
+                    197.07475616236098
+                ],
+                [
+                    168.7095628394979,
+                    197.07475616236098
+                ],
+                [
+                    168.7095628394979,
+                    175.72475616236102
+                ],
+                [
+                    170.2095628394979,
+                    175.72475616236102
+                ],
+                [
+                    170.2095628394979,
+                    157.47545928736093
+                ],
+                [
+                    168.7095628394979,
+                    157.42475616236095
+                ],
+                [
+                    168.7095628394979,
+                    136.82475616236093
+                ],
+                [
+                    155.2095628394979,
+                    136.82475616236098
+                ],
+                [
+                    155.2095628394979,
+                    134.22475616236102
+                ],
+                [
+                    129.80956283949786,
+                    134.22475616236102
+                ],
+                [
+                    129.80956283949786,
+                    136.82475616236098
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efbebe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Formal Lounge",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : -0.16999963307728194,
+                "Area__LabelDYMm"  : 0.7140028168518597,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Formal Lounge"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_065",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    231.40956283949788,
+                    285.3247561623609
+                ],
+                [
+                    282.6595628394979,
+                    285.3247561623609
+                ],
+                [
+                    282.6595628394979,
+                    234.07475616236098
+                ],
+                [
+                    231.40956283949788,
+                    234.07475616236098
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efbebe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Bar Lounge",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Bar Lounge"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_066",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    170.2095628394979,
+                    136.82475616236093
+                ],
+                [
+                    170.2095628394979,
+                    197.07475616236093
+                ],
+                [
+                    174.9595628394979,
+                    197.07475616236093
+                ],
+                [
+                    174.9595628394979,
+                    199.07475616236093
+                ],
+                [
+                    222.90956283949788,
+                    199.07475616236093
+                ],
+                [
+                    222.90956283949788,
+                    197.07475616236093
+                ],
+                [
+                    227.65956283949788,
+                    197.07475616236093
+                ],
+                [
+                    227.65956283949788,
+                    130.82475616236093
+                ],
+                [
+                    216.45245346449786,
+                    130.82475616236093
+                ],
+                [
+                    216.45245346449786,
+                    126.50776397486092
+                ],
+                [
+                    209.34917221449788,
+                    119.53186553736093
+                ],
+                [
+                    192.45575424574787,
+                    119.53186553736093
+                ],
+                [
+                    185.35956283949787,
+                    126.62803741236092
+                ],
+                [
+                    185.35956283949787,
+                    130.82475616236093
+                ],
+                [
+                    174.15956283949788,
+                    130.82475616236093
+                ],
+                [
+                    174.15956283949788,
+                    136.82475616236093
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#d1beef",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Formal Dining Room",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : 0,
+                "Area__LabelDYMm"  : 7.508303445469494,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Formal Dining Room"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_077",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    227.65956283949788,
+                    140.57477569361095
+                ],
+                [
+                    231.7095628394979,
+                    140.57477569361095
+                ],
+                [
+                    231.7095628394979,
+                    130.37475616236094
+                ],
+                [
+                    291.4095628394979,
+                    130.37475616236094
+                ],
+                [
+                    291.4095628394979,
+                    140.57475616236093
+                ],
+                [
+                    295.1595628394979,
+                    140.57475616236093
+                ],
+                [
+                    295.1595628394979,
+                    162.57475616236093
+                ],
+                [
+                    291.4095628394979,
+                    162.57475616236093
+                ],
+                [
+                    291.4095628394979,
+                    168.77475616236092
+                ],
+                [
+                    272.6595628394979,
+                    168.77475616236092
+                ],
+                [
+                    272.6595628394979,
+                    172.52477569361093
+                ],
+                [
+                    241.40956283949788,
+                    172.52477569361093
+                ],
+                [
+                    241.40956283949788,
+                    168.77477569361093
+                ],
+                [
+                    231.7095628394979,
+                    168.77475616236092
+                ],
+                [
+                    231.7095628394979,
+                    162.57475616236093
+                ],
+                [
+                    227.65956283949788,
+                    162.57475616236093
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#beefd0",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Garden Room",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Garden Room"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_080",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    286.6595628394979,
+                    195.02475616236092
+                ],
+                [
+                    286.6595628394979,
+                    172.52475616236092
+                ],
+                [
+                    318.30956283949786,
+                    172.52475616236092
+                ],
+                [
+                    318.30956283949786,
+                    195.02475616236092
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efebbe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Pantry",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : -0.3220581175892221,
+                "Area__LabelDYMm"  : 2.750979873636794,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Pantry"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_083",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    319.80956283949786,
+                    172.52475616236092
+                ],
+                [
+                    319.80956283949786,
+                    196.52475616236092
+                ],
+                [
+                    286.6595628394979,
+                    196.52475616236092
+                ],
+                [
+                    286.6595628394979,
+                    232.2748147561109
+                ],
+                [
+                    383.55956283949786,
+                    232.2748147561109
+                ],
+                [
+                    383.55956283949786,
+                    196.52475616236092
+                ],
+                [
+                    350.55956283949786,
+                    196.52475616236092
+                ],
+                [
+                    350.55956283949786,
+                    172.52475616236092
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efbebe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "East Atrium",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : 0,
+                "Area__LabelDYMm"  : 10.526408138002097,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "East Atrium"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_086",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    352.05956283949786,
+                    195.02475616236092
+                ],
+                [
+                    352.05956283949786,
+                    174.52475616236092
+                ],
+                [
+                    383.55956283949786,
+                    174.52475616236092
+                ],
+                [
+                    383.55956283949786,
+                    195.02475616236092
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#beefd5",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "W/C",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : 0.2899493919107954,
+                "Area__LabelDYMm"  : 1.797660746324965,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "W/C"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_096",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    295.1595628394979,
+                    92.42475616236092
+                ],
+                [
+                    295.1595628394979,
+                    39.67475616236093
+                ],
+                [
+                    326.1595628394979,
+                    39.67475616236093
+                ],
+                [
+                    326.1595628394979,
+                    43.92475616236093
+                ],
+                [
+                    344.1595628394979,
+                    43.92475616236093
+                ],
+                [
+                    344.1595628394979,
+                    39.67475616236093
+                ],
+                [
+                    375.2595628394979,
+                    39.67475616236093
+                ],
+                [
+                    375.2595628394979,
+                    92.42475616236092
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#ccbeef",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Family Lounge",
+                "Area__Group"      : "Ground Floor",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Family Lounge"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_100",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    378.9095628394979,
+                    75.32475616236093
+                ],
+                [
+                    402.80956283949786,
+                    75.32475616236093
+                ],
+                [
+                    402.8727659644979,
+                    113.77475616236093
+                ],
+                [
+                    401.5095628394979,
+                    113.77475616236093
+                ],
+                [
+                    401.5095628394979,
+                    116.77475616236093
+                ],
+                [
+                    378.9263597144979,
+                    116.77475616236093
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#c8efbe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Firewood Store",
+                "Area__Group"     : "Ground Floor",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Firewood Store"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_101",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    378.9263597144979,
+                    119.77475616236093
+                ],
+                [
+                    401.5095628394979,
+                    119.77475616236093
+                ],
+                [
+                    401.5095628394979,
+                    168.77475616236092
+                ],
+                [
+                    378.9095628394979,
+                    168.77475616236092
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#ccbeef",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Shed",
+                "Area__Group"     : "Ground Floor",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Shed"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_102",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    295.1595628394979,
+                    92.42475616236092
+                ],
+                [
+                    295.1595628394979,
+                    168.77475616236092
+                ],
+                [
+                    297.2084690894979,
+                    168.77475616236092
+                ],
+                [
+                    297.1595628394979,
+                    172.52475616236092
+                ],
+                [
+                    307.0095628394979,
+                    172.52475616236092
+                ],
+                [
+                    307.0095628394979,
+                    168.77475616236092
+                ],
+                [
+                    319.80956283949786,
+                    168.77475616236092
+                ],
+                [
+                    319.80956283949786,
+                    172.52475616236092
+                ],
+                [
+                    350.55956283949786,
+                    172.52475616236092
+                ],
+                [
+                    350.55956283949786,
+                    168.77475616236092
+                ],
+                [
+                    375.2595628394979,
+                    168.77475616236092
+                ],
+                [
+                    375.2595628394979,
+                    92.42475616236092
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#bee5ef",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Kitchen",
+                "Area__Group"     : "Ground Floor",
+                "Area__LabelDXMm" : -3.796860261432869,
+                "Area__LabelDYMm" : 2.296867514582601,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Kitchen"
+            }
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_005" : "<path d=\"M227.565 304.325L170.115 304.325L170.115 235.575L227.565 235.575Z\" fill=\"#bedcef\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"198.84\" y=\"269.635\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Kids Lounge</text><text x=\"198.84\" y=\"272.425\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">39.50 m²</text><path d=\"M116.66 238.075L131.21 238.075L131.21 234.075L154.21 234.075L154.21 238.075L168.71 238.075L168.71 304.325L116.66 304.325Z\" fill=\"#c3efbe\" fill-opacity=\"0.5\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"142.685\" y=\"268.885\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Grand Atrium</text><text x=\"142.685\" y=\"271.675\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">35.40 m²</text><path d=\"M57.36 260.325L115.16 260.325L115.16 304.325L57.36 304.325Z\" fill=\"#c3beef\" fill-opacity=\"0.5\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"86.26\" y=\"282.01\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Library</text><text x=\"86.26\" y=\"284.8\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">25.43 m²</text><path d=\"M115.16 258.825L62.36 258.825L62.36 176.325L115.16 176.325Z\" fill=\"#efe2be\" fill-opacity=\"0.5\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"88.76\" y=\"217.26\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">West Atrium</text><text x=\"88.76\" y=\"220.05\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">43.56 m²</text><path d=\"M115.16 174.825L57.36 174.825L57.36 130.825L68.567 130.825L68.56 126.628L75.656 119.532L76.384 119.532L91.602 119.532L92.549 119.532L99.585 126.568L99.585 130.825L110.86 130.825L110.86 136.825L115.16 136.825Z\" fill=\"#efd1be\" fill-opacity=\"0.5\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"86.26\" y=\"146.863\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Executive Study</text><text x=\"86.26\" y=\"149.653\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">28.18 m²</text><path d=\"M115.16 234.075L115.16 201.075L227.66 201.075L231.41 201.075L231.41 172.525L282.66 172.525L282.66 206.175L286.66 206.175L286.66 228.975L282.66 228.975L282.66 234.075Z\" fill=\"#beefe7\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"200.91\" y=\"217.422\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Grand Gallery</text><text x=\"200.91\" y=\"220.212\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">70.82 m²</text><path d=\"M116.66 136.825L116.66 156.125L120.66 156.125L120.66 176.975L116.66 176.975L116.66 197.075L131.21 197.075L131.21 201.075L154.285 201.075L154.285 197.075L168.71 197.075L168.71 175.725L170.21 175.725L170.21 157.475L168.71 157.425L168.71 136.825L155.21 136.825L155.21 134.225L129.81 134.225L129.81 136.825Z\" fill=\"#efbebe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"143.265\" y=\"168.049\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Formal Lounge</text><text x=\"143.265\" y=\"170.839\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">32.38 m²</text><path d=\"M231.41 285.325L282.66 285.325L282.66 234.075L231.41 234.075Z\" fill=\"#efbebe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"257.035\" y=\"259.385\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Bar Lounge</text><text x=\"257.035\" y=\"262.175\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">26.27 m²</text><path d=\"M170.21 136.825L170.21 197.075L174.96 197.075L174.96 199.075L222.91 199.075L222.91 197.075L227.66 197.075L227.66 130.825L216.452 130.825L216.452 126.508L209.349 119.532L192.456 119.532L185.36 126.628L185.36 130.825L174.16 130.825L174.16 136.825Z\" fill=\"#d1beef\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"198.935\" y=\"166.497\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Formal Dining Room</text><text x=\"198.935\" y=\"169.287\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">41.79 m²</text><path d=\"M227.66 140.575L231.71 140.575L231.71 130.375L291.41 130.375L291.41 140.575L295.16 140.575L295.16 162.575L291.41 162.575L291.41 168.775L272.66 168.775L272.66 172.525L241.41 172.525L241.41 168.775L231.71 168.775L231.71 162.575L227.66 162.575Z\" fill=\"#beefd0\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"261.41\" y=\"151.135\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Garden Room</text><text x=\"261.41\" y=\"153.925\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">25.81 m²</text><path d=\"M286.66 195.025L286.66 172.525L318.31 172.525L318.31 195.025Z\" fill=\"#efebbe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"302.163\" y=\"186.211\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Pantry</text><text x=\"302.163\" y=\"189.001\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">7.12 m²</text><path d=\"M319.81 172.525L319.81 196.525L286.66 196.525L286.66 232.275L383.56 232.275L383.56 196.525L350.56 196.525L350.56 172.525Z\" fill=\"#efbebe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"335.11\" y=\"212.611\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">East Atrium</text><text x=\"335.11\" y=\"215.401\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">42.02 m²</text><path d=\"M352.06 195.025L352.06 174.525L383.56 174.525L383.56 195.025Z\" fill=\"#beefd5\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"368.1\" y=\"186.257\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">W/C</text><text x=\"368.1\" y=\"189.047\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">6.46 m²</text><path d=\"M295.16 92.425L295.16 39.675L326.16 39.675L326.16 43.925L344.16 43.925L344.16 39.675L375.26 39.675L375.26 92.425Z\" fill=\"#ccbeef\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"335.21\" y=\"65.735\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Family Lounge</text><text x=\"335.21\" y=\"68.525\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">41.49 m²</text><path d=\"M460.81 172.525L386.81 172.525L386.81 334.825L380.81 334.825L380.81 342.325L466.81 342.325L466.81 334.825L460.81 334.825Z\" fill=\"#e4e8ec\" fill-opacity=\"0.3\" stroke=\"#172b3a\" stroke-width=\"0.071\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M378.91 75.325L402.81 75.325L402.873 113.775L401.51 113.775L401.51 116.775L378.926 116.775Z\" fill=\"#c8efbe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"390.891\" y=\"95.708\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Firewood Store</text><text x=\"390.891\" y=\"98.12\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">9.88 m²</text><path d=\"M378.926 119.775L401.51 119.775L401.51 168.775L378.91 168.775Z\" fill=\"#ccbeef\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"390.21\" y=\"143.933\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Shed</text><text x=\"390.21\" y=\"146.345\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">11.07 m²</text><path d=\"M295.16 92.425L295.16 168.775L297.208 168.775L297.16 172.525L307.01 172.525L307.01 168.775L319.81 168.775L319.81 172.525L350.56 172.525L350.56 168.775L375.26 168.775L375.26 92.425Z\" fill=\"#bee5ef\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"331.413\" y=\"134.43\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Kitchen</text><text x=\"331.413\" y=\"136.842\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">62.68 m²</text><path d=\"M470.56 391.075L463.81 391.075L463.81 401.975L460.81 401.975L460.81 387.325L466.81 387.325L466.81 379.825L380.81 379.825L380.81 387.325L386.81 387.325L386.81 401.975L383.81 401.975L383.81 391.075L377.06 391.075L377.06 376.075L470.56 376.075Z\" fill=\"#f2f2f2\" stroke=\"#333333\" stroke-width=\"0.176\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"413.581\" y=\"247.189\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Coach House</text><text x=\"414.286\" y=\"251.173\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"300\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">Refer To Drawing</text><text x=\"413.286\" y=\"255.659\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.2\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"start\" xml:space=\"preserve\">See RB05_T01_D14</text>"
+    },
+    "Elements__AreaGroups" : [
+        {
+            "AreaGroup__Name"   : "Ground Floor",
+            "AreaGroup__Colour" : "#efbebe"
+        }
+    ]
+}

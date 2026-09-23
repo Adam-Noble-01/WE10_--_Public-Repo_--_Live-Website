@@ -550,7 +550,7 @@
             filenamePattern   : Na__LeCfg__Val('Pdf', 'FilenamePattern', '{drawingCode}__{drawingName}__{paperSize}__{revision}__{date}__.pdf'),
             author            : Na__LeCfg__Val('Pdf', 'Author', 'Noble Architecture Ltd'),
             creator           : Na__LeCfg__Val('Pdf', 'Creator', 'TrueVision3D Layout Editor'),
-            jsPdfScriptPath   : Na__LeCfg__Val('Pdf', 'JsPdfScriptPath', './02__Src__AppModules/90__System__PageLayoutSystem/01__Dependencies__VersionLocked/jspdf.umd.js'),
+            jsPdfScriptPath   : Na__LeCfg__Val('Pdf', 'JsPdfScriptPath', './04__Lib__ThirdParty__VersionLocked/05__Vendor__JsPdf__v4.1.0/jspdf.umd.js'),
             fontFamily        : Na__LeCfg__Val('Pdf', 'FontFamily', 'OpenSans'),
             fontBasePath      : Na__LeCfg__Val('Pdf', 'FontBasePath', '../01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/'),
             fontCdnBase       : Na__LeCfg__Val('Pdf', 'FontCdnBase', 'https://www.noble-architecture.com/na-apps/01__Assets__NaApps__CommonAssets/NaApps__CommonFonts/'),
