@@ -34,6 +34,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.9.46
+// - Token bumped (2026-09-23-07) for the flush-join tolerance (v2.159.0) and
+//   the site plan holes (v2.160.0): FlushJoins 1.1.0 and the projected
+//   linework config's build token change together, and the PDF exporter,
+//   the publisher and ShapeRings gain the face grouping - a warm cache
+//   serving the old FlushJoins under the new token, or the old PDF exporter
+//   without the new ShapeRings export, would draw the seam or throw.
+//
 // 23-Sep-2026 - Version 1.9.45
 // - Token bumped (2026-09-23-06) for the compact tab strip (v2.158.0): the
 //   strip module (TabStrip 2.0.0) and the shell stylesheet change together -
@@ -585,7 +593,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-23-06';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-23-07';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

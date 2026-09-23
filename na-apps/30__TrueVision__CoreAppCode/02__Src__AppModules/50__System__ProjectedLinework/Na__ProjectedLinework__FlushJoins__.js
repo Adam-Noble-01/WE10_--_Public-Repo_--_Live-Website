@@ -36,6 +36,13 @@
 //   sees. The tree is walked on the page footprint AND the edge's depth band,
 //   so only triangles at the edge's own depth are ever read.
 //
+// - COINCIDENT MEANS WITHIN MODELLING TOLERANCE. A side lies along the edge,
+//   and a triangle holds the edge in its plane, when they agree to 0.1 mm -
+//   not to a micron. Two storeys' walls are flush because the modeller put
+//   them flush; SketchUp merges points 0.0254 mm apart, and the GLB rounds
+//   every position to a float32. A join tested at a micron finds one side
+//   of itself and draws the seam (see 1.1.0 below).
+//
 // - Imports nothing and reads only the soup's typed arrays, like the clip
 //   kernel, so it can move into a worker unchanged.
 //
@@ -53,6 +60,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.1.0
+// - Tolerances raised from machine epsilon to modelling tolerance: 1e-4 m
+//   (0.1 mm) for the plane and for the line alike, where they were 1e-5 and
+//   1e-6. RB05: the first floor walls' outer face starts 0.0000134 m above
+//   the top of the slab they stand on - the SketchUp export of 21-Sep-2026
+//   moved the storey by that much, which SketchUp (0.0254 mm tolerance)
+//   cannot tell from flush - so the slab's top edge and the wall's bottom
+//   edge each found a face on ONE side of the line only, and both drew: one
+//   line across every elevation at first floor level, in the visible class,
+//   owned by the walls and the floors. The ground floor seam, 0.00000024 m
+//   out, was cut as before. Proved on the live soup: at 1e-6 the wall's side
+//   lay 1.34e-5 off the slab's edge and filed nothing; at 1e-4 both sides
+//   file the whole edge and it is cut. ProjectedLinework__Model__BuildToken
+//   bumped with it, so every baked drawing re-renders under the new rule.
+//
 // 14-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -65,8 +87,17 @@
 
     // MODULE CONSTANTS | Tolerances (scene units are metres)
     // ------------------------------------------------------------
-    const Na__PlFlush__PLANE_TOLERANCE = 1e-5;     // <-- Off a triangle's plane and still in it; the edge lift is 1e-6
-    const Na__PlFlush__LINE_TOLERANCE  = 1e-6;     // <-- Off the edge's line on the page and still along it
+    // MODELLING TOLERANCE, NOT MACHINE EPSILON. Two faces are flush when the
+    // modeller put them flush, and SketchUp itself treats any two points within
+    // 0.001" (0.0254 mm) as one point; the GLB then carries every position as a
+    // float32, a grain of about 0.000005 m at house scale. RB05's first floor
+    // walls stand 0.0000134 m above the slab under them - nothing anyone could
+    // see in SketchUp or draw at any scale - and with a 1e-6 line tolerance
+    // that seam drew a line across every elevation of the house (23-Sep-2026).
+    // 1e-4 m is 0.1 mm: four times SketchUp's own tolerance, twenty times the
+    // float32 grain, and a thousandth of a millimetre on paper at 1:100.
+    const Na__PlFlush__PLANE_TOLERANCE = 1e-4;     // <-- Off a triangle's plane and still in it; the edge lift is 1e-6
+    const Na__PlFlush__LINE_TOLERANCE  = 1e-4;     // <-- Off the edge's line on the page and still along it
     const Na__PlFlush__AREA_EPSILON    = 1e-12;    // <-- Page area below which a triangle is edge-on
     const Na__PlFlush__SPAN_EPSILON    = 1e-9;     // <-- Edge parameter below which a span, or a kept piece, is nothing
     // ------------------------------------------------------------

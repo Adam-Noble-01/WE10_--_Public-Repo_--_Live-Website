@@ -3,7 +3,7 @@
   "SitePlanData__SchemaVersion": 1,
   "SitePlanData__ProjectPrefix": "RB05",
   "SitePlanData__SourceModelFile": "RB05_T01_M00__SitePlanModel__Proposed__0.4.1__.skp",
-  "SitePlanData__ExportedIso": "2026-09-23T18:46:46Z",
+  "SitePlanData__ExportedIso": "2026-09-23T19:17:52Z",
   "SitePlanData__ExporterVersion": "1.4.1",
   "SitePlanData__TagsSsotVersion": "2.9.0",
   "SitePlanData__Units": "metres",
@@ -510,12 +510,12 @@
       "Layer__ZIndexFill": null,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__ExistingBuildingsRemoved__LineworkModel__.glb",
       "Layer__FillFile": null,
-      "Layer__SegmentCount": 24,
+      "Layer__SegmentCount": 33,
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
         "MinX": 459402.4,
-        "MinZ": -457357.9,
-        "MaxX": 499014.8,
+        "MinZ": -468214.9,
+        "MaxX": 509112.4,
         "MaxZ": -341334.4
       },
       "Layer__Style": {
@@ -537,7 +537,7 @@
         500
       ],
       "Layer__Warnings": [
-        "5 face(s) ignored; this tag exports lines only",
+        "6 face(s) ignored; this tag exports lines only",
         "1 hidden group(s) or component(s) skipped"
       ]
     },

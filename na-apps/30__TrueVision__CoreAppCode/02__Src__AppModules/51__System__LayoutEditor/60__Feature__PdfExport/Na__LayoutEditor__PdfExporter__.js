@@ -41,6 +41,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.12.0 (TrueVision)
+// - A site plan face prints as ONE holed polygon - its outer ring and its
+//   inner rings together, through Na__LeRings__FacesFromRings - so the wash
+//   fills even-odd (f*) and the hatch stamper clips even-odd, and a hole in a
+//   face is left bare on paper as it is on screen. Until now each face's
+//   outer ring alone was drawn: RB05's D13 printed the Grassland tufts across
+//   the lake and the water ripples across its island. The publisher's
+//   SitePlanSvg, which mirrors these two functions, is fixed the same way.
+//
 // 23-Sep-2026 - Version 1.11.0 (TrueVision)
 // - Viewport pictures (underlay, fog, 3D) are packed 'FAST' - the Sub
 //   predictor - in Download PDF and in a published PDF alike. jsPDF's default
@@ -151,6 +160,7 @@
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';
     import { Na__LeModel__KIND_2D, Na__LeModel__GetFields, Na__LeModel__IsSitePlanViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeChrome__Build, Na__LeChrome__BuildViewportFrame, Na__LeChrome__DrawToPdf, Na__LeChrome__PushPolyline } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
+    import { Na__LeRings__FacesFromRings } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';
     import { Na__LeMarkup__BuildScenePrimitives, Na__LeMarkup__BuildLayerPrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
     import { Na__LePaint__STEP_VIEWPORT, Na__LePaint__STEP_SHEET, Na__LePaint__Plan } from '../15__Core__Markup/Na__LayoutEditor__PaintOrder__.js';   // <-- The page is laid down in the Layers list's order, as the screen stacks it
     import { Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport, Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing } from '../20__System__Viewports/Na__LayoutEditor__Viewport2d__.js';
@@ -296,26 +306,32 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Draw a Site Plan Viewport's Fills Under Its Lines
+    // HELPER FUNCTION | A Site Plan Ring Point in Paper Millimetres
     // ------------------------------------------------------------
-    // Each face's outer ring as a filled polygon at the layer's fill colour and
-    // opacity, through the sheet polygon primitive (GState opacity). The PDF
-    // primitive draws one ring at a time, so a hole in a face is not cut out on
-    // paper yet; on screen it is.
-    // ------------------------------------------------------------
-    function Na__LePdf__DrawSitePlanFills(doc, viewport, described, fills) {
+    function Na__LePdf__SitePlanToPaper(viewport, described) {
         const win   = described.window;
         const D     = win.Denominator;
         const frame = viewport.Viewport__FrameMm;
+        return (x, y) => [ frame.X + ((x - win.OriginX) / D), frame.Y + ((y - win.OriginY) / D) ];
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Draw a Site Plan Viewport's Fills Under Its Lines
+    // ------------------------------------------------------------
+    // Each face as ONE filled polygon at the layer's fill colour and opacity,
+    // through the sheet polygon primitive (GState opacity): its outer ring and
+    // its holes together, so the primitive paints it even-odd (f*) and a hole
+    // in a face - the lake in the field - is left bare on paper as it is on
+    // screen. Until 1.12.0 only the outer ring was drawn and the wash covered
+    // every hole.
+    // ------------------------------------------------------------
+    function Na__LePdf__DrawSitePlanFills(doc, viewport, described, fills) {
+        const toPaper    = Na__LePdf__SitePlanToPaper(viewport, described);
         const primitives = [];
         fills.forEach((fill) => {
-            fill.rings.forEach((ring) => {
-                if (!ring.outer || !ring.points || ring.points.length < 6) return;
-                const points = [];
-                for (let i = 0; i + 1 < ring.points.length; i += 2) {
-                    points.push([ frame.X + ((ring.points[i] - win.OriginX) / D), frame.Y + ((ring.points[i + 1] - win.OriginY) / D) ]);
-                }
-                Na__LeChrome__PushPolyline(primitives, points, null, 0, fill.hex, true, null, { fillOpacity : fill.opacity });
+            Na__LeRings__FacesFromRings(fill.rings, toPaper).forEach((face) => {
+                Na__LeChrome__PushPolyline(primitives, face.points, null, 0, fill.hex, true, null, { fillOpacity : fill.opacity, holes : face.holes });
             });
         });
         if (primitives.length > 0) Na__LeChrome__DrawToPdf(doc, primitives);
@@ -325,33 +341,29 @@
 
     // HELPER FUNCTION | Draw a Site Plan Viewport's Hatch Patterns Over Its Fills
     // ------------------------------------------------------------
-    // The ring is converted to paper millimetres once and handed to the hatch
-    // module's stamper, which is the same code the sheet's own vector shapes
-    // use - so a hatch prints identically whether it came from a site plan
-    // layer or from a rectangle somebody drew over it.
+    // Each face is converted to paper millimetres once - outer ring and holes,
+    // as one run with the hole starts - and handed to the hatch module's
+    // stamper, which is the same code the sheet's own vector shapes use, so a
+    // hatch prints identically whether it came from a site plan layer or from
+    // a rectangle somebody drew over it, and stops at the face's holes the way
+    // a holed vector's hatch does.
     // ------------------------------------------------------------
     function Na__LePdf__DrawSitePlanPatterns(doc, viewport, described, patterns) {
         if (!patterns || patterns.length === 0) return;
-        const win   = described.window;
-        const D     = win.Denominator;
-        const frame = viewport.Viewport__FrameMm;
+        const toPaper = Na__LePdf__SitePlanToPaper(viewport, described);
+        const frame   = viewport.Viewport__FrameMm;
         patterns.forEach((entry) => {
-            entry.rings.forEach((ring) => {
-                if (!ring.outer || !ring.points || ring.points.length < 6) return;
-                const points = [];
-                for (let i = 0; i + 1 < ring.points.length; i += 2) {
-                    points.push([ frame.X + ((ring.points[i] - win.OriginX) / D),
-                                  frame.Y + ((ring.points[i + 1] - win.OriginY) / D) ]);
-                }
+            Na__LeRings__FacesFromRings(entry.rings, toPaper).forEach((face) => {
                 // Clip to the frame as well: a ring can run outside it.
                 const framed = Na__LePdf__BeginClip(doc, frame);
                 try {
-                    Na__LeHatch__DrawPdf(doc, points, {
+                    Na__LeHatch__DrawPdf(doc, face.points, {
                         pattern     : entry.pattern,
                         scale       : entry.scale,
                         rotationDeg : entry.rotationDeg,
                         colour      : entry.colour,
-                        strokePt    : entry.strokePt                              // <-- The layer's own typed line weight, or null for the pattern's standard
+                        strokePt    : entry.strokePt,                             // <-- The layer's own typed line weight, or null for the pattern's standard
+                        holes       : face.holes                                  // <-- The stamper clips even-odd, so the tiles stop at each hole
                     });
                 } finally { Na__LePdf__EndClip(doc, framed); }
             });

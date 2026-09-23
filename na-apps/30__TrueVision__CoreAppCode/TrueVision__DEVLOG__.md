@@ -2,6 +2,116 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.160.0  -  23-Sep-2026
+### A Published or Printed Site Plan Filled In Its Holes: the Lake Got the Field's Grass, the Island Got the Lake's Ripples
+
+**Overview**
+- From Adam, with the live D13 beside the localhost one: "certain hatches are rendering in the wrong order. Can you see
+  here the grass pattern is hatching in front of the water ... That's the grass hatch that shouldn't be there. That
+  should just be the wavy hatches in the blue, but interestingly, image 5 shows the localhost version of the app with
+  it covering it correctly. This shows me that the script that builds out the published version could be the issue."
+- It is not the order. Screen, PDF and publisher all paint the same decks in the same order - every wash by fill
+  Z-index, then every hatch, then the lines. It is the HOLES. RB05's Grassland fill is a face with the lake cut out of
+  it as an inner ring (`Na__SitePlanRing: 'inner'`, three of them on that face), and the Waterbodies face has its
+  island cut out the same way. The screen paints all of a layer's rings as ONE `fill-rule="evenodd"` path
+  (`Na__LeVp2d__RingPathData`), so the hole is bare and the water wash shows through it. The PDF exporter, and the
+  publisher's `SitePlanSvg` that mirrors it, took each face's OUTER ring alone (`if (!ring.outer ...) return`), so
+  the grass hatch was stamped straight across the lake and the ripples across the island. The PDF's own comment
+  admitted it: "a hole in a face is not cut out on paper yet; on screen it is."
+
+**The fix**
+- `Na__LeRings__FacesFromRings(rings, toPoint)` (ShapeRings 1.1.0): the store's rings grouped by face index into the
+  shape a holed vector already carries - one run of points, the outline then each hole, with `holes` naming where
+  each begins. A ring under three corners is dropped; a face with no outer ring is dropped; a ring with no index, or a
+  second outline under one index, is a face of its own. A leaf, so it runs under Node as it runs in the app.
+- The publisher's `Na__LePubVp__SitePlanSvg` (Publish Viewports 1.1.0) and the PDF's `Na__LePdf__DrawSitePlanFills` and
+  `Na__LePdf__DrawSitePlanPatterns` (PdfExporter 1.12.0) push ONE polyline per face with its holes. The polyline
+  primitive already fills a holed shape even-odd on both sides - `fill-rule="evenodd"` on the solid and hatch paths in
+  SVG, `f*` and an even-odd hatch clip in jsPDF - so nothing in the painters changed. `SitePlanSvg` is exported now, so
+  a test can read its markup.
+- The screen is untouched.
+
+**Proof**
+- `Na__Test__SitePlanFaces__.test.mjs` (new): the grouping on hand-built rings (a hole, two faces, a loose ring, a
+  second outline, a ring too short, a face with only holes, the point mapping), and every inner ring of RB05's real
+  fill GLBs landing on a face that has an outline.
+- In the app on RB05's D13: the publisher's `SitePlanSvg` markup now carries the Grassland wash and hatch as a path of
+  four closed subpaths with `fill-rule="evenodd"`, and the Waterbodies wash as two.
+
+**Not done**
+- RB05's D13 (and every published site plan) needs publishing again to reach the web; the files on R2 were baked by
+  the old code. The PDFs downloaded before this carry the same fault.
+- ValeVision has neither the publisher nor Shape__Holes, so nothing to port yet.
+
+**Files**
+- `02__Src__AppModules/51__System__LayoutEditor/15__Core__Markup/Na__LayoutEditor__ShapeRings__.js` (1.1.0)
+- `02__Src__AppModules/51__System__LayoutEditor/65__Feature__DocumentPublishing/Na__LayoutEditor__Publish__Viewports__.js` (1.1.0)
+- `02__Src__AppModules/51__System__LayoutEditor/60__Feature__PdfExport/Na__LayoutEditor__PdfExporter__.js` (1.12.0)
+- `80__Testing__PrototypeEnvironment/Na__Test__SitePlanFaces__.test.mjs` (new)
+- `02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (token 2026-09-23-07,
+  shared with v2.159.0)
+
+# ---------------------------------------------------------
+## TrueVision3D v2.159.0  -  23-Sep-2026
+### A Storey Seam Thirteen Microns Out Drew a Line Across Every Elevation: the Flush-Join Test Now Uses Modelling Tolerance, Not Machine Epsilon
+
+**Overview**
+- From Adam, with D02 marked up: "SketchUp hidden line work is being displayed in the drawing projection ... the
+  projected linework layer seems to be throwing a line here when the line should be hidden ... In the SketchUp model
+  ... these should be marked as hidden, so why are they being shown?"
+- The hidden edges ARE hidden. The GLB Builder skips every hidden, soft and smooth edge, and the linework GLBs carry
+  no edge along the outer face at first floor level - only the inner face's, which the walls occlude. The line is in
+  the VISIBLE class: a mesh crease, found by the projection itself, owned by `Storey__FirstFloor__ProposedWalls` and
+  `Storey__FirstFloor__ProposedFloors`, from x 4.6 m to 27 m at 4.2 m above datum, with the porch hiding it in the
+  middle. The same seam at 3.9 m (ground floor wall top against the slab) drew nothing.
+- WHY 4.2 AND NOT 3.9. The facade at z = -15.0 is three flush faces: the ground floor wall (0 to 3.9), the first floor
+  slab edge (3.9 to 4.2) and the first floor wall (4.2 to 7.2). `Na__PlFlush__CutFlushJoins` cuts a crease where
+  coplanar faces have a side along it on BOTH sides. The slab's top is at y 4.1999998; the first floor wall's bottom is
+  at y 4.2000132 - 0.0000134 m higher. The line test asked for 1e-6 m. The wall's side was 13.4 microns off the slab's
+  edge, so each edge found a face on one side only and both were kept. At 3.9 the two faces differ by 2.4e-7 m and
+  the join was found.
+- WHY NOW. The 20-Sep-2026 export had the first floor wall at 4.1999998 (float32 of 4.2, flush). Every export from
+  21-Sep 22:22 onwards has it at 4.2000132: the storey moved by 13 microns in SketchUp between the two, below SketchUp's
+  own 0.0254 mm tolerance, so nothing in SketchUp shows it. It coincided with the LineworkModifier export refactor
+  (Linework GLB 1.6.0) and read as that; the exporter did not change a position.
+
+**The fix** (`Na__ProjectedLinework__FlushJoins__.js` 1.1.0)
+- `Na__PlFlush__PLANE_TOLERANCE` and `Na__PlFlush__LINE_TOLERANCE` are 1e-4 m (0.1 mm), from 1e-5 and 1e-6. Flush is
+  what the modeller put flush: SketchUp merges points 0.0254 mm apart and the GLB rounds every position to a float32
+  (about 0.000005 m at house scale). 0.1 mm is four times SketchUp's tolerance, twenty times the float32 grain, and a
+  thousandth of a millimetre on paper at 1:100 - no drawable step is lost.
+- `ProjectedLinework__Model__BuildToken` is `2026-09-23-flush-tolerance`, so every baked drawing - R2 asset, IndexedDB
+  copy, pipeline cache - reads as older sampling and renders again under the new rule instead of restoring the seam.
+
+**Proof**
+- On the live soup in the app (RB05 D02, a forced render): with the old tolerances the wall's bottom edge collected one
+  span (its own face, filed minus) and none from the slab, whose side lay 1.34e-5 off; with 0.1 mm both file the whole
+  edge and the overlap is [0, 1] - the edge is cut entire. After the change a fresh render of D02 has no visible-class
+  segment along y = 4.2 m across the house.
+- The finished drawing under the old and the new rule, projected from the SAME collection and soup (the CPU backend
+  imported twice, once pointed at a copy of the old module): the only lines that leave the drawing are the seam's
+  twelve pieces (64.8 m, the walls' and the floors', house and wing) and ten stubs of 40-45 mm at window cills that
+  the SketchUp linework draws anyway; the 32 short segments that arrive (23 m, all fine-detail joinery round the
+  entrance) are every one covered by an authored line already on the page. Total visible length 2040.8 m to 2024.4 m.
+  Before the clip the looser rule also cuts a few roof creases the micron rule kept by float luck; none of them
+  reaches the page, because the authored linework carries them.
+- `Na__Test__FlushJoins__.test.mjs` (new): a hand-built soup of two coplanar rectangles meeting along a line. Flush,
+  and 13.4 microns apart, the seam is cut; 1 mm apart it is kept; a bare outline is kept; a join over half the edge
+  leaves the other half; a face 1 mm in front of the plane does not count.
+
+**Not done**
+- Every baked elevation re-renders on its next open (localhost bakes on save); RB05's published D02 to D05 need
+  publishing again to reach the web.
+- ValeVision has FlushJoins 1.0.0 with the old tolerances and the same fault waiting; port on Adam's sign-off.
+
+**Files**
+- `02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__FlushJoins__.js` (1.1.0)
+- `02__Src__AppModules/50__System__ProjectedLinework/Na__ProjectedLinework__AppConfig__.json` (build token)
+- `80__Testing__PrototypeEnvironment/Na__Test__FlushJoins__.test.mjs` (new)
+- `02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (1.9.46, token
+  2026-09-23-07)
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.158.0  -  23-Sep-2026
 ### The Tab Strip Is Five Tabs: 3D Model, Drawings (a Menu of Every Drawing), Specification, Document Register, Design Statements
 

@@ -86,9 +86,9 @@
             "SitePlan__FolderName": "SitePlan__DrawingData__Existing",
             "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Existing/TrueVision__SitePlanData__Manifest__.json",
             "SitePlan__ExportedIso": "2026-09-22T09:55:57Z",
-            "SitePlan__NorthAngleDeg": 0,
+            "SitePlan__NorthAngleDeg": 0.0,
             "SitePlan__BoundsMm": {
-                "MinX": 250,
+                "MinX": 250.0,
                 "MinZ": -872374.2,
                 "MaxX": 874133.6,
                 "MaxZ": 209575.4
@@ -232,10 +232,10 @@
                     ],
                     "Layer__SegmentCount": 1743,
                     "Layer__BoundsMm": {
-                        "MinX": 500,
+                        "MinX": 500.0,
                         "MinZ": -872374.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -254,7 +254,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -273,7 +273,7 @@
                         "MinX": 4123.7,
                         "MinZ": -872124.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -296,7 +296,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -368,7 +368,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -400,11 +400,11 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                         "FillHex": "#BAE4FD",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__PondsAndLakes"
                     },
                     "Layer__VisibleAtScales": [
@@ -414,10 +414,10 @@
                     ],
                     "Layer__SegmentCount": 1584,
                     "Layer__BoundsMm": {
-                        "MinX": 250,
+                        "MinX": 250.0,
                         "MinZ": -872374.2,
                         "MaxX": 722477.5,
-                        "MaxZ": -35000
+                        "MaxZ": -35000.0
                     }
                 },
                 {
@@ -436,7 +436,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -552,7 +552,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT807__SitePlan__PavingGrey",
                         "FillHex": "#F0EEE9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -588,7 +588,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT804__SitePlan__GrasslandGreen",
                         "FillHex": "#E5F2D6",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__Grassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -624,7 +624,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT805__SitePlan__RoughGrasslandOlive",
                         "FillHex": "#E7EBD9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__RoughGrassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -660,7 +660,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                         "FillHex": "#DCEDCF",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__MixedWoodland"
                     },
                     "Layer__VisibleAtScales": [
@@ -692,7 +692,7 @@
                         "LineType": "dashed",
                         "LineDashScale": 0.5,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -730,7 +730,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -749,7 +749,7 @@
                         "MinX": 133228.2,
                         "MinZ": -379702.3,
                         "MaxX": 499014.8,
-                        "MaxZ": 209561
+                        "MaxZ": 209561.0
                     }
                 },
                 {
@@ -796,13 +796,13 @@
             "SitePlan__StoreId": "proposed",
             "SitePlan__FolderName": "SitePlan__DrawingData__Proposed",
             "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/TrueVision__SitePlanData__Manifest__.json",
-            "SitePlan__ExportedIso": "2026-09-23T18:46:46Z",
-            "SitePlan__NorthAngleDeg": 0,
+            "SitePlan__ExportedIso": "2026-09-23T19:17:52Z",
+            "SitePlan__NorthAngleDeg": 0.0,
             "SitePlan__BoundsMm": {
-                "MinX": 250,
+                "MinX": 250.0,
                 "MinZ": -872374.2,
                 "MaxX": 874133.6,
-                "MaxZ": 0
+                "MaxZ": 0.0
             },
             "SitePlan__Layers": [
                 {
@@ -977,10 +977,10 @@
                     ],
                     "Layer__SegmentCount": 1733,
                     "Layer__BoundsMm": {
-                        "MinX": 500,
+                        "MinX": 500.0,
                         "MinZ": -872374.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -999,7 +999,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -1018,7 +1018,7 @@
                         "MinX": 4123.7,
                         "MinZ": -872124.2,
                         "MaxX": 874133.6,
-                        "MaxZ": -35250
+                        "MaxZ": -35250.0
                     }
                 },
                 {
@@ -1041,7 +1041,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1113,7 +1113,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                         "FillHex": "#E4E4E4",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1145,11 +1145,11 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                         "FillHex": "#BAE4FD",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__PondsAndLakes"
                     },
                     "Layer__VisibleAtScales": [
@@ -1159,10 +1159,10 @@
                     ],
                     "Layer__SegmentCount": 1584,
                     "Layer__BoundsMm": {
-                        "MinX": 250,
+                        "MinX": 250.0,
                         "MinZ": -872374.2,
                         "MaxX": 722477.5,
-                        "MaxZ": -35000
+                        "MaxZ": -35000.0
                     }
                 },
                 {
@@ -1181,11 +1181,11 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                         "FillHex": "#BAE4FD",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1217,7 +1217,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.353,
-                        "LineWeightPt": 1,
+                        "LineWeightPt": 1.0,
                         "FillColourId": null,
                         "FillMaterialId": null,
                         "FillHex": null,
@@ -1233,10 +1233,10 @@
                     ],
                     "Layer__SegmentCount": 94,
                     "Layer__BoundsMm": {
-                        "MinX": 500,
+                        "MinX": 500.0,
                         "MinZ": -872124.2,
                         "MaxX": 874133.6,
-                        "MaxZ": 0
+                        "MaxZ": 0.0
                     }
                 },
                 {
@@ -1267,11 +1267,11 @@
                         200,
                         500
                     ],
-                    "Layer__SegmentCount": 24,
+                    "Layer__SegmentCount": 33,
                     "Layer__BoundsMm": {
                         "MinX": 459402.4,
-                        "MinZ": -457357.9,
-                        "MaxX": 499014.8,
+                        "MinZ": -468214.9,
+                        "MaxX": 509112.4,
                         "MaxZ": -341334.4
                     }
                 },
@@ -1367,7 +1367,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT807__SitePlan__PavingGrey",
                         "FillHex": "#F0EEE9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": null
                     },
                     "Layer__VisibleAtScales": [
@@ -1403,7 +1403,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT804__SitePlan__GrasslandGreen",
                         "FillHex": "#E5F2D6",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__Grassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -1439,7 +1439,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT805__SitePlan__RoughGrasslandOlive",
                         "FillHex": "#E7EBD9",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__RoughGrassland"
                     },
                     "Layer__VisibleAtScales": [
@@ -1475,7 +1475,7 @@
                         "FillColourId": null,
                         "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                         "FillHex": "#DCEDCF",
-                        "FillOpacity": 1,
+                        "FillOpacity": 1.0,
                         "HatchPatternId": "SitePlanHatch__MixedWoodland"
                     },
                     "Layer__VisibleAtScales": [
@@ -1543,7 +1543,7 @@
                         "LineType": "dashed",
                         "LineDashScale": 0.5,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -1581,7 +1581,7 @@
                         "LineType": "solid",
                         "LineDashScale": null,
                         "LineWeightMm": 0.706,
-                        "LineWeightPt": 2,
+                        "LineWeightPt": 2.0,
                         "FillColourId": null,
                         "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                         "FillHex": "#FF0000",
@@ -1597,8 +1597,8 @@
                     ],
                     "Layer__SegmentCount": 66,
                     "Layer__BoundsMm": {
-                        "MinX": 451211,
-                        "MinZ": -469627,
+                        "MinX": 451211.0,
+                        "MinZ": -469627.0,
                         "MaxX": 511366.2,
                         "MaxZ": -287311.2
                     }
@@ -1648,13 +1648,13 @@
         "SitePlan__StoreId": "proposed",
         "SitePlan__FolderName": "SitePlan__DrawingData__Proposed",
         "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/SitePlan__DrawingData__Proposed/TrueVision__SitePlanData__Manifest__.json",
-        "SitePlan__ExportedIso": "2026-09-23T18:46:46Z",
-        "SitePlan__NorthAngleDeg": 0,
+        "SitePlan__ExportedIso": "2026-09-23T19:17:52Z",
+        "SitePlan__NorthAngleDeg": 0.0,
         "SitePlan__BoundsMm": {
-            "MinX": 250,
+            "MinX": 250.0,
             "MinZ": -872374.2,
             "MaxX": 874133.6,
-            "MaxZ": 0
+            "MaxZ": 0.0
         },
         "SitePlan__Layers": [
             {
@@ -1829,10 +1829,10 @@
                 ],
                 "Layer__SegmentCount": 1733,
                 "Layer__BoundsMm": {
-                    "MinX": 500,
+                    "MinX": 500.0,
                     "MinZ": -872374.2,
                     "MaxX": 874133.6,
-                    "MaxZ": -35250
+                    "MaxZ": -35250.0
                 }
             },
             {
@@ -1851,7 +1851,7 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": null,
                     "FillHex": null,
@@ -1870,7 +1870,7 @@
                     "MinX": 4123.7,
                     "MinZ": -872124.2,
                     "MaxX": 874133.6,
-                    "MaxZ": -35250
+                    "MaxZ": -35250.0
                 }
             },
             {
@@ -1893,7 +1893,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                     "FillHex": "#E4E4E4",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -1965,7 +1965,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT806__SitePlan__HardStandingGrey",
                     "FillHex": "#E4E4E4",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -1997,11 +1997,11 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                     "FillHex": "#BAE4FD",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__PondsAndLakes"
                 },
                 "Layer__VisibleAtScales": [
@@ -2011,10 +2011,10 @@
                 ],
                 "Layer__SegmentCount": 1584,
                 "Layer__BoundsMm": {
-                    "MinX": 250,
+                    "MinX": 250.0,
                     "MinZ": -872374.2,
                     "MaxX": 722477.5,
-                    "MaxZ": -35000
+                    "MaxZ": -35000.0
                 }
             },
             {
@@ -2033,11 +2033,11 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT802__SitePlan__WaterBlue",
                     "FillHex": "#BAE4FD",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2069,7 +2069,7 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.353,
-                    "LineWeightPt": 1,
+                    "LineWeightPt": 1.0,
                     "FillColourId": null,
                     "FillMaterialId": null,
                     "FillHex": null,
@@ -2085,10 +2085,10 @@
                 ],
                 "Layer__SegmentCount": 94,
                 "Layer__BoundsMm": {
-                    "MinX": 500,
+                    "MinX": 500.0,
                     "MinZ": -872124.2,
                     "MaxX": 874133.6,
-                    "MaxZ": 0
+                    "MaxZ": 0.0
                 }
             },
             {
@@ -2119,11 +2119,11 @@
                     200,
                     500
                 ],
-                "Layer__SegmentCount": 24,
+                "Layer__SegmentCount": 33,
                 "Layer__BoundsMm": {
                     "MinX": 459402.4,
-                    "MinZ": -457357.9,
-                    "MaxX": 499014.8,
+                    "MinZ": -468214.9,
+                    "MaxX": 509112.4,
                     "MaxZ": -341334.4
                 }
             },
@@ -2219,7 +2219,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT807__SitePlan__PavingGrey",
                     "FillHex": "#F0EEE9",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": null
                 },
                 "Layer__VisibleAtScales": [
@@ -2255,7 +2255,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT804__SitePlan__GrasslandGreen",
                     "FillHex": "#E5F2D6",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__Grassland"
                 },
                 "Layer__VisibleAtScales": [
@@ -2291,7 +2291,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT805__SitePlan__RoughGrasslandOlive",
                     "FillHex": "#E7EBD9",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__RoughGrassland"
                 },
                 "Layer__VisibleAtScales": [
@@ -2327,7 +2327,7 @@
                     "FillColourId": null,
                     "FillMaterialId": "MAT801__SitePlan__WoodlandGreen",
                     "FillHex": "#DCEDCF",
-                    "FillOpacity": 1,
+                    "FillOpacity": 1.0,
                     "HatchPatternId": "SitePlanHatch__MixedWoodland"
                 },
                 "Layer__VisibleAtScales": [
@@ -2395,7 +2395,7 @@
                     "LineType": "dashed",
                     "LineDashScale": 0.5,
                     "LineWeightMm": 0.706,
-                    "LineWeightPt": 2,
+                    "LineWeightPt": 2.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                     "FillHex": "#FF0000",
@@ -2433,7 +2433,7 @@
                     "LineType": "solid",
                     "LineDashScale": null,
                     "LineWeightMm": 0.706,
-                    "LineWeightPt": 2,
+                    "LineWeightPt": 2.0,
                     "FillColourId": null,
                     "FillMaterialId": "MAT803__SitePlan__ProposalRed",
                     "FillHex": "#FF0000",
@@ -2449,8 +2449,8 @@
                 ],
                 "Layer__SegmentCount": 66,
                 "Layer__BoundsMm": {
-                    "MinX": 451211,
-                    "MinZ": -469627,
+                    "MinX": 451211.0,
+                    "MinZ": -469627.0,
                     "MaxX": 511366.2,
                     "MaxZ": -287311.2
                 }
@@ -61804,6 +61804,6 @@
             },
             "North__SetIso": "2026-09-20T17:23:58.084Z"
         },
-        "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T19:04:52.074Z"
+        "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T19:16:56.001Z"
     }
 }

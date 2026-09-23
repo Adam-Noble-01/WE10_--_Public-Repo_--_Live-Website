@@ -55,6 +55,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.1.0
+// - FacesFromRings: the site plan store's rings ({ face, outer, points })
+//   grouped into this module's shape - one run of points per face, the
+//   outline then its holes, with the hole starts - for the PDF exporter and
+//   the document publisher, which paint one polygon at a time and until now
+//   painted each face's OUTER ring only. On RB05 the Grassland face has the
+//   lake as a hole and the lake has its island as one: the published site
+//   plan and the PDF drew grass tufts across the water and ripples across
+//   the island, while the screen (one even-odd path per layer) did not.
+//
 // 22-Sep-2026 - Version 1.0.0
 // - Initial implementation, for the vector tools' Boolean section (Union,
 //   Subtract, Trim, Intersect, Split, Outer Shell), whose results have holes.
@@ -130,6 +140,55 @@
     function Na__LeRings__Split(points, holes) {
         const pts = Array.isArray(points) ? points : [];
         return Na__LeRings__Spans(pts.length, holes).map((span) => pts.slice(span[0], span[1]));
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Site Plan Rings as Faces: Each Outer Ring With Its Holes Behind It
+    // ------------------------------------------------------------
+    // The site plan store hands a layer's fill over as rings, each
+    // { face, outer, points [x, y, x, y, ...] } - a SketchUp face's outer loop
+    // and, sharing its face index, every inner loop it has. The screen paints
+    // all of a layer's rings as one even-odd path, so a lake in a field is a
+    // hole in the field; a consumer that paints one polygon at a time (the
+    // PDF, the publisher) needs the same thing in THIS module's shape: one run
+    // of points per face, the outline first and each hole after it, with the
+    // index where every hole begins - what a holed vector carries, and what
+    // the polyline primitive fills even-odd on screen and on paper alike.
+    // toPoint maps one (x, y) pair into the consumer's space and returns
+    // [x, y]. A ring with fewer than three corners is left out; a face with no
+    // outer ring is left out whole; a ring with no face index, or a second
+    // outer ring under one index, is a face of its own. Returns
+    // [ { points : [[x, y], ...], holes : [index, ...] } ], holes empty on a
+    // face without one, in the order the faces were first met.
+    // ------------------------------------------------------------
+    function Na__LeRings__FacesFromRings(rings, toPoint) {
+        const map = (typeof toPoint === 'function') ? toPoint : ((x, y) => [ x, y ]);
+        const faces = [];
+        const byId  = new Map();
+        (Array.isArray(rings) ? rings : []).forEach((ring) => {
+            if (!ring || !ring.points || ring.points.length < Na__LeRings__MIN_POINTS * 2) return;
+            const points = [];
+            for (let i = 0; i + 1 < ring.points.length; i += 2) points.push(map(ring.points[i], ring.points[i + 1]));
+            if (points.length < Na__LeRings__MIN_POINTS) return;
+            const isOuter = ring.outer !== false;
+            const id      = Number.isInteger(ring.face) ? ring.face : null;
+            let face = id === null ? null : byId.get(id);
+            if (!face || (isOuter && face.outer)) {                                // <-- A face of its own: no index, or a second outline under one
+                face = { outer : null, inner : [] };
+                faces.push(face);
+                if (id !== null && !byId.has(id)) byId.set(id, face);
+            }
+            if (isOuter) face.outer = points; else face.inner.push(points);
+        });
+        return faces
+            .filter((face) => face.outer)
+            .map((face) => {
+                const points = face.outer.slice();
+                const holes  = [];
+                face.inner.forEach((ring) => { holes.push(points.length); ring.forEach((p) => points.push(p)); });
+                return { points : points, holes : holes };
+            });
     }
     // ------------------------------------------------------------
 
@@ -309,6 +368,7 @@
         Na__LeRings__Has,
         Na__LeRings__Spans,
         Na__LeRings__Split,
+        Na__LeRings__FacesFromRings,
         Na__LeRings__Flatten,
         Na__LeRings__RingAt,
         Na__LeRings__Next,

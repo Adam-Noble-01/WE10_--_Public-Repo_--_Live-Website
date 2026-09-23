@@ -117,7 +117,7 @@
 
     "ProjectedLinework__Model__Config": {
         "ProjectedLinework__Model__Description": "BuildToken is folded into every fingerprint. Bump it whenever the way the model is sampled changes (a new helper skipped, glass treated differently, the cut clipping corrected, the edge rule switched) so every baked asset reads as belonging to an older sampling and is re-rendered rather than restored. Transparent materials draw their own edges but never hide what is behind them, unless the drawing's Glass Transparency Off style is on, in which case they occlude like walls.",
-        "ProjectedLinework__Model__BuildToken": "2026-09-21-storey-swings",
+        "ProjectedLinework__Model__BuildToken": "2026-09-23-flush-tolerance",
         "ProjectedLinework__Model__TransparentOccludes": false,
         "ProjectedLinework__Model__TransparentOpacityBelow": 0.999
     },

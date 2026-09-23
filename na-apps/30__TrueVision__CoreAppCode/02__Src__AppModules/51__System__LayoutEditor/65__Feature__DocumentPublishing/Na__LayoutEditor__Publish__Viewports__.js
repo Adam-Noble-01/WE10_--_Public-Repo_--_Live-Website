@@ -33,7 +33,9 @@
 // - SITE PLANS HAVE NO RENDERED PICTURE. Their fills and hatches are vector
 //   data, so they are built as the editor's own primitives, rasterised once here
 //   at print size into the picture, and the linework goes over them as for any
-//   other drawing.
+//   other drawing. Each face is one primitive carrying its holes, filled
+//   even-odd, so a lake in a field is left bare of the field's wash and hatch
+//   exactly as the screen leaves it.
 // - ONE HASH NAMES EVERY FILE OF A VIEWPORT, taken over ALL of that viewport's
 //   baked bytes. Any change anywhere - a line, a tier, the mask - gives every
 //   file a new name, so a name can never mean two different files and all of
@@ -42,6 +44,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.1.0
+// - SitePlanSvg paints each site plan face as ONE holed polyline (outer ring
+//   plus its inner rings, through Na__LeRings__FacesFromRings), filled
+//   even-odd, instead of each face's outer ring alone. RB05's published D13
+//   showed the Grassland tufts across the lake and the water ripples across
+//   the island, which the screen - one even-odd path per layer - never did.
+//   SitePlanSvg is now exported so a test can read its markup.
+//
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phase 4 of TrueVision__PLAN__PublishingSystem__.md.
 //
@@ -56,6 +66,7 @@
     import { Na__LeModel__KIND_2D, Na__LeModel__IsSitePlanViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeChrome__BuildViewportFrame, Na__LeChrome__PushPolyline, Na__LeChrome__ToSvgMarkup } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetChrome__.js';
     import { Na__LeMarkup__BuildScenePrimitives } from '../15__Core__Markup/Na__LayoutEditor__MarkupBridge__.js';
+    import { Na__LeRings__FacesFromRings } from '../15__Core__Markup/Na__LayoutEditor__ShapeRings__.js';
     import {
         Na__LeVp2d__Describe, Na__LeVp2d__EnsureLinework, Na__LeVp2d__RenderForExport,
         Na__LeVp2d__RenderFogForExport, Na__LeVp2d__StyleBands, Na__LeVp2d__SitePlanDrawing
@@ -191,31 +202,31 @@
     // (neither is exported), building the SAME primitives and handing them to
     // the editor's own SVG converter - the hatch through the same Hatch block a
     // vector shape carries, so it paints with the same pattern code.
+    // ONE PRIMITIVE PER FACE, HOLES AND ALL. A face's rings come from the store
+    // as its outer loop and its inner loops; the screen paints them as one
+    // even-odd path, so a lake is a hole in the field. FacesFromRings gives the
+    // same face as one holed polyline, which the converter fills even-odd -
+    // the wash and the hatch alike stop at every hole. Painting the outer ring
+    // alone (as this did until 1.1.0) hatched grass across the lake and
+    // ripples across its island.
     // ------------------------------------------------------------
     function Na__LePubVp__SitePlanSvg(viewport, described, drawing) {
         const win   = described.window;
         const D     = win.Denominator;
         const frame = viewport.Viewport__FrameMm;
         const primitives = [];
-        const toLocal = (ring) => {
-            const points = [];
-            for (let i = 0; i + 1 < ring.points.length; i += 2) {
-                points.push([ (ring.points[i] - win.OriginX) / D, (ring.points[i + 1] - win.OriginY) / D ]);
-            }
-            return points;
-        };
+        const toLocal = (x, y) => [ (x - win.OriginX) / D, (y - win.OriginY) / D ];
         (drawing.fills || []).forEach((fill) => {
-            (fill.rings || []).forEach((ring) => {
-                if (!ring.outer || !ring.points || ring.points.length < 6) return;
-                Na__LeChrome__PushPolyline(primitives, toLocal(ring), null, 0, fill.hex, true, null, { fillOpacity : fill.opacity });
+            Na__LeRings__FacesFromRings(fill.rings, toLocal).forEach((face) => {
+                Na__LeChrome__PushPolyline(primitives, face.points, null, 0, fill.hex, true, null, { fillOpacity : fill.opacity, holes : face.holes });
             });
         });
         (drawing.patterns || []).forEach((entry) => {
             const key = entry.pattern && entry.pattern.Pattern__Key;
             if (!key) return;
-            (entry.rings || []).forEach((ring) => {
-                if (!ring.outer || !ring.points || ring.points.length < 6) return;
-                Na__LeChrome__PushPolyline(primitives, toLocal(ring), null, 0, null, true, null, {
+            Na__LeRings__FacesFromRings(entry.rings, toLocal).forEach((face) => {
+                Na__LeChrome__PushPolyline(primitives, face.points, null, 0, null, true, null, {
+                    holes : face.holes,
                     hatch : { Hatch__PatternKey : key, Hatch__Scale : entry.scale, Hatch__RotationDeg : entry.rotationDeg,
                               Hatch__Colour : entry.colour, Hatch__StrokePt : entry.strokePt }
                 });
@@ -438,7 +449,8 @@
 
     export {
         Na__LePubVp__Bake,
-        Na__LePubVp__LineworkSvg
+        Na__LePubVp__LineworkSvg,
+        Na__LePubVp__SitePlanSvg
     };
     // ------------------------------------------------------------
 
