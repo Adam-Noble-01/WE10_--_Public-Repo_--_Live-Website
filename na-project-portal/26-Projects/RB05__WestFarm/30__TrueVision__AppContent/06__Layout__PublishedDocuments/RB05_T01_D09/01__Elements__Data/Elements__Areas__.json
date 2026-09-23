@@ -1,0 +1,201 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Areas__.json",
+        "Meta__Kind"      : "area",
+        "Meta__LayerType" : "area",
+        "Meta__Document"  : "RB05_T01_D09",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Areas" : [
+        {
+            "Shape__Id"      : "Shape_029",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    103.17224202185426,
+                    224.49655427902724
+                ],
+                [
+                    103.17224202185426,
+                    150.4965542790272
+                ],
+                [
+                    153.07224202185427,
+                    150.4965542790272
+                ],
+                [
+                    153.07224202185427,
+                    224.49655427902724
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efbed8",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Boot Room",
+                "Area__Group"     : "Ground Floor - Coach House",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Boot Room"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_030",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    154.57224202185427,
+                    150.4965542790272
+                ],
+                [
+                    220.22224202185427,
+                    150.4965542790272
+                ],
+                [
+                    220.22224202185427,
+                    224.49655427902724
+                ],
+                [
+                    154.57224202185427,
+                    224.49655427902724
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#bcd9ee",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Back Kitchen",
+                "Area__Group"     : "Ground Floor - Coach House",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Back Kitchen"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_031",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    221.72224202185427,
+                    150.4965542790272
+                ],
+                [
+                    221.72224202185427,
+                    224.49655427902724
+                ],
+                [
+                    265.47224202185424,
+                    224.49655427902724
+                ],
+                [
+                    265.47224202185424,
+                    230.49655427902724
+                ],
+                [
+                    272.97224202185424,
+                    230.49655427902724
+                ],
+                [
+                    272.9722420218543,
+                    144.4965542790272
+                ],
+                [
+                    265.4722420218543,
+                    144.4965542790272
+                ],
+                [
+                    265.4722420218543,
+                    150.4965542790272
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#beefc6",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Laundry Room",
+                "Area__Group"     : "Ground Floor - Coach House",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Laundry Room"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_032",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    398.7222420218543,
+                    224.49655427902724
+                ],
+                [
+                    317.9722420218543,
+                    224.49655427902724
+                ],
+                [
+                    317.9722420218543,
+                    230.49655427902724
+                ],
+                [
+                    310.4722420218543,
+                    230.49655427902724
+                ],
+                [
+                    310.4722420218543,
+                    144.4965542790272
+                ],
+                [
+                    317.9722420218543,
+                    144.4965542790272
+                ],
+                [
+                    317.9722420218543,
+                    150.4965542790272
+                ],
+                [
+                    398.7222420218543,
+                    150.4965542790272
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#e4efbe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Store Room",
+                "Area__Group"     : "Ground Floor - Coach House",
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Store Room"
+            }
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_005" : "<path d=\"M103.172 224.497L103.172 150.497L153.072 150.497L153.072 224.497Z\" fill=\"#efbed8\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"128.122\" y=\"187.155\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Boot Room</text><text x=\"128.122\" y=\"189.567\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">36.93 m²</text><path d=\"M154.572 150.497L220.222 150.497L220.222 224.497L154.572 224.497Z\" fill=\"#bcd9ee\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"187.397\" y=\"187.155\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Back Kitchen</text><text x=\"187.397\" y=\"189.567\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">48.58 m²</text><path d=\"M221.722 150.497L221.722 224.497L265.472 224.497L265.472 230.497L272.972 230.497L272.972 144.497L265.472 144.497L265.472 150.497Z\" fill=\"#beefc6\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"247.347\" y=\"187.155\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Laundry Room</text><text x=\"247.347\" y=\"189.567\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">38.83 m²</text><path d=\"M398.722 224.497L317.972 224.497L317.972 230.497L310.472 230.497L310.472 144.497L317.972 144.497L317.972 150.497L398.722 150.497Z\" fill=\"#e4efbe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"354.597\" y=\"187.155\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Store Room</text><text x=\"354.597\" y=\"189.567\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">66.21 m²</text>"
+    },
+    "Elements__AreaGroups" : [
+        {
+            "AreaGroup__Name"   : "Ground Floor - Coach House",
+            "AreaGroup__Colour" : "#bcd9ee"
+        }
+    ]
+}

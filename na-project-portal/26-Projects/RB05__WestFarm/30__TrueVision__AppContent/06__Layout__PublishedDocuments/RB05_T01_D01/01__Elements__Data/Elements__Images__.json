@@ -52,19 +52,19 @@
             "Shape__LayerId" : "Layer_006",
             "Shape__Points"  : [
                 [
-                    25,
+                    24,
                     153.8253674976861
                 ],
                 [
-                    217.31045778189136,
+                    216.31045778189136,
                     153.8253674976861
                 ],
                 [
-                    217.31045778189136,
+                    216.31045778189136,
                     262
                 ],
                 [
-                    25,
+                    24,
                     262
                 ]
             ],
@@ -88,6 +88,6 @@
         }
     ],
     "Elements__LayerSvg" : {
-        "Layer_006" : "<g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" viewBox=\"0 0 3840 2160\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"3840\" height=\"2160\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__f305e28510.webp\"/></svg><rect x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g><g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"25\" y=\"153.825\" width=\"192.31\" height=\"108.175\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"25\" y=\"153.825\" width=\"192.31\" height=\"108.175\" viewBox=\"0 0 3840 2160\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"3840\" height=\"2160\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__0a982a8998.webp\"/></svg><rect x=\"25\" y=\"153.825\" width=\"192.31\" height=\"108.175\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g>"
+        "Layer_006" : "<g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" viewBox=\"0 0 3840 2160\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"3840\" height=\"2160\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V10__FrontFascade__SouthElevation__28-Aug-2026__f305e28510.webp\"/></svg><rect x=\"112.6\" y=\"24\" width=\"196.4\" height=\"110.475\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g><g data-na-picture=\"1\"><defs><filter id=\"naLeImgShadow_55406cbe_10\" x=\"-10%\" y=\"-10%\" width=\"120%\" height=\"120%\" color-interpolation-filters=\"sRGB\"><feDropShadow dx=\"0\" dy=\"0.9\" stdDeviation=\"1.6\" flood-color=\"#1f1d18\" flood-opacity=\"0.3\"/></filter></defs><rect x=\"24\" y=\"153.825\" width=\"192.31\" height=\"108.175\" fill=\"#ffffff\" stroke=\"none\" filter=\"url(#naLeImgShadow_55406cbe_10)\"/><svg x=\"24\" y=\"153.825\" width=\"192.31\" height=\"108.175\" viewBox=\"0 0 3840 2160\" preserveAspectRatio=\"none\" overflow=\"hidden\"><image x=\"0\" y=\"0\" width=\"3840\" height=\"2160\" preserveAspectRatio=\"none\" href=\"na-published:/../05__Layout__DrawingDocs__Images/RB05_T01_D01/RB03_T01_V11__RearCgi__NorthElevation__29-Aug-2026__0a982a8998.webp\"/></svg><rect x=\"24\" y=\"153.825\" width=\"192.31\" height=\"108.175\" fill=\"none\" stroke=\"#555041\" stroke-width=\"0.529\"/></g>"
     }
 }

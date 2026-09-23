@@ -1,0 +1,26 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D14",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_001"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_001"
+                }
+            ],
+            "Group__Id" : "Group_001"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

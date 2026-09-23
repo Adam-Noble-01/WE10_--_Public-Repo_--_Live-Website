@@ -1,0 +1,227 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D12",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_023"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_024"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_025"
+                }
+            ],
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_050"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_051"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_052"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_053"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_054"
+                }
+            ],
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "group",
+                    "id"   : "Group_002"
+                },
+                {
+                    "kind" : "group",
+                    "id"   : "Group_003"
+                }
+            ],
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_055"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_056"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_057"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_058"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_059"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_060"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_061"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_062"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_063"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_064"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_065"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_066"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_067"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_068"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_069"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_070"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_071"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_072"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_073"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_074"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_027"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_028"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_029"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_030"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_031"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_032"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_033"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_034"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_035"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_036"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ScaleBar",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 1250,
+                    "DivisionMm"       : 25000,
+                    "Divisions"        : 10,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 5000,
+                    "Units"            : "m",
+                    "ShowUnits"        : false
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_002",
+                    "Link__ViewportId" : "Viewport_001"
+                }
+            },
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_075"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_037"
+                }
+            ],
+            "Group__Id" : "Group_006"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

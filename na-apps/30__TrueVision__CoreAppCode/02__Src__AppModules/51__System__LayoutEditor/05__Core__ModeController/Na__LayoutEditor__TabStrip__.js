@@ -6,21 +6,21 @@
 // NAMESPACE  : Na__LeTabs
 // MODULE     : Layout Editor - Tab Strip
 // AUTHOR     : Adam Noble - Noble Architecture
-// PURPOSE    : The row of tabs under the header: 3D Model, Drawings (a menu of every drawing), Document Register, Design Statements
+// PURPOSE    : The row of tabs under the header: 3D Model, Drawings (a menu of every drawing), Specification, Document Register, Design Statements
 // CREATED    : 09-Sep-2026
 //
 // DESCRIPTION:
-// - FOUR TABS, HOWEVER LARGE THE PACK. 3D Model | Drawings | Document Register
-//   | Design Statements. The strip used to carry one tab per drawing, so a
-//   fourteen-drawing pack put the register and the statements off the side of
-//   the screen and a reader scrolled the whole pack to reach them. The
-//   drawings now live in a MENU under the Drawings tab, in the register's
-//   order, each read as "D03 - 3D Images" (Na__LeModel__GetTabLabel) with the
-//   whole drawing number on its hover; the open drawing is marked; the Project
-//   Specification sits at the foot of the list, as it is the drawings' own
-//   notes; and on localhost the last row makes a new sheet. Every tab reads
-//   the same as its neighbours (Adam: a mark on one tab reads as "more
-//   important"), and the menu is the pattern the header's own menus use.
+// - FIVE TABS, HOWEVER LARGE THE PACK. 3D Model | Drawings | Specification |
+//   Document Register | Design Statements. The strip used to carry one tab
+//   per drawing, so a fourteen-drawing pack put the register and the
+//   statements off the side of the screen and a reader scrolled the whole
+//   pack to reach them. The drawings now live in a MENU under the Drawings
+//   tab, in the register's order, each read as "D03 - 3D Images"
+//   (Na__LeModel__GetTabLabel) with the whole drawing number on its hover; the
+//   open drawing is marked; and on localhost the last row makes a new sheet.
+//   Every tab reads the same as its neighbours (Adam: a mark on one tab reads
+//   as "more important"), and the menu is the pattern the header's own menus
+//   use.
 // - THE STRIP SHOWS ONLY WHAT THE PROJECT HAS. Shown whenever the project has
 //   a drawing sheet; a project with a 3D model and no drawings shows no strip
 //   at all (Adam: "keeps concept-only jobs simple, keeping the UI less
@@ -30,11 +30,13 @@
 //   so the canvas, menus, breadcrumb and carousel shift down by the same
 //   amount.
 // - WHICH TAB IS THE OPEN ONE. 3D Model while the editor is shut; Drawings
-//   while a sheet is up, or the Project Specification over it; Document
-//   Register and Design Statements while their pages are up. Pressing Drawings
-//   opens or shuts its menu and never leaves the drawing already open; a row
-//   of the menu opens that drawing. The document tabs open from the 3D view
+//   while a sheet is up; Specification, Document Register and Design
+//   Statements while their pages are up over it. Pressing Drawings opens or
+//   shuts its menu and never leaves the drawing already open; a row of the
+//   menu opens that drawing. The document tabs open from the 3D view
 //   directly: the mode controller opens the first sheet underneath them.
+//   The Specification tab carries the amber dot while the specification
+//   holds changes the cloud has not got, as it always did.
 // - THE SAME TABS EVERYWHERE, EDITOR OR WEB VIEWER. What a viewer loses is the
 //   new-sheet row, which it never had; the row of documents is the row of
 //   documents. Renaming and reordering drawings is the Document Register's
@@ -61,19 +63,19 @@
 //
 // DEVELOPMENT LOG:
 // 23-Sep-2026 - Version 2.0.0
-// - THE COMPACT STRIP, from Adam's mockup: 3D Model | Drawings | Document
-//   Register | Design Statements. One tab per drawing is gone; the Drawings tab
-//   opens a menu of every drawing (the register's order, the open one marked,
-//   the whole number on the hover), then the Project Specification, then on
-//   localhost a New sheet row in place of the old + tab. "Drawing Register"
-//   reads "Document Register" (Adam: to tell it from the drawings), and
-//   "Statements" reads "Design Statements" (there is room now).
+// - THE COMPACT STRIP, from Adam's mockup and his order: 3D Model | Drawings
+//   | Specification | Document Register | Design Statements. One tab per
+//   drawing is gone; the Drawings tab opens a menu of every drawing (the
+//   register's order, the open one marked, the whole number on the hover),
+//   then on localhost a New sheet row in place of the old + tab. "Drawing
+//   Register" reads "Document Register" (Adam: to tell it from the drawings),
+//   and "Statements" reads "Design Statements" (there is room now); the
+//   specification tab reads "Specification" (Adam: "Project specification
+//   needs to be on the top bar as well").
 // - The strip is shown only while the project has a drawing sheet - never as
 //   an empty placeholder on a concept-only job, and no longer on localhost
 //   just to offer a +. The document tabs are there from the 3D view, not only
 //   once a drawing is open, so the register is one press away.
-// - The specification's amber unsynced dot moves with the specification: on
-//   its menu row, and on the Drawings tab while the menu is shut.
 // - Rename on double-click and reorder by drag are gone from the strip (the
 //   Document Register and the Sheet panel do both); the arrows step tabs, and
 //   landing on Drawings opens a drawing rather than the menu.
@@ -309,7 +311,7 @@
         Na__LeTabs__Signature = Na__LeTabs__Sig();                              // <-- Recorded by every build, direct or gated, so the gate can never go stale
         const sheets   = Na__LeModel__GetSheets();
         const view     = Na__LeMode__IsActive() ? Na__LeMode__GetView() : null;
-        const onSheet  = view === Na__LeMode__VIEW_SHEET || view === Na__LeMode__VIEW_SPEC;   // <-- The specification lies over the sheet: still the Drawings tab
+        const onSheet  = view === Na__LeMode__VIEW_SHEET;                       // <-- A document page over the sheet is its own tab, not Drawings
         const active   = onSheet ? Na__LeModel__GetActiveSheet() : null;
         const visible  = Na__LeCfg__IsEnabled() && sheets.length > 0;          // <-- No drawings, no strip: a concept-only job shows the model alone
         Na__LeTabs__Scroller.innerHTML = '';
@@ -324,13 +326,6 @@
         drawings.setAttribute('aria-haspopup', 'menu');
         drawings.setAttribute('aria-expanded', 'false');
         drawings.setAttribute('aria-controls', Na__LeTabs__MENU_ID);
-        const unsynced = Na__LeSpec__IsDirty();
-        if (unsynced) {
-            const dot = document.createElement('span');                         // <-- The specification's amber dot, while its row is out of sight in the menu
-            dot.className = 'na-le-tabs__dot';
-            dot.title     = Na__LeCfg__GetLabel('SpecificationTabUnsynced', 'Project Specification - changes kept in this browser, not yet synced');
-            drawings.appendChild(dot);
-        }
         const caret = document.createElement('span');
         caret.className   = 'na-le-tabs__caret';
         caret.textContent = '▾';
@@ -345,6 +340,15 @@
             : Na__LeCfg__GetLabel('DrawingsTabTitle', 'The drawings of this project. Press to choose one');
         Na__LeTabs__Activate.set(drawings, () => { Na__LeTabs__CloseMenu(false); Na__LeMode__Enter(active ? active.Sheet__Id : null); });
         Na__LeTabs__Scroller.appendChild(drawings);
+
+        // SPECIFICATION | Every drawing note of the project, over the sheet; amber while unsynced
+        const unsynced = Na__LeSpec__IsDirty();
+        const spec = Na__LeTabs__Tab(Na__LeCfg__GetLabel('SpecificationTab', 'Specification'), view === Na__LeMode__VIEW_SPEC, () => Na__LeMode__OpenSpecification(),
+            'na-le-tabs__tab--specification' + (unsynced ? ' na-le-tabs__tab--unsynced' : ''));   // <-- The dot rule is the specification's own (Styles__Specification__)
+        spec.title = unsynced
+            ? Na__LeCfg__GetLabel('SpecificationTabUnsynced', 'Project Specification - changes kept in this browser, not yet synced')
+            : Na__LeCfg__GetLabel('SpecificationTabTitle', 'Every drawing note of the project, grouped and numbered');
+        Na__LeTabs__Scroller.appendChild(spec);
 
         // DOCUMENT REGISTER | The pack's numbers, revisions and status
         const register = Na__LeTabs__Tab(Na__LeCfg__GetLabel('RegisterTab', 'Document Register'), view === Na__LeMode__VIEW_REGISTER, () => Na__LeMode__OpenRegister(), 'na-le-tabs__tab--register');
@@ -458,12 +462,11 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Fill the Menu: Every Drawing, the Specification, New Sheet
+    // HELPER FUNCTION | Fill the Menu: Every Drawing, Then New Sheet
     // ------------------------------------------------------------
     // The drawings in the register's order, each as its tab used to read; the
-    // open one marked. The specification is the drawings' notes, so it sits
-    // at the foot of them rather than in the strip. The new-sheet row is the
-    // old + tab, and only where a sheet can be made.
+    // open one marked. The new-sheet row is the old + tab, and only where a
+    // sheet can be made.
     // ------------------------------------------------------------
     function Na__LeTabs__FillMenu() {
         const menu = Na__LeTabs__BuildMenu();
@@ -480,16 +483,6 @@
             if (hover.length) row.title = hover.join('. ');                      // <-- The whole drawing number, and what kind of drawing it is
             menu.appendChild(row);
         });
-
-        // PROJECT SPECIFICATION | Every drawing note of the project
-        menu.appendChild(Na__LeTabs__MenuDivider());
-        const unsynced = Na__LeSpec__IsDirty();
-        const spec = Na__LeTabs__MenuRow(Na__LeCfg__GetLabel('SpecificationTab', 'Project Specification'), view === Na__LeMode__VIEW_SPEC, () => Na__LeMode__OpenSpecification(),
-            'na-le-tabs__menu-row--spec' + (unsynced ? ' na-le-tabs__tab--unsynced' : ''));   // <-- The specification's own amber dot rule
-        spec.title = unsynced
-            ? Na__LeCfg__GetLabel('SpecificationTabUnsynced', 'Project Specification - changes kept in this browser, not yet synced')
-            : Na__LeCfg__GetLabel('SpecificationTabTitle', 'Every drawing note of the project, grouped and numbered');
-        menu.appendChild(spec);
 
         // NEW SHEET | Where the + tab was, and only where a sheet can be made
         if (Na__LeMode__IsEditable()) {

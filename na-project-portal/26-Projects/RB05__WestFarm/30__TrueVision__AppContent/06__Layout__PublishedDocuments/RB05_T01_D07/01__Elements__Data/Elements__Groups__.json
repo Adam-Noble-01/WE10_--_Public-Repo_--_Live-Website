@@ -1,0 +1,1162 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D07",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_001"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_001"
+                }
+            ],
+            "Group__Id" : "Group_001"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_002"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_003"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_004"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_005"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_006"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_007"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_008"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_009"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_010"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_011"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_012"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_013"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_014"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_015"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_016"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_017"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_018"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_019"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_020"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_021"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_022"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_002"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_003"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_004"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_005"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_006"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_007"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_008"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_009"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_010"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_011"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_012"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_013"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 100,
+                    "DivisionMm"       : 2000,
+                    "Divisions"        : 10,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 500,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "plan",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "First Floor Plan",
+                    "ViewName"         : "",
+                    "ViewDrawing"      : "First Floor Plan"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_007",
+                    "Link__ViewportId" : "Viewport_001"
+                }
+            },
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_023"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_024"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_025"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_014"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_015"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_016"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_017"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_018"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_019"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_020"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ProjectQr",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "SizeMm"      : 20,
+                    "Form"        : "compact",
+                    "BodyWidthMm" : 95,
+                    "ProjectName" : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_041"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_042"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_043"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_065"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_066"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_067"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_068"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_069"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_070"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_071"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_072"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_073"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_074"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_075"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_076"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_077"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_078"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_021"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_022"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_023"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_024"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_025"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_068"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_069"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_070"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_071"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_072"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_073"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_074"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_075"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_076"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_077"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_078"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_079"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_080"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_081"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_082"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_083"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_084"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_085"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_086"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_087"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_088"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_089"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_090"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_091"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_092"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_093"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_094"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"       : "areas",
+                    "Group"      : "First Floor - Main House",
+                    "ShowGroups" : true,
+                    "ShowTotal"  : true,
+                    "ShowSwatch" : true,
+                    "Units"      : "m2",
+                    "Decimals"   : 2,
+                    "TitleText"  : "",
+                    "WidthMm"    : 76,
+                    "TextSizeMm" : 2.4,
+                    "Data"       : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Bedroom 02",
+                                "AreaM2" : 38.18939,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#efdfbe"
+                            },
+                            {
+                                "Name"   : "Wardrobe",
+                                "AreaM2" : 6.902,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#ebefbe"
+                            },
+                            {
+                                "Name"   : "Bed-03 Ensuite",
+                                "AreaM2" : 8.085,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#beefc3"
+                            },
+                            {
+                                "Name"   : "Wardrobe",
+                                "AreaM2" : 4.59375,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#e9efbe"
+                            },
+                            {
+                                "Name"   : "Bedroom 03",
+                                "AreaM2" : 27.471688,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#efbee6"
+                            },
+                            {
+                                "Name"   : "Grand Stairwell",
+                                "AreaM2" : 51.214506,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Family Bathroom",
+                                "AreaM2" : 34.174625,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#c8efbe"
+                            },
+                            {
+                                "Name"   : "Master Ensuite",
+                                "AreaM2" : 36.470441,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Master Bedroom",
+                                "AreaM2" : 57.81,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#d6beef"
+                            },
+                            {
+                                "Name"   : "Master Suite Atrium",
+                                "AreaM2" : 18.997791,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#beefce"
+                            },
+                            {
+                                "Name"   : "Master Dressing Room",
+                                "AreaM2" : 35.792861,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#efbec3"
+                            },
+                            {
+                                "Name"   : "W/C",
+                                "AreaM2" : 2.425,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Bed-02 Ensuite",
+                                "AreaM2" : 8.26,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Balcony",
+                                "AreaM2" : 49.38443,
+                                "Colour" : "#f5fffe"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "First Floor - Main House",
+                                "AreaM2" : 330.387051,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 13
+                            }
+                        ],
+                        "TotalM2" : 379.771481
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_062"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_063"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_064"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_079"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_080"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_081"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_082"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_083"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_084"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_085"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_086"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_087"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_088"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_089"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_090"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_091"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_092"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_062"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_063"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_064"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_065"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_066"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_067"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_095"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_096"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_097"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_098"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_099"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_100"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_101"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_102"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_103"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_104"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_105"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_106"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_107"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_108"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_109"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_110"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_111"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_112"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_113"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_114"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_115"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_116"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_117"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_118"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_119"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_120"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_121"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"       : "areas",
+                    "Group"      : "First Floor - Main House",
+                    "ShowGroups" : true,
+                    "ShowTotal"  : true,
+                    "ShowSwatch" : true,
+                    "Units"      : "ft2",
+                    "Decimals"   : 2,
+                    "TitleText"  : "",
+                    "WidthMm"    : 76,
+                    "TextSizeMm" : 2.4,
+                    "Data"       : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Bedroom 02",
+                                "AreaM2" : 38.18939,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#efdfbe"
+                            },
+                            {
+                                "Name"   : "Wardrobe",
+                                "AreaM2" : 6.902,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#ebefbe"
+                            },
+                            {
+                                "Name"   : "Bed-03 Ensuite",
+                                "AreaM2" : 8.085,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#beefc3"
+                            },
+                            {
+                                "Name"   : "Wardrobe",
+                                "AreaM2" : 4.59375,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#e9efbe"
+                            },
+                            {
+                                "Name"   : "Bedroom 03",
+                                "AreaM2" : 27.471688,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#efbee6"
+                            },
+                            {
+                                "Name"   : "Grand Stairwell",
+                                "AreaM2" : 51.214506,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Family Bathroom",
+                                "AreaM2" : 34.174625,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#c8efbe"
+                            },
+                            {
+                                "Name"   : "Master Ensuite",
+                                "AreaM2" : 36.470441,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Master Bedroom",
+                                "AreaM2" : 57.81,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#d6beef"
+                            },
+                            {
+                                "Name"   : "Master Suite Atrium",
+                                "AreaM2" : 18.997791,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#beefce"
+                            },
+                            {
+                                "Name"   : "Master Dressing Room",
+                                "AreaM2" : 35.792861,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#efbec3"
+                            },
+                            {
+                                "Name"   : "W/C",
+                                "AreaM2" : 2.425,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Bed-02 Ensuite",
+                                "AreaM2" : 8.26,
+                                "Group"  : "First Floor - Main House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Balcony",
+                                "AreaM2" : 49.38443,
+                                "Colour" : "#f5fffe"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "First Floor - Main House",
+                                "AreaM2" : 330.387051,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 13
+                            }
+                        ],
+                        "TotalM2" : 379.771481
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_095"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_096"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_097"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_098"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_123"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 8.25,
+                    "HeightMm"    : 47.5,
+                    "Label"       : "Wardrobes",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : true
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_006"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_099"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_100"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_101"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_102"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_124"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 19.4,
+                    "HeightMm"    : 7,
+                    "Label"       : "Wardrobes",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : true
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_007"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_103"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_104"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_105"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_106"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_125"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 6.1,
+                    "HeightMm"    : 18.6615,
+                    "Label"       : "Wardrobes",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : true
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_008"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_107"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_108"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_109"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_110"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_126"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 14.95,
+                    "HeightMm"    : 4,
+                    "Label"       : "Shelving",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : true
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_009"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_111"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_112"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_113"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_114"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_127"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 14.95,
+                    "HeightMm"    : 4,
+                    "Label"       : "Shelving",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : true
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_010"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_115"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_116"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_117"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_118"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_128"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 28,
+                    "HeightMm"    : 7.25,
+                    "Label"       : "Wardrobes",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : true
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_011"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_119"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_120"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_121"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_122"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_129"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "CabinetInfill",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "WidthMm"     : 18.75,
+                    "HeightMm"    : 6.75,
+                    "Label"       : "Wardrobes",
+                    "LabelText"   : "",
+                    "Orientation" : "auto",
+                    "TextSizeMm"  : 2.1167,
+                    "Fill"        : true
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_012"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

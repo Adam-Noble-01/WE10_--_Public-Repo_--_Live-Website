@@ -1,0 +1,187 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName" : "Elements__Viewports__.json",
+        "Meta__Kind"     : "viewport",
+        "Meta__Document" : "RB05_T01_D13"
+    },
+    "Elements__LayerSvg"  : {},
+    "Elements__Viewports" : [
+        {
+            "Viewport__Id"      : "Viewport_001",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Existing Site  -  Block Plan",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 176.2273445701346,
+                "Y"        : 10.213857071714017,
+                "WidthMm"  : 560.248144746497,
+                "HeightMm" : 535.1995614263772
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 1250,
+            "Viewport__SitePlan"         : true,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 560.248144746497,
+                "HeightMm" : 535.1995614263772
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__21fc1b0c8f.png",
+                    "Tier__PixelW" : 8192,
+                    "Tier__PixelH" : 7826
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__21fc1b0c8f.webp",
+                    "Tier__PixelW" : 5120,
+                    "Tier__PixelH" : 4891
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__21fc1b0c8f.webp",
+                    "Tier__PixelW" : 3072,
+                    "Tier__PixelH" : 2935
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__21fc1b0c8f.webp",
+                    "Tier__PixelW" : 1024,
+                    "Tier__PixelH" : 978
+                }
+            ],
+            "Viewport__FogMasks" : [],
+            "Viewport__Vector"   : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__21fc1b0c8f.svg",
+                "Vector__WidthMm"      : 560.248144746497,
+                "Vector__HeightMm"     : 535.1995614263772,
+                "Vector__PathCount"    : 19,
+                "Vector__SegmentCount" : 6311
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : "<rect x=\"176.227\" y=\"10.214\" width=\"560.248\" height=\"535.2\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"176.227\" y=\"540.413\" width=\"53.038\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"178.127\" y=\"543.777\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">EXISTING SITE  -  BLOCK PLAN   1:1250</text>"
+        },
+        {
+            "Viewport__Id"      : "Viewport_002",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Existing Location Plan",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 11.910057229247599,
+                "Y"        : 9.78717655050952,
+                "WidthMm"  : 156.1453867088544,
+                "HeightMm" : 177.04176644854783
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 5000,
+            "Viewport__SitePlan"         : true,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 156.1453867088544,
+                "HeightMm" : 177.04176644854783
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Print__887c92a3e2.png",
+                    "Tier__PixelW" : 3123,
+                    "Tier__PixelH" : 3541
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier03__Detail__887c92a3e2.webp",
+                    "Tier__PixelW" : 1874,
+                    "Tier__PixelH" : 2125
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier02__Read__887c92a3e2.webp",
+                    "Tier__PixelW" : 937,
+                    "Tier__PixelH" : 1062
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier01__Fit__887c92a3e2.webp",
+                    "Tier__PixelW" : 312,
+                    "Tier__PixelH" : 354
+                }
+            ],
+            "Viewport__FogMasks" : [],
+            "Viewport__Vector"   : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_002__Linework__887c92a3e2.svg",
+                "Vector__WidthMm"      : 156.1453867088544,
+                "Vector__HeightMm"     : 177.04176644854783,
+                "Vector__PathCount"    : 10,
+                "Vector__SegmentCount" : 5823
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : "<rect x=\"11.91\" y=\"9.787\" width=\"156.145\" height=\"177.042\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"11.91\" y=\"181.829\" width=\"48.395\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"13.81\" y=\"185.193\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">EXISTING LOCATION PLAN   1:5000</text>"
+        },
+        {
+            "Viewport__Id"      : "Viewport_003",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Existing Location Plan",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 11.910057229247599,
+                "Y"        : 199.7871765505095,
+                "WidthMm"  : 156.1453867088544,
+                "HeightMm" : 177.04176644854783
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 5000,
+            "Viewport__SitePlan"         : true,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 156.1453867088544,
+                "HeightMm" : 177.04176644854783
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Print__872a6464b4.png",
+                    "Tier__PixelW" : 3123,
+                    "Tier__PixelH" : 3541
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier03__Detail__872a6464b4.webp",
+                    "Tier__PixelW" : 1874,
+                    "Tier__PixelH" : 2125
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier02__Read__872a6464b4.webp",
+                    "Tier__PixelW" : 937,
+                    "Tier__PixelH" : 1062
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_003__Tier01__Fit__872a6464b4.webp",
+                    "Tier__PixelW" : 312,
+                    "Tier__PixelH" : 354
+                }
+            ],
+            "Viewport__FogMasks" : [],
+            "Viewport__Vector"   : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_003__Linework__872a6464b4.svg",
+                "Vector__WidthMm"      : 156.1453867088544,
+                "Vector__HeightMm"     : 177.04176644854783,
+                "Vector__PathCount"    : 14,
+                "Vector__SegmentCount" : 6864
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : "<rect x=\"11.91\" y=\"199.787\" width=\"156.145\" height=\"177.042\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"11.91\" y=\"371.829\" width=\"48.395\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"13.81\" y=\"375.193\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">EXISTING LOCATION PLAN   1:5000</text>"
+        }
+    ]
+}

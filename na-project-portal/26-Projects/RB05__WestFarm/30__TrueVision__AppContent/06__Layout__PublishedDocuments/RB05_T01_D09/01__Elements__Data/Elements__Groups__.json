@@ -1,0 +1,555 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D09",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_001"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_001"
+                }
+            ],
+            "Group__Id" : "Group_001"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_002"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_003"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_004"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_005"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_006"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_007"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_008"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_009"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_010"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_011"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_012"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_013"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_014"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_015"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_016"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_017"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_018"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_019"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_020"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_021"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_022"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_002"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_003"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_004"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_005"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_006"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_007"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_008"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_009"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_010"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_011"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_012"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_013"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 100,
+                    "DivisionMm"       : 2000,
+                    "Divisions"        : 10,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 500,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "plan",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "Ground Floor Plan",
+                    "ViewName"         : "Ground Floor Plan - Coach House",
+                    "ViewDrawing"      : "Ground Floor Plan"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_014",
+                    "Link__ViewportId" : "Viewport_001"
+                }
+            },
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_023"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_024"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_025"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_014"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_015"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_016"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_017"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_018"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_019"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_020"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "ProjectQr",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "SizeMm"      : 20,
+                    "Form"        : "compact",
+                    "BodyWidthMm" : 95,
+                    "ProjectName" : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_040"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_041"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_042"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_043"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_049"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_050"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_051"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_052"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_037"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_038"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_039"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_040"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_041"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_042"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_043"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_045"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_046"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_047"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_048"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_049"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_050"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_051"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_052"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"       : "areas",
+                    "Group"      : "",
+                    "ShowGroups" : true,
+                    "ShowTotal"  : true,
+                    "ShowSwatch" : true,
+                    "Units"      : "m2",
+                    "Decimals"   : 2,
+                    "TitleText"  : "",
+                    "WidthMm"    : 78,
+                    "TextSizeMm" : 2.4,
+                    "Data"       : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Boot Room",
+                                "AreaM2" : 36.926,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#efbed8"
+                            },
+                            {
+                                "Name"   : "Back Kitchen",
+                                "AreaM2" : 48.581,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Laundry Room",
+                                "AreaM2" : 38.825,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#beefc6"
+                            },
+                            {
+                                "Name"   : "Store Room",
+                                "AreaM2" : 66.205,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#e4efbe"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Ground Floor - Coach House",
+                                "AreaM2" : 190.537,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 4
+                            }
+                        ],
+                        "TotalM2" : 190.537
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_053"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_054"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_055"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_056"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_057"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_058"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_059"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_060"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_053"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_054"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_055"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_056"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_057"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_058"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_059"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_060"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_061"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_062"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_063"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_064"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_065"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_066"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_067"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "AreaSchedule",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "Form"       : "areas",
+                    "Group"      : "",
+                    "ShowGroups" : true,
+                    "ShowTotal"  : true,
+                    "ShowSwatch" : true,
+                    "Units"      : "ft2",
+                    "Decimals"   : 2,
+                    "TitleText"  : "",
+                    "WidthMm"    : 78,
+                    "TextSizeMm" : 2.4,
+                    "Data"       : {
+                        "Areas" : [
+                            {
+                                "Name"   : "Boot Room",
+                                "AreaM2" : 36.926,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#efbed8"
+                            },
+                            {
+                                "Name"   : "Back Kitchen",
+                                "AreaM2" : 48.581,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#bcd9ee"
+                            },
+                            {
+                                "Name"   : "Laundry Room",
+                                "AreaM2" : 38.825,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#beefc6"
+                            },
+                            {
+                                "Name"   : "Store Room",
+                                "AreaM2" : 66.205,
+                                "Group"  : "Ground Floor - Coach House",
+                                "Colour" : "#e4efbe"
+                            }
+                        ],
+                        "Groups" : [
+                            {
+                                "Name"   : "Ground Floor - Coach House",
+                                "AreaM2" : 190.537,
+                                "Colour" : "#bcd9ee",
+                                "Count"  : 4
+                            }
+                        ],
+                        "TotalM2" : 190.537
+                    }
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_006"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

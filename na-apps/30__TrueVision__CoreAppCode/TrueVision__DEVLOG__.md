@@ -2,6 +2,90 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.158.0  -  23-Sep-2026
+### The Tab Strip Is Five Tabs: 3D Model, Drawings (a Menu of Every Drawing), Specification, Document Register, Design Statements
+
+**Overview**
+- From Adam, with RB05's strip scrolled off the side of the screen and a mockup: "when in 3D mode, if the project
+  has lots of documents, it's a nightmare to traverse them to just get to the drawing register ... There's no need to
+  show all of the documents. It just can be a Drawings tab that then opens up the menu". His mockup: COMPACT - 3D
+  Model | Drawings | Drawing Register | Statements; "Show immediately what is available for the project"; the register
+  renamed "Document Register" (to tell it from the drawings) and the statements "Design Statements" (there is room
+  now); and IF the project has a 3D model AND no drawing layout THEN do not show the tab strip ("keeps concept-only
+  jobs simple, keeping UI less cluttered with empty placeholders"). Then, mid-build: "Project specification needs to
+  be on the top bar as well ... Drawings | Specification | Drawing Register | Design Statement".
+- Before: one tab per drawing, a + on localhost, and the specification, register and statements tabs only once a
+  drawing was open - so on RB05's fourteen drawings the register was two scrolls away, and from the 3D view it was
+  not there at all.
+
+**The strip** (`05__Core__ModeController/Na__LayoutEditor__TabStrip__.js` 2.0.0)
+- 3D Model | Drawings | Specification | Document Register | Design Statements, from the 3D view onwards. Every tab
+  reads as its neighbours do; the caret on Drawings is the one the header's own menus wear, and it turns while the
+  menu is open.
+- Drawings opens a menu under the tab: every drawing in the register's order, read as its tab used to ("D02 - Front
+  Elevation", the whole number on the hover), the open one marked; then, where a sheet can be made, "+ New sheet"
+  in place of the old + tab. A row shuts the menu and opens its drawing. Pressing Drawings while a drawing is open
+  only opens the menu - it never leaves the drawing. Escape, a press anywhere else, or any change of document shuts
+  it; Up, Down, Home and End walk the rows, and the open drawing's row has the focus when it opens. A rebuild while
+  it is open (a rename, a renumber) refreshes its rows in place.
+- Which tab is open: 3D Model with the editor shut; Drawings with a sheet up; Specification, Document Register and
+  Design Statements with their pages up over it. The Drawings tab's hover names the open drawing ("D02 is open").
+  The Specification tab keeps its amber unsynced dot.
+- Shown only while the project has a drawing sheet - not on localhost just to offer a +, and never as an empty
+  strip on a concept-only job. The first sheet of a project comes from Dev Tools > Layout Editor > New Sheet (its
+  NoSheets note now says so).
+- Gone from the strip: rename on double-click and reorder by drag (the Document Register and the Sheet panel do
+  both). The end arrows still step the tabs when they do not fit; landing on Drawings opens the last drawing read
+  (or the first) rather than the menu, so a step always arrives somewhere.
+- The menu lives on the body (`.na-le-tabs__menu`, fixed, z-index 1002), hung under the strip and kept inside the
+  window, scrolling inside itself on a long pack. Rules in `10__Core__SheetSurface/Na__LayoutEditor__Styles__Main__.css`
+  (the rename-frame rules go). The specification stylesheet's `.na-le-tabs__tab--spec` margin rule is now unused:
+  the tab carries `--specification`, so the five sit as one row.
+
+**Underneath** (`Na__LayoutEditor__ModeController__.js` 1.30.0)
+- A document tab pressed from the 3D view opens the first sheet under itself, as OpenRegister / OpenStatements /
+  OpenSpecification always did when the editor was shut - but QUIETLY (`Na__LeMode__EnterUnder`): the editor's
+  first-open veil ("Your Drawings Are Loading", z-index 40) sits over the register and the statements pages (12),
+  so it would have covered the page the reader asked for while a sheet nobody asked for rendered beneath it. The
+  veil answers once per session, so leaving it here keeps it for the first drawing tab. The Statements page's
+  Show and Hide are called exactly as before. The viewer's own loading screen already stood down on the register
+  and the specification (v2.156.0).
+- Labels (`Na__LayoutEditor__AppConfig__.json`): DrawingsTab, DrawingsTabTitle, DrawingsTabOpenTitle, RegisterTab,
+  RegisterTabTitle, StatementsTab, StatementsTabTitle and a TabStripNote; SpecificationTab reads "Specification";
+  NoSheets and the two arrow titles reworded.
+- Service worker token `2026-09-23-06` (1.9.45): the strip module and the shell stylesheet change together, so a
+  warm cache must not paint the new strip with the old rules.
+
+**Still Adam's call**
+- The register and statements tabs carry the mockup's names, "Document Register" and "Design Statements"; his
+  later line wrote "Drawing Register" and "Design Statement". Either is one label in the config.
+- The Drawings tab reads "Drawings" while a drawing is open (the open one is on its hover and the editor toolbar);
+  it could carry the open drawing's code instead.
+- The Design Statements tab shows whenever the strip does, even on a project with no statements yet: whether a
+  project has any is only known once the statements index has been read, which happens on the tab's first press.
+- The pages' own headings still read "Drawing Register" and "Statements".
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS (521 files); the module and the mode controller parse; the config JSON parses.
+- In the app on RB05 (127.0.0.1:8090, every write refused, none attempted by the strip): the five tabs with their
+  hovers from the 3D view; the menu's 14 rows in register order with the site plans' hovers and the "+ New sheet"
+  row; a press outside shuts it; D02 chosen from it opens D02 with Drawings the open tab and "D02 is open" on its
+  hover; reopened, D02's row is marked and focused, two Downs land on D04, Escape shuts it and hands the focus back
+  to the tab with D02 still up; Document Register from a drawing, then D03 from the menu over the register
+  (Drawings open, register hidden, toolbar "D03 - Rear Elevation"); Design Statements up and hidden again on 3D
+  Model. Fresh load: Specification pressed from the 3D view shows the specification with NO first-open veil built,
+  and no errors. At 375px the strip overflows, the next arrow from 3D Model opens D01 (no menu) and the next again
+  opens the Specification, the open tab scrolled into view. With every sheet taken out of the model the strip hides
+  (height 0, body class off, menu shut) and comes back with the 14 sheets restored byte for byte.
+- NOT tried on a real phone. NOT in ValeVision (its strip still shows a tab per sheet).
+
+**Landing note**
+- The first cut of this strip - the specification as a row at the foot of the Drawings menu, the mode controller's
+  quiet entry, the labels and the menu rules - was on disk when the Statement Lockstep session committed v2.157.0
+  (`f0eb56e`), so that commit carries it under the wrong heading. This release's own diff is the second cut Adam
+  asked for mid-build: the Specification as a tab of its own, the menu holding the drawings alone, and this entry.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.157.0  -  23-Sep-2026
 ### Statement Writer Lockstep: The App's Copy and the Markdown File Are Checked Against Each Other, and a Split Is Asked
 

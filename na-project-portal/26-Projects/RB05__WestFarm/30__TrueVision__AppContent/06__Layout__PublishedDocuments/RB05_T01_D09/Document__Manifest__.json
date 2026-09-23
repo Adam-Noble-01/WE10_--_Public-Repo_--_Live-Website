@@ -1,0 +1,121 @@
+{
+    "PublishedDocument__Meta" : {
+        "Meta__FileName"  : "Document__Manifest__.json",
+        "Meta__Note"      : "Everything this published document is made of. Written LAST, after every file it names is in place, so its presence means the document is whole.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocument__Identity" : {
+        "Document__Id"            : "RB05_T01_D09",
+        "Document__ProjectCode"   : "RB05",
+        "Document__Phase"         : "T01",
+        "Document__Number"        : "D09",
+        "Document__Name"          : "Coach House Plan",
+        "Document__Revision"      : "A",
+        "Document__Status"        : "PRELIMINARY",
+        "Document__SourceSheetId" : "Sheet_014"
+    },
+    "PublishedDocument__Publish" : {
+        "Publish__SchemaVersion"  : 1,
+        "Publish__AtIso"          : "2026-09-23T18:57:26.861Z",
+        "Publish__AtEpochMs"      : 1790189846861,
+        "Publish__ByApp"          : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__RevisionAction" : "new",
+        "Publish__Archived"       : null
+    },
+    "PublishedDocument__Files" : {
+        "Files__Sheet" : {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 21579,
+            "File__Sha256" : "7793331450"
+        },
+        "Files__Elements" : [
+            {
+                "File__Type"   : "dimension",
+                "File__Layers" : [
+                    "Layer_003"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Dimensions__.json",
+                "File__Count"  : 53,
+                "File__Bytes"  : 109341,
+                "File__Sha256" : "6d7cfbf20f"
+            },
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 54,
+                "File__Bytes"  : 49157,
+                "File__Sha256" : "06d5b7f9d1"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 2,
+                "File__Bytes"  : 3684,
+                "File__Sha256" : "daa7c40f66"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 5,
+                "File__Bytes"  : 18575,
+                "File__Sha256" : "e2aa504dfa"
+            },
+            {
+                "File__Type"   : "vector",
+                "File__Layers" : [
+                    "Layer_004"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
+                "File__Count"  : 49,
+                "File__Bytes"  : 74483,
+                "File__Sha256" : "417fd80bba"
+            },
+            {
+                "File__Type"   : "area",
+                "File__Layers" : [
+                    "Layer_005"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Areas__.json",
+                "File__Count"  : 4,
+                "File__Bytes"  : 9578,
+                "File__Sha256" : "c43b6d8005"
+            },
+            {
+                "File__Type"   : "viewport",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
+                "File__Count"  : 1,
+                "File__Bytes"  : 1700,
+                "File__Sha256" : "136b4bdf9f"
+            }
+        ],
+        "Files__Viewports" : [
+            {
+                "Viewport__Id"     : "Viewport_001",
+                "Viewport__Hash"   : "68375f79bd",
+                "Viewport__Vector" : {
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__68375f79bd.svg",
+                    "File__Bytes"    : 190564,
+                    "File__Sha256"   : "68375f79bd",
+                    "File__Paths"    : 13,
+                    "File__Segments" : 6337
+                },
+                "Viewport__Rasters"  : [],
+                "Viewport__FogMasks" : []
+            }
+        ],
+        "Files__Pdf" : {
+            "File__Path"   : "Document__Print__2771816ab6.pdf",
+            "File__Bytes"  : 230649,
+            "File__Sha256" : "2771816ab6",
+            "File__Name"   : "RB05_T01_D09__CoachHousePlan__A2__RevA__23-Sep-2026__.pdf"
+        },
+        "Files__TotalBytes" : 709310
+    }
+}

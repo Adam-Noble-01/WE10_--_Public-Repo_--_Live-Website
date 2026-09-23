@@ -188,20 +188,6 @@ body.na-le-dragging * {
     transform                          : rotate(180deg);
 }
 
-/* THE SPECIFICATION'S AMBER DOT on the Drawings tab while its own row is out
-   of sight in the menu - the same amber as the Save Sheets button's attention
-   state, and the same dot the row itself carries (Styles__Specification__). */
-
-.na-le-tabs__dot {
-    display                            : inline-block;
-    width                              : 6px;
-    height                             : 6px;
-    margin-left                        : 7px;
-    border-radius                      : 50%;
-    background                         : #d99a1e;
-    vertical-align                     : middle;
-}
-
 /* THE DRAWINGS MENU. On the body, hung under the Drawings tab, fixed: the
    strip clips its own overflow so the scroller can scroll, and a menu inside
    it would be cut off at the strip's lower edge. Dressed as the header's

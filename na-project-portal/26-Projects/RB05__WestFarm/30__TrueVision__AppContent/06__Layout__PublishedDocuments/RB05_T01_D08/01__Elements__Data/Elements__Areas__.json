@@ -1,0 +1,682 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Areas__.json",
+        "Meta__Kind"      : "area",
+        "Meta__LayerType" : "area",
+        "Meta__Document"  : "RB05_T01_D08",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Areas" : [
+        {
+            "Shape__Id"      : "Shape_071",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    179.88700633779342,
+                    243.61613753503184
+                ],
+                [
+                    179.88700633779342,
+                    276.19164534753185
+                ],
+                [
+                    181.7870063377934,
+                    276.19164534753185
+                ],
+                [
+                    181.7870063377934,
+                    278.46613753503186
+                ],
+                [
+                    191.3370063377934,
+                    278.46613753503186
+                ],
+                [
+                    191.3370063377934,
+                    276.19164534753185
+                ],
+                [
+                    204.7870063377934,
+                    276.19164534753185
+                ],
+                [
+                    204.7870063377934,
+                    243.61613753503184
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#e7efbe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Luggage",
+                "Area__Group"     : "Second Floor - Main House",
+                "Area__LabelDXMm" : -3.2809238034559485,
+                "Area__LabelDYMm" : -3.6232864755665446,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Luggage"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_072",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    178.5870063377934,
+                    276.19164534753185
+                ],
+                [
+                    152.7120063377934,
+                    276.19164534753185
+                ],
+                [
+                    152.7120063377934,
+                    279.5161375350318
+                ],
+                [
+                    143.3370063377934,
+                    279.5161375350318
+                ],
+                [
+                    143.3370063377934,
+                    276.19164534753185
+                ],
+                [
+                    122.08700633779341,
+                    276.19164534753185
+                ],
+                [
+                    122.08700633779341,
+                    219.16613753503185
+                ],
+                [
+                    142.0870063377934,
+                    219.16613753503185
+                ],
+                [
+                    178.5870063377934,
+                    218.96613753503186
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#bcd9ee",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Grand Stairwell",
+                "Area__Group"      : "Second Floor - Main House",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : -2.5397643773866037,
+                "Area__LabelDYMm"  : 6.9843665704836155,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Grand Stairwell"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_073",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    142.0870063377934,
+                    219.16613753503185
+                ],
+                [
+                    142.0870063377934,
+                    158.84062972253184
+                ],
+                [
+                    160.1870063377934,
+                    158.84062972253184
+                ],
+                [
+                    160.1870063377934,
+                    148.33963362878183
+                ],
+                [
+                    169.73700633779342,
+                    148.33963362878183
+                ],
+                [
+                    170.31870555654342,
+                    158.84062972253184
+                ],
+                [
+                    178.5287055565434,
+                    158.84062972253184
+                ],
+                [
+                    178.48700633779342,
+                    170.71574691003184
+                ],
+                [
+                    185.98700633779342,
+                    178.21613753503186
+                ],
+                [
+                    185.98700633779342,
+                    212.75684066003186
+                ],
+                [
+                    178.5870063377934,
+                    218.96613753503186
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efe4be",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Games Room",
+                "Area__Group"      : "Second Floor - Main House",
+                "Area__TextSizeMm" : 3,
+                "Area__LabelDXMm"  : -1.8237741014066842,
+                "Area__LabelDYMm"  : 5.30549775015578,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Games Room"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_076",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    187.2870063377934,
+                    158.84062972253184
+                ],
+                [
+                    187.2870063377934,
+                    212.06613753503183
+                ],
+                [
+                    205.70944864487956,
+                    212.4348368104527
+                ],
+                [
+                    213.13700633779342,
+                    205.22764144128183
+                ],
+                [
+                    213.13700633779342,
+                    194.54973128503184
+                ],
+                [
+                    208.01251415029344,
+                    194.54973128503184
+                ],
+                [
+                    208.01251415029344,
+                    158.84062972253184
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#beefd0",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Bed 05 Ensuite",
+                "Area__Group"     : "Second Floor - Main House",
+                "Area__LabelDXMm" : -3.067234364520573,
+                "Area__LabelDYMm" : 2.4869508845149255,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Bed 05 Ensuite"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_077",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    140.7870063377934,
+                    217.91613753503185
+                ],
+                [
+                    140.99210399404342,
+                    158.84062972253184
+                ],
+                [
+                    135.6870063377934,
+                    158.84062972253184
+                ],
+                [
+                    135.6870063377934,
+                    148.33963362878183
+                ],
+                [
+                    126.13700633779342,
+                    148.33963362878183
+                ],
+                [
+                    125.55530711904342,
+                    158.84062972253184
+                ],
+                [
+                    87.86150829091841,
+                    158.84062972253184
+                ],
+                [
+                    87.86150829091841,
+                    176.74113753503184
+                ],
+                [
+                    77.36050731435591,
+                    176.74113753503184
+                ],
+                [
+                    77.36050731435591,
+                    186.29113753503185
+                ],
+                [
+                    87.86150829091841,
+                    186.29113753503185
+                ],
+                [
+                    87.8614057518559,
+                    209.74113753503184
+                ],
+                [
+                    77.36050731435591,
+                    209.74113753503184
+                ],
+                [
+                    77.36050731435591,
+                    219.29113753503185
+                ],
+                [
+                    87.8614057518559,
+                    219.29113753503185
+                ],
+                [
+                    87.9615082909184,
+                    231.56613753503183
+                ],
+                [
+                    120.73700633779342,
+                    231.56613753503183
+                ],
+                [
+                    120.73700633779342,
+                    217.91613753503185
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efbed8",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Bedroom 04",
+                "Area__Group"      : "Second Floor - Main House",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Bedroom 04"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_078",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    120.7870063377934,
+                    234.36613753503184
+                ],
+                [
+                    120.73700633779342,
+                    276.19164534753185
+                ],
+                [
+                    113.93700633779343,
+                    276.19164534753185
+                ],
+                [
+                    113.93700633779343,
+                    278.46613753503186
+                ],
+                [
+                    104.5370063377934,
+                    278.46613753503186
+                ],
+                [
+                    104.5370063377934,
+                    276.19164534753185
+                ],
+                [
+                    104.0370063377934,
+                    276.19164534753185
+                ],
+                [
+                    104.0370063377934,
+                    232.86613753503184
+                ],
+                [
+                    113.93700633779343,
+                    232.86613753503184
+                ],
+                [
+                    113.93700633779343,
+                    234.36613753503184
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#bcd9ee",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Bedrroom-04 Wardrobe",
+                "Area__Group"     : "Second Floor - Main House",
+                "Area__Label"     : "value",
+                "Area__LabelDXMm" : -3.3214688247874022,
+                "Area__LabelDYMm" : 0.4588872323990927,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Bedrroom-04 Wardrobe"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_079",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    102.98700633779342,
+                    276.19164534753185
+                ],
+                [
+                    87.8614057518559,
+                    276.19164534753185
+                ],
+                [
+                    87.8614057518559,
+                    252.29113753503185
+                ],
+                [
+                    77.36050731435591,
+                    252.29113753503185
+                ],
+                [
+                    77.36050731435591,
+                    242.74113753503184
+                ],
+                [
+                    87.86150829091841,
+                    242.74113753503184
+                ],
+                [
+                    87.86150829091841,
+                    232.86613753503184
+                ],
+                [
+                    102.98700633779342,
+                    232.86613753503184
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#dbefbe",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"      : "Bed 04 Ensuite",
+                "Area__Group"     : "Second Floor - Main House",
+                "Area__LabelDXMm" : 2.0911735792708583,
+                "Area__LabelDYMm" : -6.41942568080006,
+                "Area__AreaM2"    : null,
+                "Area__LabelText" : "Bed 04 Ensuite"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_080",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    214.4370063377934,
+                    194.54973128503184
+                ],
+                [
+                    263.01251415029344,
+                    194.54973128503184
+                ],
+                [
+                    263.01251415029344,
+                    204.57523909753183
+                ],
+                [
+                    273.5135102440434,
+                    204.57523909753183
+                ],
+                [
+                    273.5135102440434,
+                    214.12523909753185
+                ],
+                [
+                    263.01251415029344,
+                    214.12523909753185
+                ],
+                [
+                    263.01251415029344,
+                    237.61613753503184
+                ],
+                [
+                    263.01251415029344,
+                    238.06613753503183
+                ],
+                [
+                    256.2870063377934,
+                    238.06613753503183
+                ],
+                [
+                    251.6870063377934,
+                    238.06613753503183
+                ],
+                [
+                    251.6870063377934,
+                    237.56613753503183
+                ],
+                [
+                    249.1870063377934,
+                    237.56613753503183
+                ],
+                [
+                    249.1870063377934,
+                    238.06613753503183
+                ],
+                [
+                    230.38700633779342,
+                    238.06613753503183
+                ],
+                [
+                    230.38700633779342,
+                    237.56613753503183
+                ],
+                [
+                    227.88700633779342,
+                    237.56613753503183
+                ],
+                [
+                    227.88700633779342,
+                    238.06613753503183
+                ],
+                [
+                    223.2870063377934,
+                    238.06613753503183
+                ],
+                [
+                    223.2870063377934,
+                    238.81613753503183
+                ],
+                [
+                    214.2870063377934,
+                    238.81613753503183
+                ],
+                [
+                    208.88700633779342,
+                    238.81613753503183
+                ],
+                [
+                    208.88700633779342,
+                    242.31613753503183
+                ],
+                [
+                    183.98700633779342,
+                    242.31613753503183
+                ],
+                [
+                    183.98700633779342,
+                    238.81613753503183
+                ],
+                [
+                    179.88700633779342,
+                    238.81613753503183
+                ],
+                [
+                    179.88700633779342,
+                    219.57232894128185
+                ],
+                [
+                    187.2870063377934,
+                    213.36613753503184
+                ],
+                [
+                    206.8370063377934,
+                    213.36613753503184
+                ],
+                [
+                    214.4370063377934,
+                    205.76613753503187
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#efbee2",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Bedroom 05",
+                "Area__Group"      : "Second Floor - Main House",
+                "Area__TextSizeMm" : 3,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Bedroom 05"
+            }
+        },
+        {
+            "Shape__Id"      : "Shape_081",
+            "Shape__LayerId" : "Layer_005",
+            "Shape__Points"  : [
+                [
+                    214.2870063377934,
+                    238.81613753503183
+                ],
+                [
+                    214.2870063377934,
+                    243.61613753503184
+                ],
+                [
+                    208.0370063377934,
+                    243.61613753503184
+                ],
+                [
+                    208.0370063377934,
+                    256.11613753503184
+                ],
+                [
+                    263.0126118065434,
+                    256.22613753503185
+                ],
+                [
+                    263.01251415029344,
+                    247.16613753503185
+                ],
+                [
+                    273.5135102440434,
+                    247.16613753503185
+                ],
+                [
+                    273.5135102440434,
+                    237.61613753503184
+                ],
+                [
+                    263.01251415029344,
+                    237.61613753503184
+                ],
+                [
+                    256.2870063377934,
+                    238.06613753503183
+                ],
+                [
+                    256.2870063377934,
+                    239.36613753503184
+                ],
+                [
+                    223.2870063377934,
+                    239.36613753503184
+                ],
+                [
+                    223.2870063377934,
+                    238.81613753503183
+                ]
+            ],
+            "Shape__Closed"        : true,
+            "Shape__StrokeColour"  : "#2e6f96",
+            "Shape__StrokePt"      : 0.3,
+            "Shape__FillColour"    : "#beefe7",
+            "Shape__Stroked"       : true,
+            "Shape__FillOpacity"   : 0.3,
+            "Shape__StrokeOpacity" : 1,
+            "Shape__Gradient"      : null,
+            "Shape__LineStyle"     : null,
+            "Shape__Area"          : {
+                "Area__Name"       : "Bedroom 05 Dressing",
+                "Area__Group"      : "Second Floor - Main House",
+                "Area__TextSizeMm" : 2.5,
+                "Area__LabelDXMm"  : -3.3880251163213018,
+                "Area__LabelDYMm"  : -2.3973812568729898,
+                "Area__AreaM2"     : null,
+                "Area__LabelText"  : "Bedroom 05 Dressing"
+            }
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_005" : "<path d=\"M179.887 243.616L179.887 276.192L181.787 276.192L181.787 278.466L191.337 278.466L191.337 276.192L204.787 276.192L204.787 243.616Z\" fill=\"#e7efbe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"189.056\" y=\"257.076\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Luggage</text><text x=\"189.056\" y=\"259.488\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">8.33 m²</text><path d=\"M178.587 276.192L152.712 276.192L152.712 279.516L143.337 279.516L143.337 276.192L122.087 276.192L122.087 219.166L142.087 219.166L178.587 218.966Z\" fill=\"#bcd9ee\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"147.797\" y=\"255.911\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Grand Stairwell</text><text x=\"147.797\" y=\"258.701\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">32.57 m²</text><path d=\"M142.087 219.166L142.087 158.841L160.187 158.841L160.187 148.34L169.737 148.34L170.319 158.841L178.529 158.841L178.487 170.716L185.987 178.216L185.987 212.757L178.587 218.966Z\" fill=\"#efe4be\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"162.213\" y=\"188.743\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Games Room</text><text x=\"162.213\" y=\"191.533\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">26.07 m²</text><path d=\"M187.287 158.841L187.287 212.066L205.709 212.435L213.137 205.228L213.137 194.55L208.013 194.55L208.013 158.841Z\" fill=\"#beefd0\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"197.145\" y=\"187.783\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Bed 05 Ensuite</text><text x=\"197.145\" y=\"190.195\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">11.72 m²</text><path d=\"M140.787 217.916L140.992 158.841L135.687 158.841L135.687 148.34L126.137 148.34L125.555 158.841L87.862 158.841L87.862 176.741L77.361 176.741L77.361 186.291L87.862 186.291L87.861 209.741L77.361 209.741L77.361 219.291L87.861 219.291L87.962 231.566L120.737 231.566L120.737 217.916Z\" fill=\"#efbed8\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"109.176\" y=\"189.638\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Bedroom 04</text><text x=\"109.176\" y=\"192.428\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">38.85 m²</text><path d=\"M120.787 234.366L120.737 276.192L113.937 276.192L113.937 278.466L104.537 278.466L104.537 276.192L104.037 276.192L104.037 232.866L113.937 232.866L113.937 234.366Z\" fill=\"#bcd9ee\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"109.091\" y=\"256.881\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.1\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">7.36 m²</text><path d=\"M102.987 276.192L87.861 276.192L87.861 252.291L77.361 252.291L77.361 242.741L87.862 242.741L87.862 232.866L102.987 232.866Z\" fill=\"#dbefbe\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"92.265\" y=\"247.806\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.131\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Bed 04 Ensuite</text><text x=\"92.265\" y=\"249.948\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.865\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">7.56 m²</text><path d=\"M214.437 194.55L263.013 194.55L263.013 204.575L273.514 204.575L273.514 214.125L263.013 214.125L263.013 237.616L263.013 238.066L256.287 238.066L251.687 238.066L251.687 237.566L249.187 237.566L249.187 238.066L230.387 238.066L230.387 237.566L227.887 237.566L227.887 238.066L223.287 238.066L223.287 238.816L214.287 238.816L208.887 238.816L208.887 242.316L183.987 242.316L183.987 238.816L179.887 238.816L179.887 219.572L187.287 213.366L206.837 213.366L214.437 205.766Z\" fill=\"#efbee2\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"226.7\" y=\"218.118\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"3\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Bedroom 05</text><text x=\"226.7\" y=\"220.908\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.625\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">31.91 m²</text><path d=\"M214.287 238.816L214.287 243.616L208.037 243.616L208.037 256.116L263.013 256.226L263.013 247.166L273.514 247.166L273.514 237.616L263.013 237.616L256.287 238.066L256.287 239.366L223.287 239.366L223.287 238.816Z\" fill=\"#beefe7\" fill-opacity=\"0.3\" stroke=\"#2e6f96\" stroke-width=\"0.106\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"237.387\" y=\"244.321\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.502\" font-weight=\"600\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">Bedroom 05 Dressing</text><text x=\"237.387\" y=\"245.808\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"1.314\" font-weight=\"400\" fill=\"#172b3a\" text-anchor=\"middle\" xml:space=\"preserve\">10.13 m²</text>"
+    },
+    "Elements__AreaGroups" : [
+        {
+            "AreaGroup__Name"   : "Second Floor - Main House",
+            "AreaGroup__Colour" : "#bcd9ee"
+        }
+    ]
+}

@@ -34,6 +34,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.9.45
+// - Token bumped (2026-09-23-06) for the compact tab strip (v2.158.0): the
+//   strip module (TabStrip 2.0.0) and the shell stylesheet change together -
+//   a menu the old stylesheet has no rules for - the mode controller gains
+//   the quiet entry under a document tab, and the layout config gains the
+//   tab labels, so a warm cache must not serve the old half of any of them.
+//
 // 23-Sep-2026 - Version 1.9.44
 // - Token bumped (2026-09-23-05) for the Statement Writer's lockstep
 //   (v2.157.0): the statement data module and page import the new
@@ -578,7 +585,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-23-05';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-23-06';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

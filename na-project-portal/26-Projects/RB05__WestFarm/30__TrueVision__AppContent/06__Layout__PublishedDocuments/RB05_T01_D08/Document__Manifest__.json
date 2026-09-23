@@ -1,0 +1,103 @@
+{
+    "PublishedDocument__Meta" : {
+        "Meta__FileName"  : "Document__Manifest__.json",
+        "Meta__Note"      : "Everything this published document is made of. Written LAST, after every file it names is in place, so its presence means the document is whole.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocument__Identity" : {
+        "Document__Id"            : "RB05_T01_D08",
+        "Document__ProjectCode"   : "RB05",
+        "Document__Phase"         : "T01",
+        "Document__Number"        : "D08",
+        "Document__Name"          : "Second Floor Plan",
+        "Document__Revision"      : "A",
+        "Document__Status"        : "PRELIMINARY",
+        "Document__SourceSheetId" : "Sheet_008"
+    },
+    "PublishedDocument__Publish" : {
+        "Publish__SchemaVersion"  : 1,
+        "Publish__AtIso"          : "2026-09-23T18:57:23.476Z",
+        "Publish__AtEpochMs"      : 1790189843476,
+        "Publish__ByApp"          : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__RevisionAction" : "new",
+        "Publish__Archived"       : null
+    },
+    "PublishedDocument__Files" : {
+        "Files__Sheet" : {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 19355,
+            "File__Sha256" : "c93c09cc36"
+        },
+        "Files__Elements" : [
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 84,
+                "File__Bytes"  : 66723,
+                "File__Sha256" : "4ebcb8b9cc"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 11,
+                "File__Bytes"  : 33188,
+                "File__Sha256" : "0268add7e3"
+            },
+            {
+                "File__Type"   : "vector",
+                "File__Layers" : [
+                    "Layer_004"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
+                "File__Count"  : 103,
+                "File__Bytes"  : 170962,
+                "File__Sha256" : "39440f02f4"
+            },
+            {
+                "File__Type"   : "area",
+                "File__Layers" : [
+                    "Layer_005"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Areas__.json",
+                "File__Count"  : 9,
+                "File__Bytes"  : 29092,
+                "File__Sha256" : "638da8ef51"
+            },
+            {
+                "File__Type"   : "viewport",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
+                "File__Count"  : 1,
+                "File__Bytes"  : 1672,
+                "File__Sha256" : "8b9c45fabc"
+            }
+        ],
+        "Files__Viewports" : [
+            {
+                "Viewport__Id"     : "Viewport_001",
+                "Viewport__Hash"   : "cf60426717",
+                "Viewport__Vector" : {
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__cf60426717.svg",
+                    "File__Bytes"    : 266820,
+                    "File__Sha256"   : "cf60426717",
+                    "File__Paths"    : 13,
+                    "File__Segments" : 8477
+                },
+                "Viewport__Rasters"  : [],
+                "Viewport__FogMasks" : []
+            }
+        ],
+        "Files__Pdf" : {
+            "File__Path"   : "Document__Print__0764933f69.pdf",
+            "File__Bytes"  : 251153,
+            "File__Sha256" : "0764933f69",
+            "File__Name"   : "RB05_T01_D08__SecondFloorPlan__A2__RevA__23-Sep-2026__.pdf"
+        },
+        "Files__TotalBytes" : 838965
+    }
+}

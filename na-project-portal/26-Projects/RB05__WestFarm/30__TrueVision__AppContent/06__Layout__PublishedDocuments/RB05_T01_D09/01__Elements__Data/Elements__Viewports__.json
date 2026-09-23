@@ -1,0 +1,44 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName" : "Elements__Viewports__.json",
+        "Meta__Kind"     : "viewport",
+        "Meta__Document" : "RB05_T01_D09"
+    },
+    "Elements__LayerSvg"  : {},
+    "Elements__Viewports" : [
+        {
+            "Viewport__Id"      : "Viewport_001",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Ground Floor Plan  -  Coach House",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 177.3002621570225,
+                "Y"        : 5.064570837927704,
+                "WidthMm"  : 164.0639861581481,
+                "HeightMm" : 378.547078719343
+            },
+            "Viewport__RotationDeg"      : -90,
+            "Viewport__ScaleDenominator" : 100,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 164.0639861581481,
+                "HeightMm" : 378.547078719343
+            },
+            "Viewport__BaseImage"    : false,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [],
+            "Viewport__FogMasks"     : [],
+            "Viewport__Vector"       : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__68375f79bd.svg",
+                "Vector__WidthMm"      : 164.0639861581481,
+                "Vector__HeightMm"     : 378.547078719343,
+                "Vector__PathCount"    : 13,
+                "Vector__SegmentCount" : 6337
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : ""
+        }
+    ]
+}

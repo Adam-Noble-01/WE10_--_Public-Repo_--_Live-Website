@@ -1,0 +1,78 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName" : "Elements__Viewports__.json",
+        "Meta__Kind"     : "viewport",
+        "Meta__Document" : "RB05_T01_D07"
+    },
+    "Elements__LayerSvg"  : {},
+    "Elements__Viewports" : [
+        {
+            "Viewport__Id"      : "Viewport_001",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 15.055050225388754,
+                "Y"        : -7.397010114517897,
+                "WidthMm"  : 288.6907263728433,
+                "HeightMm" : 410.52485592428326
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 100,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 288.6907263728433,
+                "HeightMm" : 410.52485592428326
+            },
+            "Viewport__BaseImage"    : false,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [],
+            "Viewport__FogMasks"     : [],
+            "Viewport__Vector"       : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__edc3ad32a4.svg",
+                "Vector__WidthMm"      : 288.6907263728433,
+                "Vector__HeightMm"     : 410.52485592428326,
+                "Vector__PathCount"    : 11,
+                "Vector__SegmentCount" : 14246
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : ""
+        },
+        {
+            "Viewport__Id"      : "Viewport_002",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "",
+            "Viewport__LayerId" : "Layer_006",
+            "Viewport__FrameMm" : {
+                "X"        : 302.058316000591,
+                "Y"        : -16.88424164256797,
+                "WidthMm"  : 186.44333189115534,
+                "HeightMm" : 413.76648279091984
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 100,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 186.44333189115534,
+                "HeightMm" : 413.76648279091984
+            },
+            "Viewport__BaseImage"    : false,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [],
+            "Viewport__FogMasks"     : [],
+            "Viewport__Vector"       : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_002__Linework__0a86946502.svg",
+                "Vector__WidthMm"      : 186.44333189115534,
+                "Vector__HeightMm"     : 413.76648279091984,
+                "Vector__PathCount"    : 8,
+                "Vector__SegmentCount" : 2472
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : ""
+        }
+    ]
+}

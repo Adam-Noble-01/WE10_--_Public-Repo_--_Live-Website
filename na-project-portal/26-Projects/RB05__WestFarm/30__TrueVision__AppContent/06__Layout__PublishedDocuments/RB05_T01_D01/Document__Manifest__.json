@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T16:21:28.040Z",
-        "Publish__AtEpochMs"      : 1790180488040,
+        "Publish__AtIso"          : "2026-09-23T19:10:54.607Z",
+        "Publish__AtEpochMs"      : 1790190654607,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.155.0",
         "Publish__RevisionAction" : "overwritten",
@@ -26,8 +26,8 @@
     "PublishedDocument__Files" : {
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
-            "File__Bytes"  : 51335,
-            "File__Sha256" : "25771aa06f"
+            "File__Bytes"  : 51513,
+            "File__Sha256" : "750d3870e5"
         },
         "Files__Elements" : [
             {
@@ -37,8 +37,8 @@
                 ],
                 "File__Path"   : "01__Elements__Data/Elements__Text__.json",
                 "File__Count"  : 38,
-                "File__Bytes"  : 100982,
-                "File__Sha256" : "615624b4d0"
+                "File__Bytes"  : 100967,
+                "File__Sha256" : "391c9da695"
             },
             {
                 "File__Type"   : "leader",
@@ -46,7 +46,7 @@
                 "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
                 "File__Count"  : 20,
                 "File__Bytes"  : 30243,
-                "File__Sha256" : "e0f58bf266"
+                "File__Sha256" : "3ac525b3bf"
             },
             {
                 "File__Type"   : "group",
@@ -64,7 +64,7 @@
                 "File__Path"   : "01__Elements__Data/Elements__Images__.json",
                 "File__Count"  : 2,
                 "File__Bytes"  : 5246,
-                "File__Sha256" : "6d43d3e0e4"
+                "File__Sha256" : "06b2b2de55"
             },
             {
                 "File__Type"   : "vector",
@@ -74,16 +74,16 @@
                 "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
                 "File__Count"  : 29,
                 "File__Bytes"  : 45511,
-                "File__Sha256" : "603e00dd2e"
+                "File__Sha256" : "9c71bc98fa"
             }
         ],
         "Files__Viewports" : [],
         "Files__Pdf"       : {
-            "File__Path"   : "Document__Print__15d3cb5ba1.pdf",
-            "File__Bytes"  : 2732727,
-            "File__Sha256" : "15d3cb5ba1",
+            "File__Path"   : "Document__Print__e132d3bdfe.pdf",
+            "File__Bytes"  : 2732829,
+            "File__Sha256" : "e132d3bdfe",
             "File__Name"   : "RB05_T01_D01__ProjectIntroduction__A3__RevA__23-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 2977946
+        "Files__TotalBytes" : 2978211
     }
 }

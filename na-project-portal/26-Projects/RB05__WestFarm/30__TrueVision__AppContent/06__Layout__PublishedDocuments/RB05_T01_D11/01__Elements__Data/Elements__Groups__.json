@@ -1,0 +1,266 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "RB05_T01_D11",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_001"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_001"
+                }
+            ],
+            "Group__Id" : "Group_001"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_002"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_002"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : false,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "3d",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "South Facade - Front Facing",
+                    "ViewDrawing"      : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_003"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_003"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : false,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "3d",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "North Facade - Rear Facing",
+                    "ViewDrawing"      : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_004"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_004"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : false,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "3d",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "West Facade - Side Facing",
+                    "ViewDrawing"      : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_005"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_005"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : false,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "3d",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "West Facade - Coach House",
+                    "ViewDrawing"      : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_006"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_006"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : false,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "3d",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "East - Storage",
+                    "ViewDrawing"      : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_006"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_007"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_007"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : false,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "3d",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "",
+                    "ViewName"         : "North - Orangery",
+                    "ViewDrawing"      : ""
+                },
+                "Parametric__Link" : null
+            },
+            "Group__Id" : "Group_007"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

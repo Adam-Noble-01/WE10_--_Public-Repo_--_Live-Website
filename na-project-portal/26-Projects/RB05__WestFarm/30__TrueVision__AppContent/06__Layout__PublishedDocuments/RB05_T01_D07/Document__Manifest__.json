@@ -1,0 +1,134 @@
+{
+    "PublishedDocument__Meta" : {
+        "Meta__FileName"  : "Document__Manifest__.json",
+        "Meta__Note"      : "Everything this published document is made of. Written LAST, after every file it names is in place, so its presence means the document is whole.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocument__Identity" : {
+        "Document__Id"            : "RB05_T01_D07",
+        "Document__ProjectCode"   : "RB05",
+        "Document__Phase"         : "T01",
+        "Document__Number"        : "D07",
+        "Document__Name"          : "First Floor Plan",
+        "Document__Revision"      : "A",
+        "Document__Status"        : "PRELIMINARY",
+        "Document__SourceSheetId" : "Sheet_007"
+    },
+    "PublishedDocument__Publish" : {
+        "Publish__SchemaVersion"  : 1,
+        "Publish__AtIso"          : "2026-09-23T18:57:19.416Z",
+        "Publish__AtEpochMs"      : 1790189839416,
+        "Publish__ByApp"          : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__RevisionAction" : "new",
+        "Publish__Archived"       : null
+    },
+    "PublishedDocument__Files" : {
+        "Files__Sheet" : {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 24216,
+            "File__Sha256" : "fa3f7af5bd"
+        },
+        "Files__Elements" : [
+            {
+                "File__Type"   : "dimension",
+                "File__Layers" : [
+                    "Layer_003"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Dimensions__.json",
+                "File__Count"  : 56,
+                "File__Bytes"  : 115079,
+                "File__Sha256" : "95ff1eea56"
+            },
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 94,
+                "File__Bytes"  : 87575,
+                "File__Sha256" : "438097e943"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 4,
+                "File__Bytes"  : 6659,
+                "File__Sha256" : "5fa38d504e"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 12,
+                "File__Bytes"  : 39514,
+                "File__Sha256" : "e8dbaea74d"
+            },
+            {
+                "File__Type"   : "vector",
+                "File__Layers" : [
+                    "Layer_004"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
+                "File__Count"  : 96,
+                "File__Bytes"  : 126202,
+                "File__Sha256" : "8ea493fcdc"
+            },
+            {
+                "File__Type"   : "area",
+                "File__Layers" : [
+                    "Layer_005"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Areas__.json",
+                "File__Count"  : 14,
+                "File__Bytes"  : 35244,
+                "File__Sha256" : "b82fbed00a"
+            },
+            {
+                "File__Type"   : "viewport",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
+                "File__Count"  : 2,
+                "File__Bytes"  : 3106,
+                "File__Sha256" : "20a4344dce"
+            }
+        ],
+        "Files__Viewports" : [
+            {
+                "Viewport__Id"     : "Viewport_001",
+                "Viewport__Hash"   : "edc3ad32a4",
+                "Viewport__Vector" : {
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__edc3ad32a4.svg",
+                    "File__Bytes"    : 444535,
+                    "File__Sha256"   : "edc3ad32a4",
+                    "File__Paths"    : 11,
+                    "File__Segments" : 14246
+                },
+                "Viewport__Rasters"  : [],
+                "Viewport__FogMasks" : []
+            },
+            {
+                "Viewport__Id"     : "Viewport_002",
+                "Viewport__Hash"   : "0a86946502",
+                "Viewport__Vector" : {
+                    "File__Path"     : "02__Viewports__Vector/Viewport_002__Linework__0a86946502.svg",
+                    "File__Bytes"    : 76266,
+                    "File__Sha256"   : "0a86946502",
+                    "File__Paths"    : 8,
+                    "File__Segments" : 2472
+                },
+                "Viewport__Rasters"  : [],
+                "Viewport__FogMasks" : []
+            }
+        ],
+        "Files__Pdf" : {
+            "File__Path"   : "Document__Print__413aa3f621.pdf",
+            "File__Bytes"  : 392056,
+            "File__Sha256" : "413aa3f621",
+            "File__Name"   : "RB05_T01_D07__FirstFloorPlan__A2__RevA__23-Sep-2026__.pdf"
+        },
+        "Files__TotalBytes" : 1350452
+    }
+}
