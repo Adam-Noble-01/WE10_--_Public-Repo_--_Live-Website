@@ -16,11 +16,11 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T18:57:09.076Z",
-        "Publish__AtEpochMs"      : 1790189829076,
+        "Publish__AtIso"          : "2026-09-23T19:12:09.827Z",
+        "Publish__AtEpochMs"      : 1790190729827,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.155.0",
-        "Publish__RevisionAction" : "new",
+        "Publish__RevisionAction" : "overwritten",
         "Publish__Archived"       : null
     },
     "PublishedDocument__Files" : {
@@ -166,9 +166,9 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__4a7ce6dabf.pdf",
+            "File__Path"   : "Document__Print__93e5d40c4a.pdf",
             "File__Bytes"  : 1372325,
-            "File__Sha256" : "4a7ce6dabf",
+            "File__Sha256" : "93e5d40c4a",
             "File__Name"   : "RB05_T01_D05__CoachHouseElevation__A2__RevA__23-Sep-2026__.pdf"
         },
         "Files__TotalBytes" : 3071267

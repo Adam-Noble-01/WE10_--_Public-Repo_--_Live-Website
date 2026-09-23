@@ -16,11 +16,11 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T18:57:26.861Z",
-        "Publish__AtEpochMs"      : 1790189846861,
+        "Publish__AtIso"          : "2026-09-23T19:12:27.733Z",
+        "Publish__AtEpochMs"      : 1790190747733,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.155.0",
-        "Publish__RevisionAction" : "new",
+        "Publish__RevisionAction" : "overwritten",
         "Publish__Archived"       : null
     },
     "PublishedDocument__Files" : {
@@ -111,9 +111,9 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__2771816ab6.pdf",
+            "File__Path"   : "Document__Print__876c90fc68.pdf",
             "File__Bytes"  : 230649,
-            "File__Sha256" : "2771816ab6",
+            "File__Sha256" : "876c90fc68",
             "File__Name"   : "RB05_T01_D09__CoachHousePlan__A2__RevA__23-Sep-2026__.pdf"
         },
         "Files__TotalBytes" : 709310
