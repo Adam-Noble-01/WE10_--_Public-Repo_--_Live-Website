@@ -1,0 +1,8 @@
+{
+    "Unpublished__Meta" : {
+        "Meta__FileName"  : "PublishedDocuments__Unpublished__.json",
+        "Meta__Note"      : "The sheet paper of every drawing the index lists as unpublished - border, title block, notes margin and QR as the editor draws them - for the reader to show behind the grey panel. Fetched only when an unpublished drawing is opened. Written just before the index.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "Unpublished__Documents" : []
+}

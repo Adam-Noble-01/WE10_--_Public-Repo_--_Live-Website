@@ -2,6 +2,58 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.156.0  -  23-Sep-2026
+### Published Drawings Loading Screen: Each Drawing Arrives Whole, Named, With What Is Loading Shown Underneath
+
+**Overview**
+- From Adam, with the first published drawings live on the website: "the loading animation spinner doesn't seem to
+  work when transitioning to the drawings, so you can see the elements being loaded in. It's quite jarring ...
+  build a timer system that somehow figures out when the last ... element is loaded and on the page ... obscures it
+  with the loading screen and a message saying exactly which drawing is loading ... the drawing number and the
+  drawing name is now loading, and then show a faint grey light text underneath, cycling through what layer is
+  actually being loaded ... reuse all of the animation stuff that we've used before ... its own new module file".
+- Why it popped: since v2.155.0 the viewer renders nothing, so the old first-open veil had nothing to wait for, and
+  each published file - the element files, the viewport pictures, the linework, the logo - appeared as it arrived.
+
+**The change**
+- New `52__System__Layout__PublishedDocuments/Na__PubDoc__LoadingScreen__.js` (Na__PubLoad). On every drawing tab:
+  - The cover rises AT ONCE, with no fade, so the drawing leaving and the one arriving are never seen half-built.
+  - Headline: the tab's own label - "D02 - Front Elevation is now loading". Under it, in faint light grey, the work
+    actually outstanding, stepping through whatever is still coming: Reading the Drawing, Title Block and Notes,
+    Dimensions, Text, Specification Bubbles, Viewport 2 of 3  -  Picture / Linework / Depth Fog, Title Block Images,
+    Sheet Pictures, Fonts, Finishing.
+  - The spinner and words appear only if the drawing is still coming after 350 ms; a quick drawing simply appears,
+    whole, as the cover fades. Once shown, the words stay at least 600 ms. The cap is 20 s.
+  - It lifts when EVERYTHING has settled - every file the reader asked for, the load (or error) event of every
+    `<image>` on the finished sheet, and the fonts - then two painted frames. None of it is a guessed duration.
+  - It reuses the app's own veil (na-le-veil, loading-spinner, the 320 ms fade). The few additions are inline: an
+    opaque cover, the words held back, the fainter status line - because a lazily linked stylesheet is not governed
+    by the service worker's token and can paint a previous release.
+  - A tab pressed mid-load takes the cover over (no blink); leaving for the 3D model, the specification or the
+    register drops it at once.
+- `Na__PubDoc__Document__`: Build takes OnProgress and reports each file as it goes out and settles ('paper',
+  'manifest', 'sheet', 'element:<kind>').
+- `80__Feature__WebViewer`: ShowPublished begins the loading screen, reports the index load and the reader's
+  progress, and hands the finished sheet to WatchPaint in the same task as the markup goes in.
+- `ModeController`: the editor's first-open veil ("Your Drawings Are Loading") is now the editor's alone - in the
+  viewer it would stack on the new screen. The editor path is unchanged.
+- `Na__PubDoc__Config__.json`: a PubDoc__Loading__Config block - timings, colours, the headline and every label.
+- Service worker token `2026-09-23-04` (the viewer imports the new module); the -03 bump for publishing logged too.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS; module graph 613 modules (the 2 known false positives).
+  `Na__Test__PublishedReader__` 63 pass (8 new: the reader reports the manifest, sheet and all six element files once
+  out and once settled, a loaded drawing reports nothing, and every published image is named for what it is);
+  `Na__Test__PublishedSchema__` 49 pass.
+- In the app on RB05 with authoring locked, a 25 ms timeline of the cover and every picture's load event:
+  D02 cover at 26 ms, words at 391 ms, the status line stepping through seven jobs, the last picture at 1,934 ms,
+  the cover gone at 2,317 ms. Unpublished D03 was ready in 49 ms: the cover faded with no words. D06 lifted
+  17 ms after its linework. D02 then D01 pressed 120 ms apart: D01 took the cover over, one cover, D01 shown.
+  Pressing the 3D Model tab mid-load dropped the cover at once.
+- Authoring unlocked: D02 draws its editor frame as before, no published cover is made, no errors.
+- NOT tried on a phone yet. NOT in ValeVision (it has no published system).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.155.0  -  23-Sep-2026
 ### Publishing: Drawings Are Baked Once on the Authoring Machine, and the Web Viewer Only Shows the Files
 

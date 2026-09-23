@@ -1,0 +1,128 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName" : "Elements__Viewports__.json",
+        "Meta__Kind"     : "viewport",
+        "Meta__Document" : "PS01_T02_D01"
+    },
+    "Elements__LayerSvg"  : {},
+    "Elements__Viewports" : [
+        {
+            "Viewport__Id"      : "Viewport_001",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Existing Floor Plan",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 8.763656129990792,
+                "Y"        : 37.29446993296558,
+                "WidthMm"  : 225.87791554479728,
+                "HeightMm" : 205.69886930896746
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 225.87791554479728,
+                "HeightMm" : 205.69886930896746
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__f1ddb400a1.png",
+                    "Tier__PixelW" : 4518,
+                    "Tier__PixelH" : 4114
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__f1ddb400a1.webp",
+                    "Tier__PixelW" : 2711,
+                    "Tier__PixelH" : 2468
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__f1ddb400a1.webp",
+                    "Tier__PixelW" : 1355,
+                    "Tier__PixelH" : 1234
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__f1ddb400a1.webp",
+                    "Tier__PixelW" : 452,
+                    "Tier__PixelH" : 411
+                }
+            ],
+            "Viewport__FogMasks" : [],
+            "Viewport__Vector"   : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__f1ddb400a1.svg",
+                "Vector__WidthMm"      : 225.87791554479728,
+                "Vector__HeightMm"     : 205.69886930896746,
+                "Vector__PathCount"    : 7,
+                "Vector__SegmentCount" : 3381
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : ""
+        },
+        {
+            "Viewport__Id"      : "Viewport_002",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Proposed Floor Plan",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 253.73666335179684,
+                "Y"        : 37.08613739436085,
+                "WidthMm"  : 225.87791554479728,
+                "HeightMm" : 259.1269886542702
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 50,
+            "Viewport__SitePlan"         : false,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 225.87791554479728,
+                "HeightMm" : 259.1269886542702
+            },
+            "Viewport__BaseImage"    : true,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [
+                {
+                    "Tier__Id"     : "Print",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Print__23f929410d.png",
+                    "Tier__PixelW" : 4518,
+                    "Tier__PixelH" : 5183
+                },
+                {
+                    "Tier__Id"     : "Tier03",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier03__Detail__23f929410d.webp",
+                    "Tier__PixelW" : 2711,
+                    "Tier__PixelH" : 3110
+                },
+                {
+                    "Tier__Id"     : "Tier02",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier02__Read__23f929410d.webp",
+                    "Tier__PixelW" : 1355,
+                    "Tier__PixelH" : 1555
+                },
+                {
+                    "Tier__Id"     : "Tier01",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_002__Tier01__Fit__23f929410d.webp",
+                    "Tier__PixelW" : 452,
+                    "Tier__PixelH" : 518
+                }
+            ],
+            "Viewport__FogMasks" : [],
+            "Viewport__Vector"   : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_002__Linework__23f929410d.svg",
+                "Vector__WidthMm"      : 225.87791554479728,
+                "Vector__HeightMm"     : 259.1269886542702,
+                "Vector__PathCount"    : 8,
+                "Vector__SegmentCount" : 3467
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : ""
+        }
+    ]
+}

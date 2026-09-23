@@ -34,6 +34,20 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.9.43
+// - Token bumped (2026-09-23-04) for the published drawings' loading screen
+//   (v2.156.0): the web viewer imports the new
+//   52__System__Layout__PublishedDocuments/Na__PubDoc__LoadingScreen__ and
+//   passes Na__PubDoc__Build a progress listener, so the first reload after
+//   the deploy shows the new release whole rather than half of it.
+//
+// 23-Sep-2026 - Version 1.9.42
+// - Token bumped (2026-09-23-03) for publishing (v2.155.0), and a new bucket,
+//   tv-published-<token>: content-hashed published pictures and linework
+//   cache-first (capped at PWA_SW_PUBLISHED_MAX_ENTRIES), the index, manifests,
+//   sheets and element files network-first, PDFs not cached. Added to the
+//   activate keep-list and the owned prefixes. (Logged late, with -04.)
+//
 // 23-Sep-2026 - Version 1.9.41
 // - Token bumped (2026-09-23-02) for dimension line weight and line style
 //   (v2.152.0): the Dimensions panel imports new MarkupBridge exports
@@ -556,7 +570,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-23-03';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-23-04';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

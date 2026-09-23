@@ -1,0 +1,37 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Dimensions__.json",
+        "Meta__Kind"      : "dimension",
+        "Meta__LayerType" : "dimension",
+        "Meta__Document"  : "PS01_T02_D04",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Dimensions" : [
+        {
+            "Dimension__Id"           : "Dim_001",
+            "Dimension__ViewportId"   : "Viewport_001",
+            "Dimension__StartXMm"     : 216.78165261911113,
+            "Dimension__StartYMm"     : 186.80902387891658,
+            "Dimension__EndXMm"       : 216.60891824411115,
+            "Dimension__EndYMm"       : 184.8165082539166,
+            "Dimension__OffsetMm"     : 4.258867164779112,
+            "Dimension__TextSizeMm"   : 2,
+            "Dimension__Colour"       : "#0a0094",
+            "Dimension__Terminator"   : "tick",
+            "Dimension__TickLengthMm" : 1.5,
+            "Dimension__Precision"    : 0,
+            "Dimension__UnitsSuffix"  : " mm",
+            "Dimension__OverrideText" : null,
+            "Dimension__Orientation"  : "aligned",
+            "Dimension__LayerId"      : "Layer_003",
+            "Dimension__AtScale"      : true,
+            "Dimension__TextDXMm"     : 1.6098499298095703,
+            "Dimension__TextDYMm"     : -8.64109992980957,
+            "Dimension__Text"         : "1,000 mm"
+        }
+    ],
+    "Elements__LayerSvg" : {
+        "Layer_003" : "<line x1=\"218.276\" y1=\"186.679\" x2=\"222.519\" y2=\"186.312\" stroke=\"#0a0094\" stroke-width=\"0.123\" stroke-linecap=\"round\"/><line x1=\"218.103\" y1=\"184.687\" x2=\"222.346\" y2=\"184.319\" stroke=\"#0a0094\" stroke-width=\"0.123\" stroke-linecap=\"round\"/><line x1=\"221.025\" y1=\"186.441\" x2=\"220.852\" y2=\"184.449\" stroke=\"#0a0094\" stroke-width=\"0.123\" stroke-linecap=\"round\"/><path d=\"M221.707 185.629L220.342 187.253\" fill=\"none\" stroke=\"#0a0094\" stroke-width=\"0.123\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M220.169 185.261L221.534 183.637\" fill=\"none\" stroke=\"#0a0094\" stroke-width=\"0.123\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M224.499 181.711L224.426 182.097L224.32 182.475L224.18 182.843L224.008 183.197L223.806 183.534L223.575 183.851L223.316 184.148L223.033 184.42L222.726 184.666L222.399 184.884L222.054 185.072L221.693 185.229L221.321 185.354L220.938 185.445\" fill=\"none\" stroke=\"#0a0094\" stroke-width=\"0.123\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><path d=\"M224.377 171.971L225.182 181.25L223.249 181.418L222.445 172.138Z\" fill=\"#ffffff\" stroke=\"none\" stroke-width=\"0\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/><text x=\"223.747\" y=\"181.375\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2\" font-weight=\"400\" fill=\"#0a0094\" text-anchor=\"end\" transform=\"rotate(85.045 223.747 181.375)\" xml:space=\"preserve\">1,000 mm</text>"
+    }
+}

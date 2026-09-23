@@ -1018,6 +1018,12 @@
                 "Elevation__CameraTargetMm": {
                     "PosRun": 8446,
                     "PosHeight": 2412
+                },
+                "Elevation__DepthFog": {
+                    "DepthFog__Enabled": false,
+                    "DepthFog__StartDepthMm": 1000,
+                    "DepthFog__EndDepthMm": 15000,
+                    "DepthFog__FalloffPercent": 50
                 }
             },
             {
@@ -1046,6 +1052,12 @@
                 "Elevation__CameraTargetMm": {
                     "PosRun": 14487,
                     "PosHeight": 2542
+                },
+                "Elevation__DepthFog": {
+                    "DepthFog__Enabled": false,
+                    "DepthFog__StartDepthMm": 1000,
+                    "DepthFog__EndDepthMm": 15000,
+                    "DepthFog__FalloffPercent": 50
                 }
             },
             {
@@ -1074,6 +1086,12 @@
                 "Elevation__CameraTargetMm": {
                     "PosRun": -9779,
                     "PosHeight": 1849
+                },
+                "Elevation__DepthFog": {
+                    "DepthFog__Enabled": false,
+                    "DepthFog__StartDepthMm": 1000,
+                    "DepthFog__EndDepthMm": 15000,
+                    "DepthFog__FalloffPercent": 50
                 }
             }
         ],
@@ -11500,9 +11518,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__16f34hx.webp",
-                            "Asset__Fingerprint": "16f34hx",
-                            "Asset__PixelWidth": 4833,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_002__1tjody8.webp",
+                            "Asset__Fingerprint": "1tjody8",
+                            "Asset__PixelWidth": 2929,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11552,9 +11570,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__ioqkb0.webp",
-                            "Asset__Fingerprint": "ioqkb0",
-                            "Asset__PixelWidth": 4737,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_003__15tbtrb.webp",
+                            "Asset__Fingerprint": "15tbtrb",
+                            "Asset__PixelWidth": 3158,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11605,9 +11623,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__1ystxe8.webp",
-                            "Asset__Fingerprint": "1ystxe8",
-                            "Asset__PixelWidth": 4380,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_004__2ykvu3.webp",
+                            "Asset__Fingerprint": "2ykvu3",
+                            "Asset__PixelWidth": 2920,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11658,9 +11676,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__dcdkcm.webp",
-                            "Asset__Fingerprint": "dcdkcm",
-                            "Asset__PixelWidth": 4717,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_005__1blow3l.webp",
+                            "Asset__Fingerprint": "1blow3l",
+                            "Asset__PixelWidth": 3145,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11711,9 +11729,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_006__wvejhb.webp",
-                            "Asset__Fingerprint": "wvejhb",
-                            "Asset__PixelWidth": 4819,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_006__1h1c21m.webp",
+                            "Asset__Fingerprint": "1h1c21m",
+                            "Asset__PixelWidth": 2920,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -11764,9 +11782,9 @@
                         "Viewport__MarkupMode": "scene",
                         "Viewport__ShowScaleLabel": true,
                         "Viewport__SnapshotAsset": {
-                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_007__6qm1q9.webp",
-                            "Asset__Fingerprint": "6qm1q9",
-                            "Asset__PixelWidth": 5163,
+                            "Asset__Path": "LayoutEditor/Snapshots/Sheet_003__Viewport_007__qwjkak.webp",
+                            "Asset__Fingerprint": "qwjkak",
+                            "Asset__PixelWidth": 3129,
                             "Asset__Samples": 16
                         },
                         "Viewport__Locked": false,
@@ -14725,7 +14743,7 @@
             },
             "North__SetIso": "2026-09-20T08:36:09.616Z"
         },
-        "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T16:44:52.447Z"
+        "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T17:20:26.308Z"
     },
     "LayoutEditor__DrawingRegister": {
         "DrawingRegister__Document__Description": "Drawing register numbering and per-sheet revision history. Sheet ids link to LayoutEditor__DrawingsData; drawing metadata stays in its sheet records.",

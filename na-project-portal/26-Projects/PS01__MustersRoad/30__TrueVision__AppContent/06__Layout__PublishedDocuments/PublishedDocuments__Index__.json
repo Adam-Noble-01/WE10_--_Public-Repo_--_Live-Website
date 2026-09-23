@@ -1,0 +1,164 @@
+{
+    "PublishedDocuments__Meta" : {
+        "Meta__FileName"  : "PublishedDocuments__Index__.json",
+        "Meta__Note"      : "Which drawings of this project are published. The first file a reader downloads. An unpublished drawing's sheet paper is in PublishedDocuments__Unpublished__.json, fetched only when one is opened. Written LAST by a publish.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocuments__Project" : {
+        "Project__Code"          : "PS01",
+        "Project__Folder"        : "26-Projects/PS01__MustersRoad",
+        "Project__ContentFolder" : "30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocuments__Publish" : {
+        "Publish__SchemaVersion"    : 1,
+        "Publish__AtIso"            : "2026-09-23T16:58:56.420Z",
+        "Publish__AtEpochMs"        : 1790182736420,
+        "Publish__ByApp"            : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"     : "v2.155.0",
+        "Publish__LastPublishedIso" : "2026-09-23T16:58:56.420Z",
+        "Publish__DocumentCount"    : 4,
+        "Publish__UnpublishedCount" : 0,
+        "Publish__ArchiveFolder"    : "00__Archive__Revisions"
+    },
+    "PublishedDocuments__RasterTiers" : {
+        "RasterTiers__Tiers" : [
+            {
+                "Tier__Id"          : "Tier01",
+                "Tier__Name"        : "Fit",
+                "Tier__PixelsPerMm" : 2,
+                "Tier__MaxPixels"   : 1024,
+                "Tier__Format"      : "image/webp",
+                "Tier__Quality"     : 0.9,
+                "Tier__UpToZoom"    : 1.5
+            },
+            {
+                "Tier__Id"          : "Tier02",
+                "Tier__Name"        : "Read",
+                "Tier__PixelsPerMm" : 6,
+                "Tier__MaxPixels"   : 3072,
+                "Tier__Format"      : "image/webp",
+                "Tier__Quality"     : 0.92,
+                "Tier__UpToZoom"    : 4.5
+            },
+            {
+                "Tier__Id"          : "Tier03",
+                "Tier__Name"        : "Detail",
+                "Tier__PixelsPerMm" : 12,
+                "Tier__MaxPixels"   : 5120,
+                "Tier__Format"      : "image/webp",
+                "Tier__Quality"     : 0.94,
+                "Tier__UpToZoom"    : null
+            },
+            {
+                "Tier__Id"          : "Print",
+                "Tier__Name"        : "Print",
+                "Tier__PixelsPerMm" : 20,
+                "Tier__MaxPixels"   : 8192,
+                "Tier__Format"      : "image/png",
+                "Tier__Quality"     : null,
+                "Tier__UpToZoom"    : null
+            }
+        ]
+    },
+    "PublishedDocuments__Documents" : [
+        {
+            "Document__Id"            : "PS01_T02_D01",
+            "Document__Number"        : "D01",
+            "Document__Phase"         : "T02",
+            "Document__Name"          : "Floor Plans",
+            "Document__PaperSize"     : "A2",
+            "Document__Orientation"   : "landscape",
+            "Document__PaperWidthMm"  : 594,
+            "Document__PaperHeightMm" : 420,
+            "Document__DrawingAreaMm" : {
+                "X"        : 5,
+                "Y"        : 5,
+                "WidthMm"  : 492.1,
+                "HeightMm" : 397
+            },
+            "Document__Revision"       : "B",
+            "Document__Status"         : "FOR PLANNING",
+            "Document__State"          : "published",
+            "Document__Folder"         : "PS01_T02_D01",
+            "Document__PublishedAtIso" : "2026-09-23T16:57:53.118Z",
+            "Document__HasViewports"   : true,
+            "Document__HasPdf"         : true,
+            "Document__Order"          : 1
+        },
+        {
+            "Document__Id"            : "PS01_T02_D02",
+            "Document__Number"        : "D02",
+            "Document__Phase"         : "T02",
+            "Document__Name"          : "Elevations",
+            "Document__PaperSize"     : "A2",
+            "Document__Orientation"   : "landscape",
+            "Document__PaperWidthMm"  : 594,
+            "Document__PaperHeightMm" : 420,
+            "Document__DrawingAreaMm" : {
+                "X"        : 5,
+                "Y"        : 5,
+                "WidthMm"  : 514.9,
+                "HeightMm" : 397
+            },
+            "Document__Revision"       : "B",
+            "Document__Status"         : "FOR PLANNING",
+            "Document__State"          : "published",
+            "Document__Folder"         : "PS01_T02_D02",
+            "Document__PublishedAtIso" : "2026-09-23T16:58:17.111Z",
+            "Document__HasViewports"   : true,
+            "Document__HasPdf"         : true,
+            "Document__Order"          : 2
+        },
+        {
+            "Document__Id"            : "PS01_T02_D03",
+            "Document__Number"        : "D03",
+            "Document__Phase"         : "T02",
+            "Document__Name"          : "3D Images",
+            "Document__PaperSize"     : "A3",
+            "Document__Orientation"   : "landscape",
+            "Document__PaperWidthMm"  : 420,
+            "Document__PaperHeightMm" : 297,
+            "Document__DrawingAreaMm" : {
+                "X"        : 5,
+                "Y"        : 5,
+                "WidthMm"  : 323.4,
+                "HeightMm" : 274
+            },
+            "Document__Revision"       : "A",
+            "Document__Status"         : "FOR PLANNING",
+            "Document__State"          : "published",
+            "Document__Folder"         : "PS01_T02_D03",
+            "Document__PublishedAtIso" : "2026-09-23T16:58:44.046Z",
+            "Document__HasViewports"   : true,
+            "Document__HasPdf"         : true,
+            "Document__Order"          : 3
+        },
+        {
+            "Document__Id"            : "PS01_T02_D04",
+            "Document__Number"        : "D04",
+            "Document__Phase"         : "T02",
+            "Document__Name"          : "Site Plan",
+            "Document__PaperSize"     : "A2",
+            "Document__Orientation"   : "landscape",
+            "Document__PaperWidthMm"  : 594,
+            "Document__PaperHeightMm" : 420,
+            "Document__DrawingAreaMm" : {
+                "X"        : 5,
+                "Y"        : 5,
+                "WidthMm"  : 584,
+                "HeightMm" : 397
+            },
+            "Document__Revision"       : "B",
+            "Document__Status"         : "FOR PLANNING",
+            "Document__State"          : "published",
+            "Document__Folder"         : "PS01_T02_D04",
+            "Document__PublishedAtIso" : "2026-09-23T16:58:53.525Z",
+            "Document__HasViewports"   : true,
+            "Document__HasPdf"         : true,
+            "Document__Order"          : 4
+        }
+    ],
+    "PublishedDocuments__Superseded" : {
+        "Superseded__Documents" : []
+    }
+}

@@ -1,0 +1,40 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Bubbles__.json",
+        "Meta__Kind"      : "leader",
+        "Meta__LayerType" : "leader",
+        "Meta__Document"  : "PS01_T02_D04",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Bubbles" : [
+        {
+            "Leader__Id"             : "Leader_001",
+            "Leader__LayerId"        : "Layer_002",
+            "Leader__Type"           : "text",
+            "Leader__TipXMm"         : 216.42699207552175,
+            "Leader__TipYMm"         : 201.2676744810035,
+            "Leader__AnchorXMm"      : 225.16286549274076,
+            "Leader__AnchorYMm"      : 195.2296443249845,
+            "Leader__Text"           : "Design Proposal",
+            "Leader__TextSizeMm"     : 2,
+            "Leader__FontWeight"     : 600,
+            "Leader__TextColour"     : "#172b3a",
+            "Leader__LineColour"     : "#172b3a",
+            "Leader__LinePt"         : 0.35,
+            "Leader__LineStyle"      : "dashed",
+            "Leader__LineOpacity"    : 1,
+            "Leader__EndpointFilled" : false,
+            "Leader__EndpointPt"     : 0.35,
+            "Leader__EndpointSizeMm" : 1.6,
+            "Leader__BubbleSizeMm"   : 9,
+            "Leader__BubbleEdgePt"   : 0.35,
+            "Leader__FillColour"     : null,
+            "Leader__FillOpacity"    : 1,
+            "Leader__SpecCode"       : null,
+            "Leader__SpecHeading"    : null,
+            "Leader__SpecText"       : null
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

@@ -1,0 +1,78 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName" : "Elements__Viewports__.json",
+        "Meta__Kind"     : "viewport",
+        "Meta__Document" : "PS01_T02_D04"
+    },
+    "Elements__LayerSvg"  : {},
+    "Elements__Viewports" : [
+        {
+            "Viewport__Id"      : "Viewport_001",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Block Plan",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 64.5449668071673,
+                "Y"        : 57.28912525378064,
+                "WidthMm"  : 300.0653906685834,
+                "HeightMm" : 274.5376562222043
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 500,
+            "Viewport__SitePlan"         : true,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 300.0653906685834,
+                "HeightMm" : 274.5376562222043
+            },
+            "Viewport__BaseImage"    : false,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [],
+            "Viewport__FogMasks"     : [],
+            "Viewport__Vector"       : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__25e39d0b0b.svg",
+                "Vector__WidthMm"      : 300.0653906685834,
+                "Vector__HeightMm"     : 274.5376562222043,
+                "Vector__PathCount"    : 5,
+                "Vector__SegmentCount" : 758
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : "<rect x=\"64.545\" y=\"57.289\" width=\"300.065\" height=\"274.538\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"64.545\" y=\"326.827\" width=\"29.394\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"66.445\" y=\"330.191\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">BLOCK PLAN   1:500</text>"
+        },
+        {
+            "Viewport__Id"      : "Viewport_002",
+            "Viewport__Kind"    : "2d",
+            "Viewport__Name"    : "Location Plan",
+            "Viewport__LayerId" : "Layer_001",
+            "Viewport__FrameMm" : {
+                "X"        : 405.1788744163613,
+                "Y"        : 57.254031315910474,
+                "WidthMm"  : 118.06499348435932,
+                "HeightMm" : 111.71309778617541
+            },
+            "Viewport__RotationDeg"      : 0,
+            "Viewport__ScaleDenominator" : 1250,
+            "Viewport__SitePlan"         : true,
+            "Viewport__PictureRectMm"    : {
+                "X"        : 0,
+                "Y"        : 0,
+                "WidthMm"  : 118.06499348435932,
+                "HeightMm" : 111.71309778617541
+            },
+            "Viewport__BaseImage"    : false,
+            "Viewport__RasterOpaque" : true,
+            "Viewport__Rasters"      : [],
+            "Viewport__FogMasks"     : [],
+            "Viewport__Vector"       : {
+                "Vector__File"         : "02__Viewports__Vector/Viewport_002__Linework__d62d52aefa.svg",
+                "Vector__WidthMm"      : 118.06499348435932,
+                "Vector__HeightMm"     : 111.71309778617541,
+                "Vector__PathCount"    : 5,
+                "Vector__SegmentCount" : 766
+            },
+            "Viewport__SceneSvg" : "",
+            "Viewport__FrameSvg" : "<rect x=\"405.179\" y=\"57.254\" width=\"118.065\" height=\"111.713\" fill=\"none\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><rect x=\"405.179\" y=\"163.967\" width=\"35.737\" height=\"5\" fill=\"#ffffff\" stroke=\"#8a949c\" stroke-width=\"0.25\"/><text x=\"407.079\" y=\"167.331\" font-family=\"&#39;Open Sans&#39;, Helvetica, Arial, sans-serif\" font-size=\"2.4\" font-weight=\"700\" fill=\"#172b3a\" text-anchor=\"start\" letter-spacing=\"0.16\" xml:space=\"preserve\">LOCATION PLAN   1:1250</text>"
+        }
+    ]
+}

@@ -1,0 +1,427 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "PS01_T02_D02",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_114"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_115"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_116"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_117"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_118"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_119"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_120"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_121"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_122"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_123"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_016"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_017"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_018"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_019"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_020"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_021"
+                }
+            ],
+            "Group__Id" : "Group_002"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_124"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_125"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_126"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_127"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_128"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_129"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_130"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_131"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_132"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_133"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_022"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_023"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_024"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_025"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_026"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_027"
+                }
+            ],
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_134"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_135"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_136"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_137"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_138"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_139"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_140"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_141"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_142"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_143"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_028"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_029"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_030"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_031"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_032"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_033"
+                }
+            ],
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_144"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_145"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_146"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_147"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_148"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_149"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_150"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_151"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_152"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_153"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_034"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_035"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_036"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_037"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_038"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_039"
+                }
+            ],
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_154"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_155"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_156"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_157"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_158"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_159"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_160"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_161"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_162"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_163"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_040"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_041"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_042"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_043"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_044"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_045"
+                }
+            ],
+            "Group__Id" : "Group_006"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_164"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_165"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_166"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_167"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_168"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_169"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_170"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_171"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_172"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_173"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_046"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_047"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_048"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_049"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_050"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_051"
+                }
+            ],
+            "Group__Id" : "Group_007"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

@@ -202,14 +202,28 @@
 // REGION | Loading One Document
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | Tell a Progress Listener, Never Letting It Break a Load
+    // ------------------------------------------------------------
+    // { Key, Kind, Done }: Done false as a request goes out, true as it
+    // settles - however it went. The loading screen names its jobs from these.
+    // ------------------------------------------------------------
+    function Na__PubDoc__Tell(onProgress, key, done, kind) {
+        if (typeof onProgress !== 'function') return;
+        try { onProgress({ Key : key, Kind : kind || null, Done : !!done }); }
+        catch (error) { /* A listener's fault is not the drawing's */ }
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Load a Published Document's Manifest, Sheet and Element Files
     // ------------------------------------------------------------
     // Returns { Ok, Manifest, Sheet, Elements, Reason }. Element files are
     // fetched together, because they are small and a drawing is not showable
     // without them; the rasters are NOT fetched here - they are <image> hrefs and
-    // the browser fetches them as it paints.
+    // the browser fetches them as it paints. onProgress (optional) hears each
+    // file go out and settle.
     // ------------------------------------------------------------
-    async function Na__PubDoc__LoadDocument(documentId) {
+    async function Na__PubDoc__LoadDocument(documentId, onProgress) {
         if (Na__PubDoc__Cache.has(documentId)) return Na__PubDoc__Cache.get(documentId);
 
         const manifestPath = Na__PubSchema__ManifestPath(documentId);
@@ -217,13 +231,17 @@
             return { Ok : false, Reason : 'that is not a drawing this project can name' };
         }
 
+        Na__PubDoc__Tell(onProgress, 'manifest', false);
         const gotManifest = await Na__PubDoc__Urls__Fetch(manifestPath, 'json', false);
+        Na__PubDoc__Tell(onProgress, 'manifest', true);
         if (!gotManifest.Ok) return { Ok : false, Reason : gotManifest.Reason };
 
         const verdict = Na__PubVer__ReadsManifest(gotManifest.Value);
         if (!verdict.Ok) return { Ok : false, Reason : verdict.Reason };
 
+        Na__PubDoc__Tell(onProgress, 'sheet', false);
         const gotSheet = await Na__PubDoc__Urls__Fetch(Na__PubSchema__SheetPath(documentId), 'json', false);
+        Na__PubDoc__Tell(onProgress, 'sheet', true);
         if (!gotSheet.Ok) return { Ok : false, Reason : gotSheet.Reason };
 
         // THE ELEMENT FILES THE MANIFEST NAMES, and only those. Nothing is
@@ -236,9 +254,12 @@
 
         await Promise.all(listed.map(async (entry) => {
             const kind = Na__PubSchema__Kind(entry['File__Type']);
+            const name = kind ? kind.name : String(entry['File__Type']);
             const path = Na__PubSchema__DocumentFolder(documentId) + '/' + entry['File__Path'];
+            Na__PubDoc__Tell(onProgress, 'element:' + name, false, name);
             const got  = await Na__PubDoc__Urls__Fetch(path, 'json', false);
-            if (got.Ok) elements[kind ? kind.name : String(entry['File__Type'])] = got.Value;
+            Na__PubDoc__Tell(onProgress, 'element:' + name, true, name);
+            if (got.Ok) elements[name] = got.Value;
             else missing.push(entry['File__Path']);
         }));
 
@@ -298,6 +319,9 @@
     //
     // options : { Density, Zoom } - device pixels per paper mm on screen (the
     //           reader's own rule for the raster tier), or a bare zoom factor.
+    //           { OnProgress } hears every file go out and settle:
+    //           { Key : 'paper' | 'manifest' | 'sheet' | 'element:<kind>',
+    //             Kind, Done } - what the loading screen names its jobs from.
     // ------------------------------------------------------------
     async function Na__PubDoc__Build(documentId, options) {
         await Na__PubDoc__ReadConfig();
@@ -333,7 +357,12 @@
         if (entry['Document__State'] !== states.published) {
             const paper = Na__PubDoc__PaperFromEntry(entry);
             const inline = (typeof entry['Document__FurnitureSvg'] === 'string') || Array.isArray(entry['Document__Marks']);
-            const sheetPaper = inline ? entry : Object.assign({}, entry, await Na__PubDoc__UnpublishedPaper(documentId));
+            let sheetPaper = entry;
+            if (!inline) {
+                Na__PubDoc__Tell((options || {}).OnProgress, 'paper', false);
+                sheetPaper = Object.assign({}, entry, await Na__PubDoc__UnpublishedPaper(documentId));
+                Na__PubDoc__Tell((options || {}).OnProgress, 'paper', true);
+            }
             return {
                 Ok     : true,
                 State  : states.unpublished,
@@ -346,7 +375,7 @@
         }
 
         // ---- PUBLISHED --------------------------------------------------------
-        const loaded = await Na__PubDoc__LoadDocument(documentId);
+        const loaded = await Na__PubDoc__LoadDocument(documentId, (options || {}).OnProgress);
         if (!loaded.Ok) {
             const paper = Na__PubDoc__PaperFromEntry(entry);
             return {

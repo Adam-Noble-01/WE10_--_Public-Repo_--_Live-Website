@@ -75,10 +75,11 @@
     // MODULE IMPORTS | Config, Sheet Model, PDF, and the Two Reading Surfaces
     // ------------------------------------------------------------
     import { Na__LeCfg__GetLabel, Na__LeCfg__FormatLabel, Na__LeCfg__GetWebViewerSetup } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
-    import { Na__LeModel__GetSheets, Na__LeModel__GetActiveSheet, Na__LeModel__IsSitePlanSheet, Na__LeModel__GetDocumentId } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
+    import { Na__LeModel__GetSheets, Na__LeModel__GetActiveSheet, Na__LeModel__IsSitePlanSheet, Na__LeModel__GetDocumentId, Na__LeModel__GetTabLabel } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeLayout__Solve } from '../07__Core__SheetData/Na__LayoutEditor__SheetLayout__.js';   // <-- Pure layout: the paper and its drawing area, nothing rendered
     import {
-        Na__LeSurface__ShowPublished, Na__LeSurface__GetZoom, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__ZOOM_SETTLED_EVENT
+        Na__LeSurface__ShowPublished, Na__LeSurface__GetZoom, Na__LeSurface__GetPixelsPerMm, Na__LeSurface__ZOOM_SETTLED_EVENT,
+        Na__LeSurface__GetElements
     } from '../10__Core__SheetSurface/Na__LayoutEditor__SheetSurface__.js';
     // THE PUBLISHED READER | The viewer shows PUBLISHED drawings and never
     // renders one: no viewport render, no projection, no PDF build ever runs on
@@ -88,6 +89,9 @@
         Na__PubDoc__LoadIndex, Na__PubDoc__Build, Na__PubDoc__PaperOf, Na__PubDoc__PdfUrl, Na__PubDoc__Forget
     } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Document__.js';
     import { Na__PubDoc__Urls__FromPage } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__Urls__.js';
+    import {
+        Na__PubLoad__Begin, Na__PubLoad__Progress, Na__PubLoad__WatchPaint, Na__PubLoad__Finish, Na__PubLoad__CancelAll
+    } from '../../52__System__Layout__PublishedDocuments/Na__PubDoc__LoadingScreen__.js';
     import {
         Na__LeVwDraw__Attach,
         Na__LeVwDraw__Detach,
@@ -469,6 +473,10 @@
 
     // FUNCTION | Put a Sheet's PUBLISHED Drawing on the Paper
     // ------------------------------------------------------------
+    // 0. THE LOADING SCREEN goes up at once (Na__PubDoc__LoadingScreen__),
+    //    named for the tab that was pressed, and lifts only when every file,
+    //    picture and font of the new drawing is on the page - so the drawing
+    //    arrives whole instead of popping in piece by piece.
     // 1. The index, once per session. An unpublished drawing costs only that
     //    and the one shared unpublished sheets file, also fetched once.
     // 2. The paper, sized from the index row (or the sheet's own layout when it
@@ -478,11 +486,16 @@
     //    smallest picture that is sharp at that size - and put on the paper in
     //    one assignment.
     // A later tab press wins: a show that lands after another has started is
-    // thrown away rather than painted over it.
+    // thrown away rather than painted over it, and its loading screen with it.
     // ------------------------------------------------------------
     async function Na__LeVw__ShowPublished(sheet, fit) {
         const token = ++Na__LeVw__Token;
+        const stage = Na__LeSurface__GetElements().stage;
+        const loading = Na__PubLoad__Begin(stage ? (stage.parentElement || stage) : null, Na__LeModel__GetTabLabel(sheet));   // <-- The stage's frame, which does not scroll with the sheet
+        const asksIndex = !Na__LeVw__Index;
+        if (asksIndex) Na__PubLoad__Progress(loading, { Key : 'index', Done : false });
         const index = await Na__LeVw__EnsureIndex();
+        if (asksIndex) Na__PubLoad__Progress(loading, { Key : 'index', Done : true });
         if (token !== Na__LeVw__Token) return false;
 
         const documentId = Na__LeModel__GetDocumentId(sheet);
@@ -499,21 +512,25 @@
         if (Na__LeVw__Shown && Na__LeVw__Shown.DocumentId !== documentId) Na__LeVw__Release();
 
         const host = Na__LeSurface__ShowPublished({ WidthMm : paper.WidthMm, HeightMm : paper.HeightMm, ScreenPixelsPerMm : layout.ScreenPixelsPerMm });
-        if (!host) return false;
+        if (!host) { Na__PubLoad__Finish(loading); return false; }
         if (fit) Na__LeVwDraw__Fit();
 
         const built = await Na__PubDoc__Build(documentId, {
             Density       : Na__LeVw__Density(),
             FallbackPaper : fallback,
-            IndexReason   : index.Ok ? null : index.Reason
+            IndexReason   : index.Ok ? null : index.Reason,
+            OnProgress    : (event) => Na__PubLoad__Progress(loading, event)     // <-- Each file named on the loading screen as it goes out and lands
         });
         if (token !== Na__LeVw__Token) return false;
 
         host.innerHTML = built.Markup || '';                                     // <-- One parse for the whole sheet
+        const painted = Na__PubLoad__WatchPaint(loading, host);                  // <-- In the SAME task as the markup, so no load event can be missed
         Na__LeVw__Shown = { SheetId : sheet.Sheet__Id, DocumentId : documentId, State : built.State, Host : host, Markup : built.Markup, Fallback : fallback };
         if (!built.Ok) console.warn('[TrueVision3D] ' + documentId + ' could not be shown: ' + built.Reason);
         Na__LeVw__WatchZoom();
         Na__LeVw__Sync();
+        await painted;
+        Na__PubLoad__Finish(loading);                                            // <-- A no-op if a newer tab has taken the cover over
         return true;
     }
     // ------------------------------------------------------------
@@ -561,6 +578,7 @@
     // FUNCTION | Show the Project Specification
     // ------------------------------------------------------------
     function Na__LeVw__ShowSpecification() {
+        Na__PubLoad__CancelAll();                                                // <-- A drawing still loading must not leave its cover over the specification
         Na__LeVwDraw__Detach();                                                  // <-- One surface owns the touch recogniser at a time
         Na__LeVw__Current = Na__LeVw__SPEC_ID;
         Na__LeVwSpec__Show({ onSwipe : Na__LeVw__Step });
@@ -573,6 +591,7 @@
     // FUNCTION | Put Every Reading Surface Away (leaving for the 3D model)
     // ------------------------------------------------------------
     function Na__LeVw__ShowRegister() {
+        Na__PubLoad__CancelAll();                                                // <-- Nor over the register
         Na__LeVwSpec__Hide();
         Na__LeVwDraw__Detach();
         Na__LeVw__Current = 'register';
@@ -582,6 +601,7 @@
         Na__LeVwSpec__Hide();
         Na__LeVwDraw__Detach();
         Na__LeVw__Token += 1;                                                    // <-- A show still in flight is abandoned
+        Na__PubLoad__CancelAll();                                                // <-- ...and its loading screen with it: the 3D model's own veil takes over
         Na__LeVw__Release();                                                     // <-- Back to the 3D model: the drawing's pictures are let go
         Na__LeVw__Current = null;
         return true;

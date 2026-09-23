@@ -1,8 +1,8 @@
 # Published Documents — the reader
 
 **Created 23-Sep-2026. Adam Noble — Noble Architecture.**
-**Status: the folder exists, the code does not.** Phase 2 of
-`TrueVision__PLAN__PublishingSystem__.md`.
+**Status: BUILT and live (TrueVision v2.155.0, loading screen v2.156.0).** Phase 2 of
+`TrueVision__PLAN__PublishingSystem__.md`; the DEVLOG entries say what was proved.
 
 ---
 
@@ -46,5 +46,15 @@ the editor's viewer shell may reach in here; nothing here reaches back.
 
 ## The files
 
-See `TrueVision__PLAN__PublishingSystem__.md` section 2.2 for the file list. Namespace
-`Na__PubDoc__`.
+| File | What it does |
+|---|---|
+| `Na__PubDoc__Document__.js` | Loads the index, a drawing's manifest, sheet and element files; builds the sheet as one SVG string. Reports each file's progress to a listener. |
+| `Na__PubDoc__Urls__.js` | Where a published file is: R2 through the CDN first on the live site, the repository copy first on localhost. |
+| `Na__PubDoc__Viewports__.js` | A viewport: its picture at the tier the screen needs, its linework, its fog mask. |
+| `Na__PubDoc__Sheet__.js`, `Na__PubDoc__Paint__.js`, `Na__PubDoc__Elements__.js` | The paper, SVG helpers, and the painters for a sheet with no paint plan (the example folder). |
+| `Na__PubDoc__Unpublished__.js` | The grey panel: "Drawing has not yet been published officially". |
+| `Na__PubDoc__LoadingScreen__.js` | The cover over a drawing while it arrives: "D02 - Elevations is now loading", the work outstanding underneath, lifted when every file, picture and font is on the page. Imports nothing. |
+| `Na__PubDoc__Config__.json` | Every setting the reader may decide: fetch, tiers, sheet, grey panel, loading screen, labels. |
+| `Na__PubDoc__Styles__Main__.css` | Host-only styles. Nothing on a published sheet depends on it. |
+
+Namespaces `Na__PubDoc__` (and `Na__PubLoad__` for the loading screen).

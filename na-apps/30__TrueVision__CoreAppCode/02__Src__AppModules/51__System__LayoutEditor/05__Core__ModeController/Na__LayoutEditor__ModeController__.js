@@ -696,10 +696,14 @@
         // drawn" from "finished": the sheet's pictures are queued a good half
         // second after the tab is pressed, so anything that only watched the
         // render queue would call itself done before the first one started.
-        void Na__LeVeil__FirstOpen(Na__LeMode__Host, {
+        // THE VIEWER HAS ITS OWN LOADING SCREEN (Na__PubDoc__LoadingScreen__),
+        // named for each drawing and lifted when that drawing's files are all
+        // on the page, on EVERY tab press - so this first-open veil, which would
+        // stack on top of it, is the editor's alone.
+        if (!Na__LeVw__IsViewerMode()) void Na__LeVeil__FirstOpen(Na__LeMode__Host, {
             specification : specLoad,
             textMetrics   : metricsLoad,
-            viewportCount : Na__LeVw__IsViewerMode() ? 0 : (Na__LeModel__GetViewports(sheet) || []).length   // <-- The viewer renders no viewport: it shows the PUBLISHED drawing, so there is nothing to wait for
+            viewportCount : (Na__LeModel__GetViewports(sheet) || []).length
         });
         Na__LeModel__SetActiveSheetId(sheet.Sheet__Id);
         Na__LeHist__Track(sheet);                                          // <-- Undo baseline for this sheet

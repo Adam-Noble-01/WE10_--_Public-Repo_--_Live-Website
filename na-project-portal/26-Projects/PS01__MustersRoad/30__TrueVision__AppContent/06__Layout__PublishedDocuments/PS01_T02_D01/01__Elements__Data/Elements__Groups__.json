@@ -1,0 +1,276 @@
+{
+    "Elements__Meta" : {
+        "Meta__FileName"  : "Elements__Groups__.json",
+        "Meta__Kind"      : "group",
+        "Meta__LayerType" : null,
+        "Meta__Document"  : "PS01_T02_D01",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments",
+        "Meta__Note"      : "Published by TrueVision. The array is the elements as the sheet holds them, authoring keys verbatim, with resolved keys added. Elements__LayerSvg is each layer's markup exactly as the editor draws it; the reader paints that."
+    },
+    "Elements__Groups" : [
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_057"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_058"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_059"
+                }
+            ],
+            "Group__Id" : "Group_003"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_060"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_061"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_062"
+                }
+            ],
+            "Group__Id" : "Group_004"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_063"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_064"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_065"
+                }
+            ],
+            "Group__Id" : "Group_005"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_081"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_082"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_083"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_084"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_085"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_086"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_087"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_088"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_089"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_090"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_091"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_027"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_028"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_029"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_030"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_031"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_032"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_033"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "BarPlacement"     : "below",
+                    "BarOffsetMm"      : 150,
+                    "ViewKind"         : "plan",
+                    "ViewPhase"        : "proposed",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "Ground Floor Plan",
+                    "ViewName"         : "Proposed Floor Plan",
+                    "ViewDrawing"      : "Floor Plan 1"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_002",
+                    "Link__ViewportId" : "Viewport_002"
+                }
+            },
+            "Group__Id" : "Group_008"
+        },
+        {
+            "Group__Members" : [
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_092"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_093"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_094"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_095"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_096"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_097"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_098"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_099"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_100"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_101"
+                },
+                {
+                    "kind" : "shape",
+                    "id"   : "Shape_102"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_034"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_035"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_036"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_037"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_038"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_039"
+                },
+                {
+                    "kind" : "annotation",
+                    "id"   : "Text_040"
+                }
+            ],
+            "Group__Parametric" : {
+                "Parametric__Type"    : "DrawingTitle",
+                "Parametric__Version" : 1,
+                "Parametric__Params"  : {
+                    "ScaleDenominator" : 50,
+                    "DivisionMm"       : 1000,
+                    "Divisions"        : 5,
+                    "SubdivideFirst"   : false,
+                    "SubdivisionMm"    : 200,
+                    "Units"            : "m",
+                    "ShowUnits"        : false,
+                    "ShowScaleBar"     : true,
+                    "PhaseMode"        : "auto",
+                    "TitleText"        : "",
+                    "Uppercase"        : true,
+                    "UnderlineMm"      : 60,
+                    "ViewKind"         : "plan",
+                    "ViewPhase"        : "existing",
+                    "ViewFacing"       : "",
+                    "ViewLevel"        : "Ground Floor Plan",
+                    "ViewName"         : "Existing Floor Plan",
+                    "ViewDrawing"      : "Floor Plan 1"
+                },
+                "Parametric__Link" : {
+                    "Link__SheetId"    : "Sheet_002",
+                    "Link__ViewportId" : "Viewport_001"
+                }
+            },
+            "Group__Id" : "Group_009"
+        }
+    ],
+    "Elements__LayerSvg" : {}
+}

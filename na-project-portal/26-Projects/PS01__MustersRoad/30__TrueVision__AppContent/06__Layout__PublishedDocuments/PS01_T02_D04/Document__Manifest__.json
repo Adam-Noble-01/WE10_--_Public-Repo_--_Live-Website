@@ -1,0 +1,124 @@
+{
+    "PublishedDocument__Meta" : {
+        "Meta__FileName"  : "Document__Manifest__.json",
+        "Meta__Note"      : "Everything this published document is made of. Written LAST, after every file it names is in place, so its presence means the document is whole.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "PublishedDocument__Identity" : {
+        "Document__Id"            : "PS01_T02_D04",
+        "Document__ProjectCode"   : "PS01",
+        "Document__Phase"         : "T02",
+        "Document__Number"        : "D04",
+        "Document__Name"          : "Site Plan",
+        "Document__Revision"      : "B",
+        "Document__Status"        : "FOR PLANNING",
+        "Document__SourceSheetId" : "Sheet_004"
+    },
+    "PublishedDocument__Publish" : {
+        "Publish__SchemaVersion"  : 1,
+        "Publish__AtIso"          : "2026-09-23T16:58:53.525Z",
+        "Publish__AtEpochMs"      : 1790182733525,
+        "Publish__ByApp"          : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__RevisionAction" : "new",
+        "Publish__Archived"       : null
+    },
+    "PublishedDocument__Files" : {
+        "Files__Sheet" : {
+            "File__Path"   : "Document__Sheet__.json",
+            "File__Bytes"  : 14373,
+            "File__Sha256" : "42f352e8f4"
+        },
+        "Files__Elements" : [
+            {
+                "File__Type"   : "dimension",
+                "File__Layers" : [
+                    "Layer_003"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Dimensions__.json",
+                "File__Count"  : 1,
+                "File__Bytes"  : 3294,
+                "File__Sha256" : "d193a07977"
+            },
+            {
+                "File__Type"   : "annotation",
+                "File__Layers" : [
+                    "Layer_002"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Text__.json",
+                "File__Count"  : 16,
+                "File__Bytes"  : 15565,
+                "File__Sha256" : "93f594600f"
+            },
+            {
+                "File__Type"   : "leader",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Bubbles__.json",
+                "File__Count"  : 1,
+                "File__Bytes"  : 1910,
+                "File__Sha256" : "277af8bbbd"
+            },
+            {
+                "File__Type"   : "group",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Groups__.json",
+                "File__Count"  : 6,
+                "File__Bytes"  : 3653,
+                "File__Sha256" : "7f2c63561a"
+            },
+            {
+                "File__Type"   : "vector",
+                "File__Layers" : [
+                    "Layer_004"
+                ],
+                "File__Path"   : "01__Elements__Data/Elements__Vectors__.json",
+                "File__Count"  : 12,
+                "File__Bytes"  : 46567,
+                "File__Sha256" : "914441266e"
+            },
+            {
+                "File__Type"   : "viewport",
+                "File__Layers" : [],
+                "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
+                "File__Count"  : 2,
+                "File__Bytes"  : 4116,
+                "File__Sha256" : "6549ec210c"
+            }
+        ],
+        "Files__Viewports" : [
+            {
+                "Viewport__Id"     : "Viewport_001",
+                "Viewport__Hash"   : "25e39d0b0b",
+                "Viewport__Vector" : {
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__25e39d0b0b.svg",
+                    "File__Bytes"    : 22981,
+                    "File__Sha256"   : "25e39d0b0b",
+                    "File__Paths"    : 5,
+                    "File__Segments" : 758
+                },
+                "Viewport__Rasters"  : [],
+                "Viewport__FogMasks" : []
+            },
+            {
+                "Viewport__Id"     : "Viewport_002",
+                "Viewport__Hash"   : "d62d52aefa",
+                "Viewport__Vector" : {
+                    "File__Path"     : "02__Viewports__Vector/Viewport_002__Linework__d62d52aefa.svg",
+                    "File__Bytes"    : 22671,
+                    "File__Sha256"   : "d62d52aefa",
+                    "File__Paths"    : 5,
+                    "File__Segments" : 766
+                },
+                "Viewport__Rasters"  : [],
+                "Viewport__FogMasks" : []
+            }
+        ],
+        "Files__Pdf" : {
+            "File__Path"   : "Document__Print__43dd3ea19e.pdf",
+            "File__Bytes"  : 169769,
+            "File__Sha256" : "43dd3ea19e",
+            "File__Name"   : "PS01_T02_D04__SitePlan__A2__RevB__23-Sep-2026__.pdf"
+        },
+        "Files__TotalBytes" : 304899
+    }
+}

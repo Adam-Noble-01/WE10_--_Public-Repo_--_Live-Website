@@ -519,6 +519,67 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | 9. The Loading Screen Names Real Work
+// -----------------------------------------------------------------------------
+//
+// The cover itself is DOM and is checked in the app. What is checked here is
+// that what it SAYS is true: the reader reports every file it asks for, once
+// out and once back, and each published file is named for what it is.
+//
+// -----------------------------------------------------------------------------
+
+    section('9. The loading screen names real work');
+
+    const Load = await import(pathToFileURL(join(STAGE, READER, 'Na__PubDoc__LoadingScreen__.mjs')).href);
+
+    Reader.Na__PubDoc__Forget('AA00_T02_D02');                                    // <-- A cached document is instant and reports nothing
+    const heard = [];
+    const withProgress = await Reader.Na__PubDoc__Build('AA00_T02_D02', { Zoom : 1, OnProgress : (event) => heard.push(event) });
+    check('a published drawing still builds with a listener attached', withProgress.Ok, withProgress.Reason);
+    const keys = [ ...new Set(heard.map((one) => one.Key)) ];
+    check('the manifest, the sheet and all six element files are reported',
+        [ 'manifest', 'sheet', 'element:viewport', 'element:dimension', 'element:annotation',
+          'element:vector', 'element:leader', 'element:group' ].every((one) => keys.indexOf(one) !== -1) && keys.length === 8,
+        keys.join(', '));
+    check('each is reported once going out and once settling, in that order',
+        keys.every((key) => {
+            const mine = heard.filter((one) => one.Key === key);
+            return mine.length === 2 && mine[0].Done === false && mine[1].Done === true;
+        }));
+
+    heard.length = 0;
+    await Reader.Na__PubDoc__Build('AA00_T02_D02', { Zoom : 1, OnProgress : (event) => heard.push(event) });
+    check('a drawing already loaded reports nothing - there is nothing to wait for', heard.length === 0, heard.length + ' event(s)');
+
+    check('the headline names the drawing as its tab does',
+        Load.Na__PubLoad__Headline('D02 - Elevations', '{drawing} is now loading') === 'D02 - Elevations is now loading');
+
+    const cdn = 'https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/';
+    const parts = [
+        [ '06__Layout__PublishedDocuments/AA00_T02_D02/03__Viewports__Raster/Viewport_001__Tier02__Read__4f8a1c27d9.webp', 'picture', 'Viewport_001' ],
+        [ '06__Layout__PublishedDocuments/AA00_T02_D02/03__Viewports__Raster/Viewport_001__FogMask__Tier02__Read__4f8a1c27d9.webp', 'fog', 'Viewport_001' ],
+        [ '06__Layout__PublishedDocuments/AA00_T02_D02/02__Viewports__Vector/Viewport_002__Linework__4f8a1c27d9.svg', 'linework', 'Viewport_002' ],
+        [ '06__Layout__PublishedDocuments/02__Shared__Images/Image__f89e0e57c8.png', 'shared', null ],
+        [ '06__Layout__PublishedDocuments/01__Shared__Patterns/Hatch__Masonry__StoneRubble__7c1e05a92b.svg', 'pattern', null ],
+        [ '05__Layout__DrawingDocs__Images/AA00_T02_D01/Photo__0a982a8998.webp', 'sheetImage', null ]
+    ];
+    check('every published image is recognised for what it is, from its folder and name',
+        parts.every(([ path, kind, view ]) => {
+            const part = Load.Na__PubLoad__ImagePart(cdn + path);
+            return part.Kind === kind && part.ViewportId === view;
+        }));
+    check('a viewport\'s parts are numbered among the drawing\'s viewports',
+        Load.Na__PubLoad__ImageLabel({ Kind : 'picture', ViewportId : 'Viewport_002' }, [ 'Viewport_001', 'Viewport_002' ]) === 'Viewport 2 of 2  -  Picture' &&
+        Load.Na__PubLoad__ImageLabel({ Kind : 'fog', ViewportId : 'Viewport_001' }, [ 'Viewport_001' ]) === 'Viewport  -  Depth Fog');
+    check('each file the reader reports has a name a reader would use',
+        Load.Na__PubLoad__ProgressLabel('element:dimension', 'dimension') === 'Dimensions' &&
+        Load.Na__PubLoad__ProgressLabel('element:leader', 'leader') === 'Specification Bubbles' &&
+        Load.Na__PubLoad__ProgressLabel('manifest', null) === 'Reading the Drawing');
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Result
 // -----------------------------------------------------------------------------
 
