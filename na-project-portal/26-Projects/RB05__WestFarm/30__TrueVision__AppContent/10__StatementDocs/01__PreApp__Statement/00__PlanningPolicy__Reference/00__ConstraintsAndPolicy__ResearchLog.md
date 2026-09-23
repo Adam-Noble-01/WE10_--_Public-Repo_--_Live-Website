@@ -126,3 +126,40 @@ Supporting text para 3.235: "Any new built development in the Countryside would 
 - Principal block 23,270 x 18,100 mm (D06). Coach house approx. 30,230 x 9,350 mm (D09).
 - Heights above GFFL (D02-D05): main house eaves 7,200, cornice top 7,600, crown 10,600 mm; colonnade 4,215 mm; kitchen building / coach house ridges 6,415*-6,655* mm; coach house eaves 2,810-2,850 mm; cupola 8,320-8,370* mm.
 - Existing (IN02, OS data, marketing plans): approx. 37,600 mm long, 456 m² over two floors (288 + 168 m²).
+
+## Additions 23 September 2026 — Hay Barn Replacement (Statement Section 10.0)
+
+Adam's brief (23-Sep-2026): demolish the asbestos-roofed hay barn and the stable building in the service yard; erect three Bonni modules, 9,000 x 5,000 mm, on drilled auger piles; Units 1 and 2 workspaces (one with the podcasting studio), Unit 3 the gym, joined by a glazed corner link; field gate access retained as a straight run. The statement sections that relied on restoring the stables (1.0, 6.2, 9.1, 12.3) were rewritten to match.
+
+The PDFs listed under Documents Held were not in this folder on 23-Sep-2026. The NPPF extracts below were verified against the same August 2026 Framework held in the planning-drawing-note-writer policy library (`nppf-2026-08`, text with PDF page markers; S5 falls on PDF p.27 there too, so the pagination matches). Policies C1, DS4, EV1 and DP3, cited again in section 10.7, rest on the extracts above.
+
+### NPPF (August 2026) — P2: Ground conditions (PDF p.81)
+> 1. Sites proposed for development should be suitable for their proposed use taking into account: a. Ground conditions, including any risks arising from land instability or contamination (whether due to natural hazards or current and former activities such as mining or fuel storage); and b. The extent to which any such risks can be mitigated, and the potential impacts on the natural environment arising from remediation. … 4. Where a site is affected by contamination or land stability issues, responsibility for securing a safe development rests with the developer and/or landowner.
+
+Relevance: asbestos survey, removal and yard clearance (s.10.2, policy table).
+
+### NPPF (August 2026) — P3: Living conditions and pollution (PDF p.81)
+> 1. Development proposals should be appropriate for their location, taking into account the likely effects (including cumulative effects) of pollution on health, living conditions and the natural environment, whether these effects are on or off-site; and whether this is as a result of the development itself or the product of preexisting conditions in its vicinity. In assessing the potential effects of pollution, consideration should be given to the potential sensitivity of the site, and its intended occupiers and users…
+
+Relevance: why the asbestos-roofed barn is not converted (s.10.2, policy table).
+
+### Not relied on, recorded so nobody reaches for them
+- S5(1)(c) supports a replacement building only "for the same use". The barn's lawful use is not established, so S5 is not claimed for the studio buildings; s.12.7 asks the council instead.
+- The glossary excludes land last occupied by agricultural or forestry buildings from previously developed land (PDF p.113). No PDL claim is made for the yard.
+
+### Supplier statements — Bonni Outbuildings (checked 23-Sep-2026, paraphrased)
+- bonnioutbuildings.com home page: timber framed, traditional methods, natural materials.
+- /about: each building designed on Passivhaus principles as a small house, for year-round use, to sit comfortably in a garden. Bonni also calls each building a permanent building.
+- /faqs: floors, walls and roof insulated; the insulation also works as soundproofing and can be increased; buildings set on small stilts, avoiding concrete bases.
+- /large: Bonni Large 4.9 x 7.4 m, 4.5 m high; Large+ 4.9 x 9.8 m, 4.5 m high; corrugated steel roof; raw oak or painted timber cladding; handmade hardwood casement doors. The page states the Large requires planning permission.
+- Fig 10.2 is the Large page photograph `230517_BonniOutbuildings_147+Large+2.jpeg` (Squarespace CDN, 1280 x 853, the largest size published), credited to Bonni in the caption. Saved as `02_StatementDocs__Content__Images/40__Outbuildings__HayBarnReplacement/41__Bonni__StandardProduct__BonniLarge__.jpg`.
+- Fig 10.1 is the Bentons listing photograph `32__BNT250373_41.jpg` (the drone view Adam supplied), saved as `40__Existing__HayBarnAndServiceYard__AerialView__.jpg`.
+
+### Drawing facts used (23-Sep-2026)
+- Hay barn, from `SitePlan__DrawingData__Proposed/RB05__TrueVision__SitePlan__ProposedBuildingsSecondary__LineworkModel__.glb` (exported 23-Sep 12:46): main barn 8,570 x 12,541 mm = 107.05 m²; side lean-to 4,452 x 12,441 mm = 55.39 m²; end lean-to 8,563 x 3,900-4,100 mm = 34.27 m²; total 196.71 m², 16,441 mm long overall. Adam's figures: 8,570 / 12,540 / 16,440 mm.
+- Stable building, same GLB: 107.30 m² footprint. Not used in the statement (Adam: keep the case on the barn).
+- Studio buildings, D13 (Sheet_013, saved 23-Sep 16:19): three 9,000 x 5,000 mm modules on the OutBuilding layer, 45.00 m² each external; Floor Areas 40.89 m² each; link 2,500 x 2,500 mm, 6.25 m². Total external footprint 141.25 m², 28.2% below the barn.
+- D13 labels the third module "Unit 3 - Office"; Adam's brief makes Unit 3 the gym. Flagged in s.10.3.
+- Heights of the barn and of the studio buildings: not yet measured. Flagged in s.10.5.
+- Parking (Adam's SketchUp site plan view, 23-Sep evening): five marked spaces, three in front of Unit 3 (the gym) in the angle of the L and two overspill at the access end of the yard; none in front of the track to the field gate. Bay sizes were not scaled from the screenshot (handed off in SP17). s.10.6.
+- Adam, 23-Sep evening: keeping the barn was tried first (early design infilling the steel frame with the workspaces and the gym) and abandoned because it is a steel structure and very tall (s.10.2). The studio buildings are a home office and gym, not business premises; visitors are occasional, e.g. a colleague (s.10.4). An ancillary-use condition is offered on that basis.

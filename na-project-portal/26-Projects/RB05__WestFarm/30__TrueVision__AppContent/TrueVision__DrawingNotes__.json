@@ -2,9 +2,9 @@
     "ProjectSpecification__Description": "Project specification notes for the TrueVision drawings. Groups hold notes in order; a note’s code is its group’s prefix and its place in the group (GN01, EE02), so the order is the truth and Note__Code is written for readers and recomputed on every load. Specification bubbles on the Layout Editor sheets link to notes by Note__Id. General groups are listed on every sheet’s notes margin, after the notes that sheet’s bubbles link to. LastIdNumber only ever goes up, so no id is used twice.",
     "ProjectSpecification__Version": 1,
     "ProjectSpecification__ProjectCode": "RB05",
-    "ProjectSpecification__UpdatedIso": "2026-09-22T16:28:10.732Z",
+    "ProjectSpecification__UpdatedIso": "2026-09-23T18:08:47.200Z",
     "ProjectSpecification__NumberDigits": 2,
-    "ProjectSpecification__LastIdNumber": 103,
+    "ProjectSpecification__LastIdNumber": 109,
     "ProjectSpecification__Revision": "A",
     "ProjectSpecification__DocumentNumber": "",
     "ProjectSpecification__Groups": [
@@ -60,8 +60,8 @@
                     "Note__Id": "SpecNote_098",
                     "Note__Code": "IN07",
                     "Note__Title": "Wider site proposals",
-                    "Note__Body": "Horseshoe carriage drive, rear swimming pool, indicative four-car timber carport, hangar privacy hedge, and stable conversion to a private gym, podcasting studio and office. Lake, hangar and part of the landing strip retained. Refer to SP01-SP13.",
-                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                    "Note__Body": "Horseshoe carriage drive, rear swimming pool, indicative four-car timber carport and hangar privacy hedge. Asbestos-roofed hay barn and stable building replaced by three single-storey studio buildings: two home office workspaces, one with a podcasting studio, and a private gym, with five parking spaces. Lake, hangar and part of the landing strip retained. Refer to SP01-SP18.",
+                    "Note__UpdatedIso": "2026-09-23T18:08:16.076Z"
                 },
                 {
                     "Note__Id": "SpecNote_099",
@@ -74,8 +74,8 @@
                     "Note__Id": "SpecNote_100",
                     "Note__Code": "IN09",
                     "Note__Title": "Matters for advice",
-                    "Note__Body": "Advice sought on: the policy basis for a replacement dwelling; scale, massing and landscape effect; demolition of the existing dwelling; the stone and stone slate palette; the surveys, reports and validation documents needed for a full application.",
-                    "Note__UpdatedIso": "2026-09-22T09:04:30.700Z"
+                    "Note__Body": "Advice sought on: the policy basis for a replacement dwelling; scale, massing and landscape effect; demolition of the existing dwelling; the studio buildings replacing the hay barn; the stone and stone slate palette; the surveys, reports and validation documents needed for a full application.",
+                    "Note__UpdatedIso": "2026-09-23T17:54:19.317Z"
                 }
             ]
         },
@@ -489,9 +489,9 @@
                 {
                     "Note__Id": "SpecNote_069",
                     "Note__Code": "SE02",
-                    "Note__Title": "Existing stable group",
-                    "Note__Body": "Existing stables and adjoining ancillary buildings beyond the house towards the lake and solar array. Stable conversion proposed; refer to D51 for the extent of works.",
-                    "Note__UpdatedIso": "2026-09-22T00:39:53.982Z"
+                    "Note__Title": "Existing stable building",
+                    "Note__Body": "Stable building beside the hay barn of SE12. Demolish in full. Proposed studio buildings to SP04.",
+                    "Note__UpdatedIso": "2026-09-23T17:54:19.317Z"
                 },
                 {
                     "Note__Id": "SpecNote_070",
@@ -555,6 +555,13 @@
                     "Note__Title": "Existing solar array",
                     "Note__Body": "Existing ground-mounted solar PV array beyond the stable group, reached from the internal access road. Array remains shown on the proposed site plan.",
                     "Note__UpdatedIso": "2026-09-22T15:44:34.476Z"
+                },
+                {
+                    "Note__Id": "SpecNote_104",
+                    "Note__Code": "SE12",
+                    "Note__Title": "Existing hay barn",
+                    "Note__Body": "Steel-framed hay barn with lean-tos to one side and one end; asbestos roof sheeting throughout. Main barn 8,570 x 12,540 mm; 16,440 mm long including the end lean-to. Demolish in full after an asbestos refurbishment and demolition survey; sheeting removed by a specialist asbestos contractor and disposed of as hazardous waste.",
+                    "Note__UpdatedIso": "2026-09-23T17:54:19.317Z"
                 }
             ]
         },
@@ -581,16 +588,16 @@
                 {
                     "Note__Id": "SpecNote_080",
                     "Note__Code": "SP03",
-                    "Note__Title": "Stable access route",
-                    "Note__Body": "New side access roadway through the coach house carriage arch and around to the converted stables. Noble Architecture to coordinate clearances, vehicle movements and pedestrian access before a full application. Carriage arch as CE02.",
-                    "Note__UpdatedIso": "2026-09-22T00:39:53.982Z"
+                    "Note__Title": "Studio access route",
+                    "Note__Body": "New side access roadway through the coach house carriage arch to the studio buildings of SP04 and the field gate of SP16. Noble Architecture to coordinate clearances, vehicle movements and pedestrian access before a full application. Carriage arch as CE02.",
+                    "Note__UpdatedIso": "2026-09-23T17:54:19.317Z"
                 },
                 {
                     "Note__Id": "SpecNote_081",
                     "Note__Code": "SP04",
-                    "Note__Title": "Stable conversion",
-                    "Note__Body": "Restore and convert the existing stables to a private gym, podcasting studio and office for the applicants. Noble Architecture to define retained fabric, alterations and external finishes before a full application.",
-                    "Note__UpdatedIso": "2026-09-22T00:39:53.982Z"
+                    "Note__Title": "Studio buildings",
+                    "Note__Body": "Three single-storey timber-framed studio buildings by Bonni Outbuildings, replacing the hay barn of SE12. Each 9,000 x 5,000 mm external. Units 1 and 2: home office workspaces, one with a podcasting studio. Unit 3: private gym, at right angles to Units 1 and 2 and joined by SP15. Use to SP18. Cladding, roof covering and colour to be confirmed before a full application.",
+                    "Note__UpdatedIso": "2026-09-23T18:08:16.076Z"
                 },
                 {
                     "Note__Id": "SpecNote_082",
@@ -654,6 +661,41 @@
                     "Note__Title": "Internal fence removal",
                     "Note__Body": "Remove the internal fences identified within the revised garden layout, including the sports fence between house and lake. Noble Architecture to mark removal limits on D51 before issue; no external boundary removal proposed by this note.",
                     "Note__UpdatedIso": "2026-09-22T00:39:53.982Z"
+                },
+                {
+                    "Note__Id": "SpecNote_105",
+                    "Note__Code": "SP14",
+                    "Note__Title": "Studio pile foundations",
+                    "Note__Body": "Studio buildings and link on drilled auger piles; no concrete slab or strip footings. Pile positions to the manufacturer's and a structural engineer's design, set out with the arboriculturist where they fall within the root protection areas of retained trees.",
+                    "Note__UpdatedIso": "2026-09-23T17:54:19.317Z"
+                },
+                {
+                    "Note__Id": "SpecNote_106",
+                    "Note__Code": "SP15",
+                    "Note__Title": "Glazed corner link",
+                    "Note__Body": "Single-storey glazed link, 2,500 x 2,500 mm, joining Unit 2 to Unit 3 at the corner. Frame, glazing and roof to be confirmed before a full application.",
+                    "Note__UpdatedIso": "2026-09-23T17:54:19.317Z"
+                },
+                {
+                    "Note__Id": "SpecNote_107",
+                    "Note__Code": "SP16",
+                    "Note__Title": "Field gate access",
+                    "Note__Body": "Existing field gate on the site boundary beyond the studio buildings retained, with the track to it. Straight vehicle route to the gate kept clear alongside the studio buildings; no parking in front of it. Reached by SP03; parking to SP17.",
+                    "Note__UpdatedIso": "2026-09-23T18:08:16.076Z"
+                },
+                {
+                    "Note__Id": "SpecNote_108",
+                    "Note__Code": "SP17",
+                    "Note__Title": "Studio parking",
+                    "Note__Body": "Five marked parking spaces for the studio buildings: three in front of Unit 3 and two overspill spaces at the access end of the hardstanding. No space in front of the track to the field gate of SP16. Bay sizes and surface to be confirmed before a full application.",
+                    "Note__UpdatedIso": "2026-09-23T18:08:16.076Z"
+                },
+                {
+                    "Note__Id": "SpecNote_109",
+                    "Note__Code": "SP18",
+                    "Note__Title": "Studio use",
+                    "Note__Body": "Studio buildings used as a home office and home gym by the occupiers of the dwelling, ancillary to its residential use. Not business premises; no separate business use.",
+                    "Note__UpdatedIso": "2026-09-23T18:08:16.076Z"
                 }
             ]
         },

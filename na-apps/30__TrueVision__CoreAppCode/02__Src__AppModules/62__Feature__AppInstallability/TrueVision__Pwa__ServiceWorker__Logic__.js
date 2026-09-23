@@ -34,6 +34,14 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.9.44
+// - Token bumped (2026-09-23-05) for the Statement Writer's lockstep
+//   (v2.157.0): the statement data module and page import the new
+//   52__Feature__StatementWriter/01__Core__Data/Na__LayoutEditor__Statement__Lockstep__,
+//   the transport gains ReadStatementLocal and the page new data exports, and
+//   the lazily linked statement stylesheet gains the question's styles - so a
+//   warm cache must not serve the old half of any of them.
+//
 // 23-Sep-2026 - Version 1.9.43
 // - Token bumped (2026-09-23-04) for the published drawings' loading screen
 //   (v2.156.0): the web viewer imports the new
@@ -570,7 +578,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-23-04';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-23-05';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

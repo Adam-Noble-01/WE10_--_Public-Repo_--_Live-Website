@@ -5213,7 +5213,7 @@
                     },
                     {
                         "Annotation__Text": "CONCEPT CGI |  NORTH-WESTERN FASCADE OF THE PROPOSAL",
-                        "Annotation__PosXMm": 25.61454110439869,
+                        "Annotation__PosXMm": 24.61454110439869,
                         "Annotation__PosYMm": 270.4677450961077,
                         "Annotation__SizeMm": 3.5,
                         "Annotation__FontWeight": 600,
@@ -5609,19 +5609,19 @@
                         "Shape__LayerId": "Layer_006",
                         "Shape__Points": [
                             [
-                                25,
+                                24,
                                 153.8253674976861
                             ],
                             [
-                                217.31045778189136,
+                                216.31045778189136,
                                 153.8253674976861
                             ],
                             [
-                                217.31045778189136,
+                                216.31045778189136,
                                 262
                             ],
                             [
-                                25,
+                                24,
                                 262
                             ]
                         ],
@@ -6211,11 +6211,11 @@
                     {
                         "Shape__Points": [
                             [
-                                25.785541104398682,
+                                24.785541104398682,
                                 272.09874509610773
                             ],
                             [
-                                135.89312115308832,
+                                134.89312115308832,
                                 272.09874509610773
                             ]
                         ],
@@ -6885,9 +6885,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "EN02",
                         "Leader__SpecNoteId": "SpecNote_036",
-                        "Leader__TipXMm": 196.51237432552492,
+                        "Leader__TipXMm": 195.51237432552492,
                         "Leader__TipYMm": 220.91997026524112,
-                        "Leader__AnchorXMm": 225.85219704787994,
+                        "Leader__AnchorXMm": 224.85219704787994,
                         "Leader__AnchorYMm": 203.37157042094415,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_001"
@@ -6910,9 +6910,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "FN12",
                         "Leader__SpecNoteId": "SpecNote_065",
-                        "Leader__TipXMm": 204.02970354146572,
+                        "Leader__TipXMm": 203.02970354146572,
                         "Leader__TipYMm": 194.49382148723777,
-                        "Leader__AnchorXMm": 226.99790348539813,
+                        "Leader__AnchorXMm": 225.99790348539813,
                         "Leader__AnchorYMm": 173.31503898355655,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_002"
@@ -6935,9 +6935,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "EN04",
                         "Leader__SpecNoteId": "SpecNote_038",
-                        "Leader__TipXMm": 108.54851482750622,
+                        "Leader__TipXMm": 107.54851482750622,
                         "Leader__TipYMm": 209.27284752924007,
-                        "Leader__AnchorXMm": 69.84089613945596,
+                        "Leader__AnchorXMm": 68.84089613945596,
                         "Leader__AnchorYMm": 143.14157057244088,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_003"
@@ -7132,9 +7132,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "FN04",
                         "Leader__SpecNoteId": "SpecNote_025",
-                        "Leader__TipXMm": 38.55083677022391,
+                        "Leader__TipXMm": 37.55083677022391,
                         "Leader__TipYMm": 188.9209274287198,
-                        "Leader__AnchorXMm": 20.053324942975912,
+                        "Leader__AnchorXMm": 19.053324942975912,
                         "Leader__AnchorYMm": 164.0478337105687,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_017"
@@ -7207,9 +7207,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "FN11",
                         "Leader__SpecNoteId": "SpecNote_064",
-                        "Leader__TipXMm": 198.6283976731058,
+                        "Leader__TipXMm": 197.6283976731058,
                         "Leader__TipYMm": 231.9035551285715,
-                        "Leader__AnchorXMm": 227.38042101799772,
+                        "Leader__AnchorXMm": 226.38042101799772,
                         "Leader__AnchorYMm": 238.19396568901794,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_020"
@@ -7232,9 +7232,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "EN01",
                         "Leader__SpecNoteId": "SpecNote_035",
-                        "Leader__TipXMm": 156.26815800181302,
+                        "Leader__TipXMm": 155.26815800181302,
                         "Leader__TipYMm": 227.17687143053797,
-                        "Leader__AnchorXMm": 166.0746415959941,
+                        "Leader__AnchorXMm": 165.0746415959941,
                         "Leader__AnchorYMm": 250.42913759924213,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_021"
@@ -7257,9 +7257,9 @@
                         "Leader__Type": "bubble",
                         "Leader__Text": "EN05",
                         "Leader__SpecNoteId": "SpecNote_039",
-                        "Leader__TipXMm": 49.31293126736254,
+                        "Leader__TipXMm": 48.31293126736254,
                         "Leader__TipYMm": 220.42328721453225,
-                        "Leader__AnchorXMm": 19.505853620426194,
+                        "Leader__AnchorXMm": 18.505853620426194,
                         "Leader__AnchorYMm": 238.98036862053772,
                         "Leader__LayerId": "Layer_002",
                         "Leader__Id": "Leader_022"
@@ -7713,7 +7713,7 @@
                 },
                 "Sheet__MarginNotes": {
                     "Enabled": true,
-                    "WidthMm": 94.1,
+                    "WidthMm": 97.9,
                     "Heading": null,
                     "TextSizeMm": 2,
                     "IncludeGeneral": false,
@@ -7723,7 +7723,7 @@
                         {
                             "Region__Id": "Region_001",
                             "Region__FrameMm": {
-                                "X": 240.73897970345763,
+                                "X": 238.60466136594596,
                                 "Y": 150.39330586831554,
                                 "WidthMm": 79.72690930971049,
                                 "HeightMm": 126.63056516513606
@@ -58189,7 +58189,7 @@
                         "Layer__Id": "Layer_005",
                         "Layer__Name": "Floor Areas",
                         "Layer__Type": "area",
-                        "Layer__Visible": false,
+                        "Layer__Visible": true,
                         "Layer__Locked": false,
                         "Layer__Order": 2
                     },
@@ -58214,7 +58214,7 @@
                         "Layer__Name": "MarkUp",
                         "Layer__Type": "mixed",
                         "Layer__Order": 5,
-                        "Layer__Visible": true,
+                        "Layer__Visible": false,
                         "Layer__Locked": true
                     },
                     {
@@ -60446,38 +60446,7 @@
                         "Shape__Closed": true,
                         "Shape__StrokeColour": "#960000",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 1,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": null
-                    },
-                    {
-                        "Shape__Id": "Shape_037",
-                        "Shape__LayerId": "Layer_007",
-                        "Shape__Points": [
-                            [
-                                465.0333030093529,
-                                334.971390639727
-                            ],
-                            [
-                                468.7933030093529,
-                                334.971390639727
-                            ],
-                            [
-                                468.7933030093529,
-                                328.01139063972704
-                            ],
-                            [
-                                465.0333030093529,
-                                328.01139063972704
-                            ]
-                        ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#960000",
-                        "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
+                        "Shape__FillColour": null,
                         "Shape__Stroked": true,
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -60508,38 +60477,7 @@
                         "Shape__Closed": true,
                         "Shape__StrokeColour": "#960000",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 1,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": null
-                    },
-                    {
-                        "Shape__Id": "Shape_038",
-                        "Shape__LayerId": "Layer_007",
-                        "Shape__Points": [
-                            [
-                                465.0333030093529,
-                                327.77139063972703
-                            ],
-                            [
-                                468.7933030093529,
-                                327.77139063972703
-                            ],
-                            [
-                                468.7933030093529,
-                                320.81139063972705
-                            ],
-                            [
-                                465.0333030093529,
-                                320.81139063972705
-                            ]
-                        ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#960000",
-                        "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
+                        "Shape__FillColour": null,
                         "Shape__Stroked": true,
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -60582,112 +60520,6 @@
                         "Shape__LineStyle": null
                     },
                     {
-                        "Shape__Id": "Shape_041",
-                        "Shape__LayerId": "Layer_005",
-                        "Shape__Points": [
-                            [
-                                465.03921001929945,
-                                334.9796301999438
-                            ],
-                            [
-                                468.79921001929944,
-                                334.9796301999438
-                            ],
-                            [
-                                468.79921001929944,
-                                328.01963019994383
-                            ],
-                            [
-                                465.03921001929945,
-                                328.01963019994383
-                            ]
-                        ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#2e6f96",
-                        "Shape__StrokePt": 0.3,
-                        "Shape__FillColour": "#c6efbe",
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 0.3,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": null,
-                        "Shape__Area": {
-                            "Area__Name": "Unit 1",
-                            "Area__TextSizeMm": 0.89
-                        }
-                    },
-                    {
-                        "Shape__Id": "Shape_042",
-                        "Shape__LayerId": "Layer_005",
-                        "Shape__Points": [
-                            [
-                                465.03921001929945,
-                                327.7796301999438
-                            ],
-                            [
-                                468.79921001929944,
-                                327.7796301999438
-                            ],
-                            [
-                                468.79921001929944,
-                                320.81963019994384
-                            ],
-                            [
-                                465.03921001929945,
-                                320.81963019994384
-                            ]
-                        ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#2e6f96",
-                        "Shape__StrokePt": 0.3,
-                        "Shape__FillColour": "#efedbe",
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 0.3,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": null,
-                        "Shape__Area": {
-                            "Area__Name": "Unit 2",
-                            "Area__TextSizeMm": 0.8
-                        }
-                    },
-                    {
-                        "Shape__Id": "Shape_043",
-                        "Shape__LayerId": "Layer_005",
-                        "Shape__Points": [
-                            [
-                                466.87062542136306,
-                                320.6969251674862
-                            ],
-                            [
-                                468.87062542136306,
-                                320.6969251674862
-                            ],
-                            [
-                                468.87062542136306,
-                                318.6969251674862
-                            ],
-                            [
-                                466.87062542136306,
-                                318.6969251674862
-                            ]
-                        ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#2e6f96",
-                        "Shape__StrokePt": 0.3,
-                        "Shape__FillColour": "#bcd9ee",
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 0.3,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": null,
-                        "Shape__Area": {
-                            "Area__Name": "Link",
-                            "Area__Label": "name",
-                            "Area__TextSizeMm": 0.8
-                        }
-                    },
-                    {
                         "Shape__Id": "Shape_045",
                         "Shape__LayerId": "Layer_007",
                         "Shape__Points": [
@@ -60711,78 +60543,12 @@
                         "Shape__Closed": true,
                         "Shape__StrokeColour": "#960000",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
+                        "Shape__FillColour": null,
                         "Shape__Stroked": true,
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
                         "Shape__Gradient": null,
                         "Shape__LineStyle": null
-                    },
-                    {
-                        "Shape__Id": "Shape_046",
-                        "Shape__LayerId": "Layer_007",
-                        "Shape__Points": [
-                            [
-                                475.95062542136304,
-                                316.8169251674862
-                            ],
-                            [
-                                468.99062542136306,
-                                316.8169251674862
-                            ],
-                            [
-                                468.99062542136306,
-                                320.5769251674862
-                            ],
-                            [
-                                475.95062542136304,
-                                320.5769251674862
-                            ]
-                        ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#960000",
-                        "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 1,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": null
-                    },
-                    {
-                        "Shape__Id": "Shape_050",
-                        "Shape__LayerId": "Layer_005",
-                        "Shape__Points": [
-                            [
-                                468.99062542136306,
-                                320.5769251674862
-                            ],
-                            [
-                                475.95062542136304,
-                                320.5769251674862
-                            ],
-                            [
-                                475.95062542136304,
-                                316.8169251674862
-                            ],
-                            [
-                                468.99062542136306,
-                                316.8169251674862
-                            ]
-                        ],
-                        "Shape__Closed": true,
-                        "Shape__StrokeColour": "#2e6f96",
-                        "Shape__StrokePt": 0.3,
-                        "Shape__FillColour": "#efd4be",
-                        "Shape__Stroked": true,
-                        "Shape__FillOpacity": 0.3,
-                        "Shape__StrokeOpacity": 1,
-                        "Shape__Gradient": null,
-                        "Shape__LineStyle": null,
-                        "Shape__Area": {
-                            "Area__Name": "Unit 3 - Office",
-                            "Area__TextSizeMm": 0.8
-                        }
                     },
                     {
                         "Shape__Id": "Shape_051",
@@ -60882,7 +60648,7 @@
                         "Shape__Closed": true,
                         "Shape__StrokeColour": "#960000",
                         "Shape__StrokePt": 0.2,
-                        "Shape__FillColour": "#ffffff",
+                        "Shape__FillColour": null,
                         "Shape__Stroked": true,
                         "Shape__FillOpacity": 1,
                         "Shape__StrokeOpacity": 1,
@@ -61981,6 +61747,18 @@
             },
             "North__SetIso": "2026-09-20T17:23:58.084Z"
         },
-        "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T16:19:22.195Z"
+        "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T18:35:23.878Z"
+    },
+    "LayoutEditor__DrawingRegister": {
+        "DrawingRegister__Document__Description": "Drawing register numbering and per-sheet revision history. Sheet ids link to LayoutEditor__DrawingsData; drawing metadata stays in its sheet records.",
+        "DrawingRegister__Document__Version": 1,
+        "DrawingRegister__Document__Updated": "2026-09-23T18:35:23.675Z",
+        "DrawingRegister__Numbering": {
+            "DrawingRegister__Numbering__Prefix": "D",
+            "DrawingRegister__Numbering__Start": 1,
+            "DrawingRegister__Numbering__Digits": 2,
+            "DrawingRegister__Numbering__Overrides": {}
+        },
+        "DrawingRegister__Revisions": {}
     }
 }

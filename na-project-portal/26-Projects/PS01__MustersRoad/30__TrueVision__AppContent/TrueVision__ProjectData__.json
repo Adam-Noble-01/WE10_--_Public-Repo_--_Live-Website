@@ -74,12 +74,12 @@
             "SitePlan__FolderName": "SitePlan__DrawingData",
             "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
             "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
-            "SitePlan__NorthAngleDeg": 0,
+            "SitePlan__NorthAngleDeg": 0.0,
             "SitePlan__BoundsMm": {
-                "MinX": 0,
+                "MinX": 0.0,
                 "MinZ": -143295.2,
-                "MaxX": 150353,
-                "MaxZ": 0
+                "MaxX": 150353.0,
+                "MaxZ": 0.0
             },
             "SitePlan__Layers": [
                 {
@@ -107,10 +107,10 @@
                     ],
                     "Layer__SegmentCount": 364,
                     "Layer__BoundsMm": {
-                        "MinX": 0,
+                        "MinX": 0.0,
                         "MinZ": -143295.2,
-                        "MaxX": 150353,
-                        "MaxZ": 0
+                        "MaxX": 150353.0,
+                        "MaxZ": 0.0
                     }
                 },
                 {
@@ -169,8 +169,8 @@
                     ],
                     "Layer__SegmentCount": 394,
                     "Layer__BoundsMm": {
-                        "MinX": 0,
-                        "MinZ": -142893,
+                        "MinX": 0.0,
+                        "MinZ": -142893.0,
                         "MaxX": 136084.7,
                         "MaxZ": -455.9
                     }
@@ -245,12 +245,12 @@
         "SitePlan__FolderName": "SitePlan__DrawingData",
         "SitePlan__ManifestUrl": "https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/PS01__MustersRoad/30__TrueVision__AppContent/SitePlan__DrawingData/TrueVision__SitePlanData__Manifest__.json",
         "SitePlan__ExportedIso": "2026-09-17T19:30:36Z",
-        "SitePlan__NorthAngleDeg": 0,
+        "SitePlan__NorthAngleDeg": 0.0,
         "SitePlan__BoundsMm": {
-            "MinX": 0,
+            "MinX": 0.0,
             "MinZ": -143295.2,
-            "MaxX": 150353,
-            "MaxZ": 0
+            "MaxX": 150353.0,
+            "MaxZ": 0.0
         },
         "SitePlan__Layers": [
             {
@@ -278,10 +278,10 @@
                 ],
                 "Layer__SegmentCount": 364,
                 "Layer__BoundsMm": {
-                    "MinX": 0,
+                    "MinX": 0.0,
                     "MinZ": -143295.2,
-                    "MaxX": 150353,
-                    "MaxZ": 0
+                    "MaxX": 150353.0,
+                    "MaxZ": 0.0
                 }
             },
             {
@@ -340,8 +340,8 @@
                 ],
                 "Layer__SegmentCount": 394,
                 "Layer__BoundsMm": {
-                    "MinX": 0,
-                    "MinZ": -142893,
+                    "MinX": 0.0,
+                    "MinZ": -142893.0,
                     "MaxX": 136084.7,
                     "MaxZ": -455.9
                 }
@@ -14744,17 +14744,5 @@
             "North__SetIso": "2026-09-20T08:36:09.616Z"
         },
         "LayoutEditor__DrawingsData__SavedIso": "2026-09-23T17:20:26.308Z"
-    },
-    "LayoutEditor__DrawingRegister": {
-        "DrawingRegister__Document__Description": "Drawing register numbering and per-sheet revision history. Sheet ids link to LayoutEditor__DrawingsData; drawing metadata stays in its sheet records.",
-        "DrawingRegister__Document__Version": 1,
-        "DrawingRegister__Document__Updated": "2026-09-23T16:44:52.446Z",
-        "DrawingRegister__Numbering": {
-            "DrawingRegister__Numbering__Prefix": "D",
-            "DrawingRegister__Numbering__Start": 1,
-            "DrawingRegister__Numbering__Digits": 2,
-            "DrawingRegister__Numbering__Overrides": {}
-        },
-        "DrawingRegister__Revisions": {}
     }
 }

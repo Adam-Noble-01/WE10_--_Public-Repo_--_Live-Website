@@ -2,6 +2,59 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.157.0  -  23-Sep-2026
+### Statement Writer Lockstep: The App's Copy and the Markdown File Are Checked Against Each Other, and a Split Is Asked
+
+**Overview**
+- From Adam, with agents now editing statements on disk: "the app should be monitoring whether the local JSON and
+  Markdown are in lockstep. If they're not, force you to say, 'I want the JSON if it's newer,' or 'I want the
+  Markdown,' so you can make that choice in the app. Currently, if one's newer than the other, the one that gets
+  saved wins."
+- What was actually happening, read from the code: (1) on open, a browser draft that differed from the file was put
+  back UNASKED, under a toast saying "The file on disk is older" - which was never checked; (2) the autosave wrote the
+  on-screen copy over the file WITHOUT LOOKING, so a Typora or agent edit made while the tab was open was overwritten
+  a few seconds later. An agent's statement edit could be lost by Adam simply typing a character.
+
+**The change**
+- New `52__Feature__StatementWriter/01__Core__Data/Na__LayoutEditor__Statement__Lockstep__.js` (Na__LeStmtLock), pure:
+  four states - in step, app ahead (the ordinary autosave), file ahead, diverged - decided by CONTENT, never by
+  comparing the browser's clock with the server's; the times (the draft's, the file's Last-Modified) only explain.
+  Both copies arriving at the same words is taken as saved, not asked.
+- `Statement__Data__` 1.1.0: the file is looked at on open, every LockstepPollMs (3 s) while the Statements tab is
+  showing and the browser tab visible, when the window regains focus or the tab becomes visible, and IMMEDIATELY
+  BEFORE EVERY AUTOSAVE. If it moved: nothing is written, the on-screen copy goes to the draft, and the question is
+  raised. ResolveConflict('app') writes the app's copy to the file; ('file') loads the file. The copy not chosen is
+  kept in this browser (Na__TrueVision__StatementDiscarded__<folder>__<id>), so no answer loses anything.
+- `Statement__Data__Transport__` 1.1.0: reads carry the server's Last-Modified as modifiedIso; ReadStatementLocal
+  reads the project-folder file only (skipped off localhost). No new server route - the ProjectVision server already
+  sends Last-Modified, so no 8090 restart is needed.
+- `Statement__Page__` 1.2.0: the question as a sheet over the desk, no close button - "Keep the app's copy" (JSON: on
+  screen, or this browser's draft) and "Load the markdown file", each with when it last changed, how many lines only
+  it holds, and a Newer badge only when the times are more than a second apart. Focus on the newer answer; Tab stays
+  inside; Escape does nothing. The bar reads "Out of step with the file" while it stands.
+- Config: LayoutEditor__Statement__LockstepEnabled (true), LockstepPollMs (3000) and a note; the reader falls back to
+  the same values. Styles in `Na__LayoutEditor__Styles__Statement__.css` (The Lockstep Question). Service worker token
+  `2026-09-23-05`.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS (521 files). New `Na__Test__StatementLockstep__.test.mjs` 28 pass;
+  `Na__Test__StatementRoundTrip__` still passes on the edited RB05 statement.
+- In the app, RB05 on the statement test server (a throwaway copy; fetch guard up, nothing blocked, nothing sent to
+  R2), every answer given with a real click:
+  - A: a line appended to the file behind the app - asked within one poll (3.1 s measured), the file badged Newer and
+    focused; "Load the markdown file" put the line on screen and took it as saved.
+  - B: the same, answered "Keep the app's copy" - the app's version went back over the agent's line.
+  - C: a keystroke and an outside write in the same second - asked in 257 ms; 4.5 s later, past the autosave's moment,
+    the file STILL held the agent's text and the typing was in the draft. C2, the watch switched off: the autosave's
+    own look raised it at 3.7 s and wrote nothing.
+  - D: a stale draft (18:00) against a file changed at 19:24 - the old code's case; now asked, the FILE badged Newer.
+    "Keep the app's copy" put the draft on screen and on disk.
+  - E: ordinary typing with the watch on - saved silently, no question.
+- A hidden pane pauses the watch by design; it looks again the moment the tab is visible.
+- NOT tried by Adam. NOT in ValeVision (it has no Statement Writer). The Project Specification's JSON file and its
+  browser draft have the same last-save-wins shape; not changed here - offered.
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.156.0  -  23-Sep-2026
 ### Published Drawings Loading Screen: Each Drawing Arrives Whole, Named, With What Is Loading Shown Underneath
 

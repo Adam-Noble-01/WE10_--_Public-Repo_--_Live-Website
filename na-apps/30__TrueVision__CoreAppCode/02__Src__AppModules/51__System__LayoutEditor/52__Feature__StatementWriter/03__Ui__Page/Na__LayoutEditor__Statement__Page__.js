@@ -53,6 +53,19 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.2.0
+// - THE LOCKSTEP QUESTION. When the data module finds the statement on screen
+//   and its markdown file out of step, this page puts the choice over the
+//   desk: "Keep the app's copy" (the JSON - on screen, or this browser's
+//   draft) or "Load the markdown file", each with when it last changed, how
+//   many lines only it holds, and a Newer badge where the times allow. There
+//   is no close button: nothing is saved until one is chosen. Adam,
+//   23-Sep-2026: "force you to say, I want the JSON if it's newer, or I want
+//   the Markdown, so you can make that choice in the app."
+// - The watch runs while the tab is showing: StartWatch on Show, StopWatch on
+//   Hide. A 'reloaded' change redraws whichever surface is showing, and the
+//   bar says "Out of step with the file" while the question stands.
+//
 // 21-Sep-2026 - Version 1.1.0
 // - The tab's keys go through the documents' keyboard
 //   (Na__LayoutEditor__DocumentKeys__) instead of a window listener of their
@@ -85,8 +98,13 @@
         Na__LeStmt__SaveLocal,
         Na__LeStmt__GetState,
         Na__LeStmt__GetText,
-        Na__LeStmt__List
+        Na__LeStmt__List,
+        Na__LeStmt__StartWatch,
+        Na__LeStmt__StopWatch,
+        Na__LeStmt__ResolveConflict,
+        Na__LeStmt__GetConflict
     } from '../01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
+    import { Na__LeStmtLock__When, Na__LeStmtLock__LinesText } from '../01__Core__Data/Na__LayoutEditor__Statement__Lockstep__.js';
     import { Na__LeStmtEd__Build, Na__LeStmtEd__SetMarkdown, Na__LeStmtEd__SetSourceView, Na__LeStmtEd__SetMono, Na__LeStmtEd__IsSourceView, Na__LeStmtEd__IsMono } from '../04__Ui__Editor/Na__LayoutEditor__Statement__Editor__.js';
     import { Na__LeStmtRead__Build, Na__LeStmtRead__SetMarkdown, Na__LeStmtRead__Fit, Na__LeStmtRead__Paper__Element } from '../05__Ui__Reader/Na__LayoutEditor__Statement__Reader__.js';
     import { Na__LeStmtMgr__Build, Na__LeStmtMgr__Show, Na__LeStmtMgr__Hide, Na__LeStmtMgr__IsShowing } from './Na__LayoutEditor__Statement__Manager__.js';
@@ -131,6 +149,7 @@
     let Na__LeStmtPage__Summary   = null;
     let Na__LeStmtPage__Views     = null;
     let Na__LeStmtPage__Progress  = null;
+    let Na__LeStmtPage__Lock      = null;                                       // <-- The lockstep question, built on first need
     let Na__LeStmtPage__Editable  = false;
     let Na__LeStmtPage__Options   = {};
     let Na__LeStmtPage__View      = 'read';
@@ -300,6 +319,7 @@
         let text  = '';
         let mark  = '';
         if (state.status === Na__LeStmt__STATUS_FAILED) { text = 'Could not be read'; mark = 'failed'; }
+        else if (state.conflict)                        { text = 'Out of step with the file'; mark = 'failed'; }
         else if (state.saving)                          { text = 'Saving…';          mark = 'syncing'; }
         else if (Na__LeStmtPage__Busy)                  { text = 'Working…';         mark = 'publishing'; }
         else if (!state.open)                           { text = '';                 mark = ''; }
@@ -508,6 +528,167 @@
 
 
 // -----------------------------------------------------------------------------
+// REGION | The Lockstep Question
+// -----------------------------------------------------------------------------
+
+    // FUNCTION | Put Text on Whichever Surface Is Showing
+    // ------------------------------------------------------------
+    // After an answer the text on screen is no longer the text the surface
+    // was built from. The other surface picks it up when it is next shown.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__ShowText(text) {
+        if (Na__LeStmtPage__View === 'read') Na__LeStmtRead__SetMarkdown(text);
+        else                                 Na__LeStmtEd__SetMarkdown(text);
+        Na__LeStmtPage__Fit();
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | One of the Two Answers, as a Large Button
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__LockChoice(choice) {
+        const button = Na__LeStmtPage__El('button', 'na-le-stmt-lock__choice');
+        button.type = 'button';
+        button.dataset.choice = choice;
+        const head = Na__LeStmtPage__El('span', 'na-le-stmt-lock__head');
+        head.appendChild(Na__LeStmtPage__El('span', 'na-le-stmt-lock__name', ''));
+        head.appendChild(Na__LeStmtPage__El('span', 'na-le-stmt-lock__badge', 'Newer'));
+        button.appendChild(head);
+        button.appendChild(Na__LeStmtPage__El('span', 'na-le-stmt-lock__kind', ''));
+        button.appendChild(Na__LeStmtPage__El('span', 'na-le-stmt-lock__when', ''));
+        button.appendChild(Na__LeStmtPage__El('span', 'na-le-stmt-lock__what', ''));
+        button.addEventListener('click', () => { void Na__LeStmtPage__AnswerLock(choice); });
+        return button;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Build the Question Once
+    // ------------------------------------------------------------
+    // A sheet over the desk like the manager's, above it, with NO way out but
+    // an answer: nothing is saved while the question stands, so closing it
+    // would only leave the statement stuck.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__BuildLock() {
+        if (Na__LeStmtPage__Lock) return Na__LeStmtPage__Lock;
+        const lock = Na__LeStmtPage__El('div', 'na-le-stmt-lock');
+        lock.hidden = true;
+        lock.setAttribute('role', 'alertdialog');
+        lock.setAttribute('aria-modal', 'true');
+        lock.setAttribute('aria-labelledby', 'na-le-stmt-lock-title');
+
+        const card = Na__LeStmtPage__El('div', 'na-le-stmt-lock__card');
+        const title = Na__LeStmtPage__El('h3', 'na-le-stmt-lock__title', 'This statement and its markdown file are out of step');
+        title.id = 'na-le-stmt-lock-title';
+        card.appendChild(title);
+        card.appendChild(Na__LeStmtPage__El('p', 'na-le-stmt-lock__lead', ''));
+
+        const choices = Na__LeStmtPage__El('div', 'na-le-stmt-lock__choices');
+        choices.appendChild(Na__LeStmtPage__LockChoice('app'));
+        choices.appendChild(Na__LeStmtPage__LockChoice('file'));
+        card.appendChild(choices);
+
+        card.appendChild(Na__LeStmtPage__El('p', 'na-le-stmt-lock__foot',
+            'Nothing is saved until you choose. Whichever you do not choose is kept in this browser, so choosing loses nothing.'));
+        lock.appendChild(card);
+
+        // THE FOCUS STAYS ON THE QUESTION. Tab moves between the two answers
+        // and nowhere else; Escape does nothing, because there is nothing to
+        // go back to.
+        lock.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); return; }
+            if (event.key !== 'Tab') return;
+            const buttons = Array.from(lock.querySelectorAll('.na-le-stmt-lock__choice'));
+            const at = buttons.indexOf(document.activeElement);
+            event.preventDefault();
+            const next = buttons[(at + (event.shiftKey ? buttons.length - 1 : 1)) % buttons.length];
+            if (next) next.focus();
+        });
+
+        Na__LeStmtPage__Root.appendChild(lock);
+        Na__LeStmtPage__Lock = lock;
+        return lock;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Ask
+    // ------------------------------------------------------------
+    // The words come from the question itself: which copy moved, when each
+    // last changed, and how many lines only it holds. The Newer badge appears
+    // only where the two times are far enough apart to say so honestly.
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__ShowLock() {
+        const conflict = Na__LeStmt__GetConflict();
+        if (!conflict || !Na__LeStmtPage__Root) { Na__LeStmtPage__HideLock(); return; }
+        const lock = Na__LeStmtPage__BuildLock();
+
+        const appWhen  = Na__LeStmtLock__When(conflict.appIso);
+        const fileWhen = Na__LeStmtLock__When(conflict.fileIso);
+        const lead = (conflict.kind === 'open')
+            ? 'This browser is holding unsaved changes to the statement from ' + appWhen + ', and the markdown file on disk is not the same - it was last changed ' + fileWhen + '. Choose which to carry on with.'
+            : (conflict.kind === 'file')
+                ? 'The markdown file was changed outside the app ' + fileWhen + ' - in Typora, or by an agent. Nothing in the app is unsaved. Choose which to carry on with.'
+                : 'The markdown file was changed outside the app ' + fileWhen + ', while this browser had unsaved changes from ' + appWhen + '. Choose which to keep.';
+        lock.querySelector('.na-le-stmt-lock__lead').textContent = lead;
+
+        const summary = conflict.summary || {};
+        const app  = lock.querySelector('.na-le-stmt-lock__choice[data-choice="app"]');
+        const file = lock.querySelector('.na-le-stmt-lock__choice[data-choice="file"]');
+
+        app.querySelector('.na-le-stmt-lock__name').textContent  = 'Keep the app\'s copy';
+        app.querySelector('.na-le-stmt-lock__kind').textContent  = (conflict.appFrom === 'draft') ? 'JSON  ·  this browser\'s unsaved draft' : 'JSON  ·  what is on screen';
+        app.querySelector('.na-le-stmt-lock__when').textContent  = ((conflict.kind === 'file') ? 'As last loaded or saved ' : 'Last changed ') + appWhen;
+        app.querySelector('.na-le-stmt-lock__what').textContent  = 'Writes it to the markdown file. '
+            + (summary.onlyInApp ? Na__LeStmtLock__LinesText(summary.onlyInApp) + ' only in this copy.' : 'It holds nothing the file does not.');
+
+        file.querySelector('.na-le-stmt-lock__name').textContent = 'Load the markdown file';
+        file.querySelector('.na-le-stmt-lock__kind').textContent = 'Markdown  ·  the file on disk';
+        file.querySelector('.na-le-stmt-lock__when').textContent = 'Changed on disk ' + fileWhen;
+        file.querySelector('.na-le-stmt-lock__what').textContent = 'Replaces what is in the app. '
+            + (summary.onlyInFile ? Na__LeStmtLock__LinesText(summary.onlyInFile) + ' only in the file.' : 'It holds nothing the app\'s copy does not.');
+
+        app.classList.toggle('is-newer',  conflict.newer === 'app');
+        file.classList.toggle('is-newer', conflict.newer === 'file');
+        for (const button of [ app, file ]) { button.disabled = false; button.classList.remove('is-busy'); }
+
+        const wasHidden = lock.hidden;
+        lock.hidden = false;
+        if (wasHidden) (conflict.newer === 'app' ? app : file).focus();
+        Na__LeStmtPage__Refresh();
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Stop Asking
+    // ------------------------------------------------------------
+    function Na__LeStmtPage__HideLock() {
+        if (Na__LeStmtPage__Lock) Na__LeStmtPage__Lock.hidden = true;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Take the Answer
+    // ------------------------------------------------------------
+    async function Na__LeStmtPage__AnswerLock(choice) {
+        const lock = Na__LeStmtPage__Lock;
+        if (!lock || lock.hidden) return;
+        const buttons = Array.from(lock.querySelectorAll('.na-le-stmt-lock__choice'));
+        for (const button of buttons) button.disabled = true;
+        const picked = buttons.find((button) => button.dataset.choice === choice);
+        if (picked) picked.classList.add('is-busy');
+
+        await Na__LeStmt__ResolveConflict(choice);                              // <-- Says for itself, in a toast, how it went
+        if (Na__LeStmt__GetConflict()) Na__LeStmtPage__ShowLock();             // <-- Still (or newly) out of step: ask again
+        else                           Na__LeStmtPage__HideLock();
+        Na__LeStmtPage__Refresh();
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
 // REGION | Mounting
 // -----------------------------------------------------------------------------
 
@@ -583,7 +764,14 @@
             : 'read';
         Na__LeStmtEd__SetMono(Na__LeStmtPage__Recall(Na__LeStmtPage__MONO_KEY, 'false') === 'true');
 
-        window.addEventListener(Na__LeStmt__CHANGED_EVENT, () => Na__LeStmtPage__Refresh());
+        window.addEventListener(Na__LeStmt__CHANGED_EVENT, (event) => {
+            const reason = (event && event.detail) ? event.detail.reason : '';
+            if (reason === 'reloaded') Na__LeStmtPage__ShowText(Na__LeStmt__GetText());
+            if (reason === 'conflict' || reason === 'opened') {
+                if (Na__LeStmt__GetConflict()) Na__LeStmtPage__ShowLock(); else Na__LeStmtPage__HideLock();
+            }
+            Na__LeStmtPage__Refresh();
+        });
         window.addEventListener('resize', () => { if (Na__LeStmtPage__Shown) Na__LeStmtPage__Fit(); });
 
         // THE TAB'S OWN KEYS, through the documents' keyboard. Registered only
@@ -666,6 +854,12 @@
         }
 
         Na__LeStmtPage__SetView(Na__LeStmtPage__View);
+
+        // THE WATCH runs while the tab is showing, so an edit made in Typora or
+        // by an agent is asked about within seconds rather than overwritten by
+        // the next autosave. A question already open is put back up.
+        if (Na__LeStmtPage__Editable) Na__LeStmt__StartWatch();
+        if (Na__LeStmt__GetConflict()) Na__LeStmtPage__ShowLock();
     }
     // ------------------------------------------------------------
 
@@ -677,6 +871,7 @@
     // ------------------------------------------------------------
     function Na__LeStmtPage__Hide() {
         if (!Na__LeStmtPage__Root) return;
+        Na__LeStmt__StopWatch();
         if (Na__LeStmtPage__Editable) void Na__LeStmt__SaveLocal({ quiet : true });
         Na__LeStmtMgr__Hide();
         Na__LeStmtPage__Root.hidden = true;

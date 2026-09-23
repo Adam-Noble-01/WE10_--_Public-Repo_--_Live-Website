@@ -36,6 +36,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.5.0
+// - GetStatementSetup answers the Statement Writer's lockstep settings:
+//   lockstepEnabled (LockstepEnabled, on unless set false) and lockstepPollMs
+//   (LockstepPollMs, 3000 when unset, never below 1000) - how often the
+//   markdown file is looked at while the Statements tab is showing.
+//
 // 22-Sep-2026 - Version 1.4.0
 // - GetMarginNotesSetup answers the Overspill Note Regions settings:
 //   regionMinSizeMm, regionPaddingMm, regionOverspillTitle, regionGroupsTitle,
@@ -171,6 +177,8 @@
             autoSaveLocalMs   : Math.max(500, num('AutoSaveLocalMs', 4000)),
             loadTimeoutMs     : Math.max(1000, num('LoadTimeoutMs', 15000)),
             confirmOverwrite  : val('ConfirmCloudOverwrite', true) !== false,
+            lockstepEnabled   : val('LockstepEnabled', true) !== false,
+            lockstepPollMs    : Math.max(1000, num('LockstepPollMs', 3000)),
 
             htmlFileSuffix    : String(val('HtmlFileSuffix', '.html')),
             stylesheetUrl     : String(val('StylesheetUrl', '')),

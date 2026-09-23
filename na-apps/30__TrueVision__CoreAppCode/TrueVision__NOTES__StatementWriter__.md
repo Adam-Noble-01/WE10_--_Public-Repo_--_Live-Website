@@ -52,6 +52,11 @@ never heard of is *offered* in the manager, never adopted on its own.
 
 On load the newest is put in front of you **and said so**. Nothing is silently preferred.
 
+**That was the intent; until v2.157.0 it was not what happened** between the first two rows:
+a draft that differed from the file was put back unasked (the toast calling the file older
+was never checked), and the autosave wrote over the file without looking. The file and the
+app's copy are now kept in lockstep and a split is ASKED - section 15.
+
 `Publish` is the moment a statement becomes something a client can open. Everything
 before that is local.
 
@@ -447,3 +452,53 @@ keydown, so it passes on code that eats every key. Use the `key` action, which f
 trusted keydowns and inserts their text - but it sends no text for Space or Shift+letter
 (a plain textarea gets `ab` from `a space b shift+c`), so compare against a control.
 `Na__Test__DocumentKeys__.test.mjs` covers the logic without a browser.
+
+---
+
+## 15 · Lockstep with the file (v2.157.0)
+
+**Agents and Typora write the markdown file directly, behind the app's back.** Adam,
+23-Sep-2026: "force you to say, 'I want the JSON if it's newer,' or 'I want the Markdown,' so
+you can make that choice in the app." The "JSON" is the app's copy: what is on screen, kept
+in this browser between saves as the draft `{ Text, Iso }`.
+
+**When the file is looked at** (`Na__LayoutEditor__Statement__Data__`): on open; every
+`LockstepPollMs` (3 s) while the Statements tab shows and the browser tab is visible; when
+the window regains focus or the tab becomes visible; and **immediately before every
+autosave**. A hidden tab is not polled - it is looked at the moment it comes back.
+
+**The four states** (`Na__LayoutEditor__Statement__Lockstep__`, pure, node-tested):
+
+| file vs last read/written | on screen vs last read/written | state | what happens |
+|---|---|---|---|
+| same | same | in step | nothing |
+| same | changed | app ahead | the ordinary autosave writes it |
+| changed | same | file ahead | **asked** |
+| changed | changed | diverged | **asked** (unless both now hold the same words: taken as saved) |
+
+**Content decides; the clock only explains.** Nothing compares the browser's clock with the
+server's to decide anything. The draft's `Iso` and the server's `Last-Modified` are shown
+beside each answer, and "Newer" is badged only when they are more than a second apart.
+
+**The question** (`Na__LayoutEditor__Statement__Page__`): a sheet over the desk with no close
+button - nothing is saved while it stands. "Keep the app's copy" writes it to the file
+(`ResolveConflict('app')`, a forced save that skips the look); "Load the markdown file"
+replaces the app's copy (`'file'`). **The copy not chosen is kept in this browser**:
+`localStorage['Na__TrueVision__StatementDiscarded__<folder>__<id>']`, the latest only.
+
+**No server change.** The ProjectVision server already sends `Last-Modified` (and an ETag)
+for the markdown, so no new route and no 8090 restart. On localhost the service worker goes
+network-first with `no-store`, so the watch always sees the real file.
+
+**Testing it** on the statement test server (`tv-statement`, port 8841, a throwaway copy of
+the statements folder): append to the copy's `.md` on disk with Bash to play the agent, or -
+to land an outside write inside the autosave's window - import
+`03__AppUtils/Na__AppUtils__LocalProjectMirror__.js` in the page and call
+`Na__LocalMirror__WriteStatementFile(path, text)`, which bypasses the data module exactly as
+Typora does. Drive the data module by its same-URL import (`Na__LeStmt__SetText`,
+`StopWatch`, `GetConflict`); answer with real clicks. **Stop the server gracefully or delete
+its `%TEMP%\na_statements_live_*` folder** - a hard stop leaves ~700 MB of photography behind
+on C:, because hard links fail from D: to C: and it copies instead.
+
+**The Project Specification has the same shape** (its JSON file, a browser draft, Reload Local
+and Sync) and still lets the last save win. Not changed here.

@@ -55,6 +55,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.1.0
+// - Every read of a statement now carries the file's own date: FetchText
+//   answers modifiedIso from the server's Last-Modified header ('' when there
+//   is none), and ReadStatement passes it on for the copy in the project
+//   folder. It is what the lockstep question shows beside each copy.
+// - ReadStatementLocal: the file in the project folder and nothing else, for
+//   the lockstep watch. Off localhost it answers skipped - there is no file
+//   there to watch.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -88,6 +97,7 @@
         Na__LocalMirror__MoveStatement,
         Na__LocalMirror__DeleteStatement
     } from '../../../03__AppUtils/Na__AppUtils__LocalProjectMirror__.js';
+    import { Na__LeStmtLock__FromHttpDate } from './Na__LayoutEditor__Statement__Lockstep__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -116,14 +126,18 @@
     // ------------------------------------------------------------
 
 
-    // HELPER FUNCTION | Fetch a File as Text: { ok, text, missing, error }
+    // HELPER FUNCTION | Fetch a File as Text: { ok, text, missing, modifiedIso, error }
+    // ------------------------------------------------------------
+    // modifiedIso is the server's Last-Modified for the file, or '' when the
+    // server did not say. It explains; it never decides.
     // ------------------------------------------------------------
     async function Na__LeStmtIo__FetchText(url) {
         try {
             const response = await fetch(url, { cache : 'no-store' });
             if (response.status === 404 || response.status === 403) return { ok : true, text : null, missing : true };
             if (!response.ok) return { ok : false, text : null, missing : false, error : 'HTTP ' + response.status };
-            return { ok : true, text : await response.text(), missing : false };
+            const modifiedIso = Na__LeStmtLock__FromHttpDate(response.headers.get('Last-Modified'));
+            return { ok : true, text : await response.text(), missing : false, modifiedIso : modifiedIso };
         } catch (error) {
             return { ok : false, text : null, missing : false, error : (error && error.message) || 'unreachable' };
         }
@@ -267,7 +281,7 @@
         if (Na__AppUtils__IsRunningOnLocalhost()) {
             const local = await Na__LeStmtIo__FetchText(location.repoUrl);
             if (local.ok && !local.missing && typeof local.text === 'string') {
-                return { ok : true, text : local.text, source : 'repository', missing : false };
+                return { ok : true, text : local.text, source : 'repository', missing : false, modifiedIso : local.modifiedIso || '' };
             }
         }
 
@@ -281,6 +295,25 @@
         if (cdn.ok && !cdn.missing) return { ok : true, text : cdn.text, source : 'cdn', missing : false };
         if (cdn.ok && cdn.missing)  return { ok : true, text : null, source : 'cdn', missing : true };
         return { ok : false, text : null, source : null, error : cdn.error || 'could not be read' };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Read the File in the Project Folder, and Nothing Else
+    // ------------------------------------------------------------
+    // For the lockstep watch: the one copy that Typora and agents edit behind
+    // the app's back. Resolves to { ok, text, missing, modifiedIso, error }, or
+    // { ok : false, skipped : true } off localhost, where there is no file to
+    // watch. Never falls back to the cloud: a copy that could not be read here
+    // is simply not looked at this time.
+    // ------------------------------------------------------------
+    async function Na__LeStmtIo__ReadStatementLocal(record) {
+        if (!Na__AppUtils__IsRunningOnLocalhost()) return { ok : false, skipped : true, text : null };
+        const path = Na__LeStmtIo__PathOf(record);
+        if (!path) return { ok : false, text : null, error : 'that statement has no file' };
+        const location = Na__CfApi__StatementFileLocation(path);
+        if (!location) return { ok : false, text : null, error : `refused statement path "${path}"` };
+        return Na__LeStmtIo__FetchText(location.repoUrl);
     }
     // ------------------------------------------------------------
 
@@ -387,6 +420,7 @@
         Na__LeStmtIo__WriteIndexLocal,
         Na__LeStmtIo__WriteIndexCloud,
         Na__LeStmtIo__ReadStatement,
+        Na__LeStmtIo__ReadStatementLocal,
         Na__LeStmtIo__WriteStatementLocal,
         Na__LeStmtIo__WriteStatementCloud,
         Na__LeStmtIo__ImageBase,

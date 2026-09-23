@@ -21,6 +21,15 @@
 //   and is written by Publish. A browser draft catches whatever was typed
 //   between the two. On load the newest of them is put in front of you and
 //   said so - nothing is silently preferred.
+// - THE APP'S COPY AND THE FILE ARE KEPT IN LOCKSTEP (v1.1.0). Typora and
+//   agents edit the markdown file directly, behind the app's back. So the file
+//   is looked at on open, every few seconds while the tab is showing, when the
+//   window gets the focus back, and IMMEDIATELY BEFORE EVERY AUTOSAVE. If it
+//   no longer holds what the app last read or wrote, nothing is written and
+//   the person is asked which copy to keep - the app's (the on-screen copy,
+//   kept in this browser as a JSON draft) or the markdown - with both times
+//   shown. The copy not chosen is kept in this browser. See
+//   Na__LayoutEditor__Statement__Lockstep__ for the rules.
 // - AN UNPUBLISHED EDIT IS NOT A LOST EDIT. The status says, in words, whether
 //   what is on screen has reached the disk and whether it has reached the
 //   cloud, because those are different questions and a writer is entitled to
@@ -36,7 +45,11 @@
 //   Import this file, never its transport unit: this export list is the API.
 // - CHANGED_EVENT carries { reason } and is raised for every change worth
 //   redrawing for: 'loaded', 'opened', 'typed', 'saved', 'published',
-//   'created', 'renamed', 'deleted', 'status'.
+//   'created', 'renamed', 'deleted', 'status' - and, since v1.1.0,
+//   'conflict' (the copies are out of step: ask) and 'reloaded' (the text on
+//   screen was replaced by a choice: redraw the surface from GetText).
+// - The page starts and stops the lockstep watch as the tab is shown and left
+//   (StartWatch / StopWatch) and answers the question with ResolveConflict.
 //
 // -----------------------------------------------------------------------------
 //
@@ -47,6 +60,21 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.1.0
+// - Lockstep between the app's copy and the markdown file. Adam, 23-Sep-2026:
+//   "Currently, if one's newer than the other, the one that gets saved wins."
+//   Two holes closed:
+//   - ON OPEN a browser draft that differed from the file was put back
+//     unasked, under a toast saying the file was older - which was never
+//     checked. It is now a question, with the draft's time and the file's.
+//   - THE AUTOSAVE wrote over the file without looking. It now reads the file
+//     first; if the file moved, nothing is written and the question is asked.
+//   Plus a watch while the tab is showing (LockstepPollMs, the window's
+//   focus), so an edit made in Typora or by an agent is noticed within
+//   seconds rather than overwritten a few seconds later.
+// - Nothing is ever lost by answering: the copy not chosen is kept in this
+//   browser under Na__TrueVision__StatementDiscarded__<folder>__<id>.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -83,6 +111,7 @@
         Na__LeStmtIo__WriteIndexLocal,
         Na__LeStmtIo__WriteIndexCloud,
         Na__LeStmtIo__ReadStatement,
+        Na__LeStmtIo__ReadStatementLocal,
         Na__LeStmtIo__WriteStatementLocal,
         Na__LeStmtIo__ImageBase,
         Na__LeStmtIo__Tree,
@@ -90,6 +119,13 @@
         Na__LeStmtIo__Move,
         Na__LeStmtIo__DeleteFolder
     } from './Na__LayoutEditor__Statement__Data__Transport__.js';
+    import {
+        Na__LeStmtLock__DIVERGED,
+        Na__LeStmtLock__Compare,
+        Na__LeStmtLock__NeedsChoice,
+        Na__LeStmtLock__Newer,
+        Na__LeStmtLock__Summary
+    } from './Na__LayoutEditor__Statement__Lockstep__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -110,7 +146,8 @@
     const Na__LeStmt__STATUS_NEW     = 'new';
     const Na__LeStmt__STATUS_FAILED  = 'failed';
 
-    const Na__LeStmt__DRAFT_PREFIX   = 'Na__TrueVision__StatementDraft__';
+    const Na__LeStmt__DRAFT_PREFIX     = 'Na__TrueVision__StatementDraft__';
+    const Na__LeStmt__DISCARDED_PREFIX = 'Na__TrueVision__StatementDiscarded__';  // <-- The copy a lockstep answer did not keep
     // ------------------------------------------------------------
 
     // MODULE CONSTANTS | What a Brand New Statement Opens With
@@ -186,6 +223,12 @@
     let Na__LeStmt__DraftTimer  = 0;
     let Na__LeStmt__Saving      = false;
     let Na__LeStmt__Initialised = false;
+
+    let Na__LeStmt__FileIso     = '';                                           // <-- When the file last changed, as the server reports it
+    let Na__LeStmt__LiveIso     = '';                                           // <-- When the copy on screen last changed
+    let Na__LeStmt__Conflict    = null;                                         // <-- The open lockstep question, when the copies disagree
+    let Na__LeStmt__WatchTimer  = 0;
+    let Na__LeStmt__Checking    = false;
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -264,6 +307,58 @@
 
     function Na__LeStmt__ClearDraft(id) {
         try { window.localStorage.removeItem(Na__LeStmt__DraftKey(id)); } catch (error) { /* nothing to do */ }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Keep the Copy a Lockstep Answer Did Not Choose
+    // ------------------------------------------------------------
+    // One per statement, the latest answer only. Recovered from the console
+    // with localStorage.getItem('Na__TrueVision__StatementDiscarded__<folder>__<id>')
+    // - a safety net, not a history.
+    // ------------------------------------------------------------
+    function Na__LeStmt__KeepDiscarded(id, text, why) {
+        try {
+            window.localStorage.setItem(
+                Na__LeStmt__DISCARDED_PREFIX + (Na__AppUtils__GetProjectFolderFromUrl() || 'unknown') + '__' + id,
+                JSON.stringify({ Text : String(text == null ? '' : text), Iso : Na__LeStmt__Now(), Why : why || '' }));
+        } catch (error) {
+            console.warn('[TrueVision3D] Statement Writer: the copy not kept could not be put aside:', (error && error.message) || error);
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Is the Lockstep Watch On for This Session
+    // ------------------------------------------------------------
+    // Only where this session writes the file: a reader has no copy of its own
+    // to fall out of step, and off localhost there is no file to look at.
+    // ------------------------------------------------------------
+    function Na__LeStmt__LockstepOn() {
+        return Na__LeStmt__Editable && Na__LeCfg__GetStatementSetup().lockstepEnabled === true;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Frame the Lockstep Question
+    // ------------------------------------------------------------
+    // kind: 'open' (a draft in this browser differs from the file), 'file' (the
+    // file moved and nothing here is unsaved) or 'both' (both moved). The two
+    // texts travel with the question so the answer never has to read the file
+    // again - what was shown is what is kept.
+    // ------------------------------------------------------------
+    function Na__LeStmt__MakeConflict(kind, parts) {
+        return {
+            kind     : kind,
+            fileText : parts.fileText,
+            fileIso  : parts.fileIso || '',
+            appText  : parts.appText,
+            appIso   : parts.appIso || '',
+            appFrom  : parts.appFrom || 'screen',
+            newer    : (kind === 'file') ? 'file' : Na__LeStmtLock__Newer(parts.appIso, parts.fileIso),
+            summary  : Na__LeStmtLock__Summary(parts.appText, parts.fileText),
+            askedIso : Na__LeStmt__Now()
+        };
     }
     // ------------------------------------------------------------
 
@@ -349,8 +444,10 @@
     // FUNCTION | Open One Statement and Read Its Markdown
     // ------------------------------------------------------------
     // Resolves to the markdown, or '' when it could not be read. A draft this
-    // browser holds that differs from the file is put in front of you and
-    // said so: it is your typing, and the file is not.
+    // browser holds that differs from the file is the lockstep question asked
+    // before anything is typed: the file is shown and the person chooses
+    // (v1.1.0). It used to be put back unasked, under a toast that called the
+    // file older without ever looking at its date.
     // ------------------------------------------------------------
     async function Na__LeStmt__Open(id) {
         const record = Na__LeStmt__Record(id);
@@ -359,6 +456,7 @@
         Na__LeStmt__OpenId     = record.Doc__Id;
         Na__LeStmt__TextStatus = Na__LeStmt__STATUS_LOADING;
         Na__LeStmt__TextError  = null;
+        Na__LeStmt__Conflict   = null;                                         // <-- A question about another statement does not follow it
         Na__LeStmt__Dispatch('status');
 
         const read = await Na__LeStmtIo__ReadStatement(record);
@@ -375,14 +473,26 @@
         Na__LeStmt__SavedText  = (typeof read.text === 'string') ? read.text : '';
         Na__LeStmt__LiveText   = Na__LeStmt__SavedText;
         Na__LeStmt__TextStatus = read.missing ? Na__LeStmt__STATUS_NEW : Na__LeStmt__STATUS_READY;
+        Na__LeStmt__FileIso    = read.modifiedIso || '';
+        Na__LeStmt__LiveIso    = '';
 
         const draft = Na__LeStmt__ReadDraft(record.Doc__Id);
-        if (draft && draft.Text !== Na__LeStmt__SavedText) {
-            Na__LeStmt__LiveText = draft.Text;
-            Na__LeStmt__Toast('Unsaved changes from this browser were put back. The file on disk is older.', false);
+        if (draft && draft.Text === Na__LeStmt__SavedText) {
+            Na__LeStmt__ClearDraft(record.Doc__Id);                              // <-- The file already holds it
+        } else if (draft && Na__LeStmt__LockstepOn() && read.source === 'repository') {
+            Na__LeStmt__Conflict = Na__LeStmt__MakeConflict('open', {
+                fileText : Na__LeStmt__SavedText, fileIso : Na__LeStmt__FileIso,
+                appText  : draft.Text,            appIso  : draft.Iso,
+                appFrom  : 'draft'
+            });
+        } else if (draft) {
+            Na__LeStmt__LiveText = draft.Text;                                  // <-- No file of its own to ask against
+            Na__LeStmt__LiveIso  = draft.Iso || '';
+            Na__LeStmt__Toast('Unsaved changes from this browser were put back.', false);
         }
 
         Na__LeStmt__Dispatch('opened');
+        if (Na__LeStmt__Conflict) Na__LeStmt__Dispatch('conflict');
         return Na__LeStmt__LiveText;
     }
     // ------------------------------------------------------------
@@ -404,6 +514,7 @@
         if (typeof text !== 'string') return;
         if (text === Na__LeStmt__LiveText) return;
         Na__LeStmt__LiveText = text;
+        Na__LeStmt__LiveIso  = Na__LeStmt__Now();
 
         const setup = Na__LeCfg__GetStatementSetup();
         const id    = Na__LeStmt__OpenId;
@@ -427,16 +538,41 @@
     // Resolves true when the file was written. The R2 copy is NOT touched -
     // that is Publish's job, and the difference between the two is the whole
     // point of having both.
+    //
+    // LOOK BEFORE WRITING (v1.1.0). The file is read first. If it no longer
+    // holds what this browser last read or wrote, Typora or an agent has been
+    // in it: nothing is written, the copy on screen goes to the draft, and the
+    // lockstep question is asked. options.force skips the look - only the
+    // answer "keep the app's copy" passes it.
     // ------------------------------------------------------------
     async function Na__LeStmt__SaveLocal(options) {
         const opts   = options || {};
         const record = Na__LeStmt__Record(Na__LeStmt__OpenId);
         if (!record || !Na__LeStmt__Editable || Na__LeStmt__Saving) return false;
+        if (Na__LeStmt__Conflict) {
+            if (!opts.quiet) Na__LeStmt__Toast('This statement and its markdown file are out of step. Choose which to keep before saving.', true);
+            return false;
+        }
         if (Na__LeStmt__LiveText === Na__LeStmt__SavedText) return true;
 
         Na__LeStmt__Saving = true;
         Na__LeStmt__Dispatch('status');
         try {
+            if (!opts.force && Na__LeStmt__LockstepOn()) {
+                const disk = await Na__LeStmtIo__ReadStatementLocal(record);
+                if (disk.ok && !disk.missing && typeof disk.text === 'string') {
+                    const verdict = Na__LeStmtLock__Compare({ fileText : disk.text, savedText : Na__LeStmt__SavedText, liveText : Na__LeStmt__LiveText });
+                    if (verdict.converged) {                                    // <-- The file already holds what is on screen
+                        Na__LeStmt__TakeFileAsSaved(record, disk);
+                        return true;
+                    }
+                    if (Na__LeStmtLock__NeedsChoice(verdict.state)) {
+                        Na__LeStmt__AskAboutFile(record, disk, verdict.state);
+                        return false;
+                    }
+                }
+            }
+
             const written = Na__LeStmt__LiveText;
             const result  = await Na__LeStmtIo__WriteStatementLocal(record, written);
             if (!result.ok) {
@@ -447,6 +583,7 @@
             }
 
             Na__LeStmt__SavedText  = written;
+            Na__LeStmt__FileIso    = Na__LeStmt__Now();                         // <-- The next look replaces this with the server's own date
             record.Doc__UpdatedIso = Na__LeStmt__Now();
             Na__LeStmt__ClearDraft(record.Doc__Id);
             void Na__LeStmt__SaveIndex({ cloud : false });
@@ -502,6 +639,173 @@
             return false;
         }
         return true;
+    }
+    // ------------------------------------------------------------
+
+// endregion -------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------------
+// REGION | Lockstep With the File
+// -----------------------------------------------------------------------------
+
+    // HELPER FUNCTION | The File Already Holds What Is On Screen: Take It as Saved
+    // ------------------------------------------------------------
+    function Na__LeStmt__TakeFileAsSaved(record, disk) {
+        Na__LeStmt__SavedText = disk.text;
+        if (disk.modifiedIso) Na__LeStmt__FileIso = disk.modifiedIso;
+        Na__LeStmt__ClearDraft(record.Doc__Id);
+        Na__LeStmt__Dispatch('saved');
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | The File Moved Behind the App's Back: Stop and Ask
+    // ------------------------------------------------------------
+    // What is on screen goes to the draft first, so the question can be left
+    // unanswered - the tab closed, the machine restarted - and still be asked
+    // on the next open.
+    // ------------------------------------------------------------
+    function Na__LeStmt__AskAboutFile(record, disk, state) {
+        window.clearTimeout(Na__LeStmt__SaveTimer);
+        Na__LeStmt__Conflict = Na__LeStmt__MakeConflict(state === Na__LeStmtLock__DIVERGED ? 'both' : 'file', {
+            fileText : disk.text,
+            fileIso  : disk.modifiedIso || '',
+            appText  : Na__LeStmt__LiveText,
+            appIso   : Na__LeStmt__LiveIso || Na__LeStmt__FileIso,
+            appFrom  : 'screen'
+        });
+        if (Na__LeStmt__LiveText !== Na__LeStmt__SavedText) Na__LeStmt__WriteDraft(record.Doc__Id, Na__LeStmt__LiveText);
+        console.log('[TrueVision3D] Statement Writer: the markdown file changed outside the app ('
+            + (state === Na__LeStmtLock__DIVERGED ? 'and there are unsaved changes here' : 'nothing here is unsaved') + ') - asking which to keep.');
+        Na__LeStmt__Dispatch('conflict');
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Look at the File Once
+    // ------------------------------------------------------------
+    // Resolves to the lockstep state, or null when there was nothing to look
+    // at or it was not the moment (a save or another look under way, a
+    // question already open). Never writes: the autosave does that, and it
+    // looks again for itself first.
+    // ------------------------------------------------------------
+    async function Na__LeStmt__CheckFile() {
+        const record = Na__LeStmt__Record(Na__LeStmt__OpenId);
+        if (!record || !Na__LeStmt__LockstepOn()) return null;
+        if (Na__LeStmt__Conflict || Na__LeStmt__Saving || Na__LeStmt__Checking) return null;
+        if (Na__LeStmt__TextStatus !== Na__LeStmt__STATUS_READY) return null;
+
+        Na__LeStmt__Checking = true;
+        try {
+            const openId = Na__LeStmt__OpenId;
+            const disk   = await Na__LeStmtIo__ReadStatementLocal(record);
+            if (openId !== Na__LeStmt__OpenId || Na__LeStmt__Conflict || Na__LeStmt__Saving) return null;   // <-- Something moved while the file was read
+            if (!disk.ok || disk.skipped || disk.missing || typeof disk.text !== 'string') return null;
+
+            const verdict = Na__LeStmtLock__Compare({ fileText : disk.text, savedText : Na__LeStmt__SavedText, liveText : Na__LeStmt__LiveText });
+            if (verdict.converged) {
+                Na__LeStmt__TakeFileAsSaved(record, disk);
+            } else if (Na__LeStmtLock__NeedsChoice(verdict.state)) {
+                Na__LeStmt__AskAboutFile(record, disk, verdict.state);
+            } else if (disk.modifiedIso) {
+                Na__LeStmt__FileIso = disk.modifiedIso;                          // <-- In step: keep the server's own date
+            }
+            return verdict.state;
+        } finally {
+            Na__LeStmt__Checking = false;
+        }
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Watch the File While the Tab Is Showing
+    // ------------------------------------------------------------
+    // Every LockstepPollMs while this browser tab is visible. A tab in the
+    // background is looked at the moment it comes back instead (Initialize).
+    // ------------------------------------------------------------
+    function Na__LeStmt__StartWatch() {
+        Na__LeStmt__StopWatch();
+        if (!Na__LeStmt__LockstepOn()) return false;
+        const every = Na__LeCfg__GetStatementSetup().lockstepPollMs;
+        Na__LeStmt__WatchTimer = window.setInterval(() => {
+            if (document.visibilityState === 'visible') void Na__LeStmt__CheckFile();
+        }, every);
+        void Na__LeStmt__CheckFile();
+        return true;
+    }
+
+    function Na__LeStmt__StopWatch() {
+        if (Na__LeStmt__WatchTimer) window.clearInterval(Na__LeStmt__WatchTimer);
+        Na__LeStmt__WatchTimer = 0;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Answer the Lockstep Question
+    // ------------------------------------------------------------
+    // choice: 'app'  - keep the app's copy and write it to the markdown file.
+    //                  "I want the JSON."
+    //         'file' - load the markdown file over the app's copy.
+    //                  "I want the Markdown."
+    // Resolves true when the answer took. The copy not chosen is put aside in
+    // this browser first, so no answer loses anything.
+    // ------------------------------------------------------------
+    async function Na__LeStmt__ResolveConflict(choice) {
+        const conflict = Na__LeStmt__Conflict;
+        const record   = Na__LeStmt__Record(Na__LeStmt__OpenId);
+        if (!conflict || !record) return false;
+
+        if (choice === 'file') {
+            const appCopy = (conflict.kind === 'open') ? conflict.appText : Na__LeStmt__LiveText;
+            if (appCopy !== conflict.fileText) Na__LeStmt__KeepDiscarded(record.Doc__Id, appCopy, 'the markdown file was chosen');
+            Na__LeStmt__SavedText = conflict.fileText;
+            Na__LeStmt__LiveText  = conflict.fileText;
+            Na__LeStmt__FileIso   = conflict.fileIso || Na__LeStmt__FileIso;
+            Na__LeStmt__LiveIso   = '';
+            Na__LeStmt__Conflict  = null;
+            Na__LeStmt__ClearDraft(record.Doc__Id);
+            Na__LeStmt__Dispatch('reloaded');
+            Na__LeStmt__Toast('The markdown file was loaded. The app\'s copy it replaced is kept in this browser.', false);
+            return true;
+        }
+
+        if (choice === 'app') {
+            const appCopy = (conflict.kind === 'open') ? conflict.appText : Na__LeStmt__LiveText;
+            Na__LeStmt__KeepDiscarded(record.Doc__Id, conflict.fileText, 'the app\'s copy was chosen');
+            Na__LeStmt__SavedText = conflict.fileText;                          // <-- What the file holds now, so the write is not skipped as "no change"
+            Na__LeStmt__LiveText  = appCopy;
+            Na__LeStmt__LiveIso   = Na__LeStmt__Now();
+            Na__LeStmt__Conflict  = null;
+            if (conflict.kind === 'open') Na__LeStmt__Dispatch('reloaded');      // <-- The file was on screen; the draft goes there now
+            const saved = await Na__LeStmt__SaveLocal({ force : true, quiet : true });
+            if (saved) Na__LeStmt__Toast('The app\'s copy was written to the markdown file. The file\'s version it replaced is kept in this browser.', false);
+            else       Na__LeStmt__Toast('The app\'s copy could not be written to the markdown file. It is kept in this browser - press Save to try again.', true);
+            return saved;
+        }
+
+        return false;
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | The Open Lockstep Question, for the Page
+    // ------------------------------------------------------------
+    // Everything the choice shows except the two texts themselves; null when
+    // the copies are in step.
+    // ------------------------------------------------------------
+    function Na__LeStmt__GetConflict() {
+        const conflict = Na__LeStmt__Conflict;
+        if (!conflict) return null;
+        return {
+            kind     : conflict.kind,
+            fileIso  : conflict.fileIso,
+            appIso   : conflict.appIso,
+            appFrom  : conflict.appFrom,
+            newer    : conflict.newer,
+            summary  : Object.assign({}, conflict.summary),
+            askedIso : conflict.askedIso
+        };
     }
     // ------------------------------------------------------------
 
@@ -579,6 +883,9 @@
         Na__LeStmt__LiveText  = text;
         Na__LeStmt__OpenId    = record.Doc__Id;
         Na__LeStmt__TextStatus = Na__LeStmt__STATUS_READY;
+        Na__LeStmt__FileIso   = Na__LeStmt__Now();
+        Na__LeStmt__LiveIso   = '';
+        Na__LeStmt__Conflict  = null;
 
         Na__LeStmt__Dispatch('created', { id : record.Doc__Id });
         return record;
@@ -662,6 +969,7 @@
             Na__LeStmt__OpenId    = 0;
             Na__LeStmt__SavedText = '';
             Na__LeStmt__LiveText  = '';
+            Na__LeStmt__Conflict  = null;
         }
 
         await Na__LeStmt__SaveIndex({ cloud : false });
@@ -740,7 +1048,10 @@
             textError   : Na__LeStmt__TextError,
             dirty       : Na__LeStmt__LiveText !== Na__LeStmt__SavedText,
             saving      : Na__LeStmt__Saving,
-            published   : record ? record.Doc__PublishedIso : null
+            published   : record ? record.Doc__PublishedIso : null,
+            conflict    : !!Na__LeStmt__Conflict,
+            watching    : !!Na__LeStmt__WatchTimer,
+            fileIso     : Na__LeStmt__FileIso
         };
     }
     // ------------------------------------------------------------
@@ -797,9 +1108,17 @@
             if (document.visibilityState === 'hidden' && Na__LeStmt__IsDirty() && Na__LeStmt__OpenId) {
                 Na__LeStmt__WriteDraft(Na__LeStmt__OpenId, Na__LeStmt__LiveText);
             }
+            if (document.visibilityState === 'visible' && Na__LeStmt__WatchTimer) void Na__LeStmt__CheckFile();
         });
         window.addEventListener('pagehide', () => {
             if (Na__LeStmt__IsDirty() && Na__LeStmt__OpenId) Na__LeStmt__WriteDraft(Na__LeStmt__OpenId, Na__LeStmt__LiveText);
+        });
+
+        // COMING BACK FROM TYPORA, OR FROM AN AGENT'S EDIT, is exactly when the
+        // file is most likely to have moved: look the moment the window has the
+        // focus again rather than waiting for the next tick.
+        window.addEventListener('focus', () => {
+            if (Na__LeStmt__WatchTimer) void Na__LeStmt__CheckFile();
         });
     }
     // ------------------------------------------------------------
@@ -842,7 +1161,12 @@
         Na__LeStmt__GetTree,
         Na__LeStmt__IsDirty,
         Na__LeStmt__IsEditable,
-        Na__LeStmt__ImageBase
+        Na__LeStmt__ImageBase,
+        Na__LeStmt__CheckFile,
+        Na__LeStmt__StartWatch,
+        Na__LeStmt__StopWatch,
+        Na__LeStmt__ResolveConflict,
+        Na__LeStmt__GetConflict
     };
     // ------------------------------------------------------------
 

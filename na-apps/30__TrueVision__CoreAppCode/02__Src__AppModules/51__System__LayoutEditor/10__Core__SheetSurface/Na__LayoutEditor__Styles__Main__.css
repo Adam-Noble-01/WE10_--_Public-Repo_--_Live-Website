@@ -167,49 +167,110 @@ body.na-le-dragging * {
     margin-right                       : 8px;
 }
 
-.na-le-tabs__tab--add {
-    font-weight                        : 600;
-    color                              : #1a7fc4;
+.na-le-tabs__tab--menu-open {
+    background                         : #ffffff;                     /* <-- The Drawings tab while its menu hangs under it */
 }
 
-/* RENAMING A TAB. The frame is the tab-shaped box; inside it the drawing's
-   short code ("D03 -") stands as fixed text and only the name after it is a
-   field, because the code is the Drawing Register's and is never typed. */
+/* THE DRAWINGS TAB IS A MENU, and says so with the small caret the header's
+   own menus wear (Dev Tools, Tools & Settings). It turns while the menu is
+   open, as theirs do. */
 
-.na-le-tabs__renaming {
-    flex                               : 0 0 auto;
-    display                            : flex;
-    align-items                        : center;
-    gap                                : 5px;
-    margin-top                         : 4px;
-    padding                            : 0 8px;
-    background                         : #ffffff;
-    border                             : 1px solid #1a7fc4;
-    border-bottom                      : none;
-    border-radius                      : 6px 6px 0 0;
-    font-size                          : 0.8rem;
-}
-
-.na-le-tabs__renaming-code {
+.na-le-tabs__caret {
+    display                            : inline-block;
+    margin-left                        : 6px;
+    font-size                          : 0.7rem;
+    line-height                        : 1;
     color                              : #46596b;
-    font-weight                        : 600;
-    white-space                        : nowrap;
+    transition                         : transform 0.24s ease;
 }
 
-.na-le-tabs__renaming-code[hidden] {
+.na-le-tabs__tab--menu-open .na-le-tabs__caret {
+    transform                          : rotate(180deg);
+}
+
+/* THE SPECIFICATION'S AMBER DOT on the Drawings tab while its own row is out
+   of sight in the menu - the same amber as the Save Sheets button's attention
+   state, and the same dot the row itself carries (Styles__Specification__). */
+
+.na-le-tabs__dot {
+    display                            : inline-block;
+    width                              : 6px;
+    height                             : 6px;
+    margin-left                        : 7px;
+    border-radius                      : 50%;
+    background                         : #d99a1e;
+    vertical-align                     : middle;
+}
+
+/* THE DRAWINGS MENU. On the body, hung under the Drawings tab, fixed: the
+   strip clips its own overflow so the scroller can scroll, and a menu inside
+   it would be cut off at the strip's lower edge. Dressed as the header's
+   menus are - white, a hairline, a soft shadow, rows that tint on hover - so
+   it reads as one of the app's menus and not a second kind of tab. Above the
+   header (1000) and its menus (1001), which it can overlap on a phone. It is
+   given only the height there is below it, so a long pack scrolls inside
+   the menu rather than off the screen. */
+
+.na-le-tabs__menu {
+    position                           : fixed;
+    z-index                            : 1002;
+    min-width                          : 220px;
+    max-width                          : min(380px, calc(100vw - 16px));
+    padding                            : 6px 0;
+    box-sizing                         : border-box;
+    overflow-y                         : auto;
+    overscroll-behavior                : contain;
+    background                         : rgba(255, 255, 255, 0.98);
+    border                             : 1px solid rgba(0, 0, 0, 0.12);
+    border-top                         : none;
+    border-radius                      : 0 0 6px 6px;
+    box-shadow                         : 0 6px 18px rgba(0, 0, 0, 0.15);
+    font-family                        : var(--Vale_FontFamily, 'Open Sans', sans-serif);
+}
+
+.na-le-tabs__menu[hidden] {
     display                            : none;
 }
 
-.na-le-tabs__rename {
-    align-self                         : stretch;
-    min-width                          : 0;
-    padding                            : 0;
-    font-family                        : inherit;
-    font-size                          : inherit;
-    color                              : #172b3a;
-    background                         : transparent;
+.na-le-tabs__menu-row {
+    display                            : block;
+    width                              : 100%;
+    padding                            : 8px 14px;
+    margin                             : 0;
     border                             : none;
+    background                         : transparent;
+    color                              : #172b3a;
+    font-family                        : inherit;
+    font-size                          : 0.85rem;
+    font-weight                        : 400;
+    text-align                         : left;
+    white-space                        : nowrap;
+    overflow                           : hidden;
+    text-overflow                      : ellipsis;
+    cursor                             : pointer;
+    -webkit-tap-highlight-color        : transparent;
+}
+
+.na-le-tabs__menu-row:hover,
+.na-le-tabs__menu-row:focus-visible {
+    background                         : rgba(23, 43, 58, 0.06);
     outline                            : none;
+}
+
+.na-le-tabs__menu-row--open {
+    font-weight                        : 600;                         /* <-- The open drawing, as the open tab is bold */
+    background                         : rgba(26, 127, 196, 0.08);
+}
+
+.na-le-tabs__menu-row--add {
+    font-weight                        : 600;                         /* <-- The old + tab, as a row */
+    color                              : #1a7fc4;
+}
+
+.na-le-tabs__menu-divider {
+    height                             : 1px;
+    margin                             : 6px 0;
+    background                         : rgba(23, 43, 58, 0.12);
 }
 
 /* endregion ------------------------------------------------------- */

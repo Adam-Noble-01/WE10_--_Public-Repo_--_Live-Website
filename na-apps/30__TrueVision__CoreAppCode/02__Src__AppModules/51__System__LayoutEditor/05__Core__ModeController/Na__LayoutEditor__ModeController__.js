@@ -47,6 +47,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 23-Sep-2026 - Version 1.30.0
+// - A DOCUMENT TAB PRESSED FROM THE 3D VIEW opens the first sheet under
+//   itself quietly (Na__LeMode__EnterUnder): the first-open veil is not put
+//   up, because it sits over the register and the statements pages and
+//   would cover the page the reader asked for while a sheet they did not
+//   rendered beneath it. The veil is kept for the first drawing tab. With
+//   the compact tab strip (TabStrip 2.0.0) the register and the statements
+//   are one press away from the 3D view, so this is now the ordinary way in.
+//
 // 22-Sep-2026 - Version 1.29.0
 // - Overspill note regions' grips (Na__LayoutEditor__NoteRegions__Grips__) are
 //   attached and detached with the sheet input, beside the margin grip, and
@@ -416,6 +425,7 @@
     let Na__LeMode__Built     = false;
     let Na__LeMode__View      = Na__LeMode__VIEW_SHEET;
     let Na__LeMode__Metrics   = false;    // <-- The PDF library's text metrics have been asked for
+    let Na__LeMode__Quiet     = false;    // <-- A document tab pressed from the 3D view: the first sheet opens underneath it without the first-open veil
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -700,7 +710,9 @@
         // named for each drawing and lifted when that drawing's files are all
         // on the page, on EVERY tab press - so this first-open veil, which would
         // stack on top of it, is the editor's alone.
-        if (!Na__LeVw__IsViewerMode()) void Na__LeVeil__FirstOpen(Na__LeMode__Host, {
+        // AND NOT UNDER A DOCUMENT TAB (Na__LeMode__EnterUnder): the register a
+        // reader asked for must not sit under a veil for a sheet they did not.
+        if (!Na__LeVw__IsViewerMode() && !Na__LeMode__Quiet) void Na__LeVeil__FirstOpen(Na__LeMode__Host, {
             specification : specLoad,
             textMetrics   : metricsLoad,
             viewportCount : (Na__LeModel__GetViewports(sheet) || []).length
@@ -839,6 +851,25 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Open the First Sheet Underneath a Document Tab
+    // ------------------------------------------------------------
+    // The register, the statements and the specification lie over a sheet,
+    // so a document tab pressed from the 3D view opens the first sheet under
+    // itself - QUIETLY. The editor's first-open veil ("Your Drawings Are
+    // Loading", z-index 40) sits over the register and the statements (12),
+    // so it would cover the page the reader asked for while a sheet nobody
+    // asked for rendered beneath it. The veil answers once per session, so
+    // leaving it here keeps it for the first drawing tab, where it belongs.
+    // ------------------------------------------------------------
+    function Na__LeMode__EnterUnder() {
+        if (Na__LeMode__Active) return true;
+        Na__LeMode__Quiet = true;
+        try { return Na__LeMode__Enter(null); }
+        finally { Na__LeMode__Quiet = false; }
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Show the Project Specification Tab
     // ------------------------------------------------------------
     // Over the sheet, which stays laid out underneath: its tools, keys and
@@ -849,7 +880,7 @@
     function Na__LeMode__OpenSpecification(noteId) {
         Na__LeRegEd__Hide();
         Na__LeStmtPage__Hide();
-        if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
+        if (!Na__LeMode__EnterUnder()) return false;                              // <-- From the 3D view: the first sheet opens underneath, quietly
         void Na__LeSpec__EnsureLoaded();
         if (Na__LeMode__View !== Na__LeMode__VIEW_SPEC) {
             Na__LeText__Commit();                                              // <-- Typing on the paper is kept, not dropped by the tools standing down
@@ -873,7 +904,7 @@
     // FUNCTION | Open the Pack Register Beside the Specification
     // ------------------------------------------------------------
     function Na__LeMode__OpenRegister() {
-        if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
+        if (!Na__LeMode__EnterUnder()) return false;                              // <-- From the 3D view: the first sheet opens underneath, quietly
         Na__LeText__Commit();
         Na__LeMode__DetachSheetInput();
         Na__LeSpecEd__Hide();
@@ -898,7 +929,7 @@
     // separate viewer route to keep in step.
     // ------------------------------------------------------------
     function Na__LeMode__OpenStatements() {
-        if (!Na__LeMode__Active && !Na__LeMode__Enter(null)) return false;
+        if (!Na__LeMode__EnterUnder()) return false;                              // <-- From the 3D view: the first sheet opens underneath, quietly
         Na__LeRegEd__Hide();
         Na__LeSpecEd__Hide();
         if (Na__LeMode__View !== Na__LeMode__VIEW_STATEMENT) {
