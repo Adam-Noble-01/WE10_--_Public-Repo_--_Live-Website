@@ -31,11 +31,11 @@
             "Viewport__Rasters"      : [],
             "Viewport__FogMasks"     : [],
             "Viewport__Vector"       : {
-                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__cf60426717.svg",
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__0ad89adc47.svg",
                 "Vector__WidthMm"      : 484.6708451857861,
                 "Vector__HeightMm"     : 367.73435788846496,
                 "Vector__PathCount"    : 13,
-                "Vector__SegmentCount" : 8477
+                "Vector__SegmentCount" : 8496
             },
             "Viewport__SceneSvg" : "",
             "Viewport__FrameSvg" : ""

@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T19:12:27.733Z",
-        "Publish__AtEpochMs"      : 1790190747733,
+        "Publish__AtIso"          : "2026-09-23T21:16:48.577Z",
+        "Publish__AtEpochMs"      : 1790198208577,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.155.0",
         "Publish__RevisionAction" : "overwritten",
@@ -92,30 +92,30 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 1,
                 "File__Bytes"  : 1700,
-                "File__Sha256" : "136b4bdf9f"
+                "File__Sha256" : "ca6f879f11"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "68375f79bd",
+                "Viewport__Hash"   : "006f612319",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__68375f79bd.svg",
-                    "File__Bytes"    : 190564,
-                    "File__Sha256"   : "68375f79bd",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__006f612319.svg",
+                    "File__Bytes"    : 190070,
+                    "File__Sha256"   : "006f612319",
                     "File__Paths"    : 13,
-                    "File__Segments" : 6337
+                    "File__Segments" : 6321
                 },
                 "Viewport__Rasters"  : [],
                 "Viewport__FogMasks" : []
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__876c90fc68.pdf",
-            "File__Bytes"  : 230649,
-            "File__Sha256" : "876c90fc68",
+            "File__Path"   : "Document__Print__971bb525e1.pdf",
+            "File__Bytes"  : 231552,
+            "File__Sha256" : "971bb525e1",
             "File__Name"   : "RB05_T01_D09__CoachHousePlan__A2__RevA__23-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 709310
+        "Files__TotalBytes" : 709719
     }
 }

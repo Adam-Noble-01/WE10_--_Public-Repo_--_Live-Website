@@ -31,25 +31,25 @@
             "Viewport__Rasters"      : [
                 {
                     "Tier__Id"     : "Print",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__945d263672.png",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Print__1cabf851b4.png",
                     "Tier__PixelW" : 8192,
                     "Tier__PixelH" : 2234
                 },
                 {
                     "Tier__Id"     : "Tier03",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__945d263672.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier03__Detail__1cabf851b4.webp",
                     "Tier__PixelW" : 5120,
                     "Tier__PixelH" : 1396
                 },
                 {
                     "Tier__Id"     : "Tier02",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__945d263672.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier02__Read__1cabf851b4.webp",
                     "Tier__PixelW" : 2844,
                     "Tier__PixelH" : 775
                 },
                 {
                     "Tier__Id"     : "Tier01",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__945d263672.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__Tier01__Fit__1cabf851b4.webp",
                     "Tier__PixelW" : 948,
                     "Tier__PixelH" : 258
                 }
@@ -57,29 +57,29 @@
             "Viewport__FogMasks" : [
                 {
                     "Tier__Id"     : "Tier03",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__FogMask__Tier03__Detail__945d263672.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__FogMask__Tier03__Detail__1cabf851b4.webp",
                     "Tier__PixelW" : 5120,
                     "Tier__PixelH" : 1396
                 },
                 {
                     "Tier__Id"     : "Tier02",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__FogMask__Tier02__Read__945d263672.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__FogMask__Tier02__Read__1cabf851b4.webp",
                     "Tier__PixelW" : 2844,
                     "Tier__PixelH" : 775
                 },
                 {
                     "Tier__Id"     : "Tier01",
-                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__FogMask__Tier01__Fit__945d263672.webp",
+                    "Tier__File"   : "03__Viewports__Raster/Viewport_001__FogMask__Tier01__Fit__1cabf851b4.webp",
                     "Tier__PixelW" : 948,
                     "Tier__PixelH" : 258
                 }
             ],
             "Viewport__Vector" : {
-                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__945d263672.svg",
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__1cabf851b4.svg",
                 "Vector__WidthMm"      : 474,
                 "Vector__HeightMm"     : 129.23958492279047,
-                "Vector__PathCount"    : 12,
-                "Vector__SegmentCount" : 14007
+                "Vector__PathCount"    : 10,
+                "Vector__SegmentCount" : 13841
             },
             "Viewport__SceneSvg" : "",
             "Viewport__FrameSvg" : ""

@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T19:12:16.344Z",
-        "Publish__AtEpochMs"      : 1790190736344,
+        "Publish__AtIso"          : "2026-09-23T21:16:29.601Z",
+        "Publish__AtEpochMs"      : 1790198189601,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.155.0",
         "Publish__RevisionAction" : "overwritten",
@@ -92,30 +92,30 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 1,
                 "File__Bytes"  : 1669,
-                "File__Sha256" : "0eb2c51c4d"
+                "File__Sha256" : "c8b1a2e7e1"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "d1d7c341cc",
+                "Viewport__Hash"   : "cc1911fd7b",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__d1d7c341cc.svg",
-                    "File__Bytes"    : 735000,
-                    "File__Sha256"   : "d1d7c341cc",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__cc1911fd7b.svg",
+                    "File__Bytes"    : 736216,
+                    "File__Sha256"   : "cc1911fd7b",
                     "File__Paths"    : 13,
-                    "File__Segments" : 23602
+                    "File__Segments" : 23638
                 },
                 "Viewport__Rasters"  : [],
                 "Viewport__FogMasks" : []
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__7949371326.pdf",
-            "File__Bytes"  : 466632,
-            "File__Sha256" : "7949371326",
+            "File__Path"   : "Document__Print__fca5b8edc8.pdf",
+            "File__Bytes"  : 472179,
+            "File__Sha256" : "fca5b8edc8",
             "File__Name"   : "RB05_T01_D06__GroundFloorPlan__A2__RevA__23-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 1746185
+        "Files__TotalBytes" : 1752948
     }
 }

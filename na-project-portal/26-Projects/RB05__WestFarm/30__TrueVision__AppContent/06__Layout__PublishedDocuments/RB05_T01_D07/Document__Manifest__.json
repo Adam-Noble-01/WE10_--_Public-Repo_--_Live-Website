@@ -16,8 +16,8 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T19:12:20.296Z",
-        "Publish__AtEpochMs"      : 1790190740296,
+        "Publish__AtIso"          : "2026-09-23T21:16:38.362Z",
+        "Publish__AtEpochMs"      : 1790198198362,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"   : "v2.155.0",
         "Publish__RevisionAction" : "overwritten",
@@ -92,43 +92,43 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 2,
                 "File__Bytes"  : 3106,
-                "File__Sha256" : "20a4344dce"
+                "File__Sha256" : "a208d0dbc3"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "edc3ad32a4",
+                "Viewport__Hash"   : "44c225c1e2",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__edc3ad32a4.svg",
-                    "File__Bytes"    : 444535,
-                    "File__Sha256"   : "edc3ad32a4",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__44c225c1e2.svg",
+                    "File__Bytes"    : 448298,
+                    "File__Sha256"   : "44c225c1e2",
                     "File__Paths"    : 11,
-                    "File__Segments" : 14246
+                    "File__Segments" : 14369
                 },
                 "Viewport__Rasters"  : [],
                 "Viewport__FogMasks" : []
             },
             {
                 "Viewport__Id"     : "Viewport_002",
-                "Viewport__Hash"   : "0a86946502",
+                "Viewport__Hash"   : "88b84d3624",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_002__Linework__0a86946502.svg",
-                    "File__Bytes"    : 76266,
-                    "File__Sha256"   : "0a86946502",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_002__Linework__88b84d3624.svg",
+                    "File__Bytes"    : 76899,
+                    "File__Sha256"   : "88b84d3624",
                     "File__Paths"    : 8,
-                    "File__Segments" : 2472
+                    "File__Segments" : 2493
                 },
                 "Viewport__Rasters"  : [],
                 "Viewport__FogMasks" : []
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__280ef502c4.pdf",
-            "File__Bytes"  : 392056,
-            "File__Sha256" : "280ef502c4",
+            "File__Path"   : "Document__Print__67d85f952e.pdf",
+            "File__Bytes"  : 399454,
+            "File__Sha256" : "67d85f952e",
             "File__Name"   : "RB05_T01_D07__FirstFloorPlan__A2__RevA__23-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 1350452
+        "Files__TotalBytes" : 1362246
     }
 }
