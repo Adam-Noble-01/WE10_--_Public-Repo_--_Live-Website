@@ -870,6 +870,78 @@
 
 
 /* #Region ---
+ * REGION | Dev Menu Scene Editor - Advanced > Lighting Subsection
+ * ----- */
+
+    /* A subsection, not another fold: it closes the Advanced list under a
+       rule and a small caps title, so the four sliders read as one group
+       rather than four more settings in a column of unrelated ones. Ported
+       from ValeVision3D v2.71.0; it sits after the FOV region here because
+       that is where this sheet keeps .na-pm-dev__input--tiny, which the
+       number box's width has to come after. */
+    .na-pm-dev__lighting {
+        margin-top                         : 10px;
+        padding-top                        : 8px;
+        border-top                         : 1px solid #e8eaed;
+    }
+
+    .na-pm-dev__lighting-title {
+        margin-bottom                      : 6px;
+        font-size                          : 0.66rem;
+        font-weight                        : 600;
+        letter-spacing                     : 0.06em;
+        text-transform                     : uppercase;
+        color                              : #6b7480;
+    }
+
+    /* The slider takes the slack; the number box is the exact value. The
+       label keeps the Advanced list's own width so every control starts in line. */
+    .na-pm-dev__slider-row--lighting {
+        gap                                : 6px;
+        flex-wrap                          : nowrap;
+    }
+
+    .na-pm-dev__slider-row--lighting .na-pm-dev__slider {
+        flex                               : 1 1 auto;
+        min-width                          : 48px;
+    }
+
+    .na-pm-dev__input--lighting {
+        width                              : 40px;
+        max-width                          : 40px;
+    }
+
+    .na-pm-dev__lighting-status {
+        margin                             : 2px 0 6px 0;
+        font-size                          : 0.7rem;
+        line-height                        : 1.35;
+        color                              : #6b7480;
+    }
+
+    /* Amber, not red: unsaved is a state to notice, not an error. */
+    .na-pm-dev__lighting-status.is-pending {
+        color                              : #a15c00;
+    }
+
+    .na-pm-dev__lighting-actions {
+        display                            : grid;
+        grid-template-columns              : 1fr 1fr;
+        gap                                : 6px;
+    }
+
+    .na-pm-dev__lighting-actions .na-pm-dev__btn {
+        width                              : 100%;
+    }
+
+    .na-pm-dev__lighting-actions .na-pm-dev__btn:disabled {
+        opacity                            : 0.45;
+        cursor                             : default;
+    }
+
+/* endregion ---- */
+
+
+/* #Region ---
  * REGION | Dev Menu Scene Editor - Action and Global Button Layout
  * ----- */
 

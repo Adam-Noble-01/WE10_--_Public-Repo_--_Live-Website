@@ -30,7 +30,8 @@
 // - Per-scene controls: a thumbnail of the scene as it was last saved, Name,
 //   Group, an FOV slider with live lens-mm readout and the move-speed value
 //   box beside it, then Advanced (collapsed): Position, Navigation Mode,
-//   Easing, layer-switch timing and the layout-editor-only flag.
+//   Easing, layer-switch timing, the layout-editor-only flag and the Lighting
+//   subsection (built by Na__PresentationMode__DevMenu__SceneLightingRows__).
 // - Per-scene reordering: drag the grip handle, or use the up/down arrows in
 //   the row header, or type a position in Advanced. Order is rewritten as a
 //   clean 1..N sequence after every move and saved immediately.
@@ -55,6 +56,18 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Version 1.4.0 (per-scene lighting, v2.161.0)
+// - Advanced ends with a Lighting subsection: Rotation, Height, Sun, Ambient
+//   and Shadows, previewed live, with its own Use Default and Save Lighting.
+//   Built in Na__PresentationMode__DevMenu__SceneLightingRows__, which this
+//   file is far too long to take in; Save Lighting raises the new 'lighting'
+//   row action, which commits and writes to R2 like the layout-only flag.
+// - Update Scene and Add Scene From Camera capture the live lighting into
+//   PresentationMode__Scene__Lighting (removed when the viewport shows the
+//   default), and the overwrite confirmation says so.
+// - Ported from ValeVision3D v2.71.0 (its SceneRowBuilders 1.3.0 and
+//   SceneEditor 1.4.0), where it was written the same day.
+//
 // 20-Sep-2026 - Version 1.3.0 (per-group image export)
 // - Each group heading carries a camera button that exports that group's
 //   scenes. It is a sibling of the heading in a new heading row, never a child:
@@ -255,6 +268,15 @@
         Na__NavigationModes__GetActiveMode,
         Na__NavigationModes__IsModeAvailable
     } from '../10__NavigationAndCameras/Na__NavigationModes__Switcher.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Per-Scene Lighting (Advanced > Lighting, and the capture Update Scene makes)
+    // ------------------------------------------------------------
+    // @delegate: ./Na__PresentationMode__DevMenu__SceneLightingRows__.js
+    // @delegate: ../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js
+    // ------------------------------------------------------------
+    import { Na__PresentationMode__DevMenu__BuildSceneLightingSection } from './Na__PresentationMode__DevMenu__SceneLightingRows__.js';
+    import { Na__SceneLighting__CaptureIntoScene } from '../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';
     // ------------------------------------------------------------
 
     import { Na__DevGate__IsAuthoringEnabled } from '../03__AppUtils/Na__AppUtils__DevGate__.js';
@@ -1309,8 +1331,8 @@
         // ADVANCED SECTION | Collapsed by default to keep each row readable
         // ------------------------------------------------------------
         // Holds the settings that are set once and rarely revisited: exact
-        // position, navigation mode, easing curve, layer-switch timing and
-        // whether the viewer sees this scene at all. Open/closed state is
+        // position, navigation mode, easing curve, layer-switch timing,
+        // whether the viewer sees this scene at all, and its lighting. Open/closed state is
         // remembered across panel rebuilds so a reorder or a save does not
         // collapse the section the user is working in.
         // ------------------------------------------------------------
@@ -1411,6 +1433,20 @@
             onMutate('flag', scene);
         }));
 
+        // LIGHTING SUBSECTION | This scene's own sun and fill light
+        // ------------------------------------------------------------
+        // Rotation, Height, Sun, Ambient and Shadows, previewed live in the
+        // viewport as they move. Like Nav Mode and Easing they edit the working
+        // copy; unlike them the subsection has its own Save Lighting, because
+        // "preview, then keep" is the whole gesture. Null for a drawing card.
+        // @delegate: ./Na__PresentationMode__DevMenu__SceneLightingRows__.js
+        // ------------------------------------------------------------
+        const lightingSection = Na__PresentationMode__DevMenu__BuildSceneLightingSection(scene, () => {
+            Na__PmDev__FocusedSceneId = sceneId;                            // <-- Hold focus across the rebuild the commit triggers
+            onMutate('lighting', scene);                                    // <-- Normalise, commit, save to R2, rebuild panel
+        });
+        if (lightingSection) advancedBody.appendChild(lightingSection);
+
         advanced.appendChild(advancedToggle);
         advanced.appendChild(advancedBody);
         body.appendChild(advanced);
@@ -1460,7 +1496,7 @@
         updateBtn.type        = 'button';
         updateBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--primary';
         updateBtn.textContent = 'Update Scene';
-        updateBtn.title       = 'Recapture the live view into this scene - camera, FOV, layers, navigation mode and thumbnail - then save';
+        updateBtn.title       = 'Recapture the live view into this scene - camera, FOV, layers, navigation mode, lighting and thumbnail - then save';
 
         if (drawingKind) {
             updateBtn.disabled = true;
@@ -1476,7 +1512,7 @@
             const confirmed = await Na__PresentationMode__DevMenu__Confirm({
                 title         : 'Overwrite "' + sceneName + '"?',
                 message       : 'This replaces the scene\'s saved camera, field of view, layer visibility, navigation '
-                              + 'mode and thumbnail with whatever the viewport is showing right now, and writes it to '
+                              + 'mode, lighting and thumbnail with whatever the viewport is showing right now, and writes it to '
                               + 'R2. There is no undo.',
                 confirmLabel  : 'Overwrite Scene',
                 cancelLabel   : 'Cancel',
@@ -1589,8 +1625,8 @@
     // FUNCTION | Capture Everything the Live Viewport Shows Into a Scene
     // ------------------------------------------------------------
     // The single definition of "what a scene is a snapshot of": camera pose and
-    // FOV, the derived lens mm, model-element visibility, navigation mode, and
-    // the thumbnail. Shared by Update Scene and Add Scene From Camera so the
+    // FOV, the derived lens mm, model-element visibility, navigation mode, the
+    // lighting, and the thumbnail. Shared by Update Scene and Add Scene From Camera so the
     // two can never drift into capturing different subsets - which is exactly
     // what happened while three separate buttons each owned part of it.
     //
@@ -1611,6 +1647,7 @@
         if (visibility) scene.PresentationMode__Scene__Visibility = visibility;
 
         Na__PmDev__CaptureLiveNavigationMode(scene);                         // <-- A view framed in fly is a fly scene
+        Na__SceneLighting__CaptureIntoScene(scene);                          // <-- The light the thumbnail is about to be rendered in; no block when it is the default
 
         await Na__PmDev__RegenerateThumbnail(scene);                         // <-- Render + upload WebP, sets ThumbnailUrl
         return true;
@@ -1927,8 +1964,8 @@
                 if (Na__PmDev__FocusedSceneId === targetScene.PresentationMode__Scene__Id) {
                     Na__PmDev__FocusedSceneId = null;                        // <-- Never hold focus on a scene that no longer exists
                 }
-            } else if (action !== 'update' && action !== 'regroup' && action !== 'flag') {
-                return;                                                      // <-- Unknown action, do nothing
+            } else if (action !== 'update' && action !== 'regroup' && action !== 'flag' && action !== 'lighting') {
+                return;                                                      // <-- Unknown action, do nothing ('lighting': the row already wrote it to the working copy)
             }
 
             Na__PmDev__NormaliseSceneOrder(Na__PmDev__WorkingScenes);        // <-- Renumber 1..N inside each affected group
@@ -1963,7 +2000,7 @@
         addBtn.type        = 'button';
         addBtn.className   = 'na-pm-dev__btn na-pm-dev__btn--primary na-pm-dev__btn--wide';
         addBtn.textContent = '+ Add Scene From Camera';
-        addBtn.title       = 'Capture the current camera, layers and navigation mode as a new scene';
+        addBtn.title       = 'Capture the current camera, layers, navigation mode and lighting as a new scene';
         addBtn.addEventListener('click', () => Na__PmDev__AddSceneFromCamera());
         globalActions.appendChild(addBtn);
 

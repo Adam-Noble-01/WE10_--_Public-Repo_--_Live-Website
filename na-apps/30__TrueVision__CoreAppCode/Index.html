@@ -951,6 +951,7 @@
     const Na__Config__ModelDefaults = Na__AppConfig__Data.modelDefaults;            // <-- Model defaults
     const Na__Config__CameraConfig = Na__AppConfig__Data.Scene__Default__CameraConfig;      // <-- Camera settings
     const Na__Config__LightingConfig = Na__AppConfig__Data.Scene__Default__LightingConfig;  // <-- Lighting settings
+    const Na__Config__PerSceneLighting = Na__AppConfig__Data.Scene__PerSceneLighting || null; // <-- Per-scene lighting overrides (switch, flight blend, slider ranges)
     const Na__Config__SceneEnvironment = Na__AppConfig__Data.Scene__Environment || null;     // <-- HDR environment settings
     const Na__Config__FogConfig = Na__AppConfig__Data.Scene__Default__FogConfig;            // <-- Fog settings
     const Na__Config__ControlsConfig = Na__AppConfig__Data.Scene__Default__ControlsConfig;  // <-- Controls settings
@@ -1595,7 +1596,8 @@
             storeyVisibility            : Na__Config__StoreyVisibility,
             ambientOcclusion            : Na__Config__AmbientOcclusion,
             progressiveRefine           : Na__Config__ProgressiveRefine,
-            distanceCulling             : Na__Config__DistanceCulling
+            distanceCulling             : Na__Config__DistanceCulling,
+            perSceneLighting            : Na__Config__PerSceneLighting
         }
     });
     // CONTEXT MENU SYSTEM | Custom right-click menu (Orbit mode, desktop mouse)

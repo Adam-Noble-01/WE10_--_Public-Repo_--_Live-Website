@@ -2,6 +2,100 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.161.0  -  28-Sep-2026
+### A Scene Can Turn the Sun, and Every Scene It Does Not Touch Keeps the Default (Ported From ValeVision3D v2.71.0)
+
+**Overview**
+- Written in ValeVision the same morning, for Adam's 06 | Entrance Door: the front that shot looks at faces away
+  from the sun, so it only ever gets the fill light, and TOO DARK was written under it. Then: "Add the same feature
+  to TrueVision's Dev Menu under advanced."
+- DEV TOOLS > PRESENTATION MODE SCENES > a scene > ADVANCED > LIGHTING. Rotation (0 to 360, 0 being today's sun),
+  Height (the sun's angle above the horizon), Sun (its strength), Ambient (the fill light) and Sun Casts Shadows. Each
+  slider has a number box for an exact value; a double-click on a slider puts that one setting back to the default.
+- EVERY MOVE LIGHTS THE VIEWPORT AT ONCE. That is the preview. SAVE LIGHTING writes it to R2 (it is only live while
+  there is something to save); USE DEFAULT puts every control back. The status line says whether the row is at the
+  default, has its own saved lighting, or has changes not saved yet. Update Scene and Save All To Project carry it
+  too, as they carry every other in-row setting.
+
+**What is stored** (`TrueVision__ProjectData__.json`, on the scene record in `PresentationMode__SavedCameraScenes`)
+- `PresentationMode__Scene__Lighting`, holding ONLY the settings that differ from the default:
+  `Scene__Lighting__RotationDeg`, `__HeightDeg`, `__DirectionalIntensity`, `__AmbientIntensity`, `__ShadowsEnabled`,
+  and a `Scene__Lighting__Description` saying so. Whatever a scene leaves alone keeps following the default when the
+  default is changed; a scene put back to the default loses the key rather than carrying a copy of it.
+- Written through the same `Na__CfApi__MergeAndSaveKeys` save as every other scene edit. The block's schema note
+  (`Na__PresentationMode__ProjectJson__SCHEMA_DESCRIPTION`, re-stamped on every save) now names the key.
+
+**The default moved into the app config, unchanged**
+- The setup module hardcoded the sun at (50, 100, 40). `Scene__Default__LightingConfig` now holds it as
+  `DirectionalPosXMm / YMm / ZMm` = 50000, 100000, 40000, with `ShadowsEnabled` and a description. This app's own
+  strengths stay as they were, ambient 3.3 and sun 0.7.
+- New `Scene__PerSceneLighting` block (Enabled, BlendDuringFlight, slider ranges), read in Index.html and handed
+  through the loading sequence's configs to the lighting setup, which hands both lights to the new module.
+
+**The port**
+- `06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js` and
+  `21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneLightingRows__.js` are ValeVision's files
+  VERBATIM apart from their headers, a console prefix, and the drawing view broker living in folder 40 here.
+- The rest meets this app's own shape:
+  - The scene row builder lives inside the 2,500-line scene editor here, so the subsection is appended to its
+    Advanced fold there, and its Save Lighting raises a new 'lighting' row action through the one normalise, commit,
+    write to R2, rebuild tail.
+  - `Na__PmDev__CaptureLiveViewIntoScene` is shared by Update Scene and Add Scene From Camera here, so one line
+    captures the live lighting for both.
+  - The layer-timing flag is this app's own. The light is independent of it: layers switch before or after the
+    move, the light eases WITH the move.
+  - The drawing path bypasses the composer here (DIV-1) but not the lights, so a 2D underlay still needs the
+    default-lighting guard. It covers the depth fog image as well, which renders through the same Render2d.
+- ValeVision's drawing thumbnail bake has no counterpart here, so nothing to port for it.
+
+**How it behaves**
+- ROTATION IS CLOCKWISE SEEN FROM ABOVE: plan with +X right and -Z up the page, 90 turns (50, _, 40) to (-40, _, 50).
+- FLIGHTS EASE THE LIGHT with the camera's own eased t, the rotation the short way round (350 to 10 passes through 0).
+  The instant apply (the opening scene, the batch walks, a Layout Editor 3D viewport) sets it at once.
+- SHADOWS SWITCH BY STRENGTH (`LightShadow.intensity`, a uniform in r184), never by castShadow, which would recompile
+  every lit material on each flight between two scenes that disagree.
+- ANYTHING WITHOUT A BLOCK RESOLVES TO THE DEFAULT, including the approach pose of a plan or elevation flight, so a
+  drawing is always lit by the default and one scene's light never leaks into the next.
+- Layout Editor: a 3D viewport renders in its scene's lighting and the viewer's light goes back afterwards
+  (SnapshotRenderer 1.13.0); the 3D fingerprint gains the scene's lighting only when it has some (Viewport3d 1.8.1),
+  so relighting a scene re-renders and re-publishes its pictures and every unlit scene keeps its keys.
+- Update All Thumbnails and Download All Images walk each scene in its own lighting and put the author's light back
+  with the restore point (BatchOps 1.2.0).
+
+**Known, accepted** (the same as ValeVision)
+- Save Lighting does not re-render the thumbnail; Update Scene and Update All Thumbnails do.
+- Preview flies to the scene AS SAVED, so an unsaved light is replaced by the saved one on arrival; the status line
+  still says it is not saved.
+- Shadows reach as far as they always have: three's default shadow camera, a 10 m square around the line from the sun
+  to the origin.
+- Render3d still enters a walk or fly scene's mode when it poses the camera (the batch walk passes skipNavigationMode,
+  the Layout Editor does not). Unchanged by this release and noted in passing.
+
+**Proof**
+- `Na__Test__PerSceneLighting__.test.mjs` (ported, 40 checks) passes here against this app's own module and config:
+  the default sun at exactly (50, 100, 40), the strengths read from the config (3.3 and 0.7), clockwise rotation, the
+  minimal block, the short-way blend, capture, the picture token, the switch, an older config.
+- `Na__Verify__Exports__` PASS (523 files). Module graph: the three reports it gave at HEAD and no new one - the two
+  known Statement Writer false positives, and a third in the scene editor that is ALSO at HEAD (a string ending
+  " export'" followed by `document.createElement('` a few lines on, which the specifier pattern reads as an import).
+  ESLint no-undef clean over the eleven changed and new modules. Config JSON parses with no duplicate keys.
+- NOT BROWSER-TESTED HERE, at Adam's standing request. To try: a scene whose front is in shadow, Advanced > Lighting,
+  drag Rotation and watch; Save Lighting; fly away and back; a sheet with that scene's 3D viewport beside an elevation.
+
+**Files**
+- New: `02__Src__AppModules/06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js`,
+  `02__Src__AppModules/21__System__PresentationMode/Na__PresentationMode__DevMenu__SceneLightingRows__.js`,
+  `80__Testing__PrototypeEnvironment/Na__Test__PerSceneLighting__.test.mjs`
+- Changed: `02__AppData/Na__AppConfig__Main.json`, `Index.html`, `06/Na__Scene__DefaultSceneLighting.js`,
+  `01/Na__AppFlow__LoadingSequence.js` (1.3.1), `21/...Camera__SceneTransition.js`, `21/...DevMenu__SceneEditor.js`
+  (1.4.0), `21/...DevMenu__BatchOps__.js` (1.2.0), `21/...ProjectJson__SceneData.js` (1.1.1),
+  `51/25/Na__LayoutEditor__SnapshotRenderer__.js` (1.13.0), `51/20/Na__LayoutEditor__Viewport3d__.js` (1.8.1),
+  `03__Style__AppStylesheets/Na__PresentationMode__Styles__SceneCarousel__.css` (one region)
+- `02__Src__AppModules/62__Feature__AppInstallability/TrueVision__Pwa__ServiceWorker__Logic__.js` (token 2026-09-28-01)
+
+**Not yet confirmed by Adam.**
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.160.0  -  23-Sep-2026
 ### A Published or Printed Site Plan Filled In Its Holes: the Lake Got the Field's Grass, the Island Got the Lake's Ripples
 

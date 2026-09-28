@@ -32,6 +32,10 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Version 1.1.1 (per-scene lighting, v2.161.0)
+// - The schema note names PresentationMode__Scene__Lighting, so a project's own
+//   description of its saved scenes stays true once a scene has been relit.
+//
 // 19-Sep-2026 - Version 1.1.0
 // - Added the PresentationMode__Scene__LayoutEditorOnly flag: a scene the
 //   Layout Editor may place and the Dev menu may preview, but which never
@@ -119,7 +123,9 @@
         + 'integer millimetres; rotations and FOV use the same format as Camera__DefaultPosition. Scenes are split into '
         + 'named Groups; Scene Order restarts at 1 within each group. A scene with '
         + 'PresentationMode__Scene__LayoutEditorOnly set true is available to the Layout Editor and the Dev menu but is '
-        + 'hidden from the viewer carousel; the key is omitted when false.';
+        + 'hidden from the viewer carousel; the key is omitted when false. A scene may carry '
+        + 'PresentationMode__Scene__Lighting, its own sun and fill light, holding only the settings that differ from the '
+        + 'app\'s default lighting; the key is omitted when the scene uses the default.';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------

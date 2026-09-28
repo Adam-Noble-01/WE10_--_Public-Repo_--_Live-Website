@@ -14,8 +14,9 @@
 //   with the viewport's style toggles (D30) at SnapshotPixelsPerMm of its
 //   paper size, and placed inside the frame at the image offset. Corner
 //   drags scale the image (its paper size), edge drags crop the frame.
-// - The snapshot is fingerprinted by scene, camera, styles, layer visibility
-//   and model. On localhost a fresh render is uploaded to R2 and referenced
+// - The snapshot is fingerprinted by scene, camera, styles, layer visibility,
+//   model and the scene's own lighting when it has any. On localhost a fresh
+//   render is uploaded to R2 and referenced
 //   on the record, so the web build loads the picture instead of rendering
 //   it. A picture is only re-rendered when the paper size grows well past
 //   what it was rendered for.
@@ -52,6 +53,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Version 1.8.1 (per-scene lighting, v2.161.0)
+// - A scene's own lighting (PresentationMode__Scene__Lighting) joins the
+//   fingerprint, so relighting a scene re-renders the pictures of it. Only
+//   when the scene has one: every snapshot of an unlit scene keeps its key.
+//   Ported from ValeVision3D v2.71.0 (Viewport3d 1.6.1 there).
+//
 // 21-Sep-2026 - Version 1.8.0 (TrueVision)
 // - Draft mode (K, Na__LayoutEditor__DraftMode__). A 3D viewport is a picture
 //   and nothing else, so in Draft it books, renders and uploads nothing: Fill
@@ -133,6 +140,7 @@
     import { Na__LeCfg__GetLabel } from '../03__Core__Config/Na__LayoutEditor__ConfigState__.js';
     import { Na__LeModel__GetSheets, Na__LeModel__GetViewports, Na__LeModel__ResolveViewportSource, Na__LeModel__UpdateViewport } from '../07__Core__SheetData/Na__LayoutEditor__SheetModel__.js';
     import { Na__LeSnap__Render3d, Na__LeSnap__IsReady, Na__LeSnap__GetModelFingerprint } from '../25__System__RenderStyles/Na__LayoutEditor__SnapshotRenderer__.js';
+    import { Na__SceneLighting__SceneToken } from '../../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';  // <-- A scene's own lighting keys its picture
     import { Na__LeModelLayers__Token } from '../25__System__RenderStyles/Na__LayoutEditor__ModelLayers__.js';
     import { Na__LeSource__Resolve, Na__LeSource__Ensure, Na__LeSource__WaitFor, Na__LeSource__StatusText } from './Na__LayoutEditor__ModelSource__.js';
     import { Na__LeComposite__Weight, Na__LeComposite__RasterToken } from '../25__System__RenderStyles/Na__LayoutEditor__RenderComposites__.js';
@@ -209,6 +217,8 @@
         if (weights) parts.push(weights);                                         // <-- Only when set, so every stored snapshot keeps its key
         const framing = Na__LeVp3d__WindowToken(viewport);
         if (framing) parts.push(framing);                                         // <-- Only when the frame shows a window of the picture, for the same reason
+        const lighting = Na__SceneLighting__SceneToken(scene);
+        if (lighting) parts.push(lighting);                                       // <-- Only when the scene has its own lighting, for the same reason; a relit scene re-renders
         return Na__LeVp3d__Hash(parts.join('|'));
     }
     // ------------------------------------------------------------

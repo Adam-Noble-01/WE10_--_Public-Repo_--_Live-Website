@@ -36,9 +36,9 @@
 //   second implementation of it.
 //
 // - THE LIVE VIEW IS PUT BACK. Both operations snapshot the camera pose, the
-//   orbit target, the model visibility and the navigation mode before the
-//   first scene and restore all four afterwards, including after a stop or a
-//   failure. A batch that left the author parked inside scene nineteen with
+//   orbit target, the model visibility, the navigation mode and the lighting
+//   before the first scene and restore them afterwards, including after a stop
+//   or a failure. A batch that left the author parked inside scene nineteen with
 //   half the model switched off would be worse than no batch.
 //
 // - THE WALK IS POSE-ONLY. Each scene's camera and layers are applied; its
@@ -69,6 +69,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Version 1.2.0 (per-scene lighting, v2.161.0)
+// - Each scene is walked in its own lighting (the instant apply sets it), so
+//   thumbnails and exported images show it. The restore point records the
+//   lighting on screen before the walk and the restore puts it back. Ported
+//   from ValeVision3D v2.71.0 (BatchOps 1.1.0 there).
+//
 // 20-Sep-2026 - Version 1.1.0
 // - DownloadAllImages takes an optional third argument, { groupName }, for the
 //   per-group export. It changes the filenames and nothing else: the group goes
@@ -96,6 +102,13 @@
     // MODULE IMPORTS | Model Visibility State Capture
     // ------------------------------------------------------------
     import { Na__PmVisibility__CaptureState } from './Na__PresentationMode__Visibility__StateCapture.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Per-Scene Lighting (snapshot / restore)
+    // ------------------------------------------------------------
+    // @delegate: ../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js
+    // ------------------------------------------------------------
+    import { Na__SceneLighting__CaptureIntoScene } from '../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';
     // ------------------------------------------------------------
 
     // MODULE IMPORTS | Thumbnail Capture and R2 Upload
@@ -241,6 +254,11 @@
         if (liveMode === 'walk' || liveMode === 'fly') {
             snapshot.PresentationMode__Scene__NavigationMode = liveMode;     // <-- Absent key already means orbit
         }
+
+        // LIGHTING | Every scene walked lights the model its own way, and the
+        // instant apply that restores this point would otherwise land in the
+        // default light rather than the light the author was looking at.
+        Na__SceneLighting__CaptureIntoScene(snapshot);
 
         return snapshot;
     }

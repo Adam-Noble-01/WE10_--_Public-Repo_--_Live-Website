@@ -26,11 +26,16 @@
 // - pipelineRef       : { current: null } mutable ref - module writes pipeline state here
 // - configs           : lightingConfig, groundPlane, profileLines, models,
 //                       modelUrls, materialsSystem, doorAnimation,
-//                       orbitHelperCubeDebugVisible
+//                       orbitHelperCubeDebugVisible, perSceneLighting
 //
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Version 1.3.1 (per-scene lighting, v2.161.0)
+// - configs.perSceneLighting (the app config's Scene__PerSceneLighting block)
+//   is handed to the lighting setup, which hands both lights to
+//   Na__Scene__PerSceneLighting__. Ported from ValeVision3D v2.71.0.
+//
 // 13-Sep-2026 - Version 1.3.0
 // - The design phase library is initialised before any project data, handed
 //   the model groups with the phase about to load, and told when that phase
@@ -487,14 +492,20 @@
             storeyVisibility            : Na__Config__StoreyVisibility,
             ambientOcclusion            : Na__Config__AmbientOcclusion,
             progressiveRefine           : Na__Config__ProgressiveRefine,
-            distanceCulling             : Na__Config__DistanceCulling
+            distanceCulling             : Na__Config__DistanceCulling,
+            perSceneLighting            : Na__Config__PerSceneLighting
         } = configs;
         // ---------------------------------------------------------------
 
         Na__DistanceCulling__Initialize(Na__Config__DistanceCulling);    // <-- Configure furniture/decor distance culling (mm -> units)
 
         Na__UiFeature__UpdateStatus('Creating scene...');
-        Na__Scene__SetupDefaultSceneLighting(Na__Scene__Main, Na__Config__LightingConfig, Na__Config__GroundPlane);
+        Na__Scene__SetupDefaultSceneLighting(
+            Na__Scene__Main,
+            Na__Config__LightingConfig,
+            Na__Config__GroundPlane,
+            Na__Config__PerSceneLighting || null                             // <-- Per-scene lighting switch, flight blend and slider ranges
+        );
         const Na__Scene__EnvironmentTexture = await Na__Scene__ApplyEnvironmentMap(Na__Scene__Main, Na__Renderer__Main, Na__Config__SceneEnvironment);
 
         const Na__RenderPipeline__State = Na__RenderPipeline__SetupComposer(Na__Renderer__Main, Na__Scene__Main, Na__Camera__Main, Na__Config__ProfileLines, Na__SceneEffect__FogPass, Na__Config__AmbientOcclusion, Na__Controls__Orbit.target);

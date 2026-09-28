@@ -15,8 +15,22 @@
         "Scene__Default__CameraConfig__Far": 1000
     },
     "Scene__Default__LightingConfig": {
-        "Scene__Default__LightingConfig__AmbientIntensity": 3.3,
-        "Scene__Default__LightingConfig__DirectionalIntensity": 0.7
+        "Scene__Default__LightingConfig__Description"          : "The lighting every scene uses unless it carries its own override (see Scene__PerSceneLighting). Intensities are three.js light intensities. The sun is the directional light, the only light that casts shadows: it sits at DirectionalPos, integer millimetres from the model origin, and shines towards the origin, so only its direction shades the faces while its distance keeps the shadow camera clear of the model. A scene's Rotation turns it about the vertical axis from this position and its Height sets its angle above the horizon. ShadowsEnabled false fades the sun's shadows out rather than switching shadow casting off, so no material has to recompile.",
+        "Scene__Default__LightingConfig__AmbientIntensity"     : 3.3,
+        "Scene__Default__LightingConfig__DirectionalIntensity" : 0.7,
+        "Scene__Default__LightingConfig__DirectionalPosXMm"    : 50000,
+        "Scene__Default__LightingConfig__DirectionalPosYMm"    : 100000,
+        "Scene__Default__LightingConfig__DirectionalPosZMm"    : 40000,
+        "Scene__Default__LightingConfig__ShadowsEnabled"       : true
+    },
+    "Scene__PerSceneLighting": {
+        "Scene__PerSceneLighting__Description"             : "Per-scene lighting, authored in the Dev menu (Presentation Mode Scenes, a scene's Advanced section, Lighting). A scene stores only the settings that differ from Scene__Default__LightingConfig, under PresentationMode__Scene__Lighting in the project data, so every setting it leaves alone keeps following the default. Rotation is in degrees clockwise seen from above, 0 being the default direction; Height is the sun's angle above the horizon. Plans and elevations always use the default lighting. BlendDuringFlight eases one scene's lighting into the next over the camera flight; false cuts to it as the flight starts. The Min and Max values bound the Dev menu sliders. Enabled false ignores every stored override and hides the controls, without deleting anything.",
+        "Scene__PerSceneLighting__Enabled"                 : true,
+        "Scene__PerSceneLighting__BlendDuringFlight"       : true,
+        "Scene__PerSceneLighting__HeightMinDeg"            : 10,
+        "Scene__PerSceneLighting__HeightMaxDeg"            : 90,
+        "Scene__PerSceneLighting__DirectionalIntensityMax" : 3.0,
+        "Scene__PerSceneLighting__AmbientIntensityMax"     : 6.0
     },
     "Scene__Environment": {
         "Scene__Environment__Description"          : "HDR environment map settings. Mirror-only mode keeps the rest of the model neutral while applying reflections to the targeted mirror material.",

@@ -22,6 +22,12 @@
 //   loop is active only while transitioning.
 // - Easing functions: linear, easeInOutQuad, easeInOutCubic (default).
 // - Any new AnimateToScene call cancels an in-flight transition first.
+// - A scene may carry PresentationMode__Scene__Lighting, its own sun and fill
+//   light (Na__Scene__PerSceneLighting__). The instant snap applies it at once;
+//   AnimateToScene eases the lights from where they stand to it over the
+//   flight, with the camera's eased t, whatever the layer-timing flag says. A
+//   scene without one is lit by the default, so a custom light never carries
+//   over into the next scene.
 //
 // INTEGRATION:
 // - Imported by Na__PresentationMode__UI__SceneCarousel.js (clicks).
@@ -30,6 +36,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Per-Scene Lighting (v2.161.0, ported from ValeVision3D v2.71.0)
+// - ApplySceneCameraState lights the model the way the scene asks, with the
+//   layers, before the navigation mode is entered.
+// - AnimateToScene eases the lighting over the flight, or cuts at the start
+//   when Scene__PerSceneLighting__BlendDuringFlight is false in the app config.
+//
 // 31-Aug-2026 - Undeclared Scenes Now Resolve To Orbit
 // - An absent PresentationMode__Scene__NavigationMode used to mean "keep the
 //   viewer's current mode". It now means ORBIT, and the camera is released
@@ -93,6 +105,20 @@
         Na__NavigationModes__IsModeAvailable,
         Na__NavigationModes__SwitchToMode
     } from '../10__NavigationAndCameras/Na__NavigationModes__Switcher.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Per-Scene Lighting (PresentationMode__Scene__Lighting)
+    // @delegate: ../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js
+    // ------------------------------------------------------------
+    import {
+        Na__SceneLighting__ApplyScene,
+        Na__SceneLighting__ResolveScene,
+        Na__SceneLighting__GetLive,
+        Na__SceneLighting__IsSame,
+        Na__SceneLighting__Blend,
+        Na__SceneLighting__Apply,
+        Na__SceneLighting__IsBlendDuringFlight
+    } from '../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -441,6 +467,7 @@
         }
 
         Na__PresentationMode__Camera__ApplySceneVisibility(scene);                     // <-- Instant snap always applies visibility with camera
+        Na__SceneLighting__ApplyScene(scene, { requestRender : false });               // <-- The scene's own lighting, or the default when it has none (the render request below paints it)
         if (!skipNavigationMode) {
             Na__PresentationMode__Camera__ApplySceneNavigationMode(targetNavMode);     // <-- Enter the scene's walk/fly mode at the new position
         }
@@ -544,6 +571,25 @@
             Na__PresentationMode__Camera__ApplySceneVisibility(scene);       // <-- Per-scene: switch layers before the move
         }
 
+        // PER-SCENE LIGHTING | Eased with the camera, whichever way the layers go
+        // ------------------------------------------------------------
+        // A sun that jumps while the old view is still on screen reads as a
+        // flicker; turned in step with the flight it reads as the light moving.
+        // It runs from wherever the lights stand now (an interrupted flight
+        // carries on from mid-turn) to the scene's own lighting, or to the
+        // default when the scene has none - which is also what a drawing's
+        // approach pose resolves to. The layer-timing flag does not touch it:
+        // layers switch before or after the move, the light moves WITH it. With
+        // blending off in the app config it cuts here, at the start.
+        // @delegate: ../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js
+        // ------------------------------------------------------------
+        const lightFrom  = Na__SceneLighting__GetLive();
+        const lightTo    = Na__SceneLighting__ResolveScene(scene);
+        const blendLight = Boolean(lightFrom && lightTo)
+            && Na__SceneLighting__IsBlendDuringFlight()
+            && !Na__SceneLighting__IsSame(lightFrom, lightTo);               // <-- Same light both ends: nothing to ease
+        if (!blendLight) Na__SceneLighting__Apply(lightTo, { requestRender : false });  // <-- Cut now (a no-op when already there)
+
         // BEGIN ACTIVE RENDERING
         Na__PresentationMode__IsTransitioning = true;
         Na__RenderLoop__RequestActiveRender(Na__PresentationMode__RENDER_REASON);
@@ -567,6 +613,11 @@
             camera.fov = interpFov;
             camera.updateProjectionMatrix();                                  // <-- Rebuild projection each frame
 
+            // INTERPOLATE LIGHTING | The same eased t, so the light lands with the camera
+            if (blendLight) {
+                Na__SceneLighting__Apply(Na__SceneLighting__Blend(lightFrom, lightTo, t), { requestRender : false });  // <-- The flight is already drawing every frame
+            }
+
             if (controls) {
                 if (isFreeLookScene) {
                     Na__PresentationMode__Camera__PlaceLookAheadTarget(camera.position, tempQuat, controls.target);
@@ -583,6 +634,7 @@
                 camera.setRotationFromQuaternion(endQuat);
                 camera.fov = endFov;
                 camera.updateProjectionMatrix();
+                if (blendLight) Na__SceneLighting__Apply(lightTo, { requestRender : false });  // <-- Exactly the scene's lighting
 
                 if (controls) {
                     if (isFreeLookScene) {

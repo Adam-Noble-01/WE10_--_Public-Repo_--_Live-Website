@@ -8,10 +8,22 @@
     import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';                                  // <-- Was RGBELoader, deprecated upstream at r180 (see below)
     // ------------------------------------------------------------
 
+    // MODULE IMPORTS | Per-Scene Lighting (owns the two lights once they are built)
+    // @delegate: ./Na__Scene__PerSceneLighting__.js
+    // ------------------------------------------------------------
+    import { Na__SceneLighting__Register } from './Na__Scene__PerSceneLighting__.js';
+    // ------------------------------------------------------------
+
 
     // FUNCTION | Setup Default Scene Lighting and Ground Plane
     // ------------------------------------------------------------
-    function Na__Scene__SetupDefaultSceneLighting(scene, lightingConfig, groundPlaneConfig) {
+    // Builds the ambient fill and the sun, then hands both to the per-scene
+    // lighting module, which places the sun from Scene__Default__LightingConfig
+    // (its position moved there on 28-Sep-2026, same values) and from then on
+    // sets both lights whenever a scene asks for its own lighting.
+    // perSceneLightingConfig is the app config's Scene__PerSceneLighting block.
+    // ------------------------------------------------------------
+    function Na__Scene__SetupDefaultSceneLighting(scene, lightingConfig, groundPlaneConfig, perSceneLightingConfig) {
         if (!scene) return; // <-- Guard against invalid scene reference
 
         const ambientIntensity = (lightingConfig && Number.isFinite(lightingConfig.Scene__Default__LightingConfig__AmbientIntensity))
@@ -24,13 +36,22 @@
         const Na__Light__Ambient = new THREE.AmbientLight(0xffffff, ambientIntensity); // <-- Base fill light
         scene.add(Na__Light__Ambient);
 
-        const Na__Light__Directional = new THREE.DirectionalLight(0xffffff, directionalIntensity); // <-- Main directional light
-        Na__Light__Directional.position.set(50, 100, 40);
-        Na__Light__Directional.castShadow = true;
+        const Na__Light__Directional = new THREE.DirectionalLight(0xffffff, directionalIntensity); // <-- Main directional light (placed by the register call below)
+        Na__Light__Directional.castShadow = true;                             // <-- Always on: a scene turns its shadows off by strength, which recompiles nothing
         Na__Light__Directional.shadow.mapSize.width = 1024;
         Na__Light__Directional.shadow.mapSize.height = 1024;
         Na__Light__Directional.shadow.bias = -0.0001;
         scene.add(Na__Light__Directional);
+
+        // HAND BOTH LIGHTS TO THE PER-SCENE LIGHTING MODULE
+        // @delegate: ./Na__Scene__PerSceneLighting__.js
+        // ------------------------------------
+        Na__SceneLighting__Register({
+            ambientLight     : Na__Light__Ambient,
+            directionalLight : Na__Light__Directional,
+            lightingConfig   : lightingConfig,                                // <-- Default strengths, shadows and sun position
+            perSceneConfig   : perSceneLightingConfig || null                 // <-- Switch, flight blending and slider ranges
+        });
 
         // Only create ground plane when explicitly enabled via AppConfig
         if (groundPlaneConfig && groundPlaneConfig.Scene__GroundPlane__Enabled) {

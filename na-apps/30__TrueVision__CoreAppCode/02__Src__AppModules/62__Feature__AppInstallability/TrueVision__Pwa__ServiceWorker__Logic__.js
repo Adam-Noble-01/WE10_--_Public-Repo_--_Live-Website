@@ -34,6 +34,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Version 1.9.47
+// - Token bumped (2026-09-28-01) for per-scene lighting (v2.161.0): the
+//   lighting setup, the scene transition, the scene editor, the batch walk,
+//   the Layout Editor's snapshot renderer and 3D viewport all import the new
+//   06__Scene__LightingEffects/Na__Scene__PerSceneLighting__, Index.html and
+//   the app config gain the Scene__PerSceneLighting block, and the shell
+//   stylesheet gains the Lighting subsection - a warm cache must not serve the
+//   old half of any of them.
+//
 // 23-Sep-2026 - Version 1.9.46
 // - Token bumped (2026-09-23-07) for the flush-join tolerance (v2.159.0) and
 //   the site plan holes (v2.160.0): FlushJoins 1.1.0 and the projected
@@ -593,7 +602,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-23-07';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-28-01';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

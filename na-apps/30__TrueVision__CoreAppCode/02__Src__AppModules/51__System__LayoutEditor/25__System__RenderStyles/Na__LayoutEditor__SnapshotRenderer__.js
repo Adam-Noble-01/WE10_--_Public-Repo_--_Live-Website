@@ -15,12 +15,13 @@
 //   model window, the composer and material presets are entered with the
 //   viewport's style toggles, and the tiled renderer paints it at the
 //   requested pixels per paper millimetre. Then the cut, the presets and
-//   the 3D suspension are undone in reverse.
+//   the 3D suspension are undone in reverse. A 2D underlay is always lit by
+//   the default lighting, as a drawing is in the viewer.
 // - 3D snapshot: the main camera is posed from the scene record (which also
-//   applies the scene's layer visibility and cross section binding), the
-//   material preset applies whitecard and opaque glass, the profile lines
+//   applies the scene's layer visibility, cross section binding and lighting),
+//   the material preset applies whitecard and opaque glass, the profile lines
 //   pass follows the toggle, the tiled renderer paints, and the pose,
-//   visibility, sections and pass are put back.
+//   visibility, sections, lighting and pass are put back.
 // - Renders queue one behind another: the renderer and the presets are
 //   shared state and two renders in flight would trample each other.
 //
@@ -44,6 +45,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 28-Sep-2026 - Version 1.13.0 (per-scene lighting, v2.161.0)
+// - Render3d: the scene pose now also lights the model the scene's way
+//   (PresentationMode__Scene__Lighting), and the viewer's lighting goes back
+//   afterwards with the pose, the layers and the sections.
+// - Render2d: the underlay (and a fog image) is rendered in the default
+//   lighting and the viewer's lighting is put back after, so a drawing never
+//   borrows the light of whichever 3D scene was last on screen.
+// - Ported from ValeVision3D v2.71.0 (SnapshotRenderer 1.7.0 there).
+//
 // 21-Sep-2026 - Version 1.12.1 (TrueVision)
 // - A plan's base image stands open only the doors of the storey its cut
 //   passes through: Render2d hands the drawing's cut to Na__PlDoors__Apply,
@@ -232,6 +242,17 @@
         Na__PhaseLib__Unpin
     } from '../../26__System__ToggleModelElements/Na__ModelGroup__PhaseLibrary__.js';
     import { Na__SectionCut__SetModelRoot } from '../../41__System__SectionCutEngine/Na__SectionCut__Engine__.js';
+    // ------------------------------------------------------------
+
+    // MODULE IMPORTS | Per-Scene Lighting (a 3D picture in its scene's light, a 2D one in the default)
+    // ------------------------------------------------------------
+    // @delegate: ../../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js
+    // ------------------------------------------------------------
+    import {
+        Na__SceneLighting__GetLive,
+        Na__SceneLighting__Apply,
+        Na__SceneLighting__ApplyDefaults
+    } from '../../06__Scene__LightingEffects/Na__Scene__PerSceneLighting__.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -859,7 +880,14 @@
             let   doorsPosed  = null;                                              // <-- The drawing's door pose, for the finally to hand back
             const fogLayer    = depthFog || null;                                  // <-- A fog source: this render is the viewport's fog image, not its picture
             const fogWas      = Na__ElevFog__SetSource(fogLayer);                  // <-- Borrowed for this render; null for a picture, so nothing fogs it. Handed back in the finally
+            const lightingWas = Na__SceneLighting__GetLive();                      // <-- The light a 3D scene may have left on; put back after
             try {
+                // A DRAWING IS ALWAYS LIT BY THE DEFAULT, as it is in the viewer,
+                // where every flight into a drawing eases the lights back to it.
+                // The flat render bypasses the composer but not the lights, so
+                // without this the underlay would be shaded by whichever scene the
+                // viewer last stood in, and two renders of one drawing could differ.
+                Na__SceneLighting__ApplyDefaults({ requestRender : false });
                 Na__DrawView__SectionAdapter__SuspendLiveTool();
                 // THE DOORS STAND AS THE DRAWING DRAWS THEM - open on a plan (its own
                 // storey's, the storey its cut passes through; every other storey's
@@ -929,6 +957,7 @@
                 Na__DrawView__SectionAdapter__Release();
                 Na__PlDoors__Restore(doorsPosed);                                                    // <-- The doors back where the 3D view holds them, before the phase leaves
                 if (!wasSuspended) Na__DrawView__Transitions__ResumeThreeD();
+                if (lightingWas) Na__SceneLighting__Apply(lightingWas, { requestRender : false });   // <-- The light the viewport had before this picture
                 Na__RenderLoop__RequestRender();
                 Na__LeSnap__ExitPhase(phase);                                                        // <-- Last: everything above is back on the model it came from
             }
@@ -977,6 +1006,7 @@
                 target     : controls ? controls.target.clone() : null,
                 visibility : Na__ModelToggle__CaptureVisibilityMap(),
                 sections   : Na__SectSerialize__Serialize(),
+                lighting   : Na__SceneLighting__GetLive(),                     // <-- The pose below lights the model the scene's way; this puts the viewer's back
                 passOn     : pass ? pass.enabled : null
             };
             let edgesWere = null;
@@ -1018,6 +1048,7 @@
                 if (controls && saved.target) { controls.target.copy(saved.target); controls.update(); }
                 Na__ModelToggle__ApplySceneLayerVisibility(saved.visibility);
                 Na__SectSerialize__Apply(saved.sections);
+                if (saved.lighting) Na__SceneLighting__Apply(saved.lighting, { requestRender : false });
                 Na__RenderLoop__RequestRender();
                 Na__LeSnap__ExitPhase(phase);
             }
