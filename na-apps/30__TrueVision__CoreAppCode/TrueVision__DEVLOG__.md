@@ -418,6 +418,15 @@
 - SERVICE WORKER TOKEN BUMPED to 2026-09-29-02 (log 1.9.52). 2026-09-29-01 went live with 55014c6, and this release
   adds exports to the cached registry and editor that the new source module and the cards import; without the bump
   a warm client's Layout Editor would not load until its next visit.
+- ALSO, LATER THE SAME EVENING - SUB-SECTION HEADINGS STAND OUT. Adam, over RB05's 11.3 and 11.4: "a little more space
+  between the sections, and make the headings themselves a little bit bigger ... it's quite hard to see where one
+  section starts and one ends". The h4 ("#### 11.3 |", the introduction's theme heads, the policy entries) was the
+  body's own 10pt with 7mm above it. It is now 11pt (under the h3's 12pt) with 10mm above - nearly three times the
+  3.53mm between paragraphs - and the same 1.53mm down to its text. An h4 is taken out of the three "8mm under a
+  picture" rules, so a sub-section under a figure starts with its full 10mm; one straight under its section's own
+  heading ("### 5.0 |" then "#### 5.1 |") keeps 7mm so the two stay together. Measured on RB05 in Read: 11.3 and 11.4
+  10.00mm above, 1.53mm below, 14.67px; 3.2 under a figure 10.00mm; 5.1 under 5.0 7.00mm; Edit the same in its own
+  scale. A stated departure from the Typora theme, which still draws 10pt and 7mm.
 - RB05's statement migrated at 19:58:52 (`D:/_ClaudeScratch/rb05_endmatter/migrate_rb05_endmatter.mjs`): the drawing
   pack's heading, both paragraphs and its three-column table verbatim into a Drawing Schedule, the two h6 lines into a
   Document Footer; nothing above the Conclusion's divider changed (checked byte for byte before writing); it held for

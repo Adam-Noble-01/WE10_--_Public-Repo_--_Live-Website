@@ -33,6 +33,16 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.3.0
+// - The worker is registered with updateViaCache 'none'. Its logic lives in
+//   an imported script, and with the default ('imports') the update check
+//   took that script from the HTTP cache, fresh for four hours on the live
+//   site (Cloudflare's max-age=14400) - so a PWA_SW_VERSION_TOKEN bump could
+//   go unseen for up to four hours, and so could the stale-while-revalidate
+//   fix in worker logic 1.9.54. Now each check revalidates the logic with the
+//   server. Seen on a test origin: the logic changed on the server, and ten
+//   minutes of loads later the update checks had asked only for the stub.
+//
 // 19-Sep-2026 - Version 1.2.0
 // - The update reload no longer fires on a FIRST install. clients.claim()
 //   raises controllerchange on a page nothing was controlling, and the bridge
@@ -292,7 +302,16 @@
 
         TrueVision__Pwa__ServiceWorker__Registrar__BridgeControllerChange();                                                        // <-- Arm the update reload bridge
 
-        navigator.serviceWorker.register(targets.url, { scope: targets.scope })
+        // updateViaCache 'none'. The worker's logic is a script the stub imports,
+        // and by default ('imports') the browser's update check - and a new
+        // worker's install - take imported scripts from the HTTP cache, which
+        // the live site marks fresh for four hours (max-age=14400). A token bump
+        // in the logic file then went unseen for up to four hours: the check
+        // compared the unchanged stub and the cached logic and found nothing new.
+        // With 'none' the logic is revalidated with the server on every check, a
+        // 304 when it has not changed. A registration made with the default is
+        // switched over, and checked, the next time this runs.
+        navigator.serviceWorker.register(targets.url, { scope: targets.scope, updateViaCache: 'none' })
             .then((registration) => {
                 TrueVision__Pwa__ServiceWorker__Registrar__Registration = registration;                                             // <-- Retain the registration
                 console.log(`[TrueVision3D PWA] Service worker registered. Scope: ${registration.scope}`);

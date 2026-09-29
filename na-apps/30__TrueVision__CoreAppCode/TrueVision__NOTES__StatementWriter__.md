@@ -390,6 +390,17 @@ adjacent-sibling selector cannot see through it — hence the `:has(table)` vari
 table in these statements is a raw HTML block, because the column widths are set with
 spans. Fix only the reader and the heading stays buried in the editor and clear on the page.
 
+### A third departure: the sub-section heading (29-Sep-2026)
+
+The theme's h4 — every `#### N.N |` sub-section, the introduction's theme heads and the policy
+entries — is the body's own 10pt with 7 mm above it, so on RB05 one sub-section ran into the
+next. Adam: "a little more space between the sections, and make the headings themselves a
+little bit bigger". **h4 is now 11pt with 10 mm above** (the h3 stays 12pt; the 1.53 mm down to
+its own text is unchanged). Two knock-ons, both in the stylesheet: an h4 is left out of the
+"8 mm under a picture" rules (its own 10 mm is more), and `h3 + h4` keeps 7 mm so a section
+heading and its first sub-section stay together. **Typora's theme was not changed**, so a
+statement opened there shows the old h4.
+
 ---
 
 ## 13 · Why the PDF is big, and why there is no clever fix

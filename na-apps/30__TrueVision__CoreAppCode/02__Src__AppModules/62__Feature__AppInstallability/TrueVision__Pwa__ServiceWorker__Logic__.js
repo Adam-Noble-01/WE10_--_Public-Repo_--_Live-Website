@@ -34,6 +34,31 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.9.54
+// - Token BUMPED to 2026-09-29-03: the stale-while-revalidate refresh now
+//   revalidates with the server - fetch(request, { cache: 'no-cache' }) -
+//   instead of taking the browser's HTTP cache copy. Cloudflare sends every
+//   app file with Cache-Control max-age=14400, so the plain fetch(request) got
+//   the browser's own copy back for up to four hours after it last downloaded
+//   the file, and wrote it into tv-shell as new: a browser that had loaded the
+//   app before a deploy kept running the old modules for up to four hours
+//   (seen after cbb0523 - the Statement Writer's new standard sections showed
+//   as raw marker text). A token bump did not cure it, because a new bucket
+//   fills its misses through the same fetch; only the precache list, fetched
+//   with cache:'reload', was ever fresh.
+// - Cost: one conditional request per shell file per load, made after the
+//   cached copy has been served, and answered 304 with no body at Cloudflare's
+//   edge when the file has not changed - the requests every load after the
+//   four-hour window already made. A navigation that lands here is fine: the
+//   init object turns a navigate request into a same-origin one, which
+//   NetworkFirst's no-store has done for Index.html all along.
+// - The cache-first strategies keep the plain fetch. Everything they serve is
+//   content-hashed or version-locked, so the browser's copy is always the
+//   right one, and revalidating would only add a round trip to each miss.
+// - Bumped, rather than left to the refresh, so the first load under this
+//   worker starts from empty buckets instead of the copies the old refresh
+//   wrote back. 2026-09-29-02 is live (origin/main is 501e5a4).
+//
 // 29-Sep-2026 - Version 1.9.53
 // - Token 2026-09-29-02 (NOT bumped again - it is not pushed yet) also covers
 //   the Finishes Comparison (v2.168.0): a new module, ...Standard__Finishes__,
@@ -654,7 +679,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-29-02';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-29-03';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id
@@ -919,7 +944,17 @@
         const cacheInstance     = await caches.open(cacheName);                                                                     // <-- Open the named cache
         const cachedResponse    = await cacheInstance.match(request);                                                               // <-- Cached entry, may be undefined
 
-        const networkPromise    = fetch(request).then((networkResponse) => {
+        // cache:'no-cache' makes the refresh revalidate with the server instead of
+        // taking the browser's own HTTP cache copy, which the live site marks fresh
+        // for four hours (Cloudflare sends app files with max-age=14400). With a
+        // plain fetch(request) that copy came back unchanged and was written into
+        // this bucket as though it were new, so a browser that had loaded the app
+        // before a deploy kept running the old modules for up to four hours -
+        // through a token bump too, since a new bucket fills its misses through
+        // this same fetch. A revalidation is a conditional request that Cloudflare
+        // answers 304, with no body, when the file has not changed. ('no-store',
+        // as NetworkFirst uses, would download every file in full on every load.)
+        const networkPromise    = fetch(request, { cache: 'no-cache' }).then((networkResponse) => {                                 // <-- Revalidate with the server, never the HTTP cache
             if (networkResponse && networkResponse.ok) {
                 cacheInstance.put(request, networkResponse.clone()).catch(() => {});                                                // <-- Refresh the cache in the background
             }

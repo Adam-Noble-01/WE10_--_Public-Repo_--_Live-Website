@@ -159,16 +159,34 @@
     line-height                        : 1.40;
 }
 
-/* H4 REACHES UP, NOT DOWN. Seven millimetres of air above it and a negative
-   two below, so it sits hard against the paragraph it introduces and clear of
-   the one it follows. That is what makes the sub-headings of a section read as
-   belonging to the text under them. */
+/* H4 REACHES UP, NOT DOWN. Air above it and a negative two below, so it sits
+   hard against the paragraph it introduces and clear of the one it follows.
+   That is what makes the sub-headings of a section read as belonging to the
+   text under them.
+
+   A STATED DEPARTURE FROM THE THEME (29-Sep-2026). The theme gives h4 seven
+   millimetres above and the body's own 10pt, so a sub-section ("#### 11.3 |",
+   a theme head, a policy entry) was the size of the sentence under it and
+   barely further from the one before than a paragraph is. Adam, over RB05's
+   11.3 and 11.4: "a little more space between the sections, and make the
+   headings themselves a little bit bigger ... it's quite hard to see where one
+   section starts and one ends". Ten millimetres above - nearly three times the
+   gap between paragraphs - and 11pt, still under the h3's 12pt. The space
+   under it is unchanged (1.53mm to the text). Typora's theme still draws the
+   old values. */
 .na-le-stmt-doc h4 {
-    margin-top                         : 07.00mm;
+    margin-top                         : 10.00mm;
     margin-bottom                      : -02.00mm;
     color                              : #555041;
-    font-size                          : 10.00pt;
+    font-size                          : 11.00pt;
     line-height                        : 1.00;
+}
+
+/* A sub-section straight under its section's own heading ("### 5.0 |" then
+   "#### 5.1 |") keeps the theme's seven millimetres: the two headings belong
+   together, and ten would leave the section title stranded above. */
+.na-le-stmt-doc h3 + h4 {
+    margin-top                         : 07.00mm;
 }
 
 /* SPECIAL HEADING - Heading Level 5 */
@@ -247,15 +265,17 @@
    Written for both shapes the document takes: in the reader a raw HTML block
    is emitted as it stands, so the picture is a bare sibling; in the editor
    the same block is wrapped in a frozen card. Both are matched, or the gap
-   would appear in one view and not the other. */
+   would appear in one view and not the other.
+
+   An h4 is left out since 29-Sep-2026: its own ten millimetres (above) are
+   more than these eight, and a sub-section under a picture should start as
+   clearly as one under a paragraph. */
 .na-le-stmt-doc > img + h1,
 .na-le-stmt-doc > img + h2,
 .na-le-stmt-doc > img + h3,
-.na-le-stmt-doc > img + h4,
 .na-le-stmt-doc .na-le-stmt-frozen + h1,
 .na-le-stmt-doc .na-le-stmt-frozen + h2,
-.na-le-stmt-doc .na-le-stmt-frozen + h3,
-.na-le-stmt-doc .na-le-stmt-frozen + h4 {
+.na-le-stmt-doc .na-le-stmt-frozen + h3 {
     margin-top                         : 08.00mm;
 }
 
@@ -557,9 +577,10 @@
    A FIGURE HAS AIR ROUND IT. Adam, 29-Sep-2026, over RB05's Fig 4.1: "Add a
    little space above and below images ... how squashed they feel between the
    text". It had only the paragraph's own 3.5mm either side. 7mm above and
-   below now - the same air an h4 takes above itself - which collapses with
-   the paragraph margins round it rather than adding to them, so the gap to
-   the text is 7mm, not 10.5mm. A heading under a figure still gets 8mm. */
+   below now - the air an h4 took above itself until it was given 10mm - which
+   collapses with the paragraph margins round it rather than adding to them,
+   so the gap to the text is 7mm, not 10.5mm. A heading under a figure still
+   gets 8mm, and an h4 its own 10mm. */
 .na-le-stmt-doc figure.na-figure-block {
     display                            : table;
     margin-top                         : 07.00mm;
@@ -587,11 +608,10 @@
 
 /* A HEADING UNDER A FIGURE gets the same air as a heading under a bare
    picture - in the reader the figure is a bare sibling; the editor's frozen
-   card is matched by the rule under Headings. */
+   card is matched by the rule under Headings. An h4 keeps its own 10mm. */
 .na-le-stmt-doc > figure + h1,
 .na-le-stmt-doc > figure + h2,
-.na-le-stmt-doc > figure + h3,
-.na-le-stmt-doc > figure + h4 {
+.na-le-stmt-doc > figure + h3 {
     margin-top                         : 08.00mm;
 }
 
