@@ -1729,9 +1729,13 @@
         if (!enabled) return;                                                   // <-- Feature off in config: no tabs, no Dev section
         Na__LeTabs__Initialize();                                               // <-- 3D Model plus one tab per sheet under the header
         Na__LayoutEditor__DevMenu__Initialize({ showToast : Na__UiFeature__ShowToast });
-        // @delegate: ./02__Src__AppModules/51__System__LayoutEditor/66__Feature__DocumentSharing/
-        void Na__LeShareOpen__Initialize({ showToast : Na__UiFeature__ShowToast });   // <-- A shared link (?open=<key>, from /s/) opens its document's read view
     });
+    // DOCUMENT SHARING | A shared link (?open=<key>, from /s/) opens its document's read view
+    // @delegate: ./02__Src__AppModules/51__System__LayoutEditor/66__Feature__DocumentSharing/
+    // Called straight after the editor is asked to start, NOT in its .then: it
+    // waits for the editor itself, and meanwhile fetches its settings and the
+    // share link record alongside the editor's own configuration.
+    void Na__LeShareOpen__Initialize({ showToast : Na__UiFeature__ShowToast });
     // ------------------------------------------------------------
 
     // DRAWING PLANES | Every plan and elevation plane, shown, dragged and picked in the 3D view

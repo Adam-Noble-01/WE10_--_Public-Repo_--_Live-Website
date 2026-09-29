@@ -2,6 +2,427 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.170.0  -  29-Sep-2026
+### A Published Statement Is the Read View: Every New Element Publishes, the Start Draws Right on a Phone, and Every Figure Keeps Its Size
+
+**Overview**
+- From Adam: "The statement publisher: make sure, when we publish it, it can publish all of the new elements we've
+  created ... I'm seeing some errors with the published file, such as the start of it not being rendered correctly."
+- The publisher (`07__Export__Publish`) had not changed since 20-Sep, before any standard section, figure block or
+  crop existed. Its MARKUP was never the fault: it draws through the Read view's own renderer, and RB05's published page
+  (19:51 today) carried its header, Contents and hub fully drawn. The PAGE AROUND the markup was the fault. Found by
+  building the page with the real publisher inside the running app (every write blocked) and measuring it against the
+  Read view, block by block.
+- THE START, ON A PHONE. The paper is 100% wide up to 210mm and the page said `width=device-width`, so a phone reflowed
+  the A4 layout into a 390px column: the Contents' two columns broke one word to a line, screen after screen, and the
+  tables and figures further down ran off the paper (the page scrolled sideways to 754px). The Read view never does
+  this - it keeps A4 and shrinks it.
+- THE APP'S RESET WAS MISSING. Every element in the app starts at `margin 0, padding 0, border-box`
+  (`Na__CoreUi__Styles__BaseLayout__.css`), and the document stylesheet was drawn and checked on top of it. The page had
+  no reset: all 22 section headings took the browser's 16px above them, 6 tables grew 9.5px, the Drawing Schedule's
+  table likewise, and 8 full-width figures drew their frame outside the column.
+- THE LIVE STYLESHEET WAS LINKED. A statement is published from localhost, usually before a push; the page linked the
+  website's copy of the stylesheet, which today has no Finishes Comparison, Drawing Schedule or Document Footer rules.
+  Published now, all three would have come out unstyled.
+- FIGURES SHRANK. A figure is its picture's pixels times its Typora zoom, and Publish sends a copy of at most 2000px:
+  Fig 3.1 (zoom 26%) drew 522px wide instead of 622, Fig 16.1 (zoom 19%) 382 instead of 622 - five figures in RB05.
+- NO FONTS: the page declared none, so it was Open Sans only where Open Sans is installed (this office).
+- THE TITLE read "1.0 | Introduction": the header has been a standard section, not a "#" heading, since v2.162.0.
+- And a Publish pressed as the tab opened could draw the hub before the QR code's config had landed.
+
+**The change**
+- NEW `07__Export__Publish/Na__LayoutEditor__Statement__Publish__Page__.js` (`Na__LeStmtPubPage` 1.0.0), pure (it runs
+  under node). The page's head, in the app's order: the viewport at 842px (A4 and the Read view's desk - a phone lays
+  the page out A4 wide and scales it, as the Read view does); `color-scheme: only light`; the app's fonts (the
+  `@font-face` rules of `Na__CoreUi__Styles__Fonts__.css`, their addresses made absolute to the website, which serves
+  the fonts to any origin); the app's reset, word for word; the document stylesheet as it stood at publishing, WRITTEN
+  IN, with its comments taken out (they are office notes and the page is a client's document); the desk last (never
+  narrower than A4 on a screen, the printer's width on paper, no phone text enlargement).
+- A PICTURE KEEPS ITS SIZE: a copy made smaller for publishing carries `srcset="<cdn> 2000w" sizes="<original>px"`, the
+  browser's own way of saying "the full-size picture at a lower resolution" - the same size, zoom and frame. A density
+  (`srcset="<cdn> 0.3255x"`) was tried first and does NOT work: the browser adds the src as a 1x copy and takes it on
+  every screen (measured).
+- THE TITLE is the Document Header's Title field, then the first heading, then the index entry's title.
+- PUBLISHER 1.1.0 (`Na__LayoutEditor__Statement__Publish__.js`): `Na__LeStmtPublish__Styles()` reads the two
+  stylesheets from the app's own files at the moment of publishing; Run waits for the standard sections' and the QR
+  code's configs, then builds with them. A stylesheet that cannot be read is linked from its published address, as
+  before. `BuildHtml(markdown, record, links, styles)`.
+- PICTURES 1.1.0 (`...Publish__Images__.js`): every picture sent reports its original's size (`sourceWidth`,
+  `sourceHeight`); a copy that could not be re-encoded now reports the original's size, which is what goes up.
+- A DELIBERATE CHANGE OF POLICY: 1.0.0 linked the live stylesheet so that a house-style change would reach every
+  published statement without republishing. That link is what published the newest sections unstyled, and it would let
+  a later release restyle markup an older one drew. A published statement now carries the stylesheet it was checked
+  with; a new house style reaches it when it is published again.
+
+**How it was proved**
+- The real app on localhost (RB05, Read view, every request that is not a read aborted on every host, service workers
+  blocked): the publisher built the page from the text the Read view was showing; the page was opened on its own
+  (file://, pictures from the CDN) and measured against the Read view, block by block - size, margins and font. Before:
+  42 of 557 blocks differed (and with the website's stylesheet the three newest sections were unstyled as well).
+  After: 0 of 556 - the same A4 paper, the same 67,622px.
+- iPhone 13 and Pixel 7 emulation: laid out at 842px and scaled 0.46 / 0.49, the paper exactly A4, nothing running off
+  it, the Contents in its two columns, all four Open Sans weights loaded from the website. The Finishes Comparison,
+  the Drawing Schedule, the Document Footer and a cropped figure were checked by screenshot.
+- NEW `Na__Test__StatementPublish__.test.mjs` (70 checks): all six standard sections switched on as the menu switches
+  them on, and RB05 as it stands on disk (6 sections, 34 figures, 21 policy panels) - every marker drawn once and none
+  left, nothing of the editor, every figure with its title, the srcset, the page's order, the reset equal to
+  BaseLayout's, the fonts file's four weights. Mutation-checked: no srcset, a heading-only title, no reset and a
+  device-width viewport each fail it. The six other statement suites pass (254 checks); `Na__Verify__Exports__.mjs`
+  passes (542 files).
+
+**Not done / for Adam**
+- RB05's copy on the CDN is still the 19:51 one, made by the old publisher: publish it again to replace it.
+- PUSH BEFORE YOU PUBLISH. The web viewer's Design Statements tab does not open this HTML: it draws the published
+  MARKDOWN with the LIVE app, and the live app (55014c6) knows only the header, the Contents and the hub. Publish RB05
+  before the push and the web viewer shows the Finishes Comparison, the Drawing Schedule and the Document Footer as
+  their raw marker text until it lands. The HTML itself is right either way.
+- No service worker token bump: no existing module imports a new name (the publisher imports only from its new
+  sibling). 2026-09-29-02, not yet live, covers it.
+- NOT in ValeVision (no statement tab there).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.169.0  -  29-Sep-2026
+### The Web Viewer's Design Statements Tab Offers Nothing but Reading: No Manage, No Rename, No Delete - a Visitor Switches Between the Published Statements Only
+
+**Overview**
+- From Adam, on the live site on his phone, with a screenshot of the Design Statements tab's Manage sheet (Open, Rename,
+  Delete on "PreApp Statement"): "Why ... are there options to be able to edit and delete? This should not be visible
+  whatsoever. Only the ability to change between different published documents on the web online viewer ... That
+  should only be reserved for the localhost version."
+- What was wrong: the Statement page built its Manage button, and the document manager sheet behind it, for every
+  session. The sheet drew Rename and Delete (and each statement's folder and file name) on every row. On a phone the
+  statement box is hidden by the narrow-screen rule, so Manage was a visitor's only way between statements - and it
+  came with the file controls.
+- Could a visitor change anything? No. Rename, Delete, Create and Adopt in the data module all return at once when the
+  session may not author, so pressing them did nothing on the web (Delete asked its two questions and then stopped).
+  The controls were offered, never honoured - and should never have been offered.
+
+**The change**
+- THE PAGE (`Na__LayoutEditor__Statement__Page__.js` 1.6.0): the Manage button and the manager sheet are built ONLY where
+  the session may author - not disabled, not hidden: not built, as the Edit surface already was. A reader's root carries
+  `is-reader`.
+- THE BOX IS THE READER'S SWITCHER. The narrow-screen rule that hides it now leaves it on the bar for a reader
+  (`.na-le-stmt.is-reader .na-le-stmt__picker`, chrome stylesheet), so a phone gets it too.
+- ONLY PUBLISHED STATEMENTS ARE LISTED TO A READER (`Na__LayoutEditor__Statement__Data__.js` 1.2.0). The web reads the
+  cloud index, which is the whole local index as it stood at the last Publish - so it could name a statement that was
+  never published, which a visitor would have opened as a blank page. `Na__LeStmt__List` (and so the box,
+  `GetState().count`, the page's first-open choice and a shared link's lookup) now leaves out every statement without a
+  `Doc__PublishedIso` when the session may not author. An author's list is unchanged.
+- THE MANAGER (`Na__LayoutEditor__Statement__Manager__.js` 1.1.0), belt and braces: should it ever be built for a
+  reader, its rows are the title and Open only - no Rename, no Delete, no file path - and the found-on-disk list is
+  drawn only for an author. (Create was already author-only.)
+- No new imports or exports. The service worker token 2026-09-29-02 (v2.167.0, not yet live) covers this release too:
+  the live site is still 55014c6.
+
+**How it was proved**
+- The web build, from the working tree: `reader.localhost:8919` (a `*.localhost` host is not localhost to the app, so
+  authoring is shut and every file comes from the live CDN - the real visitor path), RB05, 375 x 812, fetch/XHR/beacon
+  guard on. Design Statements: the bar held the box ("PreApp Statement"), Published, Download PDF, Download PDF (print)
+  and Share; no Manage; no manager in the DOM; no Rename, Delete, Create or Add button anywhere on the page. No write
+  was attempted.
+- The published-only filter: a fresh `reader2.localhost:8919` load with the CDN index intercepted to add one statement
+  with no `Doc__PublishedIso` and one with it. The box listed "PreApp Statement" and the second published one - not the
+  unpublished one - and the summary read "2 statements".
+- The author is untouched: `127.0.0.1:8919` (localhost, authoring), same guard. The bar still held Manage, Edit/Read,
+  Standard Sections, Save, Publish, both PDFs and Share, and Manage opened with Open, Rename, Delete and the file path.
+  No write was attempted; the origin's storage was cleared afterwards.
+- `Na__Verify__Exports__.mjs` (541 files) passes; the three edited modules parse as ES modules.
+
+**Not done / for Adam**
+- NOT live until committed and pushed (the live site is 55014c6). A phone that already holds the app gets the new
+  build on its next visit after the push, through the 2026-09-29-02 token.
+- THE OTHER TABS WERE AUDITED FOR THE SAME FAULT (code read, then the same reader load): nothing else a web visitor
+  can see changes anything. Specification: Page up/down, Download, Print, Share. Document Register: Read, the register
+  style box, the exports and Share (the edit table, Publish, Save and Delete drawing are built only for an author).
+  Drawings menu: the fourteen drawings, no "+ New sheet". No contenteditable, input or draggable anywhere. Soft spots
+  that are NOT visible today: the specification's Edit pill is hidden by CSS rather than not built (its fields and
+  handlers refuse anyway); the statement publisher has no editable check of its own (its only button is author-only);
+  the dev menus are `display:none` in the page rather than absent.
+- THE REAL EXPOSURE IS THE WORKER, NOT THE PAGE. `80__CloudflareIntegration/CloudflareWorker` (na-truevision-api) has
+  NO authorisation: every `/r2/*` route runs for any caller, and `/r2/write`, `/r2/delete`, `/r2/upload` and `/r2/copy`
+  check only that the key starts with `NaProjectPortal/`. The DevGate's note that "writes are authorised by the Worker
+  key" is not true - the client sends no key and the Worker reads none. `deploy.bat` deploys without `--env
+  production`, so CORS echoes every origin, and CORS never stops a script anyway. Anyone with the Worker URL (it is in
+  the public app config) can overwrite or delete any project file under `NaProjectPortal/`. The sibling
+  na-projectadmin-api Worker is the same. Found from the repo source only - the deployed build was not probed. The
+  fix (a secret the Worker checks on every write, held only on Adam's machines, then a deploy with his wrangler
+  login) is Adam's call and is NOT in this release. Also: `?authoring=on` still unlocks the editor UI on the live
+  origin, by design (DevGate, TD01).
+- NOT in ValeVision (no statement tab there).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.168.0  -  29-Sep-2026
+### The Materials Table Becomes a Finishes Comparison: Each Element's Existing Finish Over Its Proposed One, Tagged New or Matches Existing, With Every Open Question Set Out Under It
+
+**Overview**
+- From Adam, over RB05's "6.10 | Material Specification Comparison" (7.10 since the renumbering): "Create a better
+  existing finishes versus proposed finishes matrix because a table like this doesn't really cut it. We will create a
+  standardised HTML element, a bit like what we've done with some of the other new HTML elements that can be toggled
+  on and off ... this is actually really hard to read and understand. Don't use a table like this; it's not fit for it."
+- What was wrong with the table: three columns on A4 leave the proposal about 70 mm, so every proposal wrapped four to
+  six lines; eight of RB05's nineteen existing cells said "Not applicable" or "None"; thirteen `[TO CONFIRM]` notes sat
+  in the middle of sentences; nothing told a new element from a replaced or a matched one. The design and access
+  statement skill writes the same table into every statement (its template's 5.2).
+- A sixth standard section, **Finishes Comparison**, on the Standard Sections menu - the first that sits INSIDE a
+  section: switched on, it takes the statement's comparison table over in place, under the writer's own heading.
+
+**The change**
+- THE ELEMENT (`09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Finishes__.js`, pure). One entry per
+  element: its name in a column of its own down the left (so the list still scans - the table's one strength) and,
+  beside it, the existing finish (small, grey) over the proposed one (body ink), each labelled EXISTING / PROPOSED and
+  almost the full width of the page, so a proposal reads in two lines where the table wrapped it in six. A strip on
+  top prints the table's own headings. NEW tags an element whose existing cell is none / not applicable (and its empty
+  line is left out); MATCHES EXISTING tags a proposal that says "match ... existing" within a clause (not negated) or
+  repeats the existing words; every `[TO CONFIRM: ...]` is lifted out and set under its line as a labelled note; a row
+  with only its first cell is a group heading; a Status column tags rows in the writer's own words; any other column
+  is one more labelled line; words above or under the table open and close it.
+- THE WORDS STAY THE WRITER'S TABLE. The marker holds the markdown table, one row a line; the tags, notes and groups
+  are drawn from the words every time and nothing computed is written into the file. Edit on the card opens the table.
+- ON AND OFF. On takes over the first pipe table whose headings read as a comparison - an element column, and an
+  existing and a proposed column found by their words (a "Room | Existing | Proposed" floor area table is never taken)
+  - in place, every row as typed, only the heading row's width spans dropped. The heading above it stays the writer's
+  `#### N.N |` line, so the Contents and the numbering do not change. Off writes the house table back (spans, cells
+  padded to sixty, long separators): RB05's comes back byte for byte. With no table to take over it lands under the
+  block the caret is in, starting from five configured rows of `[TO CONFIRM]`s.
+- It is part of a section, not a section: Unit `'none'` (no dividers of its own) and no Move handle (Move only drops a
+  section under a major divider, and gives it one).
+- THE REGISTRY (1.3.0): the section, in document order between the hub and the Drawing Schedule; a `'Caret'`
+  placement anchor through a new optional third argument, `InsertInto(markdown, id, { CaretLine })`, which no other
+  section asks for. THE EDITOR (1.4.0): `Na__LeStmtEd__CaretLine` counts the lines to the end of the `is-caret` block
+  (which keeps its mark while a menu is open) and ToggleStandard passes it.
+- Styles: `.na-le-stmt-std-fin` in the statement document stylesheet - the document's own sizes and olive; tags in
+  olive (NEW), green (MATCHES EXISTING) and blue-grey (RETAINED); amber notes; an editor-only hint on an empty
+  comparison. It opens with a paragraph's one em, so it sits 1.53mm under its heading exactly like prose.
+- Config: `StatementStandard__FinishesComparison__Config` - labels, tag words, NoneWords, MatchPattern, the starting
+  rows, the house widths, the placement.
+- Service worker: token 2026-09-29-02 (v2.167.0's, not pushed yet) covers this release; log 1.9.53, no second bump.
+- Three layouts were drawn with the real stylesheet and RB05's nineteen rows before one was chosen: this ledger;
+  before/after panels (grey "Not present" boxes, and the words narrowed again); two-tone bars (a legend to decode, and
+  solid olive bands - the "jump-outy" look the hub was toned down from).
+- The design and access statement skill (in the skills warehouse, outside this repository) now tells agents to write
+  the table inside the marker in a Statement Writer statement: structure guide §1, §7 (the rules that drive the tags)
+  and §13, and one sentence in SKILL.md.
+
+**How it was proved**
+- `80__Testing__PrototypeEnvironment/Na__Test__StatementFinishes__.test.mjs` - 59 checks: RB05's table taken over in
+  place and the file given back byte for byte, on again the same, the Contents unchanged; nineteen elements, eight NEW,
+  thirteen notes lifted and none left in a sentence, no `<table>`; the skill's exemplar tagged right (three matches, the
+  same words twice, NEW, a real change untagged; "does not match existing" and "to match the joinery" are not
+  matches); groups, Status, extra columns, two columns, words round the table, an empty comparison, Windows line ends;
+  a floor area table refused; the caret; the house table written back and taken over again; escaping; the drawn
+  section and the frozen card. Four deliberate breaks (the padding, the NEW line, the caret anchor, the notes) each
+  failed exactly the checks meant to catch them. `Na__Test__StatementStandard__` updated (six in the menu; the RB05
+  loop). Standard, schedule, round-trip and figure-title suites and `Na__Verify__Exports__.mjs` (541 files) pass.
+- `Na__Test__StatementFinishes__.html` draws it on the paper through the real modules and rasterises it with the
+  vendored html2canvas (RB05, and a householder sample with groups and MATCHES EXISTING) - checked by eye.
+- In the app on the statement test server (`tv-finishes`, port 8856, a throwaway copy of RB05's folder, R2 writes
+  refused by a fetch guard - none were attempted): Standard Sections > Finishes Comparison turned RB05's 7.10 table
+  into the element in place (19 elements, 8 NEW, 13 notes); the autosave's diff against the real file was exactly the
+  marker; Read and Edit both measured 1.53mm under the heading; the card's Edit changed a row and it redrew; Switch Off
+  gave the table back, spans and all, with the edit in it; with the table removed and the caret in the heading, it
+  landed straight under it with the starting rows. The real exporter's PDF of the whole statement (4 pageless pages):
+  zero extractable text, links kept, the comparison exactly as drawn.
+
+**Not done / for Adam**
+- RB05's statement SWITCHED ON at 20:43:31 (Adam, over the old table still showing: "It doesn't look good still") by
+  `D:/_ClaudeScratch/finishes/switch_on_rb05.mjs` - the real registry's InsertInto over the file as it stood, refusing
+  unless the only change was the 7.10 table becoming the marker, the 19 rows byte for byte, and switching it off gives
+  the file back byte for byte. Held (watched 45 s). Backup `D:/_ClaudeScratch/finishes/RB05_before_finishes__2026-09-29T19-43-31-766Z.md`.
+  A tab that had RB05 open asks "Keep the app's copy" / "Load the markdown file" - Load. The published copy on R2 shows
+  the table until the statement is published again.
+- RB05's table has no groups. A row with only a name (`| **Roofs** | | |`) above Roof Covering etc. breaks the nineteen
+  into Walls, Roofs, Windows And Doors ... (Chimneys and Rainwater Goods would sit better moved up under Roofs).
+- The Move handle does not take it anywhere (see above): to move one, switch it off, move the table, switch it on.
+- NOT confirmed by Adam; NOT in ValeVision (no statement tab there).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.167.0  -  29-Sep-2026
+### A Statement Ends the Same Way Every Time: a Drawing Schedule Synced From the Register at a Button Press, Then the Footer, Always Last
+
+**Overview**
+- From Adam, over the end of RB05's pre-application statement: "At the bottom of the statement is messed up. The footer
+  is not placed correctly and has the drawings table pasted in between. This drawings table should actually be a
+  standardised item that you can toggle on and off ... It should contain a sync button that can sync it with the live
+  drawing register and pull through all the data, but then still keep it in Markdown or HTML or whatever, so it is
+  editable. It doesn't keep a live link because you might not always want the live link in a document that's meant to
+  be set to a certain date and time ... Investigate the actual footer. The footer doesn't seem correct at all."
+- What was wrong with the footer: it was two hand-written `<h6>` lines from the house template (the end-of-statement
+  note and the copyright), and on RB05 the whole drawing pack sat between them, so the statement "ended" and carried
+  on. The copyright had no divider over it (the template puts one there), so it read as a stray caption under the
+  table. Both lines asked for their grey through `font-color:#ebebeb`, which is not a CSS property: it has never drawn
+  anywhere (the theme's h6 grey #787878 is what everyone has seen, and #ebebeb would be all but invisible on white).
+  And the h6's minus two millimetres put the note hard against the heading under it.
+- Two new standard sections close every statement, after the Conclusion: **Drawing Schedule**, then **Document
+  Footer**. Both are in the Standard Sections menu with the other three.
+
+**The change**
+- THE DRAWING SCHEDULE (`09__Standard__Sections/Na__LayoutEditor__Statement__Standard__DrawingSchedule__.js`, pure).
+  A copy, not a link: its heading, words and table live INSIDE the marker as markdown - a `#` line is the heading and
+  its line in the Contents, a run of `|` lines is the table, any other line a paragraph. Edit on the card opens those
+  lines. Drawn in the document's own heading, paragraph and table styles; the codes column is the house bold, and
+  every column but the titles keeps to one line.
+- SYNC (a button on the section's card, and automatically straight after it is switched on) reads the Drawing
+  Register as it stands - every sheet in tab order through `Na__LeRegPdf__Rows`, the register's own rows - then the
+  Project Specification when it has notes (RB05_SPEC, its issued revision). It replaces the table's ROWS and nothing
+  else: the heading and paragraphs are never touched; a retitled header row is kept while the columns line up; a row
+  for someone else's document (a code that is not the project's) is kept; a row the register no longer has goes. A
+  table that already has rows is ASKED about first, row by row ("1 row changes: RB05_T01_D02. 1 row is added ...");
+  nothing is written when nothing would change, not even the stamp; the source is read before the page and the page
+  again after the question, so typing is never lost. The card shows when it was last synced (`data-na-std-synced`
+  on the marker). Columns (Drawing, Title, Scale, Size, Rev by default), the specification row and the scale collapse
+  (`1:100 @ ISO A2` beside `ISO A2` prints `1:100`, the register PDF's rule) are in the config.
+- `...DrawingSchedule__Live__.js` reads the register and the specification. It needs the running app, so ONLY the
+  Statement page imports it (that import registers it as the source); the registry, the section and the node tests
+  never do. No source, no Sync button.
+- THE DOCUMENT FOOTER (`...Standard__Footer__.js`, pure). Its two lines are fields in the marker (`End Note:`,
+  `Copyright:`), drawn as one row under the last divider - note left, copyright right, 8pt, the grey and Light weight
+  the h6 lines always drew. Always last, with a divider over it when the file has none there, none under; it does not
+  move, and anything switched on later lands above it. Switched on over the house footer it takes the copyright at
+  the end of the file and an end note DIRECTLY above it; a note further up (a DAS's "End Of Main Statement" before its
+  supplementary notes) is the writer's own divide and stays. Off writes the two house lines back; on again gives the
+  same file.
+- THE REGISTRY (1.2.0): the two sections; anchors `BeforeStandard:<Id>`, `SectionsEnd` (after the divider that closes
+  the last numbered section) and `End`; Unit `'above'`; a section put down by `End` or `BeforeStandard` gets a divider
+  over it when the file has none; the file still ends with one newline. A sync API: `RegisterSource`, `CanSync`,
+  `Fetch` (never rejects), `ApplySync` (keeps the marker's opening tag and attributes, stamps it, keeps the blank
+  lines under it), `SyncedIso`. The Contents asks a section for its line WITH its marker words -
+  `ContentsTitle(config, { body })` - so the schedule is listed under its own heading. `EditHint` per section. A drawn
+  `<footer>` gets `data-na-standard-section` like a section, div or header.
+- THE EDITOR (1.3.0) `Na__LeStmtEd__SyncStandard`, `onNotice` for what a sync did; the Contents follows a standard
+  section's drawn heading (a retitled schedule). THE CARDS (1.3.0) a Sync button and a "Synced today at ..." stamp; each
+  section's Edit says what it opens; the raw field opens tall enough for its lines. THE PAGE (1.5.0) imports the
+  source and passes the toast; "drag it by its Move button" is said only of a section that moves.
+- Styles: `.na-le-stmt-std-sched` and `.na-le-stmt-std-foot` in the document stylesheet (the "fill it" hint on an
+  empty table shows in the editor only); `.na-le-stmt-std-synced` in the chrome stylesheet.
+- SERVICE WORKER TOKEN BUMPED to 2026-09-29-02 (log 1.9.52). 2026-09-29-01 went live with 55014c6, and this release
+  adds exports to the cached registry and editor that the new source module and the cards import; without the bump
+  a warm client's Layout Editor would not load until its next visit.
+- RB05's statement migrated at 19:58:52 (`D:/_ClaudeScratch/rb05_endmatter/migrate_rb05_endmatter.mjs`): the drawing
+  pack's heading, both paragraphs and its three-column table verbatim into a Drawing Schedule, the two h6 lines into a
+  Document Footer; nothing above the Conclusion's divider changed (checked byte for byte before writing); it held for
+  45 s. Backup `D:/_ClaudeScratch/rb05_endmatter/RB05_before_endmatter__2026-09-29T19-58-46.md`. NOT synced: the first
+  Sync turns the table into the five columns and the register's sheet names, and asks first.
+
+**How it was proved**
+- `80__Testing__PrototypeEnvironment/Na__Test__StatementSchedule__.test.mjs` - 64 checks: the footer's take-over, its
+  place and its divider, off and on again byte for byte; the schedule's place above the footer or after the
+  Conclusion, never two dividers touching, off giving the file back; a first sync, a re-sync changing nothing, a
+  renamed / added / deleted sheet each reported, hand-typed rows kept, stale ones gone, the writer's heading and words
+  byte for byte, a retitled header kept, other columns replaced and said so, attributes and blank lines kept; what is
+  drawn; the Contents; the plumbing (no source, a throwing source, a source's own reason); and the real RB05 file.
+  `Na__Test__StatementStandard__` (menu of five; RB05 with both switched off first) and `Na__Test__StatementRoundTrip__`
+  (a `#` line inside a raw HTML block is not a heading) updated. Standard, round-trip, figure-title and lockstep suites
+  and `Na__Verify__Exports__.mjs` (540 files) pass.
+- In the app, on the statement test server (`tv-stmt-sched`, port 8849, a throwaway copy of RB05's folder, R2 writes
+  refused by a fetch guard - none were attempted): the migrated copy loaded through the lockstep question; Sync against
+  the real register asked "Its columns become Drawing, Title, Scale, Size and Rev ..." and wrote 15 rows (14 sheets and
+  RB05_SPEC) with the heading and words untouched; Sync again said it already matched and wrote nothing; the title
+  changed in Edit reached the Contents; Switch Off from the card and on from the menu put it back above the footer,
+  filled without asking; the footer off and on gave the same file; Save wrote it. Read view measured: the footer is
+  the last element, under a divider, note at the left edge and copyright at the right, #787878 8pt Light; no h6 left.
+
+**Not done / for Adam**
+- RB05's schedule is still the hand-typed table until Sync is pressed. The register's names are the sheets' names, so
+  "Front Elevation (South East)" becomes "Front Elevation" (and the site plans show "1:1250 & 1:5000"). Rename the
+  sheets, or edit the rows after syncing.
+- The confirm question is the browser's own (`window.confirm`): TrueVision's page has no `naConfirmDialog` markup, so
+  every ConfirmDialog in the app falls back to it (the register's and the specification's too).
+- The PDF was not exported in this test (it photographs the same Read view that was measured).
+- The design and access statement skill still writes the h6 footer lines; its structure notes say to use the two
+  sections (updated), but a statement it writes carries the old lines until the footer is switched on.
+- NOT confirmed by Adam; NOT in ValeVision (no statement tab there).
+
+# ---------------------------------------------------------
+## TrueVision3D v2.166.0  -  29-Sep-2026
+### Share: Every Read View Hands Out a Link That Opens That One Document, Read-Only, on Any Device - Recorded When the Project Is Published
+
+**Overview**
+- From Adam: "in the read modes of all of the tabs, there should be a share button in the top bar that generates a
+  URL that then opens that particular tab's read mode on any device ... a statement link, a drawing register link, or
+  a specification link ... Do the same with drawings ... put it by the PDF button that's on the viewer ... saving them
+  in a dynamic manifest is probably the best thing, so in the future, it doesn't fuck it up if I change the logic or
+  any of the placement for new jobs, or how I put things in folders."
+- The existing builder and resolver he meant are the Project QR Code's: `Na__QrLink__BuildUrl` (base + pattern, the
+  live site as config, never window.location) and `q/index.html` (code -> folder and year from `q/index.json`). The
+  share system is built the same way, as a NEW pair, and reads the same index.
+
+**The change**
+- THE LINK: `https://www.noble-architecture.com/s/?RB05&open=Sheet_004` - the project's CODE and the document's KEY,
+  nothing else. No folder, no year, no app path, so moving the app, renaming a folder or refiling jobs changes none of
+  it.
+- THE KEYS are permanent rules in code (`66__Feature__DocumentSharing/Na__LayoutEditor__Share__Links__.js`, the
+  builder): a drawing's is its SHEET ID - not its number, which the register's order decides, so a renumber would
+  send an old D02 link to a different drawing - a statement's `Statement_<Doc__Id>` (never reused), and
+  `Specification` / `Register`. Reading back is liberal: `spec`, `statement-2`, `sheet_4`, and as a last resort a
+  document id or drawing number, which the app looks for among the drawings.
+- THE RESOLVER: new `s/index.html` at the website root, the sibling of `q/`. It looks the code up in `q/index.json`
+  (master index as fallback, as q/ does) and sends the reader to the project's address with `open=<key>`. It answers
+  `p=`, `project=`, `d=`, `doc=` and the key as a bare second token; a key that is not a key is dropped, never passed
+  on; `authoring=` is never passed through. Its TrueVision address has a twin in `q/index.html` - a comment in each
+  says change both - and the ProjectVision build script's description of `q/index.json` now names both readers.
+- THE APP'S HALF (`Na__LayoutEditor__Share__Open__`, started from Index.html): on a load carrying `open=`, it opens
+  that document's READ view - a drawing through Enter, the specification on Read, the register with
+  `{ view : 'read' }`, one statement with `{ statementId, view : 'read' }` (ModeController 1.32.0 hands both options
+  through; Register editor 1.3.0 and Statement page 1.4.0 take them).
+  - A READER (the web viewer) is shown the document the moment the sheets are known - before the 3D model starts
+    loading - and the loading screen is lifted off it; it comes back if they go to the 3D Model tab before the model
+    has arrived. An AUTHOR's editor waits for the model, because it renders drawings from it.
+  - A drawing that is gone opens the Document Register with a toast saying so.
+- THE SHARE LINK RECORD - Adam's "dynamic manifest": `06__Layout__PublishedDocuments/PublishedDocuments__ShareLinks__.json`
+  (`Na__LayoutEditor__Share__Manifest__`), beside the index. Every document (published or not) with its key, the
+  address its Share button hands out, its label and what it opens; the resolver the addresses were built against;
+  `ShareLinks__Aliases`, reserved and carried forward, for the day a key has to be renamed.
+  - Written by every Publish Drawings just before the index (Publisher 1.1.0; to R2 when "Also push to R2" is
+    ticked; the dialog says "Share links recorded for N document(s)"), and again whenever a statement is published.
+    A failure is a warning, never a failed publish.
+  - The Share buttons hand out the address ON RECORD, and the app reads a key's target from it before its own rules,
+    so a project published under older rules keeps its links.
+  - It does NOT record whether a drawing is published - the index says that when asked - so a copy pushed to R2 by a
+    statement publish can never claim a drawing R2 does not hold.
+  - Registered in the published schema (`Files__ShareLinks`, `Na__PubSchema__ShareLinksPath`, Paths 1.1.0; schema
+    version unchanged - additive) and added to the AA00 example folder, whose ReadMe explains it.
+- THE BUTTONS: Share beside the web viewer's PDF (WebViewer 1.2.0; under the register it shares the register), beside
+  the editor's Download PDF (Toolbar 1.24.0, always the live address), and on the Read views of the specification
+  (SpecEditor Bar 1.4.0), the register and the statements. Each is made with its own tab's button maker. One press
+  copies the link and opens a small box: the link, Copy link, Share... (the device's share sheet where there is one)
+  and Open, with a warning when the drawing or statement is not published yet, and - for an author only - a note when
+  the project has no record yet. The link is worked out BEFORE anything is awaited, so Safari keeps the copy.
+- Settings and every word: `Na__LayoutEditor__Share__Config__.json`. Box styles: `Na__LayoutEditor__Styles__Share__.css`,
+  imported by the stylesheet index. The publisher's app version stamp is v2.166.0.
+
+**How it was proved**
+- `Na__Verify__Exports__` PASS (537 files); `Na__Verify__ModuleGraph__` at its standing baseline (one template-literal
+  false positive).
+- New `Na__Test__ShareLinks__.test.mjs`, 68 checks: the builder and parser; the record run as it ships with the sheet
+  model, statements and transport stood in for (local written before R2, identical bytes, nothing to R2 when the local
+  write fails, two records queued, aliases carried with this version's note - it caught the old note overwriting the
+  new); the record read back through the reader's Urls; and `s/index.html`'s own script run in a sandbox against the
+  REAL `q/index.json` for every link form, an unknown project and a bad key; plus the two ends agreeing (key pattern,
+  `open`, the q/s twin address).
+- `Na__Test__PublishedSchema__` 59 (was 49): region 6A checks the example's record. Reader 63, Project QR 50 - unchanged.
+- In the app on RB05 (a no-cache static server, authoring locked to act as the live site, every write refused by a
+  fetch guard): `s/?RB05&open=Sheet_004` landed on the project with `open=Sheet_004` and opened D03 - Rear Elevation;
+  Specification, Register and Statement_1 links opened their Read views; every Share (dock, register, specification,
+  statement, editor toolbar) copied its `/s/` address; `D05`, `sheet-16` and `rb05_t01_d02` resolved and `Sheet_099`
+  fell back to the register with its toast. With the 3D model held back 25 s, a statement link opened 41 ms after
+  the drawings arrived and the loading screen came back when 3D Model was pressed. Authoring: Share hidden in Edit and
+  shown in Read on all three documents; a link waited for the model and opened D05 in the editor; the record built
+  from RB05's 17 documents went local-then-R2 with identical bytes, and a statement publish re-recorded it (both
+  writes faked, nothing written).
+
+**Not done / for Adam**
+- The first cut of this release (numbered v2.165.0 in its files, before the figure-titles release took that number)
+  went live inside commit 55014c6 ("Minor"). The renumbering to v2.166.0, the parallel start-up (Index.html calls the
+  opener straight after the editor starts, and the settings and record are fetched alongside it) and this entry are
+  the uncommitted remainder.
+- RB05, PS01 and every other project have NO share record until they are next published; their links work meanwhile
+  (the buttons build the same address and the app resolves keys itself).
+- Not tried on a real phone, nor on the live site after a deploy. `s/` must be deployed for links to open.
+- A sheet id is reused only if the highest-numbered sheet is deleted and a new one made; a link to the deleted sheet
+  would then open the new one. Not guarded.
+- NOT in ValeVision (no web viewer, no q folder there).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.165.0  -  29-Sep-2026
 ### A Figure's Title Lives Inside the Figure: It Starts at the Picture's Left Edge and Wraps at Its Right, in Edit, Read and the PDF
 

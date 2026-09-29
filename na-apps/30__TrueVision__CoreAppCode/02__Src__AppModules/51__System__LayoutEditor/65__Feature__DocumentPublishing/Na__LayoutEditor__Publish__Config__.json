@@ -13,7 +13,7 @@
 
     "LayoutEditor__Publish__Behaviour": {
         "Behaviour__Description"     : "How a publish runs.",
-        "Behaviour__AppVersion"      : "v2.165.0",
+        "Behaviour__AppVersion"      : "v2.166.0",
         "Behaviour__AppVersionNote"  : "Stamped into every manifest and the index as Publish__ByAppVersion. The app keeps its version only in the DEVLOG headings, so this is bumped with each release that changes what is published.",
         "Behaviour__PushToR2Default" : false,
         "Behaviour__PushNote"        : "Off by default: a publish files everything into the project folder first, where it can be looked at on localhost before a client ever can. Pushing to R2 is a second, deliberate tick.",

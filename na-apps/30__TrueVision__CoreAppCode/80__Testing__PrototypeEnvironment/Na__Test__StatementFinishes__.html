@@ -1,0 +1,105 @@
+<!doctype html>
+<!--
+    Na__Test__StatementFinishes__.html
+    ----------------------------------
+    Draws the Statement Writer's Finishes Comparison on the statement paper, through
+    the real tokeniser, registry and renderer, so its look can be judged and
+    rasterised without loading a project into the app. Nothing is written anywhere:
+    the comparison is switched on in memory only.
+
+    Open it on a server rooted at the repository:
+        .../80__Testing__PrototypeEnvironment/Na__Test__StatementFinishes__.html
+
+    With no options it draws RB05's statement around its "Material Specification
+    Comparison" - the heading above, the comparison, what follows - with the
+    comparison switched on as the menu would switch it on.
+        ?statement=<path from the repository root to a statement .md>  another statement
+        ?sample=householder   a householder table: MATCHES EXISTING, NEW, a group, a Status
+        ?whole=1              the whole statement, not just the part round the comparison
+        ?editable=1           the editor's frozen card, with the editor's chrome stylesheet
+    window.__NaTestFin.raster(selector) returns a JPEG data URL of that element made by
+    the vendored html2canvas at the PDF exporter's default scale - what reaches the PDF.
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Statement Finishes Comparison - Test</title>
+    <link rel="stylesheet" href="../03__Style__AppStylesheets/Na__CoreUi__Styles__Fonts__.css">
+    <link rel="stylesheet" href="../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__Document__.css">
+    <style>body { background:#d9dcdf; margin:0; padding:10px; }</style>
+</head>
+<body>
+<div id="paper" class="na-le-stmt-doc"></div>
+<script type="module">
+    import { Na__LeStmtStd__Ready, Na__LeStmtStd__InsertInto, Na__LeStmtStd__Detect } from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
+    import { Na__LeStmtMd__Tokenise } from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Tokenise__.js';
+    import { Na__LeStmtRnd__Blocks } from '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown/Na__LayoutEditor__Statement__Md__Render__.js';
+
+    const RB05 = 'na-project-portal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/RB05_T01_S01__WestFarm__PreApplicationStatement__.md';
+
+    const HOUSEHOLDER = [
+        '#### 5.2 |  Material Specification Comparison Table',
+        '',
+        '| <span style="display:inline-block; width:30mm; white-space:nowrap;">Building Element</span> | <span style="display:inline-block; width:60mm; white-space:nowrap;">Existing Materials</span> | Proposed Materials |',
+        '| :--- | :--- | :--- |',
+        '| **Walls And Roofs** | | |',
+        '| **External Brickwork** | Standard red facing brickwork | Facing brickwork to strictly match existing in colour, size, tone, texture, and mortar colour. To include matching decorative soldier courses and segmented arches. |',
+        '| **Pitched Roofs** | Profiled roof tiles | Roof tiles to identically match the existing profile, material, and colour. |',
+        '| **Crown Roof Flat Section** | Not applicable | Specification unknown at this stage. Likely EPDM or GRP system at the discretion of the building contractor. [TO CONFIRM: membrane colour] |',
+        '| **Windows And Doors** | | |',
+        '| **Front Windows** | White UPVC with cottage bar detailing | White UPVC with cottage bar detailing to seamlessly match existing windows on front and side elevations. |',
+        '| **Rear Windows** | White UPVC | White UPVC |',
+        '| **Rear Doors** | White UPVC French doors | White UPVC or aluminium four panel folding door system. |',
+        '',
+        'The paragraph after the comparison, in the body style, to show the space under it.',
+        ''
+    ].join('\n');
+
+    await Na__LeStmtStd__Ready();
+    const params = new URLSearchParams(location.search);
+    if (params.get('editable') === '1') {
+        const chrome = document.createElement('link');
+        chrome.rel  = 'stylesheet';
+        chrome.href = '../02__Src__AppModules/51__System__LayoutEditor/52__Feature__StatementWriter/08__Style__Stylesheets/Na__LayoutEditor__Styles__Statement__.css';
+        document.head.appendChild(chrome);
+        document.getElementById('paper').setAttribute('contenteditable', 'true');
+    }
+
+    let markdown = HOUSEHOLDER;
+    if (params.get('sample') !== 'householder') {
+        const file = params.get('statement') || RB05;
+        markdown = await (await fetch('../../../' + file + '?t=' + Date.now(), { cache : 'no-store' })).text();
+    }
+    markdown = Na__LeStmtStd__InsertInto(markdown, 'FinishesComparison');         // <-- In memory only: what the menu does
+
+    let blocks = Na__LeStmtMd__Tokenise(markdown);
+    if (params.get('whole') !== '1') {
+        const at = blocks.findIndex((block) => block.Kind === 'html' && Na__LeStmtStd__Detect(block.Html) === 'FinishesComparison');
+        if (at !== -1) {
+            let from = at - 1;
+            while (from > 0 && blocks[from].Kind !== 'heading') from--;             // <-- From the heading the comparison sits under
+            blocks = blocks.slice(Math.max(0, from), Math.min(blocks.length, at + 3));
+        }
+    }
+    const paper = document.getElementById('paper');
+    paper.innerHTML = Na__LeStmtRnd__Blocks(blocks, { Editable : params.get('editable') === '1' });
+
+    window.__NaTestFin = {
+        async raster(selector, scale) {
+            if (!window.html2canvas) {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = '../04__Lib__ThirdParty__VersionLocked/06__Vendor__Html2Canvas__v1.4.1/html2canvas.umd.js';
+                    script.onload = resolve; script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            const element = document.querySelector(selector);
+            const canvas  = await window.html2canvas(element, { scale : scale || 1.5, useCORS : true, backgroundColor : '#ffffff', logging : false });
+            return { width : canvas.width, height : canvas.height, url : canvas.toDataURL('image/jpeg', 0.8) };
+        }
+    };
+    window.__ready = true;
+</script>
+</body>
+</html>

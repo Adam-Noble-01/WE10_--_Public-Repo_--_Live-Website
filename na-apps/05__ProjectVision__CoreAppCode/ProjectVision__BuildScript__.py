@@ -272,7 +272,7 @@ def build_qr_link_index(all_projects):
     reads both the same way. Do not rename these keys without changing
     q/index.html in the same commit.
 
-    s/index.html READS THIS FILE TOO (TrueVision v2.165.0): it resolves the
+    s/index.html READS THIS FILE TOO (TrueVision v2.166.0): it resolves the
     document links TrueVision's Share buttons hand out (/s/?RB05&open=Sheet_004)
     exactly as q/ resolves a printed code, and falls back to the master index
     the same way. A change to this shape changes both pages.

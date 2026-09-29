@@ -120,8 +120,8 @@ const kinds = (text) => Na__LeStmtMd__Tokenise(text).map((block) => block.Kind =
 
 console.log('\nMarkers');
 check('the hub marker is recognised', Std.Na__LeStmtStd__Detect(HUB) === 'TrueVisionHub');
-check('the menu lists the three in the house order',
-      Std.Na__LeStmtStd__List().map((row) => row.Id).join(',') === 'DocumentHeader,Contents,TrueVisionHub');
+check('the menu lists the six in the house order (the three that open a statement, the one in its body, the two that close it)',
+      Std.Na__LeStmtStd__List().map((row) => row.Id).join(',') === 'DocumentHeader,Contents,TrueVisionHub,FinishesComparison,DrawingSchedule,DocumentFooter');
 check('the header does not move; the others do',
       !Std.Na__LeStmtStd__IsMovable('DocumentHeader') && Std.Na__LeStmtStd__IsMovable('Contents') && Std.Na__LeStmtStd__IsMovable('TrueVisionHub'));
 check('an unknown section id is not a marker', Std.Na__LeStmtStd__Detect('<div data-na-standard-section="Nope">x</div>') === null);
@@ -142,8 +142,10 @@ const RB05 = path.join(repoRoot, 'na-project-portal', '26-Projects', 'RB05__West
 let live = fs.readFileSync(RB05, 'utf8');
 // Any standard section already switched on is switched off first, and the
 // static list (a "### Contents" heading, its block and the divider under it)
-// is taken out - what the migration to the standard Contents does.
-for (const id of ['TrueVisionHub', 'Contents', 'DocumentHeader']) live = Std.Na__LeStmtStd__RemoveFrom(live, id);
+// is taken out - what the migration to the standard Contents does. The two
+// that close a statement (v2.167.0) are Na__Test__StatementSchedule__'s, the
+// Finishes Comparison (v2.168.0) Na__Test__StatementFinishes__'s.
+for (const id of ['DocumentFooter', 'DrawingSchedule', 'FinishesComparison', 'TrueVisionHub', 'Contents', 'DocumentHeader']) live = Std.Na__LeStmtStd__RemoveFrom(live, id);
 function StripStaticContents(text) {
     const blocks = Na__LeStmtMd__Tokenise(text);
     const at = blocks.findIndex((block) => block.Kind === 'heading' && block.Level === 3 && String(block.Text).trim() === 'Contents');

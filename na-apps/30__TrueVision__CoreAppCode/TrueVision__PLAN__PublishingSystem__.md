@@ -516,3 +516,21 @@ carried alongside it.
 recommendations — smaller mobile raster budgets, fewer samples, a byte-bounded sheet cache
 — are about making the authoring renderer survive being used as a reader, which after this
 work it is not.
+
+---
+
+## 7. Share links and the share link record (v2.166.0, 29-Sep-2026)
+
+Every read view now has a **Share** button (the web viewer's beside its PDF), handing out
+`https://www.noble-architecture.com/s/?RB05&open=Sheet_004` - the project code and a
+permanent document key, nothing else. `s/index.html` at the website root resolves it through
+`q/index.json` exactly as `q/` resolves a printed code, and the app opens that document's read
+view. A drawing's key is its SHEET ID, never its number.
+
+Publishing now also writes `PublishedDocuments__ShareLinks__.json` beside the index, just
+before it (locally, and on R2 with "Also push to R2"): every document's key, the address its
+Share button hands out and what it opens. The buttons hand out the address on record and the
+app reads a key's target from it before its own rules - Adam's "dynamic manifest", so a change
+of rules, folders or numbering never breaks a link already sent. It records nothing about
+publication state. The whole design is in
+`02__Src__AppModules/51__System__LayoutEditor/66__Feature__DocumentSharing/README__DocumentSharing__.md`.

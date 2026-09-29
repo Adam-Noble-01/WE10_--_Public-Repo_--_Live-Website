@@ -124,7 +124,7 @@ no folder. That is the whole mechanism for the grey mask.
 
 ---
 
-## The share link record (added 29-Sep-2026, TrueVision v2.165.0)
+## The share link record (added 29-Sep-2026, TrueVision v2.166.0)
 
 `PublishedDocuments__ShareLinks__.json` sits beside the index. It lists **every document of
 the project a person can be sent** - each drawing in register order (published or not), the

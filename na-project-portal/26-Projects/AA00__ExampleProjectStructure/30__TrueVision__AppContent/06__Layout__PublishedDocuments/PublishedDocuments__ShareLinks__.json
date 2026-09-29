@@ -15,7 +15,7 @@
         "Publish__AtIso"         : "2026-09-29T18:00:00.000Z",
         "Publish__AtEpochMs"     : 1790704800000,
         "Publish__ByApp"         : "TrueVision3D Layout Editor",
-        "Publish__ByAppVersion"  : "v2.165.0",
+        "Publish__ByAppVersion"  : "v2.166.0",
         "Publish__Reason"        : "drawings",
         "Publish__DocumentCount" : 8
     },

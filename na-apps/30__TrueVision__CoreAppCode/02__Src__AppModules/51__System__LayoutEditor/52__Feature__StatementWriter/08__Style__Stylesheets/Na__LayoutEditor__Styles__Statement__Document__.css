@@ -30,7 +30,9 @@
  * - The Reader (05__Ui__Reader) and the Editor (04__Ui__Editor) both put this
  *   class on their page, so what is typed is already what is read.
  * - The PDF exporter rasterises that same DOM, so nothing can drift.
- * - The generated standalone HTML links this file by its public URL.
+ * - The published page (07__Export__Publish) writes this file into itself as
+ *   it stands at publishing, over the app's own reset and fonts - it was drawn
+ *   on them, so it is only right on top of them (v2.170.0).
  */
 
 
@@ -1011,6 +1013,293 @@
     margin-top                         : 01.00mm;
     color                              : #6c757d;
     font-size                          : 07.50pt;
+}
+
+/* THE DRAWING SCHEDULE (v2.167.0). The statement's copy of the Drawing
+   Register, drawn in the document's OWN heading, paragraph and table styles -
+   the look RB05's hand-written drawing pack already had - so it reads as part
+   of the statement. Only what the theme cannot know is said here: the first
+   column is the house's bold first column, every column but the titles keeps
+   to one line (a drawing code or a scale never breaks), and the heading sits
+   as close under the divider as the Contents' does. */
+.na-le-stmt-doc .na-le-stmt-std-sched__title {
+    margin-top                         : 02.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-sched__table td:first-child {
+    color                              : #555041;
+    font-weight                        : 500;
+}
+
+/* Through the table's own class: the theme's "td:first-child { white-space:
+   normal }" outranks a bare cell class, and the first column is the codes. */
+.na-le-stmt-doc .na-le-stmt-std-sched__table .na-le-stmt-std-sched__cell--fit {
+    white-space                        : nowrap;
+}
+
+/* An empty table says how to fill it - in the editor only. The reader, the
+   PDF and the published page are the document, and never show it. */
+.na-le-stmt-doc .na-le-stmt-std-sched__empty {
+    display                            : none;
+}
+
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-std-sched__empty {
+    display                            : block;
+    padding                            : 02.00mm 03.00mm 02.00mm 03.00mm;
+    border-left                        : 00.60mm solid #d9a441;
+    background-color                   : #fff6e3;
+    color                              : #8a5a00;
+    font-size                          : 09.00pt;
+    font-style                         : italic;
+}
+
+/* THE DOCUMENT FOOTER (v2.167.0). The end-of-statement note and the copyright
+   as one quiet row under the last divider: the note left, the copyright
+   right. The size, grey and light weight are what the house footer's <h6>
+   lines always drew (8pt, the theme's h6 #787878, Light) - the grey its
+   template asked for, "font-color: #ebebeb", is not CSS and never drew, and
+   would be all but invisible on white. The section's own two millimetres over
+   it stand where the h6's margin-top was. */
+.na-le-stmt-doc .na-le-stmt-std-foot {
+    display                            : flex;
+    flex-wrap                          : wrap;
+    justify-content                    : space-between;
+    align-items                        : baseline;
+    gap                                : 01.00mm 08.00mm;
+    color                              : #787878;
+    font-size                          : 08.00pt;
+    font-weight                        : 300;
+    line-height                        : 1.40;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-foot__right {
+    margin-left                        : auto;
+    text-align                         : right;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-foot__note + .na-le-stmt-std-foot__note {
+    margin-top                         : 00.80mm;
+}
+
+/* THE FINISHES COMPARISON (v2.168.0). The existing-versus-proposed materials
+   table, drawn element by element instead of in three narrow columns. Adam,
+   29-Sep-2026, over RB05's: "a table like this doesn't really cut it ... it's
+   not fit for it". Each element's name keeps a column of its own down the
+   left, so the list still scans; beside it the existing finish (small, grey)
+   sits over the proposed one (body size, ink), each labelled and each almost
+   the width of the page, so a proposal reads in two lines where the table
+   wrapped it in six. NEW and MATCHES EXISTING are small tags under the name;
+   a [TO CONFIRM] is a labelled note under its line, not a bracket mid-way
+   through a sentence.
+
+   IT SITS INSIDE A SECTION, under the writer's own "####" heading, so it
+   opens with the one em a paragraph opens with: under the heading's minus two
+   millimetres it settles at the same 1.53mm as prose, in the reader and in
+   the editor's frozen card alike (the card has no padding or border, so the
+   margin carries through it). It closes with the paragraph's three and a
+   half. Every size is the document's own - the name is an h4-and-a-half,
+   the proposal is table text a step up, the labels are the Contents' small
+   capitals - so it reads as part of the statement, not as a panel laid on it. */
+.na-le-stmt-doc .na-le-stmt-std-fin {
+    margin-top                         : 1.00em;        /* <--- 03.53mm, the paragraph's own opening space */
+    margin-bottom                      : 03.50mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__intro {
+    margin-top                         : 00.00mm;
+    margin-bottom                      : 03.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__note {
+    margin-top                         : 03.00mm;
+    margin-bottom                      : 00.00mm;
+    color                              : #646464;
+    font-size                          : 09.00pt;
+}
+
+/* The strip: the table's own column headings, over the two columns. */
+.na-le-stmt-doc .na-le-stmt-std-fin__strip {
+    display                            : grid;
+    grid-template-columns              : 40.00mm 1fr;
+    column-gap                         : 05.00mm;
+    align-items                        : baseline;
+    padding-bottom                     : 01.40mm;
+    border-bottom                      : 00.35mm solid #555041;
+    color                              : #8c8778;
+    font-size                          : 06.50pt;
+    font-weight                        : 600;
+    letter-spacing                     : 0.13em;
+    line-height                        : 1.30;
+    text-transform                     : uppercase;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__strip-arrow {
+    padding-left                       : 01.40mm;
+    padding-right                      : 01.40mm;
+    color                              : #b8b3a5;
+    letter-spacing                     : 0;
+}
+
+/* A group: a row whose only filled cell is its first (Walls, Roofs ...). */
+.na-le-stmt-doc .na-le-stmt-std-fin__group {
+    margin-top                         : 04.50mm;
+    padding-bottom                     : 01.20mm;
+    border-bottom                      : 00.20mm solid #cfcabd;
+    color                              : #555041;
+    font-size                          : 07.00pt;
+    font-weight                        : 600;
+    letter-spacing                     : 0.14em;
+    line-height                        : 1.30;
+    text-transform                     : uppercase;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__strip + .na-le-stmt-std-fin__group {
+    margin-top                         : 03.20mm;
+}
+
+/* One element: its name down the left, its lines beside it. */
+.na-le-stmt-doc .na-le-stmt-std-fin__item {
+    display                            : grid;
+    grid-template-columns              : 40.00mm 1fr;
+    column-gap                         : 05.00mm;
+    padding-top                        : 02.30mm;
+    padding-bottom                     : 02.50mm;
+    border-bottom                      : 00.20mm solid #e4e1d8;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__name {
+    min-width                          : 0;
+    color                              : #555041;
+    font-size                          : 09.50pt;
+    font-weight                        : 500;
+    line-height                        : 1.30;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__name-words {
+    display                            : block;
+}
+
+/* The tags: the document's olive for NEW, a quiet green for MATCHES
+   EXISTING, the drawings' blue-grey for RETAINED, and a plain tint for any
+   other word a Status column gives. */
+.na-le-stmt-doc .na-le-stmt-std-fin__tag {
+    display                            : inline-block;
+    margin-top                         : 01.20mm;
+    padding                            : 00.35mm 01.60mm 00.25mm 01.60mm;
+    border-radius                      : 00.80mm;
+    background-color                   : #ecebe4;
+    color                              : #555041;
+    font-size                          : 06.50pt;
+    font-weight                        : 600;
+    letter-spacing                     : 0.10em;
+    line-height                        : 1.30;
+    text-transform                     : uppercase;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__tag--match {
+    background-color                   : #e8efe9;
+    color                              : #3f5f47;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__tag--retained {
+    background-color                   : #e9edf1;
+    color                              : #3e5366;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__tag--other {
+    background-color                   : #f1efe9;
+    color                              : #6b6657;
+}
+
+/* A labelled line: EXISTING, PROPOSED, or an extra column's own heading. */
+.na-le-stmt-doc .na-le-stmt-std-fin__detail {
+    min-width                          : 0;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__line {
+    display                            : grid;
+    grid-template-columns              : 17.00mm 1fr;
+    column-gap                         : 02.00mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__line + .na-le-stmt-std-fin__line {
+    margin-top                         : 01.10mm;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__label {
+    padding-top                        : 00.55mm;
+    color                              : #555041;
+    font-size                          : 06.50pt;
+    font-weight                        : 600;
+    letter-spacing                     : 0.12em;
+    line-height                        : 1.30;
+    text-transform                     : uppercase;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__line--existing .na-le-stmt-std-fin__label {
+    color                              : #a8a397;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__line--extra .na-le-stmt-std-fin__label {
+    color                              : #8c8778;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__text {
+    min-width                          : 0;
+    color                              : #3c3c3c;
+    font-size                          : 09.50pt;
+    line-height                        : 1.45;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__line--existing .na-le-stmt-std-fin__text {
+    color                              : #7a7a7a;
+    font-size                          : 08.50pt;
+    line-height                        : 1.40;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__line--extra .na-le-stmt-std-fin__text {
+    font-size                          : 08.50pt;
+    line-height                        : 1.40;
+}
+
+/* A [TO CONFIRM] note, lifted out of its sentence and set under it. */
+.na-le-stmt-doc .na-le-stmt-std-fin__confirm {
+    display                            : block;
+    margin-top                         : 00.90mm;
+    color                              : #8a6a1f;
+    font-size                          : 08.00pt;
+    font-style                         : italic;
+    line-height                        : 1.35;
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__text > .na-le-stmt-std-fin__confirm:first-child {
+    margin-top                         : 00.20mm;       /* <--- A line that is nothing but a note starts level with its label */
+}
+
+.na-le-stmt-doc .na-le-stmt-std-fin__confirm-label {
+    margin-right                       : 01.20mm;
+    color                              : #a07a1c;
+    font-size                          : 06.50pt;
+    font-style                         : normal;
+    font-weight                        : 600;
+    letter-spacing                     : 0.10em;
+    text-transform                     : uppercase;
+}
+
+/* An empty comparison says how to fill it - in the editor only. */
+.na-le-stmt-doc .na-le-stmt-std-fin__empty {
+    display                            : none;
+}
+
+.na-le-stmt-doc[contenteditable="true"] .na-le-stmt-std-fin__empty {
+    display                            : block;
+    margin-top                         : 02.00mm;
+    padding                            : 02.00mm 03.00mm 02.00mm 03.00mm;
+    border-left                        : 00.60mm solid #d9a441;
+    background-color                   : #fff6e3;
+    color                              : #8a5a00;
+    font-size                          : 09.00pt;
+    font-style                         : italic;
 }
 
 /* endregion ------------------------------------------------------- */

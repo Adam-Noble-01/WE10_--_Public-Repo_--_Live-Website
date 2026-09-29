@@ -1,7 +1,7 @@
 {
     "StatementStandard__Description": "Standard Sections: the parts of a statement that are the same on every job apart from the project they name (the TrueVision 3D Project Hub), the headings they are drawn from (the Contents) or the few fields they carry (the Document Header). Each one is switched on and off from the Statement Writer's edit bar (Standard Sections), lives in the statement's markdown as ONE marker line, and is drawn fresh from this file every time the statement is shown, printed or published - so a better sentence written here reaches every statement that carries the section, and the project's own name, code, link and QR code are always the ones on screen. The marker is a block like any picture: it can be dragged anywhere in the statement. Every value here is mirrored as a built-in default in the section's own module, so a failed fetch still draws the section.",
 
-    "StatementStandard__Order__Note": "Adam, 29-Sep-2026, the order every statement opens in: 1. the header, 2. the header information, 3. the table of contents, 4. the TrueVision section, 5. the introduction. Each section's PlaceAfter keeps to it: the header takes over the top of the file, the Contents goes after the header's divider, the hub after the Contents. Every section but the header sits between two major dividers.",
+    "StatementStandard__Order__Note": "Adam, 29-Sep-2026, the order every statement opens in: 1. the header, 2. the header information, 3. the table of contents, 4. the TrueVision section, 5. the introduction. Each section's PlaceAfter keeps to it: the header takes over the top of the file, the Contents goes after the header's divider, the hub after the Contents. Every section but the header sits between two major dividers. It closes the same way every time: the Conclusion, the Drawing Schedule (above the footer), then the Document Footer, always last, under a divider of its own and none after it.",
 
     "StatementStandard__DocumentHeader__Config": {
         "DocumentHeader__Description": "The statement's opening block: the company logo, the title and the header fields (Applicant, Site Address, Local Planning Authority, Prepared By, Document Version, and any others written). The fields are the job's own words and live INSIDE the marker, one a line - 'Label: value', with indented lines carrying a value on to more lines; 'Title' is the title and 'Logo' may replace the logo's address. Drawn with spacing of its own, so the document's heading rules (the minus two millimetres under every #####) cannot squeeze it - Adam, 29-Sep-2026: 'too constrained'. Switched on, it takes over a house header already at the top of the file; switched off, it writes that header back as markdown.",
@@ -93,5 +93,100 @@
 
         "TrueVisionHub__FallbackText": "Standard Section: TrueVision 3D Project Hub. It is drawn with the project's live link and QR code by TrueVision's Statement Writer; this line is all an editor without it can show.",
         "TrueVisionHub__FallbackTextNote": "What the marker line holds between its tags, so Typora (or anything else that opens the markdown) shows a sentence saying what belongs there rather than nothing."
+    },
+
+    "StatementStandard__DrawingSchedule__Config": {
+        "DrawingSchedule__Description": "The drawings that go with the statement: a heading, a line or two of words and a table, all held INSIDE the marker as markdown (a '#' line is the heading, a run of '|' lines is the table, any other line is a paragraph). Adam, 29-Sep-2026: a drawings table that is 'a standardised item that you can toggle on and off', with 'a sync button that can sync it with the live drawing register and pull through all the data, but then still keep it in Markdown or HTML or whatever, so it is editable. It doesn't keep a live link because you might not always want the live link in a document that's meant to be set to a certain date and time'. Sync (on the section's card, and straight after it is switched on) replaces the table's rows with the Drawing Register's - every sheet in tab order, then the Project Specification - and touches nothing else. Between syncs the table is the statement's own.",
+
+        "DrawingSchedule__Label": "Drawing Schedule",
+        "DrawingSchedule__LabelNote": "What the Standard Sections menu calls it.",
+
+        "DrawingSchedule__NewTitle": "Drawing Schedule",
+        "DrawingSchedule__NewText": [
+            "The drawings listed below accompany this statement."
+        ],
+        "DrawingSchedule__NewTitleNote": "The heading and the words a new schedule starts with. They are the statement's own from then on: retitle it 'Pre-Application Drawing Pack' or anything else in the card's Edit box, and a sync never changes them. The heading is also the section's line in the Contents.",
+
+        "DrawingSchedule__Columns": [
+            { "Key": "code",     "Heading": "Drawing", "Align": "left" },
+            { "Key": "name",     "Heading": "Title",   "Align": "left" },
+            { "Key": "scale",    "Heading": "Scale",   "Align": "left" },
+            { "Key": "size",     "Heading": "Size",    "Align": "left" },
+            { "Key": "revision", "Heading": "Rev",     "Align": "left" }
+        ],
+        "DrawingSchedule__ColumnsNote": "The table's columns, left to right. Key is what each column shows from the register: code (the document code, RB05_T01_D01), name (the sheet's name), label (its tab label, 'D01 - Project Introduction'), scale, size (ISO A2), scaleAndSize ('1:100, ISO A2' in one column), revision (A), status, phase (T01) or drawingNo (D01). Heading is the column's heading; a sync keeps a heading row the writer retitled as long as it still has one heading per column here. Align is left, centre or right.",
+
+        "DrawingSchedule__IncludeSpecification": true,
+        "DrawingSchedule__SpecificationTitle": "Project Specification",
+        "DrawingSchedule__SpecificationSize": "ISO A4",
+        "DrawingSchedule__SpecificationNote": "The Project Specification is listed under the drawings when it holds at least one note: its document number (RB05_SPEC, or whatever number was typed in its bar), this title, this size, and its issued revision. The coded notes on the drawings are consolidated there, so a reader needs to know it is part of the pack. Set IncludeSpecification to false to list drawings only.",
+
+        "DrawingSchedule__CollapseScaleSuffix": true,
+        "DrawingSchedule__CollapseScaleSuffixNote": "A sheet's scale is written the way its title block prints it ('1:100 @ ISO A2'). True prints '1:100' when the row's Size already says ISO A2 - the rule the Drawing Register's PDF uses, so the two documents agree. The sheet's field is never changed.",
+
+        "DrawingSchedule__EmptyCellText": "—",
+        "DrawingSchedule__EmptyCellTextNote": "What a sync writes into a cell the register has nothing for (the specification's scale). The register's own empty-cell mark.",
+
+        "DrawingSchedule__EmptyText": "The table is empty. Press Sync on this section to fill it from the Drawing Register.",
+        "DrawingSchedule__EmptyTextNote": "Shown under a table with no rows - in the editor only; the reader, the PDF and the published page never show it.",
+
+        "DrawingSchedule__PlaceAfter": [ "BeforeStandard:DocumentFooter", "SectionsEnd", "End" ],
+        "DrawingSchedule__PlaceAfterNote": "Where it lands when it is switched on, tried in order: straight above the Document Footer, else after the divider that closes the last numbered section (the Conclusion), else at the end. Always between two major dividers, as its own section, and it can be dragged to another section boundary afterwards.",
+
+        "DrawingSchedule__FallbackText": "Standard Section: Drawing Schedule."
+    },
+
+    "StatementStandard__DocumentFooter__Config": {
+        "DocumentFooter__Description": "The end of every statement: the end-of-statement note and the copyright line, drawn as one quiet row under the last major divider - the note to the left, the copyright to the right, 8pt, in the grey the house footer has always shown. The two lines live INSIDE the marker as fields ('End Note: ...', 'Copyright: ...'), so each statement says its own. It is always the last thing in the file, and anything switched on later lands above it. It replaces the two hand-written <h6> lines of the house template, which on RB05 had come apart around the drawing pack, sat with no divider over the copyright, and asked for a colour through 'font-color' - not a CSS property, so it was never drawn. Adam, 29-Sep-2026: 'The footer doesn't seem correct at all.'",
+
+        "DocumentFooter__Label": "Document Footer",
+
+        "DocumentFooter__NewFields": [
+            "End Note: Note To Reader : End Of Statement",
+            "Copyright: © {Year} Noble Architecture"
+        ],
+        "DocumentFooter__NewFieldsNote": "What a statement with no footer of its own is given when the section is switched on; {Year} becomes the year it is switched on, and stays that year. Switched on over the house footer, it takes over the copyright line at the end of the file and an end-of-statement note directly above it instead, words and all. Edit the card's lines to change either; take a line out to leave it off.",
+
+        "DocumentFooter__FallbackText": "Standard Section: Document Footer."
+    },
+
+    "StatementStandard__FinishesComparison__Config": {
+        "FinishesComparison__Description": "The existing-versus-proposed materials table (the design and access statement's 'Material Specification Comparison'), drawn element by element instead of in three narrow columns. Adam, 29-Sep-2026, over RB05's table: 'a table like this doesn't really cut it ... it's not fit for it. We need a better way.' The words stay the writer's own markdown table, held INSIDE the marker one row a line, and are drawn fresh every time: each element's name down the left, its existing finish (small, grey) over its proposed one, each labelled and almost the width of the page; NEW and MATCHES EXISTING tags under the name; every [TO CONFIRM: ...] lifted out of its sentence and set under it as a note; a row with only its first cell filled is a group heading (Walls, Roofs ...); a column headed Status tags each element in the writer's words; any other extra column is one more labelled line. It sits INSIDE a section, under the writer's own '#### N.N |' heading, so the Contents and the numbering are untouched. Switched on, it takes over the first table whose headings read as a comparison (an element column, an existing column, a proposed column), in place; switched off, it writes that table back in the house form.",
+
+        "FinishesComparison__Label": "Finishes Comparison",
+        "FinishesComparison__LabelNote": "What the Standard Sections menu calls it.",
+
+        "FinishesComparison__ExistingLabel": "Existing",
+        "FinishesComparison__ProposedLabel": "Proposed",
+        "FinishesComparison__ConfirmLabel": "To confirm",
+        "FinishesComparison__LabelsNote": "The small capitals in front of each line, and in front of each lifted [TO CONFIRM] note. The strip over the list prints the table's own headings ('Existing Dwelling', 'Proposed Replacement'); these short labels stay the same on every job so a reader never has to decode them.",
+
+        "FinishesComparison__NewTagText": "New",
+        "FinishesComparison__MatchTagText": "Matches existing",
+        "FinishesComparison__AutoTags": true,
+        "FinishesComparison__NoneWords": [ "none", "not applicable", "n/a", "na", "nil", "not present", "no existing", "-", "—", "–" ],
+        "FinishesComparison__MatchPattern": "\\b(match|matches|matching|matched)\\b[^.;]*?\\bexisting\\b",
+        "FinishesComparison__TagsNote": "With AutoTags on, an element whose existing cell is one of NoneWords (or empty) is tagged NEW and its empty existing line is left out; one whose proposal matches MatchPattern within a clause ('to strictly match existing', 'identically match the existing profile'), and is not negated ('does not match'), or repeats the existing words exactly, is tagged MATCHES EXISTING. A table column headed Status (or Change) overrides both, row by row, with the writer's own word: New, Matches Existing, Retained, Replaced or anything else.",
+
+        "FinishesComparison__NewHeadings": [ "Building Element", "Existing Materials", "Proposed Materials" ],
+        "FinishesComparison__NewRows": [
+            [ "**External Walls**",  "[TO CONFIRM: existing walls]",           "[TO CONFIRM: proposed walls]" ],
+            [ "**Roof Covering**",   "[TO CONFIRM: existing roof covering]",   "[TO CONFIRM: proposed roof covering]" ],
+            [ "**Windows**",         "[TO CONFIRM: existing windows]",         "[TO CONFIRM: proposed windows]" ],
+            [ "**External Doors**",  "[TO CONFIRM: existing doors]",           "[TO CONFIRM: proposed doors]" ],
+            [ "**Rainwater Goods**", "[TO CONFIRM: existing rainwater goods]", "[TO CONFIRM: proposed rainwater goods]" ]
+        ],
+        "FinishesComparison__NewRowsNote": "What a comparison starts with when the statement has no table for it to take over. The headings are the design and access statement skill's; the rows follow its top-down order. Replace each [TO CONFIRM] in the card's Edit box.",
+
+        "FinishesComparison__HouseWidthsMm": [ 30, 60 ],
+        "FinishesComparison__HouseWidthsMmNote": "Switched off, the comparison is written back as the house table: the first two headings in inline-block spans of these widths (the skill's 30 mm and 60 mm), every other heading padded to sixty characters, separators of a colon and fifty-nine dashes. RB05's table comes back byte for byte.",
+
+        "FinishesComparison__EmptyText": "The comparison has no rows yet. Press Edit and add one table row per building element: | **Element** | existing | proposed |.",
+        "FinishesComparison__EmptyTextNote": "Shown under a comparison with no rows - in the editor only; the reader, the PDF and the published page never show it.",
+
+        "FinishesComparison__PlaceAfter": [ "Caret" ],
+        "FinishesComparison__PlaceAfterNote": "Where it lands when it is switched on and there is no comparison table to take over: under the block the caret is in (put the caret on the '#### N.N |' heading you want it under, then switch it on). With no caret in the statement it falls back to the registry's default, just above the first numbered section. It does not move with a Move handle: it is part of a section, not a section.",
+
+        "FinishesComparison__FallbackText": "Standard Section: Finishes Comparison."
     }
 }

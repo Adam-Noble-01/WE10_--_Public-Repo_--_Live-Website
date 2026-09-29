@@ -792,6 +792,45 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8979
+    },
+    {
+      "name": "tv-stmt-sched",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_statement_server_on_d.py",
+        "8849"
+      ],
+      "port": 8849
+    },
+    {
+      "name": "tv-finishes",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_statement_server_on_d.py",
+        "8856"
+      ],
+      "port": 8856
+    },
+    {
+      "name": "tv-webreader",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8919",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8919,
+      "url": "http://reader.localhost:8919"
+    },
+    {
+      "name": "tv-stmt-publish",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/tv_tabnames_nocache_server.py",
+        "8864",
+        "D:/WE10_--_Public-Repo_--_Live-Website"
+      ],
+      "port": 8864
     }
   ]
 }

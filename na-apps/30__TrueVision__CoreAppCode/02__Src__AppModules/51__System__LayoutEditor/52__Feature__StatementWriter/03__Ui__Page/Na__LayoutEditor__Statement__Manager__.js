@@ -27,11 +27,15 @@
 //   rather than adopted. A folder can appear because it was written by hand,
 //   restored from a backup, or brought over from another machine, and none of
 //   those are the app's to decide about.
+// - AUTHORS ONLY. The page builds this sheet only where the session may
+//   author, so the live web viewer never has it. Should it ever be built for
+//   a reader, it still draws nothing but Open: no Rename, no Delete, no file
+//   path, no folder found on disk, no new statement.
 //
 // INTEGRATION:
 // - Built by Na__LayoutEditor__Statement__Page__ into its root, and shown by
-//   the Manage button. Every change goes through
-//   Na__LayoutEditor__Statement__Data__.
+//   the Manage button - both only where the session may author. Every change
+//   goes through Na__LayoutEditor__Statement__Data__.
 //
 // -----------------------------------------------------------------------------
 //
@@ -42,6 +46,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - NOTHING HERE FOR A READER (TrueVision3D v2.169.0). The live web viewer
+//   showed this sheet on a phone with Rename and Delete on every statement.
+//   The data refused both off an authoring session, so nothing could change,
+//   but they were offered - Adam: "This should not be visible whatsoever."
+//   The page no longer builds the sheet for a reader, and the rows draw
+//   Rename, Delete and the file path, and the found-on-disk list is drawn,
+//   only for an author.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -117,18 +130,23 @@
 
     // FUNCTION | One Statement's Row
     // ------------------------------------------------------------
-    function Na__LeStmtMgr__Row(record, openId) {
+    // Rename, Delete and where the file lives belong to an author. A reader's
+    // row, should one ever be drawn, is the title and Open.
+    // ------------------------------------------------------------
+    function Na__LeStmtMgr__Row(record, openId, editable) {
         const row = Na__LeStmtMgr__El('div', 'na-le-stmt__manager-row' + (record.Doc__Id === openId ? ' is-open' : ''));
 
         const name = Na__LeStmtMgr__El('div', 'na-le-stmt__manager-name');
         name.appendChild(Na__LeStmtMgr__El('span', 'na-le-stmt__manager-label', record.Doc__Title));
-        name.appendChild(Na__LeStmtMgr__El('span', 'na-le-stmt__manager-path', record.Doc__Folder + '  /  ' + record.Doc__File));
+        if (editable) name.appendChild(Na__LeStmtMgr__El('span', 'na-le-stmt__manager-path', record.Doc__Folder + '  /  ' + record.Doc__File));
         row.appendChild(name);
 
         row.appendChild(Na__LeStmtMgr__Button('Open', 'na-le-btn--small', async () => {
             Na__LeStmtMgr__Hide();
             if (typeof Na__LeStmtMgr__Options.onOpen === 'function') await Na__LeStmtMgr__Options.onOpen(record.Doc__Id);
         }));
+
+        if (!editable) return row;
 
         row.appendChild(Na__LeStmtMgr__Button('Rename', 'na-le-btn--small', async () => {
             Na__LeStmtMgr__Rename(record, row);
@@ -231,11 +249,12 @@
         if (!rows.length) {
             list.appendChild(Na__LeStmtMgr__El('div', 'na-le-stmt__manager-hint', 'This project has no statements yet.'));
         }
-        for (const record of rows) list.appendChild(Na__LeStmtMgr__Row(record, state.openId));
+        for (const record of rows) list.appendChild(Na__LeStmtMgr__Row(record, state.openId, state.editable));
         Na__LeStmtMgr__Card.appendChild(list);
 
-        // FOUND ON DISK | Offered, never adopted without being asked
-        if (state.unknown && state.unknown.length) {
+        // FOUND ON DISK | Offered, never adopted without being asked - and
+        // only to an author: a reader has no disk here to find anything on.
+        if (state.editable && state.unknown && state.unknown.length) {
             Na__LeStmtMgr__Card.appendChild(Na__LeStmtMgr__El('h2', 'na-le-stmt__manager-title', 'Found in the project folder'));
             Na__LeStmtMgr__Card.appendChild(Na__LeStmtMgr__El('p', 'na-le-stmt__manager-hint',
                 'These folders hold a statement this project\'s list has never heard of.'));

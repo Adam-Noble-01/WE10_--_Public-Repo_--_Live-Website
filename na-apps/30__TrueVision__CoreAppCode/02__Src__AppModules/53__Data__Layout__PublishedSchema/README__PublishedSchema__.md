@@ -86,3 +86,14 @@ that order. Freeing the two numbers on 23-Sep-2026 moved `52__System__SitePlanDa
 `54__Feature__ColourPalette` was left at root deliberately: it is imported by
 `43__System__PlanAnnotations` as well as by the editor, so it is a shared UI utility and
 does not belong inside either.
+
+## The share link record (v2.166.0)
+
+`Files__ShareLinks` / `Na__PubSchema__ShareLinksPath()` name
+`PublishedDocuments__ShareLinks__.json`, beside the index: every document of the project a
+person can be sent, with its Share link and what the link opens. It is written by
+`51__System__LayoutEditor/66__Feature__DocumentSharing` (not the publisher's own code), and
+the reader in `52` never asks for it. The example folder holds one, and
+`Na__Test__PublishedSchema__` region 6A checks it. Adding the name did NOT bump
+`Version__Schema`: no reader of schema 1 reads it, and nothing a reader of schema 1 reads
+changed.

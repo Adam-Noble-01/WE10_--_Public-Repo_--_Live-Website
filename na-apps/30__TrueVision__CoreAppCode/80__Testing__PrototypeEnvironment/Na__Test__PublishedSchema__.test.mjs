@@ -30,7 +30,7 @@
 // DEVELOPMENT LOG:
 // 29-Sep-2026 - Version 1.1.0
 // - Region 6A: the share link record (PublishedDocuments__ShareLinks__.json,
-//   TrueVision v2.165.0) - every drawing the index names has an entry keyed by
+//   TrueVision v2.166.0) - every drawing the index names has an entry keyed by
 //   its sheet id, the specification and the register are listed, every address
 //   is the resolver's pattern filled in, and no entry claims a publication
 //   state. The fallback's file name agrees with the document's.
@@ -560,7 +560,7 @@
 
 
 // -----------------------------------------------------------------------------
-// REGION | 6A. The Share Link Record (TrueVision v2.165.0)
+// REGION | 6A. The Share Link Record (TrueVision v2.166.0)
 // -----------------------------------------------------------------------------
 //
 // Written by 51__System__LayoutEditor/66__Feature__DocumentSharing just before

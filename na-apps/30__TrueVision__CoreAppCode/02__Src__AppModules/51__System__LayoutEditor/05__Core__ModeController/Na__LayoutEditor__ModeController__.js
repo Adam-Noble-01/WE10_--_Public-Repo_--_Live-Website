@@ -50,7 +50,7 @@
 // 29-Sep-2026 - Version 1.32.0
 // - OpenRegister and OpenStatements take an optional options object and hand
 //   it to the page they show: a shared link (66__Feature__DocumentSharing,
-//   TrueVision3D v2.165.0) opens the register or one named statement in its
+//   TrueVision3D v2.166.0) opens the register or one named statement in its
 //   Read view. The tabs, the dock and every other caller pass none, and
 //   behave exactly as before.
 //

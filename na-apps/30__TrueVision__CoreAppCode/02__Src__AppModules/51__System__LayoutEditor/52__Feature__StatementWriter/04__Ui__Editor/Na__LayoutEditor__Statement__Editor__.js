@@ -49,6 +49,23 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.4.0 (TrueVision3D v2.168.0)
+// - ToggleStandard tells the registry where the caret is (CaretLine: the
+//   line the caret's block ends on), so a section placed 'Caret' - the
+//   Finishes Comparison, when there is no table for it to take over - lands
+//   under the heading or paragraph the writer was in.
+//
+// 29-Sep-2026 - Version 1.3.0 (TrueVision3D v2.167.0)
+// - SyncStandard: a standard section that syncs (the Drawing Schedule) is
+//   written from what its source reads - the Drawing Register - when its
+//   card's Sync is pressed, and straight after it is switched on. The source
+//   is read FIRST and the page after, so nothing typed during the wait is
+//   lost; a table that already has rows is asked about first, in the
+//   section's own words (what changes, row by row); nothing is written when
+//   nothing would change. Build takes onNotice for what it has to say.
+// - The Contents follows a standard section's own heading as well as the
+//   document's (a retitled Drawing Schedule).
+//
 // 29-Sep-2026 - Version 1.2.0
 // - A dropped picture is written as one <figure> holding the picture and its
 //   title, not a picture and a caption paragraph faked into place with a
@@ -92,9 +109,11 @@
         Na__LeStmtCard__Store,
         Na__LeStmtCard__FigureHtml
     } from './Na__LayoutEditor__Statement__Editor__Cards__.js';
-    import { Na__LeStmtStd__Present, Na__LeStmtStd__InsertInto, Na__LeStmtStd__RemoveFrom, Na__LeStmtStd__SetDocumentSource, Na__LeStmtStd__DependsOnDocument } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
+    import { Na__LeStmtStd__Present, Na__LeStmtStd__InsertInto, Na__LeStmtStd__RemoveFrom, Na__LeStmtStd__SetDocumentSource, Na__LeStmtStd__DependsOnDocument,
+             Na__LeStmtStd__List, Na__LeStmtStd__CanSync, Na__LeStmtStd__Fetch, Na__LeStmtStd__ApplySync } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
     import { Na__LeStmt__GetOpen, Na__LeStmt__GetTree, Na__LeStmt__ImageBase } from '../01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
     import { Na__LeStmtImg__Apply } from '../01__Core__Data/Na__LayoutEditor__Statement__Images__.js';
+    import { Na__AppUtils__ConfirmDialog__Show } from '../../../03__AppUtils/Na__AppUtils__ConfirmDialog.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -113,6 +132,8 @@
     let Na__LeStmtEd__Showing = 'page';                                         // <-- 'page' or 'source'
     let Na__LeStmtEd__Mono    = false;
     let Na__LeStmtEd__Quiet   = false;                                          // <-- True while this module is the one changing the DOM
+    let Na__LeStmtEd__OnNotice = null;                                          // <-- (message, isError): the page's toast
+    let Na__LeStmtEd__Syncing  = false;                                         // <-- One sync at a time
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -140,8 +161,19 @@
     function Na__LeStmtEd__CardOptions() {
         return {
             onChanged   : () => Na__LeStmtEd__Changed(),
-            onSwitchOff : (id) => Na__LeStmtEd__ToggleStandard(id)
+            onSwitchOff : (id) => Na__LeStmtEd__ToggleStandard(id),
+            onSync      : (id) => { void Na__LeStmtEd__SyncStandard(id); }
         };
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Say Something to the Person
+    // ------------------------------------------------------------
+    function Na__LeStmtEd__Notice(message, isError) {
+        if (!message) return;
+        if (typeof Na__LeStmtEd__OnNotice === 'function') Na__LeStmtEd__OnNotice(message, !!isError);
+        else console.log('[TrueVision3D] Statement Writer: ' + message);
     }
     // ------------------------------------------------------------
 
@@ -150,7 +182,9 @@
     // ------------------------------------------------------------
     // The Contents is drawn from the headings, so a heading typed, renamed or
     // renumbered has to reach it. Once the typing pauses, and only when the
-    // headings have actually changed, every such section is drawn again.
+    // headings have actually changed, every such section is drawn again. A
+    // standard section counts with the heading it draws, so a Drawing
+    // Schedule retitled in its Edit box reaches the Contents too.
     // ------------------------------------------------------------
     let Na__LeStmtEd__FollowTimer = 0;
     let Na__LeStmtEd__HeadingKey  = '';
@@ -158,9 +192,13 @@
         clearTimeout(Na__LeStmtEd__FollowTimer);
         Na__LeStmtEd__FollowTimer = setTimeout(() => {
             if (!Na__LeStmtEd__Paper) return;
+            const drawnHeading = (el) => {
+                const heading = el.querySelector('.na-le-stmt-frozen__body h1, .na-le-stmt-frozen__body h2, .na-le-stmt-frozen__body h3');
+                return heading ? '=' + heading.textContent : '';
+            };
             const key = Array.from(Na__LeStmtEd__Paper.children)
                 .filter((el) => /^H[1-6]$/.test(el.tagName) || el.classList.contains('na-le-stmt-frozen--standard'))
-                .map((el) => el.tagName + ':' + (el.getAttribute('data-na-stmt-standard') || el.textContent)).join('|');
+                .map((el) => el.tagName + ':' + (el.getAttribute('data-na-stmt-standard') ? el.getAttribute('data-na-stmt-standard') + drawnHeading(el) : el.textContent)).join('|');
             if (key === Na__LeStmtEd__HeadingKey) return;
             Na__LeStmtEd__HeadingKey = key;
             Na__LeStmtEd__RepaintStandard(true);
@@ -188,11 +226,13 @@
 
     // FUNCTION | Build the Writing Surface Into a Host
     // ------------------------------------------------------------
-    // options: { onChange } - handed the whole markdown whenever it changes.
+    // options: { onChange, onNotice } - onChange is handed the whole markdown
+    // whenever it changes; onNotice(message, isError) says what a sync did.
     // ------------------------------------------------------------
     function Na__LeStmtEd__Build(host, options) {
         const opts = options || {};
         Na__LeStmtEd__OnChange = (typeof opts.onChange === 'function') ? opts.onChange : null;
+        Na__LeStmtEd__OnNotice = (typeof opts.onNotice === 'function') ? opts.onNotice : null;
 
         Na__LeStmtEd__Root = document.createElement('div');
         Na__LeStmtEd__Root.className = 'na-le-stmt__sheet';
@@ -329,6 +369,25 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | The Line the Caret's Block Ends On (null with no caret)
+    // ------------------------------------------------------------
+    // The block the typing rules mark is-caret keeps the mark while a menu
+    // has the pointer (the selection handler ignores anything outside the
+    // page), so this is still the writer's place when a menu row is picked.
+    // Counted by writing out the page up to and including that block, which
+    // is exactly how the whole page is written: the registry finds the same
+    // line in the markdown it is handed.
+    // ------------------------------------------------------------
+    function Na__LeStmtEd__CaretLine() {
+        if (!Na__LeStmtEd__Paper) return null;
+        const blocks = Array.from(Na__LeStmtEd__Paper.children);
+        const at     = blocks.findIndex((element) => element.classList && element.classList.contains('is-caret'));
+        if (at === -1) return null;
+        return Na__LeStmtSer__FromRoot({ children : blocks.slice(0, at + 1) }).split('\n').length;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Switch a Standard Section On or Off
     // ------------------------------------------------------------
     // The rule for where a section lands is the registry's, applied to the
@@ -346,7 +405,7 @@
 
         const before = Na__LeStmtEd__GetMarkdown();
         const wasOn  = Na__LeStmtStd__Present(before).includes(id);
-        const after  = wasOn ? Na__LeStmtStd__RemoveFrom(before, id) : Na__LeStmtStd__InsertInto(before, id);
+        const after  = wasOn ? Na__LeStmtStd__RemoveFrom(before, id) : Na__LeStmtStd__InsertInto(before, id, { CaretLine : Na__LeStmtEd__CaretLine() });
         if (after === before) return { ok : false, on : wasOn, reason : 'Nothing changed.' };
 
         const scroller = Na__LeStmtEd__Scroller();
@@ -363,8 +422,85 @@
                 setTimeout(() => card.classList.remove('is-landed'), 1200);
                 card.scrollIntoView({ block : 'center' });
             }
+            if (Na__LeStmtStd__CanSync(id)) void Na__LeStmtEd__SyncStandard(id);   // <-- A new Drawing Schedule fills itself from the register straight away
         }
         return { ok : true, on : !wasOn, reason : '' };
+    }
+    // ------------------------------------------------------------
+
+
+    // FUNCTION | Sync a Standard Section From What It Copies
+    // ------------------------------------------------------------
+    // The Drawing Schedule copies the Drawing Register; its card's Sync
+    // button, and switching it on, come here.
+    // - THE SOURCE IS READ FIRST AND THE PAGE AFTER, so anything typed while
+    //   the register was being read is part of what is written back.
+    // - A TABLE THAT ALREADY HAS ROWS IS ASKED ABOUT FIRST, in the section's
+    //   own words: which rows change, which are added, which go. Anything
+    //   typed while the question stands is kept the same way.
+    // - NOTHING IS WRITTEN WHEN NOTHING WOULD CHANGE - not even the stamp -
+    //   and it is said so.
+    // - The page is drawn again from the result and the change reported like
+    //   any other edit, so the autosave and the lockstep see it as the app's.
+    //
+    // Returns { ok, changed, cancelled, reason }.
+    // ------------------------------------------------------------
+    async function Na__LeStmtEd__SyncStandard(id) {
+        const section = Na__LeStmtStd__List().find((row) => row.Id === id);
+        const label   = section ? section.Label : 'The section';
+        const inSource = () => Na__LeStmtEd__Showing === 'source';
+        if (!Na__LeStmtEd__Paper) return { ok : false, reason : 'The statement is not open.' };
+        if (inSource())           { Na__LeStmtEd__Notice('Leave the raw markdown view to sync the ' + label + '.', true); return { ok : false }; }
+        if (Na__LeStmtEd__Syncing) return { ok : false, reason : 'A sync is already running.' };
+
+        Na__LeStmtEd__Syncing = true;
+        try {
+            const data = await Na__LeStmtStd__Fetch(id);
+            if (!data.ok) { Na__LeStmtEd__Notice('The ' + label + ' was not synced. ' + data.reason, true); return data; }
+            if (inSource()) { Na__LeStmtEd__Notice('Leave the raw markdown view to sync the ' + label + '.', true); return { ok : false }; }
+            const source = data.Source || 'source';
+
+            let before = Na__LeStmtEd__GetMarkdown();
+            let result = Na__LeStmtStd__ApplySync(before, id, data);
+            if (!result.ok)      { Na__LeStmtEd__Notice(result.reason, true); return result; }
+            if (!result.changed) { Na__LeStmtEd__Notice(result.text, false); return result; }
+
+            if (result.summary && result.summary.HadRows) {
+                const yes = await Na__AppUtils__ConfirmDialog__Show({
+                    title         : 'Sync the ' + label + ' with the ' + source + '?',
+                    message       : result.text,
+                    confirmLabel  : 'Sync',
+                    cancelLabel   : 'Keep the table as it is',
+                    isDestructive : false
+                });
+                if (!yes) return { ok : false, cancelled : true };
+                if (inSource()) { Na__LeStmtEd__Notice('Leave the raw markdown view to sync the ' + label + '.', true); return { ok : false }; }
+                const now = Na__LeStmtEd__GetMarkdown();                        // <-- Typing while the question stood is kept
+                if (now !== before) {
+                    before = now;
+                    result = Na__LeStmtStd__ApplySync(now, id, data);
+                    if (!result.ok || !result.changed) { Na__LeStmtEd__Notice(result.ok ? result.text : result.reason, !result.ok); return result; }
+                }
+            }
+
+            const scroller = Na__LeStmtEd__Scroller();
+            const top      = scroller.scrollTop;
+            Na__LeStmtEd__SetMarkdown(result.markdown);
+            Na__LeStmtEd__Changed();
+            scroller.scrollTop = top;
+
+            const card = Na__LeStmtEd__Paper.querySelector('.na-le-stmt-frozen--standard[data-na-stmt-standard="' + id + '"]');
+            if (card) {
+                for (const other of Array.from(Na__LeStmtEd__Paper.querySelectorAll('.na-le-stmt-frozen.is-selected'))) other.classList.remove('is-selected');
+                card.classList.add('is-selected', 'is-landed');
+                setTimeout(() => card.classList.remove('is-landed'), 1200);
+            }
+            const count = (result.summary && result.summary.Count) || 0;
+            Na__LeStmtEd__Notice('The ' + label + ' was synced with the ' + source + ': ' + count + (count === 1 ? ' row' : ' rows') + '. It stays as it is now until the next Sync.', false);
+            return { ok : true, changed : true };
+        } finally {
+            Na__LeStmtEd__Syncing = false;
+        }
     }
     // ------------------------------------------------------------
 
@@ -539,6 +675,7 @@
         Na__LeStmtEd__IsMono,
         Na__LeStmtEd__StandardPresent,
         Na__LeStmtEd__ToggleStandard,
+        Na__LeStmtEd__SyncStandard,
         Na__LeStmtEd__RepaintStandard
     };
     // ------------------------------------------------------------

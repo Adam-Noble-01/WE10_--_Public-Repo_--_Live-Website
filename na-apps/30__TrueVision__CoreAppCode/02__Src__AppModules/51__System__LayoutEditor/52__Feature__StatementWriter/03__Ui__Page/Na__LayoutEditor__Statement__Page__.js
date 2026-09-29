@@ -17,7 +17,9 @@
 //   planning officer or this app's own PDF sees it. Edit is the writing
 //   surface, and it is NOT BUILT AT ALL where this session may not author -
 //   not disabled, not hidden: not built. A visitor gets a reader, which is
-//   what they came for.
+//   what they came for. The same goes for the document manager (Manage:
+//   create, rename, delete): a reader moves between the PUBLISHED statements
+//   with the box on the bar, on a phone as well, and with nothing else.
 // - WHAT THE BAR SAYS, and why each thing is on it. Which statement is open
 //   and how many there are. Whether what is on screen has reached the disk
 //   and whether it has reached the cloud, because those are different
@@ -53,10 +55,29 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.6.0
+// - MANAGE IS FOR AUTHORS ONLY (TrueVision3D v2.169.0). The live web viewer
+//   built the Manage button and its sheet for everyone, and on a phone -
+//   where the box is hidden - it was the only way between statements, so a
+//   visitor was shown Rename and Delete on every statement. Neither could
+//   change anything there (the data refuses both off an authoring session),
+//   but neither should ever have been offered. Now the button and the sheet
+//   are built only where the session may author; a reader switches with the
+//   box, which stays on the bar on a phone (the root carries is-reader), and
+//   the box lists only the published statements.
+//
+// 29-Sep-2026 - Version 1.5.0
+// - THE DRAWING SCHEDULE CAN SYNC HERE (TrueVision3D v2.167.0): importing
+//   ...Standard__DrawingSchedule__Live__ registers the Drawing Register as
+//   its source, so its card has a Sync button in this app and nowhere else.
+//   The editor's notices (what a sync did) come to this page's toast.
+// - A section that cannot move (the header, the footer) is no longer told
+//   to "drag it by its Move button" when it is switched on.
+//
 // 29-Sep-2026 - Version 1.4.0
 // - SHARE at the end of the bar, in Read only (a reader is always on Read):
 //   a link that opens the statement on screen, read-only, on any device
-//   (66__Feature__DocumentSharing, TrueVision3D v2.165.0). Show takes
+//   (66__Feature__DocumentSharing, TrueVision3D v2.166.0). Show takes
 //   { statementId, view : 'read' }, which is how a shared link lands on one
 //   statement in its Read view.
 //
@@ -133,6 +154,7 @@
     // renderer, so every surface on this page draws a marker as its section.
     // ------------------------------------------------------------
     import { Na__LeStmtStd__READY_EVENT, Na__LeStmtStd__Ready, Na__LeStmtStd__List } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
+    import { Na__LeStmtSchedLive__Read } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__DrawingSchedule__Live__.js';   // <-- Imported for its registration: the Drawing Register becomes the Drawing Schedule's Sync source
     import { Na__ProjectQr__READY_EVENT, Na__ProjectQr__Ready } from '../../53__Feature__ProjectQrCode/Na__ProjectQr__Symbol__.js';
     import { Na__ContextMenu__Ui__Open } from '../../../27__System__ContextMenuSystem/Na__ContextMenuSystem__Ui__MenuRenderer__.js';
     import { Na__LeShareUi__Open } from '../../66__Feature__DocumentSharing/Na__LayoutEditor__Share__Button__.js';   // <-- Share: the link to the open statement's Read view
@@ -261,7 +283,9 @@
         heading.appendChild(Na__LeStmtPage__Summary);
         bar.appendChild(heading);
 
-        // WHICH STATEMENT | A box rather than another row of tabs
+        // WHICH STATEMENT | A box rather than another row of tabs. For a reader
+        // it is the ONLY way between statements, and it lists only the
+        // published ones (the data module decides that).
         Na__LeStmtPage__Picker = Na__LeStmtPage__El('select', 'na-le-stmt__picker');
         Na__LeStmtPage__Picker.setAttribute('aria-label', 'Which statement');
         Na__LeStmtPage__Picker.addEventListener('change', () => {
@@ -269,9 +293,13 @@
         });
         bar.appendChild(Na__LeStmtPage__Picker);
 
-        bar.appendChild(Na__LeStmtPage__Button('Manage', 'na-le-btn--small', () => {
-            if (Na__LeStmtMgr__IsShowing()) Na__LeStmtMgr__Hide(); else Na__LeStmtMgr__Show();
-        }));
+        // MANAGE | Authors only: create, rename and delete. Never built for a
+        // reader - not disabled, not hidden: not built.
+        if (Na__LeStmtPage__Editable) {
+            bar.appendChild(Na__LeStmtPage__Button('Manage', 'na-le-btn--small', () => {
+                if (Na__LeStmtMgr__IsShowing()) Na__LeStmtMgr__Hide(); else Na__LeStmtMgr__Show();
+            }));
+        }
 
         // EDIT AND READ | Only where this session may author
         if (Na__LeStmtPage__Editable) {
@@ -351,7 +379,7 @@
             action   : () => {
                 const result = Na__LeStmtEd__ToggleStandard(section.Id);
                 if (!result.ok) Na__LeStmtPage__Toast(result.reason || 'Nothing changed.', true);
-                else Na__LeStmtPage__Toast(section.Label + (result.on ? ' switched on. Drag it by its Move button to put it somewhere else.' : ' switched off.'), false);
+                else Na__LeStmtPage__Toast(section.Label + (result.on ? ' switched on.' + (section.Movable ? ' Drag it by its Move button to put it somewhere else.' : '') : ' switched off.'), false);
                 Na__LeStmtPage__Refresh();
             }
         }));
@@ -806,7 +834,7 @@
             document.head.appendChild(link);
         }
 
-        Na__LeStmtPage__Root = Na__LeStmtPage__El('section', 'na-le-stmt');
+        Na__LeStmtPage__Root = Na__LeStmtPage__El('section', 'na-le-stmt' + (Na__LeStmtPage__Editable ? '' : ' is-reader'));
         Na__LeStmtPage__Root.hidden = true;
         Na__LeStmtPage__Root.setAttribute('aria-label', 'Statements');
 
@@ -830,7 +858,8 @@
         readSheet.setAttribute('data-na-stmt-only', 'read');
         if (Na__LeStmtPage__Editable) {
             const editSheet = Na__LeStmtEd__Build(Na__LeStmtPage__Desk, {
-                onChange : (markdown) => { Na__LeStmt__SetText(markdown); Na__LeStmtPage__Refresh(); }
+                onChange : (markdown) => { Na__LeStmt__SetText(markdown); Na__LeStmtPage__Refresh(); },
+                onNotice : (message, isError) => Na__LeStmtPage__Toast(message, isError)   // <-- What a standard section's Sync did
             });
             editSheet.setAttribute('data-na-stmt-only', 'edit');
         }
@@ -844,10 +873,14 @@
         Na__LeStmtPage__Progress.appendChild(track);
         Na__LeStmtPage__Root.appendChild(Na__LeStmtPage__Progress);
 
-        Na__LeStmtMgr__Build(Na__LeStmtPage__Root, {
-            onOpen    : (id) => Na__LeStmtPage__OpenStatement(id),
-            onChanged : () => Na__LeStmtPage__Refresh()
-        });
+        // THE DOCUMENT MANAGER, for authors only. Its Show, Hide and IsShowing
+        // answer safely when it was never built, so nothing else asks.
+        if (Na__LeStmtPage__Editable) {
+            Na__LeStmtMgr__Build(Na__LeStmtPage__Root, {
+                onOpen    : (id) => Na__LeStmtPage__OpenStatement(id),
+                onChanged : () => Na__LeStmtPage__Refresh()
+            });
+        }
 
         host.appendChild(Na__LeStmtPage__Root);
 

@@ -65,7 +65,7 @@
 //
 // DEVELOPMENT LOG:
 // 29-Sep-2026 - Version 1.0.0
-// - Initial implementation (TrueVision3D v2.165.0).
+// - Initial implementation (TrueVision3D v2.166.0).
 //
 // =============================================================================
 
@@ -119,7 +119,7 @@
     // MODULE CONSTANTS | The Record's Own Version and the App That Wrote It
     // ------------------------------------------------------------
     const Na__LeShareMf__VERSION     = 1;                                        // <-- The shape of this file; a reader skips keys it does not know
-    const Na__LeShareMf__APP_VERSION = 'v2.165.0';                               // <-- Stamped when the caller does not hand in its own (a statement publish)
+    const Na__LeShareMf__APP_VERSION = 'v2.166.0';                               // <-- Stamped when the caller does not hand in its own (a statement publish)
     const Na__LeShareMf__SCHEMA_REF  = 'na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments';
     // ------------------------------------------------------------
 
@@ -163,7 +163,7 @@
     // FUNCTION | Load the Project's Share Link Record (once per project; never throws)
     // ------------------------------------------------------------
     // Resolves { Ok, Manifest, Reason, Url }. Ok false with a reason is the
-    // ordinary answer for a project published before v2.165.0 or never
+    // ordinary answer for a project published before v2.166.0 or never
     // published at all, and every caller carries on without it.
     // ------------------------------------------------------------
     function Na__LeShareMf__Load(force) {

@@ -23,9 +23,9 @@ Compiled 22 September 2026 for the finalisation of `RB05_T01_S01__WestFarm__PreA
 | Priority Habitat and bats | NP environmental inventory site 500 "West Beacon Farm buildings and outbuildings (Unlisted Historic Building MLE24039)": mature hedgerow boundaries; garden planting with mature trees; long driveway from Deans Lane; S & W corner mature deciduous woodland (mainly beech), Priority Habitat Deciduous Woodland (Natural England); BAP bat species include Daubentons. | Woodhouse NP p.212 (Appendix 6 inventory) | 2026-09-22 |
 | NP Figure 13 mapping | Whether inventory site 500 is mapped as a site of natural environment significance (ENV 3/ENV 4, Figures 13 and 13.1) is NOT confirmed: figures are images. | Woodhouse NP pp.34-35 | Outstanding |
 | Replacement dwelling policy | Saved policy CT/14 "Replacement Dwellings" is listed as superseded by the new Local Plan. The 2021-37 plan has no replacement-dwelling policy. | Local Plan Appendix 5, p.301 | 2026-09-22 |
-| Flood zone | NOT CHECKED. | flood-map-for-planning.service.gov.uk | Outstanding |
+| Flood zone | Flood Zone 1 across the whole red line (11.79 ha as drawn on D14). Surface water risk within the site: 1 in 30 (150-300mm) beside the south side of the existing house. FRA required (F4(2)(a) and (c)). See the 29-Sep-2026 flood risk entry at the end of this log. | flood-map-for-planning.service.gov.uk results + flood map PDFs 18__/19__ | 2026-09-29 |
 | Listed buildings / conservation area | NOT CHECKED. | Historic England NHLE; Charnwood mapping | Outstanding |
-| Tree Preservation Orders | NOT CHECKED. | Charnwood TPO register | Outstanding |
+| Tree Preservation Orders | Order LCC28 (Charnwood Forest Area TPO 1949, confirmed 13-Dec-1950). Groups G16, G17 and part of G19 on site, G18 on the boundary; 9 units within 300 m. SP24 and SP25 cross G17 and G18. See the 29-Sep-2026 TPO entry. | Charnwood web map, TPO_Units overlay | 2026-09-29 |
 | Limits to Development | Site lies outside the Woodhouse Eaves Limits to Development, which enclose the village only; NP Policy H3 treats land outside as open countryside. | Woodhouse NP Figure 4, PDF p.19 | 2026-09-22 |
 | Countryside / Charnwood Forest Regional Park | Regional Park boundary NOT CHECKED against the Local Plan Policies Map. | Charnwood Local Plan Policies Map 1 | Outstanding |
 | Beacon Hill view (NP ENV 8 view 1) | Intervisibility NOT CHECKED. | Site visit / model | Outstanding |
@@ -759,3 +759,108 @@ s.3.2: the Maplehurst sentence; three placeholders replaced by a distances table
 - s.3.4 / s.5.1: P/25/0361/2 (the access drive) is time-limited to the solar farm by its condition 8.
 - s.5.1 placeholder: P/25/0361/2 decision date is 27 June 2025 (notice read).
 - s.5.2 placeholder (nearest listed buildings): Beacon Cottage Farmhouse and Barn Range, Grade II, NHLE 1074610, about 630 m ENE.
+
+## 29 September 2026 - Flood Risk (Statement Section 9.4, Was 5.4): Flood Zone, Surface Water And The Flood Risk Assessment
+
+Adam's brief: use the Environment Agency site, clip out a flood zone map, put it in, update the flood risk section and remove "[TO CONFIRM: image required  -  constraints and flood map captures for this section.]". The section's own flood-zone placeholder was filled at the same time. The document was renumbered by another session during this work, so flood risk is now s.9.4 and the adjoining land section is s.9.5.
+
+### Site boundary used
+
+The red line of the Existing Location Plan on RB05_T01_D14 (published print `Document__Print__bfff0064c4.pdf`, 1:2500 on A1, north up) was taken from the PDF vectors. It was georeferenced by its southern vertex at the Shepshed Road / Dean's Lane junction (OSM node 10441586 = E450118.2 N315045.8) at 0.8819 m per PDF point. It was checked on Esri World Imagery in EPSG:27700: the lake, the house, the solar array and both roads fall under the D14 linework. The red line encloses two regions. The applicants' land is 11.79 ha (29.1 acres) and wraps round an excluded 6.19 ha parcel holding the two fields and the solar array. The 11.79 ha polygon (56 vertices, E/N) is in `20__EnvironmentAgency__SurfaceWater__Captures-29Sep2026__/site_polygon.json`. NB this is the drawn red line, not the Land Registry title, and s.3.3 still carries the site-area [TO CONFIRM].
+
+### Environment Agency Flood map for planning - results for that polygon (29-Sep-2026)
+
+Source: https://flood-map-for-planning.service.gov.uk/results?polygon=... (the page is saved as `results2.html` in the captures folder).
+- "This location is in flood zone 1"
+- "In your proposed development site there is a risk of flooding from: surface water"
+- "Developments in flood zone 1 that are more than 1 hectare need a flood risk assessment (FRA)." "The site you have drawn is 11.79ha."
+- Surface water: "The chance of surface water flooding at this location could be more than 3.3% (1 in 30) each year." Climate change (2061-2125): "could be 3.3% (1 in 30) each year."
+- "Your site is in flood zone 1, so it's unlikely we'll have any flood risk data for it."
+- East Midlands contact given: emdenquiries@environment-agency.gov.uk (not used).
+
+Flood map PDFs (the service's "Download flood map for this location", reference "RB05 West Beacon Farm", centre 450101/315337, created 29 Sep 2026 19:18 and 19:19): `18__EnvironmentAgency__FloodMapForPlanning__1-10000__29Sep2026__.pdf` (used as Fig 9.1, page 2 at 200 dpi) and `19__...__1-2500__...pdf`. Page 1: "Your selected location is in flood zone 1, an area with a low probability of flooding." Also: "The flood map for planning shows river and sea flooding data only."
+
+Nearest Flood Zones 2/3: measured on page 2 of the 1:10,000 PDF rendered at 300 dpi (0.847 m per pixel), from the red line to the nearest pixel of the Flood Zone 3 fill (152,156,188): 298 m. The Flood Zone 2 fringe is 290 m. It lies north east of the site, on the watercourse north of Felicity's Wood. The statement says "some 290 metres".
+
+### Surface water (present day, the service's "Surface water for planning" layers)
+
+Captured headless (Playwright, Chrome with SwiftShader) at /map?polygon=...&seg=sw,hr | sw,mr | sw,lr. The page controls were hidden for the capture; the map, the OS attribution and the logo were kept. The scale bar was redrawn from the calibration. Readings come from the service's own information panel. The panel returns the grid reference of each click, which also calibrated the captures at 4.03 CSS px per metre. The polygon was re-drawn with that calibration and lies on the service's own boundary line.
+
+| Point | E, N (as returned) | What | 1 in 30 (3.3%) | 1 in 100 (1%) | 1 in 1000 (0.1%) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| A | 450187, 315191 | South side of the existing house | 150-300mm | 150-300mm | no panel at A itself; 150-300mm at 450189, 315189 (2 m away) |
+| B | 450208, 315192 | The existing small pond | none | <150mm | <150mm |
+| C | 450229, 315192 | ~21 m east of B = SP11 position per s.7.6 | none | <150mm | <150mm |
+| - | 450197, 315180 | South of the house | - | - | <150mm |
+
+Service note, every panel: "Surface water information tells you the flood risk of the land around a building and cannot tell you if individual buildings are at risk."
+
+Point A against the layout: the red building outlines of the published D13 print (`Document__Print__dc1b511243.pdf`, 23-Sep; 1:1250, anchored at the same junction, 0.4410 m per pt) were overlaid on the calibrated capture. The 1 in 30 patch falls within the footprint of the new building group at its south-west wing, partly beyond its southern edge. The D13 print pre-dates the 29-Sep site plan round. The house position is not believed to have moved since, but this is not re-checked against the live model.
+
+### Policy relied on
+
+NPPF (August 2026) F4(2) - verbatim in this log under "Extracts added" (pond research session, read at primary source 29-Sep-2026): (a) sites of one hectare or more; (c) land the Flood Map for Planning shows at risk of flooding from any source. Both apply. No other flood policy wording was cited, and none was checked this round.
+
+### Statement changes (29-Sep-2026)
+
+s.9.4: the "still to be confirmed" sentence removed; the flood-zone placeholder replaced by five paragraphs, Fig 9.1 (`02__DocImages/04__Site__FloodRisk/Flood__FloodMapForPlanning__1-10000__.png`) and Fig 9.2 (`.../Flood__SurfaceWater__DevelopedCore__.png`, a 2 x 2 of the three likelihoods plus key and readings). s.9.5: the solar aerial renumbered Fig 9.1 -> 9.3 (caption and prose), and the "constraints and flood map captures" placeholder removed.
+
+### Open - for Adam
+
+- **Sequential test.** Built development (the new building group) sits on land the Flood Map for Planning shows at surface water risk at 1 in 30. The flood policies of the August 2026 NPPF other than F4(2) and F8 have not been read this job. Whether a sequential test is engaged "from any source" (as in the December 2024 NPPF), and the exemption where an FRA shows no built development on land at risk, must be checked against F1-F3 before the statement relies on the FRA alone.
+- **s.13.4 list of anticipated reports** does not name a flood risk assessment; s.9.4 now says one will accompany the full application.
+- **Site area.** The D14 red line gives 11.79 ha (29.1 acres), which matches the 29-acre marketing figure. s.3.3 still defers to the Land Registry title.
+- **Woodhouse NP Figure 22** (ENV 9 blue areas, s.12.2 [TO CONFIRM]) was not checked this round.
+- **General constraints map.** The removed placeholder also asked for "constraints ... captures". Only the flood maps were made.
+
+## 29 September 2026 - Tree Preservation Orders Within 300 m (Statement Section 16.3 Trees Woodland And Ecology)
+
+Adam's brief: get the local tree protection map and update the trees section with all protected trees within 300 m of the site or on the site. The document had been renumbered, so this section is now s.16.3 (Adam called it 10.3).
+
+### Source
+
+- The national planning data platform (planning.data.gov.uk: tree, tree-preservation-zone and tree-preservation-order datasets) returns nothing within 300 m. Charnwood does not publish there.
+- data.gov.uk lists "tree_preservation_orders" by Charnwood Borough Council (INSPIRE harvest of 2015) with no downloadable resource. Its harvest XML returns 404.
+- **Used: the Charnwood web map** (https://webmap.charnwood.gov.uk/webmapping/en-gb/PublicMap/Charnwood, Cadcorp WebMap / GeognoSIS), read 29-Sep-2026 by script. Overlay 22 "TPO_Units" (the protected units) and overlay 23 "Tree Preservation Orders" (flags `WML::QueryEnabled`, `AllowVectorExport`). Features came from `.../GeognoSis/Charnwood/<layer>/Sessions/<session>/Overlay/<n>/Values?n=500&start=0&bbox=E0,N0,E1,N1`, which needs the page's own `Authorization` header. Raw JSON and scripts are in `21__Charnwood__TreePreservationOrders__LCC28__WebMap-29Sep2026__/`.
+- The council's tree page says orders are held in hard copy only. The mapped units are schematic strips.
+
+### Order
+
+Overlay 23 attributes: id "LCC28", "Leicestershire County Council (Charnwood Forest Area) Tree Preservation Order 1949", "Confirmed", decision level "Leicestershire County Council". Units (overlay 22) all carry Confirmed/Effective "13/12/1950". The "Details" field reads " 279 (exc.)" for every unit, meaning unknown and not used.
+
+### Units within 300 m of the D14 red line (site polygon 11.79 ha; distances on the OS grid)
+
+| Unit | Type | Location (record) | Area | On site | Distance |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| G17 | Group | West Beacon Farm, Deans Lane, Woodhouse Eaves, Loughborough, LE12 8TE | 0.22 ha | 0.22 ha | 0 |
+| G16 | Group | Shepshed Road, Woodhouse Eaves | 0.09 ha | 0.09 ha | 0 |
+| G19 | Group | South side, Deans Lane, Woodhouse Eaves, Loughborough | 0.12 ha | 0.01 ha | 0 |
+| G18 | Group | South side, Deans Lane, Woodhouse Eaves, Loughborough | 0.09 ha | 0 (touches) | 0 |
+| G15 | Group | Shepshed Road, Woodhouse Eaves | 0.09 ha | - | 31 m |
+| G20 | Group | South side, Deans Lane | 0.11 ha | - | 72 m |
+| W11 | Woodland | Bawdon Cottage Farm, Charley Road, Ulverscroft, Loughborough, LE12 9XJ | 0.48 ha (3 parts) | - | 98 m |
+| G14 | Group | Shepshed Road, Woodhouse Eaves | 0.09 ha | - | 217 m |
+| G21 | Group | South side, Deans Lane | 0.11 ha | - | 287 m |
+
+G12 and G13 lie beyond 300 m. No ancient woodland or conservation area was found in the web map bbox. Two local wildlife sites were returned, neither within 300 m, and one listed building, 1074610 Beacon Cottage Farmhouse (see the heritage entry).
+
+### Against the proposal
+
+The current D13 excerpt `26__Proposed__SiteAccess/27__Proposed__SitePlanExcerpt__D13__SP24AndSP25__.png` (29-Sep, 20:19) was georeferenced at 5.37 px/m, north up. It was fitted on the axis-aligned SP07 parking bay (E450160.1-450173.5, N315125.3-315132.2 from the D13 print projected at 1:1250) and checked on the red-line corner at the Shepshed Road / Dean's Lane junction: predicted (520, 1077), observed (519, 1077). The site polygon laid over it matches the red line. Grey surfacing inside each unit, measured on the excerpt:
+- G17: 39 m² in two places. About 19 m² at E450209 N315117 is the existing SP24 drive; about 20 m² at E450239 N315138 is the new drive to SP25.
+- G16, G18, G19: none drawn. The plan draws no surfacing outside the red line, but both access mouths cross G18 at the lane edge.
+
+### Law and guidance relied on (read 29-Sep-2026)
+
+- Town and Country Planning (Tree Preservation) (England) Regulations 2012, reg. 14(1)(a)(vii) (legislation.gov.uk): the exception for work "so far as such work is necessary to implement a planning permission (other than an outline planning permission ...)".
+- PPG "Tree Preservation Orders and trees in conservation areas", 36-082-20140306: "The authority's consent is not required for carrying out work on trees subject to an Order so far as such work is necessary to implement a full planning permission." Also 36-026 (group category) and 36-027 (woodland: later trees also protected). Nothing was found on later trees within a group, and nothing is claimed.
+
+### Statement changes (29-Sep-2026)
+
+s.16.3: four paragraphs, a nine-row table and Fig 16.1 (`02__DocImages/05__Site__TreeProtection/Trees__TreePreservationOrders__300m__.png`, aerial panel plus D13 panel). The TPO half of the placeholder was removed; the NP Figures 13/13.1 half is kept. The section 16 figures were renumbered: flood map 16.1 -> 16.2, surface water 16.2 -> 16.3, solar 16.3 -> 16.4.
+
+### Open - for Adam
+
+- s.12.2 says of the Deans Lane woodland belt "The proposal keeps that belt". SP25 and its drive cross the protected groups G17 and G18. Consider a clause there pointing to s.16.3.
+- Obtain a copy of order LCC28 (map and schedule) from the council. The applicants' arboriculturist should use it in the BS 5837 survey.
+- Drawing notes SE13/SP24/SP25/SP12/SP22 do not mention the TPO (not changed here).

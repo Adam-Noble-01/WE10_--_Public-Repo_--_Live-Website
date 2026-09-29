@@ -58,7 +58,7 @@
 // 29-Sep-2026 - Version 1.2.0
 // - SHARE IN THE DOCK, BESIDE THE PDF, as Adam asked: a link that opens the
 //   drawing showing, read-only, on any device - the same Share box every
-//   tab's Share opens (66__Feature__DocumentSharing, TrueVision3D v2.165.0).
+//   tab's Share opens (66__Feature__DocumentSharing, TrueVision3D v2.166.0).
 //   Under the register it shares the register.
 //
 // 18-Sep-2026 - Version 1.1.0

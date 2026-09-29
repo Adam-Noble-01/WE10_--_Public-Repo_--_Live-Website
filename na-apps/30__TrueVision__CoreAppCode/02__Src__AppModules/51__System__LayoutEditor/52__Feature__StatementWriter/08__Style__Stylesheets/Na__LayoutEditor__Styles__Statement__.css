@@ -636,6 +636,18 @@
     display                            : block;
 }
 
+/* WHEN A SYNCED SECTION WAS LAST SYNCED (the Drawing Schedule, v2.167.0), on
+   its tool row beside Sync: the table is a copy, so when it was taken is the
+   one thing worth knowing about it at a glance. */
+.na-le-stmt-frozen__tools .na-le-stmt-std-synced {
+    align-self                         : center;
+    padding                            : 0 4px 0 2px;
+    color                              : #6c757d;
+    font-family                        : "Open Sans", sans-serif;
+    font-size                          : 10px;
+    white-space                        : nowrap;
+}
+
 /* THE MOVE HANDLE is a tool-row button that is held rather than clicked. */
 .na-le-stmt-frozen__tools .na-le-stmt-move__handle {
     cursor                             : grab;
@@ -1015,6 +1027,12 @@ html.na-le-stmt-is-moving * {
     .na-le-stmt__summary,
     .na-le-stmt__picker {
         display                            : none;
+    }
+
+    /* A READER KEEPS THE BOX (v2.169.0): on the web there is no Manage, so the
+       box is the only way between the published statements. */
+    .na-le-stmt.is-reader .na-le-stmt__picker {
+        display                            : inline-block;
     }
 
     .na-le-stmt__sheet {

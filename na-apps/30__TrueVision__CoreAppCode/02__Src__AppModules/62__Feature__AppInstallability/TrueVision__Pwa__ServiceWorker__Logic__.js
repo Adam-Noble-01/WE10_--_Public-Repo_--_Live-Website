@@ -34,6 +34,35 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.9.53
+// - Token 2026-09-29-02 (NOT bumped again - it is not pushed yet) also covers
+//   the Finishes Comparison (v2.168.0): a new module, ...Standard__Finishes__,
+//   imported by the cached standards registry; an optional third argument to
+//   Na__LeStmtStd__InsertInto that the editor passes; and new rules in the
+//   statement document stylesheet, which is precached. No old module imports
+//   anything new, so a half-refreshed client still links either way round.
+//
+// 29-Sep-2026 - Version 1.9.52
+// - Token BUMPED to 2026-09-29-02 for the Drawing Schedule and the Document
+//   Footer (v2.167.0). 2026-09-29-01 is live (origin/main is 55014c6), and
+//   this release adds exports to modules a warm client holds: the standard
+//   sections registry (RegisterSource, CanSync, Fetch, ApplySync, SyncedIso,
+//   EditHint) and the statement editor (SyncStandard). The new
+//   ...DrawingSchedule__Live__ module imports RegisterSource, and the cards
+//   import CanSync, SyncedIso and EditHint - against the old cached registry
+//   neither would link, and the Statement page (so the Layout Editor, which
+//   imports it) would not load until the next visit. The bump also covers
+//   anything else landed since 55014c6 and not yet pushed.
+//
+// 29-Sep-2026 - Version 1.9.51
+// - Token 2026-09-29-01 also covers the share links (v2.166.0): the new
+//   66__Feature__DocumentSharing modules, and the WebViewer, Toolbar,
+//   Register editor, specification bar, Statement page and Publisher that
+//   import them. They reached the live site in the same commit as this token
+//   (55014c6, pushed 29-Sep-2026 19:24), so a warm cache was evicted along
+//   with them. Nothing changed since then adds an import or an export, so no
+//   further bump is needed for v2.166.0.
+//
 // 29-Sep-2026 - Version 1.9.50
 // - Token 2026-09-29-01, still undeployed, also covers the statement figure
 //   titles (v2.165.0): the Statement Writer's picture menu and cards import
@@ -625,7 +654,7 @@
 
     // MODULE CONSTANTS | Cache Identifiers and Limits
     // ------------------------------------------------------------
-    const PWA_SW_VERSION_TOKEN              = '2026-09-29-01';                                                            // <-- BUMP THIS to force-evict every cache bucket
+    const PWA_SW_VERSION_TOKEN              = '2026-09-29-02';                                                            // <-- BUMP THIS to force-evict every cache bucket
     const PWA_SW_CACHE_NAME_SHELL           = `tv-shell-${PWA_SW_VERSION_TOKEN}`;                                                    // <-- App shell cache id
     const PWA_SW_CACHE_NAME_DATA            = `tv-data-${PWA_SW_VERSION_TOKEN}`;                                                     // <-- Project / config JSON cache id
     const PWA_SW_CACHE_NAME_MODELS          = `tv-models-${PWA_SW_VERSION_TOKEN}`;                                                   // <-- Model GLB cache id

@@ -40,7 +40,7 @@
 // 29-Sep-2026 - Version 1.4.0
 // - SHARE after Print, in Read only (and so in the web viewer, which is
 //   always on Read): a link that opens this specification's Read view on
-//   any device (66__Feature__DocumentSharing, TrueVision3D v2.165.0).
+//   any device (66__Feature__DocumentSharing, TrueVision3D v2.166.0).
 //
 // 29-Sep-2026 - Version 1.3.0
 // - The status says how the specification stands against its LOCAL FILE

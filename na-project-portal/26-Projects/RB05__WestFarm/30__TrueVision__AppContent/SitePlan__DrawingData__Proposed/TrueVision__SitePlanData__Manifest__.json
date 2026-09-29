@@ -3,7 +3,7 @@
   "SitePlanData__SchemaVersion": 1,
   "SitePlanData__ProjectPrefix": "RB05",
   "SitePlanData__SourceModelFile": "RB05_T01_M00__SitePlanModel__Proposed__0.4.6__.skp",
-  "SitePlanData__ExportedIso": "2026-09-29T14:36:26Z",
+  "SitePlanData__ExportedIso": "2026-09-29T19:10:38Z",
   "SitePlanData__ExporterVersion": "1.4.1",
   "SitePlanData__TagsSsotVersion": "2.11.0",
   "SitePlanData__Units": "metres",
@@ -188,7 +188,7 @@
       "Layer__ZIndexFill": null,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__OsMappingMainRoads__LineworkModel__.glb",
       "Layer__FillFile": null,
-      "Layer__SegmentCount": 622,
+      "Layer__SegmentCount": 645,
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
         "MinX": -996876.3,
@@ -230,8 +230,8 @@
       "Layer__ZIndexFill": 2,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__HardSurfaces__LineworkModel__.glb",
       "Layer__FillFile": "RB05__TrueVision__SitePlan__HardSurfaces__FillModel__.glb",
-      "Layer__SegmentCount": 1415,
-      "Layer__RingCount": 50,
+      "Layer__SegmentCount": 1417,
+      "Layer__RingCount": 51,
       "Layer__BoundsMm": {
         "MinX": -498589.6,
         "MinZ": -479398.9,
@@ -310,12 +310,12 @@
       "Layer__ZIndexFill": null,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__ParkingAndAccess__LineworkModel__.glb",
       "Layer__FillFile": null,
-      "Layer__SegmentCount": 45,
+      "Layer__SegmentCount": 34,
       "Layer__RingCount": 0,
       "Layer__BoundsMm": {
         "MinX": -498897.6,
         "MinZ": -440858.0,
-        "MaxX": 509512.4,
+        "MaxX": 486164.0,
         "MaxZ": -266567.9
       },
       "Layer__Style": {
@@ -914,8 +914,8 @@
       "Layer__ZIndexFill": 3,
       "Layer__LineworkFile": "RB05__TrueVision__SitePlan__TreesMixedWoodland__LineworkModel__.glb",
       "Layer__FillFile": "RB05__TrueVision__SitePlan__TreesMixedWoodland__FillModel__.glb",
-      "Layer__SegmentCount": 1515,
-      "Layer__RingCount": 23,
+      "Layer__SegmentCount": 1520,
+      "Layer__RingCount": 24,
       "Layer__BoundsMm": {
         "MinX": -856157.6,
         "MinZ": -828617.9,

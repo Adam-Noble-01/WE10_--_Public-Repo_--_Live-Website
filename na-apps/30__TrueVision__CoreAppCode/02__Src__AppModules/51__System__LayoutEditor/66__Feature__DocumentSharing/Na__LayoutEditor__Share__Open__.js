@@ -53,7 +53,7 @@
 //
 // DEVELOPMENT LOG:
 // 29-Sep-2026 - Version 1.0.0
-// - Initial implementation (TrueVision3D v2.165.0).
+// - Initial implementation (TrueVision3D v2.166.0).
 //
 // =============================================================================
 
@@ -304,9 +304,15 @@
 
     // FUNCTION | Start Sharing: Honour a Shared Link on This Load, Listen for Statement Publishes
     // ------------------------------------------------------------
-    // options: { showToast }. Called once, after the Layout Editor is ready.
-    // Resolves { Ok, Kind, Reason } for a link, or null when the page was not
-    // opened by one.
+    // options: { showToast }. Called once, straight after the Layout Editor is
+    // asked to start (it waits for the editor itself). Resolves
+    // { Ok, Kind, Reason } for a link, or null when the page was not opened
+    // by one.
+    //
+    // NOTHING WAITS IN LINE THAT CAN RUN ALONGSIDE. The settings and the
+    // share link record are asked for while the editor reads its own
+    // configuration and the drawings arrive, so the document opens the moment
+    // the sheets are known rather than a round trip or two later.
     // ------------------------------------------------------------
     async function Na__LeShareOpen__Initialize(options) {
         if (Na__LeShareOpen__Started) return null;
@@ -314,8 +320,10 @@
         Na__LeShareOpen__Toast   = (options && typeof options.showToast === 'function') ? options.showToast : null;
         window.addEventListener(Na__LeShareOpen__SCENE_READY_EVENT, () => { Na__LeShareOpen__SceneReady = true; });
 
-        await Na__LeShareLink__Ready();
+        const settings = Na__LeShareLink__Ready();                               // <-- Alongside the editor's own start
+        if (Na__LeShareLink__ReadOpenParam()) void Na__LeShareMf__Load();       // <-- The record, alongside the drawings (the built-in key name is enough to know there is a link)
         const enabled = await Na__LeMode__Ready();
+        await settings;
         if (!enabled) return null;
         Na__LeShareMf__Initialize({ editable : Na__LeMode__IsEditable() });      // <-- A published statement's link is recorded the moment it goes out
 

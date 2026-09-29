@@ -101,7 +101,7 @@ directly.
 | `04__Ui__Editor/` | the live-preview surface, the typing rules, and the frozen raw-HTML cards |
 | `05__Ui__Reader/` | the same document with nothing to click. This is what the PDF photographs |
 | `06__Export__Pdf/` | the pageless rasterised PDF |
-| `07__Export__Publish/` | the HTML build, the picture resizing, and the push to R2 |
+| `07__Export__Publish/` | the push to R2 (`Publish__`), the picture resizing (`Publish__Images__`), and the published page itself (`Publish__Page__`, pure) - see section 20 |
 | `08__Style__Stylesheets/` | the house document style, and the chrome around it |
 
 **Import the data module by name, never its transport unit** — its export list is the API.
@@ -174,6 +174,11 @@ comfortable margin over anything a reader or a printer can resolve.
 Typora. Only the generated HTML carries CDN URLs.
 
 **The originals on disk are never altered.** Only the copy that is published is resized.
+
+**A smaller copy must not make a smaller figure** (v2.170.0). A figure is its picture's pixels times its
+Typora zoom, so the published page describes each resized copy by its own width at its original's size -
+`srcset="<cdn> 2000w" sizes="6144px"`. Never a density (`0.3255x`): the browser then offers the src as a
+1x copy too and always takes it. Section 20.
 
 ---
 
@@ -604,3 +609,205 @@ still one block per figure, round-tripping, with no old caption left).
 **Seen in passing, not caused by this.** In a PDF made on the test origin, Figs 2.1 and 2.2 (the only
 two pictures linked straight to `cdn.noble-architecture.com`) print as blank frames. They print blank
 bare as well as inside a figure, and local pictures print in both. Not investigated further.
+
+## 18 · The two sections that close a statement (v2.167.0)
+
+**Why.** Adam, 29-Sep-2026, over the end of RB05: "The footer is not placed correctly and has the
+drawings table pasted in between ... The footer doesn't seem correct at all." The house footer was two
+hand-written `<h6>` lines (the end-of-statement note and the copyright), and on RB05 the drawing pack sat
+between them. Each line also asked for its grey through `font-color`, which is not CSS, so it never drew;
+the copyright had no divider over it; and the note sat hard on the heading under it (the h6's minus two
+millimetres). Two standard sections now close every statement: **Drawing Schedule** and **Document
+Footer**, in that order, after the Conclusion.
+
+**The Drawing Schedule is a copy, not a link.** Adam: a sync button "that can sync it with the live
+drawing register and pull through all the data, but then still keep it in Markdown ... It doesn't keep a
+live link". So unlike the Contents and the hub, its words live INSIDE the marker, as markdown:
+
+```html
+<div class="na-le-stmt-std-marker" data-na-standard-section="DrawingSchedule" data-na-std-synced="2026-09-29T18:55:51.362Z">
+## Pre-Application Drawing Pack
+The drawings listed below accompany this statement.
+| Drawing | Title | Scale | Size | Rev |
+| :--- | :--- | :--- | :--- | :--- |
+| RB05_T01_D01 | Project Introduction | NTS | ISO A3 | A |
+</div>
+```
+
+A `#` line is the heading (and the Contents line), a run of `|` lines is the table, every other line is a
+paragraph above or under it. No blank line inside (Typora would end the block). Edit on the card opens
+these lines; they stay as left.
+
+**Sync** (on the card, and straight after the section is switched on) reads the Drawing Register as it
+stands: every sheet in tab order through `Na__LeRegPdf__Rows` (the register's own rows), then the Project
+Specification when it has notes. It replaces the first table's ROWS and nothing else:
+- the heading and the paragraphs are never touched;
+- a retitled header row is kept while it has one heading per configured column (else the configured
+  columns are written, and the question says so);
+- a row whose code does not start with the project's code (a consultant's report typed in) is kept under
+  the register's; a row of this project's the register no longer has goes;
+- a table that already has rows is ASKED about first, with what changes row by row (`Describe`); nothing
+  is written when nothing would change, not even the stamp;
+- the source is read before the page, and the page again after the question, so typing is never lost.
+
+Columns, the specification's row, the scale collapse (`1:100 @ ISO A2` beside `ISO A2` prints `1:100`,
+as the register PDF does) and the empty-cell mark are in the config (`DrawingSchedule__*`).
+
+**Where the code is.**
+- `09__Standard__Sections/Na__LayoutEditor__Statement__Standard__DrawingSchedule__.js` - pure: Parse,
+  Build, RowsFrom, Merge, Describe, NewBody.
+- `...DrawingSchedule__Live__.js` - reads the register and the specification. **Imported only by the
+  Statement page**, never by the registry: it needs the running app, and the node tests copy the folder.
+  Importing it is what registers the source (`Na__LeStmtStd__RegisterSource`); no source, no Sync button.
+- The registry's sync API: `CanSync`, `Fetch` (never rejects), `ApplySync` (keeps the marker's opening tag
+  and every attribute on it, stamps `data-na-std-synced`, keeps the blank lines under it), `SyncedIso`.
+- The editor's `Na__LeStmtEd__SyncStandard`; the card's Sync button and its "Synced today at ..." stamp.
+
+**The Document Footer** holds its two lines as fields (`End Note:` and `Copyright:`, the header's field
+rule) and draws them as one row under the last divider: the note left, the copyright right, 8pt, the grey
+and Light weight the h6 lines always drew. It is always last (`End`), gets a divider over it when the file
+has none there (Unit `'above'`), none under, and does not move. Switched on over the house footer it takes
+the copyright line at the end of the file and an end note DIRECTLY above it; a note further up (a DAS's
+"End Of Main Statement" before its supplementary notes) is the writer's own divide and stays. Off writes
+the two house lines back, and on again gives the same file.
+
+**Placement anchors added:** `BeforeStandard:<Id>` (the schedule goes above the footer), `SectionsEnd`
+(after the divider that closes the last numbered section), `End`. The Contents now asks another section for
+its line WITH its marker words, `ContentsTitle(config, { body })`, so the schedule is listed under its own
+heading.
+
+**Traps.**
+1. **The confirm prompt is the browser's own.** TrueVision's page has no `naConfirmDialog` markup, so
+   `Na__AppUtils__ConfirmDialog__Show` falls back to `window.confirm` everywhere (the register and the
+   specification too). A hidden browser pane answers it No. To test the question, stub `window.confirm`.
+2. **Sync rewrites titles.** The register's names are the sheets' names ("Front Elevation"); RB05's
+   hand-typed table said "Front Elevation (South East)". A sync makes them the register's. Rename the
+   sheets, or edit the rows after syncing.
+3. **The theme's `td:first-child { white-space: normal }` outranks a bare class.** The schedule's no-wrap
+   rule goes through the table's class.
+
+**RB05 migrated 29-Sep-2026 19:58:52** by `D:/_ClaudeScratch/rb05_endmatter/migrate_rb05_endmatter.mjs`:
+the drawing pack's heading, both paragraphs and its 3-column table verbatim into the schedule, the two h6
+lines into the footer; nothing above the Conclusion's divider changed (checked byte for byte). NOT synced -
+the first Sync will turn the table into the five columns (Adam's call). Backup:
+`D:/_ClaudeScratch/rb05_endmatter/RB05_before_endmatter__2026-09-29T19-58-46.md`.
+
+**Tests.** `Na__Test__StatementSchedule__.test.mjs` (node, 59 checks: the footer's take-over and its place,
+the schedule's place, sync in every case above, what is drawn, the plumbing, and RB05 once it carries both);
+`Na__Test__StatementStandard__.test.mjs` updated for five sections. In the app on the statement test server
+(`tv-stmt-sched`, port 8849): sync from the real register, re-sync, Edit, off/on from the card and the menu,
+the footer off/on, Save.
+
+## 19 · The Finishes Comparison (v2.168.0)
+
+**Why.** Adam, 29-Sep-2026, over RB05's "Material Specification Comparison": "a table like this doesn't
+really cut it ... this is actually really hard to read and understand. Don't use a table like this; it's
+not fit for it." On A4 three columns leave the proposal about 70 mm, so each one wraps four to six lines;
+eight of RB05's nineteen existing cells said "Not applicable" or "None"; and thirteen `[TO CONFIRM]` notes
+sat mid-sentence. The design and access statement skill writes the same table into every statement.
+
+**What it draws.** One entry per element: the name in a column of its own down the left (the one thing the
+table did well - it scans), and beside it the existing finish (8.5pt grey) over the proposed one (9.5pt ink),
+each labelled EXISTING / PROPOSED and almost the full width of the page. A strip on top carries the table's
+own headings ("Building Element - Existing Dwelling -> Proposed Replacement").
+- **NEW** (olive tag) when the existing cell is none/not applicable/empty - and that empty line is left out.
+- **MATCHES EXISTING** (green tag) when the proposal says "match ... existing" within a clause (not negated)
+  or repeats the existing words - the householder argument, visible at a glance.
+- Every `[TO CONFIRM: ...]` is lifted out and set under its line as a labelled amber note.
+- A row whose only filled cell is the first is a **group** heading (Walls, Roofs ...).
+- A column headed **Status** (or Change) tags each row in the writer's words (Retained = blue-grey); any
+  other extra column is one more labelled line. Words above the table open it; words under it close it.
+Three layouts were drawn with the real stylesheet and RB05's rows before choosing: this ledger, before/after
+panels (grey "Not present" boxes, the text narrowed again) and two-tone bars (needed a legend, solid bands).
+
+**The marker holds the writer's own table**, one row a line - the words never become anything else:
+
+```html
+<div class="na-le-stmt-std-marker" data-na-standard-section="FinishesComparison">
+| Building Element | Existing Dwelling | Proposed Replacement |
+| :--- | :--- | :--- |
+| **External Walling** | White painted render ... | Coursed squared natural stone walling ... [TO CONFIRM: stone type and source] |
+</div>
+```
+
+Tags, notes and groups are drawn from the words every time; nothing computed is written into the file.
+
+**On and off.** Switched on, it takes over the FIRST pipe table whose headings read as a comparison - an
+element column first ("Building Element", "Material", "Finish") and an existing and a proposed column found
+by their words - IN PLACE, under the writer's own `#### N.N |` heading, so the Contents and the numbering do
+not change. A floor area table ("Room | Existing | Proposed") is never taken. The heading row loses its width
+`<span>`s (they only sized a table); every row comes across as typed. Off writes the HOUSE table back (spans
+30/60 mm, cells padded to sixty, separators of a colon and fifty-nine dashes): RB05's comes back byte for
+byte. With no table to take over it lands under the block the caret is in - the new `'Caret'` anchor: the
+editor counts the lines up to the `is-caret` block (`Na__LeStmtEd__CaretLine`) and passes `{ CaretLine }` as
+InsertInto's new third argument; no other section asks for it. No caret: the registry default, above 1.0.
+
+**It is part of a section, not a section.** Unit `'none'` (no dividers of its own) and no Move handle -
+Move only ever drops a section under a major divider and gives it one. To move one: switch it off (it is a
+table again), cut and paste the table, switch it on.
+
+**Spacing.** It opens with a paragraph's one em, so under an h4's minus two it settles at 1.53mm, exactly
+like prose - measured 1.53mm in the reader AND the editor (the frozen card has no padding or border, so the
+margin collapses through it). It closes with the paragraph's 3.5mm.
+
+**Where the code is.** `09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Finishes__.js`
+(`Na__LeStmtFin`, pure: Parse, Roles, IsComparison, Model, Build, Adopt, Unwrap, NewBody); the registry
+(definition, `'Caret'`); the editor (`CaretLine`); `.na-le-stmt-std-fin` in the document stylesheet;
+`StatementStandard__FinishesComparison__Config` (labels, tag words, NoneWords, MatchPattern, the starting
+rows, the house widths).
+
+**Traps.**
+1. **The skill's exemplar is CRLF**; the tokeniser reads LF, so a CRLF table is a paragraph and is not
+   taken over. Statements in the app are LF.
+2. **A row with an empty existing AND proposed is a group heading**, by the rule above - fill a cell with
+   `[TO CONFIRM]` to keep an unfinished element an element.
+3. **MatchPattern is a regex in JSON**: its backslashes are doubled. A broken pattern falls back to the
+   built-in one rather than stopping the drawing.
+
+**Tests.** `Na__Test__StatementFinishes__.test.mjs` (node, 59 checks: RB05 taken over in place and given
+back byte for byte, what is drawn from it, the exemplar's tags, groups/Status/extras, Windows line ends in
+a marker body (Parse splits on `\r?\n`), the caret, the house table written back, escaping, read and edited). Four deliberate breaks (unwrap padding, the NEW line, the
+caret anchor, the notes) each failed exactly the checks meant to catch them. `Na__Test__StatementFinishes__.html`
+draws it on the paper through the real modules (`?sample=householder`, `?whole=1`, `?editable=1`) and
+rasterises it with the vendored html2canvas (`window.__NaTestFin.raster`). In the app on the statement test
+server (`tv-finishes`, port 8856): switched on from the Standard Sections menu over RB05's table, autosaved to
+the throwaway copy (diff = exactly the marker), drawn in Edit and Read.
+
+---
+
+## 20 · What Publish puts on the CDN is the Read view (v2.170.0)
+
+**The page is built by `07__Export__Publish/Na__LayoutEditor__Statement__Publish__Page__.js`** (`Na__LeStmtPubPage`,
+pure). The body is the Read view's own renderer (not editable, every standard section expanded with the whole
+document as context), so every element the writer draws publishes as itself - the six standard sections, figure
+blocks with their titles (a title switched off stays off), crops, policy panels, dividers. What the app gives that
+paper for free, the page must give itself, and each one was a real fault on 29-Sep-2026:
+
+| the page carries | because without it |
+|---|---|
+| `<meta name="viewport" content="width=842">` | a phone reflowed A4 into 390px: the Contents broke a word to a line, tables and figures ran off the paper |
+| the `@font-face` rules of `Na__CoreUi__Styles__Fonts__.css`, addresses absolute to the website | Open Sans only where it is installed (this office) |
+| the app's reset, `* { margin: 0; padding: 0; box-sizing: border-box }`, word for word | 22 headings 16px lower, 6 tables 9.5px taller, 8 frames outside the column |
+| the document stylesheet as it stood at publishing, **written in**, comments taken out | the website's copy lacked the newest sections' rules: published before a push, they came out unstyled |
+| the desk last: A4 minimum width on screen, the printer's width on paper, no text enlargement | a narrow desktop window squeezed the paper |
+| each resized picture as `srcset="<cdn> 2000w" sizes="<original>px"` | a figure sized by zoom shrank with its copy (Fig 16.1: 382px instead of 622) |
+
+**It is a document of record.** 1.0.0 linked the live stylesheet so a restyle reached every statement; now a restyle
+reaches a statement when it is published again. A stylesheet the publisher cannot read at publishing is linked from
+its published address instead (`Na__LeStmtPublish__Styles`).
+
+**The title** is the Document Header's `Title:` field, then the first heading, then `Doc__Title`.
+
+**Run waits** for `Na__LeStmtStd__Ready()` and `Na__ProjectQr__Ready()` before drawing, so a Publish pressed as the tab
+opens cannot bake a hub without its code.
+
+**The web viewer is a different reader.** Its Design Statements tab does not open this HTML: it draws the published
+MARKDOWN with the LIVE app. A standard section the live app does not know is shown as its raw marker text (checked
+against 55014c6: the Finishes Comparison, the Drawing Schedule and the Document Footer). **Push the app, then publish.**
+
+**How to check a publish without publishing.** Build the page inside the running app with every request that is not a
+read aborted, open it on its own, and measure it against the Read view block by block - the scripts are in
+`D:/_ClaudeScratch/stmt_publish/` (`publish_check.py`; 0 of 556 blocks differ; phones by Playwright device emulation).
+This machine has Open Sans INSTALLED, which hides a missing font in every local test, and an `@font-face` that fails to
+load does not hide it either (Chrome falls back to the installed family) - look for faces with status `loaded` in
+`document.fonts` instead. Test: `80__Testing__PrototypeEnvironment/Na__Test__StatementPublish__.test.mjs`.

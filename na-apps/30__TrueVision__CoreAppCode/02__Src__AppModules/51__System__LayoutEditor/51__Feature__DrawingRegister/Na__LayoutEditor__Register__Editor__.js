@@ -32,7 +32,7 @@
 // 29-Sep-2026 - Version 1.3.0
 // - SHARE on the bar in Read (and always for a reader), after Export register
 //   PDF: a link that opens this register's Read view on any device
-//   (66__Feature__DocumentSharing, TrueVision3D v2.165.0). Show takes
+//   (66__Feature__DocumentSharing, TrueVision3D v2.166.0). Show takes
 //   { view : 'read' }, which is how a shared link lands on Read.
 //
 // 21-Sep-2026 - Version 1.2.0

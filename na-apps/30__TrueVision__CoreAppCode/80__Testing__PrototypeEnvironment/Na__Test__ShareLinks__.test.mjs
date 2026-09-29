@@ -34,7 +34,7 @@
 //
 // DEVELOPMENT LOG:
 // 29-Sep-2026 - Version 1.0.0
-// - Created with TrueVision3D v2.165.0.
+// - Created with TrueVision3D v2.166.0.
 //
 // =============================================================================
 
@@ -261,7 +261,7 @@
     const S = globalThis.Na__TestShare;
     S.previous = { 'ShareLinks__Aliases' : { 'Aliases__Note' : 'old note', 'Old_Front' : 'Sheet_001' } };
     const json = (value) => JSON.stringify(value, null, 4) + '\n';
-    const recorded = await Manifest.Na__LeShareMf__Record({ toR2 : true, json : json, appVersion : 'v2.165.0', reason : 'drawings' });
+    const recorded = await Manifest.Na__LeShareMf__Record({ toR2 : true, json : json, appVersion : 'v2.166.0', reason : 'drawings' });
     const record = recorded.Manifest || {};
     const docs = record['ShareLinks__Documents'] || [];
 
@@ -283,7 +283,7 @@
     check('no entry claims a publication state', docs.every((one) => !('Share__State' in one)));
     check('the resolver the addresses were built against is recorded',
         record['ShareLinks__Resolver']['Resolver__BaseUrl'] === setup.link.baseUrl && record['ShareLinks__Resolver']['Resolver__OpenParam'] === 'open');
-    check('the stamp says which app wrote it and why', record['ShareLinks__Publish']['Publish__ByAppVersion'] === 'v2.165.0' && record['ShareLinks__Publish']['Publish__Reason'] === 'drawings');
+    check('the stamp says which app wrote it and why', record['ShareLinks__Publish']['Publish__ByAppVersion'] === 'v2.166.0' && record['ShareLinks__Publish']['Publish__Reason'] === 'drawings');
     check('the record just written is the one this tab now holds', Manifest.Na__LeShareMf__Current() === record);
 
     S.writes.length = 0;
@@ -329,7 +329,7 @@
 
     S.served = {};
     const none = await Manifest.Na__LeShareMf__Load(true);
-    check('no record (a project not published since v2.165.0) is an answer, not an error', !none.Ok && Manifest.Na__LeShareMf__Current() === null && /no share link record yet/.test(none.Reason));
+    check('no record (a project not published since v2.166.0) is an answer, not an error', !none.Ok && Manifest.Na__LeShareMf__Current() === null && /no share link record yet/.test(none.Reason));
     S.served = { '06__Layout__PublishedDocuments/PublishedDocuments__ShareLinks__.json' : { nothing : true } };
     const broken = await Manifest.Na__LeShareMf__Load(true);
     check('a record that is not one is refused with a reason', !broken.Ok && /ShareLinks__Documents/.test(broken.Reason));

@@ -49,6 +49,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - Each picture sent reports its ORIGINAL's size as well as its own
+//   (sourceWidth, sourceHeight), so the published page can keep a figure the
+//   size it is in the app when the copy sent is smaller (TrueVision3D
+//   v2.170.0). A copy that could not be re-encoded now reports the size of
+//   the original it falls back to, not the size it was meant to be.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -110,21 +117,25 @@
 
     // FUNCTION | A Picture at Publishing Size
     // ------------------------------------------------------------
-    // Resolves to { blob, type, width, height, resized }. A picture already
-    // within the size AND the weight is handed back untouched: re-encoding it
-    // would cost a little quality for nothing.
+    // Resolves to { blob, type, width, height, sourceWidth, sourceHeight,
+    // resized }: width and height are the blob's own, sourceWidth and
+    // sourceHeight the original's - which the page needs, because a figure is
+    // sized from its picture's pixels and must keep its size when the copy
+    // sent is smaller. A picture already within the size AND the weight is
+    // handed back untouched: re-encoding it would cost a little quality for
+    // nothing.
     // ------------------------------------------------------------
     async function Na__LeStmtPub__Resize(blob, setup) {
         const maxEdge = setup.imageMaxEdgePx;
 
         // AN SVG HAS NO PIXELS TO COUNT and nothing to gain from a canvas
-        if (/svg/i.test(blob.type || '')) return { blob : blob, type : blob.type, width : 0, height : 0, resized : false };
+        if (/svg/i.test(blob.type || '')) return { blob : blob, type : blob.type, width : 0, height : 0, sourceWidth : 0, sourceHeight : 0, resized : false };
 
         let bitmap = null;
         try {
             bitmap = await createImageBitmap(blob);
         } catch (error) {
-            return { blob : blob, type : blob.type, width : 0, height : 0, resized : false, error : 'could not be decoded' };
+            return { blob : blob, type : blob.type, width : 0, height : 0, sourceWidth : 0, sourceHeight : 0, resized : false, error : 'could not be decoded' };
         }
 
         // THE BITMAP'S OWN SIZE IS READ ONCE AND KEPT. Closing a bitmap sets
@@ -137,7 +148,7 @@
 
         if (longest <= maxEdge && blob.size <= setup.imagePassThrough) {
             bitmap.close();
-            return { blob : blob, type : blob.type, width : sourceWidth, height : sourceHeight, resized : false };
+            return { blob : blob, type : blob.type, width : sourceWidth, height : sourceHeight, sourceWidth : sourceWidth, sourceHeight : sourceHeight, resized : false };
         }
 
         const scale  = Math.min(1, maxEdge / longest);
@@ -154,7 +165,7 @@
         bitmap.close();
 
         const made = await new Promise((resolve) => canvas.toBlob(resolve, setup.imageFormat, setup.imageQuality));
-        if (!made) return { blob : blob, type : blob.type, width : width, height : height, resized : false, error : 'could not be re-encoded' };
+        if (!made) return { blob : blob, type : blob.type, width : sourceWidth, height : sourceHeight, sourceWidth : sourceWidth, sourceHeight : sourceHeight, resized : false, error : 'could not be re-encoded' };   // <-- The original goes, so its own size
 
         // A "SMALLER" COPY THAT IS BIGGER is not an improvement. It happens
         // with flat graphics - a plan exported as PNG - and with a photograph
@@ -163,10 +174,10 @@
         // a picture that came down from 6144 pixels is worth keeping even if
         // its file happens not to have shrunk.
         if (made.size >= blob.size && longest <= maxEdge) {
-            return { blob : blob, type : blob.type, width : sourceWidth, height : sourceHeight, resized : false };
+            return { blob : blob, type : blob.type, width : sourceWidth, height : sourceHeight, sourceWidth : sourceWidth, sourceHeight : sourceHeight, resized : false };
         }
 
-        return { blob : made, type : setup.imageFormat, width : width, height : height, resized : true };
+        return { blob : made, type : setup.imageFormat, width : width, height : height, sourceWidth : sourceWidth, sourceHeight : sourceHeight, resized : true };
     }
     // ------------------------------------------------------------
 
@@ -231,12 +242,14 @@
 
             bytes += sized.blob.size;
             links[picture.src] = {
-                url     : wrote.publicUrl,
-                path    : target,
-                bytes   : sized.blob.size,
-                width   : sized.width,
-                height  : sized.height,
-                resized : sized.resized
+                url          : wrote.publicUrl,
+                path         : target,
+                bytes        : sized.blob.size,
+                width        : sized.width,
+                height       : sized.height,
+                sourceWidth  : sized.sourceWidth,
+                sourceHeight : sized.sourceHeight,
+                resized      : sized.resized
             };
         }
 

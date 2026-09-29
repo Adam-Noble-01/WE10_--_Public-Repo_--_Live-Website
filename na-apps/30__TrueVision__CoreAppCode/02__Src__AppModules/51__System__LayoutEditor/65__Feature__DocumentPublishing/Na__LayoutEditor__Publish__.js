@@ -44,12 +44,12 @@
 //
 // DEVELOPMENT LOG:
 // 29-Sep-2026 - Version 1.1.0
-// - THE SHARE LINK RECORD (TrueVision3D v2.165.0). Just before the index, a
+// - THE SHARE LINK RECORD (TrueVision3D v2.166.0). Just before the index, a
 //   publish writes PublishedDocuments__ShareLinks__.json through
 //   66__Feature__DocumentSharing - every document's Share link, locally and,
 //   with Also push to R2, on R2 - and reports it as result.ShareLinks. A
 //   failure there is a warning and never stops the publish.
-// - The built-in app version stamp is v2.165.0, with the config's.
+// - The built-in app version stamp is v2.166.0, with the config's.
 //
 // 23-Sep-2026 - Version 1.0.0
 // - Created with Phases 4 and 5 of TrueVision__PLAN__PublishingSystem__.md.
@@ -96,7 +96,7 @@
     let Na__LePub__Busy  = false;
 
     const Na__LePub__F = {                                                        // <-- The built-in floor
-        appVersion : 'v2.165.0', pushToR2Default : false, bakePdf : true,
+        appVersion : 'v2.166.0', pushToR2Default : false, bakePdf : true,
         retireOrphans : true, specLoadTimeoutMs : 15000, labels : {}
     };
 

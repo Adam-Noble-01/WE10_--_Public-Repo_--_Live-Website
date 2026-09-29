@@ -52,6 +52,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.3.0 (TrueVision3D v2.167.0)
+// - A standard section that syncs (the Drawing Schedule) has a Sync button on
+//   its tool row, with when it was last synced beside it; options.onSync
+//   runs it. Each standard section's Edit says what it opens (the registry's
+//   EditHint), and the raw field opens tall enough for its lines.
+//
 // 29-Sep-2026 - Version 1.2.0
 // - Figure titles: a picture with a title is one <figure> block
 //   (Na__LayoutEditor__Statement__Md__Figure__). Its figcaption is editable in
@@ -86,7 +92,8 @@
     import { Na__AppUtils__IsRunningOnLocalhost, Na__AppUtils__GetProjectFolderFromUrl, Na__AppUtils__GetYearFromUrl } from '../../../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     import { Na__LeStmtFig__OpenMenu, Na__LeStmtFig__IsCropping } from './Na__LayoutEditor__Statement__Editor__Figure__.js';
     import { Na__LeStmtMove__Begin } from './Na__LayoutEditor__Statement__Editor__Move__.js';
-    import { Na__LeStmtStd__IsMovable } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
+    import { Na__LeStmtStd__IsMovable, Na__LeStmtStd__CanSync, Na__LeStmtStd__SyncedIso, Na__LeStmtStd__EditHint } from '../09__Standard__Sections/Na__LayoutEditor__Statement__Standard__Registry__.js';
+    import { Na__LeStmtLock__When } from '../01__Core__Data/Na__LayoutEditor__Statement__Lockstep__.js';
     import { Na__LeStmtRnd__Expand, Na__LeStmtRnd__FigureZoom } from '../02__Core__Markdown/Na__LayoutEditor__Statement__Md__Render__.js';
     import { Na__LeStmtSer__Element } from '../02__Core__Markdown/Na__LayoutEditor__Statement__Md__Serialise__.js';
     import { Na__LeStmtInl__Escape } from '../02__Core__Markdown/Na__LayoutEditor__Statement__Md__Inline__.js';
@@ -361,9 +368,23 @@
                     }));
                     tools.appendChild(move);
                 }
+
+                // A SECTION THAT COPIES SOMETHING LIVE - the Drawing Schedule,
+                // the Drawing Register - is synced from here, and says when it
+                // last was. It is a copy: nothing updates it but this button.
+                const id = card.getAttribute('data-na-stmt-standard');
+                if (Na__LeStmtStd__CanSync(id) && typeof opts.onSync === 'function') {
+                    const iso  = Na__LeStmtStd__SyncedIso(card.getAttribute('data-na-stmt-src') || '');
+                    const when = iso ? 'Synced ' + Na__LeStmtLock__When(iso) : 'Not synced yet';
+                    tools.appendChild(Na__LeStmtCard__Button('Sync', 'Fill the table from the Drawing Register as it stands now. What changes is shown first; the heading and the words are never touched. ' + when + '.', () => opts.onSync(id)));
+                    const stamp = Na__LeStmtCard__El('span', 'na-le-stmt-std-synced', when);
+                    stamp.setAttribute('contenteditable', 'false');
+                    tools.appendChild(stamp);
+                }
             }
 
-            tools.appendChild(Na__LeStmtCard__Button('Edit', standard ? 'Edit this section\'s marker line (add data-na-std-name="..." to name the project differently)' : 'Edit this block as raw HTML', () => {
+            const editHint = standard ? (Na__LeStmtStd__EditHint(card.getAttribute('data-na-stmt-standard')) || 'Edit this section\'s marker line (add data-na-std-name="..." to name the project differently)') : 'Edit this block as raw HTML';
+            tools.appendChild(Na__LeStmtCard__Button('Edit', editHint, () => {
                 Na__LeStmtCard__OpenRaw(card, onChanged);
             }));
             tools.appendChild(Na__LeStmtCard__Button(standard ? 'Switch Off' : 'Remove', standard ? 'Take this standard section out of the statement' : 'Take this block out of the statement', () => {
@@ -431,6 +452,7 @@
         field.setAttribute('contenteditable', 'false');
         field.spellcheck = false;
         field.value = card.getAttribute('data-na-stmt-src') || '';
+        field.rows  = Math.min(40, Math.max(4, field.value.split('\n').length + 1));   // <-- A schedule's twenty lines open whole, not in a four-line slot
 
         field.addEventListener('keydown', (event) => {
             event.stopPropagation();                                            // <-- The editor's own hotkeys are not wanted in here

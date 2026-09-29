@@ -35,7 +35,7 @@
 // 29-Sep-2026 - Version 1.24.0
 // - SHARE after Download PDF: the link that opens the drawing on screen,
 //   read-only, on any device - the same link the web viewer's Share hands
-//   out beside its PDF (66__Feature__DocumentSharing, TrueVision3D v2.165.0).
+//   out beside its PDF (66__Feature__DocumentSharing, TrueVision3D v2.166.0).
 //   Always the live site's address, never this machine's.
 //
 // 29-Sep-2026 - Version 1.23.0

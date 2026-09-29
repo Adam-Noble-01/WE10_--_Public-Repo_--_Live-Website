@@ -159,8 +159,11 @@ for (const file of specimens) {
     // Every heading line in the file must have become a heading block. An
     // EMPTY heading counts: the project notes hold a bare "## " on line 325,
     // and a heading with nothing after it is still a heading the writer typed
-    // and still has to come back as one.
-    const headingLines = text.split('\n').filter((line) => /^ {0,3}#{1,6}[ \t]+/.test(line)).length;
+    // and still has to come back as one. A "#" line INSIDE a raw HTML block is
+    // not one: raw HTML is never looked inside, and a standard section's
+    // marker carries its own markdown (the Drawing Schedule's "## ..." line,
+    // v2.167.0).
+    const headingLines = blocks.filter((block) => block.Kind !== 'html').flatMap((block) => block.Lines || []).filter((line) => /^ {0,3}#{1,6}[ \t]+/.test(line)).length;
     const headingBlocks = blocks.filter((block) => block.Kind === 'heading').length;
     check('    every heading found (' + headingBlocks + ' of ' + headingLines + ')',
           headingBlocks === headingLines);

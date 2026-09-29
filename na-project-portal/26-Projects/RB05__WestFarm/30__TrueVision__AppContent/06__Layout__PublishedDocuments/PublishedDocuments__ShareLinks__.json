@@ -1,0 +1,228 @@
+{
+    "ShareLinks__Meta" : {
+        "Meta__FileName"  : "PublishedDocuments__ShareLinks__.json",
+        "Meta__Version"   : 1,
+        "Meta__Note"      : "Every document of this project a person can be sent, and the link its Share button hands out - recorded when the project was published, so a link already sent keeps working when the app's rules, the folders or the numbering change. The Share buttons read Share__Url from here; the app reads Share__Target to know what a link opens, and falls back on its own rules only for a key not listed. Whether a drawing is published is NOT recorded: the index says that. Written by 51__System__LayoutEditor/66__Feature__DocumentSharing.",
+        "Meta__SchemaRef" : "na-project-portal/26-Projects/AA00__ExampleProjectStructure/30__TrueVision__AppContent/06__Layout__PublishedDocuments"
+    },
+    "ShareLinks__Project" : {
+        "Project__Code"   : "RB05",
+        "Project__Folder" : "26-Projects/RB05__WestFarm"
+    },
+    "ShareLinks__Publish" : {
+        "Publish__SchemaVersion" : 1,
+        "Publish__AtIso"         : "2026-09-29T18:51:36.209Z",
+        "Publish__AtEpochMs"     : 1790707896209,
+        "Publish__ByApp"         : "TrueVision3D Layout Editor",
+        "Publish__ByAppVersion"  : "v2.166.0",
+        "Publish__Reason"        : "statement",
+        "Publish__DocumentCount" : 17
+    },
+    "ShareLinks__Resolver" : {
+        "Resolver__BaseUrl"      : "https://www.noble-architecture.com/s/",
+        "Resolver__QueryPattern" : "?{projectCode}&open={documentKey}",
+        "Resolver__OpenParam"    : "open",
+        "Resolver__Note"         : "What the addresses above were built against. s/index.html at the website root looks the project code up in q/index.json and opens the project with the key handed through; that page must never move, and must go on answering every form listed in a record like this one."
+    },
+    "ShareLinks__Documents" : [
+        {
+            "Share__Key"    : "Sheet_005",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_005",
+            "Share__Label"  : "D01 - Project Introduction",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_005",
+                "Target__DocumentId" : "RB05_T01_D01",
+                "Target__Number"     : "D01"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_001",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_001",
+            "Share__Label"  : "D02 - Front Elevation",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_001",
+                "Target__DocumentId" : "RB05_T01_D02",
+                "Target__Number"     : "D02"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_004",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_004",
+            "Share__Label"  : "D03 - Rear Elevation",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_004",
+                "Target__DocumentId" : "RB05_T01_D03",
+                "Target__Number"     : "D03"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_003",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_003",
+            "Share__Label"  : "D04 - West Elevation",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_003",
+                "Target__DocumentId" : "RB05_T01_D04",
+                "Target__Number"     : "D04"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_016",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_016",
+            "Share__Label"  : "D05 - Coach House Elevation",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_016",
+                "Target__DocumentId" : "RB05_T01_D05",
+                "Target__Number"     : "D05"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_006",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_006",
+            "Share__Label"  : "D06 - Ground Floor Plan",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_006",
+                "Target__DocumentId" : "RB05_T01_D06",
+                "Target__Number"     : "D06"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_007",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_007",
+            "Share__Label"  : "D07 - First Floor Plan",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_007",
+                "Target__DocumentId" : "RB05_T01_D07",
+                "Target__Number"     : "D07"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_008",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_008",
+            "Share__Label"  : "D08 - Second Floor Plan",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_008",
+                "Target__DocumentId" : "RB05_T01_D08",
+                "Target__Number"     : "D08"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_014",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_014",
+            "Share__Label"  : "D09 - Coach House Plan",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_014",
+                "Target__DocumentId" : "RB05_T01_D09",
+                "Target__Number"     : "D09"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_011",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_011",
+            "Share__Label"  : "D10 - Roof Plan & 3D Bird's-eye Views",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_011",
+                "Target__DocumentId" : "RB05_T01_D10",
+                "Target__Number"     : "D10"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_010",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_010",
+            "Share__Label"  : "D11 - 3D Images",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_010",
+                "Target__DocumentId" : "RB05_T01_D11",
+                "Target__Number"     : "D11"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_002",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_002",
+            "Share__Label"  : "D12 - Existing Site Plan",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_002",
+                "Target__DocumentId" : "RB05_T01_D12",
+                "Target__Number"     : "D12"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_013",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_013",
+            "Share__Label"  : "D13 - Proposed Site Plan",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_013",
+                "Target__DocumentId" : "RB05_T01_D13",
+                "Target__Number"     : "D13"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Sheet_015",
+            "Share__Kind"   : "drawing",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Sheet_015",
+            "Share__Label"  : "D14 - Site Location Plans",
+            "Share__Target" : {
+                "Target__SheetId"    : "Sheet_015",
+                "Target__DocumentId" : "RB05_T01_D14",
+                "Target__Number"     : "D14"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"         : "Specification",
+            "Share__Kind"        : "specification",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?RB05&open=Specification",
+            "Share__Label"       : "Project Specification",
+            "Share__Target"      : {},
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"         : "Register",
+            "Share__Kind"        : "register",
+            "Share__Url"         : "https://www.noble-architecture.com/s/?RB05&open=Register",
+            "Share__Label"       : "Document Register",
+            "Share__Target"      : {},
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        },
+        {
+            "Share__Key"    : "Statement_1",
+            "Share__Kind"   : "statement",
+            "Share__Url"    : "https://www.noble-architecture.com/s/?RB05&open=Statement_1",
+            "Share__Label"  : "PreApp Statement",
+            "Share__Target" : {
+                "Target__StatementId" : 1,
+                "Target__Folder"      : "01__PreApp__Statement",
+                "Target__File"        : "RB05_T01_S01__WestFarm__PreApplicationStatement__.md"
+            },
+            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+        }
+    ],
+    "ShareLinks__Aliases" : {
+        "Aliases__Note" : "Reserved. An old key listed here as \"old key\" : \"current key\" goes on opening the current key's document. Carried from record to record, never rebuilt; nothing writes one yet."
+    }
+}

@@ -60,6 +60,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - A READER IS LISTED ONLY THE PUBLISHED STATEMENTS (TrueVision3D v2.169.0).
+//   List - and so GetState().count, the page's box, a shared link's lookup
+//   and the page's first-open choice - leaves out every statement with no
+//   Doc__PublishedIso when the session may not author. The web reads the
+//   cloud index, which is the whole local index as it stood at the last
+//   Publish, so it could name a statement never published and open it as a
+//   blank page. An author's list is unchanged.
+//
 // 23-Sep-2026 - Version 1.1.0
 // - Lockstep between the app's copy and the markdown file. Adam, 23-Sep-2026:
 //   "Currently, if one's newer than the other, the one that gets saved wins."
@@ -1039,7 +1048,7 @@
             source      : Na__LeStmt__Source,
             error       : Na__LeStmt__Error,
             editable    : Na__LeStmt__Editable,
-            count       : (Na__LeStmt__Doc[Na__LeStmtIdx__K_DOCUMENTS] || []).length,
+            count       : Na__LeStmt__List().length,                            // <-- What this session is shown: a reader counts only the published
             unknown     : Na__LeStmt__Unknown.slice(),
             serverNote  : Na__LeStmt__ServerNote,
             openId      : Na__LeStmt__OpenId,
@@ -1057,11 +1066,24 @@
     // ------------------------------------------------------------
 
 
+    // HELPER FUNCTION | Has This Statement Been Published?
+    // ------------------------------------------------------------
+    function Na__LeStmt__IsPublishedRecord(record) {
+        return !!record && typeof record.Doc__PublishedIso === 'string' && record.Doc__PublishedIso !== '';
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | The Statements, in Folder Order
+    // ------------------------------------------------------------
+    // A READER IS GIVEN ONLY THE PUBLISHED ONES (v1.2.0). The cloud index is
+    // the whole local index as it stood at the last Publish, so it can name a
+    // statement that was never published - which a visitor would open as a
+    // blank page. An author is given every one.
     // ------------------------------------------------------------
     function Na__LeStmt__List() {
         return (Na__LeStmt__Doc[Na__LeStmtIdx__K_DOCUMENTS] || [])
-            .slice()
+            .filter((record) => Na__LeStmt__Editable || Na__LeStmt__IsPublishedRecord(record))
             .sort((left, right) => String(left.Doc__Folder).localeCompare(String(right.Doc__Folder)));
     }
     // ------------------------------------------------------------
