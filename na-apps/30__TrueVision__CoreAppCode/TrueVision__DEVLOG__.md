@@ -2,6 +2,65 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.172.0  -  29-Sep-2026
+### R2 Holds Every Statement Picture Where the Statement Says It Is: a Publish Alone Makes the Web Viewer Right, Whatever GitHub Is Serving
+
+**Overview**
+- From Adam, with the live web viewer still showing 24 picture 404s after v2.171.0 was pushed: "Why are they not
+  publishing to the correct R2 bucket and being read from the correct R2 bucket? Prioritise that over the GitHub ...
+  the R2 bucket serves as the primary resource to publish to and be read from, with only a fallback for the GitHub."
+- The pictures WERE in the right bucket and the web viewer WAS reading R2 (`cdn.noble-architecture.com`). The two
+  disagreed about NAMES: Publish renamed every resized copy to `.webp` (and put a stale link's picture where its file
+  was found), while the markdown on R2 - which is what the web viewer reads - still names `Location__Near__.png`. So
+  R2 on its own was not a readable statement: it took a reader that knew the index's mapping (v2.171.0), and that
+  reader only reaches a browser through a GitHub deploy (six minutes) and then Cloudflare's four-hour cache. Adam's
+  browser was still on the old reader at 22:0x - his 21:59 push was still deploying, and a fresh browser at 22:10
+  showed every picture.
+- On the web the statement's markdown and index already come from R2 alone (the CDN copy, `Na__LeStmtIo__ReadStatement`);
+  pictures have no GitHub copy at all (images are never committed). So R2 is, and was, the only source for a
+  published statement's pictures - it just has to hold them where the statement says.
+
+**The change**
+- PICTURES 1.2.0 (`...Publish__Images__.js`): every picture goes into R2 at the address its own link names, under its
+  own name - never renamed to `.webp`, never moved to where a stale link's file was found. A resized copy is still WebP
+  (the weight is the point: 11.3 MB for RB05's 36 pictures) and is stored with its true content type, `image/webp`,
+  which is what a browser goes by. Only a link R2 refuses (one that climbs out of the folder with `..`) goes up where
+  the file was found.
+- A picture's content type is taken from its file name when the local server gives none or a generic one: Python's
+  type table on this machine has no `.webp`, so RB05's three `.webp` pictures had gone up as
+  `application/octet-stream` (seen on the CDN).
+- IMAGES 1.2.0: `Na__LeStmtImg__Used` reports each picture's `target` - computed by the same `Resolve` call a reader off
+  this machine makes - so the address Publish writes and the address every reader asks for cannot differ.
+- The v2.171.0 reader (the index's `Doc__Images`, with the size rule for zoom-sized figures) stays: it now points at
+  the same addresses, and it is what keeps those five figures their size.
+
+**How it was proved**
+- THE REAL PUBLISH, in the real app on localhost, with the Worker's `/r2/write` answered by the test and every other
+  write aborted on every host (nothing reached R2 or the disk): published OK, 36 pictures, 0 failed; all 36 written at
+  exactly the key the statement's link names, none anywhere else; 29 `image/webp`, 6 `image/jpeg`, 1 `image/png`; the
+  page is v2.170.0's (the header's title, fonts, reset, document, desk; 36 pictures at those addresses); the index
+  lists 36 pictures at those addresses, each with its sizes.
+- THE LIVE SITE ON THAT R2: every CDN request for a key that Publish wrote answered with what it wrote, everything else
+  real. With the reader the site serves now (v2.171.0): 39 of 39 pictures, no failed request, all six sections, the
+  zoom-sized figures at the Read view's widths (Fig 3.1 621px, 16.1 622, 17.3 617). With the reader and resolver
+  forced back to cbb0523 (a browser still holding the release before v2.171.0): 39 of 39 pictures, no failed request -
+  only those five figures smaller. So the pictures no longer wait on a GitHub deploy.
+- `Na__Test__StatementPublish__.test.mjs` is 87 checks (5 new: a right link and a stale one each published at the link's
+  own address, the web reader asking for exactly those, nothing renamed). Five other statement suites pass;
+  `Na__Test__StatementFinishes__` still fails its two checks on RB05's live [TO CONFIRM] count (13 -> 0 at 21:46), as
+  in v2.171.0. `Na__Verify__Exports__.mjs` passes (542 files).
+
+**Not done / for Adam**
+- Reload the localhost tab (Ctrl+F5) - a tab keeps the code it loaded - and publish RB05. That puts all 36 pictures at
+  their linked addresses in R2, writes the sizes, and replaces the old-publisher page on the CDN.
+- The first view after it: Cloudflare keeps a 404 it has already answered for a few minutes, and a browser that asked
+  for a missing picture may keep the miss for up to four hours - Ctrl+F5 clears both on that machine. A visitor who
+  never asked sees it at once.
+- The `.webp` copies earlier publishes put in R2 are now unused; nothing reads them. Left in place (a delete through the
+  Worker is not something to do by script).
+- NOT in ValeVision (no statement tab there).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.171.0  -  29-Sep-2026
 ### The Web Viewer Shows a Statement's Published Pictures: No More 404s, Figures at Their True Size, and a Downloaded PDF That Prints Them Whole
 

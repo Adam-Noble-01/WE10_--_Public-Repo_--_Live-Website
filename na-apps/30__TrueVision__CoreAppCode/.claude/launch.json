@@ -831,6 +831,19 @@
         "D:/WE10_--_Public-Repo_--_Live-Website"
       ],
       "port": 8864
+    },
+    {
+      "name": "tv-swcache-cflike",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "D:/_ClaudeScratch/1b2d144a_swcache/cf_like_server.py",
+        "9201",
+        "D:/WE10_--_Public-Repo_--_Live-Website",
+        "D:/_ClaudeScratch/1b2d144a_swcache/overlays",
+        "D:/_ClaudeScratch/1b2d144a_swcache/requests.log"
+      ],
+      "port": 9201,
+      "url": "http://reader.localhost:9201"
     }
   ]
 }

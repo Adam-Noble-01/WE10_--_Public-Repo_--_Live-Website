@@ -805,12 +805,17 @@ opens cannot bake a hub without its code.
 MARKDOWN with the LIVE app. A standard section the live app does not know is shown as its raw marker text (checked
 against 55014c6: the Finishes Comparison, the Drawing Schedule and the Document Footer). **Push the app, then publish.**
 
-**The web viewer's pictures are the published copies (v2.171.0).** Publish never uploads an original: a resized picture
-goes up as `.webp` under a new name, and a link resolved by file name goes up where the file is. So off localhost the
-reader shows what the index lists (`Doc__Images`: `Img__Src` -> `Img__Url`), passed to `Na__LeStmtImg__Apply` as its
-last argument; a copy recorded as smaller (`Img__Width` < `Img__SourceWidth`, written since v2.171.0) also gets the
-`srcset ... 2000w` + `sizes ...px` rule, so a zoom-sized figure keeps its size. Before, the web viewer asked for every
-original by its markdown path: 24 of RB05's 35 pictures were 404s.
+**R2 holds every picture where the statement says it is (v2.172.0) - R2 is the primary copy and must read on its own.**
+Publish writes each picture at the address its own link names (`Na__LeStmtImg__Used`'s `target`, resolved exactly as a
+reader off this machine resolves it), under its own name: a resized copy is WebP bytes stored as
+`Location__Near__.png` with content type `image/webp`. Never rename it to `.webp` and never move a stale link's picture
+to where its file was found - the web viewer asks R2 for exactly what the markdown on R2 names, and before v2.172.0
+24 of RB05's 35 pictures were 404s. A picture's type comes from its file name when the local server gives a generic one
+(this machine serves `.webp` as octet-stream). The reader also shows the index's copies (`Doc__Images`, v2.171.0), now
+at the same addresses, which is what keeps a zoom-sized figure its size (`Img__Width` < `Img__SourceWidth` -> the
+`srcset ... 2000w` + `sizes ...px` rule). Proved by the real Publish with `/r2/write` faked
+(`D:/_ClaudeScratch/stmt_publish/publish_dryrun.py`) and the live site read against that R2 (`r2_after_publish.py`),
+old reader and new.
 
 **html2canvas and srcset.** A picture described that way reports its ORIGINAL's size as `naturalWidth`, and html2canvas
 takes that for the file's size: it drew the picture a third of its size in the corner of its frame. The PDF exporter
