@@ -31,15 +31,16 @@
 //   HTML always carries the CDN URL. The markdown itself is never rewritten:
 //   it has to keep working in Typora, which resolves it against the folder it
 //   sits in.
-// - ON THE CDN A PICTURE IS ITS PUBLISHED COPY, NOT ITS ORIGINAL. Publish
-//   sends a smaller copy under the new format's name (Location__Near__.png
-//   goes up as Location__Near__.webp) and a link resolved by file name goes up
-//   where the file really is, so the markdown's own path names nothing on the
-//   CDN. The index records every copy (Doc__Images: the link as written, the
-//   address it went to, and since v2.171.0 its width and its original's), and
-//   the reader off this machine shows exactly those. Before, the web viewer
-//   asked the CDN for every original by its markdown path and got a 404 for
-//   each resized picture - 24 of RB05's 35 (29-Sep-2026).
+// - ON THE CDN A PICTURE IS ITS PUBLISHED COPY, NOT ITS ORIGINAL, AND IT IS
+//   WHERE THE LINK SAYS. Since v2.172.0 Publish puts every picture in R2 at
+//   the address its own link names (Used's target) - a smaller copy, under
+//   the original's name - so R2 on its own is right for any reader. The index
+//   also records every copy (Doc__Images: the link as written, the address it
+//   went to, its width and its original's), and the reader off this machine
+//   shows exactly those (v2.171.0), which keeps a zoom-sized figure its size.
+//   Before both, the web viewer asked the CDN for each picture by its markdown
+//   path while Publish had renamed resized copies to .webp: 24 of RB05's 35
+//   were 404s (29-Sep-2026).
 //
 // INTEGRATION:
 // - Used by the page (to show the pictures), by the publisher (to find which
@@ -58,6 +59,12 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - Used reports each picture's target: the address its link names, resolved
+//   exactly as a reader off this machine resolves it. Publish puts the
+//   picture there in R2 (TrueVision3D v2.172.0), so R2 holds every picture
+//   where the statement says it is and any reader finds it.
+//
 // 29-Sep-2026 - Version 1.1.0
 // - Apply takes the index's published copies as an optional last argument
 //   (TrueVision3D v2.171.0): a picture the list names is shown from its
@@ -190,7 +197,12 @@
     // folder    the statement's folder name
     // entries   the tree from the local server, or []
     //
-    // Returns one entry per DISTINCT picture: { src, path, matched, ambiguous }.
+    // Returns one entry per DISTINCT picture:
+    //     { src, path, matched, ambiguous, target }
+    // path is the file on this machine; target is the address the link itself
+    // names - what a reader off this machine asks for (Apply, with no
+    // listing), and so where Publish puts the picture in R2. The two differ
+    // only for a link whose path went stale and was found by its file name.
     // Absolute links are left out - they are already somewhere a reader can
     // reach and are not this statement's files to publish.
     // ------------------------------------------------------------
@@ -202,7 +214,8 @@
             if (!Na__LeStmtImg__IsLocal(src)) return;
             if (!Na__LeStmtImg__RE_IMAGE.test(Na__LeStmtImg__FileName(src))) return;
             if (found.has(src)) return;
-            found.set(src, Object.assign({ src : src }, Na__LeStmtImg__Resolve(src, folder, entries)));
+            found.set(src, Object.assign({ src : src }, Na__LeStmtImg__Resolve(src, folder, entries),
+                { target : Na__LeStmtImg__Resolve(src, folder, []).path }));          // <-- The reader's own resolution, with nothing on disk to consult
         };
 
         for (const match of text.matchAll(/<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']/gi)) consider(match[1]);

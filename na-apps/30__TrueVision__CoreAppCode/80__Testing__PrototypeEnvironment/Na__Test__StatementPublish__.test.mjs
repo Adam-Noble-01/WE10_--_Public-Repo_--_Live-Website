@@ -207,6 +207,35 @@ console.log('\nThe web viewer\'s pictures');
     const runner = fs.readFileSync(path.join(SRC, STMT, '07__Export__Publish', 'Na__LayoutEditor__Statement__Publish__.js'), 'utf8');
     check('the index records every copy\'s width and its original\'s',
           /Img__Width\s*:\s*pictures\.links\[src\]\.width/.test(runner) && /Img__SourceWidth\s*:\s*pictures\.links\[src\]\.sourceWidth/.test(runner));
+
+    // R2 ON ITS OWN IS RIGHT: every picture goes where its link says (v2.172.0)
+    const FOLDER = '01__PreApp__Statement';
+    const TREE = [                                                           // <-- What the local server lists: one link is right, one has gone stale
+        { path : FOLDER + '/02__DocImages/02__Site__Location/Location__Near__.png', name : 'Location__Near__.png', folder : FOLDER + '/02__DocImages/02__Site__Location' },
+        { path : FOLDER + '/02__DocImages/Moved__Here/Plan__.png',              name : 'Plan__.png',           folder : FOLDER + '/02__DocImages/Moved__Here' }
+    ];
+    const md = '<img class="na-figure" src="./02__DocImages/02__Site__Location/Location__Near__.png" />\n\n![](./02_Images__Content/Old__Folder/Plan__.png)\n';
+    const used  = Img.Na__LeStmtImg__Used(md, FOLDER, TREE);
+    const right = used.find((one) => one.src.includes('Location__Near__'));
+    const stale = used.find((one) => one.src.includes('Plan__'));
+    check('a link that is right: published at its own address, under its own name',
+          right && right.path === FOLDER + '/02__DocImages/02__Site__Location/Location__Near__.png' && right.target === right.path);
+    check('a stale link: read from where its file was found, published where the link says',
+          stale && stale.matched === 'name' && stale.path === FOLDER + '/02__DocImages/Moved__Here/Plan__.png' &&
+          stale.target === FOLDER + '/02_Images__Content/Old__Folder/Plan__.png', JSON.stringify(stale));
+
+    // ...which is exactly the address a reader off this machine asks R2 for
+    for (const one of [ right, stale ]) {
+        const asked = picture(one.src);
+        Img.Na__LeStmtImg__Apply(page([ asked ]), BASE, FOLDER, []);          // <-- The web reader of any release before v2.171.0: no listing
+        check('the web reader asks R2 for ' + one.target.split('/').pop() + ' exactly where it was published',
+              asked.attrs.src === BASE + encodeURI(one.target.slice(FOLDER.length + 1)), asked.attrs.src);
+    }
+
+    const sender = fs.readFileSync(path.join(SRC, STMT, '07__Export__Publish', 'Na__LayoutEditor__Statement__Publish__Images__.js'), 'utf8');
+    check('the sender writes each picture to its target, and renames nothing to .webp',
+          /const target = Na__LeStmtPub__Target\(picture\);/.test(sender) && /const linked = picture\.target \|\| picture\.path;/.test(sender) &&
+          !/SUFFIX|replace\(\/\\\.\[\^\.\]\+\$\/, ''\)/.test(sender));
 }
 
 

@@ -35,6 +35,19 @@
 //   02__Site__Location and 20__Proposed__3dExterior as they are, because that
 //   is how the photography is organised and a flattened folder of four hundred
 //   files is not something anyone can work in afterwards.
+// - EVERY PICTURE GOES INTO R2 AT THE ADDRESS THE STATEMENT LINKS TO, under its
+//   own name (v2.172.0). R2 is where a published statement is read from, so
+//   R2 on its own must be right: the markdown on R2 says
+//   ./02__DocImages/02__Site__Location/Location__Near__.png, and that is where
+//   its picture now is - whatever reads it, whichever release of the app is
+//   reading, with no mapping to consult. A resized copy is still WebP (the
+//   weight is the point) and is stored under the original's name with its
+//   true content type, image/webp, which is what a browser goes by. Until
+//   v2.172.0 a resized copy took the .webp suffix and a link resolved by file
+//   name went up where the file really was - so the web viewer, asking R2 for
+//   exactly what the markdown names, got a 404 for 24 of RB05's 35 pictures.
+//   Only when R2 refuses the linked address (a link that climbs out of the
+//   folder with ..) does the picture go up where the file really is.
 //
 // INTEGRATION:
 // - Used by Na__LayoutEditor__Statement__Publish__, which then rewrites the
@@ -49,6 +62,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - A PICTURE IS PUBLISHED WHERE THE STATEMENT SAYS IT IS (TrueVision3D
+//   v2.172.0): at its link's own address in R2, under its own name, never
+//   renamed to .webp and never moved to where a stale link's file was found.
+//   R2 is the primary copy and must be readable on its own; the web viewer
+//   asks R2 for exactly what the markdown names.
+// - A picture's content type is taken from its file name when the local
+//   server gives none or a generic one (.webp came as octet-stream).
+//
 // 29-Sep-2026 - Version 1.1.0
 // - Each picture sent reports its ORIGINAL's size as well as its own
 //   (sourceWidth, sourceHeight), so the published page can keep a figure the
@@ -73,25 +95,6 @@
         Na__CfApi__StatementFileLocation,
         Na__CfApi__WriteStatementFile
     } from '../../../80__CloudflareIntegration/Na__CloudflareIntegration__ApiClient__.js';
-    // ------------------------------------------------------------
-
-// endregion -------------------------------------------------------------------
-
-
-// -----------------------------------------------------------------------------
-// REGION | Module Constants
-// -----------------------------------------------------------------------------
-
-    // MODULE CONSTANTS | What a Resized Picture Is Called
-    // ------------------------------------------------------------
-    // A resized copy keeps its own name and takes the new format's suffix, so
-    // the CDN path still says which picture it is.
-    // ------------------------------------------------------------
-    const Na__LeStmtPub__SUFFIX = Object.freeze({
-        'image/webp' : '.webp',
-        'image/jpeg' : '.jpg',
-        'image/png'  : '.png'
-    });
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -188,15 +191,50 @@
 // REGION | Publishing
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | A Picture's Content Type, Even When the Server Did Not Say
+    // ------------------------------------------------------------
+    // R2 serves a file with the type it was stored with. The local server on
+    // this machine answers a .webp as application/octet-stream (Python's type
+    // table here has no .webp), so three of RB05's pictures went up that way on
+    // 29-Sep-2026. A picture's own type wins; a missing or generic one is taken
+    // from the file name.
+    // ------------------------------------------------------------
+    const Na__LeStmtPub__TYPES = Object.freeze({
+        webp : 'image/webp', png : 'image/png', jpg : 'image/jpeg', jpeg : 'image/jpeg',
+        gif  : 'image/gif',  svg : 'image/svg+xml', bmp : 'image/bmp', tif : 'image/tiff', tiff : 'image/tiff'
+    });
+    function Na__LeStmtPub__TypeOf(type, path) {
+        if (type && /^image\//i.test(type)) return type;
+        const extension = (/\.([A-Za-z0-9]+)$/.exec(String(path || '')) || [])[1];
+        return (extension && Na__LeStmtPub__TYPES[extension.toLowerCase()]) || type || 'application/octet-stream';
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Where a Picture Goes in R2
+    // ------------------------------------------------------------
+    // The address its link names (picture.target, the path a reader off this
+    // machine asks for - Na__LeStmtImg__Used), under its own name whatever it
+    // is re-encoded as. Only a link R2 will not take (one that climbs out of
+    // the folder) goes up where the file was found instead.
+    // ------------------------------------------------------------
+    function Na__LeStmtPub__Target(picture) {
+        const linked = picture.target || picture.path;
+        return Na__CfApi__StatementFileLocation(linked) ? linked : picture.path;
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Send Every Picture a Statement Uses to the CDN
     // ------------------------------------------------------------
-    // used      what Na__LeStmtImg__Used found: [{ src, path, matched }]
+    // used      what Na__LeStmtImg__Used found: [{ src, path, target, matched }]
     // onProgress(message, fraction)
     //
     // Resolves to { ok, links, failed, bytes } where links maps the link as
-    // the markdown writes it to the CDN URL it became. A picture that could
-    // not be found or sent is reported and the rest still go: a statement with
-    // fifteen of its sixteen pictures is worth more than no statement.
+    // the markdown writes it to the CDN URL it became - which is the address
+    // the link itself names in R2 (Target). A picture that could not be found
+    // or sent is reported and the rest still go: a statement with fifteen of
+    // its sixteen pictures is worth more than no statement.
     // ------------------------------------------------------------
     async function Na__LeStmtPub__Send(used, onProgress) {
         const setup = Na__LeCfg__GetStatementSetup();
@@ -228,13 +266,11 @@
                 continue;
             }
 
-            const sized = await Na__LeStmtPub__Resize(read.blob, setup);
-            const target = sized.resized
-                ? picture.path.replace(/\.[^.]+$/, '') + (Na__LeStmtPub__SUFFIX[sized.type] || '.webp')
-                : picture.path;
+            const sized  = await Na__LeStmtPub__Resize(read.blob, setup);
+            const target = Na__LeStmtPub__Target(picture);                    // <-- Where the statement says it is, under its own name
 
             say('Sending ' + target.split('/').pop() + '…', share * 0.95);
-            const wrote = await Na__CfApi__WriteStatementFile(target, sized.blob, sized.type);
+            const wrote = await Na__CfApi__WriteStatementFile(target, sized.blob, Na__LeStmtPub__TypeOf(sized.type, picture.path));
             if (!wrote || !wrote.ok) {
                 failed.push({ src : picture.src, why : 'the upload failed (' + ((wrote && wrote.error) || 'unknown') + ')' });
                 continue;
