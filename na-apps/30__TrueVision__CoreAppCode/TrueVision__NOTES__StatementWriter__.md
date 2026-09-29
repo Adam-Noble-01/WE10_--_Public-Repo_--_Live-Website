@@ -805,6 +805,23 @@ opens cannot bake a hub without its code.
 MARKDOWN with the LIVE app. A standard section the live app does not know is shown as its raw marker text (checked
 against 55014c6: the Finishes Comparison, the Drawing Schedule and the Document Footer). **Push the app, then publish.**
 
+**The web viewer's pictures are the published copies (v2.171.0).** Publish never uploads an original: a resized picture
+goes up as `.webp` under a new name, and a link resolved by file name goes up where the file is. So off localhost the
+reader shows what the index lists (`Doc__Images`: `Img__Src` -> `Img__Url`), passed to `Na__LeStmtImg__Apply` as its
+last argument; a copy recorded as smaller (`Img__Width` < `Img__SourceWidth`, written since v2.171.0) also gets the
+`srcset ... 2000w` + `sizes ...px` rule, so a zoom-sized figure keeps its size. Before, the web viewer asked for every
+original by its markdown path: 24 of RB05's 35 pictures were 404s.
+
+**html2canvas and srcset.** A picture described that way reports its ORIGINAL's size as `naturalWidth`, and html2canvas
+takes that for the file's size: it drew the picture a third of its size in the corner of its frame. The PDF exporter
+therefore pins every such picture in its copy and takes the srcset off (`Na__LeStmtPdf__OwnSize`, after `Unzoom`).
+Anything else that rasterises the page must do the same.
+
+**A publish runs the code the tab loaded.** A localhost tab opened before a release keeps the old modules until it is
+reloaded - RB05's 21:30 publish ran the pre-v2.170.0 publisher. Reload, then publish. And off localhost a browser can
+keep an old build for up to four hours after a deploy (Cloudflare's `max-age=14400`, answered to the service worker's
+revalidating fetch): check a deploy with Ctrl+F5, twice.
+
 **How to check a publish without publishing.** Build the page inside the running app with every request that is not a
 read aborted, open it on its own, and measure it against the Read view block by block - the scripts are in
 `D:/_ClaudeScratch/stmt_publish/` (`publish_check.py`; 0 of 556 blocks differ; phones by Playwright device emulation).

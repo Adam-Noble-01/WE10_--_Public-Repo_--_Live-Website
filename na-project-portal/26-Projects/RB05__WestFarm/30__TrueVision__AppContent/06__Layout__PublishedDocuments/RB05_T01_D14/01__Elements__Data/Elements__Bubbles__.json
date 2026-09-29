@@ -32,9 +32,9 @@
             "Leader__FillColour"     : null,
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_071",
-            "Leader__SpecCode"       : "SE04",
+            "Leader__SpecCode"       : "SE05",
             "Leader__SpecHeading"    : "Existing landing strip",
-            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to be identified on D51."
+            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to SP05."
         },
         {
             "Leader__Id"             : "Leader_002",
@@ -60,9 +60,9 @@
             "Leader__FillColour"     : null,
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_071",
-            "Leader__SpecCode"       : "SE04",
+            "Leader__SpecCode"       : "SE05",
             "Leader__SpecHeading"    : "Existing landing strip",
-            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to be identified on D51."
+            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to SP05."
         },
         {
             "Leader__Id"             : "Leader_003",
@@ -88,9 +88,9 @@
             "Leader__FillColour"     : null,
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_071",
-            "Leader__SpecCode"       : "SE04",
+            "Leader__SpecCode"       : "SE05",
             "Leader__SpecHeading"    : "Existing landing strip",
-            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to be identified on D51."
+            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to SP05."
         },
         {
             "Leader__Id"             : "Leader_004",
@@ -116,9 +116,9 @@
             "Leader__FillColour"     : null,
             "Leader__FillOpacity"    : 1,
             "Leader__SpecNoteId"     : "SpecNote_071",
-            "Leader__SpecCode"       : "SE04",
+            "Leader__SpecCode"       : "SE05",
             "Leader__SpecHeading"    : "Existing landing strip",
-            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to be identified on D51."
+            "Leader__SpecText"       : "Existing paved helicopter landing strip between the hangar and house. Part retention and revised access arrangement proposed; retained extent to SP05."
         }
     ],
     "Elements__LayerSvg" : {}

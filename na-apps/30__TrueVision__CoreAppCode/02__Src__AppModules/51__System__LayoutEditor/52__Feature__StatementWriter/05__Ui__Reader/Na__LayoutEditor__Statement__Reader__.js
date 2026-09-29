@@ -31,7 +31,9 @@
 // - Built by Na__LayoutEditor__Statement__Page__ into the desk. It is the only
 //   view a session that may not author ever sees.
 // - Pictures are pointed at the CDN (or at the project folder on this machine)
-//   by Na__LayoutEditor__Statement__Images__.
+//   by Na__LayoutEditor__Statement__Images__. Off this machine they are the
+//   PUBLISHED COPIES the index lists (Doc__Images), because the originals the
+//   markdown names are never uploaded - a resized picture goes up as .webp.
 //
 // -----------------------------------------------------------------------------
 //
@@ -42,6 +44,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - THE WEB VIEWER SHOWS THE PUBLISHED PICTURES (TrueVision3D v2.171.0). Off
+//   localhost the reader hands the index's Doc__Images to the picture
+//   resolver, so each picture comes from the copy Publish put on the CDN.
+//   It used to ask the CDN for the original under the markdown's path, which
+//   Publish never uploads: every resized picture was a 404 (24 of RB05's 35).
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -58,6 +67,7 @@
     import { Na__LeStmtRnd__Blocks } from '../02__Core__Markdown/Na__LayoutEditor__Statement__Md__Render__.js';
     import { Na__LeStmt__GetOpen, Na__LeStmt__GetTree, Na__LeStmt__ImageBase } from '../01__Core__Data/Na__LayoutEditor__Statement__Data__.js';
     import { Na__LeStmtImg__Apply } from '../01__Core__Data/Na__LayoutEditor__Statement__Images__.js';
+    import { Na__AppUtils__IsRunningOnLocalhost } from '../../../03__AppUtils/Na__AppUtils__ProjectLoader.js';
     // ------------------------------------------------------------
 
 // endregion -------------------------------------------------------------------
@@ -112,9 +122,13 @@
         if (!Na__LeStmtRead__Paper) return;
         Na__LeStmtRead__Paper.innerHTML = Na__LeStmtRnd__Blocks(Na__LeStmtMd__Tokenise(markdown || ''), { Editable : false });
 
-        const record = Na__LeStmt__GetOpen();
-        const base   = Na__LeStmt__ImageBase();
-        if (record && base) Na__LeStmtImg__Apply(Na__LeStmtRead__Paper, base, record.Doc__Folder, Na__LeStmt__GetTree());
+        // OFF THIS MACHINE THE STATEMENT IS THE PUBLISHED ONE, so are its
+        // pictures: the copies the index lists. The same test decides that the
+        // base is the CDN (Na__LeStmtIo__ImageBase), so the two always agree.
+        const record    = Na__LeStmt__GetOpen();
+        const base      = Na__LeStmt__ImageBase();
+        const published = (record && !Na__AppUtils__IsRunningOnLocalhost()) ? record.Doc__Images : null;
+        if (record && base) Na__LeStmtImg__Apply(Na__LeStmtRead__Paper, base, record.Doc__Folder, Na__LeStmt__GetTree(), published);
     }
     // ------------------------------------------------------------
 

@@ -64,6 +64,15 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - A PUBLISHED PICTURE FILLS ITS FRAME (OwnSize, TrueVision3D v2.171.0). The
+//   web viewer shows each picture from its published copy, described by a
+//   srcset that keeps a figure its size on screen; html2canvas read the
+//   original's size off such a picture and printed a third of it in the
+//   corner of its frame. In the copy each one is pinned at its box and the
+//   srcset taken off. The app's own PDF, drawn from the originals, carries no
+//   srcset and is not touched.
+//
 // 29-Sep-2026 - Version 1.1.0
 // - CLICKABLE LINKS. Every http(s) link on the page gets a link annotation
 //   over the same spot in the PDF, so the TrueVision 3D Project Hub's button
@@ -223,6 +232,38 @@
     }
     // ------------------------------------------------------------
 
+
+    // HELPER FUNCTION | Give Every Described Picture in the Copy Its Own Size
+    // ------------------------------------------------------------
+    // Off this machine the reader shows the published copies, and one made
+    // smaller carries a srcset of its own width with its original's as its
+    // sizes, which is what keeps a figure its size on screen (v2.171.0). The
+    // browser then reports the ORIGINAL's size as the picture's natural size
+    // (6144 for a 2000px copy), and html2canvas asks the 2000px file for a
+    // 6144px piece of itself: the picture printed a third of its size in the
+    // top left of its frame (RB05 Figs 5.1 and 5.2, 29-Sep-2026). So in the
+    // copy each described picture is pinned at the box it already occupies and
+    // its srcset and sizes are taken off - it then reports its file's own
+    // size and fills its box. Every box is measured before any is changed.
+    // Run after Unzoom, whose pinned boxes it simply keeps.
+    // ------------------------------------------------------------
+    function Na__LeStmtPdf__OwnSize(copy) {
+        const described = Array.from(copy.querySelectorAll('img[srcset], img[sizes]'))
+            .map((image) => ({ Image : image, Style : getComputedStyle(image) }))
+            .map((one) => ({ Image : one.Image, Width : parseFloat(one.Style.width), Height : parseFloat(one.Style.height) }))
+            .filter((one) => one.Width > 0 && one.Height > 0);
+
+        for (const one of described) {
+            one.Image.style.maxWidth = 'none';
+            one.Image.style.width    = one.Width  + 'px';
+            one.Image.style.height   = one.Height + 'px';
+            one.Image.removeAttribute('sizes');
+            one.Image.removeAttribute('srcset');
+        }
+        return described.length;
+    }
+    // ------------------------------------------------------------
+
     // HELPER FUNCTION | Where Every Web Link on the Page Is
     // ------------------------------------------------------------
     // The PDF is a picture of the page, so a link in it is only a picture of
@@ -291,6 +332,9 @@
             const waited = await Na__LeStmtPdf__AwaitImages(built.copy, setup.loadTimeoutMs);
             if (waited === -1) console.warn('[TrueVision3D] Statement Writer: some pictures had not loaded when the PDF was made.');
             Na__LeStmtPdf__Unzoom(built.copy);                                  // <-- Every frame prints at the stylesheet's weight, whatever its zoom
+            if (Na__LeStmtPdf__OwnSize(built.copy)) {                           // <-- A published copy fills its box, not a third of it
+                await Na__LeStmtPdf__AwaitImages(built.copy, setup.loadTimeoutMs);   // <-- Each settles again on its own file
+            }
 
             const widthCss  = built.widthCss;
             const heightCss = built.copy.getBoundingClientRect().height;

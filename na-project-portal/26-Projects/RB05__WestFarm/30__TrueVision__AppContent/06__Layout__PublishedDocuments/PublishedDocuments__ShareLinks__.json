@@ -11,11 +11,11 @@
     },
     "ShareLinks__Publish" : {
         "Publish__SchemaVersion" : 1,
-        "Publish__AtIso"         : "2026-09-29T18:51:36.209Z",
-        "Publish__AtEpochMs"     : 1790707896209,
+        "Publish__AtIso"         : "2026-09-29T20:41:03.069Z",
+        "Publish__AtEpochMs"     : 1790714463069,
         "Publish__ByApp"         : "TrueVision3D Layout Editor",
         "Publish__ByAppVersion"  : "v2.166.0",
-        "Publish__Reason"        : "statement",
+        "Publish__Reason"        : "drawings",
         "Publish__DocumentCount" : 17
     },
     "ShareLinks__Resolver" : {
@@ -35,7 +35,7 @@
                 "Target__DocumentId" : "RB05_T01_D01",
                 "Target__Number"     : "D01"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_001",
@@ -47,7 +47,7 @@
                 "Target__DocumentId" : "RB05_T01_D02",
                 "Target__Number"     : "D02"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_004",
@@ -59,7 +59,7 @@
                 "Target__DocumentId" : "RB05_T01_D03",
                 "Target__Number"     : "D03"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_003",
@@ -71,7 +71,7 @@
                 "Target__DocumentId" : "RB05_T01_D04",
                 "Target__Number"     : "D04"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_016",
@@ -83,7 +83,7 @@
                 "Target__DocumentId" : "RB05_T01_D05",
                 "Target__Number"     : "D05"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_006",
@@ -95,7 +95,7 @@
                 "Target__DocumentId" : "RB05_T01_D06",
                 "Target__Number"     : "D06"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_007",
@@ -107,7 +107,7 @@
                 "Target__DocumentId" : "RB05_T01_D07",
                 "Target__Number"     : "D07"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_008",
@@ -119,7 +119,7 @@
                 "Target__DocumentId" : "RB05_T01_D08",
                 "Target__Number"     : "D08"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_014",
@@ -131,7 +131,7 @@
                 "Target__DocumentId" : "RB05_T01_D09",
                 "Target__Number"     : "D09"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_011",
@@ -143,7 +143,7 @@
                 "Target__DocumentId" : "RB05_T01_D10",
                 "Target__Number"     : "D10"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_010",
@@ -155,7 +155,7 @@
                 "Target__DocumentId" : "RB05_T01_D11",
                 "Target__Number"     : "D11"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_002",
@@ -167,7 +167,7 @@
                 "Target__DocumentId" : "RB05_T01_D12",
                 "Target__Number"     : "D12"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_013",
@@ -179,7 +179,7 @@
                 "Target__DocumentId" : "RB05_T01_D13",
                 "Target__Number"     : "D13"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Sheet_015",
@@ -191,7 +191,7 @@
                 "Target__DocumentId" : "RB05_T01_D14",
                 "Target__Number"     : "D14"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"         : "Specification",
@@ -199,7 +199,7 @@
             "Share__Url"         : "https://www.noble-architecture.com/s/?RB05&open=Specification",
             "Share__Label"       : "Project Specification",
             "Share__Target"      : {},
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"         : "Register",
@@ -207,7 +207,7 @@
             "Share__Url"         : "https://www.noble-architecture.com/s/?RB05&open=Register",
             "Share__Label"       : "Document Register",
             "Share__Target"      : {},
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         },
         {
             "Share__Key"    : "Statement_1",
@@ -219,7 +219,7 @@
                 "Target__Folder"      : "01__PreApp__Statement",
                 "Target__File"        : "RB05_T01_S01__WestFarm__PreApplicationStatement__.md"
             },
-            "Share__RecordedIso" : "2026-09-29T18:51:36.209Z"
+            "Share__RecordedIso" : "2026-09-29T20:41:03.069Z"
         }
     ],
     "ShareLinks__Aliases" : {

@@ -31,6 +31,15 @@
 //   HTML always carries the CDN URL. The markdown itself is never rewritten:
 //   it has to keep working in Typora, which resolves it against the folder it
 //   sits in.
+// - ON THE CDN A PICTURE IS ITS PUBLISHED COPY, NOT ITS ORIGINAL. Publish
+//   sends a smaller copy under the new format's name (Location__Near__.png
+//   goes up as Location__Near__.webp) and a link resolved by file name goes up
+//   where the file really is, so the markdown's own path names nothing on the
+//   CDN. The index records every copy (Doc__Images: the link as written, the
+//   address it went to, and since v2.171.0 its width and its original's), and
+//   the reader off this machine shows exactly those. Before, the web viewer
+//   asked the CDN for every original by its markdown path and got a 404 for
+//   each resized picture - 24 of RB05's 35 (29-Sep-2026).
 //
 // INTEGRATION:
 // - Used by the page (to show the pictures), by the publisher (to find which
@@ -49,6 +58,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.1.0
+// - Apply takes the index's published copies as an optional last argument
+//   (TrueVision3D v2.171.0): a picture the list names is shown from its
+//   published address, and one recorded as made smaller keeps its original's
+//   size (srcset of its own width, sizes of its original's - the published
+//   page's rule). The reader passes the list off localhost only.
+//
 // 20-Sep-2026 - Version 1.0.0
 // - Initial implementation.
 //
@@ -221,23 +237,71 @@
 // REGION | Showing
 // -----------------------------------------------------------------------------
 
+    // HELPER FUNCTION | The Published Copies, by the Link as the Markdown Writes It
+    // ------------------------------------------------------------
+    // published: an index entry's Doc__Images, as Publish recorded them -
+    // [{ Img__Src, Img__Url, Img__Width, Img__SourceWidth, ... }].
+    // ------------------------------------------------------------
+    function Na__LeStmtImg__Copies(published) {
+        const copies = new Map();
+        for (const one of (Array.isArray(published) ? published : [])) {
+            if (one && typeof one.Img__Src === 'string' && typeof one.Img__Url === 'string' && one.Img__Url) copies.set(one.Img__Src, one);
+        }
+        return copies;
+    }
+    // ------------------------------------------------------------
+
+
+    // HELPER FUNCTION | Show One Picture From Its Published Copy
+    // ------------------------------------------------------------
+    // A copy recorded as smaller than its original is described by its own
+    // width at the original's size, so a figure sized by its Typora zoom keeps
+    // its size (Na__LeStmtPubPage__Relink does the same for the published
+    // page). A copy published before its sizes were recorded is shown as it
+    // is: a zoom-sized figure then comes out smaller until it is published
+    // again. The page's own srcset or sizes, if it has one, is left alone.
+    // ------------------------------------------------------------
+    function Na__LeStmtImg__ShowCopy(image, copy) {
+        image.setAttribute('crossorigin', 'anonymous');                         // <-- Before the address, so the picture is fetched once, ready for the PDF exporter
+        const made   = Math.round(Number(copy.Img__Width));
+        const source = Math.round(Number(copy.Img__SourceWidth));
+        if (made > 0 && source > made && !image.hasAttribute('srcset') && !image.hasAttribute('sizes')) {
+            image.setAttribute('srcset', String(copy.Img__Url).replace(/ /g, '%20').replace(/,/g, '%2C') + ' ' + made + 'w');
+            image.setAttribute('sizes', source + 'px');
+        }
+        image.setAttribute('src', copy.Img__Url);
+    }
+    // ------------------------------------------------------------
+
+
     // FUNCTION | Point Every Relative Picture in a Rendered Page at a Real File
     // ------------------------------------------------------------
-    // root     the rendered document
-    // base     the absolute folder the statement sits in, for this session
-    // folder   the statement's folder name
-    // entries  the tree from the local server, or []
+    // root       the rendered document
+    // base       the absolute folder the statement sits in, for this session
+    // folder     the statement's folder name
+    // entries    the tree from the local server, or []
+    // published  the index entry's Doc__Images, when this session reads the
+    //            PUBLISHED statement (off localhost); a picture it names is
+    //            shown from its published copy, anything else as before
     //
     // The markdown is NOT changed: only the src attribute of what is on screen,
     // and the original markup stays on the frozen block for the serialiser.
     // ------------------------------------------------------------
-    function Na__LeStmtImg__Apply(root, base, folder, entries) {
+    function Na__LeStmtImg__Apply(root, base, folder, entries, published) {
         if (!root || !base) return 0;
+        const copies = Na__LeStmtImg__Copies(published);
         let changed = 0;
 
         for (const image of Array.from(root.querySelectorAll('img'))) {
             const src = image.getAttribute('src') || '';
             if (!Na__LeStmtImg__IsLocal(src)) continue;
+
+            const copy = copies.get(src) || copies.get(src.replace(/&/g, '&amp;'));   // <-- The DOM hands back a raw block's &amp; decoded
+            if (copy) {
+                Na__LeStmtImg__ShowCopy(image, copy);
+                changed++;
+                continue;
+            }
 
             const resolved = Na__LeStmtImg__Resolve(src, folder, entries);
             if (!resolved.path) continue;

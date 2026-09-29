@@ -57,6 +57,13 @@
 // -----------------------------------------------------------------------------
 //
 // DEVELOPMENT LOG:
+// 29-Sep-2026 - Version 1.2.0
+// - THE INDEX RECORDS EACH PICTURE'S SIZE (TrueVision3D v2.171.0): every
+//   Doc__Images entry now carries Img__Width and Img__Height (the copy sent)
+//   and Img__SourceWidth and Img__SourceHeight (its original), so the web
+//   viewer, which shows the published copies, can keep a figure sized by its
+//   Typora zoom at the size it has in the app.
+//
 // 29-Sep-2026 - Version 1.1.0
 // - EVERY ELEMENT THE STATEMENT WRITER DRAWS NOW PUBLISHES AS IT IS SEEN
 //   (TrueVision3D v2.170.0). The page is built by the new
@@ -279,11 +286,18 @@
 
         // THE STAMP, LAST | Only now is this statement published
         say('Writing the index…', 0.95);
+        // Each picture's size and its original's go in with it: the web viewer
+        // shows these copies, and a figure sized by its zoom needs both to keep
+        // its size (Na__LeStmtImg__Apply).
         const images = Object.keys(pictures.links).map((src) => ({
-            Img__Src   : src,
-            Img__Path  : pictures.links[src].path,
-            Img__Url   : pictures.links[src].url,
-            Img__Bytes : pictures.links[src].bytes
+            Img__Src          : src,
+            Img__Path         : pictures.links[src].path,
+            Img__Url          : pictures.links[src].url,
+            Img__Bytes        : pictures.links[src].bytes,
+            Img__Width        : pictures.links[src].width || 0,
+            Img__Height       : pictures.links[src].height || 0,
+            Img__SourceWidth  : pictures.links[src].sourceWidth || 0,
+            Img__SourceHeight : pictures.links[src].sourceHeight || 0
         }));
         await Na__LeStmt__MarkPublished(record.Doc__Id, { url : htmlUp.publicUrl, images : images });
 

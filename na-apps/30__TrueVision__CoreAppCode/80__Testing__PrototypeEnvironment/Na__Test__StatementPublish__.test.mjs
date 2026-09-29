@@ -61,6 +61,7 @@ for (const rel of [
     '51__System__LayoutEditor/52__Feature__StatementWriter/02__Core__Markdown',
     '51__System__LayoutEditor/52__Feature__StatementWriter/09__Standard__Sections',
     '51__System__LayoutEditor/52__Feature__StatementWriter/07__Export__Publish/Na__LayoutEditor__Statement__Publish__Page__.js',
+    '51__System__LayoutEditor/52__Feature__StatementWriter/01__Core__Data/Na__LayoutEditor__Statement__Images__.js',
     '51__System__LayoutEditor/53__Feature__ProjectQrCode',
     '03__AppUtils/Na__AppUtils__ProjectLoader.js'
 ]) {
@@ -144,6 +145,68 @@ console.log('\nThe pictures');
     check('a space or comma in the address cannot split the srcset', spaced.includes('srcset="https://cdn.example/a%20b%2Cc.webp 10w" sizes="20px"'), spaced);
 
     check('only pictures are relinked', Page.Na__LeStmtPubPage__Relink('<iframe src="./02__DocImages/a.png"></iframe>', { './02__DocImages/a.png' : small }).includes('src="./02__DocImages/a.png"'));
+}
+
+
+// -----------------------------------------------------------------------------
+// REGION | The Web Viewer's Pictures
+// -----------------------------------------------------------------------------
+
+// The web viewer never opens the published page: it draws the published
+// markdown and points each picture somewhere (Na__LeStmtImg__Apply). A page of
+// fake pictures is enough to see where.
+console.log('\nThe web viewer\'s pictures');
+{
+    const Img = await load(STMT + '01__Core__Data/Na__LayoutEditor__Statement__Images__.js');
+    const picture = (src) => {
+        const attrs = { src : src };
+        return { attrs, getAttribute : (k) => (k in attrs ? attrs[k] : null), setAttribute : (k, v) => { attrs[k] = String(v); }, hasAttribute : (k) => k in attrs };
+    };
+    const page = (pictures) => ({ querySelectorAll : () => pictures });
+    const BASE = 'https://cdn.noble-architecture.com/NaProjectPortal/26-Projects/RB05__WestFarm/30__TrueVision__AppContent/10__StatementDocs/01__PreApp__Statement/';
+    const PUBLISHED = [
+        { Img__Src : './02__DocImages/02__Site__Location/Location__Near__.png', Img__Url : BASE + '02__DocImages/02__Site__Location/Location__Near__.webp',
+          Img__Width : 2000, Img__SourceWidth : 2390 },
+        { Img__Src : './02__DocImages/ExistingSitePlan.jpg', Img__Url : BASE + '02__DocImages/ExistingSitePlan.jpg', Img__Width : 1200, Img__SourceWidth : 1200 },
+        { Img__Src : './02__DocImages/Older.png', Img__Url : BASE + '02__DocImages/Older.webp' }                     // <-- Published before sizes were recorded
+    ];
+    const resized = picture('./02__DocImages/02__Site__Location/Location__Near__.png');
+    const same    = picture('./02__DocImages/ExistingSitePlan.jpg');
+    const older   = picture('./02__DocImages/Older.png');
+    const absent  = picture('./02__DocImages/NotYetPublished.png');
+    const outside = picture('https://cdn.noble-architecture.com/elsewhere.webp');
+    Img.Na__LeStmtImg__Apply(page([ resized, same, older, absent, outside ]), BASE, '01__PreApp__Statement', [], PUBLISHED);
+
+    check('a resized picture is shown from its published copy, not its original (the 404s on the live site)',
+          resized.attrs.src === BASE + '02__DocImages/02__Site__Location/Location__Near__.webp', resized.attrs.src);
+    check('and keeps its original\'s size', resized.attrs.srcset === BASE + '02__DocImages/02__Site__Location/Location__Near__.webp 2000w' && resized.attrs.sizes === '2390px');
+    check('and can be drawn into a PDF', resized.attrs.crossorigin === 'anonymous');
+    check('a picture sent as it was is shown from its copy, with nothing more', same.attrs.src === BASE + '02__DocImages/ExistingSitePlan.jpg' && !('srcset' in same.attrs) && !('sizes' in same.attrs));
+    check('a copy published before sizes were recorded is still found', older.attrs.src === BASE + '02__DocImages/Older.webp' && !('srcset' in older.attrs));
+    check('a picture the index does not list falls back to the folder, as before', absent.attrs.src === BASE + '02__DocImages/NotYetPublished.png');
+    check('an absolute link is the writer\'s own, and is left alone', outside.attrs.src === 'https://cdn.noble-architecture.com/elsewhere.webp' && !('crossorigin' in outside.attrs));
+
+    const local = picture('./02__DocImages/02__Site__Location/Location__Near__.png');
+    Img.Na__LeStmtImg__Apply(page([ local ]), 'http://localhost:8090/project/10__StatementDocs/01__PreApp__Statement/', '01__PreApp__Statement', []);
+    check('with no published list (this machine) the original in the project folder is shown, as before',
+          local.attrs.src === 'http://localhost:8090/project/10__StatementDocs/01__PreApp__Statement/02__DocImages/02__Site__Location/Location__Near__.png' && !('srcset' in local.attrs));
+
+    const escaped = picture('./02__DocImages/a&b.png');
+    Img.Na__LeStmtImg__Apply(page([ escaped ]), BASE, '01__PreApp__Statement', [], [ { Img__Src : './02__DocImages/a&amp;b.png', Img__Url : BASE + 'x.webp' } ]);
+    check('a link written with &amp; in the markdown still finds its copy', escaped.attrs.src === BASE + 'x.webp');
+
+    // THE READER passes the list off localhost only - by the same test that sends the base to the CDN
+    const reader    = fs.readFileSync(path.join(SRC, STMT, '05__Ui__Reader', 'Na__LayoutEditor__Statement__Reader__.js'), 'utf8');
+    const transport = fs.readFileSync(path.join(SRC, STMT, '01__Core__Data', 'Na__LayoutEditor__Statement__Data__Transport__.js'), 'utf8');
+    check('the reader hands the index\'s copies over off localhost, and only there',
+          /const published\s*=\s*\(record && !Na__AppUtils__IsRunningOnLocalhost\(\)\) \? record\.Doc__Images : null;/.test(reader) &&
+          /Na__LeStmtImg__Apply\(.*, published\);/.test(reader));
+    check('by the same test that points its pictures at the CDN', /Na__AppUtils__IsRunningOnLocalhost\(\) \? location\.repoUrl : location\.cdnUrl/.test(transport));
+
+    // THE PUBLISHER records what the reader needs
+    const runner = fs.readFileSync(path.join(SRC, STMT, '07__Export__Publish', 'Na__LayoutEditor__Statement__Publish__.js'), 'utf8');
+    check('the index records every copy\'s width and its original\'s',
+          /Img__Width\s*:\s*pictures\.links\[src\]\.width/.test(runner) && /Img__SourceWidth\s*:\s*pictures\.links\[src\]\.sourceWidth/.test(runner));
 }
 
 

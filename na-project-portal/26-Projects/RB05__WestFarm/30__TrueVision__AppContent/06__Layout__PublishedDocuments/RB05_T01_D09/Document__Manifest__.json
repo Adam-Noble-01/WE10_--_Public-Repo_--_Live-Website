@@ -16,10 +16,10 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T21:16:48.577Z",
-        "Publish__AtEpochMs"      : 1790198208577,
+        "Publish__AtIso"          : "2026-09-29T20:38:51.227Z",
+        "Publish__AtEpochMs"      : 1790714331227,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
-        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__ByAppVersion"   : "v2.166.0",
         "Publish__RevisionAction" : "overwritten",
         "Publish__Archived"       : null
     },
@@ -27,7 +27,7 @@
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
             "File__Bytes"  : 21579,
-            "File__Sha256" : "7793331450"
+            "File__Sha256" : "5352cfaa81"
         },
         "Files__Elements" : [
             {
@@ -92,17 +92,17 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 1,
                 "File__Bytes"  : 1700,
-                "File__Sha256" : "ca6f879f11"
+                "File__Sha256" : "2f79d60840"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "006f612319",
+                "Viewport__Hash"   : "b592f40fc6",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__006f612319.svg",
-                    "File__Bytes"    : 190070,
-                    "File__Sha256"   : "006f612319",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__b592f40fc6.svg",
+                    "File__Bytes"    : 190080,
+                    "File__Sha256"   : "b592f40fc6",
                     "File__Paths"    : 13,
                     "File__Segments" : 6321
                 },
@@ -111,11 +111,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__971bb525e1.pdf",
-            "File__Bytes"  : 231552,
-            "File__Sha256" : "971bb525e1",
-            "File__Name"   : "RB05_T01_D09__CoachHousePlan__A2__RevA__23-Sep-2026__.pdf"
+            "File__Path"   : "Document__Print__48b240fc79.pdf",
+            "File__Bytes"  : 230429,
+            "File__Sha256" : "48b240fc79",
+            "File__Name"   : "RB05_T01_D09__CoachHousePlan__A2__RevA__29-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 709719
+        "Files__TotalBytes" : 708606
     }
 }

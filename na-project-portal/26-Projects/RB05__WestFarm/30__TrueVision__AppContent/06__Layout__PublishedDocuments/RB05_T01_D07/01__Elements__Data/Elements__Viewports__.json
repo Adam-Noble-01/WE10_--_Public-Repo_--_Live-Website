@@ -31,11 +31,11 @@
             "Viewport__Rasters"      : [],
             "Viewport__FogMasks"     : [],
             "Viewport__Vector"       : {
-                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__44c225c1e2.svg",
+                "Vector__File"         : "02__Viewports__Vector/Viewport_001__Linework__ab776f9ec2.svg",
                 "Vector__WidthMm"      : 288.6907263728433,
                 "Vector__HeightMm"     : 410.52485592428326,
                 "Vector__PathCount"    : 11,
-                "Vector__SegmentCount" : 14369
+                "Vector__SegmentCount" : 14375
             },
             "Viewport__SceneSvg" : "",
             "Viewport__FrameSvg" : ""
@@ -65,7 +65,7 @@
             "Viewport__Rasters"      : [],
             "Viewport__FogMasks"     : [],
             "Viewport__Vector"       : {
-                "Vector__File"         : "02__Viewports__Vector/Viewport_002__Linework__88b84d3624.svg",
+                "Vector__File"         : "02__Viewports__Vector/Viewport_002__Linework__de08e6209d.svg",
                 "Vector__WidthMm"      : 186.44333189115534,
                 "Vector__HeightMm"     : 413.76648279091984,
                 "Vector__PathCount"    : 8,

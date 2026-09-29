@@ -16,10 +16,10 @@
     },
     "PublishedDocument__Publish" : {
         "Publish__SchemaVersion"  : 1,
-        "Publish__AtIso"          : "2026-09-23T21:17:16.057Z",
-        "Publish__AtEpochMs"      : 1790198236057,
+        "Publish__AtIso"          : "2026-09-29T20:39:19.458Z",
+        "Publish__AtEpochMs"      : 1790714359458,
         "Publish__ByApp"          : "TrueVision3D Layout Editor",
-        "Publish__ByAppVersion"   : "v2.155.0",
+        "Publish__ByAppVersion"   : "v2.166.0",
         "Publish__RevisionAction" : "overwritten",
         "Publish__Archived"       : null
     },
@@ -27,7 +27,7 @@
         "Files__Sheet" : {
             "File__Path"   : "Document__Sheet__.json",
             "File__Bytes"  : 48329,
-            "File__Sha256" : "6e1cee85b6"
+            "File__Sha256" : "be4f5f192a"
         },
         "Files__Elements" : [
             {
@@ -72,17 +72,17 @@
                 "File__Path"   : "01__Elements__Data/Elements__Viewports__.json",
                 "File__Count"  : 4,
                 "File__Bytes"  : 8255,
-                "File__Sha256" : "a7f81bd455"
+                "File__Sha256" : "688cb5adc1"
             }
         ],
         "Files__Viewports" : [
             {
                 "Viewport__Id"     : "Viewport_001",
-                "Viewport__Hash"   : "729fd0e50f",
+                "Viewport__Hash"   : "6c37ea0dec",
                 "Viewport__Vector" : {
-                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__729fd0e50f.svg",
-                    "File__Bytes"    : 100234,
-                    "File__Sha256"   : "729fd0e50f",
+                    "File__Path"     : "02__Viewports__Vector/Viewport_001__Linework__6c37ea0dec.svg",
+                    "File__Bytes"    : 100210,
+                    "File__Sha256"   : "6c37ea0dec",
                     "File__Paths"    : 12,
                     "File__Segments" : 3242
                 },
@@ -223,11 +223,11 @@
             }
         ],
         "Files__Pdf" : {
-            "File__Path"   : "Document__Print__eb46207241.pdf",
-            "File__Bytes"  : 7116277,
-            "File__Sha256" : "eb46207241",
-            "File__Name"   : "RB05_T01_D10__RoofPlan3dBirdSEyeViews__A2__RevA__23-Sep-2026__.pdf"
+            "File__Path"   : "Document__Print__c6228e9c8b.pdf",
+            "File__Bytes"  : 7116050,
+            "File__Sha256" : "c6228e9c8b",
+            "File__Name"   : "RB05_T01_D10__RoofPlan3dBirdSEyeViews__A2__RevA__29-Sep-2026__.pdf"
         },
-        "Files__TotalBytes" : 16941873
+        "Files__TotalBytes" : 16941622
     }
 }

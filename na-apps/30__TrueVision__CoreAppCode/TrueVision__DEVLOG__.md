@@ -2,6 +2,68 @@
 # =========================================================
 
 # ---------------------------------------------------------
+## TrueVision3D v2.171.0  -  29-Sep-2026
+### The Web Viewer Shows a Statement's Published Pictures: No More 404s, Figures at Their True Size, and a Downloaded PDF That Prints Them Whole
+
+**Overview**
+- From Adam, with the live web viewer's console open on RB05's statement: "Lots seem broken, even though I pressed
+  publish." Twenty-four pictures answered 404, starting with `.../02__DocImages/02__Site__Location/Location__Near__.png`.
+- The web viewer's Design Statements tab does not open the published page. It draws the published MARKDOWN and points
+  each picture at the CDN statement folder plus the markdown's own path - the ORIGINAL. Publish never uploads an
+  original: it sends a smaller copy under the new format's name (`Location__Near__.png` goes up as
+  `Location__Near__.webp`), and a link resolved by file name goes up where the file really is. So 24 of RB05's 35
+  pictures had nothing at the address asked for. The CDN index already listed every copy (`Doc__Images`: the link as
+  written, the address it went to); the reader never read it. The fault dates from the Statement Writer itself
+  (v2.95.0) and first showed now because RB05 is the first statement published with its pictures and read on the web.
+- Three other things on the same screen, none of them a code fault:
+  - Adam's 21:30 publish ran the OLD publisher: its page is titled "1.0 | Introduction" and carries none of v2.170.0.
+    The localhost tab had been open since before v2.170.0 landed, and a tab keeps the code it loaded. Reload the tab
+    before publishing.
+  - The Finishes Comparison, the Drawing Schedule and the Document Footer showed as raw marker text until GitHub Pages
+    finished deploying cbb0523 at 21:35, six minutes after the push.
+  - Cloudflare sends every app file with `Cache-Control: max-age=14400`, and the service worker's stale-while-revalidate
+    refreshes with a plain fetch, which that cache answers - so a browser that held the old files can keep running them
+    for up to four hours after a deploy. A hard reload (Ctrl+F5, twice) takes the new build. Raised as its own task;
+    not changed here.
+
+**The change**
+- READER 1.1.0 (`Na__LayoutEditor__Statement__Reader__.js`): off localhost - the same test that already points its
+  pictures at the CDN (`Na__LeStmtIo__ImageBase`) - it hands the index's `Doc__Images` to the picture resolver.
+- IMAGES 1.1.0 (`Na__LeStmtImg__Apply(root, base, folder, entries, published)`): a picture the list names is shown from
+  its published copy (crossorigin first, for the PDF exporter); one recorded as made smaller also gets
+  `srcset="<copy> 2000w" sizes="<original>px"`, the published page's own rule, so a figure sized by its Typora zoom keeps
+  its size. Anything the list does not name falls back as before. No new exports.
+- PUBLISHER 1.2.0: every `Doc__Images` entry records `Img__Width` and `Img__Height` (the copy) and `Img__SourceWidth` and
+  `Img__SourceHeight` (the original). RB05's current index was written by the old publisher and has none of them, so its
+  five zoom-sized figures come out smaller on the web until it is published again.
+- PDF 1.2.0 (`Na__LeStmtPdf__OwnSize`), found while proving the above: a picture with that srcset reports its ORIGINAL's
+  size as its natural size, and html2canvas then asked the 2000px file for a 6144px piece of itself - a web reader's
+  Download PDF printed Figs 5.1 and 5.2 a third of their size in the corner of their frames. In the export's copy each
+  such picture is pinned at its box and its srcset taken off. The app's own PDF, drawn from the originals, carries no
+  srcset and is not touched.
+
+**How it was proved**
+- The live site (cbb0523), a fresh browser, RB05: 24 picture requests answered 404 - the same 24 as Adam's console.
+- The fix, from `reader.localhost:8864` (a `*.localhost` host is not localhost to the app, so it reads RB05's live CDN
+  markdown and index exactly as a visitor does), every request that is not a read aborted: 38 of 38 pictures loaded, 30
+  of them the published `.webp` copies, no failed request, all six standard sections drawn. With the CDN index answered
+  as the next Publish will write it (sizes added), the zoom-sized figures come out at the Read view's own widths: Fig
+  3.1 621px, 16.1 622, 17.3 617 (without the sizes: 522, 382, 502).
+- A PDF built from that reader with the real exporter: 4 pages, no text, all 35 figures inked, each spanning its frame;
+  Figs 5.1 and 5.2 fill their frames (before OwnSize: a third, in the corner); Figs 3.1 and 6.2 checked by eye.
+- `Na__Test__StatementPublish__.test.mjs` is now 82 checks (12 new: the published copy, its sizes, every fallback, the
+  reader's off-localhost rule, the index's new fields). `Na__Verify__Exports__.mjs` passes (542 files). Five other
+  statement suites pass. `Na__Test__StatementFinishes__` fails two checks that count RB05's [TO CONFIRM] notes in its
+  comparison: the statement was edited at 21:46 and now has none (it had 13) - the test reads the live file; not a code
+  fault, and not this release's test.
+
+**Not done / for Adam**
+- Push, and let the deploy finish (six minutes today). Then reload the localhost tab (Ctrl+F5) and publish RB05 again:
+  that writes the v2.170.0 page and records the picture sizes. Then open the web viewer with Ctrl+F5.
+- No service worker token bump: no module imports a name another does not already export.
+- NOT in ValeVision (no statement tab there).
+
+# ---------------------------------------------------------
 ## TrueVision3D v2.170.0  -  29-Sep-2026
 ### A Published Statement Is the Read View: Every New Element Publishes, the Start Draws Right on a Phone, and Every Figure Keeps Its Size
 
